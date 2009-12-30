@@ -1923,8 +1923,8 @@ local maygc void convert_to_foreign_needs (object fvd, object obj,
  Only the toplevel storage must already exist; its address is given.
  can trigger GC */
 modexp maygc void convert_to_foreign
-(object fvd, object obj, void* data, converter_malloc_t *converter_malloc)
-{ /* keep in sync with foreign1.lisp:convert-to-foreign */
+(object fvd, object obj, void* data, converter_malloc_t *converter_malloc,
+ void** state) { /* keep in sync with foreign1.lisp:convert-to-foreign */
   check_SP();
   check_STACK();
   if (NULL == data) {
@@ -1955,7 +1955,8 @@ modexp maygc void convert_to_foreign
       unpack_sstring_alloca(string,len,offset, ptr1=);
       var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
       /* bytelen is the same as computed earlier in count_walk_pre. */
-      var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
+      var char* asciz =
+        (char*)converter_malloc(*(char**)data,bytelen+1,1,state);
       cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
       asciz[bytelen] = '\0';
       *(char**)data = asciz;
@@ -2123,14 +2124,14 @@ modexp maygc void convert_to_foreign
             cumul_alignment = sas.alignment;
           /* Now we are finished with sas.size and sas.alignment.
              Descend into the structure slot: */
-          convert_to_foreign(fvdi,obji,pdata,converter_malloc);
+          convert_to_foreign(fvdi,obji,pdata,converter_malloc,state);
         }
         skipSTACK(4);
         return;
       } else if (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
         /* Use the union's first component. */
         convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,
-                           obj,data,converter_malloc);
+                           obj,data,converter_malloc,state);
         return;
       } else if (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
         var object eltype = TheSvector(fvd)->data[1];
@@ -2207,7 +2208,7 @@ modexp maygc void convert_to_foreign
               /* pdata = (char*)data + i*eltype_size */
               pushSTACK(STACK_0); pushSTACK(fixnum(i));
               funcall(L(row_major_aref),2);
-              convert_to_foreign(STACK_1,value1,pdata,converter_malloc);
+              convert_to_foreign(STACK_1,value1,pdata,converter_malloc,state);
             }
           }
           skipSTACK(2);
@@ -2289,7 +2290,7 @@ modexp maygc void convert_to_foreign
               /* pdata = (char*)data + i*eltype_size */
               pushSTACK(STACK_0); pushSTACK(fixnum(i));
               funcall(L(aref),2);
-              convert_to_foreign(STACK_1,value1,pdata,converter_malloc);
+              convert_to_foreign(STACK_1,value1,pdata,converter_malloc,state);
             }
             if (len < maxdim)
               blockzero(pdata,eltype_size);
@@ -2319,9 +2320,10 @@ modexp maygc void convert_to_foreign
         fvd = TheSvector(fvd)->data[1];
         var struct foreign_layout sas;
         foreign_layout(fvd,&sas);
-        var void* p = converter_malloc(*(void**)data,sas.size,sas.alignment);
+        var void* p =
+          converter_malloc(*(void**)data,sas.size,sas.alignment,state);
         *(void**)data = p;
-        convert_to_foreign(fvd,obj,p,converter_malloc);
+        convert_to_foreign(fvd,obj,p,converter_malloc,state);
         return;
       } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
         if (faddressp(obj)) {
@@ -2352,7 +2354,7 @@ modexp maygc void convert_to_foreign
           var const chart* ptr1;
           unpack_sstring_alloca(string,clen,offset, ptr1=);
           var uintL blen = cslen(O(foreign_encoding),ptr1,clen);
-          var void* p = converter_malloc(*(void**)data,blen+1,1);
+          var void* p = converter_malloc(*(void**)data,blen+1,1,state);
           *(void**)data = p;
           cstombs(O(foreign_encoding),ptr1,clen,(uintB*)p,blen);
           ((uintB*)p)[blen] = '\0';
@@ -2364,7 +2366,7 @@ modexp maygc void convert_to_foreign
         foreign_layout(eltype,&sas);
         var uintL eltype_size = sas.size;
         var void* p = converter_malloc(*(void**)data,(len+1)*eltype_size,
-                                       sas.alignment);
+                                       sas.alignment,state);
         *(void**)data = p;
         pushSTACK(eltype);
         pushSTACK(obj);
@@ -2373,7 +2375,7 @@ modexp maygc void convert_to_foreign
           for (i = 0; i < len; i++, p = (void*)((char*)p + eltype_size)) {
             pushSTACK(STACK_0); pushSTACK(fixnum(i));
             funcall(L(aref),2);
-            convert_to_foreign(STACK_1,value1,p,converter_malloc);
+            convert_to_foreign(STACK_1,value1,p,converter_malloc,state);
           }
         }
         skipSTACK(2);
@@ -2384,7 +2386,7 @@ modexp maygc void convert_to_foreign
   } else {
     object inttype = gethash(fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj)) {
-      convert_to_foreign(inttype,obj,data,converter_malloc);
+      convert_to_foreign(inttype,obj,data,converter_malloc,state);
       return;
     }
   }
@@ -2398,15 +2400,15 @@ modexp maygc void convert_to_foreign
  1. convert_to_foreign_need(fvd,obj);
  2. make room according to sas.size and sas.alignment,
     set allocaing_room_pointer.
- 3. convert_to_foreign(fvd,obj,data,room_pointer,&allocaing);
+ 3. convert_to_foreign(fvd,obj,data,room_pointer,&allocaing,
+                       &allocaing_room_pointer);
     can trigger GC */
-local var void* allocaing_room_pointer;
-local void* allocaing (void* old_data, uintL size, uintL alignment)
-{
-  allocaing_room_pointer = (void*)(((uintP)allocaing_room_pointer
-                                    + alignment-1) & -(long)alignment);
-  var void* result = allocaing_room_pointer;
-  allocaing_room_pointer = (void*)((uintP)allocaing_room_pointer + size);
+local void* allocaing (void* old_data, uintL size, uintL alignment,
+                       void** allocaing_room_pointer) {
+  *allocaing_room_pointer = (void*)(((uintP)*allocaing_room_pointer
+                                     + alignment-1) & -(long)alignment);
+  var void* result = *allocaing_room_pointer;
+  *allocaing_room_pointer = (void*)((uintP)*allocaing_room_pointer + size);
   return result;
 }
 
@@ -2415,7 +2417,8 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
  extent. (Not exactly indefinite extent: It is deallocated the next time
  free_foreign() is called on it.)
  can trigger GC */
-modexp void* mallocing (void* old_data, uintL size, uintL alignment)
+modexp void* mallocing (void* old_data, uintL size, uintL alignment,
+                        void** state)
 { return clisp_malloc(size); }
 
 /* Convert Lisp data to foreign data.
@@ -2423,7 +2426,8 @@ modexp void* mallocing (void* old_data, uintL size, uintL alignment)
  DANGEROUS, especially for type C-STRING !!
  Also beware against NULL pointers! They are not treated specially.
  can trigger GC */
-modexp void* nomalloc (void* old_data, uintL size, uintL alignment)
+modexp void* nomalloc (void* old_data, uintL size, uintL alignment,
+                       void** state)
 { return old_data; }
 
 /* Error messages. */
@@ -2610,11 +2614,11 @@ LISPFUNN(set_foreign_value,2)
        Free old value: */
     free_foreign(fvd,address);
     /* Put in new value: */
-    convert_to_foreign(fvd,STACK_0,address,&mallocing);
+    convert_to_foreign(fvd,STACK_0,address,&mallocing,NULL);
   } else {
     /* Protect this using a semaphore??
        Put in new value, reusing the old value's storage: */
-    convert_to_foreign(fvd,STACK_0,address,&nomalloc);
+    convert_to_foreign(fvd,STACK_0,address,&nomalloc,NULL);
   }
   VALUES1(STACK_0);
   skipSTACK(2);
@@ -2944,7 +2948,7 @@ LISPFUN(write_memory_as,seclass_default,3,1,norest,nokey,0,NIL)
     STACK_0 = check_sint32(STACK_0);
     address = (void*)((uintP)address + (sintP)I_to_sint32(STACK_0));
   }
-  convert_to_foreign(STACK_1,STACK_3,address,&nomalloc);
+  convert_to_foreign(STACK_1,STACK_3,address,&nomalloc,NULL);
   VALUES1(STACK_3); skipSTACK(4);
 }
 
@@ -2982,8 +2986,9 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   var void* result_address = (void*)((uintP)(total_room+result_alignment-1)
                                      & -(long)result_alignment);
   if (init) {
-    allocaing_room_pointer = (void*)((uintP)result_address + result_size);
-    convert_to_foreign(fvd,STACK_0,result_address,&allocaing);
+    void *allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    convert_to_foreign(fvd,STACK_0,result_address,&allocaing,
+                       &allocaing_room_pointer);
   } else {
     blockzero(result_address,result_size);
   }
@@ -3122,7 +3127,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
     var object initarg = STACK_3;
     if (boundp(initarg)) {
       STACK_0 = fvar;
-      convert_to_foreign(arg_fvd,initarg,arg_address,&mallocing);
+      convert_to_foreign(arg_fvd,initarg,arg_address,&mallocing,NULL);
       /* subr-self name is lost and GC may happen */
       fvar = STACK_0;
     }
@@ -3603,7 +3608,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     cumul_size += (-cumul_size) & (cumul_alignment-1);
     var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
     var void* result_address = (void*)((uintP)(total_room+result_alignment-1) & -(long)result_alignment);
-    allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    void *allocaing_room_pointer = (void*)((uintP)result_address + result_size);
     if (!eq(result_fvd,S(nil))) {
       pushSTACK(result_fvd);
       results[0].address = result_address;
@@ -3657,7 +3662,8 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           } else {
             /* Convert argument: */
             pushSTACK(arg_fvd); /* save */
-            convert_to_foreign(arg_fvd,arg,arg_address,&allocaing);
+            convert_to_foreign(arg_fvd,arg,arg_address,&allocaing,
+                               &allocaing_room_pointer);
             arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
@@ -3678,9 +3684,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
             /* Convert argument: */
             pushSTACK(arg_fvd); /* save */
             if (arg_flags & ff_malloc)
-              convert_to_foreign(arg_fvd,arg,arg_address,&mallocing);
+              convert_to_foreign(arg_fvd,arg,arg_address,&mallocing,NULL);
             else
-              convert_to_foreign(arg_fvd,arg,arg_address,&nomalloc);
+              convert_to_foreign(arg_fvd,arg,arg_address,&nomalloc,NULL);
             arg_fvd = popSTACK(); /* restore */
             if (arg_flags & ff_inout) {
               pushSTACK(TheSvector(arg_fvd)->data[1]);
@@ -4154,7 +4160,7 @@ local void callback (void* data, va_alist alist)
                                      & -(long)result_alignment);
   /* Convert the result: */
   convert_to_foreign(STACK_2,value1,result_address,
-                     (flags & ff_malloc) ? &mallocing : &nomalloc);
+                     (flags & ff_malloc) ? &mallocing : &nomalloc,NULL);
   /* Call va_return_xxx: */
   begin_system_call();
   do_va_return(flags,STACK_2,alist,result_address,result_size,
