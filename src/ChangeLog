@@ -1,3 +1,12 @@
+2009-12-29  Sam Steingold  <sds@gnu.org>
+
+	* io.d (token_escape_flag): remove global static variable, which
+	appears to be messing up "make check-tests-parallel"
+	(read_token, read_token_1, test_number_syntax, radix_2): accept
+	token_escape_flag argument instead of using the global static
+	(read_internal, CHAR-READER, radix_1, RADIX-READER, UNINTERNED-READER)
+	(BIT-VECTOR-READER): allocate token_escape_flag on the stack here
+
 2009-12-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD, SPVW_BLOCKS]: reuse heap holes for allocations
