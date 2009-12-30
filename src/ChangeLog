@@ -36,9 +36,9 @@
 	(allocate_true): try first to allocate in heap hole (if any)
 	* spvw_garcol.d (fill_varobject_heap_holes): initialize heap holes list
 	(split_gen0_on_holes) [GENERATIONAL_GC]: split generation 0 if there is
-	a large hole at it's end
+	a large hole at its end
 	(gar_col_normal): clear heap holes before performing GC. may be split
-	generation 0 if there is large hole at it's end. take into account
+	generation 0 if there is large hole at its end. take into account
 	heap holes when computing used space
 	* spvw_space.d (heap_holes_space): calculates space occupied by holes
 	for reuse in given heap
@@ -620,7 +620,7 @@
 2009-09-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (intern) [MULTITHREAD]: search for symbol before locking
-	package (it's faster)
+	package (it is faster)
 
 2009-09-25  Aleksej Saushev  <asau@inbox.ru>
 
@@ -1916,7 +1916,7 @@
 	[MULTITHREAD]: handle interrupts when the thread is still not
 	entirely initialized
 	* spvw.d (handle_pending_interrupts): check *DEFER-INTERRUPTS* for
-	SYMVALUE_EMPTY. it's possible to have interrupts while not yet
+	SYMVALUE_EMPTY. it is possible to have interrupts while not yet
 	initialized with NIL
 	* zthread.d (THREAD-INTERRUPT): :OVERRIDE is generalized boolean
 
@@ -2242,7 +2242,7 @@
 
 	[MULTITHREAD]: fix SIGSEGV on nested interrupts with non-local exit
 	* spvw.d (interrupt_thread_signal_handler) [MULTITHREAD]: just call
-	handle_pending_interrupts() if it's safe
+	handle_pending_interrupts() if it is safe
 	(handle_pending_interrupts) [MULTITHREAD]: do not use clisp_thread_t
 	_pending_interrupts as a counter but zero it
 	(interrupt_thread): always increase thread's _pending_interrupts
@@ -2330,7 +2330,7 @@
 	(GC_SAFE_ACK_SUSPEND_REQUEST_,GC_SAFE_REGION_END): use xmutex_raw_xxx
 	and HANLDE_PENDING_INTERRUPTS. set/unset thread's _raw_wait_mutex
 	(interrupt_thread): new global function for interrupting thread based
-	on it's current state
+	on its current state
 	(GC_SAFE_MUTEX_LOCK): set/unset thread's _wait_mutex
 	* zthread.d (THREAD-INTERRUPT): use interrupt_thread
 	(EXEMPTION-WAIT): use HANDLE_PENDING_INTERRUPTS. set/unset thread's
@@ -2483,7 +2483,7 @@
 	compliant now (too much inconsistencies and race conditions were
 	introduced)
 	* lispbibl.d [MULTITHREAD]: remove HADLE_PENDING_INTERRUPTS_XXX and
-	it's wrappers
+	its wrappers
 	* spvw.d [MULTITHREAD]: revert was changes. use restartable system calls
 	* unixaux.d [MULTITHREAD]: do not use handle_pending_interrupts on EINTR
 	* xthread.d: remove xlock_t
@@ -2545,11 +2545,11 @@
 
 2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	(add_to_open_streams): prevent possible deadlock on async interrupts
+	prevent possible deadlock on async interrupts
 	* stream.d (add_to_open_streams) [MULTITHREAD]: allocate new cons
-	before obtaining the lock. it's possible while allocating new cons to
-	get async interrupt that will exit non-locally - thus not releasing
-	open_files_lock
+	before obtaining the lock. it is possible while allocating new
+	cons to get an async interrupt that will exit non-locally - thus
+	not releasing open_files_lock
 
 2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -2634,7 +2634,7 @@
 	(THREAD-ACTIVE-P): ditto
 	(THREAD-INTERRUPT): reimplement
 	(SYMBOL-VALUE-THREAD, SET-SYMBOL-VALUE-THREAD): lock the threads.
-	prevents thread termination while working with it's symvalues
+	prevents thread termination while working with its symvalues
 
 2009-02-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -2667,7 +2667,7 @@
 	* lispbibl.d (GC_SAFE_ACK_SUSPEND_REQUEST_) [MULTITHREAD]: helper macro
 	that acknowledges suspend request and waits for thread resume
 	(GC_SAFE_POINT_IF): was GC_SAFE_POINT_ELSE. Check for suspend request
-	and executes one of it's parameters
+	and executes one of its parameters
 	(GC_SAFE_SPINLOCK_ACQUIRE): use it
 	* control.d (GO) [MULTITHREAD]: add safe point in order to be possible
 	to interrupt infinite non-consing loop (in interpreter)
@@ -2977,7 +2977,7 @@
 
 	fix image loading in multithread builds
 	* spvw_memfile.d (loadmem_from_handle): do not update thread objects.
-	they were/will be initialized properly (in single thread it's just
+	they were/will be initialized properly (in single thread it is just
 	aktenv)
 	* spvw.d (init_memory): do not re-initialize the thread objects - they
 	are not modified by loadmem_from_handle(); do not initialize
@@ -5110,7 +5110,7 @@
 	multithread builds since.
 	* eval.d (reset): restored it. no more "dummy stack end" for
 	thread exit.
-	* threads.lisp (%THROW_TAG): throws it's argument. Needed in order
+	* threads.lisp (%THROW_TAG): throws its argument. Needed in order
 	to interrupt thread by from signal handler. (THROW is special form
 	and cannot be funcall-ed).
 	* constsym.d (thread_throw_tag): symbol for accessing the
@@ -5159,7 +5159,7 @@
 	(signal_handler_thread): more sane signal handling. No signal will be
 	missed due to GC in progress.
 	* spvw_global.d (gc_suspend/resume_all_threads): does not take
-	lock_thread parameter anymore. always acquires threads lock (it's
+	lock_thread parameter anymore. always acquires threads lock (it is
 	safe due to the fact that all mutexes are recursive now).
 	(add_per_thread_special_var): code cleanup.
 	* spvw_allocate.d: changes due to GC_STOP/RESUME_WORLD parameter change.
@@ -5249,7 +5249,7 @@
 	MAKE-THREAD anymore (almost - LISP stack is "leaked" on exit).
 	fixed signal handler with DEBUG_GCSAFETY.
 	(init_memory): initialize THREADS::*DEFAULT-VALUE-STACK-SIZE*.
-	(mt_main_actions): wrapper for main_actions() executed in it's own
+	(mt_main_actions): wrapper for main_actions() executed in its own
 	thread.
 	(main): the thread (C thread) executing  main() does the signal
 	handling - after creating mt_main_actions() thread.
@@ -5407,15 +5407,15 @@
 	* threads.lisp (symbol-thread-value): exported from MT package.
 
 2008-10-03  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
-	Driver frame for new threads and initial special vars bindings
 
+	Driver frame for new threads and initial special vars bindings
 	* lispbibl.d (threadp): macro for testing if an object is lisp
 	thread object.
 	* spvw.d (delete_thread): do not free per thread symvalues - leave
 	them to release_threads (during GC).
 	* zthread.d: some comments
 	(release_threads): release the per thread symvalues.
-	(error_thread): signal type_error for it's argument (as error_list).
+	(error_thread): signal type_error for its argument (as error_list).
 	(thread_stub): create a driver frame before calling thread function.
 	compute initial special variables bindings before calling thread
 	function.
@@ -5459,7 +5459,7 @@
 	* spvw_global.d (add_per_thread_special_var): moved here from
 	spvw.d. will "stop the world" when reallocating threads symvalues.
 	(gc_suspend/resume_all_threads): additional parameter indicating
-	whether to acquire the thread lock (it's not recursive and the
+	whether to acquire the thread lock (it is not recursive and the
 	caller may already own it).
 	* spvw_allocate.d: pass additional parameter to GC_STOP/RESUME_WORLD().
 	* eval.d (interpret_bytecode_): fix GCSAFETY in cod_bind.
@@ -5582,7 +5582,7 @@
 	(pinned_chain_t): all pinned objects within a thread are chained.
 	(pin_varobject): make unwind-protect frame and add to the thread chain.
 	(unpin_varobject_i): removes all elements from pinned chain until
-	it reaches it's argument
+	it reaches its argument
 	(unpin_varobject): unpin already pinned object.
 	* spvw.d (main): leave the pinned chain empty.
 	* spvw_sigint.d (react_on_sigint): do not unpin any object.
@@ -12532,7 +12532,7 @@
 	expansion, minimize number of calls to parse-c-type (from Sam
 	Steingold's wishlist) and do not inline the value of
 	parse-c-function, to preserve EQ tests (cf. foreign.d:equal_fvd).
-	* foreign1.lisp (note-c-fun): change API, but I argue it's not ABI
+	* foreign1.lisp (note-c-fun): change API, but I argue not ABI
 	* foreign1.lisp (argvector-to-signature): remove
 
 2006-01-26  Sam Steingold  <sds@gnu.org>
