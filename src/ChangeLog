@@ -1,3 +1,17 @@
+2009-12-30  Sam Steingold  <sds@gnu.org>
+
+	eliminate yet another static: allocaing_room_pointer
+	* lispbibl.d (converter_malloc_t, convert_to_foreign): accept
+	"void** state" argument
+	* foreign.d (convert_to_foreign): ditto, pass it to converter_malloc
+	(allocaing_room_pointer): remove
+	(allocaing): accept address of allocaing_room_pointer
+	(mallocing, nomalloc): accept and ignore the state argument
+	(SET-FOREIGN-VALUE, WRITE-MEMORY-AS, FOREIGN-ALLOCATE. callback):
+	pass NULL as state to convert_to_foreign
+	(EXEC-ON-STACK, FOREIGN-CALL-OUT): declare and pass
+	allocaing_room_pointer to convert_to_foreign
+
 2009-12-29  Sam Steingold  <sds@gnu.org>
 
 	* io.d (token_escape_flag): remove global static variable, which
