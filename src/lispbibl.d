@@ -16978,17 +16978,17 @@ extern maygc object convert_from_foreign (object fvd, const void* data);
 %% exportF(object,convert_from_foreign,(object fvd, const void* data));
 
 /* Convert Lisp data to foreign data. */
-typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);
+typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment, void** state);
 global converter_malloc_t mallocing, nomalloc;
-%% puts("typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);");
+%% puts("typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment, void** state);");
 %% exportV(converter_malloc_t,nomalloc);
 %% exportV(converter_malloc_t,mallocing);
 /* Convert Lisp data to foreign data.
    Storage is allocated through converter_malloc().
  Only the toplevel storage must already exist; its address is given.
- can trigger GC  */
-extern void convert_to_foreign (object fvd, object obj, void* data, converter_malloc_t *converter_malloc);
-%% exportF(void,convert_to_foreign,(object fvd, object obj, void* data, converter_malloc_t *converter_malloc));
+ can trigger GC */
+extern void convert_to_foreign (object fvd, object obj, void* data, converter_malloc_t *converter_malloc, void** state);
+%% exportF(void,convert_to_foreign,(object fvd, object obj, void* data, converter_malloc_t *converter_malloc, void** state));
 
 /* Initialize the FFI. */
   extern maygc void init_ffi (void);
