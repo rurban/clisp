@@ -2,12 +2,12 @@
 ;;; http://tiswww.case.edu/php/chet/readline/readline.html
 ;;; http://tiswww.case.edu/php/chet/readline/history.html
 ;;;
-;;; Copyright (C) 2005-2009 by Sam Steingold
+;;; Copyright (C) 2005-2010 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
-;;; based on readline 6.0
-;;; to upgrade: download readline source distributions an diff headers
+;;; based on readline 6.1
+;;; to upgrade: download readline source distributions and diff headers
 
 (defpackage "READLINE"
   (:use "CL" "EXT" "FFI")
@@ -624,7 +624,9 @@ and the completion character will be inserted as any other."))
   (:documentation "reading multiple-key command"))
 (def-c-const state-vicmdonce (:name "RL_STATE_VICMDONCE") ; 0x400000
   (:documentation "entered vi command mode at least once"))
-(def-c-const state-done (:name "RL_STATE_DONE") ; 0x800000
+(def-c-const state-redisplaying (:name "RL_STATE_REDISPLAYING") ; 0x800000
+  (:documentation "updating terminal display"))
+(def-c-const state-done (:name "RL_STATE_DONE") ; 0x1000000
   (:documentation "done; accepted line"))
 
 (def-c-const readerr ; (-2)

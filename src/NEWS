@@ -17,6 +17,10 @@ User visible changes
   the action when the destination exists, unless, of course, *ANSI* is T.
   See <http://clisp.cons.org/impnotes/file-func.html#rename-file> for details.
 
+* Module readline now supports readline 6.1.
+  (older versions are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code. [ 2868166 ]
