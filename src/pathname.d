@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2008
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2009
+ * ANSI compliance, bugs: Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
@@ -8352,13 +8352,16 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
     var gcv_object_t* argptr = args_pointer; /* Pointer to the arguments */
     { /* check file: */
       var gcv_object_t* file_ = &NEXT(argptr);
-      pushSTACK(coerce_pathname(*file_));
-      var struct file_status fs; file_status_init(&fs,&STACK_0);
-      true_namestring(&fs,true,false);
-      /* check, if the file exists: */
-      if (!file_exists(&fs)) { error_file_not_exists(); }
-      *file_ = string_to_asciz(fs.fs_namestring,O(pathname_encoding)); /* save */
-      skipSTACK(1);
+      /* we do not do follow symlinks here because some programs dispatch on
+         argv[0], which could be a symbolic link.
+         E.g., in Maemo Fremantle OS used in Nokia N900 phone,
+         /bin/sh is a symlink to busybox, so RUN-PROGRAM which calls SHELL
+         which calls EXECUTE fails because EXECUTE calls "busybox -c"
+         instead of "/bin/sh -c".
+         <http://article.gmane.org/gmane.lisp.clisp.devel/21219> */
+      /* convert thet file to string, existence is checked by execv(2): */
+      *file_ = physical_namestring(*file_);
+      *file_ = string_to_asciz(*file_,O(misc_encoding));
     }
     { /* check the other arguments: */
       var uintC count;
