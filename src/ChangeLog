@@ -1,3 +1,8 @@
+2010-01-27  Ivan Shvedunov  <ivan4th@gmail.com>
+
+	* lispbibl.d (dfloat) [ARM]: do NOT swap hi/lo when __ARM_EABI__
+	is defined (fixes READ-FLOAT/WRITE-FLOAT on Maemo Fremantle)
+
 2010-01-26  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (EXECUTE): do not resolve links in the file argument
