@@ -1,3 +1,14 @@
+2010-01-26  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (EXECUTE): do not resolve links in the file argument
+	because some programs dispatch on argv[0], which could be a
+	symbolic link. E.g., in Maemo Fremantle OS used in Nokia N900 phone,
+	/bin/sh is a symlink to busybox, so RUN-PROGRAM which calls SHELL
+	which calls EXECUTE fails because EXECUTE calls "busybox -c"
+	instead of "/bin/sh -c".
+	Reported by Ivan Shvedunov <ivan4th@gmail.com>
+	in <http://article.gmane.org/gmane.lisp.clisp.devel/21219>
+
 2010-01-06  Sam Steingold  <sds@gnu.org>
 
 	upgrade from readline 6.0 to 6.1
