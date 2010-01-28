@@ -1,5 +1,10 @@
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 2941408 ]: segfault after giving invalid replacement value
+	* error.d (check_symbol_special): do not break out of the loop early
+
+2010-01-28  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (roughly_SP) [USE_CUSTOM_TLS >=2]: simplify the CPP logic
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
