@@ -2,7 +2,7 @@
  * Error-Handling for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -970,15 +970,13 @@ global maygc object check_symbol_non_constant_replacement
 (object obj, object caller) {
   for (;;) {
     obj = check_symbol(obj);
-    if (constant_var_p(TheSymbol(obj))) {
-      pushSTACK(NIL); /* no PLACE */
-      pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-      pushSTACK(obj); pushSTACK(caller);
-      check_value(source_program_error,
-                  GETTEXT("~S: ~S is a constant, may not be used as a variable"));
-      obj = value1;
-    }
-    break;
+    if (!constant_var_p(TheSymbol(obj))) break;
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+    pushSTACK(obj); pushSTACK(caller);
+    check_value(source_program_error,
+                GETTEXT("~S: ~S is a constant, may not be used as a variable"));
+    obj = value1;
   }
   return obj;
 }

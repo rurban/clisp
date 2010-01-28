@@ -1,3 +1,8 @@
+2010-01-28  Sam Steingold  <sds@gnu.org>
+
+	* restarts.tst: fix bug #[ 2941408 ]: segfault after giving
+	invalid replacement value
+
 2009-11-25  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: fix bug #[ 2902716 ]: CLEAR-INPUT should clear

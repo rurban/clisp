@@ -227,6 +227,18 @@ T
   (symbol-value 'foo))
 1
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2941408&group_id=1355
+(let ((count 5))
+  (flet ((handler (c)
+           (princ c)
+           (decf count)
+           (use-value (if (zerop count) 'x count))))
+    (handler-bind ((program-error #'handler)
+                   (type-error #'handler))
+      (setq :const-var 12)))
+  (list count x))
+(0 12)
+
 ;; make-hash-table
 (flet ((mht (test) (make-hash-table :test test)))
   (check-use-value mht eql bazonk :test equalp)) t
