@@ -17183,17 +17183,15 @@ struct object_tab_tl_ {
      /* means we have also GNU - so can use the extension */
      #define roughly_SP() \
        ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP;})
-    #else /* !defined(ASM_get_SP_register) */
-     #if defined(GNU)
-       /* may be use SP() as well ?? */
-       #define roughly_SP()  (aint)__builtin_frame_address(0)
-     #elif
-       /* this may expand to function call !!! */
-       /* MSVC falls here (and all other non-gcc 32 bit compilers) */
-       #define roughly_SP()  (aint)SP()
-     #endif /* GNU */
-    #endif /* ASM_get_SP_register) */
-   #endif
+    #elif defined(GNU)
+     /* may be use SP() as well ?? */
+     #define roughly_SP()  (aint)__builtin_frame_address(0)
+    #else
+     /* this may expand to function call !!! */
+     /* MSVC falls here (and all other non-gcc 32 bit compilers) */
+     #define roughly_SP()  (aint)SP()
+    #endif /* ASM_get_SP_register) / GNU */
+   #endif  /* USE_CUSTOM_TLS */
 
    /* xthread_key_get/set - slowest way to do things.*/
    #if USE_CUSTOM_TLS == 1
