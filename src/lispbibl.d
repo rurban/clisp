@@ -1,8 +1,8 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2009
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
