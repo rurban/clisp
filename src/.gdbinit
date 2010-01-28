@@ -180,6 +180,8 @@ break OS_error
 break OS_file_error
 break OS_filestream_error
 break errno_out_low
+break break_driver
+break signal_and_debug
 
 info break
 
