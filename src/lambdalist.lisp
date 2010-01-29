@@ -25,19 +25,26 @@
              `(if (memq ,item ,permissible)
                 (return)
                 (err-misplaced ,item)))
+           (dolist ((item L) &body body)
+             ;; this is different from CL:DOLIST which uses ENDP instead of ATOM
+             `(loop (if (atom ,L) (return))
+                (let ((,item (car ,L))) ,@body)
+                (setq ,L (cdr ,L))))
+           (check-exhausted (L)
+             `(when ,L
+                (funcall errfunc lambdalist ,L
+                         (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
+                         lambdalist)))
            (skip-L (lastseen items)
-             `(loop
-                (when (atom L) (return))
-                (let ((item (car L)))
-                  (if (memq item lambda-list-keywords)
-                    (check-item item ,items)
-                    (funcall errfunc lambdalist item
-                             ,(case lastseen
-                                ((&REST &ENVIRONMENT) '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after ~S."))
-                                (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after ~S."))
-                                (t '(TEXT "Lambda list element ~S (after ~S) is superfluous.")))
-                             item ',lastseen)))
-                (setq L (cdr L)))))
+             `(dolist (item L)
+                (if (memq item lambda-list-keywords)
+                  (check-item item ,items)
+                  (funcall errfunc lambdalist item
+                           ,(case lastseen
+                              ((&REST &ENVIRONMENT) '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after ~S."))
+                              (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after ~S."))
+                              (t '(TEXT "Lambda list element ~S (after ~S) is superfluous.")))
+                           item ',lastseen)))))
 
 ;;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
 ;;; Reports errors through errfunc (a function taking form & detail objects,
@@ -73,15 +80,12 @@
           (auxinit nil))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (loop
-        (if (atom L) (return))
-        (let ((item (car L)))
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item '(&optional &rest &key &aux))
-              (push item reqvar))
-            (err-invalid item)))
-        (setq L (cdr L)))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item '(&optional &rest &key &aux))
+            (push item reqvar))
+          (err-invalid item)))
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key &aux))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -91,26 +95,23 @@
                         (push ,var optvar)
                         (push ,init optinit)
                         (push ,svar optsvar))))
-          (loop
-            (if (atom L) (return))
-            (let ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (check-item item '(&rest &key &aux))
-                  (note-optional item nil 0))
-                (if (and (consp item) (symbolp (car item)))
-                  (if (null (cdr item))
-                    (note-optional (car item) nil 0)
-                    (if (consp (cdr item))
-                      (if (null (cddr item))
-                        (note-optional (car item) (cadr item) 0)
-                        (if (and (consp (cddr item)) (symbolp (caddr item))
-                                 (null (cdddr item)))
-                          (note-optional (car item) (cadr item) (caddr item))
-                          (err-invalid item)))
-                      (err-invalid item)))
-                  (err-invalid item))))
-            (setq L (cdr L)))))
+          (dolist (item L)
+            (if (symbolp item)
+              (if (memq item lambda-list-keywords)
+                (check-item item '(&rest &key &aux))
+                (note-optional item nil 0))
+              (if (and (consp item) (symbolp (car item)))
+                (if (null (cdr item))
+                  (note-optional (car item) nil 0)
+                  (if (consp (cdr item))
+                    (if (null (cddr item))
+                      (note-optional (car item) (cadr item) 0)
+                      (if (and (consp (cddr item)) (symbolp (caddr item))
+                               (null (cdddr item)))
+                        (note-optional (car item) (cadr item) (caddr item))
+                        (err-invalid item)))
+                    (err-invalid item)))
+                (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &aux))).
       ;; &rest parameters:
       (when (and (consp L) (eq (car L) '&rest))
@@ -135,45 +136,42 @@
       (when (and (consp L) (eq (car L) '&key))
         (setq L (cdr L))
         (setq keyflag t)
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&allow-other-keys &aux))
-                (progn
-                  (push (symbol-to-keyword item) keyword)
-                  (push item keyvar) (push nil keyinit) (push 0 keysvar)))
-              (if (and (consp item)
-                       (or (symbolp (car item))
-                           (and (consp (car item))
-                                (symbolp (caar item))
-                                (consp (cdar item))
-                                (symbolp (cadar item))
-                                (null (cddar item))))
-                       (or (null (cdr item))
-                           (and (consp (cdr item))
-                                (or (null (cddr item))
-                                    (and (consp (cddr item))
-                                         (symbolp (caddr item))
-                                         (null (cdddr item)))))))
-                (progn
-                  (if (consp (car item))
-                    (progn
-                      (push (caar item) keyword)
-                      (push (cadar item) keyvar))
-                    (progn
-                      (push (symbol-to-keyword (car item)) keyword)
-                      (push (car item) keyvar)))
-                  (if (consp (cdr item))
-                    (progn
-                      (push (cadr item) keyinit)
-                      (if (consp (cddr item))
-                        (push (caddr item) keysvar)
-                        (push 0 keysvar)))
-                    (progn (push nil keyinit) (push 0 keysvar))))
-                (err-invalid item))))
-          (setq L (cdr L)))
+        (dolist (item L)
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&allow-other-keys &aux))
+              (progn
+                (push (symbol-to-keyword item) keyword)
+                (push item keyvar) (push nil keyinit) (push 0 keysvar)))
+            (if (and (consp item)
+                     (or (symbolp (car item))
+                         (and (consp (car item))
+                              (symbolp (caar item))
+                              (consp (cdar item))
+                              (symbolp (cadar item))
+                              (null (cddar item))))
+                     (or (null (cdr item))
+                         (and (consp (cdr item))
+                              (or (null (cddr item))
+                                  (and (consp (cddr item))
+                                       (symbolp (caddr item))
+                                       (null (cdddr item)))))))
+              (progn
+                (if (consp (car item))
+                  (progn
+                    (push (caar item) keyword)
+                    (push (cadar item) keyvar))
+                  (progn
+                    (push (symbol-to-keyword (car item)) keyword)
+                    (push (car item) keyvar)))
+                (if (consp (cdr item))
+                  (progn
+                    (push (cadr item) keyinit)
+                    (if (consp (cddr item))
+                      (push (caddr item) keysvar)
+                      (push 0 keysvar)))
+                  (progn (push nil keyinit) (push 0 keysvar))))
+              (err-invalid item))))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys &aux))).
         (when (and (consp L) (eq (car L) '&allow-other-keys))
           (setq allow-other-keys t)
@@ -184,26 +182,20 @@
       ;; &aux variables:
       (when (and (consp L) (eq (car L) '&aux))
         (setq L (cdr L))
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (err-misplaced item)
-                (progn (push item auxvar) (push nil auxinit)))
-              (if (and (consp item) (symbolp (car item)))
-                (if (null (cdr item))
-                  (progn (push (car item) auxvar) (push nil auxinit))
-                  (if (and (consp (cdr item)) (null (cddr item)))
-                    (progn (push (car item) auxvar) (push (cadr item) auxinit))
-                    (err-invalid item)))
-                (err-invalid item))))
-          (setq L (cdr L))))
+        (dolist (item L)
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (err-misplaced item)
+              (progn (push item auxvar) (push nil auxinit)))
+            (if (and (consp item) (symbolp (car item)))
+              (if (null (cdr item))
+                (progn (push (car item) auxvar) (push nil auxinit))
+                (if (and (consp (cdr item)) (null (cddr item)))
+                  (progn (push (car item) auxvar) (push (cadr item) auxinit))
+                  (err-invalid item)))
+              (err-invalid item)))))
       ;; Now (atom L).
-      (if L
-        (funcall errfunc lambdalist lambdalist
-                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                 lambdalist))
+      (check-exhausted L)
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
@@ -235,39 +227,33 @@
           (allow-other-keys nil))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (loop
-        (if (atom L) (return))
-        (let ((item (car L)))
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item '(&optional &rest &key))
-              ;; Need to check for duplicates here because otherwise the
-              ;; :arguments-precedence-order makes no sense.
-              (if (memq item reqvar)
-                (funcall errfunc lambdalist item
-                         (TEXT "Duplicate variable name ~S") item)
-                (push item reqvar)))
-            (err-invalid item)))
-        (setq L (cdr L)))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item '(&optional &rest &key))
+            ;; Need to check for duplicates here because otherwise the
+            ;; :arguments-precedence-order makes no sense.
+            (if (memq item reqvar)
+              (funcall errfunc lambdalist item
+                       (TEXT "Duplicate variable name ~S") item)
+              (push item reqvar)))
+          (err-invalid item)))
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
         (setq L (cdr L))
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&rest &key))
-                (push item optvar))
-              (if (and (consp item) (symbolp (car item)))
-                (if (null (cdr item))
-                  (push (car item) optvar)
-                  (funcall errfunc lambdalist item
-                           (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
-                           item))
-                (err-invalid item))))
-          (setq L (cdr L))))
+        (dolist (item L)
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&rest &key))
+              (push item optvar))
+            (if (and (consp item) (symbolp (car item)))
+              (if (null (cdr item))
+                (push (car item) optvar)
+                (funcall errfunc lambdalist item
+                         (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
+                         item))
+              (err-invalid item)))))
       ;; Now (or (atom L) (member (car L) '(&rest &key))).
       ;; &rest parameters:
       (when (and (consp L) (eq (car L) '&rest))
@@ -292,35 +278,32 @@
       (when (and (consp L) (eq (car L) '&key))
         (setq L (cdr L))
         (setq keyflag t)
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&allow-other-keys))
-                (progn
-                  (push (symbol-to-keyword item) keyword)
-                  (push item keyvar)))
-              (if (and (consp item)
-                       (or (symbolp (car item))
-                           (and (consp (car item))
-                                (symbolp (caar item))
-                                (consp (cdar item))
-                                (symbolp (cadar item))
-                                (null (cddar item)))))
-                (if (null (cdr item))
-                  (if (consp (car item))
-                    (progn
-                      (push (caar item) keyword)
-                      (push (cadar item) keyvar))
-                    (progn
-                      (push (symbol-to-keyword (car item)) keyword)
-                      (push (car item) keyvar)))
-                  (funcall errfunc lambdalist item
-                           (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
-                           item))
-                (err-invalid item))))
-          (setq L (cdr L)))
+        (dolist (item L)
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&allow-other-keys))
+              (progn
+                (push (symbol-to-keyword item) keyword)
+                (push item keyvar)))
+            (if (and (consp item)
+                     (or (symbolp (car item))
+                         (and (consp (car item))
+                              (symbolp (caar item))
+                              (consp (cdar item))
+                              (symbolp (cadar item))
+                              (null (cddar item)))))
+              (if (null (cdr item))
+                (if (consp (car item))
+                  (progn
+                    (push (caar item) keyword)
+                    (push (cadar item) keyvar))
+                  (progn
+                    (push (symbol-to-keyword (car item)) keyword)
+                    (push (car item) keyvar)))
+                (funcall errfunc lambdalist item
+                         (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
+                         item))
+              (err-invalid item))))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
         (when (and (consp L) (eq (car L) '&allow-other-keys))
           (setq allow-other-keys t)
@@ -328,10 +311,7 @@
           ;; Move forward to the end:
           (skip-L &allow-other-keys '())))
       ;; Now (atom L).
-      (if L
-        (funcall errfunc lambdalist lambdalist
-                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                 lambdalist))
+      (check-exhausted L)
       (values
         (nreverse reqvar)
         (nreverse optvar)
@@ -372,15 +352,12 @@
           (env 0))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (loop
-        (if (atom L) (return))
-        (let ((item (car L)))
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item '(&optional &rest &key &environment))
-              (push item reqvar))
-            (err-invalid item)))
-        (setq L (cdr L)))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item '(&optional &rest &key &environment))
+            (push item reqvar))
+          (err-invalid item)))
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key &environment))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -390,26 +367,23 @@
                         (push ,var optvar)
                         (push ,init optinit)
                         (push ,svar optsvar))))
-          (loop
-            (if (atom L) (return))
-            (let ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (check-item item '(&rest &key &environment))
-                  (note-optional item nil 0))
-                (if (and (consp item) (symbolp (car item)))
-                  (if (null (cdr item))
-                    (note-optional (car item) nil 0)
-                    (if (consp (cdr item))
-                      (if (null (cddr item))
-                        (note-optional (car item) (cadr item) 0)
-                        (if (and (consp (cddr item)) (symbolp (caddr item))
-                                 (null (cdddr item)))
-                          (note-optional (car item) (cadr item) (caddr item))
-                          (err-invalid item)))
-                      (err-invalid item)))
-                  (err-invalid item))))
-            (setq L (cdr L)))))
+          (dolist (item L)
+            (if (symbolp item)
+              (if (memq item lambda-list-keywords)
+                (check-item item '(&rest &key &environment))
+                (note-optional item nil 0))
+              (if (and (consp item) (symbolp (car item)))
+                (if (null (cdr item))
+                  (note-optional (car item) nil 0)
+                  (if (consp (cdr item))
+                    (if (null (cddr item))
+                      (note-optional (car item) (cadr item) 0)
+                      (if (and (consp (cddr item)) (symbolp (caddr item))
+                               (null (cdddr item)))
+                        (note-optional (car item) (cadr item) (caddr item))
+                        (err-invalid item)))
+                    (err-invalid item)))
+                (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &environment))).
       ;; &rest parameters:
       (when (and (consp L) (eq (car L) '&rest))
@@ -434,45 +408,42 @@
       (when (and (consp L) (eq (car L) '&key))
         (setq L (cdr L))
         (setq keyflag t)
-        (loop
-          (if (atom L) (return))
-          (let ((item (car L)))
-            (if (symbolp item)
-              (if (memq item lambda-list-keywords)
-                (check-item item '(&allow-other-keys &environment))
-                (progn
-                  (push (symbol-to-keyword item) keyword)
-                  (push item keyvar) (push nil keyinit) (push 0 keysvar)))
-              (if (and (consp item)
-                       (or (symbolp (car item))
-                           (and (consp (car item))
-                                (symbolp (caar item))
-                                (consp (cdar item))
-                                (symbolp (cadar item))
-                                (null (cddar item))))
-                       (or (null (cdr item))
-                           (and (consp (cdr item))
-                                (or (null (cddr item))
-                                    (and (consp (cddr item))
-                                         (symbolp (caddr item))
-                                         (null (cdddr item)))))))
-                (progn
-                  (if (consp (car item))
-                    (progn
-                      (push (caar item) keyword)
-                      (push (cadar item) keyvar))
-                    (progn
-                      (push (symbol-to-keyword (car item)) keyword)
-                      (push (car item) keyvar)))
-                  (if (consp (cdr item))
-                    (progn
-                      (push (cadr item) keyinit)
-                      (if (consp (cddr item))
-                        (push (caddr item) keysvar)
-                        (push 0 keysvar)))
-                    (progn (push nil keyinit) (push 0 keysvar))))
-                (err-invalid item))))
-          (setq L (cdr L)))
+        (dolist (item L)
+          (if (symbolp item)
+            (if (memq item lambda-list-keywords)
+              (check-item item '(&allow-other-keys &environment))
+              (progn
+                (push (symbol-to-keyword item) keyword)
+                (push item keyvar) (push nil keyinit) (push 0 keysvar)))
+            (if (and (consp item)
+                     (or (symbolp (car item))
+                         (and (consp (car item))
+                              (symbolp (caar item))
+                              (consp (cdar item))
+                              (symbolp (cadar item))
+                              (null (cddar item))))
+                     (or (null (cdr item))
+                         (and (consp (cdr item))
+                              (or (null (cddr item))
+                                  (and (consp (cddr item))
+                                       (symbolp (caddr item))
+                                       (null (cdddr item)))))))
+              (progn
+                (if (consp (car item))
+                  (progn
+                    (push (caar item) keyword)
+                    (push (cadar item) keyvar))
+                  (progn
+                    (push (symbol-to-keyword (car item)) keyword)
+                    (push (car item) keyvar)))
+                (if (consp (cdr item))
+                  (progn
+                    (push (cadr item) keyinit)
+                    (if (consp (cddr item))
+                      (push (caddr item) keysvar)
+                      (push 0 keysvar)))
+                  (progn (push nil keyinit) (push 0 keysvar))))
+              (err-invalid item))))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys &environment))).
         (when (and (consp L) (eq (car L) '&allow-other-keys))
           (setq allow-other-keys t)
@@ -499,10 +470,7 @@
         ;; Move forward to the end:
         (skip-L &environment '()))
       ;; Now (atom L).
-      (if L
-        (funcall errfunc lambdalist lambdalist
-                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                 lambdalist))
+      (check-exhausted L)
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)
@@ -530,15 +498,12 @@
           (rest 0))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (loop
-        (if (atom L) (return))
-        (let ((item (car L)))
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item '(&optional &rest))
-              (push item reqvar))
-            (err-invalid item)))
-        (setq L (cdr L)))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item '(&optional &rest))
+            (push item reqvar))
+          (err-invalid item)))
       ;; Now (or (atom L) (member (car L) '(&optional &rest))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -548,26 +513,23 @@
                         (push ,var optvar)
                         (push ,init optinit)
                         (push ,svar optsvar))))
-          (loop
-            (if (atom L) (return))
-            (let ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (check-item item '(&rest))
-                  (note-optional item nil 0))
-                (if (and (consp item) (symbolp (car item)))
-                  (if (null (cdr item))
-                    (note-optional (car item) nil 0)
-                    (if (consp (cdr item))
-                      (if (null (cddr item))
-                        (note-optional (car item) (cadr item) 0)
-                        (if (and (consp (cddr item)) (symbolp (caddr item))
-                                 (null (cdddr item)))
-                          (note-optional (car item) (cadr item) (caddr item))
-                          (err-invalid item)))
-                      (err-invalid item)))
-                  (err-invalid item))))
-            (setq L (cdr L)))))
+          (dolist (item L)
+            (if (symbolp item)
+              (if (memq item lambda-list-keywords)
+                (check-item item '(&rest))
+                (note-optional item nil 0))
+              (if (and (consp item) (symbolp (car item)))
+                (if (null (cdr item))
+                  (note-optional (car item) nil 0)
+                  (if (consp (cdr item))
+                    (if (null (cddr item))
+                      (note-optional (car item) (cadr item) 0)
+                      (if (and (consp (cddr item)) (symbolp (caddr item))
+                               (null (cdddr item)))
+                        (note-optional (car item) (cadr item) (caddr item))
+                        (err-invalid item)))
+                    (err-invalid item)))
+                (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest))).
       ;; &rest parameters:
       (when (and (consp L) (eq (car L) '&rest))
@@ -588,10 +550,7 @@
         ;; Move forward to the end:
         (skip-L &rest '()))
       ;; Now (atom L).
-      (if L
-        (funcall errfunc lambdalist lambdalist
-                 (TEXT "Lambda lists with dots are only allowed in macros, not here: ~S")
-                 lambdalist))
+      (check-exhausted L)
       (values
         (nreverse reqvar)
         (nreverse optvar) (nreverse optinit) (nreverse optsvar)

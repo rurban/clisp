@@ -1,3 +1,7 @@
+2010-01-29  Sam Steingold  <sds@gnu.org>
+
+	* lambdalist.lisp (dolist, check-exhausted): new local macros
+
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
 	better error reporting in lambda list processing
