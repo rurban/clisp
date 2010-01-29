@@ -403,11 +403,11 @@
     (:method ((gf generic-function))
       (let ((lambdalist (generic-function-lambda-list gf)))
         (generic-function-lambda-list-to-signature lambdalist
-          #'(lambda (detail errorstring &rest arguments)
-              (declare (ignore detail))
-              (error (TEXT "Invalid ~S result ~S: ~A")
-                     'generic-function-lambda-list lambdalist
-                     (apply #'format nil errorstring arguments))))))
+          #'(lambda (lalist detail errorstring &rest arguments)
+              (sys::lambda-list-error lalist detail
+                 (TEXT "Invalid ~S result ~S: ~A")
+                 'generic-function-lambda-list lambdalist
+                 (apply #'format nil errorstring arguments))))))
     (:method ((gf standard-generic-function))
       (check-generic-function-initialized gf)
       (check-gf-lambda-list gf 'generic-function-signature)

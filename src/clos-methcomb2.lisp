@@ -178,17 +178,15 @@
                           keyp keywords keyvars keyinits keysvars allowp
                           auxvars auxinits)
         (sys::analyze-method-combination-lambdalist arguments-lambda-list
-          #'(lambda (detail errorstring &rest arguments)
+          #'(lambda (lalist detail errorstring &rest arguments)
+              (declare (ignore lalist)) ; use WHOLE-FORM instead
               (if (eq caller 'define-method-combination)
-                (error-of-type 'ext:source-program-error
-                  :form whole-form
-                  :detail detail
+                (sys::lambda-list-error whole-form detail
                   #1=(TEXT "~S ~S: invalid ~S lambda-list: ~A")
                   caller name ':arguments
                   (apply #'format nil errorstring arguments))
                 (error-of-type 'program-error
-                  #1#
-                  caller name ':arguments
+                  #1# caller name ':arguments
                   (apply #'format nil errorstring arguments)))))
       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
       (values
@@ -480,11 +478,11 @@
                                          keyp keywords keyvars keyinits keysvars
                                          allowp auxvars auxinits)
                        (sys::analyze-method-combination-lambdalist combination-arguments-lambda-list
-                         #'(lambda (detail errorstring &rest arguments)
-                             (declare (ignore detail))
-                             (error (TEXT "In ~S ~S lambda list: ~A")
-                                    combination ':arguments
-                                    (apply #'format nil errorstring arguments))))
+                         #'(lambda (lalist detail errorstring &rest arguments)
+                             (sys::lambda-list-error lalist detail
+                               (TEXT "In ~S ~S lambda list: ~A")
+                               combination ':arguments
+                               (apply #'format nil errorstring arguments))))
                      (declare (ignore optinits optsvars
                                       keywords keyvars keyinits keysvars
                                       allowp auxvars auxinits))

@@ -509,10 +509,9 @@
 (defun analyze-defgeneric-lambdalist (caller whole-form funname lambdalist)
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (detail errorstring &rest arguments)
-            (error-of-type 'ext:source-program-error
-              :form whole-form
-              :detail detail
+        #'(lambda (lalist detail errorstring &rest arguments)
+            (declare (ignore lalist)) ; use WHOLE-FORM instead
+            (sys::lambda-list-error whole-form detail
               (TEXT "~S ~S: invalid generic function lambda-list: ~A")
               caller funname (apply #'format nil errorstring arguments))))
     (declare (ignore keyvars))
