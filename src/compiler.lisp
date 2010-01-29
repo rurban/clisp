@@ -41,7 +41,7 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2009
+;; Sam Steingold 1999-2010
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
@@ -3497,8 +3497,8 @@ for-value   NIL or T
 ;; 13. list of init-forms of the &aux variables
 (defun c-analyze-lambdalist (lambdalist)
   (sys::analyze-lambdalist lambdalist
-    #'(lambda (form errorstring &rest arguments)
-        (declare (ignore form))
+    #'(lambda (form detail errorstring &rest arguments)
+        (declare (ignore form detail))
         (catch 'c-error
           (apply #'c-error lambdalist errorstring arguments)))))
 
