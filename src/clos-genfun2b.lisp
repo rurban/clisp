@@ -547,8 +547,8 @@
   ;; Check the lambda-list.
   (let* ((signature
            (generic-function-lambda-list-to-signature lambdalist
-             #'(lambda (detail errorstring &rest arguments)
-                 (funcall errfunc detail
+             #'(lambda (lalist detail errorstring &rest arguments)
+                 (funcall errfunc lalist detail
                           (TEXT "Invalid generic function lambda-list: ~A")
                           (apply #'format nil errorstring arguments)))))
          (reqnum (sig-req-num signature))

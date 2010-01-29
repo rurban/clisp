@@ -433,10 +433,9 @@
                                             rest keyp keywords keyvars keyinits
                                             keysvars allowp env)
                           (analyze-defsetf-lambdalist lambdalist
-                            #'(lambda (detail errorstring &rest arguments)
-                                (error-of-type 'source-program-error
-                                  :form whole-form
-                                  :detail detail
+                            #'(lambda (lalist detail errorstring &rest arguments)
+                                (declare (ignore lalist));use WHOLE-FORM instead
+                                (lambda-list-error whole-form detail
                                   (TEXT "~S ~S: invalid ~S lambda-list: ~A")
                                   'defsetf accessfn 'defsetf
                                   (apply #'format nil errorstring arguments))))
@@ -718,10 +717,9 @@
                                name lambdalist function &optional docstring)
   (multiple-value-bind (reqvars optvars optinits optsvars rest)
       (analyze-modify-macro-lambdalist lambdalist
-        #'(lambda (detail errorstring &rest arguments)
-            (error-of-type 'source-program-error
-              :form whole-form
-              :detail detail
+        #'(lambda (lalist detail errorstring &rest arguments)
+            (declare (ignore lalist)) ; use WHOLE-FORM instead
+            (lambda-list-error whole-form detail
               (TEXT "~S ~S: invalid ~S lambda-list: ~A")
               'define-modify-macro name 'define-modify-macro
               (apply #'format nil errorstring arguments))))

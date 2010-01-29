@@ -10,12 +10,18 @@
 	errfunc accepts FORM in addition to DETAIL
 	* compiler.lisp (c-analyze-lambdalist): ditto
 	* clos-method2.lisp (decompose-specialized-lambda-list): ditto
+	* clos-genfun2b.lisp (check-gf-lambdalist+argorder): ditto
 	* clos-methcomb2.lisp (define-method-combination): ditto + use
 	SYS::LAMBDA-LIST-ERROR
 	* clos-method1.lisp (initialize-instance-<standard-method>): ditto
 	(program-error-reporter, analyze-method-description): ditto
 	* clos-method3.lisp (method-signature): ditto
 	* defstruct.lisp (ds-make-boa-constructor): ditto
+	* places.lisp (defsetf, define-modify-macro): ditto
+	* clos-genfun3.lisp (analyze-defgeneric-lambdalist): ditto
+	* clos-genfun4.lisp (generic-function-signature): ditto
+	* clos-methcomb2.lisp (check-em-arguments-option)
+	(build-effective-method-function-form): ditto
 
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
