@@ -1,7 +1,7 @@
 2010-01-29  Sam Steingold  <sds@gnu.org>
 
 	* lambdalist.lisp (dolist, check-exhausted, symbol-or-pair-p)
-	(singleton-symbol-p): new local macros
+	(singleton-symbol-p, err-missing, last-parameter): new local macros
 
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
