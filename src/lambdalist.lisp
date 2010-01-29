@@ -44,6 +44,23 @@
                        (null (cddr ,x)))))
            (singleton-symbol-p (x) ; (FOO)
              `(and (consp ,x) (symbolp (car ,x)) (null (cdr ,x))))
+           (err-missing (marker)
+             `(funcall errfunc lambdalist lambdalist
+                       (TEXT "Missing ~S parameter in lambda list ~S")
+                       ',marker lambdalist))
+           (last-parameter (L var marker &body body)
+             `(when (and (consp ,L) (eq (car ,L) ',marker))
+                (setq ,L (cdr ,L))
+                (if (atom L)
+                  (err-missing ,marker)
+                  (prog ((item (car ,L)))
+                    (if (symbolp item)
+                      (if (memq item lambda-list-keywords)
+                        (progn (err-missing ,marker) (return))
+                        (setq ,var item))
+                      (err-invalid item))
+                    (setq ,L (cdr ,L))))
+                ,@body))
            (skip-L (lastseen items)
              `(dolist (item L)
                 (if (memq item lambda-list-keywords)
@@ -122,23 +139,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &aux))).
       ;; &rest parameters:
-      (when (and (consp L) (eq (car L) '&rest))
-        (setq L (cdr L))
-        (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&REST lambdalist)))
-          (if (atom L)
-            (err-norest)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-norest) (return))
-                  (setq rest item))
-                (err-invalid item))
-              (setq L (cdr L)))))
-        ;; Move forward to the next &KEY or &AUX:
-        (skip-L &rest '(&key &aux)))
+      (last-parameter L rest &rest (skip-L &rest '(&key &aux)))
       ;; Now (or (atom L) (member (car L) '(&key &aux))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -257,23 +258,7 @@
               (err-invalid item)))))
       ;; Now (or (atom L) (member (car L) '(&rest &key))).
       ;; &rest parameters:
-      (when (and (consp L) (eq (car L) '&rest))
-        (setq L (cdr L))
-        (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&REST lambdalist)))
-          (if (atom L)
-            (err-norest)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-norest) (return))
-                  (setq rest item))
-                (err-invalid item))
-              (setq L (cdr L)))))
-        ;; Move forward to the next &KEY:
-        (skip-L &rest '(&key)))
+      (last-parameter L rest &rest (skip-L &rest '(&key)))
       ;; Now (or (atom L) (member (car L) '(&key))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -381,23 +366,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &environment))).
       ;; &rest parameters:
-      (when (and (consp L) (eq (car L) '&rest))
-        (setq L (cdr L))
-        (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&REST lambdalist)))
-          (if (atom L)
-            (err-norest)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-norest) (return))
-                  (setq rest item))
-                (err-invalid item))
-              (setq L (cdr L)))))
-        ;; Move forward to the next &KEY or &ENVIRONMENT:
-        (skip-L &rest '(&key &environment)))
+      (last-parameter L rest &rest (skip-L &rest '(&key &environment)))
       ;; Now (or (atom L) (member (car L) '(&key &environment))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -440,23 +409,7 @@
           (skip-L &allow-other-keys '(&environment))))
       ;; Now (or (atom L) (member (car L) '(&environment))).
       ;; &environment parameter:
-      (when (and (consp L) (eq (car L) '&environment))
-        (setq L (cdr L))
-        (macrolet ((err-noenvironment ()
-                     '(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&ENVIRONMENT lambdalist)))
-          (if (atom L)
-            (err-noenvironment)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-noenvironment) (return))
-                  (setq env item))
-                (err-invalid item))
-              (setq L (cdr L)))))
-        ;; Move forward to the end:
-        (skip-L &environment '()))
+      (last-parameter L env &environment (skip-L &environment '()))
       ;; Now (atom L).
       (check-exhausted L)
       (values
@@ -519,23 +472,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest))).
       ;; &rest parameters:
-      (when (and (consp L) (eq (car L) '&rest))
-        (setq L (cdr L))
-        (macrolet ((err-norest ()
-                     `(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&REST lambdalist)))
-          (if (atom L)
-            (err-norest)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-norest) (return))
-                  (setq rest item))
-                (err-invalid item))
-              (setq L (cdr L)))))
-        ;; Move forward to the end:
-        (skip-L &rest '()))
+      (last-parameter L rest &rest (skip-L &rest '()))
       ;; Now (atom L).
       (check-exhausted L)
       (values
@@ -566,21 +503,7 @@
           (whole 0))
       ;; The lists are all accumulated in reversed order.
       ;; &whole parameter:
-      (when (and (consp L) (eq (car L) '&whole))
-        (setq L (cdr L))
-        (macrolet ((err-nowhole ()
-                     `(funcall errfunc lambdalist lambdalist
-                               (TEXT "Missing ~S parameter in lambda list ~S")
-                               '&WHOLE lambdalist)))
-          (if (atom L)
-            (err-nowhole)
-            (prog ((item (car L)))
-              (if (symbolp item)
-                (if (memq item lambda-list-keywords)
-                  (progn (err-nowhole) (return))
-                  (setq whole item))
-                (err-invalid item))
-              (setq L (cdr L))))))
+      (last-parameter L whole &whole)
       ;; The rest should be an ordinary lambda-list.
       (multiple-value-bind (reqvar optvar optinit optsvar rest
                             keyflag keyword keyvar keyinit keysvar allow-other-keys
