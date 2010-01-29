@@ -1,5 +1,24 @@
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
+	better error reporting in lambda list processing
+	* lambdalist.lisp (lambda-list-error): new function,
+	calls ERROR-OF-TYPE EXT:SOURCE-PROGRAM-ERROR
+	(err-misplaced, err-invalid, skip-L, analyze-lambdalist)
+	(analyze-generic-function-lambdalist, analyze-defsetf-lambdalist)
+	(analyze-modify-macro-lambdalist)
+	(analyze-method-combination-lambdalist):
+	errfunc accepts FORM in addition to DETAIL
+	* compiler.lisp (c-analyze-lambdalist): ditto
+	* clos-method2.lisp (decompose-specialized-lambda-list): ditto
+	* clos-methcomb2.lisp (define-method-combination): ditto + use
+	SYS::LAMBDA-LIST-ERROR
+	* clos-method1.lisp (initialize-instance-<standard-method>): ditto
+	(program-error-reporter, analyze-method-description): ditto
+	* clos-method3.lisp (method-signature): ditto
+	* defstruct.lisp (ds-make-boa-constructor): ditto
+
+2010-01-28  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2941408 ]: segfault after giving invalid replacement value
 	* error.d (check_symbol_special): do not break out of the loop early
 

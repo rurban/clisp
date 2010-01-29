@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Methods
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004, 2007
+;;;; Sam Steingold 1998 - 2004, 2007, 2010
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -137,11 +137,11 @@
     (error (TEXT "(~S ~S): Missing ~S argument.")
            'initialize-instance 'standard-method ':lambda-list))
   (let ((sig (method-lambda-list-to-signature lambda-list
-               #'(lambda (detail errorstring &rest arguments)
-                   (declare (ignore detail))
-                   (error (TEXT "(~S ~S): Invalid ~S argument: ~A")
-                          'initialize-instance 'standard-method ':lambda-list
-                          (apply #'format nil errorstring arguments))))))
+               #'(lambda (form detail errorstring &rest arguments)
+                   (sys::lambda-list-error form detail
+                     (TEXT "(~S ~S): Invalid ~S argument: ~A")
+                     'initialize-instance 'standard-method ':lambda-list
+                     (apply #'format nil errorstring arguments))))))
     ; Check the signature argument. It is optional; specifying it only has
     ; the purpose of saving memory allocation (by sharing the same signature
     ; for all reader methods and the same signature for all writer methods).
