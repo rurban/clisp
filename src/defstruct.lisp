@@ -1,6 +1,6 @@
 ;;; Sources for CLISP DEFSTRUCT macro
 ;;; Bruno Haible 1988-2005
-;;; Sam Steingold 1998-2006
+;;; Sam Steingold 1998-2006, 2010
 ;;; German comments translated into English: Stefan Kain 2003-01-14
 
 (in-package "SYSTEM")
@@ -362,10 +362,9 @@
                           keyflag keywords keyvars keyinits keysvars
                           allow-other-keys auxvars auxinits)
         (analyze-lambdalist arglist
-          #'(lambda (detail errorstring &rest arguments)
-              (error-of-type 'source-program-error
-                :form whole-form
-                :detail detail
+          #'(lambda (lalist detail errorstring &rest arguments)
+              (declare (ignore lalist)) ; use WHOLE-FORM instead
+              (sys::lambda-list-error whole-form detail
                 (TEXT "~S ~S: In ~S argument list: ~A")
                 'defstruct name ':constructor
                 (apply #'format nil errorstring arguments))))

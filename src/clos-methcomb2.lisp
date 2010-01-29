@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Method Combination
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2005, 2007
+;;;; Sam Steingold 1998 - 2005, 2007, 2010
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 ;;;; James Anderson 2003
 
@@ -1202,10 +1202,9 @@ Long-form options are a list of method-group specifiers,
                (body (cddr options)))
            ; Check the lambda-list.
            (analyze-lambdalist lambda-list
-             #'(lambda (detail errorstring &rest arguments)
-                 (error-of-type 'ext:source-program-error
-                   :form whole-form
-                   :detail detail
+             #'(lambda (lalist detail errorstring &rest arguments)
+                 (declare (ignore lalist)) ; use WHOLE-FORM instead
+                 (sys::lambda-list-error whole-form detail
                    (TEXT "~S ~S: invalid lambda-list: ~A")
                    'define-method-combination name
                    (apply #'format nil errorstring arguments))))
