@@ -22,7 +22,7 @@
                            (TEXT "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."))
                        ,item))
            (check-item (item permissible)
-             `(if (memq ,item ,permissible)
+             `(if (memq ,item ',permissible)
                 (return)
                 (err-misplaced ,item)))
            (dolist ((item L) &body body)
@@ -65,7 +65,7 @@
              `(dolist (item ,L)
                 (if (symbolp item)
                   (if (memq item lambda-list-keywords)
-                    (check-item item ',permissible)
+                    (check-item item ,permissible)
                     ,(if no-duplicates
                        `(if (memq item ,reqvar)
                           (funcall errfunc lambdalist item
@@ -131,7 +131,7 @@
           (dolist (item L)
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
-                (check-item item '(&rest &key &aux))
+                (check-item item (&rest &key &aux))
                 (note-optional item nil 0))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
@@ -146,7 +146,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &aux))).
       ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest '(&key &aux)))
+      (last-parameter L rest &rest (skip-L &rest (&key &aux)))
       ;; Now (or (atom L) (member (car L) '(&key &aux))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -155,7 +155,7 @@
         (dolist (item L)
           (if (symbolp item)
             (if (memq item lambda-list-keywords)
-              (check-item item '(&allow-other-keys &aux))
+              (check-item item (&allow-other-keys &aux))
               (progn
                 (push (symbol-to-keyword item) keyword)
                 (push item keyvar) (push nil keyinit) (push 0 keysvar)))
@@ -186,7 +186,7 @@
           (setq allow-other-keys t)
           (setq L (cdr L))
           ;; Move forward  to the next &AUX:
-          (skip-L &allow-other-keys '(&aux))))
+          (skip-L &allow-other-keys (&aux))))
       ;; Now (or (atom L) (member (car L) '(&aux))).
       ;; &aux variables:
       (when (and (consp L) (eq (car L) '&aux))
@@ -246,7 +246,7 @@
         (dolist (item L)
           (if (symbolp item)
             (if (memq item lambda-list-keywords)
-              (check-item item '(&rest &key))
+              (check-item item (&rest &key))
               (push item optvar))
             (if (and (consp item) (symbolp (car item)))
               (if (null (cdr item))
@@ -257,7 +257,7 @@
               (err-invalid item)))))
       ;; Now (or (atom L) (member (car L) '(&rest &key))).
       ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest '(&key)))
+      (last-parameter L rest &rest (skip-L &rest (&key)))
       ;; Now (or (atom L) (member (car L) '(&key))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -266,7 +266,7 @@
         (dolist (item L)
           (if (symbolp item)
             (if (memq item lambda-list-keywords)
-              (check-item item '(&allow-other-keys))
+              (check-item item (&allow-other-keys))
               (progn
                 (push (symbol-to-keyword item) keyword)
                 (push item keyvar)))
@@ -289,7 +289,7 @@
           (setq allow-other-keys t)
           (setq L (cdr L))
           ;; Move forward to the end:
-          (skip-L &allow-other-keys '())))
+          (skip-L &allow-other-keys ())))
       ;; Now (atom L).
       (check-exhausted L)
       (values
@@ -345,7 +345,7 @@
           (dolist (item L)
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
-                (check-item item '(&rest &key &environment))
+                (check-item item (&rest &key &environment))
                 (note-optional item nil 0))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
@@ -360,7 +360,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest &key &environment))).
       ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest '(&key &environment)))
+      (last-parameter L rest &rest (skip-L &rest (&key &environment)))
       ;; Now (or (atom L) (member (car L) '(&key &environment))).
       ;; Keyword parameters:
       (when (and (consp L) (eq (car L) '&key))
@@ -369,7 +369,7 @@
         (dolist (item L)
           (if (symbolp item)
             (if (memq item lambda-list-keywords)
-              (check-item item '(&allow-other-keys &environment))
+              (check-item item (&allow-other-keys &environment))
               (progn
                 (push (symbol-to-keyword item) keyword)
                 (push item keyvar) (push nil keyinit) (push 0 keysvar)))
@@ -400,10 +400,10 @@
           (setq allow-other-keys t)
           (setq L (cdr L))
           ;; Move forward to the next &ENVIRONMENT:
-          (skip-L &allow-other-keys '(&environment))))
+          (skip-L &allow-other-keys (&environment))))
       ;; Now (or (atom L) (member (car L) '(&environment))).
       ;; &environment parameter:
-      (last-parameter L env &environment (skip-L &environment '()))
+      (last-parameter L env &environment (skip-L &environment ()))
       ;; Now (atom L).
       (check-exhausted L)
       (values
@@ -446,7 +446,7 @@
           (dolist (item L)
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
-                (check-item item '(&rest))
+                (check-item item (&rest))
                 (note-optional item nil 0))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
@@ -461,7 +461,7 @@
                 (err-invalid item))))))
       ;; Now (or (atom L) (member (car L) '(&rest))).
       ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest '()))
+      (last-parameter L rest &rest (skip-L &rest ()))
       ;; Now (atom L).
       (check-exhausted L)
       (values
