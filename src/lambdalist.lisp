@@ -21,6 +21,10 @@
                            (TEXT "Invalid lambda list element ~S")
                            (TEXT "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."))
                        ,item))
+           (err-no-default (marker item)
+             `(funcall errfunc lambdalist ,item
+                       (TEXT "Invalid lambda list element ~S. ~S parameters cannot have default value forms in generic function lambda lists.")
+                       ',marker ,item))
            (check-item (item permissible)
              `(if (memq ,item ',permissible)
                 (return)
@@ -258,9 +262,7 @@
             (if (and (consp item) (symbolp (car item)))
               (if (null (cdr item))
                 (push (car item) optvar)
-                (funcall errfunc lambdalist item
-                         (TEXT "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists.")
-                         item))
+                (err-no-default &optional item))
               (err-invalid item)))))
       ;; Now (or (atom L) (member (car L) '(&rest &key))).
       ;; &rest parameters:
@@ -287,9 +289,7 @@
                   (progn
                     (push (symbol-to-keyword (car item)) keyword)
                     (push (car item) keyvar)))
-                (funcall errfunc lambdalist item
-                         (TEXT "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists.")
-                         item))
+                (err-no-default &key item))
               (err-invalid item))))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
         (process-allow-other-keys L allow-other-keys ()))

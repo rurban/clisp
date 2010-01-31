@@ -1,7 +1,7 @@
 2010-01-31  Sam Steingold  <sds@gnu.org>
 
 	* lambdalist.lisp (check-item): quote PERMISSIBLE here, update callers
-	(process-required, push3, process-optional)
+	(process-required, push3, process-optional, err-no-default)
 	(process-allow-other-keys, process-keywords): new local macros
 
 2010-01-29  Sam Steingold  <sds@gnu.org>
