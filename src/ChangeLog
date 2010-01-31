@@ -1,3 +1,7 @@
+2010-01-31  Sam Steingold  <sds@gnu.org>
+
+	* lambdalist.lisp (process-required): new local macro
+
 2010-01-29  Sam Steingold  <sds@gnu.org>
 
 	* lambdalist.lisp (dolist, check-exhausted, symbol-or-pair-p)

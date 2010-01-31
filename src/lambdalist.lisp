@@ -61,6 +61,18 @@
                       (err-invalid item))
                     (setq ,L (cdr ,L))))
                 ,@body))
+           (process-required (L reqvar permissible &optional no-duplicates)
+             `(dolist (item ,L)
+                (if (symbolp item)
+                  (if (memq item lambda-list-keywords)
+                    (check-item item ',permissible)
+                    ,(if no-duplicates
+                       `(if (memq item ,reqvar)
+                          (funcall errfunc lambdalist item
+                                   (TEXT "Duplicate variable name ~S") item)
+                          (push item ,reqvar))
+                       `(push item ,reqvar)))
+                  (err-invalid item))))
            (skip-L (lastseen items)
              `(dolist (item L)
                 (if (memq item lambda-list-keywords)
@@ -106,12 +118,7 @@
           (auxinit nil))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (dolist (item L)
-        (if (symbolp item)
-          (if (memq item lambda-list-keywords)
-            (check-item item '(&optional &rest &key &aux))
-            (push item reqvar))
-          (err-invalid item)))
+      (process-required L reqvar (&optional &rest &key &aux))
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key &aux))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -229,17 +236,9 @@
           (allow-other-keys nil))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (dolist (item L)
-        (if (symbolp item)
-          (if (memq item lambda-list-keywords)
-            (check-item item '(&optional &rest &key))
-            ;; Need to check for duplicates here because otherwise the
-            ;; :arguments-precedence-order makes no sense.
-            (if (memq item reqvar)
-              (funcall errfunc lambdalist item
-                       (TEXT "Duplicate variable name ~S") item)
-              (push item reqvar)))
-          (err-invalid item)))
+      ;; Need to check for duplicates here because otherwise the
+      ;; :arguments-precedence-order makes no sense.
+      (process-required L reqvar (&optional &rest &key) t)
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -333,12 +332,7 @@
           (env 0))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (dolist (item L)
-        (if (symbolp item)
-          (if (memq item lambda-list-keywords)
-            (check-item item '(&optional &rest &key &environment))
-            (push item reqvar))
-          (err-invalid item)))
+      (process-required L reqvar (&optional &rest &key &environment))
       ;; Now (or (atom L) (member (car L) '(&optional &rest &key &environment))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
@@ -439,12 +433,7 @@
           (rest 0))
       ;; The lists are all accumulated in reversed order.
       ;; Required parameters:
-      (dolist (item L)
-        (if (symbolp item)
-          (if (memq item lambda-list-keywords)
-            (check-item item '(&optional &rest))
-            (push item reqvar))
-          (err-invalid item)))
+      (process-required L reqvar (&optional &rest))
       ;; Now (or (atom L) (member (car L) '(&optional &rest))).
       ;; Optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
