@@ -96,6 +96,48 @@
                               (err-invalid item)))
                           (err-invalid item)))
                       (err-invalid item))))))
+           (process-allow-other-keys (L allow-other-keys permissible)
+             `(when (and (consp ,L) (eq (car ,L) '&allow-other-keys))
+                (setq ,allow-other-keys t)
+                (setq ,L (cdr ,L))
+                (skip-L &allow-other-keys ,permissible)))
+           (process-keywords (L keyflag keyword keyvar keyinit keysvar
+                              allow-other-keys permissible)
+             `(when (and (consp ,L) (eq (car ,L) '&key))
+                (setq ,L (cdr ,L))
+                (setq ,keyflag t)
+                (dolist (item ,L)
+                  (if (symbolp item)
+                    (if (memq item lambda-list-keywords)
+                      (check-item item ,permissible)
+                      (progn
+                        (push (symbol-to-keyword item) ,keyword)
+                        (push3 item nil 0 ,keyvar ,keyinit ,keysvar)))
+                    (if (and (consp item)
+                             (symbol-or-pair-p (car item))
+                             (or (null (cdr item))
+                                 (and (consp (cdr item))
+                                      (or (null (cddr item))
+                                          (singleton-symbol-p (cddr item))))))
+                      (progn
+                        (if (consp (car item))
+                          (progn
+                            (push (caar item) ,keyword)
+                            (push (cadar item) ,keyvar))
+                          (progn
+                            (push (symbol-to-keyword (car item)) ,keyword)
+                           (push (car item) ,keyvar)))
+                        (if (consp (cdr item))
+                          (progn
+                            (push (cadr item) ,keyinit)
+                            (if (consp (cddr item))
+                              (push (caddr item) ,keysvar)
+                              (push 0 ,keysvar)))
+                          (progn (push nil ,keyinit) (push 0 ,keysvar))))
+                      (err-invalid item))))
+               ;; Now (or (atom L) (member (car L) permissible)).
+               (process-allow-other-keys ,L ,allow-other-keys
+                                         ,(cdr permissible))))
            (skip-L (lastseen items)
              `(dolist (item L)
                 (if (memq item lambda-list-keywords)
@@ -149,45 +191,9 @@
       ;; &rest parameters:
       (last-parameter L rest &rest (skip-L &rest (&key &aux)))
       ;; Now (or (atom L) (member (car L) '(&key &aux))).
-      ;; Keyword parameters:
-      (when (and (consp L) (eq (car L) '&key))
-        (setq L (cdr L))
-        (setq keyflag t)
-        (dolist (item L)
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item (&allow-other-keys &aux))
-              (progn
-                (push (symbol-to-keyword item) keyword)
-                (push item keyvar) (push nil keyinit) (push 0 keysvar)))
-            (if (and (consp item)
-                     (symbol-or-pair-p (car item))
-                     (or (null (cdr item))
-                         (and (consp (cdr item))
-                              (or (null (cddr item))
-                                  (singleton-symbol-p (cddr item))))))
-              (progn
-                (if (consp (car item))
-                  (progn
-                    (push (caar item) keyword)
-                    (push (cadar item) keyvar))
-                  (progn
-                    (push (symbol-to-keyword (car item)) keyword)
-                    (push (car item) keyvar)))
-                (if (consp (cdr item))
-                  (progn
-                    (push (cadr item) keyinit)
-                    (if (consp (cddr item))
-                      (push (caddr item) keysvar)
-                      (push 0 keysvar)))
-                  (progn (push nil keyinit) (push 0 keysvar))))
-              (err-invalid item))))
-        ;; Now (or (atom L) (member (car L) '(&allow-other-keys &aux))).
-        (when (and (consp L) (eq (car L) '&allow-other-keys))
-          (setq allow-other-keys t)
-          (setq L (cdr L))
-          ;; Move forward  to the next &AUX:
-          (skip-L &allow-other-keys (&aux))))
+      ;; Keyword & Allow-other-keys parameters:
+      (process-keywords L keyflag keyword keyvar keyinit keysvar
+                        allow-other-keys (&allow-other-keys &aux))
       ;; Now (or (atom L) (member (car L) '(&aux))).
       ;; &aux variables:
       (when (and (consp L) (eq (car L) '&aux))
@@ -286,11 +292,7 @@
                          item))
               (err-invalid item))))
         ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
-        (when (and (consp L) (eq (car L) '&allow-other-keys))
-          (setq allow-other-keys t)
-          (setq L (cdr L))
-          ;; Move forward to the end:
-          (skip-L &allow-other-keys ())))
+        (process-allow-other-keys L allow-other-keys ()))
       ;; Now (atom L).
       (check-exhausted L)
       (values
@@ -341,45 +343,9 @@
       ;; &rest parameters:
       (last-parameter L rest &rest (skip-L &rest (&key &environment)))
       ;; Now (or (atom L) (member (car L) '(&key &environment))).
-      ;; Keyword parameters:
-      (when (and (consp L) (eq (car L) '&key))
-        (setq L (cdr L))
-        (setq keyflag t)
-        (dolist (item L)
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item (&allow-other-keys &environment))
-              (progn
-                (push (symbol-to-keyword item) keyword)
-                (push item keyvar) (push nil keyinit) (push 0 keysvar)))
-            (if (and (consp item)
-                     (symbol-or-pair-p (car item))
-                     (or (null (cdr item))
-                         (and (consp (cdr item))
-                              (or (null (cddr item))
-                                  (singleton-symbol-p (cddr item))))))
-              (progn
-                (if (consp (car item))
-                  (progn
-                    (push (caar item) keyword)
-                    (push (cadar item) keyvar))
-                  (progn
-                    (push (symbol-to-keyword (car item)) keyword)
-                    (push (car item) keyvar)))
-                (if (consp (cdr item))
-                  (progn
-                    (push (cadr item) keyinit)
-                    (if (consp (cddr item))
-                      (push (caddr item) keysvar)
-                      (push 0 keysvar)))
-                  (progn (push nil keyinit) (push 0 keysvar))))
-              (err-invalid item))))
-        ;; Now (or (atom L) (member (car L) '(&allow-other-keys &environment))).
-        (when (and (consp L) (eq (car L) '&allow-other-keys))
-          (setq allow-other-keys t)
-          (setq L (cdr L))
-          ;; Move forward to the next &ENVIRONMENT:
-          (skip-L &allow-other-keys (&environment))))
+      ;; Keyword & Allow-other-keys parameters:
+      (process-keywords L keyflag keyword keyvar keyinit keysvar
+                        allow-other-keys (&allow-other-keys &environment))
       ;; Now (or (atom L) (member (car L) '(&environment))).
       ;; &environment parameter:
       (last-parameter L env &environment (skip-L &environment ()))
