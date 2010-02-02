@@ -3414,7 +3414,7 @@ cygwin_finish base
 # full is built dynamically when explicitly requested
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
-test "${with_dynamic_modules}" = no || echotab "mkdir -p dynmod"
+test "${with_dynamic_modules}" = no || echotab "rm -rf dynmod; mkdir dynmod"
 echotab "MAKE=\$(MAKE) CLISP=\"${HEREP}/clisp ${someflags}\" ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_finish full
 
@@ -3662,13 +3662,14 @@ if [ $CROSS = false ] ; then
     echotab "for f in ${BUILD_AUX}; do \$(INSTALL_DATA) build-aux/\$\$f \$(DESTDIR)\$(lisplibdir)/build-aux/\$\$f; done"
     if [ "${with_dynamic_modules}" != no ]; then
       echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/dynmod"
-      echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
-      echotab "absdest=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` ; \\"
-      echotab "here=\`pwd\`; \\"
-      echotab "for m in \$(MODULES); do \\"
-      echotab "  mkdir -p \"\$\$absdest/\$\$m\"; \\"
-      echotab "  cd \$\$m; \$(MAKE) clisp-module-distrib LN=\"\$(INSTALL_DATA)\" distribdir=\"\$\$absdest/\$\$m\" ; cd \"\$\$here\"; \\"
-      echotab "done"
+      echotab "if test -n \"\$(MODULES)\"; then \\"
+      echotab "  for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done; \\"
+      echotab "  absdest=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` ; \\"
+      echotab "  here=\`pwd\`; \\"
+      echotab "  for m in \$(MODULES); do \\"
+      echotab "    mkdir -p \"\$\$absdest/\$\$m\"; \\"
+      echotab "    cd \$\$m; \$(MAKE) clisp-module-distrib LN=\"\$(INSTALL_DATA)\" distribdir=\"\$\$absdest/\$\$m\" ; cd \"\$\$here\"; \\"
+      echotab "  done; fi"
       line='linkkit/* base/*'
     else
       echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
@@ -4032,8 +4033,7 @@ elif [ $HOS = win32 ] ; then
     echotab "cp -r locale/ \$\$distdir/; \\"
   fi
   if [ "${with_dynamic_modules}" != no ]; then
-    echotab "mkdir \$\$distdir/dynmod ; \\"
-    echotab "cp dynmod/* \$\$distdir/dynmod/; \\"
+    echotab "cp -r dynmod/ \$\$distdir/; \\"
   fi
   echotab "mkdir \$\$distdir/data ; \\"
   for f in ${DATA_FILES}; do
