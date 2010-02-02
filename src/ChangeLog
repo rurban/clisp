@@ -1,3 +1,10 @@
+2010-02-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (full) [with_dynamic_modules]: remove dynmod
+	(install-bin) [with_dynamic_modules]: handle empty dynmod properly
+	(distrib) [with_dynamic_modules]: ditto
+	Reported by Gabriel Dos Reis <gdr@integrable-solutions.net>
+
 2010-01-31  Sam Steingold  <sds@gnu.org>
 
 	* lambdalist.lisp (check-item): quote PERMISSIBLE here, update callers
