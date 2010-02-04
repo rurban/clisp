@@ -170,60 +170,60 @@
 ;; 11. flag, if other keywords are allowed
 ;; 12. list of &aux variables
 ;; 13. list of init-forms of the &aux variables
-  (defun analyze-lambdalist (lambdalist errfunc)
-    (let ((L lambdalist) ; rest of the lambda-list
-          (reqvar nil)
-          (optvar nil)
-          (optinit nil)
-          (optsvar nil)
-          (rest 0)
-          (keyflag nil)
-          (keyword nil)
-          (keyvar nil)
-          (keyinit nil)
-          (keysvar nil)
-          (allow-other-keys nil)
-          (auxvar nil)
-          (auxinit nil))
-      ;; The lists are all accumulated in reversed order.
-      ;; Required parameters:
-      (process-required L reqvar (&optional &rest &key &aux))
-      ;; Now (or (atom L) (member (car L) '(&optional &rest &key &aux))).
-      ;; Optional parameters:
-      (process-optional L optvar optinit optsvar (&rest &key &aux))
-      ;; Now (or (atom L) (member (car L) '(&rest &key &aux))).
-      ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest (&key &aux)))
-      ;; Now (or (atom L) (member (car L) '(&key &aux))).
-      ;; Keyword & Allow-other-keys parameters:
-      (process-keywords L keyflag keyword keyvar keyinit keysvar
-                        allow-other-keys (&allow-other-keys &aux))
-      ;; Now (or (atom L) (member (car L) '(&aux))).
-      ;; &aux variables:
-      (when (and (consp L) (eq (car L) '&aux))
-        (setq L (cdr L))
-        (dolist (item L)
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (err-misplaced item)
-              (progn (push item auxvar) (push nil auxinit)))
-            (if (and (consp item) (symbolp (car item)))
-              (if (null (cdr item))
-                (progn (push (car item) auxvar) (push nil auxinit))
-                (if (and (consp (cdr item)) (null (cddr item)))
-                  (progn (push (car item) auxvar) (push (cadr item) auxinit))
-                  (err-invalid item)))
-              (err-invalid item)))))
-      ;; Now (atom L).
-      (check-exhausted L)
-      (values
-        (nreverse reqvar)
-        (nreverse optvar) (nreverse optinit) (nreverse optsvar)
-        rest
-        keyflag
-        (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
-        allow-other-keys
-        (nreverse auxvar) (nreverse auxinit))))
+(defun analyze-lambdalist (lambdalist errfunc)
+  (let ((L lambdalist) ; rest of the lambda-list
+        (reqvar nil)
+        (optvar nil)
+        (optinit nil)
+        (optsvar nil)
+        (rest 0)
+        (keyflag nil)
+        (keyword nil)
+        (keyvar nil)
+        (keyinit nil)
+        (keysvar nil)
+        (allow-other-keys nil)
+        (auxvar nil)
+        (auxinit nil))
+    ;; The lists are all accumulated in reversed order.
+    ;; Required parameters:
+    (process-required L reqvar (&optional &rest &key &aux))
+    ;; Now (or (atom L) (member (car L) '(&optional &rest &key &aux))).
+    ;; Optional parameters:
+    (process-optional L optvar optinit optsvar (&rest &key &aux))
+    ;; Now (or (atom L) (member (car L) '(&rest &key &aux))).
+    ;; &rest parameters:
+    (last-parameter L rest &rest (skip-L &rest (&key &aux)))
+    ;; Now (or (atom L) (member (car L) '(&key &aux))).
+    ;; Keyword & Allow-other-keys parameters:
+    (process-keywords L keyflag keyword keyvar keyinit keysvar
+                      allow-other-keys (&allow-other-keys &aux))
+    ;; Now (or (atom L) (member (car L) '(&aux))).
+    ;; &aux variables:
+    (when (and (consp L) (eq (car L) '&aux))
+      (setq L (cdr L))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (err-misplaced item)
+            (progn (push item auxvar) (push nil auxinit)))
+          (if (and (consp item) (symbolp (car item)))
+            (if (null (cdr item))
+              (progn (push (car item) auxvar) (push nil auxinit))
+              (if (and (consp (cdr item)) (null (cddr item)))
+                (progn (push (car item) auxvar) (push (cadr item) auxinit))
+                (err-invalid item)))
+            (err-invalid item)))))
+    ;; Now (atom L).
+    (check-exhausted L)
+    (values
+      (nreverse reqvar)
+      (nreverse optvar) (nreverse optinit) (nreverse optsvar)
+      rest
+      keyflag
+      (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
+      allow-other-keys
+      (nreverse auxvar) (nreverse auxinit))))
 
 ;;; Analyzes a lambda-list of a generic function (ANSI CL 3.4.2.).
 ;;; Reports errors through errfunc (a function taking form & detail objects,
@@ -236,72 +236,72 @@
 ;; 5. list of keywords
 ;; 6. list of keyword parameters
 ;; 7. flag, if other keywords are allowed
-  (defun analyze-generic-function-lambdalist (lambdalist errfunc)
-    (let ((L lambdalist) ; rest of the lambda-list
-          (reqvar nil)
-          (optvar nil)
-          (rest 0)
-          (keyflag nil)
-          (keyword nil)
-          (keyvar nil)
-          (allow-other-keys nil))
-      ;; The lists are all accumulated in reversed order.
-      ;; Required parameters:
-      ;; Need to check for duplicates here because otherwise the
-      ;; :arguments-precedence-order makes no sense.
-      (process-required L reqvar (&optional &rest &key) t)
-      ;; Now (or (atom L) (member (car L) '(&optional &rest &key))).
-      ;; Optional parameters:
-      (when (and (consp L) (eq (car L) '&optional))
-        (setq L (cdr L))
-        (dolist (item L)
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item (&rest &key))
-              (push item optvar))
-            (if (and (consp item) (symbolp (car item)))
-              (if (null (cdr item))
-                (push (car item) optvar)
-                (err-no-default &optional item))
-              (err-invalid item)))))
-      ;; Now (or (atom L) (member (car L) '(&rest &key))).
-      ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest (&key)))
-      ;; Now (or (atom L) (member (car L) '(&key))).
-      ;; Keyword parameters:
-      (when (and (consp L) (eq (car L) '&key))
-        (setq L (cdr L))
-        (setq keyflag t)
-        (dolist (item L)
-          (if (symbolp item)
-            (if (memq item lambda-list-keywords)
-              (check-item item (&allow-other-keys))
-              (progn
-                (push (symbol-to-keyword item) keyword)
-                (push item keyvar)))
-            (if (and (consp item)
-                     (symbol-or-pair-p (car item)))
-              (if (null (cdr item))
-                (if (consp (car item))
-                  (progn
-                    (push (caar item) keyword)
-                    (push (cadar item) keyvar))
-                  (progn
-                    (push (symbol-to-keyword (car item)) keyword)
-                    (push (car item) keyvar)))
-                (err-no-default &key item))
-              (err-invalid item))))
-        ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
-        (process-allow-other-keys L allow-other-keys ()))
-      ;; Now (atom L).
-      (check-exhausted L)
-      (values
-        (nreverse reqvar)
-        (nreverse optvar)
-        rest
-        keyflag
-        (nreverse keyword) (nreverse keyvar)
-        allow-other-keys)))
+(defun analyze-generic-function-lambdalist (lambdalist errfunc)
+  (let ((L lambdalist) ; rest of the lambda-list
+        (reqvar nil)
+        (optvar nil)
+        (rest 0)
+        (keyflag nil)
+        (keyword nil)
+        (keyvar nil)
+        (allow-other-keys nil))
+    ;; The lists are all accumulated in reversed order.
+    ;; Required parameters:
+    ;; Need to check for duplicates here because otherwise the
+    ;; :arguments-precedence-order makes no sense.
+    (process-required L reqvar (&optional &rest &key) t)
+    ;; Now (or (atom L) (member (car L) '(&optional &rest &key))).
+    ;; Optional parameters:
+    (when (and (consp L) (eq (car L) '&optional))
+      (setq L (cdr L))
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item (&rest &key))
+            (push item optvar))
+          (if (and (consp item) (symbolp (car item)))
+            (if (null (cdr item))
+              (push (car item) optvar)
+              (err-no-default &optional item))
+            (err-invalid item)))))
+    ;; Now (or (atom L) (member (car L) '(&rest &key))).
+    ;; &rest parameters:
+    (last-parameter L rest &rest (skip-L &rest (&key)))
+    ;; Now (or (atom L) (member (car L) '(&key))).
+    ;; Keyword parameters:
+    (when (and (consp L) (eq (car L) '&key))
+      (setq L (cdr L))
+      (setq keyflag t)
+      (dolist (item L)
+        (if (symbolp item)
+          (if (memq item lambda-list-keywords)
+            (check-item item (&allow-other-keys))
+            (progn
+              (push (symbol-to-keyword item) keyword)
+              (push item keyvar)))
+          (if (and (consp item)
+                   (symbol-or-pair-p (car item)))
+            (if (null (cdr item))
+              (if (consp (car item))
+                (progn
+                  (push (caar item) keyword)
+                  (push (cadar item) keyvar))
+                (progn
+                  (push (symbol-to-keyword (car item)) keyword)
+                  (push (car item) keyvar)))
+              (err-no-default &key item))
+            (err-invalid item))))
+      ;; Now (or (atom L) (member (car L) '(&allow-other-keys))).
+      (process-allow-other-keys L allow-other-keys ()))
+    ;; Now (atom L).
+    (check-exhausted L)
+    (values
+      (nreverse reqvar)
+      (nreverse optvar)
+      rest
+      keyflag
+      (nreverse keyword) (nreverse keyvar)
+      allow-other-keys)))
 
 ;;; Analyzes a defsetf lambda-list (ANSI CL 3.4.7.).
 ;;; Reports errors through errfunc (a function taking form & detail objects,
@@ -319,46 +319,46 @@
 ;; 10. list of supplied-vars for the keyword parameters (0 for the missing)
 ;; 11. flag, if other keywords are allowed
 ;; 12. &environment parameter or 0
-  (defun analyze-defsetf-lambdalist (lambdalist errfunc)
-    (let ((L lambdalist) ; rest of the lambda-list
-          (reqvar nil)
-          (optvar nil)
-          (optinit nil)
-          (optsvar nil)
-          (rest 0)
-          (keyflag nil)
-          (keyword nil)
-          (keyvar nil)
-          (keyinit nil)
-          (keysvar nil)
-          (allow-other-keys nil)
-          (env 0))
-      ;; The lists are all accumulated in reversed order.
-      ;; Required parameters:
-      (process-required L reqvar (&optional &rest &key &environment))
-      ;; Now (or (atom L) (member (car L) '(&optional &rest &key &environment))).
-      ;; Optional parameters:
-      (process-optional L optvar optinit optsvar (&rest &key &environment))
-      ;; Now (or (atom L) (member (car L) '(&rest &key &environment))).
-      ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest (&key &environment)))
-      ;; Now (or (atom L) (member (car L) '(&key &environment))).
-      ;; Keyword & Allow-other-keys parameters:
-      (process-keywords L keyflag keyword keyvar keyinit keysvar
-                        allow-other-keys (&allow-other-keys &environment))
-      ;; Now (or (atom L) (member (car L) '(&environment))).
-      ;; &environment parameter:
-      (last-parameter L env &environment (skip-L &environment ()))
-      ;; Now (atom L).
-      (check-exhausted L)
-      (values
-        (nreverse reqvar)
-        (nreverse optvar) (nreverse optinit) (nreverse optsvar)
-        rest
-        keyflag
-        (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
-        allow-other-keys
-        env)))
+(defun analyze-defsetf-lambdalist (lambdalist errfunc)
+  (let ((L lambdalist) ; rest of the lambda-list
+        (reqvar nil)
+        (optvar nil)
+        (optinit nil)
+        (optsvar nil)
+        (rest 0)
+        (keyflag nil)
+        (keyword nil)
+        (keyvar nil)
+        (keyinit nil)
+        (keysvar nil)
+        (allow-other-keys nil)
+        (env 0))
+    ;; The lists are all accumulated in reversed order.
+    ;; Required parameters:
+    (process-required L reqvar (&optional &rest &key &environment))
+    ;; Now (or (atom L) (member (car L) '(&optional &rest &key &environment))).
+    ;; Optional parameters:
+    (process-optional L optvar optinit optsvar (&rest &key &environment))
+    ;; Now (or (atom L) (member (car L) '(&rest &key &environment))).
+    ;; &rest parameters:
+    (last-parameter L rest &rest (skip-L &rest (&key &environment)))
+    ;; Now (or (atom L) (member (car L) '(&key &environment))).
+    ;; Keyword & Allow-other-keys parameters:
+    (process-keywords L keyflag keyword keyvar keyinit keysvar
+                      allow-other-keys (&allow-other-keys &environment))
+    ;; Now (or (atom L) (member (car L) '(&environment))).
+    ;; &environment parameter:
+    (last-parameter L env &environment (skip-L &environment ()))
+    ;; Now (atom L).
+    (check-exhausted L)
+    (values
+      (nreverse reqvar)
+      (nreverse optvar) (nreverse optinit) (nreverse optsvar)
+      rest
+      keyflag
+      (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
+      allow-other-keys
+      env)))
 
 ;;; Analyzes a define-modify-macro lambda-list (ANSI CL 3.4.9.).
 ;;; Reports errors through errfunc (a function taking form & detail objects,
@@ -369,28 +369,28 @@
 ;; 3. list of init-forms of the optional parameters
 ;; 4. list of supplied-vars for the optional parameters (0 for the missing)
 ;; 5. &rest parameter or 0
-  (defun analyze-modify-macro-lambdalist (lambdalist errfunc)
-    (let ((L lambdalist) ; rest of the lambda-list
-          (reqvar nil)
-          (optvar nil)
-          (optinit nil)
-          (optsvar nil)
-          (rest 0))
-      ;; The lists are all accumulated in reversed order.
-      ;; Required parameters:
-      (process-required L reqvar (&optional &rest))
-      ;; Now (or (atom L) (member (car L) '(&optional &rest))).
-      ;; Optional parameters:
-      (process-optional L optvar optinit optsvar (&rest))
-      ;; Now (or (atom L) (member (car L) '(&rest))).
-      ;; &rest parameters:
-      (last-parameter L rest &rest (skip-L &rest ()))
-      ;; Now (atom L).
-      (check-exhausted L)
-      (values
-        (nreverse reqvar)
-        (nreverse optvar) (nreverse optinit) (nreverse optsvar)
-        rest)))
+(defun analyze-modify-macro-lambdalist (lambdalist errfunc)
+  (let ((L lambdalist) ; rest of the lambda-list
+        (reqvar nil)
+        (optvar nil)
+        (optinit nil)
+        (optsvar nil)
+        (rest 0))
+    ;; The lists are all accumulated in reversed order.
+    ;; Required parameters:
+    (process-required L reqvar (&optional &rest))
+    ;; Now (or (atom L) (member (car L) '(&optional &rest))).
+    ;; Optional parameters:
+    (process-optional L optvar optinit optsvar (&rest))
+    ;; Now (or (atom L) (member (car L) '(&rest))).
+    ;; &rest parameters:
+    (last-parameter L rest &rest (skip-L &rest ()))
+    ;; Now (atom L).
+    (check-exhausted L)
+    (values
+      (nreverse reqvar)
+      (nreverse optvar) (nreverse optinit) (nreverse optsvar)
+      rest)))
 
 ;;; Analyzes a define-method-combination lambda-list (ANSI CL 3.4.10.).
 ;;; Reports errors through errfunc (a function taking form & detail objects,
@@ -410,25 +410,25 @@
 ;; 12. flag, if other keywords are allowed
 ;; 13. list of &aux variables
 ;; 14. list of init-forms of the &aux variables
-  (defun analyze-method-combination-lambdalist (lambdalist errfunc)
-    (let ((L lambdalist) ; rest of the lambda-list
-          (whole 0))
-      ;; The lists are all accumulated in reversed order.
-      ;; &whole parameter:
-      (last-parameter L whole &whole)
-      ;; The rest should be an ordinary lambda-list.
-      (multiple-value-bind (reqvar optvar optinit optsvar rest
-                            keyflag keyword keyvar keyinit keysvar allow-other-keys
-                            auxvar auxinit)
-          (analyze-lambdalist L errfunc)
-        (values
-          whole
-          reqvar
-          optvar optinit optsvar
-          rest
-          keyflag
-          keyword keyvar keyinit keysvar
-          allow-other-keys
-          auxvar auxinit))))
+(defun analyze-method-combination-lambdalist (lambdalist errfunc)
+  (let ((L lambdalist) ; rest of the lambda-list
+        (whole 0))
+    ;; The lists are all accumulated in reversed order.
+    ;; &whole parameter:
+    (last-parameter L whole &whole)
+    ;; The rest should be an ordinary lambda-list.
+    (multiple-value-bind (reqvar optvar optinit optsvar rest
+                          keyflag keyword keyvar keyinit keysvar allow-other-keys
+                          auxvar auxinit)
+        (analyze-lambdalist L errfunc)
+      (values
+        whole
+        reqvar
+        optvar optinit optsvar
+        rest
+        keyflag
+        keyword keyvar keyinit keysvar
+        allow-other-keys
+        auxvar auxinit))))
 
 ) ; macrolet
