@@ -521,7 +521,7 @@ esac
 # These variables are set by configure:
 # srcdir='@srcdir@'                 # either '.' or '../src', see above
 CP='cp -p'                          # either 'cp -p' or 'cp'
-LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
+LN_S='@LN_S@'                       # either 'ln -s' or 'ln' or 'cp -p'
 LN='@LN@'                           # either 'ln' or ${CP}
 HLN='@HLN@'                         # either 'ln' or 'hln'
 CC="@CC@"                           # either 'gcc -O' or 'cc'
@@ -3325,7 +3325,16 @@ echol
 MODULE_CONFIGURES=`find ${SRCTOPDIR_}modules -name configure`
 BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
 BUILD_AUX=''
-test -n "${SRCDIR}" && link_dep "build-aux" "${SRCDIR}build-aux"
+test -n "${SRCDIR}" && case "${LN_S}" in
+  cp* )                         # ln is not available
+    echol "build-aux : ${SRCDIR}build-aux"
+    echotab "-\$(RMRF) build-aux"
+    echotab "-cp -r ${SRCDIR}build-aux build-aux"
+    echol
+    ;;
+  * ) link_dep "build-aux" "${SRCDIR}build-aux"
+    ;;
+esac
 for f in ${BUILD_AUX_ALL}; do
   test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
 done

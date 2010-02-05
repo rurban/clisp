@@ -1,3 +1,7 @@
+2010-02-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (build-aux): when LN_S is "cp", use "cp -r"
+
 2010-02-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full) [with_dynamic_modules]: remove dynmod
