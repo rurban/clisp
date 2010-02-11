@@ -1669,9 +1669,8 @@
 ;; for X3J13 Issue COMPILER-DIAGNOSTICS:USE-HANDLER
 (defun c-warning (type format-string &rest args)
   (let ((*error-output* *c-error-output*))
-    (apply #'warn-of-type type
-           (string-concat (c-current-location) format-string)
-           args)))
+    (apply #'warn-of-type type (string-concat "~A" format-string)
+           (c-current-location) args)))
 
 (defun c-cerror (location detail format-string &rest args)
   (let ((*error-output* *c-error-output*))
