@@ -1,3 +1,9 @@
+2010-02-11  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (c-warning): do not concat (C-CURRENT-LOCATION)
+	to the FORMAT-STRING because the former may contain "~"
+	Reported by Gabriel Dos Reis <gdr@integrable-solutions.net>
+
 2010-02-05  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (build-aux): when LN_S is "cp", use "cp -r"
