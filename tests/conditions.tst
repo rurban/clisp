@@ -545,6 +545,15 @@ T
     (read-from-string ",1")))
 T
 
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/21281>
+(block nil
+  (handler-bind ((style-warning
+                  (lambda (c)
+                    (princ-error c)
+                    (return t))))
+    (defun test~ (b $) #+clisp (declare (compile)) (cond (b nil) (t t)))))
+T
+
 ;; process-declarations is not called in interpreted code
 (let (bad)
   (declare (optimize safety))
@@ -565,3 +574,14 @@ T
       (push tp bad))))
 NIL
 
+(progn ; Clean up.
+  (symbol-cleanup 'my-cpl)
+  (symbol-cleanup 'check-superclasses)
+  (symbol-cleanup 'test)
+  (symbol-cleanup 'test2)
+  (symbol-cleanup 'test3)
+  (symbol-cleanup 'test4)
+  (symbol-cleanup 'test5)
+  (symbol-cleanup 'test6)
+  (symbol-cleanup 'test~))
+T
