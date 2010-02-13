@@ -44,7 +44,8 @@
                    (let ((*thread-special* 5))
                      (mutex-lock *mu1*)
                      (mutex-lock *mu2*) (mutex-lock *mu2*)
-                     (loop (sleep 1))))))
+                     (loop (sleep 1))))
+               :joinable-p t))
 *TH1*
 (thread-active-p *th1*) T
 (prin1-to-string *th1*) "#<THREAD :LAMBDA>"
@@ -84,8 +85,8 @@ T
                :name '*th2*))
 *TH2*
 (thread-name *th2*)  *TH2*
-(thread-active-p *th2*)
-T
+(thread-active-p *th2*) T
+(thread-join *th2*) ERROR
 
 (progn
   (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
@@ -105,7 +106,8 @@ T
       :function t)
      :function t) *th1*)
 T
-(progn (sleep 1) (thread-active-p *th1*)) NIL
+(thread-join *th1*) NIL
+(thread-active-p *th1*) NIL
 (prin1-to-string *th1*) "#<INACTIVE THREAD :LAMBDA>"
 
 (defparameter *exemption*
@@ -206,6 +208,40 @@ make-test-thread
     (assert (zerop i)))
   (delete-package pa))
 T
+
+;; tests for thread-join and return values
+;; normal exit with single value
+(multiple-value-list
+ (thread-join (make-thread (lambda () (- 1 2)) :joinable-p t)))
+((-1) T)
+
+;; normal exit with multiple values
+(multiple-value-list
+ (thread-join
+  (make-thread (lambda () (sleep 0.5) (truncate 45 6)) :joinable-p t)))
+((7 3) T)
+
+;; no values, normal exit
+(let ((thr (make-thread (lambda () (system::version (system::version)))
+                        :joinable-p t)))
+  (multiple-value-list (thread-join thr)))
+(NIL T)
+
+;; no values, abnormal exit
+(let ((thr (make-thread (lambda () (loop (sleep 1))) :joinable-p t)))
+  (thread-interrupt thr :function t)
+  (multiple-value-list (thread-join thr)))
+(NIL NIL)
+
+;; abnormal exit, values specified by thread-kill
+(let ((thr (make-thread (lambda () (loop (sleep 1))) :joinable-p t)))
+  (thread-interrupt thr :function t :arguments '(4 5))
+  (multiple-value-list (thread-join thr)))
+((4 5) NIL)
+
+;; *th2* is non-joinable thread that has been killed above
+(multiple-value-list (thread-join *th2*))
+(NIL NIL)
 
 
 (progn (symbol-cleanup '*thread-special*)
