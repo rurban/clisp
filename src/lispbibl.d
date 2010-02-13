@@ -6912,11 +6912,19 @@ struct clisp_thread_t;
 typedef struct {
   XRECORD_HEADER
   gcv_object_t xth_name _attribute_aligned_object_; /* name */
+  gcv_object_t xth_join_lock _attribute_aligned_object_; /* lock for thread-join waiting */
+  gcv_object_t xth_join_exemption _attribute_aligned_object_; /* exemption for thread-join waiting */
+  gcv_object_t xth_values _attribute_aligned_object_; /* return values */
   struct clisp_thread_t *xth_globals; /* all thread specific things */
   xthread_t xth_system;               /* OS object */
+  uintL xth_flags; /* flags for various thread features */
 } * Thread;
-#define thread_length  1
+#define thread_length  4
 #define thread_xlength (sizeof(*(Thread)0)-offsetofa(record_,recdata)-thread_length*sizeof(gcv_object_t))
+
+/* has the thread exited normally? */
+#define thread_flag_normal_exit  0x0001
+#define thread_killedp(obj) (!(TheThread(obj)->xth_flags & thread_flag_normal_exit))
 
 typedef struct {
   XRECORD_HEADER

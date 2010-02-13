@@ -1209,6 +1209,7 @@ LISPSYM(thread_yield,"THREAD-YIELD",mt)
 LISPSYM(thread_interrupt,"THREAD-INTERRUPT",mt)
 LISPSYM(threadp,"THREADP",mt)
 LISPSYM(thread_name,"THREAD-NAME",mt)
+LISPSYM(thread_join,"THREAD-JOIN",mt)
 LISPSYM(thread_active_p,"THREAD-ACTIVE-P",mt)
 LISPSYM(current_thread,"CURRENT-THREAD",mt)
 LISPSYM(list_threads,"LIST-THREADS",mt)
@@ -1224,6 +1225,8 @@ LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(Krecursive_p,"RECURSIVE-P",keyword)
+LISPSYM(Kjoinable_p,"JOINABLE-P",keyword)
+
 #ifndef SOCKET_STREAMS
   #error MULTITHREAD requires SOCKET_STREAMS
 /* actually two things are needed: :TIMEOUT and sec_usec() function from

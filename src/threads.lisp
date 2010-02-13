@@ -5,7 +5,7 @@
   (:use "COMMON-LISP" "EXT")
   (:export "THREAD" "MAKE-THREAD" "THREADP" "THREAD-YIELD"
            "THREAD-INTERRUPT" "THREAD-NAME" "THREAD-ACTIVE-P"
-           "CURRENT-THREAD" "LIST-THREADS"
+           "THREAD-JOIN" "CURRENT-THREAD" "LIST-THREADS"
            "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK"
            "MUTEX-OWNER" "MUTEX-RECURSIVE-P" "WITH-MUTEX-LOCK" "MUTEX-NAME"
            "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL"
@@ -96,5 +96,5 @@ terminate and evaluate TIMEOUT-FORMS."
         (mutex-unlock ,lk)))))
 
 ;; helper function for thread interruption
-(defun %throw-tag (tag)
-  (throw tag tag))
+(defun %throw-tag (tag &optional result)
+  (throw tag result))
