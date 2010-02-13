@@ -9454,7 +9454,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       CHECK_PRINT_READABLY(obj);
       pr_unreadably_with_prefix(stream_,TheThread(obj)->xth_name,
                                 &O(printstring_thread),prin_object,
-                                TheThread(obj)->xth_globals == NULL
+                                boundp(TheThread(obj)->xth_values)
                                 ? &O(printstring_inactive) : NULL);
       break;
     case Rectype_Mutex:

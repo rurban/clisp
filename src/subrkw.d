@@ -220,7 +220,8 @@ v(1, (kw(require)))
 s(open_foreign_library)
 #endif
 #ifdef MULTITHREAD
-v(4, (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
+v(5, (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size),
+      kw(joinable_p)))
 s(make_thread)
 v(3, (kw(function),kw(override),kw(arguments)))
 s(thread_interrupt)
