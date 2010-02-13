@@ -659,6 +659,7 @@ global maygc object allocate_thread (gcv_object_t *name_) {
   var object result = allocate_xrecord(0,Rectype_Thread,thread_length,
                                        thread_xlength,orecord_type);
   TheThread(result)->xth_name = *name_;
+  TheThread(result)->xth_values = unbound; /* no values */
   return result;
 }
 

@@ -1,3 +1,25 @@
+2010-02-13  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: add THREAD-JOIN
+	* lispbibl.d (struct Thread): add mutex, exemption, return values and
+	flags to thread record
+	(thread_killedp): predicate whether the thread has exited abnormally
+	* spvw_typealloc.d (allocate_thread): initialize xth_values to unbound
+	* constsym.d, subr.d subrkw.d: add THREAD-JOIN and :JOINABLE-P to
+	MAKE-THREAD keyword arguments
+	* threads.lisp: export THREAD-JOIN
+	(THROW-TAG): add second optional argument for catch result
+	* zthread.d (MAKE-THREAD): accept :JOINABLE-P and allocate mutex and
+	exemption for signaling thread exit
+	(thread_stub): signal thread join exemption when the thread ends. set
+	thread return values and thread exit status
+	(THREAD-JOIN): implement. wait on exemption while thread return values
+	are available
+	(push_interrupt_arguments): pass :arguments (i.e. thread return values)
+	to thread being killed
+	(THREAD-ACTIVE-P): update condition for inactive thread
+	* io.d (pr_orecord): ditto
+
 2010-02-11  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (c-warning): do not concat (C-CURRENT-LOCATION)

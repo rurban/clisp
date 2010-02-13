@@ -125,7 +125,6 @@ global maygc void thread_cleanup (void) {
    with inconsistent stack and various other problems - i.e. SIGSEGV) */
   var clisp_thread_t *me = current_thread();
   var uintC locked_mutexes = 0;
-  me->_thread_is_dying = true; /* disables interrupts */
   /* traverse all mutexes and check for ownership */
   GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
   var object list = O(all_mutexes);
@@ -198,6 +197,8 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
   tse *__thread_tse_entry=&__tse_entry;
   #endif
   clisp_thread_t *me=(clisp_thread_t *)arg;
+  set_current_thread(me); /* g++ build needs this first */
+  var bool joinable = !nullp(TheThread(me->_lthread)->xth_join_lock);
   var struct backtrace_t bt;
   set_current_thread(me);
   me->_SP_anchor=(void*)SP();
@@ -209,34 +210,66 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
   back_trace = &bt;
   /* push the exit tag */
   pushSTACK(O(thread_exit_tag));
+  var object thread_values = nullobj; /* thread return values */
   var gcv_object_t *initial_bindings = &STACK_1;
   var gcv_object_t *funptr = &STACK_2;
   /* create the thread exit CATCH frame */
   var gcv_object_t* top_of_frame = STACK STACKop 1;
   var sp_jmp_buf returner; /* return point */
-  finish_entry_frame(CATCH,returner,,{skipSTACK(3);goto end_of_thread;});
-  { /* make "top" driver frame */
+  finish_entry_frame(CATCH,returner,,{
+    /* on thread kill in value1 we have :arguments list */
+    thread_values = value1;
+    skipSTACK(3+2);goto end_of_thread;});
+  {
+    /* make "top" driver frame */
     var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
     var sp_jmp_buf returner; /* remember entry point */
     /* driver frame in order to be able to kill the thread and unwind the stack
        via reset(0) call. It discards the CATCH frame as well. Useful when an
        error (error xxx) happens in the thread. */
-    finish_entry_frame(DRIVER,returner,,{skipSTACK(2+3);goto end_of_thread;});
+    finish_entry_frame(DRIVER,returner,,{
+      thread_values=NIL;skipSTACK(2+3+2);goto end_of_thread;});
     /* initialize the low level i/o stuff for this thread*/
     init_reader_low(me);
-    /* initialize thread special varaible bindings */
+    /* initialize thread special variables bindings */
     initialize_thread_bindings(initial_bindings);
     funcall(*funptr,0); /* call fun */
-    reset(0);  /* unwind what we have till now */
+    /* store return values */
+    mv_to_list();
+    thread_values = popSTACK();
+    /* mark that thread will exit normally */
+    TheThread(me->_lthread)->xth_flags |= thread_flag_normal_exit;
+    skipSTACK(2+3+2);/* driver frame, catch frame, function + initial bindings*/
   }
  end_of_thread:
-  skipSTACK(2); /* function + init bindings */
+  /* we should have thread return values here */
+  ASSERT(!eq(nullobj,thread_values));
+  me->_thread_is_dying = true; /* disables interrupts */
+  pushSTACK(thread_values); /* store return values */
+  /* cleanup any resources the thread still owns (locks currently)*/
+  thread_cleanup();
+  /* from now on the thread may be considered inactive from lisp land */
+  /* let's signal join exemption that we are ready */
+  if (joinable) {
+    /* lock the mutex */
+    pushSTACK(TheThread(me->_lthread)->xth_join_lock);
+    funcall(L(mutex_lock),1);
+    TheThread(me->_lthread)->xth_values = popSTACK();
+    /* broadcast to waiters */
+    pushSTACK(TheThread(me->_lthread)->xth_join_exemption);
+    funcall(L(exemption_broadcast),1);
+    /* unlock mutex */
+    pushSTACK(TheThread(me->_lthread)->xth_join_lock);
+    funcall(L(mutex_unlock),1);
+  } else { /* just set the return values */
+    TheThread(me->_lthread)->xth_values = popSTACK();
+  }
   /* the lisp stack should be unwound here. check it and complain. */
   if (!(eq(STACK_0,nullobj) && eq(STACK_1,nullobj))) {
     /* we should always have empty stack - this is an error. */
     NOTREACHED;
   }
-  thread_cleanup();
+  /* un-register the thread and de-allocate stacks */
   delete_thread(me);
   xthread_exit(0);
   return NULL;
@@ -248,8 +281,10 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
                   &key name
                   (initial-bindings THREADS:*default-special-bindings*)
                   (cstack-size THREADS::*DEFAULT-CONTROL-STACK-SIZE*)
-                  (vstack-size THREADS::*DEFAULT-VALUE-STACK-SIZE*)) */
+                  (vstack-size THREADS::*DEFAULT-VALUE-STACK-SIZE*)
+                  (joinable-p nil)) */
   var clisp_thread_t *new_thread;
+  var bool joinable = !missingp(STACK_0); skipSTACK(1);
   /* init the stack size if not specified */
   if (missingp(STACK_0)) STACK_0 = Symbol_value(S(default_value_stack_size));
   if (missingp(STACK_1)) STACK_1 = Symbol_value(S(default_control_stack_size));
@@ -283,8 +318,14 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* set thread name */
   STACK_1 = check_name_arg(STACK_1,Closure_name(STACK_2));
   /* do allocations before thread locking */
-  pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
+  if (joinable) {
+    funcall(L(make_mutex),0); pushSTACK(value1);
+    funcall(L(make_exemption),0); pushSTACK(value1);
+  } else { pushSTACK(NIL); pushSTACK(NIL); }
+  pushSTACK(allocate_thread(&STACK_3)); /* put it in GC visible place */
   pushSTACK(allocate_cons());
+  /* stack layout: initial-binding, name, function, join-mutex,
+                   join-exemption, thread, cons */
   /* let's lock in order to create and register */
   begin_blocking_call(); /* give chance the GC to work while we wait*/
   lock_threads();
@@ -300,12 +341,14 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   NC_pushSTACK(new_thread->_STACK,nullobj);
   NC_pushSTACK(new_thread->_STACK,nullobj);
   /* push the function to be executed */
-  NC_pushSTACK(new_thread->_STACK,STACK_4);
+  NC_pushSTACK(new_thread->_STACK,STACK_6);
   /* push the initial bindings alist */
-  NC_pushSTACK(new_thread->_STACK,STACK_2);
+  NC_pushSTACK(new_thread->_STACK,STACK_4);
 
   var object new_cons=popSTACK();
   var object lthr=popSTACK();
+  TheThread(lthr)->xth_join_exemption = popSTACK();
+  TheThread(lthr)->xth_join_lock = popSTACK();
   skipSTACK(3);
   /* initialize the thread references */
   new_thread->_lthread=lthr;
@@ -316,6 +359,10 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   O(all_threads) = new_cons;
   unlock_threads(); /* allow GC and other thread creation. */
 
+  /* NB: no new allocations should be performed here since if GC happens
+     the newly created thread cannot be suspended (it is not
+     started yet) and deadlock will occur */
+
   /* create the OS thread */
   if (xthread_create(&TheThread(lthr)->xth_system,
                      &thread_stub,new_thread,cstack_size)) {
@@ -323,7 +370,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
     pushSTACK(NIL); /* CELL-ERROR Slot NAME */
     pushSTACK(S(make_thread));
     error(control_error,GETTEXT("~S: spawning OS thread failed"));
-    lthr = NIL;
   }
   VALUES1(lthr);
 }
@@ -457,8 +503,10 @@ local void push_interrupt_arguments(clisp_thread_t *thr, object function,
     NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
   } else if (eq(function, T)) { /* i.e. THREAD-KILL */
     NC_pushSTACK(thr->_STACK,O(thread_exit_tag)); /* thread exit tag */
+    NC_pushSTACK(thr->_STACK,args); /* thread return values -
+                                       used only if thread is joinable */
     NC_pushSTACK(thr->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
-    NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
+    NC_pushSTACK(thr->_STACK,posfixnum(2)); /* 1 argument */
   } else { /* real function */
     var uintC argcnt=0;
     while (!endp(args)) {
@@ -518,10 +566,39 @@ LISPFUNNR(thread_name,1)
   VALUES1(TheThread(obj)->xth_name);
 }
 
+LISPFUNNR(thread_join,1)
+{ /* (THREAD-JOIN thread) */
+  STACK_0=check_thread(STACK_0);
+  if (!boundp(TheThread(STACK_0)->xth_values)) {
+    if (nullp(TheThread(STACK_0)->xth_join_lock)) {
+      var object thr = STACK_0;
+      pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+      pushSTACK(thr); pushSTACK(S(thread_join));
+      error(control_error,GETTEXT("~S: thread ~S is/was running and is not joinable"));
+    }
+    /* thread is still running and is joinable */
+    var gcv_object_t *thr_ = &STACK_0;
+    WITH_LISP_MUTEX_LOCK(0,false,&TheThread(*thr_)->xth_join_lock,{
+      while (!boundp(TheThread(*thr_)->xth_values)) {
+        /* wait on the join exemption */
+        pushSTACK(TheThread(*thr_)->xth_join_exemption);
+        pushSTACK(TheThread(*thr_)->xth_join_lock);
+        funcall(L(exemption_wait),2);
+      }
+    });
+  }
+  /* for sure we have thread's xth_values bound */
+  VALUES2(TheThread(STACK_0)->xth_values, thread_killedp(STACK_0) ? NIL : T);
+  skipSTACK(1);
+}
+
 LISPFUNN(thread_active_p,1)
 { /* (THREAD-ACTIVE-P thread) */
   var object obj=check_thread(popSTACK());
-  VALUES_IF(TheThread(obj)->xth_globals != NULL);
+  /* consider the thread active until it has not set it return values.
+   just the thread_delete() is left to be performed (and there is no way
+   to interrupt the thread while doing it)*/
+  VALUES_IF(!boundp(TheThread(obj)->xth_values));
 }
 
 LISPFUNN(current_thread,0)
