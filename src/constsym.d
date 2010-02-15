@@ -1225,7 +1225,6 @@ LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(Krecursive_p,"RECURSIVE-P",keyword)
-LISPSYM(Kjoinable_p,"JOINABLE-P",keyword)
 
 #ifndef SOCKET_STREAMS
   #error MULTITHREAD requires SOCKET_STREAMS
