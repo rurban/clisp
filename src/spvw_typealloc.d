@@ -656,10 +656,15 @@ global maygc object make_complex (object real, object imag) {
  < result : new thread object (not started)
  can trigger GC */
 global maygc object allocate_thread (gcv_object_t *name_) {
+  /* allocate join mutex and exemption with the same name as thread */
+  pushSTACK(allocate_mutex(name_));
+  pushSTACK(allocate_exemption(name_));
   var object result = allocate_xrecord(0,Rectype_Thread,thread_length,
                                        thread_xlength,orecord_type);
   TheThread(result)->xth_name = *name_;
   TheThread(result)->xth_values = unbound; /* no values */
+  TheThread(result)->xth_join_exemption = popSTACK();
+  TheThread(result)->xth_join_lock = popSTACK();
   return result;
 }
 
@@ -673,7 +678,7 @@ global maygc object allocate_mutex (gcv_object_t *name_) {
                                        mutex_xlength,orecord_type);
   TheMutex(result)->xmu_name = *name_;
   begin_system_call();
-  xmutex_t *p = (xmutex_t *)malloc(sizeof(xmutex_t));
+  var xmutex_t *p = (xmutex_t *)malloc(sizeof(xmutex_t));
   end_system_call();
   if (!p || xmutex_init(p))
     return NIL;
@@ -691,7 +696,7 @@ global maygc object allocate_exemption (gcv_object_t *name_) {
                                        exemption_xlength,orecord_type);
   TheExemption(result)->xco_name = *name_;
   begin_system_call();
-  xcondition_t *p = (xcondition_t *)malloc(sizeof(xcondition_t));
+  var xcondition_t *p = (xcondition_t *)malloc(sizeof(xcondition_t));
   end_system_call();
   if (!p || xcondition_init(p))
     result = NIL;
