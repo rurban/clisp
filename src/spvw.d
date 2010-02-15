@@ -3641,7 +3641,7 @@ local inline void main_actions (struct argv_actions *p) {
   pushSTACK(O(thread_exit_tag));
   var gcv_object_t* top_of_frame = STACK STACKop 1;
   var sp_jmp_buf returner; /* return point */
-  finish_entry_frame(CATCH,returner,,{skipSTACK(3);return;});
+  finish_entry_frame(CATCH,returner,,{skipSTACK(2);STACK_0=value1;return;});
 #endif
   driver();
 }

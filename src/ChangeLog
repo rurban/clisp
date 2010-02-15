@@ -1,3 +1,16 @@
+2010-02-15  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: make all threads joinable
+	* constsym.d, subr.d, subrkw.d: remove :JOINABLE-P
+	* spvw_typealloc.d (allocate_thread): allocate mutex and exemption used
+	by THREAD-JOIN
+	* zthread.d (thread-cleanup): signal waiters in THREAD-JOIN for thread
+	completion
+	(thread_stub): delegate all cleanup to thread_cleanup
+	(MAKE-THREAD): revert last commit
+	(THREAD-JOIN): all threads are joinable now
+	* spvw.d (main_actions): set main thread return value when it is killed
+
 2010-02-13  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: add THREAD-JOIN
@@ -5,7 +18,7 @@
 	flags to thread record
 	(thread_killedp): predicate whether the thread has exited abnormally
 	* spvw_typealloc.d (allocate_thread): initialize xth_values to unbound
-	* constsym.d, subr.d subrkw.d: add THREAD-JOIN and :JOINABLE-P to
+	* constsym.d, subr.d, subrkw.d: add THREAD-JOIN and :JOINABLE-P to
 	MAKE-THREAD keyword arguments
 	* threads.lisp: export THREAD-JOIN
 	(THROW-TAG): add second optional argument for catch result

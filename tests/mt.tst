@@ -44,8 +44,7 @@
                    (let ((*thread-special* 5))
                      (mutex-lock *mu1*)
                      (mutex-lock *mu2*) (mutex-lock *mu2*)
-                     (loop (sleep 1))))
-               :joinable-p t))
+                     (loop (sleep 1))))))
 *TH1*
 (thread-active-p *th1*) T
 (prin1-to-string *th1*) "#<THREAD :LAMBDA>"
@@ -86,7 +85,6 @@ T
 *TH2*
 (thread-name *th2*)  *TH2*
 (thread-active-p *th2*) T
-(thread-join *th2*) ERROR
 
 (progn
   (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
@@ -97,7 +95,8 @@ T
 
 ;; kill *th2* - warning for locked mutex *mu2* will be issued and
 ;; the mutex will be released
-(progn (thread-interrupt *th2* :function t) (sleep 1)) NIL
+(progn (thread-interrupt *th2* :function t)
+       (multiple-value-list (thread-join *th2*))) (NIL NIL)
 (mutex-owner *mu2*) NIL
 ;; multiple times kill on already dead thread
 (eq (thread-interrupt
@@ -154,7 +153,7 @@ T
 
 (thread-active-p *th3*) T ;; thread should be still running
 (eq (thread-interrupt *th3* :function t :override t) *th3*) T
-(sleep 0.5) NIL
+(thread-join *th3*) NIL
 (thread-active-p *th3*) NIL ;; should be dead
 
 ;; create thread with very tiny lisp stack (thus preserving memory)
@@ -212,37 +211,31 @@ T
 ;; tests for thread-join and return values
 ;; normal exit with single value
 (multiple-value-list
- (thread-join (make-thread (lambda () (- 1 2)) :joinable-p t)))
+ (thread-join (make-thread (lambda () (- 1 2)))))
 ((-1) T)
 
 ;; normal exit with multiple values
 (multiple-value-list
  (thread-join
-  (make-thread (lambda () (sleep 0.5) (truncate 45 6)) :joinable-p t)))
+  (make-thread (lambda () (sleep 0.5) (truncate 45 6)))))
 ((7 3) T)
 
 ;; no values, normal exit
-(let ((thr (make-thread (lambda () (system::version (system::version)))
-                        :joinable-p t)))
+(let ((thr (make-thread (lambda () (system::version (system::version))))))
   (multiple-value-list (thread-join thr)))
 (NIL T)
 
 ;; no values, abnormal exit
-(let ((thr (make-thread (lambda () (loop (sleep 1))) :joinable-p t)))
+(let ((thr (make-thread (lambda () (loop (sleep 1))))))
   (thread-interrupt thr :function t)
   (multiple-value-list (thread-join thr)))
 (NIL NIL)
 
 ;; abnormal exit, values specified by thread-kill
-(let ((thr (make-thread (lambda () (loop (sleep 1))) :joinable-p t)))
+(let ((thr (make-thread (lambda () (loop (sleep 1))))))
   (thread-interrupt thr :function t :arguments '(4 5))
   (multiple-value-list (thread-join thr)))
 ((4 5) NIL)
-
-;; *th2* is non-joinable thread that has been killed above
-(multiple-value-list (thread-join *th2*))
-(NIL NIL)
-
 
 (progn (symbol-cleanup '*thread-special*)
        (symbol-cleanup '*mu1*)
