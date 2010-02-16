@@ -54,6 +54,7 @@
 (typep *th1* 'thread) T
 (typep *th1* 'T) T
 
+;; symbol-value-thread tests
 ;; wait for the global symbol value to change
 (loop until (eql *thread-special* 2) do (sleep 0.1)) NIL
 ;; just sleep little bit
@@ -64,6 +65,37 @@
 *thread-special* 2
 ;; get global symbol value
 (symbol-value-thread '*thread-special* nil) 2
+;; no per thread binding for *th1*
+(multiple-value-list (symbol-value-thread '*th1* *th1*)) (NIL NIL)
+(thread-active-p (symbol-value-thread '*th1* NIL)) T
+(symbol-value-thread '*thread-special* T) NIL
+(let ((*thread-special* 88))
+  (symbol-value-thread '*thread-special* T))
+88
+
+;; setf global value
+(progn
+  (setf (symbol-value-thread '*thread-special* nil) 101)
+  *thread-special*)
+101
+;; setf current thread value
+(progn
+  (setf (symbol-value-thread '*thread-special* T) 102)
+  (symbol-value-thread '*thread-special* T))
+102
+;; current thread sees it's value/binding
+*thread-special* 102
+(symbol-value-thread '*thread-special* nil) 101
+
+;; makunbound on per thread value
+(makunbound '*thread-special*) *thread-special*
+(multiple-value-list (symbol-value-thread '*thread-special* T))
+(NIL MAKUNBOUND)
+
+(let ((some-sym 56))
+  (setf (symbol-value-thread 'some-sym *th1*) 67))
+ERROR
+
 (eq (mutex-owner *mu1*) *th1*) T
 ;; check timed wait on mutex
 (mutex-lock *mu1* :timeout 0.5) NIL
@@ -109,6 +141,12 @@ T
 (thread-active-p *th1*) NIL
 (prin1-to-string *th1*) "#<INACTIVE THREAD :LAMBDA>"
 
+;; more symbol-value-thread tests
+(multiple-value-list (symbol-value-thread '*thread-special* *th1*))
+(NIL THREAD-ACTIVE-P)
+(setf (symbol-value-thread '*thread-special* *th1*) 1) ERROR
+
+;; exemption tests
 (defparameter *exemption*
   (make-exemption :name "test exemption"))
 *EXEMPTION*
