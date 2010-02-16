@@ -1,3 +1,11 @@
+2010-02-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d: (thread_symbol_place): remove
+	(SYMBOL-VALUE-THREAD): return (NIL THREAD-ACTIVE-P) if thread is not
+	active. lock threads only when really needed
+	(SET-SYMBOL-VALUE-THREAD): more specific errors. lock threads only when
+	really needed
+
 2010-02-16  Sam Steingold  <sds@gnu.org>
 
 	* zthread.d (check_thread, check_mutex, check_exemption)

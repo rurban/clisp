@@ -601,79 +601,82 @@ LISPFUNN(list_threads,0)
   VALUES1(listof(count));
 }
 
-/* UP: helper function that returns pointer to the symbol's symvalue
-   in a thread.
- > symbol: pointer to valid symbol
- > thread: pointer to valid thread or NIL (in case of global symvalue)
- < Returns pointer to appropriate value cell or NULL */
-local gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
-                                         gcv_object_t *thread) {
-  if (eq(*thread,NIL)) {
-    return &TheSymbol(*symbol)->symvalue; /* global value */
-  } else {
-    var clisp_thread_t *thr = TheThread(*thread)->xth_globals;
-    if (!thr || !thr->_ptr_symvalues) /* thread is alive? */
-      return NULL;
-    *thread=thr->_lthread; /* for error reporting if needed */
-    var uintL idx=TheSymbol(*symbol)->tls_index;
-    if (idx == SYMBOL_TLS_INDEX_NONE)
-      return NULL; /* not per thread special */
-    return &thr->_ptr_symvalues[idx];
-  }
-}
-
 LISPFUNNR(symbol_value_thread,2)
 { /* (MT:SYMBOL-VALUE-THREAD symbol thread) */
-  /* check arguments before locking threads. if error is signaled while
-     holding all_threads lock we may deadlock (if GC happens) */
   STACK_1 = check_symbol(STACK_1);
-  if (!eq(STACK_0,NIL)) { /* = NIL i.e. global symvalue */
-    if (eq(STACK_0,T)) /* current thread? */
-      STACK_0 = current_thread()->_lthread;
-    else
-      STACK_0 = check_thread(STACK_0);
+  /* handle first cases when we do not need to lock threads */
+  if (nullp(STACK_0)) { /* global symvalue */
+    var object symvalue = TheSymbol(STACK_1)->symvalue;
+    if (boundp(symvalue)) VALUES2(symvalue,T); else VALUES2(NIL,NIL);
+  } else { /* specific thread specified */
+    var uintL idx=TheSymbol(STACK_1)->tls_index;
+    if (idx == SYMBOL_TLS_INDEX_NONE) { /* not special variable */
+      VALUES2(NIL,NIL);
+    } else { /* there may be per thread values */
+      if (eq(STACK_0,T)) { /* current thread symvalue */
+        pushSTACK(current_thread()->_ptr_symvalues[idx]);
+        pushSTACK(NIL); /* placeholder for now */
+      } else { /* ! current thread - we need to lock threads */
+        STACK_0 = check_thread(STACK_0);
+        begin_blocking_call(); lock_threads(); end_blocking_call();
+        if (boundp(TheThread(STACK_0)->xth_values)) { /* thread has exited? */
+          pushSTACK(NIL); pushSTACK(S(thread_active_p));
+        } else { /* thread is still alive */
+          pushSTACK(TheThread(STACK_0)->xth_globals->_ptr_symvalues[idx]);
+          pushSTACK(NIL); /* placeholder for now */
+        }
+        unlock_threads();
+      }
+      /* now fix up the return values */
+      if (nullp(STACK_0)) { /* thread alive (incl. current thread) */
+        if (eq(STACK_1,SYMVALUE_EMPTY)) { /* no value */
+          STACK_1 = NIL;
+        } else if (!boundp(STACK_1)) { /* bound but later makunbound-ed */
+          STACK_1 = NIL; STACK_0 = S(makunbound);
+        } else { /* there is a value */
+          STACK_0 = T;
+        }
+      }
+      STACK_to_mv(2);
+    }
   }
-  /* lock threads - so thread cannot exit meanwhile (if running at all) */
-  begin_blocking_call(); lock_threads(); end_blocking_call();
-  var gcv_object_t *symval = thread_symbol_place(&STACK_1, &STACK_0);
-  if (!symval || eq(SYMVALUE_EMPTY, *symval)) {
-    VALUES2(NIL,NIL); /* not bound, dead thread or not special var */
-  } else if (eq(unbound,*symval)) {
-    VALUES2(NIL,S(makunbound)); /* was bound but later makunbound-ed */
-  } else {
-    VALUES2(*symval,T); /* bound */
-  }
-  unlock_threads();
   skipSTACK(2);
 }
 
 LISPFUNN(set_symbol_value_thread,3)
 { /* (SETF (MT:SYMBOL-VALUE-THREAD symbol thread) value) */
-  /* check arguments before locking threads. if error is signaled while
-     holding all_threads lock we may deadlock (if GC happens) */
   STACK_2 = check_symbol(STACK_2);
-  if (!eq(STACK_1,NIL)) { /* = NIL i.e. global symvalue */
-    if (eq(STACK_1,T)) /* current thread? */
-      STACK_1 = current_thread()->_lthread;
-    else
-      STACK_1 = check_thread(STACK_1);
+  /* handle first cases when we do not need to lock threads */
+  if (nullp(STACK_1)) { /* global symvalue */
+    TheSymbol(STACK_2)->symvalue = STACK_0;
+  } else { /* specific thread specified */
+    var uintL idx=TheSymbol(STACK_2)->tls_index;
+    if (idx == SYMBOL_TLS_INDEX_NONE) { /* not special variable */
+      skipSTACK(2); /* value + thread */
+      pushSTACK(S(set_symbol_value_thread));
+      error(unbound_variable,GETTEXT("~S: ~S is not per thread special variable"));
+    } else { /* let's set the per thread value */
+      if (eq(STACK_1,T)) { /* current thread symvalue */
+        current_thread()->_ptr_symvalues[idx] = STACK_0;
+      } else { /* ! current thread - we need to lock threads */
+        var bool thr_was_dead = false;
+        STACK_1 = check_thread(STACK_1);
+        begin_blocking_call(); lock_threads(); end_blocking_call();
+        if (boundp(TheThread(STACK_1)->xth_values)) { /* thread has exited? */
+          thr_was_dead = true;
+        } else { /* thread is still alive  - set the symbol value */
+          TheThread(STACK_1)->xth_globals->_ptr_symvalues[idx] = STACK_0;
+        }
+        unlock_threads();
+        if (thr_was_dead) {
+          skipSTACK(1); /* value */
+          pushSTACK(S(set_symbol_value_thread));
+          error(control_error,GETTEXT("~S: thread ~S is not active"));
+        }
+      }
+    }
   }
-  /* lock threads - so thread cannot exit meanwhile (if running at all) */
-  begin_blocking_call(); lock_threads(); end_blocking_call();
-  var gcv_object_t *symval = thread_symbol_place(&STACK_2, &STACK_1);
-  if (!symval) {
-    unlock_threads();
-    var object symbol=STACK_2;
-    var object thread=STACK_1;
-    pushSTACK(symbol); /* CELL-ERROR Slot NAME */
-    pushSTACK(thread);
-    pushSTACK(symbol); pushSTACK(S(set_symbol_value_thread));
-    error(unbound_variable,GETTEXT("~S: ~S is not special variable or thread ~S is dead"));
-  } else {
-    *symval=STACK_0;
-    VALUES1(*symval);
-  }
-  unlock_threads();
+  VALUES1(STACK_0);
   skipSTACK(3);
 }
 
