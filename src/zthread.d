@@ -21,7 +21,7 @@ local maygc object check_thread(object obj)
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(thread));       /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(subr_self);
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a thread"));
     obj = value1;
   }
@@ -35,7 +35,7 @@ local maygc object check_mutex(object obj)
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(mutex));        /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(subr_self);
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a mutex"));
     obj = value1;
   }
@@ -49,7 +49,7 @@ local maygc object check_exemption(object obj)
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
     pushSTACK(S(exemption));    /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(subr_self);
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not an exemption"));
     obj = value1;
   }
@@ -70,7 +70,7 @@ local object check_name_arg (object name_arg, object dflt) {
     pushSTACK(NIL);              /* no PLACE */
     pushSTACK(name_arg);         /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_name_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(name_arg); pushSTACK(subr_self);
+    pushSTACK(name_arg); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: name ~S should be a string, a symbol, or an integer"));
     name_arg = value1;
   }
@@ -603,9 +603,9 @@ LISPFUNN(list_threads,0)
 
 /* UP: helper function that returns pointer to the symbol's symvalue
    in a thread.
-   > symbol: pointer to valid symbol
-   > thread: pointer to valid thread or NIL (in case of global symvalue)
-   < Returns pointer to appropriate value cell or NULL */
+ > symbol: pointer to valid symbol
+ > thread: pointer to valid thread or NIL (in case of global symvalue)
+ < Returns pointer to appropriate value cell or NULL */
 local gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
                                          gcv_object_t *thread) {
   if (eq(*thread,NIL)) {
