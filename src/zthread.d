@@ -1,8 +1,8 @@
 /*
  * CLISP thread functions - multiprocessing
  * Distributed under the GNU GPL as a part of GNU CLISP
- * Sam Steingold 2003-2009
- * Vladimir Tzankov 2008-2009
+ * Sam Steingold 2003-2010
+ * Vladimir Tzankov 2008-2010
  */
 
 #include "lispbibl.c"
@@ -142,7 +142,7 @@ global maygc void thread_cleanup (void) {
   var uintC count;
   dotimesC(count, locked_mutexes, {
     var object mutex = STACK_0;
-    {  /* warn */
+    { /* warn */
       pushSTACK(NIL); pushSTACK(me->_lthread);
       pushSTACK(mutex);
       STACK_2 = CLSTEXT("Thread ~S is exiting while still owning mutex ~S. The mutex will be released.");
@@ -487,8 +487,7 @@ local void push_interrupt_arguments(clisp_thread_t *thr, object function,
     NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
   } else if (eq(function, T)) { /* i.e. THREAD-KILL */
     NC_pushSTACK(thr->_STACK,O(thread_exit_tag)); /* thread exit tag */
-    NC_pushSTACK(thr->_STACK,args); /* thread return values -
-                                       used only if thread is joinable */
+    NC_pushSTACK(thr->_STACK,args); /* thread return values */
     NC_pushSTACK(thr->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
     NC_pushSTACK(thr->_STACK,posfixnum(2)); /* 1 argument */
   } else { /* real function */
@@ -518,7 +517,7 @@ LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
     funcall(popSTACK(),argcnt);
     interrupted=true;
   } else { /* really interrupt another thread */
-    if (suspend_thread(STACK_3,false)) { /* stil alive? */
+    if (suspend_thread(STACK_3,false)) { /* still alive? */
       var clisp_thread_t *clt = TheThread(STACK_3)->xth_globals;
       var gcv_object_t *saved_stack=clt->_STACK;
       /* be sure that the signal we send will be received */
@@ -554,7 +553,7 @@ LISPFUNNR(thread_join,1)
 { /* (THREAD-JOIN thread) */
   STACK_0=check_thread(STACK_0);
   if (!boundp(TheThread(STACK_0)->xth_values)) {
-    /* thread is still running and is joinable */
+    /* thread is still running */
     var gcv_object_t *thr_ = &STACK_0;
     WITH_LISP_MUTEX_LOCK(0,false,&TheThread(*thr_)->xth_join_lock,{
       while (!boundp(TheThread(*thr_)->xth_values)) {
@@ -636,7 +635,7 @@ LISPFUNNR(symbol_value_thread,2)
   }
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
-  var gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
+  var gcv_object_t *symval = thread_symbol_place(&STACK_1, &STACK_0);
   if (!symval || eq(SYMVALUE_EMPTY, *symval)) {
     VALUES2(NIL,NIL); /* not bound, dead thread or not special var */
   } else if (eq(unbound,*symval)) {
@@ -661,7 +660,7 @@ LISPFUNN(set_symbol_value_thread,3)
   }
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
-  var gcv_object_t *symval=thread_symbol_place(&STACK_2, &STACK_1);
+  var gcv_object_t *symval = thread_symbol_place(&STACK_2, &STACK_1);
   if (!symval) {
     unlock_threads();
     var object symbol=STACK_2;
@@ -836,8 +835,7 @@ LISPFUNNR(exemption_name,1)
   VALUES1(TheExemption(obj)->xco_name);
 }
 
-LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
-        (kw(timeout)))
+LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,(kw(timeout)))
 { /* (EXEMPTION-WAIT exemption mutex) */
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
@@ -854,8 +852,8 @@ LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
   /* we are the owners - let's see how many times we we have locked it */
   if (TheMutex(STACK_0)->xmu_recurse_count != 1) {
     /* using recursive mutex with condition variables may cause really
-       weird errors that are almost impossible to debug. Let's check that
-       we have locked it only once */
+       weird errors that are almost impossible to debug.
+       Let's check that we have locked it only once. */
     var object mx = STACK_0;
     pushSTACK(mx); /* CELL-ERROR Slot NAME */
     pushSTACK(current_thread()->_lthread);
