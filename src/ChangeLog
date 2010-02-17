@@ -1,5 +1,11 @@
 2010-02-17  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (AUTOCONF, AUTOHEADER): remove variables;
+	to run autoconf/automake from a non-standard location one has to
+	prepend it to PATH because aclocal calls autoconf directly
+
+2010-02-17  Sam Steingold  <sds@gnu.org>
+
 	* lisparit.d (make_random_state): use rand_r() when it is available
 	because rand() is neither reentrant nor thread-safe
 	* configure.in: check for rand_r()
