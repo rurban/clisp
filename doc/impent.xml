@@ -519,6 +519,7 @@
 <!ENTITY thread-interrupt '<link linkend="thread-interrupt"><function>MT:THREAD-INTERRUPT</function></link>'>
 <!ENTITY thread-name '<link linkend="thread-name"><function>MT:THREAD-NAME</function></link>'>
 <!ENTITY thread-active-p '<link linkend="thread-active-p"><function>MT:THREAD-ACTIVE-P</function></link>'>
+<!ENTITY thread-join '<link linkend="thread-join"><function>MT:THREAD-JOIN</function></link>'>
 <!ENTITY current-thread '<link linkend="current-thread"><function>MT:CURRENT-THREAD</function></link>'>
 <!ENTITY list-threads '<link linkend="list-threads"><function>MT:LIST-THREADS</function></link>'>
 <!ENTITY mutex '<link linkend="mutex"><type>MT:MUTEX</type></link>'>
