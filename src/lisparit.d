@@ -1,7 +1,7 @@
 /*
  * Arithmetics for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-12-23
  */
 
@@ -1728,8 +1728,14 @@ local maygc object make_random_state (object r)
     seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); /* 16+16 random bits */
     #endif
     begin_system_call();
-    seed_hi = (rand() /* random 31 bits (on UNIX_BSD) resp. 16 bits (on UNIX_SYSV) */
-               << 8) ^ (uintL)(getpid()); /* ca. 8 bits from the Process ID */
+    var uintL pid = (uintL)(getpid());
+    seed_hi = (
+     #if defined(HAVE_RAND_R)
+      rand_r(pid)
+     #else
+      rand() /* random 31 bits (on UNIX_BSD) resp. 16 bits (on UNIX_SYSV) */
+     #endif
+      << 8) ^ pid; /* ca. 8 bits from the Process ID */
     end_system_call();
    #elif defined(WIN32_NATIVE)
     var internal_time_t real_time; /* time */

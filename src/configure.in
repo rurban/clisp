@@ -1,6 +1,6 @@
 dnl  -*- Autoconf -*- configuration for CLISP
 dnl  Bruno Haible 1992-2008
-dnl  Sam Steingold 2002-2009
+dnl  Sam Steingold 2002-2010
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl               ---<autoheader>->> config.h.in
@@ -105,7 +105,7 @@ CL_SIGINTERRUPT        dnl DEFS HAVE_SIGINTERRUPT
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
-gethostname readlink getcwd uname readdir_r)
+gethostname readlink getcwd uname readdir_r rand_r)
 CL_PUTENV dnl DEFS HAVE_PUTENV, HAVE_SETENV
 gt_LC_MESSAGES dnl DEFS HAVE_LC_MESSAGES
 CL_RLIMIT dnl DEFS HAVE_GETRLIMIT, HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
