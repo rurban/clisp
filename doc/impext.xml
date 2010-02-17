@@ -5045,12 +5045,12 @@ thus &random; &is-e; thread-safe.</para></section>
     forms evaluation in case they are interrupted with a non-local exit.
 </para></warning></listitem></varlistentry>
 <varlistentry id="thread-join"><term><code>(&thread-join; &thr;)</code></term>
- <listitem><simpara>Wait for &thr; to terminate and return its values as a
-  &list-t; and a &boolean-t; indicator of whether the thread finished normally
-  or has been interrupted with &thread-interrupt;.</simpara>
+ <listitem><simpara>Wait for &thr; to terminate and return two values:
+  &thr;'s values as a &list-t; and a &boolean-t; indicator of whether &thr;
+  finished normally or has been interrupted with &thread-interrupt;.</simpara>
  <simpara>This function uses &exemption-wait; (and &not-e;
-  <function role="unix">pthread_join</function>), so there are no resource leaks
-  normally associated with with this function.
+  <function role="unix">pthread_join</function>), so there are no resource
+  leaks normally associated with this function.
 </simpara></listitem></varlistentry>
 </variablelist></section>
 </section>
