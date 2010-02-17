@@ -1,5 +1,11 @@
 2010-02-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c: <linux/netlink.h> requires <asm/types.h>
+	(check_socket_protocol): use "-" in NETLINK_*, like in all others
+	* modules/rawsock/configure.in: check for <asm/types.h>
+
+2010-02-17  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (AUTOCONF, AUTOHEADER): remove variables;
 	to run autoconf/automake from a non-standard location one has to
 	prepend it to PATH because aclocal calls autoconf directly
