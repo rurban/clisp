@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2009
+ * Sam Steingold 2004-2010
  * Bruno Haible 2004-2008
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
@@ -37,6 +37,9 @@
 #endif
 #if defined(HAVE_LINUX_IF_PACKET_H)
 # include <linux/if_packet.h>
+#endif
+#if defined(HAVE_ASM_TYPES_H)
+# include <asm/types.h>
 #endif
 #if defined(HAVE_LINUX_NETLINK_H)
 # include <linux/netlink.h>
