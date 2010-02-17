@@ -1731,7 +1731,7 @@ local maygc object make_random_state (object r)
     var uintL pid = (uintL)(getpid());
     seed_hi = (
      #if defined(HAVE_RAND_R)
-      rand_r(pid)
+      rand_r(&pid)
      #else
       rand() /* random 31 bits (on UNIX_BSD) resp. 16 bits (on UNIX_SYSV) */
      #endif
