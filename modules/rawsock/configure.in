@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for Rawsock
-dnl Sam Steingold 2004-2009
+dnl Sam Steingold 2004-2010
 
 AC_PREREQ(2.57)
 AC_INIT(rawsock, 1.0, clisp-list)
@@ -13,7 +13,7 @@ CL_MODULE_COMMON_CHECKS()
 BOLD_MSG([Rawsock (Headers)])
 CL_TCPCONN
 AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
-linux/netlink.h \
+asm/types.h \
 sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h unistd.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #if defined(HAVE_SYS_TYPES_H)
@@ -29,6 +29,11 @@ AC_CHECK_HEADERS([netinet/if_ether.h],[],[],[
 #endif
 #if HAVE_NET_IF_H
 # include <net/if.h>
+#endif
+])
+AC_CHECK_HEADERS([linux/netlink.h],[],[],[
+#if defined(HAVE_ASM_TYPES_H)
+# include <asm/types.h>
 #endif
 ])
 if test "$ac_cv_header_sys_socket_h" = "no"; then
