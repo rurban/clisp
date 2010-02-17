@@ -5050,8 +5050,10 @@ thus &random; &is-e; thread-safe.</para></section>
   finished normally or has been interrupted with &thread-interrupt;.</simpara>
  <simpara>This function uses &exemption-wait; (and &not-e;
   <function role="unix">pthread_join</function>), so there are no resource
-  leaks normally associated with this function.
-</simpara></listitem></varlistentry>
+  leaks normally associated with this function.</simpara>
+ <simpara>This function can be used repeatedly on the same thread,
+  so this is the usual way to access the return values of a finished
+  thread.</simpara></listitem></varlistentry>
 </variablelist></section>
 </section>
 
