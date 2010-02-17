@@ -1,10 +1,17 @@
+2010-02-17  Sam Steingold  <sds@gnu.org>
+
+	* lisparit.d (make_random_state): use rand_r() when it is available
+	because rand() is neither reentrant nor thread-safe
+	* configure.in: check for rand_r()
+	Reported by Tobias C. Rittweiler <tcr@freebits.de>
+
 2010-02-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* zthread.d: (thread_symbol_place): remove
+	* zthread.d (thread_symbol_place): remove
 	(SYMBOL-VALUE-THREAD): return (NIL THREAD-ACTIVE-P) if thread is not
 	active. lock threads only when really needed
-	(SET-SYMBOL-VALUE-THREAD): more specific errors. lock threads only when
-	really needed
+	(SET-SYMBOL-VALUE-THREAD): more specific errors.
+	lock threads only when really needed
 
 2010-02-16  Sam Steingold  <sds@gnu.org>
 
