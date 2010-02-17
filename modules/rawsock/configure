@@ -4792,7 +4792,9 @@ fi
 
 
 
+
 for ac_header in sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
+linux/netlink.h \
 sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h unistd.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
