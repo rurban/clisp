@@ -1,6 +1,8 @@
 2010-02-18  Sam Steingold  <sds@gnu.org>
 
 	* package.d (PACKAGE-ITERATE): remove unused variable
+	(symbol_list_lookup, shadowing_delete): move selecting the
+	comparison function (inverted or not) out of the loop
 
 2010-02-17  Sam Steingold  <sds@gnu.org>
 
