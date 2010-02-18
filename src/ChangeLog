@@ -1,3 +1,7 @@
+2010-02-18  Sam Steingold  <sds@gnu.org>
+
+	* package.d (PACKAGE-ITERATE): remove unused variable
+
 2010-02-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c: <linux/netlink.h> requires <asm/types.h>

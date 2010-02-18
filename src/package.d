@@ -3009,10 +3009,9 @@ LISPFUNN(package_iterate,1) {
                 shadowing-list of pack),
              2. itself not already present in pack (because in this case
                 the accessibility would be :INTERNAL or :EXTERNAL). */
-          var object shadowingsym;
           if (!(eq(Car(PIS(state,FLAGS)),S(Kinherited))
                 && (shadowing_lookup(Symbol_name(value2),false,
-                                     PIS(state,PACK),&shadowingsym)
+                                     PIS(state,PACK),NULL)
                     || symtab_find(value2,
                                    ThePackage(PIS(state,PACK))->
                                    pack_internal_symbols)
