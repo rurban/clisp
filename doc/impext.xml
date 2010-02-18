@@ -4806,7 +4806,6 @@ thus &random; &is-e; thread-safe.</para></section>
 (&incf; (&gethash; x global-ht 0))<lineannotation>see <xref linkend="mt-mutable"/></lineannotation>
 (&setf; (&aref; global-array ...) ...)<lineannotation>ditto</lineannotation>
 (&defmethod; &gf-r; (...) ...)<lineannotation>see <xref linkend="mt-clos"/></lineannotation>
-(&read-from-string; &string-r;)<lineannotation>ditto</lineannotation>
 </programlisting></para></section>
 
 </section>
