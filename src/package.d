@@ -252,9 +252,9 @@ local maygc object rehash_symtab (object symtab) {
 local inline bool symbol_list_lookup(object string, bool invert, object list,
                                      object* sym_) {
   /* traverse list: */
+  var bool (*s_eq)(object,object) = (invert ? &string_eq_inverted : &string_eq);
   while (consp(list)) {
-    if ((invert ? string_eq_inverted : string_eq)
-        (string,Symbol_name(Car(list))))
+    if ((*s_eq)(string,Symbol_name(Car(list))))
       goto found;
     list = Cdr(list);
   }
@@ -580,9 +580,9 @@ local void shadowing_delete (object string, bool invert, object pack) {
   var gcv_object_t* listptr = &ThePackage(pack)->pack_shadowing_symbols;
   var object list = *listptr;
   /* list = *listptr traverses the shadowing-list */
+  var bool (*s_eq)(object,object) = (invert ? &string_eq_inverted : &string_eq);
   while (consp(list)) {
-    if ((invert ? string_eq_inverted : string_eq)
-        (string,Symbol_name(Car(list))))
+    if ((*s_eq)(string,Symbol_name(Car(list))))
       goto found;
     listptr = &Cdr(list); list = *listptr;
   }
