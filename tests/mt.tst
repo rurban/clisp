@@ -118,6 +118,9 @@ T
 (thread-name *th2*)  *TH2*
 (thread-active-p *th2*) T
 
+(multiple-value-list (thread-join *th1* :timeout 0)) (NIL :TIMEOUT)
+(multiple-value-list (thread-join *th1* :timeout 1)) (NIL :TIMEOUT)
+
 (progn
   (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
   (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
@@ -138,6 +141,8 @@ T
      :function t) *th1*)
 T
 (thread-join *th1*) NIL
+(multiple-value-list (thread-join *th1* :timeout 0)) (NIL NIL)
+(multiple-value-list (thread-join *th1* :timeout 1)) (NIL NIL)
 (thread-active-p *th1*) NIL
 (prin1-to-string *th1*) "#<INACTIVE THREAD :LAMBDA>"
 

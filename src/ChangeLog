@@ -1,3 +1,9 @@
+2010-02-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (THREAD-JOIN): add :TIMEOUT argument (on timeout return
+	values are: NIL; :TIMEOUT)
+	* subr.d, subrkw.d: ditto
+
 2010-02-18  Sam Steingold  <sds@gnu.org>
 
 	* package.d (PACKAGE-ITERATE): remove unused variable
