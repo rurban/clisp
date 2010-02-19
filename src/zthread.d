@@ -660,7 +660,8 @@ LISPFUNN(set_symbol_value_thread,3)
   } else { /* specific thread specified */
     var uintL idx=TheSymbol(STACK_2)->tls_index;
     if (idx == SYMBOL_TLS_INDEX_NONE) { /* not special variable */
-      skipSTACK(2); /* value + thread */
+      skipSTACK(1); /* skip value */
+      STACK_0 = STACK_1; /* = symbol (CELL-ERROR Slot NAME, symbol) */
       pushSTACK(S(set_symbol_value_thread));
       error(unbound_variable,GETTEXT("~S: ~S is not per thread special variable"));
     } else { /* let's set the per thread value */
