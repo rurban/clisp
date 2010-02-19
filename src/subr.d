@@ -1432,7 +1432,7 @@ LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
         (kw(function),kw(override),kw(arguments)))
 LISPFUNN(threadp,1)
 LISPFUNNR(thread_name,1)
-LISPFUNNR(thread_join,1)
+LISPFUN(thread_join,seclass_read,1,0,norest,key,1,(kw(timeout)))
 LISPFUNN(thread_active_p,1)
 LISPFUNN(current_thread,0)
 LISPFUNN(list_threads,0)
