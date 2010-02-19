@@ -549,24 +549,32 @@ LISPFUNNR(thread_name,1)
   VALUES1(TheThread(obj)->xth_name);
 }
 
-LISPFUNNR(thread_join,1)
-{ /* (THREAD-JOIN thread) */
-  STACK_0=check_thread(STACK_0);
-  if (!boundp(TheThread(STACK_0)->xth_values)) {
+LISPFUN(thread_join,seclass_read,1,0,norest,key,1,(kw(timeout)))
+{ /* (THREAD-JOIN thread [:timeout]) */
+  var bool timeout=false;
+  STACK_1=check_thread(STACK_1);
+  if (!boundp(TheThread(STACK_1)->xth_values)) {
     /* thread is still running */
-    var gcv_object_t *thr_ = &STACK_0;
+    var gcv_object_t *thr_ = &STACK_1;
+    var gcv_object_t *timeout_ = &STACK_0;
     WITH_LISP_MUTEX_LOCK(0,false,&TheThread(*thr_)->xth_join_lock,{
-      while (!boundp(TheThread(*thr_)->xth_values)) {
+      while (!timeout && !boundp(TheThread(*thr_)->xth_values)) {
         /* wait on the join exemption */
         pushSTACK(TheThread(*thr_)->xth_join_exemption);
         pushSTACK(TheThread(*thr_)->xth_join_lock);
-        funcall(L(exemption_wait),2);
+        pushSTACK(S(Ktimeout)); pushSTACK(*timeout_);
+        funcall(L(exemption_wait),4);
+        timeout = eq(value1, NIL);
       }
     });
   }
-  /* for sure we have thread's xth_values bound */
-  VALUES2(TheThread(STACK_0)->xth_values, thread_killedp(STACK_0) ? NIL : T);
-  skipSTACK(1);
+  if (!timeout) {
+    /* for sure we have thread's xth_values bound */
+    VALUES2(TheThread(STACK_1)->xth_values, thread_killedp(STACK_1) ? NIL : T);
+  } else {
+    VALUES2(NIL,S(Ktimeout)); /* timeout */
+  }
+  skipSTACK(2);
 }
 
 LISPFUNN(thread_active_p,1)
