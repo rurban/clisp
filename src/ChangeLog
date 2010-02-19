@@ -1,5 +1,10 @@
 2010-02-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* zthread.d (SET-SYMBOL-VALUE-THREAD): fix stack layout on
+	unbound_variable error
+
+2010-02-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* zthread.d (THREAD-JOIN): add :TIMEOUT argument (on timeout return
 	values are: NIL; :TIMEOUT)
 	* subr.d, subrkw.d: ditto
