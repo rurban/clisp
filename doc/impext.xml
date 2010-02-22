@@ -3301,7 +3301,7 @@ or just evaluates the appropriate form in the &repl;.</para>
   <simpara>Use <code>(&setf; &validp;)</code> to disable further
    references to this address from Lisp.  This is currently not done
    automatically.  If the given pointer is already invalid,
-   &foreign-free; (currently) &signal;s an &error-t;. This may change to
+   &foreign-free; (currently) &sig-err;. This may change to
    make it easier to integrate with &finalize;.</simpara>
    <simpara>Function &foreign-allocate; is a lower-level interface as it
    requires an internal &c-lang; type descriptor as returned by
@@ -4512,13 +4512,9 @@ Now you can sum doubles:
     not block) and &nil; on timeout.</simpara></listitem></varlistentry>
  <varlistentry id="so-accept"><term><code>(&so-accept; &sose-r;
     &key-amp; &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
-  <listitem id="timeout-k"><simpara>Creates the server-side &bidir-s;
-    &socket-stream; for the connection.
-   Waits for an attempt to connect to the server for no more than
-   &timeout-k; &seconds; (which may be a non-negative &real-t; or a
-   list <literal role="data">(sec usec)</literal> or a pair
-   <literal role="data">(sec . usec)</literal>).
-   &signal;s an &error-t; if no connection is made in that time.
+  <listitem><simpara>Waits for an attempt to connect to the &sose-r; and
+   creates the server-side &bidir-s; &socket-stream; for the connection.
+  </simpara><simpara>&sig-err; if no connection is made in that time.
   </simpara></listitem></varlistentry>
  <varlistentry id="so-connect"><term><code>(&so-connect;
     &port-r; &optional-amp; [&host-r;] &key-amp;
@@ -4682,12 +4678,21 @@ Now you can sum doubles:
  </simpara></listitem></varlistentry>
 </variablelist></section>
 <!-- #endif -->
+<section id="timeout-k"><title>Argument &timeout-k;</title>
+<para>The &timeout-k; argument specifies the number of &seconds; to wait for
+ an event. The value may be a<itemizedlist>
+ <listitem><simpara>a non-negative &real-t; or</simpara></listitem>
+ <listitem><simpara>a &list-t; <literal role="data">(sec usec)</literal>
+  or</simpara></listitem>
+ <listitem><simpara>a &cons-t; cell <literal role="data">(sec .
+   usec)</literal>.</simpara></listitem>
+</itemizedlist></para></section>
 </section>
 
 <section id="mt"><title>Multiple Threads of Execution</title>
 <subtitle><emphasis role="plat-dep">Only in &clisp; built &with;
   compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
-
+<!-- #ifdef MULTITHREAD -->
 <warning><simpara>This functionality is
   <emphasis role="strong">experimental</emphasis>.</simpara>
  <simpara>Use it at your own risk.</simpara>
@@ -5056,6 +5061,7 @@ thus &random; &is-e; thread-safe.</para></section>
   so this is the usual way to access the return values of a finished
   thread.</simpara></listitem></varlistentry>
 </variablelist></section>
+<!-- #endif -->
 </section>
 
 <section id="quickstart"><title>Quickstarting delivery with &clisp;</title>
