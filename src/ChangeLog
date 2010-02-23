@@ -1,5 +1,13 @@
 2010-02-23  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_MODULES): add nl_langinfo, which is now
+	required by regexp, so that i18n have it always available
+	* modules/i18n/configure.in: call gl_FUNC_NL_LANGINFO
+	* modules/i18n/gettext.c [!WIN32_NATIVE]:
+	assume that nl_langinfo is always present
+
+2010-02-23  Sam Steingold  <sds@gnu.org>
+
 	update gnulib
 	* modules/regexp/gllib/Makefile.am, modules/regexp/gllib/regcomp.c:
 	* modules/regexp/gllib/regex_internal.c:

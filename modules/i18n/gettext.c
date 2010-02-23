@@ -1,7 +1,7 @@
 /*
  * ======= General internationalization, for Lisp programs too =======
  * Copyright (C) 1990-2005 Bruno Haible
- * Copyright (C) 1998-2008 Sam Steingold
+ * Copyright (C) 1998-2008, 2010 Sam Steingold
  * GPL2
  */
 
@@ -10,9 +10,7 @@
 
 #include <string.h>             /* strncpy() */
 #include <locale.h>
-#if defined(HAVE_LANGINFO_H)
-# include <langinfo.h>
-#endif
+#include <langinfo.h>
 #include <limits.h>            /* for CHAR_MAX */
 
 #ifdef CLISP_UNICODE
@@ -410,7 +408,6 @@ DEFUN(I18N:LOCALE-CONV,)
 }
 #endif
 
-#if defined(HAVE_NL_LANGINFO) || defined(WIN32_NATIVE)
 DEFCHECKER(check_nl_item,CODESET                                        \
            D_T_FMT D_FMT T_FMT T_FMT_AMPM AM_STR PM_STR                 \
            DAY_1 DAY_2 DAY_3 DAY_4 DAY_5 DAY_6 DAY_7                    \
@@ -466,17 +463,17 @@ DEFCHECKER(check_nl_item,CODESET                                        \
            LOCALE_SNEGATIVESIGN LOCALE_SPOSITIVESIGN                    \
            LOCALE_SSHORTDATE LOCALE_SSORTNAME LOCALE_STHOUSAND          \
            LOCALE_STIME LOCALE_STIMEFORMAT LOCALE_SYEARMONTH)
-#if defined(HAVE_NL_LANGINFO)
+#if defined(WIN32_NATIVE)
+# define get_lang_info(what)  get_locale_info(what,&res,&res_size)
+# define res_to_obj() asciz_to_string(res,GLO(misc_encoding))
+# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)clisp_malloc(res_size)
+# define FINISH_RES   begin_system_call(); free(res); end_system_call()
+#else
 # define get_lang_info(what)                                            \
   begin_system_call(); res = nl_langinfo(what); end_system_call()
 # define res_to_obj() safe_to_string(res)
 # define DECLARE_RES  char* res
 # define FINISH_RES
-#elif defined(WIN32_NATIVE)
-# define get_lang_info(what)  get_locale_info(what,&res,&res_size)
-# define res_to_obj() asciz_to_string(res,GLO(misc_encoding))
-# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)clisp_malloc(res_size)
-# define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #endif
 DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
 { /* call nl_langinfo(3) or GetLocaleInfo() */
@@ -499,4 +496,3 @@ DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
     FINISH_RES;
   }
 }
-#endif

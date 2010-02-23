@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for I18N
-dnl Sam Steingold 2004-2009
+dnl Sam Steingold 2004-2010
 
 AC_PREREQ(2.57)
 AC_INIT(i18n, 1.0, clisp-list)
@@ -11,8 +11,9 @@ BOLD_MSG([I18N (Common)])
 CL_MODULE_COMMON_CHECKS()
 
 BOLD_MSG([I18N (locale)])
-AC_CHECK_HEADERS(langinfo.h)
-AC_CHECK_FUNCS(nl_langinfo localeconv)
+gl_FUNC_NL_LANGINFO
+gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
+AC_CHECK_FUNCS(localeconv)
 AC_CHECK_MEMBERS([struct lconv.int_p_cs_precedes,
 struct lconv.int_n_cs_precedes, struct lconv.int_p_sep_by_space,
 struct lconv.int_n_sep_by_space, struct lconv.int_p_sign_posn,
