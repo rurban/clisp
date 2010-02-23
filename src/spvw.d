@@ -308,7 +308,7 @@ local void install_async_signal_handlers();
 local void *signal_handler_thread(void *arg);
 
 /* Mutex protecting the set of threads. */
-local xmutex_t allthreads_lock;
+global xmutex_t allthreads_lock;
 /* double linked list with all threads */
 local struct {
   /* new threads are appended to the tail (when CTRL-C usually the first
@@ -446,6 +446,11 @@ modexp uintL* current_thread_alloccount()
     while (entry != NULL && entry->thread != self) {
       entry = entry->next;
     }
+#if defined(UNIX_MACOSX) && defined(GENERATIONAL_GC)
+    /* needed since we may get called from SIGPIPE handler in
+       libsigsegv thread where there is no lisp thread associated*/
+    if (!entry) { spinlock_release(&(threads_tls.lock)); return NULL; }
+#endif
     /* Set cache_entry.         */
     entry->qtid = qtid;
     /* It's safe to do this asynchronously.  Either value       */
@@ -605,41 +610,6 @@ local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_size)
   return thread->_STACK;
 }
 
-/* UP: locks the global thread array. may block the GC. */
-global void lock_threads()
-{
-  /* We do not use begin_blocking_system_call so call here may block the GC.
-     If this is not wanted the caller should surround lock_threads() in
-     begin_blocking_call()/end_blocking_call().
-     In order to perform GC - two locks should be acquired:
-     1. heap spinlock - so nobody can allocate new object (and thus probably
-     cause again GC).
-     2. threads lock - while waiting for all threads to get suspended at safe
-     points - we do not want new thread(s) to be spawned.
-
-     There are 2 places where lock_threads() is used without possibly blocking
-     "enclosure":
-     1. In gc_suspend_all_threads() - after we already own the heap lock - in
-     order to prevent new threads spawning.
-     2. suspend_thread() - in order to be sure that the thread will not exit
-     while we try to suspend it (or it already has exited).
-     All other places enclose the lock_threads() in begin_blocking_call().
-
-     Also note that while the threads are locked - no heap allocation should
-     be performed - since it may cause deadlock. */
-  begin_system_call(); /* ! blocking */
-  xmutex_lock(&allthreads_lock);
-  end_system_call();
-}
-
-/* UP: unlocks global thread array */
-global void unlock_threads()
-{
-  begin_system_call();
-  xmutex_unlock(&allthreads_lock);
-  end_system_call();
-}
-
 /* UP: creates new cisp_thread_t structure and allocates LISP stack.
  > lisp_stack_size: the size of Lisp STACK to allocate (in gcv_object_t)
       when 0 - this is the very first thread, so we may(should not)
@@ -668,7 +638,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   { /* initialize the per thread special vars bindings to be "empty" */
     var gcv_object_t* objptr = thread->_ptr_symvalues;
     var uintC count;
-    dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
+    dotimespC(count,maxnum_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
     /* fill thread _object_tab with NIL-s in case GC is triggered before
        they are really initialized.*/
     objptr=(gcv_object_t*)&(thread->_object_tab);
@@ -718,8 +688,18 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
    Also frees any allocated resource.
  > thread: thread to be removed */
 global void delete_thread (clisp_thread_t *thread) {
-  /* lock the threads mutex. we are going to change allthreads[] */
-  begin_blocking_call(); lock_threads(); end_blocking_call();
+  /* lock the threads mutex. we are going to change allthreads[].
+   NB: we are called here in 2 cases:
+   1. thread is exiting - we do not hold allthreads_lock, but interrupts
+   are disabled.
+   2. thread has failed to start - in this case we already hold allthreads_lock */
+  var bool threads_locked = false;
+  if (thread == current_thread()) {
+    begin_blocking_system_call();
+    xmutex_lock(&allthreads_lock);
+    end_blocking_system_call();
+    threads_locked = true;
+  }
   /* destroy OS mutex */
   begin_system_call();
   xmutex_raw_destroy(&thread->_gc_suspend_lock);
@@ -739,7 +719,9 @@ global void delete_thread (clisp_thread_t *thread) {
   allthreads.count--;
 
   if (!allthreads.head) { /* this was the last thread ?*/
-    unlock_threads();
+    begin_system_call();
+    xmutex_unlock(&allthreads_lock);
+    end_system_call();
     quit();
     return; /* quit will unwind the stack and call hooks */
   }
@@ -761,8 +743,11 @@ global void delete_thread (clisp_thread_t *thread) {
   if (thread == current_thread())
     tsd_remove_specific();
  #endif
-
-  unlock_threads();
+  if (threads_locked) { /* here we may not have current_thread() anymore*/
+    begin_system_call();
+    xmutex_unlock(&allthreads_lock);
+    end_system_call();
+  }
 }
 
   #define for_all_threads(statement)                                    \
@@ -4721,7 +4706,8 @@ local void *signal_handler_thread(void *arg)
         });
         if (some_failed) {
           fputs("*** some threads were not signaled to terminate.",stderr);
-          quit(); /* force quit from here. lisp stacks will not be unwound */
+          exit(sig); /* nothing we can do - exit immediately (cannot call quit
+                        from here) */
         }
         ENABLE_DUMMY_ALLOCCOUNT(false);
       });

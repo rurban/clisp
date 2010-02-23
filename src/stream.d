@@ -7980,13 +7980,6 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
 #if defined(MULTITHREAD)
 /* O(open_files) is guarded by a global lock */
 global xmutex_t open_files_lock;
-#define get_open_files_lock()                   \
-  GC_SAFE_MUTEX_LOCK(&open_files_lock)
-#define release_open_files_lock()               \
-  GC_SAFE_MUTEX_UNLOCK(&open_files_lock)
-#else
-#define get_open_files_lock()      /*nop*/
-#define release_open_files_lock()  /*nop*/
 #endif
 
 /* UP: add a stream to the list of open streams O(open_files)
@@ -7995,14 +7988,14 @@ global xmutex_t open_files_lock;
  can trigger GC */
 local maygc object add_to_open_streams (object stream) {
   pushSTACK(stream);
-  pushSTACK(allocate_cons()); /* allocate before the lock */
-  get_open_files_lock();
-  var object new_cons = popSTACK();
-  Car(new_cons) = stream = popSTACK();
-  Cdr(new_cons) = O(open_files);
-  O(open_files) = new_cons;
-  release_open_files_lock();
-  return stream;
+  var gcv_object_t *stream_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0,&open_files_lock, {
+    var object new_cons = allocate_cons();
+    Car(new_cons) = *stream_;
+    Cdr(new_cons) = O(open_files);
+    O(open_files) = new_cons;
+  });
+  return popSTACK();
 }
 
 /* UP: removes a stream from the list of open streams O(open_files)
@@ -8011,9 +8004,11 @@ local maygc object add_to_open_streams (object stream) {
 local maygc void remove_from_open_streams(object stream)
 {
   pushSTACK(stream);
-  get_open_files_lock();
-  O(open_files) = deleteq(O(open_files),popSTACK());
-  release_open_files_lock();
+  var gcv_object_t *stream_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0,&open_files_lock, {
+    O(open_files) = deleteq(O(open_files),*stream_);
+  });
+  skipSTACK(1);
 }
 
 /* Find an open file that matches the given file ID
@@ -8021,23 +8016,22 @@ local maygc void remove_from_open_streams(object stream)
  > uintB flags = open flags to filter
  < pointer to the stream saved on STACK or NULL
    i.e., on success, adds 1 element to STACK */
-/* TODO: needs global lock */
 global maygc void* find_open_file (struct file_id *fid, uintB flags);
 global maygc void* find_open_file (struct file_id *fid, uintB flags) {
-  get_open_files_lock();
-  var object tail = O(open_files);
-  while (consp(tail)) {
-    var object stream = Car(tail); tail = Cdr(tail);
-    if (TheStream(stream)->strmtype == strmtype_file
-        && TheStream(stream)->strmflags & flags
-        && file_id_eq(fid,&ChannelStream_file_id(stream))) {
-      pushSTACK(stream);
-      release_open_files_lock();
-      return (void*)&STACK_0;
+  pushSTACK(NIL); /* return value if file is found */
+  var gcv_object_t *stream_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0, &open_files_lock, {
+    var object tail = O(open_files);
+    while (nullp(*stream_) && consp(tail)) {
+      var object stream = Car(tail); tail = Cdr(tail);
+      if (TheStream(stream)->strmtype == strmtype_file
+          && TheStream(stream)->strmflags & flags
+          && file_id_eq(fid,&ChannelStream_file_id(stream))) {
+        *stream_ = stream;
+      }
     }
-  }
-  release_open_files_lock();
-  return NULL;
+  });
+  return nullp(*stream_) ? (skipSTACK(1),NULL) :(void*)stream_;
 }
 
 /* UP: creates a File-Stream

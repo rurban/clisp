@@ -664,36 +664,34 @@ global bool find_external_symbol (object string, bool invert, object pack, objec
  > string: string
  < result: package of this name or NIL */
 modexp maygc object find_package (object string) {
- #ifdef MULTITHREAD
+  pushSTACK(NIL); /* result */
   pushSTACK(string);
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
-  string = popSTACK();
- #endif
-  var object packlistr = O(all_packages); /* traverse package-list */
-  var object pack;
-  while (consp(packlistr)) {
-    pack = Car(packlistr); /* Package to be tested */
-    /* test name: */
-    if (string_eq(string,ThePackage(pack)->pack_name))
-      goto pack_found;
-    { /* test nickname: */
-      /* traverse nickname-list */
-      var object nicknamelistr = ThePackage(pack)->pack_nicknames;
-      while (consp(nicknamelistr)) {
-        if (string_eq(string,Car(nicknamelistr)))
-          goto pack_found;
-        nicknamelistr = Cdr(nicknamelistr);
+  var gcv_object_t *string_ = &STACK_0;
+  var gcv_object_t *pack_ = &STACK_1;
+  WITH_OS_MUTEX_LOCK(0,&all_packages_lock, {
+    var object packlistr = O(all_packages); /* traverse package-list */
+    var object pack;
+    while (nullp(*pack_) && consp(packlistr)) {
+      pack = Car(packlistr); /* Package to be tested */
+      /* test name: */
+      if (string_eq(*string_,ThePackage(pack)->pack_name)) {
+        *pack_ = pack; continue; /* exit */
       }
+      { /* test nickname: */
+        /* traverse nickname-list */
+        var object nicknamelistr = ThePackage(pack)->pack_nicknames;
+        while (consp(nicknamelistr)) {
+          if (string_eq(*string_,Car(nicknamelistr))) {
+            *pack_ = pack; break; /* exit */
+          }
+          nicknamelistr = Cdr(nicknamelistr);
+        }
+      }
+      packlistr = Cdr(packlistr); /* next package */
     }
-    packlistr = Cdr(packlistr); /* next package */
-  }
-  /* not found */
-  pack = NIL;
- pack_found:
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
-  return pack;
+  });
+  skipSTACK(1); /* string */
+  return popSTACK();
 }
 
 /* UP: Searches a symbol of given printname in a package.
@@ -1480,6 +1478,10 @@ local maygc void map_symtab_c (one_sym_function_t* fun, void* data, object symta
 
 /* define macro for locking mutexes of list of packages */
 #ifdef MULTITHREAD
+/* TODO: following is not interrupt-safe. If the thread is interrupted in the
+   middle of the loop below with non-local exit - we are going release locks
+   that were not required (in most cases this will result in an error,
+   but in case of already held recursive mutex we will release it). */
   #define PACKAGE_LIST_MUTEX_LOCK_HELP_(packlist_) do {       \
     pushSTACK(*packlist_);                                    \
     while (mconsp(STACK_0)) {                                 \
@@ -1504,7 +1506,7 @@ local maygc void map_symtab_c (one_sym_function_t* fun, void* data, object symta
     } while(0)
   /* packlist_ should be pointer to GC safe location. */
   #define WITH_PACKAGE_LIST_MUTEX_LOCK(stack_count,keep_mv_space,packlist_,body)     \
-    WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,packlist_,PACKAGE_LIST_MUTEX_LOCK_HELP_,PACKAGE_LIST_MUTEX_UNLOCK_HELP_,body)
+    WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,packlist_,,PACKAGE_LIST_MUTEX_LOCK_HELP_,PACKAGE_LIST_MUTEX_UNLOCK_HELP_,body)
 #else /* no MT */
   #define WITH_PACKAGE_LIST_MUTEX_LOCK(stack_count,keep_mv_space,packlist_,body) body
 #endif
@@ -2889,9 +2891,13 @@ LISPFUNN(map_external_symbols,2) {
 LISPFUNN(map_all_symbols,1)
 {
 #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
-  pushSTACK(copy_list(O(all_packages))); /* traverse copy of package-list */
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+  {
+    pushSTACK(NIL);
+    var gcv_object_t *ap_ = &STACK_0;
+    WITH_OS_MUTEX_LOCK(0,&all_packages_lock, {
+      *ap_ = copy_list(O(all_packages));  /* traverse copy of package-list */
+    });
+  }
 #else
   pushSTACK(O(all_packages)); /* traverse package-list */
 #endif
