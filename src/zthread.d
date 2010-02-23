@@ -126,8 +126,10 @@ global maygc void thread_cleanup (void) {
   var clisp_thread_t *me = current_thread();
   var uintC locked_mutexes = 0;
   me->_thread_is_dying = true; /* disables interrupts */
-  /* traverse all mutexes and check for ownership */
-  GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
+  /* traverse all mutexes and check for ownership
+   nb: here the thread cannot be interrupted - no need for WITH_OS_MUTEX_LOCK*/
+  var bool locked = false; /* dummy */
+  GC_SAFE_MUTEX_LOCK(&all_mutexes_lock,&locked);
   var object list = O(all_mutexes);
   while (!endp(list)) {
     if (eq(TheMutex(Car(list))->xmu_owner, me->_lthread)) {
@@ -156,7 +158,6 @@ global maygc void thread_cleanup (void) {
   });
   /* from now on the thread may be considered inactive from lisp land
      let's signal join exemption that we are ready */
-  /* lock the mutex */
   pushSTACK(TheThread(me->_lthread)->xth_join_lock);
   funcall(L(mutex_lock),1);
   /* store the thread return values */
@@ -313,49 +314,52 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   pushSTACK(allocate_cons());
   /* stack layout: function, name, initial-binding, thread, cons */
   /* let's lock in order to create and register */
-  begin_blocking_call(); /* give chance the GC to work while we wait*/
-  lock_threads();
-  end_blocking_call();
-  /* create clsp_thread_t */
-  new_thread=create_thread(vstack_size);
-  if (!new_thread) {
-    unlock_threads();
+  var bool alloc_failed = false;
+  var bool startup_failed = false;
+  WITH_OS_MUTEX_LOCK(5,&allthreads_lock, {
+    /* create clsp_thread_t */
+    new_thread=create_thread(vstack_size);
+    if (new_thread) {
+      /* push 2 null objects in the thread stack to mark it's end (bottom) */
+      NC_pushSTACK(new_thread->_STACK,nullobj);
+      NC_pushSTACK(new_thread->_STACK,nullobj);
+      /* push the function to be executed */
+      NC_pushSTACK(new_thread->_STACK,STACK_4);
+      /* push the initial bindings alist */
+      NC_pushSTACK(new_thread->_STACK,STACK_2);
+
+      var object new_cons=STACK_0;
+      var object lthr=STACK_1;
+      /* initialize the thread references */
+      new_thread->_lthread=lthr;
+      TheThread(lthr)->xth_globals=new_thread;
+      /* add to all_threads global */
+      Car(new_cons) = lthr;
+      Cdr(new_cons) = O(all_threads);
+      O(all_threads) = new_cons;
+      /* create the OS thread */
+      if (xthread_create(&TheThread(lthr)->xth_system,
+                         &thread_stub,new_thread,cstack_size)) {
+        /* mark the thread as terminated - thread-join will not block */
+        TheThread(lthr)->xth_values = NIL;
+        /* remove from O(all_threads) - this thread has never been alive */
+        deleteq(O(all_threads),lthr);
+        /* destroy clisp_thread_t */
+        delete_thread(new_thread);
+        startup_failed = true;
+      }
+    } else alloc_failed = true;
+  });
+  if (alloc_failed) {
     pushSTACK(S(make_thread));
     error(control_error,GETTEXT("~S: thread resource allocation failed"));
   }
-  /* push 2 null objects in the thread stack to mark it's end (bottom) */
-  NC_pushSTACK(new_thread->_STACK,nullobj);
-  NC_pushSTACK(new_thread->_STACK,nullobj);
-  /* push the function to be executed */
-  NC_pushSTACK(new_thread->_STACK,STACK_4);
-  /* push the initial bindings alist */
-  NC_pushSTACK(new_thread->_STACK,STACK_2);
-
-  var object new_cons=popSTACK();
-  var object lthr=popSTACK();
-  skipSTACK(3);
-  /* initialize the thread references */
-  new_thread->_lthread=lthr;
-  TheThread(lthr)->xth_globals=new_thread;
-  /* add to all_threads global */
-  Car(new_cons) = lthr;
-  Cdr(new_cons) = O(all_threads);
-  O(all_threads) = new_cons;
-  unlock_threads(); /* allow GC and other thread creation. */
-
-  /* NB: no new allocations should be performed here since if GC happens
-     the newly created thread cannot be suspended (it is not
-     started yet) and deadlock will occur */
-
-  /* create the OS thread */
-  if (xthread_create(&TheThread(lthr)->xth_system,
-                     &thread_stub,new_thread,cstack_size)) {
-    delete_thread(new_thread);
-    pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+  if (startup_failed) {
     pushSTACK(S(make_thread));
     error(control_error,GETTEXT("~S: spawning OS thread failed"));
   }
-  VALUES1(lthr);
+  VALUES1(STACK_1); /* return the thread */
+  skipSTACK(5);
 }
 
 /* lock for the timeout_call_chain */
@@ -593,19 +597,15 @@ LISPFUNN(current_thread,0)
 
 LISPFUNN(list_threads,0)
 { /* (LIST-THREADS) */
-  /* we cannot copy the all_threads list, since it maygc
-     and while we hold the threads lock - deadlock will occur. */
+  /* do no lock here - anyway until result is returned thread list may
+     change. while we run there may be new thread(s) added to front of the
+     O(all_threads) that will missed from result (only during gc threads are
+     removed from this list and there is no chance for gc to run while we are
+     in the loop) */
   var uintC count=0;
-  begin_blocking_call();
-  lock_threads(); /* stop GC and thread creation */
-  end_blocking_call();
   var object list=O(all_threads);
-  while (!endp(list)) {
-    count++;
+  for (;!endp(list);count++,list=Cdr(list))
     pushSTACK(Car(list));
-    list=Cdr(list);
-  }
-  unlock_threads();
   VALUES1(listof(count));
 }
 
@@ -626,14 +626,17 @@ LISPFUNNR(symbol_value_thread,2)
         pushSTACK(NIL); /* placeholder for now */
       } else { /* ! current thread - we need to lock threads */
         STACK_0 = check_thread(STACK_0);
-        begin_blocking_call(); lock_threads(); end_blocking_call();
-        if (boundp(TheThread(STACK_0)->xth_values)) { /* thread has exited? */
-          pushSTACK(NIL); pushSTACK(S(thread_active_p));
-        } else { /* thread is still alive */
-          pushSTACK(TheThread(STACK_0)->xth_globals->_ptr_symvalues[idx]);
-          pushSTACK(NIL); /* placeholder for now */
-        }
-        unlock_threads();
+        pushSTACK(NIL); pushSTACK(NIL);
+        var gcv_object_t *thr_ = &STACK_2;
+        var gcv_object_t *value1_ = &STACK_1;
+        var gcv_object_t *value2_ = &STACK_0;
+        WITH_OS_MUTEX_LOCK(0,&allthreads_lock, {
+          if (boundp(TheThread(*thr_)->xth_values)) { /* thread has exited? */
+            *value2_ = S(thread_active_p);
+          } else { /* thread is still alive */
+            *value1_ = TheThread(*thr_)->xth_globals->_ptr_symvalues[idx];
+          }
+        });
       }
       /* now fix up the return values */
       if (nullp(STACK_0)) { /* thread alive (incl. current thread) */
@@ -668,15 +671,17 @@ LISPFUNN(set_symbol_value_thread,3)
       if (eq(STACK_1,T)) { /* current thread symvalue */
         current_thread()->_ptr_symvalues[idx] = STACK_0;
       } else { /* ! current thread - we need to lock threads */
-        var bool thr_was_dead = false;
         STACK_1 = check_thread(STACK_1);
-        begin_blocking_call(); lock_threads(); end_blocking_call();
-        if (boundp(TheThread(STACK_1)->xth_values)) { /* thread has exited? */
-          thr_was_dead = true;
-        } else { /* thread is still alive  - set the symbol value */
-          TheThread(STACK_1)->xth_globals->_ptr_symvalues[idx] = STACK_0;
-        }
-        unlock_threads();
+        var bool thr_was_dead = false;
+        var gcv_object_t *thr_ = &STACK_1;
+        var gcv_object_t *value_ = &STACK_0;
+        WITH_OS_MUTEX_LOCK(0,&allthreads_lock, {
+          if (boundp(TheThread(*thr_)->xth_values)) { /* thread has exited? */
+            thr_was_dead = true;
+          } else { /* thread is still alive  - set the symbol value */
+            TheThread(*thr_)->xth_globals->_ptr_symvalues[idx] = *value_;
+          }
+        });
         if (thr_was_dead) {
           skipSTACK(1); /* value */
           pushSTACK(S(set_symbol_value_thread));
@@ -702,20 +707,9 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
   skipSTACK(1); /* ditch the recursive_p */
   STACK_0 = check_name_arg(STACK_0,NIL);
   /* overwrite the name on the STACK with the newly allocated object */
-  var object mx = allocate_mutex(&STACK_0);
-  STACK_0 = mx;
-  if (!eq(mx,NIL)) {
-    if (recursive)
-      TheMutex(STACK_0)->xmu_flags |= mutex_flag_recursive;
-    /* add it to the O(all_mutexes) list */
-    pushSTACK(allocate_cons());
-    GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
-    var object kons = popSTACK();
-    Car(kons) = STACK_0;
-    Cdr(kons) = O(all_mutexes);
-    O(all_mutexes) = kons;
-    GC_SAFE_MUTEX_UNLOCK(&all_mutexes_lock);
-  }
+  STACK_0 = allocate_mutex(&STACK_0);
+  if (!eq(STACK_0,NIL) && recursive) /* set recursive flag */
+    TheMutex(STACK_0)->xmu_flags |= mutex_flag_recursive;
   VALUES1(popSTACK());
 }
 
@@ -813,7 +807,7 @@ LISPFUNN(mutex_recursive_p,1)
 LISPFUNN(mutex_owner,1)
 { /* (MUTEX-OWNER onject) */
   var object mx = check_mutex(popSTACK());
-  VALUES1(TheMutex(mx)->xmu_owner);
+  VALUES2(TheMutex(mx)->xmu_owner,fixnum(TheMutex(mx)->xmu_recurse_count));
 }
 
 LISPFUNN(exemptionp,1)
@@ -826,18 +820,7 @@ LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
 { /* (MAKE-EXEMPTION &key name) */
   STACK_0 = check_name_arg(STACK_0,NIL);
   /* overwrite the name on the STACK with the newly allocated object */
-  var object ex = allocate_exemption(&STACK_0);
-  STACK_0 = ex;
-  if (!eq(ex,NIL)) {
-    /* add it to the O(all_exemptions) list */
-    pushSTACK(allocate_cons());
-    GC_SAFE_MUTEX_LOCK(&all_exemptions_lock);
-    var object kons = popSTACK();
-    Car(kons) = STACK_0;
-    Cdr(kons) = O(all_exemptions);
-    O(all_exemptions) = kons;
-    GC_SAFE_MUTEX_UNLOCK(&all_exemptions_lock);
-  }
+  STACK_0 = allocate_exemption(&STACK_0);
   VALUES1(popSTACK());
 }
 

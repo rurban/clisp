@@ -10488,7 +10488,7 @@ extern maygc object make_complex (object real, object imag);
 global maygc object allocate_thread (gcv_object_t *name_);
 /* used by ZTHREAD */
 
-/* allocate a mutex object
+/* allocate a mutex object and inserts it in O(all_mutexes)
  allocate_mutex()
  > *name_ : mutex name (usually a symbol)
  < result : new mutex object (initialized)
@@ -10496,7 +10496,7 @@ global maygc object allocate_thread (gcv_object_t *name_);
 global maygc object allocate_mutex (gcv_object_t *name_);
 /* used by ZTHREAD */
 
-/* allocate an exemption object
+/* allocate an exemption object and inserts it in O(all_exemptions)
  allocate_exemption()
  > *name_ : exemption name (usually a symbol)
  < result : new exemption object (initialized)
@@ -17120,16 +17120,26 @@ struct object_tab_tl_ {
       }                                                \
     } while(0)
 
-  #define GC_SAFE_MUTEX_LOCK(mutex)                            \
+  /* helper macro for locking mutex that allows GC and thread interrupts while
+     waiting. To be used only here and in zthread.d. In all other places
+     WITH_OS_MUTEX_LOCK() should be used since it guarantees correct unlocking
+     in case of non-local exit and thread interruption
+    > mutex: mutex to lock
+    > locked: pointer to bool filled with true in case the lock
+    has been acquired (before handling of pending interrupts) */
+  #define GC_SAFE_MUTEX_LOCK(mutex,locked)                     \
     do {                                                       \
       xmutex_t *m=mutex; /* get pointer before we allow GC */  \
       current_thread()->_wait_mutex = m;                       \
       begin_blocking_system_call();                            \
       xmutex_lock(m);                                          \
+      *locked = true;                                          \
       current_thread()->_wait_mutex=NULL;                      \
-      end_blocking_system_call();                              \
+      end_blocking_system_call(); /* nb: pending interrupt are handled here */ \
     } while(0)
 
+  /* unlocks mutex. preserves mv_space (i.e. does not allow gc or thread
+     interruption)*/
   #define GC_SAFE_MUTEX_UNLOCK(m)           \
     do {                                    \
       begin_system_call();                  \
@@ -17437,10 +17447,6 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size);
    Also frees any allocated resource.
  > thread: thread to be removed */
 global void delete_thread(clisp_thread_t *thread);
-/* locks the global thread array */
-global void lock_threads (void);
-/* unlocks global thread array */
-global void unlock_threads (void);
 /* UP: creates initial bindings in thread context from alist
  > initial_bindings: alist of (symbol . form) elements */
 global void initialize_thread_bindings(gcv_object_t *initial_bindings);
@@ -17511,6 +17517,9 @@ extern xmutex_t all_exemptions_lock;
 extern xmutex_t all_weakpointers_lock;
 /* mutex for guarding access to O(all_packages) */
 extern xmutex_t all_packages_lock;
+/* mutex protecting the O(all_threads) and list of clisp_thread_t structs
+ NB: when it is hold heap allocation will cause deadlock */
+extern xmutex_t allthreads_lock;
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */
@@ -17647,6 +17656,21 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     dotimespC(cnt, count, { *p = (*p)->pc_next; });      \
   } while(0)
 
+/* UP: executes body while thread interrupts are deferred. after body
+   finishes - deferred interrupts are executed (if any) */
+#define WITH_DEFERED_INTERRUPTS(body) do {                  \
+  dynamic_bind(S(defer_interrupts), T);                     \
+  body;                                                     \
+  dynamic_unbind(S(defer_interrupts));                      \
+  if (nullp(Symbol_thread_value(S(deferred_interrupts))))   \
+    while (!nullp(Symbol_thread_value(S(deferred_interrupts)))) {         \
+      var object intr = Car(Symbol_thread_value(S(deferred_interrupts))); \
+      Symbol_thread_value(S(deferred_interrupts)) =         \
+        Cdr(Symbol_thread_value(S(deferred_interrupts)));   \
+      apply(Car(intr), 0, nreverse(Cdr(intr)));             \
+    }                                                       \
+ } while (0)
+
 /* UP: helper macro for executing body in unwind_protect frame with
    mutex lock held. body should not call return or goto outside of
    itself.
@@ -17655,11 +17679,13 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
    objects are removed from the stack.
  > keep_mv_space: whether the mv_space should be preserved
  > mutex: the mutex object
+ > locker_vars: local variables used by locker (for thread interrupt safety)
  > locker: statement to execute for locking the mutex
  > unlocker: statement to execute for unlocking the mutex
  > body: the statement(s) to be executed with lock held */
-#define WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,mutex,locker,unlocker,body) \
+#define WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,mutex,locker_vars,locker,unlocker,body) \
   do {                                                                  \
+    locker_vars;                                                        \
     var gcv_object_t* top_of_frame = STACK;                             \
     var sp_jmp_buf returner;                                            \
     finish_entry_frame(UNWIND_PROTECT,returner,, {                      \
@@ -17682,27 +17708,42 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     unlocker(mutex,keep_mv_space);                                      \
   } while (0)
 
-#define OS_MUTEX_LOCK_HELP_(mutex) GC_SAFE_MUTEX_LOCK(mutex)
-#define OS_MUTEX_UNLOCK_HELP_(mutex,keep_mv_space) GC_SAFE_MUTEX_UNLOCK(mutex)
+#define OS_MUTEX_LOCK_DECLARE_LOCALS var volatile bool locked=false
+#define OS_MUTEX_LOCK_HELP_(mutex) GC_SAFE_MUTEX_LOCK(mutex, &locked)
+#define OS_MUTEX_UNLOCK_HELP_(mutex,keep_mv_space) do { \
+  if (locked)                                           \
+    GC_SAFE_MUTEX_UNLOCK(mutex);                        \
+ } while(0)
+#define WITH_OS_MUTEX_LOCK(stack_count,mutex,body)      \
+  WITH_MUTEX_LOCK_HELP_(stack_count,true,mutex,OS_MUTEX_LOCK_DECLARE_LOCALS,OS_MUTEX_LOCK_HELP_,OS_MUTEX_UNLOCK_HELP_,body)
 
-#define WITH_OS_MUTEX_LOCK(stack_count,mutex,body)                      \
-  WITH_MUTEX_LOCK_HELP_(stack_count,true,mutex,OS_MUTEX_LOCK_HELP_,OS_MUTEX_UNLOCK_HELP_,body)
-
-#define LISP_MUTEX_LOCK_HELP_(pmutex) \
-  do { pushSTACK(*(pmutex)); funcall(L(mutex_lock),1); } while(0)
+#define LISP_MUTEX_LOCK_DECLARE_LOCALS                                  \
+  var volatile bool we_owned = false;                                   \
+  var volatile uintL rec_count=0
+#define LISP_MUTEX_LOCK_HELP_(mutex) do {                               \
+  we_owned = eq(TheMutex(*(mutex))->xmu_owner, current_thread()->_lthread); \
+  rec_count = TheMutex(*(mutex))->xmu_recurse_count;                    \
+  pushSTACK(*(mutex)); funcall(L(mutex_lock),1);                        \
+ } while(0)
 /* also preserves values */
-#define LISP_MUTEX_UNLOCK_HELP_(pmutex,keep_mv_space)                   \
+#define LISP_MUTEX_UNLOCK_HELP_(mutex,keep_mv_space)                    \
   do {                                                                  \
-    var uintC cnt=mv_count;                                             \
-    if (keep_mv_space) mv_to_STACK();                                   \
-    pushSTACK(*(pmutex));                                               \
-    funcall(L(mutex_unlock),1);                                         \
-    if (keep_mv_space) STACK_to_mv(cnt);                                \
+    var bool we_own = eq(TheMutex(*(mutex))->xmu_owner, current_thread()->_lthread); \
+    var uintL rc = TheMutex(*(mutex))->xmu_recurse_count;               \
+    if (we_own && (!we_owned || rc > rec_count)) {                      \
+      var uintC cnt=mv_count;                                           \
+      if (keep_mv_space) mv_to_STACK();                                 \
+      WITH_DEFERED_INTERRUPTS({                                         \
+        pushSTACK(*(mutex));                                            \
+        funcall(L(mutex_unlock),1);                                     \
+      });                                                               \
+      if (keep_mv_space) STACK_to_mv(cnt);                              \
+    }                                                                   \
   } while(0)
 
 /* mutex should be pointer to GC safe location. */
 #define WITH_LISP_MUTEX_LOCK(stack_count,keep_mv_space,pmutex,body)     \
-  WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,pmutex,LISP_MUTEX_LOCK_HELP_,LISP_MUTEX_UNLOCK_HELP_,body)
+  WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,pmutex,LISP_MUTEX_LOCK_DECLARE_LOCALS,LISP_MUTEX_LOCK_HELP_,LISP_MUTEX_UNLOCK_HELP_,body)
 
 #else /* ! MULTITHREAD */
 %% #else

@@ -885,16 +885,13 @@ LISPFUN(finalize,seclass_default,2,1,norest,nokey,0,NIL) {
     TheFinalizer(f)->fin_trigger = STACK_2;
     TheFinalizer(f)->fin_function = STACK_1;
     TheFinalizer(f)->fin_alive = STACK_0; /* The default #<UNBOUND> lives forever. */
-   #ifdef MULTITHREAD
-    pushSTACK(f);
-    GC_SAFE_MUTEX_LOCK(&all_finalizers_lock);
-    f = popSTACK();
-   #endif
-    TheFinalizer(f)->fin_cdr = O(all_finalizers);
-    O(all_finalizers) = f;
-   #ifdef MULTITHREAD
-    GC_SAFE_MUTEX_UNLOCK(&all_finalizers_lock);
-   #endif
+    pushSTACK(f); /* put in gcsafe place */
+    var gcv_object_t *f_ = &STACK_0;
+    WITH_OS_MUTEX_LOCK(0,&all_finalizers_lock, {
+      TheFinalizer(*f_)->fin_cdr = O(all_finalizers);
+      O(all_finalizers) = *f_;
+    });
+    skipSTACK(1);
   }
   skipSTACK(3); VALUES1(NIL);
 }

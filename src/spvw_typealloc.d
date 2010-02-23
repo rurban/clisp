@@ -668,41 +668,65 @@ global maygc object allocate_thread (gcv_object_t *name_) {
   return result;
 }
 
-/* allocate a mutex object
+/* allocate a mutex object and inserts it in O(all_mutexes)
  allocate_mutex()
  > name : mutex name (usually a symbol)
  < result : new mutex object (initialized)
  can trigger GC */
 global maygc object allocate_mutex (gcv_object_t *name_) {
-  var object result = allocate_xrecord(0,Rectype_Mutex,mutex_length,
-                                       mutex_xlength,orecord_type);
-  TheMutex(result)->xmu_name = *name_;
-  begin_system_call();
-  var xmutex_t *p = (xmutex_t *)malloc(sizeof(xmutex_t));
-  end_system_call();
-  if (!p || xmutex_init(p))
-    return NIL;
-  TheMutex(result)->xmu_system = p;
-  return result;
+  pushSTACK(allocate_xrecord(0,Rectype_Mutex,mutex_length,
+                             mutex_xlength,orecord_type));
+  pushSTACK(allocate_cons());
+  var gcv_object_t *mx_ = &STACK_1;
+  var gcv_object_t *cons_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0,&all_mutexes_lock, {
+    TheMutex(*mx_)->xmu_name = *name_;
+    begin_system_call();
+    var xmutex_t *p = (xmutex_t *)malloc(sizeof(xmutex_t));
+    end_system_call();
+    if (p && !xmutex_init(p)) {
+      TheMutex(*mx_)->xmu_system = p;
+      /* add to O(all_mutexes) */
+      Car(*cons_) = *mx_;
+      Cdr(*cons_) = O(all_mutexes);
+      O(all_mutexes) = *cons_;
+    } else {
+      if (p) free(p);
+      *mx_ = NIL;
+    }
+  });
+  skipSTACK(1); /* cons */
+  return popSTACK();
 }
 
-/* allocate an exemption object
+/* allocate an exemption object and inserts it in O(all_exemptions)
  allocate_exemption()
  > name : exemption name (usually a symbol)
  < result : new exemption object (initialized)
  can trigger GC */
 global maygc object allocate_exemption (gcv_object_t *name_) {
-  var object result = allocate_xrecord(0,Rectype_Exemption,exemption_length,
-                                       exemption_xlength,orecord_type);
-  TheExemption(result)->xco_name = *name_;
-  begin_system_call();
-  var xcondition_t *p = (xcondition_t *)malloc(sizeof(xcondition_t));
-  end_system_call();
-  if (!p || xcondition_init(p))
-    result = NIL;
-  else
-    TheExemption(result)->xco_system = p;
-
-  return result;
+  pushSTACK(allocate_xrecord(0,Rectype_Exemption,exemption_length,
+                             exemption_xlength,orecord_type));
+  pushSTACK(allocate_cons());
+  var gcv_object_t *ex_ = &STACK_1;
+  var gcv_object_t *cons_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0,&all_exemptions_lock, {
+    TheExemption(*ex_)->xco_name = *name_;
+    begin_system_call();
+    var xcondition_t *p = (xcondition_t *)malloc(sizeof(xcondition_t));
+    end_system_call();
+    if (p && !xcondition_init(p)) {
+      TheExemption(*ex_)->xco_system = p;
+      /* add to O(all_exemptions) */
+      Car(*cons_) = *ex_;
+      Cdr(*cons_) = O(all_exemptions);
+      O(all_exemptions) = *cons_;
+    } else {
+      if (p) free(p);
+      *ex_ = NIL;
+    }
+  });
+  skipSTACK(1); /* cons */
+  return popSTACK();
 }
 #endif
