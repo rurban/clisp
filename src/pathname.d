@@ -6219,29 +6219,23 @@ modexp maygc object OSdir_to_pathname (const char* path) {
 #endif
 /* < result: true, if an opened file-stream exits for this file. */
 local maygc bool openp (object pathname) {
- #if defined(MULTITHREAD)
   pushSTACK(pathname);
-  /* get the lock */
-  GC_SAFE_MUTEX_LOCK(&open_files_lock);
-  pathname = popSTACK();
- #endif
-  var object flist = O(open_files); /* traverse list of all open files */
-  while (consp(flist)) {
-    var object f = Car(flist); /* next open stream */
-    if (TheStream(f)->strmtype == strmtype_file) { /* file-stream ? */
-      if (equal(TheStream(f)->strm_file_truename,pathname)) {
-       #if defined(MULTITHREAD)
-        GC_SAFE_MUTEX_UNLOCK(&open_files_lock);
-       #endif
-        return true;
+  var bool found = false;
+  var gcv_object_t *pathname_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0,&open_files_lock, {
+    var object flist = O(open_files); /* traverse list of all open files */
+    while (!found && consp(flist)) {
+      var object f = Car(flist); /* next open stream */
+      if (TheStream(f)->strmtype == strmtype_file) { /* file-stream ? */
+        if (equal(TheStream(f)->strm_file_truename,*pathname_)) {
+          found = true; /* exit */
+        }
       }
+      flist = Cdr(flist);
     }
-    flist = Cdr(flist);
-  }
- #if defined(MULTITHREAD)
-  GC_SAFE_MUTEX_UNLOCK(&open_files_lock);
- #endif
-  return false;
+  });
+  skipSTACK(1);
+  return found;
 }
 
 /* error-message because of deletion attempt on opened file

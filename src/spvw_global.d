@@ -538,6 +538,19 @@ local inline void init_mem_heapnr_from_type (void)
 
 #define ACQUIRE_HEAP_LOCK() GC_SAFE_SPINLOCK_ACQUIRE(&mem.alloc_lock)
 #define RELEASE_HEAP_LOCK() spinlock_release(&mem.alloc_lock)
+/* helper macros for locking/unlocking global thread mutex.
+ NB: while waiting on it no interrupts are allowed (i.e. we use
+ begin_system_call() instead of begin_blocking_system_call())*/
+#define lock_threads() do {                     \
+  begin_system_call(); /* ! blocking */         \
+  xmutex_lock(&allthreads_lock);                \
+  end_system_call();                            \
+ } while(0)
+#define unlock_threads() do {                   \
+  begin_system_call();                          \
+  xmutex_unlock(&allthreads_lock);              \
+  end_system_call();                            \
+  } while(0)
 
 /* since the GC may be re-entrant we should keep track how many times
    we have been called. Only the first time we have to really suspend
@@ -697,54 +710,54 @@ global void resume_thread(object thread, bool release_threads_lock)
   }
 }
 
+/* remove threads locking macros */
+#undef lock_threads
+#undef unlock_threads
+
 /* UP: add per thread special symbol value - initialized to SYMVALUE_EMPTY
  > symbol: the symbol
- < new index in the _symvalues thread array
- A lot of locks are used here. Basically we should use only the
- thread locks but if we try to stop the world with threads lock held - we
- may introduce deadlock. So use additional lock. */
+ < new index in the _symvalues thread array */
 global maygc uintL add_per_thread_special_var(object symbol)
 {
   pushSTACK(symbol);
-  /* lock symvalues lock  */
-  GC_SAFE_MUTEX_LOCK(&thread_symvalues_lock);
-  symbol = STACK_0;
-  var uintL symbol_index = TheSymbol(symbol)->tls_index;
-  /* check whether till we have been waiting for the threads lock
-     another thread has already done the job !!! */
-  if (symbol_index != SYMBOL_TLS_INDEX_NONE) {
-    goto leave;
-  }
-  if (num_symvalues == maxnum_symvalues) {
-    /* we have to reallocate the _ptr_symvalues storage in all
-       threads in order to have enough space. since it is possible other
-       threads to access at the same time _ptr_symvalues (via Symbol_value)
-       it is not safe at all to reallocate it. This will not happen
-       frequently so we are going to stop all threads. */
-    var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
-    WITH_STOPPED_WORLD(true, {
-      for_all_threads({
-        if (!realloc_thread_symvalues(thread,nsyms)) {
-          fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
-          abort();
-        }
-      });
-      maxnum_symvalues = nsyms;
-    });
-  }
-  /* lock the threads - we want no new threads to be created/deleted
-     while we iterate over them */
-  begin_blocking_call(); lock_threads(); end_blocking_call();
-  symbol = STACK_0;
-  symbol_index=num_symvalues++;
-  TheSymbol(symbol)->tls_index=symbol_index;
-  for_all_threads({ thread->_ptr_symvalues[symbol_index] = SYMVALUE_EMPTY; });
-  unlock_threads();
- leave:
-  skipSTACK(1); /* saved symbol */
-  GC_SAFE_MUTEX_UNLOCK(&thread_symvalues_lock);
-  if (symbol_index == SYMBOL_TLS_INDEX_NONE)
-    error(error_condition,GETTEXT("could not make symbol value per-thread"));
+  var gcv_object_t *symbol_ = &STACK_0;
+  var uintL symbol_index = SYMBOL_TLS_INDEX_NONE;
+  WITH_OS_MUTEX_LOCK(0,&thread_symvalues_lock, {
+    /* while we were waiting on the mutex, another thread may have done
+     the job*/
+    symbol_index = TheSymbol(*symbol_)->tls_index;
+    if (symbol_index == SYMBOL_TLS_INDEX_NONE) {
+      if (num_symvalues == maxnum_symvalues) {
+        /* we have to reallocate the _ptr_symvalues storage in all
+           threads in order to have enough space. stop all threads in order to
+           perform this (they may access invalid _ptr_symvalues otherwise).
+           this should happen very rarely. */
+        var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
+        WITH_STOPPED_WORLD(true, {
+          for_all_threads({
+            if (!realloc_thread_symvalues(thread,nsyms)) {
+              fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
+              abort();
+            }
+            /* initialize all newly allocated cells to SYMVALUE_EMPTY (otherwise
+               we will have to lock threads when we add new per thread
+               variable) */
+            var gcv_object_t* objptr = thread->_ptr_symvalues + num_symvalues;
+            var uintC count;
+            for (count = num_symvalues; count<nsyms; count++)
+              *objptr++ = SYMVALUE_EMPTY;
+          });
+          maxnum_symvalues = nsyms;
+        });
+      }
+      /* initialize symbol's tls_index. nb: no need to initialize _ptr_symvalue
+         to SYMVALUE_EMPTY since we've already done this during allocation. */
+      TheSymbol(*symbol_)->tls_index = symbol_index = num_symvalues++;
+    }
+  });
+  if (TheSymbol(*symbol_)->tls_index == SYMBOL_TLS_INDEX_NONE)
+    error(control_error,GETTEXT("~S: could not make symbol value per-thread"));
+  skipSTACK(1); /* symbol */
   return symbol_index;
 }
 
@@ -759,15 +772,18 @@ global maygc void clear_per_thread_symvalues(object symbol)
 {
   var uintL idx=TheSymbol(symbol)->tls_index;
   if (idx != SYMBOL_TLS_INDEX_NONE) {
-    TheSymbol(symbol)->tls_index = SYMBOL_TLS_INDEX_NONE;
-    /* also remove all per thread symbols for the index - we do not want
+    /* remove all per thread symbols for the index - we do not want
        any memory leaks. threads should be locked. This gets very
        ugly when we are gettting called for every symbol from DELETE-PACKAGE.
        but we cannot hold the threads lock for too long - since the GC will
        be blocked.*/
-    begin_blocking_call(); lock_threads(); end_blocking_call();
-    for_all_threads({ thread->_ptr_symvalues[idx] = SYMVALUE_EMPTY; });
-    unlock_threads();
+    pushSTACK(symbol);
+    var gcv_object_t *symbol_ = &STACK_0;
+    WITH_OS_MUTEX_LOCK(0,&allthreads_lock, {
+      TheSymbol(*symbol_)->tls_index = SYMBOL_TLS_INDEX_NONE;
+      for_all_threads({ thread->_ptr_symvalues[idx] = SYMVALUE_EMPTY; });
+    });
+    skipSTACK(1);
   }
 }
 

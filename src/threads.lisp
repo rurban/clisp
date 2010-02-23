@@ -55,11 +55,13 @@
     (*readtable* . (copy-readtable))))
 
 (defmacro with-deferred-interrupts (&body body)
-  `(let ((*defer-interrupts* t)
-         (*deferred-interrupts* '()))
-     (unwind-protect (progn ,@body)
-       (dolist (i *deferred-interrupts*)
-         (apply (car i) (nreverse (cdr i)))))))
+  (let ((intr (gensym "WDI-")))
+    `(unwind-protect
+          (let ((*defer-interrupts* t)) ,@body)
+       (unless *defer-interrupts*
+         (loop while *deferred-interrupts* do
+              (let ((,intr (pop *deferred-interrupts*)))
+                (apply (car ,intr) (nreverse (cdr ,intr)))))))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
 
@@ -89,11 +91,29 @@ terminate and evaluate TIMEOUT-FORMS."
 ;;; locks
 
 (defmacro with-mutex-lock ((mutex) &body body)
-  "Execute BODY with MUTEX locked."
-  (let ((lk (gensym "WL-")))
-    `(let ((,lk ,mutex))
-      (unwind-protect (progn (mutex-lock ,lk) ,@body)
-        (mutex-unlock ,lk)))))
+  "Execute BODY with MUTEX locked. "
+  (let ((lk (gensym "WL-"))
+        (cthr (gensym "THR-"))
+        (prev-owner (gensym "PO-"))
+        (owner (gensym "CO-"))
+        (prev-rec-count (gensym "PRC-"))
+        (rec-count (gensym "CRC-")))
+    `(let ((,lk ,mutex)
+           (,cthr (current-thread)))
+       (multiple-value-bind (,prev-owner ,prev-rec-count)
+           (mutex-owner ,lk)
+         (unwind-protect (progn (mutex-lock ,lk) ,@body)
+           (with-deferred-interrupts ;; defer interrupts while cleanup
+             (multiple-value-bind (,owner ,rec-count)
+                 (mutex-owner ,lk)
+               ;; release the mutex only if has been acquired.
+               ;; thread-interrupt with non-local exit may bring us here
+               ;; before we got the mutex
+               (when (and (eq ,cthr ,owner)
+                          (or (not (eq ,cthr ,prev-owner))
+                              (> ,rec-count ,prev-rec-count)))
+                 (mutex-unlock ,lk)))))))))
+
 
 ;; helper function for thread interruption
 (defun %throw-tag (tag &optional result)

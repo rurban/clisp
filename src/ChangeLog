@@ -1,3 +1,48 @@
+2010-02-23  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix interrupt safety and deferred interrupt handling
+	* lispbibl.d (WITH_DEFERED_INTERRUPTS): executes body with deferred
+	interrupts (after body finishes deferred interrupts are executed)
+	(WITH_MUTEX_LOCK_HELP_): release lock only if it was really acquired
+	(GC_SAFE_MUTEX_LOCK): set a flag if the lock has been acquired (before
+	handling pending interrupts)
+	(LISP_MUTEX_UNLOCK_HELP_): use WITH_DEFERED_INTERRUPTS
+	(lock_threads, unlock_threads): remove
+	(allthreads_lock): make it global
+	* spvw.d (allthreads_lock): ditto
+	(lock_threads, unlock_threads): remove
+	(create_thread): initialize all per thread value cells as empty
+	(delete_thread): lock allthreads_lock only if needed
+	(tsd_slow_getspecific) [USE_CUSTOM_TLS=2, MACOSX]: return NULL if
+	called from non-lisp thread (libsigsegv creates one)
+	(signal_handler_thread): exit immediately if some thread has failed
+	to be stopped (on terminating signals)
+	* spvw_global.d (add_per_thread_special_var): use WITH_OS_MUTEX_LOCK.
+	do not lock allthreads_lock (value cells are already initialized as
+	empty)
+	(clear_per_thread_symvalues): use WITH_OS_MUTEX_LOCK
+	* spvw_typealloc.d (allocate_mutex): add newly allocated mutex to
+	O(all_mutexes) - prevents memory xmutex_t memory leak in case later
+	all_mutexes lock is not acquired (due to interrupt)
+	(allocate_exemption): ditto
+	* stream.d (get_open_files_lock, release_open_files_lock): remove
+	(add_to_open_streams, remove_from_open_streams, find_open_file): use
+	WITH_OS_MUTEX_LOCK
+	* pathname.d (openp): ditto
+	* record.d (FINALIZE): ditto
+	* package.d (find_package, MAP-ALL-SYMBOLS): ditto
+	* zthread.d (MAKE-THREAD, SYMBOL-VALUE-THREAD, SET-SYMBOL-VALUE-THREAD):
+	ditto
+	(LIST-THREADS): do not lock allthreads_lock, just copy O(all_threads)
+	(MUTEX-OWNER): return second value - how many times the mutex is locked
+	by the owner (for non-recursive mutexes this is at most 1)
+	(allocate_mutex, allocate_exemption): do not add to O(all_mutexes) and
+	O(all_exemption)
+	* threads.lisp (WITH-MUTEX-LOCK): unlock the mutex only if it was really
+	locked
+	(WITH-DEFERRED-INTERRUPTS): fix it. handle nested case and execute
+	interrupts only if allowed
+
 2010-02-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (SET-SYMBOL-VALUE-THREAD): fix stack layout on
