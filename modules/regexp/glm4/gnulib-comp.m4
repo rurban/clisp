@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -79,7 +79,7 @@ AC_DEFUN([rx_gl_INIT],
     if test -n "$rx_gl_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $rx_gl_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $rx_gl_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         rx_gl_libobjs="$rx_gl_libobjs $i.$ac_objext"
         rx_gl_ltlibobjs="$rx_gl_ltlibobjs $i.lo"
       done
@@ -118,7 +118,7 @@ AC_DEFUN([rx_gl_INIT],
     if test -n "$rx_gltests_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $rx_gltests_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $rx_gltests_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         rx_gltests_libobjs="$rx_gltests_libobjs $i.$ac_objext"
         rx_gltests_ltlibobjs="$rx_gltests_ltlibobjs $i.lo"
       done
@@ -189,7 +189,8 @@ AC_DEFUN([rx_gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([rx_gl_FILE_LIST], [
-  build-aux/link-warning.h
+  build-aux/arg-nonnull.h
+  build-aux/warn-on-use.h
   lib/btowc.c
   lib/dummy.c
   lib/gettext.h
@@ -219,6 +220,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/stddef_h.m4
   m4/stdlib_h.m4
   m4/unistd_h.m4
+  m4/warn-on-use.m4
   m4/wchar_t.m4
   m4/wcrtomb.m4
 ])

@@ -1,3 +1,41 @@
+2010-02-23  Sam Steingold  <sds@gnu.org>
+
+	update gnulib
+	* modules/regexp/gllib/Makefile.am, modules/regexp/gllib/regcomp.c:
+	* modules/regexp/gllib/regex_internal.c:
+	* modules/regexp/gllib/regex_internal.h, modules/regexp/gllib/regexec.c:
+	* modules/regexp/gllib/stdlib.in.h, modules/regexp/gllib/unistd.in.h:
+	* modules/regexp/glm4/btowc.m4, modules/regexp/glm4/regex.m4:
+	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
+	* modules/syscalls/gllib/Makefile.am:
+	* modules/syscalls/gllib/mktime.c, modules/syscalls/gllib/sockets.c:
+	* modules/syscalls/gllib/strftime.c, modules/syscalls/gllib/strftime.h:
+	* modules/syscalls/gllib/strings.in.h:
+	* modules/syscalls/gllib/sys_socket.in.h:
+	* modules/syscalls/gllib/sys_utsname.in.h:
+	* modules/syscalls/gllib/time.in.h, modules/syscalls/gllib/unistd.in.h:
+	* modules/syscalls/gllib/w32sock.h, modules/syscalls/glm4/strings_h.m4:
+	* modules/syscalls/glm4/sys_socket_h.m4:
+	* modules/syscalls/glm4/sys_utsname_h.m4:
+	* modules/syscalls/glm4/unistd_h.m4:
+	* modules/wildcard/gllib/Makefile.am:
+	* modules/wildcard/gllib/fnmatch.in.h:
+	* modules/wildcard/gllib/fnmatch_loop.c:
+	* gllib/Makefile.am:
+	* gllib/gettimeofday.c, gllib/localcharset.c, gllib/memcmp.c:
+	* gllib/string.in.h, gllib/sys_time.in.h, gllib/unistd.in.h:
+	* gllib/wchar.in.h, gllib/wctype.in.h, glm4/extensions.m4:
+	* glm4/gettimeofday.m4, glm4/iconv.m4, glm4/localcharset.m4:
+	* glm4/string_h.m4, glm4/sys_time_h.m4, glm4/unistd_h.m4:
+	* glm4/wchar.m4: updated
+	* modules/regexp/glm4/warn-on-use.m4:
+	* modules/syscalls/gllib/mktime-internal.h:
+	* modules/syscalls/glm4/warn-on-use.m4:
+	* build-aux/arg-nonnull.h, build-aux/warn-on-use.h:
+	* gllib/langinfo.in.h, gllib/nl_langinfo.c:
+	* glm4/fcntl-o.m4, glm4/langinfo_h.m4, glm4/nl_langinfo.m4:
+	* glm4/warn-on-use.m4: added
+
 2010-02-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: fix interrupt safety and deferred interrupt handling
