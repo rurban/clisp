@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -86,7 +86,7 @@ AC_DEFUN([sc_gl_INIT],
     if test -n "$sc_gl_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $sc_gl_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $sc_gl_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         sc_gl_libobjs="$sc_gl_libobjs $i.$ac_objext"
         sc_gl_ltlibobjs="$sc_gl_ltlibobjs $i.lo"
       done
@@ -125,7 +125,7 @@ AC_DEFUN([sc_gl_INIT],
     if test -n "$sc_gltests_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $sc_gltests_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $sc_gltests_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         sc_gltests_libobjs="$sc_gltests_libobjs $i.$ac_objext"
         sc_gltests_ltlibobjs="$sc_gltests_ltlibobjs $i.lo"
       done
@@ -196,13 +196,15 @@ AC_DEFUN([sc_gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([sc_gl_FILE_LIST], [
-  build-aux/link-warning.h
+  build-aux/arg-nonnull.h
+  build-aux/warn-on-use.h
   lib/alignof.h
   lib/close-hook.c
   lib/close-hook.h
   lib/errno.in.h
   lib/gethostname.c
   lib/mbrlen.c
+  lib/mktime-internal.h
   lib/mktime.c
   lib/sockets.c
   lib/sockets.h
@@ -242,5 +244,6 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/tm_gmtoff.m4
   m4/uname.m4
   m4/unistd_h.m4
+  m4/warn-on-use.m4
   m4/wchar_t.m4
 ])

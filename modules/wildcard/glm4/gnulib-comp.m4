@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -66,7 +66,7 @@ AC_DEFUN([wc_gl_INIT],
     if test -n "$wc_gl_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $wc_gl_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $wc_gl_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         wc_gl_libobjs="$wc_gl_libobjs $i.$ac_objext"
         wc_gl_ltlibobjs="$wc_gl_ltlibobjs $i.lo"
       done
@@ -105,7 +105,7 @@ AC_DEFUN([wc_gl_INIT],
     if test -n "$wc_gltests_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $wc_gltests_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $wc_gltests_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         wc_gltests_libobjs="$wc_gltests_libobjs $i.$ac_objext"
         wc_gltests_ltlibobjs="$wc_gltests_ltlibobjs $i.lo"
       done
@@ -176,6 +176,7 @@ AC_DEFUN([wc_gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([wc_gl_FILE_LIST], [
+  build-aux/arg-nonnull.h
   lib/dummy.c
   lib/fnmatch.c
   lib/fnmatch.in.h

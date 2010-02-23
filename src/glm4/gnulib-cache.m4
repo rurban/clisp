@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -15,7 +15,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt extensions getpagesize gettext gettimeofday gnu-make havelib include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr memcmp memmove no-c++ nocrash stdbool stdint streq string sys_time uniname/uniname unitypes uniwidth/width verify wchar wctype
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt extensions getpagesize gettext gettimeofday gnu-make havelib include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr memcmp memmove nl_langinfo no-c++ nocrash stdbool stdint streq string sys_time uniname/uniname unitypes uniwidth/width verify wchar wctype
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -38,6 +38,7 @@ gl_MODULES([
   memchr
   memcmp
   memmove
+  nl_langinfo
   no-c++
   nocrash
   stdbool

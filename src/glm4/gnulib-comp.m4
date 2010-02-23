@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -52,7 +52,9 @@ AC_DEFUN([gl_INIT],
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
   gl_FUNC_GETTIMEOFDAY
+  gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
   gl_GNU_MAKE
+  gl_LANGINFO_H
   gl_LIBSIGSEGV
   gl_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
@@ -69,6 +71,8 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_MEMCMP
   gl_FUNC_MEMMOVE
   gl_MULTIARCH
+  gl_FUNC_NL_LANGINFO
+  gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
   gt_NO_CXX
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -101,7 +105,7 @@ AC_DEFUN([gl_INIT],
     if test -n "$gl_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $gl_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $gl_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         gl_libobjs="$gl_libobjs $i.$ac_objext"
         gl_ltlibobjs="$gl_ltlibobjs $i.lo"
       done
@@ -140,7 +144,7 @@ AC_DEFUN([gl_INIT],
     if test -n "$gltests_LIBOBJS"; then
       # Remove the extension.
       sed_drop_objext='s/\.o$//;s/\.obj$//'
-      for i in `for i in $gltests_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+      for i in `for i in $gltests_LIBOBJS; do echo "$i"; done | sed -e "$sed_drop_objext" | sort | uniq`; do
         gltests_libobjs="$gltests_libobjs $i.$ac_objext"
         gltests_ltlibobjs="$gltests_ltlibobjs $i.lo"
       done
@@ -211,14 +215,16 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
+  build-aux/arg-nonnull.h
   build-aux/config.rpath
-  build-aux/link-warning.h
+  build-aux/warn-on-use.h
   lib/alloca.c
   lib/alloca.in.h
   lib/config.charset
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/langinfo.in.h
   lib/localcharset.c
   lib/localcharset.h
   lib/mbrtowc.c
@@ -229,6 +235,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/memchr.valgrind
   lib/memcmp.c
   lib/memmove.c
+  lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/stdbool.in.h
@@ -255,6 +262,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/alloca.m4
   m4/codeset.m4
   m4/extensions.m4
+  m4/fcntl-o.m4
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
@@ -271,6 +279,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/intmax.m4
   m4/inttypes-pri.m4
   m4/inttypes_h.m4
+  m4/langinfo_h.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
   m4/lib-link.m4
@@ -292,6 +301,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memmove.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
+  m4/nl_langinfo.m4
   m4/nls.m4
   m4/no-c++.m4
   m4/nocrash.m4
@@ -309,6 +319,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/uintmax_t.m4
   m4/unistd_h.m4
   m4/visibility.m4
+  m4/warn-on-use.m4
   m4/wchar.m4
   m4/wchar_t.m4
   m4/wctype.m4
