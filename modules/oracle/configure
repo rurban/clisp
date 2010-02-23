@@ -1951,7 +1951,7 @@ fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
     CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    source conftestvars
+    . ./conftestvars
     rm -f conftestvars
                     test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
   fi
@@ -3836,8 +3836,8 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-#	  define __EXTENSIONS__ 1
-	  $ac_includes_default
+#         define __EXTENSIONS__ 1
+          $ac_includes_default
 int
 main ()
 {
