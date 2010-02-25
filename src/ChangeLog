@@ -1,3 +1,7 @@
+2010-02-25  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (stream_lend_handle): support sockets
+
 2010-02-23  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (GNULIB_MODULES): add nl_langinfo, which is now
