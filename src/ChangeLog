@@ -1,5 +1,19 @@
 2010-02-25  Sam Steingold  <sds@gnu.org>
 
+	Ensure that (CLOSE s :ABORT T) never signals.
+	* stream.d (ChannelStream_fini): accept abort argumet and do not
+	signal errors when it is true
+	(close_ichannel): pass abort to ChannelStream_fini
+	(close_ochannel): do not call oconv_unshift_output_unbuffered() if
+	abort is true; pass abort to ChannelStream_fini
+	(close_buffered): do not call oconv_unshift_output_buffered() and
+	buffered_flush_everything(); pass abort to ChannelStream_fini
+	(SET-STREAM-EXTERNAL-FORMAT): pass abort=0 to ChannelStream_fini
+	(builtin_stream_close): do not call harden_elastic_newline if
+	abort is true
+
+2010-02-25  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (stream_lend_handle): support sockets
 
 2010-02-23  Sam Steingold  <sds@gnu.org>
