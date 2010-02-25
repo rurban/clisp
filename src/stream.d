@@ -4500,24 +4500,26 @@ local void ChannelStream_init (object stream) {
 #endif
 
 /* Cleans up some ChannelStream fields.
- ChannelStream_fini(stream); */
+ ChannelStream_fini(stream,abort); */
 #if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
-local void ChannelStream_fini (object stream) {
+local void ChannelStream_fini (object stream, uintB abort) {
   if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
-    if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { ANSIC_error(); }
+    if (iconv_close(ChannelStream_iconvdesc(stream)) < 0 && !abort)
+      { ANSIC_error(); }
     end_system_call();
     ChannelStream_iconvdesc(stream) = (iconv_t)0;
   }
   if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
-    if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { ANSIC_error(); }
+    if (iconv_close(ChannelStream_oconvdesc(stream)) < 0 && !abort)
+      { ANSIC_error(); }
     end_system_call();
     ChannelStream_oconvdesc(stream) = (iconv_t)0;
   }
 }
 #else
-  #define ChannelStream_fini(stream)
+#define ChannelStream_fini(stream,abort)
 #endif
 
 /* Closes a handle. */
@@ -5427,7 +5429,7 @@ local maygc void close_ichannel (object stream, uintB abort) {
   pushSTACK(stream);
   ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel,abort);
   stream = popSTACK();
-  ChannelStream_fini(stream);
+  ChannelStream_fini(stream,abort);
   if (ChannelStream_bitsize(stream) > 0) {
     ChannelStream_bitsize(stream) = 0; /* delete bitsize */
     TheStream(stream)->strm_bitbuffer = NIL; /* free Bitbuffer */
@@ -5850,11 +5852,13 @@ local maygc void clear_output_unbuffered (object stream) {
  > abort: flag: non-0 => ignore errors */
 local maygc void close_ochannel (object stream, uintB abort) {
   pushSTACK(stream);
-  oconv_unshift_output_unbuffered(stream);
-  stream = STACK_0;
+  if (!abort) {
+    oconv_unshift_output_unbuffered(stream);
+    stream = STACK_0;
+  }
   ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel,abort);
   stream = popSTACK();
-  ChannelStream_fini(stream);
+  ChannelStream_fini(stream,abort);
   if (ChannelStream_bitsize(stream) > 0) {
     ChannelStream_bitsize(stream) = 0; /* delete bitsize */
     TheStream(stream)->strm_bitbuffer = NIL; /* free Bitbuffer */
@@ -8345,17 +8349,19 @@ local maygc void close_buffered (object stream, uintB abort) {
   if (nullp(BufferedStream_channel(stream)))
     return;
   pushSTACK(stream);
-  /* Flush pending Output in the iconv-Descriptor: */
-  oconv_unshift_output_buffered(stream);
-  stream = STACK_0;
-  /* poss. flush Buffer and eofposition: */
-  buffered_flush_everything(stream);
-  stream = STACK_0;
+  if (!abort) {
+    /* Flush pending Output in the iconv-Descriptor: */
+    oconv_unshift_output_buffered(stream);
+    stream = STACK_0;
+    /* poss. flush Buffer and eofposition: */
+    buffered_flush_everything(stream);
+    stream = STACK_0;
+  } else BufferedStream_modified(stream) = false;
   /* Now the modified_flag is deleted.
    close File: */
   ChannelStreamLow_close(stream)(stream,BufferedStream_channel(stream),abort);
   stream = popSTACK();
-  ChannelStream_fini(stream);
+  ChannelStream_fini(stream,abort);
   /* make Components invalid (close_dummys comes later): */
   closed_buffered(stream);
   /* remove stream from the List of all open File-Streams: */
@@ -15951,7 +15957,7 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
           STACK_2 = stream; /* save stream */
           test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype);
           stream = STACK_2; /* restore stream */
-          ChannelStream_fini(stream);
+          ChannelStream_fini(stream,0);
           stream = stream_reset_eltype(stream,&eltype);
           encoding = STACK_1; /* restore encoding */
           value1 = TheStream(stream)->strm_encoding = encoding;
@@ -16019,7 +16025,7 @@ global maygc void set_terminalstream_external_format (object stream,
      stream's encoding.
      The terminal stream's end-of-line coding is hardwired, therefore we
      don't need to do the equivalent of fill_pseudofuns_unbuffered here. */
-    ChannelStream_fini(stream);
+    ChannelStream_fini(stream,0);
     TheStream(stream)->strm_encoding = encoding;
     ChannelStream_init(stream);
   } else {
@@ -16131,7 +16137,7 @@ modexp maygc void builtin_stream_close
 (const gcv_object_t* stream_, uintB abort) {
   if ((TheStream(*stream_)->strmflags & strmflags_open_B) == 0) /* Stream already closed? */
     return;
-  harden_elastic_newline(stream_);
+  if (!abort) harden_elastic_newline(stream_);
   var object stream = *stream_;
   /* call type-specific routine (can trigger GC): */
   switch (TheStream(stream)->strmtype) {
