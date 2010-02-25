@@ -17051,23 +17051,36 @@ local bool maygc check_endianness_arg (object arg) {
  can trigger GC */
 modexp maygc Handle stream_lend_handle
 (gcv_object_t *stream_, bool inputp, int * handletype) {
-  var int errkind;
+  var int errkind = 0;
   var object stream = *stream_;
  restart_stream_lend_handle:
-  errkind = 0;
   /* TODO: use finish-output ? */
   if (builtin_stream_p(stream)) {
     switch (TheStream(stream)->strmtype) {
+     #ifdef X11SOCKETS
+      case strmtype_x11socket:
+     #endif
+     #ifdef SOCKET_STREAMS
+      case strmtype_socket:
+     #endif
+       #if defined(X11SOCKETS) || defined(SOCKET_STREAMS)
+        if (handletype) *handletype = 2;
+        /* it is not clear that buffered sockets should be supported,
+           cf strmtype_pipe_in below */
+        if (ChannelStream_buffered(stream))
+          return TheHandle(TheStream(stream)->strm_buffered_channel);
+        else if (inputp) return TheHandle(TheStream(stream)->strm_ichannel);
+        else return TheHandle(TheStream(stream)->strm_ochannel);
+       #endif
       case strmtype_file:
+        if (handletype) *handletype = 1;
         if (inputp && TheStream(stream)->strmflags & strmflags_rd_B) {
-          if (handletype) *handletype = 1;
           if (ChannelStream_buffered(stream)) {
             sync_file_buffered(stream);
             return TheHandle(TheStream(*stream_)->strm_buffered_channel);
           }
           return TheHandle(TheStream(stream)->strm_ichannel);
         } else if (!inputp && TheStream(stream)->strmflags & strmflags_wr_B) {
-          if (handletype) *handletype = 1;
           if (ChannelStream_buffered(stream)) {
             /* reposition index back to not yet read position */
             sync_file_buffered(stream);
@@ -17078,6 +17091,12 @@ modexp maygc Handle stream_lend_handle
           errkind = 2; /* wrong direction */
           goto show_error;
         }
+     #ifdef SOCKET_STREAMS
+      case strmtype_twoway_socket:
+        stream = inputp ? TheStream(stream)->strm_twoway_socket_input
+          : TheStream(stream)->strm_twoway_socket_output;
+        goto restart_stream_lend_handle;
+     #endif
       case strmtype_twoway:
       case strmtype_echo:
         stream = TheStream(stream)->strm_twoway_input;
@@ -17103,6 +17122,7 @@ modexp maygc Handle stream_lend_handle
         if (handletype) *handletype = 1;
         return TheHandle(inputp?TheStream(stream)->strm_terminal_ihandle:
                          TheStream(stream)->strm_terminal_ohandle);
+     #ifdef PIPES
       case strmtype_pipe_in:
         if (inputp) {
           if (ChannelStream_buffered(stream)) {
@@ -17133,6 +17153,7 @@ modexp maygc Handle stream_lend_handle
           goto show_error;
         }
         break;
+     #endif
       default:
         break;
     }
