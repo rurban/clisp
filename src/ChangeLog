@@ -1,5 +1,9 @@
 2010-02-26  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: call gl_FCNTL_O_FLAGS, needed by the new localcharset.c
+
+2010-02-26  Sam Steingold  <sds@gnu.org>
+
 	Handle headers placed in build-aux by gnulib
 	* m4/clisp.m4 (CL_CLISP): add AC_SUBST(CLISP_LIBDIR)
 	* Makefile.devel ($(MAKEFILE_IN)): manually substitute
