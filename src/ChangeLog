@@ -6,6 +6,7 @@
 	* modules/regexp/Makefile.in, modules/syscalls/Makefile.in:
 	* modules/wildcard/Makefile.in: use CLISP_LIBDIR when passing
 	CFLAGS to make in gllib
+	* makemake.in ($(SUBDIRS)): pass CLISP_LIBDIR
 
 2010-02-25  Sam Steingold  <sds@gnu.org>
 
