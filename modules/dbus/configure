@@ -665,6 +665,7 @@ CLISP_CFLAGS
 CLISP_LIBS
 CLISP_FILES
 CLISP_LINKKIT
+CLISP_LIBDIR
 CLISP
 cl_cv_clisp
 target_alias
@@ -1957,7 +1958,7 @@ else
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+    CLISP=$cl_cv_clisp;     CLISP_LIBDIR="${cl_cv_clisp_libdir}";     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     . ./conftestvars
     rm -f conftestvars
                     test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
