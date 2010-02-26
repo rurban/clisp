@@ -1,7 +1,11 @@
+2010-02-26  Sam Steingold  <sds@gnu.org>
+
+	* m4/clisp.m4 (CL_CLISP): add AC_SUBST(CLISP_LIBDIR)
+
 2010-02-25  Sam Steingold  <sds@gnu.org>
 
 	Ensure that (CLOSE s :ABORT T) never signals.
-	* stream.d (ChannelStream_fini): accept abort argumet and do not
+	* stream.d (ChannelStream_fini): accept abort argument and do not
 	signal errors when it is true
 	(close_ichannel): pass abort to ChannelStream_fini
 	(close_ochannel): do not call oconv_unshift_output_unbuffered() if
