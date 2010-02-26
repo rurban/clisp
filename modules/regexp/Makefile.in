@@ -5,6 +5,7 @@ CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
+CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LINKKIT = @CLISP_LINKKIT@
 # cannot compile gnulib/regex with c++
 # http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
@@ -50,7 +51,7 @@ gllib libgnu_rx.a : force
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" \
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(CLISP_LINKKIT)/.. $(NO_CXX)"; \
+		CFLAGS="$(CFLAGS) -I$(CLISP_LIBDIR) $(NO_CXX)"; \
 	  $(LN) libgnu.a ../libgnu_rx.a
 
 # Make a module distribution into $(distribdir)

@@ -7,6 +7,7 @@ CC = @CC@
 CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
+CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
@@ -49,7 +50,7 @@ gllib libgnu_sc.a : force
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" \
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(CLISP_LINKKIT)/.."; \
+		CFLAGS="$(CFLAGS) -I$(CLISP_LIBDIR)"; \
 	  $(LN) libgnu.a ../libgnu_sc.a
 
 # Make a module distribution into $(distribdir)
