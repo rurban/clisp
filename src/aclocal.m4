@@ -10366,7 +10366,7 @@ AC_SUBST(CC_SUNPRO)dnl
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008-2009 Free Software Foundation, Inc.
+dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -10434,6 +10434,7 @@ if test "$cl_use_clisp" != "no"; then
      done
      test -n "${missing}" && cl_cv_clisp_linkset="missing${missing}"])
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
+    CLISP_LIBDIR="${cl_cv_clisp_libdir}"; AC_SUBST(CLISP_LIBDIR)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     . ./conftestvars

@@ -531,16 +531,16 @@ noinst_LTLIBRARIES =
 #	for the 2004 POSIX specification]
 #endif
 EXTRA_DIST = alloca.c alloca.in.h \
-	$(top_srcdir)/src/build-aux/arg-nonnull.h getpagesize.c \
-	$(top_srcdir)/src/build-aux/config.rpath gettimeofday.c \
-	$(top_srcdir)/src/build-aux/config.rpath langinfo.in.h \
+	$(CLISP_LIBDIR)/build-aux/arg-nonnull.h getpagesize.c \
+	$(CLISP_LIBDIR)/build-aux/config.rpath gettimeofday.c \
+	$(CLISP_LIBDIR)/build-aux/config.rpath langinfo.in.h \
 	config.charset ref-add.sin ref-del.sin mbrtowc.c mbsinit.c \
 	mbsrtowcs-state.c mbsrtowcs.c memchr.c memchr.valgrind \
 	memcmp.c memmove.c nl_langinfo.c stdbool.in.h stddef.in.h \
 	stdint.in.h streq.h string.in.h sys_time.in.h uniname.h \
 	uniname/gen-uninames.lisp uniname/uninames.h unistd.in.h \
 	unitypes.h localcharset.h uniwidth.h uniwidth/cjk.h \
-	$(top_srcdir)/src/build-aux/warn-on-use.h wchar.in.h \
+	$(CLISP_LIBDIR)/build-aux/warn-on-use.h wchar.in.h \
 	wctype.in.h
 
 # The BUILT_SOURCES created by this Makefile snippet are not used via #include
@@ -1007,10 +1007,10 @@ alloca.h: alloca.in.h
 	mv -f $@-t $@
 # The arg-nonnull.h that gets inserted into generated .h files is the same as
 # build-aux/arg-nonnull.h, except that it has the copyright header cut off.
-arg-nonnull.h: $(top_srcdir)/src/build-aux/arg-nonnull.h
+arg-nonnull.h: $(CLISP_LIBDIR)/build-aux/arg-nonnull.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/GL_ARG_NONNULL/,$$p' \
-	  < $(top_srcdir)/src/build-aux/arg-nonnull.h \
+	  < $(CLISP_LIBDIR)/build-aux/arg-nonnull.h \
 	  > $@-t && \
 	mv $@-t $@
 
@@ -1407,10 +1407,10 @@ unistd.h: unistd.in.h $(WARN_ON_USE_H) $(ARG_NONNULL_H)
 	mv $@-t $@
 # The warn-on-use.h that gets inserted into generated .h files is the same as
 # build-aux/warn-on-use.h, except that it has the copyright header cut off.
-warn-on-use.h: $(top_srcdir)/src/build-aux/warn-on-use.h
+warn-on-use.h: $(CLISP_LIBDIR)/build-aux/warn-on-use.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/^.ifndef/,$$p' \
-	  < $(top_srcdir)/src/build-aux/warn-on-use.h \
+	  < $(CLISP_LIBDIR)/build-aux/warn-on-use.h \
 	  > $@-t && \
 	mv $@-t $@
 
