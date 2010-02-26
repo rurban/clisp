@@ -3322,6 +3322,8 @@ for f in ${LINKKIT}; do
   echotab "cd linkkit && \$(LN_S) ${PARENT_}$f $f"
 done
 echol
+
+# scripts in build-aux
 MODULE_CONFIGURES=`find ${SRCTOPDIR_}modules -name configure`
 BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
 BUILD_AUX=''
@@ -3338,6 +3340,19 @@ esac
 for f in ${BUILD_AUX_ALL}; do
   test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
 done
+
+# headers in build-aux
+BUILD_AUX_HEADERS=`cd ${SRCDIR}build-aux; ls *.h`
+MODULE_AM=`find ${SRCTOPDIR_}modules -name Makefile.am`
+for h in ${BUILD_AUX_HEADERS}; do
+  for m in ${MODULE_AM}; do
+    if fgrep -q "BUILT_SOURCES += $h" $m; then
+      BUILD_AUX="${BUILD_AUX} $h"
+      break
+    fi
+  done
+done
+
 test "${verbose}" = true -o "${verbose}" = yes && \
   echo "BUILD_AUX =${BUILD_AUX}" >&2
 
