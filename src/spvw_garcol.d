@@ -1960,14 +1960,13 @@ local bool split_gen0_on_holes(uintL heapnr, varobj_mem_region *rwareas)
 
 /* splits list of object to referenced and non-referenced based on the gc mark
    bit and additional condition */
-#define SPLIT_REF_LISTS(items,ref_items,noref_items,condition)          \
+#define SPLIT_REF_LISTS(items,ref_items,noref_items)                    \
   do {                                                                  \
     var object Lu = items;                                              \
     var gcv_object_t* L1 = &ref_items;                                  \
     var gcv_object_t* L2 = &noref_items;                                \
     while (consp(Lu)) {                                                 \
-      if (alive(Car(Lu))                                                \
-          || condition) {                                               \
+      if (alive(Car(Lu))) {                                             \
         *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1;                              \
       } else {                                                          \
         *L2 = Lu; L2 = &Cdr(Lu); Lu = *L2;                              \
@@ -1987,6 +1986,7 @@ local void gar_col_normal (void)
   #ifdef GC_CLOSES_FILES
   var object files_to_close;    /* list of files to be closed */
   #endif
+  var uintC pinned_count=0; /* pinned objects count (=0 if not MT build) */
   #if defined(MULTITHREAD)
   var object threads_to_go; /* list of threads to be released */
   var object mutexes_to_go; /* list of mutexes to be released */
@@ -2043,10 +2043,7 @@ local void gar_col_normal (void)
   threads_to_go = O(all_threads); O(all_threads) = NIL;
   mutexes_to_go = O(all_mutexes); O(all_mutexes) = NIL;
   exemptions_to_go = O(all_exemptions); O(all_exemptions) = NIL;
-  #endif
   /* count the pinned objects and mark them */
-  var uintC pinned_count=0; /* in single thread this is constant */
-  #if defined(MULTITHREAD)
   for_all_threads({
     var pinned_chain_t *chain=thread->_pinned;
     while (chain) {
@@ -2055,7 +2052,15 @@ local void gar_col_normal (void)
       pinned_count++;
     }
   });
-  #endif
+  { /* mark active threads before marking weak pointers */
+    var object threads = threads_to_go;
+    while (consp(threads)) {
+      if (TheThread(Car(threads))->xth_globals)
+        gc_mark(Car(threads));
+      threads = Cdr(threads);
+    }
+  }
+  #endif /* MULTITHREAD */
   gc_markphase();
   gc_mark_weakpointers(all_weakpointers);
   /* Now only, after gc_mark_weakpointers, can alive() be called.
@@ -2088,19 +2093,18 @@ local void gar_col_normal (void)
   gc_mark(O(all_finalizers));
  #ifdef GC_CLOSES_FILES
   /* Split (still unmarked) list files_to_close into two lists: */
-  SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close),false);
+  SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close));
   gc_mark(O(open_files));
  #endif
  #ifdef MULTITHREAD
   /* prepare for release terminated, non-referenced threads */
-  SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),
-                  (TheThread(Car(Lu))->xth_globals != NULL));
+  SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release));
   gc_mark(O(all_threads));
   /* prepare for release non-referenced mutexes */
-  SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),false);
+  SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release));
   gc_mark(O(all_mutexes));
   /* prepare for release non-referenced exemptions */
-  SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release),false);
+  SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release));
   gc_mark(O(all_exemptions));
  #endif
   clean_weakpointers(all_weakpointers);
