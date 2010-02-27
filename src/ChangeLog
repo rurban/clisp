@@ -1,3 +1,9 @@
+2010-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (xlock_lock_helper): do not try to handle pending
+	interrupts for signal processing thread (no clisp_thread_t for it)
+	(win32_xcondition_wait): cleanup
+
 2010-02-26  Sam Steingold  <sds@gnu.org>
 
 	* configure.in: call gl_FCNTL_O_FLAGS, needed by the new localcharset.c
