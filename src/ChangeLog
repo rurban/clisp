@@ -1,5 +1,11 @@
 2010-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_garcol.d (gar_col_normal) [MULTITHREAD]: mark active threads
+	before weak pointers
+	(SPLIT_REF_LISTS): remove 'condition' argument
+
+2010-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* zthread.d (xlock_lock_helper): do not try to handle pending
 	interrupts for signal processing thread (no clisp_thread_t for it)
 	(win32_xcondition_wait): cleanup
