@@ -85,7 +85,7 @@ global void release_threads (object list) {
      However this may be useful in future - when we will have threads
      created from foreign code callbacks (maybe). So it is left here. */
   /*
-  while (!endp(list)) {
+    while (!endp(list)) {
     list = Cdr(list);
   }
   */
@@ -1008,7 +1008,7 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
           break;
         } else {
           /* check for interrupts before waiting */
-          if (thr->_pending_interrupts) {
+          if (thr && thr->_pending_interrupts) {
             /* handle them */
             xmutex_raw_unlock(&l->xl_internal_mutex);
             thr->_wait_mutex=NULL;
@@ -1082,7 +1082,6 @@ int xlock_unlock_helper(xlock_t *l, bool unlock_real)
 int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout)
 {
   var int r=-1;
-  var clisp_thread_t *thr = current_thread();
   /* mutex is owned by us and it is locked just once.
      our caller assures this */
   xlock_unlock_helper(m,false); /* mark as unlocked */
