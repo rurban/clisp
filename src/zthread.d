@@ -1065,8 +1065,8 @@ int xlock_unlock_helper(xlock_t *l, bool unlock_real)
       l->xl_owned = false;
       if (unlock_real)
         xmutex_raw_unlock(&l->xl_mutex);
-      xmutex_raw_unlock(&l->xl_internal_mutex); /* before signal */
       xcondition_signal(&l->xl_wait_cv);
+      xmutex_raw_unlock(&l->xl_internal_mutex);
     }
     return 0;
   }
