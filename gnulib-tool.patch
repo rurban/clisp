@@ -1,3 +1,20 @@
+The sub-modules have to share the gnulib directories
+(so that they do not include several identical object files)
+which results in header conflict: each gllib directory contains
+its own (e.g.) unistd.h which is adapted to the specific submodule.
+therefore if all these headers use the same _GL_UNISTD_H macros,
+the wrong gllib header is used, the wrong functions are declared,
+the wrong system headers are included and nothing works.
+
+This has been discussed on this list in the thread
+"uname: build problem on win32" in August 2009.
+See
+http://www.mail-archive.com/bug-gnulib@gnu.org/msg14805.html
+http://www.mail-archive.com/bug-gnulib@gnu.org/msg14807.html
+http://www.mail-archive.com/bug-gnulib@gnu.org/msg14808.html
+http://www.mail-archive.com/bug-gnulib@gnu.org/msg14814.html
+
+
 diff --git a/gnulib-tool b/gnulib-tool
 index ea451ec..6ed5e8e 100755
 --- a/gnulib-tool
