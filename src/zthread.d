@@ -84,34 +84,34 @@ global void release_threads (object list) {
      been GC-ed. Now everything is released upon thread termination.
      However this may be useful in future - when we will have threads
      created from foreign code callbacks (maybe). So it is left here. */
-  /*
-    while (!endp(list)) {
+ #if 0
+  while (!endp(list)) {
     list = Cdr(list);
   }
-  */
+ #endif
 }
 
 /* releases the OS mutexes for mutex objects in the list */
-global void release_mutexes(object list)
+global void release_mutexes (object list)
 {
- while (!endp(list)) {
-   begin_system_call();
-   xmutex_destroy(TheMutex(Car(list))->xmu_system);
-   free(TheMutex(Car(list))->xmu_system);
-   end_system_call();
-   list = Cdr(list);
+  while (!endp(list)) {
+    begin_system_call();
+    xmutex_destroy(TheMutex(Car(list))->xmu_system);
+    free(TheMutex(Car(list))->xmu_system);
+    end_system_call();
+    list = Cdr(list);
   }
 }
 
 /* releases the OS condition variables for exemption objects in the list */
-global void release_exemptions(object list)
+global void release_exemptions (object list)
 {
- while (!endp(list)) {
-   begin_system_call();
-   xcondition_destroy(TheExemption(Car(list))->xco_system);
-   free(TheExemption(Car(list))->xco_system);
-   end_system_call();
-   list = Cdr(list);
+  while (!endp(list)) {
+    begin_system_call();
+    xcondition_destroy(TheExemption(Car(list))->xco_system);
+    free(TheExemption(Car(list))->xco_system);
+    end_system_call();
+    list = Cdr(list);
   }
 }
 
