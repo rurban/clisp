@@ -1,7 +1,7 @@
 /*
  * Package Management for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1999-2009
+ * Sam Steingold 1999-2010
  * German comments translated into English: Stefan Kain 2002-02-20
  */
 
