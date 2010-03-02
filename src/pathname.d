@@ -7928,9 +7928,7 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
   if (!boundp(pathname)) { pathname = O(empty_string); } /* "" */
   else if (stringp(pathname)) /* make sure it ends with a slash */
     pathname = ensure_last_slash(pathname);
-  pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
-  /* no need to copy: merge_defaults produces a fresh pathname
-     set name and type to NIL: */
+  pathname = copy_pathname(coerce_pathname(pathname)); /* --> pathname */
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
   pushSTACK(pathname);
