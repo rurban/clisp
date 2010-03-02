@@ -1,3 +1,10 @@
+2010-03-02  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (CD): do not merge *DEFAULT-PATHNAME-DEFAULTS*
+	because the merging breaks the advertised behavior: (CD) is
+	actually equivalent to (CD *DEFAULT-PATHNAME-DEFAULTS*),
+	and does not just return the current directory as advertised
+
 2010-02-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (xlock_unlock_helper): signal lock's condition variable
