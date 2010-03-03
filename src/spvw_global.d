@@ -734,19 +734,10 @@ global maygc uintL add_per_thread_special_var(object symbol)
            this should happen very rarely. */
         var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
         WITH_STOPPED_WORLD(true, {
-          for_all_threads({
-            if (!realloc_thread_symvalues(thread,nsyms)) {
-              fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
-              abort();
-            }
-            /* initialize all newly allocated cells to SYMVALUE_EMPTY (otherwise
-               we will have to lock threads when we add new per thread
-               variable) */
-            var gcv_object_t* objptr = thread->_ptr_symvalues + num_symvalues;
-            var uintC count;
-            for (count = num_symvalues; count<nsyms; count++)
-              *objptr++ = SYMVALUE_EMPTY;
-          });
+          if (!realloc_threads_symvalues(nsyms)) {
+            fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
+            abort();
+          }
           maxnum_symvalues = nsyms;
         });
       }
