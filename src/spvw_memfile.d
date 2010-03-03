@@ -1113,11 +1113,14 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #if defined(MULTITHREAD)
     /* allocate per thread symvalues for the thread */
     {
-      num_symvalues=header._per_thread_symvalues_count;
-      var uintL max_symvalues=(uintL)((num_symvalues/SYMVALUES_PER_PAGE)+1) *
+      var uintL max_symvalues=
+        (uintL)((header._per_thread_symvalues_count/SYMVALUES_PER_PAGE)+1) *
         SYMVALUES_PER_PAGE;
-      if (!realloc_thread_symvalues(current_thread(),max_symvalues))
+      /* no need to lock allthreads_lock before reallocation since we are the
+         only thread running now */
+      if (!realloc_threads_symvalues(max_symvalues))
         goto abort_mem;
+      num_symvalues=header._per_thread_symvalues_count;
       if (maxnum_symvalues < max_symvalues)
         maxnum_symvalues = max_symvalues;
     }

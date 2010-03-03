@@ -757,20 +757,28 @@ global void delete_thread (clisp_thread_t *thread) {
         _cthread=_cthread->thr_next; statement; }                       \
     } while(0)
 
-/* UP: reallocates _ptr_symvalues in a thread - so there is a place for
+/* UP: reallocates _ptr_symvalues in all threads - so there is a place for
    nsyms per thread symbol values.
- > thr: the thread
  > nsyms: number od symvalues to be available.
- < true if reallocation succeeded. */
-local bool realloc_thread_symvalues(clisp_thread_t *thr, uintL nsyms)
+ < true if reallocation succeeded.
+should be called with allthreads_lock locked */
+local bool realloc_threads_symvalues(uintL nsyms)
 {
   if (nsyms <= maxnum_symvalues) /* we already have enough place */
     return true;
-  gcv_object_t *p=(gcv_object_t *)realloc(thr->_ptr_symvalues,
-                                          nsyms*sizeof(gcv_object_t));
-  if (p)
-    thr->_ptr_symvalues=p;
-  return p!=NULL;
+  for_all_threads({
+    var gcv_object_t *p=(gcv_object_t *)realloc(thread->_ptr_symvalues,
+                                                nsyms*sizeof(gcv_object_t));
+    /* in case of allocation error - abort immediately */
+    if (p) thread->_ptr_symvalues=p; else return false;
+    /* initialize all newly allocated cells to SYMVALUE_EMPTY (otherwise
+       we will have to lock threads when we add new per thread variable) */
+    var gcv_object_t* objptr = thread->_ptr_symvalues + num_symvalues;
+    var uintC count;
+    for (count = num_symvalues; count<nsyms; count++)
+      *objptr++ = SYMVALUE_EMPTY;
+  });
+  return true;
 }
 
 #define for_all_threadobjs(statement)                                   \

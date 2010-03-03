@@ -1,3 +1,10 @@
+2010-03-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (realloc_threads_symvalues): expand all threads symvalues
+	tables and initialize new cells to SYMVALUE_EMPTY
+	* spvw_global.d (add_per_thread_special_var): use it
+	* spvw_memfile.d (loadmem_from_handle): ditto
+
 2010-03-02  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (CD): do not merge *DEFAULT-PATHNAME-DEFAULTS*
