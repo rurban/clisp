@@ -17,7 +17,6 @@
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
   <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
-  <!ENTITY batch-mode '<link linkend="batch-mode">batch mode</link>'>
   <!ENTITY opt-lf '<option><link linkend="opt-exec-file">&lf;</link></option>'>
 ]>
 
@@ -721,6 +720,12 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
 </variablelist>
 </refsection>
 <!-- #endif -->
+
+<refsection id="input-output"><title>Input and Outut</title>
+
+<para>See <olink targetdoc="impnotes" targetptr="stream-stdio-init"/>.</para>
+
+</refsection>
 
 <refsection id="see-also"><title>See also</title>
 

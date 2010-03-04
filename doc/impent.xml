@@ -483,6 +483,7 @@
 <!ENTITY init-function '<olink targetdoc="impnotes" targetptr="init-func">init function</olink>'>
 <!ENTITY RC-file '<olink targetdoc="man" targetptr="opt-norc">RC file</olink>'>
 <!ENTITY rt '<olink targetdoc="man" targetptr="runtime">runtime</olink>'>
+<!ENTITY batch-mode '<olink targetdoc="man" targetptr="batch-mode">batch mode</olink>'>
 <!ENTITY compile-file-my '<olink targetdoc="impnotes" targetptr="compilefile"><function>COMPILE-FILE</function></olink>'>
 <!ENTITY load-my '<olink targetdoc="impnotes" targetptr="loadfile"><function>LOAD</function></olink>'>
 <!ENTITY require-my '<olink targetdoc="impnotes" targetptr="require"><function>REQUIRE</function></olink>'>
