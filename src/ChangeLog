@@ -1,3 +1,8 @@
+2010-03-04  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (INVALID_ARG): also "return 1"
+	(parse_options): simplified based on the above
+
 2010-03-03  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (realloc_threads_symvalues): expand all threads symvalues
