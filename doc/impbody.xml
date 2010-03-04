@@ -4542,14 +4542,14 @@ Let us consider different criteria:<orderedlist numeration="arabic">
    <listitem><simpara>denotes the &file-des; of this value
   </simpara></listitem></varlistentry>
   <varlistentry><term>&input-k;</term>
-   <listitem><simpara>denotes &clisp; process &standard-input-var;
-  </simpara></listitem></varlistentry>
+   <listitem><simpara>denotes &clisp; process standard input, that is,
+    &file-des; 0</simpara></listitem></varlistentry>
   <varlistentry><term>&output-k;</term>
-   <listitem><simpara>denotes &clisp; process &standard-output-var;
-  </simpara></listitem></varlistentry>
+   <listitem><simpara>denotes &clisp; process standard output, that is,
+    &file-des; 1</simpara></listitem></varlistentry>
   <varlistentry><term>&error-k;</term>
-   <listitem><simpara>denotes &clisp; process &error-output-var;
-  </simpara></listitem></varlistentry>
+   <listitem><simpara>denotes &clisp; process error output, that is,
+    &file-des; 2</simpara></listitem></varlistentry>
   <varlistentry><term>&stream-t;</term>
    <listitem><simpara>denotes the handle of this stream, which should be
      a &file-stream-t; or a &socket-stream;</simpara></listitem></varlistentry>
