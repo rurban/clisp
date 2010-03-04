@@ -3831,6 +3831,33 @@ under the current directory (similar to the <command role="unix">ls
 <para>Interactive streams are those whose next input might depend on a
  prompt one might output.</para>
 
+<section id="stream-stdio-init"><title>Initialization of Standard Streams</title>
+
+<para>When run interactively, &clisp; creates a single &stream-t; of type
+ <type>TERMINAL-STERAM</type> and binds &terminal-io-var; to it.
+ All other standard streams (&standard-input-var;, &standard-output-var;
+ &error-output-var;, &trace-output-var;, &query-io-var;, &debug-io-var;)
+ are &synonym-stream-t;s pointing to &terminal-io-var;.
+ This has the benefit of avoiding unwanted blank lines from &fresh-line;,
+ see <xref linkend="newline-convention"/>.</para>
+
+<para>However, there may be situations, especially in &batch-mode;,
+ when one wants to use a &c-lang;-style i/o where &standard-output-var;
+ and &error-output-var; point to different OS &file-des; so that the can be
+ <ulink role="unix" url="utilities/xcu_chap02.html#tag_02_07">redirected</ulink>
+ to files in the command line and examined separately.
+ Often &clisp; can detect such situations (&stdout; and &stderr; not being
+ the terminal) and handle them just as expected.
+ However, there may be cases when one needs to do something like:
+<programlisting language="lisp">
+(&setq; &standard-input-var; (&make-stream; &input-k;)
+      &standard-output-var; (&make-stream; &output-k; &buffered; &t;)
+      &error-output-var; (&make-stream; &error-k; &buffered; &t;))
+ </programlisting>
+in your <olink targetdoc="man" targetptr="opt-exec-file">script</olink>
+or &init-function;.</para>
+</section>
+ 
 </section>
 
 <section id="terminal"><title>Terminal interaction</title>
