@@ -2051,7 +2051,10 @@ local void arg_error (const char *error_message, const char *arg) {
   fprintf(stderr,GETTEXTL("%s: use '-h' for help"),PACKAGE_NAME);
   fputc('\n',stderr);
 }
-#define INVALID_ARG(a)  arg_error(GETTEXTL("invalid argument"),a)
+#define INVALID_ARG(a)    do {                                          \
+  arg_error(GETTEXTL("invalid argument"),a);                            \
+  return 1;                                                             \
+} while (0)
 
 /* print license */
 nonreturning_function (local, print_license, (void)) {
@@ -2488,10 +2491,9 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-help-image")) {
               p2->argv_help_image = true;
               break;
-            } else if (arg[2] != 0) {
+            } else if (arg[2] != 0) 
               INVALID_ARG(arg);
-              return 1;
-            } else {
+            else {
               usage(delegating);
               return 0;
             }
@@ -2501,10 +2503,7 @@ local inline int parse_options (int argc, const char* const* argv,
               if (arg[2] == '\0') {             \
                 if (argptr < argptr_limit)      \
                   arg = *argptr++;              \
-                else {                          \
-                  INVALID_ARG(arg);             \
-                  return 1;                     \
-                }                               \
+                else INVALID_ARG(arg);          \
               } else arg += 2
           case 'm':             /* memory size  */
            #ifdef WIN32_NATIVE
@@ -2527,20 +2526,16 @@ local inline int parse_options (int argc, const char* const* argv,
           case 't':             /* traditional, temporary directory */
             if (asciz_equal(arg,"-traditional"))
               p2->argv_ansi = 2; /* traditional */
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'd': /* -d (developer mode) or -disable-readline */
             if (asciz_equal(arg,"-disable-readline"))
               disable_readline = true;
             else if (arg[2] == '\0')
               p2->argv_developer = true;
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'B':             /* lisplibdir */
             OPTION_ARG;
@@ -2553,10 +2548,8 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'n':
             if (asciz_equal(arg,"-norc"))
               p2->argv_norc = true;
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
          #if defined(UNIX) || defined(WIN32_NATIVE)
           case 'K':             /* linKing set */
@@ -2597,69 +2590,51 @@ local inline int parse_options (int argc, const char* const* argv,
               argv_encoding_file = argv_encoding_pathname =
                 argv_encoding_terminal = argv_encoding_foreign =
                 argv_encoding_misc = *argptr++;
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'q':             /* verbosity level */
             p2->argv_verbose--;
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'v':             /* verbosity level */
             p2->argv_verbose++;
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'I':             /* ILISP-friendly */
             ilisp_mode = true;
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'C':             /* set *LOAD-COMPILING* */
             p2->argv_load_compiling = true;
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'r': /* -repl */
             if (asciz_equal(&arg[1],"repl"))
               p2->argv_repl = true;
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'i':             /* initialization files */
             if (arg[2] == '\0')
               argv_for = for_init;
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'c':             /* files to be compiled */
             p2->argv_compile = true;
             argv_for = for_compile;
             if (arg[2] == 'l') {
               p2->argv_compile_listing = true;
-              if (arg[3] != '\0') {
+              if (arg[3] != '\0') 
                 INVALID_ARG(arg);
-                return 1;
-              }
             } else {
-              if (arg[2] != '\0') {
+              if (arg[2] != '\0') 
                 INVALID_ARG(arg);
-                return 1;
-              }
             }
             break;
           case 'l':             /* compilation listings */
@@ -2667,19 +2642,15 @@ local inline int parse_options (int argc, const char* const* argv,
               p2->argv_compile_listing = true;
             else if (arg[2] == 'p' && arg[3] == 0) {
               argv_for = for_load_path;
-            } else {
+            } else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'o':
             if (asciz_equal(&arg[1],"on-error")) {
               if (argptr < argptr_limit)
                 arg = *argptr++;
-              else {
+              else 
                 INVALID_ARG(arg);
-                return 1;
-              }
               if (asciz_equal(arg,"default"))
                 p2->argv_on_error = ON_ERROR_DEFAULT;
               else if (asciz_equal(arg,"debug"))
@@ -2697,15 +2668,11 @@ local inline int parse_options (int argc, const char* const* argv,
             } else if (arg[2] == '\0') { /* target for files to be compiled */
               OPTION_ARG;
               if (!((p2->argv_compile_filecount > 0)
-                    && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) {
+                    && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) 
                 INVALID_ARG(arg);
-                return 1;
-              }
               p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
-            } else {
+            } else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'p': /* package: when repeated, only the last one counts. */
             OPTION_ARG;
@@ -2714,24 +2681,18 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'a':             /* ANSI CL Compliance */
             if (asciz_equal(arg,"-ansi"))
               p2->argv_ansi = 1; /* ANSI */
-            else {
+            else 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case 'x':             /* execute LISP-expression */
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             argv_for = for_expr;
             break;
           case 'w':            /* wait for keypress after termination */
             p2->argv_wait_keypress = true;
-            if (arg[2] != '\0') {
+            if (arg[2] != '\0') 
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           case '-':             /* -- GNU-style long options */
             if (arg[2] == 0) /* "--" ==> end of options */
@@ -2779,14 +2740,11 @@ local inline int parse_options (int argc, const char* const* argv,
             } else if (asciz_equal(&arg[2],"license")) {
               p2->argv_license = true;
               break;
-            } else {            /* unknown option */
+            } else              /* unknown option */
               INVALID_ARG(arg);
-              return 1;
-            }
             break;
           default:              /* unknown option */
             INVALID_ARG(arg);
-            return 1;
         }
       } else if (arg[0] == 0) {  /* done with the arguments */
        done_with_argv:
