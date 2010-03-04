@@ -1,7 +1,7 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-03-24
 
  Content:
@@ -2121,7 +2121,7 @@ local void print_banner (void)
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
    "Copyright (c) Bruno Haible, Sam Steingold 1999-2000\n",
-   "Copyright (c) Sam Steingold, Bruno Haible 2001-2009\n",
+   "Copyright (c) Sam Steingold, Bruno Haible 2001-2010\n",
   };
   var int candles = 0;
   var uintL offset = (posfixnum_to_V(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
@@ -3365,9 +3365,12 @@ local inline void main_actions (struct argv_actions *p) {
     pushSTACK(asciz_to_string(p->argv_lisplibdir,O(pathname_encoding)));
     funcall(L(set_lib_directory),1);
   }
+  /* if the options suggest that user input will not be available,
+     reset *DEBUG-IO* so that READ-CHAR on it retults in an immediate EOF
+     to avoid infinite loops on error. */
   if (p->argv_batchmode_p) {
     /* (setq *debug-io*
-         (make-two-way-stream (make-string-input-stream "") *query-io*)) */
+         (make-two-way-stream (make-concatenated-stream) *query-io*)) */
     funcall(L(make_concatenated_stream),0); /* (MAKE-CONCATENATED-STREAM) */
     pushSTACK(value1);                      /* empty input-stream */
     var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
