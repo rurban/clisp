@@ -17,6 +17,8 @@
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
   <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
+  <!ENTITY batch-mode '<link linkend="batch-mode">batch mode</link>'>
+  <!ENTITY opt-lf '<option><link linkend="opt-exec-file">&lf;</link></option>'>
 ]>
 
 <refentry id="clisp">
@@ -84,22 +86,32 @@
    <replaceable>output-file</replaceable></option></arg></arg>
 <arg rep="repeat"><option><link linkend="opt-exec-expr">-x
    &exprs;</link></option></arg>
-<arg><option><link linkend="opt-exec-file">&lf;</link></option>
- <arg rep="repeat"><option><link linkend="opt-exec-file"
-                                 >&arg-r;</link></option></arg></arg>
+<arg>&opt-lf; <arg rep="repeat"><option><link linkend="opt-exec-file">
+   &arg-r;</link></option></arg></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
 
 <refsection id="description"><title>Description</title>
 
-<para>Invokes the &cl; interpreter and compiler.
-When called without arguments, executes the &repl;,
-in which expressions are in turn &read; from the standard input,
-&eval;uated by the lisp interpreter,
-and their results are &print;ed to the standard output.
-Invoked with &opt-c;,
-compiles the specified lisp files to a platform-independent
-&bytecode; which can be executed more efficiently.</para>
+<para>Invokes the &cl; interpreter and compiler.</para>
+
+<refsection id="interactive-mode"><title>Interactive Mode</title>
+
+<para>When called without arguments, executes the &repl;,
+in which expressions are in turn <itemizedlist>
+<listitem><simpara>&read; from the standard input,</simpara></listitem>
+<listitem><simpara>&eval;uated by the lisp interpreter,</simpara></listitem>
+<listitem><simpara>and their results are &print;ed to the standard output.
+</simpara></listitem></itemizedlist></para>
+</refsection>
+
+<refsection id="batch-mode"><title>Non-Interactive (Batch) Mode</title>
+
+<para>Invoked with &opt-c;, compiles the specified lisp files to a
+platform-independent &bytecode; which can be executed more efficiently.</para>
+<para>Invoked with &opt-x;, executes the specified lisp expressions.</para>
+<para>Invoked with &opt-lf;, runs the specified lisp file.</para>
+</refsection>
 
 </refsection>
 
@@ -303,8 +315,7 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="opt-on-error">
  <term><option>-on-error</option> <replaceable>action</replaceable></term>
- <listitem><para>Override (or force) the batch mode imposed by
-   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>,
+ <listitem><para>Establish global error handlers,
    depending on <replaceable>action</replaceable>:<variablelist>
     <varlistentry><term>appease</term>
      <listitem><simpara>&cont-err;s are turned into &warning-t;s (with
@@ -312,21 +323,22 @@ compiles the specified lisp files to a platform-independent
     </simpara></listitem></varlistentry>
     <varlistentry><term>debug</term>
      <listitem><simpara>&error-t;s &invoke-debugger; (the normal &repl;
-       behavior)</simpara></listitem></varlistentry>
+       behavior), disables &batch-mode; imposed by &opt-c;, &opt-x;,
+       and &opt-lf;,</simpara></listitem></varlistentry>
     <varlistentry><term>abort</term>
      <listitem><simpara>&cont-err;s are appeased, other &error-t;s
        are &abort;ed with &abort-on-error;</simpara></listitem></varlistentry>
     <varlistentry><term>exit</term>
      <listitem><simpara>&cont-err;s are appeased, other &error-t;s terminate
-       &clisp; with &exit-on-error;</simpara></listitem></varlistentry>
-   </variablelist>
+       &clisp; with &exit-on-error; (the normal &batch-mode; behavior).
+     </simpara></listitem></varlistentry></variablelist>
    See also &set-global-handler;.</para></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
  <listitem><simpara>Start an interactive &repl; after processing the
-   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>
-   options and on any &error-t; &signal;ed during that processing.
-</simpara></listitem></varlistentry>
+   &opt-c;, &opt-x;, and &opt-lf; options and on any &error-t; &signal;ed
+   during that processing.</simpara>
+<simpara>Disables &batch-mode;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-wait"><term><option>-w</option></term>
  <listitem><simpara>Wait for a keypress after program termination.
@@ -416,8 +428,8 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-compile"><term><option>-c</option> &lf;</term>
  <listitem><simpara>Compiles the specified &lf;s to &bytecode;
    (<filename>*.fas</filename>).  The compiled files can then be
-   &load;ed instead of the sources to gain efficiency.
-</simpara></listitem></varlistentry>
+   &load;ed instead of the sources to gain efficiency.</simpara>
+<simpara>Imposes &batch-mode;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-out"><term><option>-o</option>
   <replaceable>outputfile</replaceable></term>
@@ -438,7 +450,8 @@ compiles the specified lisp files to a platform-independent
    The values of the expressions will be output to &standard-output-var;.
    Due to the argument processing done by the shell, the &exprs; must be
    enclosed in double quotes, and double quotes and backslashes must be
-   escaped with backslashes.</simpara></listitem></varlistentry>
+   escaped with backslashes.</simpara>
+<simpara>Imposes &batch-mode;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-exec-file"><term>&lf; [ &arg-r; ... ]</term>
  <listitem><simpara>Loads and executes a &lf;, as described in
@@ -457,6 +470,7 @@ compiles the specified lisp files to a platform-independent
  argument.  In that case the &list-t; &args; starts with &lf;.</simpara>
 <simpara>This option must be the last one.</simpara>
 <simpara>No &RC-file; will be executed.</simpara>
+<simpara>Imposes &batch-mode;.</simpara>
 </listitem></varlistentry>
 
 </variablelist>
