@@ -1,9 +1,10 @@
 User visible changes
 --------------------
 
-* New command line option -disable-readline to work around bugs and
+* New command line option -disable-readline lets working around bugs and
   incompatibilities between readline CLISP was built against and the
   library actually installed.
+  See <http://clisp.cons.org/impnotes/clisp.html#opt-norl> for details.
 
 * FFI:OPEN-FOREIGN-LIBRARY now accepts the :REQUIRE argument.
   See <http://clisp.cons.org/impnotes/dffi.html#dffi-open-lib> for details.
