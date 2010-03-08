@@ -3857,7 +3857,7 @@ under the current directory (similar to the <command role="unix">ls
 in your <olink targetdoc="man" targetptr="opt-exec-file">script</olink>
 or &init-function;.</para>
 </section>
- 
+
 </section>
 
 <section id="terminal"><title>Terminal interaction</title>
@@ -4541,15 +4541,15 @@ Let us consider different criteria:<orderedlist numeration="arabic">
   <varlistentry><term>number</term>
    <listitem><simpara>denotes the &file-des; of this value
   </simpara></listitem></varlistentry>
-  <varlistentry><term>&input-k;</term>
-   <listitem><simpara>denotes &clisp; process standard input, that is,
-    &file-des; 0</simpara></listitem></varlistentry>
-  <varlistentry><term>&output-k;</term>
-   <listitem><simpara>denotes &clisp; process standard output, that is,
-    &file-des; 1</simpara></listitem></varlistentry>
-  <varlistentry><term>&error-k;</term>
-   <listitem><simpara>denotes &clisp; process error output, that is,
-    &file-des; 2</simpara></listitem></varlistentry>
+  <varlistentry><term>&input-k;</term><listitem><simpara>denotes &clisp;
+    process standard input, that is, the &file-des; corresponding to &stdin;
+    (0 on &unix;)</simpara></listitem></varlistentry>
+  <varlistentry><term>&output-k;</term><listitem><simpara>denotes &clisp;
+    process standard output, that is, the &file-des; corresponding to &stdout;
+    (1 on &unix;)</simpara></listitem></varlistentry>
+  <varlistentry><term>&error-k;</term><listitem><simpara>denotes &clisp;
+    process error output, that is, the &file-des; corresponding to &stderr;
+    (2 on &unix;)</simpara></listitem></varlistentry>
   <varlistentry><term>&stream-t;</term>
    <listitem><simpara>denotes the handle of this stream, which should be
      a &file-stream-t; or a &socket-stream;</simpara></listitem></varlistentry>
