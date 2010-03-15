@@ -3854,8 +3854,7 @@ under the current directory (similar to the <command role="unix">ls
       &standard-output-var; (&make-stream; &output-k; &buffered; &t;)
       &error-output-var; (&make-stream; &error-k; &buffered; &t;))
  </programlisting>
-in your <olink targetdoc="man" targetptr="opt-exec-file">script</olink>
-or &init-function;.</para>
+in the &script; or &init-function;.</para>
 </section>
 
 </section>
