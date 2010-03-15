@@ -85,8 +85,7 @@
    <replaceable>output-file</replaceable></option></arg></arg>
 <arg rep="repeat"><option><link linkend="opt-exec-expr">-x
    &exprs;</link></option></arg>
-<arg>&opt-lf; <arg rep="repeat"><option><link linkend="opt-exec-file">
-   &arg-r;</link></option></arg></arg>
+<arg>&opt-lf; <arg rep="repeat"><option>&arg-r;</option></arg></arg>
 </cmdsynopsis>
 </refsynopsisdiv>
 
