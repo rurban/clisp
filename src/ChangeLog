@@ -1,3 +1,9 @@
+2010-03-16  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in, modules/regexp/Makefile.in,
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in (gllib):
+	pass build_aux= to make in subdir
+
 2010-03-04  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (INVALID_ARG): also "return 1"

@@ -41,6 +41,7 @@ gllib libgnu_wc.a : force
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" \
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
+		build_aux="$(CLISP_LIBDIR)/build-aux" \
 		CFLAGS="$(CFLAGS) -I$(CLISP_LIBDIR)"; \
 	  $(LN) libgnu.a ../libgnu_wc.a
 
