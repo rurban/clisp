@@ -1,3 +1,9 @@
+2010-03-17  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel ($(MAKEFILE_IN)): transform just generated
+	Makefile.in to add gnulib prefix substitution to rules generating
+	headers which come from build-aux
+
 2010-03-16  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): when running on woe32, we must ensure
