@@ -1076,7 +1076,9 @@ HERE_="${HEREP}${NEXT_}"
 
 # for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
 # gllib path must be absolute because CPPFLAGS is passed on to module subdirs
-XCPPFLAGS="${XCPPFLAGS} -I${HERE_}gllib"
+# cf m4/clisp.m4: CLISP_LIBDIR must contain no colons
+x=${HEREP}; CLISP_LIBDIR=`@CLISP_DECOLONIZE@`
+XCPPFLAGS="${XCPPFLAGS} -I${CLISP_LIBDIR}/gllib"
 
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
@@ -2321,13 +2323,6 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS): build-aux'
 echotab 'mkdir -p $@'
 echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
-# cf m4/clisp.m4: CLISP_LIBDIR must contain no colons
-if test $host_os = cygwin; then
-  CLISP_LIBDIR=`cygpath --unix ${HEREP}`
-elif test $host_os = mingw32; then
-  CLISP_LIBDIR=`echo ${HEREP} | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
-else CLISP_LIBDIR=${HEREP}
-fi
 echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}" build_aux='\$\$(CLISP_LIBDIR)/build-aux'"
 echol
 echol "${GLLIB_A}: gllib"

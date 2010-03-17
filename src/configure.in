@@ -30,6 +30,7 @@ BOLD_MSG([check for host type])
 AC_CANONICAL_HOST
 dnl sets variables host, host_cpu, host_vendor, host_os
 CL_CANONICAL_HOST_CPU
+CL_DECOLONIZE
 BOLD_MSG([checks for programs])
 dnl
 AC_PROG_CC  dnl sets variable CC
