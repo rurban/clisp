@@ -99,6 +99,7 @@ CFLAGS = @CFLAGS@
 CLISP = @CLISP@
 CLISP_CFLAGS = @CLISP_CFLAGS@
 CLISP_CPPFLAGS = @CLISP_CPPFLAGS@
+CLISP_DECOLONIZE = @CLISP_DECOLONIZE@
 CLISP_FILES = @CLISP_FILES@
 CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LIBS = @CLISP_LIBS@
@@ -460,13 +461,13 @@ SUBDIRS =
 noinst_HEADERS = 
 noinst_LIBRARIES = libgnu.a
 noinst_LTLIBRARIES = 
-EXTRA_DIST = alignof.h $(build_aux)/arg-nonnull.h \
-	$(build_aux)/c++defs.h close-hook.h errno.in.h \
+EXTRA_DIST = alignof.h $(CLISP_LIBDIR)/build-aux/arg-nonnull.h \
+	$(CLISP_LIBDIR)/build-aux/c++defs.h close-hook.h errno.in.h \
 	gethostname.c w32sock.h mbrlen.c mktime-internal.h mktime.c \
 	w32sock.h stddef.in.h strcasecmp.c strncasecmp.c strftime.c \
 	strftime.h strings.in.h strptime.c sys_socket.in.h \
 	sys_utsname.in.h time.in.h time_r.c uname.c unistd.in.h \
-	$(build_aux)/warn-on-use.h
+	$(CLISP_LIBDIR)/build-aux/warn-on-use.h
 
 # The BUILT_SOURCES created by this Makefile snippet are not used via #include
 # statements but through direct file reference. Therefore this snippet must be
@@ -871,19 +872,19 @@ uninstall-am:
 
 # The arg-nonnull.h that gets inserted into generated .h files is the same as
 # build-aux/arg-nonnull.h, except that it has the copyright header cut off.
-arg-nonnull.h: $(build_aux)/arg-nonnull.h
+arg-nonnull.h: $(CLISP_LIBDIR)/build-aux/arg-nonnull.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/GL_ARG_NONNULL/,$$p' \
-	  < $(build_aux)/arg-nonnull.h \
+	  < $(CLISP_LIBDIR)/build-aux/arg-nonnull.h \
 	| sed -e 's/_GL_/_sc_gl_GL_/g' \
 	  > $@-t && \
 	mv $@-t $@
 # The c++defs.h that gets inserted into generated .h files is the same as
 # build-aux/c++defs.h, except that it has the copyright header cut off.
-c++defs.h: $(build_aux)/c++defs.h
+c++defs.h: $(CLISP_LIBDIR)/build-aux/c++defs.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/_GL_CXXDEFS/,$$p' \
-	  < $(build_aux)/c++defs.h \
+	  < $(CLISP_LIBDIR)/build-aux/c++defs.h \
 	| sed -e 's/_GL_/_sc_gl_GL_/g' \
 	  > $@-t && \
 	mv $@-t $@
@@ -1130,10 +1131,10 @@ unistd.h: unistd.in.h $(CXXDEFS_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
 	mv $@-t $@
 # The warn-on-use.h that gets inserted into generated .h files is the same as
 # build-aux/warn-on-use.h, except that it has the copyright header cut off.
-warn-on-use.h: $(build_aux)/warn-on-use.h
+warn-on-use.h: $(CLISP_LIBDIR)/build-aux/warn-on-use.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/^.ifndef/,$$p' \
-	  < $(build_aux)/warn-on-use.h \
+	  < $(CLISP_LIBDIR)/build-aux/warn-on-use.h \
 	| sed -e 's/_GL_/_sc_gl_GL_/g' \
 	  > $@-t && \
 	mv $@-t $@
