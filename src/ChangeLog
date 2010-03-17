@@ -1,5 +1,9 @@
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (find_open_file): add a cast to fix g++ compilation
+
+2010-03-17  Sam Steingold  <sds@gnu.org>
+
 	update gnulib
 	* modules/regexp/gllib/stdlib.in.h, modules/regexp/gllib/unistd.in.h:
 	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
