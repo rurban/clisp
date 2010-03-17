@@ -2323,7 +2323,7 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS): build-aux'
 echotab 'mkdir -p $@'
 echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
-echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}" build_aux='\$\$(CLISP_LIBDIR)/build-aux'"
+echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}
 echol
 echol "${GLLIB_A}: gllib"
 echotab 'test -r $@ || $(LN_S) gllib/libgnu.a $@'
