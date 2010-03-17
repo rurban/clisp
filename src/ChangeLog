@@ -1,5 +1,10 @@
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (MODULE_AM): avoid not portable "fgrep -q"
+	Reported by Christian Walther <cptsalek@gmail.com>
+
+2010-03-17  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (CL_DECOLONIZE): add
 	(CL_CLISP): use it instead of inline code
 	* configure.in: call CL_DECOLONIZE
