@@ -1,5 +1,13 @@
 2010-03-16  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (CL_CLISP): when running on woe32, we must ensure
+	that cl_cv_clisp_libdir contains no colons because this will
+	confuse make ("multiple target patterns") when $(CLISP_LIBDIR)
+	appears in the list of dependencies
+	* makemake.in (gllib): ditto
+
+2010-03-16  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in, modules/regexp/Makefile.in,
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in (gllib):
 	pass build_aux= to make in subdir

@@ -50,6 +50,14 @@ if test "$cl_use_clisp" != "no"; then
      fi])
     AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
      CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
+     dnl when running on woe32, we must ensure that cl_cv_clisp_libdir contains
+     dnl no colons because this will confuse make ("multiple target patterns")
+     dnl when $(CLISP_LIBDIR) appears in the list of dependencies
+     if test $host_os = cygwin; then
+       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
+     elif test $host_os = mingw32; then
+       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+     fi
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do

@@ -2321,7 +2321,14 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS): build-aux'
 echotab 'mkdir -p $@'
 echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
-echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${HEREP}" build_aux='\$\$(CLISP_LIBDIR)/build-aux'"
+# cf m4/clisp.m4: CLISP_LIBDIR must contain no colons
+if test $host_os = cygwin; then
+  CLISP_LIBDIR=`cygpath --unix ${HEREP}`
+elif test $host_os = mingw32; then
+  CLISP_LIBDIR=`echo ${HEREP} | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+else CLISP_LIBDIR=${HEREP}
+fi
+echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}" build_aux='\$\$(CLISP_LIBDIR)/build-aux'"
 echol
 echol "${GLLIB_A}: gllib"
 echotab 'test -r $@ || $(LN_S) gllib/libgnu.a $@'
