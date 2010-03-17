@@ -64,8 +64,11 @@ $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
 	ln -s $(CURDIR)/src '$$cl_cv_clisp_libdir' && \
 	automake gllib/Makefile && \
 	$(RM) '$$cl_cv_clisp_libdir' && \
+	PREFIX=`grep -- --macro-prefix glm4/gnulib-cache.m4 | sed -e 's/.*--macro-prefix=\([^ ]*\) .*/\1/'` && \
 	sed -i -e 's,$$(top_srcdir)/src/build-aux,$$(CLISP_LIBDIR)/build-aux,' \
 	  -e 's,$$(top_srcdir)/$$cl_cv_clisp_libdir,$$(CLISP_LIBDIR),' \
+	  -e '/<.*build.aux/a\	| sed -e '"'"'s/_GL_/_'$${PREFIX}'_GL_/g'"'"' \\' \
+	  -e 's/\(definition.*\) of _GL_/\1 of _'$${PREFIX}'_GL_/' \
 		gllib/Makefile.in && \
 	(test -L aclocal.m4 && $(RM) aclocal.m4 || true)
 
