@@ -1059,6 +1059,9 @@ AC_DEFUN([wc_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module arg-nonnull:
+  # Code from module fnmatch:
+  # Code from module fnmatch-gnu:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -1076,8 +1079,13 @@ AC_DEFUN([wc_gl_INIT],
   m4_pushdef([wc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/wildcard/gllib'
+  # Code from module arg-nonnull:
+  # Code from module fnmatch:
   gl_FUNC_FNMATCH_POSIX
+  # Code from module fnmatch-gnu:
   gl_FUNC_FNMATCH_GNU
+  # Code from module dummy:
+  # End of code from modules
   m4_ifval(wc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([wc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]wc_gl_LIBSOURCES_LIST[ ; do
@@ -1466,6 +1474,28 @@ AC_DEFUN([sc_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
+  # Code from module gethostname:
+  # Code from module mbrlen:
+  # Code from module mktime:
+  # Code from module multiarch:
+  # Code from module sockets:
+  # Code from module stddef:
+  # Code from module strcase:
+  # Code from module strftime:
+  # Code from module strings:
+  # Code from module strptime:
+  # Code from module sys_socket:
+  # Code from module sys_utsname:
+  # Code from module time:
+  # Code from module time_r:
+  # Code from module uname:
+  # Code from module unistd:
+  # Code from module warn-on-use:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -1483,28 +1513,54 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/syscalls/gllib'
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
   gl_HEADER_ERRNO_H
+  # Code from module gethostname:
   gl_FUNC_GETHOSTNAME
   gl_UNISTD_MODULE_INDICATOR([gethostname])
+  # Code from module mbrlen:
   gl_FUNC_MBRLEN
   gl_WCHAR_MODULE_INDICATOR([mbrlen])
+  # Code from module mktime:
   gl_FUNC_MKTIME
+  gl_TIME_MODULE_INDICATOR([mktime])
+  # Code from module multiarch:
   gl_MULTIARCH
+  # Code from module sockets:
   gl_SOCKETS
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module strcase:
   gl_STRCASE
+  # Code from module strftime:
   gl_FUNC_GNU_STRFTIME
+  # Code from module strings:
   gl_HEADER_STRINGS_H
+  # Code from module strptime:
   gl_FUNC_STRPTIME
+  gl_TIME_MODULE_INDICATOR([strptime])
+  # Code from module sys_socket:
   gl_HEADER_SYS_SOCKET
   AC_PROG_MKDIR_P
+  # Code from module sys_utsname:
   gl_SYS_UTSNAME_H
   AC_PROG_MKDIR_P
+  # Code from module time:
   gl_HEADER_TIME_H
+  # Code from module time_r:
   gl_TIME_R
+  gl_TIME_MODULE_INDICATOR([time_r])
+  # Code from module uname:
   gl_FUNC_UNAME
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module warn-on-use:
+  # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gl_LIBSOURCES_LIST[ ; do
@@ -1638,6 +1694,7 @@ AC_DEFUN([sc_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/alignof.h
   lib/close-hook.c
@@ -2350,7 +2407,7 @@ AC_DEFUN([gl_FUNC_STRPTIME],
   fi
 ])
 
-# sys_socket_h.m4 serial 14
+# sys_socket_h.m4 serial 16
 dnl Copyright (C) 2005-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2371,7 +2428,6 @@ AC_DEFUN([gl_HEADER_SYS_SOCKET],
         [gl_cv_header_sys_socket_h_selfcontained=no])
     ])
   if test $gl_cv_header_sys_socket_h_selfcontained = yes; then
-    SYS_SOCKET_H=''
     dnl If the shutdown function exists, <sys/socket.h> should define
     dnl SHUT_RD, SHUT_WR, SHUT_RDWR.
     AC_CHECK_FUNCS([shutdown])
@@ -2389,8 +2445,6 @@ AC_DEFUN([gl_HEADER_SYS_SOCKET],
         SYS_SOCKET_H='sys/socket.h'
       fi
     fi
-  else
-    SYS_SOCKET_H='sys/socket.h'
   fi
   # We need to check for ws2tcpip.h now.
   gl_PREREQ_SYS_H_SOCKET
@@ -2408,16 +2462,11 @@ AC_DEFUN([gl_HEADER_SYS_SOCKET],
 ])
   if test $ac_cv_type_struct_sockaddr_storage = no; then
     HAVE_STRUCT_SOCKADDR_STORAGE=0
-    SYS_SOCKET_H='sys/socket.h'
   fi
   if test $ac_cv_type_sa_family_t = no; then
     HAVE_SA_FAMILY_T=0
-    SYS_SOCKET_H='sys/socket.h'
   fi
-  if test -n "$SYS_SOCKET_H"; then
-    gl_PREREQ_SYS_H_WINSOCK2
-  fi
-  AC_SUBST([SYS_SOCKET_H])
+  gl_PREREQ_SYS_H_WINSOCK2
 
   dnl Check for declarations of anything we want to poison if the
   dnl corresponding gnulib module is not in use.
@@ -2486,6 +2535,8 @@ AC_DEFUN([gl_SYS_SOCKET_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
@@ -2510,8 +2561,8 @@ AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
   HAVE_ACCEPT4=1;       AC_SUBST([HAVE_ACCEPT4])
 ])
 
-# sys_utsname_h.m4 serial 4
-dnl Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+# sys_utsname_h.m4 serial 5
+dnl Copyright (C) 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2524,6 +2575,7 @@ AC_DEFUN([gl_SYS_UTSNAME_H],
   dnl once only, before all statements that occur in other macros.
   AC_REQUIRE([gl_SYS_UTSNAME_H_DEFAULTS])
 
+  dnl <sys/utsname.h> is always overridden, because of GNULIB_POSIXCHECK.
   gl_CHECK_NEXT_HEADERS([sys/utsname.h])
   AC_CHECK_HEADERS_ONCE([sys/utsname.h])
   if test $ac_cv_header_sys_utsname_h != yes; then
@@ -2583,18 +2635,6 @@ AC_DEFUN([gl_HEADER_TIME_H_BODY],
   AC_REQUIRE([gl_CHECK_TYPE_STRUCT_TIMESPEC])
 ])
 
-AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
-[
-  dnl If another module says to replace or to not replace, do that.
-  dnl Otherwise, replace only if someone compiles with -DGNULIB_PORTCHECK;
-  dnl this lets maintainers check for portability.
-  REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;  AC_SUBST([REPLACE_LOCALTIME_R])
-  REPLACE_MKTIME=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_MKTIME])
-  REPLACE_NANOSLEEP=GNULIB_PORTCHECK;    AC_SUBST([REPLACE_NANOSLEEP])
-  REPLACE_STRPTIME=GNULIB_PORTCHECK;     AC_SUBST([REPLACE_STRPTIME])
-  REPLACE_TIMEGM=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_TIMEGM])
-])
-
 dnl Define HAVE_STRUCT_TIMESPEC if `struct timespec' is declared
 dnl in time.h or sys/time.h.
 
@@ -2631,6 +2671,32 @@ AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
   fi
   AC_SUBST([TIME_H_DEFINES_STRUCT_TIMESPEC])
   AC_SUBST([SYS_TIME_H_DEFINES_STRUCT_TIMESPEC])
+])
+
+AC_DEFUN([gl_TIME_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
+  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
+])
+
+AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
+[
+  GNULIB_MKTIME=0;                       AC_SUBST([GNULIB_MKTIME])
+  GNULIB_NANOSLEEP=0;                    AC_SUBST([GNULIB_NANOSLEEP])
+  GNULIB_STRPTIME=0;                     AC_SUBST([GNULIB_STRPTIME])
+  GNULIB_TIMEGM=0;                       AC_SUBST([GNULIB_TIMEGM])
+  GNULIB_TIME_R=0;                       AC_SUBST([GNULIB_TIME_R])
+  dnl If another module says to replace or to not replace, do that.
+  dnl Otherwise, replace only if someone compiles with -DGNULIB_PORTCHECK;
+  dnl this lets maintainers check for portability.
+  REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;  AC_SUBST([REPLACE_LOCALTIME_R])
+  REPLACE_MKTIME=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_MKTIME])
+  REPLACE_NANOSLEEP=GNULIB_PORTCHECK;    AC_SUBST([REPLACE_NANOSLEEP])
+  REPLACE_STRPTIME=GNULIB_PORTCHECK;     AC_SUBST([REPLACE_STRPTIME])
+  REPLACE_TIMEGM=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_TIMEGM])
 ])
 
 dnl Reentrant time functions like localtime_r.
@@ -2815,6 +2881,19 @@ AC_DEFUN([rx_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module arg-nonnull:
+  # Code from module btowc:
+  # Code from module c++defs:
+  # Code from module gettext-h:
+  # Code from module malloc:
+  # Code from module malloc-posix:
+  # Code from module regex:
+  # Code from module ssize_t:
+  # Code from module stddef:
+  # Code from module stdlib:
+  # Code from module unistd:
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -2832,21 +2911,36 @@ AC_DEFUN([rx_gl_INIT],
   m4_pushdef([rx_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/regexp/gllib'
+  # Code from module arg-nonnull:
+  # Code from module btowc:
   gl_FUNC_BTOWC
   gl_WCHAR_MODULE_INDICATOR([btowc])
+  # Code from module c++defs:
+  # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  # Code from module malloc:
   AC_FUNC_MALLOC
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
+  # Code from module malloc-posix:
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  # Code from module regex:
   gl_REGEX
+  # Code from module ssize_t:
   gt_TYPE_SSIZE_T
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module stdlib:
   gl_STDLIB_H
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
   gl_FUNC_WCRTOMB
   gl_WCHAR_MODULE_INDICATOR([wcrtomb])
+  # Code from module dummy:
+  # End of code from modules
   m4_ifval(rx_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([rx_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]rx_gl_LIBSOURCES_LIST[ ; do
@@ -2980,6 +3074,7 @@ AC_DEFUN([rx_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([rx_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/btowc.c
   lib/dummy.c
@@ -3309,7 +3404,7 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
-# stdlib_h.m4 serial 22
+# stdlib_h.m4 serial 23
 dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -3354,6 +3449,8 @@ AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_STDLIB_H_DEFAULTS],
@@ -4561,7 +4658,51 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
+  # Code from module alloca:
+  # Code from module alloca-opt:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  # Code from module getpagesize:
+  # Code from module gettext:
+  # Code from module gettext-h:
+  # Code from module gettimeofday:
+  # Code from module gnu-make:
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
+  # Code from module libsigsegv:
+  # Code from module link-follow:
+  # Code from module localcharset:
+  # Code from module mbrtowc:
+  # Code from module mbsinit:
+  # Code from module mbsrtowcs:
+  # Code from module memchr:
+  # Code from module memcmp:
+  # Code from module memmove:
+  # Code from module multiarch:
+  # Code from module nl_langinfo:
+  # Code from module no-c++:
+  # Code from module nocrash:
+  # Code from module stdbool:
+  # Code from module stddef:
+  # Code from module stdint:
+  # Code from module streq:
+  # Code from module string:
+  # Code from module strnlen1:
+  # Code from module sys_time:
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
+  # Code from module wctype:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -4579,45 +4720,90 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
+  # Code from module alloca:
+  # Code from module alloca-opt:
   gl_FUNC_ALLOCA
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
+  # Code from module getpagesize:
   gl_FUNC_GETPAGESIZE
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
+  # Code from module gettext:
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
   AM_GNU_GETTEXT_VERSION([0.17])
+  # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  # Code from module gettimeofday:
   gl_FUNC_GETTIMEOFDAY
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+  # Code from module gnu-make:
   gl_GNU_MAKE
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
   gl_LANGINFO_H
+  # Code from module libsigsegv:
   gl_LIBSIGSEGV
+  # Code from module link-follow:
   gl_FUNC_LINK_FOLLOWS_SYMLINK
+  # Code from module localcharset:
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+  # Code from module mbrtowc:
   gl_FUNC_MBRTOWC
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+  # Code from module mbsinit:
   gl_FUNC_MBSINIT
   gl_WCHAR_MODULE_INDICATOR([mbsinit])
+  # Code from module mbsrtowcs:
   gl_FUNC_MBSRTOWCS
   gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
+  # Code from module memchr:
   gl_FUNC_MEMCHR
   gl_STRING_MODULE_INDICATOR([memchr])
+  # Code from module memcmp:
   gl_FUNC_MEMCMP
+  # Code from module memmove:
   gl_FUNC_MEMMOVE
+  # Code from module multiarch:
   gl_MULTIARCH
+  # Code from module nl_langinfo:
   gl_FUNC_NL_LANGINFO
   gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
+  # Code from module no-c++:
   gt_NO_CXX
+  # Code from module nocrash:
+  # Code from module stdbool:
   AM_STDBOOL_H
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module stdint:
   gl_STDINT_H
+  # Code from module streq:
+  # Code from module string:
   gl_HEADER_STRING_H
+  # Code from module strnlen1:
+  # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
   gl_WCHAR_H
+  # Code from module wctype:
   gl_WCTYPE_H
+  # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]gl_LIBSOURCES_LIST[ ; do
@@ -4751,6 +4937,7 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/config.rpath
   build-aux/warn-on-use.h
   lib/alloca.c
@@ -4855,9 +5042,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/unistd_h.m4
   m4/visibility.m4
   m4/warn-on-use.m4
-  m4/wchar.m4
+  m4/wchar_h.m4
   m4/wchar_t.m4
-  m4/wctype.m4
+  m4/wctype_h.m4
   m4/wint_t.m4
   m4/xsize.m4
 ])
@@ -5302,7 +5489,7 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
-# langinfo_h.m4 serial 3
+# langinfo_h.m4 serial 5
 dnl Copyright (C) 2009, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5315,6 +5502,7 @@ AC_DEFUN([gl_LANGINFO_H],
   dnl Persuade glibc-2.0.6 <langinfo.h> to define CODESET.
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 
+  dnl <langinfo.h> is always overridden, because of GNULIB_POSIXCHECK.
   gl_CHECK_NEXT_HEADERS([langinfo.h])
 
   dnl Determine whether <langinfo.h> exists. It is missing on mingw and BeOS.
@@ -5367,6 +5555,8 @@ AC_DEFUN([gl_LANGINFO_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_LANGINFO_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_LANGINFO_H_DEFAULTS],
@@ -9328,7 +9518,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 11
+# serial 12
 
 # Written by Paul Eggert.
 
@@ -9358,6 +9548,8 @@ AC_DEFUN([gl_STRING_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
@@ -9427,7 +9619,7 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
 ])
 
 # Configure a replacement for <sys/time.h>.
-# serial 4
+# serial 5
 
 # Copyright (C) 2007, 2009, 2010 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -9485,6 +9677,8 @@ AC_DEFUN([gl_SYS_TIME_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_HEADER_SYS_TIME_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
@@ -9497,7 +9691,7 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   REPLACE_GETTIMEOFDAY=0;    AC_SUBST([REPLACE_GETTIMEOFDAY])
 ])
 
-# unistd_h.m4 serial 39
+# unistd_h.m4 serial 40
 dnl Copyright (C) 2006-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9546,6 +9740,8 @@ AC_DEFUN([gl_UNISTD_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_UNISTD_H_DEFAULTS],
@@ -9702,7 +9898,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl Written by Eric Blake.
 
-# wchar.m4 serial 31
+# wchar_h.m4 serial 32
 
 AC_DEFUN([gl_WCHAR_H],
 [
@@ -9803,6 +9999,8 @@ AC_DEFUN([gl_WCHAR_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
   GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR([$1])
 ])
 
 AC_DEFUN([gl_WCHAR_H_DEFAULTS],
@@ -9865,7 +10063,7 @@ AC_DEFUN([gt_TYPE_WCHAR_T],
   fi
 ])
 
-# wctype.m4 serial 4
+# wctype_h.m4 serial 5
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -9898,7 +10096,6 @@ AC_DEFUN([gl_WCTYPE_H],
   fi
   AC_SUBST([HAVE_WINT_T])
 
-  WCTYPE_H=wctype.h
   if test $ac_cv_header_wctype_h = yes; then
     if test $ac_cv_func_iswcntrl = yes; then
       dnl Linux libc5 has an iswprint function that returns 0 for all arguments.
@@ -9920,27 +10117,13 @@ AC_DEFUN([gl_WCTYPE_H],
               [gl_cv_func_iswcntrl_works=yes], [gl_cv_func_iswcntrl_works=no])
             ])
         ])
-      if test $gl_cv_func_iswcntrl_works = yes; then
-        case "$host_os" in
-          mingw*)
-            dnl On mingw, towlower and towupper return random high 16 bits.
-            ;;
-          *)
-            dnl iswcntrl works. towlower and towupper work as well.
-            WCTYPE_H=
-            ;;
-        esac
-      fi
     fi
-    dnl Compute NEXT_WCTYPE_H even if WCTYPE_H is empty,
-    dnl for the benefit of builds from non-distclean directories.
     gl_CHECK_NEXT_HEADERS([wctype.h])
     HAVE_WCTYPE_H=1
   else
     HAVE_WCTYPE_H=0
   fi
   AC_SUBST([HAVE_WCTYPE_H])
-  AC_SUBST([WCTYPE_H])
 
   if test "$gl_cv_func_iswcntrl_works" = no; then
     REPLACE_ISWCNTRL=1
@@ -10417,6 +10600,14 @@ if test "$cl_use_clisp" != "no"; then
      fi])
     AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
      CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
+     dnl when running on woe32, we must ensure that cl_cv_clisp_libdir contains
+     dnl no colons because this will confuse make ("multiple target patterns")
+     dnl when $(CLISP_LIBDIR) appears in the list of dependencies
+     if test $host_os = cygwin; then
+       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
+     elif test $host_os = mingw32; then
+       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+     fi
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do

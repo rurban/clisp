@@ -2192,6 +2192,11 @@ if test "${cl_cv_clisp_libdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
        cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+                    if test $host_os = cygwin; then
+       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
+     elif test $host_os = mingw32; then
+       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+     fi
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do
@@ -5250,6 +5255,19 @@ fi
 
 
 
+  # Code from module arg-nonnull:
+  # Code from module btowc:
+  # Code from module c++defs:
+  # Code from module gettext-h:
+  # Code from module malloc:
+  # Code from module malloc-posix:
+  # Code from module regex:
+  # Code from module ssize_t:
+  # Code from module stddef:
+  # Code from module stdlib:
+  # Code from module unistd:
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
 
 
 
@@ -6687,6 +6705,8 @@ fi
 
 
   gl_source_base='modules/regexp/gllib'
+  # Code from module arg-nonnull:
+  # Code from module btowc:
 
 
 
@@ -6811,7 +6831,17 @@ $as_echo "$gl_cv_func_btowc_eof" >&6; }
   GNULIB_BTOWC=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_BTOWC 1
+_ACEOF
 
+
+
+  # Code from module c++defs:
+  # Code from module gettext-h:
+
+
+  # Code from module malloc:
 
 for ac_header in stdlib.h
 do
@@ -7065,6 +7095,7 @@ cat >>confdefs.h <<\_ACEOF
 #define GNULIB_MALLOC_GNU 1
 _ACEOF
 
+  # Code from module malloc-posix:
 
 
   if test $gl_cv_func_malloc_posix = yes; then
@@ -7093,6 +7124,14 @@ _ACEOF
 
   GNULIB_MALLOC_POSIX=1
 
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MALLOC_POSIX 1
+_ACEOF
+
+
+
+  # Code from module regex:
 
 
 
@@ -7648,6 +7687,7 @@ fi
 
   fi
 
+  # Code from module ssize_t:
 
   { $as_echo "$as_me:$LINENO: checking for ssize_t" >&5
 $as_echo_n "checking for ssize_t... " >&6; }
@@ -7708,6 +7748,7 @@ _ACEOF
 
   fi
 
+  # Code from module stddef:
 
 
 
@@ -7836,6 +7877,7 @@ $as_echo "$gl_cv_next_stddef_h" >&6; }
 
   fi
 
+  # Code from module stdlib:
 
 
 
@@ -8180,6 +8222,7 @@ fi
       done
 
 
+  # Code from module unistd:
 
 
 
@@ -8375,6 +8418,8 @@ fi
       done
 
 
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
 
 
 
@@ -8731,6 +8776,15 @@ $as_echo "$gl_cv_func_wcrtomb_retval" >&6; }
 
   GNULIB_WCRTOMB=1
 
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_WCRTOMB 1
+_ACEOF
+
+
+
+  # Code from module dummy:
+  # End of code from modules
 
 
 

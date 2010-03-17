@@ -4,6 +4,21 @@
    platforms at once. */
 #undef AA_APPLE_UNIVERSAL_BUILD
 
+/* Define to 1 when using the gnulib module gethostname. */
+#undef GNULIB_GETHOSTNAME
+
+/* Define to 1 when using the gnulib module mbrlen. */
+#undef GNULIB_MBRLEN
+
+/* Define to 1 when using the gnulib module mktime. */
+#undef GNULIB_MKTIME
+
+/* Define to 1 when using the gnulib module strptime. */
+#undef GNULIB_STRPTIME
+
+/* Define to 1 when using the gnulib module time_r. */
+#undef GNULIB_TIME_R
+
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
 

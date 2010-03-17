@@ -660,7 +660,6 @@ NEXT_SYS_UTSNAME_H
 HAVE_STRUCT_UTSNAME
 HAVE_UNAME
 GNULIB_UNAME
-SYS_SOCKET_H
 HAVE_WS2TCPIP_H
 HAVE_SYS_SOCKET_H
 NEXT_AS_FIRST_DIRECTIVE_SYS_SOCKET_H
@@ -693,12 +692,78 @@ STDDEF_H
 HAVE_WCHAR_T
 REPLACE_NULL
 LIBSOCKET
+UNDEFINE_STRTOK_R
+REPLACE_STRTOK_R
+REPLACE_STRSIGNAL
+REPLACE_STRNDUP
+REPLACE_STRERROR
+REPLACE_STRCASESTR
+REPLACE_STRSTR
+REPLACE_STRDUP
+REPLACE_MEMMEM
+REPLACE_MEMCHR
+HAVE_STRVERSCMP
+HAVE_DECL_STRSIGNAL
+HAVE_DECL_STRERROR
+HAVE_DECL_STRTOK_R
+HAVE_STRCASESTR
+HAVE_STRSEP
+HAVE_STRPBRK
+HAVE_DECL_STRNLEN
+HAVE_DECL_STRNDUP
+HAVE_DECL_STRDUP
+HAVE_STRCHRNUL
+HAVE_STPNCPY
+HAVE_STPCPY
+HAVE_RAWMEMCHR
+HAVE_DECL_MEMRCHR
+HAVE_MEMPCPY
+HAVE_DECL_MEMMEM
+HAVE_MBSLEN
+GNULIB_STRVERSCMP
+GNULIB_STRSIGNAL
+GNULIB_STRERROR
+GNULIB_MBSTOK_R
+GNULIB_MBSSEP
+GNULIB_MBSSPN
+GNULIB_MBSPBRK
+GNULIB_MBSCSPN
+GNULIB_MBSCASESTR
+GNULIB_MBSPCASECMP
+GNULIB_MBSNCASECMP
+GNULIB_MBSCASECMP
+GNULIB_MBSSTR
+GNULIB_MBSRCHR
+GNULIB_MBSCHR
+GNULIB_MBSNLEN
+GNULIB_MBSLEN
+GNULIB_STRTOK_R
+GNULIB_STRCASESTR
+GNULIB_STRSTR
+GNULIB_STRSEP
+GNULIB_STRPBRK
+GNULIB_STRNLEN
+GNULIB_STRNDUP
+GNULIB_STRDUP
+GNULIB_STRCHRNUL
+GNULIB_STPNCPY
+GNULIB_STPCPY
+GNULIB_RAWMEMCHR
+GNULIB_MEMRCHR
+GNULIB_MEMPCPY
+GNULIB_MEMMEM
+GNULIB_MEMCHR
 APPLE_UNIVERSAL_BUILD
 REPLACE_TIMEGM
 REPLACE_STRPTIME
 REPLACE_NANOSLEEP
 REPLACE_MKTIME
 REPLACE_LOCALTIME_R
+GNULIB_TIME_R
+GNULIB_TIMEGM
+GNULIB_STRPTIME
+GNULIB_NANOSLEEP
+GNULIB_MKTIME
 LOCALE_FR_UTF8
 LOCALE_ZH_CN
 LOCALE_JA
@@ -2192,6 +2257,11 @@ if test "${cl_cv_clisp_libdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
        cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+                    if test $host_os = cygwin; then
+       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
+     elif test $host_os = mingw32; then
+       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+     fi
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do
@@ -5022,6 +5092,28 @@ fi
 
 
 
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
+  # Code from module gethostname:
+  # Code from module mbrlen:
+  # Code from module mktime:
+  # Code from module multiarch:
+  # Code from module sockets:
+  # Code from module stddef:
+  # Code from module strcase:
+  # Code from module strftime:
+  # Code from module strings:
+  # Code from module strptime:
+  # Code from module sys_socket:
+  # Code from module sys_utsname:
+  # Code from module time:
+  # Code from module time_r:
+  # Code from module uname:
+  # Code from module unistd:
+  # Code from module warn-on-use:
 
 
 
@@ -6566,6 +6658,11 @@ _ACEOF
 
 
 
+  GNULIB_MKTIME=0;
+  GNULIB_NANOSLEEP=0;
+  GNULIB_STRPTIME=0;
+  GNULIB_TIMEGM=0;
+  GNULIB_TIME_R=0;
         REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;
   REPLACE_MKTIME=GNULIB_PORTCHECK;
   REPLACE_NANOSLEEP=GNULIB_PORTCHECK;
@@ -6720,6 +6817,69 @@ case $ac_cv_c_inline in
 _ACEOF
     ;;
 esac
+
+
+  GNULIB_MEMCHR=0;
+  GNULIB_MEMMEM=0;
+  GNULIB_MEMPCPY=0;
+  GNULIB_MEMRCHR=0;
+  GNULIB_RAWMEMCHR=0;
+  GNULIB_STPCPY=0;
+  GNULIB_STPNCPY=0;
+  GNULIB_STRCHRNUL=0;
+  GNULIB_STRDUP=0;
+  GNULIB_STRNDUP=0;
+  GNULIB_STRNLEN=0;
+  GNULIB_STRPBRK=0;
+  GNULIB_STRSEP=0;
+  GNULIB_STRSTR=0;
+  GNULIB_STRCASESTR=0;
+  GNULIB_STRTOK_R=0;
+  GNULIB_MBSLEN=0;
+  GNULIB_MBSNLEN=0;
+  GNULIB_MBSCHR=0;
+  GNULIB_MBSRCHR=0;
+  GNULIB_MBSSTR=0;
+  GNULIB_MBSCASECMP=0;
+  GNULIB_MBSNCASECMP=0;
+  GNULIB_MBSPCASECMP=0;
+  GNULIB_MBSCASESTR=0;
+  GNULIB_MBSCSPN=0;
+  GNULIB_MBSPBRK=0;
+  GNULIB_MBSSPN=0;
+  GNULIB_MBSSEP=0;
+  GNULIB_MBSTOK_R=0;
+  GNULIB_STRERROR=0;
+  GNULIB_STRSIGNAL=0;
+  GNULIB_STRVERSCMP=0;
+  HAVE_MBSLEN=0;
+    HAVE_DECL_MEMMEM=1;
+  HAVE_MEMPCPY=1;
+  HAVE_DECL_MEMRCHR=1;
+  HAVE_RAWMEMCHR=1;
+  HAVE_STPCPY=1;
+  HAVE_STPNCPY=1;
+  HAVE_STRCHRNUL=1;
+  HAVE_DECL_STRDUP=1;
+  HAVE_DECL_STRNDUP=1;
+  HAVE_DECL_STRNLEN=1;
+  HAVE_STRPBRK=1;
+  HAVE_STRSEP=1;
+  HAVE_STRCASESTR=1;
+  HAVE_DECL_STRTOK_R=1;
+  HAVE_DECL_STRERROR=1;
+  HAVE_DECL_STRSIGNAL=1;
+  HAVE_STRVERSCMP=1;
+  REPLACE_MEMCHR=0;
+  REPLACE_MEMMEM=0;
+  REPLACE_STRDUP=0;
+  REPLACE_STRSTR=0;
+  REPLACE_STRCASESTR=0;
+  REPLACE_STRERROR=0;
+  REPLACE_STRNDUP=0;
+  REPLACE_STRSIGNAL=0;
+  REPLACE_STRTOK_R=0;
+  UNDEFINE_STRTOK_R=0;
 
 
     REPLACE_NULL=0;
@@ -7683,6 +7843,11 @@ fi
 
 
   gl_source_base='modules/syscalls/gllib'
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
 
 
   { $as_echo "$as_me:$LINENO: checking for complete errno.h" >&5
@@ -9078,6 +9243,7 @@ $as_echo "$gl_cv_header_errno_h_EOVERFLOW" >&6; }
   fi
 
 
+  # Code from module gethostname:
 
 
 
@@ -9997,6 +10163,14 @@ _ACEOF
   GNULIB_GETHOSTNAME=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_GETHOSTNAME 1
+_ACEOF
+
+
+
+  # Code from module mbrlen:
+
 
 
 
@@ -10037,6 +10211,14 @@ _ACEOF
 
   GNULIB_MBRLEN=1
 
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MBRLEN 1
+_ACEOF
+
+
+
+  # Code from module mktime:
 
 
 
@@ -10316,6 +10498,19 @@ fi
   fi
 
 
+
+  GNULIB_MKTIME=1
+
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MKTIME 1
+_ACEOF
+
+
+
+  # Code from module multiarch:
+
+  # Code from module sockets:
 
 
 
@@ -10803,6 +10998,7 @@ $as_echo "$gl_cv_lib_socket" >&6; }
   :
 
 
+  # Code from module stddef:
 
 
 
@@ -10931,6 +11127,7 @@ $as_echo "$gl_cv_next_stddef_h" >&6; }
 
   fi
 
+  # Code from module strcase:
 
 
 
@@ -11250,6 +11447,7 @@ fi
   fi
 
 
+  # Code from module strftime:
 
 
 
@@ -11289,9 +11487,11 @@ _ACEOF
 
 
 
+  # Code from module strings:
 
 
 
+  # Code from module strptime:
 
 
 
@@ -11418,6 +11618,18 @@ done
 
 
 
+  GNULIB_STRPTIME=1
+
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_STRPTIME 1
+_ACEOF
+
+
+
+  # Code from module sys_socket:
+
+
 
 
   { $as_echo "$as_me:$LINENO: checking whether <sys/socket.h> is self-contained" >&5
@@ -11473,7 +11685,6 @@ fi
 { $as_echo "$as_me:$LINENO: result: $gl_cv_header_sys_socket_h_selfcontained" >&5
 $as_echo "$gl_cv_header_sys_socket_h_selfcontained" >&6; }
   if test $gl_cv_header_sys_socket_h_selfcontained = yes; then
-    SYS_SOCKET_H=''
 
 for ac_func in shutdown
 do
@@ -11632,8 +11843,6 @@ $as_echo "$gl_cv_header_sys_socket_h_shut" >&6; }
         SYS_SOCKET_H='sys/socket.h'
       fi
     fi
-  else
-    SYS_SOCKET_H='sys/socket.h'
   fi
   # We need to check for ws2tcpip.h now.
 
@@ -12119,13 +12328,10 @@ fi
 
   if test $ac_cv_type_struct_sockaddr_storage = no; then
     HAVE_STRUCT_SOCKADDR_STORAGE=0
-    SYS_SOCKET_H='sys/socket.h'
   fi
   if test $ac_cv_type_sa_family_t = no; then
     HAVE_SA_FAMILY_T=0
-    SYS_SOCKET_H='sys/socket.h'
   fi
-  if test -n "$SYS_SOCKET_H"; then
 
 
 
@@ -12297,8 +12503,6 @@ done
   fi
 
 
-  fi
-
 
 
 
@@ -12434,6 +12638,7 @@ fi
 $as_echo "$MKDIR_P" >&6; }
 
 
+  # Code from module sys_utsname:
 
 
 
@@ -12738,9 +12943,11 @@ fi
 $as_echo "$MKDIR_P" >&6; }
 
 
+  # Code from module time:
 
 
 
+  # Code from module time_r:
 
 
 
@@ -12822,6 +13029,18 @@ $as_echo "$gl_cv_time_r_posix" >&6; }
 
   fi
 
+
+
+  GNULIB_TIME_R=1
+
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_TIME_R 1
+_ACEOF
+
+
+
+  # Code from module uname:
 
 
 
@@ -12949,6 +13168,7 @@ done
 
   GNULIB_UNAME=1
 
+  # Code from module unistd:
 
 
 
@@ -13144,6 +13364,8 @@ fi
       done
 
 
+  # Code from module warn-on-use:
+  # End of code from modules
 
 
 

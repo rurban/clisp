@@ -835,7 +835,6 @@ LIBICONV
 LIBGNU_LTLIBDEPS
 LIBGNU_LIBDEPS
 REPLACE_ISWCNTRL
-WCTYPE_H
 HAVE_WCTYPE_H
 NEXT_AS_FIRST_DIRECTIVE_WCTYPE_H
 NEXT_WCTYPE_H
@@ -6445,7 +6444,51 @@ _ACEOF
 
 
 
+  # Code from module alloca:
+  # Code from module alloca-opt:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
 
+  # Code from module getpagesize:
+  # Code from module gettext:
+  # Code from module gettext-h:
+  # Code from module gettimeofday:
+  # Code from module gnu-make:
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
+  # Code from module libsigsegv:
+  # Code from module link-follow:
+  # Code from module localcharset:
+  # Code from module mbrtowc:
+  # Code from module mbsinit:
+  # Code from module mbsrtowcs:
+  # Code from module memchr:
+  # Code from module memcmp:
+  # Code from module memmove:
+  # Code from module multiarch:
+  # Code from module nl_langinfo:
+  # Code from module no-c++:
+  # Code from module nocrash:
+  # Code from module stdbool:
+  # Code from module stddef:
+  # Code from module stdint:
+  # Code from module streq:
+  # Code from module string:
+  # Code from module strnlen1:
+  # Code from module sys_time:
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
+  # Code from module wctype:
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -7176,7 +7219,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 7179 "configure"' > conftest.$ac_ext
+  echo '#line 7222 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -10051,11 +10094,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10054: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10097: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10058: \$? = $ac_status" >&5
+   echo "$as_me:10101: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10341,11 +10384,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10344: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10387: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10348: \$? = $ac_status" >&5
+   echo "$as_me:10391: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10445,11 +10488,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10448: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10491: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10452: \$? = $ac_status" >&5
+   echo "$as_me:10495: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12845,7 +12888,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12848 "configure"
+#line 12891 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12945,7 +12988,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12948 "configure"
+#line 12991 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15354,11 +15397,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15357: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15400: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15361: \$? = $ac_status" >&5
+   echo "$as_me:15404: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15458,11 +15501,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15461: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15504: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15465: \$? = $ac_status" >&5
+   echo "$as_me:15508: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17041,11 +17084,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17044: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17087: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17048: \$? = $ac_status" >&5
+   echo "$as_me:17091: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17145,11 +17188,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17148: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17191: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17152: \$? = $ac_status" >&5
+   echo "$as_me:17195: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19360,11 +19403,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19363: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19406: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19367: \$? = $ac_status" >&5
+   echo "$as_me:19410: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19650,11 +19693,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19653: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19696: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19657: \$? = $ac_status" >&5
+   echo "$as_me:19700: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19754,11 +19797,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19757: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19800: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:19761: \$? = $ac_status" >&5
+   echo "$as_me:19804: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -27478,6 +27521,8 @@ fi
 
 
   gl_source_base='src/gllib'
+  # Code from module alloca:
+  # Code from module alloca-opt:
 
 
 
@@ -27534,6 +27579,11 @@ _ACEOF
   fi
 
 
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
+  # Code from module getpagesize:
 
 
 
@@ -27970,8 +28020,18 @@ done
   GNULIB_GETPAGESIZE=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_GETPAGESIZE 1
+_ACEOF
 
 
+
+  # Code from module gettext:
+
+  # Code from module gettext-h:
+
+
+  # Code from module gettimeofday:
 
 
 
@@ -29001,6 +29061,14 @@ _ACEOF
   GNULIB_GETTIMEOFDAY=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_GETTIMEOFDAY 1
+_ACEOF
+
+
+
+  # Code from module gnu-make:
+
    if ${MAKE-make} --version /cannot/make/this >/dev/null 2>&1; then
   GNU_MAKE_TRUE=
   GNU_MAKE_FALSE='#'
@@ -29010,6 +29078,9 @@ else
 fi
 
 
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
 
 
 
@@ -29278,6 +29349,7 @@ fi
       done
 
 
+  # Code from module libsigsegv:
 
 
 
@@ -29859,6 +29931,7 @@ $as_echo "$LIBSIGSEGV" >&6; }
 
     gl_cv_lib_sigsegv="$ac_cv_libsigsegv"
 
+  # Code from module link-follow:
 
 
 
@@ -29974,6 +30047,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+  # Code from module localcharset:
 
 
 
@@ -29987,6 +30061,7 @@ _ACEOF
 
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
 
+  # Code from module mbrtowc:
 
 
 
@@ -30554,6 +30629,14 @@ _ACEOF
   GNULIB_MBRTOWC=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MBRTOWC 1
+_ACEOF
+
+
+
+  # Code from module mbsinit:
+
 
 
 
@@ -30805,6 +30888,14 @@ $as_echo "$gl_cv_func_mbrtowc_sanitycheck" >&6; }
 
   GNULIB_MBSINIT=1
 
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MBSINIT 1
+_ACEOF
+
+
+
+  # Code from module mbsrtowcs:
 
 
 
@@ -31196,10 +31287,26 @@ $as_echo "$gl_cv_func_mbsrtowcs_works" >&6; }
   GNULIB_MBSRTOWCS=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MBSRTOWCS 1
+_ACEOF
+
+
+
+  # Code from module memchr:
+
 
 
   GNULIB_MEMCHR=1
 
+
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_MEMCHR 1
+_ACEOF
+
+
+
+  # Code from module memcmp:
 
   if test $cross_compiling != no; then
     # AC_FUNC_MEMCMP as of 2.62 defaults to 'no' when cross compiling.
@@ -31369,6 +31476,7 @@ _ACEOF
     :
   fi
 
+  # Code from module memmove:
 
 
 
@@ -31490,7 +31598,9 @@ done
 
   fi
 
+  # Code from module multiarch:
 
+  # Code from module nl_langinfo:
 
 
 
@@ -31540,6 +31650,14 @@ _ACEOF
   GNULIB_NL_LANGINFO=1
 
 
+cat >>confdefs.h <<\_ACEOF
+#define GNULIB_NL_LANGINFO 1
+_ACEOF
+
+
+
+  # Code from module no-c++:
+
   NO_CXX=
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -31561,6 +31679,8 @@ rm -f conftest*
 
 
 
+  # Code from module nocrash:
+  # Code from module stdbool:
 
 
 
@@ -31580,6 +31700,7 @@ rm -f conftest*
   fi
 
 
+  # Code from module stddef:
 
 
 
@@ -31708,6 +31829,7 @@ $as_echo "$gl_cv_next_stddef_h" >&6; }
 
   fi
 
+  # Code from module stdint:
 
 
 
@@ -33440,9 +33562,13 @@ _ACEOF
   fi
 
 
+  # Code from module streq:
+  # Code from module string:
 
 
 
+  # Code from module strnlen1:
+  # Code from module sys_time:
 
 
 
@@ -33489,6 +33615,9 @@ fi
 $as_echo "$MKDIR_P" >&6; }
 
 
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
 
 
 
@@ -33684,6 +33813,12 @@ fi
       done
 
 
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
 
 
 
@@ -33858,6 +33993,7 @@ fi
       done
 
 
+  # Code from module wctype:
 
 
 
@@ -33889,7 +34025,6 @@ fi
   fi
 
 
-  WCTYPE_H=wctype.h
   if test $ac_cv_header_wctype_h = yes; then
     if test $ac_cv_func_iswcntrl = yes; then
                   { $as_echo "$as_me:$LINENO: checking whether iswcntrl works" >&5
@@ -34000,15 +34135,6 @@ fi
 fi
 { $as_echo "$as_me:$LINENO: result: $gl_cv_func_iswcntrl_works" >&5
 $as_echo "$gl_cv_func_iswcntrl_works" >&6; }
-      if test $gl_cv_func_iswcntrl_works = yes; then
-        case "$host_os" in
-          mingw*)
-                        ;;
-          *)
-                        WCTYPE_H=
-            ;;
-        esac
-      fi
     fi
 
 
@@ -34078,7 +34204,6 @@ $as_echo "$gl_cv_next_wctype_h" >&6; }
   fi
 
 
-
   if test "$gl_cv_func_iswcntrl_works" = no; then
     REPLACE_ISWCNTRL=1
   else
@@ -34086,6 +34211,7 @@ $as_echo "$gl_cv_next_wctype_h" >&6; }
   fi
 
 
+  # End of code from modules
 
 
 
