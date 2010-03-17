@@ -107,14 +107,16 @@ further explanations of the issues could be provided).</para>
      List <ulink url="ml">clisp-list</ulink></term>
     <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.general"/>
     </term><listitem><simpara>This is the right place to ask user-level
-      &clisp;-specific questions, such as
-      <link linkend="image">"how do I save my &clisp; image?"</link>
-   </simpara></listitem></varlistentry>
+      &clisp;-specific questions, such as <quote>"how do I save my &clisp;
+      &mem-image;?"</quote>.</simpara>
+      <simpara>See also <xref linkend="faq-bugs"/>.</simpara>
+   </listitem></varlistentry>
    <varlistentry><term>&clisp; Developer Mailing
      List <ulink url="ml">clisp-devel</ulink></term>
     <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel"/></term>
     <listitem><simpara>This is the right place to discuss &clisp; internals,
-      submit patches, offer help.</simpara></listitem></varlistentry>
+      problems with the current development sources, submit patches,
+      offer help.</simpara></listitem></varlistentry>
    <varlistentry><term><ulink url="http://sourceforge.net/project/memberlist.php?group_id=1355">Individual &clisp; developers</ulink></term>
     <listitem><simpara>This is <emphasis>never</emphasis> the right thing to
       do, unless you want to <emphasis>hire</emphasis> this developer to do
