@@ -25,6 +25,19 @@ AC_DEFUN([rx_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module arg-nonnull:
+  # Code from module btowc:
+  # Code from module c++defs:
+  # Code from module gettext-h:
+  # Code from module malloc:
+  # Code from module malloc-posix:
+  # Code from module regex:
+  # Code from module ssize_t:
+  # Code from module stddef:
+  # Code from module stdlib:
+  # Code from module unistd:
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -42,21 +55,36 @@ AC_DEFUN([rx_gl_INIT],
   m4_pushdef([rx_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/regexp/gllib'
+  # Code from module arg-nonnull:
+  # Code from module btowc:
   gl_FUNC_BTOWC
   gl_WCHAR_MODULE_INDICATOR([btowc])
+  # Code from module c++defs:
+  # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  # Code from module malloc:
   AC_FUNC_MALLOC
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
+  # Code from module malloc-posix:
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  # Code from module regex:
   gl_REGEX
+  # Code from module ssize_t:
   gt_TYPE_SSIZE_T
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module stdlib:
   gl_STDLIB_H
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module warn-on-use:
+  # Code from module wcrtomb:
   gl_FUNC_WCRTOMB
   gl_WCHAR_MODULE_INDICATOR([wcrtomb])
+  # Code from module dummy:
+  # End of code from modules
   m4_ifval(rx_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([rx_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]rx_gl_LIBSOURCES_LIST[ ; do
@@ -190,6 +218,7 @@ AC_DEFUN([rx_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([rx_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/btowc.c
   lib/dummy.c

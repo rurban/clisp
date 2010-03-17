@@ -25,6 +25,28 @@ AC_DEFUN([sc_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
+  # Code from module gethostname:
+  # Code from module mbrlen:
+  # Code from module mktime:
+  # Code from module multiarch:
+  # Code from module sockets:
+  # Code from module stddef:
+  # Code from module strcase:
+  # Code from module strftime:
+  # Code from module strings:
+  # Code from module strptime:
+  # Code from module sys_socket:
+  # Code from module sys_utsname:
+  # Code from module time:
+  # Code from module time_r:
+  # Code from module uname:
+  # Code from module unistd:
+  # Code from module warn-on-use:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -42,28 +64,54 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/syscalls/gllib'
+  # Code from module alignof:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module close-hook:
+  # Code from module errno:
   gl_HEADER_ERRNO_H
+  # Code from module gethostname:
   gl_FUNC_GETHOSTNAME
   gl_UNISTD_MODULE_INDICATOR([gethostname])
+  # Code from module mbrlen:
   gl_FUNC_MBRLEN
   gl_WCHAR_MODULE_INDICATOR([mbrlen])
+  # Code from module mktime:
   gl_FUNC_MKTIME
+  gl_TIME_MODULE_INDICATOR([mktime])
+  # Code from module multiarch:
   gl_MULTIARCH
+  # Code from module sockets:
   gl_SOCKETS
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module strcase:
   gl_STRCASE
+  # Code from module strftime:
   gl_FUNC_GNU_STRFTIME
+  # Code from module strings:
   gl_HEADER_STRINGS_H
+  # Code from module strptime:
   gl_FUNC_STRPTIME
+  gl_TIME_MODULE_INDICATOR([strptime])
+  # Code from module sys_socket:
   gl_HEADER_SYS_SOCKET
   AC_PROG_MKDIR_P
+  # Code from module sys_utsname:
   gl_SYS_UTSNAME_H
   AC_PROG_MKDIR_P
+  # Code from module time:
   gl_HEADER_TIME_H
+  # Code from module time_r:
   gl_TIME_R
+  gl_TIME_MODULE_INDICATOR([time_r])
+  # Code from module uname:
   gl_FUNC_UNAME
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module warn-on-use:
+  # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gl_LIBSOURCES_LIST[ ; do
@@ -197,6 +245,7 @@ AC_DEFUN([sc_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/alignof.h
   lib/close-hook.c

@@ -25,6 +25,9 @@ AC_DEFUN([wc_gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
+  # Code from module arg-nonnull:
+  # Code from module fnmatch:
+  # Code from module fnmatch-gnu:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -42,8 +45,13 @@ AC_DEFUN([wc_gl_INIT],
   m4_pushdef([wc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/wildcard/gllib'
+  # Code from module arg-nonnull:
+  # Code from module fnmatch:
   gl_FUNC_FNMATCH_POSIX
+  # Code from module fnmatch-gnu:
   gl_FUNC_FNMATCH_GNU
+  # Code from module dummy:
+  # End of code from modules
   m4_ifval(wc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([wc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]wc_gl_LIBSOURCES_LIST[ ; do

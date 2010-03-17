@@ -89,6 +89,27 @@
    declaration of the second argument to gettimeofday. */
 #undef GETTIMEOFDAY_TIMEZONE
 
+/* Define to 1 when using the gnulib module getpagesize. */
+#undef GNULIB_GETPAGESIZE
+
+/* Define to 1 when using the gnulib module gettimeofday. */
+#undef GNULIB_GETTIMEOFDAY
+
+/* Define to 1 when using the gnulib module mbrtowc. */
+#undef GNULIB_MBRTOWC
+
+/* Define to 1 when using the gnulib module mbsinit. */
+#undef GNULIB_MBSINIT
+
+/* Define to 1 when using the gnulib module mbsrtowcs. */
+#undef GNULIB_MBSRTOWCS
+
+/* Define to 1 when using the gnulib module memchr. */
+#undef GNULIB_MEMCHR
+
+/* Define to 1 when using the gnulib module nl_langinfo. */
+#undef GNULIB_NL_LANGINFO
+
 /* Define to 1 if you have `alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 

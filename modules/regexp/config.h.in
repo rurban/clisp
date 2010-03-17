@@ -1,7 +1,16 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 when using the gnulib module btowc. */
+#undef GNULIB_BTOWC
+
 /* Define to indicate the 'malloc' module. */
 #undef GNULIB_MALLOC_GNU
+
+/* Define to 1 when using the gnulib module malloc-posix. */
+#undef GNULIB_MALLOC_POSIX
+
+/* Define to 1 when using the gnulib module wcrtomb. */
+#undef GNULIB_WCRTOMB
 
 /* Define to 1 if you have the `btowc' function. */
 #undef HAVE_BTOWC
