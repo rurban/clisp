@@ -3348,7 +3348,7 @@ BUILD_AUX_HEADERS=`cd ${SRCDIR}build-aux; ls *.h`
 MODULE_AM=`find ${SRCTOPDIR_}modules -name Makefile.am`
 for h in ${BUILD_AUX_HEADERS}; do
   for m in ${MODULE_AM}; do
-    if fgrep -q "BUILT_SOURCES += $h" $m; then
+    if fgrep "BUILT_SOURCES += $h" $m >/dev/null 2>&1; then
       BUILD_AUX="${BUILD_AUX} $h"
       break
     fi
