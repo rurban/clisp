@@ -98,6 +98,7 @@ CFLAGS = @CFLAGS@
 CLISP = @CLISP@
 CLISP_CFLAGS = @CLISP_CFLAGS@
 CLISP_CPPFLAGS = @CLISP_CPPFLAGS@
+CLISP_DECOLONIZE = @CLISP_DECOLONIZE@
 CLISP_FILES = @CLISP_FILES@
 CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LIBS = @CLISP_LIBS@
@@ -200,7 +201,7 @@ SUBDIRS =
 noinst_HEADERS = 
 noinst_LIBRARIES = libgnu.a
 noinst_LTLIBRARIES = 
-EXTRA_DIST = $(build_aux)/arg-nonnull.h fnmatch.c \
+EXTRA_DIST = $(CLISP_LIBDIR)/build-aux/arg-nonnull.h fnmatch.c \
 	fnmatch.in.h fnmatch_loop.c
 
 # The BUILT_SOURCES created by this Makefile snippet are not used via #include
@@ -585,10 +586,10 @@ uninstall-am:
 
 # The arg-nonnull.h that gets inserted into generated .h files is the same as
 # build-aux/arg-nonnull.h, except that it has the copyright header cut off.
-arg-nonnull.h: $(build_aux)/arg-nonnull.h
+arg-nonnull.h: $(CLISP_LIBDIR)/build-aux/arg-nonnull.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/GL_ARG_NONNULL/,$$p' \
-	  < $(build_aux)/arg-nonnull.h \
+	  < $(CLISP_LIBDIR)/build-aux/arg-nonnull.h \
 	| sed -e 's/_GL_/_wc_gl_GL_/g' \
 	  > $@-t && \
 	mv $@-t $@
