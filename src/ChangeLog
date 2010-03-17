@@ -1,5 +1,12 @@
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (CL_DECOLONIZE): add
+	(CL_CLISP): use it instead of inline code
+	* configure.in: call CL_DECOLONIZE
+	* makemake.in: use CLISP_DECOLONIZE on CLISP_LIBDIR & XCPPFLAGS
+
+2010-03-17  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (find_open_file): add a cast to fix g++ compilation
 
 2010-03-17  Sam Steingold  <sds@gnu.org>
