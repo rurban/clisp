@@ -26,7 +26,51 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
+  # Code from module alloca:
+  # Code from module alloca-opt:
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  # Code from module getpagesize:
+  # Code from module gettext:
+  # Code from module gettext-h:
+  # Code from module gettimeofday:
+  # Code from module gnu-make:
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
+  # Code from module libsigsegv:
+  # Code from module link-follow:
+  # Code from module localcharset:
+  # Code from module mbrtowc:
+  # Code from module mbsinit:
+  # Code from module mbsrtowcs:
+  # Code from module memchr:
+  # Code from module memcmp:
+  # Code from module memmove:
+  # Code from module multiarch:
+  # Code from module nl_langinfo:
+  # Code from module no-c++:
+  # Code from module nocrash:
+  # Code from module stdbool:
+  # Code from module stddef:
+  # Code from module stdint:
+  # Code from module streq:
+  # Code from module string:
+  # Code from module strnlen1:
+  # Code from module sys_time:
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
+  # Code from module wctype:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -44,45 +88,90 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
+  # Code from module alloca:
+  # Code from module alloca-opt:
   gl_FUNC_ALLOCA
+  # Code from module arg-nonnull:
+  # Code from module c++defs:
+  # Code from module configmake:
+  # Code from module extensions:
+  # Code from module getpagesize:
   gl_FUNC_GETPAGESIZE
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
+  # Code from module gettext:
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
   AM_GNU_GETTEXT_VERSION([0.17])
+  # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  # Code from module gettimeofday:
   gl_FUNC_GETTIMEOFDAY
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+  # Code from module gnu-make:
   gl_GNU_MAKE
+  # Code from module havelib:
+  # Code from module include_next:
+  # Code from module langinfo:
   gl_LANGINFO_H
+  # Code from module libsigsegv:
   gl_LIBSIGSEGV
+  # Code from module link-follow:
   gl_FUNC_LINK_FOLLOWS_SYMLINK
+  # Code from module localcharset:
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+  # Code from module mbrtowc:
   gl_FUNC_MBRTOWC
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+  # Code from module mbsinit:
   gl_FUNC_MBSINIT
   gl_WCHAR_MODULE_INDICATOR([mbsinit])
+  # Code from module mbsrtowcs:
   gl_FUNC_MBSRTOWCS
   gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
+  # Code from module memchr:
   gl_FUNC_MEMCHR
   gl_STRING_MODULE_INDICATOR([memchr])
+  # Code from module memcmp:
   gl_FUNC_MEMCMP
+  # Code from module memmove:
   gl_FUNC_MEMMOVE
+  # Code from module multiarch:
   gl_MULTIARCH
+  # Code from module nl_langinfo:
   gl_FUNC_NL_LANGINFO
   gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
+  # Code from module no-c++:
   gt_NO_CXX
+  # Code from module nocrash:
+  # Code from module stdbool:
   AM_STDBOOL_H
+  # Code from module stddef:
   gl_STDDEF_H
+  # Code from module stdint:
   gl_STDINT_H
+  # Code from module streq:
+  # Code from module string:
   gl_HEADER_STRING_H
+  # Code from module strnlen1:
+  # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
+  # Code from module uniname/base:
+  # Code from module uniname/uniname:
+  # Code from module unistd:
   gl_UNISTD_H
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
+  # Code from module verify:
+  # Code from module warn-on-use:
+  # Code from module wchar:
   gl_WCHAR_H
+  # Code from module wctype:
   gl_WCTYPE_H
+  # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]gl_LIBSOURCES_LIST[ ; do
@@ -216,6 +305,7 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
   build-aux/config.rpath
   build-aux/warn-on-use.h
   lib/alloca.c
@@ -320,9 +410,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/unistd_h.m4
   m4/visibility.m4
   m4/warn-on-use.m4
-  m4/wchar.m4
+  m4/wchar_h.m4
   m4/wchar_t.m4
-  m4/wctype.m4
+  m4/wctype_h.m4
   m4/wint_t.m4
   m4/xsize.m4
 ])

@@ -1938,6 +1938,11 @@ if test "${cl_cv_clisp_libdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
        cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+                    if test $host_os = cygwin; then
+       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
+     elif test $host_os = mingw32; then
+       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
+     fi
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do
