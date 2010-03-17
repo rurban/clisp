@@ -8035,7 +8035,7 @@ global maygc void* find_open_file (struct file_id *fid, uintB flags) {
       }
     }
   });
-  return nullp(*stream_) ? (skipSTACK(1),NULL) :(void*)stream_;
+  return nullp(*stream_) ? (skipSTACK(1),(void*)NULL) : (void*)stream_;
 }
 
 /* UP: creates a File-Stream
