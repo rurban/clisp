@@ -10575,11 +10575,25 @@ dnl replace m4_foreach_w below with this:
 dnl m4_map_args_w([$1], [_CL_CLISP_REQUIRE_FEATURE_1(], [)], [
 dnl ])
 
+dnl when running on woe32, we must ensure that cl_cv_clisp_libdir contains
+dnl no colons because this will confuse make ("multiple target patterns")
+dnl when $(CLISP_LIBDIR) appears in the list of dependencies
+AC_DEFUN([CL_DECOLONIZE],
+[AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
+[case $ac_cv_build in
+  *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
+  *-mingw* ) cl_cv_decolonize='echo $x | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'' ;;
+  * ) cl_cv_decolonize='echo $x'
+esac])
+CLISP_DECOLONIZE=$cl_cv_decolonize
+AC_SUBST(CLISP_DECOLONIZE)])
+
 dnl check for a clisp installation
 dnl use --with-clisp=path if your clisp is not in the PATH
 dnl if you want to link with the full linking set,
 dnl use --with-clisp='clisp -K full'
 AC_DEFUN([CL_CLISP],[dnl
+AC_REQUIRE([CL_DECOLONIZE])
 AC_ARG_WITH([clisp],
 AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
 [cl_use_clisp="$withval"], [cl_use_clisp=default])
@@ -10600,14 +10614,8 @@ if test "$cl_use_clisp" != "no"; then
      fi])
     AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
      CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
-     dnl when running on woe32, we must ensure that cl_cv_clisp_libdir contains
-     dnl no colons because this will confuse make ("multiple target patterns")
-     dnl when $(CLISP_LIBDIR) appears in the list of dependencies
-     if test $host_os = cygwin; then
-       cl_cv_clisp_libdir=`cygpath --unix $cl_cv_clisp_libdir`
-     elif test $host_os = mingw32; then
-       cl_cv_clisp_libdir=`echo $cl_cv_clisp_libdir | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'`
-     fi
+     x=$cl_cv_clisp_libdir;
+     cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
      # cf src/clisp-link.in:linkkitdir
      missing=''
      for f in modules.c clisp.h; do
