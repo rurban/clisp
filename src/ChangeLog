@@ -1,3 +1,15 @@
+2010-03-18  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_direction_compatible) [WIN32_NATIVE]:
+	fix bug #[ 2805778 ] ("0>/dev/null") by using
+	GetNumberOfConsoleInputEvents for FILE_TYPE_CHAR
+	and PeekNamedPipe for FILE_TYPE_PIPE
+
+2010-03-17  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (check-script) [WIN32_NATIVE]: disable the
+	"0>/dev/null" check (bug #[ 2805778 ]) because
+
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in, modules/regexp/Makefile.in,

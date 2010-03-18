@@ -14973,11 +14973,29 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
         ret = (s == STATUS_SUCCESS
                && (!READ_P(dir) || fai.AccessFlags & FILE_READ_DATA)
                && (!WRITE_P(dir) || fai.AccessFlags & FILE_WRITE_DATA));
-        DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x 0x%x => %d\n",
+        DEBUG_OUT(("\nhandle_direction_compatible(%d,%d)D: 0x%x 0x%x => %d\n",
                    fd,dir,s,fai.AccessFlags,ret));
       }
     } break;
-    case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
+    case FILE_TYPE_CHAR: if (READ_P(dir)) {
+      var DWORD nevents = -1, nr = 0;
+      if (GetNumberOfConsoleInputEvents(fd,&nevents)) { /* It's a console. */
+        var INPUT_RECORD ir;
+        ret = PeekConsoleInput(fd,&ir,1,&nr);
+      } else switch (GetLastError()) {
+          case ERROR_INVALID_HANDLE: case ERROR_ACCESS_DENIED:
+          case ERROR_INVALID_FUNCTION: ret = false;
+      }
+      DEBUG_OUT(("\nhandle_direction_compatible(%d,%d)C: %d %d => %d (%d)\n",
+                 fd,dir,nevents,nr,ret,GetLastError()));
+    } break;
+    case FILE_TYPE_PIPE: if (READ_P(dir)) {
+      var DWORD nbytes;
+      ret = PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL);
+      DEBUG_OUT(("\nhandle_direction_compatible(%d,%d)P: %d => %d (%d)\n",
+                 fd,dir,nbytes,ret,GetLastError()));
+    } break;
+    case FILE_TYPE_REMOTE:
       break;                    /* assume compatibility */
     case FILE_TYPE_UNKNOWN:
       /* GetFileType failed => handle was invalid */
