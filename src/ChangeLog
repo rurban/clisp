@@ -2,7 +2,7 @@
 
 	* ../Makefile.devel (GET_PREFIX): add
 	($(MAKEFILE_IN)): use it
-	(gnulib-imported): remore macro-prefix from _GL_UNUSED which is
+	(gnulib-imported): remove macro-prefix from _GL_UNUSED which is
 	defined in config.h using gnulib-common.m4:gl_COMMON_BODY and thus
 	is not amenable to the macro-prefix strategy
 
@@ -12,11 +12,6 @@
 	fix bug #[ 2805778 ] ("0>/dev/null") by using
 	GetNumberOfConsoleInputEvents for FILE_TYPE_CHAR
 	and PeekNamedPipe for FILE_TYPE_PIPE
-
-2010-03-17  Sam Steingold  <sds@gnu.org>
-
-	* makemake.in (check-script) [WIN32_NATIVE]: disable the
-	"0>/dev/null" check (bug #[ 2805778 ]) because
 
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
@@ -48,9 +43,9 @@
 	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
 	* modules/syscalls/gllib/sys_socket.in.h:
 	* modules/syscalls/gllib/time.in.h, modules/syscalls/gllib/unistd.in.h:
-        * modules/syscalls/glm4/sys_socket_h.m4:
-        * modules/syscalls/glm4/sys_utsname_h.m4:
-        * modules/syscalls/glm4/time_h.m4, modules/syscalls/glm4/unistd_h.m4:
+	* modules/syscalls/glm4/sys_socket_h.m4:
+	* modules/syscalls/glm4/sys_utsname_h.m4:
+	* modules/syscalls/glm4/time_h.m4, modules/syscalls/glm4/unistd_h.m4:
 	* build-aux/warn-on-use.h, gllib/langinfo.in.h, gllib/string.in.h:
 	* gllib/sys_time.in.h, gllib/unistd.in.h, gllib/wchar.in.h:
 	* gllib/wctype.in.h, glm4/gnulib-comp.m4, glm4/langinfo_h.m4:
