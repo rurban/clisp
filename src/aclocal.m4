@@ -10575,9 +10575,11 @@ dnl replace m4_foreach_w below with this:
 dnl m4_map_args_w([$1], [_CL_CLISP_REQUIRE_FEATURE_1(], [)], [
 dnl ])
 
-dnl when running on woe32, we must ensure that cl_cv_clisp_libdir contains
+dnl When running on woe32, we must ensure that cl_cv_clisp_libdir contains
 dnl no colons because this will confuse make ("multiple target patterns")
-dnl when $(CLISP_LIBDIR) appears in the list of dependencies
+dnl when $(CLISP_LIBDIR) appears in the list of dependencies.
+dnl Moreover, if a colon appears in CPPFLAGS (as -Ic:/foo/bar),
+dnl then it will creep into the <module>/gllib/.deps/* files.
 AC_DEFUN([CL_DECOLONIZE],
 [AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
 [case $ac_cv_build in
