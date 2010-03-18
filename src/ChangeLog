@@ -1,5 +1,13 @@
 2010-03-18  Sam Steingold  <sds@gnu.org>
 
+	* ../Makefile.devel (GET_PREFIX): add
+	($(MAKEFILE_IN)): use it
+	(gnulib-imported): remore macro-prefix from _GL_UNUSED which is
+	defined in config.h using gnulib-common.m4:gl_COMMON_BODY and thus
+	is not amenable to the macro-prefix strategy
+
+2010-03-18  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (handle_direction_compatible) [WIN32_NATIVE]:
 	fix bug #[ 2805778 ] ("0>/dev/null") by using
 	GetNumberOfConsoleInputEvents for FILE_TYPE_CHAR
