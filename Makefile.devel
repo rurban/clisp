@@ -58,13 +58,14 @@ CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 GNULIB_USERS = src modules/regexp modules/syscalls modules/wildcard
 MAKEFILE_IN = $(addsuffix /gllib/Makefile.in, $(GNULIB_USERS))
+GET_PREFIX = grep -- --macro-prefix $$d/glm4/gnulib-cache.m4 | sed -e 's/.*--macro-prefix=\([^ ]*\) .*/\1/'
 $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
 	cd $* && cd .. && \
 	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
 	ln -s $(CURDIR)/src '$$cl_cv_clisp_libdir' && \
 	automake gllib/Makefile && \
 	$(RM) '$$cl_cv_clisp_libdir' && \
-	PREFIX=`grep -- --macro-prefix glm4/gnulib-cache.m4 | sed -e 's/.*--macro-prefix=\([^ ]*\) .*/\1/'` && \
+	d=. && PREFIX=`$(GET_PREFIX)` && \
 	sed -i -e 's,$$(top_srcdir)/src/build-aux,$$(CLISP_LIBDIR)/build-aux,' \
 	  -e 's,$$(top_srcdir)/$$cl_cv_clisp_libdir,$$(CLISP_LIBDIR),' \
 	  -e '/<.*build.aux/a\	| sed -e '"'"'s/_GL_/_'$${PREFIX}'_GL_/g'"'"' \\' \
@@ -398,6 +399,13 @@ gnulib-imported : update-gnulib force
 	$(RM) configure.ac
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/gllib -name \*~`; done
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/glm4 -name \*~`; done
+# _GL_UNUSED is defined by gnulib-common.m4:gl_COMMON_BODY which places
+# the definition into config.h. Since we cannot know which gnulib-common
+# will be used by a given configure.in, we cannot use a prefix for it
+# and thus must revert the effects of --macro-prefix in imported code.
+	for d in $(GNULIB_USERS); do \
+	  PREFIX=`$(GET_PREFIX)`; test -n "$${PREFIX}" && \
+	  sed -i -e 's/_'$${PREFIX}'_GL_UNUSED/_GL_UNUSED/g' $$d/gllib/*.c; done
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \
