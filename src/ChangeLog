@@ -1,5 +1,16 @@
 2010-03-19  Sam Steingold  <sds@gnu.org>
 
+	upgrade to pcre 8.01
+	* modules/pcre/cpcre.c (fullinfo_bool): add
+	(PCRE-CONFIG): also accept :MATCH-LIMIT-RECURSION :BSR
+	(PCRE-COMPILE): also accept :DFA-SHORTEST :DFA-RESTART
+	:FIRSTLINE :DUPNAMES :NEWLINE-CR :NEWLINE-LF :NEWLINE-CRLF :NEWLINE-ANY
+	:NEWLINE-ANYCRLF :BSR-ANYCRLF :BSR-UNICODE :JAVASCRIPT-COMPAT
+	:NO-START-OPTIMIZE :NO-START-OPTIMISE :PARTIAL-HARD :NOTEMPTY-ATSTART
+	(PATTERN-INFO): also accept :OKPARTIAL :JCHANGED :HASCRORLF :MINLENGTH
+
+2010-03-19  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (print_file) [!HAVE_STDBOOL_H]: enable (see lispbibl.d)
 	Reported by Raymond Toy <toy.raymond@gmail.com>
 
