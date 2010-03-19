@@ -28,8 +28,9 @@
 DEFMODULE(pcre,"PCRE")
 
 DEFUN(PCRE::PCRE-VERSION,)
-{ VALUES3(safe_to_string(pcre_version()),
-          fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
+{ value1 = safe_to_string(pcre_version());
+  value2 = fixnum(PCRE_MAJOR); value3 = fixnum(PCRE_MINOR);
+  value4 = `STRINGIFY(PCRE_DATE)`; mv_count = 4; }
 #if defined(HAVE_PCRE_CONFIG)
 DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE \
            POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES \
