@@ -1,3 +1,8 @@
+2010-03-19  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (print_file) [!HAVE_STDBOOL_H]: enable (see lispbibl.d)
+	Reported by Raymond Toy <toy.raymond@gmail.com>
+
 2010-03-18  Sam Steingold  <sds@gnu.org>
 
 	* ../Makefile.devel (GET_PREFIX): add
