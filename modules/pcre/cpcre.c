@@ -1,7 +1,7 @@
 /*
  * PCRE - Perl Compatible Regular Expressions
- * <http://www.pcre.org/>
- * Copyright (C) 2003-2008 Sam Steingold
+ * <http://www.pcre.org/> up to v 8.01
+ * Copyright (C) 2003-2010 Sam Steingold
  * GPL2
  */
 
@@ -32,7 +32,8 @@ DEFUN(PCRE::PCRE-VERSION,)
           fixnum(PCRE_MAJOR),fixnum(PCRE_MINOR)); }
 #if defined(HAVE_PCRE_CONFIG)
 DEFCHECKER(pcre_config_option, prefix=PCRE_CONFIG, UTF8 NEWLINE LINK-SIZE \
-           POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES)
+           POSIX-MALLOC-THRESHOLD MATCH-LIMIT STACKRECURSE UNICODE-PROPERTIES \
+           MATCH-LIMIT-RECURSION BSR)
 DEFUN(PCRE::PCRE-CONFIG, &optional what)
 {
   if (missingp(STACK_0)) {
@@ -73,14 +74,25 @@ DEFUN(PCRE::PCRE-FREE,fp)
 DEFFLAGSET(pcre_compile_flags, PCRE_CASELESS PCRE_MULTILINE PCRE_DOTALL \
            PCRE_EXTENDED PCRE_ANCHORED PCRE_DOLLAR_ENDONLY PCRE_EXTRA   \
            PCRE_NOTBOL PCRE_NOTEOL PCRE_UNGREEDY PCRE_NOTEMPTY          \
-           PCRE_NO_AUTO_CAPTURE PCRE_AUTO_CALLOUT PCRE_PARTIAL)
+           PCRE_NO_AUTO_CAPTURE PCRE_AUTO_CALLOUT PCRE_PARTIAL          \
+           PCRE_DFA_SHORTEST PCRE_DFA_RESTART PCRE_FIRSTLINE PCRE_DUPNAMES \
+           PCRE_NEWLINE_CR PCRE_NEWLINE_LF PCRE_NEWLINE_CRLF PCRE_NEWLINE_ANY \
+           PCRE_NEWLINE_ANYCRLF PCRE_BSR_ANYCRLF PCRE_BSR_UNICODE       \
+           PCRE_JAVASCRIPT_COMPAT PCRE_NO_START_OPTIMIZE                \
+           PCRE_NO_START_OPTIMISE PCRE_PARTIAL_HARD PCRE_NOTEMPTY_ATSTART)
 DEFCHECKER(pcre_options,prefix=PCRE,bitmasks=both,\
            CASELESS MULTILINE DOTALL EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA \
            NOTBOL NOTEOL UNGREEDY NOTEMPTY UTF8 NO-AUTO-CAPTURE NO-UTF8-CHECK \
-           AUTO-CALLOUT PARTIAL)
-DEFUN(PCRE:PCRE-COMPILE,string &key STUDY IGNORE-CASE MULTILINE DOTALL \
-      EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA NOTBOL NOTEOL UNGREEDY \
-      NOTEMPTY NO-AUTO-CAPTURE AUTO-CALLOUT PARTIAL)
+           AUTO-CALLOUT PARTIAL DFA-SHORTEST DFA-RESTART FIRSTLINE DUPNAMES \
+           NEWLINE-CR NEWLINE-LF NEWLINE-CRLF NEWLINE-ANY NEWLINE-ANYCRLF \
+           BSR-ANYCRLF BSR-UNICODE JAVASCRIPT-COMPAT NO-START-OPTIMIZE  \
+           NO-START-OPTIMISE PARTIAL-HARD NOTEMPTY-ATSTART)
+DEFUN(PCRE:PCRE-COMPILE,string &key STUDY IGNORE-CASE MULTILINE DOTALL  \
+      EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA NOTBOL NOTEOL UNGREEDY     \
+      NOTEMPTY NO-AUTO-CAPTURE AUTO-CALLOUT PARTIAL DFA-SHORTEST DFA-RESTART \
+      FIRSTLINE DUPNAMES NEWLINE-CR NEWLINE-LF NEWLINE-CRLF NEWLINE-ANY \
+      NEWLINE-ANYCRLF BSR-ANYCRLF BSR-UNICODE JAVASCRIPT-COMPAT         \
+      NO-START-OPTIMIZE NO-START-OPTIMISE PARTIAL-HARD NOTEMPTY-ATSTART)
 { /* compile the pattern, return PATTERN struct */
   int options = PCRE_UTF8 | pcre_compile_flags();
   bool study = !missingp(STACK_0);
@@ -141,9 +153,11 @@ static void check_pattern (gcv_object_t *pat, pcre** compiled_pattern,
 
 /* two objects should be on STACK for the error message */
 DEFCHECKER(error_pcre_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
-           BADMAGIC UNKNOWN_NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
-           DFA_UITEM DFA_UCOND DFA_UMLIMIT DFA_WSSIZE DFA_RECURSE       \
-           BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL :INTERNAL BADCOUNT)
+           BADMAGIC UNKNOWN-NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
+           DFA-UITEM DFA-UCOND DFA-UMLIMIT DFA-WSSIZE DFA-RECURSE       \
+           BADUTF8 BADUTF8-OFFSET PARTIAL BADPARTIAL :INTERNAL BADCOUNT \
+           DFA-UITEM DFA-UCOND DFA-UMLIMIT DFA-WSSIZE DFA-RECURSE       \
+           RECURSIONLIMIT NULLWSLIMIT BADNEWLINE)
 nonreturning_function(static, error_pcre, (int status)) {
   pushSTACK(error_pcre_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
@@ -159,7 +173,8 @@ nonreturning_function(static, error_pcre, (int status)) {
   } while(0)
 DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS :SIZE CAPTURECOUNT     \
            BACKREFMAX FIRSTBYTE FIRSTTABLE LASTLITERAL                  \
-           NAMEENTRYSIZE NAMECOUNT NAMETABLE STUDYSIZE)
+           NAMEENTRYSIZE NAMECOUNT NAMETABLE STUDYSIZE                  \
+           /*DEFAULT-TABLES*/ OKPARTIAL JCHANGED HASCRORLF MINLENGTH)
 /* PCRE_INFO_DEFAULTTABLES -- does not look useful
        Return a pointer to the internal default character tables within  PCRE.
        The  fourth  argument should point to an unsigned char * variable. This
@@ -182,6 +197,11 @@ static object fullinfo_int (pcre *c_pat, pcre_extra *study, int opt) {
   int ret, status;
   PCRE_INFO(opt,&ret,0);
   return L_to_I(ret);
+}
+static object fullinfo_bool (pcre *c_pat, pcre_extra *study, int opt) {
+  int ret, status;
+  PCRE_INFO(opt,&ret,0);
+  return ret == 1 ? T : NIL;
 }
 #if defined(PCRE_INFO_FIRSTBYTE)
 static object fullinfo_firstbyte (pcre *c_pat, pcre_extra *study) {
@@ -272,6 +292,22 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
     pushSTACK(`:NAMETABLE`);
     pushSTACK(fullinfo_nametable(c_pat,study)); count+=2;
 #  endif
+#  if defined(PCRE_INFO_OKPARTIAL)
+    pushSTACK(`:OKPARTIAL`);
+    pushSTACK(fullinfo_bool(c_pat,study,PCRE_INFO_OKPARTIAL)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_JCHANGED)
+    pushSTACK(`:JCHANGED`);
+    pushSTACK(fullinfo_bool(c_pat,study,PCRE_INFO_JCHANGED)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_HASCRORLF)
+    pushSTACK(`:HASCRORLF`);
+    pushSTACK(fullinfo_bool(c_pat,study,PCRE_INFO_HASCRORLF)); count+=2;
+#  endif
+#  if defined(PCRE_INFO_MINLENGTH)
+    pushSTACK(`:MINLENGTH`);
+    pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_MINLENGTH)); count+=2;
+#  endif
     VALUES1(listof(count));
   } else {
     int arg = fullinfo_arg(STACK_0);
@@ -289,7 +325,20 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
 #    if defined(PCRE_INFO_STUDYSIZE)
       case PCRE_INFO_STUDYSIZE:
 #    endif
+#    if defined(PCRE_INFO_MINLENGTH)
+      case PCRE_INFO_MINLENGTH:
+#    endif
         VALUES1(fullinfo_int(c_pat,study,arg)); break;
+#    if defined(PCRE_INFO_OKPARTIAL)
+      case PCRE_INFO_OKPARTIAL:
+#    endif
+#    if defined(PCRE_INFO_JCHANGED)
+      case PCRE_INFO_JCHANGED:
+#    endif
+#    if defined(PCRE_INFO_HASCRORLF)
+      case PCRE_INFO_HASCRORLF:
+#    endif
+        VALUES1(fullinfo_bool(c_pat,study,arg)); break;
 #    if defined(PCRE_INFO_FIRSTBYTE)
       case PCRE_INFO_FIRSTBYTE: VALUES1(fullinfo_firstbyte(c_pat,study)); break;
 #    endif
@@ -405,3 +454,4 @@ void module__pcre__init_function_2 (module_t* module)
   pcre_malloc = malloc;
   pcre_free = free;
 }
+
