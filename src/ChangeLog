@@ -1,5 +1,10 @@
 2010-03-19  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (print-tables-1): when OBJDEF-INIT is
+	STRINGIFY(FOO), print it as "\"~S\"" to use the quoted CPP definition
+
+2010-03-19  Sam Steingold  <sds@gnu.org>
+
 	upgrade to pcre 8.01
 	* modules/pcre/cpcre.c (fullinfo_bool): add
 	(PCRE-CONFIG): also accept :MATCH-LIMIT-RECURSION :BSR
