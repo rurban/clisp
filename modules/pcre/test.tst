@@ -6,9 +6,9 @@
 (listp (show (multiple-value-list (ext:module-info "pcre" t)) :pretty t)) T
 
 (defparameter *major-version*
-  (multiple-value-bind (ve ma mi) (pcre:pcre-version)
-    (format t "~&Version: ~S (~D.~D)~%Options:~{~%  ~25@A  ~S~}~%" ve ma mi
-            (and (fboundp 'pcre:pcre-config) (pcre:pcre-config)))
+  (multiple-value-bind (ve ma mi da) (pcre:pcre-version)
+    (format t "~&Version: ~S (~D.~D ~S)~%Options:~{~%  ~25@A  ~S~}~%"
+            ve ma mi da (and (fboundp 'pcre:pcre-config) (pcre:pcre-config)))
     ma))
 *major-version*
 
