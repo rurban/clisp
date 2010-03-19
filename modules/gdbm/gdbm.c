@@ -2,7 +2,7 @@
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
  * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
- * Copyright (C) 2007-2008  Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2007-2008, 2010  Sam Steingold <sds@gnu.org>
  * GPL2
  */
 
@@ -88,8 +88,10 @@ nonreturning_function(static, error_gdbm, (char *fatal_message)) {
   NOTREACHED;
 }
 
+DEFVAR(gdbm_version_cache,NIL)
 DEFUN(GDBM::GDBM-VERSION,)
-{ VALUES1(safe_to_string(gdbm_version)); }
+{ VALUES1(!nullp(O(gdbm_version_cache)) ? O(gdbm_version_cache)
+          : (O(gdbm_version_cache) = safe_to_string(gdbm_version))); }
 
 /* can trigger GC */
 #define GDBM_SLOT_FILE  1
