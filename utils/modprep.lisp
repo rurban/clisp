@@ -1,8 +1,8 @@
 ;;; MODPREP - CLISP module preprocessor
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
-;;; Copyright (C) 2003-2008 by Sam Steingold [lisp]
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; Copyright (C) 2003-2010 by Sam Steingold [lisp]
+;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.
 The input file is normal C code, modified like this:
@@ -18,7 +18,9 @@ The input file is normal C code, modified like this:
   The backquoted strings are read in at module load time.
 - The module SUBRs can be referred to using double backquote syntax:
     pushSTACK(``FOO:BAR``);
-  means the same as L(bar) in the CLISP sources
+  means the same as L(bar) in the CLISP sources.
+- CPP definienda ("#define FOO baz zot") can be accessed as strings using
+    `STRINGIFY(FOO)` which evaluates to the Lisp string "baz zot".
 - The definition of Lisp functions is done using the macro
     DEFUN(function_name, lambda_list)
   for example
