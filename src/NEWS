@@ -22,6 +22,10 @@ User visible changes
   (older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
 
+* Module pcre now supports pcre 8.01.
+  (older versions are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/pcre.html> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code. [ 2868166 ]
