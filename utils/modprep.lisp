@@ -1063,7 +1063,10 @@ commas and parentheses."
       :do (with-conditional (out (objdef-cond-stack od))
             (let ((init (objdef-init od)))
               (etypecase init
-                (string (format out "  { ~S }," init))
+                (string (if (let ((pos (position #\( init)))
+                              (and pos (string= init "STRINGIFY" :end1 pos)))
+                            (format out "  { \"\\\"~S\\\"\" }," init)
+                            (format out "  { ~S }," init)))
                 (cons (format out "  {~%")
                       (dolist (el init)
                         (etypecase el
