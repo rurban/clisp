@@ -9,8 +9,8 @@
 <variablelist id="pcre-api"><title>PCRE module API</title>
  <varlistentry id="pcre-version">
   <term><code>(PCRE:PCRE-VERSION)</code></term>
-  <listitem><simpara>Return version information as 3 values: descriptive
-    &string-t; and 2 &fixnum-t;s: major and minor numbers.
+  <listitem><simpara>Return version information as 4 values: descriptive
+    &string-t;; 2 &fixnum-t;s: major and minor numbers; date &string-t;.
  </simpara></listitem></varlistentry>
  <varlistentry id="pcre-config">
   <term><code>(PCRE:PCRE-CONFIG &type-r;)</code></term>
