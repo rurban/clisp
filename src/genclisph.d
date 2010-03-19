@@ -1,7 +1,7 @@
 /*
  * Export CLISP internals for modules
  * Bruno Haible 1994-2005
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  */
 
 #include "lispbibl.c"
@@ -152,7 +152,7 @@ static void printf_with_args (const char* string, int argcount,
     printf_with_args(string,7,args); \
   }
 
-#if 0
+#if !defined(HAVE_STDBOOL_H)
 /* an alternative for "#include <fname>" */
 static void print_file (const char* fname) {
   char buf[BUFSIZ];
