@@ -1,3 +1,7 @@
+2010-03-22  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm: upgrade to upstream 2.90
+
 2010-03-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (GDBM-VERSION): cache return value
@@ -3856,7 +3860,7 @@
 
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
-	* modules/libsvm: upgraded to upstream 2.88
+	* modules/libsvm: upgrade to upstream 2.88
 
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
