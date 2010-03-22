@@ -1,7 +1,7 @@
 ;;; LIBSVM interface
 ;;; <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>
 ;;;
-;;; Copyright (C) 2006-2009 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2006-2010 Sam Steingold <sds@gnu.org>
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -19,7 +19,7 @@
                                :type #+win32 "dll" #+unix "so"
                                      #-(or win32 unix) nil))) ; ???
 
-(c-lines "#include \"svm.h\"~%")
+(c-lines "#include <svm.h>~%")
 
 (defvar *libsvm-output* *standard-output* "The stream for svm.so messages.")
 (cl:defun write-string-to-libsvm-output (s)

@@ -51,7 +51,7 @@ $(MAKEMAKE_TMP) : src/makemake.in version.sh
 CURDIR=$(shell pwd)
 
 MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre dbus \
-	postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm
+  postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm libsvm
 CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
@@ -425,7 +425,7 @@ release : distrib upload tag-release
 
 # 2-3 weeks before a release
 # manually: check for new versions of
-#  libsvm, netica api, postgresql, berkeley-db, dbus
+#  libsvm, netica api, postgresql, berkeley-db, dbus, pcre, readline
 pre-release : gnulib-imported build-aux-update tp-mail
 
 ## RELEASE TODO:
