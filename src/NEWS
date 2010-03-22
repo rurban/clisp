@@ -26,6 +26,9 @@ User visible changes
   (older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/pcre.html> for details.
 
+* Module libsvm has been upgraded to the upstream version 2.90.
+  See <http://clisp.cons.org/impnotes/libsvm.html> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code. [ 2868166 ]
