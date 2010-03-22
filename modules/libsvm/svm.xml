@@ -2,15 +2,11 @@
 
 <section id="libsvm"><title>LibSVM Interface</title>
 
-<para>This is an &ffi-pac;-based interface to the version 2.90 of
- &libsvm-link; (included in the source distribution in the directory
- <filename role="clisp-cvs">modules/libsvm/</filename>,
- so you do not need to install it yourself).</para>
+<para>This is an &ffi-pac;-based interface to &libsvm-link;.</para>
 
 <para>The package <quote role="package">LIBSVM</quote>
  is <link linkend="package-case">case-sensitive</link>, and you do not
- need the <function>svm_</function> prefix for the functions described
- in <filename role="clisp-cvs">modules/libsvm/README</filename>.</para>
+ need the <function>svm_</function> prefix for the function names.</para>
 
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:LIBSVM</constant>.</simpara>
@@ -74,9 +70,7 @@
     object and invalidate the &foreign-variable-t; &problem-r;.</simpara>
    <warning><simpara>You &must-e; call this function yourself, but only
      &after-e; deallocating all <type>model</type> objects trained from
-     this &problem-r;.</simpara>
-    <simpara>See <filename role="clisp-cvs">modules/libsvm/README</filename>
-     for more information.</simpara></warning></listitem></varlistentry>
+     this &problem-r;.</simpara></warning></listitem></varlistentry>
  <varlistentry><term><code>(load-problem &filename-r; &key-amp;
     (&log-r; &standard-output-var;))</code></term>
   <listitem><simpara>Read a <type>problem</type> from a file in the

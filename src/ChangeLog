@@ -1,5 +1,11 @@
 2010-03-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm: remove the upstream sources; install locally and
+	pass --with-libsvm-prefix to the top-level configure instead
+	* Makefile.devel (MODULES): add libsvm
+
+2010-03-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm: upgrade to upstream 2.90
 
 2010-03-19  Sam Steingold  <sds@gnu.org>
