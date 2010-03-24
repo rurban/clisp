@@ -30,8 +30,8 @@ CLISP_LINKKIT = @CLISP_LINKKIT@
 
 ORA_INCLUDES = -I.. -I ${ORACLE_HOME}/rdbms/demo -I ${ORACLE_HOME}/rdbms/public -I ${ORACLE_HOME}/plsql/demo -I ${ORACLE_HOME}/network/public
 
-LN = ln
-LN_S = ln -s
+LN = @LN@
+LN_S = @LN_S@
 
 MAKE = make
 

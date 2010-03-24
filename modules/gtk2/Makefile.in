@@ -15,8 +15,8 @@ LIBGLADE_LIBS = @LIBGLADE_LIBS@
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
-LN = ln
-LN_S = ln -s
+LN = @LN@
+LN_S = @LN_S@
 
 MAKE = make
 

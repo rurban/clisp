@@ -8,7 +8,7 @@ CLISP = @CLISP@ -norc -q
 CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
-LN = ln
+LN = @LN@
 
 MAKE = make
 
