@@ -1,5 +1,9 @@
 2010-03-24  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/libsvm.lisp: remove DEFAULT-FOREIGN-LIBRARY
+
+2010-03-24  Sam Steingold  <sds@gnu.org>
+
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): require CL_PROG_LN_S
 	* modules/berkeley-db/Makefile.in, modules/clx/new-clx/Makefile.in:
 	* modules/dbus/Makefile.in, modules/dirkey/Makefile.in:
