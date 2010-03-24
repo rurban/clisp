@@ -14,10 +14,6 @@
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
 (default-foreign-language :stdc)
-(default-foreign-library
-    (namestring (make-pathname :name "svm" :defaults *load-pathname*
-                               :type #+win32 "dll" #+unix "so"
-                                     #-(or win32 unix) nil))) ; ???
 
 (c-lines "#include <svm.h>~%")
 
