@@ -11,3 +11,4 @@ NEW_FILES="${file_list}"
 NEW_LIBS="${file_list} -lm @LIBS@"
 NEW_MODULES="${mod_list}"
 TO_LOAD='libsvm'
+TO_PRELOAD='preload'

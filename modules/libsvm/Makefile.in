@@ -8,12 +8,13 @@ CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = libsvm.fas libsvm.o
+GENERATED = libsvm.fas libsvm.o preload.lisp
 DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/libsvm.lisp
 distribdir =
 
@@ -25,6 +26,9 @@ libsvm.c libsvm.fas : $(srcdir)/libsvm.lisp
 
 libsvm.o : libsvm.c config.h
 	$(CC) $(CPPFLAGS) $(SVMCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c libsvm.c
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

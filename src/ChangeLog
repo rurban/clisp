@@ -1,3 +1,8 @@
+2010-03-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/Makefile.in, modules/libsvm/link.sh: restore
+	TO_PRELOAD, necessary because of DEF-CALL-IN in libsvm.lisp
+
 2010-03-22  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm: remove the upstream sources; install locally and
