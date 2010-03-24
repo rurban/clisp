@@ -11,8 +11,8 @@ CLISP_LINKKIT = @CLISP_LINKKIT@
 # http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
 NO_CXX = @NO_CXX@
 
-LN = ln
-LN_S = ln -s
+LN = @LN@
+LN_S = @LN_S@
 
 MAKE = make
 

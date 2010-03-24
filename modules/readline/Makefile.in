@@ -7,7 +7,7 @@ CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
-LN = ln
+LN = @LN@
 
 MAKE = make
 
