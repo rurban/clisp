@@ -1356,7 +1356,7 @@ the iteration variable and assign it on each iteration.</para></section>
  <title>Macro &without-global-handlers;</title>
 <para>The macro <code>(&without-global-handlers; &body-amp;
   &body-r;)</code> removes all global handlers by <code>(&set-global-handler;
- &nil; &nil;)</code>, executes &body-r; (where unhandled conditioned now
+ &nil; &nil;)</code>, executes &body-r; (where unhandled conditions now
  invoke the &debugger;), and then restores the handlers.</para></formalpara>
 
 </section>
