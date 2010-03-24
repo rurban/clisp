@@ -503,6 +503,7 @@
 <!ENTITY mod-expt '<link linkend="mod-expt"><function>EXT:MOD-EXPT</function></link>'>
 <!ENTITY compiled-file-p '<link linkend="compiled-file-p"><function>EXT:COMPILED-FILE-P</function></link>'>
 <!ENTITY help '<olink targetdoc="impnotes" targetptr="debugger-main-deb-step"><command>help</command></olink>'>
+<!ENTITY debugger '<link linkend="debugger">debugger</link>'>
 <!ENTITY format-bang '<link linkend="format-bang"><literal>~!</literal></link>'>
 <!ENTITY format-dot '<link linkend="format-dot"><literal>~.</literal></link>'>
 <!ENTITY nlcA '<emphasis role="strong">A</emphasis>'>

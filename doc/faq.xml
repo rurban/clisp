@@ -836,8 +836,7 @@ the second invocation will produce a <ulink url="clhs/glo">circular
   suspicious behavior.  It is best to fix your code rather than to
   suppress them.  To figure out where the warning is coming from, do
   <code>(&setq; &break-on-signals-var; '&warning-t;)</code> and examine
-  the stack (see <xref linkend="debugger"/>)
-  to see where the warning is coming from.</para>
+  the stack in the &debugger; to see where the warning is coming from.</para>
  <para>If everything else fails, read the
  <link linkend="impnotes-top">manual</link>.</para></answer>
 </qandaentry>

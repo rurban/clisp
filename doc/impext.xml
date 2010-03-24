@@ -1511,9 +1511,8 @@ In other words, each pair is:
 
 <para>&clisp; prompt consists of 3 mandatory parts: <quote>start</quote>,
  <quote>body</quote>, and <quote>finish</quote>; and 2 optional parts:
- <quote>break</quote>, which appears only during
- <link linkend="debugger">debugging</link> (after &break; or &error;),
- and <quote>step</quote>, which appears only during &step;ping.
+ <quote>break</quote>, which appears only in the &debugger; (after &break;
+ or &error;), and <quote>step</quote>, which appears only in the &step;er.
  Each part is controlled by a custom variable, which can be either a
  &string-t; or a &function-t; of no arguments returning a &string-t;
  (if it is something else - or if the return value was not a &string-t;
