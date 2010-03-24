@@ -1360,10 +1360,10 @@
                      (lambda (stream)
                        (format stream (report-one-new-value-string-instead)
                                place))
-                     :interactive (lambda () (prompt-for-new-value place 1 t))
-                     :invoke-function
-                       (lambda (val)
-                         (return-from check-value (values val nil))))))
+                   :interactive (lambda () (prompt-for-new-value place 1 t))
+                   :invoke-function
+                     (lambda (val)
+                       (return-from check-value (values val nil))))))
           (when (and (consp place) (eq 'fdefinition (car place)))
             (list (make-restart ; for check_fdefinition() only!
                    :name 'RETRY
