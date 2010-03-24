@@ -1255,7 +1255,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <para>When an error occurred, you are in a break loop. You can evaluate
  forms as usual. The &help; command (or help key if there is one) lists
- the available <link linkend="debugger">debugging commands</link>.</para>
+ the available &debugger; commands.</para>
 
 <section id="cond-nl"><title>Embedded Newlines in Condition Reports
   <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
@@ -1338,9 +1338,9 @@ the iteration variable and assign it on each iteration.</para></section>
 <para>The function <code>(&set-global-handler; &cond-r; handler)</code>
  establishes a global handler for the &cond-r;.
  The <replaceable>handler</replaceable> should be &funcall;able (a
- &symbol-t; or a &function-t;).  If it returns, the next applicable
- handler is invoked, so if you do &not-e; want to land in the
- <link linkend="debugger">debugger</link>, it should &not-e; return.
+ &symbol-t; or a &function-t;).
+ If it returns, the next applicable handler is invoked, so if you do
+ &not-e; want to land in the &debugger;, it should &not-e; return.
  E.g., the option &opt-on-error; <option>abort</option> and the macro
  &abort-on-error; are implemented by installing the following handler:
  <programlisting language="lisp">(defun sys::abortonerror (condition)
@@ -1357,8 +1357,7 @@ the iteration variable and assign it on each iteration.</para></section>
 <para>The macro <code>(&without-global-handlers; &body-amp;
   &body-r;)</code> removes all global handlers by <code>(&set-global-handler;
  &nil; &nil;)</code>, executes &body-r; (where unhandled conditioned now
- invoke the <link linkend="debugger">debugger</link>),
- and then restores the handlers.</para></formalpara>
+ invoke the &debugger;), and then restores the handlers.</para></formalpara>
 
 </section>
 </chapter>
