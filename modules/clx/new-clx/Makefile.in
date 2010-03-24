@@ -6,8 +6,8 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
-LN = ln
-LN_S = ln -s
+LN = @LN@
+LN_S = @LN_S@
 SHELL = /bin/sh
 
 GENERATED = clx.fas image.fas resource.fas clx.o clx-preload.lisp
