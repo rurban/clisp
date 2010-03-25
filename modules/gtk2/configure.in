@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for the CLISP gtk2 module
-dnl Sam Steingold 2006-2009
+dnl Sam Steingold 2006-2010
 
 AC_PREREQ(2.57)
 AC_INIT(gtk2, 1.0, clisp-list)
@@ -11,7 +11,8 @@ BOLD_MSG([GTK2 (Common)])
 CL_MODULE_COMMON_CHECKS([ffi])
 
 AM_PATH_GTK_2_0(,,[AC_MSG_ERROR([cannot find GTK2])],)
-PKG_CHECK_MODULES(LIBGLADE, libglade-2.0,,[AC_MSG_ERROR([cannot find LIBGLADE])])
+PKG_CHECK_MODULES([LIBGLADE],[libglade-2.0],,
+[AC_MSG_ERROR([cannot find LIBGLADE])])
 AC_SUBST(LIBGLADE_CFLAGS)
 AC_SUBST(LIBGLADE_LIBS)
 
