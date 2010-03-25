@@ -14,6 +14,14 @@ dnl Search for libsvm and define LIBSVM, LTLIBSVM and INCSVM.
 AC_LIB_LINKFLAGS([svm])
 
 BOLD_MSG([LibSVM (Headers)])
+dnl On ubuntu libsvm is managed by pkg-config which seems rather silly
+dnl because there is no real connection between gnome and libsvm.
+dnl We must support both pkg-config and non-pkg-config installations!
+PKG_CHECK_MODULES([LIBSVM],[libsvm],
+[AC_LIB_APPENDTOVAR([CPPFLAGS],[$LIBSVM_CFLAGS])],
+[echo ignore pkg-config errors])
+AC_SUBST(LIBSVM_CFLAGS)
+AC_SUBST(LIBSVM_LIBS)
 AC_CHECK_HEADERS(svm.h)
 if test "$ac_cv_header_svm_h" = "no"; then
   AC_MSG_ERROR([cannot find LibSVM headers])
