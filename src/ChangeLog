@@ -1,3 +1,10 @@
+2010-03-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/configure.in: on ubuntu libsvm is managed by
+	pkg-config which seems rather silly because there is no real
+	connection between gnome and libsvm;
+	we must support both pkg-config and non-pkg-config installations
+
 2010-03-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp: remove DEFAULT-FOREIGN-LIBRARY
