@@ -18,6 +18,9 @@ User visible changes
   the action when the destination exists, unless, of course, *ANSI* is T.
   See <http://clisp.cons.org/impnotes/file-func.html#rename-file> for details.
 
+* The replacement value entered by the user in STORE-VALUE and USE-VALUE
+  restarts is now EVALuated.
+
 * Module readline now supports readline 6.1.
   (older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/readline-mod.html> for details.

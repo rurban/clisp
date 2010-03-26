@@ -1206,16 +1206,16 @@
                      (TEXT "Use instead~@[ of ~S~]: "))
                    (prompt-for-new-value-string))
                  place)
-         (list (read *debug-io*)))
-        ((do ((ii 1 (1+ ii)) res)
-             ((> ii place-numvalues) (nreverse res))
-           (fresh-line *debug-io*)
-           (format *debug-io*
-                   (if instead-p
-                     (TEXT "Use instead of ~S [value ~D of ~D]: ")
-                     (TEXT "New ~S [value ~D of ~D]: "))
-                   place ii place-numvalues)
-           (push (read *debug-io*) res)))))
+         (list (eval (read *debug-io*))))
+        (t (do ((ii 1 (1+ ii)) res)
+               ((> ii place-numvalues) (nreverse res))
+             (fresh-line *debug-io*)
+             (format *debug-io*
+                     (if instead-p
+                       (TEXT "Use instead of ~S [value ~D of ~D]: ")
+                       (TEXT "New ~S [value ~D of ~D]: "))
+                     place ii place-numvalues)
+             (push (eval (read *debug-io*)) res)))))
 
 ;; CHECK-TYPE, CLtL2 p. 889
 (defmacro check-type (place typespec &optional (string nil) &environment env)
