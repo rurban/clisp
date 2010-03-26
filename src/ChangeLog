@@ -1,3 +1,8 @@
+2010-03-26  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (prompt-for-new-value): EVAL the value entered by
+	the user
+
 2010-03-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/configure.in: on ubuntu libsvm is managed by
