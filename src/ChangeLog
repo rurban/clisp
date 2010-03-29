@@ -1,3 +1,11 @@
+2010-03-29  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (prompt-for-new-value): terminate the prompt for
+	the new value with (PROMPT-FINISH) instead of ": " to indicate that
+	this is a regular prompt and the value will be evaluated
+	* macros2.lisp (prompt-for-new-value-string): ditto
+	Suggested by Pascal J. Bourguignon <pjb@informatimago.com>
+
 2010-03-26  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (prompt-for-new-value): EVAL the value entered by
