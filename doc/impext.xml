@@ -1485,22 +1485,19 @@ In other words, each pair is:
  has the effect that when the specified object is being &gc;ed,
  <code>(&funcall; &func-r; &object-r;)</code> will be executed.</para>
 
-<para>Calling <code>(&finalize; &object-r; &func-r;
-  <replaceable>guardian</replaceable>)</code>
- has a similar effect, but only as long as the
- <replaceable>guardian</replaceable> has not been &gc;ed:
- when &object-r; is being &gc;ed, <code>(&funcall; &func-r;
- &object-r; <replaceable>guardian</replaceable>)</code> will be executed.
- If the <replaceable>guardian</replaceable> is &gc;ed before &object-r;
- is, nothing happens.</para>
+<para>Calling <code>(&finalize; &object-r; &func-r; &guardian-r;)</code>
+ has a similar effect, but only as long as the &guardian-r; has not been &gc;ed:
+ when &object-r; is being &gc;ed, <code>(&funcall; &func-r; &object-r;
+ &guardian-r;)</code> will be executed.
+ If the &guardian-r; is &gc;ed before &object-r; is, nothing happens.</para>
 
 <note><title>Note</title>
- <para>The time when <quote>the &object-r; is being &gc;ed</quote> is
-  not defined deterministically.  (Actually, it might possibly never
-  occur.)  It denotes a moment at which no references to &object-r;
-  exist from other Lisp objects.  When the &func-r; is called,
-  &object-r; (and possibly <replaceable>guardian</replaceable>) enter
-  the <quote>arena of live Lisp objects</quote> again.</para></note>
+ <para>The time when <quote>the &object-r; is being &gc;ed</quote> is not
+  defined deterministically.  (Actually, it might possibly never occur.)
+  It denotes a moment at which no references to &object-r; exist from other
+  Lisp objects.  When the &func-r; is called, &object-r; (and, possibly,
+  &guardian-r;) enter the <quote>arena of live Lisp objects</quote> again.
+</para></note>
 
 <para>No finalization request will be executed more than once.</para>
 
@@ -1516,8 +1513,7 @@ In other words, each pair is:
  Each part is controlled by a custom variable, which can be either a
  &string-t; or a &function-t; of no arguments returning a &string-t;
  (if it is something else - or if the return value was not a &string-t;
- - it is printed with &princ;).  In the order of invocation:
- <variablelist>
+ - it is printed with &princ;).  In the order of invocation:<variablelist>
   <varlistentry id="prompt-start"><term>&prompt-start;</term>
    <listitem><simpara>Defaults to an empty string.
   </simpara></listitem></varlistentry>
@@ -1540,15 +1536,14 @@ In other words, each pair is:
      or if it does not contain symbol &t;,
      (it is assumed that in the latter case you would want to keep in
      mind that your current package is something weird);
-     and &n-r; is the index of the current prompt, kept in &command-index;;
+     and &n-r; is the index of the current prompt, kept in &command-index;.
   </simpara></listitem></varlistentry>
   <varlistentry id="prompt-finish"><term>&prompt-finish;</term>
    <listitem><simpara>Defaults to <quote><prompt>&gt;&nbsp;</prompt></quote>.
 </simpara></listitem></varlistentry></variablelist></para>
 
 <para>To facilitate your own custom prompt creation, the following
- functions and variables are available:
- <variablelist>
+ functions and variables are available:<variablelist>
   <varlistentry id="break-level"><term>&break-level;</term>
    <listitem><simpara>This &function-t; returns current &break;/&error; level.
   </simpara></listitem></varlistentry>
