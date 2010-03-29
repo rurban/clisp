@@ -796,6 +796,7 @@
 <!ENTITY funcname-r '<replaceable>function-name</replaceable>'>
 <!ENTITY gf-r '<replaceable>generic-function</replaceable>'>
 <!ENTITY gid-r '<replaceable>gid</replaceable>'>
+<!ENTITY guardian-r '<replaceable>guardian</replaceable>'>
 <!ENTITY hash-f '<replaceable>hash-function</replaceable>'>
 <!ENTITY host-r '<replaceable>host</replaceable>'>
 <!ENTITY ht-r '<replaceable>hash-table</replaceable>'>
