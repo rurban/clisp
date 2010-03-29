@@ -1360,6 +1360,17 @@ the iteration variable and assign it on each iteration.</para></section>
  invoke the &debugger;), and then restores the handlers.</para></formalpara>
 
 </section>
+
+<section id="assertions"><title>Assertions
+  <ulink role="clhs" url="sec-9-1-5"/></title>
+
+<para>The prompt for replacement values (&restart-t;s &store-value-s;,
+&use-value-s; et al) is terminated with &prompt-finish; to indicate that
+the value entered is treated as usual for the Lisp &repl;, i.e., it is
+&eval;uated.</para>
+
+</section>
+
 </chapter>
 
 
