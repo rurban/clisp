@@ -1202,10 +1202,9 @@
   (cond ((= place-numvalues 1)
          (format *debug-io*
                  (if instead-p
-                   (concatenate 'string "~&"
-                     (TEXT "Use instead~@[ of ~S~]~A"))
-                   (prompt-for-new-value-string)
-                   (prompt-finish))
+                   (concatenate 'string "~&" (TEXT "Use instead~@[ of ~S~]")
+                                (prompt-finish))
+                   (prompt-for-new-value-string))
                  place)
          (list (eval (read *debug-io*))))
         (t (do ((ii 1 (1+ ii)) res)
