@@ -1203,8 +1203,9 @@
          (format *debug-io*
                  (if instead-p
                    (concatenate 'string "~&"
-                     (TEXT "Use instead~@[ of ~S~]: "))
-                   (prompt-for-new-value-string))
+                     (TEXT "Use instead~@[ of ~S~]~A"))
+                   (prompt-for-new-value-string)
+                   (prompt-finish))
                  place)
          (list (eval (read *debug-io*))))
         (t (do ((ii 1 (1+ ii)) res)
@@ -1212,9 +1213,9 @@
              (fresh-line *debug-io*)
              (format *debug-io*
                      (if instead-p
-                       (TEXT "Use instead of ~S [value ~D of ~D]: ")
-                       (TEXT "New ~S [value ~D of ~D]: "))
-                     place ii place-numvalues)
+                       (TEXT "Use instead of ~S [value ~D of ~D]~A")
+                       (TEXT "New ~S [value ~D of ~D]~A"))
+                     place ii place-numvalues (prompt-finish))
              (push (eval (read *debug-io*)) res)))))
 
 ;; CHECK-TYPE, CLtL2 p. 889
