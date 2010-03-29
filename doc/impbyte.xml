@@ -1055,9 +1055,9 @@ All other &clisp; objects have <quote>varying</quote> length
 (more precisely, not a fixed length) and include a word for &gc;ion
 purposes at their beginning.</para>
 
-<para>The garbage collector is invoked by
+<para>The garbage collector is invoked every now and then by
  <function>allocate_*()</function> calls according to certain heuristics.
-It marks all objects which are <quote>live</quote>
+It marks all objects which are <quote>alive</quote>
 (may be reached from the <quote>roots</quote>),
 compacts these objects and unmarks them.
 Non-live objects are lost; their storage is reclaimed.</para>
