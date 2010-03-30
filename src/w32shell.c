@@ -32,20 +32,108 @@ int shell_quote (char * dest, const char * source) {
 /*========== shell shortcut resolution ==========*/
 #include <shlobj.h>
 
+/* is_cygwin_symlink based on path.cc from cygwin sources  */
+/* for win_shortcut_hdr description see also, for example,  
+   http://www.stdlib.com/art6-Shortcut-File-Format-lnk.html */
+
+static const GUID GUID_shortcut =
+  {0x00021401L, 0, 0, {0xc0, 0, 0, 0, 0, 0, 0, 0x46}};
+
+enum {
+  WSH_FLAG_IDLIST = 0x01,
+  WSH_FLAG_FILE = 0x02,        
+  WSH_FLAG_DESC = 0x04,        
+  WSH_FLAG_RELPATH = 0x08,
+  WSH_FLAG_WD = 0x10,
+  WSH_FLAG_CMDLINE = 0x20,        
+  WSH_FLAG_ICON = 0x40                
+};
+
+
+struct win_shortcut_hdr
+  {
+    DWORD size;            /* Header size in bytes.  Must contain 0x4c. */
+    GUID magic;            /* GUID of shortcut files. */
+    DWORD flags;           /* Content flags.  See above. */
+
+    /* The next fields from attr to icon_no are always set to 0 in Cygwin
+       and U/Win shortcuts. */
+    DWORD attr;            /* Target file attributes. */
+    FILETIME ctime;        /* These filetime items are never touched by the */
+    FILETIME mtime;        /* system, apparently. Values don't matter. */
+    FILETIME atime;
+    DWORD filesize;        /* Target filesize. */
+    DWORD icon_no;         /* Icon number. */
+
+    DWORD run;             /* Values defined in winuser.h. Use SW_NORMAL. */
+    DWORD hotkey;          /* Hotkey value. Set to 0.  */
+    DWORD dummy[2];        /* Future extension probably. Always 0. */
+  };
+
+#define WINSHDRSIZE sizeof(struct win_shortcut_hdr)
+
+static int
+cmp_shortcut_header (struct win_shortcut_hdr *file_header)
+{
+  /* A Cygwin or U/Win shortcut only contains a description and a relpath.
+     Cygwin shortcuts also might contain an ITEMIDLIST. The run type is
+     always set to SW_NORMAL. */
+  DWORD * pzero = &file_header->attr;
+  /* FILETIME is two DWORDS so check it as array of DWORDS */
+  while (pzero < &file_header->run && !*pzero++);
+  return file_header->size == WINSHDRSIZE
+      && !memcmp (&file_header->magic, &GUID_shortcut, sizeof GUID_shortcut)
+      && (file_header->flags & ~WSH_FLAG_IDLIST)
+         == (WSH_FLAG_DESC | WSH_FLAG_RELPATH)
+      && pzero >= &file_header->run
+      && file_header->run == SW_NORMAL;
+}
+
+
+enum cygsym_enum { cygsym_notsym = 0, cygsym_issym, cygsym_err };
+
+enum cygsym_enum is_cygwin_symlink (const char * filename);
+
+enum cygsym_enum is_cygwin_symlink (const char * filename)
+{
+  HANDLE handle;
+  enum cygsym_enum result = cygsym_err;
+  handle = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+                      NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  if (handle == INVALID_HANDLE_VALUE) return result;
+  do {
+    DWORD got;
+    BY_HANDLE_FILE_INFORMATION finfo;
+    struct win_shortcut_hdr header;
+    if (!GetFileInformationByHandle (handle, &finfo)) break;
+    result = cygsym_notsym;
+    if (!(finfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) break; 
+    if (GetFileSize (handle, NULL) > 8192) break; 
+    if (!ReadFile (handle, &header, WINSHDRSIZE, &got, NULL)) break;
+    if (got != WINSHDRSIZE || !cmp_shortcut_header (&header))
+      break;
+    result = cygsym_issym;
+  } while (0);
+  CloseHandle(handle);
+  return result;
+}
+
+
+
 /* extracts a filename field from windows shortcut
  > filename: name the shortcut file
  < resolved: buffer not less than MAX_PATH
  < result:   true if link was successfully resolved */
 static BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
-  DWORD fileattr;
   HRESULT hres;
   IShellLink* psl;
   WIN32_FIND_DATA wfd;
   BOOL result = FALSE;
   IPersistFile* ppf;
 
-  fileattr = GetFileAttributes(filename);
-  if (fileattr == 0xFFFFFFFF) return FALSE;
+  /* no matter it's FS error or not cygwin shortcut - 
+     probably it should be fixed */
+  if (!is_cygwin_symlink(filename)) return FALSE;
   /* Get a pointer to the IShellLink interface. */
   hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID *) &psl);
@@ -184,6 +272,7 @@ resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
   if (fileattr == 0xFFFFFFFF) return shell_shortcut_notresolved;
   return resolve_shell_shortcut_more(pathname,resolved);
 }
+
 
 /* the ultimate shortcut megaresolver
    style inspired by directory_search_scandir
