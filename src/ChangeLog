@@ -1,3 +1,12 @@
+2010-03-30  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Fix for a bug #2813561 with cygwin symlinks:
+	lack of discrimination between cygwin symlinks, used in build 
+	process  and other Windows shortcuts.
+	* w32shell.c (win_shortcut_hdr): lnk file header
+	(cmp_shortcut_header, is_cygwin_symlink): new static functions
+	(resolve_shell_shortcut): use is_cygwin_symlink
+
 2010-03-29  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (prompt-for-new-value): terminate the prompt for
