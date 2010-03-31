@@ -32,9 +32,9 @@ int shell_quote (char * dest, const char * source) {
 /*========== shell shortcut resolution ==========*/
 #include <shlobj.h>
 
-/* is_cygwin_symlink based on path.cc from cygwin sources  */
-/* for win_shortcut_hdr description see also, for example,  
-   http://www.stdlib.com/art6-Shortcut-File-Format-lnk.html */
+/* is_cygwin_symlink based on path.cc from cygwin sources
+   for win_shortcut_hdr description see also, 
+   http://msdn.microsoft.com/en-us/library/dd871305(PROT.10).aspx */
 
 static const GUID GUID_shortcut =
   {0x00021401L, 0, 0, {0xc0, 0, 0, 0, 0, 0, 0, 0x46}};
@@ -48,7 +48,6 @@ enum {
   WSH_FLAG_CMDLINE = 0x20,        
   WSH_FLAG_ICON = 0x40                
 };
-
 
 struct win_shortcut_hdr
   {
@@ -89,7 +88,6 @@ cmp_shortcut_header (struct win_shortcut_hdr *file_header)
       && file_header->run == SW_NORMAL;
 }
 
-
 enum cygsym_enum { cygsym_notsym = 0, cygsym_issym, cygsym_err };
 
 enum cygsym_enum is_cygwin_symlink (const char * filename);
@@ -118,8 +116,6 @@ enum cygsym_enum is_cygwin_symlink (const char * filename)
   return result;
 }
 
-
-
 /* extracts a filename field from windows shortcut
  > filename: name the shortcut file
  < resolved: buffer not less than MAX_PATH
@@ -133,7 +129,7 @@ static BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
 
   /* no matter it's FS error or not cygwin shortcut - 
      probably it should be fixed */
-  if (!is_cygwin_symlink(filename)) return FALSE;
+  if (is_cygwin_symlink(filename) != cygsym_issym) return FALSE;
   /* Get a pointer to the IShellLink interface. */
   hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID *) &psl);
@@ -196,7 +192,6 @@ static BOOL augment_relative_pathname(LPCSTR filename, LPSTR pathname) {
   }
   return TRUE;
 }
-
 
 typedef enum {
   shell_shortcut_notresolved = 0,
@@ -272,7 +267,6 @@ resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
   if (fileattr == 0xFFFFFFFF) return shell_shortcut_notresolved;
   return resolve_shell_shortcut_more(pathname,resolved);
 }
-
 
 /* the ultimate shortcut megaresolver
    style inspired by directory_search_scandir
@@ -369,7 +363,11 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
             }
             strncpy(nametocheck,wfd.cFileName,l);
             nametocheck_end = nametocheck + l;
-          } else {/* try shortcut */
+          } else {/* try shortcut 
+                     Note: In something\cyglink.lnk filename isn't resolved 
+                           so one can read/write symlink .lnk files although 
+                           they are not in DIRECTORY output.
+                           Is it bug or feature? */
             char saved[4];
             char resolved[MAX_PATH];
             shell_shortcut_target_t rresult;
