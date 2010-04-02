@@ -9071,7 +9071,7 @@ LISPFUNN(savemem,2) {
      to have locked mutexes saved in the memory image */
   var object list = O(all_mutexes);
   while (!endp(list)) {
-    if (!eq(NIL,TheMutex(Car(list))->xmu_owner)) {
+    if (!nullp(TheMutex(Car(list))->xmu_owner)) {
       /* we have a locked mutex. this is an error. */
       pushSTACK(NIL); /* CELL-ERROR Slot NAME */
       /* mutex owner (should be eq() to current thread) */
