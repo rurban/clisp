@@ -1,3 +1,8 @@
+2010-04-02  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (SAVEMEM): use nullp(.) instead of eq(NIL,.)
+	* zthread.d (MAKE-MUTEX, MUTEX-LOCK): ditto
+
 2010-03-30  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	Fix for a bug#2813561 with cygwin symlinks:
