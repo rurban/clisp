@@ -4,12 +4,12 @@
 
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
-	* restarts.tst: fix bug #[ 2941408 ]: segfault after giving
+	* restarts.tst: fix bug#2941408: segfault after giving
 	invalid replacement value
 
 2009-11-25  Sam Steingold  <sds@gnu.org>
 
-	* streamslong.tst: fix bug #[ 2902716 ]: CLEAR-INPUT should clear
+	* streamslong.tst: fix bug#2902716: CLEAR-INPUT should clear
 	the EOF condition
 
 2009-11-19  Sam Steingold  <sds@gnu.org>
@@ -32,19 +32,19 @@
 
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
-	* ffi.tst: fix bug #[ 2874184 ]: conditionalize 64-bit int use on
+	* ffi.tst: fix bug#2874184: conditionalize 64-bit int use on
 	WORD-SIZE=64 (== WIDE_HARD): actually this is a _stronger_
 	condition than HAVE_LONG_LONG_INT which is required for 64-bit
 	integers to work, but this should be good enough for testing
 
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
-	* macro8.tst: test bug #[ 2868166 ]: Do not eliminate function calls
+	* macro8.tst: test bug#2868166: Do not eliminate function calls
 	which are advertised to have exceptional situation in unsafe code.
 
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
-	* eval20.tst: test bug #[ 2868147 ]: declaim signals an error on
+	* eval20.tst: test bug#2868147: declaim signals an error on
 	an invalid declaration
 
 2009-08-26  Sam Steingold  <sds@gnu.org>
@@ -59,7 +59,7 @@
 
 2009-07-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* mt.tst: do not "reuse" *TH1* in some tests. use *TH3*
+	* mt.tst: do not "reuse" *TH1* in some tests; use *TH3*
 
 2009-07-13  Sam Steingold  <sds@gnu.org>
 
@@ -98,7 +98,7 @@
 
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
-	* excepsit.tst: add a test for [ 2807311 ]: (expt 10 10000000) segfaults
+	* excepsit.tst: add a test for bug#2807311: (expt 10 10000000) segfaults
 
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
@@ -212,7 +212,7 @@
 
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
-	* number2.tst: check (log 0) in all incarnations (bug [ 2354265 ])
+	* number2.tst: check (log 0) in all incarnations (bug#2354265)
 
 2008-11-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -268,7 +268,7 @@
 
 2008-10-28  Sam Steingold  <sds@gnu.org>
 
-	* path.tst: add 2 tests for bug #[ 2198109 ]:
+	* path.tst: add 2 tests for bug#2198109:
 	LOAD-LOGICAL-PATHNAME-TRANSLATIONS confuses "many" and "one"
 	when *LOAD-PATHS* is wild
 
@@ -352,7 +352,7 @@
 
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
-	* streamslong.tst: add a test for bug #[ 2022362 ]: after a ((setf
+	* streamslong.tst: add a test for bug#2022362: after a ((setf
 	stream-element-type) '(unsigned-byte 8)) after read-line on a :dos
 	stream an NL byte (10) is read from the stream
 
@@ -402,7 +402,7 @@
 
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
-	* excepsit.tst: add tests for bug #[ 2015118 ]: huge shifts cause
+	* excepsit.tst: add tests for bug#2015118: huge shifts cause
 	arithmetic-error instead of a stack overflow
 
 2008-07-09  Sam Steingold  <sds@gnu.org>
@@ -485,12 +485,12 @@
 
 2008-04-30  Sam Steingold  <sds@gnu.org>
 
-	* number2.tst: add tests for bug #[ 1928759 ]:
+	* number2.tst: add tests for bug#1928759:
 	(format nil "~8e" .999999d0) => " 10.0d-1"
 
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
-	* number2.tst: add tests for bug #[ 1942246 ]:
+	* number2.tst: add tests for bug#1942246:
 	(coerce 1 '(double-float 0d0)) fails
 
 2008-04-07  Sam Steingold  <sds@gnu.org>
@@ -508,12 +508,12 @@
 
 2008-04-03  Sam Steingold  <sds@gnu.org>
 
-	* format.tst: add tests for bug #[ 1790496 ]:
+	* format.tst: add tests for bug#1790496:
 	float format directive ~ve prints spurious digits
 
 2008-03-27  Sam Steingold  <sds@gnu.org>
 
-	* number2.tst: add tests for bug #[ 1683394 ]:
+	* number2.tst: add tests for bug#1683394:
 	TANH floating point overflow for large floats
 
 2008-03-18  Sam Steingold  <sds@gnu.org>
@@ -535,7 +535,7 @@
 
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
-	* iofkts.tst: test for bug #[ 1890854 ]:
+	* iofkts.tst: test for bug#1890854:
 	read-preserving-whitespace eats whitespace after quoted obj
 
 2008-02-06  Sam Steingold  <sds@gnu.org>
@@ -578,7 +578,7 @@
 
 2007-12-20  Sam Steingold  <sds@gnu.org>
 
-	* type.tst: add tests for bug [ 1854698 ]:
+	* type.tst: add tests for bug#1854698:
 	BYTE is a type, but is unacceptable input to TYPEP
 
 2007-11-25  Sam Steingold  <sds@gnu.org>
@@ -588,12 +588,12 @@
 
 2007-11-21  Sam Steingold  <sds@gnu.org>
 
-	* iofkts.tst: add a test for bug #[ 1835520 ]:
+	* iofkts.tst: add a test for bug#1835520:
 	PPRINT-LOGICAL-BLOCK ignores *PRINT-PPRINT-DISPATCH-TABLE*
 
 2007-11-19  Sam Steingold  <sds@gnu.org>
 
-	* iofkts.tst: add a test for bug #[ 1834193 ]:
+	* iofkts.tst: add a test for bug#1834193:
 	fresh-line at the end of a line containing only tabs
 
 2007-10-02  Sam Steingold  <sds@gnu.org>
@@ -634,7 +634,7 @@
 
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
-	* symbols.tst: test for [ 1713130 ]: some CL symbols are not locked
+	* symbols.tst: test for bug#1713130: some CL symbols are not locked
 
 2007-04-27  Jörg Höhle  <hoehle@users.sourceforge.net>
 
@@ -643,14 +643,14 @@
 
 2007-01-10  Sam Steingold  <sds@podval.org>
 
-	* encoding.tst: test for [ 1632718 ]: CONVERT-STRING-FROM-BYTES
+	* encoding.tst: test for bug#1632718: CONVERT-STRING-FROM-BYTES
 	does not check incomplete byte sequence
 
 2007-01-08  Sam Steingold  <sds@podval.org>
 
 	* encoding.tst: test for
-	[ 1564818 ]: CRLF handling does not work for UNICODE-16
-	[ 1631760 ]: unicode-16 cannot be used with unbuffered streams
+	bug#1564818: CRLF handling does not work for UNICODE-16
+	bug#1631760: unicode-16 cannot be used with unbuffered streams
 
 2007-01-04  Sam Steingold  <sds@podval.org>
 
@@ -666,69 +666,69 @@
 
 2006-12-28  Sam Steingold  <sds@podval.org>
 
-	* hashlong.tst: tests for [ 948868 ]: hashcode[34]_cons weakness
+	* hashlong.tst: tests for bug#948868: hashcode[34]_cons weakness
 
 2006-12-28  Sam Steingold  <sds@podval.org>
 
-	* number2.tst: test for [ 1208124 ]: hashcode_bignum weakness
+	* number2.tst: test for bug#1208124: hashcode_bignum weakness
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
 	* streams.tst: test for
-	[ 1483762 ]: socket's stream-external-format always :default
-	[ 1623179 ]: broken (setf (stream-external-format stream direction) enc)
+	bug#1483762: socket's stream-external-format always :default
+	bug#1623179: broken (setf (stream-external-format stream direction) enc)
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	* iofkts.tst: test for [ 1412454 ]: format/*print-pretty*
+	* iofkts.tst: test for bug#1412454: format/*print-pretty*
 	interaction: extra newlines
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	* streams.tst: tests for [ 1482465 ]: confusing format error
+	* streams.tst: tests for bug#1482465: confusing format error
 	report, cause fill-stream
 
 2006-12-26  Sam Steingold  <sds@podval.org>
 
-	* macro8.tst: test for [ 1578179 ]: Compile-file: non-similarity
+	* macro8.tst: test for bug#1578179: Compile-file: non-similarity
 	of strings with cr/lf
 
 2006-12-26  Sam Steingold  <sds@podval.org>
 
-	* streams.tst: test for [ 1622642 ]: DESCRIBE: confusing spacing
+	* streams.tst: test for bug#1622642: DESCRIBE: confusing spacing
 
 2006-12-19  Sam Steingold  <sds@podval.org>
 
-	* macro8.tst: test for [ 1420585 ]: compiler-macro:
+	* macro8.tst: test for bug#1420585: compiler-macro:
 	FBOUNDP: (LAMBDA (X) #) not a function name
 
 2006-12-19  Sam Steingold  <sds@podval.org>
 
-	* macro8.tst: test for [ 1618724 ]: broken compiler warning for
+	* macro8.tst: bug#1618724: broken compiler warning for
 	invalid optimize quality
 
 2006-12-18  Sam Steingold  <sds@podval.org>
 
-	* pack11.tst: test for [ 1612313 ]: DEFPACKAGE code executed
+	* pack11.tst: bug#1612313: DEFPACKAGE code executed
 	during non top-level compilation
 
 2006-12-12  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* ffi.tst: test for [ 1525366 ]: fix for #-unicode,
+	* ffi.tst: bug#1525366: fix for #-unicode,
 	#+unicode: insist on UTF-8 file encoding for the tests to succeed
 
 2006-12-11  Sam Steingold  <sds@podval.org>
 
-	* iofkts.tst: test for [ 1613300 ]: extra space in unreadable output
+	* iofkts.tst: bug#1613300: extra space in unreadable output
 
 2006-12-10  Sam Steingold  <sds@gnu.org>
 
-	* macro8.tst, excepsit.tst: test for [ 1612859 ]: import into
+	* macro8.tst, excepsit.tst: bug#1612859: import into
 	KEYWORD should not change symbol-value
 
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
-	* setf.tst: test for [ 1604579 ]: (SETF DOCUMENTATION) and COMPILE
+	* setf.tst: bug#1604579: (SETF DOCUMENTATION) and COMPILE
 
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
@@ -740,16 +740,16 @@
 
 2006-11-27  Sam Steingold  <sds@podval.org>
 
-	* lambda.tst: test for [ 1603260 ]: Loading a compiled definition
+	* lambda.tst: bug#1603260: Loading a compiled definition
 	of functions does not reset the FUNCTION-LAMBDA-EXPRESSION
 
 2006-11-20  Sam Steingold  <sds@podval.org>
 
-	* number2.tst: test for [ 1436987 ]: ATANH branch cut continuity
+	* number2.tst: bug#1436987: ATANH branch cut continuity
 
 2006-11-17  Sam Steingold  <sds@gnu.org>
 
-	* iofkts.tst: test for [ 1483768, 1598053 ]: repect PPRINT
+	* iofkts.tst: test for bug#1483768, bug#1598053: repect PPRINT
 	dispatch for nested objects, not just the top-level
 
 2006-11-10  Bruno Haible  <bruno@clisp.org>
@@ -759,11 +759,11 @@
 
 2006-11-08  Sam Steingold  <sds@podval.org>
 
-	* number2.tst: test for [ 1589311 ]: ROUND is broken for long floats
+	* number2.tst: bug#1589311: ROUND is broken for long floats
 
 2006-10-12  Sam Steingold  <sds@podval.org>
 
-	* macro8.tst: test for [ 1575946 ]: broken COMPILE of APPLY in LABELS
+	* macro8.tst: bug#1575946: broken COMPILE of APPLY in LABELS
 
 2006-10-01  Sam Steingold  <sds@gnu.org>
 
@@ -775,12 +775,12 @@
 
 2006-09-27  Sam Steingold  <sds@podval.org>
 
-	* conditions.tst: test bug [ 1566466 ]: assoc error when combining
+	* conditions.tst: bug#1566466: assoc error when combining
 	compiled and interpreted code
 
 2006-09-10  Sam Steingold  <sds@podval.org>
 
-	* path.tst: test bug [ 1555096 ]: cannot create pathnames with
+	* path.tst: bug#1555096: cannot create pathnames with
 	:wild-inferiors
 
 2006-09-09  Sam Steingold  <sds@podval.org>
@@ -800,7 +800,7 @@
 2006-09-03  Sam Steingold  <sds@podval.org>
 
 	* path.tst: check that make-pathname does not ignore explicit
-	:DIRECTORY NIL (bug #[ 1550803 ])
+	:DIRECTORY NIL (bug#1550803)
 
 2006-08-10  Sam Steingold  <sds@podval.org>
 
@@ -814,11 +814,11 @@
 2006-07-25  Sam Steingold  <sds@podval.org>
 
 	* mop.tst: check that REINITIALIZE-INSTANCE calls
-	FINALIZE-INHERITANCE [ 1526448 ]
+	FINALIZE-INHERITANCE bug#1526448
 
 2006-07-25  Sam Steingold  <sds@podval.org>
 
-	* clos.tst: bug 1528201: (make-instance 'standard-class :name 3)
+	* clos.tst: bug#1528201: (make-instance 'standard-class :name 3)
 
 2006-07-20  Sam Steingold  <sds@podval.org>
 
@@ -844,13 +844,13 @@
 
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* strings.tst: Fix bug 1445842,
+	* strings.tst: Fix bug#1445842,
 	ADJUST-ARRAY on 0-length adjustable string
 	Reported by David Tolpin <dtolpin@users.sourceforge.net>
 
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
-	* backquot.tst: Add test for bug 1308444.
+	* backquot.tst: Add test for bug#1308444.
 	Proposed by Matthew Cross <mcross@irobot.com>.
 
 2006-03-01  Jörg Höhle  <hoehle@users.sourceforge.net>
@@ -914,7 +914,7 @@
 2005-12-25  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: disabled the lambda-parameters-limit test on win32/g++
-	as a work-around for bug 1390134
+	as a work-around for bug#1390134
 
 2005-12-22  Sam Steingold  <sds@gnu.org>
 
@@ -1467,7 +1467,7 @@
 
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
-	* macro8.tst: bug 1167991 (SP-DEPTH <0)
+	* macro8.tst: bug#1167991 (SP-DEPTH <0)
 
 2005-03-08  Sam Steingold  <sds@gnu.org>
 
@@ -3027,3 +3027,7 @@
 1997-10-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* testsuite: Support ACL 4.3 for Linux (Allegro CL from Franz Inc).
+
+;; Local Variables:
+;; bug-reference-url-format: clisp-bug-reference-url-format
+;; End:
