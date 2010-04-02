@@ -708,7 +708,7 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
   STACK_0 = check_name_arg(STACK_0,NIL);
   /* overwrite the name on the STACK with the newly allocated object */
   STACK_0 = allocate_mutex(&STACK_0);
-  if (!eq(STACK_0,NIL) && recursive) /* set recursive flag */
+  if (!nullp(STACK_0) && recursive) /* set recursive flag */
     TheMutex(STACK_0)->xmu_flags |= mutex_flag_recursive;
   VALUES1(popSTACK());
 }
@@ -761,7 +761,7 @@ LISPFUN(mutex_lock,seclass_default,1,0,norest,key,1,
 
     if (!res) { /* if we got the mutex */
       ASSERT(TheMutex(*mxrec)->xmu_recurse_count == 0);
-      ASSERT(eq(TheMutex(*mxrec)->xmu_owner,NIL));
+      ASSERT(nullp(TheMutex(*mxrec)->xmu_owner));
       TheMutex(*mxrec)->xmu_owner = thr->_lthread;
       TheMutex(*mxrec)->xmu_recurse_count++;
     }
