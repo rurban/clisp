@@ -40,3 +40,14 @@
          (expand-file-name "src/ChangeLog" default-directory))))
 
 (add-hook 'vc-dir-mode-hook 'clisp-set-change-log-vc-dir)
+(add-hook 'change-log-mode-hook 'turn-on-bug-reference-mode)
+
+(defun clisp-bug-reference-url-format ()
+  (concat "http://sourceforge.net/tracker/index.php?func=detail&aid="
+          (match-string-no-properties 2)
+          "&group_id=1355&atid="
+          (let ((kind (match-string-no-properties 1)))
+            (cond ((string-match "[Bb]ug" kind) "101355")
+                  ((string-match "[Pp]atch" kind) "301355")
+                  ((string-match "RFE" kind) "351355")
+                  (t (error "unknown bug kind [%s]" kind))))))

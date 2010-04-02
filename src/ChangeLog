@@ -1,8 +1,8 @@
 2010-03-30  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	Fix for a bug #2813561 with cygwin symlinks:
-	lack of discrimination between cygwin symlinks, used in build 
-	process  and other Windows shortcuts.
+	Fix for a bug#2813561 with cygwin symlinks:
+	lack of discrimination between cygwin symlinks, used in build
+	process and other Windows shortcuts.
 	* w32shell.c (win_shortcut_hdr): lnk file header
 	(cmp_shortcut_header, is_cygwin_symlink): new static functions
 	(resolve_shell_shortcut): use is_cygwin_symlink
@@ -97,7 +97,7 @@
 2010-03-18  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_direction_compatible) [WIN32_NATIVE]:
-	fix bug #[ 2805778 ] ("0>/dev/null") by using
+	fix bug#2805778 ("0>/dev/null") by using
 	GetNumberOfConsoleInputEvents for FILE_TYPE_CHAR
 	and PeekNamedPipe for FILE_TYPE_PIPE
 
@@ -464,7 +464,7 @@
 
 2010-01-28  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2941408 ]: segfault after giving invalid replacement value
+	fix bug#2941408: segfault after giving invalid replacement value
 	* error.d (check_symbol_special): do not break out of the loop early
 
 2010-01-28  Sam Steingold  <sds@gnu.org>
@@ -586,7 +586,7 @@
 
 2009-11-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2902716 ]: CLEAR-INPUT should clear the EOF condition
+	fix bug#2902716: CLEAR-INPUT should clear the EOF condition
 	* stream.d (clear_input_unbuffered): reset status and
 	strm_rd_ch_last slots on all streams, not just tty
 	(clear_input_buffered): add, clear the have_eof_p slot
@@ -1097,7 +1097,7 @@
 
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2868147 ]: declaim signals an error on an invalid declaration
+	fix bug#2868147: declaim signals an error on an invalid declaration
 	* compiler.lisp (parse-optimize-quality): can be called by DECLAIM,
 	so call c-WARN or WARN depending on *COMPILING*
 
@@ -1129,7 +1129,7 @@
 
 2009-09-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2868166 ]: Do not eliminate function calls which are
+	fix bug#2868166: Do not eliminate function calls which are
 	advertised to have exceptional situation in unsafe code.
 	* lispbibl.d (seclass_t): add seclass_rd_sig: same as read,
 	but is also advertised to have "Exceptional situations" in unsafe code
@@ -1782,7 +1782,7 @@
 
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1237776 ]: binary distribution does not include local libs
+	fix bug#1237776: binary distribution does not include local libs
 	* makemake.in (distrib): link local libs mentioned in
 	base/makevars:LIBS into TOPDIR/base (same for full)
 	and modify distmakefile accordingly
@@ -2040,7 +2040,7 @@
 
 2009-07-24  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2826572 ]: regexp-quote doesn't quote correctly extended
+	fix bug#2826572: regexp-quote doesn't quote correctly extended
 	* modules/regexp/regexp.lisp (regexp-quote): quote "()" in
 	extended expressions
 
@@ -2120,7 +2120,7 @@
 
 2009-07-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	fix bug #[ 1472478 ]: Crashing CLISP with finalizers + weak hashtables
+	fix bug#1472478: Crashing CLISP with finalizers + weak hashtables
 	and fix weak references to GC-ed threads objects
 	* spvw_garcol.d (gar_col_normal): mark objects to be released after
 	weak pointers have been cleaned
@@ -2470,8 +2470,8 @@
 
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2807311 ]: (expt 10 10000000) segfaults
-	 (cf. 2008-07-10, bug #[ 2015118 ])
+	fix bug#2807311: (expt 10 10000000) segfaults
+	 (cf. 2008-07-10, bug#2015118)
 	* intmal.d (I_square_I): tighten the erglen check (use 16-bit intW
 	instead of 32-bit intWC) so that the arithmetic-error
 	"overflow during multiplication of large numbers"
@@ -2570,7 +2570,7 @@
 
 2009-06-17  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2806563 ]: parse-namestring does not like certain chars
+	fix bug#2806563: parse-namestring does not like certain chars
 	* m4/filecharset.m4 (CL_FILECHARSET): use the auto-detection on
 	all platforms, including windows
 
@@ -2602,9 +2602,9 @@
 	make_standard_output_file_stream(stderr_handle)
 	(make_terminal_io): use handle_direction_compatible() in addition
 	to pipe_file_handle_p() to decide whether to create a terminal or
-	a standard file stream; this fixes bug #[ 2805778 ]: when a
+	a standard file stream; this fixes bug#2805778: when a
 	standard handle is invalid, an empty stream is used
-	* makemake.in (check-script): add a test for bug #[ 2805778 ]
+	* makemake.in (check-script): add a test for bug#2805778
 
 2009-06-15  Sam Steingold  <sds@gnu.org>
 
@@ -2928,7 +2928,7 @@
 
 2009-05-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2787617 ] Segfault on encode-universal-time on Windows
+	fix bug#2787617 Segfault on encode-universal-time on Windows
 	* time.d (seconds_west): check localtime() & gmtime() return values
 
 2009-05-08  Vladimir Tzankov  <vtzankov@gmail.com>
@@ -2938,7 +2938,7 @@
 
 2009-05-07  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2788209 ]: *args* contains a mix of old args and new args
+	fix bug#2788209: *args* contains a mix of old args and new args
 	* spvw.d (main_actions): reset *ARGS* when argv_execute_args is empty
 	* makemake.in (check-exec-image): add two tests for this bug
 
@@ -3332,7 +3332,7 @@
 
 2009-01-18  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1007358 ]: LOG of large integers is broken
+	fix bug#1007358: LOG of large integers is broken
 	* realtran.d (extend2_digits, I_ln_F, RA_ln_F, F_extend_lnx1_F)
 	(RA_ln1_F): add
 	(R_ln1_R): use RA_ln1_F and F_extend_lnx1_F
@@ -3509,19 +3509,19 @@
 
 2009-01-07  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2492106 ]: CLISP 2.47/amd64 can't build "pari" module
+	fix bug#2492106: CLISP 2.47/amd64 can't build "pari" module
 	* modules/pari/pari.lisp (new_galois_format, factor_add_primes):
 	fix type declarations
 
 2009-01-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	fix bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
+	fix bug#1413016: amd64 debug build broken (gc aborts)
 	* spvw_garcol.d (update): use pointable_unchecked() instead of
 	as_oint() for address validation in TYPECODES & SPVW_MIXED builds
 
 2009-01-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 569025 ]: CLISP uses arisparc.d instead of arisparc64.d
+	fix bug#569025: CLISP uses arisparc.d instead of arisparc64.d
 	* makemake.in (cpu) [sparc64]: by default gcc runs in 32-bit mode,
 	so set cpu based on multi-os-directory
 
@@ -3603,7 +3603,7 @@
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
 	Declaration (COMPILE) accepts name argument;
-	this fixes bug #[ 2477736 ]: poor error messages from GF funcalls
+	this fixes bug#2477736: poor error messages from GF funcalls
 	* eval.d (parse_dd): return compile name, not just a boolean
 	(get_closure): use parse_dd return value over :LAMBDA
 	* control.d (parse_doc_decl): ditto
@@ -4232,9 +4232,9 @@
 
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2354265 ]: hang computing log of complex zero
+	fix bug#2354265: hang computing log of complex zero
 	* comptran.d (N_log_abs_R): check complex argument for 0;
-	bug was introduced when fixing bug [ 1934968 ]
+	bug was introduced when fixing bug#1934968
 
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
@@ -4829,7 +4829,7 @@
 
 2008-10-28  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2198109 ]: LOAD-LOGICAL-PATHNAME-TRANSLATIONS
+	fix bug#2198109: LOAD-LOGICAL-PATHNAME-TRANSLATIONS
 	confuses "many" and "one" when *LOAD-PATHS* is wild
 	* init.lisp (search-file): treat wild elements of *LOAD-PATHS*
 	just like non-wild ones, i.e., return directories, not their listings
@@ -4845,7 +4845,7 @@
 
 2008-10-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2159172 ]: text drawing functions ignore :start & :end
+	fix bug#2159172: text drawing functions ignore :start & :end
 	* modules/clx/new-clx/clx.f (get_substring_arg)
 	(unpack_stringarg_alloca): add
 	(general_draw_text, TEXT-EXTENTS, TEXT-WIDTH): use
@@ -4953,7 +4953,7 @@
 
 2008-10-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2188102 ]: new-clx timeout precision is limited
+	fix bug#2188102: new-clx timeout precision is limited
 	* modules/clx/new-clx/clx.f (PROCESS-EVENT, EVENT-LISTEN): pass
 	unbound instead of NIL as the usec argument to sec_usec()
 
@@ -4983,7 +4983,7 @@
 
 2008-10-18  Adam Warner  <awarner@users.sourceforge.net>
 
-	fix bug #[ 2175937 ]: Patch --without-unicode build failure
+	fix bug#2175937: Patch --without-unicode build failure
 	* pathname.d (direntry_to_string) [!UNICODE]: restore non-UNICODE
 	build by using n_char_to_string()
 
@@ -5017,7 +5017,7 @@
 
 2008-10-16  Drutsa Pavel  <rawlik@users.sourceforge.net>
 
-	fix bug #[ 2164603 ]: Error: should have been a WINDOW, but was PIXMAP
+	fix bug#2164603: Error: should have been a WINDOW, but was PIXMAP
 	* modules/clx/new-clx/clx.f (make_drawable): use
 	"make_xid_obj (`XLIB::DRAWABLE`...)" instead of "make_window()"
 
@@ -5060,7 +5060,7 @@
 
 2008-10-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2146126 ]: name conflict with libmysqlclient
+	fix bug#2146126: name conflict with libmysqlclient
 	* spvw.d, lispbibl.d (clisp_malloc): rename from my_malloc
 	(clisp_realloc): rename from my_realloc
 	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
@@ -5189,7 +5189,7 @@
 
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
-	* configure: fix bug #[ 2110337 ]: libsigsegv configure hints
+	* configure: fix bug#2110337: libsigsegv configure hints
 	suggest "rm -f ${DIRNAME}/config.cache"
 
 2008-09-15  Sam Steingold  <sds@gnu.org>
@@ -6519,7 +6519,7 @@
 
 2008-07-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2029069 ]: stack overflow with gethash
+	fix bug#2029069: stack overflow with gethash
 	* hashtabl.d (hashcode3_atom, hashcode3stable_atom, sxhash_atom):
 	accept level argument (ignore it because EQUAL hash code does not
 	recurse on atoms)
@@ -6632,7 +6632,7 @@
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d: fix bug #[ 2011096 ]: unicode in comments causes
+	* lispbibl.d: fix bug#2011096: unicode in comments causes
 	compile errors when LANG=ja_JP.eucJP
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
@@ -6680,7 +6680,7 @@
 
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2022362 ]: Problem :external-format :dos and (setf
+	fix bug#2022362: Problem :external-format :dos and (setf
 	stream-element-type): after a ((setf stream-element-type)
 	'(unsigned-byte 8)) after read-line on a :dos stream
 	an NL byte (10) is read from the stream
@@ -6994,7 +6994,7 @@
 
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2015118 ]: (ash 1 huge) blows SP instead of signaling
+	fix bug#2015118: (ash 1 huge) blows SP instead of signaling
 	an arithmetic-error
 	* intlog.d (I_I_ash_I): tighten the shift check (use 16-bit intW
 	instead of 32-bit intWC) so that the "shift is too large"
@@ -7003,7 +7003,7 @@
 
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1385641 ]: g++ debug_gcsafety amd64 build is broken
+	fix bug#1385641: g++ debug_gcsafety amd64 build is broken
 	* lispbibl.d (pgci_pointable, ngci_pointable) [DEBUG_GCSAFETY]:
 	pass obj.one_o through pointable_address_unchecked before nonimmprobe
 	(cgci_types_pointable, pgci_types_pointable, ngci_types_pointable)
@@ -7023,7 +7023,7 @@
 
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2014262 ]: float/rational comparison underflows
+	fix bug#2014262: float/rational comparison underflows
 	* realelem.d (R_R_comp): inhibit floating-point-underflow when
 	converting to a rational
 
@@ -7158,7 +7158,7 @@
 
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2002364 ]: XID reuse causes clx cache to get out of sync
+	fix bug#2002364: XID reuse causes clx cache to get out of sync
 	* modules/clx/new-clx/clx.f (make_xid_obj_2): when the cached
 	object is of the wrong type, signal a continuable error and offer
 	to invalidate either the cache entry or the whole cache
@@ -7166,7 +7166,7 @@
 
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2007052 ]: socket-connect with :timeout to a dead port
+	fix bug#2007052: socket-connect with :timeout to a dead port
 	* socket.d (connect_via_ip): use getsockopt() to check the status
 	of the socket before returning it, as described in the linux man page
 
@@ -7744,7 +7744,7 @@
 
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1975798 ]: parameter confusion in new Gray Streams functions
+	fix bug#1975798: parameter confusion in new Gray Streams functions
 	* gray.lisp (stream-read-sequence): fix argument order in
 	stream-read-byte-sequence and stream-read-char-sequence
 	and specify the default values for start and end
@@ -7806,7 +7806,7 @@
 
 2008-05-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1970141 ]: link.sh should respect $(MAKE)
+	fix bug#1970141: link.sh should respect $(MAKE)
 	* makemake.in (base, full): set MAKE when calling clisp-link
 	* modules/berkeley-db/link.sh.in, modules/bindings/glibc/link.sh:
 	* modules/bindings/win32/link.sh, modules/clx/mit-clx/link.sh:
@@ -7824,7 +7824,7 @@
 
 2008-05-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1956715 ]: segfault on SIGHUP
+	fix bug#1956715: segfault on SIGHUP
 	* spvw_sigterm.d (quit_on_signal) [HAVE_SAVED_STACK]: restore STACK
 
 2008-05-22  Sam Steingold  <sds@gnu.org>
@@ -7853,7 +7853,7 @@
 
 2008-05-20  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1966714 ]: invalid syntax in top-level configure
+	fix bug#1966714: invalid syntax in top-level configure
 	* configure (passnext): support non-POSIX /bin/sh on Solaris
 
 2008-05-19  Sam Steingold  <sds@gnu.org>
@@ -7880,7 +7880,7 @@
 
 2008-05-18  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1966375 ]: no tgamma on solaris
+	fix bug#1966375: no tgamma on solaris
 	* modules/syscalls/posix.lisp (tgamma): if tgamma is not defined,
 	define it using lgamma
 	* modules/syscalls/calls.c (tgamma) check HAVE_TGAMMA
@@ -7975,7 +7975,7 @@
 
 2008-05-10  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1961475 ]: Hang on read-char-no-hang
+	fix bug#1961475: Hang on read-char-no-hang
 	* stream.d (listen_char_buffered): when the next byte is '\n' and
 	ChannelStream_ignore_next_LF is true, discard it and retry
 
@@ -8055,7 +8055,7 @@
 
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1959436 ]: Allow ending http_proxy with a slash
+	fix bug#1959436: Allow ending http_proxy with a slash
 	* clhs.lisp (http-proxy): handle the trailing slash
 
 2008-05-07  Reini Urban  <rurban@x-ray.at>
@@ -8128,7 +8128,7 @@
 
 2008-04-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1928759 ]: (format nil "~8e" .999999d0) => " 10.0d-1"
+	fix bug#1928759: (format nil "~8e" .999999d0) => " 10.0d-1"
 	* format.lisp (format-float-for-e): when format-float-to-string
 	rounds up above 1, adjust everything
 
@@ -8236,7 +8236,7 @@
 
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1942246 ]: (coerce 1 '(double-float 0d0)) fails
+	fix bug#1942246: (coerce 1 '(double-float 0d0)) fails
 	* predtype.d (COERCE): when result_type is a list, pass its CAR to
 	coerce_float() instead of the whole list
 
@@ -8254,7 +8254,7 @@
 
 2008-04-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
+	fix bug#1934968: log(complex) sometimes inaccurate
 	* comptran.d (R_R_norm2_1_R): new function
 	(N_log_abs_R): use it together with R_ln1_R
 	* realtran.d (F_lnx1_F): converted from F_lnx_F to accept y=x-1
@@ -8264,14 +8264,14 @@
 
 2008-04-07  Sam Steingold  <sds@gnu.org>
 
-	partially fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
+	partially fix bug#1934968: log(complex) sometimes inaccurate
 	* comptran.d (N_log_abs_R): new function: compute (log (abs z))
 	without using hypot, thus avoiding a square root
 	(N_log_N, N_N_log_N): use it
 
 2008-04-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1936255 ]: COMPILE discards MACRO doc strings
+	fix bug#1936255: COMPILE discards MACRO doc strings
 	* compiler.lisp (generatedp): handle lambda lists from macroexpanders
 
 2008-04-06  Sam Steingold  <sds@gnu.org>
@@ -8289,7 +8289,7 @@
 
 2008-04-03  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1790496 ]: float format directive ~ve prints spurious digits
+	fix bug#1790496: float format directive ~ve prints spurious digits
 	* lisparit.d (FLOAT-SCALE-EXPONENT): implement
 	* constsym.d, subr.d (float_scale_exponent): declare
 	* format.lisp (format-scale-exponent-aux, format-scale-exponent): remove
@@ -8298,7 +8298,7 @@
 
 2008-04-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1928735 ]: BIGNUM failure
+	fix bug#1928735: BIGNUM failure
 	* intread.d (DIGITS_to_I): drop leading 0s; be extra permissive in the
 	initial length check, but perform an overflow check on each erg_len
 	increment
@@ -8311,11 +8311,11 @@
 2008-04-02  Vladimir Volovich  <vvv2@users.sourceforge.net>
 	Sam Steingold  <sds@gnu.org>
 
-	* makemake.in: quote arguments of "test -n" (fix bug #[ 1932548 ])
+	* makemake.in: quote arguments of "test -n" (fix bug#1932548)
 
 2008-04-01  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1931097 ]: cross-compile mode tries to execute intparam
+	fix bug#1931097: cross-compile mode tries to execute intparam
 	* makemake.in (PARAMS) [CROSS]: use touch, not executables, for
 	intparam and floatparam because the constants are defined in config.h
 	(UTILCC) [CROSS]: define to cc instead of $(CC) because the
@@ -8323,13 +8323,13 @@
 
 2008-04-01  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1931101 ]: new-clx QUERY-COLORS wants colors not pixels
+	fix bug#1931101: new-clx QUERY-COLORS wants colors not pixels
 	* modules/clx/new-clx/clx.f (XLIB:QUERY-COLORS): expect pixel sequence
 	(coerce_into_color): just fill pixels
 
 2008-03-31  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1929516 ]: m4:CL_INTPARAM_ALIGNOF loops infinitely when
+	fix bug#1929516: m4:CL_INTPARAM_ALIGNOF loops infinitely when
 	cross-compiling
 	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): require CL_OFFSETOF and
 	include <stddef.h> so that offsetof is defined
@@ -8338,7 +8338,7 @@
 
 2008-03-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1929496 ]: cosmetic informational message fix
+	fix bug#1929496: cosmetic informational message fix
 	* m4/param.m4: set cl_machine_file_h before the cross_compiling test
 	so that it is defined in both branches
 
@@ -8351,7 +8351,7 @@
 
 2008-03-29  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1928920 ]: missing quotes in shell code for test invocation
+	fix bug#1928920: missing quotes in shell code for test invocation
 	* m4/intparam.m4: use ac_cv_type_long_long_int
 	instead of the obsolete ac_cv_type_long_long
 
@@ -8363,7 +8363,7 @@
 
 2008-03-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1683394 ]: TANH floating point overflow for large floats
+	fix bug#1683394: TANH floating point overflow for large floats
 	* realtran.d (posF_tanh_posF): new function: 1-exp(-2x)/1+exp(-2x)
 	(R_tanh_R): use it instead of R_cosh_sinh_R_R when |x|>=1
 
@@ -8386,19 +8386,19 @@
 
 2008-03-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1924501 ]: cannot find gllib include
+	fix bug#1924501: cannot find gllib include
 	* makemake.in (CPPFLAGS): pass -Igllib here, not CFLAGS
 
 2008-03-24  Vladimir Volovich  <vvv2@users.sourceforge.net>
 	Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1924508 ]: undefined symbol getSP when linking lisp.run
+	fix bug#1924508: undefined symbol getSP when linking lisp.run
 	on Sparc Solaris 2.8 using Sun Studio 11
 	* spsparc.d, spsparc64.d: add global getSP
 
 2008-03-24  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1924506 ]: void function cannot return value
+	fix bug#1924506: void function cannot return value
 	* foreign.d (convert_to_foreign): "return void" does not work on
 	Solaris 2.8
 
@@ -8459,7 +8459,7 @@
 
 2008-03-18  Drutsa Pavel  <rawlik@users.sourceforge.net>
 
-	fix bug #[ 1918017 ]: new-clx:gcontext-clip-mask does not set rectangles
+	fix bug#1918017: new-clx:gcontext-clip-mask does not set rectangles
 	* modules/clx/new-clx/clx.f (XLIB:SET-GCONTEXT-CLIP-MASK): do not
 	divide n by 4 when passing to XSetClipRectangles - it has already
 	been done by get_seq_len()
@@ -8490,7 +8490,7 @@
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (DEF-C-CONST): pass NIL as version to
-	FIND-FOREIGN-FUNCTION (finish patch [ 1913831 ])
+	FIND-FOREIGN-FUNCTION (finish patch#1913831)
 	* foreign.d (foreign_library_check): when version is non-NIL,
 	coerce it to simple-string
 	* documentation.lisp (function-documentation): foreign-function
@@ -8520,7 +8520,7 @@
 
 2008-03-15  Sam Steingold  <sds@gnu.org>
 
-	patch #[ 1913831 ]: dlvsym support in FFI
+	patch#1913831: dlvsym support in FFI
 	* lispbibl.d (Fvariable): add field fv_version
 	(Ffunction): add field ff_version
 	* io.d (pr_orecord): print foreign variable and function version
@@ -8742,7 +8742,7 @@
 
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
-	a less invasive work-around for bug #[ 1413016 ]:
+	a less invasive work-around for bug#1413016:
 	it is not amd64 which is at fault, but TYPECODES
 	* makemake.in (XCFLAGS): revert the 2007-10-15 patch
 	* spvw_garcol.d (update) [TYPECODES]: comment out DEBUG_SPVW_ASSERT
@@ -8820,7 +8820,7 @@
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
-	fix bug #[ 1836142 ] part 2.
+	fix bug#1836142 part 2.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register)
 	(back_trace_register): Don't define for gcc-4.2 and newer when
 	USE_GCC_REGISTER_VARIABLES is not defined.
@@ -8832,7 +8832,7 @@
 
 2008-02-23  Bruno Haible  <bruno@clisp.org>
 
-	fix bug #[ 1836142 ] part 1.
+	fix bug#1836142 part 1.
 	* floatparam.c (check): Change argument types to 'volatile type*'.
 	This defeats optimizations of gcc 4.3.0 snapshots.
 
@@ -8959,7 +8959,7 @@
 
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1890854 ]: read-preserving-whitespace eats whitespace
+	fix bug#1890854: read-preserving-whitespace eats whitespace
 	after quoted object
 	* io.d (list2_reader): bind *READ-RECURSIVE-P* around
 	read_recursive_no_dot() to avoid *READ-PRESERVE-WHITESPACE* being
@@ -9022,7 +9022,7 @@
 
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
-	the final fix for bug #[ 1578179 ]: Compile-file: non-similarity of
+	the final fix for bug#1578179: Compile-file: non-similarity of
 	strings with cr/lf (also treated on 2006-11-17 & 2008-02-04)
 	* io.d (read_token_1): when reading from a FASL stream,
 	read \r & \n as #\Return and #\Newline respectively
@@ -9031,7 +9031,7 @@
 
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1887934 ]: make clean removes Lisp source files
+	fix bug#1887934: make clean removes Lisp source files
 	* makemake.in (clean5): do not remove LISPFILES, they are not
 	linked over since 2007-12-10
 
@@ -9144,7 +9144,7 @@
 
 2008-01-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1781476 ]: signal handling examples in glibc fail
+	fix bug#1781476: signal handling examples in glibc fail
 	* modules/bindings/glibc/linux.lisp (sigaction): sa_restorer is
 	now a generic pointer, not a pointer to a function, because...
 	  The sa_restorer element is obsolete and should not be used.
@@ -9166,7 +9166,7 @@
 
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1407486 ]: FFI revalidates too many library functions
+	fix bug#1407486: FFI revalidates too many library functions
 	in new session
 	* foreign.d (check_faddress_valid): check that validate_fpointer()
 	actually did make the pointer valid
@@ -9215,8 +9215,8 @@
 
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
-	fix bugs #[ 1877497 ]: the set of restarts grows with each image save
-	and #[ 1714737 ]: Bad restarts when .clisprc signals errors.
+	fix bug#1877497: the set of restarts grows with each image save
+	and bug#1714737: bad restarts when .clisprc signals errors.
 	* savemem.lisp (saveinitmem): bind *ACTIVE-RESTARTS* &
 	*CONDITION-RESTARTS* to NIL around SAVEMEM instead of setting them
 	to NIL in the *DRIVER* to avoid multiple ABORT restarts in saved images
@@ -9244,7 +9244,7 @@
 
 2008-01-17  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1506316 ]: segfault in framep() debug.d:644
+	fix bug#1506316: segfault in framep() debug.d:644
 	* debug.d (stack_upend_p): use "STACK_start cmpSTACKop FRAME"
 	instead of "eq(FRAME_(0),nullobj)" to check for STACK start
 	(stack_downend_p): use "FRAME cmpSTACKop STACK" to check for STACK end
@@ -9328,7 +9328,7 @@
 
 2008-01-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1871205 ]: how to quit upon SIGTERM, SIGKILL, or SIGQUIT
+	fix bug#1871205: how to quit upon SIGTERM, SIGKILL, or SIGQUIT
 	* spvw_sigterm.d (quit_on_signal_in_progress): new static boolean
 	(uninstall_sigterm_handler): undo the effects of install_sigterm_handler
 	(quit_on_signal): call uninstall_sigterm_handler first thing so
@@ -9436,7 +9436,7 @@
 
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1448744 ]: :q debugger command does not reset program stack
+	fix bug#1448744: :q debugger command does not reset program stack
 	* eval.d (reset): save last driver frame and use it instead of
 	starting a new driver when the STACK is exhausted
 
@@ -9445,11 +9445,11 @@
 	* reploop.lisp (break-loop): remove #\. from the end of a message
 	(safe-wr-st): new function, use instead of WRITE-STRING whenever
 	it is used with TEXT in this file to
-	fix bug #[ 1865636 ]: infinite recursive error reporting
+	fix bug#1865636: infinite recursive error reporting
 
 2008-01-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1865567 ]: hangs at the end of input script
+	fix bug#1865567: hangs at the end of input script
 	* reploop.lisp (main-loop): revert the 2003-12-18 patch: exit on
 	EOF on all streams to avoid CLISP hanging at the end of script on
 	"clisp < script" and "cat script | clisp"
@@ -9490,7 +9490,7 @@
 
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1860677 ]: DIRECTORY of dirs ignores :FULL
+	fix bug#1860677: DIRECTORY of dirs ignores :FULL
 	* pathname.d (pack_full_info, with_stat_info_computed): add
 	(get_time_size) [WIN32_NATIVE]: add
 	(with_stat_info_arg) [UNIX]: add
@@ -9517,7 +9517,7 @@
 
 2007-12-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug [ 1860489 ]: deletion of symlinks into non-existent dirs fails
+	fix bug#1860489: deletion of symlinks into non-existent dirs fails
 	* pathname.d (DELETE-FILE): when the directory does not exist,
 	still remove the link, just skip check_delete_open()
 
@@ -9569,13 +9569,13 @@
 
 2007-12-20  Sam Steingold  <sds@gnu.org>
 
-	fix bug [ 1779490 ]: linux:dirent definition error
+	fix bug#1779490: linux:dirent definition error
 	* modules/bindings/glibc/linux.lisp (clisp_dirent_ino_t)
 	(clisp_dirent_off_t): define depending on __USE_FILE_OFFSET64
 
 2007-12-20  Sam Steingold  <sds@gnu.org>
 
-	fix bug [ 1854698 ]: BYTE is a type, but is unacceptable input to TYPEP
+	fix bug#1854698: BYTE is a type, but is unacceptable input to TYPEP
 	* type.lisp (BYTE): add atomic type
 	* predtype.d (bytep): implement
 	* subr.d, constsym.d (bytep): add
@@ -10058,7 +10058,7 @@
 
 2007-11-23  Sam Steingold  <sds@gnu.org>
 
-	Implement RFE #[ 1834184 ]: handle CLOS warnings in a CLOSy way
+	Implement RFE#1834184: handle CLOS warnings in a CLOSy way
 	* init.lisp (clos-warning, gf-already-called-warning)
 	(gf-replacing-method-warning): export from CLOS
 	* clos-package.lisp: ditto
@@ -10089,7 +10089,7 @@
 
 2007-11-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1835520 ]: PPRINT-LOGICAL-BLOCK ignores
+	fix bug#1835520: PPRINT-LOGICAL-BLOCK ignores
 	*PRINT-PPRINT-DISPATCH-TABLE*
 	* io.d (prin_object_dispatch_pretty): do not check *PRIN-PPRINTER*
 
@@ -10113,7 +10113,7 @@
 
 2007-11-18  Bruno Haible  <bruno@clisp.org>
 
-	Fix bug #[ 1834193 ]: fresh-line at the end of a line containing
+	Fix bug#1834193: fresh-line at the end of a line containing
 	only tabs.
 	* stream.d (wr_ss_lpos): Add special handling of TAB characters.
 	(write_char): Likewise.
@@ -10157,7 +10157,7 @@
 
 2007-11-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1831367 ]: with-standard-io-syntax/*print-pprint-dispatch*
+	fix bug#1831367: with-standard-io-syntax/*print-pprint-dispatch*
 	* pprint.lisp (make-pprint-dispatch): add
 	(*print-pprint-dispatch*, copy-pprint-dispatch): use it
 	* defs2.lisp (with-standard-io-syntax): bind
@@ -10188,7 +10188,7 @@
 2007-11-07  Ralf-P. Weinmann  <weinmann@cdc.informatik.tu-darmstadt.de>
 	Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1827572 ]: macosx: clisp|tee error
+	fix bug#1827572: macosx: clisp|tee error
 	* stream.d (finish_tty_output, force_tty_output, clear_tty_output)
 	[UNIX_DARWIN]: treat ENOTSUP like EOPNOTSUPP
 
@@ -10669,7 +10669,7 @@
 	* makemake.in (EVERY_INCLUDES_H): stdbool.h & stdint.h are in gllib
 	* configure: accept --vimdir and pass it on to makemake
 	always run makemake, it is no longer a user-level command
-	this fixes bug [ 1467976 ]: clisp configure does not follow GNU
+	this fixes bug#1467976: clisp configure does not follow GNU
 	conventions
 
 2007-10-17  Sam Steingold  <sds@gnu.org>
@@ -10739,7 +10739,7 @@
 2007-10-15  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [debug & cpu=x86_64]: omit -DDEBUG_SPVW to
-	work around bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
+	work around bug#1413016: amd64 debug build broken (gc aborts)
 
 2007-10-13  Sam Steingold  <sds@gnu.org>
 
@@ -10821,7 +10821,7 @@
 
 2007-10-09  Sam Steingold  <sds@gnu.org>
 
-	implement RFE #[ 1808029 ]: trace with call counters
+	implement RFE#1808029: trace with call counters
 	* trace.lisp (make-local-call-counter): add
 	(tracer): add GLOBAL-CALL-COUNTER & LOCAL-CALL-COUNTER slots
 	(trace1): incf GLOBAL-CALL-COUNTER & bind LOCAL-CALL-COUNTER
@@ -11000,7 +11000,7 @@
 
 2007-09-26  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1797132 ]: assertion failure in new-clx
+	fix bug#1797132: assertion failure in new-clx
 	support 64-bit KeySym in KEYBOARD-MAPPING using an extra dimension
 	* modules/clx/new-clx/configure.in : AC_CHECK_SIZEOF(KeySym)
 	* modules/clx/new-clx/clx.f (KBD_MAP_RANK, check_dim)
@@ -11146,7 +11146,7 @@
 
 2007-08-24  Sam Steingold  <sds@gnu.org>
 
-	implement RFE #[ 1779938 ]: RENAME-DIRECTORY
+	implement RFE#1779938: RENAME-DIRECTORY
 	* pathname.d (RENAME-DIR): implement
 	* constsym.d, subr.d (rename_dir): add
 	* init.lisp (rename-dir): exoirt
@@ -11163,7 +11163,7 @@
 	(dbe_get_cache): add
 	(db_get_cache): call it when db is based on a dbe
 	(db_get_type): new function
-	fix bug #[ 1779416 ]: Berkeley-DB module outputs spurious errors
+	fix bug#1779416: Berkeley-DB module outputs spurious errors
 	(record_length): do not call get_re_len on DB_BTREE & DB_HASH
 	(BDB:DB-GET-OPTIONS): do not call methods inappropriate for a DB
 	type, avoiding "call implies an access method which is
@@ -11201,7 +11201,7 @@
 
 2007-07-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1607416 ]: back_trace is not initialized when it is a
+	fix bug#1607416: back_trace is not initialized when it is a
 	register
 	* spvw.d (back_trace): do not init to NULL at the declaration,
 	instead...
@@ -11245,7 +11245,7 @@
 2007-06-20  Sam Steingold  <sds@gnu.org>
 
 	* malloc/getpagesize.h, malloc/gmalloc.c: update from Emacs:
-	LGPL->GPL; Pthreads; a prototype fix from CLISP bug #[ 1607416 ]
+	LGPL->GPL; Pthreads; a prototype fix from CLISP bug#1607416
 
 2007-06-19  Sam Steingold  <sds@gnu.org>
 
@@ -11267,7 +11267,7 @@
 
 2007-06-06  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1731462 ]: EXT:LETF with more than one place
+	fix bug#1731462: EXT:LETF with more than one place
 	* macros3.lisp (expand-LETF): accumulate intermediates
 
 2007-06-06  Jörg Höhle  <hoehle@users.sourceforge.net>
@@ -11302,7 +11302,7 @@
 
 2007-05-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1721583 ]: *terminal-encoding* readline segfault
+	fix bug#1721583: *terminal-encoding* readline segfault
 	* encoding.d (sys::set-terminal-encoding): return normalized value.
 
 2007-05-20  Bruno Haible  <bruno@clisp.org>
@@ -11343,7 +11343,7 @@
 
 2007-05-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1713130 ]: some CL symbols are not locked
+	fix bug#1713130: some CL symbols are not locked
 	* clos-genfun3.lisp (defgeneric): call SYS::CHECK-REDEFINITION
 	(defmethod, defgeneric): use SYS::GET-FUNNAME-SYMBOL
 	(ensure-generic-function-using-class): use PREDEFUN instead of DEFUN
@@ -11416,7 +11416,7 @@
 
 2007-03-07  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1666851 ]: [AIX 5.3] Problem finding connect
+	fix bug#1666851: [AIX 5.3] Problem finding connect
 	* m4/socklen_t.m4, configure.in, socket.d, stream.d, win32.d:
 	* modules/rawsock/rawsock.c: replace SOCKLEN_T with CLISP_SOCKLEN_T
 	because AIX defines SOCKLEN_T internally
@@ -11435,7 +11435,7 @@
 
 2007-02-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1666470 ]: EXT::LAUNCH crash
+	fix bug#1666470: EXT::LAUNCH crash
 	again: cannot do pushSTACK(foo()) if foo() manipulates STACK
 	* stream.d (make_pipe): new function
 	(MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM)
@@ -11468,7 +11468,7 @@
 	Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/display.lisp (read-xauth-entry): fix for McCLIM
-	See patch #[ 1628499 ]: McCLIM/mit-clx: fail to connect to X server
+	See patch#1628499: McCLIM/mit-clx: fail to connect to X server
 
 2007-02-05  Sam Steingold  <sds@gnu.org>
 
@@ -11528,14 +11528,14 @@
 
 2007-01-10  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1632718 ]: CONVERT-STRING-FROM-BYTES does not check
+	fix bug#1632718: CONVERT-STRING-FROM-BYTES does not check
 	incomplete byte sequences
 	* encoding.d (CONVERT-STRING-FROM-BYTES): signal an error when the
 	vector is not used completely
 
 2007-01-10  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1631760 ]: unicode-16 et al cannot be used
+	fix bug#1631760: unicode-16 et al cannot be used
 	with unbuffered streams
 	* encoding.d (uni16be_mbstowcs, uni16le_mbstowcs, uni32be_mbstowcs)
 	(uni32le_mbstowcs): signal an error only when at least one char
@@ -11544,7 +11544,7 @@
 2007-01-08  Mike McMahon  <mmcm@users.sourceforge.net>
 	Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1564818 ]: CRLF handling does not work for UNICODE-16
+	fix bug#1564818: CRLF handling does not work for UNICODE-16
 	* stream.d (strm_channel_extrafields_t): move ignore_next_LF from ...
 	(strm_unbuffered_extrafields_t): ... here
 	(ChannelStream_ignore_next_LF): add
@@ -11621,7 +11621,7 @@
 
 2006-12-28  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 948868 ]: hashcode[34]_cons weakness
+	fix bug#948868: hashcode[34]_cons weakness
 	* hashtabl.d (hashcode_tree, gcinvariant_hashcode_tree_p): add
 	(hashcode3_cons0, hashcode3_cons1, hashcode3_cons2, hashcode3_cons3)
 	(gcinvariant_hashcode3_cons0_p, gcinvariant_hashcode3_cons1_p)
@@ -11641,7 +11641,7 @@
 
 2006-12-28  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1208124 ]: hashcode_bignum weakness
+	fix bug#1208124: hashcode_bignum weakness
 	* hashtabl.d (hashcode_bignum): use all digits
 
 2006-12-27  Sam Steingold  <sds@podval.org>
@@ -11664,25 +11664,25 @@
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	fix bug [ 1483762 ]: socket's stream-external-format always :default
+	fix bug#1483762: socket's stream-external-format always :default
 	* stream.d (STREAM-EXTERNAL-FORMAT): return :DEFAULT for two-way
 	and echo streams only if the external formats of the constituent
 	streams are different
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	fix bug [ 1623179 ]:
+	fix bug#1623179:
 	broken (setf (stream-external-format stream direction) enc)
 	* places.lisp (stream-external-format): fix argument handling
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1412454 ]: format/*print-pretty* interaction: extra newlines
+	fix bug#1412454: format/*print-pretty* interaction: extra newlines
 	* io.d (pr_enter_1): respect *PPRINT-FIRST-NEWLINE* in all cases
 
 2006-12-27  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1482465 ]: confusing format error report, cause fill-stream
+	fix bug#1482465: confusing format error report, cause fill-stream
 	* format.lisp (format-error): use ~T for indentation and ~S to
 	print format string so that the spacing is preserved
 	* constsym.d (stream_start_s_expression, stream_end_s_expression): add
@@ -11693,19 +11693,19 @@
 
 2006-12-26  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1622642 ]: DESCRIBE: confusing spacing
+	fix bug#1622642: DESCRIBE: confusing spacing
 	* fill-out.lisp (with-stream-s-expression): new macro
 	* describe.lisp (describe1): use it
 
 2006-12-19  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1618724 ]: broken compiler warning for invalid
+	fix bug#1618724: broken compiler warning for invalid
 	optimize quality
 	* compiler.lisp (parse-optimize-quality): fix the c-warn call
 
 2006-12-18  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1612313 ]: DEFPACKAGE code executed during non
+	fix bug#1612313: DEFPACKAGE code executed during non
 	top-level compilation
 	* defpackage.lisp (defpackage): use ANSI situations for EVAL-WHEN
 
@@ -11728,13 +11728,13 @@
 
 2006-12-11  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1613300 ]: extra space in unreadable output
+	fix bug#1613300: extra space in unreadable output
 	* io.d (pr_unreadably): do not print a space after string when the
 	printer is pr_record_ab_00
 
 2006-12-10  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1612859 ]: IMPORT into the KEYWORD package does not
+	fix bug#1612859: IMPORT into the KEYWORD package does not
 	make a symbol a constant variable
 	* error.d (check_symbol_not_symbol_macro)
 	(check_symbol_not_global_special): implement
@@ -11758,13 +11758,13 @@
 2006-12-03  Anton Vodonosov  <avodonosov@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1607666 ]: LISTEN does not call STREAM-LISTEN
+	fix bug#1607666: LISTEN does not call STREAM-LISTEN
 	* io.d (LISTEN): call STREAM-LISTEN
 	* constsym.d (STREAM-LISTEN): add
 
 2006-11-28  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1604579 ]: (SETF DOCUMENTATION) and COMPILE
+	fix bug#1604579: (SETF DOCUMENTATION) and COMPILE
 	* record.d (CLOSURE-SET-DOCUMENTATION): allow NIL argument
 	* compiler.lisp (compile): reset the documentation in the compiled
 	closure because it might have been reset by (setf documentation)
@@ -11776,7 +11776,7 @@
 
 2006-11-27  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1603260 ]: Loading a compiled file does not reset the
+	fix bug#1603260: Loading a compiled file does not reset the
 	first value of FUNCTION-LAMBDA-EXPRESSION
 	* init.lisp (sys::remove-old-definitions): discard function lambda
 	expression too because loading a compiled file does not set it
@@ -11794,17 +11794,17 @@
 
 2006-11-20  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1436987 ]: atanh branch cut strangeness
+	fix bug#1436987: atanh branch cut strangeness
 	* comptran.d (R_R_atanh_R_R): fix branch cuts logic
 
 2006-11-20  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1469663 ]: clisp-link run does not work w/o dynamic modules
+	fix bug#1469663: clisp-link run does not work w/o dynamic modules
 	* clisp-link.in (run): remove $destinationdir before add-module-sets
 
 2006-11-17  Bruno Haible  <bruno@clisp.org>
 
-	fix bug #[ 1578179 ]: print-read-consistency of strings
+	fix bug#1578179: print-read-consistency of strings
 	containing #\Return characters
 	* io.d (closure_reader): Recognize #0Y"..." syntax.
 	(pr_sstring_ab): Write using #0Y"..." syntax if *print-readably* is
@@ -11812,8 +11812,8 @@
 
 2006-11-17  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1483768 ]: automatic pretty-printing of symbols in conses
-	fix bug #[ 1598053 ]: PPRINT dispatch not honored for nested objects
+	fix bug#1483768: automatic pretty-printing of symbols in conses
+	fix bug#1598053: PPRINT dispatch not honored for nested objects
 	* io.d (pretty_print_call): remove
 	(pr_enter_1): call pr_xxx directly
 	(prin_object_ki): abstract from prin_object and pprin_object
@@ -11834,12 +11834,12 @@
 
 2006-11-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1595700 ]: bad base64 error report
+	fix bug#1595700: bad base64 error report
 	* encoding.d (base64_wcstombs): do not access invalid memory
 
 2006-11-11  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1575569 ]: utf-8 conversion error
+	fix bug#1575569: utf-8 conversion error
 	* encoding.d (utf8_wcslen): support up to 4 bytes/character.
 
 2006-11-12  Sam Steingold  <sds@gnu.org>
@@ -11861,7 +11861,7 @@
 
 2006-11-09  Bruno Haible  <bruno@clisp.org>
 
-	fix bug #[ 1591671 ]: typep and subtypep fail ...
+	fix bug#1591671: typep and subtypep fail ...
 	* subtypep.lisp (indefinite-subclassp): New function.
 	(STANDARD-OBJECT): Use it.
 
@@ -11877,7 +11877,7 @@
 
 2006-11-08  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1589311 ]: ROUND is broken for long floats [even+1/2]
+	fix bug#1589311: ROUND is broken for long floats [even+1/2]
 	* lfloat.d (LF_fround_LF): adjust mask when rounding to match comments
 
 2006-11-06  Sam Steingold  <sds@podval.org>
@@ -12002,7 +12002,7 @@
 
 2006-10-12  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1575946 ]: broken COMPILE of APPLY in LABELS
+	fix bug#1575946: broken COMPILE of APPLY in LABELS
 	* compiler.lisp (c-APPLY): handle not-yet compiled local functions
 
 2006-10-12  Sam Steingold  <sds@podval.org>
@@ -12144,7 +12144,7 @@
 
 2006-10-03  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1569234 ]: on some platforms SUBR is not a record
+	fix bug#1569234: on some platforms SUBR is not a record
 	* documentation.lisp (function-documentation)
 	(set-function-documentation): do not fallthrough on subr
 
@@ -12176,13 +12176,13 @@
 
 2006-09-28  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1567186 ]: set-difference ... :test 'equalp
+	fix bug#1567186: set-difference ... :test 'equalp
 	* defs1.lisp (list-to-ht): there is no separate fasthash &
 	stablehash for EQUALP
 
 2006-09-27  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1566466 ]: assoc error when combining compiled and
+	fix bug#1566466: assoc error when combining compiled and
 	interpreted code
 	* compiler.lisp (declared-optimize): do not use ASSOC because a
 	combination of interpreted and compiled code - e.g., via
@@ -12223,7 +12223,7 @@
 
 2006-09-10  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1555096 ]: cannot create pathnames with :wild-inferiors
+	fix bug#1555096: cannot create pathnames with :wild-inferiors
 	* pathname.d (PARSE-NAMESTRING) [WIN32_NATIVE]: when converting
 	/cygdrive/c to C: check that the first directory component is a string
 	Thanks to Yaroslav Kavenchuk <kavenchuk@tut.by> for debugging
@@ -12317,7 +12317,7 @@
 2006-09-03  Stephen Compall  <s11001001@users.sourceforge.net>
 	Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1550803 ]: make-pathname ignores explicit :DIRECTORY NIL
+	fix bug#1550803: make-pathname ignores explicit :DIRECTORY NIL
 	* pathname.d (merge_dirs, MERGE-PATHNAMES): :DIRECTORY NIL
 	overrides :DEFAULTS
 
@@ -12351,7 +12351,7 @@
 
 2006-08-10  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1538333 ]: ADJUST-ARRAY on non-adjustable vectors
+	fix bug#1538333: ADJUST-ARRAY on non-adjustable vectors
 	without a fill pointer
 	* array.d (fehler_no_fillp): new function
 	(get_fill_pointer): use it
@@ -12396,7 +12396,7 @@
 
 2006-07-27  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1482533 ]: print-object built-in object: no-applicable-method
+	fix bug#1482533: print-object built-in object: no-applicable-method
 	* clos-print.lisp (print-object): add a method for built-in objects
 
 2006-07-27  Sam Steingold  <sds@podval.org>
@@ -12405,7 +12405,7 @@
 
 2006-07-26  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1529244 ]: rawsock is broken on big-endian
+	fix bug#1529244: rawsock is broken on big-endian
 	* socket.d (resolve_host): use UI_to_LEbytes() instead of I_to_uint32()
 	for uint32 argument so that it will work on big-endian machines
 	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): ditto
@@ -12429,7 +12429,7 @@
 
 2006-07-25  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1526448 ]: Reinitialization of class does not call
+	fix bug#1526448: Reinitialization of class does not call
 	finalize-inheritance
 	* clos-class3.lisp (reinitialize-instance-<defined-class>): call
 	FINALIZE-INHERITANCE
@@ -12438,7 +12438,7 @@
 
 2006-07-25  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1528201 ]: sigsegv: make-instance of named anonymous class
+	fix bug#1528201: sigsegv: make-instance of named anonymous class
 	* clos-package.lisp: import sys::check-symbol
 	* clos-class1.lisp (shared-initialize-<potential-class>): use it
 
@@ -12461,7 +12461,7 @@
 
 2006-07-20  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1516684 ]: initially not executed in loop
+	fix bug#1516684: initially not executed in loop
 	* loop.lisp (loop-initialization): new slot preamble
 	(revadd): new macro
 	(expand-loop): merge INITIALLY-CODE and STARTUP-CODE into a single
@@ -12477,7 +12477,7 @@
 
 2006-07-19  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1494059 ]: open-url fails to recognize file:/// (unix)
+	fix bug#1494059: open-url fails to recognize file:/// (unix)
 	* clhs.lisp (open-url): restore the leading #\/ on unix
 	[win32|cygwin]: try the version without the leading #\/ first
 
@@ -12506,7 +12506,7 @@
 2006-07-14  Peter Van Eynde  <pvaneynd@debian.org>
 	Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1506857 ]: build fails with gcc-4.1 on ia64
+	fix bug#1506857: build fails with gcc-4.1 on ia64
 	* makemake.in (XCFLAGS) [ia64]: -O0, not -O2
 
 2006-06-30  Sam Steingold  <sds@podval.org>
@@ -12575,7 +12575,7 @@
 
 2006-06-21  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1426388 ]: rawsock :end vs. :size confusion
+	fix bug#1426388: rawsock :end vs. :size confusion
 	* charstrg.d (test_vector_limits): no return value, remove just 2
 	STACK elements: :START and :END (not vector)
 	(test_string_limits_ro): adjusted the call to test_vector_limits()
@@ -12589,7 +12589,7 @@
 
 2006-06-20  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1491252 ]: i18n does not build on cf:alpha
+	fix bug#1491252: i18n does not build on cf:alpha
 	* utils/modprep.lisp (*tag-length-limit*): new variable
 	(init-to-tag): use it to limit the size of C identifiers
 
@@ -12606,7 +12606,7 @@
 2006-06-18  Peter Van Eynde  <pvaneynd@debian.org>
 	Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1507628 ]: #define unused (void) breaks clisp 2.38 on arm
+	fix bug#1507628: #define unused (void) breaks clisp 2.38 on arm
 	* modules/syscalls/calls.c (unused): undefine before #include <signal.h>
 
 2006-06-15  Sam Steingold  <sds@podval.org>
@@ -12615,13 +12615,13 @@
 
 2006-06-15  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1407763 ]: (disassemble 'car) hangs on openpower-linux1
+	fix bug#1407763: (disassemble 'car) hangs on openpower-linux1
 	* spvw.d (init_symbol_values) [UNIX_LINUX & POWERPC]: set
 	SYS::*DISASSEMBLE-USE-LIVE-PROCESS* to NIL
 
 2006-06-14  Sam Steingold  <sds@podval.org>
 
-	fix bug #[ 1497226 ]: clisp/src/m4/x11.m4 fails to detect x11 on FC5
+	fix bug#1497226: clisp/src/m4/x11.m4 fails to detect x11 on FC5
 	* m4/x11.m4: remove
 	* configure.in, makemake.in, modules/clx/new-clx/Makefile.in:
 	* modules/clx/new-clx/configure.in, modules/clx/new-clx/link.sh.in:
@@ -12632,7 +12632,7 @@
 
 	* foreign1.lisp (ffi-module@constant-table): fix :value declaration
 	(DEF-CALL-OUT): fix a typo in the 2006-01-30 patch, this fixes
-	bug #[ 1483902 ]: build error in ffi modules
+	bug#1483902: build error in ffi modules
 
 2006-06-14  Sam Steingold  <sds@podval.org>
 
@@ -12818,7 +12818,7 @@
 
 	* clos-class6.lisp ((setf class-valid-initargs-from-slots)): Clear
 	caches when the value actually changes.
-	Fixes bug #[ 1470929 ], reported by Kim-Minh Kaplan.
+	Fixes bug#1470929, reported by Kim-Minh Kaplan.
 
 2006-04-19  Bruno Haible  <bruno@clisp.org>
 
@@ -12875,11 +12875,11 @@
 	function directly, not through *macroexpand-hook*. Recognize special
 	return value NIL.
 	(c-form): If expand-compiler-macro did something, just recurse. Fixes
-	bug #[ 1420585 ].
+	bug#1420585.
 
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
-	Implement feature request #[ 1415783 ].
+	Implement RFE#1415783.
 	* clos-genfun3.lisp (make-generic-function): Add method-combination-p
 	argument. If false, move the :method-combination keyword argument to
 	the end.
@@ -12914,7 +12914,7 @@
 
 2006-03-22  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* array.d (ADJUST-ARRAY) [HAVE_SMALL_SSTRING]: Fix bug #[ 1445842 ]
+	* array.d (ADJUST-ARRAY) [HAVE_SMALL_SSTRING]: Fix bug#1445842
 	ADJUST-ARRAY of 0-length adjustable string failed.
 	Reported by David Tolpin
 
@@ -12934,7 +12934,7 @@
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-append): Don't optimize if form1 has the
-	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug #[ 1308444 ].
+	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug#1308444.
 	Based on proposed fix by Matthew Cross <mcross@irobot.com>.
 
 2006-03-03  Jörg Höhle  <hoehle@users.sourceforge.net>
@@ -12960,7 +12960,7 @@
 
 2006-02-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1399376 ]: Failure of socket tests on Mac OS X
+	fix bug#1399376: Failure of socket tests on Mac OS X
 	* socket.d (FILL0): new macro
 	(with_host_port, connect_to_x_server, socket_getlocalname_aux)
 	(socket_getpeername, create_server_socket_by_socket)
@@ -12989,14 +12989,14 @@
 
 2006-02-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1388897 ]: FFI:uint64 maps to long long when supported
+	fix bug#1388897: FFI:uint64 maps to long long when supported
 	* foreign.d [HAVE_LONG_LONG]: use av_start_longlong,
 	va_return_longlong etc.  Otherwise, continue to pass a struct of
 	two uint32: this is compatible with MSVC's __int64 handling.
 
 2006-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1421652 ]: CPP macros using "do{}while(0)" do not
+	fix bug#1421652: CPP macros using "do{}while(0)" do not
 	work with statement arguments containing break or continue
 	* lisparit.d (check_real_replacement, check_rational_replacement):
 	remove break from calls to if_realp(), if_rationalp()
@@ -13015,14 +13015,14 @@
 2006-02-02  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffcall/avcall, ffcall/vacall [HAVE_LONG_LONG]: complete switch
-	from HAVE_LONGLONG to HAVE_LONG_LONG, bug #[ 1385013 ]
+	from HAVE_LONGLONG to HAVE_LONG_LONG, bug#1385013
 	* foreign.d [_MSC_VER]: Incidentally, this prevents
 	#undef HAVE_LONGLONG in avcall.h with MSVC, so the FFI now
 	provides FFI:UINT64/SINT64 conversions.
 
 2006-01-30  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	fix bug #[ 1211847 ]: preserve object identity of FFI types
+	fix bug#1211847: preserve object identity of FFI types
 	* foreign1.lisp (def-call-out): no side effects during macro-
 	expansion, minimize number of calls to parse-c-type (from Sam
 	Steingold's wishlist) and do not inline the value of
@@ -13101,7 +13101,7 @@
 
 2006-01-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1412268 ]: buffer overflow in stream handling code
+	fix bug#1412268: buffer overflow in stream handling code
 	* w32shell.c (real_path): check length of namein
 
 2006-01-22  Sam Steingold  <sds@gnu.org>
@@ -13226,8 +13226,8 @@
 
 2006-01-12  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1399709 ]: cannot append to a file
-	the 2005-12-13 patch that fix bug #[ 1379620 ] introduced this one
+	fix bug#1399709: cannot append to a file
+	the 2005-12-13 patch that fix bug#1379620 introduced this one
 	* pathname.d (open_output_file): open handle WRONLY only on UNIX
 	and only if the underlying file exists and is special; this allows
 	buffer filling for regular files (there are no special files on WIN32)
@@ -13237,7 +13237,7 @@
 
 2006-01-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1402338 ]: socket-status ignores microseconds in timeout
+	fix bug#1402338: socket-status ignores microseconds in timeout
 	* stream.d (sec_usec): fix a typo in TV_SEC
 
 2006-01-07  Sam Steingold  <sds@gnu.org>
@@ -13259,7 +13259,7 @@
 
 2006-01-05  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1395894 ]: bad read from make-xterm-io-stream
+	fix bug#1395894: bad read from make-xterm-io-stream
 	* modules/syscalls/posix.lisp (make-xterm-io-stream): fix bitrot
 
 2005-12-22  Jörg Höhle  <hoehle@users.sourceforge.net>
@@ -13354,7 +13354,7 @@
 2006-01-01  Sam Steingold  <sds@gnu.org>
 
 	better handle numbers that are exactly the midpoint between their
-	possible binary approximations, like 1d23 (bug #[ 1389060 ])
+	possible binary approximations, like 1d23 (bug#1389060)
 	* format.lisp (format-scale-exponent): use exact values as
 	arguments to FORMAT-SCALE-EXPONENT-AUX
 
@@ -13401,7 +13401,7 @@
 
 2005-12-21  Dr. Werner Fink  <werner@suse.de>
 
-	fix bug #[ 1376646 ]: factorial broken on 64bit cpu
+	fix bug#1376646: factorial broken on 64bit cpu
 	* intmal.d (FN_fak_I): uintL is not uintV on 64-bit platforms
 
 2005-12-19  Tomas Zellerin  <zellerin@gmail.com>
@@ -13496,7 +13496,7 @@
 
 2005-12-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1379620 ]: OPEN :DIRECTION :OUTPUT now creates
+	fix bug#1379620: OPEN :DIRECTION :OUTPUT now creates
 	write-only handles and handles named pipes correctly
 	* stream.d (low_fill_buffered_handle): when the stream is not
 	readable, do not try to read from it
@@ -13677,7 +13677,7 @@
 
 2005-11-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1369668 ]: invalid slot :ALLOCATION causes segfault
+	fix bug#1369668: invalid slot :ALLOCATION causes segfault
 	* record.d (ptr_to_slot): do not assume that slotinfo is valid,
 	signal an error if it is not, accept slotname for error reporting
 	(slot_using_class_up, SLOT-VALUE, SET-SLOT-VALUE, SLOT-BOUNDP)
@@ -13770,7 +13770,7 @@
 
 2005-11-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1364177 ]: infinite loop in regexp-split
+	fix bug#1364177: infinite loop in regexp-split
 	* modules/regexp/regexp.lisp (regexp-split): avoid an infinite loop
 	by signaling an error when the pattern matches an empty string
 
@@ -13798,7 +13798,7 @@
 
 2005-11-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1359066 ]: :ALLOCATION kind not extensible
+	fix bug#1359066: :ALLOCATION kind not extensible
 	* clos-class3.lisp (defclass): permit user-defined :allocation
 	(checked-compute-slots): require non-NIL location only from slots
 	with standard :ALLOCATION (:CLASS or :INSTANCE)
@@ -13982,7 +13982,7 @@
 
 2005-11-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1356695 ]: read labels are not resolved in #2A
+	fix bug#1356695: read labels are not resolved in #2A
 	* io.d (ARRAY-READER): disentangle references in generic arrays
 	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
@@ -14090,7 +14090,7 @@
 2005-10-31  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main_actions): when argv_execute_file=="-", use the
-	value of *STANDARD-INPUT*, not the symbol itself (bug #[ 1344222 ])
+	value of *STANDARD-INPUT*, not the symbol itself (bug#1344222)
 
 2005-10-30  Sam Steingold  <sds@gnu.org>
 
@@ -14368,7 +14368,7 @@
 
 2005-10-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1310753 ]: Gray streams ==> stack overflow and segfault
+	fix bug#1310753: Gray streams ==> stack overflow and segfault
 	* stream.d (read_char): fix recursion: cannot assume that the
 	constituent streams of constructed streams are built-in
 
@@ -14459,7 +14459,7 @@
 
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1323941 ]: when killed, clisp does not execute cleanup forms
+	fix bug#1323941: when killed, clisp does not execute cleanup forms
 	* spvw.d (main): call install_sigterm_handler(), include spvw_sigterm.c
 	* spvw_sigterm.c: new file
 	* makemake.in (SPVW_INCLUDES): add spvw_sigterm
@@ -15054,7 +15054,7 @@
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/test.tst: check that OPEN :IF-EXISTS
-	:RENAME-AND-DELETE produces a file with a new INODE (bug #[ 1239523 ])
+	:RENAME-AND-DELETE produces a file with a new INODE (bug#1239523)
 
 2005-09-08  Sam Steingold  <sds@gnu.org>
 
@@ -15426,7 +15426,7 @@
 2005-08-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* w32shell.c (real_path): fix a bug with root directory
-	checking on Win32 (bug #[ 1252861 ]).
+	checking on Win32 (bug#1252861).
 
 2005-08-11  Sam Steingold  <sds@gnu.org>
 
@@ -15880,7 +15880,7 @@
 2005-06-26  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-OR): handle empty codelist
-	Reported by Dan Corkill <dancorkill@comcast.net> & bug #[ 1227764 ]
+	Reported by Dan Corkill <dancorkill@comcast.net> & bug#1227764
 
 2005-06-24  Sam Steingold  <sds@gnu.org>
 
@@ -15888,7 +15888,7 @@
 
 2005-06-24  Sam Steingold  <sds@gnu.org>
 
-	RFE #[ 1226120 ]: configure shall report essential findings
+	RFE#1226120: configure shall report essential findings
 	* configure: report configure findings
 
 2005-06-24  Sam Steingold  <sds@gnu.org>
@@ -17426,7 +17426,7 @@
 
 2005-04-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1190843 ]: no mknod p on OS/X
+	fix bug#1190843: no mknod p on OS/X
 	* reploop.lisp (make-xterm-io-stream): moved to syscalls module
 	* modules/syscalls/posix.lisp (make-xterm-io-stream): use
 	POSIX:MKNOD and POSIX:MKSTEMP instead of the shell commands
@@ -17991,7 +17991,7 @@
 
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1167991 ]: Compiler bug, Occurred in SP-DEPTH at <0.
+	fix bug#1167991: Compiler bug, Occurred in SP-DEPTH at <0.
 	* compiler.lisp (optimize-short): do not short the same refindex twice
 
 2005-03-22  Sam Steingold  <sds@gnu.org>
@@ -18461,7 +18461,7 @@
 
 2005-03-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1157691 ]: (optimize (debug 3)) fails
+	fix bug#1157691: (optimize (debug 3)) fails
 	* compiler.lisp (parse-optimize-quality): extract code from
 	PROCESS-DECLARATIONS; use CL:DEBUG instead of DEBUG
 	(process-declarations): use parse-optimize-quality
@@ -18603,7 +18603,7 @@
 2005-02-27  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (link): rm $2 to avoid an error on Solaris
-	this fixes one of the problems reported in bug #[ 1124425 ]
+	this fixes one of the problems reported in bug#1124425
 
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
@@ -19721,7 +19721,7 @@
 
 2005-01-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1106735 ]: strange soft links in subdirectory full
+	fix bug#1106735: strange soft links in subdirectory full
 	* clisp-link.in (CDPATH): unset
 
 2005-01-20  Bruno Haible  <bruno@clisp.org>
@@ -23029,7 +23029,7 @@
 
 2004-10-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1056862 ]: socket:socket-status modifies stream
+	fix bug#1056862: socket:socket-status modifies stream
 	* stream.d (listen_char_unbuffered): when ignore_next_LF is set,
 	discard NL from buf
 
@@ -23047,7 +23047,7 @@
 
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
-	fix bug #[ 1027441 ]: run-time broken when it does not fit in 32bit
+	fix bug#1027441: run-time broken when it does not fit in 32bit
 	* aridecl.d (wbitc): New macro.
 	* intelem.d (UQ_to_I): Use it instead of bitc.
 
@@ -24771,7 +24771,7 @@
 
 2004-09-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1024332 ]: file system traversing problems
+	fix bug#1024332: file system traversing problems
 	* makemake.in (someflags): new variable: encflags + -norc
 	use it uniformly everywhere
 
@@ -28203,7 +28203,7 @@
 
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 956755 ]: NAMESTRING's second arg is non-compliant
+	fix bug#956755: NAMESTRING's second arg is non-compliant
 	* pathname.d (TRANSLATE-PATHNAME): accept :ABSOLUTE argument to
 	merge in the OS default pathname
 	(NAMESTRING): do not accept a second optional argument, as per ANSI
@@ -28744,7 +28744,7 @@
 
 2004-05-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 959549 ]: Win32 bug: LISTEN eats the first character
+	fix bug#959549: Win32 bug: LISTEN eats the first character
 	* stream.d (listen_handle): always place the byte read() into *byte
 	(low_fill_buffered_handle): do not lose the byte read by listen_handle()
 
@@ -29689,7 +29689,7 @@
 
 2004-05-06  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 948784 ]: crash in pcre_free
+	fix bug#948784: crash in pcre_free
 	* modules/pcre/cpcre.c (module__pcre__init_function_2): reset
 	pcre_malloc to malloc() and pcre_free to free() to avoid
 	the FINALIZE crash
@@ -29808,7 +29808,7 @@
 
 2004-05-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 946645 ]: rename-package does not accept
+	fix bug#946645: rename-package does not accept
 	package-designators
 	* package.d (RENAME-PACKAGE): second argument can be a package
 	designator
@@ -32607,7 +32607,7 @@
 
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 898561 ]: LOOP compilation warnings
+	fix bug#898561: LOOP compilation warnings
 	* loop.lisp (expand-loop): bind *helpvars* first thing (for 898561)
 	When arithmetic iteration variable is NIL, use a GENSYM
 
@@ -32799,7 +32799,7 @@
 
 2004-02-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 890138 ]: 0 distance jump as 2 bytes => segfault
+	fix bug#890138: 0 distance jump as 2 bytes => segfault
 	* compiler.lisp (assemble-LAP): make sure that a jump of 0
 	distance is not encoded with 2 bytes (otherwise 128 0 is
 	treated as a 6 byte label)
@@ -32847,7 +32847,7 @@
 
 2004-02-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 889037 ]: Incorrect value returned by compiled function
+	fix bug#889037: Incorrect value returned by compiled function
 	* compiler.lisp (traverse-anode): UNWIND-PROTECT-OPEN discards
 	*CURRENT-VALUE* and *CURRENT-VARS*, just like UNWIND-PROTECT-CLOSE
 
@@ -32885,7 +32885,7 @@
 
 2004-01-29  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 874859 ]: incorrect stack cleanup
+	fix bug#874859: incorrect stack cleanup
 	* compiler.lisp (simplify): fix a typo in SKIPSP+SKIPI=>SKIPI
 
 2004-01-27  Sam Steingold  <sds@gnu.org>
@@ -33146,7 +33146,7 @@
 
 2004-01-09  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 866282 ]: progv binding not handled properly in compiler
+	fix bug#866282: progv binding not handled properly in compiler
 	* compiler.lisp (seclass): a structure of type LIST
 	(*seclass-dirty*, *seclass-read*): new constant
 	(*seclass-foldable*): rename from *FOLDABLE-SECLASS*
@@ -33173,7 +33173,7 @@
 
 2004-01-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 873204 ]: infinite recursion with pprint-logical-block
+	fix bug#873204: infinite recursion with pprint-logical-block
 	* io.d (pretty_print_call): avoid an infinite recursion by
 	checking *PRIN-PPRINTER* before calling PPRINT-DISPATCH
 
@@ -33246,7 +33246,7 @@
 
 2004-01-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 869187 ]: change-class problems
+	fix bug#869187: change-class problems
 	* record.d (%CHANGE-CLASS): un-realloc instance & new-class
 
 2004-01-01  Sam Steingold  <sds@gnu.org>
@@ -33256,7 +33256,7 @@
 
 2004-01-01  Sam Steingold  <sds@gnu.org>
 
-	* install.bat: fix bug #[ 868881 ]: replaced `|' with `I'
+	* install.bat: fix bug#868881: replaced `|' with `I'
 	and `/' with `\' for the sake of Windows XP
 
 2003-12-31  Sam Steingold  <sds@gnu.org>
@@ -33291,15 +33291,15 @@
 
 2003-12-26  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 864479 ]: GO from deep nesting does not work
+	fix bug#864479: GO from deep nesting does not work
 	* compiler.lisp (note-far-used-tagbody): propagate tagbody+tag
-	along the stack, just link in the 2002-05-03 patch (bug #[ 550864 ]),
+	along the stack, just link in the 2002-05-03 patch (bug#550864),
 	and use PUSHNEW instead of PUSH to avoid duplication
 	(c-TAGBODY): check that the index in tagbody+tag is valid
 
 2003-12-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 864845 ]: pathname parsing error: "//"
+	fix bug#864845: pathname parsing error: "//"
 	* pathname.d (simplify_directory): remove "", i.e., treat "//" as "/"
 
 2003-12-22  Sam Steingold  <sds@gnu.org>
@@ -33311,7 +33311,7 @@
 
 2003-12-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 864220 ]: integer tags cannot be compiled
+	fix bug#864220: integer tags cannot be compiled
 	* compiler.lisp (c-TAGBODY): put integer tags into Car(tagbody_cons);
 	replace GENSYMs with NILs so that *.FAS will not contain GENSYMs
 
@@ -33367,7 +33367,7 @@
 
 2003-12-19  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 842910 ]: Compiler bug in OPTIMIZE-LABEL
+	fix bug#842910: Compiler bug in OPTIMIZE-LABEL
 	* compiler.lisp (optimize-label): ignore unused labels
 	(optimize-short): do not LABEL-SUBST to unused labels
 	(optimize-value): do not discard references to an impossible
@@ -33387,18 +33387,18 @@
 
 2003-12-18  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 842913 ]: Compiler bug involving optional parameters
+	fix bug#842913: Compiler bug involving optional parameters
 	* compiler.lisp (note-references, remove-references):
 	handle JMPIFBOUNDP properly (label is 3rd, not 2nd!)
 
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (coalesce): fix bug #[ 842912 ]:
+	* compiler.lisp (coalesce): fix bug#842912:
 	do not coalesce unless NEW-CODE is non-NIL
 
 2003-12-17  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (insert-combined-LAPs): fix bug #[ 860052 ]: (RET)
+	* compiler.lisp (insert-combined-LAPs): fix bug#860052: (RET)
 	and (RETGF) can be preceded by a SKIPI instruction instead of a SKIP
 
 2003-12-16  Sam Steingold  <sds@gnu.org>
@@ -33434,7 +33434,7 @@
 
 2003-12-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 858011 ]: RETURN-FROM not working in compiled FLET/LABELS
+	fix bug#858011: RETURN-FROM not working in compiled FLET/LABELS
 	* compiler.lisp (c-FLET, c-LABELS): fix ADD-IMPLICIT-BLOCK call
 	* init.lisp (%expand-lambdabody): ditto
 	* eval.lisp (ADD-IMPLICIT-BLOCK): before 2003-12-05,
@@ -33508,7 +33508,7 @@
 2003-11-07  John Tang Boyland  <boyland@users.sf.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 831387 ]: ~<...~:> format directive not implemented
+	fix bug#831387: ~<...~:> format directive not implemented
 	for compiled code (using FORMATTER)
 	* format.lisp (format-parse-cs): ~:> ==> FORMAT-LOGICAL-BLOCK
 	(format-logical-block): add a stub
@@ -33682,7 +33682,7 @@
 
 2003-10-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 826792 ]: unbound WITH-DIR-KEY-OPEN params
+	fix bug#826792: unbound WITH-DIR-KEY-OPEN params
 	* install.lisp: use-package "LDAP"
 
 2003-10-22  Christophe Rhodes  <csr21@cam.ac.uk>
@@ -33961,7 +33961,7 @@
 
 2003-09-26  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 813119 ]: "Occurred in SIMPLIFY at AT-END"
+	fix bug#813119: "Occurred in SIMPLIFY at AT-END"
 	* compiler.lisp (simplify): handle empty codelist
 
 2003-09-26  Sam Steingold  <sds@gnu.org>
@@ -34153,7 +34153,7 @@
 
 2003-08-30  John Hinsdale  <hin@alma.com>
 
-	* intelem.d: Fix bug #[ 726433 ]: Floating point numbers
+	* intelem.d: Fix bug#726433: Floating point numbers
 	printed incorrectly - gcc -O/-g bug?
 
 2003-08-30  Arseny Slobodjuck  <ampy@ich.dvo.ru>
@@ -34981,7 +34981,7 @@
 
 2003-05-29  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 738107 ]: line number of output streams
+	fix bug#738107: line number of output streams
 	* io.d (pr_stream): do not print lineno for output streams
 	Should we keep both lineno and ch_lpos for all streams?!
 
@@ -35153,7 +35153,7 @@
 
 2003-05-16  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 737541 ]: describe on unnamed function and on macro
+	fix bug#737541: describe on unnamed function and on macro
 	* describe.lisp (describe-object): MACRO:
 	suggest (DISASSEMBLE (MACRO-FUNCTION ...))
 	FUNCTION: do not suggest disassembling anonymous function
@@ -35355,24 +35355,24 @@
 
 	* ffcall/avcall/avcall.h.in (av_overflown): add this macro to
 	check when buffer[AV_ALIST_WORDS] is too small for av_call()
-	* foreign.d (FOREIGN-CALL-OUT): use it (bug #[ 654718 ])
+	* foreign.d (FOREIGN-CALL-OUT): use it (bug#654718)
 
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
 	* backquote.lisp (bq-vec-expand): fix the unoptimized case
 	* compiler.lisp (compile-file): finish listing-stream with a newline
-	(compile) [CLISP-DEBUG]: bind *FORM* for TRACE (bug #[ 731248 ])
+	(compile) [CLISP-DEBUG]: bind *FORM* for TRACE (bug#731248)
 	* control.d (UNWIND-TO-DRIVER): call unwind_upto() before
-	driver() (bug #[ 731251 ])
+	driver() (bug#731251)
 
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 732767 ]: STRING-INFO does not work with displaced strings
+	fix bug#732767: STRING-INFO does not work with displaced strings
 	* charstrg.d (STRING-INFO): handle displaced strings
 
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 732656 ]: (proclaim '(notinline ...)) ignored
+	fix bug#732656: (proclaim '(notinline ...)) ignored
 	* control.d (PROCLAIM): fix STACK indexing for (NOT)INLINE
 
 2003-05-04  Sam Steingold  <sds@gnu.org>
@@ -35395,8 +35395,8 @@
 
 	* lispbibl.d (STACK_register) [__GNUC__ >= 3]: disable.
 	This is a workaround for a GCC3 bug(s?) which manifest itself
-	in CLISP bugs #[ 710737 ]: CLISP+readline = core dump
-	and #[ 723097 ]: cast to char array crashes.
+	in CLISP bug#710737: CLISP+readline = core dump
+	and bug#723097: cast to char array crashes.
 
 2003-05-03  Sam Steingold  <sds@gnu.org>
 
@@ -35404,7 +35404,7 @@
 
 2003-05-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 729524 ]: ffi:c-struct corrupt
+	fix bug#729524: ffi:c-struct corrupt
 	* foreign1.lisp (with-name/options): new macro
 	(parse-components, c-struct-constructor, parse-c-type)
 	(deparse-c-type, def-c-struct): C-STRUCT typespec is
@@ -35568,7 +35568,7 @@
 
 2003-04-29  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 729456 ]: --with-readline is silently ignored
+	fix bug#729456: --with-readline is silently ignored
 	* makemake.in: fail when --with-readline is supplied but
 	configure does not find a working readline
 
@@ -35635,7 +35635,7 @@
 
 2003-04-26  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 726286 ]: (load :compiling t) redefinition warnings
+	fix bug#726286: (load :compiling t) redefinition warnings
 	* clos.lisp (setf find-class): always call CHECK-REDEFINITION
 	* init.lisp (check-redefinition): handle LOAD :COMPILING T;
 	always reset SYS::FILE indicator to the new value
@@ -35644,7 +35644,7 @@
 
 2003-04-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 726282 ]: read_form() botches STACK
+	fix bug#726282: read_form() botches STACK
 	* debug.d (read_form): make sure to unbind *TERMINAL-READ-STREAM*
 
 2003-04-25  Sam Steingold  <sds@gnu.org>
@@ -35807,8 +35807,7 @@
 
 2003-04-17  Sam Steingold  <sds@gnu.org>
 
-	implement feature request #[ 723360 ]: restart keyword
-	commands in debugger
+	implement RFE#723360: restart keyword commands in debugger
 	* reploop.lisp (break-loop): use restart name as the command and
 	:Rnum as the abbreviation; re-align help messages
 
@@ -36122,7 +36121,7 @@
 
 2003-01-31  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	patch #[ 678216 ]: FFI:WITH-FOREIGN-STRING
+	patch#678216: FFI:WITH-FOREIGN-STRING
 	* foreign.lisp (with-foreign-string): store string on C stack
 	using any encoding
 	* foreign.d (call_with_foreign_string): ditto
@@ -36151,7 +36150,7 @@
 
 2003-03-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 543072 ]: make-encoding :input-action on bad input (again)
+	fix bug#543072: make-encoding :input-action on bad input (again)
 	* encoding.d (fehler_buffer_parity): new function
 	(uni16_mblen): check that the input buffer has even length
 	(uni16be_mbstowcs, uni16le_mbstowcs): barf when the input has an
@@ -36383,7 +36382,7 @@
 
 2003-02-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 678194 ]: symbol-macrolet not always expanded
+	fix bug#678194: symbol-macrolet not always expanded
 	* eval.d (parse_dd): do not macroexpand the potential
 	declarations and docstrings (as per ANSI CL)
 
@@ -36403,7 +36402,7 @@
 
 2003-02-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 685855 ]: ext:string-width ignores :start
+	fix bug#685855: ext:string-width ignores :start
 	* charstrg.d (STRING-WIDTH): start with :START, not 0
 	* stream.d (MAKE-STRING-INPUT-STREAM): respect both index and offset
 
@@ -36518,7 +36517,7 @@
 2003-02-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 679661 ]: FFI segfault passing struct arrays
+	fix bug#679661: FFI segfault passing struct arrays
 	* foreign.d (count_walk_pre): C-ARRAY-PTR should reserve room
 	for the array argument
 
@@ -36553,7 +36552,7 @@
 
 2003-01-31  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 678105 ]: unchecked :start/end in
+	fix bug#678105: unchecked :start/end in
 	ext:convert-string-from/to-bytes
 	* encoding.d (CONVERT-STRING-FROM-BYTES): use test_vector_limits()
 	to check :START/:END arguments
@@ -37424,7 +37423,7 @@
 
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 647015 ]: ffi:def-c-enum broken from .fas file
+	fix bug#647015: ffi:def-c-enum broken from .fas file
 	* foreign1.lisp (def-c-enum): use DEF-C-TYPE to define the enum
 	type to C `int'
 
@@ -37511,7 +37510,7 @@
 
 2002-11-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 644353 ]: Segfault when overriding stdin
+	fix bug#644353: Segfault when overriding stdin
 	* stream.d (read_line): call ssstring_append_extend() only when len>0
 
 2002-11-26  Sam Steingold  <sds@gnu.org>
@@ -37914,7 +37913,7 @@
 
 2002-10-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 598128 ]: values / multiple-value-list crash
+	fix bug#598128: values / multiple-value-list crash
 	* lispbibl.d (list_to_mv): fix the check for mv_space overrun
 	(mv_to_STACK): check space on STACK beforehand, not post-factum
 
@@ -38022,7 +38021,7 @@
 
 2002-10-04  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 618428 ]: LOOP: local variables shadowing globals
+	fix bug#618428: LOOP: local variables shadowing globals
 	* loop.lisp (expand-loop): initialize accumulation variables
 	after iteration variables
 
@@ -38087,7 +38086,7 @@
 
 2002-10-01  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 617221 ]: distmakefile on cygwin uses `run', not `exe'
+	fix bug#617221: distmakefile on cygwin uses `run', not `exe'
 	* _distmakefile (lexe): new variable, init to @@LEXE@@
 	* makemake.in (distmakefile): substitute ${LEXE} for @@LEXE@@
 
@@ -38696,7 +38695,7 @@
 
 2002-07-29  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 552171 ]: failure with clx.e
+	fix bug#552171: failure with clx.e
 	* modules/clx/new-clx/e2d.c (do_defun): terminate with '\0' after
 	inserting '}'
 
@@ -38746,7 +38745,7 @@
 
 2002-07-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 584866 ]: inspect.lisp invalid XHTML & e-mail
+	fix bug#584866: inspect.lisp invalid XHTML & e-mail
 	* inspect.lisp (*user-mail-address*): new user variable
 	(with-html-output): use it; link/rev should be a string,
 	not a symbol, like all the other attribute values;
@@ -38841,7 +38840,7 @@
 
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 583751 ]: (compile-file xx :verbose NIL)
+	fix bug#583751: (compile-file xx :verbose NIL)
 	* compiler.lisp (with-compilation-unit): bind *C-LISTING-OUTPUT*
 
 2002-07-15  Marco Baringer  <empb@bese.it>
@@ -38907,7 +38906,7 @@
 
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 581646 ]: REQUIRE uses STRING-EQUAL
+	fix bug#581646: REQUIRE uses STRING-EQUAL
 	since CLISP in ANSI mode does not coerce symbols to pathnames,
 	this also fixes a bug introduced on 2002-07-09 which precluded
 	symbols as module names
@@ -38929,7 +38928,7 @@
 
 2002-07-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 514741 ]: ldap bugs (describe, dir-key-info)
+	fix bug#514741: ldap bugs (describe, dir-key-info)
 	* describe.lisp (describe-object): handle DIR-KEY
 
 2002-07-12  Sam Steingold  <sds@gnu.org>
@@ -38956,7 +38955,7 @@
 
 2002-07-11  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 580090 ]: unbound SYSTEM::*COMPILING-FROM-FILE*
+	fix bug#580090: unbound SYSTEM::*COMPILING-FROM-FILE*
 	error on (lambda () (defmethod ...))
 	* init.lisp (%expand-form): when evaluating (EVAL-WHEN (COMPILE))
 	bind COMPILER::*COMPILING-FROM-FILE* to nil
@@ -39025,7 +39024,7 @@
 
 2002-06-29  Sam Steingold  <sds@gnu.org>
 
-	implement feature request #[ 575303 ]: quit to top-level in debugger
+	implement RFE#575303: quit to top-level in debugger
 	* reploop.lisp (debug-quit): new function
 	(commands1): document `Quit/:q'
 	(break-loop, step-hook-fn): handle it (as `abort-to-top')
@@ -39196,7 +39195,7 @@
 
 2002-06-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	more fixes for bug #[ 542902 ]: not only socket-wait is
+	more fixes for bug#542902: not only socket-wait is
 	interruptible on windows, but also socket-accept is
 	* socket.d (accept_connection) [WIN32_NATIVE]: interruptible
 	check socket for readability (infinitely long) before calling
@@ -39238,7 +39237,7 @@
 
 2002-06-14  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	fix bug #[ 514805 ]: core dump using :rehash-size in 9nines
+	fix bug#514805: core dump using :rehash-size in 9nines
 	On MSVC, also UNIX with HAVE_ALLOCA_H, RISCOS and others, where
 	DYNAMIC_ARRAY implemented through _alloca(3), putting it
 	into the loop is dangerous: stack is freed only when function
@@ -40229,7 +40228,7 @@
 
 2002-05-17  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 557155 ]: inspector :http broken Content-Length
+	fix bug#557155: inspector :http broken Content-Length
 	* inspect.lisp (with-http-output): convert the string to a vector
 	with CONVERT-STRING-TO-BYTES and STREAM-EXTERNAL-FORMAT of the
 	socket to reliably compute the `Content-length:' header;
@@ -40332,7 +40331,7 @@
 
 2002-05-03  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 550864 ]: cannot use RETURN-FROM in deep nesting
+	fix bug#550864: cannot use RETURN-FROM in deep nesting
 	[this bug was introduced by the 2001-06-25 patch]
 	* compiler.lisp (note-far-used-block): propagate block to
 	all the enclosing functions, not just the current one
@@ -40352,7 +40351,7 @@
 
 2002-04-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 550528 ]: misleading error converting UTF-7
+	fix bug#550528: misleading error converting UTF-7
 	* stream.d (saving_errno, error_saving_errno): new macros
 	(iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs)
 	(iconv_range, create_input_pipe, create_output_pipe)
@@ -40413,13 +40412,13 @@
 
 2002-04-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 539701 ]: early initialization error -> crash
+	fix bug#539701: early initialization error -> crash
 	* spvw.d (main): init_other_modules_2() after the stream
 	variables are already initialized
 
 2002-04-25  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 548368 ]: inspector help barfs (nested inspectors)
+	fix bug#548368: inspector help barfs (nested inspectors)
 	* inspect.lisp (*inspect-all*): bind in INSPECT instead of using
 	a global variable since nested INSPECT sessions can interfere
 	with each other, each modifying the same *INSPECT-ALL*
@@ -40427,7 +40426,7 @@
 
 2002-04-24  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 548362 ]: inspector deletes wrong package on exit
+	fix bug#548362: inspector deletes wrong package on exit
 	* inspect.lisp (inspect): keep the temp inspect package in a
 	lexical variable in addition to *PACKAGE*
 
@@ -40448,7 +40447,7 @@
 2002-04-24  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	patch #[ 548089 ]: FOREIGN-FUNCTION+VARIABLE for everybody
+	patch#548089: FOREIGN-FUNCTION+VARIABLE for everybody
 	this allows CLISP FFI self-test (and dozens of hacks)
 	* foreign.d (ffi_identity): new function
 	(ffi_user_pointer): new variable
@@ -40458,7 +40457,7 @@
 2002-04-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	patch #[ 547541 ]: WITH-FOREIGN-OBJECT FFI stack allocation
+	patch#547541: WITH-FOREIGN-OBJECT FFI stack allocation
 	* foreign.d (EXEC-ON-STACK): new function
 	* constsym.d, subr.d: ditto
 	* foreign1.lisp (with-foreign-object): new public macro
@@ -40466,7 +40465,7 @@
 2002-04-23  Jörg Höhle  <hoehle@users.sourceforge.net>
 	    Sam Steingold  <sds@gnu.org>
 
-	patch #[ 547491 ]: C-VAR-ADDRESS and OFFSET foreign-places
+	patch#547491: C-VAR-ADDRESS and OFFSET foreign-places
 	* foreign1.lisp (offset, c-var-address): new public macros
 	* foreign.d (%OFFSET): comment that it is used now
 
@@ -40497,7 +40496,7 @@
 
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 547046 ]: compiler-macro -> no special-operator
+	fix bug#547046: compiler-macro -> no special-operator
 	* compiler.lisp (c-form): call EXPAND-COMPILER-MACRO before
 	checking C-FORM-TABLE to accommodate expanding to a special form
 
@@ -40513,7 +40512,7 @@
 
 2002-04-18  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 543072 ]: make-encoding :input-action on bad input
+	fix bug#543072: make-encoding :input-action on bad input
 	* stream.d (iconv_mblen, iconv_mbstowcs): treat EINVAL (incomplete
 	input) like EILEQ (conversion error) for delimited strings
 
@@ -40614,7 +40613,7 @@
 
 2002-04-04  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 538748 ]: OS_errno lost before error reporting
+	fix bug#538748: OS_errno lost before error reporting
 	* spvw_memfile.d (loadmem): use OS_errno instead of errno
 
 2002-04-02  Sam Steingold  <sds@gnu.org>
@@ -40768,7 +40767,7 @@
 
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 531879 ]: eval-when and top-forms
+	fix bug#531879: eval-when and top-forms
 	* init.lisp (%expand-form): do not conflate COMPILE and
 	:COMPILE-TOPLEVEL situations
 	* compiler.lisp (c-EVAL-WHEN): do not conflate LOAD with
@@ -40781,7 +40780,7 @@
 
 2002-03-21  Will Newton  <will@misconception.org.uk>
 
-	fix bug #[ 501963 ]: FFCALL cannot be built with GCC 3.0
+	fix bug#501963: FFCALL cannot be built with GCC 3.0
 	When compiling with -O2 or better, the configure test for PCC
 	non-reentrant struct return convention is optimized away and
 	always returns true. This causes avcall to believe it can use PCC
@@ -40899,19 +40898,19 @@
 2002-03-14  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (require): fix a deadly typo in the 2002-02-28 patch
-	this fixes bug #[ 580092 ]: problems with require
+	this fixes bug#580092: problems with require
 	which will be filed on 2002-07-11
 
 2002-03-13  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 528886 ]: (typep x (type-of x)) must => T (FFI)
+	fix bug#528886: (typep x (type-of x)) must => T (FFI)
 	* type.lisp (foreign-function, foreign-variable, foreign-address)
 	(foreign-pointer): new types
 	(subtypep): FOREIGN-FUNCTION is a FUNCTION
 
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 527380 ]: encoding :output-error-action :ignore broken
+	fix bug#527380: encoding :output-error-action :ignore broken
 	* encoding.d (nls_wcslen): sync with nls_wcstombs() wrt
 	ignoring errors (i.e., return the correct number of dest bytes)
 	(nls_asciiext_wcslen): sync with nls_asciiext_wcstombs() wrt
@@ -41110,7 +41109,7 @@
 
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 506098 ]: ICONV_CONST-related build problems
+	fix bug#506098: ICONV_CONST-related build problems
 	* stream.d: check ICONV_CONST before using it
 	* unixconf.h.in (ICONV_CONST): reverted the 2001-12-25 patch:
 	use #undef, not #define; just like all other *_CONST macros
@@ -41375,7 +41374,7 @@
 
 2002-02-20  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 515604 ]: (EVAL-WHEN (COMPILE)) no longer automatically
+	fix bug#515604: (EVAL-WHEN (COMPILE)) no longer automatically
 	writes to *.lib; you need EVAL-WHEN-COMPILE or both LOAD and COMPILE
 	* compiler.lisp (c-write-lib): new function
 	(c-eval-and-write-lib): rename from c-eval-when-compile
@@ -41515,7 +41514,7 @@
 
 2002-01-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 509073 ]
+	fix bug#509073
 	* compiler.lisp (expand-compiler-macro): pass to
 	COMPILER-MACRO-FUNCTION only function names
 
@@ -41541,7 +41540,7 @@
 
 2002-01-24  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 506105 ]: check semi-simple vectors&strings for overflow
+	fix bug#506105: check semi-simple vectors&strings for overflow
 	* array.d (fehler_extension): new function
 	(VECTOR-PUSH-EXTEND): use it
 	(fehler_dim_type): moved before semi-simple vectors&strings
@@ -41723,7 +41722,7 @@
 
 2002-01-09  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 501166 ]
+	fix bug#501166
 	* pathname.d (SUBDIR_PUSHSTACK): check for non-string subdir
 	elements, do not return
 	(subdir_namestring_parts): modified accordingly
@@ -42205,7 +42204,7 @@
 
 2001-10-23  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 474216 ]
+	fix bug#474216
 	* misc.d (LISP-IMPLEMENTATION-VERSION): do not try to convert
 	O(lisp_implementation_version_built_string) when month is not found
 
@@ -42284,7 +42283,7 @@
 
 2001-10-08  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 462982 ]: support ipv6 on i386 (cygwin32, mingw32, msvc)
+	fix bug#462982: support ipv6 on i386 (cygwin32, mingw32, msvc)
 	* win32.d (HAVE_IPV6): define
 	(ws2tcpip.h, winsock2.h): include
 	* socket.d (in6_addr): define to in_addr6
@@ -42590,7 +42589,7 @@
 
 2001-09-10  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 458746 ]
+	fix bug#458746
 	* format.lisp (format-float-to-string): make sure width is at
 	least 2 (when given): for a digit and for the decimal point
 
@@ -42678,7 +42677,7 @@
 
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 455559 ]
+	fix bug#455559
 	* defstruct.lisp (ds-arg-default): when ARG is a list and default
 	is NIL, return (ARG NIL) and not (ARG)
 	(ds-arg-with-default): pass VAR instead of ARG to DS-ARG-DEFAULT
@@ -42848,7 +42847,7 @@
 
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 446942 ]
+	fix bug#446942
 	* makemake.in (DISTFILE): insulate from AIX uname which does not
 	have the -p option
 
@@ -43075,7 +43074,7 @@
 
 2001-08-14  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 448817 ]
+	fix bug#448817
 	* io.d (pr_external_1): use new macro BIND_UNLESS
 	(pr_sharp_dot): new local function
 	(pr_instance): use it
@@ -43180,7 +43179,7 @@
 
 2001-08-02  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 445286 ]
+	fix bug#445286
 	* compiler.lisp (c-SYMBOL-MACROLET): bind *VENV* before PARSE-BODY
 	because PARSE-BODY macroexpands the first form in search of
 	declarations, and that macroexpansion might rely on the
@@ -43318,7 +43317,7 @@
 
 2001-07-19  Sam Steingold  <sds@gnu.org>
 
-	* list.d (ldiff): handle dotted lists correctly, bug #[ 442739 ]
+	* list.d (ldiff): handle dotted lists correctly, bug#442739
 
 2001-07-16  Sam Steingold  <sds@gnu.org>
 
@@ -43393,7 +43392,7 @@
 
 	replace chartcopy with memcpy
 	compilation time of compiler.lisp went down 3.76%
-	fix bug #[ 438486 ]
+	fix bug#438486
 	* charstrg.d (chartcopy): remove
 	* lispbibl.d (chartcopy): define to expand to memcpy()
 
@@ -44471,7 +44470,7 @@
 
 2001-03-06  Sam Steingold  <sds@gnu.org>
 
-	* stream.d (lisp_completion): Bug #[ 221956 ]: check the return value
+	* stream.d (lisp_completion): bug#221956: check the return value
 	of `sys::completion'.
 
 2001-03-06  Bruno Haible  <haible@clisp.cons.org>
@@ -44535,7 +44534,7 @@
 
 2001-02-07  Sam Steingold  <sds@gnu.org>
 
-	* inspect.lisp: fix bug #[ 130567 ]: unbound slots.
+	* inspect.lisp: fix bug#130567: unbound slots.
 	(*inspect-unbound-value*): new internal variable
 	(inspect-cllib): bind it
 	(inspect-backend): use it for unbound symbols and slots
@@ -54495,3 +54494,7 @@
 
 	* acspecific.m4 (AC_FUNC_VFORK): Fix so that it works right when
 	  cross-compiling.
+
+;; Local Variables:
+;; bug-reference-url-format: clisp-bug-reference-url-format
+;; End:
