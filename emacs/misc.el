@@ -37,7 +37,6 @@
          (expand-file-name "src/ChangeLog" default-directory))))
 
 (add-hook 'vc-dir-mode-hook 'clisp-set-change-log-vc-dir)
-(add-hook 'change-log-mode-hook 'turn-on-bug-reference-mode)
 
 (defun clisp-bug-reference-url-format ()
   (concat "http://sourceforge.net/tracker/index.php?func=detail&aid="

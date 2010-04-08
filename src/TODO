@@ -405,6 +405,6 @@ is harder to understand than XXX-IF-NOT because COMPLEMENT is a function
 returning a function.
 
 ;; Local Variables:
-;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; eval: (bug-reference-mode t)
+;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; End:
