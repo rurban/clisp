@@ -54501,6 +54501,6 @@
 	  cross-compiling.
 
 ;; Local Variables:
-;; eval: (bug-reference-mode t)
+;; mode: bug-reference
 ;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; End:
