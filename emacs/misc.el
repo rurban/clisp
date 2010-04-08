@@ -22,13 +22,10 @@
       (when (clisp-repo-p dir)
         (let ((cl (expand-file-name "ChangeLog" dir)))
           (set (make-local-variable 'change-log-default-name)
-               (cond ((file-exists-p cl) cl)
-                     (t
-                      (while (not (or (file-exists-p (expand-file-name
-                                                      "ANNOUNCE" dir))
-                                      (string= dir "/")))
-                        (setq dir (expand-file-name ".." dir)))
-                      (expand-file-name "src/ChangeLog" dir)))))))))
+               (if (file-exists-p cl) cl
+                   (expand-file-name
+                    "src/ChangeLog" (locate-dominating-file
+                                     buffer-file-name "ANNOUNCE")))))))))
 
 ;; append: must come after vc-find-file-hook
 (add-hook 'find-file-hooks 'clisp-set-change-log-default-name t)
