@@ -42,7 +42,7 @@ local void uninstall_sigterm_handler (void) {
 }
 
 
-local bool quit_on_signal_in_progress = false;
+global bool quit_on_signal_in_progress = false;
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
  #ifndef NO_ASYNC_INTERRUPTS

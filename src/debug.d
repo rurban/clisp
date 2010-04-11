@@ -501,6 +501,8 @@ global void driver (void)
  > continuable_p == can be continued after the driver finishes
  can trigger GC */
 global maygc void break_driver (bool continuable_p) {
+  if (quit_on_signal_in_progress) /* if we are terminating on sighup, */
+    quit();              /* printing the "exiting" messages will fail */
   var object driverfun = Symbol_value(S(break_driver)); /* *BREAK-DRIVER* */
   if (!nullp(driverfun)) {
     pushSTACK(continuable_p ? T : NIL);
