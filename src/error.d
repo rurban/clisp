@@ -198,6 +198,8 @@ local gcv_object_t* write_errorstring (const char* errorstring)
 
 /* SIGNAL the CONDITION and INVOKE the debugger */
 nonreturning_function(local, signal_and_debug, (object condition)) {
+  if (quit_on_signal_in_progress) /* if we are terminating on sighup, */
+    quit();              /* printing the "exiting" messages will fail */
   pushSTACK(condition); /* save condition */
   dynamic_bind(S(print_escape),T); /* bind *PRINT-ESCAPE* to NIL */
   dynamic_bind(S(print_readably),NIL); /* bind *PRINT-READABLY* to NIL */
