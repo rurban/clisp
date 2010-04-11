@@ -10511,6 +10511,10 @@ global maygc object allocate_exemption (gcv_object_t *name_);
 extern void activate_weak (object obj);
 /* is used by WEAK */
 
+/* True if we are in the process of quitting */
+extern bool quit_on_signal_in_progress;
+/* used by ERROR */
+
 /* UP: return the length of the ASCIZ-String
  asciz_length(asciz)
  > char* asciz: ASCIZ-String

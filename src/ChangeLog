@@ -1,3 +1,11 @@
+2010-04-11  Sam Steingold  <sds@gnu.org>
+
+	fix bug#2795278: when quitting on signals, do not enter the debugger
+	* lispbibl.d (quit_on_signal_in_progress): declare
+	* error.d (signal_and_debug): quit if quit_on_signal_in_progress
+	* debug.d (break_driver): ditto
+	* spvw_sigterm.d (quit_on_signal_in_progress): make global
+
 2010-04-02  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (SAVEMEM): use nullp(.) instead of eq(NIL,.)
