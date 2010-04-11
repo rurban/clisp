@@ -35,10 +35,10 @@ User visible changes
 
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
-    exceptional situation in unsafe code. [ 2868166 ]
-  + Fix an nternal error in DECLAIM on bad OPTIMIZE quality. [ 2868147 ]
-  + CLEAR-INPUT now clears the EOF condition on file streams. [ 2902716 ]
-  + When quitting on a signal, never enter the debugger. [ 2795278 ]
+    exceptional situation in unsafe code (bug#2868166).
+  + Fix an nternal error in DECLAIM on bad OPTIMIZE quality (bug#2868147).
+  + CLEAR-INPUT now clears the EOF condition on file streams (bug#2902716).
+  + When quitting on a signal, never enter the debugger (bug#2795278).
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
@@ -96,14 +96,14 @@ User visible changes
   See <http://clisp.cons.org/impnotes/modules.html#clisp-link> for details.
 
 * Bug fixes:
-  + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
+  + Better support of :START and :END arguments in NEW-CLX (bug#2159172).
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
-    wild pathnames (introduced in 2.47). [ 2198109 ]
+    wild pathnames (introduced in 2.47) (bug#2198109).
   + Module NEW-CLX now has the XLIB:QUEUE-EVENT function,
     implemented by Philippe Brochard <hocwp@free.fr>.
-  + Extend the domain of LOG to larger BIGNUMs and RATIOs. [ 1007358 ]
-  + Avoid a segfault on (EXPT <HUGE> <HUGE>). [ 2807311 ]
-  + Fix interaction of finalizers and weak objects. [ 1472478 ]
+  + Extend the domain of LOG to larger BIGNUMs and RATIOs (bug#1007358).
+  + Avoid a segfault on (EXPT <HUGE> <HUGE>) (bug#2807311).
+  + Fix interaction of finalizers and weak objects (bug#1472478).
 
 * ANSI compliance:
   + Implement the ANSI (IGNORE #'FUNCTION) declaration.
@@ -154,18 +154,18 @@ User visible changes
   See <http://clisp.cons.org/impnotes/macros3.html#http-log-stream> for details.
 
 * Bug fixes:
-  + Comparison of floats and rationals never underflows. [ 2014262 ]
+  + Comparison of floats and rationals never underflows (bug#2014262).
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an
-    ARITHMETIC-ERROR instead of blowing the stack. [ 2015118 ]
-  + Restored TYPECODES g++ compilation [ 1385641 ], which allowed fixing
+    ARITHMETIC-ERROR instead of blowing the stack (bug#2015118).
+  + Restored TYPECODES g++ compilation (bug#1385641), which allowed fixing
     a few GC-safety bugs.
   + Fixed a segfault when signaling some UNBOUND-VARIABLE errors in some
-    interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]
+    interpreted code on MacOS X (introduced in 2.46) (bug#2020784).
     Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
-  + Fixed input after switching a :DOS stream to binary. [ 2022362 ]
-  + Support circular objects in EQUAL and EQUALP hash-tables. [ 2029069 ]
-  + Avoid C namespace pollution. [ 2146126 ]
-  + Fix timeout precision in NEW-CLX. [ 2188102 ]
+  + Fixed input after switching a :DOS stream to binary (bug#2022362).
+  + Support circular objects in EQUAL and EQUALP hash-tables (bug#2029069).
+  + Avoid C namespace pollution (bug#2146126).
+  + Fix timeout precision in NEW-CLX (bug#2188102).
 
 * ANSI compliance:
   + The sets of declaration and type names are disjoint.
@@ -195,13 +195,13 @@ User visible changes
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * Bug fixes:
-  + Work around the absence of tgamma on solaris. [ 1966375 ]
-  + Avoid a rare segfault on SIGHUP. [ 1956715 ]
-  + Improve module portability to systems with non-GNU make. [ 1970141 ]
-  + Fix GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE. [ 1975798 ]
+  + Work around the absence of tgamma on solaris (bug#1966375).
+  + Avoid a rare segfault on SIGHUP (bug#1956715).
+  + Improve module portability to systems with non-GNU make (bug#1970141).
+  + Fix GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE (bug#1975798).
   + Fix the remaining bugs in special bindings in evaluated code on
     TYPECODES (64-bit) platforms.
-  + Fix SOCKET:SOCKET-CONNECT with timeout to a dead port. [ 2007052 ]
+  + Fix SOCKET:SOCKET-CONNECT with timeout to a dead port (bug#2007052).
 
 
 2.45 (2008-05-15)
@@ -267,22 +267,23 @@ User visible changes
   be enumerated here.
 
 * Bug fixes:
-  + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
-  + Fix rectangle count in NEW-CLX XLIB:SET-GCONTEXT-CLIP-MASK. [ 1918017 ]
-  + Fix argument handling in NEW-CLX XLIB:QUERY-COLORS. [ 1931101 ]
-  + Fix compilation on systems not supporting returning void. [ 1924506 ]
-  + Fix TANH floating point overflow for large floats. [ 1683394 ]
-  + Avoid extra aggressive bignum overflow reporting in READ. [ 1928735 ]
-  + Improved floating point number formatting. [ 1790496, 1928759 ]
-  + COMPILE no longer discards MACRO doc strings. [ 1936255 ]
-  + Improved accuracy of LOG on complex numbers. [ 1934968 ]
-  + Fix COERCE for compound float result-types. [ 1942246 ]
-  + Fix $http_proxy parsing. [ 1959436 ]
-  + Fix LISTEN on buffered streams when the last character was CRLF. [ 1961475 ]
+  + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE (bug#1890854).
+  + Fix rectangle count in NEW-CLX XLIB:SET-GCONTEXT-CLIP-MASK (bug#1918017).
+  + Fix argument handling in NEW-CLX XLIB:QUERY-COLORS (bug#1931101).
+  + Fix compilation on systems not supporting returning void (bug#1924506).
+  + Fix TANH floating point overflow for large floats (bug#1683394).
+  + Avoid extra aggressive bignum overflow reporting in READ (bug#1928735).
+  + Improved floating point number formatting. (bug#1790496, bug#1928759)
+  + COMPILE no longer discards MACRO doc strings (bug#1936255).
+  + Improved accuracy of LOG on complex numbers (bug#1934968).
+  + Fix COERCE for compound float result-types (bug#1942246).
+  + Fix $http_proxy parsing (bug#1959436).
+  + Fix LISTEN on buffered streams when the last character was
+    CRLF (bug#1961475).
   + Cross-compilation process has been restored to its former glory,
     thanks to the valiant and persistent testing by
     Vladimir Volovich <vvv2@users.sourceforge.net>.
-    [ 1928920, 1929496, 1929516, 1931097 ]
+    (bug#1928920, bug#1929496, bug#1929516, bug#1931097)
 
 
 2.44.1 (2008-02-23)
@@ -292,9 +293,9 @@ User visible changes
 --------------------
 
 * Bug fixes:
-  + Add a workaround against a gcc 4.2.x bug. [ 1836142 ]
+  + Add a workaround against a gcc 4.2.x bug (bug#1836142).
   + Fix error in compilation of floatparam.c during configuration with gcc 4.3
-    snapshots. [ 1836142 ]
+    snapshots (bug#1836142).
 
 
 2.44 (2008-02-02)
@@ -328,28 +329,29 @@ User visible changes
   See <http://clisp.cons.org/impnotes/image.html> for details.
 
 * Bug fixes:
-  + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
-  + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.
-    [ 1835520 ]
-  + BYTE is now a full-fledged type. [ 1854698 ]
-  + Fix linux:dirent definition in the bindings/glibc module. [ 1779490 ]
-  + Symbolic links into non-existent directories can now be deleted. [ 1860489 ]
+  + Fix FRESH-LINE at the end of a line containing only TABs (bug#1834193).
+  + PPRINT-LOGICAL-BLOCK no longer ignores
+    *PRINT-PPRINT-DISPATCH-TABLE* (bug#1835520).
+  + BYTE is now a full-fledged type (bug#1854698).
+  + Fix linux:dirent definition in the bindings/glibc module (bug#1779490).
+  + Symbolic links into non-existent directories can now be
+    deleted (bug#1860489).
   + DIRECTORY :FULL on directories now returns the same information as
-    on files. [ 1860677 ]
+    on files (bug#1860677).
   + CLISP no longer hangs at the end of a script coming via a pipe
-    ("clisp < script.lisp" or "cat script | clisp"). [ 1865567 ]
+    ("clisp < script.lisp" or "cat script | clisp") (bug#1865567).
   + When *CURRENT-LANGUAGE* is incompatible with *TERMINAL-ENCODING*,
     CLISP no longer goes into an infinite recursion trying to print
-    various help messages. [ 1865636 ]
-  + Fix the "Quit" debugger command. [ 1448744 ]
+    various help messages (bug#1865636).
+  + Fix the "Quit" debugger command (bug#1448744).
   + Repeated terminating signals kill CLISP instantly with the correct
-    exit code. [ 1871205 ]
-  + Stack inspection is now safer. [ 1506316 ]
-  + Errors in the RC-file and init files are now handled properly. [ 1714737 ]
-  + Avoid the growth of the restart set with each image save. [ 1877497 ]
+    exit code (bug#1871205).
+  + Stack inspection is now safer (bug#1506316).
+  + Errors in the RC-file and init files are now handled properly (bug#1714737).
+  + Avoid the growth of the restart set with each image save (bug#1877497).
   + Handle foreign functions coming from the old image which cannot be
-    validated. [ 1407486 ]
-  + Fix signal code in bindings/glibc/linux.lisp. [ 1781476 ]
+    validated (bug#1407486).
+  + Fix signal code in bindings/glibc/linux.lisp (bug#1781476).
 
 
 2.43 (2007-11-18)
@@ -378,9 +380,10 @@ User visible changes
 * Module Berkeley-DB now supports Berkeley DB 4.5 & 4.6.
 
 * Bug fixes:
-  + FORCE-OUTPUT breakage on MacOS X when stdout is not a terminal. [ 1827572 ]
-  + Fixed *PRINT-PPRINT-DISPATCH* binding in WITH-STANDARD-IO-SYNTAX.
-    [ 1831367 ]
+  + FORCE-OUTPUT breakage on MacOS X when stdout is not a terminal
+    (bug#1827572).
+  + Fixed *PRINT-PPRINT-DISPATCH* binding in WITH-STANDARD-IO-SYNTAX
+    (bug#1831367).
 
 
 2.42 (2007-10-16)
@@ -429,30 +432,31 @@ User visible changes
   See  <http://clisp.cons.org/impnotes/stream-dict.html#file-pos> for details.
 
 * Bug fixes:
-  + Fixed EXT:LETF to work with more than one place. [ 1731462 ]
-  + Fixed rounding of long floats [even+1/2]. [ 1589311 ]
-  + Fixed stdio when running without a TTY, e.g., under SSH. [ 1592343 ]
+  + Fixed EXT:LETF to work with more than one place (bug#1731462).
+  + Fixed rounding of long floats [even+1/2] (bug#1589311).
+  + Fixed stdio when running without a TTY, e.g., under SSH (bug#1592343).
   + ANSI compliance: PPRINT dispatch is now respected for nested
-    objects, not just the top-level. [ 1483768, 1598053 ]
+    objects, not just the top-level (bug#1483768, bug#1598053).
   + Fixed print-read-consistency of strings containing #\Return characters
-    (manifested by COMPILE-FILE). [ 1578179 ]
-  + Fixed "clisp-link run". [ 1469663 ]
-  + Fixed ATANH branch cut continuity. [ 1436987 ]
-  + Reset the function lambda expression when loading a compiled file.
-    [ 1603260 ]
-  + DOCUMENTATION set by SETF is now preserved by COMPILE. [ 1604579 ]
-  + LISTEN now calls STREAM-LISTEN as per the Gray proposal. [ 1607666 ]
+    (manifested by COMPILE-FILE) (bug#1578179).
+  + Fixed "clisp-link run" (bug#1469663).
+  + Fixed ATANH branch cut continuity (bug#1436987).
+  + Reset the function lambda expression when loading a compiled
+    file (bug#1603260).
+  + DOCUMENTATION set by SETF is now preserved by COMPILE (bug#1604579).
+  + LISTEN now calls STREAM-LISTEN as per the Gray proposal (bug#1607666).
   + IMPORT into the KEYWORD package does not make a symbol a constant
-    variable. [ 1612859 ]
-  + DEFPACKAGE code was executed during non top-level compilation. [ 1612313 ]
-  + Fixed format error message formatting. [ 1482465 ]
-  + Fixed *PPRINT-FIRST-NEWLINE* handling. [ 1412454 ]
-  + Improved hash code generation for very large bignums and for long lists.
-    [ 948868, 1208124 ]
-  + Some bugs related to UNICODE-16 & UNICODE-32. [ 1564818, 1631760, 1632718 ]
-  + All exported defined symbols are now properly locked. [ 1713130 ]
-  + Berkeley-DB module no longer fills up error log file. [ 1779416 ]
-  + New-clx now supports 64-bit KeySym. [ 1797132 ]
+    variable (bug#1612859).
+  + DEFPACKAGE code was executed during non top-level compilation (bug#1612313).
+  + Fixed format error message formatting (bug#1482465).
+  + Fixed *PPRINT-FIRST-NEWLINE* handling (bug#1412454).
+  + Improved hash code generation for very large bignums and for long lists
+    (bug#948868, bug#1208124).
+  + Some bugs related to UNICODE-16 & UNICODE-32 (bug#1564818,
+    bug#1631760, bug#1632718).
+  + All exported defined symbols are now properly locked (bug#1713130).
+  + Berkeley-DB module no longer fills up error log file (bug#1779416).
+  + New-clx now supports 64-bit KeySym (bug#1797132).
 
 
 2.41 (2006-10-13)
@@ -476,11 +480,11 @@ User visible changes
   See <http://clisp.cons.org/impnotes/dffi.html#dffi-default-lib> for details.
 
 * Bug fixes:
-  + DOCUMENTATION on built-in functions was broken on some platforms.
-    [ 1569234 ]
+  + DOCUMENTATION on built-in functions was broken on some
+    platforms (bug#1569234).
   + Fixed FFI callbacks, broken since the 2.36 release.
   + Fixed the way the top-level driver handles the "--" option terminator.
-  + Fixed COMPILE of APPLY in LABELS for local function. [ 1575946 ]
+  + Fixed COMPILE of APPLY in LABELS for local function (bug#1575946).
 
 
 2.40 (2006-09-23)
@@ -519,24 +523,24 @@ User visible changes
 
 * Bug fixes:
   + Make it possible to set *IMPNOTES-ROOT-DEFAULT* and *CLHS-ROOT-DEFAULT*
-    to local paths, as opposed to URLs. [ 1494059 ]
+    to local paths, as opposed to URLs (bug#1494059).
   + Fix the evaluation order of initialization and :INITIALLY forms in
-    then extended LOOP. [ 1516684 ]
-  + Do not allow non-symbols as names of anonymous classes. [ 1528201 ]
-  + REINITIALIZE-INSTANCE now calls FINALIZE-INHERITANCE. [ 1526448 ]
-  + Fix the RAWSOCK module on big-endian platforms. [ 1529244 ]
-  + PRINT-OBJECT now works on built-in objects.  [ 1482533 ]
+    then extended LOOP (bug#1516684).
+  + Do not allow non-symbols as names of anonymous classes (bug#1528201).
+  + REINITIALIZE-INSTANCE now calls FINALIZE-INHERITANCE (bug#1526448).
+  + Fix the RAWSOCK module on big-endian platforms (bug#1529244).
+  + PRINT-OBJECT now works on built-in objects (bug#1482533).
   + ADJUST-ARRAY signals an error if :FILL-POINTER is supplied and non-NIL
-    but the non-adjustable array has no fill pointer, as per ANSI. [ 1538333 ]
+    but the non-adjustable array has no fill pointer, as per ANSI (bug#1538333).
   + MAKE-PATHNAME no longer ignores explicit :DIRECTORY NIL (thanks to
-    Stephen Compall <s11001001@users.sourceforge.net>). [ 1550803 ]
+    Stephen Compall <s11001001@users.sourceforge.net>) (bug#1550803).
   + Executable images now work on ia64 (thanks to Dr. Werner Fink
     <werner@suse.de>).
   + MAKE-PATHNAME on win32 now handles correctly directories that start
-    with a non-string (e.g., :WILD). [ 1555096 ]
+    with a non-string (e.g., :WILD) (bug#1555096).
   + SOCKET-STREAM-PEER and SOCKET-STREAM-LOCAL had do-not-resolve-p
     inverted since 2.37.
-  + Set functions with :TEST 'EQUALP were broken on large lists. [ 1567186 ]
+  + Set functions with :TEST 'EQUALP were broken on large lists (bug#1567186).
 
 
 2.39 (2006-07-16)
@@ -4668,7 +4672,8 @@ It now compiles and runs under
 Now that the tests passed, I hope I'll never again have to remove a serious
 bug.
 
-Local Variables:
-mode: text
-coding: utf-8
-end:
+;; Local Variables:
+;; mode: text
+;; mode: bug-reference
+;; coding: utf-8
+;; end:
