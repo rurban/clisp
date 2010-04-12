@@ -4281,34 +4281,34 @@ local sigset_t async_signal_mask()
   sigaddset(&sigblock_mask,SIGINT);
   sigaddset(&sigblock_mask,SIGALRM);
   sigaddset(&sigblock_mask,SIG_TIMEOUT_CALL);
-  #if defined(SIGWINCH)
-   sigaddset(&sigblock_mask,SIGWINCH);
-  #endif
+ #if defined(SIGWINCH)
+  sigaddset(&sigblock_mask,SIGWINCH);
+ #endif
   /* following are terminating signals - handle them only if we are not
      already being killed*/
   if (!quit_on_signal_in_progress) {
-  #ifdef SIGHUP
+   #ifdef SIGHUP
     sigaddset(&sigblock_mask,SIGHUP);
-  #endif
-  #ifdef SIGQUIT
+   #endif
+   #ifdef SIGQUIT
     sigaddset(&sigblock_mask,SIGQUIT);
-  #endif
-  #ifdef SIGILL
+   #endif
+   #ifdef SIGILL
     sigaddset(&sigblock_mask,SIGILL);
-  #endif
-  #ifdef SIGABRT
+   #endif
+   #ifdef SIGABRT
     sigaddset(&sigblock_mask,SIGABRT);
-  #endif
-  #ifdef SIGKILL
+   #endif
+   #ifdef SIGKILL
     sigaddset(&sigblock_mask,SIGKILL);
-  #endif
-  #ifdef SIGTERM
+   #endif
+   #ifdef SIGTERM
     sigaddset(&sigblock_mask,SIGTERM);
-  #endif
-  #ifdef SIGTTOU
-   /* always ignored */
+   #endif
+   #ifdef SIGTTOU
+    /* always ignored */
     sigaddset(&sigblock_mask,SIGTTOU);
-  #endif
+   #endif
   }
   return sigblock_mask;
 }
