@@ -4547,7 +4547,6 @@ global bool interrupt_thread(clisp_thread_t *thr)
 
 /* UP: The signal handler in MT build.
  > arg: not used. */
-global bool quit_on_signal_in_progress = false;
 local void *signal_handler_thread(void *arg)
 {
   while (1) {

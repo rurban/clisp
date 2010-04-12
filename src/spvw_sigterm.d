@@ -1,4 +1,8 @@
 /* Handling of terminating signals. */
+
+/* MULTITHREAD: set in spvw.d:signal_handler_thread() */
+global bool quit_on_signal_in_progress = false;
+
 #if !defined(MULTITHREAD)
 
 /* --------------------------- Specification ----------------------------- */
@@ -42,7 +46,6 @@ local void uninstall_sigterm_handler (void) {
 }
 
 
-global bool quit_on_signal_in_progress = false;
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
  #ifndef NO_ASYNC_INTERRUPTS
