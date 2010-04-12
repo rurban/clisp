@@ -1,8 +1,6 @@
 /* Handling of terminating signals. */
 
-/* MULTITHREAD: set in spvw.d:signal_handler_thread() */
-global bool quit_on_signal_in_progress = false;
-
+/* in MT signals are handled in spvw.d:signal_handler_thread()*/
 #if !defined(MULTITHREAD)
 
 /* --------------------------- Specification ----------------------------- */
