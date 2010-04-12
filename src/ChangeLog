@@ -1,3 +1,13 @@
+2010-04-12  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_sigterm.d (quit_on_signal_in_progress): move to spvw.d
+	* spvw.d (quit_on_signal_in_progress): define it here
+	(async_signal_mask) [POSIX_THREADS]: do not add terminating signals if
+	process was already signaled with one of them
+	(signal_handler_thread): set proper exit code on terminating signal.
+	print to stderr "Exiting on signal ...". fix erroneous message on
+	terminating signal
+
 2010-04-12  Sam Steingold  <sds@gnu.org>
 
 	* spvw_sigterm.d (quit_on_signal_in_progress): always define
