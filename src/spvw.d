@@ -3904,6 +3904,7 @@ nonreturning_function(local, quit_instantly, (int exitcode))
  quit();
  > final_exitcode: 0 on normal exit, 1 on abort */
 global int final_exitcode = 0;
+global bool quit_on_signal_in_progress = false;
 local int quit_retry = 0;
 nonreturning_function(global, quit, (void)) {
   /* first "unwind" the STACK downto STACK-end: */
@@ -4280,27 +4281,35 @@ local sigset_t async_signal_mask()
   sigaddset(&sigblock_mask,SIGINT);
   sigaddset(&sigblock_mask,SIGALRM);
   sigaddset(&sigblock_mask,SIG_TIMEOUT_CALL);
-  #ifdef SIGHUP
-   sigaddset(&sigblock_mask,SIGHUP);
-  #endif
-  #ifdef SIGQUIT
-   sigaddset(&sigblock_mask,SIGQUIT);
-  #endif
-  #ifdef SIGILL
-   sigaddset(&sigblock_mask,SIGILL);
-  #endif
-  #ifdef SIGABRT
-   sigaddset(&sigblock_mask,SIGABRT);
-  #endif
-  #ifdef SIGKILL
-   sigaddset(&sigblock_mask,SIGKILL);
-  #endif
-  #ifdef SIGTERM
-   sigaddset(&sigblock_mask,SIGTERM);
-  #endif
   #if defined(SIGWINCH)
    sigaddset(&sigblock_mask,SIGWINCH);
   #endif
+  /* following are terminating signals - handle them only if we are not
+     already being killed*/
+  if (!quit_on_signal_in_progress) {
+  #ifdef SIGHUP
+    sigaddset(&sigblock_mask,SIGHUP);
+  #endif
+  #ifdef SIGQUIT
+    sigaddset(&sigblock_mask,SIGQUIT);
+  #endif
+  #ifdef SIGILL
+    sigaddset(&sigblock_mask,SIGILL);
+  #endif
+  #ifdef SIGABRT
+    sigaddset(&sigblock_mask,SIGABRT);
+  #endif
+  #ifdef SIGKILL
+    sigaddset(&sigblock_mask,SIGKILL);
+  #endif
+  #ifdef SIGTERM
+    sigaddset(&sigblock_mask,SIGTERM);
+  #endif
+  #ifdef SIGTTOU
+   /* always ignored */
+    sigaddset(&sigblock_mask,SIGTTOU);
+  #endif
+  }
   return sigblock_mask;
 }
 
@@ -4659,12 +4668,14 @@ local void *signal_handler_thread(void *arg)
       break;
    #endif
     default:
-      quit_on_signal_in_progress = true;
       /* just terminate all threads - the last one will
          kill the process from delete_thread */
+      fprintf(stderr, "Exiting on signal %d\n", sig);
       WITH_STOPPED_WORLD(false,{
-        var bool some_failed=true;
+        var bool all_succeeded = true;
         ENABLE_DUMMY_ALLOCCOUNT(true);
+        quit_on_signal_in_progress = true;
+        final_exitcode = -sig; /* set process exit code */
         for_all_threads({
           /* be sure the signal handler can be reentered */
           spinlock_acquire(&thread->_signal_reenter_ok);
@@ -4672,12 +4683,12 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
           NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
           NC_pushSTACK(thread->_STACK,T); /* do not defer the interrupt */
-          some_failed &= interrupt_thread(thread);
+          all_succeeded &= interrupt_thread(thread);
         });
-        if (some_failed) {
+        if (!all_succeeded) {
           fputs("*** some threads were not signaled to terminate.",stderr);
-          exit(sig); /* nothing we can do - exit immediately (cannot call quit
-                        from here) */
+          exit(-sig); /* nothing we can do - exit immediately (cannot call quit
+                         from here) */
         }
         ENABLE_DUMMY_ALLOCCOUNT(false);
       });
