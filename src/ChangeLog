@@ -1,7 +1,7 @@
 2010-04-12  Sam Steingold  <sds@gnu.org>
 
-	* spvw.d (quit_on_signal_in_progress) [MULTITHREAD]: add
-	(signal_handler_thread) [MULTITHREAD]: fix last patch:
+	* spvw_sigterm.d (quit_on_signal_in_progress): always define
+	* spvw.d (signal_handler_thread) [MULTITHREAD]: fix last patch:
 	set quit_on_signal_in_progress when terminating
 
 2010-04-11  Sam Steingold  <sds@gnu.org>
