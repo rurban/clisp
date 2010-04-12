@@ -2491,7 +2491,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-help-image")) {
               p2->argv_help_image = true;
               break;
-            } else if (arg[2] != 0) 
+            } else if (arg[2] != 0)
               INVALID_ARG(arg);
             else {
               usage(delegating);
@@ -2526,7 +2526,7 @@ local inline int parse_options (int argc, const char* const* argv,
           case 't':             /* traditional, temporary directory */
             if (asciz_equal(arg,"-traditional"))
               p2->argv_ansi = 2; /* traditional */
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'd': /* -d (developer mode) or -disable-readline */
@@ -2534,7 +2534,7 @@ local inline int parse_options (int argc, const char* const* argv,
               disable_readline = true;
             else if (arg[2] == '\0')
               p2->argv_developer = true;
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'B':             /* lisplibdir */
@@ -2548,7 +2548,7 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'n':
             if (asciz_equal(arg,"-norc"))
               p2->argv_norc = true;
-            else 
+            else
               INVALID_ARG(arg);
             break;
          #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -2590,39 +2590,39 @@ local inline int parse_options (int argc, const char* const* argv,
               argv_encoding_file = argv_encoding_pathname =
                 argv_encoding_terminal = argv_encoding_foreign =
                 argv_encoding_misc = *argptr++;
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'q':             /* verbosity level */
             p2->argv_verbose--;
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             break;
           case 'v':             /* verbosity level */
             p2->argv_verbose++;
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             break;
           case 'I':             /* ILISP-friendly */
             ilisp_mode = true;
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             break;
           case 'C':             /* set *LOAD-COMPILING* */
             p2->argv_load_compiling = true;
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             break;
           case 'r': /* -repl */
             if (asciz_equal(&arg[1],"repl"))
               p2->argv_repl = true;
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'i':             /* initialization files */
             if (arg[2] == '\0')
               argv_for = for_init;
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'c':             /* files to be compiled */
@@ -2630,10 +2630,10 @@ local inline int parse_options (int argc, const char* const* argv,
             argv_for = for_compile;
             if (arg[2] == 'l') {
               p2->argv_compile_listing = true;
-              if (arg[3] != '\0') 
+              if (arg[3] != '\0')
                 INVALID_ARG(arg);
             } else {
-              if (arg[2] != '\0') 
+              if (arg[2] != '\0')
                 INVALID_ARG(arg);
             }
             break;
@@ -2642,14 +2642,14 @@ local inline int parse_options (int argc, const char* const* argv,
               p2->argv_compile_listing = true;
             else if (arg[2] == 'p' && arg[3] == 0) {
               argv_for = for_load_path;
-            } else 
+            } else
               INVALID_ARG(arg);
             break;
           case 'o':
             if (asciz_equal(&arg[1],"on-error")) {
               if (argptr < argptr_limit)
                 arg = *argptr++;
-              else 
+              else
                 INVALID_ARG(arg);
               if (asciz_equal(arg,"default"))
                 p2->argv_on_error = ON_ERROR_DEFAULT;
@@ -2668,10 +2668,10 @@ local inline int parse_options (int argc, const char* const* argv,
             } else if (arg[2] == '\0') { /* target for files to be compiled */
               OPTION_ARG;
               if (!((p2->argv_compile_filecount > 0)
-                    && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL))) 
+                    && (p2->argv_compile_files[p2->argv_compile_filecount-1].output_file==NULL)))
                 INVALID_ARG(arg);
               p2->argv_compile_files[p2->argv_compile_filecount-1].output_file = arg;
-            } else 
+            } else
               INVALID_ARG(arg);
             break;
           case 'p': /* package: when repeated, only the last one counts. */
@@ -2681,17 +2681,17 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'a':             /* ANSI CL Compliance */
             if (asciz_equal(arg,"-ansi"))
               p2->argv_ansi = 1; /* ANSI */
-            else 
+            else
               INVALID_ARG(arg);
             break;
           case 'x':             /* execute LISP-expression */
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             argv_for = for_expr;
             break;
           case 'w':            /* wait for keypress after termination */
             p2->argv_wait_keypress = true;
-            if (arg[2] != '\0') 
+            if (arg[2] != '\0')
               INVALID_ARG(arg);
             break;
           case '-':             /* -- GNU-style long options */
@@ -4547,6 +4547,7 @@ global bool interrupt_thread(clisp_thread_t *thr)
 
 /* UP: The signal handler in MT build.
  > arg: not used. */
+global bool quit_on_signal_in_progress = false;
 local void *signal_handler_thread(void *arg)
 {
   while (1) {
@@ -4659,6 +4660,7 @@ local void *signal_handler_thread(void *arg)
       break;
    #endif
     default:
+      quit_on_signal_in_progress = true;
       /* just terminate all threads - the last one will
          kill the process from delete_thread */
       WITH_STOPPED_WORLD(false,{
