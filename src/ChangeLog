@@ -1,11 +1,20 @@
+2010-04-13  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (fill_terminating_signals_mask): add terminating signals to
+	sigset_t mask
+	(async_signal_mask): unblock terminating signals if the process is
+	exiting due to such signal
+	(signal_wait): ignore signals not set in the mask passed to sigwait()
+	(signal_handler_thread) [UNIX_MACOSX]: do not ignore SIGHUP
+
 2010-04-13  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	Fix for a bug#1481218 with default drive directory:
 	within CLISP default_directory_of() is used to fill missed
 	pathname directory component in pathnames like C:lisp.exe.
-	This functionality now added to real_path as well to 
+	This functionality now added to real_path as well to
 	support lisp invocation like 'C:\>e:lisp.exe -M e:lispinit.mem'.
-	* w32shell.c (real_path): detect and handle default drive 
+	* w32shell.c (real_path): detect and handle default drive
 	directory references. Optimization: less use of strlen.
 
 2010-04-12  Vladimir Tzankov  <vtzankov@gmail.com>
