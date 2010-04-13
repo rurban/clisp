@@ -280,13 +280,14 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
   HANDLE h = NULL;
   char * nametocheck;
   char * nametocheck_end;
+  int    name_len;
   /* drive|dir1|dir2|name
            ^nametocheck
                ^nametocheck_end */
   char saved_char;
   BOOL next_name = 0;/* if we found an lnk and need to start over */
   int try_counter = 33;
-  if (strlen(namein) >= MAX_PATH) return FALSE;
+  if ((name_len = strlen(namein)) >= MAX_PATH) return FALSE;
   strcpy(nameout,namein);
   do { /* whole file names */
     next_name = FALSE;
@@ -295,9 +296,26 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
     nametocheck = nameout;
     if (((*nametocheck >= 'a' && *nametocheck <= 'z')
          || (*nametocheck >= 'A' && *nametocheck <= 'Z'))
-        && nametocheck[1] == ':' && cpslashp(nametocheck[2]))
-      /* drive */
-      nametocheck += 3;
+        && nametocheck[1] == ':') 
+    { if (cpslashp(nametocheck[2])) {
+        /* drive */
+        nametocheck += 3;
+      } else {
+        /* default directory on drive */
+        char drive[4] = "C:.", *name;
+        int default_len;
+        drive[0] = namein[0];
+        if (!GetFullPathName(drive,_MAX_PATH,nameout,&name)
+            || (default_len = strlen(nameout)) + name_len
+               >= _MAX_PATH) return FALSE;
+        nameout[default_len] = '\\';
+        strcpy(nameout + default_len + 1, namein + 2);
+        name_len += default_len - 1; /* Was C:lisp.exe
+                                        Now C:\clisp\lisp.exe
+                                        removed 2 
+                                        added default_len + 1 chars */
+        nametocheck += default_len + 1;
+    } }
     else if (nametocheck[0]=='\\' && nametocheck[1]=='\\') {
       int i;
       /* host */
@@ -325,8 +343,8 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
       { char * cp = nametocheck;
         for (;*cp=='.';cp++);
         dots_only = !(*cp) && cp > nametocheck; }
-      /* Stars in the middle of filename: error
-         Stars as pathname: success */
+      /* Asterisks in the middle of filename: error
+         Asterisks as pathname: success */
       { char * cp = nametocheck;
         for (;*cp && *cp!='*';cp++);
         have_stars = *cp == '*'; }
@@ -350,26 +368,27 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
           h = FindFirstFile(nameout,&wfd);
           if (h != INVALID_HANDLE_VALUE) {
             /* make space for full (non 8.3) name component */
-            int l = strlen(wfd.cFileName);
+            int     l = strlen(wfd.cFileName), 
+                 oldl = nametocheck_end - nametocheck,
+                 new_name_len = name_len + l - oldl;
             FindClose(h);
-            if (l != (nametocheck_end - nametocheck)) {
+            if (new_name_len >= _MAX_PATH) return FALSE;
+            if (l != oldl) {
               int restlen =
-                saved_char?(strlen(nametocheck_end+1)
-                            +1/*saved_char*/+1/*zero byte*/)
-                :0;
-              if (nametocheck - nameout + restlen + l + 2 > MAX_PATH)
-                return FALSE;
-              if (restlen) memmove(nametocheck+l,nametocheck_end,restlen);
+                saved_char?(name_len - (nametocheck_end - nameout)):0;
+              memmove(nametocheck+l,nametocheck_end,restlen);
             }
             strncpy(nametocheck,wfd.cFileName,l);
             nametocheck_end = nametocheck + l;
+            name_len = new_name_len;
           } else {/* try shortcut 
-                     Note: In something\cyglink.lnk filename isn't resolved 
-                           so one can read/write symlink .lnk files although 
-                           they are not in DIRECTORY output.
+                     Note: something\cyglink.lnk doesn't resolve to the contents
+                           of cyglink.lnk so one can read/write symlink .lnk 
+                           files although they are not present in DIRECTORY output.
                            Is it bug or feature? */
             char saved[4];
             char resolved[MAX_PATH];
+            int  resolved_len;
             shell_shortcut_target_t rresult;
             if (nametocheck_end - nameout + 4 > MAX_PATH) return FALSE;
             strncpy(saved,nametocheck_end+1,4);
@@ -383,13 +402,15 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
                 || (saved_char ? rresult == shell_shortcut_file
                     : rresult == shell_shortcut_directory))
               return FALSE;
+            resolved_len = strlen(resolved);
             if (saved_char) {
               /*need to subst nameout..nametocheck-1 with resolved path */
-              int l1 = strlen(resolved);
-              int l2 = strlen(nametocheck_end + 1);
-              if (l1 + l2 + 2 > MAX_PATH) return FALSE;
-              strncat(resolved,nametocheck_end + 1,l2+1);
+              int l2 = name_len - (nametocheck_end - nameout);
+              if (resolved_len + l2 + 2 > MAX_PATH) return FALSE;
+              strncpy(resolved + resolved_len, nametocheck_end + 1, l2);
+              name_len = l2 - 1;
             }
+            name_len += resolved_len;
             strcpy(nameout,resolved);
             next_name = TRUE;
           }
