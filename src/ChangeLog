@@ -1,3 +1,13 @@
+2010-04-13  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Fix for a bug#1481218 with default drive directory:
+	within CLISP default_directory_of() is used to fill missed
+	pathname directory component in pathnames like C:lisp.exe.
+	This functionality now added to real_path as well to 
+	support lisp invocation like 'C:\>e:lisp.exe -M e:lispinit.mem'.
+	* w32shell.c (real_path): detect and handle default drive 
+	directory references. Optimization: less use of strlen.
+
 2010-04-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_sigterm.d (quit_on_signal_in_progress): move to spvw.d
