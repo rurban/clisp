@@ -4269,13 +4269,39 @@ local int timeval_subtract(struct timeval *result,
 /* SIGUSR2 WILL BE used for CALL-WITH-TIMEOUT */
 #define SIG_TIMEOUT_CALL SIGUSR2
 
+/* UP: adds to sigset_t mask all terminating signals we handle
+ > mask: sigset_t mask to add to */
+local void fill_terminating_signals_mask(sigset_t *mask)
+{
+#ifdef SIGHUP
+  sigaddset(mask,SIGHUP);
+#endif
+#ifdef SIGQUIT
+  sigaddset(mask,SIGQUIT);
+#endif
+#ifdef SIGILL
+  sigaddset(mask,SIGILL);
+#endif
+#ifdef SIGABRT
+  sigaddset(mask,SIGABRT);
+#endif
+#ifdef SIGKILL
+  sigaddset(mask,SIGKILL);
+#endif
+#ifdef SIGTERM
+  sigaddset(mask,SIGTERM);
+#endif
+#ifdef SIGTTOU
+  /* always ignored */
+  sigaddset(mask,SIGTTOU);
+#endif
+}
+
 /* UP: creates mask of signals that we do not want to be delivered
    directly to threads. The same signals are handled by special non
    lisp thread */
 local sigset_t async_signal_mask()
 {
-  /* TODO: SIGCLD needs special handling - it's possible
-     to leave some zombie probably. */
   var sigset_t sigblock_mask;
   sigemptyset(&sigblock_mask);
   sigaddset(&sigblock_mask,SIGINT);
@@ -4284,31 +4310,17 @@ local sigset_t async_signal_mask()
  #if defined(SIGWINCH)
   sigaddset(&sigblock_mask,SIGWINCH);
  #endif
-  /* following are terminating signals - handle them only if we are not
-     already being killed*/
   if (!quit_on_signal_in_progress) {
-   #ifdef SIGHUP
-    sigaddset(&sigblock_mask,SIGHUP);
-   #endif
-   #ifdef SIGQUIT
-    sigaddset(&sigblock_mask,SIGQUIT);
-   #endif
-   #ifdef SIGILL
-    sigaddset(&sigblock_mask,SIGILL);
-   #endif
-   #ifdef SIGABRT
-    sigaddset(&sigblock_mask,SIGABRT);
-   #endif
-   #ifdef SIGKILL
-    sigaddset(&sigblock_mask,SIGKILL);
-   #endif
-   #ifdef SIGTERM
-    sigaddset(&sigblock_mask,SIGTERM);
-   #endif
-   #ifdef SIGTTOU
-    /* always ignored */
-    sigaddset(&sigblock_mask,SIGTTOU);
-   #endif
+    /* add terminating signals */
+    fill_terminating_signals_mask(&sigblock_mask);
+  } else {
+    /* till now terminating signals were blocked so we can retrieve
+       them synchronously via sigwait(). Now after we got one - unblock
+       them so on next such the process will be terminated immediately. */
+    var sigset_t term_mask;
+    sigemptyset(&term_mask);
+    fill_terminating_signals_mask(&term_mask);
+    sigprocmask(SIG_UNBLOCK,&term_mask,NULL);
   }
   return sigblock_mask;
 }
@@ -4317,12 +4329,16 @@ local sigset_t async_signal_mask()
  < returns signal number */
 local int signal_wait()
 {
-  var int sig;
+  var int sig = 0; /* initialize it with invalid value */
   var sigset_t sig_mask=async_signal_mask();
-  while (sigwait(&sig_mask, &sig)) {
-    /* strange - no way to have bad mask but it happens sometimes
-       (observed on 32 bit debian during (disaseemble 'car) and
-       CTRL-Z and "fg" later) */
+  while (sigwait(&sig_mask, &sig) ||
+         !sigismember(&sig_mask,sig)) {
+    /* Strange - no way to have bad mask but it happens sometimes
+       (observed on 32 bit debian during (disassemble 'car) and
+       CTRL-Z and "fg" later).
+       Also on osx was observed success from sigwait() without setting any
+       value in &sig.
+       Ignore both cases (sigwait() failure and signal not in the waited set)*/
   }
   return sig;
 }
@@ -4659,13 +4675,6 @@ local void *signal_handler_thread(void *arg)
    #ifdef SIGTTOU
     case SIGTTOU:
       break; /* just ignore it */
-   #endif
-   #ifdef UNIX_MACOSX
-      /* TODO: vfork()-ed processes cause SIGHUP/SIGCONT on OSX.
-         currently - ignore them - but it's TODO item. .*/
-    case SIGHUP:
-    case SIGCONT:
-      break;
    #endif
     default:
       /* just terminate all threads - the last one will
