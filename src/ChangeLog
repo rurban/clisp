@@ -1,3 +1,7 @@
+2010-04-14  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp: set package/impnotes documentation for package THREADS
+
 2010-04-13  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (fill_terminating_signals_mask): add terminating signals to
