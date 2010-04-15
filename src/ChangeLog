@@ -1,3 +1,9 @@
+2010-04-15  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	fix bug#2987732: mt: clisp hangs repeating sched_yield()
+	* stream.d (begin_rl_callback, end_rl_callback): define and use instead
+	of begin_callback() and end_callback() in readline callbacks
+
 2010-04-15  Sam Steingold  <sds@gnu.org>
 
 	* query.lisp (y-or-n-p, yes-or-no-p): call (FORCE-OUTPUT *QUERY-IO*)
@@ -46480,7 +46486,8 @@
 
 	* genclisph.d (main): Define minus_bit, needed for minus_wbit. Define
 	  minus_wbit, needed for framecode. In end_callback, use `framecode'
-	  instead of `mtypecode'. Define uintP, needed for framebottomword,
+	  instead of `mtypecode'. Define uintP, needed for framebottomwordf1
+	,
 	  needed for finish_frame, needed for begin_callback.
 
 1999-09-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>

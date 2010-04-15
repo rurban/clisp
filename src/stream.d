@@ -9267,6 +9267,10 @@ LISPFUNN(make_keyboard_stream,0) {
    =========================== */
 
 #if defined(GNU_READLINE)
+
+#define begin_rl_callback() end_blocking_call(); begin_callback()
+#define end_rl_callback() end_callback(); begin_blocking_call()
+
 /* Function to ignore unconvertible symbols. */
 local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
                                    object condition) {
@@ -9278,7 +9282,7 @@ local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
 local maygc char** lisp_completion (char* text, int start, int end) {
   /* text[start..end-1] = thing to complete within line of text
    This is a Callback-Function, we must set the Stack correctly again: */
-  begin_callback();
+  begin_rl_callback();
  #ifdef ENABLE_UNICODE
   { var object encoding = O(terminal_encoding);
     start = Encoding_mblen(encoding)(encoding,(const uintB*)text,
@@ -9296,10 +9300,10 @@ local maygc char** lisp_completion (char* text, int start, int end) {
   /* reconstruct List of Simple-Strings in malloc-ed Array from malloc-ed
    Asciz-Strings: */
   if (nullp(mlist)) {
-    end_callback();
+    end_rl_callback();
     return NULL;
   } else if (eq(mlist,Fixnum_0)) { /* complete called describe => redraw */
-    end_callback();
+    end_rl_callback();
     rl_refresh_line(0,0);
     return NULL;
   } else if (!consp(mlist)) {
@@ -9315,7 +9319,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
   var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
   end_system_call();
   if (array==NULL) {
-    end_callback();
+    end_rl_callback();
     return NULL;
   }
   {
@@ -9355,7 +9359,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
           end_system_call();
           unwind_HANDLER_frame();
           skipSTACK(3+1); /* unwind CATCH frame, pop mlist */
-          end_callback();
+          end_rl_callback();
           return NULL;
         }
         end_system_call();
@@ -9380,7 +9384,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
     end_system_call();
     array = NULL;
   }
-  end_callback();
+  end_rl_callback();
   return array;
 }
 #endif
@@ -15428,7 +15432,7 @@ nonreturning_function(local, rl_memory_abort, (void)) {
    drop it and replace the *TERMINAL-IO* with another
    terminal-stream without ReadLine */
   rl_deprep_terminal(); /* cancel all ioctl()s */
-  begin_callback(); /* reset STACK to a reasonable value */
+  begin_rl_callback(); /* reset STACK to a reasonable value */
   rl_gnu_readline_p = false;
   Symbol_value(S(terminal_io)) = make_terminal_stream();
   error(storage_condition,GETTEXT("readline library: out of memory."));
