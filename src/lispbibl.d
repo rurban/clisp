@@ -1073,7 +1073,7 @@
   #define alloca _alloca
 #elif defined(HAVE_ALLOCA_H)
   #include <alloca.h>
-  #ifndef alloca /* Manche definieren 'alloca' als Macro... */
+  #ifndef alloca /* some define 'alloca' as macro... */
     #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX))
       /* OSF/1 V3 declares `alloca' as returning char*, but in OSF/1 V4
        it returns void*. I don't know how to distinguish the two. */
