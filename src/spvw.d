@@ -2260,6 +2260,10 @@ local inline void fini_lowest_level (void) {
  #if defined(UNIX)
   terminal_sane();            /* switch terminal again in normal mode */
  #endif
+ #if defined(GNU_READLINE)
+  if (rl_deprep_term_function)
+    (*rl_deprep_term_function) ();
+ #endif
 }
 
 /* There are three type of command-line options:
@@ -4694,6 +4698,7 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,T); /* do not defer the interrupt */
           all_succeeded &= interrupt_thread(thread);
         });
+        fini_lowest_level();
         if (!all_succeeded) {
           fputs("*** some threads were not signaled to terminate.",stderr);
           exit(-sig); /* nothing we can do - exit immediately (cannot call quit
