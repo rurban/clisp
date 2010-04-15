@@ -1,3 +1,10 @@
+2010-04-15  Sam Steingold  <sds@gnu.org>
+
+	fix bug #2986052: mt/readline: terminal is left raw on crash
+	* spvw.d (fini_lowest_level) [GNU_READLINE]: call
+	rl_deprep_term_function to restore the terminal state
+	(signal_handler_thread): call fini_lowest_level
+
 2010-04-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix bug#2987732: mt: clisp hangs repeating sched_yield()
