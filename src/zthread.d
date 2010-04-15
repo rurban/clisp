@@ -397,7 +397,7 @@ local maygc void remove_timeout_call(timeout_call *tc)
      this will leave bad pointer in the chain and will cause SIGSEGV in
      signal handling thread */
   spinlock_acquire(&timeout_call_chain_lock);
-  timeout_call **lastnextp=&timeout_call_chain,*chain=timeout_call_chain;
+  var timeout_call **lastnextp=&timeout_call_chain,*chain=timeout_call_chain;
   while (chain != NULL && chain != tc) {
     lastnextp=&chain->next; chain=chain->next;
   }
