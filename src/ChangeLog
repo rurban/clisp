@@ -1,3 +1,8 @@
+2010-04-15  Sam Steingold  <sds@gnu.org>
+
+	* query.lisp (y-or-n-p, yes-or-no-p): call (FORCE-OUTPUT *QUERY-IO*)
+	after every output to *QUERY-IO*
+
 2010-04-14  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp: set package/impnotes documentation for package THREADS
