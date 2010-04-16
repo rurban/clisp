@@ -1,5 +1,10 @@
 2010-04-16  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-recompile): remove the 2001-06-15
+	*GENSYM-COUNTER* hack because we no longer have GENSYMs in FLETs
+
+2010-04-16  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp: use RT:REM-TEST to disable CHAR-INT.2
 	instead of redefining a function
 
