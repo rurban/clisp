@@ -3021,22 +3021,10 @@ if [ $CROSS = false ] ; then
   echol
 
   echol "# Test: recompile \$(LISPFILES) and compare their contents."
-
   echol "check-recompile : lispinit.mem ${RECOMPILEDIR} \$(TESTFASFILES)"
   if [ $HOS = unix -o $HSYS = win32gcc ] ; then
-    # replace GENSYMs with a string
-    SEDRE='s/\(#Y([-a-zA-Z:]\{1,\}\)[0-9]\{2,\}\(-*[0-9]*\)/\1<GENSYM>\2/g'
-    FAIL=' || (echo "Test failed." ; exit 1)'
     for f in $LPARTS config; do
-      # add the lisp files with GENSYMS in FLET here
-      if [ ${f} = "threads" ]; then
-        echotab "sed '${SEDRE}' ${f}.fas > ${f}.fas1"
-        echotab "sed '${SEDRE}' ${RECOMPILEDIR}/${f}.fas > ${RECOMPILEDIR}/${f}.fas1"
-        echotab "cmp -s ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1 ${FAIL}"
-        echotab "\$(RM) ${f}.fas1 ${RECOMPILEDIR}/${f}.fas1"
-      else
-        echotab "cmp -s ${f}.fas ${RECOMPILEDIR}/${f}.fas ${FAIL}"
-      fi
+      echotab "cmp -s ${f}.fas ${RECOMPILEDIR}/${f}.fas "' || (echo "Test failed." ; exit 1)'
     done
     echotab 'echo "Test passed."'
     echol
@@ -3055,25 +3043,13 @@ if [ $CROSS = false ] ; then
   echotab "-mkdir ${RECOMPILEDIR}"
   echol
 
-  # have to reset *GENSYM-COUNTER* in the test image since the compiled
-  # files can (and some actually do, like threads.lisp) contain GENSYMed
-  # FLET locals, whose names are written to the FAS files
-  TESTIMAGE="${RECOMPILEDIR}${NEXT_M}testinit.mem"
-  echol "${TESTIMAGE}: lispinit.mem"
-  # this does not help, unfortunately, since the number of GENSYM calls
-  # depends on which files went into halfcompiled.mem as FAS files
-  #  echotab "\$(RUN) -M lispinit.mem -x \"(setq *gensym-counter* (- \`\$(RUN) -q -M halfcompiled.mem -x '*gensym-counter*'\` 16)) (sys::%saveinitmem) (exit)\""
-  #  echotab "\$(MV) lispimag.mem ${TESTIMAGE}"
-  echotab "\$(CP) lispinit.mem ${TESTIMAGE}"
-  echol
-
   for f in $LPARTS; do
-    echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}"
+    echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} lispinit.mem"
+    echotab "\$(RUN) -m 1MW -M lispinit.mem -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}"
     echol
   done
-  echol "${RECOMPILEDIR}${NEXT_M}config.fas : config.lisp lisp${LEXE} ${TESTIMAGE}"
-  echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}"
+  echol "${RECOMPILEDIR}${NEXT_M}config.fas : config.lisp lisp${LEXE} lispinit.mem"
+  echotab "\$(RUN) -m 1MW -M lispinit.mem -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}"
   echol
 
   echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
