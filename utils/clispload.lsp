@@ -246,4 +246,4 @@
 (when (and (= (logand (sys::address-of nil) #xffffff) 0) ; SPVW_PURE_BLOCKS ?
            (<= (integer-length most-positive-fixnum) 26)) ; 32-bit machine ?
   ;; Inhibit the CHAR-INT.2 test.
-  (defun char-int.2.fn () t))
+  (rt:rem-test 'char-int.2))
