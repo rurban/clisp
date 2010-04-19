@@ -705,6 +705,13 @@ global void delete_thread (clisp_thread_t *thread) {
   xmutex_raw_destroy(&thread->_gc_suspend_lock);
   end_system_call();
 
+  #ifdef WIN32_NATIVE
+  /* deinitialize COM library */
+  begin_system_call();
+  CoUninitialize();
+  end_system_call();
+  #endif
+
   /* remove from threads list */
   if (thread->thr_prev) { /* ! first threads */
     thread->thr_prev->thr_next = thread->thr_next;

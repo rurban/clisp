@@ -3297,6 +3297,12 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <shlobj.h>
+
+/* defined in w32shell.c */
+extern HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                           DWORD dwClsContext, REFIID riid,
+                           LPVOID * ppv );
+
 DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
            ARCHIVE COMPRESSED :DEVICE :DIRECTORY ENCRYPTED HIDDEN :NORMAL \
@@ -3360,7 +3366,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
 
   /* Get a pointer to the IShellLink interface. */
   begin_blocking_system_call();
-  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+  hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
   end_blocking_system_call();
@@ -3486,6 +3492,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   { /* Ensure that the string is Unicode & Save the shortcut. */
     WCHAR wsz[MAX_PATH];
     with_string_0(*file, GLO(pathname_encoding), pathz, {
+printf("Saving link to %s\n", pathz);
       MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
       hres = ppf->lpVtbl->Save(ppf, wsz, TRUE);
       if (!SUCCEEDED(hres)) goto fail_ppf;
@@ -3515,7 +3522,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
 
   /* Get a pointer to the IShellLink interface. */
   begin_blocking_system_call();
-  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+  hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
   /* Get a pointer to the IPersistFile interface. */
