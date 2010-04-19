@@ -10009,6 +10009,8 @@ local maygc object make_terminal_stream_ (void) {
   var bool same_tty = stdin_tty && stdout_tty && stdio_same_tty_p();
   end_system_call();
  #ifdef HAVE_TERMINAL3
+  /* we handle all signals ourselves */
+  rl_catch_signals = 0;
   if (rl_gnu_readline_p && same_tty && !disable_readline) { /* Build a TERMINAL3-Stream: */
     pushSTACK(make_ssstring(80)); /* allocate line-buffer */
     pushSTACK(make_ssstring(80)); /* allocate line-buffer */

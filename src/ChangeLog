@@ -1,3 +1,8 @@
+2010-04-19  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (make_terminal_stream_) [HAVE_TERMINAL3]: disable
+	readline signal handling by setting "rl_catch_signals = 0"
+
 2010-04-19  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	Fix COM library initialization in MT version.
