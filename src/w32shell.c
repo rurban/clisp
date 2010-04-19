@@ -116,6 +116,21 @@ enum cygsym_enum is_cygwin_symlink (const char * filename)
   return result;
 }
 
+/* We will need "breakthrough" (BT) version of every COM function
+   which could be called on unitialized (in the current thread)
+   COM library  */
+
+HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                           DWORD dwClsContext, REFIID riid,
+                           LPVOID * ppv ) 
+{
+  HRESULT result;
+  result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+  if (result != CO_E_NOTINITIALIZED 
+      || CoInitialize(NULL) != S_OK) return result;
+  return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+}
+
 /* extracts a filename field from windows shortcut
  > filename: name the shortcut file
  < resolved: buffer not less than MAX_PATH
@@ -131,7 +146,7 @@ static BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
      probably it should be fixed */
   if (is_cygwin_symlink(filename) != cygsym_issym) return FALSE;
   /* Get a pointer to the IShellLink interface. */
-  hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+  hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID *) &psl);
   if (FAILED(hres)) return FALSE;
   /* Get a pointer to the IPersistFile interface. */
