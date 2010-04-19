@@ -1,17 +1,15 @@
 2010-04-19  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	Fix COM library initialization in MT version
-	* w32shell.c (BTCoCreateInstance): CoCreateInstance 
+	Fix COM library initialization in MT version.
+	* w32shell.c (BTCoCreateInstance): CoCreateInstance
 	with call of CoInitialize if needed.
 	(resolve_shell_shortcut): use it.
-	* spvw.d (delete_thread) [WIN32_NATIVE]: call 
+	* spvw.d (delete_thread) [WIN32_NATIVE]: call
 	CoUninitialize on each thread exit.
-	* win32aux.d (done_win32) [MULTITHREAD]: do not 
-	call CoUninitialize.
-	* modules/syscalls/calls.c (BTCoCreateInstance) [WIN32_NATIVE]:
-	declaration.
-	(POSIX::MAKE-SHORTCUT, POSIX::SHORTCUT-INFO): use 
-	BTCoCreateInstance instead of CoCreateInstance.
+	* win32aux.d (done_win32) [MULTITHREAD]: do not call CoUninitialize.
+	* modules/syscalls/calls.c (BTCoCreateInstance) [WIN32_NATIVE]: declare
+	(POSIX::MAKE-SHORTCUT, POSIX::SHORTCUT-INFO) [WIN32_NATIVE]:
+	use BTCoCreateInstance instead of CoCreateInstance.
 
 2010-04-16  Sam Steingold  <sds@gnu.org>
 

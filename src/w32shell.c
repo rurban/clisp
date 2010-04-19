@@ -33,7 +33,7 @@ int shell_quote (char * dest, const char * source) {
 #include <shlobj.h>
 
 /* is_cygwin_symlink based on path.cc from cygwin sources
-   for win_shortcut_hdr description see also, 
+   for win_shortcut_hdr description see also,
    http://msdn.microsoft.com/en-us/library/dd871305(PROT.10).aspx */
 
 static const GUID GUID_shortcut =
@@ -41,12 +41,12 @@ static const GUID GUID_shortcut =
 
 enum {
   WSH_FLAG_IDLIST = 0x01,
-  WSH_FLAG_FILE = 0x02,        
-  WSH_FLAG_DESC = 0x04,        
+  WSH_FLAG_FILE = 0x02,
+  WSH_FLAG_DESC = 0x04,
   WSH_FLAG_RELPATH = 0x08,
   WSH_FLAG_WD = 0x10,
-  WSH_FLAG_CMDLINE = 0x20,        
-  WSH_FLAG_ICON = 0x40                
+  WSH_FLAG_CMDLINE = 0x20,
+  WSH_FLAG_ICON = 0x40
 };
 
 struct win_shortcut_hdr
@@ -105,8 +105,8 @@ enum cygsym_enum is_cygwin_symlink (const char * filename)
     struct win_shortcut_hdr header;
     if (!GetFileInformationByHandle (handle, &finfo)) break;
     result = cygsym_notsym;
-    if (!(finfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) break; 
-    if (GetFileSize (handle, NULL) > 8192) break; 
+    if (!(finfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY)) break;
+    if (GetFileSize (handle, NULL) > 8192) break;
     if (!ReadFile (handle, &header, WINSHDRSIZE, &got, NULL)) break;
     if (got != WINSHDRSIZE || !cmp_shortcut_header (&header))
       break;
@@ -120,14 +120,13 @@ enum cygsym_enum is_cygwin_symlink (const char * filename)
    which could be called on unitialized (in the current thread)
    COM library  */
 
-HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
-                           DWORD dwClsContext, REFIID riid,
-                           LPVOID * ppv ) 
+HRESULT BTCoCreateInstance (REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                            DWORD dwClsContext, REFIID riid,
+                            LPVOID * ppv)
 {
-  HRESULT result;
-  result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
-  if (result != CO_E_NOTINITIALIZED 
-      || CoInitialize(NULL) != S_OK) return result;
+  HRESULT result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+  if (result != CO_E_NOTINITIALIZED || CoInitialize(NULL) != S_OK)
+    return result;
   return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
 }
 
@@ -142,12 +141,12 @@ static BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
   BOOL result = FALSE;
   IPersistFile* ppf;
 
-  /* no matter it's FS error or not cygwin shortcut - 
+  /* no matter it's FS error or not cygwin shortcut -
      probably it should be fixed */
   if (is_cygwin_symlink(filename) != cygsym_issym) return FALSE;
   /* Get a pointer to the IShellLink interface. */
   hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                          &IID_IShellLink, (LPVOID *) &psl);
+                            &IID_IShellLink, (LPVOID*)&psl);
   if (FAILED(hres)) return FALSE;
   /* Get a pointer to the IPersistFile interface. */
   hres = psl->lpVtbl->QueryInterface(psl, &IID_IPersistFile,(LPVOID *) &ppf);
@@ -311,7 +310,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
     nametocheck = nameout;
     if (((*nametocheck >= 'a' && *nametocheck <= 'z')
          || (*nametocheck >= 'A' && *nametocheck <= 'Z'))
-        && nametocheck[1] == ':') 
+        && nametocheck[1] == ':')
     { if (cpslashp(nametocheck[2])) {
         /* drive */
         nametocheck += 3;
@@ -327,7 +326,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
         strcpy(nameout + default_len + 1, namein + 2);
         name_len += default_len - 1; /* Was C:lisp.exe
                                         Now C:\clisp\lisp.exe
-                                        removed 2 
+                                        removed 2
                                         added default_len + 1 chars */
         nametocheck += default_len + 1;
     } }
@@ -383,7 +382,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
           h = FindFirstFile(nameout,&wfd);
           if (h != INVALID_HANDLE_VALUE) {
             /* make space for full (non 8.3) name component */
-            int     l = strlen(wfd.cFileName), 
+            int     l = strlen(wfd.cFileName),
                  oldl = nametocheck_end - nametocheck,
                  new_name_len = name_len + l - oldl;
             FindClose(h);
@@ -396,9 +395,9 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
             strncpy(nametocheck,wfd.cFileName,l);
             nametocheck_end = nametocheck + l;
             name_len = new_name_len;
-          } else {/* try shortcut 
+          } else {/* try shortcut
                      Note: something\cyglink.lnk doesn't resolve to the contents
-                           of cyglink.lnk so one can read/write symlink .lnk 
+                           of cyglink.lnk so one can read/write symlink .lnk
                            files although they are not present in DIRECTORY output.
                            Is it bug or feature? */
             char saved[4];
