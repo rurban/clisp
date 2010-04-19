@@ -362,11 +362,11 @@ global void done_win32 (void) {
     earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
   }
   winsock_initialized = 0;
+ #ifndef MULTITHREAD
   if (com_initialized) {
     CoUninitialize();
     com_initialized = false;
   }
- #ifndef MULTITHREAD
   if (interruptible_thread) {
     TerminateThread(interruptible_thread,0);
     interruptible_thread = NULL;
