@@ -3299,9 +3299,9 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #include <shlobj.h>
 
 /* defined in w32shell.c */
-extern HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
-                           DWORD dwClsContext, REFIID riid,
-                           LPVOID * ppv );
+extern HRESULT BTCoCreateInstance (REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                                   DWORD dwClsContext, REFIID riid,
+                                   LPVOID * ppv);
 
 DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
@@ -3367,7 +3367,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   /* Get a pointer to the IShellLink interface. */
   begin_blocking_system_call();
   hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                          &IID_IShellLink, (LPVOID*)&psl);
+                            &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
   end_blocking_system_call();
   if (!missingp(STACK_0)) {     /* PATH */
@@ -3523,7 +3523,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
   /* Get a pointer to the IShellLink interface. */
   begin_blocking_system_call();
   hres = BTCoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                          &IID_IShellLink, (LPVOID*)&psl);
+                            &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
   /* Get a pointer to the IPersistFile interface. */
   hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile,(LPVOID*)&ppf);
