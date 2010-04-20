@@ -9722,11 +9722,12 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       var char* prompt; /* Prompt: last output line */
       {
         var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
-        begin_system_call();
-        prompt = (char*) malloc(Sbvector_length(lastline)+1);
-        if (prompt!=NULL)
+        prompt = (char*)alloca(Sbvector_length(lastline)+1);
+        if (prompt!=NULL) {
+          begin_system_call();
           strcpy(prompt,TheAsciz(lastline));
-        end_system_call();
+          end_system_call();
+        }
       }
       /* lexema-separating characters: with syntax code whsp,tmac,nmac
        (see IO.D, actually depends on the current *READTABLE*): */
@@ -9739,9 +9740,6 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       var char* line = strip_white(readline(prompt==NULL ? "" : prompt));
       end_blocking_system_call();
       run_time_restart(); /* resume run time clock */
-      if (!(prompt==NULL)) {
-        begin_system_call(); free(prompt); end_system_call();
-      }
       if (line==NULL)
         /* detect EOF (at the start of line) */
         return eof_value;
