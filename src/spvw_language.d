@@ -62,6 +62,7 @@ local object current_language_o (uintL lang) {
 }
 
 local bool init_language_from (const char* langname) {
+  if (NULL == langname) return false;
   if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english")) {
     language = language_english; return true;
   }
@@ -117,18 +118,11 @@ global void init_language (const char* argv_language,
      3. environment-variable CLISP_LANGUAGE
      4. environment-variable LANG
      5. default: English */
-  if (argv_language) {
-    if (init_language_from(argv_language))
-      goto chosen1;
-  }
+  if (init_language_from(argv_language))
+    goto chosen1;
  #ifdef HAVE_ENVIRONMENT
-  {
-    var const char* langname = getenv("CLISP_LANGUAGE");
-    if (langname) {
-      if (init_language_from(langname))
-        goto chosen1;
-    }
-  }
+  if (init_language_from(getenv("CLISP_LANGUAGE")))
+    goto chosen1;
  #endif
  #ifdef GNU_GETTEXT
   /* The analysis of getenv("LANG") below will be done - in more detail -
