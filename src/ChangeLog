@@ -11,6 +11,8 @@
 	(c-style-warn): do not increase *STYLE-WARNING-COUNT* & *WARNING-COUNT*
 	* condition.lisp (warn-of-type): increase *WARNING-COUNT* and
 	*STYLE-WARNING-COUNT* here when they are bound
+	* utils/clispload.lsp (*expected-failures*): remove COMPILE-FILE.2
+	& COMPILE-FILE.2A
 
 2010-04-19  Sam Steingold  <sds@gnu.org>
 
