@@ -1,5 +1,10 @@
 2010-04-20  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (rd_ch_terminal3): use alloca instead of malloc to
+	allocate the prompt
+
+2010-04-20  Sam Steingold  <sds@gnu.org>
+
 	COMPILER-DIAGNOSTICS:USE-HANDLER: COMPILE-FILE must notice the
 	warnings signaled by EVAL-WHEN
 	* compiler.lisp (c-warn): do not increase *WARNING-COUNT* here
