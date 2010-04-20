@@ -1,5 +1,10 @@
 2010-04-20  Sam Steingold  <sds@gnu.org>
 
+	* Makefile (LISP): use "LC_MESSAGES=en_US" & "-L english" to
+	ensure that all messages are in English
+
+2010-04-20  Sam Steingold  <sds@gnu.org>
+
 	* list-set.tst: add tests for INTERSECTION, UNION,
 	SET-EXCLUSIVE-OR, SUBSETP
 
