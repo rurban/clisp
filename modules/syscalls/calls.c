@@ -3492,7 +3492,6 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   { /* Ensure that the string is Unicode & Save the shortcut. */
     WCHAR wsz[MAX_PATH];
     with_string_0(*file, GLO(pathname_encoding), pathz, {
-printf("Saving link to %s\n", pathz);
       MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
       hres = ppf->lpVtbl->Save(ppf, wsz, TRUE);
       if (!SUCCEEDED(hres)) goto fail_ppf;
