@@ -6,7 +6,8 @@ BD=../
 # executable extension (.exe on win32, .run everywhere else)
 LEXE=.run
 
-LISP=$(BD)lisp$(LEXE) -E utf-8 -norc -B $(BD) -N $(BD)locale -M $(BD)lispinit.mem -m 30MW
+# ensure that all messages are in English
+LISP = LC_MESSAGES=en_US $(BD)lisp$(LEXE) -E utf-8 -norc -B $(BD) -N $(BD)locale -M $(BD)lispinit.mem -m 30MW -L english
 # LISP=../clisp -norc
 # LISP=clisp -norc
 
