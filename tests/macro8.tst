@@ -736,6 +736,25 @@ NIL
  77759)
 77759
 
+;; COMPILER-DIAGNOSTICS:USE-HANDLER:
+;; COMPILE-FILE must notice the warnings signaled by EVAL-WHEN
+(let ((file "macro8-tst-warn.lisp"))
+  (with-open-file (out file :direction :output)
+    (write '(eval-when (:compile-toplevel)
+             (define-condition test-warning-compile-file-1 (style-warning) nil)
+             (warn (make-condition 'test-warning-compile-file-1)))
+           :stream out)
+    (terpri out)
+    (write '(eval-when (:compile-toplevel)
+             (define-condition test-warning-compile-file-2 (warning) nil)
+             (warn (make-condition 'test-warning-compile-file-2)))
+           :stream out)
+    (terpri out))
+  (unwind-protect
+       (cdr (multiple-value-list (compile-file file)))
+    (post-compile-file-cleanup file)))
+(2 1)                         ; 2 warnings, 1 of them serious
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=860052&group_id=1355&atid=101355>
 (test-compiler
  (lambda ()
@@ -1264,6 +1283,8 @@ check-const-fold
   (symbol-cleanup 'ltv1)
   (symbol-cleanup 'ltv2)
   (symbol-cleanup 'ltv3)
+  (symbol-cleanup 'test-warning-compile-file-1)
+  (symbol-cleanup 'test-warning-compile-file-2)
   (symbol-cleanup 'm)
   (symbol-cleanup 'm1)
   (symbol-cleanup 'mexpand)

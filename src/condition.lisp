@@ -1643,6 +1643,10 @@
             :datum condition :expected-type 'warning
             (TEXT "~S: This is more serious than a warning: ~A")
             'warn condition))
+        (when (boundp '*warning-count*) (incf *warning-count*))
+        (when (and (boundp '*style-warning-count*)
+                   (typep condition 'style-warning))
+          (incf *style-warning-count*))
         (with-restarts ((MUFFLE-WARNING () (return-from warn)))
           (with-condition-restarts condition (list (find-restart 'MUFFLE-WARNING))
             (signal condition)))
