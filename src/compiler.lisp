@@ -69,9 +69,9 @@
 
 ;; variables for top-level-call:
 (defvar *compiling* nil) ; specifies, if inside the process of compilation
-;; (defvar *error-count*) ; number of errors
-;; (defvar *warning-count*) ; number of warnings
-;; (defvar *style-warning-count*) ; number of style-warnings
+(defvar *error-count*) ; number of errors
+(defvar *warning-count*) ; number of warnings
+(defvar *style-warning-count*) ; number of style-warnings
 (defvar *compile-warnings* t) ; if compiler-warnings are reported
 (defvar *compile-verbose* t) ; if compiler-comments are reported
 (defvar *compile-print* nil) ; if compiler reports, where he currently is
@@ -1928,19 +1928,14 @@ for-value   NIL or T
          (string-concat (TEXT "WARNING: ~A") "~%" cstring)
          (c-current-location) args))
 
-(defvar *warning-count*)
 ;;; (C-WARN format-control-string . args)
 ;;; issue a compilation warning using FORMAT.
 (defun c-warn (cstring &rest args)
-  (incf *warning-count*)
   (apply 'c-warning 'sys::simple-warning cstring args))
 
-(defvar *style-warning-count*)
 ; (C-STYLE-WARN controlstring . args)
 ; issue a style-warning (via FORMAT).
 (defun c-style-warn (cstring &rest args)
-  (incf *style-warning-count*)
-  (incf *warning-count*)
   (apply 'c-warning 'sys::simple-style-warning cstring args))
 
 ;; continuable compiler error
@@ -1952,7 +1947,6 @@ for-value   NIL or T
   (apply #'format *c-error-output* cstring args)
   (elastic-newline *c-error-output*))
 
-(defvar *error-count*)
 ;; (C-ERROR controlstring . args)
 ;; issue a compiler error (via FORMAT) and terminate the current C-FORM.
 (defun c-error (detail cstring &rest args)

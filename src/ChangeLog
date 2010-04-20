@@ -1,3 +1,12 @@
+2010-04-20  Sam Steingold  <sds@gnu.org>
+
+	COMPILER-DIAGNOSTICS:USE-HANDLER: COMPILE-FILE must notice the
+	warnings signaled by EVAL-WHEN
+	* compiler.lisp (c-warn): do not increase *WARNING-COUNT* here
+	(c-style-warn): do not increase *STYLE-WARNING-COUNT* & *WARNING-COUNT*
+	* condition.lisp (warn-of-type): increase *WARNING-COUNT* and
+	*STYLE-WARNING-COUNT* here when they are bound
+
 2010-04-19  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (make_terminal_stream_) [HAVE_TERMINAL3]: disable
