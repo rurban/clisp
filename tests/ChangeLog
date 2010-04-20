@@ -1,3 +1,8 @@
+2010-04-20  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: COMPILER-DIAGNOSTICS:USE-HANDLER:
+	COMPILE-FILE must notice the warnings signaled by EVAL-WHEN
+
 2010-02-11  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: test "~" in function names
