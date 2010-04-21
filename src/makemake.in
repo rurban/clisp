@@ -206,7 +206,7 @@ else
 fi
 my_eval(){
   eval "$*"
-  if [ "${verbose}" = true -o "${verbose}" = yes ]; then echo "$*" >&2; fi
+  test "${verbose}" = true -o "${verbose}" = yes && echo "$*" >&2
 }
 
 # Set the defaults for the --with options.
@@ -257,9 +257,8 @@ EOF
     -without-* | --without-* | -with-no* | --with-no*)
       package=`echol "$1" | sed -e 's/^-*without-//' -e 's/^-*with-no-*//'`
       # Delete all the valid chars; see if any are left.
-      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
+      test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`" && \
         fail "$package: invalid package name"
-      fi
       my_eval "with_`echol $package|sed s/-/_/g`=no"
       test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
         module_configure_flags="$module_configure_flags $1"
@@ -727,7 +726,7 @@ BENCHDIR=benchmarks
 
 # DOS-style filenames and file utilities
 H_DOS="false"
-if [ $HOS = win32 -a $HSYS != win32gcc ]; then H_DOS="true"; fi
+test $HOS = win32 -a $HSYS != win32gcc && H_DOS="true"
 
 # HEXE = extension for executable files on host
 if [ $HOS = win32 ] ; then
@@ -1132,7 +1131,7 @@ esac
 
 test -z "$cpu" && cpu=${host_cpu}
 
-if [ "${verbose}" = true -o "${verbose}" = yes ]; then
+test "${verbose}" = true -o "${verbose}" = yes && \
   cat <<EOF >&2
 # host system:
  hostname = "${hostname}"
@@ -1148,7 +1147,6 @@ if [ "${verbose}" = true -o "${verbose}" = yes ]; then
    TSYSOS = "${TSYSOS}"
       TOS = "${TOS}"
 EOF
-fi
 # e.g.:
 ### msys/mingw
 # # host system:
@@ -1557,9 +1555,7 @@ if [ $CROSS = false ] ; then
       BINARY_DISTRIB=1; ;;
   esac
 fi
-if test -n "$BINARY_DISTRIB"; then
-  XCFLAGS=$XCFLAGS' -DUNIX_BINARY_DISTRIB'
-fi
+test -n "$BINARY_DISTRIB" && XCFLAGS=$XCFLAGS' -DUNIX_BINARY_DISTRIB'
 
 
 # Other dependencies:
@@ -1592,13 +1588,9 @@ else
   LIB_TYPE="unix";              # libfoo.a
 fi
 
-if [ "${with_dynamic_ffi}" != no ]; then
-  XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
-fi
+test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
 
-if [ "${with_dynamic_modules}" != no ]; then
-  XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
-fi
+test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 
 GLLIB_A=libgnu_cl.a
 LIBS="${LIBS} ${GLLIB_A}"
@@ -1634,24 +1626,14 @@ FILES='lisp.a '$FILES
 CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
 CPARTS=$CPARTS' eval control'
 CPARTS=$CPARTS' encoding pathname stream'
-if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
-  CPARTS=$CPARTS' socket'
-fi
+test $TSYS = master -o $TOS = unix -o $TOS = win32 && CPARTS=$CPARTS' socket'
 CPARTS=$CPARTS' io funarg'
 CPARTS=$CPARTS' array hashtabl list package record weak sequence'
 CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
-if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then
-  CPARTS=$CPARTS' foreign'
-fi
-if [ $TSYS = master -o $TOS = unix ] ; then
-  CPARTS=$CPARTS' unixaux'
-fi
-if [ $TSYS = master -o $TOS = win32 ] ; then
-  CPARTS=$CPARTS' win32aux'
-fi
-if [ "${with_threads}" != no ]; then
-  CPARTS=$CPARTS' zthread'
-fi
+test $TSYS = master -o "${with_dynamic_ffi}" != no && CPARTS=$CPARTS' foreign'
+test $TSYS = master -o $TOS = unix && CPARTS=$CPARTS' unixaux'
+test $TSYS = master -o $TOS = win32 && CPARTS=$CPARTS' win32aux'
+test "${with_threads}" != no && CPARTS=$CPARTS' zthread'
 CPARTS=$CPARTS' built'
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj constobj_tl '$OS_INCLUDES
@@ -1722,9 +1704,7 @@ fi
 
 ERROR_INCLUDES=''
 ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
-if [ $TSYS = master -o $TOS = win32 ] ; then
-  ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
-fi
+test $TSYS = master -o $TOS = win32 && ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
 
 LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread intserial rational'
 LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
@@ -1828,9 +1808,7 @@ LPARTS=$LPARTS' deprecated'
 DOC='LISP-tutorial CLOS-guide'
 
 TXT_FILES='README README.de README.es clisp.c'
-if [ $CROSS = false -a $HOS = unix ] ; then
-  TXT_FILES=$TXT_FILES' distmakefile'
-fi
+test $CROSS = false -a $HOS = unix && TXT_FILES=$TXT_FILES' distmakefile'
 MANPAGES="clisp clisp-link"
 for f in ${MANPAGES}; do
   TXT_FILES="$TXT_FILES $f.1 $f.html $f-1.html"
@@ -1939,9 +1917,7 @@ echol "psdir   = ${PSDIR}"
 echol "pdfdir  = ${PDFDIR}"
 echol "libdir  = ${LIBDIR}"
 echol "lisplibdir = \$(libdir)${NEXT_}\$(TOPDIR)"
-if [ -n "$USE_GETTEXT" ] ; then
-  echol "localedir = ${LOCALEDIR}"
-fi
+test -n "$USE_GETTEXT" && echol "localedir = ${LOCALEDIR}"
 echol "elispdir = ${ELISPDIR}"
 echol "vimdir = ${VIMDIR}"
 echol "aclocaldir = ${ACLOCALDIR}"
@@ -1967,20 +1943,16 @@ if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# netica               Netica (http://norsys.com/netica_c_api.htm)"
   echol   "# pari                 PARI/gp (http://pari.math.u-bordeaux.fr/)"
   echol   "# zlib                 ZLIB (http://www.zlib.org)"
-  if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
+  test "$cpu" = i386 -a "$TSYSOS" = linux && \
     echol "# bindings/glibc       Linux glibc bindings (GNU libc version 2)"
-  fi
-  if [ "$cpu" = i386 -a \( "$TSYSOS" = win32gcc -o "$TSYSOS" = cygwin \) ] ;then
+  test "$cpu" = i386 -a \( "$TSYSOS" = win32gcc -o "$TSYSOS" = cygwin \) && \
     echol "# bindings/win32       win32 bindings"
-  fi
   echol   "# gtk2                 GTK2 interface"
 fi
-if [ $TOS = unix -o $TOS = win32 ] ; then
+test $TOS = unix -o $TOS = win32 && \
   echol   "# clx/mit-clx          classical X11 interface"
-fi
-if [ $TOS = unix ] ; then
+test $TOS = unix && \
   echol   "# clx/new-clx          faster X11 interface (replaces clx/mit-clx)"
-fi
 echol "MODULES = ${MODULES}"
 echol
 echol "# Command line options passed to the configure files of add-on modules"
@@ -2108,9 +2080,7 @@ if [ $HOS = unix -a $XCC_GCC = true ] ; then
 else
   LIBGCC=''
 fi
-if test -n "$LIBGCC"; then
-  echol "LIBGCC = ${LIBGCC}"
-fi
+test -n "$LIBGCC" && echol "LIBGCC = ${LIBGCC}"
 if test -n "$GROFF"; then
   ROFF_MAN="$GROFF -Tascii -mandoc"
   ROFF_PS="$GROFF -Tps -mandoc"
@@ -2129,9 +2099,7 @@ echol '# formatter for manual page'
 echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
 if test -n "$GROFF"; then
   echol "ROFF_PS  = ${ROFF_PS}"' # try "groff -Tps -mandoc"'
-  if test -n "$PS2PDF"; then
-    echol "PS2PDF = ${PS2PDF}"
-  fi
+  test -n "$PS2PDF" && echol "PS2PDF = ${PS2PDF}"
 fi
 echol
 echol '# -------------- End of configurable section --------------------'
@@ -2364,11 +2332,11 @@ if [ -n "${SRCDIR}" ] ; then
 fi
 
 if [ $TSYS = win32msvc ] ; then
-# quote for command arguments when they are unnecessary on DOS
+  # quote for command arguments when they are unnecessary on DOS
   ARGQ=""
-# .. when they are mandatory
+  # .. when they are mandatory
   ARGQ1="\""
-# quotes to pass to a command escaped
+  # quotes to pass to a command escaped
   QQUOT="\\\""
 else
   ARGQ="'"
@@ -2399,34 +2367,24 @@ echotab '$(TOUCH) cflags.h.stamp'
 echol
 
 UTILS=''
-if [ $NEED_CCPAUX = true ] ; then
-  UTILS=$UTILS' ccpaux'
-fi
+test $NEED_CCPAUX = true && UTILS=$UTILS' ccpaux'
 UTILS=$UTILS' comment5'
 UTILS=$UTILS' gctrigger'
 UTILS=$UTILS' varbrace'
-if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
-  UTILS=$UTILS' deema'
-fi
+test $XCC_NEED_DEEMA = true -a $HOS != unix && UTILS=$UTILS' deema'
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
-if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
-  UTILS=$UTILS' cv_lt_at'
-fi
+test "$CHSCONVERT" = "./cv_lt_at" && UTILS=$UTILS' cv_lt_at'
 LUTILS='modprep'
 
 PARAMS="intparam floatparam"
 PARAMS_H=""
 line="init :"
 for parf in ${PARAMS}; do
-  if [ ${TOS} != win32 ] ; then
-    line=$line" "${parf}.h
-  fi
+  test ${TOS} != win32 && line=$line" "${parf}.h
   PARAMS_H=${PARAMS_H}" "${parf}.h
 done
-if [ $CROSS = true ] ; then
-  line=$line" config.h"
-fi
+test $CROSS = true && line=$line" config.h"
 for util in ${UTILS} ; do line=$line" ${util}${HEXE}"; done
 line=$line" modules.h"
 if [ -n "${SRCDIR}" ] ; then
@@ -2615,68 +2573,34 @@ echol
 for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   depends=$EVERY_INCLUDES
   dependsc=''
-  if [ $f = spvw -o $f = package ] ; then
-    depends=$depends' constpack'
-  fi
-  if [ $f = spvw -o $f = predtype ] ; then
-    depends=$depends' avl'
-  fi
-  if [ $f = spvw ] ; then
-    depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
-  fi
-  if [ $f = eval ] ; then
-    depends=$depends' bytecode '${with_jitc}
-  fi
-  if [ $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = foreign ] ; then
-    depends=$depends' arilev0'
-  fi
-  if [ $f = spvw -o $f = hashtabl ] ; then
-    depends=$depends' aridecl'
-  fi
+  test $f = spvw -o $f = package && depends=$depends' constpack'
+  test $f = spvw -o $f = predtype && depends=$depends' avl'
+  test $f = spvw && depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
+  test $f = eval && depends=$depends' bytecode '${with_jitc}
+  test $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = foreign && depends=$depends' arilev0'
+  test $f = spvw -o $f = hashtabl && depends=$depends' aridecl'
   if [ $f = charstrg -a "${with_unicode}" != no ] ; then
     depends=$depends${UNICODE_INCLUDES}
     dependsc=${dependsc}${UNICODE_EXTRA}
   fi
-  if [ $f = encoding ] ; then
-    depends=$depends''$NLS_INCLUDES
-  fi
-  if [ $f = error ] ; then
-    depends=$depends''$ERROR_INCLUDES
-  fi
-  if [ $f = lisparit ] ; then
-    depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
-  fi
-  if [ $f = genclisph ] ; then
-    depends=$depends' gen.lispbibl'
-  fi
+  test $f = encoding && depends=$depends''$NLS_INCLUDES
+  test $f = error && depends=$depends''$ERROR_INCLUDES
+  test $f = lisparit && depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
+  test $f = genclisph && depends=$depends' gen.lispbibl'
   for g in $depends ; do
     dependsc=$dependsc' '$g'.c'
   done
   dependsc=$dependsc''$EVERY_INCLUDES_H
-  if [ $f = spvw -a -n "${SPVW_VERSION}" ] ; then
-    dependsc=$dependsc' '${SPVW_VERSION}
-  fi
-  if [ $f = encoding ] ; then
-    dependsc=$dependsc' localcharset.h'
-  fi
+  test $f = spvw -a -n "${SPVW_VERSION}" && dependsc=$dependsc' '${SPVW_VERSION}
+  test $f = encoding && dependsc=$dependsc' localcharset.h'
   if [ $f = pathname ] ; then
     dependsc=$dependsc' execname.c'
-    if [ ${TOS} = win32 ]; then
-      dependsc=$dependsc' w32shell.c'
-    fi
+    test ${TOS} = win32 && dependsc=$dependsc' w32shell.c'
   fi
-  if [ $f = built ] ; then
-    dependsc=${dependsc}' cflags.h'
-  fi
+  test $f = built && dependsc=${dependsc}' cflags.h'
   flags="$XCPPFLAGS $XCFLAGS"
-  if [ $f = foreign ] ; then
-    if [ $HOS = win32 ] ; then
-      flags=$flags" -I${SRCTOPDIR}ffcall"
-    fi
-  fi
-  if [ $f = genclisph ] ; then
-    flags=$flags" -DCOMPILE_STANDALONE"
-  fi
+  test $f = foreign -a $HOS = win32 && flags=$flags" -I${SRCTOPDIR}ffcall"
+  test $f = genclisph && flags=$flags" -DCOMPILE_STANDALONE"
   if [ $f = modules ] ; then
     if [ $HOS = unix -a $CROSS = false ] ; then
       dependsc=$dependsc' clisp.h'
@@ -2693,9 +2617,8 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = eval -a "${with_jitc}" = lightning ]; then
     flags2=$flags2' -Wno-unused' # should be gone - eventually...
   fi
-  if [ $f = genclisph -a $XCC_GCC = true ] ; then
+  test $f = genclisph -a $XCC_GCC = true && \
     flags2=$flags2' -O0' # no need to optimize this
-  fi
   echol "${f}.i : ${f}.c${dependsc}"
   echotab "${XCPP} ${flags} ${f}.c > ${f}.i"
   echol
@@ -2774,7 +2697,7 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
     # Test for libgcc.a because NeXT cc does not have it.
     echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o* ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
   fi
-  if [ $no_lisp_o = 1 ]; then echotab "\$(RM) lisp.o"; fi
+  test $no_lisp_o = 1 && echotab "\$(RM) lisp.o"
   echotab "\$(RANLIB) lisp.a"
   echol
   echol "libnoreadline.a : noreadline.o"
@@ -2941,9 +2864,7 @@ if [ $CROSS = false ] ; then
   fi
 
   echol "interpreted.mem : lisp${LEXE} \$(LISPFILES) config.lisp"
-  if [ $HOS != unix ] ; then
-    echotab "-\$(RM) interpreted.mem"
-  fi
+  test $HOS != unix && echotab "-\$(RM) interpreted.mem"
   if [ $HSYSOS = beos ] ; then
     # Work around BeOS 5 kernel bug which causes subsequent invocations
     # of lisp${LEXE} to be incorrectly relocated. On BeOS, executables and
@@ -2974,9 +2895,7 @@ if [ $CROSS = false ] ; then
   echol
 
   echol "halfcompiled.mem : lisp${LEXE} \$(LISPFILES) config.lisp compiler.fas"
-  if [ $HOS != unix ] ; then
-    echotab "-\$(RM) halfcompiled.mem"
-  fi
+  test $HOS != unix && echotab "-\$(RM) halfcompiled.mem"
   if [ $HSYSOS = beos ] ; then
     # Workaround BeOS 5 kernel bug, see explanation above.
     echotab "cp -p lisp${LEXE} lisp.tmp"
@@ -2987,9 +2906,7 @@ if [ $CROSS = false ] ; then
   echol
 
   echol "lispinit.mem : lisp${LEXE} \$(FASFILES)"
-  if [ $HOS != unix ] ; then
-    echotab "-\$(RM) lispinit.mem"
-  fi
+  test $HOS != unix && echotab "-\$(RM) lispinit.mem"
   if [ $HSYSOS = beos ] ; then
     # Workaround BeOS 5 kernel bug, see explanation above.
     echotab "cp -p lisp${LEXE} lisp.tmp"
@@ -3439,16 +3356,15 @@ manual_print=''
 for f in ${MANPAGES}; do
   if test -n "$GROFF"; then
     manual_print="${manual_print} $f.ps"
-    if test -n "$PS2PDF"; then
-      manual_print="$manual_print $f.pdf"
-    fi
+    test -n "$PS2PDF" && manual_print="$manual_print $f.pdf"
   fi
 done
-echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi``if [ ${HSYSOS} = cygwin ]; then echol ' cygwin.README'; fi`
+READMES="ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"
+test $TOS = unix && READMES=${READMES}' MAGIC.add'
+test ${HSYSOS} = cygwin && READMES=${READMES}' cygwin.README'
+echol "READMES = ${READMES}"
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png"
-if [ ${HOS} = win32 ]; then
-  IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico"
-fi
+test ${HOS} = win32 && IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico"
 echol "IMPNOTES_FILES = ${IMPNOTES_FILES}"
 manpages1html=''
 manpages_less=''
@@ -3515,9 +3431,7 @@ fi
 for f in $TXT_FILES ; do
   depends=''
   flags=' -DCOMPILE_STANDALONE'
-  if [ $f = README ] ; then
-    depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
-  fi
+  test $f = README && depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   platform_line=""
   case $f in
     clisp.html | clisp.1 | clisp-1.html | \
@@ -3533,17 +3447,13 @@ for f in $TXT_FILES ; do
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
   line="${HERE}txt"
-  if [ $f = clisp.1 -o $f = clisp-link.1 ] ; then
+  test $f = clisp.1 -o $f = clisp-link.1 && \
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
-  fi
   # *-1.html is for chunked impnotes and does not depend on user hyperspec
-  if [ \( $f = clisp.html -o $f = clisp-link.html \) \
-       -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
+  test \( $f = clisp.html -o $f = clisp-link.html \) \
+       -a "${HSDEFAULT}" != "${hyperspec}" ] && \
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
-  fi
-  if [ $f = distmakefile ] ; then
-    line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
-  fi
+  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
   line=$line$platform_line
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
@@ -3598,9 +3508,7 @@ if [ $CROSS = false ] ; then
   case "$host_os" in
     hpux*)
       # gcc-2.95.2 on HP-UX 10 miscompiles clisp.c when optimization -O is used.
-      if [ $XCC_GCC = true ] ; then
-        DRIVERFLAGS=' -O0'
-      fi
+      test $XCC_GCC = true && DRIVERFLAGS=' -O0'
       ;;
   esac
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
@@ -3620,9 +3528,8 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
     echotab "mkdir -p \$(DESTDIR)\$(bindir)"
-    if [ -n "$USE_GETTEXT" ] ; then
+    test -n "$USE_GETTEXT" && \
       echotab "cd po && \$(MAKE) installdirs DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
-    fi
     echotab "mkdir -p \$(DESTDIR)\$(datarootdir)"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     echotab "mkdir -p \$(DESTDIR)\$(vimdir)"
@@ -3688,9 +3595,8 @@ if [ $CROSS = false ] ; then
     # Don't strip the executables, otherwise (disassemble #'cons)
     # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
-    if [ -n "$USE_GETTEXT" ] ; then
+    test -n "$USE_GETTEXT" && \
       echotab "cd po && \$(MAKE) install DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
-    fi
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
@@ -3723,9 +3629,8 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) $f.html \$(DESTDIR)\$(htmldir)/$f.html"
           if test -n "$GROFF"; then
             echotab "\$(INSTALL_DATA) $f.ps  \$(DESTDIR)\$(psdir)/$f.ps"
-            if test -n "$PS2PDF"; then
+            test -n "$PS2PDF" && \
               echotab "\$(INSTALL_DATA) $f.pdf \$(DESTDIR)\$(pdfdir)/$f.pdf"
-            fi
           fi
         done
         ;;
@@ -3773,9 +3678,8 @@ if [ $CROSS = false ] ; then
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
     fi
     echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp-link"
-    if [ -n "$USE_GETTEXT" ] ; then
+    test -n "$USE_GETTEXT" && \
       echotab "cd po && \$(MAKE) uninstall DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
-    fi
     echol
     echol "uninstall-man : force"
     for f in ${MANPAGES}; do
@@ -4031,12 +3935,9 @@ elif [ $HOS = win32 ] ; then
     echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
     echo_dist_modules `pwd`/"\$\$distdir" ln "; \\"
   fi
-  if [ -n "${USE_GETTEXT}" ]; then
-    echotab "cp -r locale/ \$\$distdir/; \\"
-  fi
-  if [ "${with_dynamic_modules}" != no ]; then
+  test -n "${USE_GETTEXT}" && echotab "cp -r locale/ \$\$distdir/; \\"
+  test "${with_dynamic_modules}" != no && \
     echotab "cp -r dynmod/ \$\$distdir/; \\"
-  fi
   echotab "mkdir \$\$distdir/data ; \\"
   for f in ${DATA_FILES}; do
     echotab "cp -p data/${f} \$\$distdir/data/${f} ; \\"
@@ -4104,12 +4005,11 @@ clean4 : clean3
 	-\$(RM) cflags.h cflags.h.stamp
 	-\$(RM) \$(CFILES)
 !!
-if [ -n "$USE_GETTEXT" ] ; then
-cat <<!!
+test -n "$USE_GETTEXT" && \
+  cat <<!!
 	cd po && \$(MAKE) clean
 	-\$(RMRF) locale
 !!
-fi
 for dir in ${SUBDIRS}; do
   echotab "test ! -d ${dir} || (cd ${dir} && \$(MAKE) clean CFLAGS=\"\$(SUBDIR_CFLAGS)\")"
 done
@@ -4124,17 +4024,11 @@ if [ -n "${SRCDIR}" ] ; then
     line="$line ${f}.c"
   done
   line="$line NEWS clisp.png modules.h"${UNICODE_EXTRA}
-  if [ ${HOS} = win32 ]; then
-    line="$line clisp.ico"
-  fi
+  test ${HOS} = win32 && line="$line clisp.ico"
   echotab "$line"
-  if [ $HOS = unix -a $CROSS = false ] ; then
-    echotab "-\$(RM) .gdbinit"
-  fi
+  test $HOS = unix -a $CROSS = false && echotab "-\$(RM) .gdbinit"
 fi
-if [ $TOS = unix ] ; then
-  echotab "-\$(RM) MAGIC.add"
-fi
+test $TOS = unix && echotab "-\$(RM) MAGIC.add"
 echotab "-\$(RMRF) data"
 line="clisp${HEXE} clisp.rc"
 for f in ${UTILS}; do line=$line" ${f}${HEXE}"; done
@@ -4154,18 +4048,16 @@ clean-modules :
 clean7 : clean6 clean-modules
 	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake
 !!
-if [ -n "$USE_GETTEXT" ] ; then
-cat <<!!
+test -n "$USE_GETTEXT" && \
+  cat <<!!
 	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
 !!
-fi
-if [ -n "${SRCDIR}" ] ; then
-cat <<!!
+test -n "${SRCDIR}" && \
+  cat <<!!
 	-\$(RMRF) po
 	-\$(RM) configure config.h.in makemake.in ${SPVW_VERSION}
 !!
-fi
 cat <<!!
 
 # clean8 moreover cleans up the SRCDIR.
