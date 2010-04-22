@@ -1,3 +1,13 @@
+2010-04-22  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Finish and fix COM init patch.
+	* win32aux.d (com_initialized): revoke the variable.
+	(init_win32): do not init COM.
+	(done_win32) [!MULTITHREAD]: unconditionally call
+	CoUninitialize.
+	* modules/syscalls/calls.c (BTCoCreateInstance): define
+	static function for cygwin.
+
 2010-04-21  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: use "&&" instead of "if+then" for simplicity
