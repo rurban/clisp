@@ -28,9 +28,6 @@ local char ANSI2OEM_table[256+1];
 /* Winsock library initialization flag */
 local bool winsock_initialized = false;
 
-/* COM library initialization flag */
-local bool com_initialized = false;
-
 /* Early/late error print function. The problem of early/late errors is
    complex, this is a simple kind of temporary solution */
 local void earlylate_asciz_error (const char * description, bool fatal_p) {
@@ -345,9 +342,6 @@ global void init_win32 (void)
     CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
   }
  #endif
-  /* Initialize COM for shell link resolution */
-  if (CoInitialize(NULL) == S_OK)
-    com_initialized = true;
   { /* Winsock. */
     var WSADATA data;
     if (WSAStartup(MAKEWORD(1,1),&data)) {
@@ -363,10 +357,7 @@ global void done_win32 (void) {
   }
   winsock_initialized = 0;
  #ifndef MULTITHREAD
-  if (com_initialized) {
-    CoUninitialize();
-    com_initialized = false;
-  }
+  CoUninitialize(); /* in MT version this is done by delete_thread */
   if (interruptible_thread) {
     TerminateThread(interruptible_thread,0);
     interruptible_thread = NULL;
