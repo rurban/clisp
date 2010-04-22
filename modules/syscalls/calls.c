@@ -3298,10 +3298,20 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <shlobj.h>
 
-/* defined in w32shell.c */
-extern HRESULT BTCoCreateInstance (REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
-                                   DWORD dwClsContext, REFIID riid,
-                                   LPVOID * ppv);
+
+/* also exists in w32shell.c
+   redeclaring here for compilation with cygwin  */
+
+static HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                                  DWORD dwClsContext, REFIID riid,
+                                  LPVOID * ppv ) 
+{
+  HRESULT result;
+  result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+  if (result != CO_E_NOTINITIALIZED 
+      || CoInitialize(NULL) != S_OK) return result;
+  return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+}
 
 DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
