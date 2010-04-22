@@ -3451,7 +3451,7 @@ for f in $TXT_FILES ; do
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   # *-1.html is for chunked impnotes and does not depend on user hyperspec
   test \( $f = clisp.html -o $f = clisp-link.html \) \
-       -a "${HSDEFAULT}" != "${hyperspec}" ] && \
+       -a "${HSDEFAULT}" != "${hyperspec}" && \
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
   line=$line$platform_line
