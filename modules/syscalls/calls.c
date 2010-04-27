@@ -2621,7 +2621,7 @@ static void sid_cache_put (PSID psid, const char *name) {
 }
 
 static const char * get_owner (const char *filename) {
-  const char *owner;
+  char *owner;
 
   if (!initialized_sid_apis)
     initialize_sid_apis();
@@ -2652,25 +2652,21 @@ static const char * get_owner (const char *filename) {
           if (err == 0) {
             owner = sid_cache_get(psid);
             if (owner == NULL) {
-              static char buf1[4000];
+              char buf1[256];
               DWORD buf1size = sizeof(buf1);
-              static char buf2[4000];
+              char buf2[256];
               DWORD buf2size = sizeof(buf2);
               SID_NAME_USE role;
               if (!LookupAccountSid(NULL, psid, buf1, &buf1size, buf2, &buf2size, &role)) {
-                if (ConvertSidToStringSidFunc != NULL) {
+                char *s;
+                if (ConvertSidToStringSidFunc != NULL 
+                    && !ConvertSidToStringSidFunc(psid, &s)) {
                   /* Fallback: Use S-R-I-S-S... notation.  */
-                  char *s;
-                  if (!ConvertSidToStringSid(psid, &s)) owner = "";
-                  else {
-                    strcpy(buf1, s);
-                    LocalFree(s);
-                    owner = buf1;
-                  }
-                } else {
-                  strcpy(buf1, "");
+                  strncpy(buf1, s, buf1size);
+                  buf1[buf1size - 1] = '\0';
+                  LocalFree(s);
                   owner = buf1;
-                }
+                } else (owner = buf1)[0] = '\0';
               } else { /* DOMAIN\Account */
                 int len = strlen(buf2);
                 buf2[len] = '\\';
