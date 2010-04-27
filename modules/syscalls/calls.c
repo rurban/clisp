@@ -2,7 +2,7 @@
  * system calls
  * Copyright (C) 2003-2009 Sam Steingold
  * Copyright (C) 2005,2008 Bruno Haible
- * Copyright (C) 2005-2006 Arseny Slobodyuk
+ * Copyright (C) 2005,2010 Arseny Slobodyuk
  * GPL2
  */
 
@@ -13,6 +13,9 @@
 #if defined(__CYGWIN__)
 # define UNIX_CYGWIN32
 #endif
+
+/* clisp.h includes system headers among other stuff 
+   (windows.h on windows) */
 
 #include "clisp.h"
 #include "config.h"
@@ -2500,24 +2503,12 @@ DEFUN(POSIX::STAT-VFS, file)
 #endif  /* fstatvfs statvfs */
 
 
-/* FILE-OWNER */
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 
-#if defined(HAVE_GETPWUID)
-static const char * get_owner (const char *filename) {
-  struct stat statbuf;
-  if (lstat(filename, &statbuf) >= 0) {
-    struct passwd *pwd = getpwuid(statbuf.st_uid);
-    if (pwd)
-      return pwd->pw_name;
-  }
-  return "";
-}
-#elif defined(WIN32_NATIVE)
+/* Dynamically load some functions missing in Windows95/98/ME
+   to work with Security IDentifiers (SIDs). */
 
-#include <windows.h>
 #include <aclapi.h>
-
-/* Some functions missing in Windows95/98/ME. */
 
 /* Added in Windows NT 4.0 */
 static DWORD WINAPI (*GetSecurityInfoFunc) (HANDLE handle, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, PSID* ppsidOwner, PSID* ppsidGroup, PACL* ppDacl, PACL* ppSacl, PSECURITY_DESCRIPTOR* ppSecurityDescriptor);
@@ -2572,6 +2563,22 @@ static void initialize_sid_apis () {
   }
   initialized_sid_apis = TRUE;
 }
+
+#endif /* (WIN32_NATIVE || UNIX_CYGWIN32) */
+
+/* FILE-OWNER */
+
+#if defined(HAVE_GETPWUID)
+static const char * get_owner (const char *filename) {
+  struct stat statbuf;
+  if (lstat(filename, &statbuf) >= 0) {
+    struct passwd *pwd = getpwuid(statbuf.st_uid);
+    if (pwd)
+      return pwd->pw_name;
+  }
+  return "";
+}
+#elif defined(WIN32_NATIVE)
 
 /* A cache mapping SID -> owner. */
 struct sid_cache_entry {
@@ -3298,9 +3305,9 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <shlobj.h>
 
-
 /* also exists in w32shell.c
-   redeclaring here for compilation with cygwin  */
+   redefining here for compilation with cygwin 
+   where no use of COM is made in base set */
 
 static HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
                                   DWORD dwClsContext, REFIID riid,
@@ -4126,7 +4133,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   IPropertyStorage * ppropstg = NULL;
   IPropertySetStorage * ppropsetstg = NULL;
   HRESULT hres;
-  FMTID*  fmtid = NULL;
+  FMTID const * fmtid = NULL;
   PROPSPEC * pspecrd = NULL;
   PROPSPEC * pspecwr = NULL;
   PROPVARIANT * pvarrd = NULL;
@@ -4204,9 +4211,9 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     }
   }
   if (eq(STACK_(iset),`:USER-DEFINED`))
-    fmtid = (REFFMTID)&FMTID_UserDefinedProperties;
+    fmtid = &FMTID_UserDefinedProperties;
   else if (eq(STACK_(iset),`:BUILT-IN`))
-    fmtid = (REFFMTID)&FMTID_SummaryInformation;
+    fmtid = &FMTID_SummaryInformation;
   else {
     pushSTACK(STACK_(iset));
     pushSTACK(TheSubr(subr_self)->name);
@@ -4315,6 +4322,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   ppropsetstg->lpVtbl->Release(ppropsetstg);
   end_system_call();
 }
+
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
 #if defined(HAVE_FFI)
