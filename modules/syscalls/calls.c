@@ -14,7 +14,7 @@
 # define UNIX_CYGWIN32
 #endif
 
-/* clisp.h includes system headers among other stuff 
+/* clisp.h includes system headers among other stuff
    (windows.h on windows) */
 
 #include "clisp.h"
@@ -2511,32 +2511,46 @@ DEFUN(POSIX::STAT-VFS, file)
 #include <aclapi.h>
 
 /* Added in Windows NT 4.0 */
-static DWORD WINAPI (*GetSecurityInfoFunc) (HANDLE handle, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo, PSID* ppsidOwner, PSID* ppsidGroup, PACL* ppDacl, PACL* ppSacl, PSECURITY_DESCRIPTOR* ppSecurityDescriptor);
+typedef DWORD (WINAPI * GetSecurityInfoFunc_t)
+  (HANDLE handle, SE_OBJECT_TYPE ObjectType, SECURITY_INFORMATION SecurityInfo,
+   PSID* ppsidOwner, PSID* ppsidGroup, PACL* ppDacl, PACL* ppSacl,
+   PSECURITY_DESCRIPTOR* ppSecurityDescriptor);
+static GetSecurityInfoFunc_t GetSecurityInfoFunc;
 #undef GetSecurityInfo
 #define GetSecurityInfo (*GetSecurityInfoFunc)
 
 /* Added in Windows NT Workstation */
-static BOOL WINAPI (*LookupAccountSidFunc) (LPCTSTR lpSystemName, PSID lpSid, LPTSTR lpName, LPDWORD cchName, LPTSTR lpReferencedDomainName, LPDWORD cchReferencedDomainName, PSID_NAME_USE peUse);
+typedef BOOL (WINAPI * LookupAccountSidFunc_t)
+  (LPCTSTR lpSystemName, PSID lpSid, LPTSTR lpName, LPDWORD cchName,
+   LPTSTR lpReferencedDomainName, LPDWORD cchReferencedDomainName,
+   PSID_NAME_USE peUse);
+static LookupAccountSidFunc_t LookupAccountSidFunc;
 #undef LookupAccountSid
 #define LookupAccountSid (*LookupAccountSidFunc)
 
 /* Added in Windows NT Workstation */
-static DWORD WINAPI (*GetLengthSidFunc) (PSID pSid);
+typedef DWORD (WINAPI * GetLengthSidFunc_t) (PSID pSid);
+static GetLengthSidFunc_t GetLengthSidFunc;
 #undef GetLengthSid
 #define GetLengthSid (*GetLengthSidFunc)
 
 /* Added in Windows NT Workstation */
-static BOOL WINAPI (*CopySidFunc) (DWORD nDestinationSidLength, PSID pDestinationSid, PSID pSourceSid);
+typedef BOOL (WINAPI * CopySidFunc_t)
+  (DWORD nDestinationSidLength, PSID pDestinationSid, PSID pSourceSid);
+static CopySidFunc_t CopySidFunc;
 #undef CopySid
 #define CopySid (*CopySidFunc)
 
 /* Added in Windows NT Workstation */
-static BOOL WINAPI (*EqualSidFunc) (PSID pSid1, PSID pSid2);
+typedef BOOL (WINAPI * EqualSidFunc_t) (PSID pSid1, PSID pSid2);
+static EqualSidFunc_t EqualSidFunc;
 #undef EqualSid
 #define EqualSid (*EqualSidFunc)
 
 /* Added in Windows 2000 Professional */
-static BOOL WINAPI (*ConvertSidToStringSidFunc) (IN PSID Sid, OUT LPTSTR *StringSid);
+typedef BOOL (WINAPI * ConvertSidToStringSidFunc_t)
+  (IN PSID Sid, OUT LPTSTR *StringSid);
+static ConvertSidToStringSidFunc_t ConvertSidToStringSidFunc;
 #undef ConvertSidToStringSid
 #define ConvertSidToStringSid (*ConvertSidToStringSidFunc)
 
@@ -2545,20 +2559,15 @@ static BOOL initialized_sid_apis = FALSE;
 static void initialize_sid_apis () {
   HMODULE advapi32 = LoadLibrary("advapi32.dll");
   if (advapi32 != NULL) {
-    GetSecurityInfoFunc =
-      (DWORD WINAPI (*) (HANDLE, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*))
+    GetSecurityInfoFunc = (GetSecurityInfoFunc_t)
       GetProcAddress(advapi32, "GetSecurityInfo");
-    LookupAccountSidFunc =
-      (BOOL WINAPI (*) (LPCTSTR, PSID, LPTSTR, LPDWORD, LPTSTR, LPDWORD, PSID_NAME_USE))
+    LookupAccountSidFunc = (LookupAccountSidFunc_t)
       GetProcAddress(advapi32, "LookupAccountSidA");
-    GetLengthSidFunc =
-      (DWORD WINAPI (*) (PSID)) GetProcAddress(advapi32, "GetLengthSid");
-    CopySidFunc =
-      (BOOL WINAPI (*) (DWORD, PSID, PSID)) GetProcAddress(advapi32, "CopySid");
-    EqualSidFunc =
-      (BOOL WINAPI (*) (PSID, PSID)) GetProcAddress(advapi32, "EqualSid");
-    ConvertSidToStringSidFunc =
-      (BOOL WINAPI (*) (PSID, LPTSTR*))
+    GetLengthSidFunc = (GetLengthSidFunc_t)
+      GetProcAddress(advapi32, "GetLengthSid");
+    CopySidFunc = (CopySidFunc_t) GetProcAddress(advapi32, "CopySid");
+    EqualSidFunc = (EqualSidFunc_t) GetProcAddress(advapi32, "EqualSid");
+    ConvertSidToStringSidFunc = (ConvertSidToStringSidFunc_t)
       GetProcAddress(advapi32, "ConvertSidToStringSidA");
   }
   initialized_sid_apis = TRUE;
@@ -2657,9 +2666,10 @@ static const char * get_owner (const char *filename) {
               char buf2[256];
               DWORD buf2size = sizeof(buf2);
               SID_NAME_USE role;
-              if (!LookupAccountSid(NULL, psid, buf1, &buf1size, buf2, &buf2size, &role)) {
+              if (!LookupAccountSid(NULL, psid, buf1, &buf1size, buf2,
+                                    &buf2size, &role)) {
                 char *s;
-                if (ConvertSidToStringSidFunc != NULL 
+                if (ConvertSidToStringSidFunc != NULL
                     && !ConvertSidToStringSidFunc(psid, &s)) {
                   /* Fallback: Use S-R-I-S-S... notation.  */
                   strncpy(buf1, s, buf1size);
@@ -3302,16 +3312,16 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #include <shlobj.h>
 
 /* also exists in w32shell.c
-   redefining here for compilation with cygwin 
+   redefining here for compilation with cygwin
    where no use of COM is made in base set */
 
 static HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
                                   DWORD dwClsContext, REFIID riid,
-                                  LPVOID * ppv ) 
+                                  LPVOID * ppv )
 {
   HRESULT result;
   result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
-  if (result != CO_E_NOTINITIALIZED 
+  if (result != CO_E_NOTINITIALIZED
       || CoInitialize(NULL) != S_OK) return result;
   return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
 }
@@ -4322,11 +4332,11 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
 #define SIDBUFSZ 256
 
 /* (POSIX::GET-USER-SID &optional USERNAME)
-   USERNAME: string representing user's name, possibly 
-   containing a domain name. Current process user's SID 
+   USERNAME: string representing user's name, possibly
+   containing a domain name. Current process user's SID
    is returned if no USERNAME is specified.
-   Returns string representation of user's security 
-   identifier (SID) in S-R-I-S-S notation.  
+   Returns string representation of user's security
+   identifier (SID) in S-R-I-S-S notation.
    Function could be used in conjunction with file-owner */
 
 DEFUN(POSIX::GET-USER-SID, &optional username) {
@@ -4350,11 +4360,10 @@ DEFUN(POSIX::GET-USER-SID, &optional username) {
     DWORD required = 0;
 
     if (!OpenProcessToken(GetCurrentProcess(),
-         TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,
-         &token_handle))
+                          TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,
+                          &token_handle))
       OS_error();
-    if (!GetTokenInformation(token_handle, TokenUser, 
-                             tu, SIDBUFSZ, &required))  
+    if (!GetTokenInformation(token_handle, TokenUser, tu, SIDBUFSZ, &required))
       OS_error();
     psid = tu->User.Sid;
   }
