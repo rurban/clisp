@@ -439,6 +439,14 @@
 <varlistentry id="user-shells"><term><code>(POSIX:USER-SHELLS)</code></term>
  <listitem><simpara>Call <function role="bsd">getusershell</function>.
 </simpara></listitem></varlistentry>
+<varlistentry id="get-user-sid"><term><code>(OS:GET-USER-SID
+   &optional-amp; &user-r;)</code></term>
+ <listitem><simpara>Call <function role="win32">LookupAccountName</function>
+  on &user-r; or, if that is not supplied, call
+  <function role="win32">OpenProcessToken</function>
+  <function role="win32">GetTokenInformation</function>, and then
+  <function role="win32">ConvertSidToStringSid</function> on
+  <structfield>User.Sid</structfield>.</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="sysinfo"><title>System Information</title>
