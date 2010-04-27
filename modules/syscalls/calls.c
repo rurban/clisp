@@ -4319,6 +4319,57 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   end_system_call();
 }
 
+#define SIDBUFSZ 256
+
+/* (POSIX::GET-USER-SID &optional USERNAME)
+   USERNAME: string representing user's name, possibly 
+   containing a domain name. Current process user's SID 
+   is returned if no USERNAME is specified.
+   Returns string representation of user's security 
+   identifier (SID) in S-R-I-S-S notation.  
+   Function could be used in conjunction with file-owner */
+
+DEFUN(POSIX::GET-USER-SID, &optional username) {
+  char buf[SIDBUFSZ];
+  PSID psid;
+  LPSTR sidstr;
+
+  if (!missingp(STACK_0)) {
+    WCHAR domain[SIDBUFSZ];
+    DWORD sz = SIDBUFSZ, domsz = SIDBUFSZ;
+    SID_NAME_USE use;
+
+    with_string_0w(check_string(STACK_0),wstr, {
+      if (!LookupAccountNameW(NULL, wstr, (PSID) buf, &sz, domain, &domsz, &use))
+        OS_error();
+      psid = (PSID) buf;
+    });
+  } else {
+    HANDLE token_handle = NULL;
+    TOKEN_USER * tu = ((TOKEN_USER *) buf);
+    DWORD required = 0;
+
+    if (!OpenProcessToken(GetCurrentProcess(),
+         TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,
+         &token_handle))
+      OS_error();
+    if (!GetTokenInformation(token_handle, TokenUser, 
+                             tu, SIDBUFSZ, &required))  
+      OS_error();
+    psid = tu->User.Sid;
+  }
+  if (!initialized_sid_apis)
+    initialize_sid_apis();
+  if (!ConvertSidToStringSidFunc) {
+      pushSTACK(TheSubr(subr_self)->name);
+      error(error_condition,GETTEXT("~S: SID management library is not initialized"));
+  }
+  if (!ConvertSidToStringSidFunc(psid, &sidstr)) OS_error();
+  VALUES1(asciz_to_string(sidstr,GLO(misc_encoding)));
+  LocalFree(sidstr);
+  skipSTACK(1);
+}
+
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
 #if defined(HAVE_FFI)
