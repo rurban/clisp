@@ -1,3 +1,10 @@
+2010-04-27  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (GetSecurityInfoFunc_t)
+	(LookupAccountSidFunc_t, GetLengthSidFunc_t, CopySidFunc_t)
+	(EqualSidFunc_t, ConvertSidToStringSidFunc_t): add typedefs
+	(initialize_sid_apis): use them instead of explicit types
+
 2010-04-27  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	Response to bug#2959335 (a feature request, actually)
@@ -9,7 +16,7 @@
 2010-04-27  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
-	(initialize_sid_apis): dynamic loading of SID API moved out 
+	(initialize_sid_apis): dynamic loading of SID API moved out
 	of get_owner block and made available on cygwin.
 	(get_owner): fixed potential bugs.
 	Comments, cosmetics.
