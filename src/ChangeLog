@@ -3,6 +3,7 @@
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
 	(initialize_sid_apis): dynamic loading of SID API moved out 
 	of get_owner block and made available on cygwin.
+	(get_owner): fixed potential bugs.
 	Comments, cosmetics.
 
 2010-04-22  Arseny Slobodyuk  <ampy@users.sourceforge.net>
