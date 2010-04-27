@@ -1,5 +1,13 @@
 2010-04-27  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
+	Response to bug#2959335 (a feature request, actually)
+	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
+	(GET-USER-SID): new DEFUN. Returns security identifier (SID)
+	of current user or of the user thar's name is specified.
+	* modules/syscalls/posix.lisp (GET-USER-SID): exported.
+
+2010-04-27  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
 	(initialize_sid_apis): dynamic loading of SID API moved out 
 	of get_owner block and made available on cygwin.
