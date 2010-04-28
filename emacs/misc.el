@@ -47,3 +47,5 @@
                   ((string-match "[Pp]atch" kind) "301355")
                   ((string-match "RFE" kind) "351355")
                   (t (error "unknown bug kind [%s]" kind))))))
+
+(put 'clisp-bug-reference-url-format 'bug-reference-url-format t)
