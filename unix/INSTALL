@@ -270,9 +270,11 @@ Additional Information for Maintainers of Binary Packages:
    Another issue is offering a uniform experience to all CLISP users
    regardless of platform or distribution.
    We recommend keeping the base linking set (i18n, regexp, syscalls, readline)
-   intact and adding at least rawsock and libsvm to the full linking set.
-   A good option is offering the base linking set with the aforementioned 4
-   modules plus dynamic modules a la carte (configure --with-dynamic-modules).
+   intact and adding rawsock to the full linking set (see step <12> above).
+   This will create a CLISP distribution with _no_ external dependencies.
+   Then you can distribute individual pre-built modules with their own
+   dependencies, e.g., the pcre module would depend on libpcre, postgresql
+   module would depend on libpq, new-clx would depend on X &c.
    See <http://clisp.cons.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 
