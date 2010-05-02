@@ -1,3 +1,8 @@
+2010-05-02  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: insert GC safe point
+	in JMP instructions and discard mv_space for ones that invalidate it
+
 2010-04-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (GetSecurityInfoFunc_t)
