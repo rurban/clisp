@@ -6540,16 +6540,25 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
         skipSTACK(n); funcall(value1,r);
       } goto finished;          /* return (jump) to caller */
     }
-    #define JMP()                             \
-      {var const uintB* label_byteptr;        \
-        L_operand(label_byteptr);             \
-        DEBUG_CHECK_BYTEPTR(label_byteptr);   \
-        byteptr = label_byteptr;              \
-        goto next_byte;                       \
+    #define JMP()                              \
+      { GC_SAFE_POINT_IF(                      \
+          with_saved_context(                  \
+            {var uintC cnt=mv_count; mv_to_STACK(); \
+              GC_SAFE_ACK_SUSPEND_REQUEST_();  \
+              STACK_to_mv(cnt);                \
+            }),;);                             \
+        var const uintB* label_byteptr;        \
+        L_operand(label_byteptr);              \
+        DEBUG_CHECK_BYTEPTR(label_byteptr);    \
+        byteptr = label_byteptr;               \
+        goto next_byte;                        \
       }
     #define NOTJMP()  \
       { L_operand_ignore(); goto next_byte; }
-    jmp1: mv_count=1;
+    jmp0:
+#ifdef MULTITHREAD
+      mv_count=0;
+#endif
     CASE cod_jmp: jmp:          /* (JMP label) */
       JMP();
     CASE cod_jmpif:             /* (JMPIF label) */
@@ -6560,32 +6569,32 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       if (nullp(value1)) goto jmp;
       NOTJMP();
     CASE cod_jmpif1:            /* (JMPIF1 label) */
-      if (!nullp(value1)) goto jmp1;
+      if (!nullp(value1)) { mv_count=1; goto jmp; }
       NOTJMP();
     CASE cod_jmpifnot1:         /* (JMPIFNOT1 label) */
-      if (nullp(value1)) goto jmp1;
+      if (nullp(value1)) { mv_count=1; goto jmp; }
       NOTJMP();
     CASE cod_jmpifatom:         /* (JMPIFATOM label) */
-      if (atomp(value1)) goto jmp;
+      if (atomp(value1)) goto jmp0;
       NOTJMP();
     CASE cod_jmpifconsp:        /* (JMPIFCONSP label) */
-      if (consp(value1)) goto jmp;
+      if (consp(value1)) goto jmp0;
       NOTJMP();
     CASE cod_jmpifeq:           /* (JMPIFEQ label) */
-      if (eq(popSTACK(),value1)) goto jmp;
+      if (eq(popSTACK(),value1)) goto jmp0;
       NOTJMP();
     CASE cod_jmpifnoteq:        /* (JMPIFNOTEQ label) */
-      if (!eq(popSTACK(),value1)) goto jmp;
+      if (!eq(popSTACK(),value1)) goto jmp0;
       NOTJMP();
     CASE cod_jmpifeqto: {       /* (JMPIFEQTO n label) */
       var uintL n;
       U_operand(n);
-      if (eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
+      if (eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp0;
     } NOTJMP();
     CASE cod_jmpifnoteqto: {    /* (JMPIFNOTEQTO n label) */
       var uintL n;
       U_operand(n);
-      if (!eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
+      if (!eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp0;
     } NOTJMP();
     CASE cod_jmphash: {         /* (JMPHASH n label) */
       var uintL n;
@@ -6593,7 +6602,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var object hashvalue =  /* search value1 in the Hash-table */
         gethash(value1,TheCclosure(closure)->clos_consts[n],false);
       if (eq(hashvalue,nullobj))
-        goto jmp;             /* not found -> jump to label */
+        goto jmp0;             /* not found -> jump to label */
       else { /* interpret found Fixnum as label: */
         DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
         byteptr += fixnum_to_V(hashvalue);
@@ -6605,7 +6614,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var object hashvalue =  /* search value1 in the Hash-table */
         gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n],false);
       if (eq(hashvalue,nullobj))
-        goto jmp;             /* not found -> jump to label */
+        goto jmp0;             /* not found -> jump to label */
       else { /* interpret found Fixnum as label: */
         DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
         byteptr += fixnum_to_V(hashvalue);
@@ -6640,7 +6649,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       /* Now ptr1 = STACK and ptr2 = STACK STACKop (n-m). */
       *(closureptr = &NEXT(ptr2)) = closure; /* store closure in stack */
       setSTACK(STACK = ptr2);                /* shorten STACK */
-    } JMP();                                 /* jump to label */
+    } goto jmp0;                             /* jump to label */
     /* ------------------- (6) Environments and Closures -------------------- */
     CASE cod_venv:              /* (VENV) */
       /* fetch VenvConst from the closure: */
