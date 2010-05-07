@@ -1,3 +1,10 @@
+2010-05-07  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* modules/syscalls/calls.c
+	(USER-INFO): skip entries with uid of -1 when returning a list.
+	These entries appearing in cygwin correspond to user records 
+	not synchronized with /etc/passwd.
+
 2010-05-02  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: insert GC safe point
