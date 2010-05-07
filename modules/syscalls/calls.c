@@ -1741,10 +1741,14 @@ DEFUN(POSIX::USER-INFO, &optional user)
     int count = 0;
     begin_system_call();
     setpwent();
-    for (; (pwd = getpwent()); count++) {
+    for (; (pwd = getpwent()); ) {
+      /* on cygwin uid of -1 is returned */
+      /* when user has no entry in /etc/passwd */
+      if (pwd->pw_uid == (uid_t) -1) continue;
       end_system_call();
       passwd_to_lisp(pwd); pushSTACK(value1);
       begin_system_call();
+      count++;
     }
     endpwent();
     end_system_call();
