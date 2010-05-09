@@ -1,8 +1,13 @@
+2010-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (main_actions) [MULTITHREAD]: cleanup stack when main thread
+	terminates
+
 2010-05-07  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c
 	(USER-INFO): skip entries with uid of -1 when returning a list.
-	These entries appearing in cygwin correspond to user records 
+	These entries appearing in cygwin correspond to user records
 	not synchronized with /etc/passwd.
 
 2010-05-02  Vladimir Tzankov  <vtzankov@gmail.com>

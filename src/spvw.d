@@ -3601,14 +3601,19 @@ local inline void main_actions (struct argv_actions *p) {
       Symbol_value(S(standard_input)) = value1;
   }
   /* call read-eval-print-loop: */
-#if defined(MULTITHREAD)
+#ifdef MULTITHREAD
   /* create a CATCH frame here for thread exit */
   pushSTACK(O(thread_exit_tag));
   var gcv_object_t* top_of_frame = STACK STACKop 1;
   var sp_jmp_buf returner; /* return point */
   finish_entry_frame(CATCH,returner,,{skipSTACK(2);STACK_0=value1;return;});
-#endif
   driver();
+  /* when driver() exits (lisp.run --version) we should cleanup the stack */
+  skipSTACK(3); /* unwind CATCH-frame */
+  mv_to_list(); /* store thread exit values on STACK */
+#else /* !MULTITHREAD */
+  driver();
+#endif
 }
 
 #if defined(MULTITHREAD)
