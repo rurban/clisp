@@ -4383,6 +4383,158 @@ DEFUN(POSIX::GET-USER-SID, &optional username) {
   skipSTACK(1);
 }
 
+/* helpers for set-clipboard and get-clipboard */
+
+static int nlines_a (const char * s) {
+  int result = 1;
+  while (*s) if (*s++ == '\n') result++;
+  return result;
+}
+
+static int nlines_w (PWSTR s) {
+  int result = 1;
+  while (*s) if (*s++ == (WCHAR)'\n') result++;
+  return result;
+}
+
+/* copy string and convert "\n" to "\r\n" */
+
+static void strzcpy12_a (char * dest, const char * src) {
+  do {
+    if (*src == '\n') *dest++ = '\r';
+    *dest = *src;
+    if (!*src) break;
+    dest++; src++;
+  } while(true);
+}
+
+static void strzcpy12_w (PWSTR dest, PCWSTR src) {
+  do {
+    if (*src == (WCHAR)'\n') *dest++ = (WCHAR)'\r';
+    *dest = *src;
+    if (!*src) break;
+    dest++; src++;
+  } while(true);
+}
+
+/* copy string and convert "\r\n" to "\n" */
+
+static void strzcpy21_a (char * dest, const char * src) {
+  do {
+    *dest = *src;
+    if (!*src) break;
+    if (*src != '\r') dest++;
+    src++;
+  } while(true);
+}
+
+static void strzcpy21_w (PWSTR dest, PCWSTR src) {
+  do {
+    *dest = *src;
+    if (!*src) break;
+    if (*src != (WCHAR)'\r') dest++;
+    src++;
+  } while(true);
+}
+
+/* SET-CLIPBOARD: set the contents of Windows clipboard to the printed
+   representation of argument (PRINC-TO-STRING is used). Returns T on 
+   success, NIL on failure. */
+DEFUN(POSIX::SET-CLIPBOARD, str) {
+  int textset = 0;
+  funcall(`PRINC-TO-STRING`, 1);
+  begin_system_call();
+  if (OpenClipboard(NULL)) {
+    if( EmptyClipboard() ) {
+      OSVERSIONINFO v;
+      v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+      if (GetVersionEx(&v)) {
+        if (v.dwPlatformId == VER_PLATFORM_WIN32_NT) { /* Windows NT */
+            with_string_0w(value1, wstr, {
+              HGLOBAL sglobal = 
+                GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,
+                            (wstr_bytelen + nlines_w(wstr) + 2) 
+                              * sizeof(WCHAR));
+              if (sglobal != NULL) {
+                void * slocal = GlobalLock(sglobal);
+                if (slocal != NULL) {
+                  end_system_call();
+                  strzcpy12_w(slocal, wstr);
+                  begin_system_call();
+                  if ( SetClipboardData( CF_UNICODETEXT,  sglobal ) != NULL ) {
+                    GlobalUnlock(sglobal);
+                    textset = 1;
+                  } else GlobalFree(sglobal);
+                }
+              }
+            });
+        } else {  /* Win95/98/Me - try ASCII */
+          with_string_0( value1, GLO(misc_encoding), cstr, {
+            HGLOBAL sglobal = 
+              GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, cstr_bytelen + nlines_a(cstr) + 1);
+            if (sglobal != NULL) {
+              void * slocal = GlobalLock(sglobal);
+              if (slocal != NULL) {
+                end_system_call();
+                strzcpy12_a(slocal, cstr);
+                begin_system_call();
+                if (SetClipboardData( CF_TEXT,  sglobal ) != NULL ) {
+                  GlobalUnlock(sglobal);
+                  textset = 1;
+                } else GlobalFree(sglobal); 
+                /* GlobalFree only if SetClipboardData failed */
+              }
+            }
+          });
+        }
+      }
+      CloseClipboard();
+    }
+  }
+  end_system_call();
+  VALUES1(textset ? T : NIL);
+}
+
+/* GET-CLIPBOARD: Returns the textual contents of Windows clipboard 
+   as a string. First try to get it as CF_UNICODETEXT, then CF_TEXT.
+   On failure or when no text is available NIL is returned. */
+DEFUN(POSIX::GET-CLIPBOARD,) {
+  VALUES1(NIL);
+  begin_system_call();
+  if (OpenClipboard(NULL)) {
+    HGLOBAL gltext  = GetClipboardData(CF_UNICODETEXT);
+    if (gltext != NULL) { /* UNICODE TEXT */
+      PWSTR wstr = (PWSTR)GlobalLock(gltext);
+      if (wstr != NULL) {
+        DYNAMIC_ARRAY(buf, WCHAR, wcslen(wstr) + 1);
+        end_system_call();
+        strzcpy21_w(buf, wstr);
+        VALUES1(n_char_to_string((const char *)buf, wcslen(buf) * sizeof(WCHAR),
+                                 Symbol_value(S(unicode_16_little_endian))));
+        FREE_DYNAMIC_ARRAY(buf);
+        begin_system_call();
+        GlobalUnlock(gltext);
+      }
+    } else { /* Probably system just do not support UNICODE */
+      gltext = GetClipboardData(CF_TEXT); /* ANSI TEXT */
+      if (gltext != NULL) { 
+        const char * str = (const char *)GlobalLock(gltext);
+        if (str != NULL) {
+          DYNAMIC_ARRAY(buf, char, strlen(str) + 1);
+          end_system_call();
+          strzcpy21_a(buf, str);
+          VALUES1(asciz_to_string(buf, GLO(misc_encoding)));
+          FREE_DYNAMIC_ARRAY(buf);
+          begin_system_call();
+          GlobalUnlock(gltext);
+        }
+      }
+    }
+    CloseClipboard();
+  }
+  end_system_call();
+}
+
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
 #if defined(HAVE_FFI)

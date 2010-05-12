@@ -202,7 +202,7 @@
                     (file-stat-file file-stat)))) ; name-short
 ;;; ============================================================
 #+(or win32 cygwin) (progn
-(export '(make-shortcut get-user-sid))
+(export '(make-shortcut get-user-sid get-clipboard set-clipboard))
 
 (defstruct (shortcut-info
              (:constructor make-shortcut-info
