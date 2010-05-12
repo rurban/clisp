@@ -1,3 +1,13 @@
+2010-05-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
+	(nlines_a, nlines_w, strzcpy12_a, strzcpy12_w, strzcpy21_a,
+	 strzcpy21_w): new static utility functions.
+	(SET-CLIPBOARD, GET-CLIPBOARD): new defuns to manage 
+	textual contents of Windows clipboard.
+	* modules/syscalls/posix.lisp [or win32 cygwin]: export
+	SET-CLIPBOARD, GET-CLIPBOARD.
+
 2010-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (main_actions) [MULTITHREAD]: cleanup stack when main thread
