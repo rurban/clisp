@@ -1,11 +1,19 @@
+2010-05-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (OS::%SET-CLIPBOARD): rename from
+	SET-CLIPBOARD; use L() instead of `` for PRINC-TO-STRING
+	(OS:CLIPBOARD): rename from GET-CLIPBOARD
+	* modules/syscalls/posix.lisp (clipboard): add DEFSETF, export
+	instead of SET-CLIPBOARD & GET-CLIPBOARD
+
 2010-05-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
-	(nlines_a, nlines_w, strzcpy12_a, strzcpy12_w, strzcpy21_a,
-	 strzcpy21_w): new static utility functions.
-	(SET-CLIPBOARD, GET-CLIPBOARD): new defuns to manage 
+	(nlines_a, nlines_w, strzcpy12_a, strzcpy12_w, strzcpy21_a)
+	(strzcpy21_w): new static utility functions.
+	(SET-CLIPBOARD, GET-CLIPBOARD): new defuns to manage
 	textual contents of Windows clipboard.
-	* modules/syscalls/posix.lisp [or win32 cygwin]: export
+	* modules/syscalls/posix.lisp [win32 || cygwin]: export
 	SET-CLIPBOARD, GET-CLIPBOARD.
 
 2010-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
@@ -15,10 +23,9 @@
 
 2010-05-07  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	* modules/syscalls/calls.c
-	(USER-INFO): skip entries with uid of -1 when returning a list.
-	These entries appearing in cygwin correspond to user records
-	not synchronized with /etc/passwd.
+	* modules/syscalls/calls.c (USER-INFO): skip entries with uid of
+	-1 when returning a list.  These entries appearing in cygwin
+	correspond to user records not synchronized with /etc/passwd.
 
 2010-05-02  Vladimir Tzankov  <vtzankov@gmail.com>
 
