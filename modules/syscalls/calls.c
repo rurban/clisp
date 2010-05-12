@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2009 Sam Steingold
+ * Copyright (C) 2003-2010 Sam Steingold
  * Copyright (C) 2005,2008 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * GPL2
@@ -4383,7 +4383,7 @@ DEFUN(POSIX::GET-USER-SID, &optional username) {
   skipSTACK(1);
 }
 
-/* helpers for set-clipboard and get-clipboard */
+/* helpers for CLIPBOARD and %SET-CLIPBOARD */
 
 static int nlines_a (const char * s) {
   int result = 1;
@@ -4437,12 +4437,12 @@ static void strzcpy21_w (PWSTR dest, PCWSTR src) {
   } while(true);
 }
 
-/* SET-CLIPBOARD: set the contents of Windows clipboard to the printed
-   representation of argument (PRINC-TO-STRING is used). Returns T on 
+/* %SET-CLIPBOARD: set the contents of Windows clipboard to the printed
+   representation of argument (PRINC-TO-STRING is used). Returns T on
    success, NIL on failure. */
-DEFUN(POSIX::SET-CLIPBOARD, str) {
+DEFUN(OS::%SET-CLIPBOARD, str) {
   int textset = 0;
-  funcall(`PRINC-TO-STRING`, 1);
+  funcall(L(princ_to_string), 1);
   begin_system_call();
   if (OpenClipboard(NULL)) {
     if( EmptyClipboard() ) {
@@ -4451,9 +4451,9 @@ DEFUN(POSIX::SET-CLIPBOARD, str) {
       if (GetVersionEx(&v)) {
         if (v.dwPlatformId == VER_PLATFORM_WIN32_NT) { /* Windows NT */
             with_string_0w(value1, wstr, {
-              HGLOBAL sglobal = 
+              HGLOBAL sglobal =
                 GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,
-                            (wstr_bytelen + nlines_w(wstr) + 2) 
+                            (wstr_bytelen + nlines_w(wstr) + 2)
                               * sizeof(WCHAR));
               if (sglobal != NULL) {
                 void * slocal = GlobalLock(sglobal);
@@ -4470,7 +4470,7 @@ DEFUN(POSIX::SET-CLIPBOARD, str) {
             });
         } else {  /* Win95/98/Me - try ASCII */
           with_string_0( value1, GLO(misc_encoding), cstr, {
-            HGLOBAL sglobal = 
+            HGLOBAL sglobal =
               GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, cstr_bytelen + nlines_a(cstr) + 1);
             if (sglobal != NULL) {
               void * slocal = GlobalLock(sglobal);
@@ -4481,7 +4481,7 @@ DEFUN(POSIX::SET-CLIPBOARD, str) {
                 if (SetClipboardData( CF_TEXT,  sglobal ) != NULL ) {
                   GlobalUnlock(sglobal);
                   textset = 1;
-                } else GlobalFree(sglobal); 
+                } else GlobalFree(sglobal);
                 /* GlobalFree only if SetClipboardData failed */
               }
             }
@@ -4495,10 +4495,10 @@ DEFUN(POSIX::SET-CLIPBOARD, str) {
   VALUES1(textset ? T : NIL);
 }
 
-/* GET-CLIPBOARD: Returns the textual contents of Windows clipboard 
+/* CLIPBOARD: Returns the textual contents of Windows clipboard
    as a string. First try to get it as CF_UNICODETEXT, then CF_TEXT.
    On failure or when no text is available NIL is returned. */
-DEFUN(POSIX::GET-CLIPBOARD,) {
+DEFUN(OS:CLIPBOARD,) {
   VALUES1(NIL);
   begin_system_call();
   if (OpenClipboard(NULL)) {
@@ -4517,7 +4517,7 @@ DEFUN(POSIX::GET-CLIPBOARD,) {
       }
     } else { /* Probably system just do not support UNICODE */
       gltext = GetClipboardData(CF_TEXT); /* ANSI TEXT */
-      if (gltext != NULL) { 
+      if (gltext != NULL) {
         const char * str = (const char *)GlobalLock(gltext);
         if (str != NULL) {
           DYNAMIC_ARRAY(buf, char, strlen(str) + 1);
