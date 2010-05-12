@@ -870,4 +870,17 @@ which compute the error functions, Bessel functions and Gamma.</para>
 <simpara>This functionality is only present if &ffi-pac; is present.</simpara>
 </section>
 
+<section id="misc"><title>Miscellanea</title>
+<variablelist>
+ <varlistentry id="clipboard"><term><code>(OS:CLIPBOARD)</code></term>
+  <term><code>(&setf; (OS:CLIPBOARD) &object-r;)</code></term>
+  <listitem><simpara>Get
+   (using <function role="win32">GetClipboardData</function>) a set
+   (using <function role="win32">SetClipboardData</function>)
+   the windows clipboard.</simpara>
+  <simpara>Return a &string-t;; convert &object-r; to a &string-t;
+   using &princ-to-string;.</simpara>
+  <simpara>&win32-cygwin-only;</simpara></listitem></varlistentry>
+</variablelist></section>
+
 </section>

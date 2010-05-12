@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2009
+;;; Sam Steingold 1999-2010
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -202,7 +202,8 @@
                     (file-stat-file file-stat)))) ; name-short
 ;;; ============================================================
 #+(or win32 cygwin) (progn
-(export '(make-shortcut get-user-sid get-clipboard set-clipboard))
+(export '(make-shortcut get-user-sid clipboard))
+(defsetf clipboard %set-clipboard)
 
 (defstruct (shortcut-info
              (:constructor make-shortcut-info
