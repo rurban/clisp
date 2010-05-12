@@ -3208,8 +3208,7 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
-<varlistentry id="device-prefix"><term><emphasis role="plat-dep">&win32;
-   and &cygwin; platforms only.</emphasis></term>
+<varlistentry id="device-prefix"><term>&win32-cygwin-only;</term>
  <listitem><simpara>User variable <firstterm>&dev-prefix;</firstterm>
   controls translation between &cygwin; pathnames
   (e.g., <filename>#P"/cygdrive/c/gnu/clisp/"</filename>) and native
@@ -3219,11 +3218,9 @@ checks whether the &hash-table-t; is weak.</para>
   not understand the &cygwin; paths.
   When its value is a string, it is used by &parse-namestring; to
   translate into the appropriate platform-specific representation,
-  so that on &cygwin;,
-  <code>(&parse-namestring; "c:/gnu/clisp/")</code>
+  so that on &cygwin;, <code>(&parse-namestring; "c:/gnu/clisp/")</code>
   returns <filename>#P"/cygdrive/c/gnu/clisp/"</filename>,
-  while on &win32;
-  <code>(&parse-namestring; "/cygdrive/c/gnu/clisp/")</code>
+  while on &win32; <code>(&parse-namestring; "/cygdrive/c/gnu/clisp/")</code>
   returns <filename>#P"C:/gnu/clisp/"</filename>.
   The initial value is <literal>"cygdrive"</literal>, you should edit
   &config-lisp; to change it.</simpara></listitem></varlistentry>
@@ -5424,9 +5421,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>if &os; = &beos; (in that case &unix-k; is also present)
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CYGWIN</constant></term>
- <listitem><simpara>if &clisp; is using the &cygwin; &unix;
-   compatibility layer on top of &win32;
-   (in that case &unix-k; is also present)
+ <listitem><simpara>if &clisp; is using the &cygwin; &unix; compatibility
+  layer on top of &win32; (in that case &unix-k; is also present)
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:MACOS</constant></term>
  <listitem><simpara>if &os; = &macosx; (in that case &unix-k; is also present)
