@@ -246,7 +246,7 @@ further explanations of the issues could be provided).</para>
 <para><screen>
 &sh-prompt; ./configure &with-debug; --cbc build-g
 &sh-prompt; cd build-g
-&sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
+&sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on &win32; and &cygwin;</lineannotation>
 <prompt>(gdb)</prompt> boot
 <prompt>(gdb)</prompt> run
 </screen></para></formalpara>
@@ -255,7 +255,7 @@ further explanations of the issues could be provided).</para>
   module <literal>foo</literal></title><para><screen>
 &sh-prompt; ./configure &with-debug; --with-module=foo --cbc build-g
 &sh-prompt; cd build-g
-&sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
+&sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on &win32; and &cygwin;</lineannotation>
 <prompt>(gdb)</prompt> full
 <prompt>(gdb)</prompt> run</screen>
 When debugging a &base; module, use <command>base</command>
