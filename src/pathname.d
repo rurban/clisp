@@ -7220,9 +7220,9 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
+  if (len == -1) len = asciz_length(string);
 #ifdef ENABLE_UNICODE
   var gcv_object_t *stack_save = STACK;
-  len = (len == -1 ? asciz_length(string) : len);
   var object encoding = O(pathname_encoding);
  restart_direntry_to_string:
   running_handle_directory_encoding_error = false;
