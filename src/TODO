@@ -107,18 +107,6 @@ initially, *warn-on-floating-point-contagion* and *enable-portability-warnings*
 should be T.
 
 
---with-dynamic-modules ==> link errors:
-gcc -I. -fPIC -x none -Wl,-export-dynamic -shared -o dynmod/lib-i18n.dll gettext.o
-gettext.o(.text+0x7f):i18n/gettext.c:2296: undefined reference to `_I_to_L'
-gettext.o(.text+0xcb):i18n/gettext.c:2301: undefined reference to `_STACK'
-gettext.o(.text+0xd2):i18n/gettext.c:2301: undefined reference to `_symbol_tab_data'
-These errors mean that the lisp run time must be compiled into lisp.so,
-not lisp.a, and dynmod/lib-i18n.dll should be linked against it.
-So, this all goes in the same direction as embeddability
-and elimination of lisp.run in favor of a driver launching the right dll.
-Also, --with-dynamic-modules should _NOT_ make BASE_MODULES dynamic.
-
-
 libopen should DWIM -- include libltdl and use lt_dlopenext().
 Note: including libltdl is non-trivial and libtoolize requires configure.ac
 
