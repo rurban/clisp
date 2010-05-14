@@ -340,7 +340,7 @@ CHECK-LOAD
                         (with-output-to-string (s)
                           (princ cmd s)
                           (dolist (a args) (princ #\space s) (princ a s))
-                          (princ " -x '(quote hello)'" s))))
+                          (princ " -x \"(quote hello)\"" s))))
     (read-line s)))
 "HELLO"
 
