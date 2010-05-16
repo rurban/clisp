@@ -9562,7 +9562,7 @@ local maygc void pr_closure (const gcv_object_t* stream_, object obj) {
       JUSTIFY_LAST(false);
       write_sstring_case(stream_,O(printstring_closure));
       if (!nullpSv(print_closure)) { /* query *PRINT-CLOSURE* */
-        /* *PRINT-CLOSURE* /= NIL -> print #<FUNCTION komponente1 ...> : */
+        /* *PRINT-CLOSURE* /= NIL -> print #<FUNCTION component1 ...> : */
         pr_record_ab(stream_,obj_,0,0); /* print the remaining components */
       } else {
         /* *PRINT-CLOSURE* = NIL -> print #<FUNCTION name . form> : */
