@@ -389,7 +389,7 @@ T
         (mapcar #'funcall l)))
 (T (INCREMENT-1 INCREMENT-2) (13 12))
 
-(progn (symbol-cleanup 'check-load)
+(progn (symbol-cleanup 'check-load) (symbol-cleanup 'test-dohash)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))
 T
