@@ -1,7 +1,7 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to 1 when using the gnulib module nl_langinfo. */
-#undef GNULIB_NL_LANGINFO
+/* Define to 1 when the gnulib module nl_langinfo should be tested. */
+#undef GNULIB_TEST_NL_LANGINFO
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -33,22 +33,22 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if `int_n_cs_precedes' is member of `struct lconv'. */
+/* Define to 1 if `int_n_cs_precedes' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_N_CS_PRECEDES
 
-/* Define to 1 if `int_n_sep_by_space' is member of `struct lconv'. */
+/* Define to 1 if `int_n_sep_by_space' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_N_SEP_BY_SPACE
 
-/* Define to 1 if `int_n_sign_posn' is member of `struct lconv'. */
+/* Define to 1 if `int_n_sign_posn' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_N_SIGN_POSN
 
-/* Define to 1 if `int_p_cs_precedes' is member of `struct lconv'. */
+/* Define to 1 if `int_p_cs_precedes' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_P_CS_PRECEDES
 
-/* Define to 1 if `int_p_sep_by_space' is member of `struct lconv'. */
+/* Define to 1 if `int_p_sep_by_space' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_P_SEP_BY_SPACE
 
-/* Define to 1 if `int_p_sign_posn' is member of `struct lconv'. */
+/* Define to 1 if `int_p_sign_posn' is a member of `struct lconv'. */
 #undef HAVE_STRUCT_LCONV_INT_P_SIGN_POSN
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -77,6 +77,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
