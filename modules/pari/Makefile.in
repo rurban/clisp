@@ -14,6 +14,9 @@ MAKE = make
 
 SHELL = /bin/sh
 
+ALL_CFLAGS = $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+  -I$(srcdir) # for cpari.h
+
 GENERATED = pari.o cpari.o pari.fas preload.lisp
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/pari.lisp $(srcdir)/README
@@ -26,10 +29,10 @@ pari.fas pari.c : $(srcdir)/pari.lisp
 	$(CLISP) -c $(srcdir)/pari.lisp -o ./
 
 pari.o : pari.c config.h
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c pari.c
+	$(CC) $(ALL_CFLAGS) -c pari.c
 
 cpari.o : $(srcdir)/cpari.c
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c $(srcdir)/cpari.c
+	$(CC) $(ALL_CFLAGS) -c $(srcdir)/cpari.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
