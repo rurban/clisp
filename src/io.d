@@ -3949,6 +3949,28 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
       mv_count=1;               /* value1 as value */
       skipSTACK(3); return;
     }
+    if (eq(name,S(function))) { /* Symbol FUNCTION */
+      var object closure = allocate_closure(iclos_length,seclass_default<<4);
+      var object* data = TheSrecord(closure)->recdata;
+      var uintL pos = 0;
+      for (;pos < iclos_length && !endp(args); pos++, args=Cdr(args))
+        data[pos] = Car(args);
+      if (pos < iclos_length) {
+        pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
+        pushSTACK(name);
+        pushSTACK(*stream_);    /* Stream */
+        pushSTACK(S(read));
+        error(reader_error,GETTEXT("~S from ~S: bad ~S (not enough fields)"));
+      }
+      if (!nullp(args)) {
+        pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
+        pushSTACK(args); pushSTACK(name);
+        pushSTACK(*stream_);    /* Stream */
+        pushSTACK(S(read));
+        error(reader_error,GETTEXT("~S from ~S: bad ~S (extra fields: ~S"));
+      }
+      VALUES1(closure); skipSTACK(3); return;
+    }
     if (eq(name,S(random_state))) { /* Symbol RANDOM-STATE ? */
       /* yes -> treat specially, no Structure:
        Random-State
@@ -9549,6 +9571,21 @@ local maygc void pr_closure (const gcv_object_t* stream_, object obj) {
   } else if (simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec)) {
     /* compiled Closure */
     pr_cclosure(stream_,obj);
+  } else if (!nullpSv(print_closure)) {
+    pushSTACK(obj);                    /* save Closure */
+    var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
+    LEVEL_CHECK;
+    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
+    PAREN_OPEN;
+    INDENT_START(3); /* indent by 3 characters, because of '#S(' */
+    JUSTIFY_START(1);
+    write_sstring_case(stream_,O(printstring_closure));
+    pr_record_ab(stream_,obj_,0,0); /* print the remaining components */
+    JUSTIFY_END_FILL;
+    INDENT_END;
+    PAREN_CLOSE;
+    LEVEL_END;
+    skipSTACK(1);
   } else {
     /* print interpreted Closure: #<FUNCTION ...>
      if *PRINT-CLOSURE* /= NIL, print everything, else print Name and
@@ -9561,16 +9598,11 @@ local maygc void pr_closure (const gcv_object_t* stream_, object obj) {
       UNREADABLE_START;
       JUSTIFY_LAST(false);
       write_sstring_case(stream_,O(printstring_closure));
-      if (!nullpSv(print_closure)) { /* query *PRINT-CLOSURE* */
-        /* *PRINT-CLOSURE* /= NIL -> print #<FUNCTION component1 ...> : */
-        pr_record_ab(stream_,obj_,0,0); /* print the remaining components */
-      } else {
-        /* *PRINT-CLOSURE* = NIL -> print #<FUNCTION name . form> : */
-        JUSTIFY_SPACE;
-        prin_object(stream_,TheIclosure(*obj_)->clos_name); /* print Name */
-        /* print form-list elementwise: */
-        pr_record_rest(stream_,TheIclosure(*obj_)->clos_form,1);
-      }
+      /* *PRINT-CLOSURE* = NIL -> print #<FUNCTION name . form> : */
+      JUSTIFY_SPACE;
+      prin_object(stream_,TheIclosure(*obj_)->clos_name); /* print Name */
+      /* print form-list elementwise: */
+      pr_record_rest(stream_,TheIclosure(*obj_)->clos_form,1);
       JUSTIFY_END_FILL;
       UNREADABLE_END;
       skipSTACK(1);

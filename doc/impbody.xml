@@ -110,13 +110,13 @@
 <para>Reader macros are also defined for the following:
 <variablelist id="extra-read-macro-table">
  <title>Additional reader macros</title>
- <varlistentry><term>#,</term>
+ <varlistentry><term><literal role="data">#,</literal></term>
   <listitem><simpara>load-time evaluation, kept despite the &ansi-cl;
     issue &iss315;.</simpara></listitem></varlistentry>
- <varlistentry><term>#Y</term>
+ <varlistentry><term><literal role="data">#Y</literal></term>
   <listitem><simpara>compiled &function-t; objects and &in-s;'s &encoding;s
  </simpara></listitem></varlistentry>
- <varlistentry><term>#&quot;&quot;</term>
+ <varlistentry><term><literal role="data">#&quot;&quot;</literal></term>
   <listitem><simpara>&pathname-t;: <filename>#"test.lisp"</filename>
    is the value of <code>(&pathname; "test.lisp")</code></simpara>
  </listitem></varlistentry>
@@ -154,12 +154,13 @@
 <varlistentry><term><literal role="#lt">SPECIAL-OPERATOR
    &name-r;</literal></term>
  <listitem><simpara>special operator handler</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="#lt">COMPILED-CLOSURE
+<varlistentry><term><literal role="#lt">COMPILED-FUNCTION
    &name-r;</literal></term>
  <listitem><simpara>compiled function, if &pr-closure; is &nil;
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="#lt">CLOSURE &name-r; ...</literal></term>
- <listitem><simpara>interpreted function</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="#lt">FUNCTION &name-r; ...</literal></term>
+ <listitem><simpara>interpreted function, , if &pr-closure; is &nil;
+</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="#lt">FRAME-POINTER #x...</literal></term>
  <listitem><simpara>pointer to a stack frame</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="#lt">DISABLED POINTER</literal></term>
@@ -4786,29 +4787,63 @@ as if with <command role="unix">tail -f</command>.</para>
 <section id="multi-rep"><title>Multiple Possible Textual Representations
   <ulink role="clhs" url="sec_22-1-1-1"/></title>
 
-<formalpara id="pr-closure"><title>Variable &pr-closure;</title>
+<simplesect id="pr-closure"><title>Variable &pr-closure;</title>
 <para>An additional variable &pr-closure; controls whether compiled and
  interpreted functions (closures) are output in detailed form.
- If &pr-closure; is non-&nil;, compiled closures are output in
- <keysym>#Y</keysym> syntax which the reader understands.
- &pr-closure; is initially set to &nil;.</para></formalpara>
+ If &pr-closure; is non-&nil;, a readable syntax is used for closures:
+<variablelist><varlistentry><term>interpreted closures</term>
+<listitem><simpara>&sharp-S;</simpara></listitem></varlistentry>
+<varlistentry><term>compiled closures</term>
+<listitem><simpara><literal role="data">#Y</literal></simpara></listitem>
+</varlistentry></variablelist></para>
+<warning><para>This feature is turned off by &with-standard-io-syntax; because
+ it is easy to get wrong (see below) and non-portable.</para></warning>
+<warning><para>When several closures share environment, they should be
+written and read <emphasis>together</emphasis>
+(similar to all the other objects which share structure in important ways).
+Also, one should avoid putting &intern;ed symbols in the shared environment
+if interpreted closures intended to be read and written:
+<programlisting language="lisp">
+(&setf; (&values; my-pop my-push)
+      (&let; ((storage (&gensym;)))
+           `(&let; ((,storage ()))
+              (&values; (&lambda; () (&pop; ,storage))
+                      (&lambda; (x) (&push; x ,storage))))))
+<computeroutput>my-pop</computeroutput> ;
+<computeroutput>my-push</computeroutput>
+(&let; ((pair (&read-from-string;
+            (&with-standard-io-syntax;
+              (&let; ((&pr-closure; &t;))
+                   (&prin1-to-string; (&cons; my-pop my-push)))))))
+   (&setq; my-pop-1 (&car; pair)
+         my-push-1 (&cdr; pair)))
+</programlisting>
+Note that <function>my-pop</function> and <function>my-push</function>
+share environment between themselves but &not-e; with
+<function>my-pop-1</function> and <function>my-push-1</function> which
+can be easily seen if you do <programlisting language="lisp">
+(&let; ((&pr-closure; &t;))
+  (&print; (&list; my-pop my-push my-pop-1 my-push-1)))
+</programlisting></para></warning>
+<para>&pr-closure; is initially set to &nil;.</para></simplesect>
 
-<formalpara id="pr-rpars"><title>Variable &pr-rpars;</title>
+<simplesect id="pr-rpars"><title>Variable &pr-rpars;</title>
 <para>An additional variable &pr-rpars; controls
  the output of the right (closing) parentheses.
  If &pr-rpars; is non-&nil;, closing parentheses which do not fit onto
  the same line as the the corresponding opening parenthesis are output
  just below their corresponding opening parenthesis, in the same column.
- &pr-rpars; is initially set to &nil;.</para></formalpara>
+ </para>
+<para>&pr-rpars; is initially set to &nil;.</para></simplesect>
 
-<formalpara id="pr-indent"><title>Variable &pr-indent;</title>
+<simplesect id="pr-indent"><title>Variable &pr-indent;</title>
 <para>An additional variable &pr-indent; controls the indentation of
  lists that span more than one line.
  It specifies by how many characters items within the list will be
- indented relative to the beginning of the list.
- &pr-indent; is initially set to <literal>1</literal>.</para></formalpara>
+ indented relative to the beginning of the list.</para>
+<para>&pr-indent; is initially set to <literal>1</literal>.</para></simplesect>
 
-<formalpara id="ppr-first-newline"><title>Variable &ppr-first-newline;</title>
+<simplesect id="ppr-first-newline"><title>Variable &ppr-first-newline;</title>
 <para>An additional variable &ppr-first-newline; controls
  pretty-printing of multi-line objects.
  When &ppr-first-newline; is non-&nil;,
@@ -4825,9 +4860,9 @@ return value:
  on one line)</screen>
 instead of <screen>
 return value: (long list which does not fit
- on one line)</screen> when it does not.
- &ppr-first-newline; has no effect if &print-pretty-var; is &nil;.
- &ppr-first-newline; is initially set to &t;.</para></formalpara>
+ on one line)</screen> when it does not.</para>
+<para>&ppr-first-newline; has no effect if &print-pretty-var; is &nil;.</para>
+<para>&ppr-first-newline; is initially set to &t;.</para></simplesect>
 
 </section>
 
