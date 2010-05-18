@@ -12,6 +12,7 @@
   <member><ulink role="bdb" url="ref/upgrade.4.5/toc.html">4.5</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.6/toc.html">4.6</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.7/toc.html">4.7</ulink></member>
+  <member><ulink role="bdb" url="ref/upgrade.4.8/toc.html">4.8</ulink></member>
 </simplelist></para>
 
 <simpara>When this module is present, &features-my; contains the
@@ -333,8 +334,7 @@
  DB->errx	Error message
  -->
 <variablelist>
-<varlistentry id="db-create"><term><code>(BDB:DB-CREATE dbe &key-amp;
-   XA)</code></term>
+<varlistentry id="db-create"><term><code>(BDB:DB-CREATE dbe)</code></term>
  <listitem><simpara>Create a database handle
    (<function role="bdb">db_create</function>).
 </simpara></listitem></varlistentry>
@@ -620,7 +620,7 @@
  <listitem><simpara>Return count of duplicates
    (<function role="bdb">DBCursor-&gt;count</function>).
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DBC-DEL cursor)</code></term>
+<varlistentry><term><code>(BDB:DBC-DEL cursor &key-amp; CONSUME)</code></term>
  <listitem><simpara>Delete by cursor
    (<function role="bdb">DBCursor-&gt;del</function>).
 </simpara></listitem></varlistentry>
@@ -652,8 +652,7 @@
     <member><constant>:SET-RANGE</constant></member>
     <member><constant>:SET-RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><code>(BDB:DBC-PUT cursor key data
-   flag)</code></term>
+<varlistentry><term><code>(BDB:DBC-PUT cursor key data flag)</code></term>
  <listitem><simpara>Store by cursor
    (<function role="bdb">DBCursor-&gt;put</function>).
 </simpara></listitem></varlistentry>
