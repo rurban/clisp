@@ -389,6 +389,32 @@ T
         (mapcar #'funcall l)))
 (T (INCREMENT-1 INCREMENT-2) (13 12))
 
+(multiple-value-bind (mypush mypop)
+    (let ((acc nil))
+      (values (lambda (x) (push x acc))
+              (lambda () (pop acc))))
+  (list (list (funcall mypop)
+              (funcall mypush 1) (funcall mypop) (funcall mypop)
+              (funcall mypush 2) (funcall mypush 3)
+              (funcall mypop) (funcall mypop) (funcall mypop))
+        (let ((pair (read-from-string
+                     (with-standard-io-syntax
+                       (let ((*print-closure* t))
+                         (prin1-to-string (cons mypush mypop)))))))
+          (list (funcall (cdr pair))
+                (funcall (car pair) 1) (funcall (cdr pair)) (funcall (cdr pair))
+                (funcall (car pair) 2) (funcall (car pair) 3)
+                (funcall (cdr pair)) (funcall (cdr pair))
+                (funcall (cdr pair))))))
+((NIL
+  (1) 1 NIL
+  (2) (3 2)
+  3 2 NIL)
+ (NIL
+  (1) 1 NIL
+  (2) (3 2)
+  3 2 NIL))
+
 (progn (symbol-cleanup 'check-load) (symbol-cleanup 'test-dohash)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))

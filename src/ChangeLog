@@ -1,3 +1,11 @@
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
+	Implement RFE#3001956: *PRINT-CLOSURE* now controls interpreted
+	closure output too
+	* io.d (STRUCTURE-READER): read #S(FUNCTION ...) as an Iclosure
+	(pr_closure): when *PRINT-CLOSURE* is non-NIL, print Iclosure
+	using #S(FUNCTION ...) syntax
+
 2010-05-13  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (direntry_to_string) [!ENABLE_UNICODE]: handle len==-1

@@ -1,3 +1,7 @@
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: test *PRINT-CLOSURE* (RFE#3001956)
+
 2010-04-20  Sam Steingold  <sds@gnu.org>
 
 	* Makefile (LISP): use "LC_MESSAGES=en_US" & "-L english" to
