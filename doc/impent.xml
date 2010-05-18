@@ -822,6 +822,8 @@
 <!ENTITY l-r '<replaceable>l</replaceable>'>
 <!ENTITY lib-name '<replaceable>library-name</replaceable>'>
 <!ENTITY lab-r '<replaceable>label</replaceable>'>
+<!ENTITY lalist-r '<replaceable>lambda-list</replaceable>'>
+<!ENTITY laexpr-r '<replaceable>lambda-expression</replaceable>'>
 <!ENTITY lang-r '<replaceable>language</replaceable>'>
 <!ENTITY lc-r '<replaceable>lc</replaceable>'>
 <!ENTITY len-r '<replaceable>length</replaceable>'>
