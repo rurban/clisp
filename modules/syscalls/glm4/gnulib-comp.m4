@@ -57,6 +57,7 @@ AC_DEFUN([sc_gl_INIT],
   gl_cond_libtool=false
   gl_libdeps=
   gl_ltlibdeps=
+  gl_m4_base='modules/syscalls/glm4'
   m4_pushdef([AC_LIBOBJ], m4_defn([sc_gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([sc_gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([sc_gl_LIBSOURCES]))
@@ -151,6 +152,13 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gltests_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='tests'
+changequote(,)dnl
+  sc_gltests_WITNESS=IN_`echo "${PACKAGE-$PACKAGE_TARNAME}" | LC_ALL=C tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ | LC_ALL=C sed -e 's/[^A-Z0-9_]/_/g'`_GNULIB_TESTS
+changequote([, ])dnl
+  AC_SUBST([sc_gltests_WITNESS])
+  gl_module_indicator_condition=$sc_gltests_WITNESS
+  m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(sc_gltests_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gltests_LIBSOURCES_LIST[ ; do

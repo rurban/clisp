@@ -1,5 +1,35 @@
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
+	update gnulib
+	* build-aux/arg-nonnull.h, build-aux/c++defs.h, build-aux/warn-on-use.h:
+	* gllib/langinfo.in.h, gllib/nl_langinfo.c, gllib/stddef.in.h:
+	* glm4/fcntl-o.m4, glm4/langinfo_h.m4, glm4/nl_langinfo.m4:
+	* glm4/stddef_h.m4, glm4/warn-on-use.m4, glm4/wchar_h.m4:
+	* glm4/wctype_h.m4: add
+	* modules/regexp/gllib/Makefile.am, modules/regexp/gllib/btowc.c:
+	* modules/regexp/gllib/gettext.h, modules/regexp/gllib/regcomp.c:
+	* modules/regexp/gllib/stdlib.in.h, modules/regexp/gllib/unistd.in.h:
+	* modules/regexp/glm4/btowc.m4, modules/regexp/glm4/gnulib-common.m4:
+	* modules/regexp/glm4/gnulib-comp.m4, modules/regexp/glm4/mbrtowc.m4:
+	* modules/regexp/glm4/regex.m4, modules/regexp/glm4/stddef_h.m4:
+	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
+	* modules/regexp/glm4/wcrtomb.m4, modules/syscalls/gllib/Makefile.am:
+	* modules/syscalls/gllib/sys_socket.in.h:
+	* modules/syscalls/gllib/time.in.h, modules/syscalls/gllib/time_r.c:
+	* modules/syscalls/gllib/unistd.in.h:
+	* modules/syscalls/glm4/gnulib-common.m4:
+	* modules/syscalls/glm4/gnulib-comp.m4:
+	* modules/syscalls/glm4/stddef_h.m4:
+	* modules/syscalls/glm4/strings_h.m4, modules/syscalls/glm4/strptime.m4:
+	* modules/syscalls/glm4/sys_socket_h.m4:
+	* modules/syscalls/glm4/sys_utsname_h.m4:
+	* modules/syscalls/glm4/time_h.m4, modules/syscalls/glm4/time_r.m4:
+	* modules/syscalls/glm4/unistd_h.m4:
+	* modules/wildcard/glm4/gnulib-common.m4:
+	* modules/wildcard/glm4/gnulib-comp.m4: update
+
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d: undef PACKAGE_URL together with the other PACKAGE_*
 
 2010-05-18  Sam Steingold  <sds@gnu.org>
