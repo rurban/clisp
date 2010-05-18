@@ -5121,6 +5121,28 @@ _ACEOF
 fi
 
 
+ac_fn_c_check_member "$LINENO" "DB_TXN_ACTIVE" "gid" "ac_cv_member_DB_TXN_ACTIVE_gid" "#include <db.h>
+"
+if test "x$ac_cv_member_DB_TXN_ACTIVE_gid" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DB_TXN_ACTIVE_GID 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_member "$LINENO" "DB_TXN_ACTIVE" "status" "ac_cv_member_DB_TXN_ACTIVE_status" "#include <db.h>
+"
+if test "x$ac_cv_member_DB_TXN_ACTIVE_status" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DB_TXN_ACTIVE_STATUS 1
+_ACEOF
+
+
+fi
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Output)${term_norm}" >&6;}
 ac_config_files="$ac_config_files Makefile link.sh"
