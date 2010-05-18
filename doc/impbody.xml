@@ -4792,12 +4792,13 @@ as if with <command role="unix">tail -f</command>.</para>
  interpreted functions (closures) are output in detailed form.
  If &pr-closure; is non-&nil;, a readable syntax is used for closures:
 <variablelist><varlistentry><term>interpreted closures</term>
-<listitem><simpara>&sharp-S;</simpara></listitem></varlistentry>
-<varlistentry><term>compiled closures</term>
-<listitem><simpara><literal role="data">#Y</literal></simpara></listitem>
-</varlistentry></variablelist></para>
-<warning><para>This feature is turned off by &with-standard-io-syntax; because
- it is easy to get wrong (see below) and non-portable.</para></warning>
+<listitem><simpara>&sharp-S;(&function-t; ...)</simpara></listitem>
+</varlistentry><varlistentry><term>compiled closures</term>
+<listitem><simpara><literal role="data">#Y(...)</literal> (this is what you
+would see if you open a &clisp; &fasl-file; in a text editor)</simpara>
+</listitem></varlistentry></variablelist></para>
+<para>This feature is turned off by &with-standard-io-syntax; because
+ it is easy to get wrong (see below) and non-portable.</para>
 <warning><para>When several closures share environment, they should be
 written and read <emphasis>together</emphasis>
 (similar to all the other objects which share structure in important ways).
@@ -4806,15 +4807,14 @@ if interpreted closures intended to be read and written:
 <programlisting language="lisp">
 (&setf; (&values; my-pop my-push)
       (&let; ((storage (&gensym;)))
-           `(&let; ((,storage ()))
-              (&values; (&lambda; () (&pop; ,storage))
-                      (&lambda; (x) (&push; x ,storage))))))
-<computeroutput>my-pop</computeroutput> ;
-<computeroutput>my-push</computeroutput>
+        (&eval;
+         `(&let; ((,storage ()))
+            (&values; (&lambda-m; () (&pop; ,storage))
+                    (&lambda-m; (x) (&push; x ,storage)))))))
 (&let; ((pair (&read-from-string;
-            (&with-standard-io-syntax;
-              (&let; ((&pr-closure; &t;))
-                   (&prin1-to-string; (&cons; my-pop my-push)))))))
+             (&with-standard-io-syntax;
+               (&let; ((&pr-closure; &t;))
+                 (&prin1-to-string; (&cons; my-pop my-push)))))))
    (&setq; my-pop-1 (&car; pair)
          my-push-1 (&cdr; pair)))
 </programlisting>
@@ -4822,9 +4822,10 @@ Note that <function>my-pop</function> and <function>my-push</function>
 share environment between themselves but &not-e; with
 <function>my-pop-1</function> and <function>my-push-1</function> which
 can be easily seen if you do <programlisting language="lisp">
-(&let; ((&pr-closure; &t;))
+(&let; ((&pr-closure; &t;) (&print-circle-var; &t;))
   (&print; (&list; my-pop my-push my-pop-1 my-push-1)))
-</programlisting></para></warning>
+</programlisting> but which is not at all obvious from the usual
+&sharp-lt; output.</para></warning>
 <para>&pr-closure; is initially set to &nil;.</para></simplesect>
 
 <simplesect id="pr-rpars"><title>Variable &pr-rpars;</title>
