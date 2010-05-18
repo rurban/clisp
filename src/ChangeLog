@@ -1,5 +1,11 @@
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/Makefile.in (ALL_CFLAGS): collect all CFLAGS et al variables
+	here and add -I$(srcddir) for cpari.h
+	(pari.o, cpari.o): use it instead of listing all variables explicitly
+
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
 	update gnulib
 	* build-aux/arg-nonnull.h, build-aux/c++defs.h, build-aux/warn-on-use.h:
 	* gllib/langinfo.in.h, gllib/nl_langinfo.c, gllib/stddef.in.h:
