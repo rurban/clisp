@@ -1,7 +1,7 @@
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
-	* modules/pari/Makefile.in (ALL_CFLAGS): collect all CFLAGS et al variables
-	here and add -I$(srcddir) for cpari.h
+	* modules/pari/Makefile.in (ALL_CFLAGS): collect all CFLAGS et al
+	variables here and add -I$(srcddir) for cpari.h
 	(pari.o, cpari.o): use it instead of listing all variables explicitly
 
 2010-05-18  Sam Steingold  <sds@gnu.org>
@@ -513,14 +513,14 @@
 	* gllib/wchar.in.h, gllib/wctype.in.h, glm4/extensions.m4:
 	* glm4/gettimeofday.m4, glm4/iconv.m4, glm4/localcharset.m4:
 	* glm4/string_h.m4, glm4/sys_time_h.m4, glm4/unistd_h.m4:
-	* glm4/wchar.m4: updated
+	* glm4/wchar.m4: update
 	* modules/regexp/glm4/warn-on-use.m4:
 	* modules/syscalls/gllib/mktime-internal.h:
 	* modules/syscalls/glm4/warn-on-use.m4:
 	* build-aux/arg-nonnull.h, build-aux/warn-on-use.h:
 	* gllib/langinfo.in.h, gllib/nl_langinfo.c:
 	* glm4/fcntl-o.m4, glm4/langinfo_h.m4, glm4/nl_langinfo.m4:
-	* glm4/warn-on-use.m4: added
+	* glm4/warn-on-use.m4: add
 
 2010-02-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -1384,7 +1384,7 @@
 	(FILE-WRITE-DATE, FILE-AUTHOR): seclass_rd_sig
 	* predtype.d (COERCE): seclass_rd_sig
 	* sequence.d (CONCATENATE): seclass_rd_sig
-	* subr.d: updated all of the above
+	* subr.d: update all of the above
 	Reported by "Tobias C. Rittweiler" <tcr@freebits.de>
 
 2009-09-25  Vladimir Tzankov  <vtzankov@gmail.com>
@@ -1992,8 +1992,8 @@
 	* modules/syscalls/glm4/sockpfaf.m4:
 	* modules/syscalls/glm4/sys_socket_h.m4:
 	* modules/syscalls/glm4/sys_utsname_h.m4:
-	* modules/syscalls/glm4/uname.m4: added
-	* modules/syscalls/gllib/dummy.c: removed
+	* modules/syscalls/glm4/uname.m4: add
+	* modules/syscalls/gllib/dummy.c: remove
 
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
@@ -2730,7 +2730,7 @@
 
 	* gllib/Makefile.am, gllib/memchr.valgrind, gllib/string.in.h:
 	* glm4/gnulib-cache.m4, glm4/gnulib-comp.m4, glm4/lib-link.m4:
-	* glm4/libsigsegv.m4, glm4/memchr.m4: updated from gnulib
+	* glm4/libsigsegv.m4, glm4/memchr.m4: update from gnulib
 
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
@@ -2958,7 +2958,7 @@
 	* subr.d, subrkw.d: (MUTEX-LOCK, EXEMPTION-WAIT): add :TIMEOUT keyword
 	parameter
 	* xthread.d (xlock_t): use it in both - WIN32_THREADS and POSIX_THREADS
-	(xmutex_raw_trylock): added
+	(xmutex_raw_trylock): add
 	* zthread.d (MUTEX-LOCK, EXEMPTION-WAIT): add :TIMEOUT parameter.
 	Return T on mutex lock/signaled exemption and NIL on timeout
 	(MUTEX-UNLOCK): do not return any value
@@ -3031,7 +3031,7 @@
 2009-05-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULITHREAD]: keep mutex records consistent in case of interrupts
-	* lispbibl.d (GC_SAFE_REGION_END_i): was GC_SAFE_REGION_END(). added
+	* lispbibl.d (GC_SAFE_REGION_END_i): was GC_SAFE_REGION_END(). add
 	statement to be executed when the control gets to lisp land
 	(GC_SAFE_REGION_END): use the above and handle pending interrupts at
 	the end
@@ -4153,7 +4153,7 @@
 
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/calls.c (sysconf_arg): updated for SUS7
+	* modules/syscalls/calls.c (sysconf_arg): update for SUS7
 	http://www.opengroup.org/onlinepubs/9699919799/functions/sysconf.html
 	(confstr_arg): ditto
 	http://www.opengroup.org/onlinepubs/9699919799/functions/confstr.html
@@ -4435,7 +4435,7 @@
 	* constobj.d [UNIX_CHARNAMES]: add the standard ASCII names "Lf"
 	for "Linefeed" (10) and "Ff" for "Page" (12)
 	* charstrg.d (charname_table_length, charname_table_codes)
-	[UNIX_CHARNAMES]: updated for the above
+	[UNIX_CHARNAMES]: update for the above
 
 2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -5757,8 +5757,8 @@
 2008-10-26  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
 
 	GC safe regions on system calls in pathname.d
-	* lispbibl.d (clisp_thread_t): reordered the fields. Most used
-	are first. added _running_handle_directory_encoding_error - global
+	* lispbibl.d (clisp_thread_t): reorder the fields. Most used
+	are first. add _running_handle_directory_encoding_error - global
 	variable in pathname.d
 	(open_files_lock): global mutex guarding access/modifications of
 	O(open_files).
@@ -5766,7 +5766,7 @@
 	* stream.d (open_files_lock): declaration.
 	(add_to_open_streams): serialize calls via open_files_lock.
 	(find_open_file): maygc. serialize calls via open_files_lock.
-	* pathname.d: added GC safe regions around possibly blocking
+	* pathname.d: add GC safe regions around possibly blocking
 	system calls.
 	(openp): maygc. serialize calls via open_files_lock.
 
@@ -5780,7 +5780,7 @@
 2008-10-20  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
 
 	CALL-WITH-TIMEOUT bugfix and user warning on failure.
-	* lispbibl.d (struct timeout_call): added new member - failed -
+	* lispbibl.d (struct timeout_call): add new member - failed -
 	set to true if thread has failed to be interrupted.
 	* spvw.d (signal_handler_thread): on SIGINT abort if no thread can
 	be interrupted. on SIGALRM (CALL-WITH-TIMEOUT) just mark the
@@ -5805,7 +5805,7 @@
 	(signal_handling_thread): SIGALRM and SIG_TIMEOUT_CALL handled the
 	same way. May be abandon SIG_TIMEOUT_CALL in future.
 	* spvw_garcol.d (gar_col_normal): fix the single threaded build.
-	* zthread.d: comments added.
+	* zthread.d: add comments.
 	(CALL-WITH-TIMEOUT): use pthread_kill()/xthread_signal() instead of
 	raise(sig). On 32 bit Debian(2.6 kernel) the raise()-ed signals are
 	not delivered to the sigwait().
@@ -5941,7 +5941,7 @@
 	a thread is either terminated or suspended at safe point (used by
 	THREAD-INTERRUPT and THREAD-KILL).
 	(suspend_thread/resume_thread): global functions declaration.
-	* spvw.d: comments added
+	* spvw.d: add comments
 	(lock_heap_from_signal_thread): function for locking the LISP heap
 	when executing in the signal handling thread (should wait for GC to
 	finish if in progress).
@@ -5998,20 +5998,20 @@
 	* spvw_global.d (RESERVE_FOR_MALLOC): in MT build increased to 4
 	MB (LISP stacks and symvalues are allocated - currently - via malloc().
 	Probably completely different way for stack allocation is needed).
-	* constsym.d: added THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C stack) and
+	* constsym.d: add THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C stack) and
 	THREADS::*DEFAULT-VALUE-STACK-SIZE* (LISP stack).
 	* subr.d, subrkw.d (make_thread): add :CSTACK-SIZE and
 	:VSTACK-SIZE keywords parameters
-	* threads.lisp: added THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C
+	* threads.lisp: add THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C
 	stack) and THREADS::*DEFAULT-VALUE-STACK-SIZE* (LISP stack)
 	* zthread.d (ensure_uint32): ensures that its integer argument
 	 (object) can fit in uint32
-	(MAKE-THREAD): added :CSTACK-SIZE and :VSTACK-SIZE keywords parameters.
+	(MAKE-THREAD): add :CSTACK-SIZE and :VSTACK-SIZE keywords parameters.
 	(THREAD-KILL): do not wait on the killed thread to exit.
 	* xthread.d (xthread_create): POSIX - create detached threads and
 	sets the stack size.
-	(xthread_wait): removed - no thread join.
-	* pathname.d: added to CVS "threads" branch
+	(xthread_wait): remove - no thread join.
+	* pathname.d: add to CVS "threads" branch
 	(EXECUTE): wait2 surrounded by GC safe region (many other places
 	have the same requirement).
 
