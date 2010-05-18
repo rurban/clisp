@@ -1,6 +1,6 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
- * Copyright (C) 2003-2008 by Sam Steingold
+ * Copyright (C) 2003-2010 by Sam Steingold
  */
 
 #include "clisp.h"
@@ -1034,6 +1034,9 @@ static object dbe_get_lk_conflicts (DB_ENV *dbe) {
   }
   return value1;
 }
+#if !defined(DB_XIDDATASIZE)
+# define DB_XIDDATASIZE DB_GID_SIZE
+#endif
 FLAG_EXTRACTOR(dbe_get_flags_num,DB_ENV*)
 DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   object what = STACK_0;
@@ -1231,12 +1234,11 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
  DB->errx	Error message
 */
 
-DEFUN(BDB:DB-CREATE, dbe &key XA)
+DEFUN(BDB:DB-CREATE, dbe)
 { /* create database */
-  u_int32_t flags = missingp(STACK_0) ? 0 : DB_XA_CREATE;
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_NIL_IS_NULL);
   DB *db;
-  SYSCALL(db_create,(&db,dbe,flags));
+  SYSCALL(db_create,(&db,dbe,0));
   if (!dbe) {                   /* set error callback */
     begin_system_call();
     db->set_errcall(db,&error_callback);
@@ -2245,10 +2247,12 @@ DEFUN(BDB:DBC-COUNT, cursor)
   VALUES1(UL_to_I(count));
 }
 
-DEFUN(BDB:DBC-DEL, cursor)
+DEFFLAGSET(dbc_del_flags, DB_CONSUME)
+DEFUN(BDB:DBC-DEL, cursor &key CONSUME)
 { /* delete the key/data pair to which the cursor refers */
+  u_int32_t flags = dbc_del_flags();
   DBC *cursor = (DBC*)bdb_handle(popSTACK(),`BDB::DBC`,BH_VALID);
-  SYSCALL(cursor->c_del,(cursor,0));
+  SYSCALL(cursor->c_del,(cursor,flags));
   VALUES0;
 }
 
@@ -2317,7 +2321,7 @@ DEFUN(BDB:DBC-GET, cursor key data action &key READ-COMMITTED \
 }
 
 DEFCHECKER(dbc_put_flag,prefix=DB, default=DB_CURRENT,          \
-           :CURRENT AFTER BEFORE KEYFIRST KEYLAST NODUPDATA)
+           :CURRENT AFTER BEFORE KEYFIRST KEYLAST NODUPDATA OVERWRITE-DUP)
 DEFUN(BDB:DBC-PUT, cursor key data flag)
 { /* retrieve key/data pairs from the database */
   u_int32_t flag = dbc_put_flag(popSTACK());
@@ -2738,7 +2742,7 @@ DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
   u_int32_t tx_max;
   DB_PREPLIST *preplist;
   int status, ii;
-  long retnum;
+  u_int32_t retnum;
   SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
   preplist = (DB_PREPLIST*)clisp_malloc(tx_max * sizeof(DB_PREPLIST));
   begin_blocking_system_call();
@@ -2795,8 +2799,16 @@ DEFUN(BDB:TXN-STAT, dbe &key STAT-CLEAR)
       pushSTACK(uint32_to_I(txn_active->txnid));
       pushSTACK(uint32_to_I(txn_active->parentid));
       pushSTACK(make_lsn(&(txn_active->lsn)));
+     #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.8 */
+      pushSTACK(uint32_to_I(txn_active->status));
+     #else
       pushSTACK(uint32_to_I(txn_active->xa_status));
+     #endif 
+     #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.8 */
+      pushSTACK(gid_to_vector(txn_active->gid));
+     #else
       pushSTACK(gid_to_vector(txn_active->xid));
+     #endif
       funcall(`BDB::MKTXNACTIVE`,5); pushSTACK(value1);
     }
     value1 = vectorof(size); pushSTACK(value1);
