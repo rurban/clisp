@@ -978,10 +978,7 @@ syntax, accepting one required argument called &class-r;, which must be
 a &c-mo;; otherwise, an &err-sig;.  An &error-t; is also &signal;ed if
 the &c-mo; has not been initialized.</para>
 
-<para>These generic functions can be called by the user or the
-implementation.</para>
-
-&result-immutable-all;
+&user-and-implementation-callable-result-immutable;
 
 <!-- begin class basic introspection -->
 
@@ -2290,10 +2287,7 @@ syntax, accepting one required argument called &slot-r;, which must be a
 &sdmo;; otherwise, an &err-sig;. An &error-t; is also &signal;ed if the &sdmo;
 has not been initialized.</para>
 
-<para>These generic functions can be called by the user or the
-implementation.</para>
-
-&result-immutable-all;
+&user-and-implementation-callable-result-immutable;
 
 <!-- begin slot-definition basic introspection -->
 
@@ -2594,10 +2588,7 @@ syntax, accepting one required argument called &gf-r;, which must be a
 &gfmo;; otherwise, an &err-sig;.  An &error-t; is also &signal;ed if the
 &gfmo; has not been initialized.</para>
 
-<para>These generic functions can be called by the user or the
-implementation.</para>
-
-&result-immutable-all;
+&user-and-implementation-callable-result-immutable;
 
 <!-- begin generic-function basic introspection -->
 
@@ -2728,7 +2719,7 @@ the macro form, the keyword argument does not appear in the resulting
 call to &ensure-gf;.</simpara>
 <note>&clisp-only;<simpara>If the option does not appear in the macro form, the
   keyword argument appears in the resulting call to &ensure-gf;, with a
-  default value: the <replaceable>lambda list</replaceable> for
+  default value: the <replaceable>lambda-list</replaceable> for
   &argument-precedence-order-k;, &nil; for &documentation-k;, the class
   &standard-generic-function-t; for &gf-class-k;, the class &standard-method-t;
   for &method-class-k;. This is needed to make the generic function reflect
@@ -3686,10 +3677,7 @@ accepting one required argument called &method-r;, which must be a
 &m-mo;; otherwise, an &err-sig;.  An &error-t; is also &signal;ed
 if the &m-mo; has not been initialized.</para>
 
-<para>These generic functions can be called by the user or the
- implementation.</para>
-
-&result-immutable-all;
+&user-and-implementation-callable-result-immutable;
 
 <!-- begin method basic introspection -->
 
