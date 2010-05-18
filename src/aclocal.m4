@@ -1,7 +1,7 @@
-# generated automatically by aclocal 1.10.2 -*- Autoconf -*-
+# generated automatically by aclocal 1.11.1 -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-# 2005, 2006, 2007, 2008  Free Software Foundation, Inc.
+# 2005, 2006, 2007, 2008, 2009  Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -13,8 +13,8 @@
 
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.63],,
-[m4_warning([this file was generated for autoconf 2.63.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.65],,
+[m4_warning([this file was generated for autoconf 2.65.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically `autoreconf'.])])
@@ -31,10 +31,10 @@ To do so, use the procedure documented by the package, typically `autoreconf'.])
 # generated from the m4 files accompanying Automake X.Y.
 # (This private macro should not be called outside this file.)
 AC_DEFUN([AM_AUTOMAKE_VERSION],
-[am__api_version='1.10'
+[am__api_version='1.11'
 dnl Some users find AM_AUTOMAKE_VERSION and mistake it for a way to
 dnl require some minimum version.  Point them to the right macro.
-m4_if([$1], [1.10.2], [],
+m4_if([$1], [1.11.1], [],
       [AC_FATAL([Do not call $0, use AM_INIT_AUTOMAKE([$1]).])])dnl
 ])
 
@@ -50,7 +50,7 @@ m4_define([_AM_AUTOCONF_VERSION], [])
 # Call AM_AUTOMAKE_VERSION and AM_AUTOMAKE_VERSION so they can be traced.
 # This function is AC_REQUIREd by AM_INIT_AUTOMAKE.
 AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
-[AM_AUTOMAKE_VERSION([1.10.2])dnl
+[AM_AUTOMAKE_VERSION([1.11.1])dnl
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
 _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
@@ -110,14 +110,14 @@ am_aux_dir=`cd $ac_aux_dir && pwd`
 
 # AM_CONDITIONAL                                            -*- Autoconf -*-
 
-# Copyright (C) 1997, 2000, 2001, 2003, 2004, 2005, 2006
+# Copyright (C) 1997, 2000, 2001, 2003, 2004, 2005, 2006, 2008
 # Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 8
+# serial 9
 
 # AM_CONDITIONAL(NAME, SHELL-CONDITION)
 # -------------------------------------
@@ -130,6 +130,7 @@ AC_SUBST([$1_TRUE])dnl
 AC_SUBST([$1_FALSE])dnl
 _AM_SUBST_NOTMAKE([$1_TRUE])dnl
 _AM_SUBST_NOTMAKE([$1_FALSE])dnl
+m4_define([_AM_COND_VALUE_$1], [$2])dnl
 if $2; then
   $1_TRUE=
   $1_FALSE='#'
@@ -143,14 +144,14 @@ AC_CONFIG_COMMANDS_PRE(
 Usually this means the macro was only invoked conditionally.]])
 fi])])
 
-# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+# Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009
 # Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 9
+# serial 10
 
 # There are a few dirty hacks below to avoid letting `AC_PROG_CC' be
 # written in clear, in which case automake, when reading aclocal.m4,
@@ -207,6 +208,16 @@ AC_CACHE_CHECK([dependency style of $depcc],
   if test "$am_compiler_list" = ""; then
      am_compiler_list=`sed -n ['s/^#*\([a-zA-Z0-9]*\))$/\1/p'] < ./depcomp`
   fi
+  am__universal=false
+  m4_case([$1], [CC],
+    [case " $depcc " in #(
+     *\ -arch\ *\ -arch\ *) am__universal=true ;;
+     esac],
+    [CXX],
+    [case " $depcc " in #(
+     *\ -arch\ *\ -arch\ *) am__universal=true ;;
+     esac])
+
   for depmode in $am_compiler_list; do
     # Setup a source with many dependencies, because some compilers
     # like to wrap large dependency lists on column 80 (with \), and
@@ -224,7 +235,17 @@ AC_CACHE_CHECK([dependency style of $depcc],
     done
     echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
 
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.  Also, some Intel
+    # versions had trouble with output in subdirs
+    am__obj=sub/conftest.${OBJEXT-o}
+    am__minus_obj="-o $am__obj"
     case $depmode in
+    gcc)
+      # This depmode causes a compiler race in universal mode.
+      test "$am__universal" = false || continue
+      ;;
     nosideeffect)
       # after this tag, mechanisms are not by side-effect, so they'll
       # only be used when explicitly requested
@@ -234,19 +255,23 @@ AC_CACHE_CHECK([dependency style of $depcc],
 	break
       fi
       ;;
+    msvisualcpp | msvcmsys)
+      # This compiler won't grok `-c -o', but also, the minuso test has
+      # not run yet.  These depmodes are late enough in the game, and
+      # so weak that their functioning should not be impacted.
+      am__obj=conftest.${OBJEXT-o}
+      am__minus_obj=
+      ;;
     none) break ;;
     esac
-    # We check with `-c' and `-o' for the sake of the "dashmstdout"
-    # mode.  It turns out that the SunPro C++ compiler does not properly
-    # handle `-M -o', and we need to detect this.
     if depmode=$depmode \
-       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
+       source=sub/conftest.c object=$am__obj \
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
-       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
+       $SHELL ./depcomp $depcc -c $am__minus_obj sub/conftest.c \
          >/dev/null 2>conftest.err &&
        grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
-       grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
+       grep $am__obj sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       # icc doesn't choke on unknown options, it will just issue warnings
       # or remarks (even with -Werror).  So we grep stderr for any message
@@ -310,59 +335,61 @@ _AM_SUBST_NOTMAKE([AMDEPBACKSLASH])dnl
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-#serial 4
+#serial 5
 
 # _AM_OUTPUT_DEPENDENCY_COMMANDS
 # ------------------------------
 AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
-[# Autoconf 2.62 quotes --file arguments for eval, but not when files
-# are listed without --file.  Let's play safe and only enable the eval
-# if we detect the quoting.
-case $CONFIG_FILES in
-*\'*) eval set x "$CONFIG_FILES" ;;
-*)   set x $CONFIG_FILES ;;
-esac
-shift
-for mf
-do
-  # Strip MF so we end up with the name of the file.
-  mf=`echo "$mf" | sed -e 's/:.*$//'`
-  # Check whether this is an Automake generated Makefile or not.
-  # We used to match only the files named `Makefile.in', but
-  # some people rename them; so instead we look at the file content.
-  # Grep'ing the first line is not enough: some people post-process
-  # each Makefile.in and add a new line on top of each file to say so.
-  # Grep'ing the whole file is not good either: AIX grep has a line
-  # limit of 2048, but all sed's we know have understand at least 4000.
-  if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
-    dirpart=`AS_DIRNAME("$mf")`
-  else
-    continue
-  fi
-  # Extract the definition of DEPDIR, am__include, and am__quote
-  # from the Makefile without running `make'.
-  DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
-  test -z "$DEPDIR" && continue
-  am__include=`sed -n 's/^am__include = //p' < "$mf"`
-  test -z "am__include" && continue
-  am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
-  # When using ansi2knr, U may be empty or an underscore; expand it
-  U=`sed -n 's/^U = //p' < "$mf"`
-  # Find all dependency output files, they are included files with
-  # $(DEPDIR) in their names.  We invoke sed twice because it is the
-  # simplest approach to changing $(DEPDIR) to its actual value in the
-  # expansion.
-  for file in `sed -n "
-    s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
-       sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
-    # Make sure the directory exists.
-    test -f "$dirpart/$file" && continue
-    fdir=`AS_DIRNAME(["$file"])`
-    AS_MKDIR_P([$dirpart/$fdir])
-    # echo "creating $dirpart/$file"
-    echo '# dummy' > "$dirpart/$file"
+[{
+  # Autoconf 2.62 quotes --file arguments for eval, but not when files
+  # are listed without --file.  Let's play safe and only enable the eval
+  # if we detect the quoting.
+  case $CONFIG_FILES in
+  *\'*) eval set x "$CONFIG_FILES" ;;
+  *)   set x $CONFIG_FILES ;;
+  esac
+  shift
+  for mf
+  do
+    # Strip MF so we end up with the name of the file.
+    mf=`echo "$mf" | sed -e 's/:.*$//'`
+    # Check whether this is an Automake generated Makefile or not.
+    # We used to match only the files named `Makefile.in', but
+    # some people rename them; so instead we look at the file content.
+    # Grep'ing the first line is not enough: some people post-process
+    # each Makefile.in and add a new line on top of each file to say so.
+    # Grep'ing the whole file is not good either: AIX grep has a line
+    # limit of 2048, but all sed's we know have understand at least 4000.
+    if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
+      dirpart=`AS_DIRNAME("$mf")`
+    else
+      continue
+    fi
+    # Extract the definition of DEPDIR, am__include, and am__quote
+    # from the Makefile without running `make'.
+    DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
+    test -z "$DEPDIR" && continue
+    am__include=`sed -n 's/^am__include = //p' < "$mf"`
+    test -z "am__include" && continue
+    am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
+    # When using ansi2knr, U may be empty or an underscore; expand it
+    U=`sed -n 's/^U = //p' < "$mf"`
+    # Find all dependency output files, they are included files with
+    # $(DEPDIR) in their names.  We invoke sed twice because it is the
+    # simplest approach to changing $(DEPDIR) to its actual value in the
+    # expansion.
+    for file in `sed -n "
+      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
+	 sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
+      # Make sure the directory exists.
+      test -f "$dirpart/$file" && continue
+      fdir=`AS_DIRNAME(["$file"])`
+      AS_MKDIR_P([$dirpart/$fdir])
+      # echo "creating $dirpart/$file"
+      echo '# dummy' > "$dirpart/$file"
+    done
   done
-done
+}
 ])# _AM_OUTPUT_DEPENDENCY_COMMANDS
 
 
@@ -382,13 +409,13 @@ AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 # Do all the work for Automake.                             -*- Autoconf -*-
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-# 2005, 2006, 2008 Free Software Foundation, Inc.
+# 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 13
+# serial 16
 
 # This macro actually does too much.  Some checks are only needed if
 # your package does certain things.  But this isn't really a big deal.
@@ -405,7 +432,7 @@ AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 # arguments mandatory, and then we can depend on a new Autoconf
 # release and drop the old call support.
 AC_DEFUN([AM_INIT_AUTOMAKE],
-[AC_PREREQ([2.60])dnl
+[AC_PREREQ([2.62])dnl
 dnl Autoconf wants to disallow AM_ names.  We explicitly allow
 dnl the ones we care about.
 m4_pattern_allow([^AM_[A-Z]+FLAGS$])dnl
@@ -456,8 +483,8 @@ AM_MISSING_PROG(AUTOCONF, autoconf)
 AM_MISSING_PROG(AUTOMAKE, automake-${am__api_version})
 AM_MISSING_PROG(AUTOHEADER, autoheader)
 AM_MISSING_PROG(MAKEINFO, makeinfo)
-AM_PROG_INSTALL_SH
-AM_PROG_INSTALL_STRIP
+AC_REQUIRE([AM_PROG_INSTALL_SH])dnl
+AC_REQUIRE([AM_PROG_INSTALL_STRIP])dnl
 AC_REQUIRE([AM_PROG_MKDIR_P])dnl
 # We need awk for the "check" target.  The system "awk" is bad on
 # some platforms.
@@ -465,23 +492,36 @@ AC_REQUIRE([AC_PROG_AWK])dnl
 AC_REQUIRE([AC_PROG_MAKE_SET])dnl
 AC_REQUIRE([AM_SET_LEADING_DOT])dnl
 _AM_IF_OPTION([tar-ustar], [_AM_PROG_TAR([ustar])],
-              [_AM_IF_OPTION([tar-pax], [_AM_PROG_TAR([pax])],
-	      		     [_AM_PROG_TAR([v7])])])
+	      [_AM_IF_OPTION([tar-pax], [_AM_PROG_TAR([pax])],
+			     [_AM_PROG_TAR([v7])])])
 _AM_IF_OPTION([no-dependencies],,
 [AC_PROVIDE_IFELSE([AC_PROG_CC],
-                  [_AM_DEPENDENCIES(CC)],
-                  [define([AC_PROG_CC],
-                          defn([AC_PROG_CC])[_AM_DEPENDENCIES(CC)])])dnl
+		  [_AM_DEPENDENCIES(CC)],
+		  [define([AC_PROG_CC],
+			  defn([AC_PROG_CC])[_AM_DEPENDENCIES(CC)])])dnl
 AC_PROVIDE_IFELSE([AC_PROG_CXX],
-                  [_AM_DEPENDENCIES(CXX)],
-                  [define([AC_PROG_CXX],
-                          defn([AC_PROG_CXX])[_AM_DEPENDENCIES(CXX)])])dnl
+		  [_AM_DEPENDENCIES(CXX)],
+		  [define([AC_PROG_CXX],
+			  defn([AC_PROG_CXX])[_AM_DEPENDENCIES(CXX)])])dnl
 AC_PROVIDE_IFELSE([AC_PROG_OBJC],
-                  [_AM_DEPENDENCIES(OBJC)],
-                  [define([AC_PROG_OBJC],
-                          defn([AC_PROG_OBJC])[_AM_DEPENDENCIES(OBJC)])])dnl
+		  [_AM_DEPENDENCIES(OBJC)],
+		  [define([AC_PROG_OBJC],
+			  defn([AC_PROG_OBJC])[_AM_DEPENDENCIES(OBJC)])])dnl
 ])
+_AM_IF_OPTION([silent-rules], [AC_REQUIRE([AM_SILENT_RULES])])dnl
+dnl The `parallel-tests' driver may need to know about EXEEXT, so add the
+dnl `am__EXEEXT' conditional if _AM_COMPILER_EXEEXT was seen.  This macro
+dnl is hooked onto _AC_COMPILER_EXEEXT early, see below.
+AC_CONFIG_COMMANDS_PRE(dnl
+[m4_provide_if([_AM_COMPILER_EXEEXT],
+  [AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])])])dnl
 ])
+
+dnl Hook into `_AC_COMPILER_EXEEXT' early to learn its expansion.  Do not
+dnl add the conditional right here, as _AC_COMPILER_EXEEXT may be further
+dnl mangled by Autoconf and run in a shell conditional statement.
+m4_define([_AC_COMPILER_EXEEXT],
+m4_defn([_AC_COMPILER_EXEEXT])[m4_provide([_AM_COMPILER_EXEEXT])])
 
 
 # When config.status generates a header, we must update the stamp-h file.
@@ -505,7 +545,7 @@ for _am_header in $config_headers :; do
 done
 echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_count])
 
-# Copyright (C) 2001, 2003, 2005  Free Software Foundation, Inc.
+# Copyright (C) 2001, 2003, 2005, 2008  Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -516,7 +556,14 @@ echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_co
 # Define $install_sh.
 AC_DEFUN([AM_PROG_INSTALL_SH],
 [AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
-install_sh=${install_sh-"\$(SHELL) $am_aux_dir/install-sh"}
+if test x"${install_sh}" != xset; then
+  case $am_aux_dir in
+  *\ * | *\	*)
+    install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
+  *)
+    install_sh="\${SHELL} $am_aux_dir/install-sh"
+  esac
+fi
 AC_SUBST(install_sh)])
 
 # Copyright (C) 2003, 2005  Free Software Foundation, Inc.
@@ -542,13 +589,13 @@ AC_SUBST([am__leading_dot])])
 
 # Check to see how 'make' treats includes.	            -*- Autoconf -*-
 
-# Copyright (C) 2001, 2002, 2003, 2005  Free Software Foundation, Inc.
+# Copyright (C) 2001, 2002, 2003, 2005, 2009  Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 3
+# serial 4
 
 # AM_MAKE_INCLUDE()
 # -----------------
@@ -557,7 +604,7 @@ AC_DEFUN([AM_MAKE_INCLUDE],
 [am_make=${MAKE-make}
 cat > confinc << 'END'
 am__doit:
-	@echo done
+	@echo this is the am__doit target
 .PHONY: am__doit
 END
 # If we don't find an include directive, just comment out the code.
@@ -567,24 +614,24 @@ am__quote=
 _am_result=none
 # First try GNU make style include.
 echo "include confinc" > confmf
-# We grep out `Entering directory' and `Leaving directory'
-# messages which can occur if `w' ends up in MAKEFLAGS.
-# In particular we don't look at `^make:' because GNU make might
-# be invoked under some other name (usually "gmake"), in which
-# case it prints its new name instead of `make'.
-if test "`$am_make -s -f confmf 2> /dev/null | grep -v 'ing directory'`" = "done"; then
-   am__include=include
-   am__quote=
-   _am_result=GNU
-fi
+# Ignore all kinds of additional output from `make'.
+case `$am_make -s -f confmf 2> /dev/null` in #(
+*the\ am__doit\ target*)
+  am__include=include
+  am__quote=
+  _am_result=GNU
+  ;;
+esac
 # Now try BSD make style include.
 if test "$am__include" = "#"; then
    echo '.include "confinc"' > confmf
-   if test "`$am_make -s -f confmf 2> /dev/null`" = "done"; then
-      am__include=.include
-      am__quote="\""
-      _am_result=BSD
-   fi
+   case `$am_make -s -f confmf 2> /dev/null` in #(
+   *the\ am__doit\ target*)
+     am__include=.include
+     am__quote="\""
+     _am_result=BSD
+     ;;
+   esac
 fi
 AC_SUBST([am__include])
 AC_SUBST([am__quote])
@@ -629,14 +676,14 @@ m4_define([AC_PROG_CC],
 
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
-# Copyright (C) 1997, 1999, 2000, 2001, 2003, 2004, 2005
+# Copyright (C) 1997, 1999, 2000, 2001, 2003, 2004, 2005, 2008
 # Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 5
+# serial 6
 
 # AM_MISSING_PROG(NAME, PROGRAM)
 # ------------------------------
@@ -653,7 +700,14 @@ AC_SUBST($1)])
 AC_DEFUN([AM_MISSING_HAS_RUN],
 [AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
 AC_REQUIRE_AUX_FILE([missing])dnl
-test x"${MISSING+set}" = xset || MISSING="\${SHELL} $am_aux_dir/missing"
+if test x"${MISSING+set}" != xset; then
+  case $am_aux_dir in
+  *\ * | *\	*)
+    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
+  *)
+    MISSING="\${SHELL} $am_aux_dir/missing" ;;
+  esac
+fi
 # Use eval to expand $SHELL
 if eval "$MISSING --run true"; then
   am_missing_run="$MISSING --run "
@@ -724,14 +778,14 @@ AC_DEFUN([_AM_IF_OPTION],
 
 # Check to make sure that the build environment is sane.    -*- Autoconf -*-
 
-# Copyright (C) 1996, 1997, 2000, 2001, 2003, 2005
+# Copyright (C) 1996, 1997, 2000, 2001, 2003, 2005, 2008
 # Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 4
+# serial 5
 
 # AM_SANITY_CHECK
 # ---------------
@@ -740,16 +794,29 @@ AC_DEFUN([AM_SANITY_CHECK],
 # Just in case
 sleep 1
 echo timestamp > conftest.file
+# Reject unsafe characters in $srcdir or the absolute working directory
+# name.  Accept space and tab only in the latter.
+am_lf='
+'
+case `pwd` in
+  *[[\\\"\#\$\&\'\`$am_lf]]*)
+    AC_MSG_ERROR([unsafe absolute working directory name]);;
+esac
+case $srcdir in
+  *[[\\\"\#\$\&\'\`$am_lf\ \	]]*)
+    AC_MSG_ERROR([unsafe srcdir value: `$srcdir']);;
+esac
+
 # Do `set' in a subshell so we don't clobber the current shell's
 # arguments.  Must try -L first in case configure is actually a
 # symlink; some systems play weird games with the mod time of symlinks
 # (eg FreeBSD returns the mod time of the symlink's containing
 # directory).
 if (
-   set X `ls -Lt $srcdir/configure conftest.file 2> /dev/null`
+   set X `ls -Lt "$srcdir/configure" conftest.file 2> /dev/null`
    if test "$[*]" = "X"; then
       # -L didn't work.
-      set X `ls -t $srcdir/configure conftest.file`
+      set X `ls -t "$srcdir/configure" conftest.file`
    fi
    rm -f conftest.file
    if test "$[*]" != "X $srcdir/configure conftest.file" \
@@ -802,17 +869,24 @@ fi
 INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 AC_SUBST([INSTALL_STRIP_PROGRAM])])
 
-# Copyright (C) 2006  Free Software Foundation, Inc.
+# Copyright (C) 2006, 2008  Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
+
+# serial 2
 
 # _AM_SUBST_NOTMAKE(VARIABLE)
 # ---------------------------
 # Prevent Automake from outputting VARIABLE = @VARIABLE@ in Makefile.in.
 # This macro is traced by Automake.
 AC_DEFUN([_AM_SUBST_NOTMAKE])
+
+# AM_SUBST_NOTMAKE(VARIABLE)
+# ---------------------------
+# Public sister of _AM_SUBST_NOTMAKE.
+AC_DEFUN([AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE($@)])
 
 # Check how to create a tarball.                            -*- Autoconf -*-
 
@@ -1072,6 +1146,7 @@ AC_DEFUN([wc_gl_INIT],
   gl_cond_libtool=false
   gl_libdeps=
   gl_ltlibdeps=
+  gl_m4_base='modules/wildcard/glm4'
   m4_pushdef([AC_LIBOBJ], m4_defn([wc_gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([wc_gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([wc_gl_LIBSOURCES]))
@@ -1125,6 +1200,13 @@ AC_DEFUN([wc_gl_INIT],
   m4_pushdef([wc_gltests_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='tests'
+changequote(,)dnl
+  wc_gltests_WITNESS=IN_`echo "${PACKAGE-$PACKAGE_TARNAME}" | LC_ALL=C tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ | LC_ALL=C sed -e 's/[^A-Z0-9_]/_/g'`_GNULIB_TESTS
+changequote([, ])dnl
+  AC_SUBST([wc_gltests_WITNESS])
+  gl_module_indicator_condition=$wc_gltests_WITNESS
+  m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(wc_gltests_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([wc_gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]wc_gltests_LIBSOURCES_LIST[ ; do
@@ -1506,6 +1588,7 @@ AC_DEFUN([sc_gl_INIT],
   gl_cond_libtool=false
   gl_libdeps=
   gl_ltlibdeps=
+  gl_m4_base='modules/syscalls/glm4'
   m4_pushdef([AC_LIBOBJ], m4_defn([sc_gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([sc_gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([sc_gl_LIBSOURCES]))
@@ -1600,6 +1683,13 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gltests_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='tests'
+changequote(,)dnl
+  sc_gltests_WITNESS=IN_`echo "${PACKAGE-$PACKAGE_TARNAME}" | LC_ALL=C tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ | LC_ALL=C sed -e 's/[^A-Z0-9_]/_/g'`_GNULIB_TESTS
+changequote([, ])dnl
+  AC_SUBST([sc_gltests_WITNESS])
+  gl_module_indicator_condition=$sc_gltests_WITNESS
+  m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(sc_gltests_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gltests_LIBSOURCES_LIST[ ; do
@@ -2349,9 +2439,9 @@ AC_DEFUN([gl_FUNC_STRFTIME],
 ])
 
 # Configure a replacement for <string.h>.
-# serial 2
+# serial 3
 
-# Copyright (C) 2007, 2009, 2010 Free Software Foundation, Inc.
+# Copyright (C) 2007, 2009-2010 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -2378,7 +2468,7 @@ AC_DEFUN([gl_STRINGS_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_HEADER_STRINGS_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
 ])
 
 AC_DEFUN([gl_HEADER_STRINGS_H_DEFAULTS],
@@ -2388,7 +2478,7 @@ AC_DEFUN([gl_HEADER_STRINGS_H_DEFAULTS],
   HAVE_DECL_STRNCASECMP=1; AC_SUBST([HAVE_DECL_STRNCASECMP])
 ])
 
-# strptime.m4 serial 5
+# strptime.m4 serial 6
 dnl Copyright (C) 2007, 2009, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2398,16 +2488,22 @@ AC_DEFUN([gl_FUNC_STRPTIME],
 [
   AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
   AC_REQUIRE([AC_C_RESTRICT])
-  AC_REPLACE_FUNCS([strptime])
-  AC_REQUIRE([gl_TM_GMTOFF])
-  if test $ac_cv_func_strptime = yes; then
-    REPLACE_STRPTIME=0
-  else
-    REPLACE_STRPTIME=1
+  AC_CHECK_FUNCS_ONCE([strptime])
+  if test $ac_cv_func_strptime != yes; then
+    HAVE_STRPTIME=0
+    AC_LIBOBJ([strptime])
+    gl_PREREQ_STRPTIME
   fi
 ])
 
-# sys_socket_h.m4 serial 16
+# Prerequisites of lib/strptime.c.
+AC_DEFUN([gl_PREREQ_STRPTIME],
+[
+  AC_REQUIRE([gl_TM_GMTOFF])
+  :
+])
+
+# sys_socket_h.m4 serial 17
 dnl Copyright (C) 2005-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2534,9 +2630,9 @@ AC_DEFUN([gl_SYS_SOCKET_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
@@ -2561,7 +2657,7 @@ AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
   HAVE_ACCEPT4=1;       AC_SUBST([HAVE_ACCEPT4])
 ])
 
-# sys_utsname_h.m4 serial 5
+# sys_utsname_h.m4 serial 6
 dnl Copyright (C) 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2599,7 +2695,7 @@ AC_DEFUN([gl_SYS_UTSNAME_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_SYS_UTSNAME_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
 ])
 
 AC_DEFUN([gl_SYS_UTSNAME_H_DEFAULTS],
@@ -2676,10 +2772,10 @@ AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
 AC_DEFUN([gl_TIME_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
-  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
@@ -2689,20 +2785,23 @@ AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
   GNULIB_STRPTIME=0;                     AC_SUBST([GNULIB_STRPTIME])
   GNULIB_TIMEGM=0;                       AC_SUBST([GNULIB_TIMEGM])
   GNULIB_TIME_R=0;                       AC_SUBST([GNULIB_TIME_R])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_LOCALTIME_R=1;                    AC_SUBST([HAVE_LOCALTIME_R])
+  HAVE_NANOSLEEP=1;                      AC_SUBST([HAVE_NANOSLEEP])
+  HAVE_STRPTIME=1;                       AC_SUBST([HAVE_STRPTIME])
+  HAVE_TIMEGM=1;                         AC_SUBST([HAVE_TIMEGM])
   dnl If another module says to replace or to not replace, do that.
   dnl Otherwise, replace only if someone compiles with -DGNULIB_PORTCHECK;
   dnl this lets maintainers check for portability.
   REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;  AC_SUBST([REPLACE_LOCALTIME_R])
   REPLACE_MKTIME=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_MKTIME])
   REPLACE_NANOSLEEP=GNULIB_PORTCHECK;    AC_SUBST([REPLACE_NANOSLEEP])
-  REPLACE_STRPTIME=GNULIB_PORTCHECK;     AC_SUBST([REPLACE_STRPTIME])
   REPLACE_TIMEGM=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_TIMEGM])
 ])
 
-dnl Reentrant time functions like localtime_r.
+dnl Reentrant time functions: localtime_r, gmtime_r.
 
-dnl Copyright (C) 2003, 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
-dnl Inc.
+dnl Copyright (C) 2003, 2006-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2711,29 +2810,40 @@ dnl Written by Paul Eggert.
 
 AC_DEFUN([gl_TIME_R],
 [
- dnl Persuade glibc and Solaris <time.h> to declare localtime_r.
+  dnl Persuade glibc and Solaris <time.h> to declare localtime_r.
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 
   AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
   AC_REQUIRE([AC_C_RESTRICT])
 
-  AC_CACHE_CHECK([whether localtime_r is compatible with its POSIX signature],
-    [gl_cv_time_r_posix],
-    [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-         [[#include <time.h>]],
-         [[/* We don't need to append 'restrict's to the argument types,
-              even though the POSIX signature has the 'restrict's,
-              since C99 says they can't affect type compatibility.  */
-           struct tm * (*ptr) (time_t const *, struct tm *) = localtime_r;
-           if (ptr) return 0;
-           /* Check the return type is a pointer.  On HP-UX 10 it is 'int'.  */
-           *localtime_r (0, 0);]])],
-       [gl_cv_time_r_posix=yes],
-       [gl_cv_time_r_posix=no])])
-  if test $gl_cv_time_r_posix = yes; then
-    REPLACE_LOCALTIME_R=0
+  AC_CHECK_FUNCS_ONCE([localtime_r])
+  if test $ac_cv_func_localtime_r = yes; then
+    AC_CACHE_CHECK([whether localtime_r is compatible with its POSIX signature],
+      [gl_cv_time_r_posix],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM(
+            [[#include <time.h>]],
+            [[/* We don't need to append 'restrict's to the argument types,
+                 even though the POSIX signature has the 'restrict's,
+                 since C99 says they can't affect type compatibility.  */
+              struct tm * (*ptr) (time_t const *, struct tm *) = localtime_r;
+              if (ptr) return 0;
+              /* Check the return type is a pointer.
+                 On HP-UX 10 it is 'int'.  */
+              *localtime_r (0, 0);]])
+         ],
+         [gl_cv_time_r_posix=yes],
+         [gl_cv_time_r_posix=no])
+      ])
+    if test $gl_cv_time_r_posix = yes; then
+      REPLACE_LOCALTIME_R=0
+    else
+      REPLACE_LOCALTIME_R=1
+    fi
   else
-    REPLACE_LOCALTIME_R=1
+    HAVE_LOCALTIME_R=0
+  fi
+  if test $HAVE_LOCALTIME_R = 0 || test $REPLACE_LOCALTIME_R = 1; then
     AC_LIBOBJ([time_r])
     gl_PREREQ_TIME_R
   fi
@@ -2780,7 +2890,7 @@ AC_DEFUN([gl_PREREQ_UNAME], [
   :
 ])
 
-# btowc.m4 serial 5
+# btowc.m4 serial 6
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2800,10 +2910,39 @@ AC_DEFUN([gl_FUNC_BTOWC],
     HAVE_BTOWC=0
   else
 
-    dnl IRIX 6.5 btowc(EOF) is 0xFF, not WEOF.
     AC_REQUIRE([AC_PROG_CC])
     AC_REQUIRE([gt_LOCALE_FR])
     AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+
+    dnl Cygwin 1.7.2 btowc('\0') is WEOF, not 0.
+    AC_CACHE_CHECK([whether btowc(0) is correct],
+      [gl_cv_func_btowc_nul],
+      [
+        AC_TRY_RUN([
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (btowc ('\0') != 0)
+    return 1;
+  return 0;
+}],
+          [gl_cv_func_btowc_nul=yes],
+          [gl_cv_func_btowc_nul=no],
+          [
+changequote(,)dnl
+           case "$host_os" in
+                      # Guess no on Cygwin.
+             cygwin*) gl_cv_func_btowc_nul="guessing no" ;;
+                      # Guess yes otherwise.
+             *)       gl_cv_func_btowc_nul="guessing yes" ;;
+           esac
+changequote([,])dnl
+          ])
+      ])
+
+    dnl IRIX 6.5 btowc(EOF) is 0xFF, not WEOF.
     AC_CACHE_CHECK([whether btowc(EOF) is correct],
       [gl_cv_func_btowc_eof],
       [
@@ -2837,6 +2976,11 @@ int main ()
             [:])
         fi
       ])
+
+    case "$gl_cv_func_btowc_nul" in
+      *yes) ;;
+      *) REPLACE_BTOWC=1 ;;
+    esac
     case "$gl_cv_func_btowc_eof" in
       *yes) ;;
       *) REPLACE_BTOWC=1 ;;
@@ -2904,6 +3048,7 @@ AC_DEFUN([rx_gl_INIT],
   gl_cond_libtool=false
   gl_libdeps=
   gl_ltlibdeps=
+  gl_m4_base='modules/regexp/glm4'
   m4_pushdef([AC_LIBOBJ], m4_defn([rx_gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([rx_gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([rx_gl_LIBSOURCES]))
@@ -2980,6 +3125,13 @@ AC_DEFUN([rx_gl_INIT],
   m4_pushdef([rx_gltests_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='tests'
+changequote(,)dnl
+  rx_gltests_WITNESS=IN_`echo "${PACKAGE-$PACKAGE_TARNAME}" | LC_ALL=C tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ | LC_ALL=C sed -e 's/[^A-Z0-9_]/_/g'`_GNULIB_TESTS
+changequote([, ])dnl
+  AC_SUBST([rx_gltests_WITNESS])
+  gl_module_indicator_condition=$rx_gltests_WITNESS
+  m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(rx_gltests_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([rx_gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]rx_gltests_LIBSOURCES_LIST[ ; do
@@ -3152,7 +3304,7 @@ AC_DEFUN([gl_CHECK_MALLOC_POSIX],
     ])
 ])
 
-# serial 55
+# serial 56
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006,
 # 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
@@ -3250,8 +3402,9 @@ AC_DEFUN([gl_REGEX],
             if (!s)
               return 1;
 
-            /* Ensure that [b-a] is diagnosed as invalid. */
-            re_set_syntax (RE_SYNTAX_POSIX_EGREP);
+            /* Ensure that [b-a] is diagnosed as invalid, when
+               using RE_NO_EMPTY_RANGES. */
+            re_set_syntax (RE_SYNTAX_POSIX_EGREP | RE_NO_EMPTY_RANGES);
             memset (&regex, 0, sizeof regex);
             s = re_compile_pattern ("a[b-a]", 6, &regex);
             if (s == 0)
@@ -3404,7 +3557,7 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
-# stdlib_h.m4 serial 23
+# stdlib_h.m4 serial 28
 dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -3439,18 +3592,19 @@ AC_DEFUN([gl_STDLIB_H],
 #if HAVE_RANDOM_H
 # include <random.h>
 #endif
-    ]], [atoll canonicalize_file_name getloadavg getsubopt mkdtemp
-    mkostemp mkostemps mkstemp mkstemps random_r initstat_r srandom_r
-    setstate_r realpath rpmatch setenv strtod strtoll strtoull unsetenv])
+    ]], [atoll canonicalize_file_name getloadavg getsubopt grantpt mkdtemp
+    mkostemp mkostemps mkstemp mkstemps ptsname random_r initstat_r srandom_r
+    setstate_r realpath rpmatch setenv strtod strtoll strtoull unlockpt
+    unsetenv])
 ])
 
 AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_STDLIB_H_DEFAULTS],
@@ -3460,12 +3614,14 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_CANONICALIZE_FILE_NAME=0;  AC_SUBST([GNULIB_CANONICALIZE_FILE_NAME])
   GNULIB_GETLOADAVG=0;    AC_SUBST([GNULIB_GETLOADAVG])
   GNULIB_GETSUBOPT=0;     AC_SUBST([GNULIB_GETSUBOPT])
+  GNULIB_GRANTPT=0;       AC_SUBST([GNULIB_GRANTPT])
   GNULIB_MALLOC_POSIX=0;  AC_SUBST([GNULIB_MALLOC_POSIX])
   GNULIB_MKDTEMP=0;       AC_SUBST([GNULIB_MKDTEMP])
   GNULIB_MKOSTEMP=0;      AC_SUBST([GNULIB_MKOSTEMP])
   GNULIB_MKOSTEMPS=0;     AC_SUBST([GNULIB_MKOSTEMPS])
   GNULIB_MKSTEMP=0;       AC_SUBST([GNULIB_MKSTEMP])
   GNULIB_MKSTEMPS=0;      AC_SUBST([GNULIB_MKSTEMPS])
+  GNULIB_PTSNAME=0;       AC_SUBST([GNULIB_PTSNAME])
   GNULIB_PUTENV=0;        AC_SUBST([GNULIB_PUTENV])
   GNULIB_RANDOM_R=0;      AC_SUBST([GNULIB_RANDOM_R])
   GNULIB_REALLOC_POSIX=0; AC_SUBST([GNULIB_REALLOC_POSIX])
@@ -3475,6 +3631,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_STRTOD=0;        AC_SUBST([GNULIB_STRTOD])
   GNULIB_STRTOLL=0;       AC_SUBST([GNULIB_STRTOLL])
   GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
+  GNULIB_UNLOCKPT=0;      AC_SUBST([GNULIB_UNLOCKPT])
   GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_ATOLL=1;              AC_SUBST([HAVE_ATOLL])
@@ -3482,11 +3639,14 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_CANONICALIZE_FILE_NAME=1;  AC_SUBST([HAVE_CANONICALIZE_FILE_NAME])
   HAVE_DECL_GETLOADAVG=1;    AC_SUBST([HAVE_DECL_GETLOADAVG])
   HAVE_GETSUBOPT=1;          AC_SUBST([HAVE_GETSUBOPT])
+  HAVE_GRANTPT=1;            AC_SUBST([HAVE_GRANTPT])
   HAVE_MALLOC_POSIX=1;       AC_SUBST([HAVE_MALLOC_POSIX])
   HAVE_MKDTEMP=1;            AC_SUBST([HAVE_MKDTEMP])
   HAVE_MKOSTEMP=1;           AC_SUBST([HAVE_MKOSTEMP])
   HAVE_MKOSTEMPS=1;          AC_SUBST([HAVE_MKOSTEMPS])
+  HAVE_MKSTEMP=1;            AC_SUBST([HAVE_MKSTEMP])
   HAVE_MKSTEMPS=1;           AC_SUBST([HAVE_MKSTEMPS])
+  HAVE_PTSNAME=1;            AC_SUBST([HAVE_PTSNAME])
   HAVE_RANDOM_R=1;           AC_SUBST([HAVE_RANDOM_R])
   HAVE_REALLOC_POSIX=1;      AC_SUBST([HAVE_REALLOC_POSIX])
   HAVE_REALPATH=1;           AC_SUBST([HAVE_REALPATH])
@@ -3497,6 +3657,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_STRTOULL=1;           AC_SUBST([HAVE_STRTOULL])
   HAVE_STRUCT_RANDOM_DATA=1; AC_SUBST([HAVE_STRUCT_RANDOM_DATA])
   HAVE_SYS_LOADAVG_H=0;      AC_SUBST([HAVE_SYS_LOADAVG_H])
+  HAVE_UNLOCKPT=1;           AC_SUBST([HAVE_UNLOCKPT])
   HAVE_UNSETENV=1;           AC_SUBST([HAVE_UNSETENV])
   REPLACE_CANONICALIZE_FILE_NAME=0;  AC_SUBST([REPLACE_CANONICALIZE_FILE_NAME])
   REPLACE_MKSTEMP=0;         AC_SUBST([REPLACE_MKSTEMP])
@@ -3507,7 +3668,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   REPLACE_UNSETENV=0;        AC_SUBST([REPLACE_UNSETENV])
 ])
 
-# wcrtomb.m4 serial 4
+# wcrtomb.m4 serial 5
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -3519,37 +3680,37 @@ AC_DEFUN([gl_FUNC_WCRTOMB],
 
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
   gl_MBSTATE_T_BROKEN
-  if test $REPLACE_MBSTATE_T = 1; then
-    REPLACE_WCRTOMB=1
-  fi
+
   AC_CHECK_FUNCS_ONCE([wcrtomb])
   if test $ac_cv_func_wcrtomb = no; then
     HAVE_WCRTOMB=0
-  fi
-  if test $HAVE_WCRTOMB != 0 && test $REPLACE_WCRTOMB != 1; then
-    dnl On AIX 4.3, OSF/1 5.1 and Solaris 10, wcrtomb (NULL, 0, NULL) sometimes
-    dnl returns 0 instead of 1.
-    AC_REQUIRE([AC_PROG_CC])
-    AC_REQUIRE([gt_LOCALE_FR])
-    AC_REQUIRE([gt_LOCALE_FR_UTF8])
-    AC_REQUIRE([gt_LOCALE_JA])
-    AC_REQUIRE([gt_LOCALE_ZH_CN])
-    AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
-    AC_CACHE_CHECK([whether wcrtomb return value is correct],
-      [gl_cv_func_wcrtomb_retval],
-      [
-        dnl Initial guess, used when cross-compiling or when no suitable locale
-        dnl is present.
+  else
+    if test $REPLACE_MBSTATE_T = 1; then
+      REPLACE_WCRTOMB=1
+    else
+      dnl On AIX 4.3, OSF/1 5.1 and Solaris 10, wcrtomb (NULL, 0, NULL) sometimes
+      dnl returns 0 instead of 1.
+      AC_REQUIRE([AC_PROG_CC])
+      AC_REQUIRE([gt_LOCALE_FR])
+      AC_REQUIRE([gt_LOCALE_FR_UTF8])
+      AC_REQUIRE([gt_LOCALE_JA])
+      AC_REQUIRE([gt_LOCALE_ZH_CN])
+      AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+      AC_CACHE_CHECK([whether wcrtomb return value is correct],
+        [gl_cv_func_wcrtomb_retval],
+        [
+          dnl Initial guess, used when cross-compiling or when no suitable locale
+          dnl is present.
 changequote(,)dnl
-        case "$host_os" in
-                                   # Guess no on AIX 4, OSF/1 and Solaris.
-          aix4* | osf* | solaris*) gl_cv_func_wcrtomb_retval="guessing no" ;;
-                                   # Guess yes otherwise.
-          *)                       gl_cv_func_wcrtomb_retval="guessing yes" ;;
-        esac
+          case "$host_os" in
+                                     # Guess no on AIX 4, OSF/1 and Solaris.
+            aix4* | osf* | solaris*) gl_cv_func_wcrtomb_retval="guessing no" ;;
+                                     # Guess yes otherwise.
+            *)                       gl_cv_func_wcrtomb_retval="guessing yes" ;;
+          esac
 changequote([,])dnl
-        if test $LOCALE_FR != none || test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
-          AC_TRY_RUN([
+          if test $LOCALE_FR != none || test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
+            AC_TRY_RUN([
 #include <locale.h>
 #include <stdio.h>
 #include <string.h>
@@ -3578,15 +3739,16 @@ int main ()
     }
   return 0;
 }],
-            [gl_cv_func_wcrtomb_retval=yes],
-            [gl_cv_func_wcrtomb_retval=no],
-            [:])
-        fi
-      ])
-    case "$gl_cv_func_wcrtomb_retval" in
-      *yes) ;;
-      *) REPLACE_WCRTOMB=1 ;;
-    esac
+              [gl_cv_func_wcrtomb_retval=yes],
+              [gl_cv_func_wcrtomb_retval=no],
+              [:])
+          fi
+        ])
+      case "$gl_cv_func_wcrtomb_retval" in
+        *yes) ;;
+        *) REPLACE_WCRTOMB=1 ;;
+      esac
+    fi
   fi
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
     gl_REPLACE_WCHAR_H
@@ -3821,7 +3983,7 @@ AC_DEFUN_ONCE([gl_USE_SYSTEM_EXTENSIONS],
 ])
 
 # fcntl-o.m4 serial 1
-dnl Copyright (C) 2006, 2009, 2010 Free Software Foundation, Inc.
+dnl Copyright (C) 2006, 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3902,7 +4064,7 @@ AC_DEFUN([gl_FCNTL_O_FLAGS],
     [Define to 1 if O_NOFOLLOW works.])
 ])
 
-# getpagesize.m4 serial 7
+# getpagesize.m4 serial 8
 dnl Copyright (C) 2002, 2004-2005, 2007, 2009-2010 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -3931,9 +4093,12 @@ AC_DEFUN([gl_FUNC_GETPAGESIZE],
       AC_LIBOBJ([getpagesize])
       ;;
   esac
+  dnl Also check whether it's declared.
+  dnl mingw has getpagesize() in libgcc.a but doesn't declare it.
+  AC_CHECK_DECL([getpagesize], , [HAVE_DECL_GETPAGESIZE=0])
 ])
 
-# gettext.m4 serial 62 (gettext-0.18)
+# gettext.m4 serial 63 (gettext-0.18)
 dnl Copyright (C) 1995-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -3950,7 +4115,7 @@ dnl They are *not* in the public domain.
 
 dnl Authors:
 dnl   Ulrich Drepper <drepper@cygnus.com>, 1995-2000.
-dnl   Bruno Haible <haible@clisp.cons.org>, 2000-2006.
+dnl   Bruno Haible <haible@clisp.cons.org>, 2000-2006, 2008-2010.
 
 dnl Macro to add for using GNU gettext.
 
@@ -3995,6 +4160,8 @@ AC_DEFUN([AM_GNU_GETTEXT],
   ifelse([$1], [], , [ifelse([$1], [external], , [ifelse([$1], [no-libtool], , [ifelse([$1], [use-libtool], ,
     [errprint([ERROR: invalid first argument to AM_GNU_GETTEXT
 ])])])])])
+  ifelse(ifelse([$1], [], [old])[]ifelse([$1], [no-libtool], [old]), [old],
+    [AC_DIAGNOSE([obsolete], [Use of AM_GNU_GETTEXT without [external] argument is deprecated.])])
   ifelse([$2], [], , [ifelse([$2], [need-ngettext], , [ifelse([$2], [need-formatstring-macros], ,
     [errprint([ERROR: invalid second argument to AM_GNU_GETTEXT
 ])])])])
@@ -4487,7 +4654,7 @@ AC_DEFUN([gl_GNU_MAKE],
     [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
 ])
 
-# gnulib-common.m4 serial 13
+# gnulib-common.m4 serial 20
 dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -4524,14 +4691,71 @@ AC_DEFUN([gl_COMMON_BODY], [
    is a misnomer outside of parameter lists.  */
 #define _UNUSED_PARAMETER_ _GL_UNUSED
 ])
+  dnl Preparation for running test programs:
+  dnl Tell glibc to write diagnostics from -D_FORTIFY_SOURCE=2 to stderr, not
+  dnl to /dev/tty, so they can be redirected to log files.  Such diagnostics
+  dnl arise e.g., in the macros gl_PRINTF_DIRECTIVE_N, gl_SNPRINTF_DIRECTIVE_N.
+  LIBC_FATAL_STDERR_=1
+  export LIBC_FATAL_STDERR_
+])
+
+# gl_MODULE_INDICATOR_CONDITION
+# expands to a C preprocessor expression that evaluates to 1 or 0, depending
+# whether a gnulib module that has been requested shall be considered present
+# or not.
+AC_DEFUN([gl_MODULE_INDICATOR_CONDITION], [1])
+
+# gl_MODULE_INDICATOR_SET_VARIABLE([modulename])
+# sets the shell variable that indicates the presence of the given module to
+# a C preprocessor expression that will evaluate to 1.
+AC_DEFUN([gl_MODULE_INDICATOR_SET_VARIABLE],
+[
+  GNULIB_[]m4_translit([[$1]],
+    [abcdefghijklmnopqrstuvwxyz./-],
+    [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=gl_MODULE_INDICATOR_CONDITION
 ])
 
 # gl_MODULE_INDICATOR([modulename])
-# defines a C macro indicating the presence of the given module.
+# defines a C macro indicating the presence of the given module
+# in a location where it can be used.
+#                                             |  Value  |   Value   |
+#                                             | in lib/ | in tests/ |
+# --------------------------------------------+---------+-----------+
+# Module present among main modules:          |    1    |     1     |
+# --------------------------------------------+---------+-----------+
+# Module present among tests-related modules: |    0    |     1     |
+# --------------------------------------------+---------+-----------+
+# Module not present at all:                  |    0    |     0     |
+# --------------------------------------------+---------+-----------+
 AC_DEFUN([gl_MODULE_INDICATOR],
 [
-  AC_DEFINE([GNULIB_]translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___]), [1],
-    [Define to 1 when using the gnulib module ]$1[.])
+  AC_DEFINE_UNQUOTED([GNULIB_]m4_translit([[$1]],
+      [abcdefghijklmnopqrstuvwxyz./-],
+      [ABCDEFGHIJKLMNOPQRSTUVWXYZ___]),
+    [gl_MODULE_INDICATOR_CONDITION],
+    [Define to a C preprocessor expression that evaluates to 1 or 0,
+     depending whether the gnulib module $1 shall be considered present.])
+])
+
+# gl_MODULE_INDICATOR_FOR_TESTS([modulename])
+# defines a C macro indicating the presence of the given module
+# in lib or tests. This is useful to determine whether the module
+# should be tested.
+#                                             |  Value  |   Value   |
+#                                             | in lib/ | in tests/ |
+# --------------------------------------------+---------+-----------+
+# Module present among main modules:          |    1    |     1     |
+# --------------------------------------------+---------+-----------+
+# Module present among tests-related modules: |    1    |     1     |
+# --------------------------------------------+---------+-----------+
+# Module not present at all:                  |    0    |     0     |
+# --------------------------------------------+---------+-----------+
+AC_DEFUN([gl_MODULE_INDICATOR_FOR_TESTS],
+[
+  AC_DEFINE([GNULIB_TEST_]m4_translit([[$1]],
+      [abcdefghijklmnopqrstuvwxyz./-],
+      [ABCDEFGHIJKLMNOPQRSTUVWXYZ___]), [1],
+    [Define to 1 when the gnulib module $1 should be tested.])
 ])
 
 # m4_foreach_w
@@ -4570,6 +4794,7 @@ m4_ifdef([AC_PROG_MKDIR_P], [
 # so that mixed use of GNU C and GNU C++ and mixed use of Sun C and Sun C++
 # works.
 # This definition can be removed once autoconf >= 2.62 can be assumed.
+m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.62]),[-1],[
 AC_DEFUN([AC_C_RESTRICT],
 [AC_CACHE_CHECK([for C/C++ restrict keyword], [ac_cv_c_restrict],
   [ac_cv_c_restrict=no
@@ -4606,6 +4831,7 @@ AC_DEFUN([AC_C_RESTRICT],
    no) AC_DEFINE([restrict], []) ;;
    *)  AC_DEFINE_UNQUOTED([restrict], [$ac_cv_c_restrict]) ;;
  esac
+])
 ])
 
 # gl_BIGENDIAN
@@ -4713,6 +4939,7 @@ AC_DEFUN([gl_INIT],
   gl_cond_libtool=false
   gl_libdeps=
   gl_ltlibdeps=
+  gl_m4_base='src/glm4'
   m4_pushdef([AC_LIBOBJ], m4_defn([gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([gl_LIBSOURCES]))
@@ -4732,7 +4959,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   # Code from module gettext:
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.17])
+  AM_GNU_GETTEXT_VERSION([0.18])
   # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
@@ -4843,6 +5070,13 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gltests_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='tests'
+changequote(,)dnl
+  gltests_WITNESS=IN_`echo "${PACKAGE-$PACKAGE_TARNAME}" | LC_ALL=C tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ | LC_ALL=C sed -e 's/[^A-Z0-9_]/_/g'`_GNULIB_TESTS
+changequote([, ])dnl
+  AC_SUBST([gltests_WITNESS])
+  gl_module_indicator_condition=$gltests_WITNESS
+  m4_pushdef([gl_MODULE_INDICATOR_CONDITION], [$gl_module_indicator_condition])
+  m4_popdef([gl_MODULE_INDICATOR_CONDITION])
   m4_ifval(gltests_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]gltests_LIBSOURCES_LIST[ ; do
@@ -5049,7 +5283,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/xsize.m4
 ])
 
-# iconv.m4 serial 9 (gettext-0.18)
+# iconv.m4 serial 10 (gettext-0.18.1)
 dnl Copyright (C) 2000-2002, 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5221,7 +5455,10 @@ int main ()
   AC_SUBST([LTLIBICONV])
 ])
 
-AC_DEFUN([AM_ICONV],
+dnl Define AM_ICONV using AC_DEFUN_ONCE for Autoconf >= 2.64, in order to
+dnl avoid warnings like
+dnl "warning: AC_REQUIRE: `AM_ICONV' was expanded before it was required".
+m4_version_prereq([2.64],[AC_DEFUN_ONCE],[AC_DEFUN])([AM_ICONV],
 [
   AM_ICONV_LINK
   if test "$am_cv_func_iconv" = yes; then
@@ -5489,8 +5726,8 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
-# langinfo_h.m4 serial 5
-dnl Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+# langinfo_h.m4 serial 6
+dnl Copyright (C) 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -5554,9 +5791,9 @@ AC_DEFUN([gl_LANGINFO_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_LANGINFO_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_LANGINFO_H_DEFAULTS],
@@ -5710,7 +5947,7 @@ test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 20 (gettext-0.18)
+# lib-link.m4 serial 21 (gettext-0.18)
 dnl Copyright (C) 2001-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5786,7 +6023,17 @@ AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
 
   AC_CACHE_CHECK([for lib[]$1], [ac_cv_lib[]Name], [
     ac_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIB[]NAME"
+    dnl If $LIB[]NAME contains some -l options, add it to the end of LIBS,
+    dnl because these -l options might require -L options that are present in
+    dnl LIBS. -l options benefit only from the -L options listed before it.
+    dnl Otherwise, add it to the front of LIBS, because it may be a static
+    dnl library that depends on another static library that is present in LIBS.
+    dnl Static libraries benefit only from the static libraries listed after
+    dnl it.
+    case " $LIB[]NAME" in
+      *" -l"*) LIBS="$LIBS $LIB[]NAME" ;;
+      *)       LIBS="$LIB[]NAME $LIBS" ;;
+    esac
     AC_TRY_LINK([$3], [$4],
       [ac_cv_lib[]Name=yes],
       [ac_cv_lib[]Name='m4_if([$5], [], [no], [[$5]])'])
@@ -7311,7 +7558,7 @@ AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
               | (ullmax / ull) | (ullmax % ull));]])
 ])
 
-# mbrtowc.m4 serial 16
+# mbrtowc.m4 serial 17
 dnl Copyright (C) 2001-2002, 2004-2005, 2008-2010 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -7324,38 +7571,39 @@ AC_DEFUN([gl_FUNC_MBRTOWC],
 
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
   gl_MBSTATE_T_BROKEN
-  if test $REPLACE_MBSTATE_T = 1; then
-    REPLACE_MBRTOWC=1
-  fi
+
   AC_CHECK_FUNCS_ONCE([mbrtowc])
   if test $ac_cv_func_mbrtowc = no; then
     HAVE_MBRTOWC=0
-  fi
-  if test $HAVE_MBRTOWC != 0 && test $REPLACE_MBRTOWC != 1; then
-    gl_MBRTOWC_NULL_ARG
-    gl_MBRTOWC_RETVAL
-    gl_MBRTOWC_NUL_RETVAL
-    case "$gl_cv_func_mbrtowc_null_arg" in
-      *yes) ;;
-      *) AC_DEFINE([MBRTOWC_NULL_ARG_BUG], [1],
-           [Define if the mbrtowc function has the NULL string argument bug.])
-         REPLACE_MBRTOWC=1
-         ;;
-    esac
-    case "$gl_cv_func_mbrtowc_retval" in
-      *yes) ;;
-      *) AC_DEFINE([MBRTOWC_RETVAL_BUG], [1],
-           [Define if the mbrtowc function returns a wrong return value.])
-         REPLACE_MBRTOWC=1
-         ;;
-    esac
-    case "$gl_cv_func_mbrtowc_nul_retval" in
-      *yes) ;;
-      *) AC_DEFINE([MBRTOWC_NUL_RETVAL_BUG], [1],
-           [Define if the mbrtowc function does not return 0 for a NUL character.])
-         REPLACE_MBRTOWC=1
-         ;;
-    esac
+  else
+    if test $REPLACE_MBSTATE_T = 1; then
+      REPLACE_MBRTOWC=1
+    else
+      gl_MBRTOWC_NULL_ARG
+      gl_MBRTOWC_RETVAL
+      gl_MBRTOWC_NUL_RETVAL
+      case "$gl_cv_func_mbrtowc_null_arg" in
+        *yes) ;;
+        *) AC_DEFINE([MBRTOWC_NULL_ARG_BUG], [1],
+             [Define if the mbrtowc function has the NULL string argument bug.])
+           REPLACE_MBRTOWC=1
+           ;;
+      esac
+      case "$gl_cv_func_mbrtowc_retval" in
+        *yes) ;;
+        *) AC_DEFINE([MBRTOWC_RETVAL_BUG], [1],
+             [Define if the mbrtowc function returns a wrong return value.])
+           REPLACE_MBRTOWC=1
+           ;;
+      esac
+      case "$gl_cv_func_mbrtowc_nul_retval" in
+        *yes) ;;
+        *) AC_DEFINE([MBRTOWC_NUL_RETVAL_BUG], [1],
+             [Define if the mbrtowc function does not return 0 for a NUL character.])
+           REPLACE_MBRTOWC=1
+           ;;
+      esac
+    fi
   fi
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
     gl_REPLACE_WCHAR_H
@@ -7696,8 +7944,8 @@ AC_DEFUN([AC_FUNC_MBRTOWC],
 ])
 ])
 
-# mbsinit.m4 serial 3
-dnl Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+# mbsinit.m4 serial 4
+dnl Copyright (C) 2008, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -7708,12 +7956,14 @@ AC_DEFUN([gl_FUNC_MBSINIT],
 
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
   gl_MBSTATE_T_BROKEN
-  if test $REPLACE_MBSTATE_T = 1; then
-    REPLACE_MBSINIT=1
-  fi
+
   AC_CHECK_FUNCS_ONCE([mbsinit])
   if test $ac_cv_func_mbsinit = no; then
     HAVE_MBSINIT=0
+  else
+    if test $REPLACE_MBSTATE_T = 1; then
+      REPLACE_MBSINIT=1
+    fi
   fi
   if test $HAVE_MBSINIT = 0 || test $REPLACE_MBSINIT = 1; then
     gl_REPLACE_WCHAR_H
@@ -7727,7 +7977,7 @@ AC_DEFUN([gl_PREREQ_MBSINIT], [
   :
 ])
 
-# mbsrtowcs.m4 serial 5
+# mbsrtowcs.m4 serial 6
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -7739,19 +7989,20 @@ AC_DEFUN([gl_FUNC_MBSRTOWCS],
 
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
   gl_MBSTATE_T_BROKEN
-  if test $REPLACE_MBSTATE_T = 1; then
-    REPLACE_MBSRTOWCS=1
-  fi
+
   AC_CHECK_FUNCS_ONCE([mbsrtowcs])
   if test $ac_cv_func_mbsrtowcs = no; then
     HAVE_MBSRTOWCS=0
-  fi
-  if test $HAVE_MBSRTOWCS != 0 && test $REPLACE_MBSRTOWCS != 1; then
-    gl_MBSRTOWCS_WORKS
-    case "$gl_cv_func_mbsrtowcs_works" in
-      *yes) ;;
-      *) REPLACE_MBSRTOWCS=1 ;;
-    esac
+  else
+    if test $REPLACE_MBSTATE_T = 1; then
+      REPLACE_MBSRTOWCS=1
+    else
+      gl_MBSRTOWCS_WORKS
+      case "$gl_cv_func_mbsrtowcs_works" in
+        *yes) ;;
+        *) REPLACE_MBSRTOWCS=1 ;;
+      esac
+    fi
   fi
   if test $HAVE_MBSRTOWCS = 0 || test $REPLACE_MBSRTOWCS = 1; then
     gl_REPLACE_WCHAR_H
@@ -7884,7 +8135,7 @@ AC_DEFUN([AC_TYPE_MBSTATE_T],
    fi
 ])
 
-# memchr.m4 serial 7
+# memchr.m4 serial 8
 dnl Copyright (C) 2002-2004, 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -7899,12 +8150,7 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
 
   dnl These days, we assume memchr is present.  But just in case...
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
-  AC_REPLACE_FUNCS([memchr])
-  if test $ac_cv_func_memchr = no; then
-    gl_PREREQ_MEMCHR
-    REPLACE_MEMCHR=1
-  fi
-
+  AC_CHECK_FUNCS_ONCE([memchr])
   if test $ac_cv_func_memchr = yes; then
     # Detect platform-specific bugs in some versions of glibc:
     # memchr should not dereference anything with length 0
@@ -7959,10 +8205,14 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
       [dnl Be pessimistic for now.
        gl_cv_func_memchr_works="guessing no"])])
     if test "$gl_cv_func_memchr_works" != yes; then
-      gl_PREREQ_MEMCHR
       REPLACE_MEMCHR=1
-      AC_LIBOBJ([memchr])
     fi
+  else
+    HAVE_MEMCHR=0
+  fi
+  if test $HAVE_MEMCHR = 0 || test $REPLACE_MEMCHR = 1; then
+    AC_LIBOBJ([memchr])
+    gl_PREREQ_MEMCHR
   fi
 ])
 
@@ -8364,7 +8614,7 @@ AC_DEFUN([AM_PO_SUBDIRS],
 
   dnl Release version of the gettext macros. This is used to ensure that
   dnl the gettext macros and po/Makefile.in.in are in sync.
-  AC_SUBST([GETTEXT_MACRO_VERSION], [0.17])
+  AC_SUBST([GETTEXT_MACRO_VERSION], [0.18])
 
   dnl Perform the following tests also if --disable-nls has been given,
   dnl because they are needed for "make dist" to work.
@@ -8993,7 +9243,7 @@ AC_DEFUN([AC_HEADER_STDBOOL],
    fi])
 
 dnl A placeholder for POSIX 2008 <stddef.h>, for platforms that have issues.
-# stddef_h.m4 serial 1
+# stddef_h.m4 serial 2
 dnl Copyright (C) 2009, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9027,7 +9277,7 @@ AC_DEFUN([gl_STDDEF_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_STDDEF_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
 ])
 
 AC_DEFUN([gl_STDDEF_H_DEFAULTS],
@@ -9518,7 +9768,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 12
+# serial 17
 
 # Written by Paul Eggert.
 
@@ -9539,17 +9789,19 @@ AC_DEFUN([gl_HEADER_STRING_H_BODY],
   dnl corresponding gnulib module is not in use, and which is not
   dnl guaranteed by C89.
   gl_WARN_ON_USE_PREPARE([[#include <string.h>
-    ]], [memmem mempcpy memrchr rawmemchr stpcpy stpncpy strchrnul strdup
-    strndup strnlen strpbrk strsep strcasestr strtok_r strsignal strverscmp])
+    ]],
+    [memmem mempcpy memrchr rawmemchr stpcpy stpncpy strchrnul strdup
+     strncat strndup strnlen strpbrk strsep strcasestr strtok_r strsignal
+     strverscmp])
 ])
 
 AC_DEFUN([gl_STRING_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
@@ -9563,6 +9815,7 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   GNULIB_STPNCPY=0;     AC_SUBST([GNULIB_STPNCPY])
   GNULIB_STRCHRNUL=0;   AC_SUBST([GNULIB_STRCHRNUL])
   GNULIB_STRDUP=0;      AC_SUBST([GNULIB_STRDUP])
+  GNULIB_STRNCAT=0;     AC_SUBST([GNULIB_STRNCAT])
   GNULIB_STRNDUP=0;     AC_SUBST([GNULIB_STRNDUP])
   GNULIB_STRNLEN=0;     AC_SUBST([GNULIB_STRNLEN])
   GNULIB_STRPBRK=0;     AC_SUBST([GNULIB_STRPBRK])
@@ -9589,6 +9842,7 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   GNULIB_STRVERSCMP=0;  AC_SUBST([GNULIB_STRVERSCMP])
   HAVE_MBSLEN=0;        AC_SUBST([HAVE_MBSLEN])
   dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_MEMCHR=1;                AC_SUBST([HAVE_MEMCHR])
   HAVE_DECL_MEMMEM=1;           AC_SUBST([HAVE_DECL_MEMMEM])
   HAVE_MEMPCPY=1;               AC_SUBST([HAVE_MEMPCPY])
   HAVE_DECL_MEMRCHR=1;          AC_SUBST([HAVE_DECL_MEMRCHR])
@@ -9603,23 +9857,25 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   HAVE_STRSEP=1;                AC_SUBST([HAVE_STRSEP])
   HAVE_STRCASESTR=1;            AC_SUBST([HAVE_STRCASESTR])
   HAVE_DECL_STRTOK_R=1;         AC_SUBST([HAVE_DECL_STRTOK_R])
-  HAVE_DECL_STRERROR=1;         AC_SUBST([HAVE_DECL_STRERROR])
   HAVE_DECL_STRSIGNAL=1;        AC_SUBST([HAVE_DECL_STRSIGNAL])
   HAVE_STRVERSCMP=1;            AC_SUBST([HAVE_STRVERSCMP])
   REPLACE_MEMCHR=0;             AC_SUBST([REPLACE_MEMCHR])
   REPLACE_MEMMEM=0;             AC_SUBST([REPLACE_MEMMEM])
+  REPLACE_STPNCPY=0;            AC_SUBST([REPLACE_STPNCPY])
   REPLACE_STRDUP=0;             AC_SUBST([REPLACE_STRDUP])
   REPLACE_STRSTR=0;             AC_SUBST([REPLACE_STRSTR])
   REPLACE_STRCASESTR=0;         AC_SUBST([REPLACE_STRCASESTR])
   REPLACE_STRERROR=0;           AC_SUBST([REPLACE_STRERROR])
+  REPLACE_STRNCAT=0;            AC_SUBST([REPLACE_STRNCAT])
   REPLACE_STRNDUP=0;            AC_SUBST([REPLACE_STRNDUP])
+  REPLACE_STRNLEN=0;            AC_SUBST([REPLACE_STRNLEN])
   REPLACE_STRSIGNAL=0;          AC_SUBST([REPLACE_STRSIGNAL])
   REPLACE_STRTOK_R=0;           AC_SUBST([REPLACE_STRTOK_R])
   UNDEFINE_STRTOK_R=0;          AC_SUBST([UNDEFINE_STRTOK_R])
 ])
 
 # Configure a replacement for <sys/time.h>.
-# serial 5
+# serial 6
 
 # Copyright (C) 2007, 2009, 2010 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -9676,9 +9932,9 @@ AC_DEFUN([gl_SYS_TIME_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_HEADER_SYS_TIME_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
@@ -9691,7 +9947,7 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   REPLACE_GETTIMEOFDAY=0;    AC_SUBST([REPLACE_GETTIMEOFDAY])
 ])
 
-# unistd_h.m4 serial 40
+# unistd_h.m4 serial 46
 dnl Copyright (C) 2006-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9731,17 +9987,18 @@ AC_DEFUN([gl_UNISTD_H],
     ]], [chown dup2 dup3 environ euidaccess faccessat fchdir fchownat
     fsync ftruncate getcwd getdomainname getdtablesize getgroups
     gethostname getlogin getlogin_r getpagesize getusershell setusershell
-    endusershell lchown link linkat lseek pipe2 pread readlink readlinkat
-    rmdir sleep symlink symlinkat unlink unlinkat usleep])
+    endusershell lchown link linkat lseek pipe2 pread pwrite readlink
+    readlinkat rmdir sleep symlink symlinkat ttyname_r unlink unlinkat
+    usleep])
 ])
 
 AC_DEFUN([gl_UNISTD_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_UNISTD_H_DEFAULTS],
@@ -9772,12 +10029,14 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   GNULIB_LSEEK=0;            AC_SUBST([GNULIB_LSEEK])
   GNULIB_PIPE2=0;            AC_SUBST([GNULIB_PIPE2])
   GNULIB_PREAD=0;            AC_SUBST([GNULIB_PREAD])
+  GNULIB_PWRITE=0;           AC_SUBST([GNULIB_PWRITE])
   GNULIB_READLINK=0;         AC_SUBST([GNULIB_READLINK])
   GNULIB_READLINKAT=0;       AC_SUBST([GNULIB_READLINKAT])
   GNULIB_RMDIR=0;            AC_SUBST([GNULIB_RMDIR])
   GNULIB_SLEEP=0;            AC_SUBST([GNULIB_SLEEP])
   GNULIB_SYMLINK=0;          AC_SUBST([GNULIB_SYMLINK])
   GNULIB_SYMLINKAT=0;        AC_SUBST([GNULIB_SYMLINKAT])
+  GNULIB_TTYNAME_R=0;        AC_SUBST([GNULIB_TTYNAME_R])
   GNULIB_UNISTD_H_GETOPT=0;  AC_SUBST([GNULIB_UNISTD_H_GETOPT])
   GNULIB_UNISTD_H_SIGPIPE=0; AC_SUBST([GNULIB_UNISTD_H_SIGPIPE])
   GNULIB_UNLINK=0;           AC_SUBST([GNULIB_UNLINK])
@@ -9790,6 +10049,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   HAVE_DUP3=1;            AC_SUBST([HAVE_DUP3])
   HAVE_EUIDACCESS=1;      AC_SUBST([HAVE_EUIDACCESS])
   HAVE_FACCESSAT=1;       AC_SUBST([HAVE_FACCESSAT])
+  HAVE_FCHDIR=1;          AC_SUBST([HAVE_FCHDIR])
   HAVE_FCHOWNAT=1;        AC_SUBST([HAVE_FCHOWNAT])
   HAVE_FSYNC=1;           AC_SUBST([HAVE_FSYNC])
   HAVE_FTRUNCATE=1;       AC_SUBST([HAVE_FTRUNCATE])
@@ -9799,28 +10059,30 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   HAVE_GETHOSTNAME=1;     AC_SUBST([HAVE_GETHOSTNAME])
   HAVE_GETLOGIN=1;        AC_SUBST([HAVE_GETLOGIN])
   HAVE_GETPAGESIZE=1;     AC_SUBST([HAVE_GETPAGESIZE])
-  HAVE_GETUSERSHELL=1;    AC_SUBST([HAVE_GETUSERSHELL])
   HAVE_LCHOWN=1;          AC_SUBST([HAVE_LCHOWN])
   HAVE_LINK=1;            AC_SUBST([HAVE_LINK])
   HAVE_LINKAT=1;          AC_SUBST([HAVE_LINKAT])
   HAVE_PIPE2=1;           AC_SUBST([HAVE_PIPE2])
   HAVE_PREAD=1;           AC_SUBST([HAVE_PREAD])
+  HAVE_PWRITE=1;          AC_SUBST([HAVE_PWRITE])
   HAVE_READLINK=1;        AC_SUBST([HAVE_READLINK])
   HAVE_READLINKAT=1;      AC_SUBST([HAVE_READLINKAT])
   HAVE_SLEEP=1;           AC_SUBST([HAVE_SLEEP])
   HAVE_SYMLINK=1;         AC_SUBST([HAVE_SYMLINK])
   HAVE_SYMLINKAT=1;       AC_SUBST([HAVE_SYMLINKAT])
-  HAVE_DECL_ENVIRON=1;    AC_SUBST([HAVE_DECL_ENVIRON])
-  HAVE_DECL_GETLOGIN_R=1; AC_SUBST([HAVE_DECL_GETLOGIN_R])
-  HAVE_OS_H=0;            AC_SUBST([HAVE_OS_H])
-  HAVE_SYS_PARAM_H=0;     AC_SUBST([HAVE_SYS_PARAM_H])
+  HAVE_TTYNAME_R=1;       AC_SUBST([HAVE_TTYNAME_R])
   HAVE_UNLINKAT=1;        AC_SUBST([HAVE_UNLINKAT])
   HAVE_USLEEP=1;          AC_SUBST([HAVE_USLEEP])
+  HAVE_DECL_ENVIRON=1;    AC_SUBST([HAVE_DECL_ENVIRON])
+  HAVE_DECL_GETLOGIN_R=1; AC_SUBST([HAVE_DECL_GETLOGIN_R])
+  HAVE_DECL_GETPAGESIZE=1; AC_SUBST([HAVE_DECL_GETPAGESIZE])
+  HAVE_DECL_GETUSERSHELL=1; AC_SUBST([HAVE_DECL_GETUSERSHELL])
+  HAVE_OS_H=0;            AC_SUBST([HAVE_OS_H])
+  HAVE_SYS_PARAM_H=0;     AC_SUBST([HAVE_SYS_PARAM_H])
   REPLACE_CHOWN=0;        AC_SUBST([REPLACE_CHOWN])
   REPLACE_CLOSE=0;        AC_SUBST([REPLACE_CLOSE])
   REPLACE_DUP=0;          AC_SUBST([REPLACE_DUP])
   REPLACE_DUP2=0;         AC_SUBST([REPLACE_DUP2])
-  REPLACE_FCHDIR=0;       AC_SUBST([REPLACE_FCHDIR])
   REPLACE_FCHOWNAT=0;     AC_SUBST([REPLACE_FCHOWNAT])
   REPLACE_GETCWD=0;       AC_SUBST([REPLACE_GETCWD])
   REPLACE_GETGROUPS=0;    AC_SUBST([REPLACE_GETGROUPS])
@@ -9830,10 +10092,12 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   REPLACE_LINKAT=0;       AC_SUBST([REPLACE_LINKAT])
   REPLACE_LSEEK=0;        AC_SUBST([REPLACE_LSEEK])
   REPLACE_PREAD=0;        AC_SUBST([REPLACE_PREAD])
+  REPLACE_PWRITE=0;       AC_SUBST([REPLACE_PWRITE])
   REPLACE_READLINK=0;     AC_SUBST([REPLACE_READLINK])
   REPLACE_RMDIR=0;        AC_SUBST([REPLACE_RMDIR])
   REPLACE_SLEEP=0;        AC_SUBST([REPLACE_SLEEP])
   REPLACE_SYMLINK=0;      AC_SUBST([REPLACE_SYMLINK])
+  REPLACE_TTYNAME_R=0;    AC_SUBST([REPLACE_TTYNAME_R])
   REPLACE_UNLINK=0;       AC_SUBST([REPLACE_UNLINK])
   REPLACE_UNLINKAT=0;     AC_SUBST([REPLACE_UNLINKAT])
   REPLACE_USLEEP=0;       AC_SUBST([REPLACE_USLEEP])
@@ -9898,7 +10162,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl Written by Eric Blake.
 
-# wchar_h.m4 serial 32
+# wchar_h.m4 serial 33
 
 AC_DEFUN([gl_WCHAR_H],
 [
@@ -9998,9 +10262,9 @@ AC_DEFUN([gl_WCHAR_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
-  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
   dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR([$1])
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_WCHAR_H_DEFAULTS],
@@ -10063,7 +10327,7 @@ AC_DEFUN([gt_TYPE_WCHAR_T],
   fi
 ])
 
-# wctype_h.m4 serial 5
+# wctype_h.m4 serial 6
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -10085,6 +10349,13 @@ AC_DEFUN([gl_WCTYPE_H],
     HAVE_ISWCNTRL=0
   fi
   AC_SUBST([HAVE_ISWCNTRL])
+  AC_CHECK_FUNCS_ONCE([iswblank])
+  if test $ac_cv_func_iswblank = yes; then
+    HAVE_ISWBLANK=1
+  else
+    HAVE_ISWBLANK=0
+  fi
+  AC_SUBST([HAVE_ISWBLANK])
   AC_CHECK_HEADERS_ONCE([wctype.h])
   AC_REQUIRE([AC_C_INLINE])
 
