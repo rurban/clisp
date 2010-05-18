@@ -48,6 +48,12 @@
 /* Define to 1 if DB->stat() accepts TXNid */
 #undef HAVE_DB_STAT_ACCEPT_TXN
 
+/* Define to 1 if `gid' is a member of `DB_TXN_ACTIVE'. */
+#undef HAVE_DB_TXN_ACTIVE_GID
+
+/* Define to 1 if `status' is a member of `DB_TXN_ACTIVE'. */
+#undef HAVE_DB_TXN_ACTIVE_STATUS
+
 /* Define to 1 if you have the declaration of `DB_LOCK_READ_UNCOMMITTED', and
    to 0 if you don't. */
 #undef HAVE_DECL_DB_LOCK_READ_UNCOMMITTED
