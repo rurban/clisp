@@ -310,6 +310,7 @@ int main(int argc, char* argv[])
   printf("#undef PACKAGE_STRING\n");
   printf("#undef PACKAGE_TARNAME\n");
   printf("#undef PACKAGE_VERSION\n");
+  printf("#undef PACKAGE_URL\n");
   /* Additional stuff for modules. */
   printf("#define DEFMODULE(module_name,package_name)\n");
   printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");

@@ -1,5 +1,9 @@
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d: undef PACKAGE_URL together with the other PACKAGE_*
+
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
 	Implement RFE#3001956: *PRINT-CLOSURE* now controls interpreted
 	closure output too
 	* io.d (STRUCTURE-READER): read #S(FUNCTION ...) as an Iclosure
