@@ -21,6 +21,10 @@ User visible changes
 * The replacement value entered by the user in STORE-VALUE and USE-VALUE
   restarts is now EVALuated.
 
+* The old user variable CUSTOM:*PRINT-CLOSURE* now controls interpreted
+  closure output too (RFE#3001956). This is a tricky feature, read up!
+  See <http://clisp.cons.org/impnotes/multi-rep.html#pr-closure>.
+
 * Module readline now supports readline 6.1.
   (older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
