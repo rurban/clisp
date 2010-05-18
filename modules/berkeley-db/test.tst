@@ -58,6 +58,8 @@ NIL
 
 (bdb:dbe-get-options *dbe* :errpfx) "zot"
 
+(bdb:dbe-get-options *dbe* :db-gid-size) 128
+
 (bdb:dbe-open *dbe* :home "bdb-home/" :create t
               :init-mpool t :init-txn t :init-lock t :init-log t)
 NIL

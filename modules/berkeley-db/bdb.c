@@ -1034,15 +1034,15 @@ static object dbe_get_lk_conflicts (DB_ENV *dbe) {
   }
   return value1;
 }
-#if !defined(DB_XIDDATASIZE)
-# define DB_XIDDATASIZE DB_GID_SIZE
+#if !defined(DB_GID_SIZE)
+# define DB_GID_SIZE DB_XIDDATASIZE
 #endif
 FLAG_EXTRACTOR(dbe_get_flags_num,DB_ENV*)
 DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   object what = STACK_0;
-  /* dbe may be NULL only for DB_XIDDATASIZE */
+  /* dbe may be NULL only for DB_GID_SIZE */
   DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,
-                                    eq(what,`:DB-XIDDATASIZE`)
+                                    eq(what,`:DB-GID-SIZE`)
                                     ? BH_NIL_IS_NULL : BH_VALID);
   what = STACK_0; skipSTACK(2);
  restart_DBE_GET_OPTIONS:
@@ -1211,8 +1211,8 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(dbe_get_errfile(dbe));
   } else if (eq(what,`:MSGFILE`)) {
     VALUES1(dbe_get_msgfile(dbe));
-  } else if (eq(what,`:DB-XIDDATASIZE`)) {
-    VALUES1(fixnum(DB_XIDDATASIZE));
+  } else if (eq(what,`:DB-GID-SIZE`)) {
+    VALUES1(fixnum(DB_GID_SIZE));
   } else if (eq(what,`:HOME`)) {
     VALUES1(dbe_get_home_dir(dbe,true));
   } else if (eq(what,`:OPEN`)) {
@@ -2706,13 +2706,13 @@ DEFUN(BDB:TXN-CHECKPOINT, dbe &key KBYTE MIN FORCE)
 }
 
 /* return the pointer into the obj (which must be
-   a (vector (unsigned-byte 8) DB_XIDDATASIZE))
+   a (vector (unsigned-byte 8) DB_GID_SIZE))
  can trigger GC, the return value is invalidated by GC */
 static u_int8_t* check_gid (gcv_object_t *obj_) {
   uintL idx = 0;
   object data_vector;
-  *obj_ = check_byte_vector_len(*obj_,DB_XIDDATASIZE);
-  data_vector = array_displace_check(*obj_,DB_XIDDATASIZE,&idx);
+  *obj_ = check_byte_vector_len(*obj_,DB_GID_SIZE);
+  data_vector = array_displace_check(*obj_,DB_GID_SIZE,&idx);
   return TheSbvector(data_vector)->data+idx;
 }
 
@@ -2724,12 +2724,12 @@ DEFUN(BDB:TXN-PREPARE, txn gid)
   VALUES0; skipSTACK(2);
 }
 
-/* allocate a (vector (unsigned-byte 8) DB_XIDDATASIZE) for this gid
+/* allocate a (vector (unsigned-byte 8) DB_GID_SIZE) for this gid
  can trigger GC */
-static object gid_to_vector (u_int8_t gid[DB_XIDDATASIZE]) {
-  object vec = allocate_bit_vector(Atype_8Bit,DB_XIDDATASIZE);
+static object gid_to_vector (u_int8_t gid[DB_GID_SIZE]) {
+  object vec = allocate_bit_vector(Atype_8Bit,DB_GID_SIZE);
   begin_system_call();
-  memcpy(TheSbvector(vec)->data,gid,DB_XIDDATASIZE);
+  memcpy(TheSbvector(vec)->data,gid,DB_GID_SIZE);
   end_system_call();
   return vec;
 }
@@ -2803,7 +2803,7 @@ DEFUN(BDB:TXN-STAT, dbe &key STAT-CLEAR)
       pushSTACK(uint32_to_I(txn_active->status));
      #else
       pushSTACK(uint32_to_I(txn_active->xa_status));
-     #endif 
+     #endif
      #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.8 */
       pushSTACK(gid_to_vector(txn_active->gid));
      #else
