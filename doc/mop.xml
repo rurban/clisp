@@ -2708,22 +2708,20 @@ arguments to the macro and the arguments received by &ensure-gf;.</para>
 argument to &defgeneric; becomes the first argument to &ensure-gf;.
 This is the only positional argument accepted by &ensure-gf;; all other
 arguments are keyword arguments.</simpara></listitem>
-<listitem><simpara>The <replaceable>lambda-list</replaceable> argument
-to &defgeneric; becomes the value of the &lambda-list-k; keyword
-argument to &ensure-gf;.</simpara></listitem>
-<listitem><simpara>For each of the options
-&argument-precedence-order-k;, &documentation-k;, &gf-class-k; and
-&method-class-k;, the value of the option becomes the value of the
-keyword argument with the same name.  If the option does not appear in
-the macro form, the keyword argument does not appear in the resulting
-call to &ensure-gf;.</simpara>
-<note>&clisp-only;<simpara>If the option does not appear in the macro form, the
-  keyword argument appears in the resulting call to &ensure-gf;, with a
-  default value: the <replaceable>lambda-list</replaceable> for
-  &argument-precedence-order-k;, &nil; for &documentation-k;, the class
-  &standard-generic-function-t; for &gf-class-k;, the class &standard-method-t;
-  for &method-class-k;. This is needed to make the generic function reflect
-  the &defgeneric; form.</simpara></note></listitem>
+<listitem><simpara>The &lalist-r; argument to &defgeneric; becomes the value
+ of the &lambda-list-k; keyword argument to &ensure-gf;.</simpara></listitem>
+<listitem><simpara>For each of the options &argument-precedence-order-k;,
+&documentation-k;, &gf-class-k; and &method-class-k;, the value of the
+option becomes the value of the keyword argument with the same name.
+If the option does not appear in the macro form, the keyword argument
+does not appear in the resulting call to &ensure-gf;.</simpara>
+<note>&clisp-only;<simpara>If the option does not appear in the macro form,
+  the keyword argument appears in the resulting call to &ensure-gf;, with a
+  default value: the &lalist-r; for &argument-precedence-order-k;, &nil; for
+  &documentation-k;, the class &standard-generic-function-t; for &gf-class-k;,
+  the class &standard-method-t; for &method-class-k;.
+  This is needed to make the generic function reflect the &defgeneric; form.
+</simpara></note></listitem>
 <listitem><simpara>For the option &declare-k;, the list
 of <quote>declarations</quote> becomes the value of the &declarations-k;
 keyword argument.  If the &declare-k; option does not
@@ -3428,14 +3426,14 @@ their own memoization scheme.</para></simplesect>
 
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&make-method-lambda; &gf-r;
-    &method-r; <replaceable>lambda-expression</replaceable> &env-r;)
+    &method-r; &laexpr-r; &env-r;)
  </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&method-r;</term>
     <listitem><simpara>a (possibly uninitialized) &m-mo;.
    </simpara></listitem></varlistentry>
-   <varlistentry><term><replaceable>lambda-expression</replaceable></term>
+   <varlistentry><term>&laexpr-r;</term>
     <listitem><simpara>a &lambda-expr;.</simpara></listitem></varlistentry>
    <varlistentry><term>&env-r;</term>
     <listitem><simpara>the same as the &environment-amp; argument to
@@ -3484,8 +3482,7 @@ their own memoization scheme.</para></simplesect>
 <variablelist><title>Methods</title>
 <varlistentry><term><literal role="method">(&make-method-lambda;
    (&gf-r; &standard-generic-function-t;)
-   (&method-r; &standard-method-t;)
-   <replaceable>lambda-expression</replaceable> &env-r;)</literal></term>
+   (&method-r; &standard-method-t;) &laexpr-r; &env-r;)</literal></term>
 <listitem><simpara>This method returns a method lambda which accepts two
   arguments, the list of arguments to the generic function, and the list
   of next methods.  What initialization arguments may be returned in the
