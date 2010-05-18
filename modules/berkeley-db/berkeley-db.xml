@@ -28,7 +28,7 @@
   <constant>:DSYNC-LOG</constant> to <constant>:LOG-DSYNC</constant>
   when support for version 4.7 was added.
   This means that we always use Lisp names which correspond to the
-  C names in the latest Berkeley DB release, even though we keep suport
+  &c-lang; names in the latest Berkeley DB release, even though we keep suport
   for older releases.
   This is convenient because the online documentation to which this
   manual refers documents the latest Berkeley DB release.</para></note>
@@ -306,7 +306,7 @@
      <listitem><simpara>&string-t; or &nil;
        (<function role="bdb">DB_ENV-&gt;get_errpfx</function>).
     </simpara></listitem></varlistentry>
-    <varlistentry><term><constant>:DB-XIDDATASIZE</constant></term>
+    <varlistentry><term><constant>:DB-GID-SIZE</constant></term>
      <listitem><simpara>the &length; of the globally unique
        &ubyte-vec; which must be passed to
        <function role="bdb">DB_TXN-&gt;prepare</function>.
