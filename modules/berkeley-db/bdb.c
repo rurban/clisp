@@ -1236,7 +1236,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
 
 DEFUN(BDB:DB-CREATE, dbe)
 { /* create database */
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_1,`BDB::DBE`,BH_NIL_IS_NULL);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_0,`BDB::DBE`,BH_NIL_IS_NULL);
   DB *db;
   SYSCALL(db_create,(&db,dbe,0));
   if (!dbe) {                   /* set error callback */
@@ -1244,8 +1244,8 @@ DEFUN(BDB:DB-CREATE, dbe)
     db->set_errcall(db,&error_callback);
     end_system_call();
   }
-  wrap_finalize(db,STACK_1,`BDB::MKDB`,``BDB::DB-CLOSE``);
-  skipSTACK(2);
+  wrap_finalize(db,STACK_0,`BDB::MKDB`,``BDB::DB-CLOSE``);
+  skipSTACK(1);
 }
 
 DEFUN(BDB:DB-CLOSE, db &key NOSYNC)
