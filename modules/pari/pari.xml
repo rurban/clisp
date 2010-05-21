@@ -12,4 +12,7 @@
 <para>PARI objects are printed and read using a
  special <literal role="data">#Z""</literal> syntax.</para>
 
+<para>See <filename role="clisp-cvs">modules/pari/test.tst</filename>
+ for sample usage.</para>
+
 </section>
