@@ -3743,9 +3743,8 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
   regular files in the directory <filename>#P"/etc/"</filename>.
 </simpara></listitem></itemizedlist>
 
-If you want <emphasis role="strong">all</emphasis> the files &and-e;
-subdirectories in the current directory, you should use
-<code>(&nconc; (&directory; "*/") (&directory; "*"))</code>.
+If you want &all-e; the files &and-e; subdirectories in the current directory,
+ you should use <code>(&nconc; (&directory; "*/") (&directory; "*"))</code>.
 If you want all the files and subdirectories in all the subdirectories
 under the current directory (similar to the <command role="unix">ls
  <option>-R</option></command> &unix; command), use
