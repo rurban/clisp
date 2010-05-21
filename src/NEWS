@@ -4683,5 +4683,6 @@ bug.
 ;; Local Variables:
 ;; mode: text
 ;; mode: bug-reference
+;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; coding: utf-8
 ;; end:
