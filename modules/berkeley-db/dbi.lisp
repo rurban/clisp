@@ -252,7 +252,7 @@
   (region_nowait 0 :type (unsigned-byte 32) :read-only t))
 
 (defstruct (db-txn-active (:constructor mktxnactive
-                                        (txnid parentid lsn xa_status xid)))
+                                        (txnid parentid lsn status gid)))
   ;; The transaction ID of the transaction.
   (txnid 0 :type (unsigned-byte 32) :read-only t)
   ;; The transaction ID of the parent transaction (or 0, if no parent).
@@ -261,9 +261,9 @@
   (lsn nil :type lsn :read-only t)
   ;; If the transaction is an XA transaction, the status of the
   ;; transaction, otherwise 0.
-  (xa_status 0 :type (unsigned-byte 32) :read-only t)
+  (status 0 :type (unsigned-byte 32) :read-only t)
   ;; If the transaction is an XA transaction, the transaction's XA ID.
-  (xid nil :type (vector (unsigned-byte 8)
+  (gid nil :type (vector (unsigned-byte 8)
                          #,(dbe-get-options nil :DB-GID-SIZE))
        :read-only t))
 
