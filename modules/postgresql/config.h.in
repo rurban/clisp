@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `lo_import' function. */
 #undef HAVE_LO_IMPORT
 
+/* Define to 1 if you have the `lo_import_with_oid' function. */
+#undef HAVE_LO_IMPORT_WITH_OID
+
 /* Define to 1 if you have the `lo_lseek' function. */
 #undef HAVE_LO_LSEEK
 
@@ -108,8 +111,14 @@
 /* Define to 1 if you have the `PQconninfoFree' function. */
 #undef HAVE_PQCONNINFOFREE
 
+/* Define to 1 if you have the `PQconninfoParse' function. */
+#undef HAVE_PQCONNINFOPARSE
+
 /* Define to 1 if you have the `PQconsumeInput' function. */
 #undef HAVE_PQCONSUMEINPUT
+
+/* Define to 1 if you have the `PQcopyResult' function. */
+#undef HAVE_PQCOPYRESULT
 
 /* Define to 1 if you have the `PQdb' function. */
 #undef HAVE_PQDB
@@ -228,6 +237,9 @@
 /* Define to 1 if you have the `PQhost' function. */
 #undef HAVE_PQHOST
 
+/* Define to 1 if you have the `PQinitOpenSSL' function. */
+#undef HAVE_PQINITOPENSSL
+
 /* Define to 1 if you have the `PQinitSSL' function. */
 #undef HAVE_PQINITSSL
 
@@ -318,6 +330,9 @@
 /* Define to 1 if you have the `PQresStatus' function. */
 #undef HAVE_PQRESSTATUS
 
+/* Define to 1 if you have the `PQresultAlloc' function. */
+#undef HAVE_PQRESULTALLOC
+
 /* Define to 1 if you have the `PQresultErrorField' function. */
 #undef HAVE_PQRESULTERRORFIELD
 
@@ -365,6 +380,12 @@
 
 /* Define to 1 if you have the `PQsetNoticeReceiver' function. */
 #undef HAVE_PQSETNOTICERECEIVER
+
+/* Define to 1 if you have the `PQsetResultAttrs' function. */
+#undef HAVE_PQSETRESULTATTRS
+
+/* Define to 1 if you have the `PQsetvalue' function. */
+#undef HAVE_PQSETVALUE
 
 /* Define to 1 if you have the `PQsocket' function. */
 #undef HAVE_PQSOCKET
