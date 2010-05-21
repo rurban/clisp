@@ -5,7 +5,10 @@
 	(BDB:DB-CREATE): do not accept :XA
 	(BDB:DBC-DEL): accept :CONSUME
 	(BDB:DBC-PUT): accept :OVERWRITE-DUP
-	* modules/berkeley-db/configure.in: check for new fields in DB_TXN_ACTIVE
+	* modules/berkeley-db/configure.in:
+	check for the new field names in DB_TXN_ACTIVE
+	* modules/berkeley-db/dbi.lisp (db-txn-active):
+	use :DB-GID-SIZE instead of :DB-XIDDATASIZE
 
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
