@@ -1,12 +1,12 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
-;; Copyright (C) 1999-2009 Sam Steingold
+;; Copyright (C) 1999-2010 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
-;; this file is in sync with libpq-fe.h 1.141
-;; CVS tags: REL8_3_STABLE, REL8_3_RC2, REL8_3_RC1, REL8_3_1, REL8_3_0
+;; this file is in sync with libpq-fe.h 1.147
+;; CVS tags: REL8_5_ALPHA3_BRANCH, REL8_5_ALPHA3, REL8_5_ALPHA2_BRANCH, REL8_5_ALPHA2, REL8_5_ALPHA1_BRANCH, REL8_5_ALPHA1, REL8_4_STABLE, REL8_4_RC2, REL8_4_RC1, REL8_4_4, REL8_4_3, REL8_4_2, REL8_4_1, REL8_4_0
 ;; http://anoncvs.postgresql.org/cvsweb.cgi/pgsql/src/interfaces/libpq/libpq-fe.h
 ;; and with postgres_ext.h 1.17
-;; CVS tags: REL8_3_STABLE, REL8_3_RC2, REL8_3_RC1, REL8_3_BETA4, REL8_3_BETA3, REL8_3_BETA2, REL8_3_BETA1, REL8_3_1, REL8_3_0, HEAD
+;; CVS tags: REL9_0_BETA1, REL9_0_ALPHA5_BRANCH, REL9_0_ALPHA5, REL9_0_ALPHA4_BRANCH, REL9_0_ALPHA4, REL8_5_ALPHA3_BRANCH, REL8_5_ALPHA3, REL8_5_ALPHA2_BRANCH, REL8_5_ALPHA2, REL8_5_ALPHA1_BRANCH, REL8_5_ALPHA1, REL8_4_STABLE, REL8_4_RC2, REL8_4_RC1, REL8_4_BETA2, REL8_4_BETA1, REL8_4_4, REL8_4_3, REL8_4_2, REL8_4_1, REL8_4_0, REL8_3_STABLE, REL8_3_RC2, REL8_3_RC1, REL8_3_BETA4, REL8_3_BETA3, REL8_3_BETA2, REL8_3_BETA1, REL8_3_9, REL8_3_8, REL8_3_7, REL8_3_6, REL8_3_5, REL8_3_4, REL8_3_3, REL8_3_2, REL8_3_11, REL8_3_10, REL8_3_1, REL8_3_0
 ;; http://anoncvs.postgresql.org/cvsweb.cgi/pgsql/src/include/postgres_ext.h
 
 (pushnew :PostgreSQL *features*)
@@ -68,6 +68,11 @@
 #else
 #  error PostgreSQL is not found
 #endif~%")
+
+(def-c-const PG_COPYRES_ATTRS)         ; 0x01
+(def-c-const PG_COPYRES_TUPLES)        ; 0x02 Implies PG_COPYRES_ATTRS
+(def-c-const PG_COPYRES_EVENTS)        ; 0x04
+(def-c-const PG_COPYRES_NOTICEHOOKS)   ; 0x08
 
 (def-c-enum ConnStatusType
   CONNECTION_OK
@@ -155,8 +160,8 @@
   (compiled c-string)       ; Fallback compiled in default value
   (val c-string)            ; Option's current value, or NULL
   (label c-string)          ; Label for field in connect dialog
-  (dispchar c-string) ; Character to display for this field
-                      ; a connect dialog. Values are: ""
+  (dispchar c-string) ; Indicates how to display this field in a
+                      ; connect dialog. Values are: ""
                       ; Display entered value as is "*"
                       ; Password field - hide value "D"
                       ; Debug option - don't show by default
@@ -166,6 +171,15 @@
   (len int)
   (isint int)
   (u c-pointer))                ; (c-union (ptr c-pointer) (integer int))
+
+(def-c-struct PGresAttDesc
+  (name c-string)                  ; column name
+  (tableid Oid)                    ; source table, if known
+  (columnid int)                   ; source column, if known
+  (format int)                     ; format code for value (text/binary)
+  (typid Oid)                      ; type id
+  (typlen int)                     ; type size
+  (atttypmod int))                 ; type-specific modifier info
 
 ;; === fe-connect.c ===
 ;; make a new client connection to the backend
@@ -190,7 +204,10 @@
 ;; get info about connection options known to PQconnectdb
 (def-call-out PQconndefaults (:return-type (c-ptr PQconninfoOption))
   (:arguments))
-;; free the data structure returned by PQconndefaults()
+;; parse connection options in same way as PQconnectdb
+(def-call-out PQconninfoParse (:return-type (c-ptr PQconninfoOption))
+  (:arguments (conninfo c-string) (errmsg (c-ptr c-string) :out)))
+;; free the data structure returned by PQconndefaults() & PQconninfoParse()
 (def-call-out PQconninfoFree (:return-type nil)
   (:arguments (connOptions (c-ptr PQconninfoOption))))
 
@@ -249,6 +266,9 @@
 (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type c-pointer))
 ;; Tell libpq whether it needs to initialize OpenSSL (not in libpq 8.0)
 (def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
+;; More detailed way to tell libpq whether it needs to initialize OpenSSL
+(def-call-out PQinitOpenSSL (:return-type nil)
+  (:arguments (do_ssl int) (do_crypto int)))
 
 ;; Set verbosity for PQerrorMessage and PQresultErrorMessage
 (def-call-out PQsetErrorVerbosity (:return-type PGVerbosity)
@@ -420,8 +440,19 @@
 ;; For freeing other alloc'd results, such as PGnotify structs
 (def-call-out PQfreemem (:return-type nil) (:arguments (res c-pointer)))
 
+;; Create and manipulate PGresults
 (def-call-out PQmakeEmptyPGresult (:return-type PGresult)
   (:arguments (conn PGconn) (status ExecStatusType)))
+(def-call-out PQcopyResult (:return-type PGresult)
+  (:arguments (src PGresult) (flags int)))
+(def-call-out PQsetResultAttrs (:return-type int)
+  (:arguments (res PGresult) (numAttributes int)
+              (attDescs (c-pointer PGresAttDesc))))
+(def-call-out PQresultAlloc (:return-type c-pointer)
+  (:arguments (res PGresult) (nBytes size_t)))
+(def-call-out PQsetvalue (:return-type int)
+  (:arguments (res PGresult) (tup_num int) (field_num int)
+              (value c-pointer) (len int)))
 
 ;; Quoting strings before inclusion in queries
 (def-call-out PQescapeStringConn (:return-type size_t)
@@ -482,6 +513,8 @@
   (:arguments (conn PGconn) (lobjId Oid)))
 (def-call-out lo_import (:return-type Oid)
   (:arguments (conn PGconn) (filename c-string)))
+(def-call-out lo_import_with_oid (:return-type Oid)
+  (:arguments (conn PGconn) (filename c-string) (lobjId Oid)))
 (def-call-out lo_export (:return-type int)
   (:arguments (conn PGconn) (lobjId Oid) (filename c-string)))
 
