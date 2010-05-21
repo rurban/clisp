@@ -1,5 +1,14 @@
 2010-05-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/postgresql.lisp: sync with libpq-fe.h 1.147 (8.4)
+	(PG_COPYRES_ATTRS,PG_COPYRES_TUPLES, PG_COPYRES_EVENTS)
+	(PG_COPYRES_NOTICEHOOKS, PGresAttDesc, PQconninfoParse, PQinitOpenSSL)
+	(PQcopyResult, PQsetResultAttrs, PQresultAlloc, PQsetvalue)
+	(lo_import_with_oid): add
+	* modules/postgresql/configure.in: check for the new functions
+	
+2010-05-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c: support 4.8
 	(DB_XIDDATASIZE): when undefined, use DB_GID_SIZE
 	(BDB:DB-CREATE): do not accept :XA
