@@ -4798,18 +4798,18 @@ would see if you open a &clisp; &fasl-file; in a text editor)</simpara>
 </listitem></varlistentry></variablelist></para>
 <para>This feature is turned off by &with-standard-io-syntax; because
  it is easy to get wrong (see below) and non-portable.</para>
-<warning><para>When several closures share environment, they should be
-written and read <emphasis>together</emphasis>
-(similar to all the other objects which share structure in important ways).
-Also, one should avoid putting &intern;ed symbols in the shared environment
-if interpreted closures intended to be read and written:
+<warning><para>Closures often refer to value cells or other entities from the
+&lex-env;.  The correct operation of a &function-t; may depend on the access
+to the same value cells as some other, related &function-t;s.
+If you want to &write; and &read; back &function-t;s so that their semantics
+is preserved, you have to &write; and &read; &all-e; &function-t;s that share
+some structure in the &lex-env; <emphasis>together</emphasis>, and you have to
+either bind &print-readably-var; to &t; or use &with-standard-io-syntax;:
 <programlisting language="lisp">
 (&setf; (&values; my-pop my-push)
-      (&let; ((storage (&gensym;)))
-        (&eval;
-         `(&let; ((,storage ()))
-            (&values; (&lambda-m; () (&pop; ,storage))
-                    (&lambda-m; (x) (&push; x ,storage)))))))
+      `(&let; ((storage ()))
+         (&values; (&lambda-m; () (&pop; storage))
+                 (&lambda-m; (x) (&push; x storage)))))
 (&let; ((pair (&read-from-string;
              (&with-standard-io-syntax;
                (&let; ((&pr-closure; &t;))
