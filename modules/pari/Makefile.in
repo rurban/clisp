@@ -32,7 +32,7 @@ pari.o : pari.c config.h
 	$(CC) $(ALL_CFLAGS) -c pari.c
 
 cpari.o : $(srcdir)/cpari.c
-	$(CC) $(ALL_CFLAGS) -c $(srcdir)/cpari.c
+	$(CC) -I. $(ALL_CFLAGS) -c $(srcdir)/cpari.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
