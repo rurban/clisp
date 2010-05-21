@@ -42,8 +42,8 @@ PQfinish PQconndefaults PQconninfoFree PQresetStart PQresetPoll PQreset dnl
 PQgetCancel PQfreeCancel PQcancel PQrequestCancel PQdb PQuser PQpass PQhost dnl
 PQport PQtty PQoptions PQstatus PQtransactionStatus PQparameterStatus dnl
 PQprotocolVersion PQserverVersion PQerrorMessage PQsocket PQbackendPID dnl
-PQconnectionNeedsPassword PQconnectionUsedPassword dnl
-PQclientEncoding PQsetClientEncoding PQgetssl PQinitSSL dnl
+PQconnectionNeedsPassword PQconnectionUsedPassword PQconninfoParse dnl
+PQclientEncoding PQsetClientEncoding PQgetssl PQinitSSL PQinitOpenSSL dnl
 PQsetErrorVerbosity PQtrace PQuntrace PQsetNoticeReceiver dnl
 PQsetNoticeProcessor PQexec PQexecParams PQprepare PQexecPrepared dnl
 PQsendQuery PQsendQueryParams PQsendPrepare PQsendQueryPrepared PQgetResult dnl
@@ -56,10 +56,11 @@ PQresultErrorField PQntuples PQnfields PQbinaryTuples PQfname PQfnumber dnl
 PQftable PQftablecol PQfformat PQftype PQfsize PQfmod PQcmdStatus dnl
 PQoidStatus PQoidValue PQcmdTuples PQgetvalue PQgetlength PQgetisnull dnl
 PQclear PQfreemem PQmakeEmptyPGresult PQescapeString PQescapeBytea dnl
+PQcopyResult PQsetResultAttrs PQresultAlloc PQsetvalue dnl
 PQescapeStringConn PQescapeByteaConn dnl
 PQunescapeBytea PQprint PQdisplayTuples PQprintTuples dnl
 lo_open lo_close lo_read lo_write lo_lseek lo_creat lo_tell lo_unlink dnl
-lo_import lo_export lo_create lo_truncate dnl
+lo_import lo_import_with_oid lo_export lo_create lo_truncate dnl
 PQmblen PQdsplen PQenv2encoding PQencryptPassword dnl
 pg_char_to_encoding pg_encoding_to_char pg_valid_server_encoding_id)
 

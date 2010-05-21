@@ -41,6 +41,10 @@ User visible changes
   (Older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/berkeley-db.html> for details.
 
+* Module postgresql now supports PostgreSQL 8.4.
+  (Older versions are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/postgresql.html> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code (bug#2868166).
