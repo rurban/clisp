@@ -112,8 +112,6 @@
     (pari-set-real-prec-raw (+ (ceiling bits 32) 2))
     digits))
 
-;; a scratch variable for CLISP: (defined in clisp-interface.c)
-(c-lines "extern void* clispTemp;~%")
 (def-c-var temp (:name "clispTemp") (:type c-pointer))
 
 ;; extern  long    lontyp[],lontyp2[];
@@ -178,7 +176,9 @@
 (def-call-out is_entry (:arguments (s c-string))
   (:return-type (c-ptr-null entree)))
 
-;; this optimization is not necessary, it just saves some memory
+;; this optimization is not necessary, it just saves some memory.
+;; also, get_entry_doc is called while loading pari.fas,
+;; so it cannot be moved to cpari.c
 (c-lines "char* get_entry_doc (char* s);~%") ; prototype
 (c-lines "char* get_entry_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:e->help; }~%")
 (def-call-out get_entry_doc (:arguments (s c-string)) (:return-type c-string))
