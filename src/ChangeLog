@@ -1,5 +1,9 @@
 2010-05-24  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp (symmetric-matrix-perfection): fix declaration
+
+2010-05-24  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/configure.in: do not check for init_opts
 	(LIBS): append "-lm" (required for linking with LIBPARI)
 	* modules/pari/cpari.c (init_for_clisp): do not use init_opts
