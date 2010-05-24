@@ -151,13 +151,12 @@
 ;; extern  byteptr diffptr;
 (def-c-var diffptr (:type byteptr) (:read-only t))
 
-(c-lines "const unsigned long maxvarn = MAXVARN;~%")
-(def-c-var maxvarn (:type ulong) (:read-only t))
+(def-c-const MAXVARN)
 ;; extern entree **varentries;
 (def-c-var varentries (:type (c-pointer (c-ptr-null entree))) (:read-only t))
 (defun varentry (i)
-  (assert (< i maxvarn) (i)
-          "~S: index ~:D is too large (max ~:D)" 'varentry i maxvarn)
+  (assert (< i MAXVARN) (i)
+          "~S: index ~:D is too large (max ~:D)" 'varentry i MAXVARN)
   (let ((e (offset varentries (* i #.(sizeof '(c-pointer (c-ptr-null entree))))
                    '(c-pointer (c-ptr-null entree)))))
     (and e (foreign-value e))))
