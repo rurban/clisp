@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for PARI
-dnl Copyright (C) 2004-2009 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2004-2010 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -15,19 +15,18 @@ dnl Search for libpari and define LIBPARI, LTLIBPARI and INCPARI.
 AC_LIB_LINKFLAGS([pari])
 
 BOLD_MSG([PARI (Headers)])
-AC_CHECK_HEADERS(pari/pari.h, break)
+AC_CHECK_HEADERS(pari/pari.h)
 if test "$ac_cv_header_pari_pari_h" = "no";
 then AC_MSG_ERROR([cannot find PARI headers])
 fi
 
 BOLD_MSG([PARI (Functions)])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBPARI])
-AC_SEARCH_LIBS(pari_kernel_init)
+AC_SEARCH_LIBS(pari_kernel_init, pari)
 if test "$ac_cv_search_pari_kernel_init" = "no";
 then AC_MSG_ERROR([cannot find PARI library])
 fi
-dnl init_opts is not a function, but it is not declared anywhere...
-AC_CHECK_FUNCS(freeall pari_init killallfiles pari_init_opts init_opts)
+AC_CHECK_FUNCS(freeall pari_init killallfiles pari_init_opts)
 
 BOLD_MSG([PARI (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

@@ -1,7 +1,7 @@
 /*
  * CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
  * Copyright (C) 1995 Michael Stoll
- * Copyright (C) 2004-2007 Sam Steingold
+ * Copyright (C) 2004-2007, 2010 Sam Steingold
  * This is free software, distributed under the GNU GPL
  */
 
@@ -62,11 +62,9 @@ void init_for_clisp (long parisize, long maxprime)
 #if defined(HAVE_PARI_INIT_OPTS)
   pari_init_opts(parisize,maxprime,0);
 #elif defined(HAVE_PARI_INIT)
-# if defined(HAVE_INIT_OPTS)
-  extern ulong init_opts;
-  init_opts = 0;
-# endif
   pari_init(parisize,maxprime);
+#else
+  #error no pari_init_opts, no pari_init: cannot initialize PARI
 #endif
   pari_outfile = stdout; errfile = stderr; logfile = NULL; infile = stdin;
   pariOut = &clispOut; pariErr = &clispErr;
