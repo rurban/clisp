@@ -9,6 +9,7 @@
 #include "config.h"
 #undef T
 #include <pari/pari.h>
+#include <pari/paripriv.h>      /* for GP_DATA */
 #include "cpari.h"
 
 /* we could also use DEF-CALL-OUT, but this is faster, smaller,
@@ -68,6 +69,7 @@ void init_for_clisp (long parisize, long maxprime)
 #endif
   pari_outfile = stdout; errfile = stderr; logfile = NULL; infile = stdin;
   pariOut = &clispOut; pariErr = &clispErr;
+  GP_DATA = default_gp_data();
 }
 
 void fini_for_clisp (int leaving)

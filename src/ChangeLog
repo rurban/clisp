@@ -1,6 +1,8 @@
 2010-05-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (symmetric-matrix-perfection): fix declaration
+	* modules/pari/cpari.c: include <pari/paripriv.h> for GP_DATA
+	(init_for_clisp): init GP_DATA for #Z"" i/o
 
 2010-05-24  Sam Steingold  <sds@gnu.org>
 
