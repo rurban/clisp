@@ -3,7 +3,7 @@
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "pari/test")'
 
 (require "pari") t
-(listp (show (multiple-value-list (ext:module-info "bdb" t)) :pretty t)) t
+(listp (show (multiple-value-list (ext:module-info "pari" t)) :pretty t)) t
 
 (format t "~&Version: ~S~%" pari:pari-version) NIL
 
