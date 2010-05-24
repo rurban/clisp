@@ -1,3 +1,9 @@
+2010-05-23  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (txn_status_check): add DEFCHECKER
+	(TXN-CHECK): use it to output stat->st_txnarray->status symbolically
+	* modules/berkeley-db/dbi.lisp (db-txn-active): status may be a keyword
+
 2010-05-21  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/Makefile.in (pari.o): pass -I. first thing to CC
