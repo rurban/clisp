@@ -1,3 +1,8 @@
+2010-05-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/configure.in: do not check for init_opts
+	* modules/pari/cpari.c (init_for_clisp): do not use init_opts
+
 2010-05-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (txn_status_check): add DEFCHECKER
