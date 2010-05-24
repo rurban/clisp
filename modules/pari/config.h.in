@@ -3,9 +3,6 @@
 /* Define to 1 if you have the `freeall' function. */
 #undef HAVE_FREEALL
 
-/* Define to 1 if you have the `init_opts' function. */
-#undef HAVE_INIT_OPTS
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
