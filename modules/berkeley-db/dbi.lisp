@@ -261,7 +261,7 @@
   (lsn nil :type lsn :read-only t)
   ;; If the transaction is an XA transaction, the status of the
   ;; transaction, otherwise 0.
-  (status 0 :type (unsigned-byte 32) :read-only t)
+  (status 0 :type (or keyword (unsigned-byte 32)) :read-only t)
   ;; If the transaction is an XA transaction, the transaction's XA ID.
   (gid nil :type (vector (unsigned-byte 8)
                          #,(dbe-get-options nil :DB-GID-SIZE))
