@@ -2773,6 +2773,8 @@ DEFUN(BDB:TXN-SET-TIMEOUT, txn timeout which)
   VALUES0;
 }
 
+DEFCHECKER(txn_status_check,prefix=TXN,default=, \
+           ABORTED COMMITTED PREPARED RUNNING)
 DEFUN(BDB:TXN-STAT, dbe &key STAT-CLEAR)
 { /* transaction subsystem statistics */
   u_int32_t flags = stat_flags();
@@ -2795,16 +2797,16 @@ DEFUN(BDB:TXN-STAT, dbe &key STAT-CLEAR)
   { /* txnarray */
     int ii, size = stat->st_nactive;
     DB_TXN_ACTIVE *txn_active = stat->st_txnarray;
-    for (ii=0; ii<size; ii++) {
+    for (ii=0; ii<size; ii++, txn_active++) {
       pushSTACK(uint32_to_I(txn_active->txnid));
       pushSTACK(uint32_to_I(txn_active->parentid));
       pushSTACK(make_lsn(&(txn_active->lsn)));
-     #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.8 */
-      pushSTACK(uint32_to_I(txn_active->status));
+     #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.7 */
+      pushSTACK(txn_status_check_reverse(txn_active->status));
      #else
       pushSTACK(uint32_to_I(txn_active->xa_status));
      #endif
-     #if defined(HAVE_DB_TXN_ACTIVE_STATUS) /* 4.8 */
+     #if defined(HAVE_DB_TXN_ACTIVE_GID) /* 4.8 */
       pushSTACK(gid_to_vector(txn_active->gid));
      #else
       pushSTACK(gid_to_vector(txn_active->xid));
