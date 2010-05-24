@@ -21,6 +21,7 @@ then AC_MSG_ERROR([cannot find PARI headers])
 fi
 
 BOLD_MSG([PARI (Functions)])
+AC_LIB_APPENDTOVAR([LIBS], [-lm])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBPARI])
 AC_SEARCH_LIBS(pari_kernel_init, pari)
 if test "$ac_cv_search_pari_kernel_init" = "no";
