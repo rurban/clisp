@@ -1,6 +1,7 @@
 2010-05-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (symmetric-matrix-perfection): fix declaration
+	(MAXVARN): use DEF-C-CONST
 	(clispTemp): do not declare here using c-lines...
 	* modules/pari/cpari.h (clispTemp): ... declare here instead
 	* modules/pari/cpari.c: include <pari/paripriv.h> for GP_DATA
