@@ -483,7 +483,7 @@
 ;; long    rank(GEN x);
 (pari-call-out (matrix-rank long) "rank" (x))
 ;; GEN perf(GEN a);
-(pari-call-out (symmetric-matrix-perfection) "perf" (a))
+(pari-call-out symmetric-matrix-perfection "perf" (a))
 
 ;;; /* anal.c */
 
