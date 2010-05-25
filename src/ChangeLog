@@ -1,5 +1,12 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp (pari-get-real-prec-raw)
+	(pari-real-precision, pari-get-real-prec-digits): remove
+	(pari-call-out-prec): use (EXT:LONG-FLOAT-DIGITS)
+	instead of (PARI-GET-REAL-PREC-RAW) as the default PREC value
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/pari.lisp (pari-byte): add
 	(SIGNBITS, SIGNSHIFT, TYPBITS, TYPSHIFT, LGBITS, EXPOBITS)
 	(HIGHEXPOBIT, VALPBITS, HIGHVALPBIT, PRECPBITS, PRECPSHIFT)
