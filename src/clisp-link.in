@@ -553,10 +553,15 @@ case "$1" in
       TO_LOAD=''
       SHREXT=@SHREXT@
       cd "$moduledir"
+      absolute_moduledir=`/bin/pwd`
       . ./link.sh
       prepare_dynamic_module  # sets LIBDIR
       mkdir -p "${LIBDIR}/$moduledir"
-      make clisp-module-distrib LN=cp distribdir="${LIBDIR}/$moduledir"
+      # when running "CLISP=./clisp ./clisp-link install <modname>"
+      # in the build directory, avoid "cp: `...' and `...' are the same file"
+      absolute_distribdir=`cd "${LIBDIR}/$moduledir"; /bin/pwd`
+      test "${absolute_moduledir}" = "${absolute_distribdir}" || \
+        make clisp-module-distrib LN=cp distribdir="${LIBDIR}/$moduledir"
       cd "$absolute_currentdir"
     done
     ;;
