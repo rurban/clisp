@@ -193,8 +193,11 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
   (setq module-name (module-name module-name))
   (unless (member module-name *modules* :test #'string=)
     (unless p-given (setq pathname (pathname module-name)))
-    (with-augmented-load-path ()
-      (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
+    (prog1
+        (with-augmented-load-path ()
+          (if (atom pathname) (load pathname) (mapcar #'load pathname)))
+      ;; we might have loaded a system package, lock it!
+      (setf (package-lock *system-package-list*) t))))
 
 
 ;;; integer constants (Chapter 12)

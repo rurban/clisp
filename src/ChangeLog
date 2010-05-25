@@ -1,5 +1,10 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (require): lock *SYSTEM-PACKAGE-LIST* after loading
+	because we might have loaded a system package
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (maximize-integer-type): add
 	(DEF-C-CONST): use it so that we can accept any integer C type
 	but only create two C functions: for long and ulong
