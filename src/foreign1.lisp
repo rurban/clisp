@@ -873,6 +873,12 @@
   (let ((pair (assoc key alist)))
     (if pair (second pair) default)))
 
+(defun maximize-integer-type (type)
+  (case type
+    ((char short int long sint8 sint16 sint32 sint64) 'long)
+    ((uchar ushort uint ulong uint8 uint16 uint32 uint64) 'ulong)
+    (t type)))
+
 ;; CPP consts (#define'd in an *.h file):
 ;; for each type (int, string, pointer) there is a C function (and a
 ;;  foreign-function created when the first constant of this type is
@@ -884,14 +890,14 @@
   (let* ((alist (parse-options options '(:name :type :documentation :guard)
                                whole-form))
          (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
-         (c-type (get-assoc :type alist 'ffi:int))
+         (c-type (maximize-integer-type (get-assoc :type alist 'ffi:long)))
          (c-name (get-assoc :name alist name))
          (guard (get-assoc :guard alist (format nil "defined(~A)" c-name)))
          (cftype (parse-c-function
                   `((:arguments (number int) (defined-p (c-ptr int) :out))
                     (:return-type ,c-type))
                   whole-form)))
-    (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
+    (check-type c-type (member ffi:long ffi:ulong ffi:c-string ffi:c-pointer)
                 "an integer, a string or a pointer")
     `(let ((f-name&c-number
             (compile-time-value (note-c-const ',c-name ',c-type
@@ -916,13 +922,13 @@
     (prepare-module)
     (let ((f-name (intern
                    (format nil "module__~A__constant_map_~A" *name*
-                           (nstring-downcase
-                            (nsubstitute #\_ #\-
-                                         (copy-seq (symbol-name c-type))))))))
-      (list f-name
-            (vector-push-extend
-             (cons c-name guard)
-             (second (or (gethash c-type *constant-table*)
+                         (nstring-downcase
+                          (nsubstitute #\_ #\-
+                                       (copy-seq (symbol-name c-type))))))))
+    (list f-name
+          (vector-push-extend
+           (cons c-name guard)
+           (second (or (gethash c-type *constant-table*)
                          (setf (gethash c-type *constant-table*)
                                (list f-name (make-array 10 :adjustable t
                                                         :fill-pointer 0)

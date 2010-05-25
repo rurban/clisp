@@ -1,5 +1,11 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (maximize-integer-type): add
+	(DEF-C-CONST): use it so that we can accept any integer C type
+	but only create two C functions: for long and ulong
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in (install): do not "make clisp-module-distrib" when
 	moduledir==distribdir; useful for updating dynmod in the build directory
 
