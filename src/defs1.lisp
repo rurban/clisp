@@ -197,8 +197,7 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
         (with-augmented-load-path ()
           (if (atom pathname) (load pathname) (mapcar #'load pathname)))
       ;; we might have loaded a system package, lock it!
-      (setf (package-lock *system-package-list*) t))))
-
+      (|(SETF PACKAGE-LOCK)| t *system-package-list*))))
 
 ;;; integer constants (Chapter 12)
 
