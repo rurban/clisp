@@ -1,5 +1,10 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (install): do not "make clisp-module-distrib" when
+	moduledir==distribdir; useful for updating dynmod in the build directory
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/cpari.c (clisp_exception_handler): new function;
 	saves errmessage[numerr] in global_err_data
 	(clispErrDie): incorporate global_err_data in the error message
