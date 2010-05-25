@@ -934,7 +934,7 @@
 
 (defun c-const-value (f-name c-number name c-name) ; ABI
   (multiple-value-bind (value value-p) (funcall f-name c-number)
-    (if value-p value
+    (if (plusp value-p) value
         (progn
           (warn (TEXT "~S(~S): CPP constant ~A is not defined")
                 'def-c-const name c-name)
