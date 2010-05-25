@@ -3,6 +3,7 @@
 	* foreign1.lisp (DEF-C-CONST): move checking whether we are
 	writing to a C file from here to ...
 	(note-c-const): ... here
+	(c-const-value): when the constant is not defined, VALUE-P is 0, not NIL
 
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
