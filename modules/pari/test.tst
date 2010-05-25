@@ -46,22 +46,27 @@
 (pari:equal? (pari:best-rational-approximation (pari:pari-pi) #Z"10000")
              #Z"355/113") T
 (pari:equal? (pari:continued-fraction #Z"355/113") #Z"[3,7,16]") T
+(subseq (pari:pari-to-lisp (pari:continued-fraction (pari:pari-pi))) 0 6)
+#(:ROW 3 7 15 1 292)
 
 (pari:equal? (pari:fibonacci 10) #Z"55") T
 (pari:equal? (pari:next-prime #Z"11") #Z"11") T
 (pari:equal? (pari:next-prime #Z"15") #Z"17") T
 (pari:equal? (pari:next-prime #Z"150") #Z"151") T
+(pari:pari-to-lisp (pari:next-prime 1000)) 1009
+(pari:pari-to-lisp (pari:next-prime 10000)) 10007
+(pari:pari-to-lisp (pari:next-prime 100000)) 100003
 (pari:equal? (pari:nth-prime 100) #Z"541") T
 (pari:equal? (pari:nth-prime 1000) #Z"7919") T
 (pari:equal? (pari:nth-prime 10000) #Z"104729") T
 
 (pari:equal? (pari:euler-phi #Z"6") #Z"2") T
 (pari:equal? (pari:euler-phi #Z"13") #Z"12") T
-(pari:equal? (pari:euler-phi #Z"28") #Z"12") T
-(pari:equal? (pari:euler-phi #Z"130") #Z"48") T
+(pari:pari-to-lisp (pari:euler-phi 28)) 12
+(pari:pari-to-lisp (pari:euler-phi 130)) 48
 
 (pari:equal? (pari:sum-divisors #Z"6") #Z"12") T
-(pari:equal? (pari:sum-divisors #Z"28") #Z"56") T
+(pari:pari-to-lisp (pari:sum-divisors 28)) 56
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
 (pari:equal? (pari:primitive-root #Z"104729") #Z"Mod(12,104729)") T
@@ -69,9 +74,13 @@
 (pari:equal? (pari:structure-of-z/n* #Z"7") #Z"[6, [6], [Mod(3, 7)]]") T
 (pari:equal? (pari:structure-of-z/n* #Z"10") #Z"[4, [4], [Mod(7, 10)]]") T
 
-(pari:equal? (pari:divisors #Z"121") #Z"[1,11,121]") T
-(pari:equal? (pari:divisors #Z"122") #Z"[1,2,61,122]") T
-(pari:equal? (pari:divisors #Z"120")
-             #Z"[1,2,3,4,5,6,8,10,12,15,20,24,30,40,60,120]") T
-(pari:equal? (pari:divisors #Z"144")
-             #Z"[1,2,3,4,6,8,9,12,16,18,24,36,48,72,144]") T
+(pari:pari-to-lisp (pari:divisors #Z"121")) #(:ROW 1 11 121)
+(pari:pari-to-lisp (pari:divisors #Z"122")) #(:ROW 1 2 61 122)
+(pari:pari-to-lisp (pari:divisors #Z"120"))
+#(:ROW 1 2 3 4 5 6 8 10 12 15 20 24 30 40 60 120)
+(pari:pari-to-lisp (pari:divisors #Z"144"))
+#(:ROW 1 2 3 4 6 8 9 12 16 18 24 36 48 72 144)
+
+(pari:pari-to-lisp #z"104")  104
+(pari:pari-to-lisp #Z"[1,0,0;0,1,0;0,0,1]")
+#2A((1 0 0) (0 1 0) (0 0 1))
