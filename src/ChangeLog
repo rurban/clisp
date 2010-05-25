@@ -7,6 +7,8 @@
 	(pari-mant): extract the common part of PARI-MANTISSA-EFF and
 	PARI-MANTISSA and use WITH-C-VAR instead of TEMP
 	(pari-mantissa-eff, pari-mantissa): use PARI-MANT
+	(collect-mantissa): extract & use (ASH . 32) instead of (* . x100000000)
+	(convert-from-pari-1, convert-from-pari-2): use it
 
 2010-05-24  Sam Steingold  <sds@gnu.org>
 

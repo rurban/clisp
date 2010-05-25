@@ -2098,12 +2098,13 @@
       (setf (svref vec i) (logand y #xFFFFFFFF)))
     (pari-make-object vec 1)))
 
+(defun collect-mantissa (mantissa)
+  (let ((result 0))
+    (dotimes (i (length mantissa) result)
+      (setq result (+ (ash result 32) (svref mantissa i))))))
+
 (defun convert-from-pari-1 (ptr)
-  (let* ((sign (pari-sign-raw ptr))
-         (mant (pari-mantissa-eff ptr))
-         (result 0))
-    (dotimes (i (length mant) (* sign result))
-      (setq result (+ (* result #x100000000) (svref mant i))))))
+  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa-eff ptr))))
 
 ;; Type 2: real numbers -- represented by CLISP floats
 
@@ -2133,9 +2134,7 @@
   (let* ((sign (pari-sign-raw ptr))
          (expo (pari-exponent-raw ptr))
          (mant (pari-mantissa ptr))
-         (signif 0))
-    (dotimes (i (length mant))
-      (setq signif (+ (* signif #x100000000) (svref mant i))))
+         (signif (collect-mantissa mant)))
     (* sign (scale-float (float signif (float-digits 1 (* 32 (length mant))))
                          (- expo (* 32 (length mant)) -1)))))
 
