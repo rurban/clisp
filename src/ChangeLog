@@ -1,5 +1,13 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/cpari.c (clisp_exception_handler): new function;
+	saves errmessage[numerr] in global_err_data
+	(clispErrDie): incorporate global_err_data in the error message
+	(init_for_clisp): set default_exception_handler to
+	clisp_exception_handler
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/pari.lisp (clispTemp): remove
 	(extract0, extract1, pari-set-component, pari-make-object)
 	(convert-from-pari-10, convert-from-pari-11):
