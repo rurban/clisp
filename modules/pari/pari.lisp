@@ -1,6 +1,6 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
-;; Copyright (C) 2004-2008 Sam Steingold
+;; Copyright (C) 2004-2010 Sam Steingold
 ;; This is free software, distributed under the GNU GPL (v2+)
 
 (defpackage "PARI"
@@ -19,36 +19,38 @@
 ;;; Declare all the pari types, variables, functions, ...
 (c-lines "#undef T~%#include <pari/pari.h>~%")
 
-;; #ifdef LONG_IS_32BIT
-;; #define SIGNBITS 0xff000000L
-;; #define SIGNSHIFT 24
-(defconstant pari-sign-byte (byte 8 24))
-;; #define TYPBITS 0xff000000L
-;; #define TYPSHIFT 24
-(defconstant pari-type-byte (byte 8 24))
-;; #define LGBITS 0xffffL
-(defconstant pari-length-byte (byte 16 0))
-;; #define LGEFBITS 0xffffL
-(defconstant pari-effective-length-byte (byte 16 0))
-;; #define EXPOBITS 0xffffffL
-(defconstant pari-exponent-byte (byte 24 0))
-;; #define HIGHEXPOBIT 0x800000L
-(defconstant pari-exponent-offset #x800000)
-;; #define VALPBITS 0xffffL
-(defconstant pari-valuation-byte (byte 16 0))
-;; #define HIGHVALPBIT 0x8000L
-(defconstant pari-valuation-offset #x8000)
-;; #define PRECPBITS 0xffff0000L
-;; #define PRECPSHIFT 16
-(defconstant pari-precision-byte (byte 16 16))
-;; #define VARNBITS 0xff0000L
-;; #define VARNSHIFT 16
-(defconstant pari-varno-byte (byte 8 16))
-;; #endif
-
-;; #ifdef LONG_IS_64BIT
-;; ...
-;; #endif
+(defun pari-byte (bits shift)
+  (byte (integer-length (ash bits (- shift))) shift))
+(def-c-const SIGNBITS (:type ulong))  ; 0xff000000L or 0xC000000000000000UL
+(def-c-const SIGNSHIFT (:type ulong)) ; 24 or 62
+(defconstant pari-sign-byte           ; (byte 8 24) or (byte 2 62)
+  (pari-byte SIGNBITS SIGNSHIFT))
+(def-c-const TYPBITS (:type ulong))  ; 0xff000000L or 0xFE00000000000000UL
+(def-c-const TYPSHIFT (:type ulong)) ; 24 or 57
+(defconstant pari-type-byte          ; (byte 8 24) or (byte 7 57)
+  (pari-byte TYPBITS TYPSHIFT))
+(def-c-const LGBITS (:type ulong)) ; 0xffffL or 0xFFFFFFFFFFFFFFUL
+(defconstant pari-length-byte      ; (byte 16 0) or (byte 56 0)
+  (pari-byte LGBITS 0))
+(def-c-const EXPOBITS (:type ulong)) ; 0xffffffL or 0x3FFFFFFFFFFFFFFFUL
+(defconstant pari-exponent-byte ; (byte 24 0) or (byte 62 0)
+  (pari-byte EXPOBITS 0))
+(def-c-const HIGHEXPOBIT (:type ulong)) ; 0x800000L or 0x2000000000000000UL
+(defconstant pari-exponent-offset HIGHEXPOBIT)
+(def-c-const VALPBITS (:type ulong)) ; 0xffffL or 0x3FFFFFFFFFFFUL
+(defconstant pari-valuation-byte     ; (byte 16 0) or (byte 46 0)
+  (pari-byte VALPBITS 0))
+(def-c-const HIGHVALPBIT (:type ulong)) ; 0x8000L or 0x200000000000UL
+(defconstant pari-valuation-offset HIGHVALPBIT)
+(def-c-const PRECPBITS (:type ulong))  ; 0xffff0000L or 0xFFFFC00000000000UL
+(def-c-const PRECPSHIFT (:type ulong)) ; 16 or 46
+(defconstant pari-precision-byte ; (byte 16 16) or (byte 18 46)
+  (pari-byte PRECPBITS PRECPSHIFT))
+(def-c-const VARNBITS (:type ulong))  ; 0xff0000L or 0x3FFFC00000000000UL
+(def-c-const VARNSHIFT (:type ulong)) ; 16 or 46
+(defconstant pari-varno-byte          ; (byte 8 16) or (byte 16 46)
+  (pari-byte VARNBITS VARNSHIFT))
+(def-c-const CLONEBIT (:type ulong)) ; ??? or 0x100000000000000UL
 
 ;; <parigen.h>
 
@@ -1864,13 +1866,6 @@
   (extract0 (elt0 x)
     (ldb pari-length-byte elt0)))
 
-;; #define setlg(x,s)        (((GEN)(x))[0]=(((GEN)(x))[0]&(~LGBITS))+(s))
-;; #define lgef(x)           ((long)(((GEN)(x))[1]&LGEFBITS))
-(defun pari-effective-length-raw (x)
-  (extract1 (elt1 x)
-    (ldb pari-effective-length-byte elt1)))
-
-;; #define setlgef(x,s)      (((GEN)(x))[1]=(((GEN)(x))[1]&(~LGEFBITS))+(s))
 ;; #define expo(x)           ((long)((((GEN)(x))[1]&EXPOBITS)-HIGHEXPOBIT))
 (defun pari-exponent-raw (x)
   (extract1 (elt1 x)
@@ -1909,24 +1904,18 @@
   (extract1 (elt1 x)
     (dpb s pari-varno-byte elt1)))
 
-(defun pari-mant (x len)
-  (with-c-var (v 'ulong x) (incf v 8))
-  (with-c-var (v `(c-ptr (c-array ulong ,(- len 2))) x) (deref v)))
-
 ;; #define mant(x,i)         ((((GEN)(x))[1]&SIGNBITS)?((GEN)(x))[i+1]:0)
-(defun pari-mantissa-eff (x)
-  (pari-mant x (pari-effective-length-raw x)))
-
 (defun pari-mantissa (x)
-  (pari-mant x (pari-length-raw x)))
+  (with-c-var (v 'c-pointer x)
+    (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
+    (deref (cast v `(c-ptr (c-array ulong ,(- (pari-length-raw x) 2)))))))
 
 ;; #define setmant(x,i,s)    (((GEN)(x))[i+1]=s)
 
 (defun pari-set-component (obj i ptr)
-  (with-c-var (v 'ulong obj)
-    (incf v (* 4 i)))
-  (with-c-var (v '(c-ptr pari-gen) obj)
-    (setf (deref v) ptr)))
+  (with-c-var (v 'c-pointer obj)
+    (incf (cast v 'ulong) (* #,(sizeof 'c-pointer) i))
+    (setf (deref (cast v '(c-ptr pari-gen))) ptr)))
 
 ;;; mpansi.h
 
@@ -1962,10 +1951,9 @@
 ;; which is element 0 of the vector). type is the pari type code.
 (defun pari-make-object (vec type)
   (let ((obj (pari-cgetg (1+ (length vec)) type)))
-    (with-c-var (v 'ulong obj)
-      (incf (cast v 'ulong) 4))
-    (with-c-var (v `(c-ptr (c-array ulong ,(length vec))) obj)
-      (setf (deref v) vec))
+    (with-c-var (v 'c-pointer obj)
+      (incf (cast v 'ulong) #,(sizeof 'c-pointer))
+      (setf (deref (cast v `(c-ptr (c-array ulong ,(length vec))))) vec))
     obj))
 
 ;;; Define some CLISP analogs for pari types
@@ -2091,7 +2079,7 @@
 	 (vec (make-array (1+ len))))
     (setf (svref vec 0)
           (dpb sign pari-sign-byte
-	       (dpb (+ len 2) pari-effective-length-byte 0)))
+	       (dpb (+ len 2) pari-length-byte 0)))
     (do ((i len (1- i))
          (y val (ash y -32)))
         ((eql i 0))
@@ -2104,7 +2092,7 @@
       (setq result (+ (ash result 32) (svref mantissa i))))))
 
 (defun convert-from-pari-1 (ptr)
-  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa-eff ptr))))
+  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa ptr))))
 
 ;; Type 2: real numbers -- represented by CLISP floats
 
@@ -2224,14 +2212,14 @@
             (dpb (pari-class-s x) pari-sign-byte
                  (dpb (pari-class-varno x) pari-varno-byte
                       (dpb (+ 2 (length coeffs))
-		           pari-effective-length-byte 0)))))
+		           pari-length-byte 0)))))
     (dotimes (i (length coeffs) obj)
       (pari-set-component obj (+ i 2) (convert-to-pari (svref coeffs i))))))
 
 (defun convert-from-pari-10 (ptr)
   (let ((s (pari-sign-raw ptr))
         (varno (pari-varno-raw ptr))
-	(coeffs (pari-mantissa-eff ptr)))
+	(coeffs (pari-mantissa ptr)))
     (extract0 (elt0 ptr)
     (dotimes (i (length coeffs))
         (setf elt0 (svref coeffs i))
