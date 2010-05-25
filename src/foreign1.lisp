@@ -902,9 +902,6 @@
     `(let ((f-name&c-number
             (compile-time-value (note-c-const ',c-name ',c-type
                                               ',cftype ',guard))))
-       (unless f-name&c-number
-         (error (TEXT "~S(~S ~S) requires writing to a C file")
-                'def-c-const ',name ',c-name))
        (let ((f-name (first f-name&c-number))
              (c-number (second f-name&c-number)))
          ;; c-number == 0 ==> need to output the def-call-out form
@@ -917,11 +914,12 @@
          (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
            ,@doc)))))
 
-(defun note-c-const (c-name c-type cftype guard)
-  (when (system::prepare-coutput-file)
-    (prepare-module)
-    (let ((f-name (intern
-                   (format nil "module__~A__constant_map_~A" *name*
+(defun note-c-const (c-name c-type cftype guard) ; ABI
+  (unless (system::prepare-coutput-file)
+    (error (TEXT "~S(~S) requires writing to a C file") 'def-c-const c-name))
+  (prepare-module)
+  (let ((f-name (intern
+                 (format nil "module__~A__constant_map_~A" *name*
                          (nstring-downcase
                           (nsubstitute #\_ #\-
                                        (copy-seq (symbol-name c-type))))))))
@@ -929,10 +927,10 @@
           (vector-push-extend
            (cons c-name guard)
            (second (or (gethash c-type *constant-table*)
-                         (setf (gethash c-type *constant-table*)
-                               (list f-name (make-array 10 :adjustable t
-                                                        :fill-pointer 0)
-                                     cftype)))))))))
+                       (setf (gethash c-type *constant-table*)
+                             (list f-name (make-array 10 :adjustable t
+                                                      :fill-pointer 0)
+                                   cftype))))))))
 
 (defun c-const-value (f-name c-number name c-name) ; ABI
   (multiple-value-bind (value value-p) (funcall f-name c-number)
