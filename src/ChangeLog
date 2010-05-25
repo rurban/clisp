@@ -1,5 +1,11 @@
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (DEF-C-CONST): move checking whether we are
+	writing to a C file from here to ...
+	(note-c-const): ... here
+
+2010-05-25  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (require): lock *SYSTEM-PACKAGE-LIST* after loading
 	because we might have loaded a system package
 
