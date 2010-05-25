@@ -112,8 +112,6 @@
     (pari-set-real-prec-raw (+ (ceiling bits 32) 2))
     digits))
 
-(def-c-var temp (:name "clispTemp") (:type c-pointer))
-
 ;; extern  long    lontyp[],lontyp2[];
 
 ;; extern  long    quitting_pari;
@@ -1827,16 +1825,16 @@
 ;;; mpdefs.h
 
 (defmacro extract0 ((var x) &body body)
-  `(progn
-     (setf temp ,x)
-     (symbol-macrolet ((,var (deref (cast temp '(c-ptr ulong)))))
-       ,@body)))
+  (let ((fvar (gensym "EXTRACT0")))
+    `(with-c-var (,fvar 'c-pointer ,x)
+       (symbol-macrolet ((,var (deref (cast ,fvar '(c-ptr ulong)))))
+         ,@body))))
 (defmacro extract1 ((var x) &body body)
-  `(progn
-     (setf temp ,x)
-     (symbol-macrolet
-       ((,var (element (deref (cast temp '(c-ptr (c-array ulong 2)))) 1)))
-       ,@body)))
+  (let ((fvar (gensym "EXTRACT1")))
+    `(with-c-var (,fvar 'c-pointer ,x)
+       (symbol-macrolet
+           ((,var (element (deref (cast ,fvar '(c-ptr (c-array ulong 2)))) 1)))
+         ,@body))))
 
 ;; #define signe(x)          (((long)((GEN)(x))[1])>>SIGNSHIFT)
 (defun pari-sign-raw (x)
@@ -1859,20 +1857,20 @@
   (extract0 (elt0 x)
     (dpb s pari-type-byte elt0)))
 
-  ;; #define pere(x)           ((ulong)(((GEN)(x))[0]&PEREBITS)>>PERESHIFT)
-  ;; #define setpere(x,s)      (((GEN)(x))[0]=(((GEN)(x))[0]&(~PEREBITS))+(((ulong)(s))<<PERESHIFT))
+;; #define pere(x)           ((ulong)(((GEN)(x))[0]&PEREBITS)>>PERESHIFT)
+;; #define setpere(x,s)      (((GEN)(x))[0]=(((GEN)(x))[0]&(~PEREBITS))+(((ulong)(s))<<PERESHIFT))
 ;; #define lg(x)             ((long)(((GEN)(x))[0]&LGBITS))
 (defun pari-length-raw (x)
   (extract0 (elt0 x)
     (ldb pari-length-byte elt0)))
 
-  ;; #define setlg(x,s)        (((GEN)(x))[0]=(((GEN)(x))[0]&(~LGBITS))+(s))
+;; #define setlg(x,s)        (((GEN)(x))[0]=(((GEN)(x))[0]&(~LGBITS))+(s))
 ;; #define lgef(x)           ((long)(((GEN)(x))[1]&LGEFBITS))
 (defun pari-effective-length-raw (x)
   (extract1 (elt1 x)
     (ldb pari-effective-length-byte elt1)))
 
-  ;; #define setlgef(x,s)      (((GEN)(x))[1]=(((GEN)(x))[1]&(~LGEFBITS))+(s))
+;; #define setlgef(x,s)      (((GEN)(x))[1]=(((GEN)(x))[1]&(~LGEFBITS))+(s))
 ;; #define expo(x)           ((long)((((GEN)(x))[1]&EXPOBITS)-HIGHEXPOBIT))
 (defun pari-exponent-raw (x)
   (extract1 (elt1 x)
@@ -1911,25 +1909,24 @@
   (extract1 (elt1 x)
     (dpb s pari-varno-byte elt1)))
 
+(defun pari-mant (x len)
+  (with-c-var (v 'ulong x) (incf v 8))
+  (with-c-var (v `(c-ptr (c-array ulong ,(- len 2))) x) (deref v)))
+
 ;; #define mant(x,i)         ((((GEN)(x))[1]&SIGNBITS)?((GEN)(x))[i+1]:0)
 (defun pari-mantissa-eff (x)
-  (let ((len (pari-effective-length-raw x)))
-    ;; x is still in temp here
-    (incf (cast temp 'ulong) 8)
-    (deref (cast temp `(c-ptr (c-array ulong ,(- len 2)))))))
+  (pari-mant x (pari-effective-length-raw x)))
 
 (defun pari-mantissa (x)
-  (let ((len (pari-length-raw x)))
-    ;; x is still in temp here
-    (incf (cast temp 'ulong) 8)
-    (deref (cast temp `(c-ptr (c-array ulong ,(- len 2)))))))
+  (pari-mant x (pari-length-raw x)))
 
 ;; #define setmant(x,i,s)    (((GEN)(x))[i+1]=s)
 
 (defun pari-set-component (obj i ptr)
-  (setf temp obj)
-  (incf (cast temp 'ulong) (* 4 i))
-  (setf (deref (cast temp '(c-ptr pari-gen))) ptr))
+  (with-c-var (v 'ulong obj)
+    (incf v (* 4 i)))
+  (with-c-var (v '(c-ptr pari-gen) obj)
+    (setf (deref v) ptr)))
 
 ;;; mpansi.h
 
@@ -1965,9 +1962,10 @@
 ;; which is element 0 of the vector). type is the pari type code.
 (defun pari-make-object (vec type)
   (let ((obj (pari-cgetg (1+ (length vec)) type)))
-    (setf temp obj)
-    (incf (cast temp 'ulong) 4)
-    (setf (deref (cast temp `(c-ptr (c-array ulong ,(length vec))))) vec)
+    (with-c-var (v 'ulong obj)
+      (incf (cast v 'ulong) 4))
+    (with-c-var (v `(c-ptr (c-array ulong ,(length vec))) obj)
+      (setf (deref v) vec))
     obj))
 
 ;;; Define some CLISP analogs for pari types
@@ -2102,8 +2100,8 @@
 
 (defun convert-from-pari-1 (ptr)
   (let* ((sign (pari-sign-raw ptr))
-	 (mant (pari-mantissa-eff ptr))
-	 (result 0))
+         (mant (pari-mantissa-eff ptr))
+         (result 0))
     (dotimes (i (length mant) (* sign result))
       (setq result (+ (* result #x100000000) (svref mant i))))))
 
@@ -2134,8 +2132,8 @@
 (defun convert-from-pari-2 (ptr)
   (let* ((sign (pari-sign-raw ptr))
          (expo (pari-exponent-raw ptr))
-	 (mant (pari-mantissa ptr))
-	 (signif 0))
+         (mant (pari-mantissa ptr))
+         (signif 0))
     (dotimes (i (length mant))
       (setq signif (+ (* signif #x100000000) (svref mant i))))
     (* sign (scale-float (float signif (float-digits 1 (* 32 (length mant))))
@@ -2201,11 +2199,11 @@
 
 (defun convert-from-pari-7 (ptr)
   (make-instance 'pari-padic
-    :precp (pari-precision-raw ptr)
-    :valp  (pari-valuation-raw ptr)
-    :prime (convert-from-pari (%component ptr 1))
-    :prpow (convert-from-pari (%component ptr 2))
-    :rep   (convert-from-pari (%component ptr 3))))
+                 :precp (pari-precision-raw ptr)
+                 :valp  (pari-valuation-raw ptr)
+                 :prime (convert-from-pari (%component ptr 1))
+                 :prpow (convert-from-pari (%component ptr 2))
+                 :rep   (convert-from-pari (%component ptr 3))))
 
 ;; Type 8: quadratic numbers
 
@@ -2235,13 +2233,13 @@
   (let ((s (pari-sign-raw ptr))
         (varno (pari-varno-raw ptr))
 	(coeffs (pari-mantissa-eff ptr)))
+    (extract0 (elt0 ptr)
     (dotimes (i (length coeffs))
-      (setf (cast temp 'ulong) (svref coeffs i))
-      (setf (svref coeffs i) (convert-from-pari temp)))
+        (setf elt0 (svref coeffs i))
+        (setf (svref coeffs i) (convert-from-pari ptr))))
     (make-instance 'pari-poly :s s :varno varno :coeffs coeffs)))
 
 ;; Type 11: power series
-
 (define-pari-class-only pari-pws (s varno expo coeffs))
 
 (defmethod convert-to-pari ((x pari-pws))
@@ -2261,13 +2259,13 @@
         (varno (pari-varno-raw ptr))
 	(expo (pari-valuation-raw ptr))
 	(coeffs (pari-mantissa ptr)))
+    (extract0 (elt0 ptr)
     (dotimes (i (length coeffs))
-      (setf (cast temp 'ulong) (svref coeffs i))
-      (setf (svref coeffs i) (convert-from-pari temp)))
+        (setf elt0 (svref coeffs i))
+        (setf (svref coeffs i) (convert-from-pari ptr))))
     (make-instance 'pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
 
 ;; Type 13,14: rational functions
-
 (define-pari-class 13 pari-ratfun (numer denom))
 
 ;; Type 15: indefinite binary quadratic forms
@@ -2338,7 +2336,7 @@
 ;;; Conversion from pari -- dispatch
 
 (defun convert-from-pari (ptr)
-    "Converts an internal pari object to a CLISP object"
+  "Converts an internal pari object to a CLISP object"
   (case (pari-type-raw ptr)
     (1 (convert-from-pari-1 ptr))
     (2 (convert-from-pari-2 ptr))
