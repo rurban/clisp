@@ -92,27 +92,7 @@
 (def-c-type pari_sp ulong)
 
 (def-c-var pari-series-precision (:name "precdl") (:type ulong))
-
-;; there is no global prec in PARI 2
-(c-lines "ulong clisp_get_prec (void);~%") ; prototype
-(c-lines "ulong clisp_get_prec (void) { return /*prec*/ 64; }~%")
-(c-lines "void clisp_set_prec (ulong p);~%") ; prototype
-(c-lines "void clisp_set_prec (ulong p) { /*prec=*/(void)p; }~%")
-
-(def-call-out pari-get-real-prec-raw (:name "clisp_get_prec")
-  (:arguments) (:return-type ulong))
-(def-call-out pari-set-real-prec-raw (:name "clisp_set_prec")
-  (:arguments (p ulong)) (:return-type nil))
-
-(export '(pari-real-precision pari-series-precision))
-(define-symbol-macro pari-real-precision (pari-get-real-prec-digits))
-(defun pari-get-real-prec-digits ()
-  (values (floor (* #.(* 32 (log 2 10)) (- (pari-get-real-prec-raw) 2)))))
-(defun (setf pari-get-real-prec-digits) (digits)
-  (let ((bits (ceiling (* #.(log 10 2) digits))))
-    (setf (ext:long-float-digits) bits)
-    (pari-set-real-prec-raw (+ (ceiling bits 32) 2))
-    digits))
+(export '(pari-series-precision))
 
 ;; extern  long    lontyp[],lontyp2[];
 
@@ -354,7 +334,7 @@
 ;;; provides a keyword argument prec defaulting to pari-get-real-prec-raw.
 (defmacro pari-call-out-prec (fun lib-name args &optional (gp-name lib-name))
   `(pari-call-out ,fun ,lib-name
-     (,@args (prec long :in :none (pari-get-real-prec-raw))) ,gp-name))
+     (,@args (prec long :in :none (ext:long-float-digits))) ,gp-name))
 
 
 ;;; /* alglin.c */

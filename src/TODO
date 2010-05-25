@@ -54,7 +54,7 @@ Should we follow these more closely?
 Embeddability: additional API in spvw.d; example. RFE#423264
 
 
-Update PARI module: there is no global precision variable anymore.
+Update PARI module:
 Many functions have been added since the module has been written.
 
 
