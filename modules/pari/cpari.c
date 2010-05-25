@@ -56,8 +56,6 @@ void clispErrDie(void) {
 PariOUT clispOut = {clispPutc, clispPuts, clispFlush, NULL};
 PariOUT clispErr = {clispErrPutc, clispErrPuts, clispErrFlush, clispErrDie};
 
-void *clispTemp; /* a foreign place to use for casts and accesses from CLISP */
-
 void init_for_clisp (long parisize, long maxprime)
 {
 #if defined(HAVE_PARI_INIT_OPTS)
