@@ -334,7 +334,7 @@
        ',pari-name)))
 
 ;;; pari-call-out-prec has the same syntax as pari-call-out; it additionally
-;;; provides a keyword argument prec defaulting to pari-get-real-prec-raw.
+;;; provides a keyword argument prec defaulting to ext:long-float-digits.
 (defmacro pari-call-out-prec (fun lib-name args &optional (gp-name lib-name))
   `(pari-call-out ,fun ,lib-name
      (,@args (prec long :in :none (ext:long-float-digits))) ,gp-name))
@@ -1128,7 +1128,7 @@
 	           (nrel pari-gen :in :none 5) (borne pari-gen :in :none 1)
 		   (nrpid long :in :none 4) (minsfb long :in :none 3)
 		   (flun long :in :none ,flun)
-		   (prec log :in :none (pari-get-real-prec-raw)))))
+		   (prec log :in :none (ext:long-float-digits)))))
     `(progn
        ,(make-defun name pari-name type args)
        ,(make-documentation name gp-name args))))
@@ -2066,7 +2066,7 @@
 (defmethod convert-to-pari ((x float))
   (if (= x 0)
     (pari-make-object
-      (vector (- pari-exponent-offset (* 32 (pari-get-real-prec-raw)) -61) 0) 2)
+      (vector (- pari-exponent-offset (* 32 (ext:long-float-digits)) -61) 0) 2)
     (multiple-value-bind (signif expo sign) (integer-decode-float x)
       (let ((pr (float-precision x)))
         ;; need ceil(pr/32) mantissa words,
