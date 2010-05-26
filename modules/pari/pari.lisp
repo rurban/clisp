@@ -1285,10 +1285,8 @@
 ;; GEN gaddpex(GEN x, GEN y);
 
 ;; GEN greffe(GEN x, long l);
-;; GEN gopsg2(GEN (*f) (GEN, GEN);
-;; GEN long s, GEN y);
-;; GEN gopgs2(GEN (*f) (GEN, GEN);
-;; GEN GEN y, long s);
+;; GEN gopsg2(GEN (*f) (GEN, GEN), long s, GEN y);
+;; GEN gopgs2(GEN (*f) (GEN, GEN), GEN y, long s);
 ;; GEN co8(GEN x, long l);
 ;; GEN cvtop(GEN x, GEN p, long l);
 ;; GEN compo(GEN x, long n);
@@ -1413,27 +1411,16 @@
 (pari-call-out pari-round2 "gdivround" (x y) "\\/")
 ;; GEN gpolvar(GEN y);
 
-;; void    gop0z(GEN (*f) (void);
-;; GEN GEN x);
-;; GEN gop1z(GEN (*f) (GEN);
-;; GEN GEN x, GEN y);
-;; GEN gop2z(GEN (*f) (GEN, GEN);
-;; GEN GEN x, GEN y, GEN z);
-;; GEN gops2gsz(GEN (*f) (GEN, long);
-;; GEN GEN x, long s, GEN z);
-;; GEN gops2sgz(GEN (*f) (long, GEN);
-;; GEN long s, GEN y, GEN z);
-;; GEN gops2ssz(GEN (*f) (long, long);
-;; GEN long s, long y, GEN z);
-
-;; void    gop3z(GEN (*f) (GEN, GEN, GEN);
-;; GEN GEN x, GEN y, GEN z, GEN t);
-;; GEN gops1z(GEN (*f) (long);
-;; GEN long s, GEN y);
-;; GEN gopsg2z(GEN (*f) (GEN, GEN);
-;; GEN long s, GEN y, GEN z);
-;; GEN gopgs2z(GEN (*f) (GEN, GEN);
-;; GEN GEN y, long s, GEN z);
+;; void    gop0z(GEN (*f) (void), GEN x);
+;; GEN gop1z(GEN (*f) (GEN), GEN x, GEN y);
+;; GEN gop2z(GEN (*f) (GEN, GEN), GEN x, GEN y, GEN z);
+;; GEN gops2gsz(GEN (*f) (GEN, long), GEN x, long s, GEN z);
+;; GEN gops2sgz(GEN (*f) (long, GEN), long s, GEN y, GEN z);
+;; GEN gops2ssz(GEN (*f) (long, long), long s, long y, GEN z);
+;; void    gop3z(GEN (*f) (GEN, GEN, GEN), GEN x, GEN y, GEN z, GEN t);
+;; GEN gops1z(GEN (*f) (long), long s, GEN y);
+;; GEN gopsg2z(GEN (*f) (GEN, GEN), long s, GEN y, GEN z);
+;; GEN gopgs2z(GEN (*f) (GEN, GEN), GEN y, long s, GEN z);
 ;; GEN gaffsg(long s, GEN x);
 ;; GEN gaffect(GEN x, GEN y);
 
@@ -1475,8 +1462,7 @@
 ;; long padicprec(GEN x, GEN p);
 (pari-call-out (get-padic-precision long) "padicprec" (x p))
 
-;; long opgs2(int (*f) (GEN, GEN);
-;; GEN GEN y, long s);
+;; long opgs2(int (*f) (GEN, GEN), GEN y, long s);
 
 ;; long taille(GEN x);
 ;; GEN taille2(GEN x);
