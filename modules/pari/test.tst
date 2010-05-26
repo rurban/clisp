@@ -87,3 +87,7 @@
 (pari:pari-to-lisp #z"104")  104
 (pari:pari-to-lisp #Z"[1,0,0;0,1,0;0,0,1]")
 #2A((1 0 0) (0 1 0) (0 0 1))
+
+(pari:pari-to-lisp (pari:pari-gcd 35 49))  7
+(pari:pari-to-lisp (pari:pari-xgcd 35 49)) #(:ROW 3 -2 7)
+(pari:pari-to-lisp (pari:pari-lcm 35 49))  245
