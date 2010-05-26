@@ -6,8 +6,9 @@
 	(convert-to-pari): NIL->NIL
 	(VERYBIGINT, BIGINT): add
 	(get-varno): use BIGINT instead of 256 to check validity
-	(convert-to-pari@integer, collect-mantissa):
-	use (BITSIZEOF 'ULONG) instead of a literal 32
+	(extract-mantissa): extract from CONVERT-TO-PARI (INTEGER & FLOAT)
+	(convert-to-pari@integer&float): use it; use (BITSIZEOF 'ULONG)
+	instead of a literal 32 which fixes bignum & (almost) float conversion
 
 2010-05-26  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 

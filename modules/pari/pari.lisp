@@ -2039,6 +2039,12 @@
 (defmethod convert-to-pari ((x (eql -1)))
   pari--1)
 
+(defun extract-mantissa (vec len val)
+  (do ((i len (1- i))
+       (y val (ash y #,(- (bitsizeof 'ulong)))))
+      ((eql i 0))
+    (setf (svref vec i) (logand y #,(1- (ash 1 (bitsizeof 'ulong)))))))
+
 (defmethod convert-to-pari ((x integer))
   (let* ((sign (signum x))
          (val (abs x))
@@ -2047,10 +2053,7 @@
     (setf (svref vec 0)
           (dpb sign pari-sign-byte
 	       (dpb (+ len 2) pari-length-byte 0)))
-    (do ((i len (1- i))
-         (y val (ash y #,(- (bitsizeof 'ulong)))))
-        ((eql i 0))
-      (setf (svref vec i) (logand y #,(1- (ash 1 (bitsizeof 'ulong))))))
+    (extract-mantissa vec len val)
     (pari-make-object vec 1)))
 
 (defun collect-mantissa (mantissa)
@@ -2066,23 +2069,21 @@
 (defmethod convert-to-pari ((x float))
   (if (= x 0)
     (pari-make-object
-      (vector (- pari-exponent-offset (* 32 (ext:long-float-digits)) -61) 0) 2)
+      (vector (- pari-exponent-offset (* #,(bitsizeof 'ulong)
+                                         (ext:long-float-digits)) -61) 0) 2)
     (multiple-value-bind (signif expo sign) (integer-decode-float x)
       (let ((pr (float-precision x)))
         ;; need ceil(pr/32) mantissa words,
 	;; signif has to be scaled by 2^(32*ceil(pr/32)-pr)
-	;; and the exponent will be pr+expo-1
-	(multiple-value-bind (q r) (ceiling pr 32)
+	;; and the exponent will be pr+expo-1  (32 <-> (bitsizeof 'ulong))
+	(multiple-value-bind (q r) (ceiling pr #,(bitsizeof 'ulong))
 	  (setq signif (ash signif (- r)))
 	  (let ((vec (make-array (1+ q))))
 	    (setf (svref vec 0)
 	      (dpb sign pari-sign-byte
 	           (dpb (+ pari-exponent-offset pr expo -1)
 		        pari-exponent-byte 0)))
-	    (do ((i q (1- i))
-	         (y signif (ash y -32)))
-		((eql i 0))
-	      (setf (svref vec i) (logand y #xFFFFFFFF)))
+            (extract-mantissa vec q signif)
 	    (pari-make-object vec 2)))))))
 
 (defun convert-from-pari-2 (ptr)
@@ -2090,8 +2091,9 @@
          (expo (pari-exponent-raw ptr))
          (mant (pari-mantissa ptr))
          (signif (collect-mantissa mant)))
-    (* sign (scale-float (float signif (float-digits 1 (* 32 (length mant))))
-                         (- expo (* 32 (length mant)) -1)))))
+    (* sign (scale-float (float signif (float-digits 1 (* #,(bitsizeof 'ulong)
+                                                          (length mant))))
+                         (- expo (* #,(bitsizeof 'ulong) (length mant)) -1)))))
 
 ;; Type 3: integermods
 
