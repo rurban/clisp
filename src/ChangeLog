@@ -3,6 +3,7 @@
 	* modules/pari/pari.lisp: update all names to v2 using <pariold.h>
 	(pari-pi): remove DEFINE-SYMBOL-MACRO to avoid shadowing a foreign var
 	(pari-sign-raw): fix for 64-bit negatives
+	(convert-to-pari): NIL->NIL
 
 2010-05-26  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
