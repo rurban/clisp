@@ -151,6 +151,9 @@
 (def-c-var debuglevel (:name "DEBUGLEVEL") (:type ulong))
 (def-c-var debugmem (:name "DEBUGMEM") (:type ulong))
 
+(def-c-const VERYBIGINT)
+(def-c-const BIGINT)
+
 ;; entree *is_entry(char *s);
 (def-call-out is_entry (:arguments (s c-string))
   (:return-type (c-ptr-null entree)))
@@ -1457,7 +1460,7 @@
 
 (defun get-varno (x)
   (let ((vn (%varno (convert-to-pari x))))
-    (if (< vn 256) vn 0)))
+    (if (= vn BIGINT) 0 vn)))
 
 ;; long padicprec(GEN x, GEN p);
 (pari-call-out (get-padic-precision long) "padicprec" (x p))
