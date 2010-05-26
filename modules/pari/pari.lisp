@@ -1819,7 +1819,7 @@
 (defun pari-sign-raw (x)
   (extract1 (elt1 x)
     (ecase (ldb pari-sign-byte elt1)
-      (0 0) (1 1) (255 -1))))
+      (0 0) (1 1) (#,(ash SIGNBITS (- SIGNSHIFT)) -1))))
 
 ;; #define setsigne(x,s)     (((GEN)(x))[1]=(((GEN)(x))[1]&(~SIGNBITS))+(((long)(s))<<SIGNSHIFT))
 (defun (setf pari-sign-raw) (x s)
