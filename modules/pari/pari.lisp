@@ -1736,8 +1736,6 @@
 ;; GEN mppi(long prec);
 (pari-call-out-prec pari-pi "mppi" () "pi")
 
-(define-symbol-macro pari-pi (pari-pi))
-
 ;; GEN mpeuler(long prec);
 (pari-call-out-prec euler "mpeuler" () "euler")
 ;; GEN polylog(long m, GEN x, long prec);

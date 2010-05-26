@@ -1,15 +1,16 @@
 2010-05-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp: update all names to v2 using <pariold.h>
+	(pari-pi): remove DEFINE-SYMBOL-MACRO to avoid shadowing a foreign var
 
 2010-05-26  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
-	(OS::%SET-CLIPBOARD): behave accordingly to setf logic: return
-	the value given. Raise lisp error on failure. Don't try to use
-	unicode when it's not unicode build.
-	(OS:CLIPBOARD): The same unicode guarding ifdefs. Expect
-	blocking behaviour of GetClipboardData.
+	(OS::%SET-CLIPBOARD): behave according to setf logic: return
+	the value given. Raise a lisp error on failure.
+	Do not try to use unicode when it is not a unicode build.
+	(OS:CLIPBOARD): The same unicode guarding ifdefs.
+	Expect blocking behaviour of GetClipboardData.
 
 2010-05-25  Sam Steingold  <sds@gnu.org>
 
