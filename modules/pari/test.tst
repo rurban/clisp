@@ -35,6 +35,9 @@
 (pari:equal? (pari:symmetric-matrix-sqred #Z"[2,1;1,2]") #Z"[2,1/2;0,3/2]") T
 (pari:equal? (pari:matrix-indexrank #Z"[2,1;1,2]") #Z"[[1,2],[1,2]]") T
 (pari:equal? (pari:symmetric-matrix-perfection id) #Z"3") T
+(pari:pari-to-lisp (pari:matrix-determinant #2A((1 2) (3 4)))) -2
+(pari:pari-to-lisp (pari:matrix-solve #2A((1 2) (3 4)) nil))
+#2A((-2 1) (3/2 -1/2))
 
 (pari:equal? (pari:pari-isqrt #Z"4") #Z"2") T
 (pari:equal? (pari:pari-isqrt #Z"10") #Z"3") T

@@ -1942,7 +1942,8 @@
 
 (defgeneric convert-to-pari (x)
   (:documentation
-    "Converts suitable CLISP objects into internal pari objects"))
+   "Converts suitable CLISP objects into internal pari objects")
+  (:method ((x null)) nil))
 
 (defclass internal-pari-object (pari-object)
   ((pointer :accessor pari-class-pointer :initarg :pointer))
