@@ -5,7 +5,7 @@
 <para>This is an &ffi-pac;-based interface to &gtk; version 2.</para>
 
 <para>The package <quote role="package">GTK</quote>
- is <link linkend="package-case">case-sensitive</link>.</para>
+ is &case-sensitive-k;.</para>
 
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:GTK</constant>.</simpara>

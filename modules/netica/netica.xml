@@ -5,9 +5,8 @@
 <para>This is an interface to the &netica-link; (&c-lang; API version 3.25)
  for working with Bayesian belief networks and influence diagrams.</para>
 
-<para>The package <quote role="package">NETICA</quote> is
- <link linkend="package-case">case-sensitive</link>, e.g., you would write
- <code>(netica:GetNodeExpectedUtils_bn ...)</code>
+<para>The package <quote role="package">NETICA</quote> is &case-sensitive-k;,
+ e.g., you would write <code>(netica:GetNodeExpectedUtils_bn ...)</code>
  when you need to call
  <function role="netica">GetNodeExpectedUtils_bn</function>.</para>
 
