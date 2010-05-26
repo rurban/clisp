@@ -4,7 +4,7 @@
 
 <para>This package offers an &ffi-pac;-based interface to &pari-link;.</para>
 <para>The package <quote role="package">PARI</quote>
- is <link linkend="package-case">case-sensitive</link>.</para>
+ is &case-sensitive-k;.</para>
 
 <simpara>When this module is present, &features-my; contains the
  symbol <constant>:PARI</constant>.</simpara>

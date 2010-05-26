@@ -1476,8 +1476,7 @@ the value entered is treated as usual for the Lisp &repl;, i.e., it is
   to change the case-inverted status of an existing package.</para></section>
 
 <section id="pack-sensitive"><title>Function &pack-sensitive;</title>
- <para>Returns &t; if the argument is a
-  <link linkend="pack-case-sensitive">case-sensitive package</link>.
+ <para>Returns &t; if the argument is a &case-sensitive-k; &package-t;.
   This function is &setf;able, although it is probably not a good idea
   to change the case-sensitive status of an existing package.</para></section>
 
@@ -1591,7 +1590,7 @@ performance considerations.
      access</link>.  Some platforms only.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&cs-cl;</term><term>&cs-clu;</term><listitem>
-   <simpara>case-sensitive versions of &cl-pac; and &clu-pac;.
+   <simpara>&case-sensitive-k; versions of &cl-pac; and &clu-pac;.
     See <xref linkend="package-case"/>.</simpara></listitem></varlistentry>
 </variablelist>
 
