@@ -94,7 +94,7 @@
 (def-c-var pari-series-precision (:name "precdl") (:type ulong))
 (export '(pari-series-precision))
 
-;; extern  long    lontyp[],lontyp2[];
+;; extern  long    lontyp[];
 
 ;; extern  long    quitting_pari;
 ;; extern  jmp_buf environnement;
@@ -116,11 +116,11 @@
 (def-c-var pari-i    (:name "gi")    (:type pari-gen) (:read-only t))
 (def-c-var pari-0    (:name "gen_0") (:type pari-gen) (:read-only t))
 (def-c-var pari--1   (:name "gen_m1") (:type pari-gen) (:read-only t))
-;;(def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
+(def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
 
-;; extern  GEN *polun,*polx;
-(def-c-var pari-poly-1 (:name "polun") (:type (c-ptr pari-gen)) (:read-only t))
-(def-c-var pari-poly-x (:name "polx")  (:type (c-ptr pari-gen)) (:read-only t))
+;; extern  GEN *pol_1,*pol_x;
+(def-c-var pari-poly-1 (:name "pol_1") (:type (c-ptr pari-gen)) (:read-only t))
+(def-c-var pari-poly-x (:name "pol_x")  (:type (c-ptr pari-gen)) (:read-only t))
 ;; extern  GEN primetab;
 (def-c-var primetab (:type pari-gen) (:read-only t))
 ;; extern  long *ordvar;
@@ -195,7 +195,7 @@
 (c-lines :fini "fini_for_clisp(1);~%")
 
 
-;; #define gval(x,v) ggval(x,polx[v])
+;; #define gval(x,v) ggval(x,pol_x[v])
 ;; #define gvar9(x) ((typ(x)==9)?gvar2(x):gvar(x))
 
 ;; #define coeff(a,i,j)      (*((long*)(*(a+(j)))+(i)))
@@ -405,8 +405,8 @@
 (pari-call-out pari-conjugate "gconj" (x) "conj")
 ;; GEN conjvec(GEN x,long prec);
 (pari-call-out-prec vector-of-conjugates "conjvec" (x))
-;; GEN idmat(long n);
-(pari-call-out identity-matrix "idmat" ((n long)))
+;; GEN matid(long n);
+(pari-call-out identity-matrix "matid" ((n long)))
 ;; GEN concat(GEN x, GEN y);
 (pari-call-out pari-concatenate "concat" (x y))
 
@@ -517,7 +517,7 @@
 (pari-call-out first-n-primes "primes" ((n long)))
 ;; GEN phi(GEN n);
 (pari-call-out euler-phi "phi" (n))
-;; GEN decomp(GEN n);
+;; GEN Z_factor(GEN n);
 ;; GEN auxdecomp(GEN n, long all);
 ;; GEN smallfact(GEN n);
 (pari-call-out factor-small "smallfact" (n))
@@ -589,8 +589,9 @@
 
 ;; GEN gkronecker(GEN x, GEN y);
 ;; GEN gkrogs(GEN x, long y);
-;; GEN gcarreparfait(GEN x);
-;; GEN gcarrecomplet(GEN x, GEN *pt);
+;; GEN gissquare(GEN x);
+(pari-call-out (square? pari-bool) "gissquare" (x) "issquare")
+;; GEN gissquarerem(GEN x, GEN *pt);
 
 ;; GEN gisprime(GEN x);
 (pari-call-out (prime? pari-bool) "gisprime" (x) "isprime")
@@ -602,7 +603,6 @@
 (pari-call-out (fundamental-discriminant? pari-bool) "gisfundamental"
   (x) "isfund")
 ;; GEN gbittest(GEN x, GEN n);
-(pari-call-out (square? pari-bool) "gcarreparfait" (x) "issquare")
 
 ;; GEN gpseudopremier(GEN n, GEN a);
 ;; GEN gmillerrabin(GEN n, long k);
@@ -852,8 +852,8 @@
 (pari-call-out rnf-steinitz-class "rnfsteinitz" (nf order))
 ;; GEN rnfbasis(GEN bnf, GEN order);
 (pari-call-out rnf-basis "rnfbasis" (bnf order))
-;; GEN rnfhermitebasis(GEN bnf, GEN order);
-(pari-call-out rnf-hermite-basis "rnfhermitebasis" (bnf order))
+;; GEN rnfhnfbasis(GEN bnf, GEN order);
+(pari-call-out rnf-hermite-basis "rnfhnfbasis" (bnf order))
 
 ;; GEN bsrch(GEN p, GEN fa, long Ka, GEN eta, long Ma);
 ;; GEN setup(GEN p,GEN f,GEN theta,GEN nut);
@@ -1211,8 +1211,8 @@
 ;; GEN ellglobalred(GEN e1);
 (pari-call-out ell-global-reduction "ellglobalred" (e1))
 
-;; GEN lseriesell(GEN e, GEN s, GEN N, GEN A, long prec);
-(pari-call-out-prec ell-l-series-value "lseriesell" (e s N A))
+;; GEN elllseries(GEN e, GEN s, GEN N, GEN A, long prec);
+(pari-call-out-prec ell-l-series-value "elllseries" (e s N A))
 
 ;; GEN pointell(GEN e, GEN z, long prec);
 (pari-call-out-prec ell-z-to-xy "pointell" (e z))
@@ -1279,7 +1279,7 @@
 
 ;; GEN gcopy(GEN x);
 ;(pari-call-out copy "gcopy" (x) nil)
-;; GEN forcecopy(GEN x);
+;; GEN gcopy(GEN x);
 ;; GEN gclone(GEN x);
 ;; GEN cgetp(GEN x);
 ;; GEN gaddpex(GEN x, GEN y);
@@ -1328,8 +1328,7 @@
 ;; GEN gmulsg(long s, GEN y);
 ;; GEN gdivgs(GEN x, long s);
 ;; GEN gmodulo(GEN x, GEN y);
-;; GEN gmodulcp(GEN x, GEN y);
-(pari-call-out make-mod "gmodulcp" (x y) "mod")
+(pari-call-out make-mod "gmodulo" (x y) "mod")
 ;; GEN simplify(GEN x);
 (pari-call-out simplify "simplify" (x))
 
@@ -1707,10 +1706,10 @@
 (pari-call-out-prec dedekind-eta "eta" (x))
 ;; GEN jell(GEN x, long prec);
 (pari-call-out-prec elliptic-j "jell" (x))
-;; GEN wf2(GEN x, long prec);
-(pari-call-out-prec weber-f2 "wf2" (x))
-;; GEN wf(GEN x, long prec);
-(pari-call-out-prec weber-f "wf" (x))
+;; GEN weberf2(GEN x, long prec);
+(pari-call-out-prec weber-f2 "weberf2" (x))
+;; GEN weberf(GEN x, long prec);
+(pari-call-out-prec weber-f "weberf" (x))
 
 ;; GEN incgam(GEN a, GEN x, long prec);
 (pari-call-out-prec incomplete-gamma "incgam" (a x))
