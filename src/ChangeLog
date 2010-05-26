@@ -1,3 +1,7 @@
+2010-05-26  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp: update all names to v2 using <pariold.h>
+
 2010-05-26  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* modules/syscalls/calls.c [WIN32_NATIVE || UNIX_CYGWIN32]
