@@ -53,12 +53,15 @@
 #(:ROW 3 7 15 1 292)
 
 (pari:equal? (pari:fibonacci 10) #Z"55") T
+(pari:pari-to-lisp (pari:fibonacci 100))  354224848179261915075
+(pari:pari-to-lisp (pari:fibonacci 120))  5358359254990966640871840
 (pari:equal? (pari:next-prime #Z"11") #Z"11") T
 (pari:equal? (pari:next-prime #Z"15") #Z"17") T
 (pari:equal? (pari:next-prime #Z"150") #Z"151") T
 (pari:pari-to-lisp (pari:next-prime 1000)) 1009
 (pari:pari-to-lisp (pari:next-prime 10000)) 10007
 (pari:pari-to-lisp (pari:next-prime 100000)) 100003
+(pari:pari-to-lisp (pari:next-prime (ash 1 70)))  1180591620717411303449
 (pari:equal? (pari:nth-prime 100) #Z"541") T
 (pari:equal? (pari:nth-prime 1000) #Z"7919") T
 (pari:equal? (pari:nth-prime 10000) #Z"104729") T
