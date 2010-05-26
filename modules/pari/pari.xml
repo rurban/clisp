@@ -12,6 +12,10 @@
 <para>PARI objects are printed and read using a
  special <literal role="data">#Z""</literal> syntax.</para>
 
+<para>Most functions accept lisp objects as well as PARI objects and
+return PARI objects, which can be converted to lisp using the
+<function>pari:pari-to-lisp</function> function.</para>
+
 <para>See <filename role="clisp-cvs">modules/pari/test.tst</filename>
  for sample usage.</para>
 
