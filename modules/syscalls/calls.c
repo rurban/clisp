@@ -4442,10 +4442,12 @@ static void strzcpy21_w (PWSTR dest, PCWSTR src) {
    success, NIL on failure. */
 DEFUN(OS::%SET-CLIPBOARD, str) {
   int textset = 0;
+  pushSTACK(STACK_0); /* to return from %SET-CLIPBOARD */
   funcall(L(princ_to_string), 1);
   begin_system_call();
   if (OpenClipboard(NULL)) {
     if( EmptyClipboard() ) {
+#ifdef ENABLE_UNICODE
       OSVERSIONINFO v;
       v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
       if (GetVersionEx(&v)) {
@@ -4464,11 +4466,18 @@ DEFUN(OS::%SET-CLIPBOARD, str) {
                   if ( SetClipboardData( CF_UNICODETEXT,  sglobal ) != NULL ) {
                     GlobalUnlock(sglobal);
                     textset = 1;
-                  } else GlobalFree(sglobal);
+                  } else {
+                    DWORD last = GetLastError();
+                    GlobalFree(sglobal);
+                    SetLastError(last);
+                  }
                 }
               }
             });
         } else {  /* Win95/98/Me - try ASCII */
+#else
+      { {
+#endif
           with_string_0( value1, GLO(misc_encoding), cstr, {
             HGLOBAL sglobal =
               GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, cstr_bytelen + nlines_a(cstr) + 1);
@@ -4481,18 +4490,28 @@ DEFUN(OS::%SET-CLIPBOARD, str) {
                 if (SetClipboardData( CF_TEXT,  sglobal ) != NULL ) {
                   GlobalUnlock(sglobal);
                   textset = 1;
-                } else GlobalFree(sglobal);
-                /* GlobalFree only if SetClipboardData failed */
+                } else { /* GlobalFree only if SetClipboardData failed */
+                  DWORD last = GetLastError();
+                  GlobalFree(sglobal);
+                  SetLastError(last);
+                }
               }
             }
           });
-        }
-      }
+#ifdef ENABLE_UNICODE
+        } /* v.dwPlatformId */
+      } /* GetVersionEx */
+#else
+      } } /* for MODPREP all brackets should be 
+             balanced like there are no ifdefs */
+#endif
       CloseClipboard();
-    }
-  }
+    } /* EmptyClipboard */
+  } /* OpenClipboard */
   end_system_call();
-  VALUES1(textset ? T : NIL);
+  if (!textset) OS_error(); /* !textset => some system call failed 
+                               && LastError contain this error code */
+  VALUES1(popSTACK());
 }
 
 /* CLIPBOARD: Returns the textual contents of Windows clipboard
@@ -4500,39 +4519,43 @@ DEFUN(OS::%SET-CLIPBOARD, str) {
    On failure or when no text is available NIL is returned. */
 DEFUN(OS:CLIPBOARD,) {
   VALUES1(NIL);
-  begin_system_call();
+  begin_blocking_system_call();
   if (OpenClipboard(NULL)) {
+#ifdef ENABLE_UNICODE
     HGLOBAL gltext  = GetClipboardData(CF_UNICODETEXT);
     if (gltext != NULL) { /* UNICODE TEXT */
       PWSTR wstr = (PWSTR)GlobalLock(gltext);
       if (wstr != NULL) {
         DYNAMIC_ARRAY(buf, WCHAR, wcslen(wstr) + 1);
-        end_system_call();
+        end_blocking_system_call();
         strzcpy21_w(buf, wstr);
         VALUES1(n_char_to_string((const char *)buf, wcslen(buf) * sizeof(WCHAR),
                                  Symbol_value(S(unicode_16_little_endian))));
         FREE_DYNAMIC_ARRAY(buf);
-        begin_system_call();
+        begin_blocking_system_call();
         GlobalUnlock(gltext);
       }
     } else { /* Probably system just do not support UNICODE */
+#endif
       gltext = GetClipboardData(CF_TEXT); /* ANSI TEXT */
       if (gltext != NULL) {
         const char * str = (const char *)GlobalLock(gltext);
         if (str != NULL) {
           DYNAMIC_ARRAY(buf, char, strlen(str) + 1);
-          end_system_call();
+          end_blocking_system_call();
           strzcpy21_a(buf, str);
           VALUES1(asciz_to_string(buf, GLO(misc_encoding)));
           FREE_DYNAMIC_ARRAY(buf);
-          begin_system_call();
+          begin_blocking_system_call();
           GlobalUnlock(gltext);
         }
       }
+#ifdef ENABLE_UNICODE
     }
+#endif
     CloseClipboard();
   }
-  end_system_call();
+  end_blocking_system_call();
 }
 
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
