@@ -5,8 +5,7 @@
 <para>This is an &ffi-pac;-based interface to the &d-bus-link; message bus
  system, a simple way for applications to talk to one another.</para>
 
-<para>The package <quote role="package">DBUS</quote> is
- <link linkend="package-case">case-sensitive</link>,
+<para>The package <quote role="package">DBUS</quote> is &case-sensitive-k;,
  e.g., you would write <code>(dbus:dbus_error_init ...)</code>
  when you need to call the &c-lang; function
  <function>dbus_error_init</function>.</para>

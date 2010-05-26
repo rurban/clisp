@@ -4,9 +4,8 @@
 
 <para>This is an &ffi-pac;-based interface to &libsvm-link;.</para>
 
-<para>The package <quote role="package">LIBSVM</quote>
- is <link linkend="package-case">case-sensitive</link>, and you do not
- need the <function>svm_</function> prefix for the function names.</para>
+<para>The package <quote role="package">LIBSVM</quote> is &case-sensitive-k;,
+ and you do not need the <function>svm_</function> prefix.</para>
 
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:LIBSVM</constant>.</simpara>

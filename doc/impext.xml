@@ -2418,8 +2418,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 
 <section id="exporting"><title>Exporting</title>
 <para>If your module uses &ffi-pac; to interface to a &c-lang; library,
- you might want to make your module package
- <link linkend="make-pack">case-sensitive</link> and use
+ you might want to make your module package &case-sensitive-k; and use
  &exporting-lisp; in the &clisp; distribution to make &ffi-pac; forms
  and &defun;, &defmacro; at al export the symbols they define.
  See <filename role="clisp-cvs">modules/netica/</filename>,
