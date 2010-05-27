@@ -941,7 +941,7 @@
 ;; GEN lllgramallgen(GEN x, long all);
 
 ;; GEN binomial(GEN x, long k);
-(pari-call-out binomial-coefficient "binomial" (x k))
+(pari-call-out binomial-coefficient "binomial" (x (k long)))
 ;; GEN gscal(GEN x, GEN y);
 ;; GEN cyclo(long n);
 (pari-call-out cyclotomic-polynomial "cyclo" ((n long)) "polcyclo")
@@ -1787,8 +1787,6 @@
 
 ;; GEN gerepilc(GEN l, GEN p, GEN q);
 ;; void gerepilemany(long ltop, GEN* const gptr[], long nptr);
-;; void printversion(void);
-;; GEN printversionno(void);
 
 ;;; mpdefs.h
 
