@@ -174,12 +174,14 @@
 (def-c-const PARIVERSION (:type c-string))
 (def-c-const PARI_VERSION_CODE)
 (def-c-const PARI_VERSION_SHIFT)
+(def-c-const PARIINFO (:type c-string))
 (defconstant pari-version
   (list PARIVERSION
         (ldb (byte PARI_VERSION_SHIFT (* 2 PARI_VERSION_SHIFT))
              PARI_VERSION_CODE)
         (ldb (byte PARI_VERSION_SHIFT PARI_VERSION_SHIFT) PARI_VERSION_CODE)
-        (ldb (byte PARI_VERSION_SHIFT 0) PARI_VERSION_CODE)))
+        (ldb (byte PARI_VERSION_SHIFT 0) PARI_VERSION_CODE)
+        PARIINFO))
 (export 'pari-version)
 
 ;;; /* init.c */

@@ -3,6 +3,8 @@
 	* modules/pari/pari.lisp (pari-mantissa): do not call PARI-LENGTH-RAW,
 	use PARI-LENGTH-BYTE to avoid allocating an extra FOREIGN-VARIABLE
 	(binomial-coefficient): fix definition
+	(PARIINFO): define
+	(pari-version): also return PARIINFO
 
 2010-05-26  Sam Steingold  <sds@gnu.org>
 
