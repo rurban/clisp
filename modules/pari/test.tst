@@ -113,3 +113,8 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:pari-gcd 35 49))  7
 (pari:pari-to-lisp (pari:pari-xgcd 35 49)) #(:ROW 3 -2 7)
 (pari:pari-to-lisp (pari:pari-lcm 35 49))  245
+
+(pari:pari-to-lisp (pari:binomial-coefficient 3 1)) 3
+(pari:pari-to-lisp (pari:binomial-coefficient 30 10)) 30045015
+(pari:pari-to-lisp (pari:binomial-coefficient 300 10)) 1398320233241701770
+
