@@ -118,3 +118,61 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:binomial-coefficient 30 10)) 30045015
 (pari:pari-to-lisp (pari:binomial-coefficient 300 10)) 1398320233241701770
 
+(pari:equal? (pari:legendre-polynomial 0) #Z"1") T
+(pari:equal? (pari:legendre-polynomial 1) #Z"x") T
+(pari:equal? (pari:legendre-polynomial 2) #Z"3/2*x^2 - 1/2") T
+(pari:equal? (pari:legendre-polynomial 3) #Z"5/2*x^3 - 3/2*x") T
+(pari:equal? (pari:legendre-polynomial 4) #Z"35/8*x^4 - 15/4*x^2 + 3/8") T
+(pari:equal? (pari:legendre-polynomial 5) #Z"63/8*x^5 - 35/4*x^3 + 15/8*x") T
+
+(pari:equal? (pari:tchebychev-polynomial 0) #Z"1") T
+(pari:equal? (pari:tchebychev-polynomial 1) #Z"x") T
+(pari:equal? (pari:tchebychev-polynomial 2) #Z"2*x^2 - 1") T
+(pari:equal? (pari:tchebychev-polynomial 3) #Z"4*x^3 - 3*x") T
+(pari:equal? (pari:tchebychev-polynomial 4) #Z"8*x^4 - 8*x^2 + 1") T
+(pari:equal? (pari:tchebychev-polynomial 5) #Z"16*x^5 - 20*x^3 + 5*x") T
+
+(pari:pari-to-lisp (pari:hilbert-matrix 4))
+#2A((1 1/2 1/3 1/4) (1/2 1/3 1/4 1/5) (1/3 1/4 1/5 1/6) (1/4 1/5 1/6 1/7))
+(pari:pari-to-lisp (pari:hilbert-matrix 7))
+#2A((1 1/2 1/3 1/4 1/5 1/6 1/7)
+    (1/2 1/3 1/4 1/5 1/6 1/7 1/8)
+    (1/3 1/4 1/5 1/6 1/7 1/8 1/9)
+    (1/4 1/5 1/6 1/7 1/8 1/9 1/10)
+    (1/5 1/6 1/7 1/8 1/9 1/10 1/11)
+    (1/6 1/7 1/8 1/9 1/10 1/11 1/12)
+    (1/7 1/8 1/9 1/10 1/11 1/12 1/13))
+
+(pari:pari-to-lisp (pari:pascal-triangle 10 nil))
+#2A((1 0 0 0 0 0 0 0 0 0 0)
+    (1 1 0 0 0 0 0 0 0 0 0)
+    (1 2 1 0 0 0 0 0 0 0 0)
+    (1 3 3 1 0 0 0 0 0 0 0)
+    (1 4 6 4 1 0 0 0 0 0 0)
+    (1 5 10 10 5 1 0 0 0 0 0)
+    (1 6 15 20 15 6 1 0 0 0 0)
+    (1 7 21 35 35 21 7 1 0 0 0)
+    (1 8 28 56 70 56 28 8 1 0 0)
+    (1 9 36 84 126 126 84 36 9 1 0)
+    (1 10 45 120 210 252 210 120 45 10 1))
+(pari:pari-to-lisp (pari:pascal-triangle 10 2))
+#2A((1 0 0 0 0 0 0 0 0 0 0)
+    (1 1 0 0 0 0 0 0 0 0 0)
+    (1 3 1 0 0 0 0 0 0 0 0)
+    (1 7 7 1 0 0 0 0 0 0 0)
+    (1 15 35 15 1 0 0 0 0 0 0)
+    (1 31 155 155 31 1 0 0 0 0 0)
+    (1 63 651 1395 651 63 1 0 0 0 0)
+    (1 127 2667 11811 11811 2667 127 1 0 0 0)
+    (1 255 10795 97155 200787 97155 10795 255 1 0 0)
+    (1 511 43435 788035 3309747 3309747 788035 43435 511 1 0)
+    (1 1023 174251 6347715 53743987 109221651 53743987 6347715 174251 1023 1))
+(pari:pari-to-lisp (pari:pascal-triangle 7 3))
+#2A((1 0 0 0 0 0 0 0)
+    (1 1 0 0 0 0 0 0)
+    (1 4 1 0 0 0 0 0)
+    (1 13 13 1 0 0 0 0)
+    (1 40 130 40 1 0 0 0)
+    (1 121 1210 1210 121 1 0 0)
+    (1 364 11011 33880 11011 364 1 0)
+    (1 1093 99463 925771 925771 99463 1093 1))
