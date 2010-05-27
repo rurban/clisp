@@ -176,3 +176,11 @@ CHECK-ROUNDTRIP
     (1 121 1210 1210 121 1 0 0)
     (1 364 11011 33880 11011 364 1 0)
     (1 1093 99463 925771 925771 99463 1093 1))
+
+(pari:pari-to-lisp (pari:permutation 10 3)) #(:ROW 10 9 8 7 6 5 4 1 3 2)
+(pari:pari-to-lisp (pari:permutation-number #(:ROW 10 9 8 7 6 5 4 1 3 2))) 3
+(pari:pari-to-lisp (pari:permutation 9 30)) #(:ROW 9 8 7 6 3 5 4 2 1)
+(pari:pari-to-lisp (pari:permutation-number #(:ROW 9 8 7 6 3 5 4 2 1))) 30
+
+(pari:set-random-seed 10) 10
+(pari:get-random-seed) 10
