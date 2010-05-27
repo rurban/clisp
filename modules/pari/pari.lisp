@@ -894,14 +894,16 @@
   (x (varno long :in :none (get-varno x))
      (precdl long :in :none pari-series-precision))
   "taylor")
-;; GEN legendre(long n);
-(pari-call-out legendre-polynomial "legendre" ((n long)))
-;; GEN tchebi(long n);
-(pari-call-out tchebychev-polynomial "tchebi" ((n long)))
-;; GEN hilb(long n);
-;;(pari-call-out hilbert-matrix "hilb" ((n long)) "hilb")
-;; GEN pasc(long n);
-;;(pari-call-out pascal-triangle "pasc" ((n long)) "pascal")
+;; GEN legendre(long n, long v);
+(pari-call-out legendre-polynomial "legendre"
+  ((n long) (varno long :in :none (get-varno n))))
+;; GEN tchebi(long n, long v);
+(pari-call-out tchebychev-polynomial "tchebi"
+  ((n long) (varno long :in :none (get-varno n))))
+;; GEN mathilbert(long n);
+(pari-call-out hilbert-matrix "mathilbert" ((n long)) "mathilbert")
+;; GEN matqpascal(long n, GEN q);
+(pari-call-out pascal-triangle "matqpascal" ((n long) q) "matqpascal")
 ;; GEN laplace(GEN x);
 (pari-call-out laplace-transform "laplace" (x))
 
