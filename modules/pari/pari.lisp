@@ -999,14 +999,12 @@
 ;; GEN allpolred(GEN x, GEN *pta, long code, long prec);
 ;; GEN polymodrecip(GEN x);
 (pari-call-out polymod-reverse "polymodrecip" (x) "modreverse")
-;; GEN genrand(void);
-(pari-call-out pari-random "genrand" () "random")
+;; GEN genrand(GEN x);
+(pari-call-out pari-random "genrand" (x) "random")
 ;; GEN numtoperm(long n, GEN x);
 (pari-call-out permutation "numtoperm" ((n long) x))
 ;; GEN permtonum(GEN x);
 (pari-call-out permutation-number "permtonum" (x))
-
-;; long mymyrand();
 
 ;; long setprecr(long n);
 ;(pari-call-out (set-real-precision long) "setprecr" ((n long)) "setprecision")
@@ -1014,10 +1012,10 @@
 ;(pari-call-out (set-series-precision long) "setserieslength" ((n long)))
 ;; GEN ccontent(long* x,long n);
 
-;; GEN setrand(long seed);
-(pari-call-out setrand "setrand" ((seed long)))
-;; GEN getrand(void);
-(pari-call-out getrand "getrand" ())
+;; long setrand(long seed);
+(pari-call-out (set-random-seed long) "setrand" ((seed long)))
+;; long getrand(void);
+(pari-call-out (get-random-seed long) "getrand" ())
 ;; GEN getstack(void);
 (pari-call-out getstack "getstack" ())
 ;; GEN gettime(void);
