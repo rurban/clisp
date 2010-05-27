@@ -7,6 +7,25 @@
 
 (format t "~&Version: ~S~%" pari:pari-version) NIL
 
+;; integer conversion
+(defun roundtrip1 (x)
+  (pari:pari-to-lisp (read-from-string (format nil "#Z\"~D\"" x))))
+ROUNDTRIP1
+(defun roundtrip2 (x)
+  (read-from-string (pari::%write-to-string (pari::convert-to-pari x))))
+ROUNDTRIP2
+(defun get-x-ash (i) (random (ash 1 i))) GET-X-ASH
+(defun get-x-ash-neg (i) (- (random (ash 1 i)))) GET-X-ASH-NEG
+(defun check-roundtrip (limit get-x roundtrip)
+  (loop :for i :from 1 :to 100 :for x = (funcall get-x i)
+    :for px = (funcall roundtrip x)
+    :unless (= x px) :collect (cons x px)))
+CHECK-ROUNDTRIP
+(check-roundtrip 1000 #'get-x-ash #'roundtrip1) ()
+(check-roundtrip 1000 #'get-x-ash-neg #'roundtrip1) ()
+(check-roundtrip 1000 #'get-x-ash #'roundtrip2) ()
+(check-roundtrip 1000 #'get-x-ash-neg #'roundtrip2) ()
+
 (defparameter id (pari:identity-matrix 3)) ID
 (pari:equal? id #Z"[1,0,0;0,1,0;0,0,1]") T
 (pari:matrix-rank id) 3
