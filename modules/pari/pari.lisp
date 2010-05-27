@@ -1855,7 +1855,7 @@
 ;; #define precp(x)          ((long)(((ulong)((GEN)(x))[1])>>PRECPSHIFT))
 (defun pari-precision-raw (x)
   (extract1 (elt1 x)
-    (ldb  pari-precision-byte elt1)))
+    (ldb pari-precision-byte elt1)))
 
 ;; #define setprecp(x,s)     (((GEN)(x))[1]=(((GEN)(x))[1]&(~PRECPBITS))+(((long)(s))<<PRECPSHIFT))
 
@@ -1873,8 +1873,9 @@
 ;; #define mant(x,i)         ((((GEN)(x))[1]&SIGNBITS)?((GEN)(x))[i+1]:0)
 (defun pari-mantissa (x)
   (with-c-var (v 'c-pointer x)
-    (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
-    (deref (cast v `(c-ptr (c-array ulong ,(- (pari-length-raw x) 2)))))))
+    (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
+      (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
+      (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
 
 ;; #define setmant(x,i,s)    (((GEN)(x))[i+1]=s)
 
@@ -2190,7 +2191,7 @@
         (varno (pari-varno-raw ptr))
 	(coeffs (pari-mantissa ptr)))
     (extract0 (elt0 ptr)
-    (dotimes (i (length coeffs))
+      (dotimes (i (length coeffs))
         (setf elt0 (svref coeffs i))
         (setf (svref coeffs i) (convert-from-pari ptr))))
     (make-instance 'pari-poly :s s :varno varno :coeffs coeffs)))
@@ -2216,7 +2217,7 @@
 	(expo (pari-valuation-raw ptr))
 	(coeffs (pari-mantissa ptr)))
     (extract0 (elt0 ptr)
-    (dotimes (i (length coeffs))
+      (dotimes (i (length coeffs))
         (setf elt0 (svref coeffs i))
         (setf (svref coeffs i) (convert-from-pari ptr))))
     (make-instance 'pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
