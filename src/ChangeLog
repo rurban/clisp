@@ -1,3 +1,7 @@
+2010-05-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp (getstack, gettime): fix declarations
+
 2010-05-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (pari-mantissa): do not call PARI-LENGTH-RAW,
