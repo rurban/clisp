@@ -1899,9 +1899,11 @@ void get_integer_data (GEN x, ulong len, ulong *data);
 void get_integer_data (GEN x, ulong len, ulong *data)
 { ulong i; for (i=0; i < len; i++) data[len-i-1] = *int_W(x,i); }
 void set_integer_data (GEN x, ulong len, ulong *data);
-void set_integer_data (GEN x, ulong len, ulong *data)
-{ ulong i; for (i=0; i < len; i++) *int_W(x,i) = data[len-i-1]; }
-~%")
+void set_integer_data (GEN x, ulong len, ulong *data) {
+  /* 1st data element is the header, skip it */
+  ulong i; len--; data++;
+  for (i=0; i < len; i++) *int_W(x,i) = data[len-i-1];
+}~%")
 (def-call-out get_integer_data (:return-type nil)
   (:arguments (x pari-gen) (len ulong) (data c-pointer)))
 (defun pari-get-integer-data (x)
