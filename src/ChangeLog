@@ -7,6 +7,9 @@
 	(legendre-polynomial, tchebychev-polynomial, hilbert-matrix)
 	(pascal-triangle, binomial-coefficient, set-random-seed)
 	(get-random-seed, pari-random): fix definitions
+	(pari-effective-length-raw, pari-mantissa-eff):
+	restore using PARI-LENGTH-BYTE
+	(convert-from-pari-1, convert-from-pari-10): use PARI-MANTISSA-EFF
 
 2010-05-26  Sam Steingold  <sds@gnu.org>
 
