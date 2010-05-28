@@ -1839,7 +1839,7 @@
     (ldb pari-length-byte elt0)))
 
 ;; #define setlg(x,s)        (((GEN)(x))[0]=(((GEN)(x))[0]&(~LGBITS))+(s))
-;; #define lgef(x)           ((long)(((GEN)(x))[1]&LGBITS))
+;; #define lgefint(x)        ((long)(((ulong*)(x))[1]&LGBITS))
 (defun pari-effective-length-raw (x)
   (extract1 (elt1 x)
     (ldb pari-length-byte elt1)))
@@ -1889,6 +1889,32 @@
     (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
       (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
       (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
+
+;; life sucks: the order of words in the data segment of integers depend on
+;; whether pari is build with gmp (low bytes first) or not (high bytes first).
+;; <http://article.gmane.org/gmane.comp.mathematics.pari.user/1574>
+;; <http://pari.math.u-bordeaux.fr/archives/pari-users-1005/msg00008.html>
+(c-lines "
+void get_integer_data (GEN x, ulong len, ulong *data);
+void get_integer_data (GEN x, ulong len, ulong *data)
+{ ulong i; for (i=0; i < len; i++) data[len-i-1] = *int_W(x,i); }
+void set_integer_data (GEN x, ulong len, ulong *data);
+void set_integer_data (GEN x, ulong len, ulong *data)
+{ ulong i; for (i=0; i < len; i++) *int_W(x,i) = data[len-i-1]; }
+~%")
+(def-call-out get_integer_data (:return-type nil)
+  (:arguments (x pari-gen) (len ulong) (data c-pointer)))
+(defun pari-get-integer-data (x)
+  (let ((len (- (pari-effective-length-raw x) 2)))
+    (with-foreign-object (data `(c-array ulong ,len))
+      (get_integer_data x len data)
+      (foreign-value data))))
+(def-call-out set_integer_data (:return-type nil)
+  (:arguments (x pari-gen) (len ulong) (data c-pointer)))
+(defun pari-set-integer-data (x data)
+  (let ((len (length data)))
+    (with-foreign-object (data `(c-array ulong ,len) data)
+      (set_integer_data x len data))))
 
 (defun pari-mantissa-eff (x)    ; do we really need this?
   (with-c-var (v 'c-pointer x)
@@ -2074,7 +2100,9 @@
           (dpb sign pari-sign-byte
                (dpb (+ len 2) pari-length-byte 0)))
     (extract-mantissa vec len val)
-    (pari-make-object vec 1)))
+    (let ((ptr (pari-make-object vec 1)))
+      (pari-set-integer-data ptr vec)
+      ptr)))
 
 (defun collect-mantissa (mantissa)
   (let ((result 0))
@@ -2082,7 +2110,7 @@
       (setq result (+ (ash result #,(bitsizeof 'ulong)) (svref mantissa i))))))
 
 (defun convert-from-pari-1 (ptr)
-  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa-eff ptr))))
+  (* (pari-sign-raw ptr) (collect-mantissa (pari-get-integer-data ptr))))
 
 ;; Type 2: real numbers -- represented by CLISP floats
 
