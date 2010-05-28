@@ -1513,6 +1513,10 @@
 ;; GEN content(GEN x);
 (pari-call-out content "content" (x))
 ;; GEN primpart(GEN x);
+(pari-call-out primpart "primpart" (x))
+;; GEN primitive_part (GEN x, GEN *c);
+(pari-call-out primitive-part "primitive_part"
+  (x (c (c-ptr pari-gen) :out :alloca)))
 ;; GEN psres(GEN x, GEN y);
 ;; GEN factorff(GEN f, GEN p, GEN a);
 (pari-call-out factor-in-fq "factorff" (f p a))

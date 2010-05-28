@@ -4,6 +4,7 @@
 	(make-internal-pari-object): return NIL when PTR is NULL
 	(pari-reader): use MAKE-INTERNAL-PARI-OBJECT
 	(pari-to-lisp@null): return NIL
+	(primpart, primitive-part): add declarations
 
 2010-05-27  Sam Steingold  <sds@gnu.org>
 

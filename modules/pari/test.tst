@@ -124,6 +124,17 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:legendre-polynomial 3) #Z"5/2*x^3 - 3/2*x") T
 (pari:equal? (pari:legendre-polynomial 4) #Z"35/8*x^4 - 15/4*x^2 + 3/8") T
 (pari:equal? (pari:legendre-polynomial 5) #Z"63/8*x^5 - 35/4*x^3 + 15/8*x") T
+(let ((legendre6 (pari:legendre-polynomial 6)))
+  (multiple-value-bind (primpart content)
+      (pari:primitive-part legendre6)
+    (list (pari:equal? (pari:pari* primpart content) legendre6)
+          (pari:equal? primpart (pari:primpart legendre6))
+          (pari:pari-to-lisp content))))
+(T T 1/16)
+(pari:pari-to-lisp (pari:content (pari:legendre-polynomial 7)))  1/16
+(pari:pari-to-lisp (pari:content (pari:legendre-polynomial 8)))  1/128
+(pari:pari-to-lisp (pari:content (pari:legendre-polynomial 9)))  1/128
+(pari:pari-to-lisp (pari:content (pari:legendre-polynomial 10)))  1/256
 
 (pari:equal? (pari:tchebychev-polynomial 0) #Z"1") T
 (pari:equal? (pari:tchebychev-polynomial 1) #Z"x") T
@@ -131,6 +142,16 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:tchebychev-polynomial 3) #Z"4*x^3 - 3*x") T
 (pari:equal? (pari:tchebychev-polynomial 4) #Z"8*x^4 - 8*x^2 + 1") T
 (pari:equal? (pari:tchebychev-polynomial 5) #Z"16*x^5 - 20*x^3 + 5*x") T
+(let ((tchebychev6 (pari:tchebychev-polynomial 6)))
+  (multiple-value-bind (primpart content) (pari:primitive-part tchebychev6)
+    (list (pari:equal? primpart tchebychev6)
+          (pari:equal? primpart (pari:primpart tchebychev6))
+          (pari:pari-to-lisp content))))
+(T T NIL)                       ; NIL means 1
+(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 7)))  1
+(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 8)))  1
+(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 9)))  1
+(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 10))) 1
 
 (pari:pari-to-lisp (pari:hilbert-matrix 4))
 #2A((1 1/2 1/3 1/4) (1/2 1/3 1/4 1/5) (1/3 1/4 1/5 1/6) (1/4 1/5 1/6 1/7))
