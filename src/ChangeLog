@@ -6,6 +6,8 @@
 	(pari-reader): use MAKE-INTERNAL-PARI-OBJECT
 	(pari-to-lisp@null): return NIL
 	(primpart, primitive-part, maxprime): add declarations
+	(make-initargs): do not upcase SYMBOL-NAME
+	(convert-from-pari-10, convert-from-pari-11): use %COMPONENT
 
 2010-05-27  Sam Steingold  <sds@gnu.org>
 

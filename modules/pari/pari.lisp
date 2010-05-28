@@ -1992,8 +1992,7 @@
               slots)))
   (defun make-initargs (slots)
     (let ((keyword-package (find-package "KEYWORD")))
-      (mapcar #'(lambda (slot)
-                  (intern (string-upcase (symbol-name slot)) keyword-package))
+      (mapcar #'(lambda (slot) (intern (symbol-name slot) keyword-package))
               slots)))
   (defun dpc-class (name slots accessors initargs)
     `(progn
@@ -2207,13 +2206,12 @@
       (pari-set-component obj (+ i 2) (convert-to-pari (svref coeffs i))))))
 
 (defun convert-from-pari-10 (ptr)
-  (let ((s (pari-sign-raw ptr))
-        (varno (pari-varno-raw ptr))
-        (coeffs (pari-mantissa-eff ptr)))
-    (extract0 (elt0 ptr)
-      (dotimes (i (length coeffs))
-        (setf elt0 (svref coeffs i))
-        (setf (svref coeffs i) (convert-from-pari ptr))))
+  (let* ((s (pari-sign-raw ptr))
+         (varno (pari-varno-raw ptr))
+         (len (- (pari-length-raw ptr) 2))
+         (coeffs (make-array len)))
+    (dotimes (i len)
+      (setf (svref coeffs i) (convert-from-pari (%component ptr (1+ i)))))
     (make-instance 'pari-poly :s s :varno varno :coeffs coeffs)))
 
 ;; Type 11: power series
@@ -2232,14 +2230,13 @@
       (pari-set-component obj (+ i 2) (convert-to-pari (svref coeffs i))))))
 
 (defun convert-from-pari-11 (ptr)
-  (let ((s (pari-sign-raw ptr))
-        (varno (pari-varno-raw ptr))
-        (expo (pari-valuation-raw ptr))
-        (coeffs (pari-mantissa ptr)))
-    (extract0 (elt0 ptr)
-      (dotimes (i (length coeffs))
-        (setf elt0 (svref coeffs i))
-        (setf (svref coeffs i) (convert-from-pari ptr))))
+  (let* ((s (pari-sign-raw ptr))
+         (varno (pari-varno-raw ptr))
+         (expo (pari-valuation-raw ptr))
+         (len (pari-length-raw ptr))
+         (coeffs (make-array len)))
+    (dotimes (i len)
+      (setf (svref coeffs i) (convert-from-pari (%component ptr i))))
     (make-instance 'pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
 
 ;; Type 13,14: rational functions
