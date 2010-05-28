@@ -8,6 +8,14 @@
 	(primpart, primitive-part, maxprime): add declarations
 	(make-initargs): do not upcase SYMBOL-NAME
 	(convert-from-pari-10, convert-from-pari-11): use %COMPONENT
+	(pari-get-integer-data, pari-set-integer-data): define using
+	DEF-CALL-OUT and int_W because the order of words in the data
+	segment of integers depend on whether PARI is build with gmp (low
+	bytes first) or not (high bytes first); see
+	<http://article.gmane.org/gmane.comp.mathematics.pari.user/1574>
+	<http://pari.math.u-bordeaux.fr/archives/pari-users-1005/msg00008.html>
+	(convert-to-pari@integer): use PARI-SET-INTEGER-DATA
+	(convert-from-pari-1): use PARI-GET-INTEGER-DATA
 
 2010-05-27  Sam Steingold  <sds@gnu.org>
 
