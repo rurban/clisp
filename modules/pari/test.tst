@@ -184,3 +184,7 @@ CHECK-ROUNDTRIP
 
 (pari:set-random-seed 10) 10
 (pari:get-random-seed) 10
+
+(integerp (show (pari:getstack))) T
+(integerp (show (pari:gettime))) T
+(svref (show (pari:pari-to-lisp (pari:getheap))) 0) :ROW

@@ -1010,19 +1010,17 @@
 ;(pari-call-out (set-real-precision long) "setprecr" ((n long)) "setprecision")
 ;; GEN setserieslength(long n);
 ;(pari-call-out (set-series-precision long) "setserieslength" ((n long)))
-;; GEN ccontent(long* x,long n);
 
 ;; long setrand(long seed);
 (pari-call-out (set-random-seed long) "setrand" ((seed long)))
 ;; long getrand(void);
 (pari-call-out (get-random-seed long) "getrand" ())
-;; GEN getstack(void);
-(pari-call-out getstack "getstack" ())
-;; GEN gettime(void);
+;; long getstack(void);
+(pari-call-out (getstack long) "getstack" ())
+;; long gettime(void);
+(pari-call-out (gettime long) "gettime" ())
 ;; GEN getheap(void);
 (pari-call-out getheap "getheap" ())
-
-;; void getheapaux(long* nombre, long* espace);
 
 ;;; /* bibli2.c */
 
