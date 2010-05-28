@@ -1,10 +1,11 @@
 2010-05-28  Sam Steingold  <sds@gnu.org>
 
-	* modules/pari/pari.lisp (getstack, gettime): fix declarations
+	* modules/pari/pari.lisp (getstack, gettime)
+	(gisprime, gispseudoprime): fix declarations
 	(make-internal-pari-object): return NIL when PTR is NULL
 	(pari-reader): use MAKE-INTERNAL-PARI-OBJECT
 	(pari-to-lisp@null): return NIL
-	(primpart, primitive-part): add declarations
+	(primpart, primitive-part, maxprime): add declarations
 
 2010-05-27  Sam Steingold  <sds@gnu.org>
 

@@ -598,10 +598,10 @@
 (pari-call-out (square? pari-bool) "gissquare" (x) "issquare")
 ;; GEN gissquarerem(GEN x, GEN *pt);
 
-;; GEN gisprime(GEN x);
-(pari-call-out (prime? pari-bool) "gisprime" (x) "isprime")
-;; GEN gispsp(GEN x);
-(pari-call-out (pseudo-prime? pari-bool) "gispsp" (x) "ispsp")
+;; GEN gisprime(GEN x, long flag);
+(pari-call-out (prime? pari-bool) "gisprime" (x (flag long)) "isprime")
+;; GEN gispseudoprime(GEN x);
+(pari-call-out (pseudo-prime? pari-bool) "gispseudoprime" (x (flag long)) "ispsp")
 ;; GEN gissquarefree(GEN x);
 (pari-call-out (square-free? pari-bool) "gissquarefree" (x) "issqfree")
 ;; GEN gisfundamental(GEN x);
@@ -612,6 +612,7 @@
 ;; GEN gpseudopremier(GEN n, GEN a);
 ;; GEN gmillerrabin(GEN n, long k);
 ;; GEN gmu(GEN n);
+
 ;; GEN gomega(GEN n);
 ;; GEN gbigomega(GEN n);
 
@@ -635,7 +636,7 @@
 ;; GEN carrecomplet(GEN x, GEN *pt);
 ;; GEN bittest(GEN x, long n);
 
-;; int isprime(GEN x);
+;; long isprime(GEN x);
 ;; GEN ispsp(GEN x);
 ;; GEN issquarefree(GEN x);
 ;; GEN isfundamental(GEN x);
@@ -646,6 +647,9 @@
 ;; GEN inversemodulo(GEN a, GEN b, GEN *res);
 
 ;; byteptr initprimes(long maxnum);
+
+;; ulong maxprime(void);
+(pari-call-out (maxprime ulong) "maxprime" ())
 
 ;; void lucas(long n, GEN *ln, GEN *ln1);
 
