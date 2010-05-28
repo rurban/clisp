@@ -92,6 +92,10 @@ CHECK-ROUNDTRIP
 
 (pari:equal? (pari:sum-divisors #Z"6") #Z"12") T
 (pari:pari-to-lisp (pari:sum-divisors 28)) 56
+(pari:pari-to-lisp (pari:factor #Z"120"))  #2A((2 3) (3 1) (5 1))
+(pari:pari-to-lisp (pari:factor #Z"144"))  #2A((2 4) (3 2))
+(pari:prime? 139 0) T
+(pari:pseudo-prime? 140 0) NIL
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
 (pari:equal? (pari:primitive-root #Z"104729") #Z"Mod(12,104729)") T
@@ -152,6 +156,10 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 8)))  1
 (pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 9)))  1
 (pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 10))) 1
+(pari:irreducible? (pari:tchebychev-polynomial 8))  T
+(pari:irreducible? (pari:tchebychev-polynomial 16)) T
+(pari:irreducible? (pari:tchebychev-polynomial 32)) T
+(pari:irreducible? (pari:tchebychev-polynomial 64)) T
 
 (pari:pari-to-lisp (pari:hilbert-matrix 4))
 #2A((1 1/2 1/3 1/4) (1/2 1/3 1/4 1/5) (1/3 1/4 1/5 1/6) (1/4 1/5 1/6 1/7))
@@ -209,3 +217,5 @@ CHECK-ROUNDTRIP
 (integerp (show (pari:getstack))) T
 (integerp (show (pari:gettime))) T
 (svref (show (pari:pari-to-lisp (pari:getheap))) 0) :ROW
+
+(integerp (show (pari:maxprime))) T
