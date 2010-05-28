@@ -1832,6 +1832,13 @@
   (extract0 (elt0 x)
     (ldb pari-length-byte elt0)))
 
+;; #define setlg(x,s)        (((GEN)(x))[0]=(((GEN)(x))[0]&(~LGBITS))+(s))
+;; #define lgef(x)           ((long)(((GEN)(x))[1]&LGBITS))
+(defun pari-effective-length-raw (x)
+  (extract1 (elt1 x)
+    (ldb pari-length-byte elt1)))
+
+;; #define setlgef(x,s)      (((GEN)(x))[1]=(((GEN)(x))[1]&(~LGBITS))+(s))
 ;; #define expo(x)           ((long)((((GEN)(x))[1]&EXPOBITS)-HIGHEXPOBIT))
 (defun pari-exponent-raw (x)
   (extract1 (elt1 x)
@@ -1875,6 +1882,13 @@
   (with-c-var (v 'c-pointer x)
     (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
       (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
+      (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
+
+(defun pari-mantissa-eff (x)    ; do we really need this?
+  (with-c-var (v 'c-pointer x)
+    (incf (cast v 'ulong) #,(sizeof 'c-pointer))
+    (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
+      (incf (cast v 'ulong) #,(sizeof 'c-pointer))
       (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
 
 ;; #define setmant(x,i,s)    (((GEN)(x))[i+1]=s)
@@ -2063,7 +2077,7 @@
       (setq result (+ (ash result #,(bitsizeof 'ulong)) (svref mantissa i))))))
 
 (defun convert-from-pari-1 (ptr)
-  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa ptr))))
+  (* (pari-sign-raw ptr) (collect-mantissa (pari-mantissa-eff ptr))))
 
 ;; Type 2: real numbers -- represented by CLISP floats
 
@@ -2189,7 +2203,7 @@
 (defun convert-from-pari-10 (ptr)
   (let ((s (pari-sign-raw ptr))
         (varno (pari-varno-raw ptr))
-        (coeffs (pari-mantissa ptr)))
+        (coeffs (pari-mantissa-eff ptr)))
     (extract0 (elt0 ptr)
       (dotimes (i (length coeffs))
         (setf elt0 (svref coeffs i))
