@@ -1952,7 +1952,7 @@
   (:documentation "Pari object as a pointer into the pari stack"))
 
 (defun make-internal-pari-object (ptr)
-  (make-instance 'internal-pari-object :pointer ptr))
+  (and ptr (make-instance 'internal-pari-object :pointer ptr)))
 
 (defmethod convert-to-pari ((x internal-pari-object))
   (pari-class-pointer x))
@@ -1969,8 +1969,8 @@
   (let ((str (read stream t nil t)))
     (unless (stringp str)
       (error "~S: After #Z a string must follow." 'read))
-    (make-instance 'internal-pari-object
-      :pointer (%read-from-string (remove-if #'sys::whitespacep str)))))
+    (make-internal-pari-object
+     (%read-from-string (remove-if #'sys::whitespacep str)))))
 
 (set-dispatch-macro-character #\# #\Z #'pari-reader)
 
@@ -2341,6 +2341,7 @@
   (convert-from-pari (pari-class-pointer x)))
 (defmethod pari-to-lisp ((x number)) x)
 (defmethod pari-to-lisp ((x array)) x)
+(defmethod pari-to-lisp ((x null)) x)
 
 ;; local variables:
 ;; eval: (put 'pari-call-out 'common-lisp-indent-function 'defun)
