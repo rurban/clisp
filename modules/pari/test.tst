@@ -17,7 +17,7 @@ ROUNDTRIP2
 (defun get-x-ash (i) (random (ash 1 i))) GET-X-ASH
 (defun get-x-ash-neg (i) (- (random (ash 1 i)))) GET-X-ASH-NEG
 (defun check-roundtrip (limit get-x roundtrip)
-  (loop :for i :from 1 :to 100 :for x = (funcall get-x i)
+  (loop :for i :from 1 :to limit :for x = (funcall get-x i)
     :for px = (funcall roundtrip x)
     :unless (= x px) :collect (cons x px)))
 CHECK-ROUNDTRIP
