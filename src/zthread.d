@@ -865,11 +865,13 @@ LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,(kw(timeout)))
   var int res;
 
   thr->_wait_condition = c;
+  thr->_wait_mutex = m;
   begin_system_call(); GC_SAFE_REGION_BEGIN();
   if (tvp)
     res = xcondition_timedwait(c,m,tvp->tv_sec*1000 + tvp->tv_usec/1000);
   else
     res = xcondition_wait(c,m);
+  thr->_wait_mutex = NULL;
   thr->_wait_condition = NULL;
   /* do not (possibly) handle pending interrupts here since on non-local exit
      from interrupt we may leave the mutex object in inconsistent state*/
@@ -1003,7 +1005,10 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
       while (r = xmutex_raw_trylock(&l->xl_mutex)) {
         if (!l->xl_owned) {
           /* not owned but still locked - i.e. xcodition_wait() caused it.
-             wait forever - really soon pthread_cond_wait() will release it */
+             wait forever - really soon pthread_cond_wait() will release it.
+             there is no way to block forever since here we own the internal
+             mutex as well - e.g. just a single thread may wait xl_mutex and it
+             will grab it */
           r = xmutex_raw_lock(&l->xl_mutex);
           break;
         } else {
@@ -1015,8 +1020,9 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
             GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
             handle_pending_interrupts();
             thr->_wait_mutex=l;
-            GC_SAFE_REGION_BEGIN();
             xmutex_raw_lock(&l->xl_internal_mutex);
+            GC_SAFE_REGION_BEGIN();
+            continue;
           }
        #ifdef POSIX_THREADS
           if (timeout != THREAD_WAIT_INFINITE) {

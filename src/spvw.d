@@ -4552,14 +4552,40 @@ global bool interrupt_thread(clisp_thread_t *thr)
   if (condition = thr->_wait_condition) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
-    /* wake up all threads */
-    xcondition_broadcast(condition);
+    mutex = thr->_wait_mutex;
+    if (mutex) { /* if not exited from xcondition_wait() */
+      /* wait to be sure control is inside pthread_cond_wait or already
+         have returned from it. Loop below may look strange but it will never
+         perform more than few iterations (and THREAD-INTERRUPT is not meant
+         to be efficient). */
+      var xthread_t xthr = TheThread(thr->_lthread)->xth_system;
+      while (thr->_wait_mutex && xthread_equal(mutex->xl_owner, xthr)) {
+        if (!mutex->xl_owned) {
+          /* thr has released the ownership of the mutex - check that
+             pthread_cond_wait has done the same */
+          if (0 == xmutex_raw_trylock(&mutex->xl_mutex)) {
+            xmutex_raw_unlock(&mutex->xl_mutex);
+            break;
+          }
+        }
+        xthread_yield();
+      }
+      /* if the control is still in xcondition_wait() - signal the condition
+         (nb: there is race here - we may be just exiting from xcondition_wait -
+         in this case other waiters on this condition variable will experience
+         "spurious" wake up. the interrupt itself will be handled shortly in
+         EXEMPTION-WAIT) */
+      if (thr->_wait_mutex)
+        xcondition_broadcast(condition);
+    }
   } else if (mutex = thr->_wait_mutex) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
     /* waiting on mutex i.e. xlock_t */
     /* wake up all threads on this condition */
+    xmutex_raw_lock(&(mutex->xl_internal_mutex));
     xcondition_broadcast(&(mutex->xl_wait_cv));
+    xmutex_raw_unlock(&(mutex->xl_internal_mutex));
   } else {
    #ifdef POSIX_THREADS
     /* the thread may wait on it's gc_suspend_lock or in system
