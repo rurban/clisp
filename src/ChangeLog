@@ -1,3 +1,11 @@
+2010-05-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (interrupt_thread): make sure interrupt will not be lost when
+	interrupted thread is waiting on mutex or exemption
+	* zthread.d (EXEMPTION-WAIT): store in thread struct associated mutex
+	(xlock_lock_helper): when handling pending interrupts - lock internal
+	mutex before entering "safe for gc/interrupt" region.
+
 2010-05-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (getstack, gettime)
