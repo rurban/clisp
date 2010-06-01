@@ -1,5 +1,11 @@
 2010-06-01  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (main-loop): exit if (RETURN-FROM MAIN-LOOP) fails
+	* makemake.in (check-script): check that loading a broken file
+	from -x with -repl does not hang CLISP
+
+2010-06-01  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#3009966: Problems with wild-inferiors in DIRECTORY :FULL T
 	* pathname.d (directory_search): respect :FULL T on recursive
 	subdirectory search

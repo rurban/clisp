@@ -445,7 +445,8 @@ Continue       :c       switch off single step mode, continue evaluation
                ;; 2. "cat script | clisp" and "clisp < script" do not hang
                (exit)
                (progn (setq *command-index* 0) ; reset *command-index*
-                      (return-from main-loop))))))))
+                      (handler-case (return-from main-loop)
+                        (error () (exit 1))))))))))
 
 (setq *driver* #'main-loop)
 
