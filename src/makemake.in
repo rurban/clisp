@@ -3016,6 +3016,8 @@ if [ $CROSS = false ] ; then
   TRCR="| tr -d '\r'"; TRLF="| tr '\n' '_'"
   echotab "test \`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 110 || exit 1"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl ${TRCR}${TRLF}\`\" = '99_[1]> _110_' || exit 1"
+  echotab "\$(RM) script.lisp; echo '(error \"loading script.lisp\")' > script.lisp"
+  echotab "if \$(RUN) -q -M lispinit.mem -x '(load \"script.lisp\")' -repl < /dev/null; then exit 1; else :; fi"
   if [ "$HOS" != win32 ]; then # woe32 has unpredictable exit codes
     # http://article.gmane.org/gmane.lisp.clisp.devel/18967
     echotab "(echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' | \$(RUN) -q -M lispinit.mem -; test \$\$? = 42) || exit 1"
