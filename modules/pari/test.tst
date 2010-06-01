@@ -99,9 +99,22 @@ CHECK-ROUNDTRIP
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
 (pari:equal? (pari:primitive-root #Z"104729") #Z"Mod(12,104729)") T
+(pari:pari-to-lisp (pari:primitive-root 100003))
+#S(PARI:pari-integermod :MODULUS 100003 :REP 2)
+(pari:pari-to-lisp (pari:primitive-root 1180591620717411303449))
+#S(PARI:pari-integermod :MODULUS 1180591620717411303449 :REP 3)
 
 (pari:equal? (pari:structure-of-z/n* #Z"7") #Z"[6, [6], [Mod(3, 7)]]") T
 (pari:equal? (pari:structure-of-z/n* #Z"10") #Z"[4, [4], [Mod(7, 10)]]") T
+(pari:pari-to-lisp (pari:structure-of-z/n* #Z"12"))
+#(:ROW 4 #(:ROW 2 2)
+  #(:ROW #S(PARI:pari-integermod :MODULUS 12 :REP 7)
+    #S(PARI:pari-integermod :MODULUS 12 :REP 5)))
+(pari:pari-to-lisp (pari:structure-of-z/n* #Z"24"))
+#(:ROW 8 #(:ROW 2 2 2)
+  #(:ROW #S(PARI:pari-integermod :MODULUS 24 :REP 13)
+    #S(PARI:pari-integermod :MODULUS 24 :REP 19)
+    #S(PARI:pari-integermod :MODULUS 24 :REP 17)))
 
 (pari:pari-to-lisp (pari:divisors #Z"121")) #(:ROW 1 11 121)
 (pari:pari-to-lisp (pari:divisors #Z"122")) #(:ROW 1 2 61 122)
@@ -160,6 +173,13 @@ CHECK-ROUNDTRIP
 (pari:irreducible? (pari:tchebychev-polynomial 16)) T
 (pari:irreducible? (pari:tchebychev-polynomial 32)) T
 (pari:irreducible? (pari:tchebychev-polynomial 64)) T
+
+(pari:pari-to-lisp (pari:factor #z"x^3"))
+#2A((#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1)) 3))
+(pari:pari-to-lisp (pari:factor (pari:tchebychev-polynomial 11)))
+#2A((#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1)) 1)
+    (#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS
+        #(-11 0 220 0 -1232 0 2816 0 -2816 0 1024)) 1))
 
 (pari:pari-to-lisp (pari:hilbert-matrix 4))
 #2A((1 1/2 1/3 1/4) (1/2 1/3 1/4 1/5) (1/3 1/4 1/5 1/6) (1/4 1/5 1/6 1/7))
@@ -220,11 +240,16 @@ CHECK-ROUNDTRIP
 
 (integerp (show (pari:maxprime))) T
 
-(slot-value (pari:pari-to-lisp (pari:tchebychev-polynomial 4)) 'pari::coeffs)
-#(1 0 -8 0 8)
-(slot-value (pari:pari-to-lisp (pari:tchebychev-polynomial 40)) 'pari::coeffs)
-#(1 0 -800 0 106400 0 -5617920 0 156900480 0 -2677768192 0 30429184000 0
-  -243433472000 0 1424085811200 0 -6254808268800 0 21002987765760 0
-  -54553214976000 0 110292369408000 0 -173752901959680 0 212364657950720 0
-  -199183403319296 0 140552804761600 0 -72155450572800 0 25426206392320 0
-  -5497558138880 0 549755813888)
+(pari:pari-to-lisp (pari:tchebychev-polynomial 4))
+#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 0 -8 0 8))
+
+(pari:pari-to-lisp (pari:tchebychev-polynomial 40))
+#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS
+   #(1 0 -800 0 106400 0 -5617920 0 156900480 0 -2677768192 0 30429184000
+     0 -243433472000 0 1424085811200 0 -6254808268800 0 21002987765760 0
+     -54553214976000 0 110292369408000 0 -173752901959680 0 212364657950720
+     0 -199183403319296 0 140552804761600 0 -72155450572800 0 25426206392320
+     0 -5497558138880 0 549755813888))
+
+(pari-to-lisp (complex-roots #z"x^2+1"))
+#(:COL #C(0 1.0L0) #C(0 -1.0L0))
