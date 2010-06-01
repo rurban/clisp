@@ -51,6 +51,7 @@ User visible changes
   + Fix an nternal error in DECLAIM on bad OPTIMIZE quality (bug#2868147).
   + CLEAR-INPUT now clears the EOF condition on file streams (bug#2902716).
   + When quitting on a signal, never enter the debugger (bug#2795278).
+  + Respect :FULL T in DIRECTORY :WILD-INFERIORS (bug#3009966).
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the

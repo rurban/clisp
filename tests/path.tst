@@ -1217,6 +1217,28 @@ NIL
     (ext:delete-directory tn)))
 #+clisp (T T T T T T)
 
+#+clisp
+(let* ((d "path-tst-my-dir/")
+       (dirs** (concatenate 'string d "**/"))
+       (dirs* (concatenate 'string d "*/"))
+       (files** (concatenate 'string d "**/*"))
+       (files* (concatenate 'string d "*/*")))
+  (unwind-protect
+       (flet ((mkdir (s)
+                (make-directory (concatenate 'string d s))
+                (open (concatenate 'string d s "f")
+                      :direction :probe :if-does-not-exist :create))
+              (cmp (l1 l2) (list (length l1) (equalp l1 (mapcar #'first l2)))))
+         (mkdir "")
+         (mkdir "d1/") (mkdir "d1/s1/") (mkdir "d1/s2/")
+         (mkdir "d2/") (mkdir "d2/s1/") (mkdir "d2/s2/")
+         (list (cmp (directory dirs*) (directory dirs* :full t))
+               (cmp (print(directory dirs**)) (print(directory dirs** :full t)))
+               (cmp (directory files*) (directory files* :full t))
+               (cmp (directory files**) (directory files** :full t))))
+    (rmrf d)))
+#+clisp ((2 T) (7 T) (2 T) (7 T))
+
 #+(and clisp unicode)
 (block test-weird-pathnames
   (handler-bind ((parse-error

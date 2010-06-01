@@ -1,3 +1,9 @@
+2010-06-01  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#3009966: Problems with wild-inferiors in DIRECTORY :FULL T
+	* pathname.d (directory_search): respect :FULL T on recursive
+	subdirectory search
+
 2010-05-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (interrupt_thread): make sure interrupt will not be lost when
