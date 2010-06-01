@@ -52,6 +52,29 @@
   (pari-byte VARNBITS VARNSHIFT))
 (def-c-const CLONEBIT (:type ulong)) ; ??? or 0x100000000000000UL
 
+;; <paritype.h>
+
+(def-c-enum pari-typecode
+  (INT 1)
+  (REAL 2)
+  (INTMOD 3)
+  (FRAC 4)
+  (COMPLEX 6)
+  (PADIC 7)
+  (QUAD 8)
+  (POLMOD 9)
+  (POL 10)
+  (SER 11)
+  (RFRAC 13)
+  (QFR 15)
+  (QFI 16)
+  (VEC 17)
+  (COL 18)
+  (MAT 19)
+  (LIST 20)
+  (STR 21)
+  (VECSMALL 22))
+
 ;; <parigen.h>
 
 ;;; The pari object type:
@@ -1973,30 +1996,30 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 ;;; Define some CLISP analogs for pari types
 
-(export '(pari-object internal-pari-object))
+(export '(pari-object pari-object-internal))
 
-(defclass pari-object () ()
-  (:documentation "An abstract class for CLISP equivalents of pari objects"))
+(defstruct pari-object
+  "An abstract class for CLISP equivalents of pari objects" ())
 
 (defgeneric convert-to-pari (x)
   (:documentation
    "Converts suitable CLISP objects into internal pari objects")
   (:method ((x null)) nil))
 
-(defclass internal-pari-object (pari-object)
-  ((pointer :accessor pari-class-pointer :initarg :pointer))
-  (:documentation "Pari object as a pointer into the pari stack"))
+(defstruct (pari-object-internal (:include pari-object))
+  "Pari object as a pointer into the pari stack"
+  pointer)
 
 (defun make-internal-pari-object (ptr)
-  (and ptr (make-instance 'internal-pari-object :pointer ptr)))
+  (and ptr (make-pari-object-internal :pointer ptr)))
 
-(defmethod convert-to-pari ((x internal-pari-object))
-  (pari-class-pointer x))
+(defmethod convert-to-pari ((x pari-object-internal))
+  (pari-object-internal-pointer x))
 
 ;;; Make internal pari objects printable and readable
 
-(defmethod print-object ((x internal-pari-object) stream)
-  (format stream "#Z\"~A\"" (%write-to-string (pari-class-pointer x)))
+(defmethod print-object ((x pari-object-internal) stream)
+  (format stream "#Z\"~A\"" (%write-to-string (pari-object-internal-pointer x)))
   x)
 
 (defun pari-reader (stream subchar arg)
@@ -2012,68 +2035,36 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 ;;; Some helper macros for defining classes for pari objects
 
-(eval-when (compile load eval)
-  (defun make-accessors (slots)
-    (let ((pari-package (find-package "PARI")))
-      (mapcar #'(lambda (slot)
-                  (intern (format nil "pari-class-~A" slot) pari-package))
-              slots)))
-  (defun make-initargs (slots)
-    (let ((keyword-package (find-package "KEYWORD")))
-      (mapcar #'(lambda (slot) (intern (symbol-name slot) keyword-package))
-              slots)))
-  (defun dpc-class (name slots accessors initargs)
+(defmacro define-pari-class (name slots)
+  `(exporting:defstruct (,name (:include pari-object)) ,@slots))
+
+(defmacro define-pari-converters (typecode name)
+  (let ((readers (mapcar #'mop:slot-definition-readers
+                         (ext:structure-direct-slots name))))
     `(progn
-       (export '(,name ,@accessors))
-       (defclass ,name (pari-object)
-                 ,(mapcar #'(lambda (slot accessor initarg)
-                              `(,slot :accessor ,accessor :initarg ,initarg))
-                          slots accessors initargs))
-       (defmethod print-object ((x ,name) stream)
-         (if *print-readably*
-           (format stream ,(format nil "#.(~~S '~~S~{ ~S '~~S~})" initargs)
-                   'make-instance ',name
-                   ,@(mapcar #'(lambda (acc) `(,acc x)) accessors))
-           (format stream ,(format nil "#<~~S~{ ~S ~~S~}>" initargs)
-                   ',name
-                   ,@(mapcar #'(lambda (acc) `(,acc x)) accessors))))))
-  (defun dpc-to-pari (typecode name slots accessors)
-    `(defmethod convert-to-pari ((x ,name))
-        (let ((obj (pari-cgetg ,(+ 1 (length slots)) ,typecode)))
-          ,@(let ((count 0))
-              (mapcar #'(lambda (accessor)
+       (defmethod convert-to-pari ((x ,name))
+         (let ((obj (pari-cgetg ,(+ 1 (length readers)) ,typecode)))
+           ,@(let ((count 0))
+                (mapcar (lambda (readerl)
                           `(pari-set-component obj ,(incf count)
-                            (convert-to-pari (,accessor x))))
-                      accessors))
-          obj)))
-  (defun dpc-from-pari (typecode name initargs)
-    `(defun ,(intern (format nil "convert-from-pari-~D" typecode) "PARI") (ptr)
-        (make-instance ',name
-          ,@(let ((count 0))
-              (mapcan #'(lambda (initarg)
-                          `(,initarg (convert-from-pari
-                                      (%component ptr ,(incf count)))))
-                      initargs))))))
+                             (convert-to-pari (,(first readerl) x))))
+                        readers))
+           obj))
+       (defun ,(intern (ext:string-concat "convert-from-pari-"
+                                          (symbol-name typecode)) "PARI") (ptr)
+         (,(ext:structure-keyword-constructor name)
+           ,@(let ((count 0))
+               (mapcan #'(lambda (dsd)
+                           `(,(car (mop:slot-definition-initargs dsd))
+                              (convert-from-pari
+                               (%component ptr ,(incf count)))))
+                       (ext:structure-direct-slots name))))))))
 
-(defmacro define-pari-class-only (name slots)
-  (dpc-class name slots (make-accessors slots) (make-initargs slots)))
+(defmacro define-pari (typecode name slots)
+  `(progn (define-pari-class ,name ,slots)
+          (define-pari-converters ,typecode ,name)))
 
-(defmacro define-pari-class-0 (typecode name slots)
-  (let ((accessors (make-accessors slots))
-        (initargs (make-initargs slots)))
-    `(progn
-       ,(dpc-class name slots accessors initargs)
-       ,(dpc-to-pari typecode name slots accessors))))
-
-(defmacro define-pari-class (typecode name slots)
-  (let ((accessors (make-accessors slots))
-        (initargs (make-initargs slots)))
-    `(progn
-       ,(dpc-class name slots accessors initargs)
-       ,(dpc-to-pari typecode name slots accessors)
-       ,(dpc-from-pari typecode name initargs))))
-
-;; Type 1: integers -- represented by CLISP integers
+;; INT=1: integers -- represented by CLISP integers
 
 (defmethod convert-to-pari ((x (eql 0)))
   pari-0)
@@ -2111,10 +2102,10 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (dotimes (i (length mantissa) result)
       (setq result (+ (ash result #,(bitsizeof 'ulong)) (svref mantissa i))))))
 
-(defun convert-from-pari-1 (ptr)
+(defun convert-from-pari-INT (ptr)
   (* (pari-sign-raw ptr) (collect-mantissa (pari-get-integer-data ptr))))
 
-;; Type 2: real numbers -- represented by CLISP floats
+;; REAL=2: real numbers -- represented by CLISP floats
 
 (defmethod convert-to-pari ((x float))
   (if (= x 0)
@@ -2136,7 +2127,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
             (extract-mantissa vec q signif)
             (pari-make-object vec 2)))))))
 
-(defun convert-from-pari-2 (ptr)
+(defun convert-from-pari-REAL (ptr)
   (let* ((sign (pari-sign-raw ptr))
          (expo (pari-exponent-raw ptr))
          (mant (pari-mantissa ptr))
@@ -2145,11 +2136,11 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
                                                           (length mant))))
                          (- expo (* #,(bitsizeof 'ulong) (length mant)) -1)))))
 
-;; Type 3: integermods
+;; INTMOD=3: integermods
 
-(define-pari-class 3 pari-integermod (modulus rep))
+(define-pari INTMOD pari-integermod (modulus rep))
 
-;; Type 4,5: rational numbers -- represented by CLISP ratios
+;; FRAC=4: rational numbers -- represented by CLISP ratios
 
 (defmethod convert-to-pari ((x (eql 1/2)))
   pari-1/2)
@@ -2160,13 +2151,13 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (pari-set-component obj 2 (convert-to-pari (denominator x)))
     obj))
 
-(defun convert-from-pari-4 (ptr)
+(defun convert-from-pari-FRAC (ptr)
   (/ (convert-from-pari (%component ptr 1))
      (convert-from-pari (%component ptr 2))))
 
-;; Type 6: complex numbers -- represented by CLISP complex if possible
+;; COMPLEX=6: complex numbers -- represented by CLISP complex if possible
 
-(define-pari-class-0 6 pari-complex (realpart imagpart))
+(define-pari-class pari-complex (realpart imagpart))
 
 (defmethod convert-to-pari ((x (eql #C(0 1))))
   pari-i)
@@ -2177,89 +2168,89 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (pari-set-component obj 2 (convert-to-pari (imagpart x)))
     obj))
 
-(defun convert-from-pari-6 (ptr)
+(defun convert-from-pari-COMPLEX (ptr)
   (if (and (member (pari-type-raw (%component ptr 1)) '(1 2 4 5))
            (member (pari-type-raw (%component ptr 2)) '(1 2 4 5)))
     ;; CLISP complex is possible
     (complex (convert-from-pari (%component ptr 1))
              (convert-from-pari (%component ptr 2)))
     ;; must construct pari-complex
-    (make-instance 'pari-complex
-      :realpart (convert-from-pari (%component ptr 1))
-      :imagpart (convert-from-pari (%component ptr 2)))))
+    (make-pari-complex
+     :realpart (convert-from-pari (%component ptr 1))
+     :imagpart (convert-from-pari (%component ptr 2)))))
 
-;; Type 7: p-adic numbers
+;; PADIC=7: p-adic numbers
 
-(define-pari-class-only pari-padic (precp valp prime prpow rep))
+(define-pari-class pari-padic (precp valp prime prpow rep))
 
 (defmethod convert-to-pari ((x pari-padic))
-  (let ((obj (pari-cgetg 5 7)))
+  (let ((obj (pari-cgetg 5 PADIC)))
     (extract1 (elt1 obj)
-      (setf elt1 (dpb (pari-class-precp x) pari-precision-byte
-                      (dpb (+ (pari-class-valp x) pari-valuation-offset)
+      (setf elt1 (dpb (pari-padic-precp x) pari-precision-byte
+                      (dpb (+ (pari-padic-valp x) pari-valuation-offset)
                            pari-valuation-byte 0))))
-    (pari-set-component obj 2 (convert-to-pari (pari-class-prime x)))
-    (pari-set-component obj 3 (convert-to-pari (pari-class-prpow x)))
-    (pari-set-component obj 4 (convert-to-pari (pari-class-rep x)))
+    (pari-set-component obj 2 (convert-to-pari (pari-padic-prime x)))
+    (pari-set-component obj 3 (convert-to-pari (pari-padic-prpow x)))
+    (pari-set-component obj 4 (convert-to-pari (pari-padic-rep x)))
     obj))
 
-(defun convert-from-pari-7 (ptr)
-  (make-instance 'pari-padic
-                 :precp (pari-precision-raw ptr)
-                 :valp  (pari-valuation-raw ptr)
-                 :prime (convert-from-pari (%component ptr 1))
-                 :prpow (convert-from-pari (%component ptr 2))
-                 :rep   (convert-from-pari (%component ptr 3))))
+(defun convert-from-pari-PADIC (ptr)
+  (make-pari-padic
+   :precp (pari-precision-raw ptr)
+   :valp  (pari-valuation-raw ptr)
+   :prime (convert-from-pari (%component ptr 1))
+   :prpow (convert-from-pari (%component ptr 2))
+   :rep   (convert-from-pari (%component ptr 3))))
 
-;; Type 8: quadratic numbers
+;; QUAD=8: quadratic numbers
 
-(define-pari-class 8 pari-quadratic (poly realpart imagpart))
+(define-pari QUAD pari-quadratic (poly realpart imagpart))
 
-;; Type 9: polymods
+;; POLMOD=9: polymods
 
-(define-pari-class 9 pari-polymod (modulus rep))
+(define-pari POLMOD pari-polymod (modulus rep))
 
-;; Type 10: polynomials
+;; POL=10: polynomials
 
-(define-pari-class-only pari-poly (s varno coeffs))
+(define-pari-class pari-poly (s varno coeffs))
 
 (defmethod convert-to-pari ((x pari-poly))
-  (let* ((coeffs (pari-class-coeffs x))
+  (let* ((coeffs (pari-poly-coeffs x))
          (obj (pari-cgetg (+ 2 (length coeffs)) 10)))
     (extract1 (elt1 obj)
       (setf elt1
-            (dpb (pari-class-s x) pari-sign-byte
-                 (dpb (pari-class-varno x) pari-varno-byte
+            (dpb (pari-poly-s x) pari-sign-byte
+                 (dpb (pari-poly-varno x) pari-varno-byte
                       (dpb (+ 2 (length coeffs))
                            pari-length-byte 0)))))
     (dotimes (i (length coeffs) obj)
       (pari-set-component obj (+ i 2) (convert-to-pari (svref coeffs i))))))
 
-(defun convert-from-pari-10 (ptr)
+(defun convert-from-pari-POL (ptr)
   (let* ((s (pari-sign-raw ptr))
          (varno (pari-varno-raw ptr))
          (len (- (pari-length-raw ptr) 2))
          (coeffs (make-array len)))
     (dotimes (i len)
       (setf (svref coeffs i) (convert-from-pari (%component ptr (1+ i)))))
-    (make-instance 'pari-poly :s s :varno varno :coeffs coeffs)))
+    (make-pari-poly :s s :varno varno :coeffs coeffs)))
 
-;; Type 11: power series
-(define-pari-class-only pari-pws (s varno expo coeffs))
+;; SER=11: power series
+(define-pari-class pari-pws (s varno expo coeffs))
 
 (defmethod convert-to-pari ((x pari-pws))
-  (let* ((coeffs (pari-class-coeffs x))
+  (let* ((coeffs (pari-pws-coeffs x))
          (obj (pari-cgetg (+ 2 (length coeffs)) 11)))
     (extract1 (elt1 obj)
       (setf elt1
-            (dpb (pari-class-s x) pari-sign-byte
-                 (dpb (pari-class-varno x) pari-varno-byte
-                      (dpb (+ (pari-class-expo x) pari-valuation-offset)
+            (dpb (pari-pws-s x) pari-sign-byte
+                 (dpb (pari-pws-varno x) pari-varno-byte
+                      (dpb (+ (pari-pws-expo x) pari-valuation-offset)
                            pari-valuation-byte 0)))))
     (dotimes (i (length coeffs) obj)
       (pari-set-component obj (+ i 2) (convert-to-pari (svref coeffs i))))))
 
-(defun convert-from-pari-11 (ptr)
+(defun convert-from-pari-SER (ptr)
   (let* ((s (pari-sign-raw ptr))
          (varno (pari-varno-raw ptr))
          (expo (pari-valuation-raw ptr))
@@ -2267,20 +2258,20 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
          (coeffs (make-array len)))
     (dotimes (i len)
       (setf (svref coeffs i) (convert-from-pari (%component ptr i))))
-    (make-instance 'pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
+    (make-pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
 
-;; Type 13,14: rational functions
-(define-pari-class 13 pari-ratfun (numer denom))
+;; RFRAC=13: rational functions
+(define-pari RFRAC pari-ratfun (numer denom))
 
-;; Type 15: indefinite binary quadratic forms
+;; QFR=15: indefinite binary quadratic forms
 
-(define-pari-class 15 pari-real-qf (a b c))
+(define-pari QFR pari-real-qf (a b c))
 
-;; Type 16: definite binary quadratic forms
+;; QFI=16: definite binary quadratic forms
 
-(define-pari-class 16 pari-imag-qf (a b c))
+(define-pari QFI pari-imag-qf (a b c))
 
-;; Type 17,18: (row and column) vectors -- represented by CLISP vectors
+;; VEC=17, COL=18: (row and column) vectors -- represented by CLISP vectors
 ;; #(:row v1 v2 ... vn) <---> row vector
 ;; #(:col v1 v2 ... vn) <---> column vector
 ;; #(v1 v2 ... vn)       ---> row vector
@@ -2294,7 +2285,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
       (dotimes (i (length x) obj)
         (pari-set-component obj (1+ i) (convert-to-pari (svref x i)))))))
 
-(defun convert-from-pari-17 (ptr)
+(defun convert-from-pari-VEC (ptr)
   (let* ((len (1- (pari-length-raw ptr)))
          (vec (make-array (1+ len))))
     (setf (svref vec 0) :row)
@@ -2302,7 +2293,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
         ((eql i 0) vec)
       (setf (svref vec i) (convert-from-pari (%component ptr i))))))
 
-(defun convert-from-pari-18 (ptr)
+(defun convert-from-pari-COL (ptr)
   (let* ((len (1- (pari-length-raw ptr)))
          (vec (make-array (1+ len))))
     (setf (svref vec 0) :col)
@@ -2310,7 +2301,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
         ((eql i 0) vec)
       (setf (svref vec i) (convert-from-pari (%component ptr i))))))
 
-;; Type 19: matrices -- represented by CLISP 2-dim arrays
+;; MAT=19: matrices -- represented by CLISP 2-dim arrays
 
 (defmethod convert-to-pari ((x array))
   (unless (eql (array-rank x) 2)
@@ -2322,7 +2313,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
           (pari-set-component col (1+ i) (convert-to-pari (aref x i j))))
         (pari-set-component obj (1+ j) col)))))
 
-(defun convert-from-pari-19 (ptr)
+(defun convert-from-pari-MAT (ptr)
   (let ((cols (1- (pari-length-raw ptr))))
     (if (eql cols 0)
       (make-array '()) ; probably shouldn't happen...
@@ -2342,23 +2333,23 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defun convert-from-pari (ptr)
   "Converts an internal pari object to a CLISP object"
   (case (pari-type-raw ptr)
-    (1 (convert-from-pari-1 ptr))
-    (2 (convert-from-pari-2 ptr))
-    (3 (convert-from-pari-3 ptr))
-    ((4 5) (convert-from-pari-4 ptr))
-    (6 (convert-from-pari-6 ptr))
-    (7 (convert-from-pari-7 ptr))
-    (8 (convert-from-pari-8 ptr))
-    (9 (convert-from-pari-9 ptr))
-    (10 (convert-from-pari-10 ptr))
-    (11 (convert-from-pari-11 ptr))
-    ((13 14) (convert-from-pari-13 ptr))
-    (15 (convert-from-pari-15 ptr))
-    (16 (convert-from-pari-16 ptr))
-    (17 (convert-from-pari-17 ptr))
-    (18 (convert-from-pari-18 ptr))
-    (19 (convert-from-pari-19 ptr))
-    (t (error "~S: Pari type ~D not yet implemented as a CLISP type."
+    (1 (convert-from-pari-INT ptr))
+    (2 (convert-from-pari-REAL ptr))
+    (3 (convert-from-pari-INTMOD ptr))
+    (4 (convert-from-pari-FRAC ptr))
+    (6 (convert-from-pari-COMPLEX ptr))
+    (7 (convert-from-pari-PADIC ptr))
+    (8 (convert-from-pari-QUAD ptr))
+    (9 (convert-from-pari-POLMOD ptr))
+    (10 (convert-from-pari-POL ptr))
+    (11 (convert-from-pari-SER ptr))
+    (13 (convert-from-pari-RFRAC ptr))
+    (15 (convert-from-pari-QFR ptr))
+    (16 (convert-from-pari-QFI ptr))
+    (17 (convert-from-pari-VEC ptr))
+    (18 (convert-from-pari-COL ptr))
+    (19 (convert-from-pari-MAT ptr))
+    (t (error "~S: Pari type ~D is not yet implemented as a CLISP type."
               'convert-from-pari (pari-type-raw ptr)))))
 
 (defun convert-to-boolean (ptr)
@@ -2372,8 +2363,8 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defgeneric pari-to-lisp (x))
 
 (defmethod pari-to-lisp ((x pari-object)) x)
-(defmethod pari-to-lisp ((x internal-pari-object))
-  (convert-from-pari (pari-class-pointer x)))
+(defmethod pari-to-lisp ((x pari-object-internal))
+  (convert-from-pari (pari-object-internal-pointer x)))
 (defmethod pari-to-lisp ((x number)) x)
 (defmethod pari-to-lisp ((x array)) x)
 (defmethod pari-to-lisp ((x null)) x)
