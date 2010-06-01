@@ -7798,28 +7798,40 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         /* in order to finish the task, all entries in this directory
          have to be scanned: */
         {
-          var struct file_status fs; file_status_init(&fs,&STACK_0);
-          assure_dir_exists(&fs,true,false); /* resolve links, form directory-name */
+          var struct file_status fs;
+          pushSTACK(STACK_0);/*truename*/ file_status_init(&fs,&STACK_0);
+          assure_dir_exists(&fs,false,false); /* resolve links, form directory-name */
           pushSTACK(fs.fs_namestring); /* save */
-        }
-        /* stack layout: ..., pathname, dir_namestring. */
+
+          /* stack layout: ..., pathname, truename, dir_namestring. */
         if (dsp->circle_p) { /* query :CIRCLE flag */
           /* search pathname in the hash-table: */
           var object hashcode = directory_search_hashcode();
           if (eq(hashcode,nullobj)) {
             /* entry does not exist, however (this can happen to us
-             only for symbolic links)
-             -> will be skipped */
-            skipSTACK(2); goto next_pathname;
+                 only for symbolic links) -> will be skipped */
+              skipSTACK(3); goto next_pathname;
           }
           /* and locate in the hash-table and store: */
-          if (!nullp(shifthash(STACK_(2+2),hashcode,T,true))) {
+            if (!nullp(shifthash(STACK_(2+3),hashcode,T,true))) {
             /* was already inside -> will be skipped */
-            skipSTACK(2); goto next_pathname;
+              skipSTACK(3); goto next_pathname;
+            }
+          }
+          if (next_task==TASK_DONE) { /* push pathname STACK_1 in front of result-list: */
+            if (dsp->full_p) { /* assure_dir_exists does not fill fs_stat */
+              pushSTACK(STACK_2);
+              pushSTACK(STACK_(1+1));
+              with_stat_info_computed(&fs);
+              STACK_(1+2) = STACK_0;
+              skipSTACK(2);
+            }
+            PUSH_ON_STACK(1,4+4+3);
+            if (dsp->full_p)
+              STACK_1 = Car(STACK_1);
           }
         }
-        if (next_task==TASK_DONE) /* push pathname STACK_1 in front of result-list: */
-          PUSH_ON_STACK(1,4+4+2);
+        STACK_2 = STACK_1; STACK_1 = STACK_0; skipSTACK(1); /* drop pathname */
         directory_search_scandir(recursively,next_task,dsp);
         skipSTACK(2); /* forget pathname and dir_namestring */
       next_pathname: ;
