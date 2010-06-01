@@ -5114,13 +5114,11 @@ local maygc object default_directory_of (uintB drive, object pathname) {
     currpath[1] = ':';
     currpath[2] = '.'; /* this dot is actually not needed */
     currpath[3] = '\0';
-    GC_SAFE_SYSTEM_CALL(result=,
-			GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
+    GC_SAFE_SYSTEM_CALL(result=,GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
     if (!result) { OS_file_error(pathname); }
     if (result >= path_buflen) {
       path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
-      GC_SAFE_SYSTEM_CALL(result=,
-			  GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
+      GC_SAFE_SYSTEM_CALL(result=,GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
       if (!result) { OS_file_error(pathname); }
     }
   } else {                      /* network path */
