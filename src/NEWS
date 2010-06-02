@@ -45,6 +45,10 @@ User visible changes
   (Older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/postgresql.html> for details.
 
+* Module pari has been updated to support both 64 & 32 bit platforms
+  with and without GMP.
+  See <http://clisp.cons.org/impnotes/pari.html> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code (bug#2868166).
