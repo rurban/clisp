@@ -4,6 +4,8 @@
 	(variable-order): add (call reorder)
 	(euler): remove DEFINE-SYMBOL-MACRO
 	(pari-real-precision): re-add function, setf, and symbol-macro
+	(pari-real-precision-words): add a function on top of a variable
+	(pari-call-out-prec): prec is specified in number of decimals
 
 2010-06-01  Sam Steingold  <sds@gnu.org>
 

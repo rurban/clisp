@@ -39,19 +39,17 @@ Please feel free to submit additions for
 which specifies the default precision in decimal digits:
 <programlisting language="lisp">
 pari:pari-real-precision
-<computeroutput>327</computeroutput>
+<computeroutput>19</computeroutput>
 (&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi))))
-<computeroutput>331</computeroutput>
+<computeroutput>23</computeroutput>
 </programlisting>
-One can also pass the precision parameter explicitly, specifying the number of
-<type>ffi:ulong</type> words which the resulting PARI number should occupy:
+One can also pass the precision parameter explicitly:
 <programlisting language="lisp">
-(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi :prec 40))))
-<computeroutput>735</computeroutput><lineannotation>on 64-bit platforms</lineannotation>
-<computeroutput>368</computeroutput><lineannotation>on 32-bit platforms</lineannotation>
-(pari:pari-real-precision 40)
-<computeroutput>732</computeroutput><lineannotation>on 64-bit platforms</lineannotation>
-<computeroutput>366</computeroutput><lineannotation>on 32-bit platforms</lineannotation>
-</programlisting></para>
+(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi :prec 38))))
+<computeroutput>41</computeroutput>
+</programlisting>
+Note that the <emphasis>actual</emphasis> precision is determined by the
+size of the mantissa which can be incremented only in steps of
+<code>(&bitsizeof; 'ffi:ulong)</code> (64 bits or 32 bits).</para>
 </simplesect>
 </section>
