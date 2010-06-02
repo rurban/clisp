@@ -54,7 +54,7 @@
 
 ;; <paritype.h>
 
-(def-c-enum pari-typecode
+(exporting:def-c-enum pari-typecode
   (INT 1)
   (REAL 2)
   (INTMOD 3)
@@ -1001,6 +1001,7 @@
 (pari-call-out vector-lexsort "lexsort" (x))
 ;; GEN indexsort(GEN x);
 (pari-call-out vector-index-sort "indexsort" (x) "indsort")
+
 ;; GEN polsym(GEN x, long n);
 (pari-call-out symmetric-powers "polsym" (x (n long)))
 
