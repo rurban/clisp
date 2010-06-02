@@ -262,3 +262,8 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:symmetric-powers (pari:legendre-polynomial 12) 12))
 #(:COL 12 0 132/23 0 15444/3703 0 5477076/1618211 0 12809498724/4429043507 0
   259405490124/101868000661 0 9262490692392036/4050984782285987)
+
+(let ((order (pari:variable-order #())))
+  (list (pari:pari-to-lisp order) (princ-to-string order)))
+(#(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))) "#Z\"[x]\"")
+

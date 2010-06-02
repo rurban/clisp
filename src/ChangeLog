@@ -1,6 +1,7 @@
 2010-06-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (pari-typecode): export names
+	(variable-order): add (call reorder)
 
 2010-06-01  Sam Steingold  <sds@gnu.org>
 
