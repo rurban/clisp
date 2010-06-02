@@ -3,6 +3,7 @@
 	* modules/pari/pari.lisp (pari-typecode): export names
 	(variable-order): add (call reorder)
 	(euler): remove DEFINE-SYMBOL-MACRO
+	(pari-real-precision): re-add function, setf, and symbol-macro
 
 2010-06-01  Sam Steingold  <sds@gnu.org>
 
