@@ -1162,7 +1162,6 @@
     `(progn
        ,(make-defun name pari-name type args)
        ,(make-documentation name gp-name args))))
-
 ;; #define buchgen(P,gcbach,gcbach2,prec) buchall(P,gcbach,gcbach2,stoi(5);
 ;; GEN gzero,4,3,0,prec)
 (def-buch-variant nf-buchgen 0 "buchgen")
@@ -1474,7 +1473,7 @@
 (pari-call-out (equal? boolean) "gequal" (x y) "==")
 ;; GEN polegal(GEN x, GEN y);
 ;; GEN vecegal(GEN x, GEN y);
-;; GEN gsigne(GEN x);
+;; int gsigne(GEN x);
 (pari-call-out (pari-sign int) "gsigne" (x) "sign")
 
 ;; int gvar(GEN x);
