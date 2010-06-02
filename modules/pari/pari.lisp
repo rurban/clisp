@@ -114,8 +114,25 @@
 ;; typedef ulong pari_sp;
 (def-c-type pari_sp ulong)
 
+(defun bits2digits (bits) (values (floor (* #.(log 2 10) bits))))
+(defun digits2bits (digits) (values (ceiling (* #.(log 10 2) digits))))
+(defvar pari-real-precision-words
+  (bits2digits (ext:long-float-digits))
+  "The default precision argument for PARI functions which accept it.
+This is always equal to (+ 2 (length (pari-mantissa (%foo PRPD)))),
+t.e., this is the memory size for the real return value in ulong words.")
+
+(defun pari-real-precision (&optional (words pari-real-precision-words))
+  "The real PARI precision in decimal digits."
+  (bits2digits (* #,(bitsizeof 'ulong) (- words 2))))
+(defun (setf pari-real-precision) (digits)
+  (let ((bits (digits2bits digits)))
+    (setf (ext:long-float-digits) bits
+          pari-real-precision-words (+ 2 (ceiling bits #,(bitsizeof 'ulong)))))
+  digits)
+(define-symbol-macro pari-real-precision (pari-real-precision))
 (def-c-var pari-series-precision (:name "precdl") (:type ulong))
-(export '(pari-series-precision))
+(export '(pari-series-precision pari-real-precision))
 
 ;; extern  long    lontyp[];
 
@@ -359,10 +376,10 @@
        ',pari-name)))
 
 ;;; pari-call-out-prec has the same syntax as pari-call-out; it additionally
-;;; provides a keyword argument prec defaulting to ext:long-float-digits.
+;;; provides a keyword argument prec defaulting to pari-real-precision-words.
 (defmacro pari-call-out-prec (fun lib-name args &optional (gp-name lib-name))
   `(pari-call-out ,fun ,lib-name
-     (,@args (prec long :in :none (ext:long-float-digits))) ,gp-name))
+     (,@args (prec long :in :none pari-real-precision-words)) ,gp-name))
 
 
 ;;; /* alglin.c */
@@ -1158,7 +1175,7 @@
                    (nrel pari-gen :in :none 5) (borne pari-gen :in :none 1)
                    (nrpid long :in :none 4) (minsfb long :in :none 3)
                    (flun long :in :none ,flun)
-                   (prec log :in :none (ext:long-float-digits)))))
+                   (prec log :in :none pari-real-precision-words))))
     `(progn
        ,(make-defun name pari-name type args)
        ,(make-documentation name gp-name args))))
@@ -1480,7 +1497,8 @@
 (pari-call-out (varno int) "gvar" (x) "?")
 ;; GEN gvar2(GEN x);
 ;; GEN tdeg(GEN x);
-;; GEN precision(GEN x);
+;; long precision(GEN x);
+(pari-call-out (precision long) "precision" (x))
 ;; GEN gprecision(GEN x);
 ;; GEN ismonome(GEN x);
 ;; GEN iscomplex(GEN x);
@@ -2111,7 +2129,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   (if (= x 0)
     (pari-make-object
       (vector (- pari-exponent-offset (* #,(bitsizeof 'ulong)
-                                         (ext:long-float-digits)) -61) 0) 2)
+                                         pari-real-precision-words) -61) 0) 2)
     (multiple-value-bind (signif expo sign) (integer-decode-float x)
       (let ((pr (float-precision x)))
         ;; need ceil(pr/32) mantissa words,

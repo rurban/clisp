@@ -285,5 +285,17 @@ CHECK-ROUNDTRIP
 
 (pari:pari-to-lisp (pari:vector-index-sort #(10 40 30 20))) #(:ROW 1 4 3 2)
 (pari:pari-to-lisp (pari:vector-sort #(10 40 30 20))) #(:ROW 10 20 30 40)
-(pari-to-lisp (vector-sort-key #(#(1 10) #(2 40) #(3 30) #(4 20)) 2))
+(pari:pari-to-lisp (pari:vector-sort-key #(#(1 10) #(2 40) #(3 30) #(4 20)) 2))
 #(:ROW #(:ROW 1 10) #(:ROW 4 20) #(:ROW 3 30) #(:ROW 2 40))
+
+(pari:precision (pari:pari-pi))  19
+(loop :for n :from 5 :to 50
+  :unless (= (- n 2) (length (pari::pari-mantissa (pari::%pari-pi n))))
+  :collect n)
+()
+(loop :for n :from 5 :to 50
+  :for mypi0 = (pari:pari-to-lisp (pari:pari-pi :prec n))
+  :for mypi1 = (pari::convert-from-pari (pari::convert-to-pari mypi0))
+  :unless (= mypi0 mypi1) :collect (list n mypi0 mypi1))
+()
+
