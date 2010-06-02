@@ -61,6 +61,8 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:pari-isqrt #Z"4") #Z"2") T
 (pari:equal? (pari:pari-isqrt #Z"10") #Z"3") T
 (pari:equal? (pari:factorial-integer 10) #Z"3628800") T
+(pari:pari-to-lisp (pari:gamma 10)) 362880.0L0
+(pari:pari-to-lisp (pari:gamma-shift-1/2 9.5)) 362880.0L0
 
 (pari:equal? (pari:best-rational-approximation (pari:pari-pi) #Z"100")
              #Z"22/7") T
@@ -70,6 +72,10 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:continued-fraction #Z"355/113") #Z"[3,7,16]") T
 (subseq (pari:pari-to-lisp (pari:continued-fraction (pari:pari-pi))) 0 6)
 #(:ROW 3 7 15 1 292)
+(subseq (pari:pari-to-lisp (pari:continued-fraction (pari:euler))) 0 30)
+#(:ROW 0 1 1 2 1 2 1 4 3 13 5 1 1 8 1 2 4 1 1 40 1 11 3 7 1 7 1 1 5)
+(pari:pari-to-lisp (pari:continued-fraction (exp 1l0)))
+#(:ROW 2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1 14 2)
 
 (pari:equal? (pari:fibonacci 10) #Z"55") T
 (pari:pari-to-lisp (pari:fibonacci 100))  354224848179261915075
@@ -267,3 +273,5 @@ CHECK-ROUNDTRIP
   (list (pari:pari-to-lisp order) (princ-to-string order)))
 (#(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))) "#Z\"[x]\"")
 
+(pari:pari-to-lisp (pari:bernoulli-vector 9))
+#(:ROW 1 1/6 -1/30 1/42 -1/30 5/66 -691/2730 7/6 -3617/510 43867/798)
