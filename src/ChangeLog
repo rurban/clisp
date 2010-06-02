@@ -2,6 +2,7 @@
 
 	* modules/pari/pari.lisp (pari-typecode): export names
 	(variable-order): add (call reorder)
+	(euler): remove DEFINE-SYMBOL-MACRO
 
 2010-06-01  Sam Steingold  <sds@gnu.org>
 
