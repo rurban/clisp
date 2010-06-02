@@ -70,10 +70,10 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:best-rational-approximation (pari:pari-pi) #Z"10000")
              #Z"355/113") T
 (pari:equal? (pari:continued-fraction #Z"355/113") #Z"[3,7,16]") T
-(subseq (pari:pari-to-lisp (pari:continued-fraction (pari:pari-pi))) 0 6)
-#(:ROW 3 7 15 1 292)
-(subseq (pari:pari-to-lisp (pari:continued-fraction (pari:euler))) 0 30)
-#(:ROW 0 1 1 2 1 2 1 4 3 13 5 1 1 8 1 2 4 1 1 40 1 11 3 7 1 7 1 1 5)
+(pari:pari-to-lisp (pari:continued-fraction (pari:pari-pi)))
+#(:ROW 3 7 15 1 292 1 1 1 2 1 3 1 14 2 1 1 2 2)
+(pari:pari-to-lisp (pari:continued-fraction (pari:euler)))
+#(:ROW 0 1 1 2 1 2 1 4 3 13 5 1 1 8 1 2 4 1 1 41)
 (pari:pari-to-lisp (pari:continued-fraction (exp 1l0)))
 #(:ROW 2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1 14 2)
 
@@ -288,14 +288,16 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:vector-sort-key #(#(1 10) #(2 40) #(3 30) #(4 20)) 2))
 #(:ROW #(:ROW 1 10) #(:ROW 4 20) #(:ROW 3 30) #(:ROW 2 40))
 
-(pari:precision (pari:pari-pi))  19
-(loop :for n :from 5 :to 50
+pari:pari-real-precision  19
+(length (prin1-to-string (pari:pari-to-lisp (pari:pari-pi))))  23
+(length (prin1-to-string (pari:pari-to-lisp (pari:pari-pi :prec 38)))) 41
+(loop :for n :from 3 :to 50
   :unless (= (- n 2) (length (pari::pari-mantissa (pari::%pari-pi n))))
   :collect n)
 ()
-(loop :for n :from 5 :to 50
+(loop :for n :from 3 :to 50
   :for mypi0 = (pari:pari-to-lisp (pari:pari-pi :prec n))
   :for mypi1 = (pari::convert-from-pari (pari::convert-to-pari mypi0))
   :unless (= mypi0 mypi1) :collect (list n mypi0 mypi1))
 ()
-
+(= pi (pari:pari-to-lisp (pari:pari-pi))) T

@@ -117,11 +117,12 @@
 (defun bits2digits (bits) (values (floor (* #.(log 2 10) bits))))
 (defun digits2bits (digits) (values (ceiling (* #.(log 10 2) digits))))
 (defvar pari-real-precision-words
-  (bits2digits (ext:long-float-digits))
+  (+ 2 (ceiling (ext:long-float-digits) #,(bitsizeof 'ulong)))
   "The default precision argument for PARI functions which accept it.
 This is always equal to (+ 2 (length (pari-mantissa (%foo PRPD)))),
 t.e., this is the memory size for the real return value in ulong words.")
-
+(defun pari-real-precision-words (digits)
+  (+ 2 (ceiling (digits2bits digits) #,(bitsizeof 'ulong))))
 (defun pari-real-precision (&optional (words pari-real-precision-words))
   "The real PARI precision in decimal digits."
   (bits2digits (* #,(bitsizeof 'ulong) (- words 2))))
@@ -268,8 +269,14 @@ t.e., this is the memory size for the real return value in ulong words.")
                       ((1 2) (list (first arg)))
                       ((3 4) (if (eq (third arg) :out) '() (list (first arg))))
                       (t `(,@(if flag '() (progn (setq flag t) '(&key)))
-                           (,(first arg) ,(fifth arg)))))))
+                           (,(first arg) ,(fifth arg)
+                            ,@(and (sixth arg) `(,(sixth arg)))))))))
               args)))
+  (defun arg-preprocessing (args)
+    (mapcan (lambda (arg)
+              (let ((p (and (consp arg) (seventh arg))))
+                (and p (list p))))
+            args))
   (defun convert-to-arglist (args)
     (mapcan #'(lambda (arg)
                 (if (symbolp arg)
@@ -300,6 +307,7 @@ t.e., this is the memory size for the real return value in ulong words.")
         `(progn
            (export ',name)
            (defun ,name ,(convert-to-lambdalist args)
+             ,@(arg-preprocessing args)
              ,(case type
                 (pari-gen
                    `(make-internal-pari-object
@@ -314,6 +322,7 @@ t.e., this is the memory size for the real return value in ulong words.")
           `(progn
              (export ',name)
              (defun ,name ,(convert-to-lambdalist args)
+               ,@(arg-preprocessing args)
                (multiple-value-bind ,temp-vars
                    (,pari-name ,@(convert-to-arglist args))
                  (values
@@ -379,7 +388,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;;; provides a keyword argument prec defaulting to pari-real-precision-words.
 (defmacro pari-call-out-prec (fun lib-name args &optional (gp-name lib-name))
   `(pari-call-out ,fun ,lib-name
-     (,@args (prec long :in :none pari-real-precision-words)) ,gp-name))
+     (,@args (prec long :in :none pari-real-precision-words prec-p
+                   (when prec-p (setq prec (pari-real-precision-words prec)))))
+     ,gp-name))
 
 
 ;;; /* alglin.c */
