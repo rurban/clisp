@@ -9,8 +9,8 @@
 <simpara>When this module is present, &features-my; contains the
  symbol <constant>:PARI</constant>.</simpara>
 
-<para>PARI objects are printed and read using a
- special <literal role="data">#Z""</literal> syntax.</para>
+<para>PARI objects are printed and read using a special
+ <literal role="data">#Z""</literal> syntax.</para>
 
 <para>Most functions accept lisp objects as well as PARI objects and
 return PARI objects, which can be converted to lisp using the
@@ -19,4 +19,16 @@ return PARI objects, which can be converted to lisp using the
 <para>See <filename role="clisp-cvs">modules/pari/test.tst</filename>
  for sample usage.</para>
 
+<pari>Not all PARI functions have a corresponding lisp function yet, but you
+remedy that with just a few lines: <programlisting language="lisp">
+(&default-foreign-library; "libpari.so") ; or pari.dll on &win32;
+(pari:pari-call-out (matrix-rank ffi:long) "rank" (x)) ; long rank(GEN x);
+(pari:pari-call-out fibonacci "fibo" ((n ffi:long))) ; GEN fibo(long n);
+(pari:pari-call-out-prec pari-arctan "gatan" (x)) ; GEN gatan(GEN x, long prec);
+(pari:pari-call-out (equal? boolean) "gequal" (x y)) ; GEN gequal(GEN x, GEN y);
+</programlisting>
+(Actually, these four functions are already present in the module.)
+Please feel free to submit additions for
+ <filename role="clisp-cvs">modules/pari/pari.lisp</filename>
+ and <filename role="clisp-cvs">modules/pari/test.tst</filename>.</pari>
 </section>
