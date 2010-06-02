@@ -995,6 +995,8 @@
 ;; GEN polrecip(GEN x);
 (pari-call-out reciprocal-polynomial "polrecip" (x) "recip")
 ;; GEN reorder(GEN x);
+(pari-call-out variable-order "reorder" (x))
+
 ;; GEN sort(GEN x);
 (pari-call-out vector-sort "sort" (x))
 ;; GEN lexsort(GEN x);
