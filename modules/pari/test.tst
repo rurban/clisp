@@ -251,5 +251,5 @@ CHECK-ROUNDTRIP
      0 -199183403319296 0 140552804761600 0 -72155450572800 0 25426206392320
      0 -5497558138880 0 549755813888))
 
-(pari-to-lisp (complex-roots #z"x^2+1"))
+(pari:pari-to-lisp (pari:complex-roots #z"x^2+1"))
 #(:COL #C(0 1.0L0) #C(0 -1.0L0))
