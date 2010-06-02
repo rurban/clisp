@@ -282,3 +282,8 @@ CHECK-ROUNDTRIP
 (pari:pari-sign 0l0) 0
 (pari:pari-sign 1f0) 1
 (pari:pari-sign -1d0) -1
+
+(pari:pari-to-lisp (pari:vector-index-sort #(10 40 30 20))) #(:ROW 1 4 3 2)
+(pari:pari-to-lisp (pari:vector-sort #(10 40 30 20))) #(:ROW 10 20 30 40)
+(pari-to-lisp (vector-sort-key #(#(1 10) #(2 40) #(3 30) #(4 20)) 2))
+#(:ROW #(:ROW 1 10) #(:ROW 4 20) #(:ROW 3 30) #(:ROW 2 40))
