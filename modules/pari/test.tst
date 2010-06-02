@@ -253,3 +253,12 @@ CHECK-ROUNDTRIP
 
 (pari:pari-to-lisp (pari:complex-roots #z"x^2+1"))
 #(:COL #C(0 1.0L0) #C(0 -1.0L0))
+(pari:pari-to-lisp (pari:symmetric-powers #z"x^2+1" 4))
+#(:COL 2 0 -2 0 2)
+(pari:pari-to-lisp (pari:symmetric-powers (pari:tchebychev-polynomial 30) 30))
+#(:COL 30 0 15 0 45/4 0 75/8 0 525/64 0 945/128 0 3465/512 0 6435/1024 0
+  96525/16384 0 182325/32768 0 692835/131072 0 1322685/262144 0
+  10140585/2097152 0 19501125/4194304 0 75218625/16777216 0 145422675/33554432)
+(pari:pari-to-lisp (pari:symmetric-powers (pari:legendre-polynomial 12) 12))
+#(:COL 12 0 132/23 0 15444/3703 0 5477076/1618211 0 12809498724/4429043507 0
+  259405490124/101868000661 0 9262490692392036/4050984782285987)
