@@ -19,16 +19,39 @@ return PARI objects, which can be converted to lisp using the
 <para>See <filename role="clisp-cvs">modules/pari/test.tst</filename>
  for sample usage.</para>
 
-<pari>Not all PARI functions have a corresponding lisp function yet, but you
+<simplesect id="pari-ext"><title>Extending the module</title>
+<para>Not all PARI functions have a corresponding lisp function yet, but one
 remedy that with just a few lines: <programlisting language="lisp">
 (&default-foreign-library; "libpari.so") ; or pari.dll on &win32;
-(pari:pari-call-out (matrix-rank ffi:long) "rank" (x)) ; long rank(GEN x);
-(pari:pari-call-out fibonacci "fibo" ((n ffi:long))) ; GEN fibo(long n);
-(pari:pari-call-out-prec pari-arctan "gatan" (x)) ; GEN gatan(GEN x, long prec);
-(pari:pari-call-out (equal? boolean) "gequal" (x y)) ; GEN gequal(GEN x, GEN y);
+(pari:pari-call-out (matrix-rank ffi:long) "rank" (x))<lineannotation>long rank(GEN x);</lineannotation>
+(pari:pari-call-out fibonacci "fibo" ((n ffi:long)))<lineannotation>GEN fibo(long n);</lineannotation>
+(pari:pari-call-out-prec pari-arctan "gatan" (x))<lineannotation>GEN gatan(GEN x, long prec);</lineannotation>
+(pari:pari-call-out (equal? boolean) "gequal" (x y))<lineannotation>GEN gequal(GEN x, GEN y);</lineannotation>
 </programlisting>
 (Actually, these four functions are already present in the module.)
 Please feel free to submit additions for
  <filename role="clisp-cvs">modules/pari/pari.lisp</filename>
- and <filename role="clisp-cvs">modules/pari/test.tst</filename>.</pari>
+ and <filename role="clisp-cvs">modules/pari/test.tst</filename>.</para>
+</simplesect>
+
+<simplesect id="pari-prec"><title>Real precision</title>
+<para>The real precision defaults to <varname>pari:pari-real-precision</varname>
+which specifies the default precision in decimal digits:
+<programlisting language="lisp">
+pari:pari-real-precision
+<computeroutput>327</computeroutput>
+(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi))))
+<computeroutput>331</computeroutput>
+</programlisting>
+One can also pass the precision parameter explicitly, specifying the number of
+<type>ffi:ulong</type> words which the resulting PARI number should occupy:
+<programlisting language="lisp">
+(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi :prec 40))))
+<computeroutput>735</computeroutput><lineannotation>on 64-bit platforms</lineannotation>
+<computeroutput>368</computeroutput><lineannotation>on 32-bit platforms</lineannotation>
+(pari:pari-real-precision 40)
+<computeroutput>732</computeroutput><lineannotation>on 64-bit platforms</lineannotation>
+<computeroutput>366</computeroutput><lineannotation>on 32-bit platforms</lineannotation>
+</programlisting></para>
+</simplesect>
 </section>
