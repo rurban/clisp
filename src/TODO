@@ -54,10 +54,6 @@ Should we follow these more closely?
 Embeddability: additional API in spvw.d; example. RFE#423264
 
 
-Update PARI module:
-Many functions have been added since the module has been written.
-
-
 nested REQUIRE is broken
 <http://article.gmane.org/gmane.lisp.clisp.devel:13691>:
 suppose I have a library which consists of 10 files - which create
