@@ -1773,8 +1773,6 @@
 (pari-call-out-prec polylog-p "polylogp" ((m long) x))
 ;; GEN gpolylog(long m, GEN x, long prec);
 
-(define-symbol-macro euler (euler))
-
 ;; GEN theta(GEN q, GEN z, long prec);
 ;; GEN thetanullk(GEN q, long k, long prec);
 ;; GEN mplngamma(GEN x);
