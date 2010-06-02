@@ -275,3 +275,10 @@ CHECK-ROUNDTRIP
 
 (pari:pari-to-lisp (pari:bernoulli-vector 9))
 #(:ROW 1 1/6 -1/30 1/42 -1/30 5/66 -691/2730 7/6 -3617/510 43867/798)
+
+(pari:pari-sign 2) 1
+(pari:pari-sign -10) -1
+(pari:pari-sign 0) 0
+(pari:pari-sign 0l0) 0
+(pari:pari-sign 1f0) 1
+(pari:pari-sign -1d0) -1
