@@ -27,7 +27,7 @@ AC_SEARCH_LIBS(pari_kernel_init, pari)
 if test "$ac_cv_search_pari_kernel_init" = "no";
 then AC_MSG_ERROR([cannot find PARI library])
 fi
-AC_CHECK_FUNCS(freeall pari_init killallfiles pari_init_opts)
+AC_CHECK_FUNCS(pari_init pari_init_opts pari_close)
 
 BOLD_MSG([PARI (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
