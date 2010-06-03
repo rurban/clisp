@@ -544,9 +544,10 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;;; /* anal.c */
 
 ;; GEN readexpr(char *t);
-;; GEN readexpr(char **c);
 ;; GEN readseq(char *t);
 (pari-call-out read-from-string "readseq" ((str c-string :in :alloca)) nil)
+;; GEN gp_read_str(char *t);
+(pari-call-out read-from-string1 "gp_read_str" ((str c-string :in :alloca)) nil)
 
 ;; void switchin(char *name);
 ;; GEN switchout(char *name);
@@ -629,7 +630,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN compimag(GEN x, GEN y);
 (pari-call-out compose-imag-qf "compimag" (x y))
-;; GEN sqcomp(GEN x);
 ;; GEN qfi(GEN x, GEN y, GEN z);
 (pari-call-out make-imag-qf "qfi" (x y z))
 ;; GEN qfr(GEN x, GEN y, GEN z, GEN d);
@@ -638,6 +638,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN redreal(GEN x);
 (pari-call-out reduce-real-qf "redreal" (x))
 ;; GEN sqcompreal(GEN x);
+(pari-call-out qfr-composition "sqcompreal" (x))
+;; GEN sqcompimag(GEN x);
+(pari-call-out qfi-composition "sqcompimag" (x))
 
 ;; GEN rhoreal(GEN x);
 (pari-call-out reduce-real-qf-one-step "rhoreal" (x))
@@ -660,7 +663,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN comprealraw(GEN x, GEN y);
 (pari-call-out compose-real-qf-raw "comprealraw" (x y))
-;; GEN sqcomprealraw(GEN x);
 ;; GEN powrealraw(GEN x, long n, long prec);
 (pari-call-out-prec power-real-qf-raw "powrealraw" (x (n long)))
 
@@ -2314,7 +2316,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 ;; QFR=15: indefinite binary quadratic forms
 
-(define-pari QFR pari-real-qf (a b c))
+(define-pari QFR pari-real-qf (a b c d))
 
 ;; QFI=16: definite binary quadratic forms
 

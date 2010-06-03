@@ -371,8 +371,44 @@ pari:pari-real-precision  19
 #S(PARI:pari-pws :S 1 :VARNO 0 :EXPO 1 :COEFFS #(1 -2 3 -4 5 -6))
 (pari:pari-to-lisp (pari:pws-reverse (pari:taylor-expansion #Z"x/(1+x)^3" :precdl 7)))
 #S(PARI:pari-pws :S 1 :VARNO 0 :EXPO 1 :COEFFS #(1 3 12 55 273 1428))
-(pari:pari-to-lisp (pari:pari* #z"1+x" (pari:taylor-expansion #Z"1/(1+x)" :precdl 7)))
+(pari:pari-to-lisp (pari:pari* #Z"1+x" (pari:taylor-expansion #Z"1/(1+x)" :precdl 7)))
 #S(PARI:pari-pws :S 1 :VARNO 0 :EXPO 0 :COEFFS #(1 0 0 0 0 0 0))
+(pari:pari-to-lisp (pari:pws-reverse #Z"sin(x)"))
+#S(PARI:pari-pws :S 1 :VARNO 0 :EXPO 1 :COEFFS
+   #(1 0 1/6 0 3/40 0 5/112 0 35/1152 0 63/2816 0 231/13312 0 143/10240 0))
+
+(pari:pari-to-lisp (pari:quadratic-unit 17))
+#S(PARI:pari-quadratic :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-4 -1 1))
+   :REALPART 3 :IMAGPART 2)
+(pari:pari-to-lisp (pari:quadratic-unit 512))
+#S(PARI:pari-quadratic :REALPART 577 :IMAGPART 51
+   :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 0 1)))
+(pari:pari-to-lisp (pari:quadratic-unit 513))
+#S(PARI:pari-quadratic :REALPART 13163331 :IMAGPART 1216040
+   :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 -1 1)))
+(pari:pari-to-lisp (pari:quadratic-regulator 5)) 0.4812118250596034475L0
+(pari:pari-to-lisp (pari:quadratic-regulator 512)) 7.0509886961563442015L0
+(pari:pari-to-lisp (pari:quad-minimal-polynomial 513))
+#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 -1 1))
+(pari:pari-to-lisp (pari:quad-minimal-polynomial 512))
+#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 0 1))
+(pari:pari-to-lisp (pari:quad-minimal-polynomial 5))
+#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-1 -1 1))
+(pari:pari-to-lisp (pari:quad-discriminant 5)) 5
+(pari:pari-to-lisp (pari:quad-discriminant 512)) 8
+(pari:pari-to-lisp (pari:quad-discriminant 513)) 57
+
+(defparameter qfi (show (pari:pari-to-lisp (pari:make-imag-qf 1 2 3)))) QFI
+(pari:pari-to-lisp (pari:qfi-composition qfi))
+#S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
+(pari:pari-to-lisp (pari:reduce-imag-qf qfi))
+#S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
+(pari:square? qfi) T
+(defparameter qfr (show (pari:pari-to-lisp (pari:make-real-qf 1 2 3 0.0)))) QFR
+;; PARI stack overflows (pari:pari-to-lisp (pari:qfr-composition qfr))
+;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf qfr))
+;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf-one-step qfr))
+(pari:square? qfr) T
 
 ;; done, print type conversion statistics
 (let ((alist (sort (ext:with-collect (co)
