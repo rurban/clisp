@@ -1,5 +1,19 @@
 2010-06-03  Sam Steingold  <sds@gnu.org>
 
+	init the PARI internal data structures properly,
+	enabling nice error messages to the screen
+	* modules/pari/configure.in: do not check for killallfiles, freeall;
+	check for pari_close
+	* modules/pari/cpari.c (clispErrDie): revert to trivial error message
+	(clisp_exception_handler): remove
+	(init_for_clisp): pass INIT_DFTm to pari_init_opts; do not set
+	GP_DATA (done by pari_init_opts) and default_exception_handler
+	(fini_for_clisp): remove
+	* modules/pari/pari.lisp (pari-fini): call pari_close(),
+	also call pari_close() in :FINI
+
+2010-06-03  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (require): fix the 2010-05-25 patch: do not lock
 	*SYSTEM-PACKAGE-LIST* if "SYSTEM" is not locked, i.e., CLISP was
 	started with "-d" and thus locking is not desired
