@@ -30,6 +30,7 @@
 	in CLISP)
 	(convert-from-pari-SER): fix
 	(pari-object): remove the spurious "nil" slot
+	(pari-real-qf): fix definition (4 slots, not 3)
 
 2010-06-02  Sam Steingold  <sds@gnu.org>
 
