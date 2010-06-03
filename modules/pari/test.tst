@@ -7,6 +7,18 @@
 
 (format t "~&Version: ~S~%" pari:pari-version) NIL
 
+(progn
+  (defparameter *pari-to-lisp* (make-hash-table))
+  (defparameter *lisp-to-pari* (make-hash-table))
+  (defmethod pari::pari-to-lisp :before ((x pari::pari-object-internal))
+    (incf (gethash (pari::pari-type-raw (pari::pari-object-internal-pointer x))
+                   *pari-to-lisp* 0)))
+  (defmethod pari::convert-to-pari :around ((x t))
+    (let ((ptr (call-next-method)))
+      (when ptr (incf (gethash (pari::pari-type-raw ptr) *lisp-to-pari* 0)))
+      ptr))
+  t) T
+
 ;; integer conversion
 (defun roundtrip1 (x)
   (pari:pari-to-lisp (read-from-string (format nil "#Z\"~D\"" x))))
@@ -301,3 +313,20 @@ pari:pari-real-precision  19
   :unless (= mypi0 mypi1) :collect (list n mypi0 mypi1))
 ()
 (= pi (pari:pari-to-lisp (pari:pari-pi))) T
+
+(let ((alist (sort (ext:with-collect (co)
+                     (with-hash-table-iterator
+                         (iter (get 'pari:pari-typecode 'ffi:def-c-enum))
+                       (loop (multiple-value-bind (re kk vv) (iter)
+                               (unless re (return))
+                               (co (cons kk vv))))))
+                   #'< :key #'car)))
+  (flet ((show-coverage (title table)
+           (format t "~A:~%" title)
+           (dolist (pair alist)
+             (format t " ~3D ~8A   ~:D~%" (car pair) (cdr pair)
+                     (gethash (car pair) table)))))
+    (format t "~&Type Conversion Coverage~%")
+    (show-coverage "LISP --> PARI" *lisp-to-pari*)
+    (show-coverage "PARI --> LISP" *pari-to-lisp*)))
+NIL
