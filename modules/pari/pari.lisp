@@ -2028,7 +2028,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (export '(pari-object pari-object-internal))
 
 (defstruct pari-object
-  "An abstract class for CLISP equivalents of pari objects" ())
+  "An abstract class for CLISP equivalents of pari objects")
 
 (defgeneric convert-to-pari (x)
   (:documentation
