@@ -2015,9 +2015,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 ;;;; Conversion CLISP --> pari and pari --> CLISP
 
 ;; Make a vector of ulongs into a pari object (including the second codeword,
-;; which is element 0 of the vector). type is the pari type code.
-(defun pari-make-object (vec type)
-  (let ((obj (pari-cgetg (1+ (length vec)) type)))
+;; which is element 0 of the vector). typecode is the pari type code.
+(defun pari-make-object (vec typecode)
+  (let ((obj (pari-cgetg (1+ (length vec)) typecode)))
     (with-c-var (v 'c-pointer obj)
       (incf (cast v 'ulong) #,(sizeof 'c-pointer))
       (setf (deref (cast v `(c-ptr (c-array ulong ,(length vec))))) vec))
@@ -2175,7 +2175,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   pari-1/2)
 
 (defmethod convert-to-pari ((x ratio))
-  (let ((obj (pari-cgetg 3 4)))
+  (let ((obj (pari-cgetg 3 FRAC)))
     (pari-set-component obj 1 (convert-to-pari (numerator x)))
     (pari-set-component obj 2 (convert-to-pari (denominator x)))
     obj))
@@ -2192,7 +2192,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   pari-i)
 
 (defmethod convert-to-pari ((x complex))
-  (let ((obj (pari-cgetg 3 6)))
+  (let ((obj (pari-cgetg 3 COMPLEX)))
     (pari-set-component obj 1 (convert-to-pari (realpart x)))
     (pari-set-component obj 2 (convert-to-pari (imagpart x)))
     obj))
@@ -2245,7 +2245,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 (defmethod convert-to-pari ((x pari-poly))
   (let* ((coeffs (pari-poly-coeffs x))
-         (obj (pari-cgetg (+ 2 (length coeffs)) 10)))
+         (obj (pari-cgetg (+ 2 (length coeffs)) POL)))
     (extract1 (elt1 obj)
       (setf elt1
             (dpb (pari-poly-s x) pari-sign-byte
@@ -2269,7 +2269,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 (defmethod convert-to-pari ((x pari-pws))
   (let* ((coeffs (pari-pws-coeffs x))
-         (obj (pari-cgetg (+ 2 (length coeffs)) 11)))
+         (obj (pari-cgetg (+ 2 (length coeffs)) SER)))
     (extract1 (elt1 obj)
       (setf elt1
             (dpb (pari-pws-s x) pari-sign-byte
@@ -2306,11 +2306,11 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 ;; #(v1 v2 ... vn)       ---> row vector
 (defmethod convert-to-pari ((x vector))
   (if (and (plusp (length x)) (member (svref x 0) '(:row :col) :test #'eq))
-    (let ((obj (pari-cgetg (length x) (case (svref x 0) (:row 17) (:col 18)))))
+    (let ((obj (pari-cgetg (length x) (case (svref x 0) (:row VEC) (:col COL)))))
       (do ((i (1- (length x)) (1- i)))
           ((eql i 0) obj)
         (pari-set-component obj i (convert-to-pari (svref x i)))))
-    (let ((obj (pari-cgetg (1+ (length x)) 17)))
+    (let ((obj (pari-cgetg (1+ (length x)) VEC)))
       (dotimes (i (length x) obj)
         (pari-set-component obj (1+ i) (convert-to-pari (svref x i)))))))
 
@@ -2335,9 +2335,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defmethod convert-to-pari ((x array))
   (unless (eql (array-rank x) 2)
     (error "~S: Array ~S is not 2-dimensional." 'convert-to-pari x))
-  (let ((obj (pari-cgetg (1+ (array-dimension x 1)) 19)))
+  (let ((obj (pari-cgetg (1+ (array-dimension x 1)) MAT)))
     (dotimes (j (array-dimension x 1) obj)
-      (let ((col (pari-cgetg (1+ (array-dimension x 0)) 18)))
+      (let ((col (pari-cgetg (1+ (array-dimension x 0)) COL)))
         (dotimes (i (array-dimension x 0))
           (pari-set-component col (1+ i) (convert-to-pari (aref x i j))))
         (pari-set-component obj (1+ j) col)))))
