@@ -2305,14 +2305,15 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 ;; #(:col v1 v2 ... vn) <---> column vector
 ;; #(v1 v2 ... vn)       ---> row vector
 (defmethod convert-to-pari ((x vector))
-  (if (and (plusp (length x)) (member (svref x 0) '(:row :col) :test #'eq))
-    (let ((obj (pari-cgetg (length x) (case (svref x 0) (:row VEC) (:col COL)))))
-      (do ((i (1- (length x)) (1- i)))
-          ((eql i 0) obj)
-        (pari-set-component obj i (convert-to-pari (svref x i)))))
-    (let ((obj (pari-cgetg (1+ (length x)) VEC)))
-      (dotimes (i (length x) obj)
-        (pari-set-component obj (1+ i) (convert-to-pari (svref x i)))))))
+  (let (shift typecode)
+    (case (or (zerop (length x)) (svref x 0))
+      (:row (setq shift 0 typecode VEC))
+      (:col (setq shift 0 typecode COL))
+      (t (setq shift 1 typecode VEC)))
+    (do* ((length (length x)) (obj (pari-cgetg (+ length shift) typecode))
+          (i (- 1 shift) (1+ i)))
+         ((= i length) obj)
+      (pari-set-component obj (+ i shift) (convert-to-pari (svref x i))))))
 
 (defun convert-from-pari-vector (ptr type)
   (let* ((len (1- (pari-length-raw ptr)))
