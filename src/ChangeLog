@@ -5,6 +5,7 @@
 	(convert-from-pari-vector): replaces convert-from-pari-VEC and
 	convert-from-pari-COL
 	(convert-from-pari): use it instead of them
+	(convert-to-pari@vector): simplify
 
 2010-06-02  Sam Steingold  <sds@gnu.org>
 
