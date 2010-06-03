@@ -128,7 +128,7 @@
 
 (defvar *system-package-list*
   '("SYSTEM" "COMMON-LISP" "EXT" "I18N" "GRAY" "CHARSET" "CLOS"
-    #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
+    #+sockets "SOCKET" #+generic-streams "GSTREAM"
     #+ffi "FFI" #+screen "SCREEN")
   "The list of packages that will be locked by SAVEINITMEM.
 Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
@@ -196,8 +196,10 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
     (prog1
         (with-augmented-load-path ()
           (if (atom pathname) (load pathname) (mapcar #'load pathname)))
-      ;; we might have loaded a system package, lock it!
-      (|(SETF PACKAGE-LOCK)| t *system-package-list*))))
+      ;; we might have loaded a `system' package: lock it,
+      ;; unless CLISP was started with "-d" and thus locking is not desired
+      (when (package-lock "SYSTEM")
+        (|(SETF PACKAGE-LOCK)| t *system-package-list*)))))
 
 ;;; integer constants (Chapter 12)
 
