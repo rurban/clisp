@@ -1883,8 +1883,6 @@ t.e., this is the memory size for the real return value in ulong words.")
   (extract0 (elt0 x)
     (dpb s pari-type-byte elt0)))
 
-;; #define pere(x)           ((ulong)(((GEN)(x))[0]&PEREBITS)>>PERESHIFT)
-;; #define setpere(x,s)      (((GEN)(x))[0]=(((GEN)(x))[0]&(~PEREBITS))+(((ulong)(s))<<PERESHIFT))
 ;; #define lg(x)             ((long)(((GEN)(x))[0]&LGBITS))
 (defun pari-length-raw (x)
   (extract0 (elt0 x)
