@@ -16,6 +16,27 @@
 (pushnew :pari *features*)
 (provide "pari")
 
+;; capture error output:
+;; + the PARI error message goes though the CLCS instead of directly
+;;   to *error-output*.
+;; - PARI syntax errors are multiline and exquisitely aligned line-by-line
+;;   so going through CLCS will make the printed messages less useful.
+;; (defvar *pari-error-output* (make-string-output-stream))
+;; (defun pari-err-putc (c) (write-char c *pari-error-output*))
+;; (defun pari-err-puts (s) (write-string s *pari-error-output*))
+;; (defun pari-err-flush ()
+;;   (write-string (get-output-stream-string *pari-error-output*) *error-output*))
+;; (defun pari-err-die ()
+;;   (error "PARI ~A" (get-output-stream-string *pari-error-output*)))
+;; (def-call-in pari-err-putc (:name "clispErrPutc")
+;;   (:return-type nil) (:arguments (c character)))
+;; (def-call-in pari-err-puts (:name "clispErrPuts")
+;;   (:return-type nil) (:arguments (s c-string :in :malloc-free)))
+;; (def-call-in pari-err-flush (:name "clispErrFlush")
+;;   (:return-type nil) (:arguments))
+;; (def-call-in pari-err-die (:name "clispErrDie")
+;;   (:return-type nil) (:arguments))
+
 ;;; Declare all the pari types, variables, functions, ...
 (c-lines "#undef T~%#include <pari/pari.h>~%")
 
