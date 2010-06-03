@@ -14,6 +14,7 @@
 	(convert-to-pari@vector): simplify
 	(convert-from-pari-REAL): treat empty mantissa as 0 (no signed 0
 	in CLISP)
+	(convert-from-pari-SER): fix
 
 2010-06-02  Sam Steingold  <sds@gnu.org>
 

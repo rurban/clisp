@@ -2284,10 +2284,10 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   (let* ((s (pari-sign-raw ptr))
          (varno (pari-varno-raw ptr))
          (expo (pari-valuation-raw ptr))
-         (len (pari-length-raw ptr))
+         (len (- (pari-length-raw ptr) 2))
          (coeffs (make-array len)))
     (dotimes (i len)
-      (setf (svref coeffs i) (convert-from-pari (%component ptr i))))
+      (setf (svref coeffs i) (convert-from-pari (%component ptr (1+ i)))))
     (make-pari-pws :s s :varno varno :expo expo :coeffs coeffs)))
 
 ;; RFRAC=13: rational functions
