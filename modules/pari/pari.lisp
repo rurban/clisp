@@ -2160,10 +2160,11 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   (let* ((sign (pari-sign-raw ptr))
          (expo (pari-exponent-raw ptr))
          (mant (pari-mantissa ptr))
-         (signif (collect-mantissa mant)))
-    (* sign (scale-float (float signif (float-digits 1 (* #,(bitsizeof 'ulong)
-                                                          (length mant))))
-                         (- expo (* #,(bitsizeof 'ulong) (length mant)) -1)))))
+         (signif (collect-mantissa mant))
+         (mant-bits (* #,(bitsizeof 'ulong) (length mant))))
+    (* sign (if (zerop mant-bits) 0 ; no signed 0 in CLISP
+                (scale-float (float signif (float-digits 1 mant-bits))
+                             (- expo mant-bits -1))))))
 
 ;; INTMOD=3: integermods
 

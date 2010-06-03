@@ -77,10 +77,17 @@ CHECK-ROUNDTRIP
 #2A((-2 1) (3/2 -1/2))
 (pari:pari-to-lisp (pari:pari* #2A((1 2) (3 4)) #(:COL 1 2))) #(:COL 5 11)
 (pari:pari-to-lisp (pari:matrix-solve #2A((1 2) (3 4)) #(:COL 5 11)))#(:COL 1 2)
-(pari:pari-to-lisp (pari:pari* #2A((2 1) (1 2)) #2A((2 1) (1 2))))
-#2A((5 4) (4 5))
+(pari:pari-to-lisp (pari:square #2A((2 1) (1 2)))) #2A((5 4) (4 5))
 (pari:pari-to-lisp (pari:pari/ #2A((5 4) (4 5)) #2A((2 1) (1 2))))
 #2A((2 1) (1 2))
+
+(pari:pari-to-lisp (pari:square (pari:pari-sqrt #C(0 1))))  #C(0 1)
+(pari:pari-to-lisp (pari:pari-sqrt #C(1 2)))
+#C(1.2720196495140689642L0 0.78615137775742328604L0)
+(pari:pari-to-lisp (pari:pari-sqrt #C(1 1)))
+#C(1.0986841134678099661L0 0.45508986056222734128L0)
+(pari:pari-to-lisp (pari:pari-sqrt #C(0 1)))
+#C(0.7071067811865475244L0 0.7071067811865475244L0)
 
 (pari:equal? (pari:pari-isqrt #Z"4") #Z"2") T
 (pari:equal? (pari:pari-isqrt #Z"10") #Z"3") T
