@@ -10,9 +10,15 @@
 (progn
   (defparameter *pari-to-lisp* (make-hash-table))
   (defparameter *lisp-to-pari* (make-hash-table))
-  (defmethod pari::pari-to-lisp :before ((x pari::pari-object-internal))
-    (incf (gethash (pari::pari-type-raw (pari::pari-object-internal-pointer x))
-                   *pari-to-lisp* 0)))
+  (setq *trace-output* (make-broadcast-stream)) ; suppress TRACE output
+  (trace (pari::convert-from-pari
+          :pre (incf (gethash (pari::pari-type-raw (car ext:*trace-args*))
+                              *pari-to-lisp* 0))))
+  ;; this is not good enough because it captures only the top-level calls to
+  ;; `pari-to-lisp', not the internal calls to `convert-from-pari'.
+  ;; (defmethod pari::pari-to-lisp :before ((x pari::pari-object-internal))
+  ;;   (incf (gethash (pari::pari-type-raw (pari::pari-object-internal-pointer
+  ;;                                        x)) *pari-to-lisp* 0)))
   (defmethod pari::convert-to-pari :around ((x t))
     (let ((ptr (call-next-method)))
       (when ptr (incf (gethash (pari::pari-type-raw ptr) *lisp-to-pari* 0)))
@@ -69,6 +75,12 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:matrix-determinant #2A((1 2) (3 4)))) -2
 (pari:pari-to-lisp (pari:matrix-solve #2A((1 2) (3 4)) nil))
 #2A((-2 1) (3/2 -1/2))
+(pari:pari-to-lisp (pari:pari* #2A((1 2) (3 4)) #(:COL 1 2))) #(:COL 5 11)
+(pari:pari-to-lisp (pari:matrix-solve #2A((1 2) (3 4)) #(:COL 5 11)))#(:COL 1 2)
+(pari:pari-to-lisp (pari:pari* #2A((2 1) (1 2)) #2A((2 1) (1 2))))
+#2A((5 4) (4 5))
+(pari:pari-to-lisp (pari:pari/ #2A((5 4) (4 5)) #2A((2 1) (1 2))))
+#2A((2 1) (1 2))
 
 (pari:equal? (pari:pari-isqrt #Z"4") #Z"2") T
 (pari:equal? (pari:pari-isqrt #Z"10") #Z"3") T
