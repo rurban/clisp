@@ -1,3 +1,10 @@
+2010-06-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp (%read-from-string): use gp_read_str
+	instead of the obsolete readseq; use DEF-CALL-OUT instead of
+	PARI-CALL-OUT to avoid shadowing the CL function
+	(pari-reader): gp_read_str takes care of whitespace
+
 2010-06-03  Sam Steingold  <sds@gnu.org>
 
 	init the PARI internal data structures properly,
