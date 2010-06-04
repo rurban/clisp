@@ -4,6 +4,7 @@
 	instead of the obsolete readseq; use DEF-CALL-OUT instead of
 	PARI-CALL-OUT to avoid shadowing the CL function
 	(pari-reader): gp_read_str takes care of whitespace
+	(resultant-vector): add (calls vecbezoutres)
 
 2010-06-03  Sam Steingold  <sds@gnu.org>
 

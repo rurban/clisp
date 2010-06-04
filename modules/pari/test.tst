@@ -133,6 +133,12 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:factor #Z"144"))  #2A((2 4) (3 2))
 (pari:prime? 139 0) T
 (pari:pseudo-prime? 140 0) NIL
+(pari:bigomega 12) 3
+(pari:omega 12) 2
+(pari:bigomega 144) 6
+(pari:omega 144) 2
+
+(pari:pari-to-lisp (pari:resultant-vector 40 60)) #(:ROW 1/40 0 1)
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
 (pari:equal? (pari:primitive-root #Z"104729") #Z"Mod(12,104729)") T
@@ -152,6 +158,18 @@ CHECK-ROUNDTRIP
   #(:ROW #S(PARI:pari-integermod :MODULUS 24 :REP 13)
     #S(PARI:pari-integermod :MODULUS 24 :REP 19)
     #S(PARI:pari-integermod :MODULUS 24 :REP 17)))
+
+(pari:pari-to-lisp (pari:chinese-lift
+                    #S(PARI:pari-integermod :MODULUS 10 :REP 7)
+                    #S(PARI:pari-integermod :MODULUS 12 :REP 5)))
+#S(PARI:pari-integermod :MODULUS 60 :REP 17)
+(pari:pari-to-lisp (pari:chinese-lift
+                    #S(PARI:pari-integermod :MODULUS 10 :REP 7)
+                    #S(PARI:pari-integermod :MODULUS 3 :REP 4)))
+#S(PARI:pari-integermod :MODULUS 30 :REP 7)
+
+(pari:pari-to-lisp (pari:discriminant #Z"x^2-1")) 4
+(pari:pari-to-lisp (pari:resultant #Z"x^2-1" #Z"x^3")) -1
 
 (pari:pari-to-lisp (pari:divisors #Z"121")) #(:ROW 1 11 121)
 (pari:pari-to-lisp (pari:divisors #Z"122")) #(:ROW 1 2 61 122)
