@@ -544,10 +544,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;;; /* anal.c */
 
 ;; GEN readexpr(char *t);
-;; GEN readseq(char *t);
-(pari-call-out read-from-string "readseq" ((str c-string :in :alloca)) nil)
 ;; GEN gp_read_str(char *t);
-(pari-call-out read-from-string1 "gp_read_str" ((str c-string :in :alloca)) nil)
+(def-call-out %read-from-string (:name "gp_read_str")
+  (:return-type pari-gen) (:arguments (str c-string)))
 
 ;; void switchin(char *name);
 ;; GEN switchout(char *name);
@@ -2078,8 +2077,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   (let ((str (read stream t nil t)))
     (unless (stringp str)
       (error "~S: After #Z a string must follow." 'read))
-    (make-internal-pari-object
-     (%read-from-string (remove-if #'sys::whitespacep str)))))
+    (make-internal-pari-object (%read-from-string str))))
 
 (set-dispatch-macro-character #\# #\Z #'pari-reader)
 
