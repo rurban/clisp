@@ -146,6 +146,30 @@ CHECK-ROUNDTRIP
 #S(PARI:pari-integermod :MODULUS 100003 :REP 2)
 (pari:pari-to-lisp (pari:primitive-root 1180591620717411303449))
 #S(PARI:pari-integermod :MODULUS 1180591620717411303449 :REP 3)
+(pari:pari-to-lisp (pari:primitive-root 3))
+#S(PARI:pari-integermod :MODULUS 3 :REP 2)
+(pari:pari-to-lisp (pari:primitive-root 7))
+#S(PARI:pari-integermod :MODULUS 7 :REP 3)
+
+(loop :repeat 5000 :with max
+  :for prime = 2 :then (pari:pari-to-lisp (pari:next-prime (1+ prime)))
+  :for primitive-root = (pari:pari-to-lisp (pari:primitive-root prime))
+  :for primitive = (pari:pari-integermod-rep primitive-root)
+  :do (assert (= prime (pari:pari-integermod-modulus primitive-root)))
+  (unless (and max (>= (pari:pari-integermod-rep (car max)) primitive))
+    (push primitive-root max))
+  :finally (return (nreverse max)))
+(#S(PARI:pari-integermod :MODULUS 2 :REP 1)
+ #S(PARI:pari-integermod :MODULUS 3 :REP 2)
+ #S(PARI:pari-integermod :MODULUS 7 :REP 3)
+ #S(PARI:pari-integermod :MODULUS 23 :REP 5)
+ #S(PARI:pari-integermod :MODULUS 41 :REP 6)
+ #S(PARI:pari-integermod :MODULUS 71 :REP 7)
+ #S(PARI:pari-integermod :MODULUS 191 :REP 19)
+ #S(PARI:pari-integermod :MODULUS 409 :REP 21)
+ #S(PARI:pari-integermod :MODULUS 2161 :REP 23)
+ #S(PARI:pari-integermod :MODULUS 5881 :REP 31)
+ #S(PARI:pari-integermod :MODULUS 36721 :REP 37))
 
 (pari:equal? (pari:structure-of-z/n* #Z"7") #Z"[6, [6], [Mod(3, 7)]]") T
 (pari:equal? (pari:structure-of-z/n* #Z"10") #Z"[4, [4], [Mod(7, 10)]]") T
