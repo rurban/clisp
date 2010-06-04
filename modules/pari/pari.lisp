@@ -549,14 +549,12 @@ t.e., this is the memory size for the real return value in ulong words.")
   (:return-type pari-gen) (:arguments (str c-string)))
 
 ;; void switchin(char *name);
-;; GEN switchout(char *name);
-;; GEN fliplog(void);
+;; void switchout(char *name);
 
 ;;; /* arith.c */
 
 ;; GEN racine(GEN a);
 (pari-call-out pari-isqrt "racine" (a) "isqrt")
-;; GEN mppgcd(GEN a, GEN b);
 ;; GEN mpfact(long n);
 (pari-call-out factorial-integer "mpfact" ((n long)) "!")
 ;; GEN mpfactr(long n, long prec);
@@ -578,7 +576,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN addprimes(GEN primes);
 (pari-call-out add-primes "addprimes" (primes) "addprimes")
 
-;; GEN bezout(GEN a, GEN b, GEN *u, GEN *v);
+;; GEN bezout(GEN a, GEN b, GEN *u, GEN *v); -- ext:xgcd is better!
+;; (pari-call-out bezout "bezout" (a b (u (c-ptr pari-gen) :out :alloca)
+;;                                   (v (c-ptr pari-gen) :out :alloca)))
 ;; GEN chinese(GEN x, GEN y);
 (pari-call-out chinese-lift "chinese" (x y))
 ;; GEN Fp_inv(GEN a, GEN m);
@@ -698,9 +698,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; long mu(GEN n);
 (pari-call-out (moebius-mu long) "mu" (n))
-;; GEN omega(GEN n);
+;; long omega(GEN n);
 (pari-call-out (omega long) "omega" (n))
-;; GEN bigomega(GEN n);
+;; long bigomega(GEN n);
 (pari-call-out (bigomega long) "bigomega" (n))
 ;; GEN hil(GEN x, GEN y, GEN p);
 (pari-call-out (hilbert-symbol long) "hil" (x y p) "hil")
@@ -1585,7 +1585,10 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out pari-lcm "glcm" (x y) "lcm")
 
 ;; GEN subresext(GEN x, GEN y, GEN *U, GEN *V);
+;; (pari-call-out xresultant "subresext"
+;;   (x y (u (c-ptr pari-gen) :out :alloca) (v (c-ptr pari-gen) :out :alloca)))
 ;; GEN vecbezoutres(GEN x, GEN y);
+(pari-call-out resultant-vector "vecbezoutres" (x y))
 
 ;; GEN polgcd(GEN x, GEN y);
 ;; GEN srgcd(GEN x, GEN y);
