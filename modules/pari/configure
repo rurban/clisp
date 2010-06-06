@@ -4574,7 +4574,7 @@ fi
 if test "$ac_cv_search_pari_kernel_init" = "no";
 then as_fn_error "cannot find PARI library" "$LINENO" 5
 fi
-for ac_func in freeall pari_init killallfiles pari_init_opts
+for ac_func in pari_init pari_init_opts pari_close
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"

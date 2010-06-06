@@ -1,16 +1,13 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to 1 if you have the `freeall' function. */
-#undef HAVE_FREEALL
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `killallfiles' function. */
-#undef HAVE_KILLALLFILES
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `pari_close' function. */
+#undef HAVE_PARI_CLOSE
 
 /* Define to 1 if you have the `pari_init' function. */
 #undef HAVE_PARI_INIT
