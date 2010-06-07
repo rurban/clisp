@@ -1,3 +1,9 @@
+2010-06-07  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (machine-instance): MACHINE-INSTANCE return value
+	can be shorter (e.g., "sage [127.0.0.1]") than
+	gethostname's ("sage.math.washington.edu")
+
 2010-06-01  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: fix bug#3009966: Problems with wild-inferiors in
