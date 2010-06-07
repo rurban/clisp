@@ -61,8 +61,8 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:pari-trace id) #Z"3") T
 (pari:equal? (pari:pari-concatenate 1 2) #Z"[1,2]") T
 (pari:equal? (pari:vector-extract id 1) #Z"[1;0;0]") T
-;; (pari:equal? (pari:matrix-extract id 1 1) #Z"[1]") T
-;; (pari:equal? (pari:matrix-extract id 1 2) #Z"[0]") T
+(pari:equal? (pari:matrix-extract id 7 7) id) T
+(pari:equal? (pari:matrix-extract id #(1 2 3) #(1 2 3)) id) T
 (pari:equal? (pari:matrix-solve id #Z"[1;2;3]") #Z"[1;2;3]") T
 (pari:equal? (pari:matrix-solve #Z"[1,1,1;0,1,1;0,0,1]" #Z"[1;2;3]")
              #Z"[-1;-1;3]") T
@@ -80,6 +80,16 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:square #2A((2 1) (1 2)))) #2A((5 4) (4 5))
 (pari:pari-to-lisp (pari:pari/ #2A((5 4) (4 5)) #2A((2 1) (1 2))))
 #2A((2 1) (1 2))
+
+(pari:pari-to-lisp (pari:matrix-indexrank id))
+#(:ROW #(:ROW 1 2 3) #(:ROW 1 2 3))
+(pari:pari-to-lisp (pari:matrix-indexrank #2A((1 2) (2 4))))
+#(:ROW #(:ROW 1) #(:ROW 1))
+(let* ((mx #2A((1 2 3) (2 4 6) (1 2 8)))
+       (ir (pari:pari-to-lisp (pari:matrix-indexrank mx))))
+  (list ir (pari:pari-to-lisp (pari:matrix-extract
+                               mx (aref ir 1) (aref ir 2)))))
+(#(:ROW #(:ROW 1 3) #(:ROW 1 3)) #2A((1 3) (1 8)))
 
 (pari:pari-to-lisp (pari:square (pari:pari-sqrt #C(0 1))))  #C(0 1)
 (pari:pari-to-lisp (pari:pari-sqrt #C(1 2)))
@@ -173,11 +183,11 @@ CHECK-ROUNDTRIP
 
 (pari:equal? (pari:structure-of-z/n* #Z"7") #Z"[6, [6], [Mod(3, 7)]]") T
 (pari:equal? (pari:structure-of-z/n* #Z"10") #Z"[4, [4], [Mod(7, 10)]]") T
-(pari:pari-to-lisp (pari:structure-of-z/n* #Z"12"))
+(pari:pari-to-lisp (pari:structure-of-z/n* 12))
 #(:ROW 4 #(:ROW 2 2)
   #(:ROW #S(PARI:pari-integermod :MODULUS 12 :REP 7)
     #S(PARI:pari-integermod :MODULUS 12 :REP 5)))
-(pari:pari-to-lisp (pari:structure-of-z/n* #Z"24"))
+(pari:pari-to-lisp (pari:structure-of-z/n* 24))
 #(:ROW 8 #(:ROW 2 2 2)
   #(:ROW #S(PARI:pari-integermod :MODULUS 24 :REP 13)
     #S(PARI:pari-integermod :MODULUS 24 :REP 19)
@@ -202,7 +212,7 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:divisors #Z"144"))
 #(:ROW 1 2 3 4 6 8 9 12 16 18 24 36 48 72 144)
 
-(pari:pari-to-lisp #z"104")  104
+(pari:pari-to-lisp #Z"104")  104
 (pari:pari-to-lisp #Z"[1,0,0;0,1,0;0,0,1]")
 #2A((1 0 0) (0 1 0) (0 0 1))
 
