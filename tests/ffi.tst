@@ -81,7 +81,8 @@ MYHOSTNAME4
 
 (let ((n1 (show (myhostname1)))
       (mi (show (machine-instance))))
-  (or (string= n1 mi :end2 (length n1))
+  (or (and (>= (length mi) (length n1))
+           (string= n1 mi :end2 (length n1)))
       ;; n1 /= mi ==> HAVE_GETHOSTBYNAME, see socket.d:MACHINE-INSTANCE
       (progn
         (def-call-out gethostbyname (:name "gethostbyname")
