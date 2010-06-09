@@ -1,5 +1,9 @@
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (MAKE): remove unused and unset variable
+
+2010-06-09  Sam Steingold  <sds@gnu.org>
+
 	* lisparit.d (make_random_state): fix a warning on 32-bit
 	platforms by conforming with the official rand_r() declaration
 
