@@ -42,7 +42,7 @@ CL_PROG_HLN     dnl sets variable HLN
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)dnl
-wl=$lt_prog_compiler_wl eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
+eval `libtool --tag=CC --config|grep '^wl='`; eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
 AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)dnl
 AC_PROG_MKDIR_P
 AC_CHECK_PROG(GROFF,groff,groff)
