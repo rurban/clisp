@@ -1,3 +1,11 @@
+2010-06-09  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3013406: "make distrib" does not play well with dynamic modules
+	* _distmakefile (CFLAGS): add @@EXPORT_DYNAMIC_FLAG_SPEC@@
+	* makemake.in (distmakefile): substitute EXPORT_DYNAMIC_FLAG_SPEC
+	(XCC_DLOPENABLE_EXE_FLAG): replace with EXPORT_DYNAMIC_FLAG_SPEC
+	as in libtool.m4
+
 2010-06-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (%read-from-string): use gp_read_str

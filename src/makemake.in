@@ -1411,9 +1411,9 @@ if [ "${with_dynamic_modules}" != no ]; then
   # much simplified: no support for weird systems like AIX, no support for
   # GNU ld on non-GNU systems, don't care about where we find ld.
   if ld -v 2>&1 < /dev/null | egrep '(GNU|with BFD)' > /dev/null ; then
-    XCC_DLOPENABLE_EXE_FLAG="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
+    EXPORT_DYNAMIC_FLAG_SPEC="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
   else
-    XCC_DLOPENABLE_EXE_FLAG=""
+    EXPORT_DYNAMIC_FLAG_SPEC=""
   fi
   XCC_CREATESHARED='create-shared-lib -o $lib $libs' # dummy command
   case "$host_os" in
@@ -1996,7 +1996,7 @@ X_LIBS="\$(X_LIBS)"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
-  echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${XCC_DLOPENABLE_EXE_FLAG}"
+  echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
   MODULE_CPPFLAGS_VAR='MODULE_CPPFLAGS'
   MODULE_CFLAGS_VAR='MODULE_CFLAGS'
   MODULE_CLFLAGS_VAR='MODULE_CLFLAGS'
@@ -3455,7 +3455,7 @@ for f in $TXT_FILES ; do
   test \( $f = clisp.html -o $f = clisp-link.html \) \
        -a "${HSDEFAULT}" != "${hyperspec}" && \
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
-  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""
+  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
