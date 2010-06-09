@@ -5,6 +5,9 @@
 	* makemake.in (distmakefile): substitute EXPORT_DYNAMIC_FLAG_SPEC
 	(XCC_DLOPENABLE_EXE_FLAG): replace with EXPORT_DYNAMIC_FLAG_SPEC
 	as in libtool.m4
+	(XCC_LINKER_FLAG_PREFIX): remove
+	(EXPORT_DYNAMIC_FLAG_SPEC): get from configure substitution
+	* configure.in (EXPORT_DYNAMIC_FLAG_SPEC): add an AC_SUBST
 
 2010-06-04  Sam Steingold  <sds@gnu.org>
 
