@@ -1,5 +1,10 @@
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d (make_random_state): fix a warning on 32-bit
+	platforms by conforming with the official rand_r() declaration
+
+2010-06-09  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3013406: "make distrib" does not play well with dynamic modules
 	* _distmakefile (CFLAGS): add @@EXPORT_DYNAMIC_FLAG_SPEC@@
 	* makemake.in (distmakefile): substitute EXPORT_DYNAMIC_FLAG_SPEC
