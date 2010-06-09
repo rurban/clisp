@@ -554,6 +554,7 @@ host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 MAKE='@MAKE@'                       # gmake or make
 GNU_MAKE='@GNU_MAKE@'               # yes or no
+EXPORT_DYNAMIC_FLAG_SPEC='@EXPORT_DYNAMIC_FLAG_SPEC@' # -rdynamic or -Wl,-E or -Wl,--export-dynamic
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
 # 2. New operating systems are emerging at every corner.
@@ -1367,7 +1368,6 @@ fi
 if [ "${with_dynamic_modules}" != no ]; then
   # Support for dynamic loading. Taken from libtool's ltconfig.in.
   if [ $XCC_GCC = true ] ; then
-    XCC_LINKER_FLAG_PREFIX='-Wl,'
     case "$host_os" in
       irix5* | irix6* | cygwin*)
         # PIC is the default for these OSes.
@@ -1378,17 +1378,6 @@ if [ "${with_dynamic_modules}" != no ]; then
         ;;
     esac
   else
-    case "$host_os" in
-      hpux9* | hpux10* | irix5* | irix6* | osf3* | osf4* | solaris2*)
-        XCC_LINKER_FLAG_PREFIX='-Wl,'
-        ;;
-      sunos4*)
-        XCC_LINKER_FLAG_PREFIX='-Qoption ld '
-        ;;
-      *)
-        XCC_LINKER_FLAG_PREFIX=''
-        ;;
-    esac
     case "$host_os" in
       sco3.2v5*)
         XCC_PICFLAG='-Kpic'
@@ -1407,14 +1396,6 @@ if [ "${with_dynamic_modules}" != no ]; then
       XCC_PICFLAG=''
       ;;
   esac
-  # Support for creating a shared library. Taken from libtool's ltconfig.in,
-  # much simplified: no support for weird systems like AIX, no support for
-  # GNU ld on non-GNU systems, don't care about where we find ld.
-  if ld -v 2>&1 < /dev/null | egrep '(GNU|with BFD)' > /dev/null ; then
-    EXPORT_DYNAMIC_FLAG_SPEC="${XCC_LINKER_FLAG_PREFIX}-export-dynamic"
-  else
-    EXPORT_DYNAMIC_FLAG_SPEC=""
-  fi
   XCC_CREATESHARED='create-shared-lib -o $lib $libs' # dummy command
   case "$host_os" in
     freebsd2.2*)
@@ -3455,7 +3436,7 @@ for f in $TXT_FILES ; do
   test \( $f = clisp.html -o $f = clisp-link.html \) \
        -a "${HSDEFAULT}" != "${hyperspec}" && \
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
-  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
+  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC\@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
