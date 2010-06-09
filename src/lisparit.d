@@ -1728,7 +1728,7 @@ local maygc object make_random_state (object r)
     seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); /* 16+16 random bits */
     #endif
     begin_system_call();
-    var uintL pid = (uintL)(getpid());
+    var unsigned int pid = (unsigned int)(getpid());
     seed_hi = (
      #if defined(HAVE_RAND_R)
       rand_r(&pid)
