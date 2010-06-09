@@ -3121,7 +3121,7 @@ if [ $CROSS = false ] ; then
   if [ -d "${SRCTOPDIR_}benchmarks" -a -n "${GNU_MAKE}" ]; then
     CHECK_DEPS=${CHECK_DEPS}" bench"
     echol "bench : ${BENCHDIR}"
-    echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
+    echotab "CLISP=\"`pwd`/clisp -norc\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
     echol
     echol "${BENCHDIR} :"
     echotab "-mkdir ${BENCHDIR}"

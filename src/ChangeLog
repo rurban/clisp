@@ -1,5 +1,10 @@
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (bench): use base, not boot, for benchmarking
+	because it includes syscalls with bogomips
+
+2010-06-09  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (MAKE): remove unused and unset variable
 	(GNU_MAKE): fix setting and usage
 
