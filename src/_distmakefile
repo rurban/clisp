@@ -49,7 +49,7 @@ CC = cc
 #endif
 #endif
 #endif
-CFLAGS = -O
+CFLAGS = -O @@EXPORT_DYNAMIC_FLAG_SPEC@@
 
 #endif
 # Programs used by "make install":
