@@ -1,6 +1,7 @@
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (MAKE): remove unused and unset variable
+	(GNU_MAKE): fix setting and usage
 
 2010-06-09  Sam Steingold  <sds@gnu.org>
 

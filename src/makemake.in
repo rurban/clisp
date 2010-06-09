@@ -552,7 +552,7 @@ host='@host@'                       # something like 'sparc-sun-sunos4'
 host_cpu='@host_cpu@'               # something like 'sparc'
 host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
-GNU_MAKE='@GNU_MAKE@'               # yes or no
+GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
 EXPORT_DYNAMIC_FLAG_SPEC='@EXPORT_DYNAMIC_FLAG_SPEC@' # -rdynamic or -Wl,-E or -Wl,--export-dynamic
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
@@ -3118,7 +3118,7 @@ if [ $CROSS = false ] ; then
   fi
 
   # benchmarks are not included in the source distribution
-  if [ -d "${SRCTOPDIR_}benchmarks" -a "${GNU_MAKE}" = yes ]; then
+  if [ -d "${SRCTOPDIR_}benchmarks" -a -n "${GNU_MAKE}" ]; then
     CHECK_DEPS=${CHECK_DEPS}" bench"
     echol "bench : ${BENCHDIR}"
     echotab "CLISP=\"${CLISP_}\"; export CLISP; cd ${BENCHDIR}; \$(MAKE) CLISP=\"\$\$CLISP\" clisp"
