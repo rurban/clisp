@@ -214,7 +214,7 @@
   (when save
     (with-open-file (s save :direction :output)
       (with-standard-io-syntax
-        (write *cur-stat* :stream s)
+        (write *cur-stat* :stream s :pretty t)
         (terpri s)))))
 
 (format t "~& Running the benchmarks:~@
