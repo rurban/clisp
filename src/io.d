@@ -3951,8 +3951,9 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
     }
     if (eq(name,S(function))) { /* Symbol FUNCTION */
       var object closure = allocate_closure(iclos_length,seclass_default<<4);
-      var object* data = (object*)TheSrecord(closure)->recdata;
+      var gcv_object_t* data = TheSrecord(closure)->recdata;
       var uintL pos = 0;
+      args = STACK_1;           /* restore */
       for (;pos < iclos_length && !endp(args); pos++, args=Cdr(args))
         data[pos] = Car(args);
       if (pos < iclos_length) {

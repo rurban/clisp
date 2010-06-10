@@ -5,7 +5,7 @@
 
 2010-06-10  Sam Steingold  <sds@gnu.org>
 
-	* io.d (STRUCTURE-READER): fix g++ compilation
+	* io.d (STRUCTURE-READER): fix g++ compilation and a GC-safety bug
 
 2010-06-10  Sam Steingold  <sds@gnu.org>
 
