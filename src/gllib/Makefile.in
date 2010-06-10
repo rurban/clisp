@@ -47,6 +47,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@LIBUNISTRING_COMPILE_UNINAME_UNINAME_TRUE@am__append_1 = uniname/uniname.c
+@LIBUNISTRING_COMPILE_UNIWIDTH_WIDTH_TRUE@am__append_2 = uniwidth/width.c
 subdir = gllib
 DIST_COMMON = README $(noinst_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in alloca.c
@@ -62,9 +64,14 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libgnu_a_AR = $(AR) $(ARFLAGS)
 am__DEPENDENCIES_1 =
+am__libgnu_a_SOURCES_DIST = gettext.h localcharset.h localcharset.c \
+	strnlen1.h strnlen1.c uniname/uniname.c uniwidth/width.c \
+	verify.h
 am__dirstamp = $(am__leading_dot)dirstamp
+@LIBUNISTRING_COMPILE_UNINAME_UNINAME_TRUE@am__objects_1 = uniname/uniname.$(OBJEXT)
+@LIBUNISTRING_COMPILE_UNIWIDTH_WIDTH_TRUE@am__objects_2 = uniwidth/width.$(OBJEXT)
 am_libgnu_a_OBJECTS = localcharset.$(OBJEXT) strnlen1.$(OBJEXT) \
-	uniname/uniname.$(OBJEXT) uniwidth/width.$(OBJEXT)
+	$(am__objects_1) $(am__objects_2)
 libgnu_a_OBJECTS = $(am_libgnu_a_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -81,7 +88,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libgnu_a_SOURCES) $(EXTRA_libgnu_a_SOURCES)
-DIST_SOURCES = $(libgnu_a_SOURCES) $(EXTRA_libgnu_a_SOURCES)
+DIST_SOURCES = $(am__libgnu_a_SOURCES_DIST) $(EXTRA_libgnu_a_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -167,7 +174,6 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXPORT_DYNAMIC_FLAG_SPEC = @EXPORT_DYNAMIC_FLAG_SPEC@
 F77 = @F77@
 FFLAGS = @FFLAGS@
 GCC_X_NONE = @GCC_X_NONE@
@@ -381,6 +387,9 @@ LIBSIGSEGV_PREFIX = @LIBSIGSEGV_PREFIX@
 LIBTERMCAP = @LIBTERMCAP@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
+LIBUNISTRING_UNINAME_H = @LIBUNISTRING_UNINAME_H@
+LIBUNISTRING_UNITYPES_H = @LIBUNISTRING_UNITYPES_H@
+LIBUNISTRING_UNIWIDTH_H = @LIBUNISTRING_UNIWIDTH_H@
 LN = @LN@
 LN_S = @LN_S@
 LOCALCHARSET_TESTS_ENVIRONMENT = @LOCALCHARSET_TESTS_ENVIRONMENT@
@@ -585,9 +594,9 @@ EXTRA_DIST = alloca.c alloca.in.h \
 	config.charset ref-add.sin ref-del.sin mbrtowc.c mbsinit.c \
 	mbsrtowcs-state.c mbsrtowcs.c memchr.c memchr.valgrind \
 	memcmp.c memmove.c nl_langinfo.c stdbool.in.h stddef.in.h \
-	stdint.in.h streq.h string.in.h sys_time.in.h uniname.h \
+	stdint.in.h streq.h string.in.h sys_time.in.h uniname.in.h \
 	uniname/gen-uninames.lisp uniname/uninames.h unistd.in.h \
-	unitypes.h localcharset.h uniwidth.h uniwidth/cjk.h \
+	unitypes.in.h localcharset.h uniwidth.in.h uniwidth/cjk.h \
 	$(CLISP_LIBDIR)/build-aux/warn-on-use.h wchar.in.h \
 	wctype.in.h
 
@@ -602,14 +611,17 @@ EXTRA_DIST = alloca.c alloca.in.h \
 # 'all' defined above.
 BUILT_SOURCES = $(ALLOCA_H) arg-nonnull.h c++defs.h configmake.h \
 	langinfo.h $(STDBOOL_H) $(STDDEF_H) $(STDINT_H) string.h \
-	sys/time.h unistd.h warn-on-use.h wchar.h wctype.h
+	sys/time.h $(LIBUNISTRING_UNINAME_H) unistd.h \
+	$(LIBUNISTRING_UNITYPES_H) $(LIBUNISTRING_UNIWIDTH_H) \
+	warn-on-use.h wchar.h wctype.h
 SUFFIXES = .sed .sin
 MOSTLYCLEANFILES = core *.stackdump alloca.h alloca.h-t arg-nonnull.h \
 	arg-nonnull.h-t c++defs.h c++defs.h-t langinfo.h langinfo.h-t \
 	stdbool.h stdbool.h-t stddef.h stddef.h-t stdint.h stdint.h-t \
-	string.h string.h-t sys/time.h sys/time.h-t unistd.h \
-	unistd.h-t warn-on-use.h warn-on-use.h-t wchar.h wchar.h-t \
-	wctype.h wctype.h-t
+	string.h string.h-t sys/time.h sys/time.h-t uniname.h \
+	uniname.h-t unistd.h unistd.h-t unitypes.h unitypes.h-t \
+	uniwidth.h uniwidth.h-t warn-on-use.h warn-on-use.h-t wchar.h \
+	wchar.h-t wctype.h wctype.h-t
 MOSTLYCLEANDIRS = 
 CLEANFILES = configmake.h configmake.h-t charset.alias ref-add.sed \
 	ref-del.sed
@@ -627,7 +639,7 @@ MAINTAINERCLEANFILES =
 AM_CPPFLAGS = -I$(top_builddir)/intl
 AM_CFLAGS = 
 libgnu_a_SOURCES = gettext.h localcharset.h localcharset.c strnlen1.h \
-	strnlen1.c uniname/uniname.c uniwidth/width.c verify.h
+	strnlen1.c $(am__append_1) $(am__append_2) verify.h
 libgnu_a_LIBADD = $(gl_LIBOBJS) @ALLOCA@
 libgnu_a_DEPENDENCIES = $(gl_LIBOBJS) @ALLOCA@
 EXTRA_libgnu_a_SOURCES = alloca.c getpagesize.c gettimeofday.c \
@@ -1405,6 +1417,13 @@ sys/time.h: sys_time.in.h $(CXXDEFS_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
 	} > $@-t && \
 	mv $@-t $@
 
+uniname.h: uniname.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/uniname.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
+
 # We need the following in order to create an empty placeholder for
 # <unistd.h> when the system doesn't have one.
 unistd.h: unistd.in.h $(CXXDEFS_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
@@ -1520,6 +1539,20 @@ unistd.h: unistd.in.h $(CXXDEFS_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
 	      -e '/definition of _gl_GL_WARN_ON_USE/r $(WARN_ON_USE_H)'; \
 	} > $@-t && \
 	mv $@-t $@
+
+unitypes.h: unitypes.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/unitypes.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
+
+uniwidth.h: uniwidth.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/uniwidth.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
 # The warn-on-use.h that gets inserted into generated .h files is the same as
 # build-aux/warn-on-use.h, except that it has the copyright header cut off.
 warn-on-use.h: $(CLISP_LIBDIR)/build-aux/warn-on-use.h
