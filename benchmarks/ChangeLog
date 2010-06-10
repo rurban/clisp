@@ -1,3 +1,9 @@
+2010-06-10  Sam Steingold  <sds@gnu.org>
+
+	* run-all.lisp (*here*): add
+	(file, benchmarks-run): use it to allow running from outside of
+	the benchmarks directory
+
 2002-08-14  Sam Steingold  <sds@gnu.org>
 
 	* run-all.lisp (benchmarks): when *BENCHMARK-TYPE* is nil, read
