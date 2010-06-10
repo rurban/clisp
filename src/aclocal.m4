@@ -2710,6 +2710,8 @@ AC_DEFUN([gl_SYS_UTSNAME_H_DEFAULTS],
 
 # Copyright (C) 2000-2001, 2003-2007, 2009-2010 Free Software Foundation, Inc.
 
+# serial 2
+
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -2732,7 +2734,7 @@ AC_DEFUN([gl_HEADER_TIME_H_BODY],
 ])
 
 dnl Define HAVE_STRUCT_TIMESPEC if `struct timespec' is declared
-dnl in time.h or sys/time.h.
+dnl in time.h, sys/time.h, or pthread.h.
 
 AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
 [
@@ -2749,6 +2751,7 @@ AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
 
   TIME_H_DEFINES_STRUCT_TIMESPEC=0
   SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=0
+  PTHREAD_H_DEFINES_STRUCT_TIMESPEC=0
   if test $gl_cv_sys_struct_timespec_in_time_h = yes; then
     TIME_H_DEFINES_STRUCT_TIMESPEC=1
   else
@@ -2763,10 +2766,24 @@ AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
          [gl_cv_sys_struct_timespec_in_sys_time_h=no])])
     if test $gl_cv_sys_struct_timespec_in_sys_time_h = yes; then
       SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=1
+    else
+      AC_CACHE_CHECK([for struct timespec in <pthread.h>],
+        [gl_cv_sys_struct_timespec_in_pthread_h],
+        [AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM(
+              [[#include <pthread.h>
+              ]],
+              [[static struct timespec x; x.tv_sec = x.tv_nsec;]])],
+           [gl_cv_sys_struct_timespec_in_pthread_h=yes],
+           [gl_cv_sys_struct_timespec_in_pthread_h=no])])
+      if test $gl_cv_sys_struct_timespec_in_pthread_h = yes; then
+        PTHREAD_H_DEFINES_STRUCT_TIMESPEC=1
+      fi
     fi
   fi
   AC_SUBST([TIME_H_DEFINES_STRUCT_TIMESPEC])
   AC_SUBST([SYS_TIME_H_DEFINES_STRUCT_TIMESPEC])
+  AC_SUBST([PTHREAD_H_DEFINES_STRUCT_TIMESPEC])
 ])
 
 AC_DEFUN([gl_TIME_MODULE_INDICATOR],
@@ -4959,7 +4976,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   # Code from module gettext:
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.18])
+  AM_GNU_GETTEXT_VERSION([0.18.1])
   # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
@@ -5018,12 +5035,17 @@ AC_DEFUN([gl_INIT],
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
   # Code from module uniname/base:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
   # Code from module uniname/uniname:
+  gl_LIBUNISTRING_MODULE([0.9], [uniname/uniname])
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module unitypes:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
   # Code from module uniwidth/base:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
   # Code from module uniwidth/width:
+  gl_LIBUNISTRING_MODULE([0.9], [uniwidth/width])
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -5202,13 +5224,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.c
   lib/strnlen1.h
   lib/sys_time.in.h
-  lib/uniname.h
+  lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
   lib/uniname/uninames.h
   lib/unistd.in.h
-  lib/unitypes.h
-  lib/uniwidth.h
+  lib/unitypes.in.h
+  lib/uniwidth.in.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/verify.h
@@ -5241,6 +5263,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-link.m4
   m4/lib-prefix.m4
   m4/libsigsegv.m4
+  m4/libunistring-base.m4
   m4/link-follow.m4
   m4/localcharset.m4
   m4/locale-fr.m4
@@ -5283,7 +5306,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/xsize.m4
 ])
 
-# iconv.m4 serial 10 (gettext-0.18.1)
+# iconv.m4 serial 11 (gettext-0.18.1)
 dnl Copyright (C) 2000-2002, 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5458,7 +5481,19 @@ int main ()
 dnl Define AM_ICONV using AC_DEFUN_ONCE for Autoconf >= 2.64, in order to
 dnl avoid warnings like
 dnl "warning: AC_REQUIRE: `AM_ICONV' was expanded before it was required".
-m4_version_prereq([2.64],[AC_DEFUN_ONCE],[AC_DEFUN])([AM_ICONV],
+dnl This is tricky because of the way 'aclocal' is implemented:
+dnl - It requires defining an auxiliary macro whose name ends in AC_DEFUN.
+dnl   Otherwise aclocal's initial scan pass would miss the macro definition.
+dnl - It requires a line break inside the AC_DEFUN_ONCE and AC_DEFUN expansions.
+dnl   Otherwise aclocal would emit many "Use of uninitialized value $1"
+dnl   warnings.
+m4_define([gl_iconv_AC_DEFUN],
+  m4_version_prereq([2.64],
+    [[AC_DEFUN_ONCE(
+        [$1], [$2])]],
+    [[AC_DEFUN(
+        [$1], [$2])]]))
+gl_iconv_AC_DEFUN([AM_ICONV],
 [
   AM_ICONV_LINK
   if test "$am_cv_func_iconv" = yes; then
@@ -5947,7 +5982,7 @@ test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 21 (gettext-0.18)
+# lib-link.m4 serial 23 (gettext-0.18.2)
 dnl Copyright (C) 2001-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5967,9 +6002,9 @@ AC_DEFUN([AC_LIB_LINKFLAGS],
 [
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
-  pushdef([Name],[translit([$1],[./-], [___])])
-  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([Name],[m4_translit([$1],[./+-], [____])])
+  pushdef([NAME],[m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./+-],
+                                   [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
   AC_CACHE_CHECK([how to link with lib[]$1], [ac_cv_lib[]Name[]_libs], [
     AC_LIB_LINKFLAGS_BODY([$1], [$2])
     ac_cv_lib[]Name[]_libs="$LIB[]NAME"
@@ -6007,9 +6042,9 @@ AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
 [
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
-  pushdef([Name],[translit([$1],[./-], [___])])
-  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([Name],[m4_translit([$1],[./+-], [____])])
+  pushdef([NAME],[m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./+-],
+                                   [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
 
   dnl Search for lib[]Name and define LIB[]NAME, LTLIB[]NAME and INC[]NAME
   dnl accordingly.
@@ -6106,13 +6141,13 @@ dnl package. This declaration must occur before an AC_LIB_LINKFLAGS or similar
 dnl macro call that searches for libname.
 AC_DEFUN([AC_LIB_FROMPACKAGE],
 [
-  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([NAME],[m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./+-],
+                                   [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
   define([acl_frompackage_]NAME, [$2])
   popdef([NAME])
   pushdef([PACK],[$2])
-  pushdef([PACKUP],[translit(PACK,[abcdefghijklmnopqrstuvwxyz./-],
-                                  [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([PACKUP],[m4_translit(PACK,[abcdefghijklmnopqrstuvwxyz./+-],
+                                     [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
   define([acl_libsinpackage_]PACKUP,
     m4_ifdef([acl_libsinpackage_]PACKUP, [acl_libsinpackage_]PACKUP[[, ]],)[lib$1])
   popdef([PACKUP])
@@ -6127,14 +6162,14 @@ dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
 AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
 [
   AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
-  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([NAME],[m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./+-],
+                                   [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
   pushdef([PACK],[m4_ifdef([acl_frompackage_]NAME, [acl_frompackage_]NAME, lib[$1])])
-  pushdef([PACKUP],[translit(PACK,[abcdefghijklmnopqrstuvwxyz./-],
-                                  [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([PACKUP],[m4_translit(PACK,[abcdefghijklmnopqrstuvwxyz./+-],
+                                     [ABCDEFGHIJKLMNOPQRSTUVWXYZ____])])
   pushdef([PACKLIBS],[m4_ifdef([acl_frompackage_]NAME, [acl_libsinpackage_]PACKUP, lib[$1])])
   dnl Autoconf >= 2.61 supports dots in --with options.
-  pushdef([P_A_C_K],[m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.61]),[-1],[translit(PACK,[.],[_])],PACK)])
+  pushdef([P_A_C_K],[m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.61]),[-1],[m4_translit(PACK,[.],[_])],PACK)])
   dnl By default, look in $includedir and $libdir.
   use_additional=yes
   AC_LIB_WITH_FINAL_PREFIX([
@@ -6191,7 +6226,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
         names_already_handled="$names_already_handled $name"
         dnl See if it was already located by an earlier AC_LIB_LINKFLAGS
         dnl or AC_LIB_HAVE_LINKFLAGS call.
-        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
+        uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./+-|ABCDEFGHIJKLMNOPQRSTUVWXYZ____|'`
         eval value=\"\$HAVE_LIB$uppername\"
         if test -n "$value"; then
           if test "$value" = yes; then
@@ -6963,6 +6998,148 @@ AC_DEFUN([gl_LIBSIGSEGV],
   dnl Some other autoconf macros and clisp's configure use this variable.
   gl_cv_lib_sigsegv="$ac_cv_libsigsegv"
 ])
+
+# libunistring-base.m4 serial 5
+dnl Copyright (C) 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Paolo Bonzini and Bruno Haible.
+
+dnl gl_LIBUNISTRING_MODULE([VERSION], [Module])
+dnl Declares that the source files of Module should be compiled, unless we
+dnl are linking with libunistring and its version is >= the given VERSION.
+dnl Defines an automake conditional LIBUNISTRING_COMPILE_$MODULE that is
+dnl true if the source files of Module should be compiled.
+dnl This macro is to be used for public libunistring API, not for
+dnl undocumented API.
+dnl
+dnl You have to bump the VERSION argument to the next projected version
+dnl number each time you make a change that affects the behaviour of the
+dnl functions defined in Module (even if the sources of Module itself do not
+dnl change).
+
+AC_DEFUN([gl_LIBUNISTRING_MODULE],
+[
+  AC_REQUIRE([gl_LIBUNISTRING_LIB_PREPARE])
+  dnl Use the variables HAVE_LIBUNISTRING, LIBUNISTRING_VERSION from
+  dnl gl_LIBUNISTRING_CORE if that macro has been run.
+  AM_CONDITIONAL(AS_TR_CPP([LIBUNISTRING_COMPILE_$2]),
+    [gl_LIBUNISTRING_VERSION_CMP([$1])])
+])
+
+dnl gl_LIBUNISTRING_LIBHEADER([VERSION], [HeaderFile])
+dnl Declares that HeaderFile should be created, unless we are linking
+dnl with libunistring and its version is >= the given VERSION.
+dnl HeaderFile should be relative to the lib directory and end in '.h'.
+dnl Prepares for substituting LIBUNISTRING_HEADERFILE (to HeaderFile or empty).
+dnl
+dnl When we are linking with the already installed libunistring and its version
+dnl is < VERSION, we create HeaderFile here, because we may compile functions
+dnl (via gl_LIBUNISTRING_MODULE above) that are not contained in the installed
+dnl version.
+dnl When we are linking with the already installed libunistring and its version
+dnl is > VERSION, we don't create HeaderFile here: it could cause compilation
+dnl errors in other libunistring header files if some types are missing.
+dnl
+dnl You have to bump the VERSION argument to the next projected version
+dnl number each time you make a non-comment change to the HeaderFile.
+
+AC_DEFUN([gl_LIBUNISTRING_LIBHEADER],
+[
+  AC_REQUIRE([gl_LIBUNISTRING_LIB_PREPARE])
+  dnl Use the variables HAVE_LIBUNISTRING, LIBUNISTRING_VERSION from
+  dnl gl_LIBUNISTRING_CORE if that macro has been run.
+  if gl_LIBUNISTRING_VERSION_CMP([$1]); then
+    LIBUNISTRING_[]AS_TR_CPP([$2])='$2'
+  else
+    LIBUNISTRING_[]AS_TR_CPP([$2])=
+  fi
+  AC_SUBST([LIBUNISTRING_]AS_TR_CPP([$2]))
+])
+
+dnl Miscellaneous preparations/initializations.
+
+AC_DEFUN([gl_LIBUNISTRING_LIB_PREPARE],
+[
+  dnl Ensure that HAVE_LIBUNISTRING is fully determined at this point.
+  m4_ifdef([gl_LIBUNISTRING], [AC_REQUIRE([gl_LIBUNISTRING])])
+
+  AC_REQUIRE([AC_PROG_AWK])
+
+dnl Sed expressions to extract the parts of a version number.
+changequote(,)
+gl_libunistring_sed_extract_major='/^[0-9]/{s/^\([0-9]*\).*/\1/p;q;}
+i\
+0
+q
+'
+gl_libunistring_sed_extract_minor='/^[0-9][0-9]*[.][0-9]/{s/^[0-9]*[.]\([0-9]*\).*/\1/p;q;}
+i\
+0
+q
+'
+gl_libunistring_sed_extract_subminor='/^[0-9][0-9]*[.][0-9][0-9]*[.][0-9]/{s/^[0-9]*[.][0-9]*[.]\([0-9]*\).*/\1/p;q;}
+i\
+0
+q
+'
+changequote([,])
+
+  if test "$HAVE_LIBUNISTRING" = yes; then
+    LIBUNISTRING_VERSION_MAJOR=`echo "$LIBUNISTRING_VERSION" | sed -n -e "$gl_libunistring_sed_extract_major"`
+    LIBUNISTRING_VERSION_MINOR=`echo "$LIBUNISTRING_VERSION" | sed -n -e "$gl_libunistring_sed_extract_minor"`
+    LIBUNISTRING_VERSION_SUBMINOR=`echo "$LIBUNISTRING_VERSION" | sed -n -e "$gl_libunistring_sed_extract_subminor"`
+  fi
+])
+
+dnl gl_LIBUNISTRING_VERSION_CMP([VERSION])
+dnl Expands to a shell statement that evaluates to true if LIBUNISTRING_VERSION
+dnl is less than the VERSION argument.
+AC_DEFUN([gl_LIBUNISTRING_VERSION_CMP],
+[ { test "$HAVE_LIBUNISTRING" != yes \
+    || {
+         dnl AS_LITERAL_IF exists and works fine since autoconf-2.59 at least.
+         AS_LITERAL_IF([$1],
+           [dnl This is the optimized variant, that assumes the argument is a literal:
+            m4_pushdef([requested_version_major],
+              [gl_LIBUNISTRING_ARG_OR_ZERO(m4_bpatsubst([$1], [^\([0-9]*\).*], [\1]), [])])
+            m4_pushdef([requested_version_minor],
+              [gl_LIBUNISTRING_ARG_OR_ZERO(m4_bpatsubst([$1], [^[0-9]*[.]\([0-9]*\).*], [\1]), [$1])])
+            m4_pushdef([requested_version_subminor],
+              [gl_LIBUNISTRING_ARG_OR_ZERO(m4_bpatsubst([$1], [^[0-9]*[.][0-9]*[.]\([0-9]*\).*], [\1]), [$1])])
+            test $LIBUNISTRING_VERSION_MAJOR -lt requested_version_major \
+            || { test $LIBUNISTRING_VERSION_MAJOR -eq requested_version_major \
+                 && { test $LIBUNISTRING_VERSION_MINOR -lt requested_version_minor \
+                      || { test $LIBUNISTRING_VERSION_MINOR -eq requested_version_minor \
+                           && test $LIBUNISTRING_VERSION_SUBMINOR -lt requested_version_subminor
+                         }
+                    }
+               }
+            m4_popdef([requested_version_subminor])
+            m4_popdef([requested_version_minor])
+            m4_popdef([requested_version_major])
+           ],
+           [dnl This is the unoptimized variant:
+            requested_version_major=`echo '$1' | sed -n -e "$gl_libunistring_sed_extract_major"`
+            requested_version_minor=`echo '$1' | sed -n -e "$gl_libunistring_sed_extract_minor"`
+            requested_version_subminor=`echo '$1' | sed -n -e "$gl_libunistring_sed_extract_subminor"`
+            test $LIBUNISTRING_VERSION_MAJOR -lt $requested_version_major \
+            || { test $LIBUNISTRING_VERSION_MAJOR -eq $requested_version_major \
+                 && { test $LIBUNISTRING_VERSION_MINOR -lt $requested_version_minor \
+                      || { test $LIBUNISTRING_VERSION_MINOR -eq $requested_version_minor \
+                           && test $LIBUNISTRING_VERSION_SUBMINOR -lt $requested_version_subminor
+                         }
+                    }
+               }
+           ])
+       }
+  }])
+
+dnl gl_LIBUNISTRING_ARG_OR_ZERO([ARG], [ORIG]) expands to ARG if it is not the
+dnl same as ORIG, otherwise to 0.
+m4_define([gl_LIBUNISTRING_ARG_OR_ZERO], [m4_if([$1], [$2], [0], [$1])])
 
 # serial 15
 dnl Run a program to determine whether link(2) follows symlinks.
@@ -9288,7 +9465,7 @@ AC_DEFUN([gl_STDDEF_H_DEFAULTS],
   STDDEF_H='';                   AC_SUBST([STDDEF_H])
 ])
 
-# stdint.m4 serial 34
+# stdint.m4 serial 35
 dnl Copyright (C) 2001-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9599,7 +9776,7 @@ AC_DEFUN([gl_STDINT_BITSIZEOF],
   dnl   config.h.in,
   dnl - extra AC_SUBST calls, so that the right substitutions are made.
   m4_foreach_w([gltype], [$1],
-    [AH_TEMPLATE([BITSIZEOF_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
+    [AH_TEMPLATE([BITSIZEOF_]m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
        [Define to the number of bits in type ']gltype['.])])
   for gltype in $1 ; do
     AC_CACHE_CHECK([for bit size of $gltype], [gl_cv_bitsizeof_${gltype}],
@@ -9624,7 +9801,7 @@ AC_DEFUN([gl_STDINT_BITSIZEOF],
     eval BITSIZEOF_${GLTYPE}=\$result
   done
   m4_foreach_w([gltype], [$1],
-    [AC_SUBST([BITSIZEOF_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
+    [AC_SUBST([BITSIZEOF_]m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
 ])
 
 dnl gl_CHECK_TYPES_SIGNED(TYPES, INCLUDES)
@@ -9637,7 +9814,7 @@ AC_DEFUN([gl_CHECK_TYPES_SIGNED],
   dnl   config.h.in,
   dnl - extra AC_SUBST calls, so that the right substitutions are made.
   m4_foreach_w([gltype], [$1],
-    [AH_TEMPLATE([HAVE_SIGNED_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
+    [AH_TEMPLATE([HAVE_SIGNED_]m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]),
        [Define to 1 if ']gltype[' is a signed integer type.])])
   for gltype in $1 ; do
     AC_CACHE_CHECK([whether $gltype is signed], [gl_cv_type_${gltype}_signed],
@@ -9657,7 +9834,7 @@ AC_DEFUN([gl_CHECK_TYPES_SIGNED],
     fi
   done
   m4_foreach_w([gltype], [$1],
-    [AC_SUBST([HAVE_SIGNED_]translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
+    [AC_SUBST([HAVE_SIGNED_]m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_]))])
 ])
 
 dnl gl_INTEGER_TYPE_SUFFIX(TYPES, INCLUDES)
@@ -9670,7 +9847,7 @@ AC_DEFUN([gl_INTEGER_TYPE_SUFFIX],
   dnl   config.h.in,
   dnl - extra AC_SUBST calls, so that the right substitutions are made.
   m4_foreach_w([gltype], [$1],
-    [AH_TEMPLATE(translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX],
+    [AH_TEMPLATE(m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX],
        [Define to l, ll, u, ul, ull, etc., as suitable for
         constants of type ']gltype['.])])
   for gltype in $1 ; do
@@ -9709,7 +9886,7 @@ AC_DEFUN([gl_INTEGER_TYPE_SUFFIX],
     AC_DEFINE_UNQUOTED([${GLTYPE}_SUFFIX], [$result])
   done
   m4_foreach_w([gltype], [$1],
-    [AC_SUBST(translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX])])
+    [AC_SUBST(m4_translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX])])
 ])
 
 dnl gl_STDINT_INCLUDES
