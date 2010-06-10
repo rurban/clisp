@@ -1,5 +1,9 @@
 2010-06-10  Sam Steingold  <sds@gnu.org>
 
+	* io.d (STRUCTURE-READER): fix g++ compilation
+
+2010-06-10  Sam Steingold  <sds@gnu.org>
+
 	make OS:BOGOMIPS work even when clisp is compiled with -O
 	* modules/syscalls/bogomips.c: extract from calls.c
 	* modules/syscalls/calls.c (BOGOMIPS): call extern bogomips()
