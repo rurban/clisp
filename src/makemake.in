@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2008
-# Sam Steingold 1999-2009
+# Sam Steingold 1999-2010
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -553,7 +553,15 @@ host_cpu='@host_cpu@'               # something like 'sparc'
 host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
-EXPORT_DYNAMIC_FLAG_SPEC='@EXPORT_DYNAMIC_FLAG_SPEC@' # -rdynamic or -Wl,-E or -Wl,--export-dynamic
+
+# -rdynamic or -Wl,-E or -Wl,--export-dynamic
+eval "`./libtool --tag=CC --config | grep '^wl='`"
+eval "`./libtool --tag=CC --config | grep '^export_dynamic_flag_spec='`"
+eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
+echo $wl >&2
+echo $export_dynamic_flag_spec >&2
+echo $EXPORT_DYNAMIC_FLAG_SPEC >&2
+
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
 # 2. New operating systems are emerging at every corner.
@@ -3435,7 +3443,7 @@ for f in $TXT_FILES ; do
   test \( $f = clisp.html -o $f = clisp-link.html \) \
        -a "${HSDEFAULT}" != "${hyperspec}" && \
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
-  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC\@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
+  test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
