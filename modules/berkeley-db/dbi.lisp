@@ -1,4 +1,4 @@
-;;; Copyright (C) 2003-2008 by Sam Steingold
+;;; Copyright (C) 2003-2008, 2010 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -30,7 +30,7 @@
 (use-package '("BDB") "EXT")
 (ext:re-export "BDB" "EXT")
 (pushnew :berkeley-db *features*)
-(provide "berkeley-db")
+(provide "bdb")
 (in-package "BDB")
 
 (setf (documentation (find-package "BDB") 'sys::impnotes) "berkeley-db")
