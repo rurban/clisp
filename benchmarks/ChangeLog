@@ -4,6 +4,7 @@
 	(file, benchmarks-run): use it to allow running from outside of
 	the benchmarks directory
 	(benchmarks-run): save data in a pretty format
+	(with-file): save file name, not the whole file, in *CUR-STAT*
 
 2002-08-14  Sam Steingold  <sds@gnu.org>
 

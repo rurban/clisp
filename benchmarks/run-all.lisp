@@ -67,7 +67,7 @@
   (let ((fi (gensym "WITH-FILE-")))
     `(let ((,fi (file ,filename)))
        (load ,fi :verbose nil)
-       (push (list ,fi 0 0) *cur-stat*)
+       (push (list (pathname-name ,fi) 0 0) *cur-stat*)
        (format t "~& * file: ~s~%" ,filename)
        ,@body)))
 
