@@ -101,7 +101,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   # Code from module gettext:
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.18])
+  AM_GNU_GETTEXT_VERSION([0.18.1])
   # Code from module gettext-h:
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
@@ -160,12 +160,17 @@ AC_DEFUN([gl_INIT],
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
   # Code from module uniname/base:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
   # Code from module uniname/uniname:
+  gl_LIBUNISTRING_MODULE([0.9], [uniname/uniname])
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module unitypes:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
   # Code from module uniwidth/base:
+  gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
   # Code from module uniwidth/width:
+  gl_LIBUNISTRING_MODULE([0.9], [uniwidth/width])
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -344,13 +349,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.c
   lib/strnlen1.h
   lib/sys_time.in.h
-  lib/uniname.h
+  lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
   lib/uniname/uninames.h
   lib/unistd.in.h
-  lib/unitypes.h
-  lib/uniwidth.h
+  lib/unitypes.in.h
+  lib/uniwidth.in.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/verify.h
@@ -383,6 +388,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-link.m4
   m4/lib-prefix.m4
   m4/libsigsegv.m4
+  m4/libunistring-base.m4
   m4/link-follow.m4
   m4/localcharset.m4
   m4/locale-fr.m4
