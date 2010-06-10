@@ -1,3 +1,15 @@
+2010-06-10  Sam Steingold  <sds@gnu.org>
+
+	make OS:BOGOMIPS work even when clisp is compiled with -O
+	* modules/syscalls/bogomips.c: extract from calls.c
+	* modules/syscalls/calls.c (BOGOMIPS): call extern bogomips()
+	* modules/syscalls/Makefile.in (bogomips.o): compile without
+	$(CPPFLAGS) and $(CFLAGS) to avoid all optimizations
+	(GENERATED): add bogomips.o
+	* modules/syscalls/configure.in: do not check for clock,
+	it is always present on all platforms
+	* modules/syscalls/link.sh.in (NEW_FILES): add bogomips.o
+
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
 	update gnulib
