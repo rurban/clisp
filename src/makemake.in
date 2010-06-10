@@ -558,9 +558,6 @@ GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
 eval "`./libtool --tag=CC --config | grep '^wl='`"
 eval "`./libtool --tag=CC --config | grep '^export_dynamic_flag_spec='`"
 eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
-echo $wl >&2
-echo $export_dynamic_flag_spec >&2
-echo $EXPORT_DYNAMIC_FLAG_SPEC >&2
 
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
@@ -1141,6 +1138,7 @@ test -z "$cpu" && cpu=${host_cpu}
 
 test "${verbose}" = true -o "${verbose}" = yes && \
   cat <<EOF >&2
+EXPORT_DYNAMIC_FLAG_SPEC=${EXPORT_DYNAMIC_FLAG_SPEC}
 # host system:
  hostname = "${hostname}"
      HSYS = "${HSYS}"
