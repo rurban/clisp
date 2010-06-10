@@ -1003,13 +1003,14 @@ DEFUN(POSIX:LOADAVG, &optional percentp) {
   if (ret != 3) OS_error();
   mv_count=3;
   if (missingp(STACK_0)) {
-    N_D(loadavg[0],value1);
-    N_D(loadavg[1],value2);
+    N_D(loadavg[0],value1); pushSTACK(value1);
+    N_D(loadavg[1],value1); pushSTACK(value1);
     N_D(loadavg[2],value3);
+    value2 = popSTACK(); value1 = popSTACK();
   } else { /* return % as ints, to avoid consing */
-    value1 = fixnum((int)(loadavg[0]*100));
-    value2 = fixnum((int)(loadavg[1]*100));
-    value3 = fixnum((int)(loadavg[2]*100));
+    value1 = fixnum((int)round(loadavg[0]*100));
+    value2 = fixnum((int)round(loadavg[1]*100));
+    value3 = fixnum((int)round(loadavg[2]*100));
   }
   skipSTACK(1);
 }
