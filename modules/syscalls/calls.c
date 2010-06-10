@@ -990,25 +990,8 @@ DEFUNF(POSIX::LGAMMA,x) {
 }
 #endif
 
-#if defined(HAVE_CLOCK)
-DEFUN(POSIX:BOGOMIPS,) {
-  if (clock() != (clock_t)-1) {
-    unsigned long loops = 1;
-    while ((loops <<= 1)) {
-      unsigned long ticks, ii;
-      ticks = clock();
-      for (ii = loops; ii > 0; ii--);
-      ticks = clock() - ticks;
-      if (ticks >= CLOCKS_PER_SEC) {
-        double bogo = (1.0 * loops / ticks) * (CLOCKS_PER_SEC / 500000.0);
-        N_D(bogo,value1); mv_count=1;
-        return;
-      }
-    }
-  }
-  N_D(-1.0,value1); mv_count=1;
-}
-#endif /* HAVE_CLOCK */
+extern double bogomips (void);
+DEFUN(OS:BOGOMIPS,) { N_D(bogomips(),value1); mv_count=1; }
 
 #if defined(HAVE_GETLOADAVG)
 DEFUN(POSIX:LOADAVG, &optional percentp) {
@@ -4502,14 +4485,14 @@ DEFUN(OS::%SET-CLIPBOARD, str) {
         } /* v.dwPlatformId */
       } /* GetVersionEx */
 #else
-      } } /* for MODPREP all brackets should be 
+      } } /* for MODPREP all brackets should be
              balanced like there are no ifdefs */
 #endif
       CloseClipboard();
     } /* EmptyClipboard */
   } /* OpenClipboard */
   end_system_call();
-  if (!textset) OS_error(); /* !textset => some system call failed 
+  if (!textset) OS_error(); /* !textset => some system call failed
                                && LastError contain this error code */
   VALUES1(popSTACK());
 }
