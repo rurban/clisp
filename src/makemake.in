@@ -1657,7 +1657,7 @@ UNICODE_INCLUDES=''
 UNICODE_EXTRA=''
 if [ "${with_unicode}" != no ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
-  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h unitypes.h uniname.h uninames.h'
+  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uninames.h'
 fi
 
 NLS_INCLUDES=''
