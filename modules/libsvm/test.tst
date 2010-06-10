@@ -2,7 +2,7 @@
 ;; some tests for libsvm
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "libsvm/test")'
 
-(require "libsvm") t
+(list (require "libsvm")) (#-LIBSVM T #+LIBSVM NIL)
 (listp (show (multiple-value-list (ext:module-info "libsvm" t)) :pretty t)) T
 
 (integerp (show libsvm:*libsvm-version*)) T
@@ -151,7 +151,7 @@ T
 (libsvm:destroy-parameter f-parameter) NIL
 (ffi:validp f-parameter) NIL
 
-(length (get-output-stream-string libsvm:*libsvm-output*)) 10585
+(stringp (show (get-output-stream-string libsvm:*libsvm-output*))) T
 
 (progn (makunbound 'f-parameter)
        (makunbound 'v-parameter)

@@ -2,7 +2,7 @@
 ;; some tests for GP/PARI CALCULATOR
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "pari/test")'
 
-(require "pari") t
+(list (require "pari")) (#-PARI T #+PARI NIL)
 (listp (show (multiple-value-list (ext:module-info "pari" t)) :pretty t)) t
 
 (format t "~&Version: ~S~%" pari:pari-version) NIL
