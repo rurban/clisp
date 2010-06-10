@@ -37,6 +37,9 @@
 (defparameter *cur-stat* nil)
 (defparameter *old-stat* nil)
 
+(defparameter *here*
+  (make-pathname :name nil :type nil :defaults *load-truename*))
+
 ;; put here your CPU speed in GHz
 (defparameter *scale*
   #+(and CLISP SYSCALLS) (/ (POSIX:BOGOMIPS) 1000)
@@ -53,10 +56,12 @@
 ; Filename conversion
 (defun file (filename)
   (declare (string filename))
-  (case *benchmark-type*
-    (:compiled (concatenate 'string filename "." *compiled-type*))
-    (:interpreted (concatenate 'string filename "." *source-type*))
-    (t filename)))
+  (merge-pathnames
+   (case *benchmark-type*
+     (:compiled (concatenate 'string filename "." *compiled-type*))
+     (:interpreted (concatenate 'string filename "." *source-type*))
+     (t filename))
+   *here*))
 
 (defmacro with-file (filename &body body)
   (let ((fi (gensym "WITH-FILE-")))
@@ -99,8 +104,9 @@
   (case *benchmark-type*
     ((:compiled)
      (push (list "compilation" 0 0) *cur-stat*)
-     (timer-thing 1 'none "compile all files"
-                  #'mapc #'compile-file *file-list*)))
+     (timer-thing 1 'none "compile all files" #'mapc
+                  (lambda (f) (compile-file (merge-pathnames f *here*)))
+                  *file-list*)))
   ;; repeat counts are selected so that each test takes
   ;; approximately the same time
   (with-file "fac"
