@@ -2,7 +2,7 @@
 ;; some tests for WIN32
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
 
-(require "win32") T
+(progn (require "win32") T) T
 (listp (show (multiple-value-list (ext:module-info "win32" t)) :pretty t)) T
 
 (defmacro show-mv (form) `(listp (show (multiple-value-list ,form) :pretty t)))

@@ -2,7 +2,7 @@
 ;; some tests for glibc
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/glibc/test")'
 
-(require "linux") T
+(progn (require "linux") T) T
 (listp (show (multiple-value-list (ext:module-info "linux" t)) :pretty t)) T
 
 (defparameter *d* (show (linux:opendir "."))) *D*
