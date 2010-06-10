@@ -25,6 +25,7 @@
 	* gllib/uniname.in.h: replaces gllib/uniname.h
 	* gllib/unitypes.in.h: replaces gllib/unitypes.h
 	* gllib/uniwidth.in.h: replaces gllib/uniwidth.h
+	* makemake.in (UNICODE_EXTRA): remove these 3 files
 
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
