@@ -1,5 +1,21 @@
 2010-06-09  Sam Steingold  <sds@gnu.org>
 
+	update gnulib
+	* modules/regexp/gllib/regex_internal.c:
+	* modules/regexp/gllib/regex_internal.h:
+	* modules/syscalls/gllib/time.in.h:
+	* modules/syscalls/glm4/time_h.m4:
+	* build-aux/c++defs.h, build-aux/warn-on-use.h:
+	* glm4/fcntl-o.m4, glm4/gnulib-comp.m4, glm4/iconv.m4:
+	* glm4/langinfo_h.m4, glm4/lib-link.m4, glm4/stddef_h.m4:
+	* glm4/stdint.m4, glm4/wchar_h.m4, glm4/wctype_h.m4: update
+	* glm4/libunistring-base.m4: add
+	* gllib/uniname.in.h: replaces gllib/uniname.h
+	* gllib/unitypes.in.h: replaces gllib/unitypes.h
+	* gllib/uniwidth.in.h: replaces gllib/uniwidth.h
+
+2010-06-09  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (bench): use base, not boot, for benchmarking
 	because it includes syscalls with bogomips
 
