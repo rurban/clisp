@@ -1,5 +1,10 @@
 2010-06-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX:LOADAVG): fix a GC-safety bug;
+	use round() for integer returns
+
+2010-06-10  Sam Steingold  <sds@gnu.org>
+
 	* io.d (STRUCTURE-READER): fix g++ compilation
 
 2010-06-10  Sam Steingold  <sds@gnu.org>
