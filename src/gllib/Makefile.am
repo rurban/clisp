@@ -618,14 +618,25 @@ EXTRA_DIST += sys_time.in.h
 
 ## begin gnulib module uniname/base
 
+BUILT_SOURCES += $(LIBUNISTRING_UNINAME_H)
 
-EXTRA_DIST += uniname.h
+uniname.h: uniname.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/uniname.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
+MOSTLYCLEANFILES += uniname.h uniname.h-t
+
+EXTRA_DIST += uniname.in.h
 
 ## end   gnulib module uniname/base
 
 ## begin gnulib module uniname/uniname
 
+if LIBUNISTRING_COMPILE_UNINAME_UNINAME
 libgnu_a_SOURCES += uniname/uniname.c
+endif
 
 EXTRA_DIST += uniname/gen-uninames.lisp uniname/uninames.h
 
@@ -758,21 +769,41 @@ EXTRA_DIST += unistd.in.h
 
 ## begin gnulib module unitypes
 
+BUILT_SOURCES += $(LIBUNISTRING_UNITYPES_H)
 
-EXTRA_DIST += unitypes.h
+unitypes.h: unitypes.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/unitypes.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
+MOSTLYCLEANFILES += unitypes.h unitypes.h-t
+
+EXTRA_DIST += unitypes.in.h
 
 ## end   gnulib module unitypes
 
 ## begin gnulib module uniwidth/base
 
+BUILT_SOURCES += $(LIBUNISTRING_UNIWIDTH_H)
 
-EXTRA_DIST += localcharset.h uniwidth.h
+uniwidth.h: uniwidth.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+	  cat $(srcdir)/uniwidth.in.h; \
+	} > $@-t && \
+	mv -f $@-t $@
+MOSTLYCLEANFILES += uniwidth.h uniwidth.h-t
+
+EXTRA_DIST += localcharset.h uniwidth.in.h
 
 ## end   gnulib module uniwidth/base
 
 ## begin gnulib module uniwidth/width
 
+if LIBUNISTRING_COMPILE_UNIWIDTH_WIDTH
 libgnu_a_SOURCES += uniwidth/width.c
+endif
 
 EXTRA_DIST += uniwidth/cjk.h
 
