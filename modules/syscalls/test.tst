@@ -604,6 +604,9 @@ RUN-SLEEP
     (assert (null status) () "status=~S is non-NIL" status)))
 #+(and :unix (not :cygwin)) NIL
 
+#+unix (every #'sys::double-float-p (show (multiple-value-list (os:loadavg)))) T
+#+unix (every #'sys::fixnump (show (multiple-value-list (os:loadavg t)))) T
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)
