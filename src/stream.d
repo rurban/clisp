@@ -15629,7 +15629,7 @@ LISPFUNNR(built_in_stream_element_type,1) {
         *stream_list_ = Cdr(*stream_list_);
       }
       switch (count) {
-        case 0: { eltype = T; skipSTACK(1); } break; /* no streams */
+        case 0: { eltype = NIL; skipSTACK(1); } break; /* no streams */
         case 1: { eltype = STACK_0; skipSTACK(2); } break;
         default: eltype = combine_stream_element_types(count); skipSTACK(1);
       }
