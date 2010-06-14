@@ -1096,7 +1096,7 @@ T
         (typep #\a (array-element-type (get-output-stream-string s)))))
 (NIL NIL)
 
-(stream-element-type (make-concatenated-stream)) T
+(stream-element-type (make-concatenated-stream)) NIL
 (stream-element-type (make-broadcast-stream)) T
 
 ;; [ 1412268 ] Buffer overflow in stream handling code
