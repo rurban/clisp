@@ -1,5 +1,10 @@
 2010-06-15  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (handle_directory_encoding_error): use unwind_upto
+	instead of a home-brewed concoction
+
+2010-06-15  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (venv_out) [DEBUG_SPVW]: add
 
 2010-06-13  Sam Steingold  <sds@gnu.org>
