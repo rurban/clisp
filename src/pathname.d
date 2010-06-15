@@ -7209,12 +7209,8 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
   /* avoid nested handle_directory_encoding_error calls */
   if (running_handle_directory_encoding_error) return;
   else running_handle_directory_encoding_error = true;
-  sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
-  unwind_back_trace(back_trace,frame); setSTACK(STACK = frame);
   value1 = condition;
-  LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); begin_longjmp_call();
-  longjmpspl(*returner,(aint)returner); /* return non-0! */
-  NOTREACHED;
+  unwind_upto(frame);
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
