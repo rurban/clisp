@@ -1,3 +1,8 @@
+2010-06-15  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: test EXT:MAKE-BUFFERED-OUTPUT-STREAM,
+	including (close :abort)
+
 2010-06-13  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: bug#3014921: (stream-element-type

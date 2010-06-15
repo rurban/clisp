@@ -1,5 +1,21 @@
 2010-06-15  Sam Steingold  <sds@gnu.org>
 
+	Try to flush buffers even if CLOSE was called with :ABORT T.
+	this partially reverts patch 2010-02-25 and fixes bug#3014919
+	* stream.d (handle_close_errors, MAYBE_IGNORE_ERRORS): add
+	(close_str_in, close_buff_in): do not accept unused abort arg
+	(builtin_stream_close): do not pass abort to them
+	(close_buff_out, close_generic, close_ochannel, close_buffered):
+	use MAYBE_IGNORE_ERRORS around calls which may signal errors
+	(oconv_unshift_output_buffered): accept abort arg
+	* constobj.d (handler_for_error): add
+	* lispbibl.d (clisp_thread_t) [MULTITHREAD]: add
+	_running_handle_close_errors
+	(running_handle_close_errors) [MULTITHREAD]: define
+	* makemake.in (check-script): test for bug#3014919
+
+2010-06-15  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (handle_directory_encoding_error): use unwind_upto
 	instead of a home-brewed concoction
 

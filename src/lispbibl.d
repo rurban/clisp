@@ -17085,8 +17085,8 @@ struct object_tab_tl_ {
     void* _SP_anchor;
     gcv_object_t* _STACK_bound;
     gcv_object_t* _STACK_start;
-    /* moved here from pathname.d */
-    bool _running_handle_directory_encoding_error;
+    bool _running_handle_directory_encoding_error; /* used in pathname.d */
+    bool _running_handle_close_errors;             /* used in stream.d */
     /* do not rely on SA_NODEFER for signal nesting */
     spinlock_t _signal_reenter_ok;
     /* Following are related to thread interruption  */
@@ -17415,6 +17415,8 @@ struct object_tab_tl_ {
   #endif
   #define running_handle_directory_encoding_error \
     current_thread()->_running_handle_directory_encoding_error
+  #define running_handle_close_errors \
+    current_thread()->_running_handle_close_errors
   #if (int_bitsize < long_bitsize)
     #define jmpl_value current_thread()->_jmpl_value
   #endif

@@ -2428,9 +2428,8 @@ local maygc uintL rd_ch_array_str_in (const gcv_object_t* stream_,
 
 /* Closes a String-Input-Stream.
  close_str_in(stream, abort);
- > stream : String-Input-Stream
- > abort: flag: non-0 => ignore errors */
-local maygc void close_str_in (object stream, uintB abort) {
+ > stream : String-Input-Stream */
+local maygc void close_str_in (object stream) {
   TheStream(stream)->strm_str_in_string = NIL; /* String := NIL */
 }
 
@@ -2865,9 +2864,8 @@ local maygc object rd_ch_buff_in (const gcv_object_t* stream_) {
 
 /* Closes a Buffered-Input-Stream.
  close_buff_in(stream, abort);
- > stream : Buffered-Input-Stream
- > abort: flag: non-0 => ignore errors */
-local maygc void close_buff_in (object stream, uintB abort) {
+ > stream : Buffered-Input-Stream */
+local maygc void close_buff_in (object stream) {
   TheStream(stream)->strm_buff_in_fun = NIL; /* Function := NIL */
   TheStream(stream)->strm_buff_in_mode = NIL; /* Mode := NIL */
   TheStream(stream)->strm_buff_in_string = NIL; /* String := NIL */
@@ -2953,6 +2951,29 @@ LISPFUNNR(buffered_input_stream_index,1)
   VALUES1(index);
 }
 
+/* handling of (close :abort): ignore the error and proceed to close FDs */
+#if !defined(MULTITHREAD)
+/* should be per thread - moved to clisp_thread_t in MT */
+local bool running_handle_close_errors = false;
+#endif
+local void handle_close_errors (void* sp, gcv_object_t* frame, object label,
+                                object condition) {
+  if (running_handle_close_errors) return;
+  else running_handle_close_errors = true;
+  unwind_upto(frame);
+}
+#define MAYBE_IGNORE_ERRORS(abort,code)                                 \
+  if (abort) {                                                          \
+    var sp_jmp_buf returner; /* return point */                         \
+    running_handle_close_errors = false;                                \
+    make_HANDLER_entry_frame(O(handler_for_error), handle_close_errors, \
+                             returner, goto end_ignore_errors; );       \
+  }                                                                     \
+  code;                                                                 \
+  if (abort) running_handle_close_errors = false;                       \
+ end_ignore_errors:                                                     \
+  if (abort) { unwind_HANDLER_frame(); }
+
 
 /* Buffered-Output-Stream
    ======================
@@ -3019,7 +3040,7 @@ local maygc void wr_ch_buff_out (const gcv_object_t* stream_, object ch) {
  can trigger GC */
 local maygc void close_buff_out (object stream, uintB abort) {
   pushSTACK(stream); /* save stream */
-  finish_output_buff_out(stream);
+  MAYBE_IGNORE_ERRORS(abort,finish_output_buff_out(stream));
   stream = popSTACK(); /* restore stream */
   TheStream(stream)->strm_buff_out_fun = NIL; /* Function := NIL */
   TheStream(stream)->strm_buff_out_string = NIL; /* String := NIL */
@@ -3181,8 +3202,10 @@ local maygc void wr_by_generic (object stream, object obj) {
 
 /* (CLOSE s) == (GENERIC-STREAM-CLOSE c) */
 local maygc void close_generic (object stream, uintB abort) {
-  pushSTACK(stream); funcall(L(generic_stream_controller),1);
-  pushSTACK(value1); funcall(S(generic_stream_close),1);
+  MAYBE_IGNORE_ERRORS(abort, {
+    pushSTACK(stream); funcall(L(generic_stream_controller),1);
+    pushSTACK(value1); funcall(S(generic_stream_close),1);
+  });
 }
 
 LISPFUNN(generic_stream_controller,1) {
@@ -5852,10 +5875,8 @@ local maygc void clear_output_unbuffered (object stream) {
  > abort: flag: non-0 => ignore errors */
 local maygc void close_ochannel (object stream, uintB abort) {
   pushSTACK(stream);
-  if (!abort) {
-    oconv_unshift_output_unbuffered(stream);
-    stream = STACK_0;
-  }
+  MAYBE_IGNORE_ERRORS(abort,oconv_unshift_output_unbuffered(stream));
+  stream = STACK_0;
   ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel,abort);
   stream = popSTACK();
   ChannelStream_fini(stream,abort);
@@ -7176,11 +7197,10 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
  oconv_unshift_output_buffered(stream);
  > stream: Buffered-Channel-Stream */
 #if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
- #define oconv_unshift_output_buffered(stream)  \
-      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
-        oconv_unshift_output_buffered_(stream);            \
-      }
-local maygc void oconv_unshift_output_buffered_ (object stream) {
+  #define oconv_unshift_output_buffered(stream,abort)   \
+    ((ChannelStream_oconvdesc(stream) != (iconv_t)0)    \
+     ? oconv_unshift_output_buffered_(stream,abort) : 0)
+local maygc uintB oconv_unshift_output_buffered_ (object stream, uintB abort) {
  #define tmpbufsize 4096
   var uintB tmpbuf[tmpbufsize];
   var char* outptr = (char*)tmpbuf;
@@ -7189,6 +7209,7 @@ local maygc void oconv_unshift_output_buffered_ (object stream) {
   var size_t res =
     iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
   if (res == (size_t)(-1)) {
+    if (abort) return 1;
     if (OS_errno == E2BIG) {    /* output buffer too small? */
       NOTREACHED;
     } else {
@@ -7204,10 +7225,11 @@ local maygc void oconv_unshift_output_buffered_ (object stream) {
     /* increment position */
     BufferedStream_position(stream) += outcount;
   }
+  return 0;
  #undef tmpbufsize
 }
 #else
- #define oconv_unshift_output_buffered(stream)
+ #define oconv_unshift_output_buffered(stream,abort)
 #endif
 
 /* File-Stream, Bit-based
@@ -8275,7 +8297,7 @@ local maygc void finish_output_buffered (object stream) {
     return;
   pushSTACK(stream);
   /* flush pending Output in the iconv-Descriptor: */
-  oconv_unshift_output_buffered(stream);
+  oconv_unshift_output_buffered(stream,0);
   stream = STACK_0;
   /* poss. flush Buffer and eofposition: */
   buffered_flush_everything(stream);
@@ -8349,15 +8371,14 @@ local maygc void close_buffered (object stream, uintB abort) {
   if (nullp(BufferedStream_channel(stream)))
     return;
   pushSTACK(stream);
-  if (!abort) {
-    /* Flush pending Output in the iconv-Descriptor: */
-    oconv_unshift_output_buffered(stream);
+  /* Flush pending Output in the iconv-Descriptor: */
+  if (!oconv_unshift_output_buffered(stream,abort)) { /* success */
     stream = STACK_0;
     /* poss. flush Buffer and eofposition: */
-    buffered_flush_everything(stream);
-    stream = STACK_0;
-  } else BufferedStream_modified(stream) = false;
-  /* Now the modified_flag is deleted.
+    MAYBE_IGNORE_ERRORS(abort,buffered_flush_everything(stream));
+  }
+  stream = STACK_0;
+  /* Now the modified_flag is deleted (unless aborted!)
    close File: */
   ChannelStreamLow_close(stream)(stream,BufferedStream_channel(stream),abort);
   stream = popSTACK();
@@ -16153,6 +16174,10 @@ LISPFUNN(interactive_stream_p,1) {
  builtin_stream_close(&stream, abort);
  > stream: Builtin-Stream
  > abort: flag: non-0 => ignore errors: may be called from GC & quit()
+    -- if abort is non-0, we end up calling close(2) on the underlying object
+       no matter what else might have failed (iconv, buffer flushing &c)
+    -- even if abort is non-0, we do try to flush buffers et al, but we do that
+       under IGNORE-ERRORS, i.e., some output might be silently lost
  < stream: Builtin-Stream
  can trigger GC */
 modexp maygc void builtin_stream_close
@@ -16169,11 +16194,11 @@ modexp maygc void builtin_stream_close
     case strmtype_concat: break; /* non-recursive */
     case strmtype_twoway: break; /* non-recursive */
     case strmtype_echo:   break; /* non-recursive */
-    case strmtype_str_in:  close_str_in(stream,abort); break;
+    case strmtype_str_in:  close_str_in(stream); break;
     case strmtype_str_out:  break;
     case strmtype_str_push: break;
     case strmtype_pphelp:   break;
-    case strmtype_buff_in:  close_buff_in(stream,abort);  break;
+    case strmtype_buff_in:  close_buff_in(stream);  break;
     case strmtype_buff_out: close_buff_out(stream,abort); break;
     #ifdef GENERIC_STREAMS
     case strmtype_generic: close_generic(stream,abort); break;
