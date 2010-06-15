@@ -251,3 +251,32 @@ nil
     (unwind-protect (list (f t "foo") (f nil "bar"))
       (delete-file fname))))
 ((:EOF "foo") ("foo" "bar"))
+
+#+CLISP
+(let* ((list ())
+       (out (ext:make-buffered-output-stream (lambda (c) (push c list)))))
+  (list (write-char #\a out)
+        (close out)
+        list))
+#+CLISP (#\a T ("a"))
+
+#+CLISP
+(let* ((list ())
+       (out (ext:make-buffered-output-stream
+             (lambda (c) (push c list) (error (string c))))))
+  (list (write-char #\a out)
+        (block b
+          (handler-bind ((error (lambda (c)
+                                  (princ-error c) (return-from b list))))
+            (close out)))))
+#+CLISP (#\a ("a"))
+
+#+CLISP
+(let* ((list ())
+       (out (ext:make-buffered-output-stream
+             (lambda (c) (push c list) (error (string c))))))
+  (list (write-char #\a out)
+        (close out :abort t)
+        list
+        (princ-to-string out)))
+#+CLISP (#\a T ("a") "#<CLOSED OUTPUT BUFFERED-OUTPUT-STREAM NIL>")

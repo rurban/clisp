@@ -3034,7 +3034,8 @@ if [ $CROSS = false ] ; then
   echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence ${seq42} s) (values))' > script.lisp"
   echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
   echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
-  echotab "\$(RM) script.lisp"
+  echotab "\$(RM) nohup.out; nohup \$(RUN) -q -M lispinit.mem -x 42; test \`tail -n 1 nohup.out\` = 42 || exit 1 "
+  echotab "\$(RM) script.lisp nohup.out"
   echol
 
   # check that the executable images work

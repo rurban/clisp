@@ -496,6 +496,7 @@
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") /* type for error-message */
   /* also used in PATHNAME */
   LISPOBJ(handler_for_charset_type_error,"(#(SYSTEM::CHARSET-TYPE-ERROR NIL))")
+  LISPOBJ(handler_for_error,"(#(ERROR NIL))")
   LISPOBJ(setf_stream_element_type,"(SETF STREAM-ELEMENT-TYPE)")
   LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") /* type for error-message */
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") /* type for error-message */
