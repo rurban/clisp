@@ -284,11 +284,15 @@ following command:
   <member><command>base</command></member>
   <member><command>full</command></member>
   <member><command>run_test</command></member>
+  <member><command>run_mod_test</command></member>
   <member><command>run_all_tests</command></member>
-  <member><command>ansi_tests</command></member>
+  <member><command>run_ansi_tests</command></member>
+  <member><command>run_ansi_tests_compiled</command></member>
   <member><command>xout</command></member>
   <member><command>zout</command></member>
- </simplelist>and others.</para></formalpara>
+  <member><command>zbacktrace</command></member>
+ </simplelist>and others; <command>help &command-r;</command> in &gdb;
+  will tell you what &command-r; does.</para></formalpara>
 
 <formalpara id="faq-debug-macros"><title>Macros</title>
  <para>&clisp; makes heavy use of &cpp; macros
