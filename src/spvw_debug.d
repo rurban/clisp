@@ -482,5 +482,32 @@ FUN(object,Lfloat,TheLfloat)
 FUN(object,Cclosure,TheCclosure)
 FUN(object,int,Cclosure_length)
 FUN(object,Codevec,TheCodevec)
+local void venv_out (FILE *out, object venv) { /* cf eval.d:symbol_env_search */
+  begin_system_call();
+  if (out == NULL) out = stdout;
+ next_env:
+  nobject_out(out,venv); fputc('\n',out);
+  if (framepointerp(venv)) {
+     var gcv_object_t* FRAME = TheFramepointer(venv);
+     var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
+     fprintf(out,"* count=%d\n",count);
+     if (count > 0) {
+      var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
+      do {
+       #ifdef NO_symbolflags
+        nobject_out(out,*(bindingsptr STACKop 1));
+       #else
+        nobject_out(out,*(bindingsptr STACKop 0));
+       #endif
+        fputc('\n',out);
+        bindingsptr skipSTACKop varframe_binding_size; /* no: next binding */
+      } while (--count);
+    }
+    venv = FRAME_(frame_next_env);
+    goto next_env;
+  }
+  fflush(out);
+  end_system_call();
+}
 #undef FUN
 #endif
