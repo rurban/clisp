@@ -516,8 +516,8 @@ global /*maygc*/ void unwind (void)
               aktenv.decl_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV2VD_frame_info & envbind_case_mask_t): /* 1 VAR_ENV and 1 DECL_ENV */
               aktenv.var_env = *ptr; ptr skipSTACKop 1;
-                  aktenv.decl_env = *ptr; ptr skipSTACKop 1;
-                  break;
+              aktenv.decl_env = *ptr; ptr skipSTACKop 1;
+              break;
             case (ENV5_frame_info & envbind_case_mask_t): /* all 5 Environments */
               aktenv.var_env = *ptr; ptr skipSTACKop 1;
               aktenv.fun_env = *ptr; ptr skipSTACKop 1;
