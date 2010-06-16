@@ -48,8 +48,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module mbsinit:
   # Code from module mbsrtowcs:
   # Code from module memchr:
-  # Code from module memcmp:
-  # Code from module memmove:
   # Code from module multiarch:
   # Code from module nl_langinfo:
   # Code from module no-c++:
@@ -134,10 +132,6 @@ AC_DEFUN([gl_INIT],
   # Code from module memchr:
   gl_FUNC_MEMCHR
   gl_STRING_MODULE_INDICATOR([memchr])
-  # Code from module memcmp:
-  gl_FUNC_MEMCMP
-  # Code from module memmove:
-  gl_FUNC_MEMMOVE
   # Code from module multiarch:
   gl_MULTIARCH
   # Code from module nl_langinfo:
@@ -336,8 +330,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mbsrtowcs.c
   lib/memchr.c
   lib/memchr.valgrind
-  lib/memcmp.c
-  lib/memmove.c
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
@@ -401,8 +393,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mbsrtowcs.m4
   m4/mbstate_t.m4
   m4/memchr.m4
-  m4/memcmp.m4
-  m4/memmove.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
   m4/nl_langinfo.m4
