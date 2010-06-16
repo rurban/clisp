@@ -374,7 +374,7 @@ GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset \
 # so we include them here so that they appear once in src/gl*
 # instead of N times in $(GNULIB_USERS)/gl*
 GNULIB_MODULES = alloca-opt alloca extensions include_next verify string \
-	mbsinit wchar wctype mbrtowc mbsrtowcs memmove memcmp memchr nl_langinfo
+	mbsinit wchar wctype mbrtowc mbsrtowcs memchr nl_langinfo
 GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
 GNULIB_AVOID = $(addprefix --avoid=, $(GNULIB_COMMON))
 GNULIB_IMPORTED_LOG = /tmp/gnulib-imported.log
