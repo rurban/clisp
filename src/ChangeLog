@@ -1,3 +1,8 @@
+2010-06-16  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib): hln merges pathnames, which means that if the
+	source pathname is absolute, the destination must be absolute as well
+
 2010-06-15  Sam Steingold  <sds@gnu.org>
 
 	Try to flush buffers even if CLOSE was called with :ABORT T.

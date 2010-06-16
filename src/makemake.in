@@ -3784,7 +3784,8 @@ if test "$HLN" != ln; then
   echotab "chmod +x hln"
   echol
 fi
-# hln merges relative pathnames
+# hln merges pathnames, which means that if the source pathname is absolute,
+# the destination must be absolute as well!
 echol "FULLTOPDIR = `pwd`/\$(TOPDIR)"
 echol "distrib : force $needs modular manualx clisp.c distmakefile"
 echotab "\$(RMRF) \$(TOPDIR) \$(DISTFILE) clisp\$(PACKEXT)"
@@ -3857,13 +3858,13 @@ line="${HLN}";
 for f in ${EMACS_FILES} ${VIM_FILES}; do
   line="${line} ${SRCTOPDIR}emacs/${f}"
 done
-echotab "${line} \$(TOPDIR)/emacs/"
+echotab "${line} \$(FULLTOPDIR)/emacs/"
 echotab "mkdir \$(TOPDIR)/misc"
 line="${HLN}";
 for f in ${ACLOCAL_FILES}; do line="${line} ${SRCDIR}m4/$f"; done
-echotab "${line} \$(TOPDIR)/misc/"
+echotab "${line} \$(FULLTOPDIR)/misc/"
 echotab "mkdir \$(TOPDIR)/src"
-echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src/"
+echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(FULLTOPDIR)/src/"
 echotab "${HLN} clisp-link \$(TOPDIR)/"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit/"
