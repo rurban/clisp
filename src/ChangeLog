@@ -1,5 +1,11 @@
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script): fix "make check | tee": redirect
+	output under nohup because nohup only creates nohup.out if there
+	is no redirection
+
+2010-06-16  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (LIBTOOL_VERSION): bump to 2.2.8
 	(GNULIB_MODULES): remove obsolete modules memmove & memcmp
 	(build-aux-update): also get ltoptions ltsugar ltversion lt~obsolete
