@@ -319,9 +319,6 @@
 /* Define to 1 if you have the `memchr' function. */
 #undef HAVE_MEMCHR
 
-/* Define to 1 if you have the `memmove' function. */
-#undef HAVE_MEMMOVE
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -869,6 +866,10 @@
 /* longjmp() may return */
 #undef LONGJMP_RETURNS
 
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
@@ -1129,9 +1130,6 @@
 
 /* Define to a type if <wchar.h> does not define. */
 #undef mbstate_t
-
-/* Define to rpl_memcmp if the replacement function should be used. */
-#undef memcmp
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
