@@ -352,6 +352,7 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
 	cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
+	chmod +x src/build-aux/ltmain.sh
 	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
 	  cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
