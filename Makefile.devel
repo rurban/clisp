@@ -338,6 +338,7 @@ update-gnulib:
 LIBTOOL_VERSION = 2.2.8
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
+# an alternative way to update libtool files is "cd src; libtoolize --copy"
 GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 # it is important not to have "*.m4" targets with ": force" dependencies
@@ -351,7 +352,8 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
 	cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
-	cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/m4/libtool.m4 src/m4/libtool.m4
+	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
+	  cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
