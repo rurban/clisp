@@ -1,6 +1,8 @@
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (LIBTOOL_VERSION): bump to 2.2.8
+	(GNULIB_MODULES): remove obsolete modules memmove & memcmp
+	* modules/syscalls/glm4/sockpfaf.m4, build-aux/config.sub: update
 
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
