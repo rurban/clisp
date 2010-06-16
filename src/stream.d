@@ -3811,8 +3811,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
           return true;
         }
       }
-    } else
-      DEBUG_OUT(("neither FILE_TYPE_CHAR nor FILE_TYPE_DISK\n"));
+    } else { DEBUG_OUT(("neither FILE_TYPE_CHAR nor FILE_TYPE_DISK\n")); }
     /* Cannot determine equality. Assume they are different. */
   }
   end_system_call();
@@ -7229,7 +7228,7 @@ local maygc uintB oconv_unshift_output_buffered_ (object stream, uintB abort) {
  #undef tmpbufsize
 }
 #else
- #define oconv_unshift_output_buffered(stream,abort)
+ #define oconv_unshift_output_buffered(stream,abort)  0
 #endif
 
 /* File-Stream, Bit-based
@@ -8297,7 +8296,7 @@ local maygc void finish_output_buffered (object stream) {
     return;
   pushSTACK(stream);
   /* flush pending Output in the iconv-Descriptor: */
-  oconv_unshift_output_buffered(stream,0);
+  (void)oconv_unshift_output_buffered(stream,0);
   stream = STACK_0;
   /* poss. flush Buffer and eofposition: */
   buffered_flush_everything(stream);
