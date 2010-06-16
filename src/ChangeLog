@@ -2,6 +2,7 @@
 
 	* Makefile.devel (LIBTOOL_VERSION): bump to 2.2.8
 	(GNULIB_MODULES): remove obsolete modules memmove & memcmp
+	* configure.in: add AC_CONFIG_MACRO_DIR([m4]) for libtoolize
 	* modules/syscalls/glm4/sockpfaf.m4, build-aux/config.sub: update
 
 2010-06-16  Sam Steingold  <sds@gnu.org>
