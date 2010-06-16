@@ -335,7 +335,7 @@ update-gnulib:
 
 # it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
-LIBTOOL_VERSION = 2.2
+LIBTOOL_VERSION = 2.2.8
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros

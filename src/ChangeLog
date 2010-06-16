@@ -1,5 +1,9 @@
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (LIBTOOL_VERSION): bump to 2.2.8
+
+2010-06-16  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.48++ (2010-06-16)
 
 2010-06-16  Sam Steingold  <sds@gnu.org>
