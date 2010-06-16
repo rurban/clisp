@@ -1,5 +1,9 @@
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.48++ (2010-06-16)
+
+2010-06-16  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (distrib): hln merges pathnames, which means that if the
 	source pathname is absolute, the destination must be absolute as well
 
