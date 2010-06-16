@@ -1,4 +1,4 @@
-# Generated from ltmain.m4sh.
+#  Generated from ltmain.m4sh.
 
 # libtool (GNU libtool) 2.2.8
 # Written by Gordon Matzigkeit <gord@gnu.ai.mit.edu>, 1996
