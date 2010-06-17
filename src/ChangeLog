@@ -1,3 +1,11 @@
+2010-06-17  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (IS_EINVAL, IS_EINVAL_EXTRA): extracted from
+	finish_tty_output and force_tty_output
+	(finish_tty_output, force_tty_output, clear_tty_output)
+	(listen_handle): use IS_EINVAL
+	Reported by José H. Espinosa <jose.h.espinosa@gmail.com>
+
 2010-06-16  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-script): fix "make check | tee": redirect
