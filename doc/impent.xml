@@ -920,6 +920,7 @@
 <!ENTITY ws-r '<replaceable>window-stream</replaceable>'>
 <!ENTITY x-r '<replaceable>x</replaceable>'>
 <!ENTITY x1-r '<replaceable>x&sub-1;</replaceable>'>
+<!ENTITY x2-r '<replaceable>x&sub-2;</replaceable>'>
 <!ENTITY xn-r '<replaceable>x&sub-n;</replaceable>'>
 <!ENTITY y-r '<replaceable>y</replaceable>'>
 
