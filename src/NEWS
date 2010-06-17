@@ -49,6 +49,9 @@ User visible changes
   with and without GMP.
   See <http://clisp.cons.org/impnotes/pari.html> for details.
 
+* New functions OS:VERSION< et al call strverscmp.
+  See <http://clisp.cons.org/impnotes/syscalls.html#strverscmp> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code (bug#2868166).

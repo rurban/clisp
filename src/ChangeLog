@@ -1,5 +1,16 @@
 2010-06-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (string_version_compare): call
+	strverscmp and clear the STACK
+	(OS::VERSION-COMPARE, OS:VERSION<, OS:VERSION<=, OS:VERSION>)
+	(OS:VERSION>=): use it
+	* modules/syscalls/posix.lisp (OS:VERSION<, OS:VERSION<=)
+	(OS:VERSION>, OS:VERSION>=): export
+	* modules/syscalls/configure.in: call gl_FUNC_STRVERSCMP
+	* Makefile.devel (gnulib-imported): import strverscmp into syscalls
+
+2010-06-17  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (IS_EINVAL, IS_EINVAL_EXTRA): extracted from
 	finish_tty_output and force_tty_output
 	(finish_tty_output, force_tty_output, clear_tty_output)
