@@ -3477,6 +3477,17 @@ local void clear_tty_input (Handle handle) {
   end_system_call();
 }
 
+#if defined(UNIX_IRIX)
+  #define IS_EINVAL_EXTRA  (errno==ENOSYS)
+#elif defined(UNIX_CYGWIN32) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
+  #define IS_EINVAL_EXTRA  ((errno==EBADF)||(errno==EACCES)||(errno==EBADRQC))
+#elif defined(UNIX_DARWIN)
+  #define IS_EINVAL_EXTRA  ((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV))
+#else
+  #define IS_EINVAL_EXTRA  0
+#endif
+#define IS_EINVAL ((errno==EINVAL)||IS_EINVAL_EXTRA)
+
 /* UP: Move the pending Output of a Handle to the destination. */
 local void finish_tty_output (Handle handle) {
   /* Method 1: fsync, see fsync(2)
@@ -3488,26 +3499,14 @@ local void finish_tty_output (Handle handle) {
  #if !(defined(UNIX) && !defined(HAVE_FSYNC))
   if (!( fsync(handle) ==0)) {
   #ifndef UNIX_BEOS /* BeOS 5 apparently does not set errno */
-   #ifdef UNIX_IRIX
-    if (!(errno==ENOSYS))
-   #endif
-   #ifdef UNIX_CYGWIN32 /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
-    if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
-   #endif
-   #ifdef UNIX_DARWIN
-    if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno != ENODEV))
-   #endif
-    if (!(errno==EINVAL))
+    if (!IS_EINVAL)
       { OS_error(); }
   #endif
   } else goto ok;
  #endif
  #ifdef UNIX_TERM_TERMIOS
   if (!( TCDRAIN(handle) ==0)) {
-    if (!((errno==ENOTTY)||(errno==EINVAL)))
-  #ifdef UNIX_DARWIN
-    if (!((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV)))
-  #endif
+    if (!((errno==ENOTTY)||IS_EINVAL))
       { OS_error(); } /* no TTY: OK, report other Error */
   } else goto ok;
  #endif
@@ -3546,19 +3545,10 @@ local void force_tty_output (Handle handle) {
   /* Method: fsync, see FSYNC(2) */
   begin_system_call();
   if (!( fsync(handle) ==0)) {
-  #ifndef UNIX_BEOS /* BeOS 5 apparently does not set errno */
-   #ifdef UNIX_IRIX
-    if (!(errno==ENOSYS))
-   #endif
-   #ifdef UNIX_CYGWIN32 /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
-    if ((errno != EBADF) && (errno != EACCES) && (errno != EBADRQC))
-   #endif
-   #ifdef UNIX_DARWIN
-    if ((errno != EOPNOTSUPP) && (errno != ENOTSUP) && (errno != ENODEV))
-   #endif
-    if (!(errno==EINVAL))
+   #ifndef UNIX_BEOS /* BeOS 5 apparently does not set errno */
+    if (!IS_EINVAL)
       OS_error();
-  #endif
+   #endif
   }
   end_system_call();
 }
@@ -3574,13 +3564,7 @@ local void clear_tty_output (Handle handle) {
   begin_system_call();
  #ifdef UNIX_TERM_TERMIOS
   if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
-   #ifdef UNIX_IRIX
-    if (!(errno==ENOSYS))
-   #endif
-    if (!((errno==ENOTTY)||(errno==EINVAL)))
-   #ifdef UNIX_DARWIN
-    if (!((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV)))
-   #endif
+    if (!((errno==ENOTTY)||IS_EINVAL))
       { OS_error(); } /* no TTY: OK, report other Error */
   }
  #endif
@@ -4870,14 +4854,8 @@ local listen_t listen_handle (Handle handle, bool tty_p, int *byte) {
     bytes_ready = 0;
     if ( ioctl(handle,FIONREAD,&bytes_ready) <0) {
       /* Enquiry failed, probably wasn't a file */
-      if (!((errno == ENOTTY)
-            || (errno == EINVAL)
-           #ifdef ENOSYS /* for UNIX_IRIX */
-            || (errno == ENOSYS)
-           #endif
-            ) ) {
-        OS_error();
-      }
+      if (!((errno == ENOTTY)||IS_EINVAL))
+        { OS_error(); }
     } else {
       /* Enquiry succeeded, so it was a file */
       end_system_call();
