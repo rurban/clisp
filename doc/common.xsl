@@ -190,6 +190,12 @@
 </xsl:template>
 <!-- =========== / BSD functions ============ -->
 
+<!-- =========== GNU functions ============ -->
+<xsl:template match="function[@role='gnu'] | varname[@role='gnu']">
+ <a class="{@role}" href="http://www.kernel.org/doc/man-pages/online/pages/man3/{.}.3.html"><xsl:apply-imports/></a>
+</xsl:template>
+<!-- =========== / GNU functions ============ -->
+
 <!-- =========== PostGreSQL functions ============ -->
 <xsl:template match="function[@role='pq'] | varname[@role='pq']">
  <a class="{@role}" href="http://search.postgresql.org/search?q={.}">
