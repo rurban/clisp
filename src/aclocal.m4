@@ -1571,6 +1571,7 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module strftime:
   # Code from module strings:
   # Code from module strptime:
+  # Code from module strverscmp:
   # Code from module sys_socket:
   # Code from module sys_utsname:
   # Code from module time:
@@ -1626,6 +1627,9 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module strptime:
   gl_FUNC_STRPTIME
   gl_TIME_MODULE_INDICATOR([strptime])
+  # Code from module strverscmp:
+  gl_FUNC_STRVERSCMP
+  gl_STRING_MODULE_INDICATOR([strverscmp])
   # Code from module sys_socket:
   gl_HEADER_SYS_SOCKET
   AC_PROG_MKDIR_P
@@ -1803,6 +1807,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/strings.in.h
   lib/strncasecmp.c
   lib/strptime.c
+  lib/strverscmp.c
   lib/sys_socket.in.h
   lib/sys_utsname.in.h
   lib/time.in.h
@@ -1825,6 +1830,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/strftime.m4
   m4/strings_h.m4
   m4/strptime.m4
+  m4/strverscmp.m4
   m4/sys_socket_h.m4
   m4/sys_utsname_h.m4
   m4/time_h.m4
@@ -2500,6 +2506,30 @@ AC_DEFUN([gl_FUNC_STRPTIME],
 AC_DEFUN([gl_PREREQ_STRPTIME],
 [
   AC_REQUIRE([gl_TM_GMTOFF])
+  :
+])
+
+# strverscmp.m4 serial 7
+dnl Copyright (C) 2002, 2005-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_STRVERSCMP],
+[
+  dnl Persuade glibc <string.h> to declare strverscmp().
+  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
+
+  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
+  AC_REPLACE_FUNCS([strverscmp])
+  if test $ac_cv_func_strverscmp = no; then
+    gl_PREREQ_STRVERSCMP
+    HAVE_STRVERSCMP=0
+  fi
+])
+
+# Prerequisites of lib/strverscmp.c.
+AC_DEFUN([gl_PREREQ_STRVERSCMP], [
   :
 ])
 

@@ -16,6 +16,9 @@
 /* Define to 1 when the gnulib module strptime should be tested. */
 #undef GNULIB_TEST_STRPTIME
 
+/* Define to 1 when the gnulib module strverscmp should be tested. */
+#undef GNULIB_TEST_STRVERSCMP
+
 /* Define to 1 when the gnulib module time_r should be tested. */
 #undef GNULIB_TEST_TIME_R
 
@@ -587,6 +590,9 @@
 
 /* Define to 1 if the system has the type `struct utsname'. */
 #undef HAVE_STRUCT_UTSNAME
+
+/* Define to 1 if you have the `strverscmp' function. */
+#undef HAVE_STRVERSCMP
 
 /* Define to 1 if you have the `symlink' function. */
 #undef HAVE_SYMLINK

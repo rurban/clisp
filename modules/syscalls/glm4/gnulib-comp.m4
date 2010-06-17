@@ -40,6 +40,7 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module strftime:
   # Code from module strings:
   # Code from module strptime:
+  # Code from module strverscmp:
   # Code from module sys_socket:
   # Code from module sys_utsname:
   # Code from module time:
@@ -95,6 +96,9 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module strptime:
   gl_FUNC_STRPTIME
   gl_TIME_MODULE_INDICATOR([strptime])
+  # Code from module strverscmp:
+  gl_FUNC_STRVERSCMP
+  gl_STRING_MODULE_INDICATOR([strverscmp])
   # Code from module sys_socket:
   gl_HEADER_SYS_SOCKET
   AC_PROG_MKDIR_P
@@ -272,6 +276,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/strings.in.h
   lib/strncasecmp.c
   lib/strptime.c
+  lib/strverscmp.c
   lib/sys_socket.in.h
   lib/sys_utsname.in.h
   lib/time.in.h
@@ -294,6 +299,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/strftime.m4
   m4/strings_h.m4
   m4/strptime.m4
+  m4/strverscmp.m4
   m4/sys_socket_h.m4
   m4/sys_utsname_h.m4
   m4/time_h.m4
