@@ -607,6 +607,11 @@ RUN-SLEEP
 #+unix (every #'sys::double-float-p (show (multiple-value-list (os:loadavg)))) T
 #+unix (every #'sys::fixnump (show (multiple-value-list (os:loadavg t)))) T
 
+(os:version<= "a" "b") T
+(os:version< "1.10" "1.8") NIL
+(os:version> "foo100" "foo99") T
+(os:version>= "d" "d") T
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)
