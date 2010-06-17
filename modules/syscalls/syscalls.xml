@@ -764,6 +764,18 @@ which compute the error functions, Bessel functions and Gamma.</para>
     &object-r; defaults to <code>(&get-universal-time;)</code>.
 </simpara></listitem></itemizedlist></para></section>
 
+<section id="strverscmp"><title>String comparision</title>
+<para>Functions <simplelist columns="1">
+ <member><code>(OS:VERSION&lt; &x1-r; &x2-r;)</code></member>
+ <member><code>(OS:VERSION&lt;= &x1-r; &x2-r;)</code></member>
+ <member><code>(OS:VERSION&gt; &x1-r; &x2-r;)</code></member>
+ <member><code>(OS:VERSION&gt;= &x1-r; &x2-r;)</code></member></simplelist>
+ compare two &string-t;s as version numbers (e.g.,
+ <literal role="data">"foo10"</literal> is <emphasis>greater</emphasis> than
+ <literal role="data">"foo9"</literal>) using
+ <function role="gnu">strverscmp</function> and return a &boolean-t;.
+</para></section>
+
 <section id="mk-xterm-io"><title>XTerm</title>
 <para><code>(&mk-xterm-io; &key-amp; title xterm)</code>
  When running under the &X;, you can create a &bidi-s;, which uses a new

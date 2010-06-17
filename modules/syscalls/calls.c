@@ -615,6 +615,28 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
   } else error_string_integer(STACK_1);
 }
 
+/* ========================== string comparison ========================== */
+/* call strverscmp() on STACK_0 & STACK_1 and remove them from STACK */
+static /*maygc*/ int string_version_compare (void) {
+  int ret;
+  STACK_0 = check_string(STACK_0);
+  STACK_1 = check_string(STACK_1);
+  with_string_0(STACK_0,GLO(misc_encoding),s1, {
+      with_string_0(STACK_1,GLO(misc_encoding),s2, {
+          begin_system_call(); ret = strverscmp(s2,s1); end_system_call();
+        });
+    });
+  skipSTACK(2);
+  return ret;
+}
+
+DEFUN(OS::VERSION-COMPARE, string1 string2) /* not exported! */
+{ int ret=string_version_compare(); VALUES1(sfixnum(ret)); }
+DEFUN(OS:VERSION<,  string1 string2){VALUES_IF(string_version_compare() <  0);}
+DEFUN(OS:VERSION<=, string1 string2){VALUES_IF(string_version_compare() <= 0);}
+DEFUN(OS:VERSION>,  string1 string2){VALUES_IF(string_version_compare() >  0);}
+DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
+
 /* ========================== temporary files ========================== */
 #if defined(HAVE_MKSTEMP) || defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
 #if defined(HAVE_TEMPNAM)
