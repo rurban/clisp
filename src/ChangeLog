@@ -1,3 +1,8 @@
+2010-06-18  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_memory) [DEBUG_SPVW]: fflush(stderr) so that debug
+	output comes before the first lisp output
+
 2010-06-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (string_version_compare): call
