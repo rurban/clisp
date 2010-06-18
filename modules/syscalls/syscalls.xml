@@ -773,7 +773,10 @@ which compute the error functions, Bessel functions and Gamma.</para>
  compare two &string-t;s as version numbers (e.g.,
  <literal role="data">"foo10"</literal> is <emphasis>greater</emphasis> than
  <literal role="data">"foo9"</literal>) using
- <function role="gnu">strverscmp</function> and return a &boolean-t;.
+ <function role="gnu">strverscmp</function> and return a &boolean-t;.</para>
+<para>Function <function>OS:VERSION-COMPARE</function> does the same but
+returns either <literal role="data">&lt;</literal>,
+<literal role="data">&gt;</literal> or <literal role="data">=</literal>.
 </para></section>
 
 <section id="mk-xterm-io"><title>XTerm</title>

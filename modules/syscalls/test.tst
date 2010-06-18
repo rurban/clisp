@@ -611,6 +611,9 @@ RUN-SLEEP
 (os:version< "1.10" "1.8") NIL
 (os:version> "foo100" "foo99") T
 (os:version>= "d" "d") T
+(os:version-compare "foo" "bar") >
+(os:version-compare "z" "z") =
+(os:version-compare "foo2" "foo10") <
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
