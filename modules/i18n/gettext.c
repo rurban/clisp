@@ -246,12 +246,14 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
  res is a malloc'ed area of size res_size
  it may be increased as a result of calling this function */
 # define GET_LOCALE_INFO_BUF_SIZE 256
-static void get_locale_info (int what, char**res, int *res_size) {
+static int get_locale_info (int what, char**res, int *res_size, int errorp) {
   int val;
   begin_system_call();
   val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what,*res,*res_size);
   end_system_call();
-  if (val == 0) OS_error();
+  if (val == 0)
+    if (errorp) OS_error();
+    else return 1;
   if (val > *res_size) {
     *res = (char*)clisp_realloc(*res,val);
     if (*res == NULL) OS_error();
@@ -260,6 +262,7 @@ static void get_locale_info (int what, char**res, int *res_size) {
     GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what,*res,*res_size);
     end_system_call();
   }
+  return 0;
 }
 #endif
 
@@ -353,7 +356,7 @@ static void thousands_sep_to_STACK (int what, char** gres, int* res_size) {
   /* "1;2;3" ==> #(1 2 3) */
   int start = 0, end = 0, count = 0, limit;
   char *res;
-  get_locale_info(what,gres,res_size);
+  get_locale_info(what,gres,res_size,1);
   res = *gres; limit = *res_size;
   while (res[end] && (end < limit)) {
     while (res[end] && (res[end] != ';') && (end < limit)) end++;
@@ -364,15 +367,15 @@ static void thousands_sep_to_STACK (int what, char** gres, int* res_size) {
   value1 = vectorof(count); pushSTACK(value1);
 }
 static void locale_string_to_STACK (int what, char**res, int* res_size) {
-  get_locale_info(what,res,res_size);
+  get_locale_info(what,res,res_size,1);
   pushSTACK(asciz_to_string(*res,GLO(misc_encoding)));
 }
 static void locale_int_to_STACK (int what, char**res, int* res_size) {
-  get_locale_info(what,res,res_size);
+  get_locale_info(what,res,res_size,1);
   pushSTACK(fixnum(my_atoi(*res)));
 }
 static void locale_bool_to_STACK (int what, char**res, int* res_size) {
-  get_locale_info(what,res,res_size);
+  get_locale_info(what,res,res_size,1);
   pushSTACK(my_atoi(*res) ? T : NIL);
 }
 DEFUN(I18N:LOCALE-CONV,)
@@ -464,14 +467,15 @@ DEFCHECKER(check_nl_item,CODESET                                        \
            LOCALE_SSHORTDATE LOCALE_SSORTNAME LOCALE_STHOUSAND          \
            LOCALE_STIME LOCALE_STIMEFORMAT LOCALE_SYEARMONTH)
 #if defined(WIN32_NATIVE)
-# define get_lang_info(what)  get_locale_info(what,&res,&res_size)
-# define res_to_obj() asciz_to_string(res,GLO(misc_encoding))
+# define get_lang_info(what,errorp)                                     \
+  if (get_locale_info(what,&res,&res_size,errorp)) funcall(`OS::ERRNO`,0); \
+  else VALUES1(asciz_to_string(res,GLO(misc_encoding)))
 # define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)clisp_malloc(res_size)
 # define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #else
-# define get_lang_info(what)                                            \
-  begin_system_call(); res = nl_langinfo(what); end_system_call()
-# define res_to_obj() safe_to_string(res)
+# define get_lang_info(what,errorp)                                     \
+  begin_system_call(); res = nl_langinfo(what); end_system_call();      \
+  VALUES1(safe_to_string(res))
 # define DECLARE_RES  char* res
 # define FINISH_RES
 #endif
@@ -482,17 +486,16 @@ DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
     int pos = 0;
     DECLARE_RES;
     for (; pos < check_nl_item_map.size; pos++) {
-      get_lang_info(check_nl_item_map.table[pos].c_const);
       pushSTACK(*check_nl_item_map.table[pos].l_const);
-      pushSTACK(res_to_obj());
+      get_lang_info(check_nl_item_map.table[pos].c_const,0);
+      pushSTACK(value1);
     }
     FINISH_RES;
     VALUES1(listof(2*check_nl_item_map.size));
   } else {
     int item = check_nl_item(what);
     DECLARE_RES;
-    get_lang_info(item);
-    VALUES1(res_to_obj());
+    get_lang_info(item,1);
     FINISH_RES;
   }
 }
