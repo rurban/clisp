@@ -29,7 +29,8 @@ T
 
 #+unix (crypt "foo" "bar") #+unix "ba4TuD1iozTxw"
 
-(let* ((fmt "%Y-%m-%d %T") (string (show (os:string-time fmt))))
+;; same as "%F %T" on GNU, but more portable
+(let* ((fmt "%Y-%m-%d %H:%M:%S") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
 T
 
