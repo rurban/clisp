@@ -1,5 +1,16 @@
 2010-06-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/gettext.c (get_locale_info) [WIN32_NATIVE]:
+	accept errorp to avoid errors when asked for the full list
+	by (I18N:LANGUAGE-INFORMATION)
+	(thousands_sep_to_STACK, locale_string_to_STACK)
+	(locale_int_to_STACK, locale_bool_to_STACK):
+	pass 1 to get_locale_info()
+	(get_lang_info, res_to_obj): merge
+	(I18N:LANGUAGE-INFORMATION): update
+
+2010-06-18  Sam Steingold  <sds@gnu.org>
+
 	fix the 2010-04-15 patch: rl_deprep_term_function is not always present
 	* spvw.d (fini_lowest_level): call rl_deprep_term_function only if
 	it has been defined in <readline.h>
