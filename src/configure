@@ -29245,6 +29245,18 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_RL_GNU_READLINE_P $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "rl_deprep_term_function" "ac_cv_have_decl_rl_deprep_term_function" "#include <stdio.h>
+#include <readline/readline.h>
+"
+if test "x$ac_cv_have_decl_rl_deprep_term_function" = x""yes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_RL_DEPREP_TERM_FUNCTION $ac_have_decl
+_ACEOF
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a modern readline" >&5
 $as_echo_n "checking for a modern readline... " >&6; }

@@ -53,6 +53,10 @@
    if you don't. */
 #undef HAVE_DECL_RL_COMPLETION_TYPE
 
+/* Define to 1 if you have the declaration of `rl_deprep_term_function', and
+   to 0 if you don't. */
+#undef HAVE_DECL_RL_DEPREP_TERM_FUNCTION
+
 /* Define to 1 if you have the declaration of `rl_dispatching', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_DISPATCHING
