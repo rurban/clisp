@@ -17,8 +17,6 @@
     (:mozilla-window "mozilla" "-remote" "openURL(~a,new-window)")
     (:mozilla-tab "mozilla" "-remote" "openURL(~a,new-tab)")
     (:firefox "firefox" "~a")
-    (:firefox-window "firefox" "-remote" "openURL(~a,new-window)")
-    (:firefox-tab "firefox" "-remote" "openURL(~a,new-tab)")
     (:konqueror "kfmclient" "openURL" "~a")
     (:lynx "lynx" "~a")
     #+unix (:lynx-xterm "xterm" "-e" "lynx" "~a")
@@ -30,7 +28,10 @@
     #+macos (:default "open" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
-    (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")"))
+    (:chromium "chromium-browser" "~a")
+    (:conkeror "conkeror" "~a")
+    (:opera "opera" "~a")
+    (:emacs "emacsclient" "--eval" "(browse-url ~s)"))
   "Alist of browsers and commands that invoke them.
 `~a' will be replaced with the URL to view.")
 (defvar *browser* nil
