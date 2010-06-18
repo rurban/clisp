@@ -567,7 +567,7 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
           });
       });
     if (offset == 0) {
-      pushSTACK(STACK_(1+1)); pushSTACK(STACK_(2+2));
+      pushSTACK(STACK_1);/*datum*/ pushSTACK(STACK_(2+1));/*format*/
       pushSTACK(TheSubr(subr_self)->name);
       error(error_condition,GETTEXT("~S: invalid format ~S or datum ~S"));
     }
