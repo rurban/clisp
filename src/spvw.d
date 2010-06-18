@@ -3242,6 +3242,7 @@ local inline int init_memory (struct argv_initparams *p) {
               ca_limit_1);
       abort();
     }
+    fflush(stderr); /* make sure the debug output comes out first thing */
   }
  #endif
   init_subr_tab_1();            /* initialize subr_tab */
