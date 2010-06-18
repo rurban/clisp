@@ -10,7 +10,7 @@
    #:resolve-host-ipaddr #:bogomips #:loadavg #:mkstemp #:mkdtemp #+unix #:wait
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:file-owner #:physical-memory #:stream-options #:string-time
-   #| #:version-compare |# #:version< #:version<= #:version> #:version>=
+   #:version-compare #:version< #:version<= #:version> #:version>=
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
