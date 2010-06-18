@@ -2267,7 +2267,7 @@ local inline void fini_lowest_level (void) {
  #if defined(UNIX)
   terminal_sane();            /* switch terminal again in normal mode */
  #endif
- #if defined(GNU_READLINE)
+ #if defined(GNU_READLINE) && HAVE_DECL_RL_DEPREP_TERM_FUNCTION
   if (rl_deprep_term_function)
     (*rl_deprep_term_function) ();
  #endif
