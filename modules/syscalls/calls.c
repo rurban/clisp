@@ -630,8 +630,10 @@ static /*maygc*/ int string_version_compare (void) {
   return ret;
 }
 
-DEFUN(OS::VERSION-COMPARE, string1 string2) /* not exported! */
-{ int ret=string_version_compare(); VALUES1(sfixnum(ret)); }
+DEFUN(OS::VERSION-COMPARE, string1 string2) {
+  int ret=string_version_compare();
+  VALUES1(ret<0 ? S(smaller) : ret>0 ? S(greater) : S(numequal));
+}
 DEFUN(OS:VERSION<,  string1 string2){VALUES_IF(string_version_compare() <  0);}
 DEFUN(OS:VERSION<=, string1 string2){VALUES_IF(string_version_compare() <= 0);}
 DEFUN(OS:VERSION>,  string1 string2){VALUES_IF(string_version_compare() >  0);}
