@@ -2259,6 +2259,10 @@ local inline void init_lowest_level (char* argv[]) {
   end_system_call();
 }
 
+#if defined(GNU_READLINE) && HAVE_DECL_RL_DEPREP_TERM_FUNCTION
+ #include <readline/readline.h>
+#endif
+
 /* Very late de-initializations, */
 local inline void fini_lowest_level (void) {
  #ifdef WIN32_NATIVE

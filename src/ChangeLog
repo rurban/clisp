@@ -20,7 +20,7 @@
 
 	fix the 2010-04-15 patch: rl_deprep_term_function is not always present
 	* spvw.d (fini_lowest_level): call rl_deprep_term_function only if
-	it has been defined in <readline.h>
+	it has been defined in <readline/readline.h>; include it then
 	* m4/readline.m4 (CL_READLINE): check for rl_deprep_term_function
 	declaration
 	Reported by Yaroslav Kavenchuk <kavenchuk@gmail.com>
