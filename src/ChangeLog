@@ -1,5 +1,10 @@
 2010-06-24  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (anymodule): use CLISP_LIBDIR instead of HEREP
+	because it is decolonized to prevent "multiple target patterns"
+
+2010-06-24  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3020933: (SETF STREAM-EXTERNAL-FORMAT) fails on TWO-WAY-STREAM
 	* stream.d (SET-STREAM-EXTERNAL-FORMAT): handle TWO-WAY-STREAM
 	and ECHO-STREAM together with TWO-WAY-SOCKET
