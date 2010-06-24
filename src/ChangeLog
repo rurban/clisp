@@ -6,8 +6,9 @@
 2010-06-24  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3020933: (SETF STREAM-EXTERNAL-FORMAT) fails on TWO-WAY-STREAM
-	* stream.d (SET-STREAM-EXTERNAL-FORMAT): handle TWO-WAY-STREAM
-	and ECHO-STREAM together with TWO-WAY-SOCKET
+	* stream.d (SET-STREAM-EXTERNAL-FORMAT): handle TWO-WAY-STREAM and
+	ECHO-STREAM together with TWO-WAY-SOCKET; use stream_reset_eltype
+	to reset pseudofunctions in case line terminator changed
 
 2010-06-24  Sam Steingold  <sds@gnu.org>
 

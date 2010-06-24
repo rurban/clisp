@@ -296,3 +296,19 @@ nil
                    (ext:encoding-line-terminator (stream-external-format out))))))
     (delete-file file-in) (delete-file file-out)))
 #+CLISP (:DOS :UNIX :UNIX :UNIX :UNIX)
+
+#+CLISP
+(let ((file "test-extfmt"))
+  (with-open-file (out file :direction :output :external-format :dos
+                       :if-exists :supersede)
+    (terpri out)
+    (setf (stream-external-format out) :unix)
+    (terpri out))
+  (unwind-protect
+       (with-open-file (in file :direction :input
+                           :element-type '(unsigned-byte 8))
+         (let ((v (make-array (file-length in))))
+           (read-sequence v in)
+           (map 'vector #'code-char v)))
+    (delete-file file)))
+#+CLISP #(#\Return #\Newline #\Newline)
