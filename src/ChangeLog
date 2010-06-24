@@ -1,5 +1,9 @@
 2010-06-24  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (IS_EINVAL_EXTRA): treat all *BSD flavors like DARWIN
+
+2010-06-24  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (anymodule): use CLISP_LIBDIR instead of HEREP
 	because it is decolonized to prevent "multiple target patterns"
 
@@ -3358,7 +3362,7 @@
 
 	[MULTITHREAD]: add partial support for thread interruption on WIN32
 	* lispbibl.d (GC_SAFE_REGION_END_i): handle pending interrupts
-	depending on thread's flavour
+	depending on thread's flavor
 	(install_async_signal_handlers, thr_signal_handler)
 	(SIG_THREAD_INTERRUPT, SIG_TIMEOUT_CALL): make them local in spvw.d
 	(signal_timeout_call): function to announce new timeout call. used by
@@ -5137,7 +5141,7 @@
 
 2008-11-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	Remove obsolete threads flavours
+	Remove obsolete threads flavors
 	* xthread.d: remove POSIXOLD_THREADS and C_THREADS
 
 2008-11-18  Sam Steingold  <sds@gnu.org>
