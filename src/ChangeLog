@@ -1,3 +1,7 @@
+2010-06-24  Yaroslav Kavenchuk  <kavenchuk@jenty.by>
+
+	* m4/clisp.m4: fix a typo in the mingw regexp
+
 2010-06-18  Barry Fishman  <barry_fishman@acm.org>
 	Sam Steingold  <sds@gnu.org>
 
@@ -2250,7 +2254,7 @@
 2009-08-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [win32]: fix echo_dist_modules invocation
-	Reported by Yaroslav Kavenchuk
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
 2009-08-12  Sam Steingold  <sds@gnu.org>
 
