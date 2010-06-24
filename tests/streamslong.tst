@@ -280,3 +280,19 @@ nil
         list
         (princ-to-string out)))
 #+CLISP (#\a T ("a") "#<CLOSED OUTPUT BUFFERED-OUTPUT-STREAM NIL>")
+
+#+CLISP
+(let ((file-in "test-extfmt-in") (file-out "test-extfmt-out"))
+  (open file-in :direction :probe :if-does-not-exist :create)
+  (unwind-protect
+       (with-open-file (out file-out :direction :output :external-format :dos)
+         (with-open-file (in file-in :direction :input :external-format :dos)
+           (with-open-stream (io (make-two-way-stream in out))
+             (list (ext:encoding-line-terminator (stream-external-format io))
+                   (ext:encoding-line-terminator
+                    (setf (stream-external-format io) :unix))
+                   (ext:encoding-line-terminator (stream-external-format io))
+                   (ext:encoding-line-terminator (stream-external-format in))
+                   (ext:encoding-line-terminator (stream-external-format out))))))
+    (delete-file file-in) (delete-file file-out)))
+#+CLISP (:DOS :UNIX :UNIX :UNIX :UNIX)

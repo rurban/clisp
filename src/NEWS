@@ -59,6 +59,8 @@ User visible changes
   + CLEAR-INPUT now clears the EOF condition on file streams (bug#2902716).
   + When quitting on a signal, never enter the debugger (bug#2795278).
   + Respect :FULL T in DIRECTORY :WILD-INFERIORS (bug#3009966).
+  + Handle TWO-WAY-STREAM and ECHO-STREAM correctly by
+    (SETF STREAM-EXTERNAL-FORMAT) (bug#3020933).
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
