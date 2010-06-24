@@ -15940,15 +15940,6 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
         if (eq(direction,S(Koutput)))
           goto done;
         goto unchangeable_external_format;
-      case strmtype_twoway:
-      case strmtype_echo:
-        if (eq(direction,S(Kinput))) { /* Recurse. */
-          stream = TheStream(stream)->strm_twoway_input; goto start;
-        }
-        if (eq(direction,S(Koutput))) { /* Recurse. */
-          stream = TheStream(stream)->strm_twoway_output; goto start;
-        }
-        goto unchangeable_external_format;
       case strmtype_str_in:
       case strmtype_str_out:
       case strmtype_str_push:
@@ -15986,6 +15977,9 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
         break;
      #ifdef SOCKET_STREAMS
       case strmtype_twoway_socket:
+     #endif
+      case strmtype_twoway:
+      case strmtype_echo:
         if (eq(direction,S(Kinput))) { /* Recurse. */
           stream = TheStream(stream)->strm_twoway_input; goto start;
         }
@@ -16001,7 +15995,6 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
         C_set_stream_external_format();
         encoding = STACK_1;
         goto done;
-     #endif
       default:
         if (eq(direction,S(Kinput)))
           if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
