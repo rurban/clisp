@@ -11001,7 +11001,7 @@ AC_DEFUN([CL_DECOLONIZE],
 [AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
 [case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* ) cl_cv_decolonize='echo $x | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'' ;;
+  *-mingw* ) cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'" ;;
   * ) cl_cv_decolonize='echo $x'
 esac])
 CLISP_DECOLONIZE=$cl_cv_decolonize
@@ -22436,7 +22436,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2005, 2010 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -22470,7 +22470,7 @@ INCTERMCAP=""
 AC_SEARCH_LIBS(tgetent, ncurses termcap, LIBTERMCAP="")
 if test x$termcap_prefix != x; then
   LDFLAGS=$LDFLAGS_save
-  if test $LIBTERMCAP != broken; then
+  if test x$LIBTERMCAP != xbroken; then
     INCTERMCAP=-I$termcap_prefix/include
     LIBTERMCAP=-L$termcap_prefix/lib
   fi
