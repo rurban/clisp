@@ -3481,7 +3481,7 @@ local void clear_tty_input (Handle handle) {
   #define IS_EINVAL_EXTRA  (errno==ENOSYS)
 #elif defined(UNIX_CYGWIN32) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
   #define IS_EINVAL_EXTRA  ((errno==EBADF)||(errno==EACCES)||(errno==EBADRQC))
-#elif defined(UNIX_DARWIN)
+#elif defined(UNIX_DARWIN) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD) || defined(UNIX_OPENBSD)
   #define IS_EINVAL_EXTRA  ((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV))
 #else
   #define IS_EINVAL_EXTRA  0
