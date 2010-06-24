@@ -15971,8 +15971,12 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
           ChannelStream_fini(stream,0);
           stream = stream_reset_eltype(stream,&eltype);
           encoding = STACK_1; /* restore encoding */
-          value1 = TheStream(stream)->strm_encoding = encoding;
+          TheStream(stream)->strm_encoding = encoding;
+          /* reset pseudofunctions in case line terminator changed */
+          stream_reset_eltype(stream,&eltype);
+          stream = STACK_2;     /* restore stream */
           ChannelStream_init(stream);
+          VALUES1(TheStream(stream)->strm_encoding);
         }
         break;
      #ifdef SOCKET_STREAMS
