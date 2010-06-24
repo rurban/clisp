@@ -34,7 +34,7 @@ AC_DEFUN([CL_DECOLONIZE],
 [AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
 [case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* ) cl_cv_decolonize='echo $x | sed -e 's,\\\\,/,g' -e 's,\"\(.\):,/\1,'' ;;
+  *-mingw* ) cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'" ;;
   * ) cl_cv_decolonize='echo $x'
 esac])
 CLISP_DECOLONIZE=$cl_cv_decolonize
