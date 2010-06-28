@@ -4707,8 +4707,9 @@ as if with <command role="unix">tail -f</command>.</para>
  &t;.</para>
 
 <para>If you do not &close; your &stream-t; explicitly, it will be
- closed at &gc;ion time automatically.
- This is not recommended though because &gc;ion is not deterministic.
+ closed at &gc;ion time automatically
+ (with <code>(&close; &stream-r; &abort-k; &t;)</code>).
+ This is &not-e; recommended though because &gc;ion is not deterministic.
  Please use &with-open-stream; etc.</para>
 
 </section>
