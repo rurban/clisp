@@ -15,7 +15,7 @@
 
 <para>All public &c-lang; functions are available as &foreign-function-t;s,
  defined in <filename role="clisp-cvs">modules/dbus/dbus.lisp</filename>.</para>
-<para>For usage examples, please see
- <filename role="clisp-cvs">modules/dbus/test.tst</filename>.</para>
+<para>See <filename role="clisp-cvs">modules/dbus/test.tst</filename>
+ for sample usage.</para>
 
 </section>
