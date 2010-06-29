@@ -1084,6 +1084,7 @@
 <!ENTITY is-e '<emphasis role="strong">is</emphasis>'>
 <!ENTITY after-e '<emphasis role="strong">after</emphasis>'>
 <!ENTITY before-e '<emphasis role="strong">before</emphasis>'>
+<!ENTITY both-e '<emphasis role="strong">both</emphasis>'>
 <!ENTITY must-e '<emphasis role="strong">must</emphasis>'>
 <!ENTITY cannot-e '<emphasis role="strong">cannot</emphasis>'>
 <!ENTITY very-e '<emphasis role="strong">very</emphasis>'>
