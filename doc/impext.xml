@@ -2528,7 +2528,7 @@ to the 3 (or 4) &base; modules.</para>
 
 <section id="base-modules"><title>Base Modules</title>
  <para>The default build process includes the following modules
-  in <emphasis>both</emphasis> &base; &and-e; &full; &linkset;s:
+  in &both-e; &base; &and-e; &full; &linkset;s:
 <variablelist><varlistentry><term>&i18n-mod;</term>
   <listitem><simpara>Internationalization of User Programs.
  </simpara></listitem></varlistentry>
@@ -2539,11 +2539,10 @@ to the 3 (or 4) &base; modules.</para>
  <varlistentry><term>&syscalls-mod;</term>
   <listitem><simpara>Use some system calls in a platform-independent way.
  </simpara></listitem></varlistentry>
- <varlistentry><term>&readline-mod; (only when both &readline; and
+ <varlistentry><term>&readline-mod; (only when &both-e; &readline; and
     &ffi-pac; are available)</term>
-  <listitem><simpara>When &readline; and &ffi-pac; are available, some
-   advanced readline and history features are exported using this module.
- </simpara></listitem></varlistentry></variablelist></para>
+  <listitem><simpara>Some advanced readline and history features are exported
+  using this module.</simpara></listitem></varlistentry></variablelist></para>
  <para>The composition of the &full; &linkset; depends on the platform
   and on the vendor preferences.</para>
 </section>
@@ -2890,9 +2889,8 @@ or just evaluates the appropriate form in the &repl;.</para>
  image</emphasis> only: if you save the
  image, <function>GSL_CHEB_ALLOC</function> will &not-e; work there
  because &clisp; will try to re-open <filename>libgsl.so</filename> and
- fail as above.  However, using the <constant>:REQUIRE</constant>
- argument will tell &clisp; to re-open <emphasis>both</emphasis>
- libraries in the right order: <screen>
+ fail as above.  However, using the <constant>:REQUIRE</constant> argument
+ will tell &clisp; to re-open &both-e; libraries in the right order:<screen>
 &sh-prompt; clisp
 &gt; (&open-foreign-library; "libgsl.so" :require '("libgslcblas.so"))
 &gt; (&def-call-out; gsl_cheb_alloc (:library "libgsl.so") (:language :stdc)
