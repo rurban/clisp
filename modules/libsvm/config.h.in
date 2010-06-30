@@ -60,6 +60,9 @@
 /* Define to 1 if you have the `svm_save_model' function. */
 #undef HAVE_SVM_SAVE_MODEL
 
+/* Define to 1 if you have the `svm_set_print_string_function' function. */
+#undef HAVE_SVM_SET_PRINT_STRING_FUNCTION
+
 /* Define to 1 if you have the `svm_train' function. */
 #undef HAVE_SVM_TRAIN
 
