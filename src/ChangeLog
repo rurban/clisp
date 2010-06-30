@@ -1,7 +1,8 @@
 2010-06-27  Sam Steingold  <sds@gnu.org>
 
 	Support libsvm 2.91
-	* modules/libsvm/configure.in: check for svm_set_print_string_function
+	* modules/libsvm/configure.in: check for svm_set_print_string_function;
+	drop pkg-config support
 	* modules/libsvm/libsvm.lisp: call svm_set_print_string_function
 	when it is available
 
