@@ -1,3 +1,7 @@
+2010-06-25  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (quit): FINISH-OUTPUT on standard streams before saying "Bye"
+
 2010-06-24  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (IS_EINVAL_EXTRA): treat all *BSD flavors like DARWIN
