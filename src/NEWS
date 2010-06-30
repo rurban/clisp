@@ -35,6 +35,7 @@ User visible changes
 
 * Module libsvm does not come with the upstream sources anymore, install
   locally and pass --with-libsvm-prefix to the top-level configure instead.
+  All upstream versions up to 2.91 are supported.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * Module berkeley-db now supports Berkeley-DB 4.8.
@@ -49,13 +50,13 @@ User visible changes
   with and without GMP.
   See <http://clisp.cons.org/impnotes/pari.html> for details.
 
-* New functions OS:VERSION< et al call strverscmp.
+* New functions OS:VERSION-COMPARE et al call strverscmp.
   See <http://clisp.cons.org/impnotes/syscalls.html#strverscmp> for details.
 
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code (bug#2868166).
-  + Fix an nternal error in DECLAIM on bad OPTIMIZE quality (bug#2868147).
+  + Fix an internal error in DECLAIM on bad OPTIMIZE quality (bug#2868147).
   + CLEAR-INPUT now clears the EOF condition on file streams (bug#2902716).
   + When quitting on a signal, never enter the debugger (bug#2795278).
   + Respect :FULL T in DIRECTORY :WILD-INFERIORS (bug#3009966).
@@ -64,7 +65,7 @@ User visible changes
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
-    CL Condition system for compiler diagnostics.
+    CL Condition System for compiler diagnostics.
   + STREAM-ELEMENT-TYPE on empty CONCATENATED-STREAMs now returns NIL
     because nothing can be read from such streams (bug#3014921).
 
