@@ -3949,10 +3949,13 @@ nonreturning_function(global, quit, (void)) {
        and *terminal-io* is an #<IO TERMINAL-STREAM>,
        so they all need to be terminated individually */
     funcall(L(fresh_line),0);   /* (FRESH-LINE [*standard-output*]) */
-    pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));
+    funcall(L(finish_output),0); /* (FINISH-OUTPUT [*standard-output*]) */
+    pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));pushSTACK(STACK_0);
     funcall(L(fresh_line),1);   /* (FRESH-LINE *error-output*) */
-    pushSTACK(Symbol_value(S(terminal_io)));
+    funcall(L(finish_output),1); /* (FINISH-OUTPUT *error-output*) */
+    pushSTACK(Symbol_value(S(terminal_io))); pushSTACK(STACK_0);
     funcall(L(fresh_line),1);   /* (FRESH-LINE *terminal-io*) */
+    funcall(L(finish_output),1); /* (FINISH-OUTPUT *terminal-io*) */
     if (argv2.argv_verbose >= 2) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
