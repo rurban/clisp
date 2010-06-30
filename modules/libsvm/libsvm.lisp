@@ -15,7 +15,7 @@
 
 (default-foreign-language :stdc)
 
-(c-lines "#include <svm.h>~%")
+(c-lines "#include \"config.h\"~%#include <svm.h>~%")
 
 (defvar *libsvm-output* *standard-output* "The stream for svm.so messages.")
 (cl:defun write-string-to-libsvm-output (s)
