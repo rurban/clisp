@@ -51,6 +51,9 @@
 /* Define to 1 if you have the `svm_load_model' function. */
 #undef HAVE_SVM_LOAD_MODEL
 
+/* Define to 1 if you have the `svm_predict' function. */
+#undef HAVE_SVM_PREDICT
+
 /* Define to 1 if you have the `svm_predict_probability' function. */
 #undef HAVE_SVM_PREDICT_PROBABILITY
 
