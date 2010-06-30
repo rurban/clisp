@@ -22,8 +22,12 @@
   (write-string s *libsvm-output*) (force-output *libsvm-output*))
 (def-call-in write-string-to-libsvm-output (:name "libsvm_print_string")
   (:arguments (s c-string)) (:return-type nil))
-(c-lines :init-always
-         "  svm_print_string = (void (*) (const char*))&libsvm_print_string;")
+(c-lines :init-always "
+ #if defined(HAVE_SVM_SET_PRINT_STRING_FUNCTION)
+  svm_set_print_string_function((void (*) (const char*))&libsvm_print_string);
+ #else
+  svm_print_string = (void (*) (const char*))&libsvm_print_string;
+ #endif~%")
 
 ;;;
 ;;; types and constants

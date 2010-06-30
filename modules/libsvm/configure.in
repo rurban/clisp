@@ -45,9 +45,10 @@ svm_get_svr_probability dnl
 svm_load_model dnl
 dnl svm_predict
 svm_predict_probability dnl
-svm_predict_values dnl
+svm_predict_values dnl returns a float sice 2.91
 svm_save_model dnl
 svm_train dnl
+svm_set_print_string_function dnl since 2.91
 )
 
 BOLD_MSG([Libsvm (Output)])
