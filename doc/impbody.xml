@@ -5350,9 +5350,12 @@ receives a corresponding keyword argument (&verbose-k;, &print-k;,
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 &print-k; for &compile-file-my;.</para>
 
-<para>When evaluation of a read form &sig-err;, two &restart-t;s are
+<para>When evaluation of a read form &sig-err;, three &restart-t;s are
  available:<variablelist><varlistentry><term><literal>SKIP</literal></term>
    <listitem><simpara>Skip this form and read the next one.
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><literal>RETRY</literal></term>
+   <listitem><simpara>Try to evaluate this form again.
   </simpara></listitem></varlistentry>
   <varlistentry><term><literal>STOP</literal></term>
    <listitem><simpara>Stop loading the file.

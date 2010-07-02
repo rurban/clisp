@@ -1408,21 +1408,26 @@
 ;; we cannot use *LOAD-TRUENAME* because when the error is in a nested LOAD,
 ;; we will get the truename of the inner-most file instead of the current one
 (defun eval-loaded-form (obj file)
-  (restart-case (eval-loaded-form-low obj)
-    (skip ()
-      :report (lambda (out)
-                (format out (TEXT "skip "))
-                (if (compiled-function-p obj)
-                  (write (closure-name obj) :stream out
-                         :pretty nil :escape nil)
-                  (write obj :stream out :pretty nil :escape nil
-                         :level 2 :length 3)))
-      :interactive default-restart-interactive
-      (return-from eval-loaded-form 'skip))
-    (stop ()
-      :report (lambda (out) (format out (TEXT "stop loading file ~A") file))
-      :interactive default-restart-interactive
-      (return-from eval-loaded-form 'stop))))
+  (flet ((report (word obj out)
+           (write-string word out)
+           (if (compiled-function-p obj)
+               (write (closure-name obj) :stream out
+                      :pretty nil :escape nil)
+               (write obj :stream out :pretty nil :escape nil
+                      :level 2 :length 3))))
+    (restart-case (eval-loaded-form-low obj)
+      (skip ()
+        :report (lambda (out) (report (TEXT "skip ") obj out))
+        :interactive default-restart-interactive
+        (return-from eval-loaded-form 'skip))
+      (retry ()
+        :report (lambda (out) (report (TEXT "retry ") obj out))
+        :interactive default-restart-interactive
+        (return-from eval-loaded-form 'retry))
+      (stop ()
+        :report (lambda (out) (format out (TEXT "stop loading file ~A") file))
+        :interactive default-restart-interactive
+        (return-from eval-loaded-form 'stop)))))
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
