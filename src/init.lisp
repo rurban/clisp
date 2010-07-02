@@ -1751,16 +1751,18 @@
               (when *load-echo* (fresh-line))
               (peek-char t input-stream nil eof-indicator)
               (setq *current-source-line-1* (line-number input-stream))
-              (let ((obj (read input-stream nil eof-indicator)))
+              (let ((obj (read input-stream nil eof-indicator)) res)
                 (setq *current-source-line-2* (line-number input-stream))
                 (when (eql obj eof-indicator) (go done))
-                (case (setq obj (eval-loaded-form obj *load-truename*))
-                  (skip (go proceed))
-                  (stop (go done)))
+                (tagbody ext::retry ; exported in condition.lisp
+                  (case (setq res (eval-loaded-form obj *load-truename*))
+                    (skip (go proceed))
+                    (ext::retry (go ext::retry))
+                    (stop (go done))))
                 (when *load-print*
-                  (when obj
+                  (when res
                     (fresh-line)
-                    (prin1 (first obj))
+                    (prin1 (first res))
                     (elastic-newline))))
               (go proceed) done)
           (or (eq input-stream stream)

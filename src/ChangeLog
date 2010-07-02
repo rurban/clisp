@@ -1,3 +1,8 @@
+2010-07-02  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (load): add RETRY restart to SKIP and STOP
+	* condition.lisp (eval-loaded-form): ditto
+
 2010-06-27  Sam Steingold  <sds@gnu.org>
 
 	Support libsvm 2.91
