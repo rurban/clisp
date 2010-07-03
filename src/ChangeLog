@@ -1,5 +1,13 @@
 2010-07-03  Bruno Haible  <bruno@clisp.org>
 
+	Support for MacOS X in 64-bit mode.
+	* lispbibl.d (HEAPCODES): Define by default on MacOS X in 64-bit mode.
+	* spvw.d (init_memory): Hardcode bounds for mmap on MacOS X in
+	64-bit mode.
+	* makemake.in (cpu): On MacOS X in 64-bit mode, set it to x86_64.
+
+2010-07-03  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in: Consistent indentation of if-then-else commands.
 
 2010-07-02  Sam Steingold  <sds@gnu.org>

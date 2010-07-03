@@ -1124,6 +1124,12 @@ case $TSYS in mips | r4000)
 esac
 if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o "$host_cpu" = i786 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = i786 -o $TOS = win32 ] ; then
   cpu=i386
+  # On MacOS X, 'uname -m' says i386, even when gcc runs in 64-bit mode.
+  if [ "${XCC_GCC}" = true ]; then
+    case `${XCC} -print-multi-os-directory` in
+      x86_64) cpu=x86_64 ;;
+    esac
+  fi
 fi
 case "$host_cpu" in
   hppa*) cpu=hppa ;;
