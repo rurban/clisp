@@ -675,8 +675,10 @@ if [ "${with_dynamic_modules}" = default ]; then
   # "lib-FOO.so: undefined symbol: module__FOO__init_function_1"
   # $ nm lib-FOO.so | grep module__FOO__init_function_1
   # 000008f8 T _Z31module__FOO__init_function_1P8module_t
-  if [ "${CC_CPLUSPLUS}" = true ]; then with_dynamic_modules=no
-  else with_dynamic_modules=yes;
+  if [ "${CC_CPLUSPLUS}" = true ]; then
+    with_dynamic_modules=no
+  else
+    with_dynamic_modules=yes
   fi
 elif [ "${with_dynamic_modules}" = yes -a "${CC_CPLUSPLUS}" = true ]; then
   fail "dynamic modules do not work with C++ because of symbol mangling"
@@ -839,7 +841,8 @@ if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
         esac
       elif test -r /etc/redhat-release; then
         fsstnd=redhat
-      else fsstnd=gnu_ext
+      else
+        fsstnd=gnu_ext
       fi ;;
     * )  fsstnd=gnu_ext; ;;
   esac
@@ -1068,7 +1071,8 @@ if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   # http://thread.gmane.org/gmane.comp.gnu.mingw.msys/1707/
   if cygpath -v > /dev/null 2>&1; then
     HEREP=`cygpath -m \`pwd\``
-  else HEREP=`pwd`
+  else
+    HEREP=`pwd`
   fi
 else
   TEXE=''
@@ -1110,7 +1114,8 @@ if [ "$host_cpu" = sparc64 ] ; then
       *64) cpu=sparc64 ;;
       *) cpu=sparc ;;
     esac
-  else cpu=sparc64
+  else
+    cpu=sparc64
   fi
 fi
 case $TSYS in mips | r4000)
@@ -2403,7 +2408,8 @@ if [ ${HSYS} = "win32gcc" ]; then
 elif [ $CROSS = true ]; then
   echol "# **HACK**: utilities must run locally"
   echol "UTILCC=cc"
-else echol "UTILCC=\$(CC)"
+else
+  echol "UTILCC=\$(CC)"
 fi
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
@@ -2702,7 +2708,8 @@ if [ ${SHREXT} = .dll -a "${with_dynamic_modules}" != no ]; then
   XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
   echotab "`eval \"lib=\$\@; libs=\$^\ \$\(LIBS\); echo ${XCC_CREATESHARED_}\"`"
   echol
-else CLISP_DEF=""
+else
+  CLISP_DEF=""
 fi
 FILES="${FILES}${CLISP_DEF}"
 
@@ -2846,7 +2853,8 @@ if [ $CROSS = false ] ; then
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17589>
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17895>
     SAFE_SRCDIR=`echo ${SRCDIR} | sed 's,/,\\\\\\\\,g'`
-  else SAFE_SRCDIR=${SRCDIR}
+  else
+    SAFE_SRCDIR=${SRCDIR}
   fi
 
   echol "interpreted.mem : lisp${LEXE} \$(LISPFILES) config.lisp"
@@ -3008,9 +3016,10 @@ if [ $CROSS = false ] ; then
     # http://article.gmane.org/gmane.lisp.clisp.devel/18967
     echotab "(echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' | \$(RUN) -q -M lispinit.mem -; test \$\$? = 42) || exit 1"
   fi
-  if [ "${with_unicode}" = no ];
-  then seq42="(map (quote (vector (unsigned-byte 8))) (function char-code) \"42\")"
-  else seq42='(convert-string-to-bytes "42" charset:ascii)'
+  if [ "${with_unicode}" = no ]; then
+    seq42="(map (quote (vector (unsigned-byte 8))) (function char-code) \"42\")"
+  else
+    seq42='(convert-string-to-bytes "42" charset:ascii)'
   fi
   echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 42 || exit 1"
   echotab "\$(RM) script.lisp; echo '(+ 11 99)' > script.lisp"
@@ -3152,7 +3161,9 @@ if [ $CROSS = false ] ; then
             lynx -connect_timeout=10 -source ${MYTESTURL} > id-href.map; \
           elif curl --version >/dev/null 2>/dev/null ; then \
             curl --max-time 10 --silent ${MYTESTURL} > id-href.map; \
-          else false; fi }; then
+          else false; \
+          fi; \
+        }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: clisp${TEXE} base"
@@ -3287,14 +3298,16 @@ fi
 # point it to modules/... in the original source tree
 echotab "if `newer configure config.status` ; then ( cd \$@ ; \$(RMRF) gllib;\\"
 echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
-echotab "    if test -f \$\${cache} ; then . \$\${cache}; \\"
+echotab "    if test -f \$\${cache} ; then \\"
+echotab "      . \$\${cache}; \\"
 for var in ${PRECIOUS_VARS}; do
   echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
 done
 # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
 # is bash, config.cache may be unparsable with sh on Solaris
 echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K boot ${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
-echotab "    else \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
+echotab "    else \\"
+echotab "      \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi; \\"
 # srcdir must be correct in Makefile because clisp-link calls link.sh
@@ -3336,9 +3349,10 @@ modcheck(){                     # $1=clisp command; $2=MODULES variable
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 modcheck "./clisp" BASE_MODULES
 echol "full-mod-check : clisp${TEXE} ${TESTSDIR} # full"
-if [ "${with_dynamic_modules}" = no ]
-then modcheck "./clisp -K full" MODULES
-else modcheck "./clisp" MODULES
+if [ "${with_dynamic_modules}" = no ]; then
+  modcheck "./clisp -K full" MODULES
+else
+  modcheck "./clisp" MODULES
 fi
 
 manual_print=''
@@ -3425,9 +3439,10 @@ for f in $TXT_FILES ; do
   case $f in
     clisp.html | clisp.1 | clisp-1.html | \
     clisp-link.html | clisp-link.1 | clisp-link-1.html )
-      if [ $HOS = win32 ];
-      then platform_line=" | sed -e \"s,@PLATFORM@,${TSYS},g\""
-      else platform_line=" | sed -e \"s,@PLATFORM@,${host},g\""
+      if [ $HOS = win32 ]; then
+        platform_line=" | sed -e \"s,@PLATFORM@,${TSYS},g\""
+      else
+        platform_line=" | sed -e \"s,@PLATFORM@,${host},g\""
       fi
       sourcedir=${SRCDOCDIR} ;;
     *) sourcedir=${SRCDIR} ;;
@@ -3805,7 +3820,9 @@ for dir in base full; do
   else
     echotab "        if test -f base/\$\$b; then \\"
     echotab "          ${HLN} base/\$\$b \$(FULLTOPDIR)/${dir}/; \\"
-    echotab "        else ${HLN} \$\$f \$(FULLTOPDIR)/${dir}/; fi; fi ;; \\"
+    echotab "        else \\"
+    echotab "          ${HLN} \$\$f \$(FULLTOPDIR)/${dir}/; fi; \\"
+    echotab "        fi ;; \\"
   fi
   echotab "esac ; done"
   if test -n "$BINARY_DISTRIB"; then
