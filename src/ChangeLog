@@ -1,6 +1,8 @@
 2010-07-03  Bruno Haible  <bruno@clisp.org>
 
 	Support for MacOS X in 64-bit mode.
+	* m4/mmap.m4 (CL_MMAP): On MacOS X in 64-bit mode, use a base address,
+	so that the test succeeds.
 	* lispbibl.d (HEAPCODES): Define by default on MacOS X in 64-bit mode.
 	* spvw.d (init_memory): Hardcode bounds for mmap on MacOS X in
 	64-bit mode.
