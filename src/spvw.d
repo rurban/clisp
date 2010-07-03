@@ -1,6 +1,6 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2010
  * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-03-24
 
@@ -3007,6 +3007,11 @@ local inline int init_memory (struct argv_initparams *p) {
       #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
       mem.heaps[0].heap_limit = 0x2E000000; /* room until at least 0x40000000 */
       mem.heaps[1].heap_limit = 0x7F000000; /* room until at least 0x64000000 */
+      #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
+      /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
+         mach_vm_allocate are in the range 2^33...2^47. */
+      mem.heaps[0].heap_limit = 0x000200000000UL;
+      mem.heaps[1].heap_limit = 0x400000000000UL;
       #else
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
@@ -3034,6 +3039,13 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[0].heap_hardlimit = 0x40000000;
       mem.heaps[1].heap_limit = 0x64000000; /* room until at least 0x7F000000 */
       mem.heaps[1].heap_hardlimit = 0x7F000000;
+      #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
+      /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
+         mach_vm_allocate are in the range 2^33...2^47. */
+      mem.heaps[0].heap_limit = 0x000200000000UL; /* room until 0x200000000000 */
+      mem.heaps[0].heap_hardlimit = 0x200000000000UL;
+      mem.heaps[1].heap_limit = 0x200000000000UL; /* room until at least 0x400000000000 */
+      mem.heaps[1].heap_hardlimit = 0x400000000000UL;
       #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
        #ifdef UNIX_DARWIN
       /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
