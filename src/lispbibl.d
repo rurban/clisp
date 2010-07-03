@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2009
+ * Bruno Haible 1990-2010
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -1913,12 +1913,13 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 
 #if !(defined(TYPECODES) || defined(HEAPCODES))
-  /* Choose typecodes on 64-bit machines (because there's enough room for type
-   bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
+  /* Choose TYPECODES on 64-bit machines (because there's enough room for type
+   bits), except on Darwin which has a restricted range of mmapable addresses.
+   Choose HEAPCODES on 32-bit machines (because a 16 MB limit is ridiculous
    today), except if the CPU cannot address more than 16 MB anyway.
    HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
    but with egcs-1.1 or newer we can force alignof(subr_t) = 4. */
-  #if defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
+  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
     #define HEAPCODES
@@ -2796,15 +2797,21 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
   #if defined(AMD64)
    /* UNIX_LINUX:
-     CODE_ADDRESS_RANGE     0x0000000000000000UL
-     MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-     SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
-     STACK_ADDRESS_RANGE    0x0000007FBF000000UL
-   UNIX_FREEBSD
-     CODE_ADDRESS_RANGE     0x0000000000000000UL
-     MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-     SHLIB_ADDRESS_RANGE    0x0000000800000000UL
-     STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
+       CODE_ADDRESS_RANGE     0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+       SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
+       STACK_ADDRESS_RANGE    0x0000007FBF000000UL
+     UNIX_FREEBSD:
+       CODE_ADDRESS_RANGE     0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+       SHLIB_ADDRESS_RANGE    0x0000000800000000UL
+       STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
+     UNIX_DARWIN:
+       Virtual address limit: 2^33..2^47.
+       CODE_ADDRESS_RANGE     0x0000000100000000UL
+       MALLOC_ADDRESS_RANGE   0x0000000100000000UL
+       SHLIB_ADDRESS_RANGE    0x00007FFF70000000UL
+       STACK_ADDRESS_RANGE    0x00007FFF5F000000UL
      Bits 63..48 = type code, Bits 47..0 = address */
     #define oint_type_shift 48
     #define oint_type_len 16
