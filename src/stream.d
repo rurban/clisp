@@ -5409,17 +5409,17 @@ local maygc uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
 
 /* Initializes the input side fields of an unbuffered stream.
  UnbufferedHandleStream_input_init(stream); */
-#define UnbufferedHandleStream_input_init(stream)                       \
- { UnbufferedStreamLow_read(stream) = &low_read_unbuffered_handle;      \
-   UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_handle;  \
-   UnbufferedStreamLow_clear_input(stream) =                            \
-     &low_clear_input_unbuffered_handle;                                \
-   UnbufferedStreamLow_read_array(stream) =                             \
-     &low_read_array_unbuffered_handle;                                 \
-   UnbufferedHandleStream_input_init_data(stream);                      \
- }
+#define UnbufferedHandleStream_input_init(stream)   do {                \
+  UnbufferedStreamLow_read(stream) = &low_read_unbuffered_handle;       \
+  UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_handle;   \
+  UnbufferedStreamLow_clear_input(stream) =                             \
+    &low_clear_input_unbuffered_handle;                                 \
+  UnbufferedStreamLow_read_array(stream) =                              \
+    &low_read_array_unbuffered_handle;                                  \
+  UnbufferedHandleStream_input_init_data(stream);                       \
+ } while(0)
 #define UnbufferedHandleStream_input_init_data(stream)  \
-    UnbufferedStream_status(stream) = 0;
+    UnbufferedStream_status(stream) = 0
 
 /* Closes a Channel-Stream.
  close_ichannel(stream, abort);
@@ -5834,17 +5834,17 @@ local maygc void clear_output_unbuffered (object stream) {
 
 /* Initializes the output side fields of an unbuffered handle stream.
  UnbufferedHandleStream_output_init(stream); */
-#define UnbufferedHandleStream_output_init(stream)                      \
-    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle; \
-      UnbufferedStreamLow_write_array(stream) =                         \
-        &low_write_array_unbuffered_handle;                             \
-      UnbufferedStreamLow_finish_output(stream) =                       \
-        &low_finish_output_unbuffered_handle;                           \
-      UnbufferedStreamLow_force_output(stream) =                        \
-        &low_force_output_unbuffered_handle;                            \
-      UnbufferedStreamLow_clear_output(stream) =                        \
-        &low_clear_output_unbuffered_handle;                            \
-    }
+#define UnbufferedHandleStream_output_init(stream)     do {             \
+  UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;     \
+  UnbufferedStreamLow_write_array(stream) =                             \
+    &low_write_array_unbuffered_handle;                                 \
+  UnbufferedStreamLow_finish_output(stream) =                           \
+    &low_finish_output_unbuffered_handle;                               \
+  UnbufferedStreamLow_force_output(stream) =                            \
+    &low_force_output_unbuffered_handle;                                \
+  UnbufferedStreamLow_clear_output(stream) =                            \
+    &low_clear_output_unbuffered_handle;                                \
+ } while (0)
 
 /* Closes a Channel-Stream.
  close_ochannel(stream, abort);
@@ -8113,12 +8113,10 @@ modexp maygc object make_file_stream
      and we have pathnames now: */
     TheStream(stream)->strm_file_truename = STACK_1; /* truename */
     TheStream(stream)->strm_file_name = STACK_2; /* filename */
-    if (READ_P(direction)) {
+    if (READ_P(direction))
       UnbufferedHandleStream_input_init(stream);
-    }
-    if (WRITE_P(direction)) {
+    if (WRITE_P(direction))
       UnbufferedHandleStream_output_init(stream);
-    }
     ChannelStreamLow_close(stream) = &low_close_handle;
   } else {
     if (direction==DIRECTION_IO && !handle_regular) {
@@ -12956,27 +12954,8 @@ local inline void create_input_pipe (const char* command) {
   pushSTACK(allocate_handle(handles[0]));
 }
 
-/* make, init, and reguster pipe stream object
- > buffered
- > direction
- > eltype
- < stream object
- can trigger GC */
-local maygc object make_pipe (buffered_t buffered, direction_t direction,
-                              decoded_el_t *eltype) {
-  var object stream;
-  var uintB type = (direction == DIRECTION_INPUT
-                    ? strmtype_pipe_in : strmtype_pipe_out);
-  if (buffered == BUFFERED_NIL) {
-    stream = make_unbuffered_stream(type,direction,eltype,false,false);
-    UnbufferedPipeStream_input_init(stream);
-  } else {
-    stream = make_buffered_stream(type,direction,eltype,false,false);
-    BufferedPipeStream_init(stream);
-  }
-  ChannelStreamLow_close(stream) = &low_close_pipe;
-  return add_to_open_streams(stream);
-}
+/* forward declaration */
+local maygc object make_pipe (buffered_t, direction_t, decoded_el_t*);
 
 /* UP: The common part of MAKE-PIPE-INPUT-STREAM & MAKE-PIPE-OUTPUT-STREAM
  > STACK_0: :buffered
@@ -13082,17 +13061,38 @@ local void low_finish_output_unbuffered_pipe (object stream) {} /* do nothing */
 local void low_force_output_unbuffered_pipe (object stream) {} /* do nothing */
 local void low_clear_output_unbuffered_pipe (object stream) {} /* do nothing */
 
-#define UnbufferedPipeStream_output_init(stream)                        \
-  { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_pipe;     \
-    UnbufferedStreamLow_write_array(stream) =                           \
-      &low_write_array_unbuffered_pipe;                                 \
-    UnbufferedStreamLow_finish_output(stream) =                         \
-      &low_finish_output_unbuffered_pipe;                               \
-    UnbufferedStreamLow_force_output(stream) =                          \
-      &low_force_output_unbuffered_pipe;                                \
-    UnbufferedStreamLow_clear_output(stream) =                          \
-      &low_clear_output_unbuffered_pipe;                                \
+/* make, init, and register pipe stream object
+ > buffered
+ > direction
+ > eltype
+ < stream object
+ can trigger GC */
+local maygc object make_pipe (buffered_t buffered, direction_t direction,
+                              decoded_el_t *eltype) {
+  var object stream;
+  var uintB type = (direction == DIRECTION_INPUT
+                    ? strmtype_pipe_in : strmtype_pipe_out);
+  if (buffered == BUFFERED_NIL) {
+    stream = make_unbuffered_stream(type,direction,eltype,false,false);
+    if (READ_P(direction)) UnbufferedPipeStream_input_init(stream);
+    if (WRITE_P(direction)) { /*UnbufferedPipeStream_output_init(stream);*/
+      UnbufferedStreamLow_write(stream) = &low_write_unbuffered_pipe;
+      UnbufferedStreamLow_write_array(stream) =
+        &low_write_array_unbuffered_pipe;
+      UnbufferedStreamLow_finish_output(stream) =
+        &low_finish_output_unbuffered_pipe;
+      UnbufferedStreamLow_force_output(stream) =
+        &low_force_output_unbuffered_pipe;
+      UnbufferedStreamLow_clear_output(stream) =
+        &low_clear_output_unbuffered_pipe;
+    }
+  } else {
+    stream = make_buffered_stream(type,direction,eltype,false,false);
+    BufferedPipeStream_init(stream);
   }
+  ChannelStreamLow_close(stream) = &low_close_pipe;
+  return add_to_open_streams(stream);
+}
 
 local inline void create_output_pipe (const char* command) {
   var int child;
@@ -13570,15 +13570,15 @@ local maygc uintB* low_read_array_unbuffered_socket (object stream,
 
 /* Initializes the input side fields of a socket stream.
  UnbufferedSocketStream_input_init(stream); */
-#define UnbufferedSocketStream_input_init(stream)                       \
-  { UnbufferedStreamLow_read(stream) = &low_read_unbuffered_socket;     \
-    UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_socket; \
-    UnbufferedStreamLow_clear_input(stream) =                           \
-      &low_clear_input_unbuffered_socket;                               \
-    UnbufferedStreamLow_read_array(stream) =                            \
-      &low_read_array_unbuffered_socket;                                \
-    UnbufferedHandleStream_input_init_data(stream);                     \
-  }
+#define UnbufferedSocketStream_input_init(stream)   do {                \
+  UnbufferedStreamLow_read(stream) = &low_read_unbuffered_socket;       \
+  UnbufferedStreamLow_listen(stream) = &low_listen_unbuffered_socket;   \
+  UnbufferedStreamLow_clear_input(stream) =                             \
+    &low_clear_input_unbuffered_socket;                                 \
+  UnbufferedStreamLow_read_array(stream) =                              \
+    &low_read_array_unbuffered_socket;                                  \
+  UnbufferedHandleStream_input_init_data(stream);                       \
+ } while (0)
 
 #else
 
