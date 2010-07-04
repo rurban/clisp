@@ -20799,7 +20799,7 @@ AC_DEFINE(HAVE_MACH_VM,,[have vm_allocate() and task_self() functions])dnl
 )])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2010 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -20853,11 +20853,17 @@ mmap_prog_2="#define bits_to_avoid $avoid"'
 #define my_size  8192 /* hope that 8192 is a multiple of the page size */
 /* i*8 KB for i=1..64 gives a total of 16.25 MB, which is close to what we need */
 #endif
+#if defined(__APPLE__) && defined(__MACH__) && defined(__x86_64__)
+/* On MacOS X in 64-bit mode, mmapable addresses start at 2^33. */
+#define base_address 0x200000000UL
+#else
+#define base_address 0
+#endif
  {long i;
 #define i_ok(i)  ((i) & (bits_to_avoid >> my_shift) == 0)
   for (i=my_low; i<=my_high; i++)
     if (i_ok(i))
-      { caddr_t addr = (caddr_t)(i << my_shift);
+      { caddr_t addr = (caddr_t)(base_address + (i << my_shift));
 /* Check for 8 MB, not 16 MB. This is more likely to work on Solaris 2. */
 #if bits_to_avoid
         long size = i*my_size;
@@ -20866,7 +20872,7 @@ mmap_prog_2="#define bits_to_avoid $avoid"'
 #endif
         if (mmap(addr,size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) == (void*)-1) exit(1);
     }
-#define x(i)  *(unsigned char *) ((i<<my_shift) + (i*i))
+#define x(i)  *(unsigned char *) (base_address + (i<<my_shift) + (i*i))
 #define y(i)  (unsigned char)((3*i-4)*(7*i+3))
   for (i=my_low; i<=my_high; i++) if (i_ok(i)) { x(i) = y(i); }
   for (i=my_high; i>=my_low; i--) if (i_ok(i)) { if (x(i) != y(i)) exit(1); }
