@@ -1,3 +1,8 @@
+2010-07-04  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: bug#3024887: make-pipe-output-stream segfaults
+	when sending data
+
 2010-06-24  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: bug#3020933: (SETF STREAM-EXTERNAL-FORMAT)
