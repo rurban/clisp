@@ -62,6 +62,7 @@ User visible changes
   + Respect :FULL T in DIRECTORY :WILD-INFERIORS (bug#3009966).
   + Handle TWO-WAY-STREAM and ECHO-STREAM correctly by
     (SETF STREAM-EXTERNAL-FORMAT) (bug#3020933).
+  + Fix unbuffered output pipe stream initialization (bug#3024887).
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
