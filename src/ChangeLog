@@ -1,3 +1,7 @@
+2010-07-05  Yaroslav Kavenchuk  <kavenchuk@jenty.by>
+
+	* makemake.in (CLISP_LIBDIR): use "$(@CLISP_DECOLONIZE@)"
+
 2010-07-04  Sam Steingold  <sds@gnu.org>
 
 	Fix unbuffered output pipe stream initialization (bug#3024887).
