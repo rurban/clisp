@@ -1085,7 +1085,7 @@ HERE_="${HEREP}${NEXT_}"
 # for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
 # gllib path must be absolute because CPPFLAGS is passed on to module subdirs
 # cf m4/clisp.m4: CLISP_LIBDIR must contain no colons
-x=${HEREP}; CLISP_LIBDIR=`@CLISP_DECOLONIZE@`
+x=${HEREP}; CLISP_LIBDIR="$(@CLISP_DECOLONIZE@)"
 XCPPFLAGS="${XCPPFLAGS} -I${CLISP_LIBDIR}/gllib"
 
 # TOBJ = extension for compiled modules on target
