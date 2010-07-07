@@ -14,6 +14,7 @@ User visible changes
 
 * New user variable CUSTOM:*USER-LIB-DIRECTORY* is respected by REQUIRE
   and used by "clisp-link install".
+  Dynamic modules are now the default build option.
   See <http://clisp.cons.org/impnotes/require.html> and
   <http://clisp.cons.org/impnotes/clisp-link.html> for details.
 

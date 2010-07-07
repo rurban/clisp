@@ -481,7 +481,8 @@
 
 <revision><revnumber>2.49</revnumber><date>2010-07-07</date>&sds-a;
  <revdescription><itemizedlist>
-   <listitem><simpara>&user-libdir;</simpara></listitem>
+   <listitem><simpara>&user-libdir;; <link linkend="mod-dynload">dynamic
+    modules</link> are now the default build option</simpara></listitem>
    <listitem><simpara>&opt-norl;</simpara></listitem>
    <listitem><simpara>&iss065;</simpara></listitem>
 </itemizedlist></revdescription></revision>

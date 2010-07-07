@@ -2268,8 +2268,6 @@ additionally binds &cont-r; to the content length.</para>
 
 <note><para>Dynamic loading does not work on all operating systems
   (&dlopen; or equivalent is required).</para></note>
-<note><para>&with-dynmod; precludes some optimizations which
-  are enabled by default.</para></note>
 <note><para>You will probably never need to call this function
   explicitly (this is why it is in &sys-pac; and not in &ext-pac;).
   You should install your module with
