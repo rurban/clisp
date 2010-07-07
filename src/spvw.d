@@ -423,8 +423,8 @@ modexp uintL* current_thread_alloccount()
     entry->qtid = INVALID_QTID;
     spinlock_release(&(threads_tls.lock));
     /* now remove it from the cache as well. it is important since the entry
-       in on the C stack of dying thread and soon the memory will be reclaimed.
-       NB: this may cause cache misses in worst time (from other threads)*/
+       is on the C stack of dying thread and soon the memory will be reclaimed.
+       NB: this may cause cache misses in worst case (from other threads)*/
     var int i;
     for (i = 0; i < TS_CACHE_SIZE; ++i) {
       if (threads_tls.cache[i] == entry)
@@ -3867,6 +3867,11 @@ global int main (argc_t argc, char* argv[]) {
        This is not a problem in general but it helps for debugging to clear
        the whole map.*/
     memset(threads_map, 0, sizeof(threads_map));
+  #elif USE_CUSTOM_TLS == 2
+    /* we can use set_current_thread(NULL) as well but this will leave
+       a dummy bucket in the hash table and may slow down the lookups.
+       better - remove entirely */
+    tsd_remove_specific();
   #else
     set_current_thread(NULL); /* no associated lisp thread */
   #endif

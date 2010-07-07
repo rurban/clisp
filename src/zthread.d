@@ -220,7 +220,6 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
   clisp_thread_t *me=(clisp_thread_t *)arg;
   set_current_thread(me); /* first: initialize TLS */
   var struct backtrace_t bt;
-  set_current_thread(me);
   me->_SP_anchor=(void*)SP();
   /* initialize backtrace */
   bt.bt_next = NULL;
