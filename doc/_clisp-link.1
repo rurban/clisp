@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: clisp-link
 .\"    Author: Bruno Haible <\m[blue]\fB\%http://www.haible.de/bruno/\fR\m[]>
-.\" Generator: DocBook XSL Stylesheets vsnapshot_8519 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2009-09-10
+.\" Generator: DocBook XSL Stylesheets vsnapshot_8706 <http://docbook.sf.net/>
+.\"      Date: Last modified: 2010-07-07
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.48+
+.\"    Source: CLISP 2.49
 .\"  Language: English
 .\"
-.TH "CLISP\-LINK" "1" "Last modified: 2009\-09\-10" "CLISP 2.48+" "Platform: @PLATFORM@"
+.TH "CLISP\-LINK" "1" "Last modified: 2010\-07\-07" "CLISP 2.49" "Platform: @PLATFORM@"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -33,7 +33,7 @@ clisp-link \- link a new external module to \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\
 #endif
 .SH "DESCRIPTION"
 .PP
-Operates on
+This shell script operates on
 \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2
 module sets and
 linking sets:
@@ -46,8 +46,7 @@ linking sets:
 .sp -1
 .IP \(bu 2.3
 .\}
-\fBcreate\fR
-new
+\fBcreate\fRs new
 module sets out of source files
 .RE
 .sp
@@ -88,7 +87,7 @@ module sets added
 .sp -1
 .IP \(bu 2.3
 .\}
-\fIOnly in \fR\fI\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2\fR\fI built \fR\fI\fBwith\fR\fR\fI configure flag \fR\fI\fB\-\-with\-dynamic\-modules\fR\fR\fI\&.\fR
+\fIOnly in \fR\fI\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2\fR\fI built \fR\fI\fBwithout\fR\fR\fI configure flag \fR\fI\fB\-\-without\-dynamic\-modules\fR\fR\fI\&.\fR
 .sp
 \fBinstall\fRs new
 module sets for general use
@@ -162,10 +161,10 @@ linking set
 in directory
 \fIsource\fR, with the
 modules in directories
-\fImodule\fR\&.\&.\&. If
+\fImodule\fR\&.\&.\&. Unless
 \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2
 has been built with the configuration option
-\fB\-\-with\-dynamic\-modules\fR, the loading will be performed using
+\fB\-\-without\-dynamic\-modules\fR, the loading will be performed using
 \fBSYS::DYNLOAD\-MODULES\fR\&. Otherwise \- this is much slower \- a temporary
 linking set
 will be created and deleted afterwards\&.
@@ -174,7 +173,7 @@ will be created and deleted afterwards\&.
 .PP
 \fBinstall\fR
 .RS 4
-\fIOnly in \fR\fI\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2\fR\fI built \fR\fI\fBwith\fR\fR\fI configure flag \fR\fI\fB\-\-with\-dynamic\-modules\fR\fR\fI\&.\fR
+\fIOnly in \fR\fI\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2\fR\fI built \fR\fI\fBwithout\fR\fR\fI configure flag \fR\fI\fB\-\-without\-dynamic\-modules\fR\fR\fI\&.\fR
 .sp
 The command
 .sp
@@ -194,7 +193,7 @@ modules in directories
 \fICUSTOM:*LIB\-DIRECTORY*\fR
 or, if it is not writable to the user (e\&.g\&., if a system\-wide
 \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[1]\d\s+2
-installation is used and the user does not have administrative privileges), info
+installation is used and the user does not have administrative privileges), into
 \fICUSTOM:*USER\-LIB\-DIRECTORY*\fR\&.
 .sp
 Variable
@@ -215,7 +214,9 @@ RC file\&.
 \fBNote\fR
 .ps -1
 .br
-Do \(no add
+Do
+\fBnot\fR
+add
 \fICUSTOM:*USER\-LIB\-DIRECTORY*\fR
 to
 \fICUSTOM:*LOAD\-PATHS*\fR
@@ -226,8 +227,7 @@ instead of
 to load dynamic modules\&.
 .sp .5v
 .RE
-In addition to
-\fBlink\&.sh\fR, each
+For this command to work, each
 \fImodule\fR
 directory must contain a
 Makefile
@@ -236,7 +236,9 @@ with a
 target which uses
 \fBLN\fR
 to distribute the files necessary to run the module into
-\fBdestdir\fR\&.
+\fBdestdir\fR\&. This is in addition to the general requirement that
+\fBlink\&.sh\fR
+is present\&.
 .RE
 #endif
 .SH "EXAMPLES"
@@ -272,11 +274,11 @@ directory containing:
 "clisp\&.h"
 .RE
 .sp
-.RE
+
 \fBclisp\-link\fR
 expects to find these files in a subdirectory
 linkkit/
-of installation directory (i\&.e\&.,
+of the installation directory (i\&.e\&.,
 \fICUSTOM:*LIB\-DIRECTORY*\fR) which it acquires by running
 .sp
 .if n \{\
@@ -294,7 +296,12 @@ This can be overridden by the
 \fBCLISP_LINKKIT\fR\&.
 .SH "SEE ALSO"
 .PP
+.RS 4
 CLISP impnotes
+.RE
+.RS 4
+clisp(1)
+.RE
 .SH "AUTHORS"
 .PP
 \fBBruno Haible\fR <\&\m[blue]\fB\%http://www.haible.de/bruno/\fR\m[]\&>
@@ -318,9 +325,9 @@ See \fICOPYRIGHT (file in the CLISP sources) \fR for the list of other contribut
 .RE
 .SH "COPYRIGHT"
 .br
-Copyright \(co 1992-2009 Bruno Haible
+Copyright \(co 1992-2010 Bruno Haible
 .br
-Copyright \(co 1998-2009 Sam Steingold
+Copyright \(co 1998-2010 Sam Steingold
 .br
 .SH "NOTES"
 .IP " 1." 4
