@@ -652,7 +652,8 @@
 <!ENTITY c-var-addr '<link linkend="c-var-addr"><function>FFI:C-VAR-ADDRESS</function></link>'>
 <!ENTITY c-var-object '<link linkend="c-var-object"><function>FFI:C-VAR-OBJECT</function></link>'>
 <!ENTITY cast '<link linkend="cast"><function>FFI:CAST</function></link>'>
-<!ENTITY clisp-link '<olink targetdoc="clink" targetptr="clisp-link"><command>clisp-link</command></olink>'>
+<!ENTITY clisp-cmd '<command><olink targetdoc="man" targetptr="clisp">clisp</olink></command>'>
+<!ENTITY clisp-link '<command><olink targetdoc="clink" targetptr="clisp-link">clisp-link</olink></command>'>
 <!ENTITY def-c-const '<link linkend="def-c-const"><function>FFI:DEF-C-CONST</function></link>'>
 <!ENTITY def-c-enum '<link linkend="def-c-enum"><function>FFI:DEF-C-ENUM</function></link>'>
 <!ENTITY def-c-struct '<link linkend="def-c-struct"><function>FFI:DEF-C-STRUCT</function></link>'>
@@ -927,7 +928,6 @@
 
 <!-- *** quickstart *** -->
 <!ENTITY args '<olink targetdoc="impnotes" targetptr="script-exec"><varname>EXT:*ARGS*</varname></olink>'>
-<!ENTITY clisp-cmd '<command>clisp</command>'>
 <!ENTITY interp-args '<replaceable>interpreter-arguments</replaceable>'>
 <!ENTITY interp-r '<replaceable>interpreter</replaceable>'>
 
