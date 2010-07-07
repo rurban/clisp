@@ -1,5 +1,9 @@
 2010-07-07  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (upload-sf): use scp instead of rsync
+
+2010-07-07  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.49 (2010-07-07)
 
 2010-07-07  Sam Steingold  <sds@gnu.org>

@@ -491,7 +491,7 @@ SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
-
+SF_USER = `whoami`
 
 $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
@@ -500,7 +500,7 @@ upload-ssh : $(SRC_DIST1) force
 	for h in $(SSHUP) ; do scp $(UPLOAD) $${h}; done
 
 upload-sf : $(SRC_DIST1) force
-	rsync -avP -e ssh $(UPLOAD) frs.sf.net:/home/frs/project/c/cl/clisp/clisp/$(VER)/
+	scp $(UPLOAD) $(SF_USER),clisp@frs.sf.net:/home/frs/project/c/cl/clisp/clisp/$(VER)/
 
 upload-gnu : force		# gnu-distrib -- do not re-sign everything
 	UP=""; for f in $(GNU_DIST); do \
