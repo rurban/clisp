@@ -2217,12 +2217,12 @@ can give problems:
   <ulink role="clhs" url="sec_12-1-7"/></title>
 <para>To ease reproducibility, the variable &random-state-var; is
  initialized to the same value on each invocation, so that
- <screen>&sh-prompt; clisp -norc &opt-x; '(&random; 1s0)'</screen>
+ <screen>&sh-prompt; clisp &opt-norc; &opt-x; '(&random; 1s0)'</screen>
  will always print the same number.</para>
 <para>If you want a new random state on each invocation, you can arrange
  for that by using &init-function;: <screen>
-&sh-prompt; clisp -norc &opt-x; '(&savemem; "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
-&sh-prompt; clisp -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'</screen>
+&sh-prompt; clisp &opt-norc; &opt-x; '(&savemem; "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
+&sh-prompt; clisp &opt-norc; &opt-M; foo.mem &opt-x; '(&random; 1s0)'</screen>
  or by placing <code>(&setq; &random-state-var;
     (&make-random-state; &t;))</code> into your &RC-file;.</para>
 </section>
@@ -5243,16 +5243,16 @@ latter requires the former, you can write in your &make-file;:
 all: foo.fas bar.fas
 
 foo.fas: foo.lisp
-	clisp -c foo
+	clisp &opt-c; foo
 
 bar.fas: bar.lisp foo.fas
-	clisp -c bar
+	clisp &opt-c; bar
 </programlisting>
 instead of the more cumbersome (and slower, since &lib-file;s are
 usually smaller and load faster that &fasl-file;s):
 <programlisting language="make">
 bar.fas: bar.lisp foo.fas
-        clisp -i foo -c bar
+        clisp &opt-i; foo &opt-c; bar
 </programlisting>
 Thus, you do not need to <code>(&load-my; &foo-f;)</code> in order
 to <code>(&compile-file-my; <filename>#P"bar.lisp"</filename>)</code>.

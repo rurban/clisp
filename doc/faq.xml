@@ -544,7 +544,7 @@ format for <command>&cvs; co -D</command>.</para></formalpara>
  <answer><para>Use module &gtk2-mod;: create <filename>ui.glade</filename>
    with &glade;, then do<screen>
 &sh-prompt; ./configure --with-module=gtk2 --cbc build-gtk
-&sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'</screen></para>
+&sh-prompt; ./build-gtk/clisp &opt-K; full &opt-x; '(gtk:run-glade-file "ui.glade")'</screen></para>
   <para>There are many other options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
     Lisp software running in &clisp;"</ulink>.</para></answer></qandaentry>
