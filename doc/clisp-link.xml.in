@@ -96,8 +96,8 @@
    <screen>&sh-prompt; &clisp-link; &opt-run; &source-r; &mod-r; ...</screen>
    runs the &linkset; in directory &source-r;, with the &module;s
    in directories &mod-r;...
-   If &clisp; has been built with the configuration option &with-dynmod;,
-   the loading will be performed using &mod-dynload;.
+   Unless &clisp; has been built with the configuration option
+   &without-dynmod;, the loading will be performed using &mod-dynload;.
    Otherwise - this is much slower - a temporary &linkset; will be created
    and deleted afterwards.</para></listitem></varlistentry>
 
