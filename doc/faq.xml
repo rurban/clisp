@@ -512,11 +512,14 @@ format for <command>&cvs; co -D</command>.</para></formalpara>
    are the modules with which I built &clisp;?</simpara></question>
 <answer><para>In the &full; &linkset;. Run &clisp; like this:
   <screen>&sh-prompt; clisp &opt-K; full</screen></para>
- <para>If your &clisp; was configured with option &with-dynmod;, you
+ <para>Unless your &clisp; was configured with option &without-dynmod;, you
   should instead use <code>(&require-my; &name-r;)</code> where &name-r; is
   a &string-t;, e.g., <quote>&rawsock-mod;</quote>, or <quote>clx</quote>
   (for either &new-clx; or &mit-clx;, whichever is installed),
-  or <quote>linux</quote> (for &glibc-mod;) etc.</para>
+  or <quote>linux</quote> (for &glibc-mod;) etc.
+  This is more reliable because the &full; &linkset; may include many modules
+  which you do not need and, in fact, &cannot-e; use because they require
+  external libraries not installed on your system.</para>
  <para>Making &base; the default &linkset; has some advantages:<variablelist>
    <varlistentry><term>Shared Library Hell</term>
     <listitem><simpara>Avoid problems when a module requires a shared
