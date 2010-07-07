@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2009-07-28 12:34:00-0400\n"
+"POT-Creation-Date: 2010-07-07 11:09:16-0400\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -13,35 +13,35 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: spvw.d:938
+#: spvw.d:852
 msgid "*** - Program stack overflow. RESET"
 msgstr "*** - Programstak-overløb. NULSTILLET"
 
-#: spvw.d:953
+#: spvw.d:867
 msgid "*** - Lisp stack overflow. RESET"
 msgstr "*** - Lispstak-overløb. NULSTILLET"
 
-#: spvw.d:1176
+#: spvw.d:1096
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Ukendt FSUBR-signatur: %d %d %d\n"
 
-#: spvw.d:1284
+#: spvw.d:1204
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Ukendt SUBR-signatur: %d %d %d %d"
 
-#: spvw.d:2024
+#: spvw.d:1945
 msgid "module '%s' requires package %s.\n"
 msgstr "modulet '%s' kræver pakken %s.\n"
 
-#: spvw.d:2034
+#: spvw.d:1955
 msgid "module '%s' redefines symbol "
 msgstr "modulet '%s' redefinerer symbol "
 
-#: spvw.d:2036
+#: spvw.d:1957
 msgid " in the locked package "
 msgstr " i den låste pakke "
 
-#: spvw.d:2038
+#: spvw.d:1959
 msgid ""
 "\n"
 "old definition: "
@@ -49,12 +49,12 @@ msgstr ""
 "\n"
 "gammel definition: "
 
-#: spvw.d:2075
+#: spvw.d:1996
 #, fuzzy
 msgid "is an ANSI Common Lisp implementation."
 msgstr "er en ANSI Common Lisp."
 
-#: spvw.d:2077
+#: spvw.d:1998
 msgid ""
 "This image does not process the usual command line arguments.\n"
 "To create a normal image \"myclisp\", please do\n"
@@ -69,7 +69,7 @@ msgstr ""
 # læs, find værdi og udskriv-løkke
 # læs-find værdi-udskriv-sløjfe
 #
-#: spvw.d:2082
+#: spvw.d:2003
 #, fuzzy
 msgid ""
 "Usage:  %s [options] [lispfile [argument ...]]\n"
@@ -82,37 +82,37 @@ msgstr ""
 " til listen af argumentstrenge. Ellers påbegyndes en interaktiv\n"
 " prompt (læs, find værdi og udskriv-løkke).\n"
 
-#: spvw.d:2086
+#: spvw.d:2007
 #, fuzzy
 msgid "Informative output:"
 msgstr "Generelle informationer:\n"
 
-#: spvw.d:2087
+#: spvw.d:2008
 #, fuzzy
 msgid " -h, --help    - print this help and exit"
 msgstr " -h, --help    - udskriv denne hjælp og afslut\n"
 
-#: spvw.d:2088
+#: spvw.d:2009
 #, fuzzy
 msgid " --version     - print the version information"
 msgstr " --version     - udskriv versionsinformation\n"
 
-#: spvw.d:2089
+#: spvw.d:2010
 #, fuzzy
 msgid " --license     - print the licensing information"
 msgstr " --license     - udskriv licensinformation\n"
 
-#: spvw.d:2090
+#: spvw.d:2011
 #, fuzzy
 msgid " -help-image   - print image-specific help and exit"
 msgstr " -h, --help    - udskriv denne hjælp og afslut\n"
 
-#: spvw.d:2091
+#: spvw.d:2012
 #, fuzzy
 msgid "Memory image selection:"
 msgstr "Valg af hukommelsesbillede:\n"
 
-#: spvw.d:2092
+#: spvw.d:2013
 #, fuzzy
 msgid " -B lisplibdir - set the installation directory"
 msgstr " -B lispbibkat - sæt installationskataloget\n"
@@ -121,19 +121,19 @@ msgstr " -B lispbibkat - sæt installationskataloget\n"
 # Der er tale om angivelse af det katalog, der indeholder
 # såvel billede såvel som objektkodefiler, der
 # lænkes med hovedbilledet.
-#: spvw.d:2094
+#: spvw.d:2015
 #, fuzzy
 msgid " -K linkingset - use this executable and memory image"
 msgstr ""
 " -K lænkemængde - brug dette eksekverbare program og\n"
 "                                             hukommelsesbillede\n"
 
-#: spvw.d:2096
+#: spvw.d:2017
 #, fuzzy
 msgid " -M memfile    - use this memory image"
 msgstr " -M hukfil     - brug dette hukommelsesbillede\n"
 
-#: spvw.d:2097
+#: spvw.d:2018
 #, fuzzy
 msgid " -m size       - memory size (size = nB or nKB or nMB)"
 msgstr ""
@@ -143,32 +143,32 @@ msgstr ""
 # Tvetydig:
 # Ordet findes endnu ikke i ordbogen, men er ikke desto mindre
 # korrekt dannet.
-#: spvw.d:2098
+#: spvw.d:2019
 #, fuzzy
 msgid "Internationalization:"
 msgstr "Internationalisation:\n"
 
-#: spvw.d:2099
+#: spvw.d:2020
 #, fuzzy
 msgid " -L language   - set user language"
 msgstr " -L sprog      - sæt brugersprog\n"
 
-#: spvw.d:2100
+#: spvw.d:2021
 #, fuzzy
 msgid " -N nlsdir     - NLS catalog directory"
 msgstr " -N nlskat     - NLS-katalog\n"
 
-#: spvw.d:2101
+#: spvw.d:2022
 #, fuzzy
 msgid " -Edomain encoding - set encoding"
 msgstr " -Edomænekodning - sæt kodning\n"
 
-#: spvw.d:2102
+#: spvw.d:2023
 #, fuzzy
 msgid "Interoperability:"
 msgstr "Samspilsevne:\n"
 
-#: spvw.d:2103
+#: spvw.d:2024
 #, fuzzy
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
@@ -179,175 +179,179 @@ msgstr ""
 "     påvirker banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     og *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-#: spvw.d:2106
+#: spvw.d:2027
 #, fuzzy
 msgid " -w            - wait for a keypress after program termination"
 msgstr " -w            - vent på tastetryk efter programafslutning\n"
 
-#: spvw.d:2107
+#: spvw.d:2028
 #, fuzzy
 msgid " -I            - be ILISP-friendly"
 msgstr " -I            - vær ILISP-venlig\n"
 
-#: spvw.d:2108
+#: spvw.d:2029
+msgid " -disable-readline - do not use the gnu readline library"
+msgstr ""
+
+#: spvw.d:2030
 #, fuzzy
 msgid "Startup actions:"
 msgstr "Opstartshandlinger:\n"
 
-#: spvw.d:2109
+#: spvw.d:2031
 #, fuzzy
 msgid " -ansi         - more ANSI CL compliance"
 msgstr ""
 " -ansi         - bedre overenstemmelse med ANSI-standarden\n"
 "                                                 for Common Lisp\n"
 
-#: spvw.d:2110
+#: spvw.d:2032
 #, fuzzy
 msgid " -traditional  - traditional (undoes -ansi)"
 msgstr " -traditional  - traditionel Common Lisp (nulstiller -ansi)\n"
 
-#: spvw.d:2111
+#: spvw.d:2033
 #, fuzzy
 msgid " -modern       - start in a case-sensitive lowercase-preferring package"
 msgstr " -modern       - begynd i en versalfølsom pakke med små bostaver foretrukne\n"
 
-#: spvw.d:2112
+#: spvw.d:2034
 #, fuzzy
 msgid " -p package    - start in the package"
 msgstr " -p pakke      - begynd i denne pakke\n"
 
-#: spvw.d:2113
+#: spvw.d:2035
 #, fuzzy
 msgid " -C            - set *LOAD-COMPILING* to T"
 msgstr " -C            - sæt *LOAD-COMPILING* til T\n"
 
-#: spvw.d:2114
+#: spvw.d:2036
 #, fuzzy
 msgid " -norc         - do not load the user ~/.clisprc file"
 msgstr " -norc         - indlæs ikke brugerens fil ~/.clisprc\n"
 
-#: spvw.d:2115
+#: spvw.d:2037
 #, fuzzy
 msgid " -lp dir       - add dir to *LOAD-PATHS* (can be repeated)"
 msgstr " -i fil        - indlæs initialfil (kan gentages)\n"
 
-#: spvw.d:2116
+#: spvw.d:2038
 #, fuzzy
 msgid " -i file       - load initfile (can be repeated)"
 msgstr " -i fil        - indlæs initialfil (kan gentages)\n"
 
-#: spvw.d:2117
+#: spvw.d:2039
 #, fuzzy
 msgid "Actions:"
 msgstr "Handlinger:\n"
 
-#: spvw.d:2118
+#: spvw.d:2040
 #, fuzzy
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile"
 msgstr " -c [-l] lispfil [-o uddatafil] - oversæt lispfil\n"
 
-#: spvw.d:2119
+#: spvw.d:2041
 #, fuzzy
 msgid " -x expressions - execute the expressions, then exit"
 msgstr " -x udtryk - eksekvér udtrykkene og afslut\n"
 
-#: spvw.d:2120
+#: spvw.d:2042
 msgid " Depending on the image, positional arguments can mean:"
 msgstr ""
 
-#: spvw.d:2121
+#: spvw.d:2043
 #, fuzzy
 msgid "   lispscript [argument ...] - load script, then exit"
 msgstr " lispfil [argument ...] - indlæs fil og afslut\n"
 
-#: spvw.d:2122
+#: spvw.d:2044
 msgid "   [argument ...]            - run the init-function"
 msgstr ""
 
-#: spvw.d:2123
+#: spvw.d:2045
 msgid "  arguments are placed in EXT:*ARGS* as strings."
 msgstr ""
 
-#: spvw.d:2124
+#: spvw.d:2046
 #, fuzzy
 msgid "These actions put CLISP into a batch mode, which is overridden by"
 msgstr "Disse handlinger sætter CLISP i skripttilstand, som tilsidesættes af\n"
 
-#: spvw.d:2125
+#: spvw.d:2047
 #, fuzzy
 msgid " -on-error action - action can be one of debug, exit, abort, appease"
 msgstr " -on-error handling - handling kan være en af debug, exit, abort eller appease\n"
 
-#: spvw.d:2126
+#: spvw.d:2048
 #, fuzzy
 msgid " -repl            - enter the interactive read-eval-print loop when done"
 msgstr " -repl            - påbegynd den interaktive prompt, når program er afsluttet\n"
 
-#: spvw.d:2127
+#: spvw.d:2049
 #, fuzzy
 msgid "Default action is an interactive read-eval-print loop."
 msgstr "Standardhandling er en interaktiv prompt.\n"
 
-#: spvw.d:2136
+#: spvw.d:2058
 msgid "%s: use '-h' for help"
 msgstr "%s: brug '-h' for at få hjælp"
 
-#: spvw.d:2139
+#: spvw.d:2062
 msgid "invalid argument"
 msgstr "ugyldigt argument"
 
-#: spvw.d:2436
+#: spvw.d:2369
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntaks for %s: nnnnnnn eller nnnnKB eller nMB"
 
-#: spvw.d:2442
+#: spvw.d:2375
 #, fuzzy
 msgid "warning: %s %lu too small, using %lu instead"
 msgstr "advarsel: %s er uden for interval, brug %u istedet"
 
-#: spvw.d:2448
+#: spvw.d:2381
 #, fuzzy
 msgid "warning: %s %lu too large, using %lu instead"
 msgstr "advarsel: %s er uden for interval, brug %u istedet"
 
-#: spvw.d:2603
+#: spvw.d:2532
 msgid "memory size"
 msgstr "hukommelsesstørrelse"
 
-#: spvw.d:2630
+#: spvw.d:2558
 msgid "multiple -B"
 msgstr "multibel -B"
 
-#: spvw.d:2665
+#: spvw.d:2591
 msgid "-E requires an argument"
 msgstr "-E kræver et argument"
 
-#: spvw.d:2931
+#: spvw.d:2822
 msgid "-l without -c is invalid"
 msgstr "-l uden -c er ugyldigt"
 
-#: spvw.d:2937
+#: spvw.d:2828
 msgid "-x with -c is invalid"
 msgstr "-x med -c er ugyldigt"
 
-#: spvw.d:2942
+#: spvw.d:2833
 msgid "-x with lisp-file is invalid"
 msgstr "-x med lispfil er ugyldigt"
 
-#: spvw.d:3054
+#: spvw.d:2945
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Returværdien af malloc() = %lx er ikke kompatibel med typekode-distributionen."
 
-#: spvw.d:3061
+#: spvw.d:2952
 #, fuzzy
 msgid "Only %ld bytes available."
 msgstr "Kun %d byte ledig."
 
-#: spvw.d:3254
+#: spvw.d:3157
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kunne ikke afgøre, hvad slutningen på programstakken var!"
 
-#: spvw.d:3953
+#: spvw.d:3892
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Ikke nok hukommelse til Lisp."
 
@@ -403,7 +407,7 @@ msgstr "VirtualProtect() mislykkedes."
 msgid "Cannot open <%s>."
 msgstr "Kan ikke åbne <%s>."
 
-#: spvw_fault.d:283
+#: spvw_fault.d:273
 msgid "mprotect(0x%lx,%d,%d) failed."
 msgstr "mprotect(0x%lx,%d,%d) mislykkedes."
 
@@ -443,39 +447,39 @@ msgstr "Ledig plads: %lu byte."
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
 msgstr "SIGSEGV kan ikke reddes. Fejladresse = 0x%lx."
 
-#: spvw_sigsegv.d:181
+#: spvw_sigsegv.d:185
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
 msgstr "Apollo-13-scenarium: Håndtering af stakoverløb mislykkedes. Ved næste stakoverløb sker der nedbrud!!!"
 
-#: spvw_garcol.d:2422 spvw_garcol_old.d:1961
+#: spvw_garcol.d:2560 spvw_garcol_old.d:1961
 msgid "munmap() failed."
 msgstr "munmap() mislykkedes."
 
-#: spvw_allocate.d:65
+#: spvw_allocate.d:103
 msgid "*** - No more room for LISP objects: RESET"
 msgstr "*** - Ikke mere ledig plads til LISP-objekter: NULSTILLET"
 
-#: spvw_allocate.d:276 spvw_allocate.d:335 spvw_allocate.d:418
+#: spvw_allocate.d:314 spvw_allocate.d:373 spvw_allocate.d:456
 msgid "Trying to make room through a GC..."
 msgstr "Prøver at gøre ledig plads via spildopsamling..."
 
-#: spvw_memfile.d:981 spvw_memfile.d:1830
+#: spvw_memfile.d:981 spvw_memfile.d:1833
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: styresystemfejl under indlæsning af initialfil `%s'"
 
-#: spvw_memfile.d:1498
+#: spvw_memfile.d:1501
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Kan ikke lægge initialfilen `%s' ind i hukommelsen."
 
-#: spvw_memfile.d:1835
+#: spvw_memfile.d:1838
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "%s: initialfil `%s' var ikke oprettet af denne version af CLISP"
 
-#: spvw_memfile.d:1839
+#: spvw_memfile.d:1842
 msgid "%s: not enough memory for initialization"
 msgstr "%s: ikke nok ledig hukommelse til initiation"
 
-#: spvw_memfile.d:1890
+#: spvw_memfile.d:1893
 msgid "%s: 'image size' method failed, but found image header at %d\n"
 msgstr ""
 
