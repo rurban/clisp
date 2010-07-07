@@ -32,8 +32,7 @@
  </contrib></othercredit></authorgroup>'>
 <!ENTITY clisp-doc-copyright
   '<copyright><year>1992-2010</year><holder>Bruno Haible</holder></copyright>
-   <copyright><year>1998-2010</year><holder>Sam
-   Steingold</holder></copyright>'>
+   <copyright><year>1998-2010</year><holder>Sam Steingold</holder></copyright>'>
 <!ENTITY clisp-bugs-and-support
   '<para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
     on how to report bugs (both in the software and the documentaion).</para>
