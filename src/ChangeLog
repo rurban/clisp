@@ -2,6 +2,14 @@
 
 	* version.sh: 2.49 (2010-07-07)
 
+2010-07-07  Sam Steingold  <sds@gnu.org>
+
+	Fix MSVC support
+	* Makefile.devel (win32msvc/makefile.msvc6, win32msvc/makefile.msvc7):
+	pass --without-dynamic-modules to makemake
+	($(MAKEMAKE_TMP)): substitute CLISP_DECOLONIZE
+	* makemake.in: check for ./libtool before invoking it
+
 2010-07-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (thread_stub): fix double call to set_current_thread.

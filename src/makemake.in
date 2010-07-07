@@ -554,10 +554,14 @@ host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
 
-# -rdynamic or -Wl,-E or -Wl,--export-dynamic
-eval "`./libtool --tag=CC --config | grep '^wl='`"
-eval "`./libtool --tag=CC --config | grep '^export_dynamic_flag_spec='`"
-eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
+if test -x ./libtool; then # normal autoconf-based build
+  # -rdynamic or -Wl,-E or -Wl,--export-dynamic
+  eval "`./libtool --tag=CC --config | grep '^wl='`"
+  eval "`./libtool --tag=CC --config | grep '^export_dynamic_flag_spec='`"
+  eval EXPORT_DYNAMIC_FLAG_SPEC=\"$export_dynamic_flag_spec\"
+else # generating Makefiles for MS compiler from Makefile.devel
+  :
+fi
 
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
@@ -3225,7 +3229,7 @@ done
 echol
 
 # scripts in build-aux
-MODULE_CONFIGURES=`find ${SRCTOPDIR_}modules -name configure`
+MODULE_CONFIGURES=`find ${SRCTOPDIR}modules -name configure`
 BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
 BUILD_AUX=''
 test -n "${SRCDIR}" && case "${LN_S}" in
@@ -3244,7 +3248,7 @@ done
 
 # headers in build-aux
 BUILD_AUX_HEADERS=`cd ${SRCDIR}build-aux; ls *.h`
-MODULE_AM=`find ${SRCTOPDIR_}modules -name Makefile.am`
+MODULE_AM=`find ${SRCTOPDIR}modules -name Makefile.am`
 for h in ${BUILD_AUX_HEADERS}; do
   for m in ${MODULE_AM}; do
     if fgrep "BUILT_SOURCES += $h" $m >/dev/null 2>&1; then
