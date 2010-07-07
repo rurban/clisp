@@ -64,8 +64,9 @@ XSL_PATH=$(firstword $(wildcard ./docbook-xsl*/ \
 FOP=../../../fop/fop
 endif
 
+IN_FILES = impnotes.xml clisp.xml clisp-link.xml
 # common dependencies for all checkers
-CHECK_DEPS = impnotes.xml clisp.xml clisp-link.xml
+CHECK_DEPS = $(IN_FILES)
 ifeq (,$(wildcard $(DTD_PATH))) # DTD does not exist
 ifeq (yes,$(DOWNLOAD))		# download once
 CHECK_DEPS += docbook-dtd
@@ -201,9 +202,8 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 check: $(IMPNOTES) $(CHECK_DEPS)
-	xmllint $(XMLS_COMMON) --noout --postvalid --noent clisp.xml
-	xmllint $(XMLS_COMMON) --noout --postvalid --noent clisp-link.xml
-	xmllint $(XMLS_COMMON) --noout --postvalid --noent impnotes.xml
+	for f in $(IN_FILES); do \
+	  xmllint $(XMLS_COMMON) --noout --postvalid --noent $$f; done
 
 impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
@@ -293,6 +293,6 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
 SEARCH=
 search: force
 	@if test -z "$(SEARCH)"; then echo "usage: make search SEARCH=string"; \
-	else grep -n -- '$(SEARCH)' $(IMPNOTES) $(CHECK_DEPS); fi
+	else grep -n -- '$(SEARCH)' $(IMPNOTES) $(addsuffix .in, $(IN_FILES)); fi
 
 force:
