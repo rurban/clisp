@@ -345,6 +345,7 @@
 <!ENTITY opt-modern '<option><olink targetdoc="man" targetptr="opt-modern">-modern</olink></option>'>
 <!ENTITY opt-on-error '<option><olink targetdoc="man" targetptr="opt-on-error">-on-error</olink></option>'>
 <!ENTITY opt-traditional '<option><olink targetdoc="man" targetptr="opt-traditional">-traditional</olink></option>'>
+<!ENTITY opt-norl '<option><olink targetdoc="man" targetptr="opt-norl">-disable-readline</olink></option>'>
 <!ENTITY script '<olink targetdoc="man" targetptr="opt-exec-file">script</olink>'>
 <!ENTITY with-dynmod '<option><olink targetdoc="impnotes" targetptr="mod-dynload">--with-dynamic-modules</olink></option>'>
 <!ENTITY pack-inverted '<link linkend="pack-inverted"><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>'>

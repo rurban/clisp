@@ -69,7 +69,7 @@
 <arg><option><link linkend="opt-repl">-repl</link></option></arg>
 <arg><option><link linkend="opt-wait">-w</link></option></arg>
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
-<arg><option><link linkend="opt-norl">-disable-readline</link></option></arg>
+<arg>&opt-norl;</arg>
 <group><arg>&opt-ansi;</arg><arg>&opt-traditional;</arg></group>
 <arg>&opt-modern;</arg>
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
