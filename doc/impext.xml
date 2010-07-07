@@ -2136,10 +2136,9 @@ additionally binds &cont-r; to the content length.</para>
 </variablelist></para>
 </simplesect>
 
-<simplesect id="clisp-link"><title>Operating on &modset;s and &linkset;s</title>
-
-<para>Use &clisp-link; to create, add and install &modset;s.</para>
-
+<simplesect id="clisp-link"><title>Manipulating &modset;s and &linkset;s</title>
+<para>Use &clisp-link; to create and install &modset;s
+ and add them to &linkset;s.</para>
 <para>See also <xref linkend="mod-set-example"/>.</para>
 </simplesect>
 
@@ -2263,12 +2262,12 @@ additionally binds &cont-r; to the content length.</para>
  &alist; of DLL names and all foreign objects associated with it.</para>
 </section>
 
-<section id="mod-dynload"><title>Function &mod-dynload;</title>
+<section id="mod-dynload"><title>Dynamic module loading</title>
 <subtitle>&dynmod-only;</subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
   (&dlopen; or equivalent is required).</para></note>
-<note><para>You will probably never need to call this function
+<note><para>You will probably never need to call the function &mod-dynload;
   explicitly (this is why it is in &sys-pac; and not in &ext-pac;).
   You should install your module with
   <screen>&sh-prompt; &clisp-link; &opt-install; &name-r;</screen>
