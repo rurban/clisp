@@ -1,3 +1,8 @@
+2010-07-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (main_actions): move all MT specific stuff to mt_main_actions
+	(mt_main_actions): implement main thread killing here
+
 2010-07-07  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (upload-sf): use scp instead of rsync

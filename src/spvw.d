@@ -3618,19 +3618,7 @@ local inline void main_actions (struct argv_actions *p) {
       Symbol_value(S(standard_input)) = value1;
   }
   /* call read-eval-print-loop: */
-#ifdef MULTITHREAD
-  /* create a CATCH frame here for thread exit */
-  pushSTACK(O(thread_exit_tag));
-  var gcv_object_t* top_of_frame = STACK STACKop 1;
-  var sp_jmp_buf returner; /* return point */
-  finish_entry_frame(CATCH,returner,,{skipSTACK(2);STACK_0=value1;return;});
   driver();
-  /* when driver() exits (lisp.run --version) we should cleanup the stack */
-  skipSTACK(3); /* unwind CATCH-frame */
-  mv_to_list(); /* store thread exit values on STACK */
-#else /* !MULTITHREAD */
-  driver();
-#endif
 }
 
 #if defined(MULTITHREAD)
@@ -3653,8 +3641,17 @@ local THREADPROC_SIGNATURE mt_main_actions (void *param)
   pushSTACK(Symbol_value(S(default_special_bindings)));
   initialize_thread_bindings(&STACK_0);
   skipSTACK(1);
+  /* create a CATCH frame here for thread exit */
+  pushSTACK(O(thread_exit_tag));
+  var gcv_object_t* top_of_frame = STACK STACKop 1;
+  var sp_jmp_buf returner; /* return point */
+  finish_entry_frame(CATCH,returner,,{
+    skipSTACK(2); STACK_0=value1; goto thread_killed;});
   /* now we are ready to start main_actions()*/
   main_actions(args);
+  skipSTACK(3); /* unwind CATCH-frame */
+  mv_to_list(); /* store thread exit values on STACK */
+ thread_killed:
   thread_cleanup();
   delete_thread(me); /* just delete ourselves */
   /* NB: the LISP stack is "leaked" - in a sense nobody will
