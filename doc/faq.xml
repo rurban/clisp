@@ -69,7 +69,7 @@ further explanations of the issues could be provided).</para>
    &ansi-cl; compliance?</simpara></question>
 <answer><para>&clisp; <ulink url="clhs/glo"><emphasis>purports to
     conform</emphasis></ulink> to the &ansi-cl; specification, so all
-  deviations in <screen>&sh-prompt; clisp &opt-ansi;</screen>
+  deviations in <screen>&sh-prompt; &clisp-cmd; &opt-ansi;</screen>
   from the &ansi-cl; are bugs and are not (yet) fixed only due
   to lack of resources.</para>
 
@@ -273,7 +273,7 @@ break sigsegv_handler_failed</programlisting>
 which will stop execution on a <emphasis>dangerous</emphasis> segfault.
 You can find out whether this is needed by examining the output of the
 following command:
-<screen>&sh-prompt; clisp --version | grep GENERATIONAL_GC</screen>
+<screen>&sh-prompt; &clisp-cmd; --version | grep GENERATIONAL_GC</screen>
 </para></formalpara>
 
 <formalpara id="faq-debug-gdbinit"><title>Useful commands</title>
@@ -511,7 +511,7 @@ format for <command>&cvs; co -D</command>.</para></formalpara>
 <qandaentry id="faq-modules"><question id="faq-modules-q"><simpara>Where
    are the modules with which I built &clisp;?</simpara></question>
 <answer><para>In the &full; &linkset;. Run &clisp; like this:
-  <screen>&sh-prompt; clisp &opt-K; full</screen></para>
+  <screen>&sh-prompt; &clisp-cmd; &opt-K; full</screen></para>
  <para>Unless your &clisp; was configured with option &without-dynmod;, you
   should instead use <code>(&require-my; &name-r;)</code> where &name-r; is
   a &string-t;, e.g., <quote>&rawsock-mod;</quote>, or <quote>clx</quote>
@@ -814,7 +814,7 @@ the second invocation will produce a <ulink url="clhs/glo">circular
 <qandaentry id="faq-random">
  <blockinfo><title>Is &random; broken?</title></blockinfo>
  <question id="faq-random-q"><para>Why does
-   <screen>&sh-prompt; clisp &opt-x; '(&random; 1s0)'</screen>
+   <screen>&sh-prompt; &clisp-cmd; &opt-x; '(&random; 1s0)'</screen>
    always print the same number?</para></question>
 <answer><para>Reproducibility is important.
   See <xref linkend="random-state"/>.</para></answer></qandaentry>

@@ -138,7 +138,7 @@
   <listitem><para>When non-&nil;, the currently established global
     handlers (either with &set-global-handler; or with &opt-on-error;)
     are inherited by the image.  Defaults to &nil;, so that
-    <screen>&sh-prompt; clisp &opt-i; myfile &opt-x; '(&savemem;)'</screen>
+    <screen>&sh-prompt; &clisp-cmd; &opt-i; myfile &opt-x; '(&savemem;)'</screen>
     will produce an image without any global handlers inherited
     from the batch mode of the above command.</para></listitem></varlistentry>
  <varlistentry id="image-exec"><term><constant>:EXECUTABLE</constant></term>
@@ -177,8 +177,8 @@ space.</para>
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
   the &full; &linkset; cannot be used with the &base; &rt;:<screen>
-&sh-prompt; clisp &opt-K; full &opt-x; '(&savemem;)'
-&sh-prompt; clisp &opt-K; base &opt-M; lispinit.mem
+&sh-prompt; &clisp-cmd; &opt-K; full &opt-x; '(&savemem;)'
+&sh-prompt; &clisp-cmd; &opt-K; base &opt-M; lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
 See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parmbx02.ilog.biz"/>/<ulink role="gmane" url="devel/17757"/>.</para></section>
 
@@ -2081,7 +2081,7 @@ additionally binds &cont-r; to the content length.</para>
  <orderedlist><listitem><para>Running &clisp;: to run a &clisp;
     contained in some &linkset; &dir-r;, call<screen>
 &sh-prompt; &dir-r;/lisp.run &opt-M; &dir-r;/lispinit.mem</screen>
- or <screen>&sh-prompt; clisp &opt-K; &dir-r;</screen>
+ or <screen>&sh-prompt; &clisp-cmd; &opt-K; &dir-r;</screen>
  (recommended, since it also passes
  <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
  to the &rt;).</para></listitem>
@@ -2318,7 +2318,7 @@ additionally binds &cont-r; to the content length.</para>
 
 <step><title>Compile <filename>linux.lisp</filename>, creating
   <filename>linux.c</filename></title>
-<screen>&sh-prompt; clisp &opt-c; /&path-r;/bindings/linux.lisp</screen></step>
+<screen>&sh-prompt; &clisp-cmd; &opt-c; /&path-r;/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
 <screen>&sh-prompt; &clisp-link; add linux base base+linux</screen></step>
@@ -2620,7 +2620,7 @@ to the 3 (or 4) &base; modules.</para>
     Please try it first and use &mit-clx; only
     if &new-clx; does not work for you.
     &new-clx; comes with several demos, please try them using
-    <screen>&sh-prompt; clisp &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
+    <screen>&sh-prompt; &clisp-cmd; &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
      and follow the intructions.</para></listitem></varlistentry>
  </variablelist>This functionality is documented in the manual
   <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
@@ -5169,7 +5169,7 @@ thus &random; &is-e; thread-safe.</para></section>
 <para>Another, quite inferior, alternative is to put the following into a file:
 <programlisting language="shell">
 #!/bin/sh
-exec clisp &lt;&lt;EOF
+exec &clisp-cmd; &lt;&lt;EOF
 (lisp-form)
 (another-lisp-form)
 (yet-another-lisp-form)
@@ -5237,7 +5237,7 @@ Another problem is that no user input will be available.</para></formalpara>
 <screen>&sh-prompt; cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
-&sh-prompt; clisp &opt-c; hello.lisp
+&sh-prompt; &clisp-cmd; &opt-c; hello.lisp
 ;; Compiling file hello.lisp ...
 ;; Wrote file hello.fas
 0 errors, 0 warnings
