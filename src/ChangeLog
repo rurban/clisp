@@ -1,3 +1,7 @@
+2010-07-07  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: 2.49 (2010-07-07)
+
 2010-07-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (thread_stub): fix double call to set_current_thread.
