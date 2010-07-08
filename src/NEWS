@@ -1,3 +1,11 @@
+User visible changes
+--------------------
+
+* Redefinition warnings are now of type STYLE-WARNING.
+  See <http://clisp.cons.org/impnotes/evaluation.html#suppress-check-redef>
+  for details.
+
+
 2.49 (2010-07-07)
 =================
 

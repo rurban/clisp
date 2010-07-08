@@ -386,7 +386,7 @@
 <formalpara id="suppress-check-redef">
  <title>Variable &suppress-check-redef;</title>
 <para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,
- &clisp; issues a &warning-t; when a function (macro, variable, class,
+ &clisp; issues a &style-warning-t; when a function (macro, variable, class,
  etc) is redefined in a different file than its original definition.
  It is &not-e; a good idea to set this variable to &t;.
 </para></formalpara>

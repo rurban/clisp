@@ -1,3 +1,9 @@
+2010-07-08  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (sys::check-redefinition): signal STYLE-WARNING
+	instead of WARNING
+	(warn-of-type): add a predefun
+
 2010-07-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (main_actions): move all MT specific stuff to mt_main_actions

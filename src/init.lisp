@@ -675,9 +675,10 @@
                         object)))
          object)
         (when what ; when not yet defined, `what' is NIL
-          (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
-                caller what object (or cur-file #1="top-level")
-                (or old-file #1#))))
+          (warn-of-type 'simple-style-warning
+            (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
+            caller what object (or cur-file #1="top-level")
+            (or old-file #1#))))
       (sys::set-file-doc
        object caller
        ;; note that when CUR-FILE is "foo.fas",
@@ -704,7 +705,8 @@
     (when (get symbol 'sys::inline-expansion)
       (sys::%put symbol 'sys::inline-expansion t))
     (when (get symbol 'sys::traced-definition) ; discard Trace
-      (warn (TEXT "~A: redefining ~S; it was traced!") 'defun/defmacro symbol)
+      (warn-of-type 'simple-style-warning
+        (TEXT "~A: redefining ~S; it was traced!") 'defun/defmacro symbol)
       (untrace2 symbol)))))
 
 ;; THE-ENVIRONMENT as in SCHEME
@@ -1570,6 +1572,14 @@
       (apply #'format *error-output* format-string args)
       (elastic-newline *error-output*)
       nil))))
+
+;; preliminary definition of warn-of-type for CLOS before CLCS
+(sys::%putd 'warn-of-type
+  (sys::make-preliminary
+   (function warn-of-type (lambda (type format-string &rest args)
+     (declare (ignore type))
+     (apply #'warn format-string args)))))
+
 (defun open-for-load (filename extra-file-types external-format
                       &aux stream (present-files t) obj path bad-file)
  (block open-for-load
