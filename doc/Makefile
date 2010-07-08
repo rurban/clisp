@@ -132,6 +132,8 @@ all: check impnotes.html regexp.html man
 
 ifneq (,$(CATALOG_FILE))
 # depends on Makefile because of $(XSL_PATH)
+# gnu license xml files specify a bad dtd file
+GNU_DTD = http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd
 $(CATALOG_FILE): Makefile
 	$(RM) $(CATALOG_FILE)
 	$(XMLCATALOG) --create > $(CATALOG_FILE)
@@ -139,6 +141,8 @@ $(CATALOG_FILE): Makefile
 		$(XSL_URI) $(XSL_PATH) $(CATALOG_FILE)
 	$(XMLCATALOG) --noout --add "rewriteSystem" \
 		$(XSL_URI) $(XSL_PATH) $(CATALOG_FILE)
+	$(XMLCATALOG) --noout --add "rewriteURI" \
+		$(GNU_DTD) $(DTD_PATH) $(CATALOG_FILE)
 XSLTPROC=XML_CATALOG_FILES="$(CATALOG_FILE) ${XML_CATALOG_FILES}" xsltproc
 else
 XSLTPROC=xsltproc
