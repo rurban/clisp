@@ -5,6 +5,14 @@ To install the pari-bindings, do the following:
 
 $ ./configure --with-module=pari --with-libpari-prefix=/usr/local/ --cbc build-pari
 
-If you have built clisp already,
+If you have built clisp already:
 
-$ cd build-dir && make MODULES=pari MODULE_CONFIGURE_FLAGS=--with-libpari-prefix=/usr/local/
+$ cd build-dir && make MODULES=pari MODULE_CONFIGURE_FLAGS=--with-libpari-prefix=/usr/local/ pari && CLISP='./clisp -q -norc' ./clisp-link install pari
+
+To test the newly built module:
+
+$ ./clisp -q -norc -i tests/tests -x '(times (run-test "../modules/pari/test" :logname "pari/test"))'
+
+To try out the newly built module:
+
+$ ./clisp -q -norc -x '(require "pari") (use-package pari)' -repl
