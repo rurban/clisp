@@ -1875,16 +1875,11 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;;; mpdefs.h
 
 (defmacro extract0 ((var x) &body body)
-  (let ((fvar (gensym "EXTRACT0")))
-    `(with-c-var (,fvar 'c-pointer ,x)
-       (symbol-macrolet ((,var (deref (cast ,fvar '(c-ptr ulong)))))
-         ,@body))))
+  `(symbol-macrolet ((,var (memory-as ,x 'ulong 0)))
+     ,@body))
 (defmacro extract1 ((var x) &body body)
-  (let ((fvar (gensym "EXTRACT1")))
-    `(with-c-var (,fvar 'c-pointer ,x)
-       (symbol-macrolet
-           ((,var (element (deref (cast ,fvar '(c-ptr (c-array ulong 2)))) 1)))
-         ,@body))))
+  `(symbol-macrolet ((,var (memory-as ,x 'ulong #,(sizeof 'ulong))))
+     ,@body))
 
 ;; #define signe(x)          (((long)((GEN)(x))[1])>>SIGNSHIFT)
 (defun pari-sign-raw (x)
@@ -1959,10 +1954,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; #define mant(x,i)         ((((GEN)(x))[1]&SIGNBITS)?((GEN)(x))[i+1]:0)
 (defun pari-mantissa (x)
-  (with-c-var (v 'c-pointer x)
-    (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
-      (incf (cast v 'ulong) #,(* 2 (sizeof 'c-pointer)))
-      (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
+  (memory-as x (parse-c-type `(c-array ulong ,(- (pari-length-raw x) 2)))
+             #,(* 2 (sizeof 'c-pointer))))
 
 ;; life sucks: the order of words in the data segment of integers depend on
 ;; whether pari is build with gmp (low bytes first) or not (high bytes first).
@@ -1992,19 +1985,11 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (with-foreign-object (data `(c-array ulong ,len) data)
       (set_integer_data x len data))))
 
-(defun pari-mantissa-eff (x)    ; do we really need this?
-  (with-c-var (v 'c-pointer x)
-    (incf (cast v 'ulong) #,(sizeof 'c-pointer))
-    (let ((len (ldb pari-length-byte (deref (cast v '(c-ptr ulong))))))
-      (incf (cast v 'ulong) #,(sizeof 'c-pointer))
-      (deref (cast v `(c-ptr (c-array ulong ,(- len 2))))))))
-
 ;; #define setmant(x,i,s)    (((GEN)(x))[i+1]=s)
 
 (defun pari-set-component (obj i ptr)
-  (with-c-var (v 'c-pointer obj)
-    (incf (cast v 'ulong) (* #,(sizeof 'c-pointer) i))
-    (setf (deref (cast v '(c-ptr pari-gen))) ptr)))
+  (setf (memory-as obj #,(parse-c-type 'pari-gen)
+                   (* #,(sizeof 'c-pointer) i)) ptr))
 
 ;;; mpansi.h
 
@@ -2037,10 +2022,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 ;; Make a vector of ulongs into a pari object (including the second codeword,
 ;; which is element 0 of the vector). typecode is the pari type code.
 (defun pari-make-object (vec typecode)
-  (let ((obj (pari-cgetg (1+ (length vec)) typecode)))
-    (with-c-var (v 'c-pointer obj)
-      (incf (cast v 'ulong) #,(sizeof 'c-pointer))
-      (setf (deref (cast v `(c-ptr (c-array ulong ,(length vec))))) vec))
+  (let* ((len (length vec)) (obj (pari-cgetg (1+ len) typecode)))
+    (setf (memory-as obj (parse-c-type `(c-array ulong ,len))
+                     #,(sizeof 'c-pointer)) vec)
     obj))
 
 ;;; Define some CLISP analogs for pari types

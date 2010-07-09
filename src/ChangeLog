@@ -2,6 +2,9 @@
 
 	* modules/pari/pari.lisp (pari-call-out, pari-cgetg): no need
 	for (:LANGUAGE :STDC) since we already use DEFAULT-FOREIGN-LANGUAGE
+	(extract0, extract1, pari-mantissa, pari-set-component)
+	(pari-make-object): use MEMORY-AS instead of WITH-C-VAR/DEREF+CAST
+	for performance (10%) as per Joerg's suggestions
 
 2010-07-08  Sam Steingold  <sds@gnu.org>
 
