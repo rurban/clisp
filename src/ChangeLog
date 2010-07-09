@@ -1,3 +1,7 @@
+2010-07-09  Aleksej Saushev  <asau@inbox.ru>
+
+	* clisp-link.in: use ${DESTDIR} to support staged module installation
+
 2010-07-09  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCC_PICFLAG, XCC_CREATESHARED): set using libtool,
