@@ -267,5 +267,12 @@ ERROR
 
 
 ; Clean up.
-(unintern 'x)
+(progn (symbol-cleanup 'a-vector)
+       (symbol-cleanup 'x)
+       (symbol-cleanup 'liste)
+       (symbol-cleanup 'list-reverse)
+       (symbol-cleanup 'foo)
+       (symbol-cleanup 'bar)
+       (symbol-cleanup 'fkt)
+       (symbol-cleanup 'palindromep))
 T
