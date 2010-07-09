@@ -1,3 +1,9 @@
+2010-07-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* stream.d (QueryInformationFile_t) [WIN32]: fix calling convention.
+	NT API is uses __stdcall not __cdecl
+	(handle_pathname): pass correct buffer size to NtQueryInformationFile
+
 2010-07-09  Aleksej Saushev  <asau@inbox.ru>
 
 	* clisp-link.in: use ${DESTDIR} to support staged module installation

@@ -14929,7 +14929,7 @@ LISPFUNN(socket_stream_shutdown,2) {
 #if defined(WIN32_NATIVE)
 /* http://msdn.microsoft.com/en-us/library/ms804359.aspx */
 #include <ddk/ntifs.h>
-typedef NTSTATUS (*QueryInformationFile_t)
+typedef NTSTATUS (__stdcall *QueryInformationFile_t)
 (IN HANDLE FileHandle, OUT PIO_STATUS_BLOCK IoStatusBlock,
  OUT PVOID FileInformation, IN ULONG Length,
  IN FILE_INFORMATION_CLASS FileInformationClass);
@@ -15024,15 +15024,14 @@ local maygc object handle_pathname (Handle fd) {
   return value1;
  #elif defined(WIN32_NATIVE)
   var NTSTATUS s = ~STATUS_SUCCESS;
-  var WCHAR wbuf[MAXPATHLEN + sizeof(ULONG)];
+  var char wbuf[MAXPATHLEN*sizeof(WCHAR) + sizeof(ULONG)];
   begin_blocking_system_call();
   switch (GetFileType(fd)) {
     case FILE_TYPE_DISK: {
       var QueryInformationFile_t qif = get_qif();
       if (qif != NULL) {
         var IO_STATUS_BLOCK iosb;
-        s = qif(fd,&iosb,(void*)wbuf,MAXPATHLEN + sizeof(ULONG),
-                FileNameInformation);
+        s = qif(fd,&iosb,(void*)wbuf,sizeof(wbuf),FileNameInformation);
       }
     } break;
     case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
