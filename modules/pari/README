@@ -15,4 +15,4 @@ $ ./clisp -q -norc -i tests/tests -x '(times (run-test "../modules/pari/test" :l
 
 To try out the newly built module:
 
-$ ./clisp -q -norc -x '(require "pari") (use-package pari)' -repl
+$ ./clisp -q -norc -x '(require "pari") (in-package pari)' -repl -d
