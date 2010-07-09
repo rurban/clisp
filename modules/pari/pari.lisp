@@ -398,8 +398,7 @@ t.e., this is the memory size for the real return value in ulong words.")
        (def-call-out ,pari-name
          (:name ,lib-name)
          (:return-type ,@rtype-spec)
-         (:arguments ,@(mapcar #'make-arg-spec args))
-         (:language :stdc))
+         (:arguments ,@(mapcar #'make-arg-spec args)))
        ,@(when gp-name
            `(,(make-defun name pari-name type args)
              ,(make-documentation name gp-name args)))
@@ -2019,8 +2018,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (def-call-out pari-cgetg
   (:name "cgetg")
   (:return-type pari-gen)
-  (:arguments (x long) (y long))
-  (:language :stdc))
+  (:arguments (x long) (y long)))
 
 ;;; /* mp.c ou mp.s */
 
@@ -2031,8 +2029,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
  (def-call-out pari-gerepile
   (:name "gerepile")
   (:return-type pari-gen)
-  (:arguments (l long) (p long) (q pari-gen :in :none))
-  (:language :stdc))
+  (:arguments (l long) (p long) (q pari-gen :in :none)))
 |#
 
 ;;;; Conversion CLISP --> pari and pari --> CLISP

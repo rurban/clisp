@@ -1,3 +1,8 @@
+2010-07-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp (pari-call-out, pari-cgetg): no need
+	for (:LANGUAGE :STDC) since we already use DEFAULT-FOREIGN-LANGUAGE
+
 2010-07-08  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (sys::check-redefinition): signal STYLE-WARNING
