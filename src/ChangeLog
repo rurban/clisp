@@ -1,5 +1,10 @@
 2010-07-09  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (XCC_PICFLAG, XCC_CREATESHARED): set using libtool,
+	like we already do with EXPORT_DYNAMIC_FLAG_SPEC
+
+2010-07-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/pari.lisp (pari-call-out, pari-cgetg): no need
 	for (:LANGUAGE :STDC) since we already use DEFAULT-FOREIGN-LANGUAGE
 	(extract0, extract1, pari-mantissa, pari-set-component)
