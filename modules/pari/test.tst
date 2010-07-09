@@ -479,3 +479,16 @@ pari:pari-real-precision  19
     (show-coverage "LISP --> PARI" *lisp-to-pari*)
     (show-coverage "PARI --> LISP" *pari-to-lisp*)))
 NIL
+
+(progn (setq *trace-output* *error-output*) ; re-enable TRACE, TIME, TIMES
+       (symbol-cleanup '*pari-to-lisp*)
+       (symbol-cleanup '*lisp-to-pari*)
+       (symbol-cleanup 'roundtrip1)
+       (symbol-cleanup 'roundtrip2)
+       (symbol-cleanup 'get-x-ash)
+       (symbol-cleanup 'get-x-ash-neg)
+       (symbol-cleanup 'check-roundtrip)
+       (symbol-cleanup 'id)
+       (symbol-cleanup 'qfi)
+       (symbol-cleanup 'qfr))
+T
