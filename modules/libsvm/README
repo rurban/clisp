@@ -1,0 +1,18 @@
+This directory contains a CLISP add-on module for calling LIBSVM functions.
+See <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>.
+
+To install the libsvm bindings, do the following:
+
+$ ./configure --with-module=libsvm --with-libsvm-prefix=/usr/local/ --cbc build-libsvm
+
+If you have built clisp already:
+
+$ cd build-dir && make MODULES=libsvm MODULE_CONFIGURE_FLAGS=--with-libsvm-prefix=/usr/local/ libsvm && CLISP='./clisp -q -norc' ./clisp-link install libsvm
+
+To test the newly built module:
+
+$ ./clisp -q -norc -i tests/tests -x '(times (run-test "../modules/libsvm/test" :logname "libsvm/test"))'
+
+To try out the newly built module:
+
+$ ./clisp -q -norc -x '(require "libsvm") (in-package libsvm)' -repl -d
