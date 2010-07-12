@@ -46,6 +46,17 @@ PROBLEM
 
 (defparameter f-problem-2-7 (problem 1000 2 7)) F-PROBLEM-2-7
 (libsvm:problem-l f-problem-2-7) 1000
+(length (libsvm:problem-x f-problem-2-7)) 1000
+(length (libsvm:problem-y f-problem-2-7)) 1000
+(libsvm:problem-y-n f-problem-2-7 1) 1d0
+(libsvm:problem-y-n f-problem-2-7 2) -1d0
+(libsvm:problem-y-n f-problem-2-7 3) 1d0
+(libsvm:problem-y-n f-problem-2-7 4) -1d0
+(libsvm:problem-x-n f-problem-2-7 1) #((0 -0.6666666666666667d0) (-1 0d0))
+(libsvm:problem-x-n f-problem-2-7 2) #((0 -0.33333333333333337d0) (-1 0d0))
+(libsvm:problem-x-n f-problem-2-7 3) #((-1 0d0))
+(libsvm:problem-x-n f-problem-2-7 4) #((0 0.33333333333333326d0) (-1 0d0))
+
 (libsvm:save-problem "svm-problem" f-problem-2-7) NIL
 (multiple-value-bind (p maxindex) (libsvm:load-problem "svm-problem")
   (ffi:with-c-place (p-parameter f-parameter)
@@ -88,6 +99,16 @@ PROBLEM
 (libsvm:destroy-problem f-problem-2-7) NIL
 
 (defparameter f-problem-3-7 (problem 1000 3 7)) F-PROBLEM-3-7
+(libsvm:problem-l f-problem-3-7) 1000
+(length (libsvm:problem-x f-problem-3-7)) 1000
+(length (libsvm:problem-y f-problem-3-7)) 1000
+(libsvm:problem-y-n f-problem-3-7 1) 0d0
+(libsvm:problem-y-n f-problem-3-7 3) -1d0
+(libsvm:problem-y-n f-problem-3-7 5) 1d0
+(libsvm:problem-x-n f-problem-3-7 1) #((0 -0.6666666666666667d0) (-1 0d0))
+(libsvm:problem-x-n f-problem-3-7 3) #((-1 0d0))
+(libsvm:problem-x-n f-problem-3-7 5) #((0 0.6666666666666667d0) (-1 0d0))
+
 (libsvm:save-problem "svm-problem" f-problem-3-7) NIL
 (progn
   (setf f-parameter (libsvm:make-parameter :v v-parameter 'LIBSVM::nu 5d-1
