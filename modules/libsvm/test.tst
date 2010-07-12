@@ -27,7 +27,8 @@ T
 ;; create an artificial problem:
 ;; predict the remainder of division by k from n-digits
 (defun task (num divisor base)
-  (flet ((normalize (x d) (- (/ (* 2 x) (1- d)) 1d0)))
+  ;; converting a ratio to a float creates BIGNUMs - avoid that
+  (flet ((normalize (x d) (- (/ (* 2d0 x) (1- d)) 1d0)))
     (values (normalize (rem num divisor) divisor)
             (do ((n num) r (ret ()) (index 0 (1+ index)))
                 ((zerop n)
