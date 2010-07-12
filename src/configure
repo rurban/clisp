@@ -22898,7 +22898,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_have_ffcall" >&5
 $as_echo "$cl_cv_have_ffcall" >&6; }
 if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
-  if  "$ac_cv_build" = "$ac_cv_host" ; then host_arg="";
+  if test "$ac_cv_build" = "$ac_cv_host"; then host_arg="";
   else host_arg=" --host=$ac_cv_host";
   fi
   as_fn_error "despite --with-ffcall, FFCALL was not found
