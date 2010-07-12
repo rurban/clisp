@@ -1,3 +1,9 @@
+2010-07-12  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (*eval-times*): add defvar
+	(my-eval): call TIMES if *EVAL-TIMES* is non-NIL
+	(run-test): accept :TIMES
+
 2010-07-04  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: bug#3024887: make-pipe-output-stream segfaults
