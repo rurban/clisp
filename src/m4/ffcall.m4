@@ -1,5 +1,5 @@
 # -*- Autoconf -*-
-# Copyright (C) 2007-2009 Sam Steingold (GNU GPL2+)
+# Copyright (C) 2007-2010 Sam Steingold (GNU GPL2+)
 
 AC_PREREQ(2.61)
 
@@ -35,7 +35,7 @@ then cl_cv_have_ffcall=yes
 else cl_cv_have_ffcall=no
 fi])
 if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
-  if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
+  if test "$ac_cv_build" = "$ac_cv_host"; then host_arg="";
   else host_arg=" --host=$ac_cv_host";
   fi
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
