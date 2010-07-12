@@ -1,3 +1,8 @@
+2010-07-12  Sam Steingold  <sds@gnu.org>
+
+	* m4/ffcall.m4 (CL_FFCALL): use `test' instead of `[]'
+	Reported by Arseny Slobodyuk <ampy@ich.dvo.ru>
+
 2010-07-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* stream.d (QueryInformationFile_t) [WIN32]: fix calling convention.
