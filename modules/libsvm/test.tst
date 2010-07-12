@@ -45,10 +45,12 @@ TASK
     (libsvm:make-problem :l repeat :x x :y y)))
 PROBLEM
 
-(defparameter f-problem-2-7 (problem 1000 2 7)) F-PROBLEM-2-7
-(libsvm:problem-l f-problem-2-7) 1000
-(length (libsvm:problem-x f-problem-2-7)) 1000
-(length (libsvm:problem-y f-problem-2-7)) 1000
+(defparameter *problem-size* 100000) *PROBLEM-SIZE*
+
+(defparameter f-problem-2-7 (problem *problem-size* 2 7)) F-PROBLEM-2-7
+(= *problem-size* (libsvm:problem-l f-problem-2-7)) T
+(= *problem-size* (length (libsvm:problem-x f-problem-2-7))) T
+(= *problem-size* (length (libsvm:problem-y f-problem-2-7))) T
 (libsvm:problem-y-n f-problem-2-7 1) 1d0
 (libsvm:problem-y-n f-problem-2-7 2) -1d0
 (libsvm:problem-y-n f-problem-2-7 3) 1d0
@@ -66,7 +68,7 @@ PROBLEM
           (ffi:slot p-parameter 'libsvm::kernel_type) libsvm:LINEAR))
   (setf v-parameter (ffi:foreign-value f-parameter))
   (show (libsvm:parameter-alist f-parameter) :pretty t)
-  (list (= maxindex (floor (log (1- 1000) 7)))
+  (list (= maxindex (floor (log (1- *problem-size*) 7)))
         (equalp (ffi:foreign-value p) (ffi:foreign-value f-problem-2-7))))
 (T T)
 
@@ -78,8 +80,8 @@ PROBLEM
     :when (= v (- o)) :do (incf miss) :end)
   (show (list :count+1 (count 1d0 vec) :count-1 (count -1d0 vec)
               :hit hit :miss miss))
-  (length vec))
-1000
+  (= *problem-size* (length vec)))
+T
 
 (defparameter model (libsvm:train f-problem-2-7 f-parameter)) MODEL
 
@@ -91,18 +93,18 @@ PROBLEM
 (let* ((l (libsvm:problem-l f-problem-2-7))
        (y (libsvm:problem-y f-problem-2-7 l))
        (x (libsvm:problem-x f-problem-2-7 l)))
-  (dotimes (i 10 l)
+  (dotimes (i 10 (= l *problem-size*))
     (print (list (aref y i) (libsvm:predict-values model (aref x i))))))
-1000
+T
 (libsvm:save-model "svm-model" model) 0
 (libsvm:destroy-model (libsvm:load-model "svm-model")) NIL
 (libsvm:destroy-model model) NIL
 (libsvm:destroy-problem f-problem-2-7) NIL
 
-(defparameter f-problem-3-7 (problem 1000 3 7)) F-PROBLEM-3-7
-(libsvm:problem-l f-problem-3-7) 1000
-(length (libsvm:problem-x f-problem-3-7)) 1000
-(length (libsvm:problem-y f-problem-3-7)) 1000
+(defparameter f-problem-3-7 (problem *problem-size* 3 7)) F-PROBLEM-3-7
+(= *problem-size* (libsvm:problem-l f-problem-3-7)) T
+(= *problem-size* (length (libsvm:problem-x f-problem-3-7))) T
+(= *problem-size* (length (libsvm:problem-y f-problem-3-7))) T
 (libsvm:problem-y-n f-problem-3-7 1) 0d0
 (libsvm:problem-y-n f-problem-3-7 3) -1d0
 (libsvm:problem-y-n f-problem-3-7 5) 1d0
@@ -124,8 +126,8 @@ T
 (let ((vec (libsvm:cross-validation f-problem-3-7 f-parameter 3)))
   (show (list :count+1 (count 1d0 vec) :count-1 (count -1d0 vec)
               :count-0 (count 0d0 vec)))
-  (length vec))
-1000
+  (= *problem-size* (length vec)))
+T
 
 (defparameter model (libsvm:train f-problem-3-7 f-parameter)) MODEL
 (ffi:enum-from-value 'libsvm:svm_type (libsvm:get-svm-type model)) libsvm:NU_SVC
@@ -137,11 +139,11 @@ T
 (let* ((l (libsvm:problem-l f-problem-3-7))
        (y (libsvm:problem-y f-problem-3-7 l))
        (x (libsvm:problem-x f-problem-3-7 l)))
-  (dotimes (i 10 l)
+  (dotimes (i 10 (= *problem-size* l))
     (print (list (aref y i) (libsvm:predict model (aref x i))
                  (multiple-value-list
                   (libsvm:predict-probability model (aref x i)))))))
-1000
+T
 (libsvm:destroy-model model) NIL
 
 (progn
@@ -159,11 +161,11 @@ T
 (let* ((l (libsvm:problem-l f-problem-3-7))
        (y (libsvm:problem-y f-problem-3-7 l))
        (x (libsvm:problem-x f-problem-3-7 l)))
-  (dotimes (i 10 l)
+  (dotimes (i 10 (= *problem-size* l))
     (print (list (aref y i) (libsvm:predict model (aref x i))
                  (multiple-value-list
                   (libsvm:predict-probability model (aref x i)))))))
-1000
+T
 (libsvm:destroy-model model) NIL
 
 (ffi:validp f-problem-3-7) T
