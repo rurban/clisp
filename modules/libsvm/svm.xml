@@ -32,6 +32,12 @@
 </variablelist>
 </section>
 
+<section id="libsvm-output"><title>Output</title>
+<para>The output from the library functions goes to
+ <varname>*libsvm-output*</varname>, which is initialized to
+ &standard-output-var;.</para>
+</section>
+
 <section id="libsvm-functions"><title>Functions</title>
 
 <section id="libsvm-functions-problem">
