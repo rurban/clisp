@@ -1,6 +1,6 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
-;;; Sam Steingold 1998-2009
+;;; Sam Steingold 1998-2010
 
 #+UNICODE
 (progn

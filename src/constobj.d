@@ -1,7 +1,7 @@
 /*
  * list of all objects known to the C-program ("program-constants")
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-02-20
 
  The symbols are already treated specially in CONSTSYM.
