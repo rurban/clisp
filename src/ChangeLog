@@ -1,3 +1,7 @@
+2010-07-16  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: 4.49+ (2010-07-17)
+
 2010-07-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (cpu) [mips]: by default gcc runs in 32-bit mode,
