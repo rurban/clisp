@@ -416,7 +416,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 <para>&clisp; compiles to platform-independent &bytecode;.</para>
 
 <section id="compile-jit"><title>Just-In-Time Native Compilation</title>
- <subtitle><emphasis role="plat-dep">only in &clisp; built &with;
+ <subtitle><emphasis role="plat-dep">Only in &clisp; built &with;
    &lightning;</emphasis></subtitle>
 <para>The code compiled to &bytecode;s with optimization levels
  <programlisting language="lisp">

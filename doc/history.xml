@@ -440,9 +440,8 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.45</revnumber><date>2008-05-15</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>
-   <ulink url="http://www.cygwin.com/acronyms/#PTC">Experimental</ulink>
-   Just-In-Time compilation via &lightning;.</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara>Just-In-Time compilation
+   (&experimental;) via &lightning;.</simpara></listitem>
    <listitem><simpara>&def-call-out; and &def-c-var; accept &version-k;.
    </simpara></listitem>
    <listitem><simpara>&repl; commands accept arguments.</simpara></listitem>
@@ -470,10 +469,9 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.48</revnumber><date>2009-07-28</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>
-   <ulink url="http://www.cygwin.com/acronyms/#PTC">Experimental</ulink> thread
-    support, see <xref linkend="mt"/></simpara></listitem><listitem><simpara>
-     <link linkend="wait"><function>POSIX:WAIT</function></link>
+ <revdescription><itemizedlist><listitem><simpara>Thread support
+   (&experimental;), see <xref linkend="mt"/></simpara></listitem><listitem>
+   <simpara><link linkend="wait"><function>POSIX:WAIT</function></link>
    </simpara></listitem><listitem><simpara>
      <link linkend="trim-if"><function>EXT:TRIM-IF</function></link>
    </simpara></listitem><listitem><simpara>

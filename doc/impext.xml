@@ -4678,10 +4678,9 @@ Now you can sum doubles:
 
 <section id="mt"><title>Multiple Threads of Execution</title>
 <subtitle><emphasis role="plat-dep">Only in &clisp; built &with;
-  compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
+  configure-time flag <option>--with-threads</option>.</emphasis></subtitle>
 <!-- #ifdef MULTITHREAD -->
-<warning><simpara>This functionality is
-  <emphasis role="strong">experimental</emphasis>.</simpara>
+<warning><simpara>This functionality is &experimental;.</simpara>
  <simpara>Use it at your own risk.</simpara>
  <simpara>Discuss it on <ulink url="ml">clisp-devel</ulink>.</simpara></warning>
 
