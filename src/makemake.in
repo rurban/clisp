@@ -1111,16 +1111,18 @@ fi
 if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
   cpu=sparc
 fi
-if [ "$host_cpu" = sparc64 ] ; then
-  # by default gcc runs in 32-bit mode, so we have to respect that
-  if [ "${XCC_GCC}" = true ]; then
-    case `${XCC} -print-multi-os-directory` in
-      *64) cpu=sparc64 ;;
-      *) cpu=sparc ;;
+if [ "${XCC_GCC}" = true ]; then
+  for platform in sparc mips; do
+    case "${host_cpu}" in
+      ${platform}64*)
+        # by default gcc runs in 32-bit mode, so we have to respect that
+        case `${XCC} -print-multi-os-directory` in
+          *64) cpu=${platform}64 ;;
+          *) cpu=${platform} ;;
+        esac
+        ;;
     esac
-  else
-    cpu=sparc64
-  fi
+  done
 fi
 case $TSYS in mips | r4000)
 # was: case $TSYS in mips | ip* | sgi | risc | r4000)
@@ -1135,21 +1137,12 @@ if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cp
     esac
   fi
 fi
-case "$host_cpu" in
+test -z "$cpu" && case "$host_cpu" in
   hppa*) cpu=hppa ;;
   arm*)  cpu=arm  ;;
-  x86_64) cpu=x86_64 ;;
-  ia64)   cpu=ia64 ;;
-  mips)   cpu=mips ;;
   mips64*) cpu=mips64 ;;
+  * ) cpu=${host_cpu}
 esac
-# Probably obsolete.
-# case $TSYS in 9000/7* | 9000/8* | hp7*)
-#   # HP 9000 Series 700, 800
-#   cpu=hppa ;;
-# esac
-
-test -z "$cpu" && cpu=${host_cpu}
 
 test "${verbose}" = true -o "${verbose}" = yes && \
   cat <<EOF >&2

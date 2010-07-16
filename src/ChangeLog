@@ -1,3 +1,9 @@
+2010-07-13  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (cpu) [mips]: by default gcc runs in 32-bit mode,
+	so use the same heuristic as sparc: when "uname -m" is mips64,
+	set cpu to mips64 only if `gcc -print-multi-os-directory` ends in 64
+
 2010-07-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp (save-problem): use WRITE instead of
