@@ -4800,9 +4800,9 @@ thus &random; &is-e; thread-safe.</para></section>
 </programlisting></para>
 <warning><simpara>The above code may result in a segfault!</simpara>
 <simpara>This is the reason why the multithreading support is still
-&experimental;. If you do not share global &hash-table-t;s between your
-threads and define all your &clos; methods &before-e; spawning threads,
-multithreading should work fine.</simpara></warning>
+&experimental;. However, if you do not share global &hash-table-t;s
+between your threads and define all your &clos; methods &before-e;
+spawning threads, multithreading should work fine.</simpara></warning>
 </section>
 
 </section>
