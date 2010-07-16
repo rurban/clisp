@@ -24,7 +24,7 @@
 </variablelist>
 
 <para>The following functions and macros are exported (please note that
-these features are experimental and the API may be modified in the
+these features are &experimental; and the API may be modified in the
 future).</para>
 
 <variablelist>

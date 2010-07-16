@@ -1089,6 +1089,7 @@
 <!ENTITY must-e '<emphasis role="strong">must</emphasis>'>
 <!ENTITY cannot-e '<emphasis role="strong">cannot</emphasis>'>
 <!ENTITY very-e '<emphasis role="strong">very</emphasis>'>
+<!ENTITY experimental '<emphasis role="strong"><ulink url="http://www.cygwin.com/acronyms/#PTC">experimental</ulink></emphasis>'>
 <!ENTITY charset-glibc-libiconv 'This character set is only available on
                                  platforms with &glibc; or &libiconv;.'>
 <!ENTITY charset-libiconv 'This character set is only available on
