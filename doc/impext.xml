@@ -5453,7 +5453,10 @@ When &string-r; is omitted or &nil;, all the &env-var;s and their values
 are returned in an &alist;.</para>
 
 <para>You can change the value of existing &env-var;s or create new ones
- using <code>(&setf; (&getenv; &string-r;) &nval-r;)</code>.
-</para></section>
+ using <code>(&setf; (&getenv; &string-r;) &nval-r;)</code>.</para>
+
+<para>Use <code>(&setf; (&getenv; &string-r;) &nil;)</code> to remove an
+ &env-var; &string-r;.</para>
+</section>
 
 </chapter>
