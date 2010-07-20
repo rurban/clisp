@@ -1,3 +1,8 @@
+2010-07-20  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (IS_EINVAL_EXTRA) [*bsd]: when ENOTSUP is not defined,
+	use EOPNOTSUPP (e.g., on UNIX_OPENBSD)
+
 2010-07-16  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: 4.49+ (2010-07-17)
