@@ -1,3 +1,8 @@
+2010-07-21  Sam Steingold  <sds@gnu.org>
+
+	* m4/general.m4 (CL_CANONICAL_HOST_CPU): sync with ffcall to use
+	CL_SET_CPU_ABI, CL_CACHE_EGREP_CPP, and substitute host_cpu_abi
+
 2010-07-20  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (IS_EINVAL_EXTRA) [*bsd]: when ENOTSUP is not defined,
