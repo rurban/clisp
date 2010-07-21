@@ -1,4 +1,5 @@
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl -*- Autoconf -*-
+dnl Copyright (C) 1993-2009 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -67,100 +68,87 @@ AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create 
 fi
 ])
 
+dnl CL_CACHE_EGREP_CPP(what,variable,condition)
+AC_DEFUN([CL_CACHE_EGREP_CPP],
+[AC_CACHE_CHECK([for $1], [$2], [AC_EGREP_CPP(yes,
+[#if $3
+  yes
+#endif
+], [$2=yes], [$2=no])])])
+
+dnl CL_SET_CPU_ABI(what,variable,condition,yes_abi,no_abi)
+AC_DEFUN([CL_SET_CPU_ABI],
+[CL_CACHE_EGREP_CPP([$1],[$2],[$3])
+if test $$2 = yes; then
+  host_cpu_abi=$4
+else
+  host_cpu_abi=$5
+fi])
+
 AC_DEFUN([CL_CANONICAL_HOST_CPU],
 [AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
 case "$host_cpu" in
 changequote(,)dnl
   i[4567]86 )
-    host_cpu_instructionset=i386
+    host_cpu_abi=i386
     ;;
   alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu_instructionset=alpha
+    host_cpu_abi=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu_instructionset=hppa
+    host_cpu_abi=hppa
     ;;
   rs6000 )
-    host_cpu_instructionset=powerpc
+    host_cpu_abi=powerpc
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu_instructionset=convex
-    ;;
-  arm* )
-    host_cpu_instructionset=arm
+    host_cpu_abi=convex
     ;;
 changequote([,])dnl
+  arm* )
+    CL_SET_CPU_ABI([ARMel], ffcall_cv_host_armel,
+      [defined(__ARMEL__)],armel,arm)
+    ;;
   mips* )
-    AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
-AC_EGREP_CPP(yes,
-[#if defined(_MIPS_SZLONG)
-#if (_MIPS_SZLONG == 64)
-/* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
-  yes
-#endif
-#endif
-], cl_cv_host_mips64=yes, cl_cv_host_mips64=no)
-])
-if test $cl_cv_host_mips64 = yes; then
-  host_cpu_instructionset=mips64
-else
-  host_cpu_instructionset=mips
-fi
+dnl We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32.
+    CL_CACHE_EGREP_CPP([64-bit MIPS], ffcall_cv_host_mips64,
+      [defined(_MIPS_SZLONG) && (_MIPS_SZLONG == 64)])
+    if test $ffcall_cv_host_mips64 = yes; then
+      host_cpu_abi=mips64
+    else
+dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
+dnl identification (-mips[12] or -mips[34]). But -n32 is commonly used together
+dnl with -mips3, and it's easier to test the CPU identification.
+      CL_SET_CPU_ABI([MIPS with n32 ABI], ffcall_cv_host_mipsn32,
+        [__mips >= 3], mipsn32, mips)
+    fi
     ;;
 dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
   powerpc64 )
-    AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
-AC_EGREP_CPP(yes,
-[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
-  yes
-#endif
-], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
-])
-if test $cl_cv_host_powerpc64 = yes; then
-  host_cpu_instructionset=powerpc64
-else
-  host_cpu_instructionset=powerpc
-fi
+    CL_SET_CPU_ABI([64-bit PowerPC], ffcall_cv_host_powerpc64,
+      [defined(__powerpc64__) || defined(_ARCH_PPC64)], powerpc64, powerpc)
     ;;
 dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
 dnl still generates 32-bit code.
   sparc | sparc64 )
-    AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
-AC_EGREP_CPP(yes,
-[#if defined(__sparcv9) || defined(__arch64__)
-  yes
-#endif
-], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
-])
-if test $cl_cv_host_sparc64 = yes; then
-  host_cpu_instructionset=sparc64
-else
-  host_cpu_instructionset=sparc
-fi
+    CL_SET_CPU_ABI([64-bit SPARC], ffcall_cv_host_sparc64,
+      [defined(__sparcv9) || defined(__arch64__)], sparc64, sparc)
     ;;
 dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
   x86_64 )
-    AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
-AC_EGREP_CPP(yes,
-[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
-  yes
-#endif
-], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
-])
-if test $cl_cv_host_x86_64 = yes; then
-  host_cpu_instructionset=x86_64
-else
-  host_cpu_instructionset=i386
-fi
+    CL_SET_CPU_ABI([64-bit x86_64], ffcall_cv_host_x86_64,
+      [defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)],
+      x86_64, i386)
     ;;
   *)
-    host_cpu_instructionset=$host_cpu
+    host_cpu_abi=$host_cpu
     ;;
 esac
+AC_SUBST(host_cpu_abi)
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
-#ifndef __${host_cpu_instructionset}__
-#define __${host_cpu_instructionset}__ 1
+#ifndef __${host_cpu_abi}__
+#define __${host_cpu_abi}__ 1
 #endif
 EOF
 ])
