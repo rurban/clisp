@@ -550,6 +550,7 @@ X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
 FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
 host='@host@'                       # something like 'sparc-sun-sunos4'
 host_cpu='@host_cpu@'               # something like 'sparc'
+host_cpu_abi='@host_cpu_abi@'       # ditto
 host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
@@ -1102,47 +1103,16 @@ else
 fi
 
 # Main cpu dependencies:
-
-cpu=''
-if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = m68k -o $TSYS = mc68040 ] ; then
-# was: if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 ] ; then
-  cpu=m68k
+cpu=$host_cpu_abi
+if test -z "$cpu"; then
+  echo "$0: WARNING: host_cpu_abi is void; using host_cpu=${host_cpu}" >&2
+  case "$host_cpu" in
+    hppa*) cpu=hppa ;;
+    arm*)  cpu=arm  ;;
+    mips64*) cpu=mips64 ;;
+    * ) cpu=${host_cpu}
+  esac
 fi
-if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
-  cpu=sparc
-fi
-if [ "${XCC_GCC}" = true ]; then
-  for platform in sparc mips; do
-    case "${host_cpu}" in
-      ${platform}64*)
-        # by default gcc runs in 32-bit mode, so we have to respect that
-        case `${XCC} -print-multi-os-directory` in
-          *64) cpu=${platform}64 ;;
-          *) cpu=${platform} ;;
-        esac
-        ;;
-    esac
-  done
-fi
-case $TSYS in mips | r4000)
-# was: case $TSYS in mips | ip* | sgi | risc | r4000)
-  cpu=mips ;;
-esac
-if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o "$host_cpu" = i786 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = i786 -o $TOS = win32 ] ; then
-  cpu=i386
-  # On MacOS X, 'uname -m' says i386, even when gcc runs in 64-bit mode.
-  if [ "${XCC_GCC}" = true ]; then
-    case `${XCC} -print-multi-os-directory` in
-      x86_64) cpu=x86_64 ;;
-    esac
-  fi
-fi
-test -z "$cpu" && case "$host_cpu" in
-  hppa*) cpu=hppa ;;
-  arm*)  cpu=arm  ;;
-  mips64*) cpu=mips64 ;;
-  * ) cpu=${host_cpu}
-esac
 
 test "${verbose}" = true -o "${verbose}" = yes && \
   cat <<EOF >&2
@@ -1153,6 +1123,7 @@ EXPORT_DYNAMIC_FLAG_SPEC=${EXPORT_DYNAMIC_FLAG_SPEC}
    HSYSOS = "${HSYSOS}"
       HOS = "${HOS}"
  host_cpu = "${host_cpu}"
+ host_ABI = "${host_cpu_abi}"
       cpu = "${cpu}"
   host_os = "${host_os}"
      host = "${host}"
