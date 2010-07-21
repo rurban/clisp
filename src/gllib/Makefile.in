@@ -547,6 +547,7 @@ gltests_WITNESS = @gltests_WITNESS@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
+host_cpu_abi = @host_cpu_abi@
 host_os = @host_os@
 host_vendor = @host_vendor@
 htmldir = @htmldir@
