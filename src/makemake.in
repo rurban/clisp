@@ -1484,13 +1484,6 @@ if [ "${LIBTERMCAP}" != "broken" -a -n "${LIBTERMCAP}" ]; then
   XLDFLAGS=${XLDFLAGS}" ${LIBTERMCAP}"
 fi
 
-# the type of library naming
-if [ ${HOS} = "win32" -a ${HSYS} != "win32gcc" ]; then
-  LIB_TYPE="win32";             # foo.lib
-else
-  LIB_TYPE="unix";              # libfoo.a
-fi
-
 test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
 
 test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
@@ -1605,8 +1598,7 @@ if [ "${with_unicode}" != no ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_jisx0201'
 fi
 
-ERROR_INCLUDES=''
-ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
+ERROR_INCLUDES='errunix'
 test $TSYS = master -o $TOS = win32 && ERROR_INCLUDES=$ERROR_INCLUDES' errwin32'
 
 LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread intserial rational'

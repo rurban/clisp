@@ -1,3 +1,7 @@
+2010-07-23  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (LIB_TYPE): remove obsolete unused code
+
 2010-07-21  Sam Steingold  <sds@gnu.org>
 
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU): sync with ffcall to use
