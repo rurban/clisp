@@ -2480,7 +2480,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=${dependsc}${UNICODE_EXTRA}
   fi
   test $f = encoding && depends=$depends''$NLS_INCLUDES
-  test $f = error && depends=$depends''$ERROR_INCLUDES
+  test $f = error && depends=$depends' '$ERROR_INCLUDES
   test $f = lisparit && depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
   test $f = genclisph && depends=$depends' gen.lispbibl'
   for g in $depends ; do
