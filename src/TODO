@@ -267,9 +267,6 @@ Optimize REPLACE so that (replace v v :start1 10 :end1 30 :start2 0 :end2 20)
 doesn't cons. (vectors only, not lists)
 
 
-CLOSE :ABORT T maybe do something on file streams.
-
-
 Having two different handlings of Ctrl-C (once as a serious-condition, once
 directly through tast_break(), bypassing ERROR and SIGNAL) is horrible.
 Introduce a class of SERIOUS-CONDITION and then remove BATCHMODE-BREAK-DRIVER.
