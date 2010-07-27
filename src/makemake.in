@@ -3260,12 +3260,12 @@ else
 fi
 
 manual_print=''
-for f in ${MANPAGES}; do
-  if test -n "$GROFF"; then
+if test -n "$GROFF"; then
+  for f in ${MANPAGES}; do
     manual_print="${manual_print} $f.ps"
     test -n "$PS2PDF" && manual_print="$manual_print $f.pdf"
-  fi
-done
+  done
+fi
 READMES="ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"
 test $TOS = unix && READMES=${READMES}' MAGIC.add'
 test ${HSYSOS} = cygwin && READMES=${READMES}' cygwin.README'

@@ -1,3 +1,7 @@
+2010-07-27  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (manual_print): move `if' outside of the `for' loop
+
 2010-07-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (LIB_TYPE): remove obsolete unused code
