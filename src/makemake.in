@@ -3266,7 +3266,8 @@ if test -n "$GROFF"; then
     test -n "$PS2PDF" && manual_print="$manual_print $f.pdf"
   done
 fi
-READMES="ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"
+TOP_DOC="ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
+READMES="${TOP_DOC} NEWS README README.de README.es"
 test $TOS = unix && READMES=${READMES}' MAGIC.add'
 test ${HSYSOS} = cygwin && READMES=${READMES}' cygwin.README'
 echol "READMES = ${READMES}"
@@ -3281,10 +3282,8 @@ for f in ${MANPAGES}; do
 done
 echol "MANUALS =${manpages1html} \$(TXTFILES) \$(IMPNOTES_FILES)"
 echol
-for f in ${IMPNOTES_FILES} ; do
-  echol "${f} : ${SRCDOCDIR_M}${f}"
-  echotab "\$(LN_S) ${SRCDOCDIR_M}${f} ${f}"
-  echol
+for f in ${IMPNOTES_FILES} ${DOC}; do
+  link_dep "${f}" "${SRCDOCDIR_M}${f}" "${SRCDOCDIR_}${f}"
 done
 EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 VIM_FILES="lisp.vim"
@@ -3311,10 +3310,8 @@ else
   echol
 fi
 
-for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
-  echol "${f} : ${SRCTOPDIR_M}${f}"
-  echotab "-\$(LN_S) ${SRCTOPDIR_}${f} ${f}"
-  echol
+for f in ${TOP_DOC} ; do
+  link_dep "${f}" "${SRCTOPDIR_M}${f}" "${SRCTOPDIR_}${f}"
 done
 
 if [ -n "${SRCDIR}" ] ; then
@@ -3385,14 +3382,6 @@ for f in ${MANPAGES}; do
   echotab "\$(ROFF_MAN) $f.1 > $f.man"
   echol
 done
-
-for f in $DOC ; do
-  echol "${f}.txt : ${SRCDOCDIR_M}${f}.txt"
-  echotab "-\$(LN_S) ${SRCDOCDIR_}${f}.txt ${f}.txt"
-  echol
-done
-
-echol
 
 if [ $CROSS = false ] ; then
   DRIVER_DEP=''; DRIVER_RES=''
@@ -3928,7 +3917,7 @@ echol
 
 echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
-echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
+echotab "-\$(RM) ${TOP_DOC}"
 if [ -n "${SRCDIR}" ] ; then
   line="-\$(RM)"
   for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ${with_jitc} ; do
