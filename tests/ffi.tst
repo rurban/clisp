@@ -823,6 +823,11 @@ FOREIGN-AS-STRING
   (memory-as f 'character 1))
 #\c
 
+(with-c-var (f 'double-float 1) f) 1d0
+(with-c-var (f 'double-float pi) f) #.(float pi 0d0)
+(with-c-var (f 'single-float 0) f) 0f0
+(with-c-var (f 'single-float pi) f) #.(float pi 0f0)
+
 (with-foreign-string (f e b "abcde" :start 1 :end 4
                         #+UNICODE :encoding #+UNICODE charset:ascii)
   (memory-as f 'string 1))
