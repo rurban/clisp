@@ -2041,12 +2041,12 @@ modexp maygc void convert_to_foreign
       return;
     } else if (eq(fvd,S(single_float))) {
       var ffloatjanus* pdata = (ffloatjanus*) data;
-      if (!single_float_p(obj)) goto bad_obj;
+      if (!single_float_p(obj)) obj = coerce_float(obj,S(single_float));
       FF_to_c_float(obj,pdata);
       return;
     } else if (eq(fvd,S(double_float))) {
       var dfloatjanus* pdata = (dfloatjanus*) data;
-      if (!double_float_p(obj)) goto bad_obj;
+      if (!double_float_p(obj)) obj = coerce_float(obj,S(double_float));
       DF_to_c_double(obj,pdata);
       return;
     } else if (eq(fvd,S(boolean))) {

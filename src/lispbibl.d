@@ -16884,7 +16884,7 @@ extern bool number_equal (object x, object y);
  < result: (coerce obj type)
  can trigger GC */
 extern maygc object coerce_float (object obj, object type);
-/* is used by PREDTYPE */
+/* is used by PREDTYPE, FOREIGN */
 
 /* Converts a function's argument to a C 'double'.
  to_double(obj)

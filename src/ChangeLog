@@ -1,3 +1,9 @@
+2010-07-28  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (convert_to_foreign): when fvd is a FLOAT type and obj
+	is not of the right type, call coerce_float so that one can use
+	any REAL to initialize a FLOAT (helps GSLL a LOT!)
+
 2010-07-27  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (manual_print): move `if' outside of the `for' loop
