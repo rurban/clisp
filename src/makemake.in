@@ -3282,8 +3282,11 @@ for f in ${MANPAGES}; do
 done
 echol "MANUALS =${manpages1html} \$(TXTFILES) \$(IMPNOTES_FILES)"
 echol
-for f in ${IMPNOTES_FILES} ${DOC}; do
+for f in ${IMPNOTES_FILES}; do
   link_dep "${f}" "${SRCDOCDIR_M}${f}" "${SRCDOCDIR_}${f}"
+done
+for f in ${DOC}; do
+  link_dep "${f}.txt" "${SRCDOCDIR_M}${f}.txt" "${SRCDOCDIR_}${f}.txt"
 done
 EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 VIM_FILES="lisp.vim"
