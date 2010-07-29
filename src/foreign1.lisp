@@ -1171,7 +1171,7 @@
     (long (format nil "slong_to_I(~A)" argname))
     (ulong (format nil "ulong_to_I(~A)" argname))
     (single-float (format nil "c_float_to_FF((const ffloatjanus*)&~A)" argname))
-    (double-float (format nil "c_double_to_FF((const dfloatjanus*)&~A)" argname))
+    (double-float (format nil "c_double_to_DF((const dfloatjanus*)&~A)" argname))
     (c-pointer
      (let ((addr (format nil "(uintP)(*(void* const *) ~A)" argname)))
        (format nil "~A == 0 ? NIL : make_faddress(GLO(fp_zero),~A)"
@@ -1193,6 +1193,12 @@
     (ulong
      (format nil "if (ulong_p(~A)) *~A=I_to_ulong(~A); else error_ulong(~A)"
              lispobj retaddr lispobj lispobj))
+    (single-float
+     (format nil "if (!single_float_p(~A)) ~A=coerce_float(~A,S(single_float)); FF_to_c_float(~A,(ffloatjanus*)~A)"
+             lispobj lispobj lispobj lispobj retaddr))
+    (double-float
+     (format nil "if (!double_float_p(~A)) ~A=coerce_float(~A,S(double_float)); FF_to_c_float(~A,(ffloatjanus*)~A)"
+             lispobj lispobj lispobj lispobj retaddr))
     (t (format nil "convert_to_foreign(~A,~A,~A,&~A)"
                (object-to-c-value (pass-object rettype)) lispobj retaddr
                (if (flag-set-p flags ff-flag-malloc-free)

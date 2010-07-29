@@ -1,6 +1,8 @@
 2010-07-29  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (convert_to_foreign): minor code simplification
+	* foreign1.lisp (convert-from-foreign): fix a typo
+	(convert-to-foreign): inline float conversion
 
 2010-07-28  Sam Steingold  <sds@gnu.org>
 
