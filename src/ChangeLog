@@ -1,3 +1,7 @@
+2010-07-29  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (convert_to_foreign): minor code simplification
+
 2010-07-28  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (convert_to_foreign): when fvd is a FLOAT type and obj
