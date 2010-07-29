@@ -1700,7 +1700,7 @@ test "${with_unicode}" = no -o "${with_gettext}" = no || \
   LPARTS=$LPARTS' german french spanish russian danish dutch'
 LPARTS=$LPARTS' deprecated'
 
-DOC='LISP-tutorial CLOS-guide'
+TXT_DOCS='LISP-tutorial.txt CLOS-guide.txt'
 
 TXT_FILES='README README.de README.es clisp.c'
 test $CROSS = false -a $HOS = unix && TXT_FILES=$TXT_FILES' distmakefile'
@@ -2158,7 +2158,7 @@ echol
 echolist "FASFILES =" "$LPARTS config" ".fas"
 echol
 
-echolist "TXTFILES =" "$DOC" ".txt"
+echolist "TXTFILES =" "$TXT_DOCS" ""
 echol
 
 echolist "TESTFASFILES =" "$LPARTS config" ".fas" "${RECOMPILEDIR}${NEXT_M}"
@@ -3282,11 +3282,8 @@ for f in ${MANPAGES}; do
 done
 echol "MANUALS =${manpages1html} \$(TXTFILES) \$(IMPNOTES_FILES)"
 echol
-for f in ${IMPNOTES_FILES}; do
+for f in ${IMPNOTES_FILES} ${TXT_DOCS}; do
   link_dep "${f}" "${SRCDOCDIR_M}${f}" "${SRCDOCDIR_}${f}"
-done
-for f in ${DOC}; do
-  link_dep "${f}.txt" "${SRCDOCDIR_M}${f}.txt" "${SRCDOCDIR_}${f}.txt"
 done
 EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 VIM_FILES="lisp.vim"
