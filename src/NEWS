@@ -5,6 +5,8 @@ User visible changes
   See <http://clisp.cons.org/impnotes/evaluation.html#suppress-check-redef>
   for details.
 
+* FFI now converts REALs to FLOATs automatically as necessary.
+
 
 2.49 (2010-07-07)
 =================
