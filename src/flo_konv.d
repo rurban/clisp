@@ -457,10 +457,7 @@ modexp maygc object c_float_to_FF (const ffloatjanus* val_)
     else
       error_overflow(); /* Infinity, Overflow */
   } else {
-    /* The exponent must be increased by FF_exp_mid-126 */
-    if ((FF_exp_mid>126) && (exp > FF_exp_high-FF_exp_mid+126))
-      error_overflow(); /* Overflow */
-    val += (FF_exp_mid - 126) << FF_mant_len;
+    /* Nothing to convert here, because FF_exp_mid = 126. */
     return allocate_ffloat(val);
   }
 }
@@ -470,21 +467,7 @@ modexp maygc object c_float_to_FF (const ffloatjanus* val_)
 modexp void FF_to_c_float (object obj, ffloatjanus* val_)
 {
   var ffloat val = ffloat_value(obj);
-  /* The exponent must be decreased by FF_exp_mid-126 */
-  if (FF_exp_mid>126) {
-    var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); /* e */
-    if (exp < FF_exp_mid-126+1) {
-      if (exp != 0) {
-        /* produce denormalized float */
-        val = (val & minus_bit(FF_exp_len+FF_mant_len)) /* same sign */
-              | (0 << FF_mant_len) /* Exponent 0 */
-              | (((val & (bit(FF_mant_len)-1)) | bit(FF_mant_len)) /* shift mantissa */
-                 >> (FF_exp_mid-126+1 - exp)); /* shift */
-      }
-    } else {
-      val -= (FF_exp_mid - 126) << FF_mant_len;
-    }
-  }
+  /* Nothing to convert or check, because FF_exp_mid = 126. */
   val_->eksplicit = val;
 }
 
@@ -517,10 +500,7 @@ modexp maygc object c_double_to_DF (const dfloatjanus* val_)
     else
       error_overflow(); /* Infinity, Overflow */
   } else {
-    /* The exponent must be increased by DF_exp_mid-1022 */
-    if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-      error_overflow(); /* Overflow */
-    val += (sint64)(DF_exp_mid - 1022) << DF_mant_len;
+    /* Nothing to convert here, because DF_exp_mid = 1022. */
     return allocate_dfloat(val);
   }
   #else
@@ -537,10 +517,7 @@ modexp maygc object c_double_to_DF (const dfloatjanus* val_)
     else
       error_overflow(); /* Infinity, Overflow */
   } else {
-    /* The exponent must be increased by DF_exp_mid-1022 */
-    if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-      error_overflow(); /* Overflow */
-    val.semhi += (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
+    /* Nothing to convert here, because DF_exp_mid = 1022. */
     return allocate_dfloat(val.semhi,val.mlo);
   }
   #endif
@@ -551,39 +528,7 @@ modexp maygc object c_double_to_DF (const dfloatjanus* val_)
 modexp void DF_to_c_double (object obj, dfloatjanus* val_)
 {
   var dfloat val; val = TheDfloat(obj)->float_value;
-  /* The exponent must be decreased by DF_exp_mid-1022. */
-  if (DF_exp_mid>1022) {
-    #ifdef intQsize
-    var uintWL exp = (val >> DF_mant_len) & (bit(DF_exp_len)-1); /* e */
-    if (exp < DF_exp_mid-1022+1) {
-      if (exp != 0) {
-        /* produce denormalised float */
-        val = (val & minus_bit(DF_exp_len+DF_mant_len)) /* same sign */
-              | ((sint64)0 << DF_mant_len) /* Exponent 0 */
-              | (((val & (bit(DF_mant_len)-1)) | bit(DF_mant_len)) /* shift mantissa */
-                 >> (DF_exp_mid-1022+1 - exp)); /* shift */
-      }
-    } else {
-      val -= (sint64)(DF_exp_mid - 1022) << DF_mant_len;
-    }
-    #else
-    var uintWL exp = (val.semhi >> (DF_mant_len-32)) & (bit(DF_exp_len)-1); /* e */
-    if (exp < DF_exp_mid-1022+1) {
-      if (exp != 0) {
-        /* produce denormalised float */
-        var uintWL shiftcount = DF_exp_mid-1022+1 - exp;
-        val.mlo = val.mlo >> shiftcount; /* shift mantissa */
-        val.mlo |= val.semhi << (32-shiftcount);
-        val.semhi = (val.semhi & minus_bit(DF_exp_len+DF_mant_len-32)) /* same sign */
-                    | ((sint32)0 << (DF_mant_len-32)) /* Exponent 0 */
-                    | (((val.semhi & (bit(DF_mant_len-32)-1)) | bit(DF_mant_len-32)) /* shift mantissa */
-                       >> shiftcount); /* shift */
-      }
-    } else {
-      val.semhi -= (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
-    }
-    #endif
-  }
+  /* Nothing to convert or check, because DF_exp_mid = 1022. */
   val_->eksplicit = val;
 }
 

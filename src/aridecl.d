@@ -145,17 +145,14 @@
 #define FF_exp_len    8  /* Number of exponent bits */
 #define FF_mant_len  23  /* Number of mantissa bits */
 /* On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
-   values on other platforms as well, so that most-positive-single-float etc.
-   will be platform independent. */
-#if defined(FAST_FLOAT) || 1
-  #define FF_exp_low  1
-  #define FF_exp_mid  126  /* Unclear to me why that is the "middle"... */
-  #define FF_exp_high 254  /* Exponent 255 is interpreted as NaN/Inf! */
-#else /* I chose the parameters even then symmetrically */
-  #define FF_exp_low  1
-  #define FF_exp_mid  128
-  #define FF_exp_high 255
-#endif
+   values on other platforms as well, so that
+     1. most-positive-single-float etc. will be platform independent,
+     2. in the FFI, the conversion from a Lisp ffloat to a C 'float' is
+        trivial.  */
+#define FF_exp_low  1
+#define FF_exp_mid  126  /* It is unclear to me why that is the "middle",
+                            but IEEE 754 specifies it like this. */
+#define FF_exp_high 254  /* Exponent 255 is interpreted as NaN/Inf! */
 #ifdef TYPECODES
 /* Typeinfo-Byte for FF >=0 : */
   #define FF_type     ffloat_type
@@ -193,17 +190,14 @@
 #define DF_exp_len   11  /* Number of exponent bits */
 #define DF_mant_len  52  /* Anzahl der Bits der Mantisse */
 /* On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
-   values on other platforms as well, so that most-positive-double-float etc.
-   will be platform independent. */
-#if defined(FAST_DOUBLE) || 1
-  #define DF_exp_low  1
-  #define DF_exp_mid  1022 /* Unclear to me why that is the "middle"... */
-  #define DF_exp_high 2046 /* Exponent 2047 is interpreted as NaN/Inf! */
-#else /* I chose the parameters even then symmetrically */
-  #define DF_exp_low  1
-  #define DF_exp_mid  1024
-  #define DF_exp_high 2047
-#endif
+   values on other platforms as well, so that
+     1. most-positive-double-float etc. will be platform independent,
+     2. in the FFI, the conversion from a Lisp dfloat to a C 'double' is
+        trivial.  */
+#define DF_exp_low  1
+#define DF_exp_mid  1022 /* It is unclear to me why that is the "middle",
+                            but IEEE 754 specifies it like this. */
+#define DF_exp_high 2046 /* Exponent 2047 is interpreted as NaN/Inf! */
 #ifdef TYPECODES
 /* Typeinfo-Byte for DF >=0 : */
   #define DF_type     dfloat_type
