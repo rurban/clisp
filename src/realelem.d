@@ -1165,6 +1165,50 @@ local bool dfloat_R_equal (dfloat x, object y)
   return false;
 }
 
+/* ffloat_dfloat_equal(x,y) compares a single-float x with a double-float y.
+ result: true if x=y, else false.
+ Method: Like R_R_equal(allocate_ffloat(x),allocate_dfloat(y)) */
+local bool ffloat_dfloat_equal (ffloat x, dfloat y)
+{
+  /* unpack x: */
+  var signean x_sign;
+  var sintWL x_exp;
+  var uint32 x_mant;
+  ffloat_decode(x, { goto x_zero; }, x_sign=,x_exp=,x_mant=);
+  /* unpack y: */
+  var signean y_sign;
+  var sintL y_exp;
+  ifdef_intQsize({
+    var uint64 y_mant;
+    dfloat_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+    /* compare signs, exponents and mantissas: */
+    if ((x_sign ^ y_sign) < 0) { goto no; }
+    if (x_exp != y_exp) { goto no; }
+    if (y_mant != (uint64)x_mant<<(DF_mant_len-FF_mant_len)) { goto no; }
+  }, {
+    var uint32 y_manthi;
+    var uint32 y_mantlo;
+    dfloat_decode2(y, { goto y_zero; }, y_sign=,y_exp=,y_manthi=,y_mantlo=);
+    /* compare signs, exponents and mantissas: */
+    if ((x_sign ^ y_sign) < 0) { goto no; }
+    if (x_exp != y_exp) { goto no; }
+    if (!(y_manthi == x_mant>>(32-(DF_mant_len-FF_mant_len))
+          && y_mantlo == x_mant<<(DF_mant_len-FF_mant_len)))
+      { goto no; }
+  });
+  return true;
+ x_zero:
+  ifdef_intQsize({
+    if (DF_uexp(y)==0) { return true; }
+  }, {
+    if (DF_uexp(y.semhi)==0) { return true; }
+  });
+  return false;
+ y_zero:
+  no:
+  return false;
+}
+
 /* EQUALP-hash-code of a real number:
  Mixture of exponent, length, first 32 bits,
  but so that (hashcode (rational x)) = (hashcode x)

@@ -7,7 +7,8 @@
 	(DF_decode): Use it.
 	(dfloat_decode2): New macro, extracted from DF_decode2.
 	(DF_decode2): Use it.
-	* realelem.d (ffloat_R_equal, dfloat_R_equal): New functions.
+	* realelem.d (ffloat_R_equal, dfloat_R_equal, ffloat_dfloat_equal): New
+	functions.
 	* compelem.d (ffloat_N_equal, dfloat_N_equal): New functions.
 
 2010-08-01  Bruno Haible  <bruno@clisp.org>
