@@ -922,6 +922,249 @@ local bool R_R_equal (object x, object y)
    return false;
 }}
 
+/* ffloat_R_equal(x,y) compares a single-float x with a real number y,
+ result: true if x=y, else false.
+ Method: Like R_R_equal(allocate_ffloat(x),y) */
+local bool ffloat_R_equal (ffloat x, object y)
+{
+  /* x float, y float or rational.
+     unpack x and y, return a sign, a mantissa
+     (NUDS with highest set bit) and an exponent. */
+  SAVE_NUM_STACK /* save num_stack */
+  var signean x_sign;
+  var uintD* x_MSDptr;
+  var uintC x_len;
+  var sintL x_exp;
+  var signean y_sign;
+  var uintD* y_MSDptr;
+  var uintC y_len;
+  var sintL y_exp;
+  {
+    var uint32 x_mant;
+    ffloat_decode(x, { goto x_zero; }, x_sign=,x_exp=,x_mant=);
+    x_mant = x_mant << (32-(FF_mant_len+1));
+    num_stack_need(32/intDsize, x_MSDptr=,); x_len = 32/intDsize;
+    set_32_Dptr(x_MSDptr,x_mant);
+  }
+  if (!R_rationalp(y)) {
+    floatcase(y, { /* y SF */
+      var uint32 y_mant;
+      SF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+      y_mant = y_mant << (32-(SF_mant_len+1));
+      num_stack_need(32/intDsize, y_MSDptr=,); y_len = 32/intDsize;
+      set_32_Dptr(y_MSDptr,y_mant);
+    }, { /* y FF */
+      var uint32 y_mant;
+      FF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+      y_mant = y_mant << (32-(FF_mant_len+1));
+      num_stack_need(32/intDsize, y_MSDptr=,); y_len = 32/intDsize;
+      set_32_Dptr(y_MSDptr,y_mant);
+    }, { /* y DF */
+      ifdef_intQsize({
+        var uint64 y_mant;
+        DF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+        y_mant = y_mant << (64-(DF_mant_len+1));
+        num_stack_need(64/intDsize, y_MSDptr=,);
+        y_len = 64/intDsize;
+        set_32_Dptr(&y_MSDptr[0],(uint32)(y_mant>>32));
+        set_32_Dptr(&y_MSDptr[32/intDsize],(uint32)y_mant);
+      }, {
+        var uint32 y_manthi;
+        var uint32 y_mantlo;
+        DF_decode2(y, { goto y_zero; }, y_sign=,y_exp=,y_manthi=,y_mantlo=);
+        y_manthi = (y_manthi << (64-(DF_mant_len+1)))
+          | (y_mantlo >> ((DF_mant_len+1)-32));
+        y_mantlo = y_mantlo << (64-(DF_mant_len+1));
+        num_stack_need(64/intDsize, y_MSDptr=,);
+        y_len = 64/intDsize;
+        set_32_Dptr(&y_MSDptr[0],y_manthi);
+        set_32_Dptr(&y_MSDptr[32/intDsize],y_mantlo);
+      });
+    }, { /* y LF */
+      LF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_MSDptr=,y_len=,);
+    });
+  } else {
+    var uintL y_den_exp;
+    var uintD* y_LSDptr;
+    var uintL s;
+    if (RA_integerp(y))
+       y_den_exp = 0;
+    else {
+      y_den_exp = I_power2p(TheRatio(y)->rt_den);
+      if (y_den_exp == 0)
+        { goto no; } /* x float, y's denominator not a power of 2 */
+      y_den_exp--;
+      y = TheRatio(y)->rt_num;
+    }
+    I_to_NDS(y,y_MSDptr=,y_len=,y_LSDptr=); /* fetch NDS */
+    if (y_len == 0) { goto y_zero; }
+    /* not all leading intDsize+1 bits are equal. */
+    if ((sintD)y_MSDptr[0] < 0) /* if <0, negate */
+      { y_sign = -1; neg_loop_down(y_LSDptr,y_len); }
+    else
+      { y_sign = 0; }
+    /* not all leading intDsize+1 bits are =0. */
+    if (y_MSDptr[0] == 0) /* normalize (remove max. 1 nulldigit) */
+      { y_MSDptr++; y_len--; }
+    /* now y_MSDptr[0]/=0 and y_len>0. */
+    /* normalize leading bit to 1: */
+    integerlengthD(y_MSDptr[0], s = intDsize - );
+    if (s > 0) {
+      begin_arith_call();
+      shiftleft_loop_down(y_LSDptr,y_len,s,0);
+      end_arith_call();
+    }
+    y_exp = (sintL)((uintL)y_len * intDsize - s) - (sintL)y_den_exp;
+  }
+  /* compare signs, exponents and mantissas: */
+  if ((x_sign ^ y_sign) < 0) { goto no; }
+  if (x_exp != y_exp) { goto no; }
+  if (x_len > y_len) {
+    if (test_loop_up(&x_MSDptr[y_len],x_len-y_len)) goto no;
+    x_len = y_len;
+  } else if (y_len > x_len)
+    { if (test_loop_up(&y_MSDptr[x_len],y_len-x_len)) goto no; }
+  if (compare_loop_up(x_MSDptr,y_MSDptr,x_len)) goto no;
+  /* comparison complies. */
+  RESTORE_NUM_STACK /* restore num_stack */
+  return true;
+ x_zero:
+  RESTORE_NUM_STACK /* restore num_stack */
+  if (R_zerop(y)) { return true; } else { return false; }
+ y_zero:
+  no:
+  RESTORE_NUM_STACK /* restore num_stack */
+  return false;
+}
+
+/* dfloat_R_equal(x,y) compares a double-float x with a real number y,
+ result: true if x=y, else false.
+ Method: Like R_R_equal(allocate_dfloat(x),y) */
+local bool dfloat_R_equal (dfloat x, object y)
+{
+  /* x float, y float or rational.
+     unpack x and y, return a sign, a mantissa
+     (NUDS with highest set bit) and an exponent. */
+  SAVE_NUM_STACK /* save num_stack */
+  var signean x_sign;
+  var uintD* x_MSDptr;
+  var uintC x_len;
+  var sintL x_exp;
+  var signean y_sign;
+  var uintD* y_MSDptr;
+  var uintC y_len;
+  var sintL y_exp;
+  ifdef_intQsize({
+    var uint64 x_mant;
+    dfloat_decode(x, { goto x_zero; }, x_sign=,x_exp=,x_mant=);
+    x_mant = x_mant << (64-(DF_mant_len+1));
+    num_stack_need(64/intDsize, x_MSDptr=,);
+    x_len = 64/intDsize;
+    set_32_Dptr(&x_MSDptr[0],(uint32)(x_mant>>32));
+    set_32_Dptr(&x_MSDptr[32/intDsize],(uint32)x_mant);
+  }, {
+    var uint32 x_manthi;
+    var uint32 x_mantlo;
+    dfloat_decode2(x, { goto x_zero; }, x_sign=,x_exp=,x_manthi=,x_mantlo=);
+    x_manthi = (x_manthi << (64-(DF_mant_len+1)))
+      | (x_mantlo >> ((DF_mant_len+1)-32));
+    x_mantlo = x_mantlo << (64-(DF_mant_len+1));
+    num_stack_need(64/intDsize, x_MSDptr=,);
+    x_len = 64/intDsize;
+    set_32_Dptr(&x_MSDptr[0],x_manthi);
+    set_32_Dptr(&x_MSDptr[32/intDsize],x_mantlo);
+  });
+  if (!R_rationalp(y)) {
+    floatcase(y, { /* y SF */
+      var uint32 y_mant;
+      SF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+      y_mant = y_mant << (32-(SF_mant_len+1));
+      num_stack_need(32/intDsize, y_MSDptr=,); y_len = 32/intDsize;
+      set_32_Dptr(y_MSDptr,y_mant);
+    }, { /* y FF */
+      var uint32 y_mant;
+      FF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+      y_mant = y_mant << (32-(FF_mant_len+1));
+      num_stack_need(32/intDsize, y_MSDptr=,); y_len = 32/intDsize;
+      set_32_Dptr(y_MSDptr,y_mant);
+    }, { /* y DF */
+      ifdef_intQsize({
+        var uint64 y_mant;
+        DF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_mant=);
+        y_mant = y_mant << (64-(DF_mant_len+1));
+        num_stack_need(64/intDsize, y_MSDptr=,);
+        y_len = 64/intDsize;
+        set_32_Dptr(&y_MSDptr[0],(uint32)(y_mant>>32));
+        set_32_Dptr(&y_MSDptr[32/intDsize],(uint32)y_mant);
+      }, {
+        var uint32 y_manthi;
+        var uint32 y_mantlo;
+        DF_decode2(y, { goto y_zero; }, y_sign=,y_exp=,y_manthi=,y_mantlo=);
+        y_manthi = (y_manthi << (64-(DF_mant_len+1)))
+          | (y_mantlo >> ((DF_mant_len+1)-32));
+        y_mantlo = y_mantlo << (64-(DF_mant_len+1));
+        num_stack_need(64/intDsize, y_MSDptr=,);
+        y_len = 64/intDsize;
+        set_32_Dptr(&y_MSDptr[0],y_manthi);
+        set_32_Dptr(&y_MSDptr[32/intDsize],y_mantlo);
+      });
+    }, { /* y LF */
+      LF_decode(y, { goto y_zero; }, y_sign=,y_exp=,y_MSDptr=,y_len=,);
+    });
+  } else {
+    var uintL y_den_exp;
+    var uintD* y_LSDptr;
+    var uintL s;
+    if (RA_integerp(y))
+       y_den_exp = 0;
+    else {
+      y_den_exp = I_power2p(TheRatio(y)->rt_den);
+      if (y_den_exp == 0)
+        { goto no; } /* x float, y's denominator not a power of 2 */
+      y_den_exp--;
+      y = TheRatio(y)->rt_num;
+    }
+    I_to_NDS(y,y_MSDptr=,y_len=,y_LSDptr=); /* fetch NDS */
+    if (y_len == 0) { goto y_zero; }
+    /* not all leading intDsize+1 bits are equal. */
+    if ((sintD)y_MSDptr[0] < 0) /* if <0, negate */
+      { y_sign = -1; neg_loop_down(y_LSDptr,y_len); }
+    else
+      { y_sign = 0; }
+    /* not all leading intDsize+1 bits are =0. */
+    if (y_MSDptr[0] == 0) /* normalize (remove max. 1 nulldigit) */
+      { y_MSDptr++; y_len--; }
+    /* now y_MSDptr[0]/=0 and y_len>0. */
+    /* normalize leading bit to 1: */
+    integerlengthD(y_MSDptr[0], s = intDsize - );
+    if (s > 0) {
+      begin_arith_call();
+      shiftleft_loop_down(y_LSDptr,y_len,s,0);
+      end_arith_call();
+    }
+    y_exp = (sintL)((uintL)y_len * intDsize - s) - (sintL)y_den_exp;
+  }
+  /* compare signs, exponents and mantissas: */
+  if ((x_sign ^ y_sign) < 0) { goto no; }
+  if (x_exp != y_exp) { goto no; }
+  if (x_len > y_len) {
+    if (test_loop_up(&x_MSDptr[y_len],x_len-y_len)) goto no;
+    x_len = y_len;
+  } else if (y_len > x_len)
+    { if (test_loop_up(&y_MSDptr[x_len],y_len-x_len)) goto no; }
+  if (compare_loop_up(x_MSDptr,y_MSDptr,x_len)) goto no;
+  /* comparison complies. */
+  RESTORE_NUM_STACK /* restore num_stack */
+  return true;
+ x_zero:
+  RESTORE_NUM_STACK /* restore num_stack */
+  if (R_zerop(y)) { return true; } else { return false; }
+ y_zero:
+  no:
+  RESTORE_NUM_STACK /* restore num_stack */
+  return false;
+}
+
 /* EQUALP-hash-code of a real number:
  Mixture of exponent, length, first 32 bits,
  but so that (hashcode (rational x)) = (hashcode x)

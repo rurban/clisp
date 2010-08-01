@@ -10,16 +10,19 @@
          uintQ mant = Mantissa (>= 2^DF_mant_len, < 2^(DF_mant_len+1)) */
   #define float_value_semhi  float_value
   #define DF_uexp(x)  (((x) >> DF_mant_len) & (bit(DF_exp_len)-1))
+  #define dfloat_decode(val, zero_statement, sign_assignment,exp_assignment,mant_assignment) do { \
+    var uintWL uexp = DF_uexp(val);                                      \
+    if (uexp==0) {                                                       \
+      zero_statement; /* e=0 -> number 0.0 */                            \
+    } else {                                                             \
+      exp_assignment (sintWL)(uexp - DF_exp_mid); /* exponent */         \
+      unused (sign_assignment ((sint64)val >> 63));  /* sign */          \
+      mant_assignment (bit(DF_mant_len) | (val & (bit(DF_mant_len)-1))); \
+    }                                                                    \
+  } while(0)
   #define DF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment) do { \
-    var dfloat _x = TheDfloat(obj)->float_value;                        \
-    var uintWL uexp = DF_uexp(_x);                                      \
-    if (uexp==0) {                                                      \
-      zero_statement; /* e=0 -> number 0.0 */                           \
-    } else {                                                            \
-      exp_assignment (sintWL)(uexp - DF_exp_mid); /* exponent */        \
-      unused (sign_assignment ((sint64)_x >> 63));  /* sign */          \
-      mant_assignment (bit(DF_mant_len) | (_x & (bit(DF_mant_len)-1))); \
-    }                                                                   \
+    var dfloat _x = TheDfloat(obj)->float_value;                                     \
+    dfloat_decode(_x,zero_statement,sign_assignment,exp_assignment,mant_assignment); \
   } while(0)
 #else
 /* DF_decode2(obj, zero_statement, sign=,exp=,manthi=,mantlo=);
@@ -31,9 +34,9 @@
                               (>= 2^DF_mant_len, < 2^(DF_mant_len+1)) */
   #define float_value_semhi  float_value.semhi
   #define DF_uexp(semhi)  (((semhi) >> (DF_mant_len-32)) & (bit(DF_exp_len)-1))
-  #define DF_decode2(obj,zero_statement,sign_assignment,exp_assignment,manthi_assignment,mantlo_assignment) do { \
-    var uint32 semhi = TheDfloat(obj)->float_value.semhi;               \
-    var uint32 mlo = TheDfloat(obj)->float_value.mlo;                   \
+  #define dfloat_decode2(val,zero_statement,sign_assignment,exp_assignment,manthi_assignment,mantlo_assignment) do { \
+    var uint32 semhi = (val).semhi;                                     \
+    var uint32 mlo = (val).mlo;                                         \
     var uintWL uexp = DF_uexp(semhi);                                   \
     if (uexp==0) {                                                      \
       zero_statement; /* e=0 -> number 0.0 */                           \
@@ -41,9 +44,11 @@
       exp_assignment (sintWL)(uexp - DF_exp_mid);             /* exponent */ \
       unused (sign_assignment sign_of_sint32((sint32)(semhi))); /* sign */ \
       manthi_assignment (bit(DF_mant_len-32) | (semhi & (bit(DF_mant_len-32)-1))); \
-      mantlo_assignment mlo;                                             \
+      mantlo_assignment mlo;                                            \
     }                                                                   \
   } while(0)
+  #define DF_decode2(obj,zero_statement,sign_assignment,exp_assignment,manthi_assignment,mantlo_assignment) \
+    dfloat_decode2(TheDfloat(obj)->float_value,zero_statement,sign_assignment,exp_assignment,manthi_assignment,mantlo_assignment)
 #endif
 
 /* Encoding a Double-Float: */

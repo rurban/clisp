@@ -864,3 +864,33 @@ global /* local */ bool N_N_equal (object x, object y)
          (R_R_equal(TheComplex(x)->c_real,TheComplex(y)->c_real)
           ? R_R_equal(TheComplex(x)->c_imag,TheComplex(y)->c_imag) : false));
 }
+
+/* ffloat_N_equal(x,y) compares a single-float x with a number y,
+ Returns: true if x=y, false otherwise. */
+local bool ffloat_N_equal (ffloat x, object y);
+/* Method:
+ y real => ffloat_R_equal
+ y complex => (= x (realpart y)) && (zerop (imagpart y)) */
+local bool ffloat_N_equal (ffloat x, object y)
+{
+  return N_realp(y)
+         ? /* y real */ ffloat_R_equal(x,y)
+         : /* y complex */ (R_zerop(TheComplex(y)->c_imag)
+                            ? ffloat_R_equal(x,TheComplex(y)->c_real)
+                            : false);
+}
+
+/* dfloat_N_equal(x,y) compares a double-float x with a number y,
+ Returns: true if x=y, false otherwise. */
+local bool dfloat_N_equal (dfloat x, object y);
+/* Method:
+ y real => dfloat_R_equal
+ y complex => (= x (realpart y)) && (zerop (imagpart y)) */
+local bool dfloat_N_equal (dfloat x, object y)
+{
+  return N_realp(y)
+         ? /* y real */ dfloat_R_equal(x,y)
+         : /* y complex */ (R_zerop(TheComplex(y)->c_imag)
+                            ? dfloat_R_equal(x,TheComplex(y)->c_real)
+                            : false);
+}

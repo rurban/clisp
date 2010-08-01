@@ -8,17 +8,21 @@
 #        sintWL exp = Exponent (vorzeichenbehaftet),
 #        uintL mant = Mantisse (>= 2^FF_mant_len, < 2^(FF_mant_len+1))
   #define FF_uexp(x)  (((x) >> FF_mant_len) & (bit(FF_exp_len)-1))
+  #define ffloat_decode(val, zero_statement, sign_assignment,exp_assignment,mant_assignment)  \
+    {                                                                        \
+      var uintBWL uexp = FF_uexp(val);                                       \
+      if (uexp==0) {                                                         \
+        zero_statement # e=0 -> Zahl 0.0                                     \
+      } else {                                                               \
+        exp_assignment (sintWL)((uintWL)uexp - FF_exp_mid); # Exponent       \
+        unused (sign_assignment sign_of_sint32((sint32)(val))); # Vorzeichen \
+        mant_assignment (bit(FF_mant_len) | (val & (bit(FF_mant_len)-1)));   \
+      }                                                                      \
+    }
   #define FF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment)  \
     {                                                                      \
       var ffloat _x = ffloat_value(obj);                                   \
-      var uintBWL uexp = FF_uexp(_x);                                      \
-      if (uexp==0) {                                                       \
-        zero_statement # e=0 -> Zahl 0.0                                   \
-      } else {                                                             \
-        exp_assignment (sintWL)((uintWL)uexp - FF_exp_mid); # Exponent     \
-        unused (sign_assignment sign_of_sint32((sint32)(_x))); # Vorzeichen \
-        mant_assignment (bit(FF_mant_len) | (_x & (bit(FF_mant_len)-1)));  \
-      }                                                                    \
+      ffloat_decode(_x,zero_statement,sign_assignment,exp_assignment,mant_assignment); \
     }
 
 # Einpacken eines Single-Float:
