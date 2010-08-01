@@ -1,5 +1,17 @@
 2010-08-01  Bruno Haible  <bruno@clisp.org>
 
+	New functions for comparing an ffloat or dfloat with a number.
+	* ffloat.d (ffloat_decode): New macro, extracted from FF_decode.
+	(FF_decode): Use it.
+	* dfloat.d (dfloat_decode): New macro, extracted from DF_decode.
+	(DF_decode): Use it.
+	(dfloat_decode2): New macro, extracted from DF_decode2.
+	(DF_decode2): Use it.
+	* realelem.d (ffloat_R_equal, dfloat_R_equal): New functions.
+	* compelem.d (ffloat_N_equal, dfloat_N_equal): New functions.
+
+2010-08-01  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (dfloat, dfloatjanus): Make definition in clisp.h
 	consistent with the one in lispbibl.d.
 
