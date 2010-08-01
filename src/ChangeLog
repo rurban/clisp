@@ -1,3 +1,10 @@
+2010-08-01  Bruno Haible  <bruno@clisp.org>
+
+	* aridecl.d (FF_exp_low, FF_exp_mid, FF_exp_high, DF_exp_low,
+	DF_exp_mid, DF_exp_high): Hardcode values from IEEE 754.
+	* flo_konv.d (c_float_to_FF, FF_to_c_float, c_double_to_DF,
+	DF_to_c_double): Simplify accordingly.
+
 2010-07-29  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (convert_to_foreign): minor code simplification
