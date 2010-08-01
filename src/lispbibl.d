@@ -5443,13 +5443,17 @@ typedef dfloat_ *  Dfloat;
 %% #ifdef intQsize
 %%   emit_typedef("uint64","dfloat");
 %% #else
-%%   #if BIG_ENDIAN_P
+%%   #if BIG_ENDIAN_P || (defined(ARM) && !defined(__ARM_EABI__))
 %%     emit_typedef("struct {uint32 semhi,mlo;}","dfloat");
 %%   #else
 %%     emit_typedef("struct {uint32 mlo,semhi;}","dfloat");
 %%   #endif
 %% #endif
-%% emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
+%% #ifdef FAST_DOUBLE
+%%   emit_typedef("union { dfloat eksplicit; double machine_double; }","dfloatjanus");
+%% #else
+%%   emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
+%% #endif
 
 /* Single- and Double-Floats */
   #define float_value  representation.eksplicit
