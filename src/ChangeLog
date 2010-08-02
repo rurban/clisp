@@ -1,7 +1,10 @@
+2010-08-02  Sam Steingold  <sds@gnu.org>
+
+	* predtype.d (elt_compare_t): add a typedef
+
 2010-08-01  Bruno Haible  <bruno@clisp.org>
 
-	* realelem.d (ffloat_dfloat_equal): Optimize in case FAST_FLOAT &&
-	FAST_DOUBLE.
+	* realelem.d (ffloat_dfloat_equal) [FAST_FLOAT&FAST_DOUBLE]: Optimize.
 
 2010-08-01  Bruno Haible  <bruno@clisp.org>
 

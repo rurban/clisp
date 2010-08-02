@@ -249,68 +249,39 @@ modexp bool equal (object obj1, object obj2)
  < result: true, if objects are equal */
 global bool equalp (object obj1, object obj2);
 /* Element-by-element comparisons for various vector types. count > 0. */
-local bool elt_compare_T_T (object dv1, uintL index1,
+typedef bool elt_compare_t (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count);
-local bool elt_compare_T_Char (object dv1, uintL index1,
-                               object dv2, uintL index2, uintL count);
-local bool elt_compare_T_Bit (object dv1, uintL index1,
-                              object dv2, uintL index2, uintL count);
-local bool elt_compare_T_2Bit (object dv1, uintL index1,
-                               object dv2, uintL index2, uintL count);
-local bool elt_compare_T_4Bit (object dv1, uintL index1,
-                               object dv2, uintL index2, uintL count);
-local bool elt_compare_T_8Bit (object dv1, uintL index1,
-                               object dv2, uintL index2, uintL count);
-local bool elt_compare_T_16Bit (object dv1, uintL index1,
-                                object dv2, uintL index2, uintL count);
-local bool elt_compare_T_32Bit (object dv1, uintL index1,
-                                object dv2, uintL index2, uintL count);
-local bool elt_compare_Char_Char (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_Bit (object dv1, uintL index1,
-                                object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_2Bit (object dv1, uintL index1,
-                                 object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_4Bit (object dv1, uintL index1,
-                                 object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_8Bit (object dv1, uintL index1,
-                                 object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_16Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_Bit_32Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_2Bit_2Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_2Bit_4Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_2Bit_8Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_2Bit_16Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_2Bit_32Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_4Bit_4Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_4Bit_8Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_4Bit_16Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_4Bit_32Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_8Bit_8Bit (object dv1, uintL index1,
-                                  object dv2, uintL index2, uintL count);
-local bool elt_compare_8Bit_16Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_8Bit_32Bit (object dv1, uintL index1,
-                                   object dv2, uintL index2, uintL count);
-local bool elt_compare_16Bit_16Bit (object dv1, uintL index1,
-                                    object dv2, uintL index2, uintL count);
-local bool elt_compare_16Bit_32Bit (object dv1, uintL index1,
-                                    object dv2, uintL index2, uintL count);
-local bool elt_compare_32Bit_32Bit (object dv1, uintL index1,
-                                    object dv2, uintL index2, uintL count);
-local bool elt_compare (object dv1, uintL index1,
-                        object dv2, uintL index2, uintL count);
+local elt_compare_t elt_compare_T_T;
+local elt_compare_t elt_compare_T_Char;
+local elt_compare_t elt_compare_T_Bit;
+local elt_compare_t elt_compare_T_2Bit;
+local elt_compare_t elt_compare_T_4Bit;
+local elt_compare_t elt_compare_T_8Bit;
+local elt_compare_t elt_compare_T_16Bit;
+local elt_compare_t elt_compare_T_32Bit;
+local elt_compare_t elt_compare_Char_Char;
+local elt_compare_t elt_compare_Bit_Bit;
+local elt_compare_t elt_compare_Bit_2Bit;
+local elt_compare_t elt_compare_Bit_4Bit;
+local elt_compare_t elt_compare_Bit_8Bit;
+local elt_compare_t elt_compare_Bit_16Bit;
+local elt_compare_t elt_compare_Bit_32Bit;
+local elt_compare_t elt_compare_2Bit_2Bit;
+local elt_compare_t elt_compare_2Bit_4Bit;
+local elt_compare_t elt_compare_2Bit_8Bit;
+local elt_compare_t elt_compare_2Bit_16Bit;
+local elt_compare_t elt_compare_2Bit_32Bit;
+local elt_compare_t elt_compare_4Bit_4Bit;
+local elt_compare_t elt_compare_4Bit_8Bit;
+local elt_compare_t elt_compare_4Bit_16Bit;
+local elt_compare_t elt_compare_4Bit_32Bit;
+local elt_compare_t elt_compare_8Bit_8Bit;
+local elt_compare_t elt_compare_8Bit_16Bit;
+local elt_compare_t elt_compare_8Bit_32Bit;
+local elt_compare_t elt_compare_16Bit_16Bit;
+local elt_compare_t elt_compare_16Bit_32Bit;
+local elt_compare_t elt_compare_32Bit_32Bit;
+local elt_compare_t elt_compare;
 
 local bool elt_compare_T_T (object dv1, uintL index1,
                             object dv2, uintL index2, uintL count)
