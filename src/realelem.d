@@ -1170,6 +1170,15 @@ local bool dfloat_R_equal (dfloat x, object y)
  Method: Like R_R_equal(allocate_ffloat(x),allocate_dfloat(y)) */
 local bool ffloat_dfloat_equal (ffloat x, dfloat y)
 {
+#if defined(FAST_FLOAT) && defined(FAST_DOUBLE)
+  /* Method: Use a floating-point comparison. This is possible because
+     we don't support NaN values. */
+  ffloatjanus x_;
+  dfloatjanus y_;
+  x_.eksplicit = x;
+  y_.eksplicit = y;
+  return (double)x_.machine_float == y_.machine_double;
+#else
   /* unpack x: */
   var signean x_sign;
   var sintWL x_exp;
@@ -1207,6 +1216,7 @@ local bool ffloat_dfloat_equal (ffloat x, dfloat y)
  y_zero:
   no:
   return false;
+#endif
 }
 
 /* EQUALP-hash-code of a real number:

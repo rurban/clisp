@@ -1,5 +1,10 @@
 2010-08-01  Bruno Haible  <bruno@clisp.org>
 
+	* realelem.d (ffloat_dfloat_equal): Optimize in case FAST_FLOAT &&
+	FAST_DOUBLE.
+
+2010-08-01  Bruno Haible  <bruno@clisp.org>
+
 	New functions for comparing an ffloat or dfloat with a number.
 	* ffloat.d (ffloat_decode): New macro, extracted from FF_decode.
 	(FF_decode): Use it.
