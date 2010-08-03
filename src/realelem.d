@@ -1165,6 +1165,83 @@ local bool dfloat_R_equal (dfloat x, object y)
   return false;
 }
 
+/* ffloat_uint32_equal(x,y) compares a single-float x with an unsigned 32-bit
+ integer y,
+ result: true if x=y, else false. */
+local bool ffloat_uint32_equal (ffloat x, uint32 y)
+{
+  /* unpack x: */
+  var signean x_sign;
+  var sintWL x_exp;
+  var uint32 x_mant;
+  ffloat_decode(x, { goto x_zero; }, x_sign=,x_exp=,x_mant=);
+  if (x_sign < 0) /* implies x < 0 */
+    { goto no; }
+  if (x_exp <= 0) /* implies 0 < x < 1 */
+    { goto no; }
+  if (x_exp >= 32+1) /* implies x >= 2^32 */
+    { goto no; }
+  x_mant = x_mant << (32-(FF_mant_len+1)); /* >= 2^31, < 2^32 */
+  /* Test whether y * 2^(32-x_exp) == x_mant. */
+  return (y << (32-x_exp)) == x_mant && (y >> (x_exp-1)) < 2;
+ x_zero:
+  return y==0;
+ no:
+  return false;
+}
+
+/* dfloat_uint32_equal(x,y) compares a double-float x with an unsigned 32-bit
+ integer y,
+ result: true if x=y, else false. */
+local bool dfloat_uint32_equal (dfloat x, uint32 y)
+{
+#if defined(FAST_DOUBLE)
+  dfloatjanus x_;
+  x_.eksplicit = x;
+  /* This cast does not introduce rounding errors, because
+     DF_mant_len+1 >= 32. */
+  return x_.machine_double == (double)y;
+#else
+  /* unpack x: */
+  var signean x_sign;
+  var sintL x_exp;
+  ifdef_intQsize({
+    var uint64 x_mant;
+    dfloat_decode(x, { goto x_zero; }, x_sign=,x_exp=,x_mant=);
+    if (x_sign < 0) /* implies x < 0 */
+      { goto no; }
+    if (x_exp <= 0) /* implies 0 < x < 1 */
+      { goto no; }
+    if (x_exp >= 32+1) /* implies x >= 2^32 */
+      { goto no; }
+    x_mant = x_mant << (64-(DF_mant_len+1)); /* >= 2^63, < 2^64 */
+    /* Test whether y * 2^(64-x_exp) == x_mant. */
+    return ((uint64)y << (64-x_exp)) == x_mant
+           && (y >> (x_exp-1)) < 2;
+  }, {
+    var uint32 x_manthi;
+    var uint32 x_mantlo;
+    dfloat_decode2(x, { goto x_zero; }, x_sign=,x_exp=,x_manthi=,x_mantlo=);
+    if (x_sign < 0) /* implies x < 0 */
+      { goto no; }
+    if (x_exp <= 0) /* implies 0 < x < 1 */
+      { goto no; }
+    if (x_exp >= 32+1) /* implies x >= 2^32 */
+      { goto no; }
+    x_manthi = (x_manthi << (64-(DF_mant_len+1)))
+               | (x_mantlo >> ((DF_mant_len+1)-32));
+    x_mantlo = x_mantlo << (64-(DF_mant_len+1));
+    /* Test whether y * 2^(64-x_exp) == 2^32 * x_manthi + x_mantlo. */
+    return (y << (32-x_exp)) == x_manthi && 0 == x_mantlo
+           && (y >> (x_exp-1)) < 2;
+  });
+ x_zero:
+  return y==0;
+ no:
+  return false;
+#endif
+}
+
 /* ffloat_dfloat_equal(x,y) compares a single-float x with a double-float y.
  result: true if x=y, else false.
  Method: Like R_R_equal(allocate_ffloat(x),allocate_dfloat(y)) */
