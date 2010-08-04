@@ -3439,8 +3439,8 @@ global maygc bool elt_fill (object dv, uintL index, uintL count, object element)
  > index2: start index in dv2
  > count: number of elements to be copied, > 0
  can trigger GC */
-global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
-                               uintL count) {
+global maygc void elt_reverse (object dv1, uintL index1,
+                               object dv2, uintL index2, uintL count) {
 #define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
   index2 += count-1;
   switch (Array_type(dv1)) {
@@ -3504,7 +3504,7 @@ global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index
     case Array_type_sb32vector: {
       var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
       var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
-      SIMPLE_REVERSE(ptr1,ptr2,count) ;
+      SIMPLE_REVERSE(ptr1,ptr2,count);
     }
       break;
     case Array_type_sstring: { /* Simple-String */
@@ -3513,19 +3513,13 @@ global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index
         var const cint8* ptr1 = &TheS8string(dv1)->data[index1];
         SstringCase(dv2,{
           var cint8* ptr2 = &TheS8string(dv2)->data[index2];
-          dotimespL(count,count, {
-            *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           var cint16* ptr2 = &TheS16string(dv2)->data[index2];
-          dotimespL(count,count, {
-                *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           var cint32* ptr2 = &TheS32string(dv2)->data[index2];
-          dotimespL(count,count, {
-            *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           error_nilarray_store();
         });
@@ -3548,15 +3542,11 @@ global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index
         },{
           var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
           var cint16* ptr2 = &TheS16string(dv2)->data[index2];
-          dotimespL(count,count, {
-            *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
           var cint32* ptr2 = &TheS32string(dv2)->data[index2];
-          dotimespL(count,count, {
-            *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           error_nilarray_store();
         });
@@ -3593,9 +3583,7 @@ global maygc void elt_reverse (object dv1, uintL index1, object dv2, uintL index
         },{
           var const cint32* ptr1 = &TheS32string(dv1)->data[index1];
           var cint32* ptr2 = &TheS32string(dv2)->data[index2];
-          dotimespL(count,count, {
-            *ptr2-- = *ptr1++;
-          });
+          SIMPLE_REVERSE(ptr1,ptr2,count);
         },{
           error_nilarray_store();
         });
