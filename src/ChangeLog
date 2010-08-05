@@ -1,3 +1,9 @@
+2010-08-05  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Fix for a bug#3039298 introduced by 2010-04-13 patch: short 
+	(DOS) filenames aren't handled properly.
+	* w32shell.c (real_path): care of the zero byte at the end of filename.
+
 2010-08-04  Sam Steingold  <sds@gnu.org>
 
 	* array.d (elt_reverse): use SIMPLE_REVERSE for strings too
