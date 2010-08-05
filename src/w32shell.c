@@ -390,7 +390,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
             if (l != oldl) {
               int restlen =
                 saved_char?(name_len - (nametocheck_end - nameout)):0;
-              memmove(nametocheck+l,nametocheck_end,restlen);
+              memmove(nametocheck+l,nametocheck_end,restlen+1);
             }
             strncpy(nametocheck,wfd.cFileName,l);
             nametocheck_end = nametocheck + l;
