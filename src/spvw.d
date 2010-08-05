@@ -2209,6 +2209,7 @@ local void print_banner (void)
   terpri(&STACK_0);
   write_sstring(&STACK_0,asciz_to_string(GETTEXT("Type :h and hit Enter for context help."),O(internal_encoding)));
   terpri(&STACK_0); terpri(&STACK_0);
+  finish_output(STACK_0);
   skipSTACK(1);
 }
 
