@@ -224,10 +224,102 @@ static void emit_export_declaration (char *prefix, char *o, char *suffix) {
   printf("%s %s%s;\n",prefix,o,suffix);
 }
 
+#if defined(TYPECODES) && 0 /* cannot always enable: redefines typecode macro */
+struct typecode_entry {
+  char* name;
+  int code;
+  int vectorP;
+  int simpleP;
+  int array_simpleP;
+  int simple_vector_P;
+  int general_vector_P;
+  int simple_string_P;
+  int stringP;
+  int arrayP;
+  int mdarrayP;
+  int closureP;
+};
+#undef typecode
+#define typecode(te)   ((te)->code)
+#define CHECK_FIELD(test)   if (test##p(te) != te->test##P) {        \
+  fprintf(stderr,#test "p(%s=%d)=%d, should be %d\n",                \
+          te->name,te->code,test##p(te),te->test##P);                \
+  ret = false;                                                       \
+ }
+static bool check_typecode_entry (struct typecode_entry *te) {
+  bool ret = true;
+  CHECK_FIELD(vector);
+  CHECK_FIELD(simple);
+  CHECK_FIELD(array_simple);
+  CHECK_FIELD(simple_vector_);
+  CHECK_FIELD(general_vector_);
+  CHECK_FIELD(simple_string_);
+  CHECK_FIELD(string);
+  CHECK_FIELD(array);
+  CHECK_FIELD(mdarray);
+  CHECK_FIELD(closure);
+  return ret;
+}
+struct typecode_entry all_typecodes[] = {
+  { "machine_type",    machine_type,       0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "subr_type",       subr_type,          0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "char_type",       char_type,          0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "system_type",     system_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "symbol_type",     symbol_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "cons_type",       cons_type,          0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "closure_type",    closure_type,       0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+  { "structure_type",  structure_type,     0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "stream_type",     stream_type,        0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "orecord_type",    orecord_type,       0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "instance_type",   instance_type,      0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "lrecord_type",    lrecord_type,       0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "mdarray_type",    mdarray_type,       0, 0, 0, 0, 0, 0, 0, 1, 1, 0 },
+  { "sbvector_type",   sbvector_type,      1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sb2vector_type",  sb2vector_type,     1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sb4vector_type",  sb4vector_type,     1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sb8vector_type",  sb8vector_type,     1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sb16vector_type", sb16vector_type,    1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sb32vector_type", sb32vector_type,    1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { "sstring_type",    sstring_type,       1, 1, 1, 0, 0, 1, 1, 1, 0, 0 },
+  { "svector_type",    svector_type,       1, 1, 1, 1, 1, 0, 0, 1, 0, 0 },
+  { "bvector_type",    bvector_type,       1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "b2vector_type",   b2vector_type,      1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "b4vector_type",   b4vector_type,      1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "b8vector_type",   b8vector_type,      1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "b16vector_type",  b16vector_type,     1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "b32vector_type",  b32vector_type,     1, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { "string_type",     string_type,        1, 0, 0, 0, 0, 0, 1, 1, 0, 0 },
+  { "vector_type",     vector_type,        1, 0, 0, 0, 1, 0, 0, 1, 0, 0 },
+  { "fixnum_type",     fixnum_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "sfloat_type",     sfloat_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "bignum_type",     bignum_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "ffloat_type",     ffloat_type,        0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { "ratio_type",      ratio_type,         0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "dfloat_type",     dfloat_type,        0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "complex_type",    complex_type,       0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { "lfloat_type",     lfloat_type,        0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+};
+int typecode_count = sizeof(all_typecodes)/sizeof(struct typecode_entry);
+static void check_typecodes (void) {
+  int i, failure_count = 0;
+  for (i=0; i<typecode_count; i++)
+    if (!check_typecode_entry(&(all_typecodes[i])))
+      failure_count++;
+  if (failure_count>0) {
+    fprintf(stderr,"failed %d typecodes out of %d\n",
+            failure_count,typecode_count);
+    exit(1);
+  }
+}
+#else
+#define check_typecodes()
+#endif
+
 int main(int argc, char* argv[])
 {
   char buf[BUFSIZ];
 
+  check_typecodes();
   header_f = stdout;
   if (argc >= 2) {              /* open the test file and start it */
     test_f = fopen(argv[1],"w");
