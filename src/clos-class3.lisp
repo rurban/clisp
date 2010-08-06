@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part 3: Class definition and redefinition.
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2008
+;;;; Sam Steingold 1998 - 2010
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -1737,13 +1737,14 @@
                                         &key name (direct-superclasses '())
                                              ;; The following keys come from ENSURE-CLASS.
                                              ((:direct-slots direct-slots-as-lists) '())
-                                             (direct-default-initargs '()) (documentation nil)
+                                             (direct-default-initargs '())
                                              ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                                              ((names names) nil)
                                              ((kconstructor kconstructor) nil)
                                              ((boa-constructors boa-constructors) '())
                                              ((copier copier) nil)
                                              ((predicate predicate) nil)
+                                             (documentation nil)
                                              ((direct-slots direct-slots-as-metaobjects) '())
                                              ((slots slots) '()) ((size size) 1)
                                         &allow-other-keys)
@@ -1774,8 +1775,8 @@
                                                  ;; The following keys come from ENSURE-CLASS.
                                                  ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
                                                  (direct-default-initargs '() direct-default-initargs-p)
-                                                 (documentation nil documentation-p)
                                                  ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                                                 (documentation nil documentation-p)
                                                  ((names names) nil names-p)
                                                  ((kconstructor kconstructor) nil kconstructor-p)
                                                  ((boa-constructors boa-constructors) '() boa-constructors-p)
@@ -1787,8 +1788,7 @@
                                             &allow-other-keys)
   ;; metaclass ⊆ <structure-class>
   (declare (ignore generic-accessors generic-accessors-p direct-slots-as-lists
-                   direct-slots-as-metaobjects direct-default-initargs
-                   documentation documentation-p))
+                   direct-slots-as-metaobjects direct-default-initargs))
   (when (or (eq situation 't) direct-superclasses-p)
     (check-metaclass-mix (if name-p name (class-classname class))
                          direct-superclasses
@@ -1831,6 +1831,8 @@
         (error-of-type 'error
           (TEXT "(~S ~S): metaclass ~S does not support shared slots")
                 'DEFCLASS name 'STRUCTURE-CLASS))))
+  (when documentation-p
+    (setf (class-documentation class) documentation))
   (when (or (eq situation 't) direct-superclasses-p direct-default-initargs-p)
     (setf (class-default-initargs class)
           (checked-compute-default-initargs class)))
@@ -1869,7 +1871,7 @@
   class)
 
 ;; DEFSTRUCT-Hook
-(defun define-structure-class (name names keyword-constructor boa-constructors copier predicate all-slots direct-slots) ; ABI
+(defun define-structure-class (name names keyword-constructor boa-constructors copier predicate all-slots direct-slots documentation) ; ABI
   (setf (find-class name)
         (make-instance-<structure-class> <structure-class>
           :name name
@@ -1886,6 +1888,7 @@
                   (1+ (slot-definition-location (car (last all-slots))))
                   1)
           :generic-accessors nil
+          :documentation documentation
           'clos::defclass-form 'defstruct)))
 (defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))

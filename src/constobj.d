@@ -339,7 +339,7 @@
   /* The date of the last change of the bytecode interpreter
      or the arglist of any built-in function in FUNTAB or FUNTABR */
   /* when changing, remove legacy ABI! */
-  LISPOBJ(version,"(20080430)")
+  LISPOBJ(version,"(20100806)")
 #ifdef MACHINE_KNOWN
   LISPOBJ(machine_type_string,"NIL")
   LISPOBJ(machine_version_string,"NIL")

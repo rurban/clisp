@@ -491,6 +491,16 @@ pl
   (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
 (10 100 110)
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3040648&group_id=1355
+(defstruct documented-struct "Doc String" a b) DOCUMENTED-STRUCT
+(documentation 'documented-struct 'structure) "Doc String"
+(setf (documentation 'documented-struct 'structure) "New Doc") "New Doc"
+(documentation 'documented-struct 'structure) "New Doc"
+(defstruct (documented-struct (:type vector)) "vector" a b) DOCUMENTED-STRUCT
+(documentation 'documented-struct 'structure) "vector"
+(setf (documentation 'documented-struct 'structure) "vector1") "vector1"
+(documentation 'documented-struct 'structure) "vector1"
+
 ;; Check that the compiler can inline (setf foo) functions.
 (progn
   (proclaim '(inline (setf foo21)))
