@@ -1,3 +1,8 @@
+2010-08-06  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* makemake.in (cygwin_finish): use sophisticated grep string to 
+	make cygwin dependence check more reliable.
+
 2010-08-05  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (print_banner): flush *standard-output*
