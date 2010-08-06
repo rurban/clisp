@@ -123,9 +123,9 @@
         (setf (documentation class 't) new-value)
         (call-next-method))))
   (:method (new-value (x symbol) (doc-type (eql 'structure)))
-    (sys::%set-documentation x 'type new-value))
+    (setf (documentation x 'type) new-value))
   (:method (new-value (x symbol) (doc-type (eql 'class)))
-    (sys::%set-documentation x 'type new-value))
+    (setf (documentation x 'type) new-value))
   (:method (new-value (x method-combination) (doc-type (eql 't)))
     (setf (method-combination-documentation x) new-value))
   (:method

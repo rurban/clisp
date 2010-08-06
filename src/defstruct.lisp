@@ -1,6 +1,6 @@
 ;;; Sources for CLISP DEFSTRUCT macro
 ;;; Bruno Haible 1988-2005
-;;; Sam Steingold 1998-2006, 2010
+;;; Sam Steingold 1998-2010
 ;;; German comments translated into English: Stefan Kain 2003-01-14
 
 (in-package "SYSTEM")
@@ -1094,8 +1094,8 @@
                              ',boa-constructors
                              ',copier-option
                              ',predicate-option)))
-           ,(if (eq type-option 'T)
-              `(CLOS::DEFINE-STRUCTURE-CLASS ',name
+           ,@(if (eq type-option 'T)
+              `((CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform
                  ',keyword-constructor
                  ',boa-constructors
@@ -1106,8 +1106,11 @@
                           'clos::make-load-form-<structure-effective-slot-definition>))
                  (LIST ,@(make-load-form-slot-list
                           directslotlist slotdefaultdirectslots slotdefaultvars
-                          'clos::make-load-form-<structure-direct-slot-definition>)))
-              `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
+                          'clos::make-load-form-<structure-direct-slot-definition>))
+                 ',docstring))
+              `((CLOS::UNDEFINE-STRUCTURE-CLASS ',name)
+                ;; see documentation.lisp: we map STRUCTURE to TYPE
+                (sys::%set-documentation ',name 'TYPE ',docstring)))
            ,@constructor-forms)
          ,@(if (and named-option predicate-option)
              (ds-make-pred predicate-option type-option name slotlist size))
@@ -1117,8 +1120,6 @@
                                   directslotlist)
                ,@(ds-make-writers name names type-option conc-name-option
                                   directslotlist)))
-         ;; see documentation.lisp: we map STRUCTURE to TYPE
-         (sys::%set-documentation ',name 'TYPE ,docstring)
          ,@(when (eq type-option 'T)
              (list
                (if print-object-option
