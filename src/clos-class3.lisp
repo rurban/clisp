@@ -81,7 +81,7 @@
                ;; Typical beginner error: Omission of the parentheses around the
                ;; slot-specs. Probably someone who knows DEFSTRUCT and uses
                ;; DEFCLASS for the first time.
-               (clos-warning (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
+               (clos-warm 'simple-clos-novice-warning (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
                  'defclass name (list slot-specs) slot-specs))
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
@@ -291,10 +291,6 @@
                  (return)))
               (:DEFAULT-INITARGS
                (let ((list (rest option)))
-                 (when (and (consp list) (null (cdr list)) (listp (car list)))
-                   (setq list (car list))
-                   (clos-warning (TEXT "~S ~S: option ~S should be written ~S")
-                     'defclass name option (cons ':DEFAULT-INITARGS list)))
                  (when (oddp (length list))
                    (error-of-type 'ext:source-program-error
                      :form whole-form
@@ -2101,9 +2097,9 @@
               ;; nested REP-loop.
               (*make-instances-obsolete-caller* 'make-instances-obsolete))
           (if (eq caller 'defclass)
-            (clos-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+            (clos-warn 'class-obsolescence-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
               caller name)
-            (clos-warning (TEXT "~S: instances of class ~S are made obsolete")
+            (clos-warn 'class-obsolescence-warning (TEXT "~S: instances of class ~S are made obsolete")
               caller name))))
       ;; Create a new class-version. (Even if there are no instances: the
       ;; shared-slots may need change.)

@@ -1,5 +1,24 @@
 2010-08-09  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (clos-style-warning, clos-novice-warning)
+	(class-obsolescence-warning): add
+	(gf-already-called-warning, gf-replacing-method-warning): inherit
+	from CLOS-STYLE-WARNING, not CLOS-WARNING
+	* init.lisp, clos-package.lisp (clos-style-warning)
+	(clos-novice-warning, class-obsolescence-warning): export
+	* clos-class3.lisp (defclass):
+	the novice warning is now of type CLOS-NOVICE-WARNING;
+	drop the weird non-standard :DEFAULT-INITARGS cleanup and warning
+	(make-instances-obsolete-<semi-standard-class>-nonrecursive):
+	obsolescence warnings are now of type CLASS-OBSOLESCENCE-WARNING
+	* clos-genfun2b.lisp (std-add-method): do not use
+	WARN-IF-GF-ALREADY-CALLED, mention the method in the warnings message
+	(std-remove-method): do not use GF-ALREADY-CALLED-WARNING,
+	one warning instead of two
+	(gf-already-called-warning, warn-if-gf-already-called): remove
+
+2010-08-09  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-DEFUN): when redefining a functions with the
 	same signature, issue a STYLE-WARNING, not a WARNING
 

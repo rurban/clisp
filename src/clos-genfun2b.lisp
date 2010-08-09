@@ -827,7 +827,10 @@
       'std-add-method method (method-generic-function method) gf))
   (check-method-qualifiers gf method)
   ;; The method is checked. Now add it:
-  (warn-if-gf-already-called gf)
+  (when (need-gf-already-called-warning-p gf)
+    (clos-warn 'simple-gf-already-called-warning
+      (TEXT "Adding method ~S to an already called generic function ~S")
+      method gf))
   (let ((old-method (find method (safe-gf-methods gf) :test #'methods-agree-p)))
     (when old-method
       (clos-warn 'simple-gf-replacing-method-warning
@@ -883,8 +886,9 @@
   (let ((old-method (find method (safe-gf-methods gf))))
     (when old-method
       (when (need-gf-already-called-warning-p gf)
-        (gf-already-called-warning gf)
-        (clos-warning (TEXT "Removing method ~S in ~S") old-method gf))
+        (clos-warn 'simple-gf-already-called-warning
+          (TEXT "Removing method ~S from an already called generic function ~S")
+          old-method gf))
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -1116,8 +1120,7 @@
   (defun finalize-slow-gf (gf)
       (set-funcallable-instance-function gf (prototype-factory gf)))
     (defun gf-never-called-p (gf)
-      (eq (sys::closure-codevec gf) prototype-code))
-    (defun warn-if-gf-already-called (gf) )))
+      (eq (sys::closure-codevec gf) prototype-code))))
 
 ;; Call of a generic function.
 ;; Without any caching: Compute the effective method at each call.
@@ -1224,12 +1227,6 @@
          (not (member (sys::closure-name gf)
                       *dynamically-modifiable-generic-function-names*
                       :test #'equal))))
-  (defun gf-already-called-warning (gf)
-    (clos-warn 'simple-gf-already-called-warning
-      (TEXT "The generic function ~S is being modified, but has already been called.")
-      gf))
-  (defun warn-if-gf-already-called (gf)
-    (when (need-gf-already-called-warning-p gf) (gf-already-called-warning gf)))
 ) ; let
 
 

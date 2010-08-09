@@ -11,13 +11,15 @@ User visible changes
 --------------------
 
 * Redefinition warnings are now of type STYLE-WARNING.
+  Some CLOS warnings are now of type STYLE-WARNING.
   See <http://clisp.cons.org/impnotes/evaluation.html#suppress-check-redef>
+  and <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn>
   for details.
 
 * FFI now converts REALs to FLOATs automatically as necessary.
 
 * Bug fixes:
-  + Fix documentation strings handlind for structs (bug#3040648).
+  + Fix documentation strings handling for structs (bug#3040648).
 
 
 2.49 (2010-07-07)

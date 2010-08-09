@@ -308,13 +308,20 @@
 ;       |-- style-warning
 ;       |   |
 ;       |   |-- simple-style-warning
-;       |
-;       |-- clos-warning
+;       |   |
+;       |   |------------+
+;       |                |
+;       |-- clos-warning |
+;           |            |
+;           |------------+-- clos-style-warning
+;           |                |
+;           |                |-- gf-already-called-warning
+;           |                |
+;           |                |-- gf-replacing-method-warning
+;           |                |
+;           |                |-- class-obsolescence-warning
 ;           |
-;           |-- gf-already-called-warning
-;           |
-;           |-- gf-replacing-method-warning
-;
+;           |-- clos-novice-warning
 
 ;; X3J13 writeup <CONDITION-SLOTS:HIDDEN> wants the slot names to be hidden,
 ;; (e.g. no slot named `package', `stream', `pathname'), hence we prepend $.
@@ -439,14 +446,19 @@
 
   ; CLOS user notifications [CLISP specific]
   (define-condition clos:clos-warning (warning) ())
+  (define-condition clos:clos-novice-warning (clos:clos-warning) ())
 
-    ; CLOS: generic function is being modified, but has already been called
-    (define-condition clos:gf-already-called-warning (clos:clos-warning) ())
-    ; CLISP specific
+    (define-condition clos:clos-style-warning (style-warning clos:clos-warning) ())
 
-    ; CLOS: replacing method in a GF
-    (define-condition clos:gf-replacing-method-warning (clos:clos-warning) ())
-    ; CLISP specific
+      ; CLOS: generic function is being modified, but has already been called
+      (define-condition clos:gf-already-called-warning (clos:clos-style-warning) ())
+
+      ; CLOS: replacing method in a GF
+      (define-condition clos:gf-replacing-method-warning (clos:clos-style-warning) ())
+
+      ; CLOS: class obsolescence
+      (define-condition clos:class-obsolescence-warning (clos:clos-style-warning) ())
+
 
 ;; These shouldn't be separate types but we cannot adjoin slots without
 ;; defining subtypes.
@@ -491,8 +503,11 @@
 
 ;; CLOS warnings
 (define-condition clos::simple-clos-warning (simple-condition clos:clos-warning) ())
+(define-condition clos::simple-clos-novice-warning (simple-condition clos:clos-novice-warning) ())
+(define-condition clos::simple-clos-style-warning (simple-condition clos:clos-style-warning) ())
 (define-condition clos::simple-gf-already-called-warning (simple-condition clos:gf-already-called-warning) ())
 (define-condition clos::simple-gf-replacing-method-warning (simple-condition clos:gf-replacing-method-warning) ())
+(define-condition clos::simple-class-obsolescence-warning (simple-condition clos:class-obsolescence-warning) ())
 
 ;; All conditions created by the C runtime code are of type simple-condition.
 ;; Need the following types. Don't use them for discrimination.

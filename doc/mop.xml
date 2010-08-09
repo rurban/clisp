@@ -5358,8 +5358,9 @@ cache of the dependent when it is updated.</para>
 <section id="mop-clisp-warn">
  <title>Warning <classname>CLOS:CLOS-WARNING</classname></title>
 
-<para>When &clisp; encounters suspicious &clos; code, it issues a
- &warning-t; of type <classname>CLOS:CLOS-WARNING</classname>.
+<para>When &clisp; encounters suspicious or suboptimal &clos; code,
+ it issues a &warning-t; of type <classname>CLOS:CLOS-WARNING</classname>
+ or a &style-warning-t; of type <classname>CLOS:CLOS-STYLE-WARNING</classname>.
  To suppress the undesired warnings (&not-e; recommended!) use
  &set-global-handler; with &muffle-warning; on the appropriate
  &warning-t; type;.
@@ -5370,7 +5371,7 @@ cache of the dependent when it is updated.</para>
   <classname>CLOS:GF-ALREADY-CALLED-WARNING</classname></title>
 
 <para>This is a hint that the order in which program files are loaded
- (order of definitions, order of macro expansions, or similar) is wrong.
+ (order of definitions, order of macro expansions, or similar) may be wrong.
 Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
                         language="lisp">
 (defclass ware () ((title :initarg :title :accessor title)))
@@ -5395,6 +5396,7 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
   &ansi-cl; and the &amop; as <quote>standard generic functions</quote>,
   to which users may add methods.
   This warning is &not-e; issued for such functions.</para></note>
+&clos-style-warn;
 
 <simplesect id="mop-clisp-gf-already-called-warning-motivation">
  <title>Motivation</title>
@@ -5438,6 +5440,7 @@ The programmer who programmed the first
  method expects that <varname>*book-sales-statistics*</varname> gets
  augmented.  If the implementation gives no warning, one of the two
  programmers will waste time debugging.</para>
+&clos-style-warn;
 
 <simplesect id="mop-clisp-gf-replacing-method-warning-motivation">
  <title>Motivation</title>
@@ -5448,8 +5451,35 @@ The programmer who programmed the first
  Additionally, the programmers may not even have intended to replace the
  method. They may have intended cumulative effects of the two methods.
 </para></simplesect>
-
 </section> <!-- mop-clisp-gf-replacing-method-warning -->
+
+<section id="class-obsolescence-warning"><title>Warning
+  <classname>CLOS:CLASS-OBSOLESCENCE-WARNING</classname></title>
+
+<para>This is a hint that different parts of the program define the same
+&class; incompatibly, and some objects, created to the old
+specification, have been obsoleted by the new one.
+Example: in addition to the code
+ <link linkend="mop-clisp-gf-already-called-warning-code">above</link>:
+ <programlisting language="lisp">
+(defclass ware ()
+  ((title :initarg :title :accessor title)
+   (year :initarg :year :accessor year)))
+</programlisting>
+Evaluating the above will obsolete all objects of type
+<classname>ware</classname>s, <classname>book</classname>s etc
+created so far, i.e., their components will become inaccessible.</para>
+&clos-style-warn;
+
+<simplesect id="class-obsolescence-warning-motivation">
+  <title>Motivation</title>
+<para>In addition to the
+ <link linkend="mop-clisp-gf-already-called-warning-motivation">above</link>,
+ this warning tells the programmers that they are losing some objects
+ they have already created.</para>
+</simplesect> <!-- class-obsolescence-warning-motivation -->
+</section>    <!-- class-obsolescence-warning -->
+
 </section> <!-- mop-clisp-warn -->
 </section> <!-- mop-clisp -->
 
