@@ -174,4 +174,5 @@
           method-call-error-method method-call-error-argument-list
           standard-stablehash structure-stablehash
           clos-warning gf-already-called-warning gf-replacing-method-warning
+          clos-novice-warning clos-style-warning class-obsolescence-warning
 )        )

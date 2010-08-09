@@ -200,3 +200,8 @@
 <!ENTITY reinit-keep-value '<para>Unless there is a specific note to the
   contrary, then during reinitialization, if an initialization argument
   is not supplied, the previously stored value is left unchanged.</para>'>
+<!ENTITY clos-style-warn '<note><title>This is a &style-warning-t;</title>
+  <para>This warning is actually a &style-warning-t; because it indicates the
+  behavior officially sanctioned by the standard and useful in some situations.
+  We only warn on it because it <emphasis>may</emphasis> lead to confusing
+  behavior for inexperienced users.</para></note>'>
