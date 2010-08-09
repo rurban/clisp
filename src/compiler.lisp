@@ -3392,11 +3392,13 @@ for-value   NIL or T
           ;;   but misses `:method's in `defgeneric' forms,
           ;; - the above check works only for already defined generic
           ;;   functions but not for generic functions defined in this file.
-          (c-warn (TEXT "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
-                  symbol (c-source-point-location (second kf))
-                  (equalp signature (third kf))
-                  (sig-to-list (third kf))
-                  (sig-to-list signature))))
+          (if (equalp signature (third kf))
+              (c-style-warn (TEXT "Function ~s~% was already defined~a")
+                            symbol (c-source-point-location (second kf)))
+              (c-warn (TEXT "Function ~s~% was already defined~a~% with the signature~%~a~% it is being re-defined with a new signature~%~a")
+                      symbol (c-source-point-location (second kf))
+                      (sig-to-list (third kf))
+                      (sig-to-list signature)))))
       (pushnew (list symbol (make-c-source-point) signature *seclass-dirty*)
                *known-functions* :test #'equal :key #'car)
       (when lambdabody
