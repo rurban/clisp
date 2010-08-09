@@ -1,5 +1,10 @@
 2010-08-09  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-DEFUN): when redefining a functions with the
+	same signature, issue a STYLE-WARNING, not a WARNING
+
+2010-08-09  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-source-location): fix the messages,
 	messed-up by the 2009-10-28 patch
 
