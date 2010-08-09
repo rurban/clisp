@@ -1894,10 +1894,10 @@ for-value   NIL or T
       (format nil (if (and *compile-file-pathname*
                            (equalp file *compile-file-truename*))
                     #1=""
-                    (format nil (TEXT "in file ~S ") file)))
+                    (format nil (TEXT " in file ~S ") file)))
       (format nil (if (= lineno1 lineno2)
-                    (TEXT "in line ~D ")
-                    (TEXT "in lines ~D..~D "))
+                    (TEXT " in line ~D ")
+                    (TEXT " in lines ~D..~D "))
               lineno1 lineno2))
     #1#))
 
