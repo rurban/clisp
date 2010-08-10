@@ -16,6 +16,8 @@
 	(std-remove-method): do not use GF-ALREADY-CALLED-WARNING,
 	one warning instead of two
 	(gf-already-called-warning, warn-if-gf-already-called): remove
+	* clos-genfun3.lisp (ensure-generic-function-using-class-<t>):
+	do not call WARN-IF-GF-ALREADY-CALLED
 
 2010-08-09  Sam Steingold  <sds@gnu.org>
 

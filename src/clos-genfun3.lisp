@@ -129,7 +129,10 @@
         ;; MOP p. 51 says that an error should be signalled in this case,
         ;; but ANSI CL says that CHANGE-CLASS is used to modify the GF.
         (change-class gf generic-function-class))
-      (warn-if-gf-already-called gf)
+      (when (need-gf-already-called-warning-p gf)
+        ;; maybe somehow check that this is not a simple file reloading?
+        (clos-warn 'simple-gf-already-called-warning
+          (TEXT "Redefining an already called generic function ~S") gf))
       (apply #'reinitialize-instance gf all-keys)
       gf)
     ;; First definition of a generic function.
