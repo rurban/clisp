@@ -5106,7 +5106,7 @@ warning, you need to fix the source code of the incriminated method.</para>
   <ulink role="clhs" url="chap-24"/></title>
 
 <para>The compiler can be called not only by the functions &compile;,
- &compile-file; and &disassemble;, but also by the declaration
+ &compile-file-my; and &disassemble;, but also by the declaration
  &compile-decl;.</para>
 
 <section id="compilefile"><title>Function &compile-file;</title>
@@ -5148,12 +5148,14 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>The variables <firstterm>&compile-warn;
   <indexterm id="compile-warn" significance="preferred">
-   <primary>*COMPILE-WARNINGS*</primary></indexterm></firstterm>,
- &compile-verbose-var;, &compile-print-var; provide defaults for the
- &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively,
- and are bound by &compile-file; to the values of the arguments, i.e.,
- these arguments are recursive.</para>
+   <primary>*COMPILE-WARNINGS*</primary></indexterm></firstterm>
+ (initially set to &t;), &compile-verbose-var; (initially set to &t;,
+ affected by &opt-v;) &compile-print-var; (initially set to &nil;,
+ affected by &opt-v;) provide defaults for the &warnings-k;, &verbose-k;,
+ &print-k; keyword arguments, respectively, and are bound by &compile-file;
+ to the values of the arguments, i.e., these arguments are recursive.</para>
 
+<section id="compile-file-output"><title>Output files</title>
 <para>For each input file (default file type: &lisp-file;)
  the following files are generated:
 <informaltable id="compile-file-new-files-table" frame="all">
@@ -5184,6 +5186,30 @@ directory - &foolisp-f; and <filename>#P"foo.c"</filename>, and you
 compile the first file with &clisp;, the second file will be
 <emphasis>clobbered</emphasis> if you have any &ffi-pac; forms in
 the first one!</para></warning>
+</section>
+
+<section id="compile-file-return"><title>Return values</title>
+<para>As per &clhs;, &compile-file; returns 3 values:
+<variablelist><varlistentry><term>output-truename</term>
+ <listitem><simpara>the truename of the output &fasl-file;, or &nil;
+  if the file could not be created, in which case the compilation is
+  considered to have failed</simpara></listitem></varlistentry>
+<varlistentry><term>warnings-p</term>
+ <listitem><simpara>&nil; if no conditions of type &error-t; or &warning-t;
+  were detected during compilation, and the number of such conditions otherwise
+</simpara></listitem></varlistentry>
+<varlistentry><term>failure-p</term>
+ <listitem><simpara>&nil; if no conditions of type &error-t; or &warning-t;
+  (other than &style-warning-t;) were detected during compilation,
+  and the number of such conditions otherwise
+</simpara></listitem></varlistentry></variablelist>
+Since &clisp; tends to be relatively generous with warnings
+ (see, e.g., <xref linkend="flocont"/>), the non-&nil; tertiary return value
+ (called <replaceable>failure-p</replaceable>) does &not-e; indicated a
+ failure of compilation.
+The correct way to check whether &compile-file; has failed is the
+primary return value.</para>
+</section>
 
 </section>
 
