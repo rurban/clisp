@@ -5189,7 +5189,7 @@ the first one!</para></warning>
 </section>
 
 <section id="compile-file-return"><title>Return values</title>
-<para>As per &clhs;, &compile-file; returns 3 values:
+<para>As per &ansi-cl;, &compile-file; returns 3 values:
 <variablelist><varlistentry><term>output-truename</term>
  <listitem><simpara>the truename of the output &fasl-file;, or &nil;
   if the file could not be created, in which case the compilation is
@@ -5203,12 +5203,12 @@ the first one!</para></warning>
   (other than &style-warning-t;) were detected during compilation,
   and the number of such conditions otherwise
 </simpara></listitem></varlistentry></variablelist>
-Since &clisp; tends to be relatively generous with warnings
+Since &clisp; tends to be relatively garrulous with warnings
  (see, e.g., <xref linkend="flocont"/>), the non-&nil; tertiary return value
- (called <replaceable>failure-p</replaceable>) does &not-e; indicated a
- failure of compilation.
+ (called <replaceable>failure-p</replaceable> by the &ansi-cl;)
+ does &not-e; indicate a failure of compilation.
 The correct way to check whether &compile-file; has failed is the
-primary return value.</para>
+ <emphasis>primary</emphasis> return value.</para>
 </section>
 
 </section>
