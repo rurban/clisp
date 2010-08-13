@@ -1020,6 +1020,24 @@ T
     (post-compile-file-cleanup f)))
 T
 
+;; it is not clear whether this behavior is correct...
+;; http://groups.google.com/group/comp.lang.lisp/browse_thread/thread/0d9876beeb52b67d
+(let* ((l "path-tst-compile-file-pathname.lisp")
+       (f (compile-file-pathname l)))
+  (unwind-protect
+       (progn (with-open-file (ls l :direction :output :if-exists :supersede)
+                (format ls "(defun f () t)~%"))
+              (list
+               (with-open-file (fs f :direction :output :if-exists :supersede)
+                 (format fs #1="first line") (terpri fs)
+                 (compile-file l :output-file fs)
+                 (prin1-to-string fs))
+               (with-open-file (fs f :direction :input)
+                 (string= #1# (read-line fs)))))
+    (post-compile-file-cleanup l)))
+#+(or CLISP SBCL) (T T)
+#-(or CLISP SBCL) UNKNOWN
+
 (compile-file-pathname "foo" :OUTPUT-FILE (logical-pathname "SYS:foo.fas"))
 #+CLISP #S(LOGICAL-PATHNAME :HOST "SYS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
                             :NAME "FOO" :TYPE "FAS" :VERSION :NEWEST)
