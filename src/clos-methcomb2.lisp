@@ -199,14 +199,10 @@
 (defun check-em-generic-function-option (option caller whole-form name)
   (unless (and (consp (cdr option)) (symbolp (cadr option)) (null (cddr option)))
     (if (eq caller 'define-method-combination)
-      (error-of-type 'ext:source-program-error
-        :form whole-form
-        :detail option
+      (error-of-type 'ext:source-program-error :form whole-form :detail option
         #1=(TEXT "~S ~S: Invalid syntax for ~S option: ~S")
         caller name ':generic-function option)
-      (error-of-type 'program-error
-        #1#
-        caller name ':generic-function option)))
+      (error-of-type 'program-error #1# caller name ':generic-function option)))
   (cadr option))
 
 ; Check the effective-method option (:DUPLICATES ...).
