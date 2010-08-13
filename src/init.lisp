@@ -463,8 +463,9 @@
 
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")
-(let ((clos-extra
-        '(metaobject
+(progn ; not in ANSI - export separately, after `re-export' above
+(export
+     #1='(metaobject
           ;; MOP for dependents
           add-dependent remove-dependent map-dependents update-dependent
           ;; MOP for slot definitions
@@ -530,13 +531,11 @@
           method-call-error-method method-call-error-argument-list
           standard-stablehash structure-stablehash
           clos-warning gf-already-called-warning gf-replacing-method-warning
-          clos-novice-warning clos-style-warning class-obsolescence-warning
-     ))  )
-  ;; not in ANSI - export separately, after `re-export' above
-  (export clos-extra "CLOS")
-  ;; so that they are available in CL-USER even though it does not use CLOS
-  (import clos-extra "EXT")
-  (export clos-extra "EXT"))
+          clos-novice-warning clos-style-warning class-obsolescence-warning)
+     "CLOS")
+;; so that they are available in CL-USER even though it does not use CLOS
+(import #1# "EXT")
+(export #1# "EXT"))
 
 (in-package "SYSTEM")
 
@@ -678,8 +677,8 @@
         (when what ; when not yet defined, `what' is NIL
           (warn-of-type 'simple-style-warning
             (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
-            caller what object (or cur-file #1="top-level")
-            (or old-file #1#))))
+            caller what object (or cur-file #2="top-level")
+            (or old-file #2#))))
       (sys::set-file-doc
        object caller
        ;; note that when CUR-FILE is "foo.fas",
@@ -1741,6 +1740,8 @@
            (*current-source-file* *load-truename*)
            (*current-source-line-1* nil)
            (*current-source-line-2* nil)
+           ;; allow reference sharing between forms in the file
+           (SYS::*READ-REFERENCE-TABLE* NIL) ; cf. compiler.lisp:compile-file
            #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
            #+ffi (ffi::*foreign-library* ffi::*foreign-library*)
            (*package* *package*) ; bind *PACKAGE*

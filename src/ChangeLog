@@ -1,6 +1,8 @@
 2010-08-13  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (typep-number-test, c-typep-number): reuse error string
+	* init.lisp: use reader (#1#) instead of let for the list of
+	exported MOP symbols
 
 2010-08-09  Sam Steingold  <sds@gnu.org>
 
