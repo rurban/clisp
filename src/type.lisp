@@ -396,6 +396,7 @@
           )
    )
 )
+(progn                          ; to reuse error string
 (defun typep-number-test (x low high test type)
   (and (funcall test x)
        (cond ((eq low '*))
@@ -412,9 +413,7 @@
              ((and (consp high) (null (rest high)) (funcall test (first high)))
                 (> (first high) x)
              )
-             (t (error-of-type 'error
-                  #1# 'typep type type type high
-) )    )     )  )
+             (t (error-of-type 'error #1# 'typep type type type high)))))
 (defun c-typep-number (caller tester low high x)
   `(AND (,tester ,x)
         ,@(cond ((eq low '*) '())
@@ -422,9 +421,7 @@
                 ((and (consp low) (null (rest low)) (funcall tester (first low)))
                  `((< ,(first low) ,x))
                 )
-                (t (c-warn #1=(TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
-                           'typep caller caller caller low
-                   )
+                (t (c-warn #1# 'typep caller caller caller low)
                    (throw 'c-TYPEP nil)
           )     )
         ,@(cond ((eq high '*) '())
@@ -436,7 +433,7 @@
                    (throw 'c-TYPEP nil)
           )     )
    )
-)
+))
 (def-compound-type ARRAY (&optional (el-type '*) (dims '*)) (x)
   (unless (eq dims '*)
     (if (numberp dims)
