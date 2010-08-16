@@ -1,3 +1,19 @@
+2010-08-16  Sam Steingold  <sds@gnu.org>
+
+	fix 2010-07-09 ${DESTDIR} patch which broke "make install DESTDIR=...":
+	only respect DESTDIR in "install", not in "add" mode
+	* clisp-link.in (try_set_LIBDIR): extract from ...
+	(set_dynamic_module_location): use try_set_LIBDIR;
+	accept DESTDIR as an argument
+	(prepare_dynamic_module): accept DESTDIR as an argument
+	(add): pass "" as the DESTDIR to prepare_dynamic_module
+	(install): pass DESTDIR as DESTDIR to prepare_dynamic_module
+
+2010-08-16  Sam Steingold  <sds@gnu.org>
+
+	* clisp-link.in: revert the 2010-07-09 ${DESTDIR} patch because it
+	breaks "make install DESTDIR=..."
+
 2010-08-13  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (typep-number-test, c-typep-number): reuse error string
