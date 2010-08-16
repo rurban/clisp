@@ -3237,7 +3237,7 @@ echotab "\$(RMRF) base"
 echotab "MAKE=\$(MAKE) CLISP=\"${HEREP}/clisp -K boot ${someflags}\" with_dynamic_modules=no ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
 cygwin_finish base
 
-# full is built dynamically when explicitly requested
+# full is built dynamically unless explicitly requested otherwise
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
 test "${with_dynamic_modules}" = no || echotab "rm -rf dynmod; mkdir dynmod"
