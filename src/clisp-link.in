@@ -153,9 +153,8 @@ try_set_LIBDIR() {
   fi
 }
 set_dynamic_module_location() {
-  if test -z "${LIBDIR}"; then
-    DESTDIR="$1"
-    try_set_LIBDIR "${DESTDIR}${CLISP_LIBDIR}" "*lib-directory*"
+  if test "$with_dynamic_modules" != no -a -z "${LIBDIR}"; then
+    try_set_LIBDIR "${CLISP_LIBDIR}" "*lib-directory*"
     if test -z "${LIBDIR}"; then # cf. src/m4/clisp.m4
       CLISP_LIBDIR_USER=`clisp_eval '(and *user-lib-directory* (namestring *user-lib-directory*))'`
       test "${CLISP_LIBDIR_USER}" = "NIL" && \
@@ -180,10 +179,9 @@ with_dynamic_modules=${with_dynamic_modules-@with_dynamic_modules@}
 # this can be invoked only after "./link.sh" and relies on its variables.
 # also uses:
 #   ${absolute_currentdir} : the top level directory
+# appends the newly created DYNDIR files to DYNDIR_FILES
 prepare_dynamic_module() {
   if test "$with_dynamic_modules" != no; then
-    DESTDIR="$1"
-    set_dynamic_module_location ${DESTDIR}
     dyndir=${LIBDIR}/${DYNMOD}
     dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@SHREXT@
     lib=${dyndir}/${dll}; libs="${NEW_LIBS} @CLISP_DEF@"; verbose @createsharedlib@
@@ -198,28 +196,30 @@ prepare_dynamic_module() {
     done
     # create the REQUIRE file
     reqfile=${dyndir}/${firstmod}.lisp
-    rm -f "${DESTDIR}${reqfile}"
+    DYNDIR_FILES=${DYNDIR_FILES}" ${lib} ${reqfile}"
+    rm -f "${reqfile}"
     for f in ${TO_PRELOAD}; do
       # preload files are not compiled
-      echo "(cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> "${DESTDIR}${reqfile}"
+      echo "(cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> "${reqfile}"
     done
     # dll has SHREXT extension
     DM="(sys::dynload-modules (cl:merge-pathnames \"${dll}\" cl:*load-truename*) (quote ("
     for m in ${NEW_MODULES}; do
       DM=${DM}" \"$m\""
     done
-    echo ${DM}" )))" >> "${DESTDIR}${reqfile}"
+    echo ${DM}" )))" >> "${reqfile}"
     if test -n "${TO_LOAD}"; then
-      echo "(ext:appease-cerrors ; for DEF-CALL-OUT to non-existent functions" >> "${DESTDIR}${reqfile}"
+      echo "(ext:appease-cerrors ; for DEF-CALL-OUT to non-existent functions" >> "${reqfile}"
       for f in ${TO_LOAD}; do
         # module files must be compiled
-        echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}.fas\" cl:*load-truename*))" >> "${DESTDIR}${reqfile}"
+        echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}.fas\" cl:*load-truename*))" >> "${reqfile}"
       done
-      echo ")" >> "${DESTDIR}${reqfile}"
+      echo ")" >> "${reqfile}"
     fi
     # create links to the REQUIRE file
     for m in ${othermods}; do
-      ln ${dyndir}/$m.lisp "${DESTDIR}${reqfile}"
+      ln ${dyndir}/$m.lisp "${reqfile}"
+      DYNDIR_FILES=${DYNDIR_FILES}' '${dyndir}/$m.lisp
     done
   fi
 }
@@ -388,6 +388,7 @@ case "$1" in
       # Prepare the module directories and read their variables
       PRELOAD=''
       LOAD=''
+      set_dynamic_module_location # set LIBDIR
       for moduledir in $moduledirs; do
         modulename=`basename "$moduledir"`
         # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
@@ -412,7 +413,7 @@ case "$1" in
           LOAD=${LOAD}' -i '"$moduledir/$f"
         done
         cd "$destinationdir"
-        prepare_dynamic_module ""
+        prepare_dynamic_module
         cd "$absolute_currentdir"
       done
       start_dir=`pwd`
@@ -544,6 +545,10 @@ case "$1" in
     done
     # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
+    set_dynamic_module_location # set LIBDIR
+    test -n "${DESTDIR}" || DESTDIR="${LIBDIR}"
+    mkdir -p "${DESTDIR}"
+    absdestdir=`cd "${DESTDIR}"; /bin/pwd`
     # Prepare the module directories and read their variables
     for moduledir in $moduledirs; do
       modulename=`basename "$moduledir"`
@@ -557,13 +562,18 @@ case "$1" in
       cd "$moduledir"
       absolute_moduledir=`/bin/pwd`
       . ./link.sh
-      prepare_dynamic_module "${DESTDIR}" # sets LIBDIR
-      mkdir -p "${DESTDIR}${LIBDIR}/$moduledir"
+      DYNDIR_FILES=''
+      prepare_dynamic_module # append to DYNDIR_FILES
+      mkdir -p "${absdestdir}/$moduledir"
       # when running "CLISP=./clisp ./clisp-link install <modname>"
       # in the build directory, avoid "cp: `...' and `...' are the same file"
-      absolute_distribdir=`cd "${DESTDIR}${LIBDIR}/$moduledir"; /bin/pwd`
-      test "${absolute_moduledir}" = "${absolute_distribdir}" || \
-        make clisp-module-distrib LN=cp distribdir="${DESTDIR}${LIBDIR}/$moduledir"
+      if [ "${absolute_moduledir}" != "${absdestdir}/$moduledir" ]; then
+        make clisp-module-distrib LN=${INSTALL_DATA-cp} distribdir="${absdestdir}/$moduledir"
+        mkdir -p ${absdestdir}/${DYNMOD};
+        for f in ${DYNDIR_FILES}; do
+          cp ${f} ${absdestdir}/${DYNMOD}/
+        done
+      fi
       cd "$absolute_currentdir"
     done
     ;;

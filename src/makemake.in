@@ -3453,7 +3453,18 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echol
-    echol "install-bin : full force"
+    if [ "${with_dynamic_modules}" != no ]; then
+      depends="full install-modules force"
+      line='linkkit base'
+      echol "install-modules : full force"
+      echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/dynmod"
+      echotab "DESTDIR=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` CLISP='./clisp -q -norc' ./clisp-link install \$(MODULES)"
+      echol
+    else
+      depends="full force"
+      line='linkkit base full'
+    fi
+    echol "install-bin : ${depends}"
     echotab "mkdir -p \$(DESTDIR)\$(prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(exec_prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(libdir)"
@@ -3462,32 +3473,16 @@ if [ $CROSS = false ] ; then
     for f in ${DATA_FILES}; do
       echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)/data/${f}"
     done
-    echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
-    echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/build-aux"
     echotab "for f in ${BUILD_AUX}; do \$(INSTALL_DATA) build-aux/\$\$f \$(DESTDIR)\$(lisplibdir)/build-aux/\$\$f; done"
-    if [ "${with_dynamic_modules}" != no ]; then
-      echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/dynmod"
-      echotab "if test -n \"\$(MODULES)\"; then \\"
-      echotab "  for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done; \\"
-      echotab "  absdest=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` ; \\"
-      echotab "  here=\`pwd\`; \\"
-      echotab "  for m in \$(MODULES); do \\"
-      echotab "    mkdir -p \"\$\$absdest/\$\$m\"; \\"
-      echotab "    cd \$\$m; \$(MAKE) clisp-module-distrib LN=\"\$(INSTALL_DATA)\" distribdir=\"\$\$absdest/\$\$m\" ; cd \"\$\$here\"; \\"
-      echotab "  done; fi"
-      line='linkkit/* base/*'
-    else
-      echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
-      line='linkkit/* base/* full/*'
-    fi
-    echotab "for f in ${line}; do \\"
+    echotab "for d in ${line}; do for f in \$\$d/*; do \\"
+    echotab "  mkdir -p \$(DESTDIR)\$(lisplibdir)/\$\$d; \\"
     echotab "  case \$\$f in \\"
     echotab "    */lisp${LEXE}) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "  esac; \\"
-    echotab "done"
+    echotab "done; done"
     echotab "mkdir -p \$(DESTDIR)\$(bindir)"
     echotab "\$(INSTALL_SCRIPT) clisp-link \$(DESTDIR)\$(bindir)/clisp-link"
     # Don't strip the executables, otherwise (disassemble #'cons)
