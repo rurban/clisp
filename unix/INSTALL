@@ -264,18 +264,28 @@ Additional Information for Maintainers of Binary Packages:
    you MUST recompile CLISP.
    See <https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=199525>.
 
-3. Module selection: it is up to you which modules to distribute.
-   The trade off is offering extra functionality while increasing dependency
-   on other packages, the executable size, and the distribution size.
-   Another issue is offering a uniform experience to all CLISP users
-   regardless of platform or distribution.
+3. Binary package creation: we recommend distributing module "clisp" containing
+   just the base linking set and individual modules packaged separately.
    We recommend keeping the base linking set (i18n, regexp, syscalls, readline)
-   intact and adding rawsock to the full linking set (see step <12> above).
-   This will create a CLISP distribution with _no_ external dependencies.
-   Then you can distribute individual pre-built modules with their own
-   dependencies, e.g., the pcre module would depend on libpcre, postgresql
-   module would depend on libpq, new-clx would depend on X &c.
-   See <http://clisp.cons.org/impnotes/modules.html#base-modules>
+   intact in order to ensure a uniform experience to all CLISP users regardless
+   of platform or distribution.
+   Each additional module should be packaged separately (step [C] below):
+   A. Build clisp using "./configure --prefix=/usr --cbc CFLAGS='' build-dir"
+   B. Create the base "clisp" package:
+      $ cd build-dir
+      $ make install DESTDIR=foo
+      $ cd foo; tar cfz clisp.tar.gz *; cd ..; rm -rf foo
+   C. Create a module package "clisp-modname" where "modname" is the module
+      name, e.g., "rawsock" or "clx/new-clx" or ...:
+      # install the module dependencies, e.g., postgresql-dev or x11-dev or ...
+      $ cd build-dir
+      $ make install-modules MODULES=modname DESTDIR=foo
+      $ cd foo; tar cfz clisp-modname.tar.gz *; cd ..; rm -rf foo
+   D. Dependencies: each package "clisp-modname" depends on "clisp" and, maybe,
+      on an external library to which it interfaces, e.g., postgresql or pcre.
+      It does _not_ depend on any development tool (gcc, libffcall, pcre-dev).
+      E.g., modules "clisp-rawsock" and "clisp-wildcard" depend only on "clisp".
+   See also <http://clisp.cons.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 
 Authors:
