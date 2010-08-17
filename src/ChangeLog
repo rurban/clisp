@@ -1,3 +1,8 @@
+2010-08-17  Sam Steingold  <sds@gnu.org>
+
+	* clisp-link.in (prepare_dynamic_module): better comment placement
+	in reqfile
+
 2010-08-16  Sam Steingold  <sds@gnu.org>
 
 	fix 2010-07-09 ${DESTDIR} patch which broke "make install DESTDIR=...":

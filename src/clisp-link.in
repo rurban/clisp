@@ -210,8 +210,7 @@ prepare_dynamic_module() {
     done
     echo ${DM}" )))" >> "${DESTDIR}${reqfile}"
     if test -n "${TO_LOAD}"; then
-      echo ";; for def-call-out to non-existent functions" >> "${DESTDIR}${reqfile}"
-      echo "(ext:appease-cerrors" >> "${DESTDIR}${reqfile}"
+      echo "(ext:appease-cerrors ; for DEF-CALL-OUT to non-existent functions" >> "${DESTDIR}${reqfile}"
       for f in ${TO_LOAD}; do
         # module files must be compiled
         echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}.fas\" cl:*load-truename*))" >> "${DESTDIR}${reqfile}"
