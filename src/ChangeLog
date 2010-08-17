@@ -1,7 +1,13 @@
 2010-08-17  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (prepare_dynamic_module): better comment placement
-	in reqfile
+	in reqfile; do not call set_dynamic_module_location; append the
+	names of the new files to DYNDIR_FILES
+	(add, install): call set_dynamic_module_location outside of the loop
+	(install): handle DESTDIR correcly, install DYNDIR_FILES there
+	* makemake.in (install-modules) [with_dynamic_modules]: new target,
+	allows "a la carte" module installation
+	(install-bin) [with_dynamic_modules]: depend on install-modules
 
 2010-08-16  Sam Steingold  <sds@gnu.org>
 
