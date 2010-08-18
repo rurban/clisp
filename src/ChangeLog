@@ -1,3 +1,8 @@
+2010-08-18  Sam Steingold  <sds@gnu.org>
+
+	* clisp.spec: remove obsolete file, it has not been used for many
+	years, most linux distributions now offer clisp themselves
+
 2010-08-17  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (prepare_dynamic_module): better comment placement
