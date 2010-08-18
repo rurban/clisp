@@ -38,7 +38,6 @@ Installation:
 Other:
 
       src/malloc/        a GNU malloc library routine
-      ffcall/            a foreign function call library
 
   modules:           add-on sofware
       modules/queens/    sample external module for CLISP for you to explore
@@ -64,9 +63,16 @@ Other:
         pcre             Perl-compatible regular expressions
         wildcard         wildcard matching (shell globbing)
         zlib             compress vectors
-      networking
+      communication, networking
         rawsock          low level socket interface
+        dbus             interface to the D-Bus message bus system
         fastcgi          FastCGI interface for web development
+      graphics
+        clx/mit-clx, clx/new-clx interfaces to Xlib
+        gtk2             interface to the GTK library using glade
+      bindings
+        glibc            interface to most of the GNU libc library
+        win32            interface to some win32 functions
 
 
 Installation:
