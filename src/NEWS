@@ -16,6 +16,11 @@ User visible changes
   and <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn>
   for details.
 
+* New user variable CUSTOM:*MODULE-PROVIDER-FUNCTIONS* allows user to
+  influence REQUIRE behavior.
+  See <http://clisp.cons.org/impnotes/require.html#module-providers>
+  for details.
+
 * FFI now converts REALs to FLOATs automatically as necessary.
 
 * Bug fixes:

@@ -488,6 +488,7 @@
 <!ENTITY batch-mode '<olink targetdoc="man" targetptr="batch-mode">batch mode</olink>'>
 <!ENTITY compile-file-my '<olink targetdoc="impnotes" targetptr="compilefile"><function>COMPILE-FILE</function></olink>'>
 <!ENTITY load-my '<olink targetdoc="impnotes" targetptr="loadfile"><function>LOAD</function></olink>'>
+<!ENTITY module-providers '<link linkend="module-providers"><varname>CUSTOM::*MODULE-PROVIDER-FUNCTIONS*</varname></link>'>
 <!ENTITY require-my '<olink targetdoc="impnotes" targetptr="require"><function>REQUIRE</function></olink>'>
 <!ENTITY bytecode '<olink targetdoc="impnotes" targetptr="bytecode">bytecode</olink>'>
 <!ENTITY immediate-o '<link linkend="immediate-o">immediate object</link>'>

@@ -1,5 +1,11 @@
 2010-08-18  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (*module-provider-functions*): add
+	(simple-require): extract from REQUIRE
+	(require): use the above, now one can hook asdf into clisp
+
+2010-08-18  Sam Steingold  <sds@gnu.org>
+
 	* clisp.spec: remove obsolete file, it has not been used for many
 	years, most linux distributions now offer clisp themselves
 

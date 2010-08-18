@@ -5239,7 +5239,14 @@ The correct way to check whether &compile-file; has failed is the
     directory with the file being loaded (i.e., <code>(&make-pathname;
      :name &nil; :type &nil; :defaults &load-truename-var;)</code>).
 </simpara></listitem></itemizedlist></para>
+</section>
 
+<section id="module-providers"><title>User variable &module-providers;</title>
+<para>When &require; is called without the second (pathname) argument,
+ the elements of the &module-providers; &list-t; are called one by one
+ on the first (module name) argument until one of them returns non-&nil;.
+ If all of them return &nil;, &load-my; is called as described
+ <link linkend="require-search">above</link>.</para>
 </section>
 
 <section id="lib-files"><title>Interaction with &compile-file-my;</title>

@@ -6,6 +6,7 @@
 
 (export '(#-(or UNIX WIN32) custom::*default-time-zone*
           custom::*user-lib-directory*
+          custom::*module-provider-functions*
           custom::*system-package-list*)
         "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
@@ -189,13 +190,21 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
            ,(if dirs `(list ,@dirs) '(load-path-augmentations "dynmod/")))))
      ,@body))
 
+(defvar *module-provider-functions* '()
+  "The list of user functions to be called by REQUIRE if PATHNAME is missing.")
+
+(defun simple-require (pathname)
+  (with-augmented-load-path ()
+    (if (atom pathname) (load pathname) (mapcar #'load pathname))))
+
 (defun require (module-name &optional (pathname nil p-given))
   (setq module-name (module-name module-name))
   (unless (member module-name *modules* :test #'string=)
-    (unless p-given (setq pathname (pathname module-name)))
     (prog1
-        (with-augmented-load-path ()
-          (if (atom pathname) (load pathname) (mapcar #'load pathname)))
+        (if p-given (simple-require pathname)
+            (dolist (f *module-provider-functions* (simple-require module-name))
+              (let ((r (funcall f module-name)))
+                (when r (return r)))))
       ;; we might have loaded a `system' package: lock it,
       ;; unless CLISP was started with "-d" and thus locking is not desired
       (when (package-lock "SYSTEM")
