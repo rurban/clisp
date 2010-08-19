@@ -1858,6 +1858,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&loop-ansi;</member>
   <member>&pathmerge;</member>
   <member>&misc-enc;</member>
+  <member>&module-providers;</member>
   <member><varname>CUSTOM:*PACKAGE-TASKS-TREAT-SPECIALLY*</varname></member>
   <member>&parsename;</member>
   <member>&parsedot;</member>
