@@ -81,7 +81,7 @@
                ;; Typical beginner error: Omission of the parentheses around the
                ;; slot-specs. Probably someone who knows DEFSTRUCT and uses
                ;; DEFCLASS for the first time.
-               (clos-warm 'simple-clos-novice-warning (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
+               (clos-warn 'simple-clos-novice-warning (TEXT "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S.")
                  'defclass name (list slot-specs) slot-specs))
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
