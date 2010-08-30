@@ -1031,7 +1031,7 @@ T
                (with-open-file (fs f :direction :output :if-exists :supersede)
                  (format fs #1="first line") (terpri fs)
                  (compile-file l :output-file fs)
-                 (prin1-to-string fs))
+                 (open-stream-p fs))
                (with-open-file (fs f :direction :input)
                  (string= #1# (read-line fs)))))
     (post-compile-file-cleanup l)))
