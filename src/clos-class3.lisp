@@ -2097,9 +2097,9 @@
               ;; nested REP-loop.
               (*make-instances-obsolete-caller* 'make-instances-obsolete))
           (if (eq caller 'defclass)
-            (clos-warn 'class-obsolescence-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
+            (clos-warn 'simple-class-obsolescence-warning (TEXT "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete")
               caller name)
-            (clos-warn 'class-obsolescence-warning (TEXT "~S: instances of class ~S are made obsolete")
+            (clos-warn 'simple-class-obsolescence-warning (TEXT "~S: instances of class ~S are made obsolete")
               caller name))))
       ;; Create a new class-version. (Even if there are no instances: the
       ;; shared-slots may need change.)
