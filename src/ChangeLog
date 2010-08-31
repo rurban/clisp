@@ -1,5 +1,12 @@
 2010-08-31  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (open-for-load): use MUFFLE-CERRORS to ignore encoding
+	errors in DIRECTORY to avoid the DOS attack of CLISP not starting
+	when HOME contains a file incompatible with *PATHNAME-ENCODING*.
+	This finishes the work started on 2008-07-16.
+
+2010-08-31  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-EVAL-WHEN): use AND instead of (IF ... ... NIL)
 
 2010-08-18  Sam Steingold  <sds@gnu.org>
