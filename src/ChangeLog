@@ -1,3 +1,7 @@
+2010-08-31  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-EVAL-WHEN): use AND instead of (IF ... ... NIL)
+
 2010-08-18  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (*module-provider-functions*): add
