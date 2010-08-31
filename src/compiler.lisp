@@ -5821,6 +5821,7 @@ for-value   NIL or T
   (test-list (second *form*) 0)
   (let ((load-p nil) (compile-p nil) (eval-p nil) (execute-p nil)
         (top-level-p (eq c #'compile-toplevel-form)))
+    ;; FIXME: eval-p is set but never used! remove?
     (dolist (situation (second *form*))
       (fcase equal situation
         ((LOAD) (setq load-p t))
@@ -5839,7 +5840,7 @@ for-value   NIL or T
     (let ((form `(PROGN ,@(cddr *form*))))
       (when (and compile-p load-p) (c-write-lib form))
       (when compile-p (eval form))
-      (funcall c (if (or load-p (and execute-p (not top-level-p))) form nil)))))
+      (funcall c (and (or load-p (and execute-p (not top-level-p))) form)))))
 
 ;; compile (COND {clause}*)
 (defun c-COND ()
