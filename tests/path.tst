@@ -980,8 +980,6 @@ T
   #.(make-pathname :name \"foo.bar\" :type nil))~%"))
   (unwind-protect (progn (load (compile-file f))
                          (pathname-name *pathname-var*))
-    (makunbound '*pathname-var*)
-    (unintern '*pathname-var*)
     (post-compile-file-cleanup f)))
 "foo.bar"
 
@@ -1266,7 +1264,7 @@ NIL
                     ;; Version 8.11.0), allow only ASCII pathnames
                     (princ-error c)
                     (return-from test-weird-pathnames '(T NIL T T)))))
-    (letf* ((*pathname-encoding* charset:iso-8859-1) ; 1:1
+    (letf* ((custom:*pathname-encoding* charset:iso-8859-1) ; 1:1
             (weird (concatenate 'string "weird" (string (code-char 160))))
             (dir (list (make-pathname :version :newest
                                       :defaults (absolute-pathname weird)))))
@@ -1274,16 +1272,39 @@ NIL
       (unwind-protect
            (cons
             (equal (directory "weird*") dir)
-            (letf ((*pathname-encoding* charset:ascii))
+            (letf ((custom:*pathname-encoding* charset:ascii))
               (list (appease-cerrors (directory "weird*"))
                     (handler-bind ((simple-charset-type-error
                                     (lambda (c)
                                       (princ-error c)
                                       (store-value charset:iso-8859-1))))
                       (equal (directory "weird*") dir))
-                    (eq *pathname-encoding* charset:iso-8859-1))))
+                    (eq custom:*pathname-encoding* charset:iso-8859-1))))
         (delete-file weird)))))
 #+(and clisp unicode) (T NIL T T)
+
+;; DOS attack: bad pathnames in search can break LOAD
+;; http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520
+;; http://thread.gmane.org/gmane.lisp.clisp.devel/18532
+#+(and clisp unicode)
+(letf* ((custom:*pathname-encoding* charset:iso-8859-1) ; 1:1
+        (weird (concatenate 'string "weird" (string (code-char 160))))
+        (good "path-tst-good-file") (dir "path-tst-load-weird-dir/")
+        (custom:*load-paths* (list (concatenate 'string dir "**"))))
+  (rmrf dir)
+  (ext:make-directory dir)
+  (open (concatenate 'string dir weird) :direction :probe
+        :if-does-not-exist :create)
+  (with-open-file (os (concatenate 'string dir good ".lisp")
+                      :direction :output)
+    (format os "(defparameter *load-var* 1234)~%"))
+  (unwind-protect
+       (list (letf ((custom:*pathname-encoding* charset:ascii))
+               (load good)
+               *load-var*)
+             (eq custom:*pathname-encoding* charset:iso-8859-1))
+    (rmrf dir)))
+#+(and clisp unicode) (1234 T)
 
 (progn
   (symbol-cleanup '*dir*)
@@ -1297,5 +1318,8 @@ NIL
   (symbol-cleanup 'my-path)
   (symbol-cleanup 'path=)
   (symbol-cleanup 'my-stream)
-  (symbol-cleanup 'my-file))
+  (symbol-cleanup 'my-file)
+  (symbol-cleanup '*pathname-var*)
+  (symbol-cleanup 'cfp-test)
+  (symbol-cleanup '*load-var*))
 t
