@@ -5061,6 +5061,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gettimeofday:
   # Code from module gnu-make:
   # Code from module havelib:
+  # Code from module host-cpu-c-abi:
   # Code from module include_next:
   # Code from module langinfo:
   # Code from module libsigsegv:
@@ -5131,6 +5132,8 @@ AC_DEFUN([gl_INIT],
   # Code from module gnu-make:
   gl_GNU_MAKE
   # Code from module havelib:
+  # Code from module host-cpu-c-abi:
+  gl_HOST_CPU_C_ABI
   # Code from module include_next:
   # Code from module langinfo:
   gl_LANGINFO_H
@@ -5387,6 +5390,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/glibc21.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
+  m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/include_next.m4
   m4/intdiv0.m4
@@ -5441,6 +5445,220 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/wctype_h.m4
   m4/wint_t.m4
   m4/xsize.m4
+])
+
+# host-cpu-c-abi.m4 serial 1
+dnl Copyright (C) 2002-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible and Sam Steingold.
+
+dnl Sets the HOST_CPU_C_ABI variable to the canonical name of the CPU with its
+dnl C language ABI (application binary interface).
+dnl Also defines __${HOST_CPU_C_ABI}__ as a C macro in config.h.
+dnl
+dnl This canonical name can be used to select a particular assembly language
+dnl source file that will interoperate with C code on the given host.
+dnl
+dnl For example:
+dnl * 'i386' and 'sparc' are different canonical names, because code for i386
+dnl   will not run on SPARC CPUs and vice versa. They have different
+dnl   instruction sets.
+dnl * 'sparc' and 'sparc64' are different canonical names, because code for
+dnl   'sparc' and code for 'sparc64' cannot be linked together: 'sparc' code
+dnl   contains 32-bit instructions, whereas 'sparc64' code contains 64-bit
+dnl   instructions. A process on a SPARC CPU can be in 32-bit mode or in 64-bit
+dnl   mode, but not both.
+dnl * 'mips' and 'mipsn32' are different canonical names, because they use
+dnl   different argument passing and return conventions for C functions, and
+dnl   although the instruction set of 'mips' is a large subset of the
+dnl   instruction set of 'mipsn32'.
+dnl * 'mipsn32' and 'mips64' are different canonical names, because they use
+dnl   different sizes for the C types like 'int' and 'void *', and although
+dnl   the instruction sets of 'mipsn32' and 'mips64' are the same.
+dnl * 'arm' and 'armel' are different canonical names, because they use
+dnl   different memory ordering for the C types like 'int', and although
+dnl   the instruction sets of 'arm' and 'armel' are the same.
+dnl * The same name 'i386' is used for CPUs of type i386, i486, i586
+dnl   (Pentium), AMD K7, Pentium II, Pentium IV, etc., because
+dnl   - Instructions that do not exist on all of these CPUs (cmpxchg,
+dnl     MMX, SSE, SSE2, 3DNow! etc.) are not frequently used. If your
+dnl     assembly language source files use such instructions, you will
+dnl     need to make the distinction.
+dnl   - Speed of execution of the common instruction set is reasonable across
+dnl     the entire family of CPUs. If you have assembly language source files
+dnl     that are optimized for particular CPU types (like GNU gmp has), you
+dnl     will need to make the distinction.
+dnl   See <http://en.wikipedia.org/wiki/X86_instruction_listings>.
+AC_DEFUN([gl_HOST_CPU_C_ABI],
+[
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_CACHE_CHECK([host CPU and C ABI], [gl_cv_host_cpu_c_abi],
+    [case "$host_cpu" in
+
+changequote(,)dnl
+       i[4567]86 )
+changequote([,])dnl
+         gl_cv_host_cpu_c_abi=i386
+         ;;
+
+       x86_64 )
+         # On x86_64 systems, the C compiler may still be generating
+         # 32-bit code.
+         AC_EGREP_CPP([yes],
+           [#if defined __LP64__ || defined __x86_64__ || defined __amd64__
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=x86_64],
+           [gl_cv_host_cpu_c_abi=i386])
+         ;;
+
+changequote(,)dnl
+       alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
+changequote([,])dnl
+         gl_cv_host_cpu_c_abi=alpha
+         ;;
+
+       arm* )
+         AC_EGREP_CPP([yes],
+           [#if defined __ARMEL__
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=armel],
+           [gl_cv_host_cpu_c_abi=arm])
+         ;;
+
+       hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
+         # TODO: Distinguish hppa and hppa64 correctly.
+         gl_cv_host_cpu_c_abi=hppa
+         ;;
+
+       mips* )
+         # We should also check for (_MIPS_SZPTR == 64), but gcc keeps this
+         # at 32.
+         AC_EGREP_CPP([yes],
+           [#if defined _MIPS_SZLONG && (_MIPS_SZLONG == 64)
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=mips64],
+           [# Strictly speaking, the MIPS ABI (-32 or -n32) is independent
+            # from the CPU identification (-mips[12] or -mips[34]). But -n32
+            # is commonly used together with -mips3, and it's easier to test
+            # the CPU identification.
+            AC_EGREP_CPP([yes],
+              [#if __mips >= 3
+               yes
+               #endif],
+              [gl_cv_host_cpu_c_abi=mipsn32],
+              [gl_cv_host_cpu_c_abi=mips])])
+         ;;
+
+       powerpc64 )
+         # On powerpc64 systems, the C compiler may still be generating
+         # 32-bit code.
+         AC_EGREP_CPP([yes],
+           [#if defined __powerpc64__ || defined _ARCH_PPC64
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=powerpc64],
+           [gl_cv_host_cpu_c_abi=powerpc])
+         ;;
+
+       rs6000 )
+         gl_cv_host_cpu_c_abi=powerpc
+         ;;
+
+       # TODO: Distinguish s390 and s390x correctly.
+
+       sparc | sparc64 )
+         # UltraSPARCs running Linux have `uname -m` = "sparc64", but the
+         # C compiler still generates 32-bit code.
+         AC_EGREP_CPP([yes],
+           [#if defined __sparcv9 || defined __arch64__
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=sparc64],
+           [gl_cv_host_cpu_c_abi=sparc])
+         ;;
+
+       *)
+         gl_cv_host_cpu_c_abi="$host_cpu"
+         ;;
+     esac
+    ])
+
+  HOST_CPU_C_ABI="$gl_cv_host_cpu_c_abi"
+  AC_SUBST([HOST_CPU_C_ABI])
+
+  # This was AC_DEFINE_UNQUOTED([__${gl_cv_host_cpu_c_abi}__]) earlier,
+  # but KAI C++ 3.2d doesn't like this.
+  cat >> confdefs.h <<EOF
+#ifndef __${gl_cv_host_cpu_c_abi}__
+#define __${gl_cv_host_cpu_c_abi}__ 1
+#endif
+EOF
+  AH_TOP([/* CPU and C ABI indicator */
+#ifndef __i386__
+#undef __i386__
+#endif
+#ifndef __x86_64__
+#undef __x86_64__
+#endif
+#ifndef __alpha__
+#undef __alpha__
+#endif
+#ifndef __arm__
+#undef __arm__
+#endif
+#ifndef __armel__
+#undef __armel__
+#endif
+#ifndef __hppa__
+#undef __hppa__
+#endif
+#ifndef __hppa64__
+#undef __hppa64__
+#endif
+#ifndef __ia64__
+#undef __ia64__
+#endif
+#ifndef __m68k__
+#undef __m68k__
+#endif
+#ifndef __mips__
+#undef __mips__
+#endif
+#ifndef __mipsn32__
+#undef __mipsn32__
+#endif
+#ifndef __mips64__
+#undef __mips64__
+#endif
+#ifndef __powerpc__
+#undef __powerpc__
+#endif
+#ifndef __powerpc64__
+#undef __powerpc64__
+#endif
+#ifndef __s390__
+#undef __s390__
+#endif
+#ifndef __s390x__
+#undef __s390x__
+#endif
+#ifndef __sh__
+#undef __sh__
+#endif
+#ifndef __sparc__
+#undef __sparc__
+#endif
+#ifndef __sparc64__
+#undef __sparc64__
+#endif
+])
+
 ])
 
 # iconv.m4 serial 15 (gettext-0.18.2)
@@ -11995,7 +12213,7 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2010 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -12062,91 +12280,6 @@ AC_LANG_POP(C)
 if test "$cl_cv_prog_cc_works" = no; then
 AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create executables.])
 fi
-])
-
-dnl CL_CACHE_EGREP_CPP(what,variable,condition)
-AC_DEFUN([CL_CACHE_EGREP_CPP],
-[AC_CACHE_CHECK([for $1], [$2], [AC_EGREP_CPP(yes,
-[#if $3
-  yes
-#endif
-], [$2=yes], [$2=no])])])
-
-dnl CL_SET_CPU_ABI(what,variable,condition,yes_abi,no_abi)
-AC_DEFUN([CL_SET_CPU_ABI],
-[CL_CACHE_EGREP_CPP([$1],[$2],[$3])
-if test $$2 = yes; then
-  host_cpu_abi=$4
-else
-  host_cpu_abi=$5
-fi])
-
-AC_DEFUN([CL_CANONICAL_HOST_CPU],
-[AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
-case "$host_cpu" in
-changequote(,)dnl
-  i[4567]86 )
-    host_cpu_abi=i386
-    ;;
-  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu_abi=alpha
-    ;;
-  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu_abi=hppa
-    ;;
-  rs6000 )
-    host_cpu_abi=powerpc
-    ;;
-  c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu_abi=convex
-    ;;
-changequote([,])dnl
-  arm* )
-    CL_SET_CPU_ABI([ARMel], ffcall_cv_host_armel,
-      [defined(__ARMEL__)],armel,arm)
-    ;;
-  mips* )
-dnl We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32.
-    CL_CACHE_EGREP_CPP([64-bit MIPS], ffcall_cv_host_mips64,
-      [defined(_MIPS_SZLONG) && (_MIPS_SZLONG == 64)])
-    if test $ffcall_cv_host_mips64 = yes; then
-      host_cpu_abi=mips64
-    else
-dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
-dnl identification (-mips[12] or -mips[34]). But -n32 is commonly used together
-dnl with -mips3, and it's easier to test the CPU identification.
-      CL_SET_CPU_ABI([MIPS with n32 ABI], ffcall_cv_host_mipsn32,
-        [__mips >= 3], mipsn32, mips)
-    fi
-    ;;
-dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
-  powerpc64 )
-    CL_SET_CPU_ABI([64-bit PowerPC], ffcall_cv_host_powerpc64,
-      [defined(__powerpc64__) || defined(_ARCH_PPC64)], powerpc64, powerpc)
-    ;;
-dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
-dnl still generates 32-bit code.
-  sparc | sparc64 )
-    CL_SET_CPU_ABI([64-bit SPARC], ffcall_cv_host_sparc64,
-      [defined(__sparcv9) || defined(__arch64__)], sparc64, sparc)
-    ;;
-dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
-  x86_64 )
-    CL_SET_CPU_ABI([64-bit x86_64], ffcall_cv_host_x86_64,
-      [defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)],
-      x86_64, i386)
-    ;;
-  *)
-    host_cpu_abi=$host_cpu
-    ;;
-esac
-AC_SUBST(host_cpu_abi)
-dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
-cat >> confdefs.h <<EOF
-#ifndef __${host_cpu_abi}__
-#define __${host_cpu_abi}__ 1
-#endif
-EOF
 ])
 
 dnl -*- Autoconf -*-
