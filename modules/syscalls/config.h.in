@@ -780,9 +780,6 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
-/* Define if WSAStartup is needed. */
-#undef WINDOWS_SOCKETS
-
 /* Define to 1 if on MINIX. */
 #undef _MINIX
 
@@ -856,9 +853,6 @@
 # define _Restrict
 # define __restrict__
 #endif
-
-/* type to use in place of socklen_t if not defined */
-#undef socklen_t
 
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t

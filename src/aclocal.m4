@@ -1311,122 +1311,6 @@ AC_DEFUN([wc_gl_FILE_LIST], [
   m4/mbstate_t.m4
 ])
 
-# errno_h.m4 serial 6
-dnl Copyright (C) 2004, 2006, 2008, 2009, 2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN_ONCE([gl_HEADER_ERRNO_H],
-[
-  AC_REQUIRE([AC_PROG_CC])
-  AC_CACHE_CHECK([for complete errno.h], [gl_cv_header_errno_h_complete], [
-    AC_EGREP_CPP([booboo],[
-#include <errno.h>
-#if !defined ENOMSG
-booboo
-#endif
-#if !defined EIDRM
-booboo
-#endif
-#if !defined ENOLINK
-booboo
-#endif
-#if !defined EPROTO
-booboo
-#endif
-#if !defined EMULTIHOP
-booboo
-#endif
-#if !defined EBADMSG
-booboo
-#endif
-#if !defined EOVERFLOW
-booboo
-#endif
-#if !defined ENOTSUP
-booboo
-#endif
-#if !defined ESTALE
-booboo
-#endif
-#if !defined ECANCELED
-booboo
-#endif
-      ],
-      [gl_cv_header_errno_h_complete=no],
-      [gl_cv_header_errno_h_complete=yes])
-  ])
-  if test $gl_cv_header_errno_h_complete = yes; then
-    ERRNO_H=''
-  else
-    gl_CHECK_NEXT_HEADERS([errno.h])
-    ERRNO_H='errno.h'
-  fi
-  AC_SUBST([ERRNO_H])
-  gl_REPLACE_ERRNO_VALUE([EMULTIHOP])
-  gl_REPLACE_ERRNO_VALUE([ENOLINK])
-  gl_REPLACE_ERRNO_VALUE([EOVERFLOW])
-])
-
-# Assuming $1 = EOVERFLOW.
-# The EOVERFLOW errno value ought to be defined in <errno.h>, according to
-# POSIX.  But some systems (like OpenBSD 4.0 or AIX 3) don't define it, and
-# some systems (like OSF/1) define it when _XOPEN_SOURCE_EXTENDED is defined.
-# Check for the value of EOVERFLOW.
-# Set the variables EOVERFLOW_HIDDEN and EOVERFLOW_VALUE.
-AC_DEFUN([gl_REPLACE_ERRNO_VALUE],
-[
-  if test -n "$ERRNO_H"; then
-    AC_CACHE_CHECK([for ]$1[ value], [gl_cv_header_errno_h_]$1, [
-      AC_EGREP_CPP([yes],[
-#include <errno.h>
-#ifdef ]$1[
-yes
-#endif
-      ],
-      [gl_cv_header_errno_h_]$1[=yes],
-      [gl_cv_header_errno_h_]$1[=no])
-      if test $gl_cv_header_errno_h_]$1[ = no; then
-        AC_EGREP_CPP([yes],[
-#define _XOPEN_SOURCE_EXTENDED 1
-#include <errno.h>
-#ifdef ]$1[
-yes
-#endif
-          ], [gl_cv_header_errno_h_]$1[=hidden])
-        if test $gl_cv_header_errno_h_]$1[ = hidden; then
-          dnl The macro exists but is hidden.
-          dnl Define it to the same value.
-          AC_COMPUTE_INT([gl_cv_header_errno_h_]$1, $1, [
-#define _XOPEN_SOURCE_EXTENDED 1
-#include <errno.h>
-/* The following two lines are a workaround against an autoconf-2.52 bug.  */
-#include <stdio.h>
-#include <stdlib.h>
-])
-        fi
-      fi
-    ])
-    case $gl_cv_header_errno_h_]$1[ in
-      yes | no)
-        ]$1[_HIDDEN=0; ]$1[_VALUE=
-        ;;
-      *)
-        ]$1[_HIDDEN=1; ]$1[_VALUE="$gl_cv_header_errno_h_]$1["
-        ;;
-    esac
-    AC_SUBST($1[_HIDDEN])
-    AC_SUBST($1[_VALUE])
-  fi
-])
-
-dnl Autoconf >= 2.61 has AC_COMPUTE_INT built-in.
-dnl Remove this when we can assume autoconf >= 2.61.
-m4_ifdef([AC_COMPUTE_INT], [], [
-  AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
-])
-
 # gethostname.m4 serial 9
 dnl Copyright (C) 2002, 2008, 2009, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1559,14 +1443,11 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module close-hook:
   # Code from module errno:
   # Code from module gethostname:
   # Code from module mbrlen:
   # Code from module mktime:
   # Code from module multiarch:
-  # Code from module sockets:
-  # Code from module socklen:
   # Code from module stddef:
   # Code from module strcase:
   # Code from module strftime:
@@ -1601,7 +1482,6 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module close-hook:
   # Code from module errno:
   gl_HEADER_ERRNO_H
   # Code from module gethostname:
@@ -1615,10 +1495,6 @@ AC_DEFUN([sc_gl_INIT],
   gl_TIME_MODULE_INDICATOR([mktime])
   # Code from module multiarch:
   gl_MULTIARCH
-  # Code from module sockets:
-  gl_SOCKETS
-  # Code from module socklen:
-  gl_TYPE_SOCKLEN_T
   # Code from module stddef:
   gl_STDDEF_H
   # Code from module strcase:
@@ -1650,6 +1526,7 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module warn-on-use:
+  # Code from module dummy:
   # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
@@ -1794,15 +1671,12 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/alignof.h
-  lib/close-hook.c
-  lib/close-hook.h
+  lib/dummy.c
   lib/errno.in.h
   lib/gethostname.c
   lib/mbrlen.c
   lib/mktime-internal.h
   lib/mktime.c
-  lib/sockets.c
-  lib/sockets.h
   lib/stddef.in.h
   lib/strcasecmp.c
   lib/strftime.c
@@ -1826,8 +1700,6 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/mktime.m4
   m4/multiarch.m4
-  m4/sockets.m4
-  m4/socklen.m4
   m4/sockpfaf.m4
   m4/stddef_h.m4
   m4/strcase.m4
@@ -2282,151 +2154,6 @@ AC_DEFUN([gl_PREREQ_MKTIME],
   AC_REQUIRE([AC_C_INLINE])
 ])
 
-# sockets.m4 serial 6
-dnl Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_SOCKETS],
-[
-  AC_REQUIRE([AC_C_INLINE])
-
-  gl_PREREQ_SYS_H_WINSOCK2 dnl for HAVE_WINSOCK2_H
-  LIBSOCKET=
-  if test $HAVE_WINSOCK2_H = 1; then
-    dnl Native Windows API (not Cygwin).
-    AC_CACHE_CHECK([if we need to call WSAStartup in winsock2.h and -lws2_32],
-                   [gl_cv_func_wsastartup], [
-      gl_save_LIBS="$LIBS"
-      LIBS="$LIBS -lws2_32"
-      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif]], [[
-          WORD wVersionRequested = MAKEWORD(1, 1);
-          WSADATA wsaData;
-          int err = WSAStartup(wVersionRequested, &wsaData);
-          WSACleanup ();]])],
-        gl_cv_func_wsastartup=yes, gl_cv_func_wsastartup=no)
-      LIBS="$gl_save_LIBS"
-    ])
-    if test "$gl_cv_func_wsastartup" = "yes"; then
-      AC_DEFINE([WINDOWS_SOCKETS], [1], [Define if WSAStartup is needed.])
-      LIBSOCKET='-lws2_32'
-    fi
-  else
-    dnl Unix API.
-    dnl Solaris has most socket functions in libsocket.
-    dnl Haiku has most socket functions in libnetwork.
-    dnl BeOS has most socket functions in libnet.
-    AC_CACHE_CHECK([for library containing setsockopt], [gl_cv_lib_socket], [
-      gl_cv_lib_socket=
-      AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
-#ifdef __cplusplus
-"C"
-#endif
-char setsockopt();]], [[setsockopt();]])],
-        [],
-        [gl_save_LIBS="$LIBS"
-         LIBS="$gl_save_LIBS -lsocket"
-         AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
-#ifdef __cplusplus
-"C"
-#endif
-char setsockopt();]], [[setsockopt();]])],
-           [gl_cv_lib_socket="-lsocket"])
-         if test -z "$gl_cv_lib_socket"; then
-           LIBS="$gl_save_LIBS -lnetwork"
-           AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
-#ifdef __cplusplus
-"C"
-#endif
-char setsockopt();]], [[setsockopt();]])],
-             [gl_cv_lib_socket="-lnetwork"])
-           if test -z "$gl_cv_lib_socket"; then
-             LIBS="$gl_save_LIBS -lnet"
-             AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
-#ifdef __cplusplus
-"C"
-#endif
-char setsockopt();]], [[setsockopt();]])],
-               [gl_cv_lib_socket="-lnet"])
-           fi
-         fi
-         LIBS="$gl_save_LIBS"
-        ])
-      if test -z "$gl_cv_lib_socket"; then
-        gl_cv_lib_socket="none needed"
-      fi
-    ])
-    if test "$gl_cv_lib_socket" != "none needed"; then
-      LIBSOCKET="$gl_cv_lib_socket"
-    fi
-  fi
-  AC_SUBST([LIBSOCKET])
-  gl_PREREQ_SOCKETS
-])
-
-# Prerequisites of lib/sockets.c.
-AC_DEFUN([gl_PREREQ_SOCKETS], [
-  :
-])
-
-# socklen.m4 serial 8
-dnl Copyright (C) 2005, 2006, 2007, 2009, 2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Albert Chin, Windows fixes from Simon Josefsson.
-
-dnl Check for socklen_t: historically on BSD it is an int, and in
-dnl POSIX 1g it is a type of its own, but some platforms use different
-dnl types for the argument to getsockopt, getpeername, etc.:
-dnl HP-UX 10.20, IRIX 6.5, Interix 3.5, BeOS.
-dnl So we have to test to find something that will work.
-
-dnl On mingw32, socklen_t is in ws2tcpip.h ('int'), so we try to find
-dnl it there first.  That file is included by gnulib's sys_socket.in.h, which
-dnl all users of this module should include.  Cygwin must not include
-dnl ws2tcpip.h.
-AC_DEFUN([gl_TYPE_SOCKLEN_T],
-  [AC_REQUIRE([gl_HEADER_SYS_SOCKET])dnl
-   AC_CHECK_TYPE([socklen_t], ,
-     [AC_MSG_CHECKING([for socklen_t equivalent])
-      AC_CACHE_VAL([gl_cv_socklen_t_equiv],
-        [# Systems have either "struct sockaddr *" or
-         # "void *" as the second argument to getpeername
-         gl_cv_socklen_t_equiv=
-         for arg2 in "struct sockaddr" void; do
-           for t in int size_t "unsigned int" "long int" "unsigned long int"; do
-             AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-                 [[#include <sys/types.h>
-                   #include <sys/socket.h>
-
-                   int getpeername (int, $arg2 *, $t *);]],
-                 [[$t len;
-                  getpeername (0, 0, &len);]])],
-               [gl_cv_socklen_t_equiv="$t"])
-             test "$gl_cv_socklen_t_equiv" != "" && break
-           done
-           test "$gl_cv_socklen_t_equiv" != "" && break
-         done
-      ])
-      if test "$gl_cv_socklen_t_equiv" = ""; then
-        AC_MSG_ERROR([Cannot find a type to use in place of socklen_t])
-      fi
-      AC_MSG_RESULT([$gl_cv_socklen_t_equiv])
-      AC_DEFINE_UNQUOTED([socklen_t], [$gl_cv_socklen_t_equiv],
-        [type to use in place of socklen_t if not defined])],
-     [#include <sys/types.h>
-      #if HAVE_SYS_SOCKET_H
-      # include <sys/socket.h>
-      #elif HAVE_WS2TCPIP_H
-      # include <ws2tcpip.h>
-      #endif])])
-
 # strcase.m4 serial 10
 dnl Copyright (C) 2002, 2005-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -2592,160 +2319,6 @@ AC_DEFUN([gl_FUNC_STRVERSCMP],
 # Prerequisites of lib/strverscmp.c.
 AC_DEFUN([gl_PREREQ_STRVERSCMP], [
   :
-])
-
-# sys_socket_h.m4 serial 17
-dnl Copyright (C) 2005-2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl From Simon Josefsson.
-
-AC_DEFUN([gl_HEADER_SYS_SOCKET],
-[
-  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
-  AC_REQUIRE([AC_C_INLINE])
-
-  AC_CACHE_CHECK([whether <sys/socket.h> is self-contained],
-    [gl_cv_header_sys_socket_h_selfcontained],
-    [
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/socket.h>]], [[]])],
-        [gl_cv_header_sys_socket_h_selfcontained=yes],
-        [gl_cv_header_sys_socket_h_selfcontained=no])
-    ])
-  if test $gl_cv_header_sys_socket_h_selfcontained = yes; then
-    dnl If the shutdown function exists, <sys/socket.h> should define
-    dnl SHUT_RD, SHUT_WR, SHUT_RDWR.
-    AC_CHECK_FUNCS([shutdown])
-    if test $ac_cv_func_shutdown = yes; then
-      AC_CACHE_CHECK([whether <sys/socket.h> defines the SHUT_* macros],
-        [gl_cv_header_sys_socket_h_shut],
-        [
-          AC_COMPILE_IFELSE(
-            [AC_LANG_PROGRAM([[#include <sys/socket.h>]],
-               [[int a[] = { SHUT_RD, SHUT_WR, SHUT_RDWR };]])],
-            [gl_cv_header_sys_socket_h_shut=yes],
-            [gl_cv_header_sys_socket_h_shut=no])
-        ])
-      if test $gl_cv_header_sys_socket_h_shut = no; then
-        SYS_SOCKET_H='sys/socket.h'
-      fi
-    fi
-  fi
-  # We need to check for ws2tcpip.h now.
-  gl_PREREQ_SYS_H_SOCKET
-  AC_CHECK_TYPES([struct sockaddr_storage, sa_family_t],,,[
-  /* sys/types.h is not needed according to POSIX, but the
-     sys/socket.h in i386-unknown-freebsd4.10 and
-     powerpc-apple-darwin5.5 required it. */
-#include <sys/types.h>
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_WS2TCPIP_H
-#include <ws2tcpip.h>
-#endif
-])
-  if test $ac_cv_type_struct_sockaddr_storage = no; then
-    HAVE_STRUCT_SOCKADDR_STORAGE=0
-  fi
-  if test $ac_cv_type_sa_family_t = no; then
-    HAVE_SA_FAMILY_T=0
-  fi
-  gl_PREREQ_SYS_H_WINSOCK2
-
-  dnl Check for declarations of anything we want to poison if the
-  dnl corresponding gnulib module is not in use.
-  gl_WARN_ON_USE_PREPARE([[
-/* Some systems require prerequisite headers.  */
-#include <sys/types.h>
-#if !defined __GLIBC__ && HAVE_SYS_TIME_H
-# include <sys/time.h>
-#endif
-#include <sys/select.h>
-    ]], [socket connect accept bind getpeername getsockname getsockopt
-    listen recv send recvfrom sendto setsockopt shutdown accept4])
-])
-
-AC_DEFUN([gl_PREREQ_SYS_H_SOCKET],
-[
-  dnl Check prerequisites of the <sys/socket.h> replacement.
-  gl_CHECK_NEXT_HEADERS([sys/socket.h])
-  if test $ac_cv_header_sys_socket_h = yes; then
-    HAVE_SYS_SOCKET_H=1
-    HAVE_WS2TCPIP_H=0
-  else
-    HAVE_SYS_SOCKET_H=0
-    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
-    dnl the check for those headers unconditional; yet cygwin reports
-    dnl that the headers are present but cannot be compiled (since on
-    dnl cygwin, all socket information should come from sys/socket.h).
-    AC_CHECK_HEADERS([ws2tcpip.h])
-    if test $ac_cv_header_ws2tcpip_h = yes; then
-      HAVE_WS2TCPIP_H=1
-    else
-      HAVE_WS2TCPIP_H=0
-    fi
-  fi
-  AC_SUBST([HAVE_SYS_SOCKET_H])
-  AC_SUBST([HAVE_WS2TCPIP_H])
-])
-
-# Common prerequisites of the <sys/socket.h> replacement and of the
-# <sys/select.h> replacement.
-# Sets and substitutes HAVE_WINSOCK2_H.
-AC_DEFUN([gl_PREREQ_SYS_H_WINSOCK2],
-[
-  m4_ifdef([gl_UNISTD_H_DEFAULTS], [AC_REQUIRE([gl_UNISTD_H_DEFAULTS])])
-  m4_ifdef([gl_SYS_IOCTL_H_DEFAULTS], [AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])])
-  AC_CHECK_HEADERS_ONCE([sys/socket.h])
-  if test $ac_cv_header_sys_socket_h != yes; then
-    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
-    dnl the check for those headers unconditional; yet cygwin reports
-    dnl that the headers are present but cannot be compiled (since on
-    dnl cygwin, all socket information should come from sys/socket.h).
-    AC_CHECK_HEADERS([winsock2.h])
-  fi
-  if test "$ac_cv_header_winsock2_h" = yes; then
-    HAVE_WINSOCK2_H=1
-    UNISTD_H_HAVE_WINSOCK2_H=1
-    SYS_IOCTL_H_HAVE_WINSOCK2_H=1
-  else
-    HAVE_WINSOCK2_H=0
-  fi
-  AC_SUBST([HAVE_WINSOCK2_H])
-])
-
-AC_DEFUN([gl_SYS_SOCKET_MODULE_INDICATOR],
-[
-  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
-  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
-  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
-  dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR_FOR_TESTS([$1])
-])
-
-AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
-[
-  GNULIB_SOCKET=0;      AC_SUBST([GNULIB_SOCKET])
-  GNULIB_CONNECT=0;     AC_SUBST([GNULIB_CONNECT])
-  GNULIB_ACCEPT=0;      AC_SUBST([GNULIB_ACCEPT])
-  GNULIB_BIND=0;        AC_SUBST([GNULIB_BIND])
-  GNULIB_GETPEERNAME=0; AC_SUBST([GNULIB_GETPEERNAME])
-  GNULIB_GETSOCKNAME=0; AC_SUBST([GNULIB_GETSOCKNAME])
-  GNULIB_GETSOCKOPT=0;  AC_SUBST([GNULIB_GETSOCKOPT])
-  GNULIB_LISTEN=0;      AC_SUBST([GNULIB_LISTEN])
-  GNULIB_RECV=0;        AC_SUBST([GNULIB_RECV])
-  GNULIB_SEND=0;        AC_SUBST([GNULIB_SEND])
-  GNULIB_RECVFROM=0;    AC_SUBST([GNULIB_RECVFROM])
-  GNULIB_SENDTO=0;      AC_SUBST([GNULIB_SENDTO])
-  GNULIB_SETSOCKOPT=0;  AC_SUBST([GNULIB_SETSOCKOPT])
-  GNULIB_SHUTDOWN=0;    AC_SUBST([GNULIB_SHUTDOWN])
-  GNULIB_ACCEPT4=0;     AC_SUBST([GNULIB_ACCEPT4])
-  HAVE_STRUCT_SOCKADDR_STORAGE=1; AC_SUBST([HAVE_STRUCT_SOCKADDR_STORAGE])
-  HAVE_SA_FAMILY_T=1;   AC_SUBST([HAVE_SA_FAMILY_T])
-  HAVE_ACCEPT4=1;       AC_SUBST([HAVE_ACCEPT4])
 ])
 
 # sys_utsname_h.m4 serial 6
@@ -4005,6 +3578,122 @@ AC_DEFUN([AM_LANGINFO_CODESET],
   fi
 ])
 
+# errno_h.m4 serial 6
+dnl Copyright (C) 2004, 2006, 2008, 2009, 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN_ONCE([gl_HEADER_ERRNO_H],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_CACHE_CHECK([for complete errno.h], [gl_cv_header_errno_h_complete], [
+    AC_EGREP_CPP([booboo],[
+#include <errno.h>
+#if !defined ENOMSG
+booboo
+#endif
+#if !defined EIDRM
+booboo
+#endif
+#if !defined ENOLINK
+booboo
+#endif
+#if !defined EPROTO
+booboo
+#endif
+#if !defined EMULTIHOP
+booboo
+#endif
+#if !defined EBADMSG
+booboo
+#endif
+#if !defined EOVERFLOW
+booboo
+#endif
+#if !defined ENOTSUP
+booboo
+#endif
+#if !defined ESTALE
+booboo
+#endif
+#if !defined ECANCELED
+booboo
+#endif
+      ],
+      [gl_cv_header_errno_h_complete=no],
+      [gl_cv_header_errno_h_complete=yes])
+  ])
+  if test $gl_cv_header_errno_h_complete = yes; then
+    ERRNO_H=''
+  else
+    gl_CHECK_NEXT_HEADERS([errno.h])
+    ERRNO_H='errno.h'
+  fi
+  AC_SUBST([ERRNO_H])
+  gl_REPLACE_ERRNO_VALUE([EMULTIHOP])
+  gl_REPLACE_ERRNO_VALUE([ENOLINK])
+  gl_REPLACE_ERRNO_VALUE([EOVERFLOW])
+])
+
+# Assuming $1 = EOVERFLOW.
+# The EOVERFLOW errno value ought to be defined in <errno.h>, according to
+# POSIX.  But some systems (like OpenBSD 4.0 or AIX 3) don't define it, and
+# some systems (like OSF/1) define it when _XOPEN_SOURCE_EXTENDED is defined.
+# Check for the value of EOVERFLOW.
+# Set the variables EOVERFLOW_HIDDEN and EOVERFLOW_VALUE.
+AC_DEFUN([gl_REPLACE_ERRNO_VALUE],
+[
+  if test -n "$ERRNO_H"; then
+    AC_CACHE_CHECK([for ]$1[ value], [gl_cv_header_errno_h_]$1, [
+      AC_EGREP_CPP([yes],[
+#include <errno.h>
+#ifdef ]$1[
+yes
+#endif
+      ],
+      [gl_cv_header_errno_h_]$1[=yes],
+      [gl_cv_header_errno_h_]$1[=no])
+      if test $gl_cv_header_errno_h_]$1[ = no; then
+        AC_EGREP_CPP([yes],[
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <errno.h>
+#ifdef ]$1[
+yes
+#endif
+          ], [gl_cv_header_errno_h_]$1[=hidden])
+        if test $gl_cv_header_errno_h_]$1[ = hidden; then
+          dnl The macro exists but is hidden.
+          dnl Define it to the same value.
+          AC_COMPUTE_INT([gl_cv_header_errno_h_]$1, $1, [
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <errno.h>
+/* The following two lines are a workaround against an autoconf-2.52 bug.  */
+#include <stdio.h>
+#include <stdlib.h>
+])
+        fi
+      fi
+    ])
+    case $gl_cv_header_errno_h_]$1[ in
+      yes | no)
+        ]$1[_HIDDEN=0; ]$1[_VALUE=
+        ;;
+      *)
+        ]$1[_HIDDEN=1; ]$1[_VALUE="$gl_cv_header_errno_h_]$1["
+        ;;
+    esac
+    AC_SUBST($1[_HIDDEN])
+    AC_SUBST($1[_VALUE])
+  fi
+])
+
+dnl Autoconf >= 2.61 has AC_COMPUTE_INT built-in.
+dnl Remove this when we can assume autoconf >= 2.61.
+m4_ifdef([AC_COMPUTE_INT], [], [
+  AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
+])
+
 # serial 9  -*- Autoconf -*-
 # Enable extensions on systems that normally disable them.
 
@@ -5048,11 +4737,14 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module close-hook:
   # Code from module configmake:
+  # Code from module errno:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   # Code from module getpagesize:
@@ -5075,12 +4767,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module sockets:
+  # Code from module socklen:
   # Code from module stdbool:
   # Code from module stddef:
   # Code from module stdint:
   # Code from module streq:
   # Code from module string:
   # Code from module strnlen1:
+  # Code from module sys_socket:
   # Code from module sys_time:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -5110,12 +4805,16 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   gl_FUNC_ALLOCA
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module close-hook:
   # Code from module configmake:
+  # Code from module errno:
+  gl_HEADER_ERRNO_H
   # Code from module extensions:
   # Code from module getpagesize:
   gl_FUNC_GETPAGESIZE
@@ -5165,6 +4864,10 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module sockets:
+  gl_SOCKETS
+  # Code from module socklen:
+  gl_TYPE_SOCKLEN_T
   # Code from module stdbool:
   AM_STDBOOL_H
   # Code from module stddef:
@@ -5175,6 +4878,9 @@ AC_DEFUN([gl_INIT],
   # Code from module string:
   gl_HEADER_STRING_H
   # Code from module strnlen1:
+  # Code from module sys_socket:
+  gl_HEADER_SYS_SOCKET
+  AC_PROG_MKDIR_P
   # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
@@ -5340,9 +5046,13 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/c++defs.h
   build-aux/config.rpath
   build-aux/warn-on-use.h
+  lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
+  lib/close-hook.c
+  lib/close-hook.h
   lib/config.charset
+  lib/errno.in.h
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
@@ -5358,6 +5068,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
+  lib/sockets.c
+  lib/sockets.h
   lib/stdbool.in.h
   lib/stddef.in.h
   lib/stdint.in.h
@@ -5365,6 +5077,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/string.in.h
   lib/strnlen1.c
   lib/strnlen1.h
+  lib/sys_socket.in.h
   lib/sys_time.in.h
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -5376,11 +5089,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/verify.h
+  lib/w32sock.h
   lib/wchar.in.h
   lib/wctype.in.h
   m4/00gnulib.m4
   m4/alloca.m4
   m4/codeset.m4
+  m4/errno_h.m4
   m4/extensions.m4
   m4/fcntl-o.m4
   m4/getpagesize.m4
@@ -5429,11 +5144,15 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/printf-posix.m4
   m4/progtest.m4
   m4/size_max.m4
+  m4/sockets.m4
+  m4/socklen.m4
+  m4/sockpfaf.m4
   m4/stdbool.m4
   m4/stddef_h.m4
   m4/stdint.m4
   m4/stdint_h.m4
   m4/string_h.m4
+  m4/sys_socket_h.m4
   m4/sys_time_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
@@ -9673,6 +9392,151 @@ fi
 AC_SUBST([$1])dnl
 ])
 
+# sockets.m4 serial 6
+dnl Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SOCKETS],
+[
+  AC_REQUIRE([AC_C_INLINE])
+
+  gl_PREREQ_SYS_H_WINSOCK2 dnl for HAVE_WINSOCK2_H
+  LIBSOCKET=
+  if test $HAVE_WINSOCK2_H = 1; then
+    dnl Native Windows API (not Cygwin).
+    AC_CACHE_CHECK([if we need to call WSAStartup in winsock2.h and -lws2_32],
+                   [gl_cv_func_wsastartup], [
+      gl_save_LIBS="$LIBS"
+      LIBS="$LIBS -lws2_32"
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+#endif]], [[
+          WORD wVersionRequested = MAKEWORD(1, 1);
+          WSADATA wsaData;
+          int err = WSAStartup(wVersionRequested, &wsaData);
+          WSACleanup ();]])],
+        gl_cv_func_wsastartup=yes, gl_cv_func_wsastartup=no)
+      LIBS="$gl_save_LIBS"
+    ])
+    if test "$gl_cv_func_wsastartup" = "yes"; then
+      AC_DEFINE([WINDOWS_SOCKETS], [1], [Define if WSAStartup is needed.])
+      LIBSOCKET='-lws2_32'
+    fi
+  else
+    dnl Unix API.
+    dnl Solaris has most socket functions in libsocket.
+    dnl Haiku has most socket functions in libnetwork.
+    dnl BeOS has most socket functions in libnet.
+    AC_CACHE_CHECK([for library containing setsockopt], [gl_cv_lib_socket], [
+      gl_cv_lib_socket=
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();]], [[setsockopt();]])],
+        [],
+        [gl_save_LIBS="$LIBS"
+         LIBS="$gl_save_LIBS -lsocket"
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();]], [[setsockopt();]])],
+           [gl_cv_lib_socket="-lsocket"])
+         if test -z "$gl_cv_lib_socket"; then
+           LIBS="$gl_save_LIBS -lnetwork"
+           AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();]], [[setsockopt();]])],
+             [gl_cv_lib_socket="-lnetwork"])
+           if test -z "$gl_cv_lib_socket"; then
+             LIBS="$gl_save_LIBS -lnet"
+             AC_LINK_IFELSE([AC_LANG_PROGRAM([[extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();]], [[setsockopt();]])],
+               [gl_cv_lib_socket="-lnet"])
+           fi
+         fi
+         LIBS="$gl_save_LIBS"
+        ])
+      if test -z "$gl_cv_lib_socket"; then
+        gl_cv_lib_socket="none needed"
+      fi
+    ])
+    if test "$gl_cv_lib_socket" != "none needed"; then
+      LIBSOCKET="$gl_cv_lib_socket"
+    fi
+  fi
+  AC_SUBST([LIBSOCKET])
+  gl_PREREQ_SOCKETS
+])
+
+# Prerequisites of lib/sockets.c.
+AC_DEFUN([gl_PREREQ_SOCKETS], [
+  :
+])
+
+# socklen.m4 serial 8
+dnl Copyright (C) 2005, 2006, 2007, 2009, 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Albert Chin, Windows fixes from Simon Josefsson.
+
+dnl Check for socklen_t: historically on BSD it is an int, and in
+dnl POSIX 1g it is a type of its own, but some platforms use different
+dnl types for the argument to getsockopt, getpeername, etc.:
+dnl HP-UX 10.20, IRIX 6.5, Interix 3.5, BeOS.
+dnl So we have to test to find something that will work.
+
+dnl On mingw32, socklen_t is in ws2tcpip.h ('int'), so we try to find
+dnl it there first.  That file is included by gnulib's sys_socket.in.h, which
+dnl all users of this module should include.  Cygwin must not include
+dnl ws2tcpip.h.
+AC_DEFUN([gl_TYPE_SOCKLEN_T],
+  [AC_REQUIRE([gl_HEADER_SYS_SOCKET])dnl
+   AC_CHECK_TYPE([socklen_t], ,
+     [AC_MSG_CHECKING([for socklen_t equivalent])
+      AC_CACHE_VAL([gl_cv_socklen_t_equiv],
+        [# Systems have either "struct sockaddr *" or
+         # "void *" as the second argument to getpeername
+         gl_cv_socklen_t_equiv=
+         for arg2 in "struct sockaddr" void; do
+           for t in int size_t "unsigned int" "long int" "unsigned long int"; do
+             AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+                 [[#include <sys/types.h>
+                   #include <sys/socket.h>
+
+                   int getpeername (int, $arg2 *, $t *);]],
+                 [[$t len;
+                  getpeername (0, 0, &len);]])],
+               [gl_cv_socklen_t_equiv="$t"])
+             test "$gl_cv_socklen_t_equiv" != "" && break
+           done
+           test "$gl_cv_socklen_t_equiv" != "" && break
+         done
+      ])
+      if test "$gl_cv_socklen_t_equiv" = ""; then
+        AC_MSG_ERROR([Cannot find a type to use in place of socklen_t])
+      fi
+      AC_MSG_RESULT([$gl_cv_socklen_t_equiv])
+      AC_DEFINE_UNQUOTED([socklen_t], [$gl_cv_socklen_t_equiv],
+        [type to use in place of socklen_t if not defined])],
+     [#include <sys/types.h>
+      #if HAVE_SYS_SOCKET_H
+      # include <sys/socket.h>
+      #elif HAVE_WS2TCPIP_H
+      # include <ws2tcpip.h>
+      #endif])])
+
 # Check for stdbool.h that conforms to C99.
 
 dnl Copyright (C) 2002-2006, 2009-2010 Free Software Foundation, Inc.
@@ -10407,6 +10271,160 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   REPLACE_STRSIGNAL=0;          AC_SUBST([REPLACE_STRSIGNAL])
   REPLACE_STRTOK_R=0;           AC_SUBST([REPLACE_STRTOK_R])
   UNDEFINE_STRTOK_R=0;          AC_SUBST([UNDEFINE_STRTOK_R])
+])
+
+# sys_socket_h.m4 serial 17
+dnl Copyright (C) 2005-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Simon Josefsson.
+
+AC_DEFUN([gl_HEADER_SYS_SOCKET],
+[
+  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
+  AC_REQUIRE([AC_C_INLINE])
+
+  AC_CACHE_CHECK([whether <sys/socket.h> is self-contained],
+    [gl_cv_header_sys_socket_h_selfcontained],
+    [
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/socket.h>]], [[]])],
+        [gl_cv_header_sys_socket_h_selfcontained=yes],
+        [gl_cv_header_sys_socket_h_selfcontained=no])
+    ])
+  if test $gl_cv_header_sys_socket_h_selfcontained = yes; then
+    dnl If the shutdown function exists, <sys/socket.h> should define
+    dnl SHUT_RD, SHUT_WR, SHUT_RDWR.
+    AC_CHECK_FUNCS([shutdown])
+    if test $ac_cv_func_shutdown = yes; then
+      AC_CACHE_CHECK([whether <sys/socket.h> defines the SHUT_* macros],
+        [gl_cv_header_sys_socket_h_shut],
+        [
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([[#include <sys/socket.h>]],
+               [[int a[] = { SHUT_RD, SHUT_WR, SHUT_RDWR };]])],
+            [gl_cv_header_sys_socket_h_shut=yes],
+            [gl_cv_header_sys_socket_h_shut=no])
+        ])
+      if test $gl_cv_header_sys_socket_h_shut = no; then
+        SYS_SOCKET_H='sys/socket.h'
+      fi
+    fi
+  fi
+  # We need to check for ws2tcpip.h now.
+  gl_PREREQ_SYS_H_SOCKET
+  AC_CHECK_TYPES([struct sockaddr_storage, sa_family_t],,,[
+  /* sys/types.h is not needed according to POSIX, but the
+     sys/socket.h in i386-unknown-freebsd4.10 and
+     powerpc-apple-darwin5.5 required it. */
+#include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_WS2TCPIP_H
+#include <ws2tcpip.h>
+#endif
+])
+  if test $ac_cv_type_struct_sockaddr_storage = no; then
+    HAVE_STRUCT_SOCKADDR_STORAGE=0
+  fi
+  if test $ac_cv_type_sa_family_t = no; then
+    HAVE_SA_FAMILY_T=0
+  fi
+  gl_PREREQ_SYS_H_WINSOCK2
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use.
+  gl_WARN_ON_USE_PREPARE([[
+/* Some systems require prerequisite headers.  */
+#include <sys/types.h>
+#if !defined __GLIBC__ && HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+#include <sys/select.h>
+    ]], [socket connect accept bind getpeername getsockname getsockopt
+    listen recv send recvfrom sendto setsockopt shutdown accept4])
+])
+
+AC_DEFUN([gl_PREREQ_SYS_H_SOCKET],
+[
+  dnl Check prerequisites of the <sys/socket.h> replacement.
+  gl_CHECK_NEXT_HEADERS([sys/socket.h])
+  if test $ac_cv_header_sys_socket_h = yes; then
+    HAVE_SYS_SOCKET_H=1
+    HAVE_WS2TCPIP_H=0
+  else
+    HAVE_SYS_SOCKET_H=0
+    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
+    dnl the check for those headers unconditional; yet cygwin reports
+    dnl that the headers are present but cannot be compiled (since on
+    dnl cygwin, all socket information should come from sys/socket.h).
+    AC_CHECK_HEADERS([ws2tcpip.h])
+    if test $ac_cv_header_ws2tcpip_h = yes; then
+      HAVE_WS2TCPIP_H=1
+    else
+      HAVE_WS2TCPIP_H=0
+    fi
+  fi
+  AC_SUBST([HAVE_SYS_SOCKET_H])
+  AC_SUBST([HAVE_WS2TCPIP_H])
+])
+
+# Common prerequisites of the <sys/socket.h> replacement and of the
+# <sys/select.h> replacement.
+# Sets and substitutes HAVE_WINSOCK2_H.
+AC_DEFUN([gl_PREREQ_SYS_H_WINSOCK2],
+[
+  m4_ifdef([gl_UNISTD_H_DEFAULTS], [AC_REQUIRE([gl_UNISTD_H_DEFAULTS])])
+  m4_ifdef([gl_SYS_IOCTL_H_DEFAULTS], [AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])])
+  AC_CHECK_HEADERS_ONCE([sys/socket.h])
+  if test $ac_cv_header_sys_socket_h != yes; then
+    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
+    dnl the check for those headers unconditional; yet cygwin reports
+    dnl that the headers are present but cannot be compiled (since on
+    dnl cygwin, all socket information should come from sys/socket.h).
+    AC_CHECK_HEADERS([winsock2.h])
+  fi
+  if test "$ac_cv_header_winsock2_h" = yes; then
+    HAVE_WINSOCK2_H=1
+    UNISTD_H_HAVE_WINSOCK2_H=1
+    SYS_IOCTL_H_HAVE_WINSOCK2_H=1
+  else
+    HAVE_WINSOCK2_H=0
+  fi
+  AC_SUBST([HAVE_WINSOCK2_H])
+])
+
+AC_DEFUN([gl_SYS_SOCKET_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
+])
+
+AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
+[
+  GNULIB_SOCKET=0;      AC_SUBST([GNULIB_SOCKET])
+  GNULIB_CONNECT=0;     AC_SUBST([GNULIB_CONNECT])
+  GNULIB_ACCEPT=0;      AC_SUBST([GNULIB_ACCEPT])
+  GNULIB_BIND=0;        AC_SUBST([GNULIB_BIND])
+  GNULIB_GETPEERNAME=0; AC_SUBST([GNULIB_GETPEERNAME])
+  GNULIB_GETSOCKNAME=0; AC_SUBST([GNULIB_GETSOCKNAME])
+  GNULIB_GETSOCKOPT=0;  AC_SUBST([GNULIB_GETSOCKOPT])
+  GNULIB_LISTEN=0;      AC_SUBST([GNULIB_LISTEN])
+  GNULIB_RECV=0;        AC_SUBST([GNULIB_RECV])
+  GNULIB_SEND=0;        AC_SUBST([GNULIB_SEND])
+  GNULIB_RECVFROM=0;    AC_SUBST([GNULIB_RECVFROM])
+  GNULIB_SENDTO=0;      AC_SUBST([GNULIB_SENDTO])
+  GNULIB_SETSOCKOPT=0;  AC_SUBST([GNULIB_SETSOCKOPT])
+  GNULIB_SHUTDOWN=0;    AC_SUBST([GNULIB_SHUTDOWN])
+  GNULIB_ACCEPT4=0;     AC_SUBST([GNULIB_ACCEPT4])
+  HAVE_STRUCT_SOCKADDR_STORAGE=1; AC_SUBST([HAVE_STRUCT_SOCKADDR_STORAGE])
+  HAVE_SA_FAMILY_T=1;   AC_SUBST([HAVE_SA_FAMILY_T])
+  HAVE_ACCEPT4=1;       AC_SUBST([HAVE_ACCEPT4])
 ])
 
 # Configure a replacement for <sys/time.h>.
@@ -22578,32 +22596,6 @@ if test $cl_cv_lib_socket = yes; then
   LIBS="$LIBS -lsocket"
 fi
 ])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
-AC_DEFUN([CL_SOCKLEN_T],
-[AC_CACHE_CHECK(for socklen_t in sys/socket.h, cl_cv_type_socklen_t, [
-AC_EGREP_HEADER(socklen_t, sys/socket.h,
-cl_cv_type_socklen_t=yes, cl_cv_type_socklen_t=no)
-])
-if test $cl_cv_type_socklen_t = yes; then
-  AC_DEFINE(CLISP_SOCKLEN_T, socklen_t,
-[socklen_t (if defined in <sys/socket.h>) or int otherwise])
-else
-  AC_DEFINE(CLISP_SOCKLEN_T, int)
-fi
-]
-)
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
