@@ -55,7 +55,7 @@ CL_CC_SUNPRO        dnl sets variable CC_SUNPRO
 CL_CC_CPLUSPLUS     dnl sets variable CC_CPLUSPLUS
 CL_CC_NEED_DEEMA    dnl sets variable CC_NEED_DEEMA
 CL_AS_UNDERSCORE    dnl sets variable AS_UNDERSCORE, DEFS ASM_UNDERSCORE
-CL_SOCKET           dnl LIBS -lsocket
+gl_SOCKETS          dnl sets LIBSOCKET
 CL_CC_WORKS         dnl final CC check
 dnl
 BOLD_MSG([check for add-ons])
@@ -83,7 +83,7 @@ AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS
 dnl
 BOLD_MSG([checks for typedefs])
 CL_CADDR_T    dnl DEFS CADDR_T
-CL_SOCKLEN_T  dnl DEFS CLISP_SOCKLEN_T
+gl_TYPE_SOCKLEN_T  dnl DEFS socklen_t
 AC_CHECK_SIZEOF([off_t])
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])

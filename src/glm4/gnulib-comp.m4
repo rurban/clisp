@@ -26,11 +26,14 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module close-hook:
   # Code from module configmake:
+  # Code from module errno:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   # Code from module getpagesize:
@@ -53,12 +56,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module sockets:
+  # Code from module socklen:
   # Code from module stdbool:
   # Code from module stddef:
   # Code from module stdint:
   # Code from module streq:
   # Code from module string:
   # Code from module strnlen1:
+  # Code from module sys_socket:
   # Code from module sys_time:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -88,12 +94,16 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
+  # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
   gl_FUNC_ALLOCA
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module close-hook:
   # Code from module configmake:
+  # Code from module errno:
+  gl_HEADER_ERRNO_H
   # Code from module extensions:
   # Code from module getpagesize:
   gl_FUNC_GETPAGESIZE
@@ -143,6 +153,10 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module sockets:
+  gl_SOCKETS
+  # Code from module socklen:
+  gl_TYPE_SOCKLEN_T
   # Code from module stdbool:
   AM_STDBOOL_H
   # Code from module stddef:
@@ -153,6 +167,9 @@ AC_DEFUN([gl_INIT],
   # Code from module string:
   gl_HEADER_STRING_H
   # Code from module strnlen1:
+  # Code from module sys_socket:
+  gl_HEADER_SYS_SOCKET
+  AC_PROG_MKDIR_P
   # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
@@ -318,9 +335,13 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/c++defs.h
   build-aux/config.rpath
   build-aux/warn-on-use.h
+  lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
+  lib/close-hook.c
+  lib/close-hook.h
   lib/config.charset
+  lib/errno.in.h
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
@@ -336,6 +357,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
+  lib/sockets.c
+  lib/sockets.h
   lib/stdbool.in.h
   lib/stddef.in.h
   lib/stdint.in.h
@@ -343,6 +366,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/string.in.h
   lib/strnlen1.c
   lib/strnlen1.h
+  lib/sys_socket.in.h
   lib/sys_time.in.h
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -354,11 +378,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
   lib/verify.h
+  lib/w32sock.h
   lib/wchar.in.h
   lib/wctype.in.h
   m4/00gnulib.m4
   m4/alloca.m4
   m4/codeset.m4
+  m4/errno_h.m4
   m4/extensions.m4
   m4/fcntl-o.m4
   m4/getpagesize.m4
@@ -407,11 +433,15 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/printf-posix.m4
   m4/progtest.m4
   m4/size_max.m4
+  m4/sockets.m4
+  m4/socklen.m4
+  m4/sockpfaf.m4
   m4/stdbool.m4
   m4/stddef_h.m4
   m4/stdint.m4
   m4/stdint_h.m4
   m4/string_h.m4
+  m4/sys_socket_h.m4
   m4/sys_time_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
