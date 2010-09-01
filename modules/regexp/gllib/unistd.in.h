@@ -1097,7 +1097,7 @@ _rx_gl_GL_CXXALIASWARN (readlinkat);
 # undef readlinkat
 # if HAVE_RAW_DECL_READLINKAT
 _rx_gl_GL_WARN_ON_USE (readlinkat, "readlinkat is not portable - "
-                 "use gnulib module symlinkat for portability");
+                 "use gnulib module readlinkat for portability");
 # endif
 #endif
 

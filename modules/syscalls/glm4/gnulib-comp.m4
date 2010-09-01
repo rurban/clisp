@@ -35,6 +35,7 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module mktime:
   # Code from module multiarch:
   # Code from module sockets:
+  # Code from module socklen:
   # Code from module stddef:
   # Code from module strcase:
   # Code from module strftime:
@@ -85,6 +86,8 @@ AC_DEFUN([sc_gl_INIT],
   gl_MULTIARCH
   # Code from module sockets:
   gl_SOCKETS
+  # Code from module socklen:
+  gl_TYPE_SOCKLEN_T
   # Code from module stddef:
   gl_STDDEF_H
   # Code from module strcase:
@@ -293,6 +296,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/mktime.m4
   m4/multiarch.m4
   m4/sockets.m4
+  m4/socklen.m4
   m4/sockpfaf.m4
   m4/stddef_h.m4
   m4/strcase.m4

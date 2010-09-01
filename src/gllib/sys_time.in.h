@@ -88,7 +88,7 @@ _gl_GL_CXXALIASWARN (gettimeofday);
 #  undef gettimeofday
 #  if HAVE_RAW_DECL_GETTIMEOFDAY
 _gl_GL_WARN_ON_USE (gettimeofday, "gettimeofday is unportable - "
-		 "use gnulib module gettimeofday for portability");
+                 "use gnulib module gettimeofday for portability");
 #  endif
 # endif
 
