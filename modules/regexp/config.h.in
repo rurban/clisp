@@ -1,6 +1,7 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to indicate the 'malloc' module. */
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module malloc-gnu shall be considered present. */
 #undef GNULIB_MALLOC_GNU
 
 /* Define to 1 when the gnulib module btowc should be tested. */
@@ -37,9 +38,9 @@
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
+/* Define to 1 if your system has a GNU libc compatible 'malloc' function, and
    to 0 otherwise. */
-#undef HAVE_MALLOC
+#undef HAVE_MALLOC_GNU
 
 /* Define if the 'malloc' function is POSIX compliant. */
 #undef HAVE_MALLOC_POSIX
@@ -243,6 +244,9 @@
 /* Define to 1 if usleep is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_USLEEP
 
+/* Define to 1 if _Exit is declared even after undefining macros. */
+#undef HAVE_RAW_DECL__EXIT
+
 /* Define to 1 if you have the <stddef.h> header file. */
 #undef HAVE_STDDEF_H
 
@@ -359,9 +363,6 @@
 #if defined __APPLE__ && defined __MACH__ && __APPLE_CC__ >= 5465 && !defined __cplusplus && __STDC_VERSION__ >= 199901L && !defined __GNUC_STDC_INLINE__
 # define __GNUC_STDC_INLINE__ 1
 #endif
-
-/* Define to rpl_malloc if the replacement function should be used. */
-#undef malloc
 
 /* Define to a type if <wchar.h> does not define. */
 #undef mbstate_t
