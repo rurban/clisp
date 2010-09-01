@@ -15449,76 +15449,60 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-          #include <stdbool.h>
-          #ifndef bool
-           "error: bool is not defined"
-          #endif
-          #ifndef false
-           "error: false is not defined"
-          #endif
-          #if false
-           "error: false is not 0"
-          #endif
-          #ifndef true
-           "error: true is not defined"
-          #endif
-          #if true != 1
-           "error: true is not 1"
-          #endif
-          #ifndef __bool_true_false_are_defined
-           "error: __bool_true_false_are_defined is not defined"
-          #endif
+             #include <stdbool.h>
+             #ifndef bool
+              "error: bool is not defined"
+             #endif
+             #ifndef false
+              "error: false is not defined"
+             #endif
+             #if false
+              "error: false is not 0"
+             #endif
+             #ifndef true
+              "error: true is not defined"
+             #endif
+             #if true != 1
+              "error: true is not 1"
+             #endif
+             #ifndef __bool_true_false_are_defined
+              "error: __bool_true_false_are_defined is not defined"
+             #endif
 
-          struct s { _Bool s: 1; _Bool t; } s;
+             struct s { _Bool s: 1; _Bool t; } s;
 
-          char a[true == 1 ? 1 : -1];
-          char b[false == 0 ? 1 : -1];
-          char c[__bool_true_false_are_defined == 1 ? 1 : -1];
-          char d[(bool) 0.5 == true ? 1 : -1];
-          bool e = &s;
-          char f[(_Bool) 0.0 == false ? 1 : -1];
-          char g[true];
-          char h[sizeof (_Bool)];
-          char i[sizeof s.t];
-          enum { j = false, k = true, l = false * true, m = true * 256 };
-          _Bool n[m];
-          char o[sizeof n == m * sizeof n[0] ? 1 : -1];
-          char p[-1 - (_Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
-          #if defined __xlc__ || defined __GNUC__
-           /* Catch a bug in IBM AIX xlc compiler version 6.0.0.0
-              reported by James Lemley on 2005-10-05; see
-              http://lists.gnu.org/archive/html/bug-coreutils/2005-10/msg00086.html
-              This test is not quite right, since xlc is allowed to
-              reject this program, as the initializer for xlcbug is
-              not one of the forms that C requires support for.
-              However, doing the test right would require a run-time
-              test, and that would make cross-compilation harder.
-              Let us hope that IBM fixes the xlc bug, and also adds
-              support for this kind of constant expression.  In the
-              meantime, this test will reject xlc, which is OK, since
-              our stdbool.h substitute should suffice.  We also test
-              this with GCC, where it should work, to detect more
-              quickly whether someone messes up the test in the
-              future.  */
-           char digs[] = "0123456789";
-           int xlcbug = 1 / (&(digs + 5)[-2 + (bool) 1] == &digs[4] ? 1 : -1);
-          #endif
-          /* Catch a bug in an HP-UX C compiler.  See
-             http://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
-             http://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
-           */
-          _Bool q = true;
-          _Bool *pq = &q;
+             char a[true == 1 ? 1 : -1];
+             char b[false == 0 ? 1 : -1];
+             char c[__bool_true_false_are_defined == 1 ? 1 : -1];
+             char d[(bool) 0.5 == true ? 1 : -1];
+             /* See body of main program for 'e'.  */
+             char f[(_Bool) 0.0 == false ? 1 : -1];
+             char g[true];
+             char h[sizeof (_Bool)];
+             char i[sizeof s.t];
+             enum { j = false, k = true, l = false * true, m = true * 256 };
+             /* The following fails for
+                HP aC++/ANSI C B3910B A.05.55 [Dec 04 2003]. */
+             _Bool n[m];
+             char o[sizeof n == m * sizeof n[0] ? 1 : -1];
+             char p[-1 - (_Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
+             /* Catch a bug in an HP-UX C compiler.  See
+                http://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
+                http://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
+              */
+             _Bool q = true;
+             _Bool *pq = &q;
 
 int
 main ()
 {
 
-          *pq |= q;
-          *pq |= ! q;
-          /* Refer to every declared value, to avoid compiler optimizations.  */
-          return (!a + !b + !c + !d + !e + !f + !g + !h + !i + !!j + !k + !!l
-                  + !m + !n + !o + !p + !q + !pq);
+             bool e = &s;
+             *pq |= q;
+             *pq |= ! q;
+             /* Refer to every declared value, to avoid compiler optimizations.  */
+             return (!a + !b + !c + !d + !e + !f + !g + !h + !i + !!j + !k + !!l
+                     + !m + !n + !o + !p + !q + !pq);
 
   ;
   return 0;
@@ -15562,7 +15546,7 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stddef.h>
-       wchar_t foo = (wchar_t)'\0';
+            wchar_t foo = (wchar_t)'\0';
 int
 main ()
 {
@@ -15988,7 +15972,7 @@ else
 #include <stdio.h>
 #include <time.h>
 #include <wchar.h>
-       wint_t foo = (wchar_t)'\0';
+            wint_t foo = (wchar_t)'\0';
 int
 main ()
 {
@@ -17297,10 +17281,10 @@ if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then :
 else
 
                   case "$host_os" in
-              # Guess no on AIX and OSF/1.
-        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
-              # Guess yes otherwise.
-        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+                     # Guess no on AIX and OSF/1.
+        aix* | osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+                     # Guess yes otherwise.
+        *)           gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
       esac
       if test $LOCALE_JA != none; then
         if test "$cross_compiling" = yes; then :
@@ -17696,10 +17680,10 @@ if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then :
 else
 
                   case "$host_os" in
-              # Guess no on AIX and OSF/1.
-        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
-              # Guess yes otherwise.
-        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+                     # Guess no on AIX and OSF/1.
+        aix* | osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+                     # Guess yes otherwise.
+        *)           gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
       esac
       if test $LOCALE_JA != none; then
         if test "$cross_compiling" = yes; then :
@@ -17881,10 +17865,10 @@ if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then :
 else
 
                   case "$host_os" in
-              # Guess no on AIX and OSF/1.
-        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
-              # Guess yes otherwise.
-        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+                     # Guess no on AIX and OSF/1.
+        aix* | osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+                     # Guess yes otherwise.
+        *)           gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
       esac
       if test $LOCALE_JA != none; then
         if test "$cross_compiling" = yes; then :
@@ -20131,14 +20115,16 @@ else
     am_cv_lib_iconv=no
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <stdlib.h>
 #include <iconv.h>
+
 int
 main ()
 {
 iconv_t cd = iconv_open("","");
-       iconv(cd,NULL,NULL,NULL,NULL);
-       iconv_close(cd);
+           iconv(cd,NULL,NULL,NULL,NULL);
+           iconv_close(cd);
   ;
   return 0;
 }
@@ -20153,14 +20139,16 @@ rm -f core conftest.err conftest.$ac_objext \
       LIBS="$LIBS $LIBICONV"
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <stdlib.h>
 #include <iconv.h>
+
 int
 main ()
 {
 iconv_t cd = iconv_open("","");
-         iconv(cd,NULL,NULL,NULL,NULL);
-         iconv_close(cd);
+             iconv(cd,NULL,NULL,NULL,NULL);
+             iconv_close(cd);
   ;
   return 0;
 }
@@ -20184,15 +20172,17 @@ if test "${am_cv_func_iconv_works+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
 
-            am_save_LIBS="$LIBS"
+                  am_save_LIBS="$LIBS"
       if test $am_cv_lib_iconv = yes; then
         LIBS="$LIBS $LIBICONV"
       fi
       if test "$cross_compiling" = yes; then :
-  case "$host_os" in
+
+         case "$host_os" in
            aix* | hpux*) am_cv_func_iconv_works="guessing no" ;;
            *)            am_cv_func_iconv_works="guessing yes" ;;
          esac
+
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -20236,6 +20226,24 @@ int main ()
                             (char **) &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if (res == 0)
+          return 1;
+      }
+  }
+  /* Test against AIX 6.1..7.1 bug: Buffer overrun.  */
+  {
+    iconv_t cd_88591_to_utf8 = iconv_open ("UTF-8", "ISO-8859-1");
+    if (cd_88591_to_utf8 != (iconv_t)(-1))
+      {
+        static const char input[] = "\304";
+        static char buf[2] = { (char)0xDE, (char)0xAD };
+        const char *inptr = input;
+        size_t inbytesleft = 1;
+        char *outptr = buf;
+        size_t outbytesleft = 1;
+        size_t res = iconv (cd_88591_to_utf8,
+                            (char **) &inptr, &inbytesleft,
+                            &outptr, &outbytesleft);
+        if (res != (size_t)(-1) || outptr - buf > 1 || buf[1] != (char)0xAD)
           return 1;
       }
   }
@@ -20803,15 +20811,19 @@ if { as_var=$gt_func_gnugettext_libc; eval "test \"\${$as_var+set}\" = set"; }; 
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <libintl.h>
 $gt_revision_test_code
 extern int _nl_msg_cat_cntr;
 extern int *_nl_domain_bindings;
+
 int
 main ()
 {
+
 bindtextdomain ("", "");
 return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_domain_bindings
+
   ;
   return 0;
 }
@@ -20869,14 +20881,16 @@ else
     am_cv_lib_iconv=no
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <stdlib.h>
 #include <iconv.h>
+
 int
 main ()
 {
 iconv_t cd = iconv_open("","");
-       iconv(cd,NULL,NULL,NULL,NULL);
-       iconv_close(cd);
+           iconv(cd,NULL,NULL,NULL,NULL);
+           iconv_close(cd);
   ;
   return 0;
 }
@@ -20891,14 +20905,16 @@ rm -f core conftest.err conftest.$ac_objext \
       LIBS="$LIBS $LIBICONV"
       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <stdlib.h>
 #include <iconv.h>
+
 int
 main ()
 {
 iconv_t cd = iconv_open("","");
-         iconv(cd,NULL,NULL,NULL,NULL);
-         iconv_close(cd);
+             iconv(cd,NULL,NULL,NULL,NULL);
+             iconv_close(cd);
   ;
   return 0;
 }
@@ -20922,15 +20938,17 @@ if test "${am_cv_func_iconv_works+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
 
-            am_save_LIBS="$LIBS"
+                  am_save_LIBS="$LIBS"
       if test $am_cv_lib_iconv = yes; then
         LIBS="$LIBS $LIBICONV"
       fi
       if test "$cross_compiling" = yes; then :
-  case "$host_os" in
+
+         case "$host_os" in
            aix* | hpux*) am_cv_func_iconv_works="guessing no" ;;
            *)            am_cv_func_iconv_works="guessing yes" ;;
          esac
+
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -20974,6 +20992,24 @@ int main ()
                             (char **) &inptr, &inbytesleft,
                             &outptr, &outbytesleft);
         if (res == 0)
+          return 1;
+      }
+  }
+  /* Test against AIX 6.1..7.1 bug: Buffer overrun.  */
+  {
+    iconv_t cd_88591_to_utf8 = iconv_open ("UTF-8", "ISO-8859-1");
+    if (cd_88591_to_utf8 != (iconv_t)(-1))
+      {
+        static const char input[] = "\304";
+        static char buf[2] = { (char)0xDE, (char)0xAD };
+        const char *inptr = input;
+        size_t inbytesleft = 1;
+        char *outptr = buf;
+        size_t outbytesleft = 1;
+        size_t res = iconv (cd_88591_to_utf8,
+                            (char **) &inptr, &inbytesleft,
+                            &outptr, &outbytesleft);
+        if (res != (size_t)(-1) || outptr - buf > 1 || buf[1] != (char)0xAD)
           return 1;
       }
   }
@@ -21523,6 +21559,7 @@ else
             LIBS="$LIBS $LIBINTL"
                         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <libintl.h>
 $gt_revision_test_code
 extern int _nl_msg_cat_cntr;
@@ -21531,11 +21568,14 @@ extern
 "C"
 #endif
 const char *_nl_expand_alias (const char *);
+
 int
 main ()
 {
+
 bindtextdomain ("", "");
 return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_alias ("")
+
   ;
   return 0;
 }
@@ -21551,6 +21591,7 @@ rm -f core conftest.err conftest.$ac_objext \
               LIBS="$LIBS $LIBICONV"
               cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
 #include <libintl.h>
 $gt_revision_test_code
 extern int _nl_msg_cat_cntr;
@@ -21559,19 +21600,22 @@ extern
 "C"
 #endif
 const char *_nl_expand_alias (const char *);
+
 int
 main ()
 {
+
 bindtextdomain ("", "");
 return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_alias ("")
+
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
   LIBINTL="$LIBINTL $LIBICONV"
-                LTLIBINTL="$LTLIBINTL $LTLIBICONV"
-                eval "$gt_func_gnugettext_libintl=yes"
+                 LTLIBINTL="$LTLIBINTL $LTLIBICONV"
+                 eval "$gt_func_gnugettext_libintl=yes"
 
 fi
 rm -f core conftest.err conftest.$ac_objext \

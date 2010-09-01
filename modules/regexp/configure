@@ -728,9 +728,12 @@ REPLACE_UNSETENV
 REPLACE_STRTOD
 REPLACE_SETENV
 REPLACE_REALPATH
+REPLACE_REALLOC
 REPLACE_PUTENV
 REPLACE_MKSTEMP
+REPLACE_MALLOC
 REPLACE_CANONICALIZE_FILE_NAME
+REPLACE_CALLOC
 HAVE_UNSETENV
 HAVE_UNLOCKPT
 HAVE_SYS_LOADAVG_H
@@ -741,7 +744,6 @@ HAVE_STRTOD
 HAVE_SETENV
 HAVE_RPMATCH
 HAVE_REALPATH
-HAVE_REALLOC_POSIX
 HAVE_RANDOM_R
 HAVE_PTSNAME
 HAVE_MKSTEMPS
@@ -753,8 +755,8 @@ HAVE_GRANTPT
 HAVE_GETSUBOPT
 HAVE_DECL_GETLOADAVG
 HAVE_CANONICALIZE_FILE_NAME
-HAVE_CALLOC_POSIX
 HAVE_ATOLL
+HAVE__EXIT
 GNULIB_UNSETENV
 GNULIB_UNLOCKPT
 GNULIB_STRTOULL
@@ -779,7 +781,7 @@ GNULIB_GETLOADAVG
 GNULIB_CANONICALIZE_FILE_NAME
 GNULIB_CALLOC_POSIX
 GNULIB_ATOLL
-HAVE_MALLOC_POSIX
+GNULIB__EXIT
 LTLIBINTL
 LIBINTL
 LOCALE_FR
@@ -4878,7 +4880,7 @@ fi
   # Code from module btowc:
   # Code from module c++defs:
   # Code from module gettext-h:
-  # Code from module malloc:
+  # Code from module malloc-gnu:
   # Code from module malloc-posix:
   # Code from module regex:
   # Code from module ssize_t:
@@ -5145,38 +5147,7 @@ $as_echo "$gt_cv_locale_fr" >&6; }
 
 
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether malloc, realloc, calloc are POSIX compliant" >&5
-$as_echo_n "checking whether malloc, realloc, calloc are POSIX compliant... " >&6; }
-if test "${gl_cv_func_malloc_posix+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-
-                        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
-         choke me
-         #endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  gl_cv_func_malloc_posix=yes
-else
-  gl_cv_func_malloc_posix=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_malloc_posix" >&5
-$as_echo "$gl_cv_func_malloc_posix" >&6; }
-
-
+  GNULIB__EXIT=0;
   GNULIB_ATOLL=0;
   GNULIB_CALLOC_POSIX=0;
   GNULIB_CANONICALIZE_FILE_NAME=0;
@@ -5201,13 +5172,12 @@ $as_echo "$gl_cv_func_malloc_posix" >&6; }
   GNULIB_STRTOULL=0;
   GNULIB_UNLOCKPT=0;
   GNULIB_UNSETENV=0;
-    HAVE_ATOLL=1;
-  HAVE_CALLOC_POSIX=1;
+    HAVE__EXIT=1;
+  HAVE_ATOLL=1;
   HAVE_CANONICALIZE_FILE_NAME=1;
   HAVE_DECL_GETLOADAVG=1;
   HAVE_GETSUBOPT=1;
   HAVE_GRANTPT=1;
-  HAVE_MALLOC_POSIX=1;
   HAVE_MKDTEMP=1;
   HAVE_MKOSTEMP=1;
   HAVE_MKOSTEMPS=1;
@@ -5215,7 +5185,6 @@ $as_echo "$gl_cv_func_malloc_posix" >&6; }
   HAVE_MKSTEMPS=1;
   HAVE_PTSNAME=1;
   HAVE_RANDOM_R=1;
-  HAVE_REALLOC_POSIX=1;
   HAVE_REALPATH=1;
   HAVE_RPMATCH=1;
   HAVE_SETENV=1;
@@ -5226,13 +5195,48 @@ $as_echo "$gl_cv_func_malloc_posix" >&6; }
   HAVE_SYS_LOADAVG_H=0;
   HAVE_UNLOCKPT=1;
   HAVE_UNSETENV=1;
+  REPLACE_CALLOC=0;
   REPLACE_CANONICALIZE_FILE_NAME=0;
+  REPLACE_MALLOC=0;
   REPLACE_MKSTEMP=0;
   REPLACE_PUTENV=0;
+  REPLACE_REALLOC=0;
   REPLACE_REALPATH=0;
   REPLACE_SETENV=0;
   REPLACE_STRTOD=0;
   REPLACE_UNSETENV=0;
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether malloc, realloc, calloc are POSIX compliant" >&5
+$as_echo_n "checking whether malloc, realloc, calloc are POSIX compliant... " >&6; }
+if test "${gl_cv_func_malloc_posix+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+
+                        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+             choke me
+             #endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_func_malloc_posix=yes
+else
+  gl_cv_func_malloc_posix=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_malloc_posix" >&5
+$as_echo "$gl_cv_func_malloc_posix" >&6; }
 
 
 
@@ -5354,7 +5358,7 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stddef.h>
-       wchar_t foo = (wchar_t)'\0';
+            wchar_t foo = (wchar_t)'\0';
 int
 main ()
 {
@@ -6050,8 +6054,10 @@ $as_echo "#define GNULIB_TEST_BTOWC 1" >>confdefs.h
   # Code from module gettext-h:
 
 
-  # Code from module malloc:
-  for ac_header in stdlib.h
+  # Code from module malloc-gnu:
+
+
+    for ac_header in stdlib.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "stdlib.h" "ac_cv_header_stdlib_h" "$ac_includes_default"
 if test "x$ac_cv_header_stdlib_h" = x""yes; then :
@@ -6101,10 +6107,11 @@ fi
 $as_echo "$ac_cv_func_malloc_0_nonnull" >&6; }
 if test $ac_cv_func_malloc_0_nonnull = yes; then :
 
-$as_echo "#define HAVE_MALLOC 1" >>confdefs.h
+$as_echo "#define HAVE_MALLOC_GNU 1" >>confdefs.h
 
 else
-  $as_echo "#define HAVE_MALLOC 0" >>confdefs.h
+  $as_echo "#define HAVE_MALLOC_GNU 0" >>confdefs.h
+
 
 
 
@@ -6116,20 +6123,24 @@ else
 
   rx_gl_LIBOBJS="$rx_gl_LIBOBJS malloc.$ac_objext"
 
+  REPLACE_MALLOC=1
 
-$as_echo "#define malloc rpl_malloc" >>confdefs.h
 
 fi
 
 
 
-$as_echo "#define GNULIB_MALLOC_GNU 1" >>confdefs.h
+
+cat >>confdefs.h <<_ACEOF
+#define GNULIB_MALLOC_GNU 1
+_ACEOF
+
 
   # Code from module malloc-posix:
 
 
+
   if test $gl_cv_func_malloc_posix = yes; then
-    HAVE_MALLOC_POSIX=1
 
 $as_echo "#define HAVE_MALLOC_POSIX 1" >>confdefs.h
 
@@ -6142,11 +6153,12 @@ $as_echo "#define HAVE_MALLOC_POSIX 1" >>confdefs.h
 
 
 
+
   rx_gl_LIBOBJS="$rx_gl_LIBOBJS malloc.$ac_objext"
 
-    HAVE_MALLOC_POSIX=0
-  fi
+  REPLACE_MALLOC=1
 
+  fi
 
 
 
@@ -6454,7 +6466,7 @@ int
 main ()
 {
 int x = sizeof (ssize_t *) + sizeof (ssize_t);
-        return !x;
+            return !x;
   ;
   return 0;
 }
@@ -6663,7 +6675,7 @@ fi
 
 
 
-    for gl_func in atoll canonicalize_file_name getloadavg getsubopt grantpt mkdtemp     mkostemp mkostemps mkstemp mkstemps ptsname random_r initstat_r srandom_r     setstate_r realpath rpmatch setenv strtod strtoll strtoull unlockpt     unsetenv; do
+    for gl_func in _Exit atoll canonicalize_file_name getloadavg getsubopt grantpt mkdtemp     mkostemp mkostemps mkstemp mkstemps ptsname random_r initstat_r srandom_r     setstate_r realpath rpmatch setenv strtod strtoll strtoull unlockpt     unsetenv; do
     as_gl_Symbol=`$as_echo "gl_cv_have_raw_decl_$gl_func" | $as_tr_sh`
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $gl_func is declared without a macro" >&5
 $as_echo_n "checking whether $gl_func is declared without a macro... " >&6; }
@@ -6851,10 +6863,10 @@ if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then :
 else
 
                   case "$host_os" in
-              # Guess no on AIX and OSF/1.
-        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
-              # Guess yes otherwise.
-        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+                     # Guess no on AIX and OSF/1.
+        aix* | osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+                     # Guess yes otherwise.
+        *)           gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
       esac
       if test $LOCALE_JA != none; then
         if test "$cross_compiling" = yes; then :

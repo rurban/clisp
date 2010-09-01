@@ -857,6 +857,9 @@
 # define __restrict__
 #endif
 
+/* type to use in place of socklen_t if not defined */
+#undef socklen_t
+
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t
 
