@@ -1,5 +1,14 @@
 2010-09-01  Sam Steingold  <sds@gnu.org>
 
+	use gnulib/host-cpu-c-abi
+	* Makefile.devel (GNULIB_CORE): add host-cpu-c-abi
+	* configure.in: use gl_HOST_CPU_C_ABI instead of CL_CANONICAL_HOST_CPU
+	* makemake.in (host_cpu_c_abi): replaces host_cpu_abi
+	* m4/general.m4 (CL_CACHE_EGREP_CPP, CL_SET_CPU_ABI)
+	(CL_CANONICAL_HOST_CPU): remove (superseded by gnulib/host-cpu-c-abi)
+
+2010-09-01  Sam Steingold  <sds@gnu.org>
+
 	update gnulib
 	* modules/regexp/gllib/malloc.c, modules/regexp/gllib/stdlib.in.h:
 	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/btowc.m4:

@@ -39,6 +39,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gettimeofday:
   # Code from module gnu-make:
   # Code from module havelib:
+  # Code from module host-cpu-c-abi:
   # Code from module include_next:
   # Code from module langinfo:
   # Code from module libsigsegv:
@@ -109,6 +110,8 @@ AC_DEFUN([gl_INIT],
   # Code from module gnu-make:
   gl_GNU_MAKE
   # Code from module havelib:
+  # Code from module host-cpu-c-abi:
+  gl_HOST_CPU_C_ABI
   # Code from module include_next:
   # Code from module langinfo:
   gl_LANGINFO_H
@@ -365,6 +368,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/glibc21.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
+  m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/include_next.m4
   m4/intdiv0.m4
