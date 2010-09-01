@@ -1,3 +1,25 @@
+2010-09-01  Sam Steingold  <sds@gnu.org>
+
+	update gnulib
+	* modules/regexp/gllib/malloc.c, modules/regexp/gllib/stdlib.in.h:
+	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/btowc.m4:
+	* modules/regexp/glm4/codeset.m4, modules/regexp/glm4/gnulib-comp.m4:
+	* modules/regexp/glm4/malloc.m4, modules/regexp/glm4/mbrtowc.m4:
+	* modules/regexp/glm4/ssize_t.m4, modules/regexp/glm4/stdlib_h.m4:
+	* modules/regexp/glm4/wchar_t.m4, modules/regexp/glm4/wcrtomb.m4:
+	* modules/syscalls/gllib/unistd.in.h, modules/syscalls/glm4/mbrlen.m4:
+	* modules/syscalls/glm4/wchar_t.m4:
+	* gllib/string.in.h, gllib/sys_time.in.h, gllib/unistd.in.h:
+	* glm4/codeset.m4, glm4/fcntl-o.m4, glm4/gettext.m4:
+	* glm4/iconv.m4, glm4/include_next.m4, glm4/intdiv0.m4:
+	* glm4/intl.m4, glm4/intlmacosx.m4, glm4/intmax.m4:
+	* glm4/inttypes-pri.m4, glm4/inttypes_h.m4, glm4/lcmessage.m4:
+	* glm4/lib-link.m4, glm4/lock.m4, glm4/mbrtowc.m4:
+	* glm4/mbsrtowcs.m4, glm4/printf-posix.m4, glm4/size_max.m4:
+	* glm4/stdbool.m4, glm4/stdint_h.m4, glm4/threadlib.m4:
+	* glm4/visibility.m4, glm4/wchar_t.m4, glm4/wint_t.m4: update
+	* modules/syscalls/glm4/socklen.m4: add
+
 2010-08-31  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (open-for-load): use MUFFLE-CERRORS to ignore encoding
