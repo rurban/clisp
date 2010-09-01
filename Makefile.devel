@@ -373,6 +373,7 @@ GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool-patched --import \
 # uname) is present
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset \
 	uniwidth/width streq uniname/uniname unitypes link-follow \
+	host-cpu-c-abi \
 	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time
 # these modules are included as dependencies by regexp and fnmatch
 # so we include them here so that they appear once in src/gl*
