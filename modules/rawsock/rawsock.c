@@ -128,7 +128,7 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
  < returns the address of the data area
  can trigger GC */
 static void* check_struct_data (object type, gcv_object_t *arg,
-                                CLISP_SOCKLEN_T *size, int prot) {
+                                socklen_t *size, int prot) {
   object vec = TheStructure(*arg = check_classname(*arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   { void *start_address = (void*)(TheSbvector(vec)->data);
@@ -220,7 +220,7 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
-  CLISP_SOCKLEN_T size;
+  socklen_t size;
   with_sockaddr_arg(sa,&STACK_0,&size,PROT_READ,
                     VALUES2(check_socket_domain_reverse(sa->sa_family),
                             fixnum(size)));
@@ -697,7 +697,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
   SYSCALL(retval,-1,socketpair(domain,type,protocol,sock));
 #else /* woe32 et al */
   struct sockaddr_in addr;
-  CLISP_SOCKLEN_T sa_size = sizeof(struct sockaddr_in);
+  socklen_t sa_size = sizeof(struct sockaddr_in);
   rawsock_t newsock;
   addr.sin_family = domain;
   addr.sin_port = 0;            /* OS will assign an available port */
@@ -734,7 +734,7 @@ DEFUN(RAWSOCK:SOCKATMARK, sock) {
  the return value is invalidated by GC, only use in with_opt_sa_arg
  can trigger GC */
 static /*maygc*/ struct sockaddr* optional_sockaddr_argument
-(gcv_object_t *arg, CLISP_SOCKLEN_T *size PIN_ARG_DECL) {
+(gcv_object_t *arg, socklen_t *size PIN_ARG_DECL) {
   if (nullp(*arg)) return NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
@@ -762,7 +762,7 @@ static /*maygc*/ struct sockaddr* optional_sockaddr_argument
 DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  CLISP_SOCKLEN_T sa_size;
+  socklen_t sa_size;
   with_opt_sa_arg(sa,&STACK_0,&sa_size,
                   SYSCALL(retval,sock,accept(sock,sa,&sa_size)));
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(2);
@@ -771,7 +771,7 @@ DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
 DEFUN(RAWSOCK:BIND,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  CLISP_SOCKLEN_T size;
+  socklen_t size;
   with_sockaddr_arg(sa,&STACK_0,&size,PROT_READ,
                     SYSCALL(retval,sock,bind(sock,sa,size)));
   VALUES0; skipSTACK(2);
@@ -780,7 +780,7 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
 DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  CLISP_SOCKLEN_T size;
+  socklen_t size;
   with_sockaddr_arg(sa,&STACK_0,&size,PROT_READ,
                     SYSCALL(retval,sock,connect(sock,sa,size)));
   VALUES0; skipSTACK(2);
@@ -789,7 +789,7 @@ DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
 DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  CLISP_SOCKLEN_T sa_size;
+  socklen_t sa_size;
   with_opt_sa_arg(sa,&STACK_0,&sa_size,
                   SYSCALL(retval,sock,getpeername(sock,sa,&sa_size)));
   VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
@@ -798,7 +798,7 @@ DEFUN(RAWSOCK:GETPEERNAME,socket sockaddr) {
 DEFUN(RAWSOCK:GETSOCKNAME,socket sockaddr) {
   rawsock_t sock = I_to_uint(check_uint(STACK_1));
   int retval;
-  CLISP_SOCKLEN_T sa_size;
+  socklen_t sa_size;
   with_opt_sa_arg(sa,&STACK_0,&sa_size,
                   SYSCALL(retval,sock,getsockname(sock,sa,&sa_size)));
   VALUES2(STACK_0,fixnum(sa_size)); skipSTACK(2);
@@ -866,7 +866,7 @@ DEFFLAGSET(getnameinfo_flags, NI_NOFQDN NI_NUMERICHOST NI_NAMEREQD \
 DEFUN(RAWSOCK:GETNAMEINFO, sockaddr &key NOFQDN NUMERICHOST NAMEREQD \
       NUMERICSERV NUMERICSCOPE DGRAM) {
   int flags = getnameinfo_flags();
-  CLISP_SOCKLEN_T size;
+  socklen_t size;
   char node[BUFSIZ], service[BUFSIZ];
   int status;
   with_sockaddr_arg(sa,&STACK_0,&size,PROT_READ, {
@@ -976,7 +976,7 @@ DEFUN(RAWSOCK:RECVFROM,socket buffer address &key :START :END PEEK OOB WAITALL){
   int retval;
   void *buffer;
   size_t buffer_len;
-  CLISP_SOCKLEN_T sa_size;
+  socklen_t sa_size;
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
@@ -1118,7 +1118,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key :START :END OOB EOR) {
   rawsock_t sock = I_to_uint(check_uint(STACK_4));
   int retval;
   size_t buffer_len;
-  CLISP_SOCKLEN_T size;
+  socklen_t size;
   if (!missingp(STACK_0)) STACK_0 = check_posfixnum(STACK_0);
   if (!missingp(STACK_1)) STACK_1 = check_posfixnum(STACK_1);
   STACK_3 = check_byte_vector(STACK_3);
@@ -1219,7 +1219,7 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
 #if defined(HAVE_GETSOCKOPT) || defined(WIN32_NATIVE)
 #define GET_SOCK_OPT(opt_type,retform) do {                             \
     opt_type val;                                                       \
-    CLISP_SOCKLEN_T len = sizeof(val);                                  \
+    socklen_t len = sizeof(val);                                        \
     int status;                                                         \
     begin_sock_call();                                                  \
     status = getsockopt(sock,level,name,(SETSOCKOPT_ARG_T)&val,&len);   \

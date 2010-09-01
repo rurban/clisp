@@ -15,14 +15,14 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/regexp/gllib --m4-base=modules/regexp/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=alloca --avoid=alloca-opt --avoid=extensions --avoid=getpagesize --avoid=gettext --avoid=gettimeofday --avoid=gnu-make --avoid=havelib --avoid=host-cpu-c-abi --avoid=include_next --avoid=libsigsegv --avoid=link-follow --avoid=localcharset --avoid=mbrtowc --avoid=mbsinit --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --avoid=no-c++ --avoid=nocrash --avoid=stdbool --avoid=stdint --avoid=streq --avoid=string --avoid=sys_time --avoid=uniname/uniname --avoid=unitypes --avoid=uniwidth/width --avoid=verify --avoid=wchar --avoid=wctype --no-libtool --macro-prefix=rx_gl --no-vc-files regex
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/regexp/gllib --m4-base=modules/regexp/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=alloca --avoid=alloca-opt --avoid=close-hook --avoid=extensions --avoid=getpagesize --avoid=gettext --avoid=gettimeofday --avoid=gnu-make --avoid=havelib --avoid=host-cpu-c-abi --avoid=include_next --avoid=libsigsegv --avoid=link-follow --avoid=localcharset --avoid=mbrtowc --avoid=mbsinit --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --avoid=no-c++ --avoid=nocrash --avoid=sockets --avoid=socklen --avoid=stdbool --avoid=stdint --avoid=streq --avoid=string --avoid=sys_time --avoid=uniname/uniname --avoid=unitypes --avoid=uniwidth/width --avoid=verify --avoid=wchar --avoid=wctype --no-libtool --macro-prefix=rx_gl --no-vc-files regex
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
   regex
 ])
-gl_AVOID([alloca alloca-opt extensions getpagesize gettext gettimeofday gnu-make havelib host-cpu-c-abi include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr nl_langinfo no-c++ nocrash stdbool stdint streq string sys_time uniname/uniname unitypes uniwidth/width verify wchar wctype])
+gl_AVOID([alloca alloca-opt close-hook extensions getpagesize gettext gettimeofday gnu-make havelib host-cpu-c-abi include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr nl_langinfo no-c++ nocrash sockets socklen stdbool stdint streq string sys_time uniname/uniname unitypes uniwidth/width verify wchar wctype])
 gl_SOURCE_BASE([modules/regexp/gllib])
 gl_M4_BASE([modules/regexp/glm4])
 gl_PO_BASE([])

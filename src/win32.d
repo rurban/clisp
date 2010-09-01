@@ -272,7 +272,9 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
    extern int WSAGetLastError (void);
    extern void WSASetLastError (int Error);
    extern int WSACancelBlockingCall (void); */
-#define CLISP_SOCKLEN_T  int
+#ifndef socklen_t
+#define socklen_t  int
+#endif
 /* extern SOCKET socket (int af, int type, int protocol);
    extern int bind (SOCKET s, const struct sockaddr * addr, int addrlen);
    extern int listen (SOCKET s, int backlog);

@@ -545,6 +545,7 @@ LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
 INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
 LIBICONV='@LIBICONV@'               # either '-liconv' or ''
 LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
+LIBSOCKET='@LIBSOCKET@'             # '-lnet' or '-lsocket' or ''
 X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
 X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
 FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
@@ -1045,15 +1046,16 @@ if [ "$TSYSOS" = osf1 ] ; then
   LIBICONV=`echo " $LIBICONV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
   LIBINTL=`echo " $LIBINTL " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
   LIBSIGSEGV=`echo " $LIBSIGSEGV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+  LIBSOCKET=`echo " $LIBSOCKET " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
 fi
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
+  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV' '$LIBSOCKET
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
-    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV
+    LIBS=$LIBS' -luser32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV' '$LIBSOCKET
   else
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib '$LIBSIGSEGV

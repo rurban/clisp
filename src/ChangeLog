@@ -1,5 +1,15 @@
 2010-09-01  Sam Steingold  <sds@gnu.org>
 
+	use gnulib sockets.m4 and socklen.m4 instead of the clisp ones
+	* Makefile.devel (GNULIB_CORE): add socklen, sockets, close-hook
+	* modules/rawsock/rawsock.c, stream.d, socket.di, win32.d:
+	use socklen_t instead of CLISP_SOCKLEN_T
+	* configure.in: use gl_SOCKETS instead of CL_SOCKET
+	and gl_TYPE_SOCKLEN_T instead of CL_SOCKLEN_T
+	* makemake.in: use LIBSOCKET instead of assuming everything is in LIBS
+
+2010-09-01  Sam Steingold  <sds@gnu.org>
+
 	use gnulib/host-cpu-c-abi
 	* Makefile.devel (GNULIB_CORE): add host-cpu-c-abi
 	* configure.in: use gl_HOST_CPU_C_ABI instead of CL_CANONICAL_HOST_CPU

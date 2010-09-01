@@ -28,14 +28,11 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module close-hook:
   # Code from module errno:
   # Code from module gethostname:
   # Code from module mbrlen:
   # Code from module mktime:
   # Code from module multiarch:
-  # Code from module sockets:
-  # Code from module socklen:
   # Code from module stddef:
   # Code from module strcase:
   # Code from module strftime:
@@ -70,7 +67,6 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module close-hook:
   # Code from module errno:
   gl_HEADER_ERRNO_H
   # Code from module gethostname:
@@ -84,10 +80,6 @@ AC_DEFUN([sc_gl_INIT],
   gl_TIME_MODULE_INDICATOR([mktime])
   # Code from module multiarch:
   gl_MULTIARCH
-  # Code from module sockets:
-  gl_SOCKETS
-  # Code from module socklen:
-  gl_TYPE_SOCKLEN_T
   # Code from module stddef:
   gl_STDDEF_H
   # Code from module strcase:
@@ -119,6 +111,7 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module warn-on-use:
+  # Code from module dummy:
   # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
@@ -263,15 +256,12 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/c++defs.h
   build-aux/warn-on-use.h
   lib/alignof.h
-  lib/close-hook.c
-  lib/close-hook.h
+  lib/dummy.c
   lib/errno.in.h
   lib/gethostname.c
   lib/mbrlen.c
   lib/mktime-internal.h
   lib/mktime.c
-  lib/sockets.c
-  lib/sockets.h
   lib/stddef.in.h
   lib/strcasecmp.c
   lib/strftime.c
@@ -295,8 +285,6 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/mktime.m4
   m4/multiarch.m4
-  m4/sockets.m4
-  m4/socklen.m4
   m4/sockpfaf.m4
   m4/stddef_h.m4
   m4/strcase.m4

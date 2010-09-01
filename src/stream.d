@@ -14567,7 +14567,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
-  var CLISP_SOCKLEN_T len = sizeof(val);
+  var socklen_t len = sizeof(val);
   #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
     OS_error();
@@ -14586,7 +14586,7 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
 local maygc void sock_opt_int (SOCKET handle, int option, object value)
 {
   var unsigned int val;
-  var CLISP_SOCKLEN_T len = sizeof(val);
+  var socklen_t len = sizeof(val);
   #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char*)&val,&len))
     OS_error();
@@ -14605,7 +14605,7 @@ local maygc void sock_opt_int (SOCKET handle, int option, object value)
 local maygc void sock_opt_time (SOCKET handle, int option, object value)
 {
   var struct timeval val;
-  var CLISP_SOCKLEN_T len = sizeof(val);
+  var socklen_t len = sizeof(val);
   #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   if (val.tv_usec) {
@@ -14681,7 +14681,7 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
    #ifdef SO_LINGER
     else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
-      var CLISP_SOCKLEN_T len = sizeof(val);
+      var socklen_t len = sizeof(val);
       #ifdef HAVE_GETSOCKOPT
       if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,&len))
         OS_error();
