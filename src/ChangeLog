@@ -1,3 +1,7 @@
+2010-09-02  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (ignore-check): warn about assigned but never read vars
+
 2010-09-01  Sam Steingold  <sds@gnu.org>
 
 	use gnulib sockets.m4 and socklen.m4 instead of the clisp ones
