@@ -3587,8 +3587,7 @@ for-value   NIL or T
 ;; checks if a variable is rightly ignore-declared...
 (defun ignore-check (var)
   (let ((sym (var-name var)))
-    (if (memq sym *ignores*)
-      ;; var ignore-declared
+    (if (memq sym *ignores*) ; var ignore-declared
       (if (var-specialp var)
         (c-warn (TEXT "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL.")
                 sym)
@@ -3598,15 +3597,15 @@ for-value   NIL or T
           (c-style-warn (TEXT "variable ~S is used despite IGNORE declaration.")
                         sym)))
       ;; var not ignore-declared
-      (unless (memq sym *ignorables*)
-        ;; var also not ignorable-declared
-        (unless (or (var-specialp var) (var-usedp var))
-          ;; var lexically and unused
-          (unless (null (symbol-package sym)) ; sym a (gensym) ?
-            ;; (symbols without Home-Package do not originate from the user,
-            ;; the warning would only cause confusion).
-            (c-style-warn (TEXT "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
-                          sym)))))
+      (unless (or (memq sym *ignorables*) ; var also not ignorable-declared
+                  ;; (symbols without Home-Package do not originate from the
+                  ;; user, the warning would only cause confusion).
+                  (null (symbol-package sym)) ; sym a (gensym) ?
+                  (var-specialp var)) ; var is lexical
+        (unless (var-usedp var) ; var is never used
+          (c-style-warn (TEXT "variable ~S is not used.~%Misspelled or missing IGNORE declaration?") sym))
+        (when (and (var-assignedp var) (not (var-for-value-usedp var)))
+          (c-style-warn (TEXT "variable ~S is assigned but not read") sym))))
     (when (memq sym *readonlys*)
       (unless (var-specialp var)
         (when (var-assignedp var)

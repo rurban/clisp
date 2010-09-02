@@ -1246,6 +1246,11 @@ check-const-fold
   (error (c) (princ-error c) :good))
 :GOOD
 
+;; compiler warnings
+(cdr (multiple-value-list (compile nil (lambda () (let (a) t))))) (1 NIL)
+(cdr (multiple-value-list (compile nil (lambda () t)))) (NIL NIL)
+(cdr (multiple-value-list (compile nil (lambda () (let (a) (setq a 1)))))) (1 NIL)
+
 (progn ; Clean up.
   (symbol-cleanup '*c*)
   (symbol-cleanup '*donc*)
