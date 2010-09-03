@@ -213,7 +213,7 @@
   ;; at their old cltl2 meanings, different from :EXECUTE, :LOAD-TOPLEVEL,
   ;; :COMPILE-TOPLEVEL (they ignore the top-level vs non-top-level difference)
   ;; see http://clisp.cons.org/impnotes/evaluation.html#eval-when
-  ;; [these test fail only on compiled mode]
+  ;; [these tests fail only on compiled mode]
   EVAL-WHEN.15 EVAL-WHEN.17
 
   ;; To be revisited:
