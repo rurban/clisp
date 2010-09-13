@@ -240,7 +240,7 @@ further explanations of the issues could be provided).</para>
  If that is the case, please &configure; normally but edit the
  <filename>Makefile</filename> and replace the &gcc; optimization
  options (<option>-O</option> et al) with <option>-g</option> before
- running <command role="unix">make</command>.</para></formalpara>
+ running &make;.</para></formalpara>
 
 <formalpara id="faq-debug-core"><title>Debugging the core</title>
 <para><screen>
