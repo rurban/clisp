@@ -1115,3 +1115,4 @@
 <!ENTITY advantages '<title>Advantages and Disadvantages</title>&varlist-table;'>
 <!ENTITY sost-raw-too '<simpara>The &sost-r; argument can also be a
                        <link linkend="rawsock">raw socket</link>.</simpara>'>
+<!ENTITY new-bytecode '<listitem><simpara>Changed &bytecode; format</simpara></listitem>'>

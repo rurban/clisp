@@ -64,22 +64,23 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.6</revnumber><date>1993-08-22</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>&clos-pac; package:
-     &defclass;, &defmethod;, &defgeneric;, &generic-function-t;,
-     &gen-flet;, &gen-labels;, &with-slots;, &with-accessors;,
-     &find-class;, (&setf; &find-class;), &class-of;, &class-name;,
-     (&setf; &class-name;), &slot-value;, &slot-boundp;,
-     &slot-makunbound;, &slot-exists-p;, &call-next-method;,
-     &next-method-p;, &no-applicable-method;, &no-prim;,
-     &no-next-method;, &find-method;, &add-method;, &remove-method;,
-     &compute-applicable-methods;, &method-qualifiers;,
-     &function-keywords;, &slot-missing;, &slot-unbound;,
-     &print-object;, &describe-object;, &make-instance;,
-     &initialize-instance;, &reinitialize-instance;,
-     &shared-initialize;</simpara></listitem>
+ <revdescription><itemizedlist>&new-bytecode;
+  <listitem><simpara>&clos-pac; package: &defclass;, &defmethod;,
+   &defgeneric;, &generic-function-t;, &gen-flet;, &gen-labels;,
+   &with-slots;, &with-accessors;, &find-class;, (&setf; &find-class;),
+   &class-of;, &class-name;, (&setf; &class-name;), &slot-value;,
+   &slot-boundp;, &slot-makunbound;, &slot-exists-p;,
+   &call-next-method;, &next-method-p;, &no-applicable-method;,
+   &no-prim;, &no-next-method;, &find-method;, &add-method;,
+   &remove-method;, &compute-applicable-methods;, &method-qualifiers;,
+   &function-keywords;, &slot-missing;, &slot-unbound;, &print-object;,
+   &describe-object;, &make-instance;, &initialize-instance;,
+   &reinitialize-instance;, &shared-initialize;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.6.1</revnumber><date>1993-09-01</date>&bruno-a;</revision>
+<revision><revnumber>2.6.1</revnumber><date>1993-09-01</date>&bruno-a;
+ <revdescription><itemizedlist>&new-bytecode;</itemizedlist></revdescription>
+</revision>
 
 <revision><revnumber>2.7</revnumber><date>1993-09-27</date>&bruno-a;
  <revdescription><itemizedlist>
@@ -94,29 +95,28 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.9</revnumber><date>1994-01-08</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>&define-condition;,
-     &ignore-errors;, &handler-case;, &handler-bind;, &restart-case;,
-     &with-restarts;, &with-simple-restart;, &restart-bind;,
-     &with-condition-restarts;, &restart-t;, &condition-t;,
-     &serious-condition-t;, &error-t;, &program-error-t;,
-     &control-error-t;, &arithmetic-error-t;, &division-by-zero-t;,
-     &floating-point-overflow-t;, &floating-point-underflow-t;,
-     &cell-error-t;, &unbound-variable-t;, &undefined-function-t;,
-     &type-error-t;, &package-error-t;, &stream-error-t;,
-     &end-of-file-t;, &file-error-t;, &storage-condition-t;,
-     &warning-t;, &simple-condition-t;, &simple-error-t;,
-     &simple-type-error-t;, &simple-warning-t;, &make-condition;,
-     &signal;, &compute-restarts;, &find-restart;, &invoke-restart;,
-     &invoke-restart-interactively;, &abort;, &continue;,
-     &muffle-warning;, &store-value;, &use-value;, &invoke-debugger;,
-     &restart-name;, &arithmetic-error-operation;,
-     &arithmetic-error-operands;, &cell-error-name;, &type-error-datum;,
-     &type-error-expected-type;, &package-error-package;,
-     &stream-error-stream;, &file-error-pathname;,
-     <function>EXT:SIMPLE-CONDITION-FORMAT-STRING</function>,
-     &simple-condition-format-arguments;,
-     &break-on-signals-var;, &debugger-hook-var;,
-     &print-readably-var;</simpara></listitem>
+ <revdescription><itemizedlist>&new-bytecode;
+  <listitem><simpara>&define-condition;, &ignore-errors;,
+   &handler-case;, &handler-bind;, &restart-case;, &with-restarts;,
+   &with-simple-restart;, &restart-bind;, &with-condition-restarts;,
+   &restart-t;, &condition-t;, &serious-condition-t;, &error-t;,
+   &program-error-t;, &control-error-t;, &arithmetic-error-t;,
+   &division-by-zero-t;, &floating-point-overflow-t;,
+   &floating-point-underflow-t;, &cell-error-t;, &unbound-variable-t;,
+   &undefined-function-t;, &type-error-t;, &package-error-t;,
+   &stream-error-t;, &end-of-file-t;, &file-error-t;,
+   &storage-condition-t;, &warning-t;, &simple-condition-t;,
+   &simple-error-t;, &simple-type-error-t;, &simple-warning-t;,
+   &make-condition;, &signal;, &compute-restarts;, &find-restart;,
+   &invoke-restart;, &invoke-restart-interactively;, &abort;,
+   &continue;, &muffle-warning;, &store-value;, &use-value;,
+   &invoke-debugger;, &restart-name;, &arithmetic-error-operation;,
+   &arithmetic-error-operands;, &cell-error-name;, &type-error-datum;,
+   &type-error-expected-type;, &package-error-package;,
+   &stream-error-stream;, &file-error-pathname;,
+   <function>EXT:SIMPLE-CONDITION-FORMAT-STRING</function>,
+   &simple-condition-format-arguments;, &break-on-signals-var;,
+   &debugger-hook-var;, &print-readably-var;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.10</revnumber><date>1994-06-22</date>&bruno-a;
@@ -148,13 +148,16 @@
 <revision><revnumber>2.12.1</revnumber><date>1994-09-01</date>&bruno-a;</revision>
 
 <revision><revnumber>2.13</revnumber><date>1994-10-26</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>&wild-pathname-p;,
-     &pathname-match-p;, &translate-pathname;, &logical-pathname;,
-     &logical-pathname-translations;, &translate-logical-pathname;,
-     &load-logical-pathname-translations;, &compile-file-pathname;
+ <revdescription><itemizedlist>&new-bytecode;
+  <listitem><simpara>&wild-pathname-p;, &pathname-match-p;,
+   &translate-pathname;, &logical-pathname;,
+   &logical-pathname-translations;, &translate-logical-pathname;,
+   &load-logical-pathname-translations;, &compile-file-pathname;
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.13.1</revnumber><date>1995-01-01</date>&bruno-a;</revision>
+<revision><revnumber>2.13.1</revnumber><date>1995-01-01</date>&bruno-a;
+ <revdescription><itemizedlist>&new-bytecode;</itemizedlist></revdescription>
+</revision>
 
 <revision><revnumber>2.14</revnumber><date>1995-04-04</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&ffi-pac;</simpara></listitem>
@@ -178,7 +181,7 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.16</revnumber><date>1995-06-23</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>&complement;,
+ <revdescription><itemizedlist>&new-bytecode;<listitem><simpara>&complement;,
      &with-standard-io-syntax;, &dynamic-extent-dec;, &lambda-m;,
      &ignorable-dec;, &constantly;</simpara></listitem>
    <listitem><simpara>&with-hash-table-iterator;,
@@ -187,13 +190,11 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.17</revnumber><date>1996-07-21</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>&sose;, &sose-close;,
-     &sose-port;, &so-wait;, &so-accept;, &so-connect;, &sost-host;,
-     &sost-port;, <function>SOCKET:SOCKET-SERVICE-PORT</function>,
-     &sost-peer;</simpara></listitem>
-</itemizedlist></revdescription></revision>
-
-<revision><revnumber>2.17</revnumber><date>1996-07-22</date>&bruno-a;</revision>
+ <revdescription><itemizedlist>&new-bytecode;
+   <listitem><simpara>&sose;, &sose-close;, &sose-port;, &so-wait;,
+    &so-accept;, &so-connect;, &sost-host;, &sost-port;,
+    <function>SOCKET:SOCKET-SERVICE-PORT</function>, &sost-peer;
+</simpara></listitem></itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.18</revnumber><date>1997-05-03</date>&bruno-a;
  <revdescription><itemizedlist>
@@ -214,7 +215,7 @@
 <revision><revnumber>2.20.1</revnumber><date>1997-12-06</date>&bruno-a;</revision>
 
 <revision><revnumber>2.21</revnumber><date>1998-09-09</date>&bruno-a;
- <revdescription><itemizedlist>
+ <revdescription><itemizedlist>&new-bytecode;
    <listitem><simpara>Removed module STDWIN.</simpara></listitem>
    <listitem><simpara>&warn-fpc;, &flocont;, &floating-point-inexact-t;,
      &floating-point-invalid-operation-t;</simpara></listitem>
@@ -228,7 +229,7 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.22</revnumber><date>1999-01-08</date>&bruno-a;
- <revdescription><itemizedlist>
+ <revdescription><itemizedlist>&new-bytecode;
    <listitem><simpara>&base-char-t;, &extended-char-t;, &base-string-t;,
      &simple-base-string-t;</simpara></listitem>
    <listitem><simpara>&get-setf-expansion;,
@@ -261,7 +262,7 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.25</revnumber><date>2001-03-15</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>&inspect;,
+ <revdescription><itemizedlist>&new-bytecode;<listitem><simpara>&inspect;,
     <function>EXT:CLHS</function></simpara></listitem>
    <listitem><simpara>&convert-string-from-bytes;,
      &convert-string-to-bytes;</simpara></listitem>
@@ -273,7 +274,7 @@
 <revision><revnumber>2.25.1</revnumber><date>2001-04-06</date>&sds-a;</revision>
 
 <revision><revnumber>2.26</revnumber><date>2001-05-23</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>dropped CLtL1,
+ <revdescription><itemizedlist>&new-bytecode;<listitem><simpara>dropped CLtL1,
      added <constant>:LISP=CL</constant> to &features-my;</simpara></listitem>
    <listitem><simpara>&define-compiler-macro;</simpara></listitem>
    <listitem><simpara>&upgraded-complex-part-type;</simpara></listitem>
@@ -288,8 +289,8 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.28</revnumber><date>2002-03-03</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>&ansi-cl;
-     Pretty-Printer</simpara></listitem>
+ <revdescription><itemizedlist>&new-bytecode;
+   <listitem><simpara>&ansi-cl; Pretty-Printer</simpara></listitem>
    <listitem><simpara>&make-load-form;,
      &make-load-form-saving-slots;</simpara></listitem>
    <listitem><simpara><xref linkend="weak-ht"/></simpara></listitem>
@@ -314,7 +315,7 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.31</revnumber><date>2003-09-01</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>New modules:
+ <revdescription><itemizedlist>&new-bytecode;<listitem><simpara>New modules:
      &fastcgi-mod;, &dirkey-mod;, &win32-mod;,
      &syscalls-mod;, &netica-mod;</simpara></listitem>
    <listitem><simpara>Support modules on &win32;.</simpara></listitem>
@@ -332,8 +333,8 @@
 </revdescription></revision>
 
 <revision><revnumber>2.33</revnumber><date>2004-03-17</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>&apropos-matcher;,
-     &mod-expt;, &argv;, &st-position;</simpara></listitem>
+ <revdescription><itemizedlist>&new-bytecode;<listitem><simpara>&mod-expt;,
+     &apropos-matcher;, &argv;, &st-position;</simpara></listitem>
    <listitem><simpara>&define-method-combination;</simpara></listitem>
    <listitem><simpara>Portability: removed &acorn; and &amiga; support,
      fixed UNIXes.</simpara></listitem>
@@ -348,7 +349,7 @@
      &linux;/x86</simpara></listitem></itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.34</revnumber><date>2005-07-20</date>&sds-a;
- <revdescription><itemizedlist>
+ <revdescription><itemizedlist>&new-bytecode;
    <listitem><simpara><xref linkend="mop-chap"/></simpara></listitem>
    <listitem><simpara><xref linkend="weak"/></simpara></listitem>
    <listitem><simpara><xref linkend="package-case"/></simpara></listitem>
@@ -395,9 +396,9 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.40</revnumber><date>2006-09-23</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>Keep doc string and
-     &lalist; in the closure object.</simpara></listitem>
-</itemizedlist></revdescription></revision>
+ <revdescription><itemizedlist>&new-bytecode;
+  <listitem><simpara>Keep doc string and &lalist; in the closure object.
+</simpara></listitem></itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.41</revnumber><date>2006-10-13</date>&sds-a;
  <revdescription><itemizedlist>
@@ -440,8 +441,9 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.45</revnumber><date>2008-05-15</date>&sds-a;
- <revdescription><itemizedlist><listitem><simpara>Just-In-Time compilation
-   (&experimental;) via &lightning;.</simpara></listitem>
+ <revdescription><itemizedlist>&new-bytecode;
+   <listitem><simpara>Just-In-Time compilation (&experimental;)
+     via &lightning;.</simpara></listitem>
    <listitem><simpara>&def-call-out; and &def-c-var; accept &version-k;.
    </simpara></listitem>
    <listitem><simpara>&repl; commands accept arguments.</simpara></listitem>
