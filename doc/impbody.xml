@@ -3779,9 +3779,9 @@ under the current directory (similar to the <command role="unix">ls
        ... <constant>:TRUNAMEP</constant> &nil;)</code> call in &cmucl;)
    </simpara></listitem></varlistentry>
    <varlistentry><term><constant>:IGNORE</constant></term>
-    <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also
-      do not signal an error when a directory is unaccessible (contrary to
-      the &ansi-cl; specification).</simpara></listitem></varlistentry>
+    <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also do
+      &not-e; &signal; an &error-t; when a directory is unaccessible (contrary
+      to the &ansi-cl; specification).</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry></variablelist>
 </section>
 
