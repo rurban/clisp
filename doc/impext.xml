@@ -1621,8 +1621,7 @@ In other words, each pair is:
 <section id="macros3"><title>Additional Fancy Macros and Functions</title>
 
 <para>&clisp; comes with some extension macros, mostly defined in the
- file &macros3-lisp; and loaded from the file &init-lisp; during
- <command role="unix">make</command>:</para>
+ file &macros3-lisp; and loaded from the file &init-lisp; during &make;:</para>
 
 <section id="ethe"><title>Macro &ethe;</title>
 <para><code>(&ethe; &val-type-r; &form-r;)</code>

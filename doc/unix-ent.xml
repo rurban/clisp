@@ -38,3 +38,4 @@
 <!ENTITY write-U '<function role="unix">write</function>'>
 <!ENTITY mkstemp '<function role="unix">mkstemp</function>'>
 <!ENTITY regex '<filename role="unix">regex.h</filename>'>
+<!ENTITY make '<command role="unix">make</command>'>

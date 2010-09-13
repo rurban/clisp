@@ -748,7 +748,7 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
  <listitem><simpara>Please do a clean build (remove your build directory
    and build &clisp; with <command>./configure --cbc build</command>
    or at least do a <command role="unix">make distclean</command>
-   before <command role="unix">make</command>).</simpara></listitem>
+   before &make;).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
    <command>./configure &with-debug; --cbc build-g ; cd build-g; gdb
