@@ -1425,7 +1425,7 @@ the corresponding generic function.  The correspondences are as follows:
 <para>Instances of the class &standard-class; support multiple
 inheritance and reinitialization.  Instances of the class
 &funcallable-standard-class; support multiple inheritance and
-reinitialization.  For forward referenced classes, all of the
+reinitialization.  For &forward-referenced-class;es, all of the
 initialization arguments default to &nil;.</para>
 
 <note>&clisp-only;<simpara>Instances of the class &structure-class; do
@@ -1655,14 +1655,14 @@ In addition, once finalization is complete, any dependents of the
    computed initialization arguments.  The &proper-name-glo; of the
    newly created &c-mo; is set to &name-r;.  The newly created &c-mo; is
    returned.</simpara>
-  <simpara>If the &class-r; argument is a forward referenced class,
+  <simpara>If the &class-r; argument is a &forward-referenced-class;,
    &change-class; is called to change its class to the value specified
    by the &metaclass-k; argument.  The &c-mo; is then reinitialized with
    the previously initialization arguments.  (This is a documented
    violation of the general constraint that &change-class; may not be
    used with &c-mo;s.)</simpara>
   <note>&clisp-only;<simpara>
-    The &class-r; argument cannot be a forward referenced class. See
+    The &class-r; argument cannot be a &forward-referenced-class;. See
     <xref linkend="forward-referenced-class-clisp"/>.</simpara></note>
   <simpara>If the class of the &class-r; argument is not the same as the
    class specified by the &metaclass-k; argument, an &err-sig;.</simpara>
@@ -1970,7 +1970,7 @@ In addition, once finalization is complete, any dependents of the
    <ulink role="clhs" url="sec_4-3-5">4.3.5 <quote>Determining the
      Class Precedence List</quote></ulink>.</simpara>
  <simpara>This method &sig-err; if &class-r; or any of its superclasses
-  is a forward referenced class.</simpara>
+  is a &forward-referenced-class;.</simpara>
  &overridable;</listitem></varlistentry></variablelist>
 </section><!-- compute-cpl -->
 
@@ -2180,7 +2180,7 @@ In addition, once finalization is complete, any dependents of the
    <ulink role="clhs" url="sec_7-1-3">7.1.3 <quote>Defaulting
      of Initialization Arguments</quote></ulink>.</simpara>
   <simpara>These methods signal an error if &class-r; or any of its
-   superclasses is a forward referenced class.</simpara>
+   superclasses is a &forward-referenced-class;.</simpara>
   &overridables;</listitem></varlistentry></variablelist>
 </section><!-- compute-default-initargs -->
 
