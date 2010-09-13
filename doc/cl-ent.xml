@@ -119,7 +119,7 @@
 <!ENTITY configure '<ulink url="http://www.gnu.org/software/autoconf/"><command>configure</command></ulink>'>
 <!ENTITY bash '&gnu; <ulink url="http://www.gnu.org/software/bash/">bash</ulink>'>
 <!ENTITY cvs '<ulink url="http://www.cvshome.org">CVS</ulink>'>
-<!ENTITY asdf '<ulink url="http://www.cliki.net/asdf"><function>asdf</function></ulink>'>
+<!ENTITY asdf '<ulink url="http://common-lisp.net/project/asdf/"><function>asdf</function></ulink>'>
 <!ENTITY defsystem '<ulink url="http://www.cliki.net/defsystem"><function>defsystem</function></ulink>'>
 <!ENTITY gpl '<ulink url="http://www.gnu.org/copyleft/gpl.html">GPL</ulink>'>
 <!ENTITY lgpl '<ulink url="http://www.gnu.org/copyleft/lgpl.html">LGPL</ulink>'>
