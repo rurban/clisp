@@ -5224,6 +5224,12 @@ The correct way to check whether &compile-file; has failed is the
  a &pathname-t; or a &list-t; of &pathname-t;s: files to be &load-my;ed
  if the required module is not already present.</para>
 
+<section id="require-return"><title>Return value</title>
+<para>When the module is already present, &nil; is returned;
+ otherwise returns the &truename; which was loaded to satisfy the &require;ment
+ (or &list-t; thereof iff the second argument is a &list-t;).</para>
+</section>
+
 <section id="require-search"><title>Additional &load-my; locations</title>
 
 <para>In addition to (and &before-e;) &load-paths;, &require; tries to
@@ -5395,6 +5401,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <varlistentry><term><literal>STOP</literal></term>
    <listitem><simpara>Stop loading the file.
 </simpara></listitem></varlistentry></variablelist></para>
+
+<para>On success, &load; returns the &truename; of the file which it loaded.
+</para>
 
 <formalpara id="load-paths"><title>Variable &load-paths;</title>
 <para>The variable &load-paths; contains a list of directories where the
