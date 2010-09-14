@@ -21,6 +21,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes/require.html#module-providers>
   for details.
 
+* New module ASDF provides a system definition facility.
+  See <http://clisp.cons.org/impnotes/asdf.html> for details.
+
 * FFI now converts REALs to FLOATs automatically as necessary.
 
 * Bug fixes:

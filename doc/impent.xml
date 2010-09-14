@@ -556,6 +556,7 @@
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
 
 <!-- *** modules *** -->
+<!ENTITY asdf-mod '<filename role="module" path="asdf">asdf</filename>'>
 <!ENTITY i18n-mod '<filename role="module" path="i18n-mod">i18n</filename>'>
 <!ENTITY regexp-mod '<filename role="module" path="regexp-mod">regexp</filename>'>
 <!ENTITY syscalls-mod '<filename role="module" path="syscalls">syscalls</filename>'>

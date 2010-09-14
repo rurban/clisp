@@ -5247,7 +5247,9 @@ The correct way to check whether &compile-file; has failed is the
  on the first (module name) argument until one of them returns non-&nil;.
  If all of them return &nil;, &load-my; is called as described
  <link linkend="require-search">above</link>.</para>
-</section>
+<para>Initially the lisp is empty; <code>(require "&asdf-mod;")</code>
+ modifies it (<emphasis role="plat-dep">if &clisp; was configured with the
+ option <option>--with-module=asdf</option></emphasis>).</para></section>
 
 <section id="lib-files"><title>Interaction with &compile-file-my;</title>
 

@@ -1,3 +1,11 @@
+2010-09-13  Sam Steingold  <sds@gnu.org>
+
+	bundle ASDF2 as a module
+	* Makefile.devel (update-asdf): new .PHONY target
+	(pre-release): depend on it
+	* modules/asdf: add (based on asdf 2.008)
+	* makemake.in, unix/INSTALL: mention asdf in the docs
+
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/mit-clx/Makefile (clisp-module): depend on link.sh

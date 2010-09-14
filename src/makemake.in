@@ -1825,6 +1825,7 @@ echol
 echol     "# (partial) list of available add-on modules"
 echol     "# (see directory modules/ for the full list"
 echol     "#  or pass --help-modules to top-level configure):"
+echol     "# asdf                 Another System Definition Facility"
 echol     "# queens               the queens function (a toy example)"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# berkeley-db          the Berkeley DB access"

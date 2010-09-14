@@ -14,6 +14,7 @@ DTDVER=4.5
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
 	history.xml \
+	../modules/asdf/asdf.xml	        \
 	../modules/berkeley-db/berkeley-db.xml	\
 	../modules/berkeley-db/ent-bdb.xml	\
 	../modules/dbus/dbus.xml		\
