@@ -91,7 +91,7 @@
   (gid      0 :type (unsigned-byte 32) :read-only t)
   (members () :type list :read-only t))
 ;;; ============================================================
-(export '(set-file-stat convert-mode umask))
+(export '(set-file-stat convert-mode umask #+unix file-tree-walk))
 
 (defstruct (file-stat
              (:constructor
