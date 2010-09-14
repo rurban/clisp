@@ -183,8 +183,17 @@ with_dynamic_modules=${with_dynamic_modules-@with_dynamic_modules@}
 prepare_dynamic_module() {
   if test "$with_dynamic_modules" != no; then
     dyndir=${LIBDIR}/${DYNMOD}
-    dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@SHREXT@
-    lib=${dyndir}/${dll}; libs="${NEW_LIBS} @CLISP_DEF@"; verbose @createsharedlib@
+    if test -n "${NEW_LIBS}"; then # have C code
+      dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@SHREXT@
+      lib=${dyndir}/${dll}; libs="${NEW_LIBS} @CLISP_DEF@"; verbose @createsharedlib@
+      DYNDIR_FILES=${DYNDIR_FILES}" ${lib}"
+      # dll has SHREXT extension
+      DM="(sys::dynload-modules (cl:merge-pathnames \"${dll}\" cl:*load-truename*) (quote ("
+      for m in ${NEW_MODULES}; do
+        DM=${DM}" \"$m\""
+      done
+    else DM=''
+    fi
     # for each module there will be a hard link to a REQUIRE file
     firstmod=''; othermods=''
     for m in ${NEW_MODULES}; do
@@ -196,18 +205,13 @@ prepare_dynamic_module() {
     done
     # create the REQUIRE file
     reqfile=${dyndir}/${firstmod}.lisp
-    DYNDIR_FILES=${DYNDIR_FILES}" ${lib} ${reqfile}"
+    DYNDIR_FILES=${DYNDIR_FILES}" ${reqfile}"
     rm -f "${reqfile}"
     for f in ${TO_PRELOAD}; do
       # preload files are not compiled
       echo "(cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> "${reqfile}"
     done
-    # dll has SHREXT extension
-    DM="(sys::dynload-modules (cl:merge-pathnames \"${dll}\" cl:*load-truename*) (quote ("
-    for m in ${NEW_MODULES}; do
-      DM=${DM}" \"$m\""
-    done
-    echo ${DM}" )))" >> "${reqfile}"
+    test -n "${DM}" && echo ${DM}" )))" >> "${reqfile}"
     if test -n "${TO_LOAD}"; then
       echo "(ext:appease-cerrors ; for DEF-CALL-OUT to non-existent functions" >> "${reqfile}"
       for f in ${TO_LOAD}; do
@@ -401,9 +405,11 @@ case "$1" in
         cd "$moduledir"
         . ./link.sh
         cd "$absolute_currentdir"
-        for mod in $NEW_MODULES ; do # update modules.h
-          echo 'MODULE('"$mod"')' >> "$destinationdir"/modules.h
-        done
+        if test -n "${NEW_LIBS}"; then
+          for mod in $NEW_MODULES ; do # update modules.h
+            echo 'MODULE('"$mod"')' >> "$destinationdir"/modules.h
+          done
+        fi
         FILES=${FILES}' '`lncp_some "$moduledir" "$destinationdir" ${NEW_FILES}`
         LIBS=${NEW_LIBS}' '${LIBS}
         for f in $TO_PRELOAD; do
@@ -487,27 +493,31 @@ case "$1" in
             PRELOAD=${PRELOAD}' '"$moduledir/$f"
           done
           FILES=${FILES}' '`lncp_some "$moduledir" "$tmp" ${NEW_FILES}`
-          LIBS=${NEW_LIBS}' '${LIBS}
-          for mod in $NEW_MODULES; do
-            MODULES=${MODULES}' '"$mod"
-          done
+          if test -n "${NEW_LIBS}"; then
+            LIBS=${NEW_LIBS}' '${LIBS}
+            for mod in $NEW_MODULES; do
+              MODULES=${MODULES}' '"$mod"
+            done
+          fi
           for f in $TO_LOAD; do
             LOAD=${LOAD}' '"$moduledir/$f"
           done
         done
-        tmpsharedlib="$tmp/clisplink@SHREXT@"
         tmpinitlisp="$tmp/clisplink.lisp"
-        # What to do if we abort.
-        trap 'rm -rf "$tmp"' 0 1 2 15
-        # Create an initialization file with a couple of load forms.
-        (for f in $PRELOAD; do echo "(load \"${f}\")"; done
-         echo "(system::dynload-modules \"$tmpsharedlib\" (quote ("
-         for mod in $MODULES; do echo "  \"${mod}\""; done
-         echo ")))"
-         for f in $LOAD; do echo "(load \"${f}\")"; done ) > "$tmpinitlisp"
-        # Create a shared library.
-        start_dir=`pwd`; cd $tmp;
-        lib="$tmpsharedlib"; libs="$LIBS"; verbose @createsharedlib@
+        if test -n "${MODULES}"; then
+          tmpsharedlib="$tmp/clisplink@SHREXT@"
+          # What to do if we abort.
+          trap 'rm -rf "$tmp"' 0 1 2 15
+          # Create an initialization file with a couple of load forms.
+          (for f in $PRELOAD; do echo "(load \"${f}\")"; done
+           echo "(system::dynload-modules \"$tmpsharedlib\" (quote ("
+           for mod in $MODULES; do echo "  \"${mod}\""; done
+           echo ")))")  > "$tmpinitlisp"
+          # Create a shared library.
+          start_dir=`pwd`; cd $tmp;
+          lib="$tmpsharedlib"; libs="$LIBS"; verbose @createsharedlib@
+        fi
+        (for f in $LOAD; do echo "(load \"${f}\")"; done) > "$tmpinitlisp"
         cd "$start_dir"
         # Run clisp, attach the shared library and load the Lisp stuff.
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -i "$tmpinitlisp"
