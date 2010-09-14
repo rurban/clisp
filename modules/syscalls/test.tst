@@ -617,29 +617,41 @@ RUN-SLEEP
 (os:version-compare "foo2" "foo10") <
 
 #+unix
-(let (res)
+(let (res0 res1 res2)
   (ensure-directories-exist "dir1/dir2/dir3/" :verbose t)
   (open "dir1/file1" :direction :probe :if-does-not-exist :create)
   (open "dir1/dir2/file2" :direction :probe :if-does-not-exist :create)
   (open "dir1/dir2/dir3/file3" :direction :probe :if-does-not-exist :create)
+  (setq res0
+        (posix:file-tree-walk "dir1"
+          (lambda (f s k b l)
+            (print (list k f))
+            (push (list f s k b l) res1)
+            (if (= l 3) f))))
   (posix:file-tree-walk "dir1"
     (lambda (f s k b l)
       (print (list k f))
-      (push (list f s k b l) res)
+      (push (list f s k b l) res2)
       (case k
         ((:D :DP :DNR) (ext:delete-directory (ext:probe-pathname f)))
         (T (delete-file f)))
       nil)
     :depth t)
-  (mapcar (lambda (l)
-            (list (equalp (first l) (os:file-stat-file (second l)))
-                  (pathname-name (first l))
-                  (third l) (fifth l)))
-          (show (nreverse res) :pretty t)))
+  (list
+   (pathname-name res0)
+   (mapcar (lambda (l) (pathname-name (first l)))
+           (show (nreverse res1) :pretty t))
+   (mapcar (lambda (l)
+             (list (equalp (first l) (os:file-stat-file (second l)))
+                   (pathname-name (first l))
+                   (third l) (fifth l)))
+           (show (nreverse res2) :pretty t))))
 #+unix
-((T "file3" :F 3) (T "dir3" :DP 2)
- (T "file2" :F 2) (T "dir2" :DP 1)
- (T "file1" :F 1) (T "dir1" :DP 0))
+("file3"
+ ("dir1" "dir2" "dir3" "file3")
+ ((T "file3" :F 3) (T "dir3" :DP 2)
+  (T "file2" :F 2) (T "dir2" :DP 1)
+  (T "file1" :F 1) (T "dir1" :DP 0)))
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
