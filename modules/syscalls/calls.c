@@ -76,6 +76,9 @@
 #if defined(HAVE_SYS_PARAM_H)   /* might not be present on woe32 */
 # include <sys/param.h>
 #endif
+#if defined(HAVE_FTW_H)
+# include <ftw.h>
+#endif
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
@@ -1922,6 +1925,40 @@ DEFUN(POSIX::%SETDOMAINNAME, domain) {
 # if !defined(HAVE_LSTAT)
 #  define lstat stat
 # endif
+static void file_stat_to_STACK (object file, const struct stat *ps) {
+  pushSTACK(file);                    /* the object stat'ed */
+  pushSTACK(L_to_I(ps->st_dev));      /* device */
+#if defined(SIZEOF_INO_T) && SIZEOF_INO_T == 8
+  pushSTACK(uint64_to_I(ps->st_ino)); /* inode */
+#else
+  pushSTACK(uint32_to_I(ps->st_ino)); /* inode */
+#endif
+  pushSTACK(check_chmod_mode_to_list(ps->st_mode)); /* protection */
+  pushSTACK(UL_to_I(ps->st_nlink));   /* number of hard links */
+  pushSTACK(UL_to_I(ps->st_uid));     /* user ID of owner */
+  pushSTACK(UL_to_I(ps->st_gid));     /* group ID of owner */
+#if defined(HAVE_STAT_ST_RDEV)
+  pushSTACK(L_to_I(ps->st_rdev));     /* device type (if inode device) */
+#else
+  pushSTACK(NIL);
+#endif
+  pushSTACK(L_to_I(ps->st_size));     /* total size, in bytes */
+#if defined(HAVE_STAT_ST_BLKSIZE)
+  pushSTACK(UL_to_I(ps->st_blksize)); /* blocksize for filesystem I/O */
+#else
+  pushSTACK(NIL);
+#endif
+#if defined(HAVE_STAT_ST_BLOCKS)
+  pushSTACK(UL_to_I(ps->st_blocks));  /* number of blocks allocated */
+#else
+  pushSTACK(NIL);
+#endif
+  /* cannot use convert_time_to_universal() because this is used on win32 */
+  pushSTACK(UL_to_I(ps->st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
+  pushSTACK(UL_to_I(ps->st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
+  pushSTACK(UL_to_I(ps->st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
+}
+
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
 { /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be a pathname designator or a file descriptor designator
@@ -1975,37 +2012,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     }
   }
 
-  pushSTACK(file);                    /* the object stat'ed */
-  pushSTACK(L_to_I(buf.st_dev));      /* device */
-#if defined(SIZEOF_INO_T) && SIZEOF_INO_T == 8
-  pushSTACK(uint64_to_I(buf.st_ino)); /* inode */
-#else
-  pushSTACK(uint32_to_I(buf.st_ino)); /* inode */
-#endif
-  pushSTACK(check_chmod_mode_to_list(buf.st_mode)); /* protection */
-  pushSTACK(UL_to_I(buf.st_nlink));   /* number of hard links */
-  pushSTACK(UL_to_I(buf.st_uid));     /* user ID of owner */
-  pushSTACK(UL_to_I(buf.st_gid));     /* group ID of owner */
-#if defined(HAVE_STAT_ST_RDEV)
-  pushSTACK(L_to_I(buf.st_rdev));     /* device type (if inode device) */
-#else
-  pushSTACK(NIL);
-#endif
-  pushSTACK(L_to_I(buf.st_size));     /* total size, in bytes */
-#if defined(HAVE_STAT_ST_BLKSIZE)
-  pushSTACK(UL_to_I(buf.st_blksize)); /* blocksize for filesystem I/O */
-#else
-  pushSTACK(NIL);
-#endif
-#if defined(HAVE_STAT_ST_BLOCKS)
-  pushSTACK(UL_to_I(buf.st_blocks));  /* number of blocks allocated */
-#else
-  pushSTACK(NIL);
-#endif
-  /* cannot use convert_time_to_universal() because this is used on win32 */
-  pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
-  pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
-  pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
+  file_stat_to_STACK(file,&buf);
  call_make_file_stat:
   funcall(`POSIX::MAKE-FILE-STAT`,14);
   skipSTACK(2);                 /* drop linkp & file */
@@ -2186,6 +2193,42 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
   VALUES0; skipSTACK(1);
 }
 #endif  /* chmod chown utime */
+
+#if defined(HAVE_NFTW)
+DEFFLAGSET(ftw_flags,FTW_CHDIR FTW_DEPTH FTW_MOUNT FTW_PHYS)
+DEFCHECKER(check_ftw_kind,prefix=FTW, F D DP SL SLN DNR NS)
+/* STACK_0 = function to be called */
+static int nftw_fn (const char *path, const struct stat *ps, int kind,
+                    struct FTW *ftw) {
+  pushSTACK(asciz_to_string(path,GLO(pathname_encoding)));
+  if (kind != FTW_NS) {
+    file_stat_to_STACK(STACK_0,ps);
+    funcall(`POSIX::MAKE-FILE-STAT`,14);
+    pushSTACK(value1);
+  } else pushSTACK(NIL);
+  pushSTACK(check_ftw_kind_reverse(kind));
+  pushSTACK(fixnum(ftw->base));
+  pushSTACK(fixnum(ftw->level));
+  funcall(STACK_5,5);
+  if (nullp(value1)) return 0;
+  else {                        /* terminate the walk, return the value */
+    STACK_1 = value1;
+    return 1;
+  }
+}
+DEFUN(POSIX:FILE-TREE-WALK, path func &key FD-LIMIT CHDIR DEPTH MOUNT PHYS)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/nftw.html */
+  int flags = ftw_flags(), ret;
+  int fd_limit = check_uint_defaulted(popSTACK(),5);
+  STACK_1 = physical_namestring(STACK_1);
+  with_string_0(STACK_1,GLO(pathname_encoding),path, {
+      begin_blocking_system_call();
+      ret = nftw(path,nftw_fn,fd_limit,flags);
+      end_blocking_system_call();
+    });
+  VALUES1(ret ? STACK_1 : NIL); skipSTACK(2);
+}
+#endif  /* HAVE_NFTW */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
 DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,      \

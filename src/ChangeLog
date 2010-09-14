@@ -1,5 +1,12 @@
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
+	interface to the POSIX function nftw()
+	* modules/syscalls/calls.c (FILE-TREE-WALK): add
+	* modules/syscalls/posix.lisp (file-tree-walk) [unix]: export
+	* modules/syscalls/configure.in: check for nftw and ftw.h
+
+2010-09-14  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (parse-signature): accept :SECLASS and pass
 	it to MAKE-SIGNATURE
 	(defun-p): pass SEC to PARSE-SIGNATURE instead of ignoring it
