@@ -1,5 +1,12 @@
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/mit-clx/Makefile (clisp-module): depend on link.sh
+	which is required by clisp-link.sh
+	* modules/clx/mit-clx/link.sh (NEW_MODULES): add "clx"
+	(NEW_FILES): one loop instead of two
+
+2010-09-14  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in: support module which have no C component:
 	build dll only if NEW_LIBS is non-empty
 

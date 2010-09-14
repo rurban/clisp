@@ -75,7 +75,7 @@ install : clx.mem
 	chmod a+x $(bindir)/clx
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 distrib : src-distrib clisp-distrib
 
@@ -87,7 +87,7 @@ clisp-distrib : force clx.mem
 
 
 # Make a module
-clisp-module : defsystem.fas stamp.fas $(ALLFAS)
+clisp-module : defsystem.fas stamp.fas $(ALLFAS) link.sh
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
