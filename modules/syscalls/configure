@@ -8670,7 +8670,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h sys/statvfs.h sys/statfs.h sys/param.h sys/wait.h
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h sys/statvfs.h sys/statfs.h sys/param.h sys/wait.h ftw.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9229,7 +9229,7 @@ if test "$ac_res" != no; then :
 
 fi
 
-for ac_func in getloadavg confstr fcntl gethostent sysconf getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat mkstemp tempnam mkdtemp getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid sethostid getdomainname setdomainname
+for ac_func in getloadavg confstr fcntl gethostent sysconf getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat mkstemp tempnam mkdtemp getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid sethostid getdomainname setdomainname nftw
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
