@@ -22,6 +22,7 @@
   <!ENTITY history-file SYSTEM "history.xml">
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
+  <!ENTITY asdf-file SYSTEM "../modules/asdf/asdf.xml">
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
   <!ENTITY dbus-file SYSTEM "../modules/dbus/dbus.xml">
   <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
@@ -172,9 +173,11 @@
 
 &imp-ext-file;
 
+
 <chapter id="ext-modules"><title>Extensions Implemented as Modules</title>
 
 <!-- base modules -->
+&asdf-file;
 &syscalls-file;
 &i18n-file;
 &regexp-file;

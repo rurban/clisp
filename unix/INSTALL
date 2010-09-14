@@ -284,7 +284,10 @@ Additional Information for Maintainers of Binary Packages:
    D. Dependencies: each package "clisp-modname" depends on "clisp" and, maybe,
       on an external library to which it interfaces, e.g., postgresql or pcre.
       It does _not_ depend on any development tool (gcc, libffcall, pcre-dev).
-      E.g., modules "clisp-rawsock" and "clisp-wildcard" depend only on "clisp".
+   E. Module selection: we recommend distributing at least asdf, rawsock, and
+      wildcard, which have no external dependencies, i.e., modules "clisp-asdf",
+      "clisp-rawsock", and "clisp-wildcard" depend only on "clisp".
+      Moreover, they can be bundled with "clisp" into a single module.
    See also <http://clisp.cons.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 

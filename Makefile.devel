@@ -13,7 +13,7 @@ RM = rm -f
 CTAGS = ctags
 
 .PHONY : all build-prerequisites htmldoc makefiles configures check-configures \
-	update-ansi-tests potfiles fixperms \
+	update-ansi-tests update-asdf potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
 	build-aux-update gnulib-imported distrib release pre-release \
@@ -334,6 +334,10 @@ update-gnulib:
 	  else cvs -d "$(GNULIB_CVS_ROOT)" checkout -d $(GNULIB_CHECKOUT) $(GNULIB_CVS_REPOSITORY); fi \
 	fi
 
+ASDF_URL = http://common-lisp.net/project/asdf/asdf.lisp
+update-asdf : force
+	wget -O modules/asdf/asdf.lisp $(ASDF_URL)
+
 # it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
 LIBTOOL_VERSION = 2.2.8
@@ -431,7 +435,7 @@ release : distrib upload tag-release
 # 2-3 weeks before a release
 # manually: check for new versions of
 #  libsvm, netica api, postgresql, berkeley-db, dbus, pcre, readline
-pre-release : gnulib-imported build-aux-update tp-mail
+pre-release : gnulib-imported build-aux-update update-asdf tp-mail
 
 ## RELEASE TODO:
 # Before doing a "make distrib":

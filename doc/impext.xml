@@ -2652,6 +2652,11 @@ to the 3 (or 4) &base; modules.</para>
   <listitem><simpara>a demo which comes with &new-clx;.
 </simpara></listitem></varlistentry></variablelist></section>
 
+<section id="incmod-misc"><title>Miscellaneous</title>
+<variablelist><varlistentry><term>&asdf-mod;</term>
+  <listitem><simpara>A system definition facility.
+ </simpara></listitem></varlistentry></variablelist></section>
+
 </section>
 
 </section>

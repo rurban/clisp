@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="asdf"><title>A System Definition Facility</title>
+
+<para>This module offers a system definition facility (similar to &make;).
+It is based on &asdf; 2.008.</para>
+
+<para>Additionally, it hooks into &require-my; using &module-providers;.</para>
+
+<simpara>When this module is present, &features-my; contains the symbols
+ <constant>:ASDF</constant> and <constant>:ASDF2</constant>.</simpara>
+
+</section>
