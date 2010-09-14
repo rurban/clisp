@@ -1,5 +1,9 @@
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (load): return the truename of the loaded file
+
+2010-09-14  Sam Steingold  <sds@gnu.org>
+
 	interface to the POSIX function nftw()
 	* modules/syscalls/calls.c (FILE-TREE-WALK): add
 	* modules/syscalls/posix.lisp (file-tree-walk) [unix]: export

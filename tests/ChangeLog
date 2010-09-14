@@ -1,3 +1,7 @@
+2010-09-14  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: LOAD now returns the truename
+
 2010-08-31  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: test that LOAD works even when there are files under
