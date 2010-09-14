@@ -486,7 +486,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
 (defvar *in-defun* nil "set to T when entering a defun")
 (defvar *emulation-count* 0)
 
-(defun parse-signature (fname line &key (start 0) (end (length line)))
+(defun parse-signature (fname line &key (start 0) (end (length line)) seclass)
   (unless end
     (error "~S:~D: unterminated signature ~S" *input-file* *lineno* line))
   (loop :with seen-opt :and seen-key :and seen-rest :and seen-aok :and keys
@@ -526,6 +526,11 @@ The last feature is disabled because &S() does not work in non-debug builds."
           ((incf req)))
     :finally (return (check-signature fname
                       (make-signature
+                       :seclass (if seclass
+                                    (or (position seclass *seclass*
+                                                  :test #'string=)
+                                        (error "Invalid seclass ~S" seclass))
+                                    (1- (length *seclass*)))
                        :req req :opt opt :keywords (nreverse keys)
                        :rest (cond (seen-aok '&allow-other-keys)
                                    (seen-key '&key)
@@ -687,7 +692,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
                  (t (sys::whitespacep cc))))
       (multiple-value-setq (comma end fname) (parse-name line end "DEFUN"))
       (multiple-value-setq (sig cc)
-        (parse-signature fname line :start (1+ comma) :end end))
+        (parse-signature fname line :start (1+ comma) :end end :seclass sec))
       (let* ((rest (subseq line end))
              (all (ext:string-concat
                    (subseq line 0 end) ","
