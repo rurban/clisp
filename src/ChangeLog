@@ -1,12 +1,17 @@
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
+	* utils/gen-uninames: remove, superseded by
+	src/gllib/uniname/gen-uninames.lisp
+
+2010-09-15  Sam Steingold  <sds@gnu.org>
+
 	update gnulib
 	* modules/regexp/gllib/regex.h, modules/regexp/glm4/regex.m4:
-        * gllib/langinfo.in.h, gllib/nl_langinfo.c, gllib/string.in.h:
-        * gllib/wctype.in.h, gllib/uniwidth/width.c, glm4/langinfo_h.m4:
-        * glm4/lib-ld.m4, glm4/memchr.m4, glm4/progtest.m4:
+	* gllib/langinfo.in.h, gllib/nl_langinfo.c, gllib/string.in.h:
+	* gllib/wctype.in.h, gllib/uniwidth/width.c, glm4/langinfo_h.m4:
+	* glm4/lib-ld.m4, glm4/memchr.m4, glm4/progtest.m4:
 	* glm4/sockets.m4, glm4/wctype_h.m4: update
-        * glm4/socketlib.m4: add
+	* glm4/socketlib.m4: add
 
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
