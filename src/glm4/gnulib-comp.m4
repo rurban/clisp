@@ -12,7 +12,8 @@
 # This file represents the compiled summary of the specification in
 # gnulib-cache.m4. It lists the computed macro invocations that need
 # to be invoked from configure.ac.
-# In projects using CVS, this file can be treated like other built files.
+# In projects that use version control, this file can be treated like
+# other built files.
 
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -56,6 +57,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
   # Code from module stdbool:
@@ -153,6 +155,8 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module socketlib:
+  gl_SOCKETLIB
   # Code from module sockets:
   gl_SOCKETS
   # Code from module socklen:
@@ -433,6 +437,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/printf-posix.m4
   m4/progtest.m4
   m4/size_max.m4
+  m4/socketlib.m4
   m4/sockets.m4
   m4/socklen.m4
   m4/sockpfaf.m4
