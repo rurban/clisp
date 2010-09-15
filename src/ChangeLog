@@ -1,3 +1,8 @@
+2010-09-15  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCC_CREATESHARED): use soname & output_objdir
+	separately because of cygwin
+
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (load): return the truename of the loaded file
