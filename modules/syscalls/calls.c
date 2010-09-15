@@ -490,7 +490,7 @@ DEFUN(POSIX:FILE-SIZE, file) {
 
 /* ============================== syslog ============================== */
 #if defined(HAVE_SYSLOG)
-DEFCHECKER(check_syslog_severity,prefix=LOG,reverse=sint_to_I,  \
+DEFCHECKER(check_syslog_severity,prefix=LOG,use_default_function=,      \
            EMERG ALERT CRIT ERR WARNING NOTICE INFO DEBUG)
 DEFCHECKER(check_syslog_facility,default=LOG_USER,prefix=LOG,\
            KERN USER MAIL NEWS UUCP DAEMON AUTH CRON LPR SYSLOG AUTHPRIV FTP \
@@ -904,7 +904,7 @@ DEFUN(POSIX:SYNC, &optional file) {
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
            REALTIME :HIGH ABOVE-NORMAL :NORMAL BELOW-NORMAL :LOW IDLE)
 #else
-DEFCHECKER(check_priority_value,default=0,reverse=sint_to_I,                \
+DEFCHECKER(check_priority_value,default=0,use_default_function=,        \
            REALTIME=-NZERO :HIGH=(-NZERO/2) ABOVE-NORMAL=(-NZERO/4) :NORMAL=0 \
            BELOW-NORMAL=(NZERO/4) :LOW=(NZERO/2) IDLE=NZERO)
 #endif
@@ -2231,7 +2231,7 @@ DEFUN(POSIX:FILE-TREE-WALK, path func &key FD-LIMIT CHDIR DEPTH MOUNT PHYS)
 #endif  /* HAVE_NFTW */
 
 /* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
-DEFCHECKER(check_chmod_mode, type=mode_t, reverse=UL_to_I,      \
+DEFCHECKER(check_chmod_mode, type=mode_t, use_default_function=,\
            prefix=S_I, delim=, default=, bitmasks=both,         \
            SUID SGID SVTX RWXU RUSR WUSR XUSR RWXG RGRP         \
            WGRP XGRP RWXO ROTH WOTH XOTH)
@@ -3381,7 +3381,7 @@ static HRESULT BTCoCreateInstance(REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
   return CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
 }
 
-DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
+DEFCHECKER(check_file_attributes, type=DWORD, use_default_function=,    \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
            ARCHIVE COMPRESSED :DEVICE :DIRECTORY ENCRYPTED HIDDEN :NORMAL \
            NOT-CONTENT-INDEXED OFFLINE READONLY REPARSE-POINT SPARSE-FILE \
@@ -4738,7 +4738,7 @@ DEFUN(POSIX::%STDIO, &optional which) {
 # include <winerror.h>
 /* http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/w32api/include/winerror.h */
 /* http://msdn.microsoft.com/en-us/library/aa914935.aspx */
-DEFCHECKER(check_errno,type=DWORD,reverse=uint32_to_I,     \
+DEFCHECKER(check_errno,type=DWORD,use_default_function=,                \
            ERROR_INVALID_FUNCTION ERROR_FILE_NOT_FOUND ERROR_PATH_NOT_FOUND \
            ERROR_TOO_MANY_OPEN_FILES ERROR_ACCESS_DENIED \
            ERROR_INVALID_HANDLE ERROR_ARENA_TRASHED ERROR_NOT_ENOUGH_MEMORY \
