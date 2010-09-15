@@ -55,39 +55,16 @@ The input file is normal C code, modified like this:
   }
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
-             bitmasks= ..., reverse= ..., delim= ...,
+             bitmasks= ..., use_default_function, delim= ...,
              C_CONST1 C_CONST2 C_CONST3)
   is converted to
-  static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
-  static [enum_]type c_name (object arg) {
-    unsigned int index;
-   restart_c_name:
-    if (integerp(arg)) return I_to_L(arg);
-    else if (missingp(arg)) return default;
-    else {
-      for (index = 0; index < c_name_table_size; index++)
-        if (eq(a,*c_name_table[index].l_const))
-          return c-name_table[index].c_const;
-      pushSTACK(NIL); pushSTACK(arg);
-      pushSTACK(the_appropriate_error_type);
-      pushSTACK(the_appropriate_error_type); pushSTACK(arg);
-      pushSTACK(TheSubr(subr_self)->name);
-      check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-      arg = value1;
-      goto restart_c_name;
-    }
-  }
-  static object c_name_reverse (enum_type a) {
-    unsigned int index;
-    for (index = 0; index < c_name_table_size; index++)
-      if (a == c_name_table[index].c_const)
-        return *c_name_table[index].l_const;
-    if (a == default) return NIL;
-    ERROR; /* or "return reverse(a);" if reverse is supplied */
-  }
- enum means no #ifdef
- prefix, suffix default to ""
- reverse defaults to "" and means ERROR
+  static const c_lisp_pair_t c_name_table[] = ...;
+  static const c_lisp_map_t c_name_map = ...;
+  #define c_name(a) (int)map_lisp_to_c(a,&c_name_map)
+  #define c_name_reverse(a) map_c_to_lisp(a,&c_name_map)
+ enum means no #ifdef prefix,
+ suffix default to ""
+ use_default_function means use L_to_I & I_to_L when there is no map entry
  bitmasks means additional *_to_list and *_of_list functions are defined
  delim defaults to "_" and separates prefix and suffix
 
@@ -716,7 +693,8 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix suffix delim reverse bitmasks default cpp-odefs type-odef)
+  enum-p type prefix suffix delim use_default_function
+  bitmasks default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix suffix delim)
   (etypecase name
@@ -730,8 +708,9 @@ and turn it into DEFUN(funname,lambdalist,signature)."
      (when suffix (setq name (ext:string-concat name delim suffix))))
     (cons (setq name (second name))))
   name)
-(defun new-checker (name cpp-names &key type prefix suffix reverse default enum
-                    bitmasks (delim "_") (condition (current-condition)))
+(defun new-checker (name cpp-names &key type prefix suffix use_default_function
+                    default enum bitmasks (delim "_")
+                    (condition (current-condition)))
   "NAME is the name of the checker function
 CPP-NAMES is the list of possible values, either strings or
  pairs (:KEYWORD VALUE), value is not #ifdef'ed"
@@ -742,7 +721,8 @@ CPP-NAMES is the list of possible values, either strings or
   (when (and type enum)
     (error "~S:~D:~S(~S): cannot specify both ~A=~S and ~A=~S"
            *input-file* *lineno* 'new-checker name :type type :enum enum))
-  (let ((ch (make-checker :type (or type enum) :name name :reverse reverse
+  (let ((ch (make-checker :type (or type enum) :name name
+                          :use_default_function use_default_function
                           :prefix prefix :suffix suffix :bitmasks bitmasks
                           :enum-p (not (null enum)) :cpp-names cpp-names
                           :delim delim :default default))
@@ -1112,8 +1092,7 @@ commas and parentheses."
     (newline out)
     (loop :for ch :across *checkers* :for default = (checker-default ch)
       :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
-      :for delim = (checker-delim ch)
-      :for reverse = (checker-reverse ch) :for bitmasks = (checker-bitmasks ch)
+      :for delim = (checker-delim ch) :for bitmasks = (checker-bitmasks ch)
       :for c-name = (checker-name ch) :for c-type = (or (checker-type ch) "int")
       :for enum-p = (checker-enum-p ch)
       :do (with-conditional (out (checker-cond-stack ch))
@@ -1144,7 +1123,8 @@ commas and parentheses."
                    (formatln out "  0,false,")
                    (formatln out "# endif"))
                   (t (formatln out "  ~A,true," (or default 0))))
-            (formatln out "  true,") ; use_default_function_p
+            (formatln out "  ~A,"
+                      (if (checker-use_default_function ch) "true" "false"))
             (formatln out "  ~S" c-name)
             (formatln out "};")
             (formatln out "#define ~A(a) (~A)map_lisp_to_c(a,&~A_map)"
