@@ -1,9 +1,8 @@
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
-	* utils/modprep.lisp (checker): replace reverse with
-	use_default_function to conform to c_lisp_map_t
-	(new-checker): update signature and make-checker call
-	(print-tables-1): use use_default_function to init the map struct field
+	* utils/modprep.lisp (checker): remove obsolete reverse
+	* lispbibl.d (c_lisp_map_t): remove obsolete use_default_function_p
+	* misc.d (map_lisp_to_c, map_c_to_lisp): do not use it
 	* modules/syscalls/calls.c: update DEFCHECKER invocations
 
 2010-09-15  Sam Steingold  <sds@gnu.org>

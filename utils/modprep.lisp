@@ -55,7 +55,7 @@ The input file is normal C code, modified like this:
   }
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
-             bitmasks= ..., use_default_function, delim= ...,
+             bitmasks= ..., delim= ...,
              C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static const c_lisp_pair_t c_name_table[] = ...;
@@ -64,7 +64,6 @@ The input file is normal C code, modified like this:
   #define c_name_reverse(a) map_c_to_lisp(a,&c_name_map)
  enum means no #ifdef prefix,
  suffix default to ""
- use_default_function means use L_to_I & I_to_L when there is no map entry
  bitmasks means additional *_to_list and *_of_list functions are defined
  delim defaults to "_" and separates prefix and suffix
 
@@ -693,8 +692,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix suffix delim use_default_function
-  bitmasks default cpp-odefs type-odef)
+  enum-p type prefix suffix delim bitmasks default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix suffix delim)
   (etypecase name
@@ -708,7 +706,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
      (when suffix (setq name (ext:string-concat name delim suffix))))
     (cons (setq name (second name))))
   name)
-(defun new-checker (name cpp-names &key type prefix suffix use_default_function
+(defun new-checker (name cpp-names &key type prefix suffix
                     default enum bitmasks (delim "_")
                     (condition (current-condition)))
   "NAME is the name of the checker function
@@ -722,7 +720,6 @@ CPP-NAMES is the list of possible values, either strings or
     (error "~S:~D:~S(~S): cannot specify both ~A=~S and ~A=~S"
            *input-file* *lineno* 'new-checker name :type type :enum enum))
   (let ((ch (make-checker :type (or type enum) :name name
-                          :use_default_function use_default_function
                           :prefix prefix :suffix suffix :bitmasks bitmasks
                           :enum-p (not (null enum)) :cpp-names cpp-names
                           :delim delim :default default))
@@ -1123,8 +1120,6 @@ commas and parentheses."
                    (formatln out "  0,false,")
                    (formatln out "# endif"))
                   (t (formatln out "  ~A,true," (or default 0))))
-            (formatln out "  ~A,"
-                      (if (checker-use_default_function ch) "true" "false"))
             (formatln out "  ~S" c-name)
             (formatln out "};")
             (formatln out "#define ~A(a) (~A)map_lisp_to_c(a,&~A_map)"

@@ -671,7 +671,7 @@ local maygc object map_to_alist (const c_lisp_map_t *map) {
 modexp maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
   unsigned int index;
  restart_map_lisp_to_c:
-  if (map->use_default_function_p && integerp(obj)) return I_to_L(obj);
+  if (integerp(obj)) return I_to_L(obj);
   else if (map->have_default_value_p && missingp(obj))
     return map->default_value;
   else {
@@ -688,13 +688,11 @@ modexp maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
       pushSTACK(*(map->table[index].l_const));
     var object tmp=listof(map->size+1+(map->have_default_value_p?1:0));
     pushSTACK(tmp);
-    if (map->use_default_function_p) {
-      pushSTACK(S(or));
-      pushSTACK(S(integer));
-      pushSTACK(STACK_2);       /* (member [nil] l_const ...) */
-      var object tmp=listof(3);
-      STACK_0 = tmp; /* replace (member ...) with (or integer (member ...)) */
-    }
+    pushSTACK(S(or));
+    pushSTACK(S(integer));
+    pushSTACK(STACK_2);       /* (member [nil] l_const ...) */
+    var object tmp=listof(3);
+    STACK_0 = tmp; /* replace (member ...) with (or integer (member ...)) */
     pushSTACK(map_to_alist(map));
     pushSTACK(asciz_to_string(map->name,O(misc_encoding)));
     pushSTACK(STACK_3/*obj*/); pushSTACK(TheSubr(subr_self)->name);
@@ -709,26 +707,11 @@ modexp maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
  may trigger GC -- on error only */
 modexp maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
   unsigned int index;
- restart_map_c_to_lisp:
   for (index=0; index < map->size; index++)
     if (val == map->table[index].c_const)
       return *(map->table[index].l_const);
   if (map->have_default_value_p && val == map->default_value) return NIL;
-  if (map->use_default_function_p) return L_to_I(val);
-  pushSTACK(NIL);                   /* no PLACE */
-  pushSTACK(L_to_I(val));           /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(member));
-  for (index=0; index < map->size; index++)
-    pushSTACK(L_to_I(map->table[index].c_const));
-  var object tmp=listof(map->size+1);
-  pushSTACK(tmp);               /*TYPE-ERROR slot EXPECTED-TYPE*/
-  pushSTACK(map_to_alist(map));
-  pushSTACK(asciz_to_string(map->name,O(misc_encoding)));
-  pushSTACK(STACK_3/*val*/); pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,
-              GETTEXT("~S: C value ~S is not found in table ~S: ~S"));
-  val = I_to_L(check_slong(value1));
-  goto restart_map_c_to_lisp;
+  return L_to_I(val);
 }
 
 /* C number ---> list of Lisp symbols, each denoting a bit
