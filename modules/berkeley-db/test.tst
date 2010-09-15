@@ -2,7 +2,7 @@
 ;; some tests for Berkeley-DB
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
 
-(list (require "bdb")) (#-Berkeley-DB T #+Berkeley-DB NIL)
+(list (null (require "bdb"))) (#-Berkeley-DB NIL #+Berkeley-DB T)
 (listp (show (multiple-value-list (ext:module-info "bdb" t)) :pretty t)) T
 
 (multiple-value-bind (ve ma mi pa subsystems) (bdb:db-version t)

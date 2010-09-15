@@ -2,7 +2,7 @@
 ;; some tests for libsvm
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "libsvm/test")'
 
-(list (require "libsvm")) (#-LIBSVM T #+LIBSVM NIL)
+(list (null (require "libsvm"))) (#-LIBSVM NIL #+LIBSVM T)
 (listp (show (multiple-value-list (ext:module-info "libsvm" t)) :pretty t)) T
 
 (integerp (show libsvm:*libsvm-version*)) T

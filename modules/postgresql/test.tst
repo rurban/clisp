@@ -2,7 +2,7 @@
 ;; tests for PostGreSQL
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
 
-(list (require "postgresql")) (#-POSTGRESQL T #+POSTGRESQL NIL)
+(list (null (require "postgresql"))) (#-POSTGRESQL NIL #+POSTGRESQL T)
 (listp (show (multiple-value-list (ext:module-info "postgresql" t)) :pretty t)) T
 
 ;;; Based on the examples distributed with PostgreSQL (man libpq)

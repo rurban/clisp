@@ -3,7 +3,7 @@
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "rawsock/test")'
 ;; relies on some functions in the syscalls module
 
-(list (require "rawsock")) (#-RAWSOCK T #+RAWSOCK NIL)
+(list (null (require "rawsock"))) (#-RAWSOCK NIL #+RAWSOCK T)
 (listp (show (multiple-value-list (ext:module-info "rawsock" t)) :pretty t)) T
 
 (progn

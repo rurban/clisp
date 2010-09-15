@@ -1,7 +1,7 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; clisp -E utf-8 -q -norc -i ../tests/tests -x '(run-test "wildcard/test")'
 
-(list (require "wildcard")) (#-WILDCARD T #+WILDCARD NIL)
+(list (null (require "wildcard"))) (#-WILDCARD NIL #+WILDCARD T)
 (listp (show (multiple-value-list (ext:module-info "wildcard" t)) :pretty t)) t
 
 (wildcard:match "foo" "bar") NIL
