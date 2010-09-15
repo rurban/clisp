@@ -1,5 +1,9 @@
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (run_mod_test): accept "linkset" argument
+
+2010-09-15  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (checker): remove obsolete reverse
 	* lispbibl.d (c_lisp_map_t): remove obsolete use_default_function_p
 	* misc.d (map_lisp_to_c, map_c_to_lisp): do not use it
