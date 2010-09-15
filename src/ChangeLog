@@ -1,5 +1,11 @@
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (gethostname): #undef after including <unistd.h> and
+	before including winsock headers, as per
+	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23076>
+
+2010-09-15  Sam Steingold  <sds@gnu.org>
+
 	* utils/gen-uninames: remove, superseded by
 	src/gllib/uniname/gen-uninames.lisp
 

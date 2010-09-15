@@ -263,8 +263,17 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
  See the #ifs around stream.d:low_write_unbuffered_socket() etc. */
 #define USE_SYS_TYPES_FD_SET
 #endif
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
+
+#include <unistd.h> /* from gnulib for getpagesize */
+/* we do not include gnulib gethostname, so, to avoid
+     undefined reference to `_gethostname_used_without_requesting_gnulib_module_gethostname'
+   we need to undef gethostname (defined to the above in gnulib unistd.h)
+   and then include the woe32 socket headers
+   <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23076> */
+#undef gethostname
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
 #ifdef __MINGW32__
 #undef USE_SYS_TYPES_FD_SET
 #endif
@@ -458,5 +467,3 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 /* PROT_WRITE, PROT_EXEC not used
  used by spvw.d */
 
-/* from gnulib for getpagesize */
-#include <unistd.h>
