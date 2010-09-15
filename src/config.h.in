@@ -272,6 +272,10 @@
    don't. */
 #undef HAVE_DECL_GETC_UNLOCKED
 
+/* Define to 1 if you have the declaration of `iswblank', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ISWBLANK
+
 /* Define to 1 if you have the declaration of `rl_already_prompted', and to 0
    if you don't. */
 #undef HAVE_DECL_RL_ALREADY_PROMPTED

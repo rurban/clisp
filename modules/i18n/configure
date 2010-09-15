@@ -597,7 +597,9 @@ ac_header_list=
 ac_func_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+HAVE_LANGINFO_YESEXPR
 HAVE_LANGINFO_ERA
+HAVE_LANGINFO_T_FMT_AMPM
 HAVE_LANGINFO_CODESET
 HAVE_LANGINFO_H
 NEXT_AS_FIRST_DIRECTIVE_LANGINFO_H
@@ -3925,7 +3927,9 @@ $as_echo "$gl_cv_next_langinfo_h" >&6; }
 
 
     HAVE_LANGINFO_CODESET=0
+  HAVE_LANGINFO_T_FMT_AMPM=0
   HAVE_LANGINFO_ERA=0
+  HAVE_LANGINFO_YESEXPR=0
 
   if test $ac_cv_header_langinfo_h = yes; then
     HAVE_LANGINFO_H=1
@@ -3960,6 +3964,37 @@ $as_echo "$gl_cv_header_langinfo_codeset" >&6; }
     if test $gl_cv_header_langinfo_codeset = yes; then
       HAVE_LANGINFO_CODESET=1
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines T_FMT_AMPM" >&5
+$as_echo_n "checking whether langinfo.h defines T_FMT_AMPM... " >&6; }
+if test "${gl_cv_header_langinfo_t_fmt_ampm+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <langinfo.h>
+int a = T_FMT_AMPM;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_header_langinfo_t_fmt_ampm=yes
+else
+  gl_cv_header_langinfo_t_fmt_ampm=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_header_langinfo_t_fmt_ampm" >&5
+$as_echo "$gl_cv_header_langinfo_t_fmt_ampm" >&6; }
+    if test $gl_cv_header_langinfo_t_fmt_ampm = yes; then
+      HAVE_LANGINFO_T_FMT_AMPM=1
+    fi
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines ERA" >&5
 $as_echo_n "checking whether langinfo.h defines ERA... " >&6; }
 if test "${gl_cv_header_langinfo_era+set}" = set; then :
@@ -3991,9 +4026,42 @@ $as_echo "$gl_cv_header_langinfo_era" >&6; }
     if test $gl_cv_header_langinfo_era = yes; then
       HAVE_LANGINFO_ERA=1
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines YESEXPR" >&5
+$as_echo_n "checking whether langinfo.h defines YESEXPR... " >&6; }
+if test "${gl_cv_header_langinfo_yesexpr+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <langinfo.h>
+int a = YESEXPR;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_header_langinfo_yesexpr=yes
+else
+  gl_cv_header_langinfo_yesexpr=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_header_langinfo_yesexpr" >&5
+$as_echo "$gl_cv_header_langinfo_yesexpr" >&6; }
+    if test $gl_cv_header_langinfo_yesexpr = yes; then
+      HAVE_LANGINFO_YESEXPR=1
+    fi
   else
     HAVE_LANGINFO_H=0
   fi
+
+
 
 
 
