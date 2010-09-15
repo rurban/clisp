@@ -320,7 +320,7 @@ nonreturning_function(static, rawsock_error, (int socket)) {
     end_system_call();
     pushSTACK(`RAWSOCK::RAWSOCK-ERROR`);    /* error type */
     pushSTACK(S(Kcode));
-    pushSTACK(fixnum(errno)); funcall(`OS::ERRNO`,1); pushSTACK(value1);
+    pushSTACK(fixnum(ecode)); funcall(`OS::ERRNO`,1); pushSTACK(value1);
     pushSTACK(`:MESSAGE`); pushSTACK(safe_to_string(msg));
     pushSTACK(`:SOCKET`); pushSTACK(fixnum(socket));
     funcall(S(make_instance),7);
