@@ -2,7 +2,7 @@
 ;; some tests for clx/new-clx
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "clx/new-clx/test")'
 
-(list (require "clx")) (#-CLX T #+CLX NIL)
+(list (null (require "clx"))) (#-CLX NIL #+CLX T)
 (listp (show (multiple-value-list (ext:module-info "clx" t)) :pretty t)) T
 
 (defparameter *dpy* (show (xlib:open-default-display))) *dpy*

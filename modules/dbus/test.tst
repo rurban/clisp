@@ -2,7 +2,7 @@
 ;; tests for D-Bus
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "dbus/test")'
 
-(list (require "dbus")) (#-DBUS T #+DBUS NIL)
+(list (null (require "dbus"))) (#-DBUS NIL #+DBUS T)
 (listp (show (multiple-value-list (ext:module-info "dbus" t)) :pretty t)) T
 
 dbus:DBUS_MAJOR_PROTOCOL_VERSION 1

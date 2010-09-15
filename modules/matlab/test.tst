@@ -2,7 +2,7 @@
 ;; some tests for Matlab
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "matlab/test")'
 
-(list (require "matlab")) (#-MATLAB T #+MATLAB NIL)
+(list (null (require "matlab"))) (#-MATLAB NIL #+MATLAB T)
 (listp (show (multiple-value-list (ext:module-info "matlab" t)) :pretty t)) T
 
 (matlab:invert-matrix #2a((1 2) (0 2)))

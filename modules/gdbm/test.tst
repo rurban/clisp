@@ -2,7 +2,7 @@
 ;; some tests for GDBM
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
 
-(list (require "gdbm")) (#-GDBM T #+GDBM NIL)
+(list (null (require "gdbm"))) (#-GDBM NIL #+GDBM T)
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
 (defvar *db* nil) *DB*

@@ -2,7 +2,7 @@
 ;; some tests for PCRE
 ;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
 
-(list (require "pcre")) (#-PCRE T #+PCRE NIL)
+(list (null (require "pcre"))) (#-PCRE NIL #+PCRE T)
 (listp (show (multiple-value-list (ext:module-info "pcre" t)) :pretty t)) T
 
 (defparameter *major-version*
