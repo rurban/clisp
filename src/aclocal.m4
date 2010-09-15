@@ -1120,7 +1120,8 @@ AC_DEFUN([gl_FUNC_FNMATCH_GNU],
 # This file represents the compiled summary of the specification in
 # gnulib-cache.m4. It lists the computed macro invocations that need
 # to be invoked from configure.ac.
-# In projects using CVS, this file can be treated like other built files.
+# In projects that use version control, this file can be treated like
+# other built files.
 
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -1427,7 +1428,8 @@ AC_DEFUN([gl_PREREQ_GETHOSTNAME], [
 # This file represents the compiled summary of the specification in
 # gnulib-cache.m4. It lists the computed macro invocations that need
 # to be invoked from configure.ac.
-# In projects using CVS, this file can be treated like other built files.
+# In projects that use version control, this file can be treated like
+# other built files.
 
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -2695,7 +2697,8 @@ AC_DEFUN([gl_PREREQ_BTOWC], [
 # This file represents the compiled summary of the specification in
 # gnulib-cache.m4. It lists the computed macro invocations that need
 # to be invoked from configure.ac.
-# In projects using CVS, this file can be treated like other built files.
+# In projects that use version control, this file can be treated like
+# other built files.
 
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -3172,12 +3175,17 @@ AC_DEFUN([gl_REGEX],
             if (! REG_STARTEND)
               return 1;
 
-            /* Reject hosts whose regoff_t values are too narrow.
-               These include glibc 2.3.5 on hosts with 64-bit ptrdiff_t
-               and 32-bit int.  */
+#if 0
+            /* It would be nice to reject hosts whose regoff_t values are too
+               narrow (including glibc on hosts with 64-bit ptrdiff_t and
+               32-bit int), but we should wait until glibc implements this
+               feature.  Otherwise, support for equivalence classes and
+               multibyte collation symbols would always be broken except
+               when compiling --without-included-regex.   */
             if (sizeof (regoff_t) < sizeof (ptrdiff_t)
                 || sizeof (regoff_t) < sizeof (ssize_t))
               return 1;
+#endif
 
             return 0;]])],
        [gl_cv_func_re_compile_pattern_working=yes],
@@ -4723,7 +4731,8 @@ AC_DEFUN([gl_CACHE_VAL_SILENT],
 # This file represents the compiled summary of the specification in
 # gnulib-cache.m4. It lists the computed macro invocations that need
 # to be invoked from configure.ac.
-# In projects using CVS, this file can be treated like other built files.
+# In projects that use version control, this file can be treated like
+# other built files.
 
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -4767,6 +4776,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
   # Code from module stdbool:
@@ -4864,6 +4874,8 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module socketlib:
+  gl_SOCKETLIB
   # Code from module sockets:
   gl_SOCKETS
   # Code from module socklen:
@@ -5144,6 +5156,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/printf-posix.m4
   m4/progtest.m4
   m4/size_max.m4
+  m4/socketlib.m4
   m4/sockets.m4
   m4/socklen.m4
   m4/sockpfaf.m4
@@ -5887,7 +5900,7 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
-# langinfo_h.m4 serial 6
+# langinfo_h.m4 serial 7
 dnl Copyright (C) 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5905,12 +5918,14 @@ AC_DEFUN([gl_LANGINFO_H],
 
   dnl Determine whether <langinfo.h> exists. It is missing on mingw and BeOS.
   HAVE_LANGINFO_CODESET=0
+  HAVE_LANGINFO_T_FMT_AMPM=0
   HAVE_LANGINFO_ERA=0
+  HAVE_LANGINFO_YESEXPR=0
   AC_CHECK_HEADERS_ONCE([langinfo.h])
   if test $ac_cv_header_langinfo_h = yes; then
     HAVE_LANGINFO_H=1
     dnl Determine what <langinfo.h> defines. CODESET and ERA etc. are missing
-    dnl on OpenBSD 3.8.
+    dnl on OpenBSD 3.8. T_FMT_AMPM and YESEXPR, NOEXPR are missing on IRIX 5.3.
     AC_CACHE_CHECK([whether langinfo.h defines CODESET],
       [gl_cv_header_langinfo_codeset],
       [AC_COMPILE_IFELSE(
@@ -5922,6 +5937,18 @@ int a = CODESET;
       ])
     if test $gl_cv_header_langinfo_codeset = yes; then
       HAVE_LANGINFO_CODESET=1
+    fi
+    AC_CACHE_CHECK([whether langinfo.h defines T_FMT_AMPM],
+      [gl_cv_header_langinfo_t_fmt_ampm],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM([[#include <langinfo.h>
+int a = T_FMT_AMPM;
+]])],
+         [gl_cv_header_langinfo_t_fmt_ampm=yes],
+         [gl_cv_header_langinfo_t_fmt_ampm=no])
+      ])
+    if test $gl_cv_header_langinfo_t_fmt_ampm = yes; then
+      HAVE_LANGINFO_T_FMT_AMPM=1
     fi
     AC_CACHE_CHECK([whether langinfo.h defines ERA],
       [gl_cv_header_langinfo_era],
@@ -5935,12 +5962,26 @@ int a = ERA;
     if test $gl_cv_header_langinfo_era = yes; then
       HAVE_LANGINFO_ERA=1
     fi
+    AC_CACHE_CHECK([whether langinfo.h defines YESEXPR],
+      [gl_cv_header_langinfo_yesexpr],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM([[#include <langinfo.h>
+int a = YESEXPR;
+]])],
+         [gl_cv_header_langinfo_yesexpr=yes],
+         [gl_cv_header_langinfo_yesexpr=no])
+      ])
+    if test $gl_cv_header_langinfo_yesexpr = yes; then
+      HAVE_LANGINFO_YESEXPR=1
+    fi
   else
     HAVE_LANGINFO_H=0
   fi
   AC_SUBST([HAVE_LANGINFO_H])
   AC_SUBST([HAVE_LANGINFO_CODESET])
+  AC_SUBST([HAVE_LANGINFO_T_FMT_AMPM])
   AC_SUBST([HAVE_LANGINFO_ERA])
+  AC_SUBST([HAVE_LANGINFO_YESEXPR])
 
   dnl Check for declarations of anything we want to poison if the
   dnl corresponding gnulib module is not in use.
@@ -6001,7 +6042,7 @@ AC_DEFUN([gt_LC_MESSAGES],
   fi
 ])
 
-# lib-ld.m4 serial 4 (gettext-0.18)
+# lib-ld.m4 serial 5 (gettext-0.18.2)
 dnl Copyright (C) 1996-2003, 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -6034,15 +6075,14 @@ AC_REQUIRE([AC_CANONICAL_HOST])dnl
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 ac_prog=ld
 if test "$GCC" = yes; then
@@ -8452,7 +8492,7 @@ AC_DEFUN([AC_TYPE_MBSTATE_T],
    fi
 ])
 
-# memchr.m4 serial 8
+# memchr.m4 serial 9
 dnl Copyright (C) 2002-2004, 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8516,6 +8556,8 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
       strcpy (fence - 9, "12345678");
       if (memchr (fence - 9, 0, 79) != fence - 1)
         return 2;
+      if (memchr (fence - 1, 0, 3) != fence - 1)
+        return 3;
     }
   return 0;
 ]])], [gl_cv_func_memchr_works=yes], [gl_cv_func_memchr_works=no],
@@ -9299,7 +9341,7 @@ AC_DEFUN([AM_XGETTEXT_OPTION],
   XGETTEXT_EXTRA_OPTIONS="$XGETTEXT_EXTRA_OPTIONS $1"
 ])
 
-# progtest.m4 serial 6 (gettext-0.18)
+# progtest.m4 serial 7 (gettext-0.18.2)
 dnl Copyright (C) 1996-2003, 2005, 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9328,15 +9370,14 @@ AC_DEFUN([AM_PATH_PROG_WITH_TEST],
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 
 # Find out how to test for executable files. Don't use a zero-byte file,
@@ -9392,16 +9433,18 @@ fi
 AC_SUBST([$1])dnl
 ])
 
-# sockets.m4 serial 6
-dnl Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+# socketlib.m4 serial 1
+dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
-AC_DEFUN([gl_SOCKETS],
-[
-  AC_REQUIRE([AC_C_INLINE])
+dnl gl_SOCKETLIB
+dnl Determines the library to use for socket functions.
+dnl Sets and AC_SUBSTs LIBSOCKET.
 
+AC_DEFUN([gl_SOCKETLIB],
+[
   gl_PREREQ_SYS_H_WINSOCK2 dnl for HAVE_WINSOCK2_H
   LIBSOCKET=
   if test $HAVE_WINSOCK2_H = 1; then
@@ -9475,6 +9518,18 @@ char setsockopt();]], [[setsockopt();]])],
     fi
   fi
   AC_SUBST([LIBSOCKET])
+])
+
+# sockets.m4 serial 7
+dnl Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SOCKETS],
+[
+  AC_REQUIRE([AC_C_INLINE])
+  AC_REQUIRE([gl_SOCKETLIB])
   gl_PREREQ_SOCKETS
 ])
 
@@ -10884,7 +10939,7 @@ AC_DEFUN([gt_TYPE_WCHAR_T],
   fi
 ])
 
-# wctype_h.m4 serial 6
+# wctype_h.m4 serial 8
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -10907,12 +10962,21 @@ AC_DEFUN([gl_WCTYPE_H],
   fi
   AC_SUBST([HAVE_ISWCNTRL])
   AC_CHECK_FUNCS_ONCE([iswblank])
+  AC_CHECK_DECLS_ONCE([iswblank])
   if test $ac_cv_func_iswblank = yes; then
     HAVE_ISWBLANK=1
+    REPLACE_ISWBLANK=0
   else
     HAVE_ISWBLANK=0
+    if test $ac_cv_have_decl_iswblank = yes; then
+      REPLACE_ISWBLANK=1
+    else
+      REPLACE_ISWBLANK=0
+    fi
   fi
   AC_SUBST([HAVE_ISWBLANK])
+  AC_SUBST([REPLACE_ISWBLANK])
+
   AC_CHECK_HEADERS_ONCE([wctype.h])
   AC_REQUIRE([AC_C_INLINE])
 

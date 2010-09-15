@@ -654,6 +654,7 @@ REPLACE_ISWCNTRL
 HAVE_WCTYPE_H
 NEXT_AS_FIRST_DIRECTIVE_WCTYPE_H
 NEXT_WCTYPE_H
+REPLACE_ISWBLANK
 HAVE_ISWBLANK
 HAVE_ISWCNTRL
 HAVE_WINT_T
@@ -834,7 +835,9 @@ LIBSIGSEGV_PREFIX
 LTLIBSIGSEGV
 LIBSIGSEGV
 HAVE_LIBSIGSEGV
+HAVE_LANGINFO_YESEXPR
 HAVE_LANGINFO_ERA
+HAVE_LANGINFO_T_FMT_AMPM
 HAVE_LANGINFO_CODESET
 HAVE_LANGINFO_H
 NEXT_AS_FIRST_DIRECTIVE_LANGINFO_H
@@ -6234,6 +6237,7 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
   # Code from module stdbool:
@@ -13700,8 +13704,6 @@ done
 
 
 
-
-
   if test $ac_cv_header_sys_socket_h != yes; then
                     for ac_header in winsock2.h
 do :
@@ -13880,6 +13882,10 @@ $as_echo "$gl_cv_lib_socket" >&6; }
       LIBSOCKET="$gl_cv_lib_socket"
     fi
   fi
+
+
+
+
 
 
   :
@@ -14820,15 +14826,14 @@ fi
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 ac_prog=ld
 if test "$GCC" = yes; then
@@ -15785,6 +15790,8 @@ main ()
       strcpy (fence - 9, "12345678");
       if (memchr (fence - 9, 0, 79) != fence - 1)
         return 2;
+      if (memchr (fence - 1, 0, 3) != fence - 1)
+        return 3;
     }
   return 0;
 
@@ -16703,6 +16710,17 @@ $as_echo "#define HAVE_WINT_T 1" >>confdefs.h
 
 
 
+ac_fn_c_check_decl "$LINENO" "iswblank" "ac_cv_have_decl_iswblank" "$ac_includes_default"
+if test "x$ac_cv_have_decl_iswblank" = x""yes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_ISWBLANK $ac_have_decl
+_ACEOF
+
 
 
 
@@ -17367,7 +17385,9 @@ $as_echo "$gl_cv_next_langinfo_h" >&6; }
 
 
     HAVE_LANGINFO_CODESET=0
+  HAVE_LANGINFO_T_FMT_AMPM=0
   HAVE_LANGINFO_ERA=0
+  HAVE_LANGINFO_YESEXPR=0
 
   if test $ac_cv_header_langinfo_h = yes; then
     HAVE_LANGINFO_H=1
@@ -17402,6 +17422,37 @@ $as_echo "$gl_cv_header_langinfo_codeset" >&6; }
     if test $gl_cv_header_langinfo_codeset = yes; then
       HAVE_LANGINFO_CODESET=1
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines T_FMT_AMPM" >&5
+$as_echo_n "checking whether langinfo.h defines T_FMT_AMPM... " >&6; }
+if test "${gl_cv_header_langinfo_t_fmt_ampm+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <langinfo.h>
+int a = T_FMT_AMPM;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_header_langinfo_t_fmt_ampm=yes
+else
+  gl_cv_header_langinfo_t_fmt_ampm=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_header_langinfo_t_fmt_ampm" >&5
+$as_echo "$gl_cv_header_langinfo_t_fmt_ampm" >&6; }
+    if test $gl_cv_header_langinfo_t_fmt_ampm = yes; then
+      HAVE_LANGINFO_T_FMT_AMPM=1
+    fi
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines ERA" >&5
 $as_echo_n "checking whether langinfo.h defines ERA... " >&6; }
 if test "${gl_cv_header_langinfo_era+set}" = set; then :
@@ -17433,9 +17484,42 @@ $as_echo "$gl_cv_header_langinfo_era" >&6; }
     if test $gl_cv_header_langinfo_era = yes; then
       HAVE_LANGINFO_ERA=1
     fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether langinfo.h defines YESEXPR" >&5
+$as_echo_n "checking whether langinfo.h defines YESEXPR... " >&6; }
+if test "${gl_cv_header_langinfo_yesexpr+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <langinfo.h>
+int a = YESEXPR;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_header_langinfo_yesexpr=yes
+else
+  gl_cv_header_langinfo_yesexpr=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_header_langinfo_yesexpr" >&5
+$as_echo "$gl_cv_header_langinfo_yesexpr" >&6; }
+    if test $gl_cv_header_langinfo_yesexpr = yes; then
+      HAVE_LANGINFO_YESEXPR=1
+    fi
   else
     HAVE_LANGINFO_H=0
   fi
+
+
 
 
 
@@ -19086,9 +19170,7 @@ rm -f conftest*
 
 
   # Code from module nocrash:
-  # Code from module sockets:
-
-
+  # Code from module socketlib:
 
 
 
@@ -19272,6 +19354,11 @@ $as_echo "$gl_cv_lib_socket" >&6; }
       LIBSOCKET="$gl_cv_lib_socket"
     fi
   fi
+
+
+  # Code from module sockets:
+
+
 
 
   :
@@ -20834,11 +20921,20 @@ fi
   fi
 
 
+
   if test $ac_cv_func_iswblank = yes; then
     HAVE_ISWBLANK=1
+    REPLACE_ISWBLANK=0
   else
     HAVE_ISWBLANK=0
+    if test $ac_cv_have_decl_iswblank = yes; then
+      REPLACE_ISWBLANK=1
+    else
+      REPLACE_ISWBLANK=0
+    fi
   fi
+
+
 
 
 
@@ -21796,15 +21892,14 @@ $as_echo "$USE_NLS" >&6; }
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 
 # Find out how to test for executable files. Don't use a zero-byte file,
@@ -21919,15 +22014,14 @@ fi
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 
 # Find out how to test for executable files. Don't use a zero-byte file,
@@ -21997,15 +22091,14 @@ fi
 # Prepare PATH_SEPARATOR.
 # The user is always right.
 if test "${PATH_SEPARATOR+set}" != set; then
-  echo "#! /bin/sh" >conf$$.sh
-  echo  "exit 0"   >>conf$$.sh
-  chmod +x conf$$.sh
-  if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
-    PATH_SEPARATOR=';'
-  else
-    PATH_SEPARATOR=:
-  fi
-  rm -f conf$$.sh
+  # Determine PATH_SEPARATOR by trying to find /bin/sh in a PATH which
+  # contains only /bin. Note that ksh looks also at the FPATH variable,
+  # so we have to set that as well for the test.
+  PATH_SEPARATOR=:
+  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+    && { (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 \
+           || PATH_SEPARATOR=';'
+       }
 fi
 
 # Find out how to test for executable files. Don't use a zero-byte file,
