@@ -1357,7 +1357,8 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   eval XCC_PICFLAG=\"${pic_flag}\"
   eval "`./libtool --tag=CC --config | grep '^archive_cmds='`"
   CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${CFLAGS}' \
-    soname='$lib' lib='$lib' eval XCC_CREATESHARED=\"${archive_cmds}\"
+    soname='$dll' lib='$lib' output_objdir='$dyndir' \
+    eval XCC_CREATESHARED=\"${archive_cmds}\"
   test "${verbose}" = true -o "${verbose}" = yes && \
     echo "XCC_CREATESHARED = ${XCC_CREATESHARED}" >&2
 fi
