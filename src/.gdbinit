@@ -80,9 +80,10 @@ document run_all_tests_parallel
 end
 
 define run_mod_test
-  run -B . -N locale -E 1:1 -q -norc -M base/lispinit.mem -i tests/tests -x "(run-test \"../modules/$arg0/test.tst\" :logname \"$arg0/test.erg\")"
+  run -B . -N locale -E 1:1 -q -norc -M $arg0/lispinit.mem -i tests/tests -x "(run-test \"../modules/$arg1/test.tst\" :logname \"$arg1/test.erg\")"
 end
 document run_mod_test
+         run_mod_test (base|full) module
          run the tests for the specified module
 end
 
