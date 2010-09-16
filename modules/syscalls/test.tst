@@ -527,11 +527,11 @@ T
 ;; linux: "unknown error 47"
 ;; cygwin: "error 47"
 ;; win32: some localized abomination
-#+ffi (loop :with all = (os:errno t)
-        :for e :from 0 :to (loop :for p :in all :maximize (car p))
-        :do (show (list e (os:errno e) (os:strerror)))
-        :finally (os:errno nil))
-#+ffi ()
+(loop :with all = (os:errno t)
+  :for e :from 0 :to (loop :for p :in all :maximize (car p))
+  :do (show (list e (os:errno e) (os:strerror)))
+  :finally (os:errno nil))
+()
 
 (and (fboundp 'os:hostid) (not (integerp (show (os:hostid))))) NIL
 #+unix (and (fboundp 'os::%sethostid)
