@@ -21780,7 +21780,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2007-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2007-2008, 2010 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -21797,8 +21797,7 @@ AC_DEFUN([CL_PROTO],
 AC_CACHE_VAL(cl_cv_proto_[$1], [$2
 cl_cv_proto_$1="$3"])
 cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
-AC_MSG_RESULT([$]{ac_t:-
-         }[$]cl_cv_proto_$1)
+AC_MSG_RESULT([$]cl_cv_proto_$1)
 ])
 
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)

@@ -4444,10 +4444,8 @@ cl_cv_proto_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_re
 fi
 
 cl_cv_proto_filename_completion_function=`echo "$cl_cv_proto_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_filename_completion_function" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_filename_completion_function" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_filename_completion_function" >&5
+$as_echo "$cl_cv_proto_filename_completion_function" >&6; }
 
     ac_fn_c_check_decl "$LINENO" "rl_already_prompted" "ac_cv_have_decl_rl_already_prompted" "#include <stdio.h>
 #include <readline/readline.h>
