@@ -8932,10 +8932,8 @@ cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct
 fi
 
 cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_getrlimit" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_getrlimit" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrlimit" >&5
+$as_echo "$cl_cv_proto_getrlimit" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -8987,10 +8985,8 @@ cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv
 fi
 
 cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_setrlimit" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_setrlimit" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setrlimit" >&5
+$as_echo "$cl_cv_proto_setrlimit" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -10046,10 +10042,8 @@ cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct
 fi
 
 cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_getrusage" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_getrusage" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrusage" >&5
+$as_echo "$cl_cv_proto_getrusage" >&6; }
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether getrusage works" >&5
 $as_echo_n "checking whether getrusage works... " >&6; }
 if test "${cl_cv_func_getrusage_works+set}" = set; then :

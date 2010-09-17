@@ -26585,10 +26585,8 @@ cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct
 fi
 
 cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_getrlimit" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_getrlimit" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrlimit" >&5
+$as_echo "$cl_cv_proto_getrlimit" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -26640,10 +26638,8 @@ cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv
 fi
 
 cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_setrlimit" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_setrlimit" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setrlimit" >&5
+$as_echo "$cl_cv_proto_setrlimit" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -26917,10 +26913,8 @@ cl_cv_proto_waitpid="extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int)
 fi
 
 cl_cv_proto_waitpid=`echo "$cl_cv_proto_waitpid" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_waitpid" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_waitpid" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_waitpid" >&5
+$as_echo "$cl_cv_proto_waitpid" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -27016,10 +27010,8 @@ cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct
 fi
 
 cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_getrusage" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_getrusage" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrusage" >&5
+$as_echo "$cl_cv_proto_getrusage" >&6; }
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether getrusage works" >&5
 $as_echo_n "checking whether getrusage works... " >&6; }
 if test "${cl_cv_func_getrusage_works+set}" = set; then :
@@ -27511,10 +27503,8 @@ cl_cv_proto_ioctl="extern int ioctl ($cl_cv_proto_ioctl_args);"
 fi
 
 cl_cv_proto_ioctl=`echo "$cl_cv_proto_ioctl" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_ioctl" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_ioctl" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_ioctl" >&5
+$as_echo "$cl_cv_proto_ioctl" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -27982,10 +27972,8 @@ cl_cv_proto_select="extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_se
 fi
 
 cl_cv_proto_select=`echo "$cl_cv_proto_select" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_select" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_select" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_select" >&5
+$as_echo "$cl_cv_proto_select" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -28175,10 +28163,8 @@ cl_cv_proto_connect="extern int connect (int, $cl_cv_proto_connect_arg2a $cl_cv_
 fi
 
 cl_cv_proto_connect=`echo "$cl_cv_proto_connect" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_connect" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_connect" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_connect" >&5
+$as_echo "$cl_cv_proto_connect" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -28433,10 +28419,8 @@ cl_cv_proto_inet_addr="extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto
 fi
 
 cl_cv_proto_inet_addr=`echo "$cl_cv_proto_inet_addr" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_inet_addr" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_inet_addr" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_inet_addr" >&5
+$as_echo "$cl_cv_proto_inet_addr" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -28529,10 +28513,8 @@ cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setso
 fi
 
 cl_cv_proto_setsockopt=`echo "$cl_cv_proto_setsockopt" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_setsockopt" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_setsockopt" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setsockopt" >&5
+$as_echo "$cl_cv_proto_setsockopt" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -30819,10 +30801,8 @@ cl_cv_proto_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_re
 fi
 
 cl_cv_proto_filename_completion_function=`echo "$cl_cv_proto_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_filename_completion_function" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_filename_completion_function" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_filename_completion_function" >&5
+$as_echo "$cl_cv_proto_filename_completion_function" >&6; }
 
     ac_fn_c_check_decl "$LINENO" "rl_already_prompted" "ac_cv_have_decl_rl_already_prompted" "#include <stdio.h>
 #include <readline/readline.h>

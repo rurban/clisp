@@ -3989,10 +3989,8 @@ cl_cv_proto_inet_addr="extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto
 fi
 
 cl_cv_proto_inet_addr=`echo "$cl_cv_proto_inet_addr" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_inet_addr" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_inet_addr" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_inet_addr" >&5
+$as_echo "$cl_cv_proto_inet_addr" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
@@ -4085,10 +4083,8 @@ cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setso
 fi
 
 cl_cv_proto_setsockopt=`echo "$cl_cv_proto_setsockopt" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-         }$cl_cv_proto_setsockopt" >&5
-$as_echo "${ac_t:-
-         }$cl_cv_proto_setsockopt" >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setsockopt" >&5
+$as_echo "$cl_cv_proto_setsockopt" >&6; }
 
 
 cat >>confdefs.h <<_ACEOF
