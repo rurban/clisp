@@ -1,3 +1,8 @@
+2010-09-17  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (LIBS): add LIBSOCKET after GLLIB_A so that
+	gethostname is found in the right place on woe32
+
 2010-09-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* modules/syscalls/calls.c (nftw_fn): do not call lisp code while
