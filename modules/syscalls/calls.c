@@ -2200,6 +2200,7 @@ DEFCHECKER(check_ftw_kind,prefix=FTW, F D DP SL SLN DNR NS)
 /* STACK_0 = function to be called */
 static int nftw_fn (const char *path, const struct stat *ps, int kind,
                     struct FTW *ftw) {
+  end_blocking_system_call(); /* back to lisp land */
   pushSTACK(asciz_to_string(path,GLO(pathname_encoding)));
   if (kind != FTW_NS) {
     file_stat_to_STACK(STACK_0,ps);
@@ -2210,6 +2211,7 @@ static int nftw_fn (const char *path, const struct stat *ps, int kind,
   pushSTACK(fixnum(ftw->base));
   pushSTACK(fixnum(ftw->level));
   funcall(STACK_5,5);
+  begin_blocking_system_call(); /* leave to blocking system call */
   if (nullp(value1)) return 0;
   else {                        /* terminate the walk, return the value */
     STACK_1 = value1;

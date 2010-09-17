@@ -1,3 +1,8 @@
+2010-09-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* modules/syscalls/calls.c (nftw_fn): do not call lisp code while
+	current thread is marked to be in blocking system call
+
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (rawsock_error): use ecode instead of
