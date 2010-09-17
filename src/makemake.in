@@ -545,7 +545,7 @@ LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
 INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
 LIBICONV='@LIBICONV@'               # either '-liconv' or ''
 LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
-LIBSOCKET='@LIBSOCKET@'             # '-lnet' or '-lsocket' or ''
+LIBSOCKET='@LIBSOCKET@'             # '-lnet' or '-lsocket' or '-lws2_32' or ''
 X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
 X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
 FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
@@ -1050,12 +1050,12 @@ if [ "$TSYSOS" = osf1 ] ; then
 fi
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV' '$LIBSOCKET
+  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
-    LIBS=$LIBS' -luser32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV' '$LIBSOCKET
+    LIBS=$LIBS' -luser32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib '$LIBSIGSEGV
@@ -1492,7 +1492,8 @@ test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
 test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 
 GLLIB_A=libgnu_cl.a
-LIBS="${LIBS} ${GLLIB_A}"
+# libgnu_cl.a must come _before_ -lws2_32
+LIBS="${LIBS} ${GLLIB_A} ${LIBSOCKET}"
 FILES="${GLLIB_A} "${FILES}
 
 if [ "${with_readline}" = no ]; then
