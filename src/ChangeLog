@@ -1,5 +1,10 @@
 2010-09-17  Sam Steingold  <sds@gnu.org>
 
+	* m4/proto.m4 (CL_PROTO): remove $ac_t (obsolete for 10 years!)
+	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13335>
+
+2010-09-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LIBS): add LIBSOCKET after GLLIB_A so that
 	gethostname is found in the right place on woe32
 	(SUBDIRS): depend on configure
