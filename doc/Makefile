@@ -276,9 +276,12 @@ regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
 
 clean: force
-	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo \
-	  id-href.map clisp-link.xml clisp-link.html clisp-link.1
+	$(RM) impnotes.texi impnotes.html impnotes.pdf html \
+	  clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo \
+	  id-href.map clisp-link.html clisp-link.1
+	test -f impnotes.xml.in && $(RM) impnotes.xml
+	test -f clisp.xml.in && $(RM) clisp.xml
+	test -f clisp-link.xml.in && $(RM) clisp-link.xml
 
 count: $(IMPNOTES)
 	wc $^
