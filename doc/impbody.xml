@@ -5402,7 +5402,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
    <listitem><simpara>Stop loading the file.
 </simpara></listitem></varlistentry></variablelist></para>
 
-<para>On success, &load; returns the &truename; of the file which it loaded.
+<para>On success, &load; returns the &truename; of the file which it loaded,
+ or the &filename-r; argument if it is a &stream-t; but not a &file-stream-t;.
 </para>
 
 <formalpara id="load-paths"><title>Variable &load-paths;</title>

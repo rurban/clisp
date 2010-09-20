@@ -1,3 +1,7 @@
+2010-09-20  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test (LOAD #<INPUT STRING-INPUT-STREAM>)
+
 2010-09-14  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: LOAD now returns the truename

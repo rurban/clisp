@@ -1,3 +1,8 @@
+2010-09-20  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (load): if filename is a non-file stream,
+	do not call TRUENAME on it
+
 2010-09-17  Sam Steingold  <sds@gnu.org>
 
 	* m4/proto.m4 (CL_PROTO): remove $ac_t (obsolete for 10 years!)

@@ -1241,6 +1241,11 @@ T
 "
  "")
 
+(with-output-to-string (*standard-output*)
+  (with-input-from-string (s "(prin1 1234)")
+    (assert (load s :verbose nil))))
+"1234"
+
 (progn
   (symbol-cleanup 's)
   (symbol-cleanup 's1)
