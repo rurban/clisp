@@ -1788,7 +1788,8 @@
           (when (and *load-compiling* *load-verbose* *compile-verbose*)
             (c-report-problems))))
       (loading-message (TEXT "Loaded file ~A") filename)
-      (truename filename))))
+      ;; filename could be a non-file stream, so (truename filename) is unsafe
+      (or *load-truename* filename))))
 (let ((sys::*current-source-file* "init"))
   (sys::check-redefinition 'load 'defun nil))
 
