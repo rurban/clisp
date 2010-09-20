@@ -1,5 +1,5 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2009 Sam Steingold
+# (c) 2000-2010 Sam Steingold
 
 # To generate HTML, you will need xsltproc & xmllint from the libxml2
 # (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
@@ -171,6 +171,7 @@ pile.tdb: impnotes.xml $(IMPNOTES) pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 chunk.tdb: impnotes.xml $(IMPNOTES) chunk.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
+ifneq (,$(wildcard ../version.sh))
 clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
@@ -178,6 +179,11 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 clisp-link.xml: clisp-link.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
+
+impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
+	$(RM) $@
+	$(FILLIN) $< > $@
+endif
 
 XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --param google.ads $(GOOGLEADS) \
 	--stringparam target.database.document
@@ -206,10 +212,6 @@ _%.html: %.html
 
 _%.1: %.1
 	sed $(ROFF_UNCOMMENT) $< > $@
-
-impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
-	$(RM) $@
-	$(FILLIN) $< > $@
 
 check: $(IMPNOTES) $(CHECK_DEPS)
 	for f in $(IN_FILES); do \
@@ -291,12 +293,13 @@ docbook-xsl : force
 	$(RSYNC) --port=5873 docbook.xml-doc.org::xsl docbook-xsl
 	grep '<fm:Version>' docbook-xsl/VERSION
 
-impnotes-src.zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
+IMPNOTES_SRC = impnotes-src
+$(IMPNOTES_SRC).zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
 		$(IMPNOTES) $(CLISP_XSL) $(CLISP_CSS)
-	$(RM) $@
-	cd ..; ln -s . clisp; \
-	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
-	$(RM) clisp
+	$(RM) -r $@ $(IMPNOTES_SRC)
+	mkdir $(IMPNOTES_SRC);
+	for f in $^; do sed 's,\.\./modules/[^/]*/,,' $$f > $(IMPNOTES_SRC)/`basename $$f`; done
+	zip -9mvr $@ $(IMPNOTES_SRC)
 	(test -n "$(DIST)" && $(CHMOD) $@ ../src/NEWS && \
 	 $(RSYNC) $@ ../src/NEWS $(DIST)/) || true
 
