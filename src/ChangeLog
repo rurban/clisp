@@ -12,7 +12,7 @@
 
 	* makemake.in (LIBS): add LIBSOCKET after GLLIB_A so that
 	gethostname is found in the right place on woe32
-	(SUBDIRS): depend on configure
+	(SUBDIRS): depend on config.status
 
 2010-09-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
