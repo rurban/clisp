@@ -2188,7 +2188,7 @@ echol
 echol 'subdirs: $(SUBDIRS)'
 echol
 echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
-echol '$(SUBDIRS): build-aux configure'
+echol '$(SUBDIRS): build-aux config.status'
 echotab 'mkdir -p $@'
 echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
 echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}
