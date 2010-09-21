@@ -1309,6 +1309,21 @@ DEFUN(POSIX::PATHCONF, pathspec &optional what)
 }
 #endif  /* HAVE_PATHCONF && HAVE_FPATHCONF */
 
+#if 1                           /* defined(HAVE_CHROOT) */
+DEFUN(POSIX::CHROOT, path)
+{ /* http://opengroup.org/onlinepubs/007908799/xsh/chroot.html (LEGACY) */
+  int status;
+  STACK_0 = physical_namestring(STACK_0);
+  with_string_0(STACK_0, GLO(pathname_encoding), namez, {
+      begin_blocking_system_call();
+      status = chroot(namez);
+      end_blocking_system_call();
+    });
+  if (status) OS_file_error(STACK_0);
+  skipSTACK(1); VALUES0;
+}
+#endif  /* HAVE_CHROOT */
+
 #if defined(HAVE_SYS_RESOURCE_H)
 static /*maygc*/ Values rusage_to_lisp (struct rusage *ru) {
   int count = 2;

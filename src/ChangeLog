@@ -1,3 +1,9 @@
+2010-09-21  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX::CHROOT): add
+	* modules/syscalls/posix.lisp (chroot) [unix]: export
+	* modules/syscalls/configure.in: check for chroot
+
 2010-09-20  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (load): if filename is a non-file stream,

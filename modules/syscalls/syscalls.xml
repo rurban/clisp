@@ -132,6 +132,13 @@
     <function role="unix">chown</function>,
     and <function role="unix">utime</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="chroot"><term><code>(POSIX:CHROOT &path-r;)</code></term>
+ <listitem><simpara>Change the apparent disk root directory for the current
+   running process (and its children) using
+   <function role="bsd">chroot</function>.</simpara>
+  <simpara>Unless the process has superuser privileges, the operation will
+    probably fail with <constant>EPERM</constant>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><code>(POSIX:STAT-VFS &path-r;)</code></term>
  <listitem><para>Return a <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
