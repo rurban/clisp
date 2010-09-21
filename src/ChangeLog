@@ -1,3 +1,9 @@
+2010-09-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* pathname.d (unblock_all_signals): unblocks all blocked signals.
+	used in child processes to clear parent's signal mask
+	(EXT::LAUNCH, EXT:EXECUTE): use it
+
 2010-09-21  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::CHROOT): add

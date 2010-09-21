@@ -8343,6 +8343,14 @@ LISPFUNNS(file_author,1)
 
 #ifdef UNIX
 
+/* UP: unblocks blocked signals - called in child (fork-ed) process
+   (probably relevant only in MT builds but does not harm single thread) */
+local inline void unblock_all_signals() {
+  var sigset_t sigblock_mask;
+  sigprocmask(SIG_BLOCK, NULL, &sigblock_mask); /* get */
+  sigprocmask(SIG_UNBLOCK, &sigblock_mask, NULL); /* unblock */
+}
+
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 { /* (EXECUTE file arg1 arg2 ...) calls a file with the given arguments. */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
@@ -8403,6 +8411,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       if ((child = vfork()) ==0) {
         /* this program part is executed by the child-process: */
         close_all_fd();
+        unblock_all_signals();
         execv(argv[0],argv); /* call program */
         _exit(-1); /* if this fails, end the child-process */
       }
@@ -8937,6 +8946,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     }
    #endif
     close_all_fd();
+    unblock_all_signals();
     execvp(*argv,argv);
     fprintf(stderr,"clisp/child: execvp failed: %s\n",strerror(errno));
     _exit(-1);
