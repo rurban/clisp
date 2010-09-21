@@ -43,7 +43,7 @@ openlog setlogmask syslog closelog dnl
 getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath dnl
 getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
-mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
+mkfifo mkdir creat mkstemp tempnam mkdtemp chroot dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
 setreuid setregid getgroups setgroups wait4 dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl

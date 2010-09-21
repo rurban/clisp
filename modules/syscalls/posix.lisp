@@ -15,6 +15,7 @@
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:errno #:strerror #:hostid #:domainname #:file-size #:user-shells
+   #+unix chroot
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
