@@ -1,3 +1,7 @@
+2010-09-21  Sam Steingold  <sds@gnu.org>
+
+	* screen.tst: add demo for the SCREEN package
+
 2010-09-20  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: test (LOAD #<INPUT STRING-INPUT-STREAM>)
