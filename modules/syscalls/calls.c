@@ -1309,7 +1309,7 @@ DEFUN(POSIX::PATHCONF, pathspec &optional what)
 }
 #endif  /* HAVE_PATHCONF && HAVE_FPATHCONF */
 
-#if 1                           /* defined(HAVE_CHROOT) */
+#if defined(HAVE_CHROOT)
 DEFUN(POSIX::CHROOT, path)
 { /* http://opengroup.org/onlinepubs/007908799/xsh/chroot.html (LEGACY) */
   int status;
