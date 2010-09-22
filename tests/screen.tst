@@ -53,7 +53,7 @@
       :do (vector-push-extend (list ch row col) vec))
     :finally (return vec)))
 
-(defparameter *delay* 0.03)
+(defparameter *delay* 0.01)
 (defparameter *start-row* 5)
 (defparameter *start-column* 5)
 
@@ -72,8 +72,9 @@
     :unless (= jj ii)
     :do (rotatef (aref vec ii) (aref vec jj))))
 
-(defun welcome-banner (&key (*delay* *delay*) (*start-row* *start-row*)
-                       (*start-column* *start-column*))
+(defun welcome-banner (&key ((:delay *delay*) *delay*)
+                       ((:start-row *start-row*) *start-row*)
+                       ((:start-column *start-column*) *start-column*))
   "Show the clisp banner character-by-character in random order"
   (let* ((lines (clisp-banner))
          (banner (copy-seq (lines-to-vector lines))))
@@ -88,8 +89,8 @@
 ;;; Ask for an input line
 ;;;
 
-(defun input-line (prompt &key (*start-row* *start-row*)
-                   (*start-column* *start-column*))
+(defun input-line (prompt &key ((:start-row *start-row*) *start-row*)
+                   ((:start-column *start-column*) *start-column*))
   (with-window
     (set-window-cursor-position *window* *start-row* *start-column*)
     (highlight-on *window*)
