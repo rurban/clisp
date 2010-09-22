@@ -30,74 +30,74 @@
     (wait-for-space 4 4)))
 
 ;;;
-;;; show the clisp banner character-by-character in random order
+;;; Show the clisp banner character-by-character in random order
 ;;;
 
 (defun clisp-banner ()
-  "get the clisp welcome message"
+  "Get the clisp welcome message"
   (let* ((argv (ext:argv))
-         (lispinit (aref argv (1+ (position "-m" argv :test #'string=)))))
+         (lispinit (aref argv (1+ (position "-M" argv :test #'string=)))))
     (with-open-stream (s (ext:make-pipe-input-stream
-                          (format nil "'~a' -norc -b '~a' -m '~a' < /dev/null 2>/dev/null"
+                          (format nil "'~A' -norc -B '~a' -M '~a' < /dev/null 2>/dev/null"
                                   (aref argv 0) (namestring *lib-directory*)
                                   (namestring (merge-pathnames
                                                lispinit *lib-directory*)))))
       (loop :for line = (read-line s nil nil) :while line :collect line))))
 
 (defun lines-to-vector (lines)
-  "convert list of lines to a vector of (char lineno column)"
+  "Convert list of lines to a vector of (char row column)"
   (loop :with vec = (make-array 10 :adjustable t :fill-pointer 0)
-    :for line :in lines :and lineno :upfrom 0 :do
-    (loop :for ch :across line :and colno :upfrom 0
+    :for line :in lines :and row :upfrom 0 :do
+    (loop :for ch :across line :and col :upfrom 0
       :unless (char= #\space ch)
-      :do (vector-push-extend (list ch lineno colno) vec))
+      :do (vector-push-extend (list ch row col) vec))
     :finally (return vec)))
 
 (defparameter *delay* 0.03)
-(defparameter *start-line* 5)
+(defparameter *start-row* 5)
 (defparameter *start-column* 5)
 
-(defun show-char (list &key (delay *delay*) (start-line *start-line*)
+(defun show-char (list &key (delay *delay*) (start-row *start-row*)
                   (start-column *start-column*))
-  "output a char at the given position, then sleep"
-  (destructuring-bind (ch lineno colno) list
-    (set-window-cursor-position *window* (+ lineno start-line)
-                                (+ colno start-column))
+  "Output a char at the given position, then sleep"
+  (destructuring-bind (ch row col) list
+    (set-window-cursor-position *window* (+ row start-row) (+ col start-column))
     (write-char ch *window*)
     (sleep delay)))
 
 (defun vector-shuffle (vec)     ; see clocc/cllib/math.lisp
-  "generate a random permutation of the vector in place."
+  "Generate a random permutation of the vector in place."
   (loop :for ii :downfrom (1- (length vec)) :to 1
     :for jj = (random (1+ ii))
     :unless (= jj ii)
     :do (rotatef (aref vec ii) (aref vec jj))))
 
-(defun welcome-banner (&key (*delay* *delay*) (*start-line* *start-line*)
+(defun welcome-banner (&key (*delay* *delay*) (*start-row* *start-row*)
                        (*start-column* *start-column*))
-  "show the clisp banner character-by-character in random order"
+  "Show the clisp banner character-by-character in random order"
   (let* ((lines (clisp-banner))
          (banner (copy-seq (lines-to-vector lines))))
     (vector-shuffle banner)
     (with-window
       (clear-window *window*)
+      (window-cursor-off *window*)
       (map nil #'show-char banner)
-      (wait-for-space (+ *start-line* (length lines) *start-line*) 10))))
+      (wait-for-space (+ *start-row* (length lines) *start-row*) 10))))
 
 ;;;
-;;; ask for an input line
+;;; Ask for an input line
 ;;;
 
-(defun input-line (prompt &key (*start-line* *start-line*)
+(defun input-line (prompt &key (*start-row* *start-row*)
                    (*start-column* *start-column*))
   (with-window
-    (set-window-cursor-position *window* *start-line* *start-column*)
+    (set-window-cursor-position *window* *start-row* *start-column*)
     (highlight-on *window*)
     (write-string prompt *window*)
     (highlight-off *window*)
     (write-string ": " *window*)
     (multiple-value-bind (row col) (window-cursor-position *window*)
-      (set-window-cursor-position *window* (+ *start-line* 1) *start-column*)
+      (set-window-cursor-position *window* (+ *start-row* 1) *start-column*)
       (write-string "hit <enter> when done")
       (set-window-cursor-position *window* row col)
       (let ((rite col) (pos col) (left col)
