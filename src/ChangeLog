@@ -1,3 +1,11 @@
+2010-09-27  Sam Steingold  <sds@gnu.org>
+
+	SIGWINCH updates the SCREEN's idea of window size
+	* lispbibl.d (resize_screen) [SCREEN]: declare
+	* spvw_sigwinch.d (update_linelength) [SCREEN]: call resize_screen()
+	* stream.d (resize_screen) [SCREEN]: implement
+	Reported by <edgar-rft@web.de>
+
 2010-09-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* pathname.d (unblock_all_signals): unblocks all blocked signals.

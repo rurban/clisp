@@ -31,18 +31,18 @@ local void update_linelength (void) {
   /* SYS::*PRIN-LINELENGTH* := width of the terminal-window - 1
    [cf. 'term.c' in 'calc' by Hans-J. Boeh, Vernon Lee, Alan J. Demers] */
   if (isatty(stdout_handle)) {  /* is standard-output a terminal? */
-    /* var int lines = 0; */
+    var int lines = 0;
     var int columns = 0;
    #ifdef TIOCGWINSZ
     {                           /* try ioctl first: */
       var struct winsize stdout_window_size;
       if (!( ioctl(stdout_handle,TIOCGWINSZ,&stdout_window_size) <0)) {
-        /* lines = stdout_window_size.ws_row; */
+        lines = stdout_window_size.ws_row;
         columns = stdout_window_size.ws_col;
       }
     }
     /* this can - contrary to the documentation - fail! */
-    if (/* (lines > 0) && */ (columns > 0))
+    if ((lines > 0) && (columns > 0))
       goto OK;
    #endif
    #if !defined(NO_TERMCAP_NCURSES)
@@ -52,13 +52,13 @@ local void update_linelength (void) {
         term_name = "unknown";
       var char termcap_entry_buf[10000];
       if ( tgetent(termcap_entry_buf,term_name) ==1) {
-        /* lines = tgetnum("li"); if (lines<0) { lines = 0; } */
+        lines = tgetnum("li"); if (lines<0) { lines = 0; }
         columns = tgetnum("co"); if (columns<0) { columns = 0; }
       }
     }
    #endif
     /* Hopefully, columns contains now a sensible value. */
-    if (/* (lines > 0) && */ (columns > 0))
+    if ((lines > 0) && (columns > 0))
       goto OK;
     if (false) {
      OK:
@@ -67,6 +67,9 @@ local void update_linelength (void) {
          since in MT builds this function is called from signal handling thread
          and there is no current_thread() */
       TheSymbol(S(prin_linelength))->symvalue = fixnum(columns-1);
+     #ifdef SCREEN
+      resize_screen(lines,columns);
+     #endif
     }
   }
 }

@@ -10414,6 +10414,8 @@ local object check_window_stream (object stream) {
 
 #ifdef WIN32_NATIVE
 
+global void resize_screen (int rows, int columns) {}
+
 /* Implementation on top of the Win32 console.
  Contributed by Arseny Slobodjuck <ampy@crosswinds.net>, 2001-02-14
  modified on 2001-07-31
@@ -11077,6 +11079,8 @@ local int rows; /* number of rows of the screen, >0 */
 local int cols; /* number of columns of the screen, >0 */
 /* top row is row 0, bottom row is row rows-1.
    left-most column is column 0, right-most column is column cols-1. */
+global void resize_screen (int lines, int columns)
+{ rows = lines; cols = columns; }
 #if WANT_ATTR || WANT_CHARSET
 local uintB* null; /* Pointer to cols Zeros */
 #endif
