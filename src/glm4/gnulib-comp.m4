@@ -68,6 +68,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module sys_socket:
   # Code from module sys_time:
+  # Code from module sys_wait:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
   # Code from module unistd:
@@ -176,6 +177,9 @@ AC_DEFUN([gl_INIT],
   AC_PROG_MKDIR_P
   # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
+  AC_PROG_MKDIR_P
+  # Code from module sys_wait:
+  gl_SYS_WAIT_H
   AC_PROG_MKDIR_P
   # Code from module uniname/base:
   gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
@@ -372,6 +376,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/sys_socket.in.h
   lib/sys_time.in.h
+  lib/sys_wait.in.h
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
@@ -448,6 +453,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/sys_socket_h.m4
   m4/sys_time_h.m4
+  m4/sys_wait_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
