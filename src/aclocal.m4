@@ -3272,119 +3272,6 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
-# stdlib_h.m4 serial 30
-dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_STDLIB_H],
-[
-  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  gl_CHECK_NEXT_HEADERS([stdlib.h])
-  AC_CHECK_HEADERS([random.h], [], [], [AC_INCLUDES_DEFAULT])
-  if test $ac_cv_header_random_h = yes; then
-    HAVE_RANDOM_H=1
-  else
-    HAVE_RANDOM_H=0
-  fi
-  AC_SUBST([HAVE_RANDOM_H])
-  AC_CHECK_TYPES([struct random_data],
-    [], [HAVE_STRUCT_RANDOM_DATA=0],
-    [[#include <stdlib.h>
-      #if HAVE_RANDOM_H
-      # include <random.h>
-      #endif
-    ]])
-
-  dnl Check for declarations of anything we want to poison if the
-  dnl corresponding gnulib module is not in use, and which is not
-  dnl guaranteed by C89.
-  gl_WARN_ON_USE_PREPARE([[#include <stdlib.h>
-#if HAVE_SYS_LOADAVG_H
-# include <sys/loadavg.h>
-#endif
-#if HAVE_RANDOM_H
-# include <random.h>
-#endif
-    ]], [_Exit atoll canonicalize_file_name getloadavg getsubopt grantpt mkdtemp
-    mkostemp mkostemps mkstemp mkstemps ptsname random_r initstat_r srandom_r
-    setstate_r realpath rpmatch setenv strtod strtoll strtoull unlockpt
-    unsetenv])
-])
-
-AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
-[
-  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
-  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
-  dnl Define it also as a C macro, for the benefit of the unit tests.
-  gl_MODULE_INDICATOR_FOR_TESTS([$1])
-])
-
-AC_DEFUN([gl_STDLIB_H_DEFAULTS],
-[
-  GNULIB__EXIT=0;         AC_SUBST([GNULIB__EXIT])
-  GNULIB_ATOLL=0;         AC_SUBST([GNULIB_ATOLL])
-  GNULIB_CALLOC_POSIX=0;  AC_SUBST([GNULIB_CALLOC_POSIX])
-  GNULIB_CANONICALIZE_FILE_NAME=0;  AC_SUBST([GNULIB_CANONICALIZE_FILE_NAME])
-  GNULIB_GETLOADAVG=0;    AC_SUBST([GNULIB_GETLOADAVG])
-  GNULIB_GETSUBOPT=0;     AC_SUBST([GNULIB_GETSUBOPT])
-  GNULIB_GRANTPT=0;       AC_SUBST([GNULIB_GRANTPT])
-  GNULIB_MALLOC_POSIX=0;  AC_SUBST([GNULIB_MALLOC_POSIX])
-  GNULIB_MKDTEMP=0;       AC_SUBST([GNULIB_MKDTEMP])
-  GNULIB_MKOSTEMP=0;      AC_SUBST([GNULIB_MKOSTEMP])
-  GNULIB_MKOSTEMPS=0;     AC_SUBST([GNULIB_MKOSTEMPS])
-  GNULIB_MKSTEMP=0;       AC_SUBST([GNULIB_MKSTEMP])
-  GNULIB_MKSTEMPS=0;      AC_SUBST([GNULIB_MKSTEMPS])
-  GNULIB_PTSNAME=0;       AC_SUBST([GNULIB_PTSNAME])
-  GNULIB_PUTENV=0;        AC_SUBST([GNULIB_PUTENV])
-  GNULIB_RANDOM_R=0;      AC_SUBST([GNULIB_RANDOM_R])
-  GNULIB_REALLOC_POSIX=0; AC_SUBST([GNULIB_REALLOC_POSIX])
-  GNULIB_REALPATH=0;      AC_SUBST([GNULIB_REALPATH])
-  GNULIB_RPMATCH=0;       AC_SUBST([GNULIB_RPMATCH])
-  GNULIB_SETENV=0;        AC_SUBST([GNULIB_SETENV])
-  GNULIB_STRTOD=0;        AC_SUBST([GNULIB_STRTOD])
-  GNULIB_STRTOLL=0;       AC_SUBST([GNULIB_STRTOLL])
-  GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
-  GNULIB_UNLOCKPT=0;      AC_SUBST([GNULIB_UNLOCKPT])
-  GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
-  dnl Assume proper GNU behavior unless another module says otherwise.
-  HAVE__EXIT=1;              AC_SUBST([HAVE__EXIT])
-  HAVE_ATOLL=1;              AC_SUBST([HAVE_ATOLL])
-  HAVE_CANONICALIZE_FILE_NAME=1;  AC_SUBST([HAVE_CANONICALIZE_FILE_NAME])
-  HAVE_DECL_GETLOADAVG=1;    AC_SUBST([HAVE_DECL_GETLOADAVG])
-  HAVE_GETSUBOPT=1;          AC_SUBST([HAVE_GETSUBOPT])
-  HAVE_GRANTPT=1;            AC_SUBST([HAVE_GRANTPT])
-  HAVE_MKDTEMP=1;            AC_SUBST([HAVE_MKDTEMP])
-  HAVE_MKOSTEMP=1;           AC_SUBST([HAVE_MKOSTEMP])
-  HAVE_MKOSTEMPS=1;          AC_SUBST([HAVE_MKOSTEMPS])
-  HAVE_MKSTEMP=1;            AC_SUBST([HAVE_MKSTEMP])
-  HAVE_MKSTEMPS=1;           AC_SUBST([HAVE_MKSTEMPS])
-  HAVE_PTSNAME=1;            AC_SUBST([HAVE_PTSNAME])
-  HAVE_RANDOM_R=1;           AC_SUBST([HAVE_RANDOM_R])
-  HAVE_REALPATH=1;           AC_SUBST([HAVE_REALPATH])
-  HAVE_RPMATCH=1;            AC_SUBST([HAVE_RPMATCH])
-  HAVE_SETENV=1;             AC_SUBST([HAVE_SETENV])
-  HAVE_STRTOD=1;             AC_SUBST([HAVE_STRTOD])
-  HAVE_STRTOLL=1;            AC_SUBST([HAVE_STRTOLL])
-  HAVE_STRTOULL=1;           AC_SUBST([HAVE_STRTOULL])
-  HAVE_STRUCT_RANDOM_DATA=1; AC_SUBST([HAVE_STRUCT_RANDOM_DATA])
-  HAVE_SYS_LOADAVG_H=0;      AC_SUBST([HAVE_SYS_LOADAVG_H])
-  HAVE_UNLOCKPT=1;           AC_SUBST([HAVE_UNLOCKPT])
-  HAVE_UNSETENV=1;           AC_SUBST([HAVE_UNSETENV])
-  REPLACE_CALLOC=0;          AC_SUBST([REPLACE_CALLOC])
-  REPLACE_CANONICALIZE_FILE_NAME=0;  AC_SUBST([REPLACE_CANONICALIZE_FILE_NAME])
-  REPLACE_MALLOC=0;          AC_SUBST([REPLACE_MALLOC])
-  REPLACE_MKSTEMP=0;         AC_SUBST([REPLACE_MKSTEMP])
-  REPLACE_PUTENV=0;          AC_SUBST([REPLACE_PUTENV])
-  REPLACE_REALLOC=0;         AC_SUBST([REPLACE_REALLOC])
-  REPLACE_REALPATH=0;        AC_SUBST([REPLACE_REALPATH])
-  REPLACE_SETENV=0;          AC_SUBST([REPLACE_SETENV])
-  REPLACE_STRTOD=0;          AC_SUBST([REPLACE_STRTOD])
-  REPLACE_UNSETENV=0;        AC_SUBST([REPLACE_UNSETENV])
-])
-
 # wcrtomb.m4 serial 6
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -3581,6 +3468,78 @@ AC_DEFUN([AM_LANGINFO_CODESET],
     AC_DEFINE([HAVE_LANGINFO_CODESET], [1],
       [Define if you have <langinfo.h> and nl_langinfo(CODESET).])
   fi
+])
+
+# eealloc.m4 serial 2
+dnl Copyright (C) 2003, 2009, 2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_EEALLOC],
+[
+  AC_REQUIRE([gl_EEMALLOC])
+  AC_REQUIRE([gl_EEREALLOC])
+  AC_REQUIRE([AC_C_INLINE])
+])
+
+AC_DEFUN([gl_EEMALLOC],
+[
+  _AC_FUNC_MALLOC_IF(
+    [gl_cv_func_malloc_0_nonnull=1],
+    [gl_cv_func_malloc_0_nonnull=0])
+  AC_DEFINE_UNQUOTED([MALLOC_0_IS_NONNULL], [$gl_cv_func_malloc_0_nonnull],
+    [If malloc(0) is != NULL, define this to 1.  Otherwise define this
+     to 0.])
+])
+
+AC_DEFUN([gl_EEREALLOC],
+[
+  _AC_FUNC_REALLOC_IF(
+    [gl_cv_func_realloc_0_nonnull=1],
+    [gl_cv_func_realloc_0_nonnull=0])
+  AC_DEFINE_UNQUOTED([REALLOC_0_IS_NONNULL], [$gl_cv_func_realloc_0_nonnull],
+    [If realloc(NULL,0) is != NULL, define this to 1.  Otherwise define this
+     to 0.])
+])
+
+# environ.m4 serial 5
+dnl Copyright (C) 2001-2004, 2006-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN_ONCE([gl_ENVIRON],
+[
+  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
+  dnl Persuade glibc <unistd.h> to declare environ.
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  gt_CHECK_VAR_DECL([#include <unistd.h>], environ)
+  if test $gt_cv_var_environ_declaration != yes; then
+    HAVE_DECL_ENVIRON=0
+  fi
+])
+
+# Check if a variable is properly declared.
+# gt_CHECK_VAR_DECL(includes,variable)
+AC_DEFUN([gt_CHECK_VAR_DECL],
+[
+  define([gt_cv_var], [gt_cv_var_]$2[_declaration])
+  AC_MSG_CHECKING([if $2 is properly declared])
+  AC_CACHE_VAL([gt_cv_var], [
+    AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM(
+         [[$1
+           extern struct { int foo; } $2;]],
+         [[$2.foo = 1;]])],
+      [gt_cv_var=no],
+      [gt_cv_var=yes])])
+  AC_MSG_RESULT([$gt_cv_var])
+  if test $gt_cv_var = yes; then
+    AC_DEFINE([HAVE_]m4_translit($2, [a-z], [A-Z])[_DECL], 1,
+              [Define if you have the declaration of $2.])
+  fi
+  undefine([gt_cv_var])
 ])
 
 # errno_h.m4 serial 6
@@ -4750,6 +4709,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module c++defs:
   # Code from module close-hook:
   # Code from module configmake:
+  # Code from module environ:
   # Code from module errno:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
@@ -4765,6 +4725,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module localcharset:
+  # Code from module malloca:
   # Code from module mbrtowc:
   # Code from module mbsinit:
   # Code from module mbsrtowcs:
@@ -4773,12 +4734,14 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module setenv:
   # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
   # Code from module stdbool:
   # Code from module stddef:
   # Code from module stdint:
+  # Code from module stdlib:
   # Code from module streq:
   # Code from module string:
   # Code from module strnlen1:
@@ -4791,6 +4754,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module unitypes:
   # Code from module uniwidth/base:
   # Code from module uniwidth/width:
+  # Code from module unsetenv:
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -4821,6 +4785,9 @@ AC_DEFUN([gl_INIT],
   # Code from module c++defs:
   # Code from module close-hook:
   # Code from module configmake:
+  # Code from module environ:
+  gl_ENVIRON
+  gl_UNISTD_MODULE_INDICATOR([environ])
   # Code from module errno:
   gl_HEADER_ERRNO_H
   # Code from module extensions:
@@ -4852,6 +4819,8 @@ AC_DEFUN([gl_INIT],
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+  # Code from module malloca:
+  gl_MALLOCA
   # Code from module mbrtowc:
   gl_FUNC_MBRTOWC
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
@@ -4872,6 +4841,9 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module setenv:
+  gl_FUNC_SETENV
+  gl_STDLIB_MODULE_INDICATOR([setenv])
   # Code from module socketlib:
   gl_SOCKETLIB
   # Code from module sockets:
@@ -4884,6 +4856,8 @@ AC_DEFUN([gl_INIT],
   gl_STDDEF_H
   # Code from module stdint:
   gl_STDINT_H
+  # Code from module stdlib:
+  gl_STDLIB_H
   # Code from module streq:
   # Code from module string:
   gl_HEADER_STRING_H
@@ -4909,6 +4883,9 @@ AC_DEFUN([gl_INIT],
   gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
   # Code from module uniwidth/width:
   gl_LIBUNISTRING_MODULE([0.9], [uniwidth/width])
+  # Code from module unsetenv:
+  gl_FUNC_UNSETENV
+  gl_STDLIB_MODULE_INDICATOR([unsetenv])
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -5072,6 +5049,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/langinfo.in.h
   lib/localcharset.c
   lib/localcharset.h
+  lib/malloca.c
+  lib/malloca.h
+  lib/malloca.valgrind
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbsrtowcs-state.c
@@ -5081,11 +5061,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
+  lib/setenv.c
   lib/sockets.c
   lib/sockets.h
   lib/stdbool.in.h
   lib/stddef.in.h
   lib/stdint.in.h
+  lib/stdlib.in.h
   lib/streq.h
   lib/string.in.h
   lib/strnlen1.c
@@ -5102,6 +5084,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth.in.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
+  lib/unsetenv.c
   lib/verify.h
   lib/w32sock.h
   lib/wchar.in.h
@@ -5109,6 +5092,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/00gnulib.m4
   m4/alloca.m4
   m4/codeset.m4
+  m4/eealloc.m4
+  m4/environ.m4
   m4/errno_h.m4
   m4/extensions.m4
   m4/fcntl-o.m4
@@ -5143,6 +5128,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
+  m4/malloca.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
   m4/mbsrtowcs.m4
@@ -5157,6 +5143,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
+  m4/setenv.m4
   m4/size_max.m4
   m4/socketlib.m4
   m4/sockets.m4
@@ -5166,6 +5153,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stddef_h.m4
   m4/stdint.m4
   m4/stdint_h.m4
+  m4/stdlib_h.m4
   m4/string_h.m4
   m4/sys_socket_h.m4
   m4/sys_time_h.m4
@@ -7909,6 +7897,22 @@ AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
               | (ullmax / ull) | (ullmax % ull));]])
 ])
 
+# malloca.m4 serial 1
+dnl Copyright (C) 2003-2004, 2006-2007, 2009-2010 Free Software Foundation,
+dnl Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_MALLOCA],
+[
+  dnl Use the autoconf tests for alloca(), but not the AC_SUBSTed variables
+  dnl @ALLOCA@ and @LTALLOCA@.
+  dnl gl_FUNC_ALLOCA   dnl Already brought in by the module dependencies.
+  AC_REQUIRE([gl_EEMALLOC])
+  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
+])
+
 # mbrtowc.m4 serial 18
 dnl Copyright (C) 2001-2002, 2004-2005, 2008-2010 Free Software Foundation,
 dnl Inc.
@@ -9436,6 +9440,127 @@ fi
 AC_SUBST([$1])dnl
 ])
 
+# setenv.m4 serial 18
+dnl Copyright (C) 2001-2004, 2006-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_SETENV],
+[
+  AC_REQUIRE([gl_FUNC_SETENV_SEPARATE])
+  if test $HAVE_SETENV$REPLACE_SETENV != 10; then
+    AC_LIBOBJ([setenv])
+  fi
+])
+
+# Like gl_FUNC_SETENV, except prepare for separate compilation (no AC_LIBOBJ).
+AC_DEFUN([gl_FUNC_SETENV_SEPARATE],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_CHECK_FUNCS_ONCE([setenv])
+  if test $ac_cv_func_setenv = no; then
+    HAVE_SETENV=0
+  else
+    AC_CACHE_CHECK([whether setenv validates arguments],
+      [gl_cv_func_setenv_works],
+      [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+       #include <stdlib.h>
+       #include <errno.h>
+       #include <string.h>
+      ]], [[
+       if (setenv ("", "", 0) != -1) return 1;
+       if (errno != EINVAL) return 2;
+       if (setenv ("a", "=", 1) != 0) return 3;
+       if (strcmp (getenv ("a"), "=") != 0) return 4;
+      ]])],
+      [gl_cv_func_setenv_works=yes], [gl_cv_func_setenv_works=no],
+      [gl_cv_func_setenv_works="guessing no"])])
+    if test "$gl_cv_func_setenv_works" != yes; then
+      REPLACE_SETENV=1
+      AC_LIBOBJ([setenv])
+    fi
+  fi
+  gl_PREREQ_SETENV
+])
+
+AC_DEFUN([gl_FUNC_UNSETENV],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_CHECK_FUNCS([unsetenv])
+  if test $ac_cv_func_unsetenv = no; then
+    HAVE_UNSETENV=0
+    AC_LIBOBJ([unsetenv])
+    gl_PREREQ_UNSETENV
+  else
+    dnl Some BSDs return void, failing to do error checking.
+    AC_CACHE_CHECK([for unsetenv() return type], [gt_cv_func_unsetenv_ret],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM(
+            [[
+#include <stdlib.h>
+extern
+#ifdef __cplusplus
+"C"
+#endif
+#if defined(__STDC__) || defined(__cplusplus)
+int unsetenv (const char *name);
+#else
+int unsetenv();
+#endif
+            ]],
+            [[]])],
+         [gt_cv_func_unsetenv_ret='int'],
+         [gt_cv_func_unsetenv_ret='void'])])
+    if test $gt_cv_func_unsetenv_ret = 'void'; then
+      AC_DEFINE([VOID_UNSETENV], [1], [Define to 1 if unsetenv returns void
+       instead of int.])
+      REPLACE_UNSETENV=1
+      AC_LIBOBJ([unsetenv])
+    fi
+
+    dnl Solaris 10 unsetenv does not remove all copies of a name.
+    dnl OpenBSD 4.7 unsetenv("") does not fail.
+    AC_CACHE_CHECK([whether unsetenv obeys POSIX],
+      [gl_cv_func_unsetenv_works],
+      [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+       #include <stdlib.h>
+       #include <errno.h>
+      ]], [[
+       char entry[] = "b=2";
+       if (putenv ((char *) "a=1")) return 1;
+       if (putenv (entry)) return 2;
+       entry[0] = 'a';
+       unsetenv ("a");
+       if (getenv ("a")) return 3;
+       if (!unsetenv ("") || errno != EINVAL) return 4;
+      ]])],
+      [gl_cv_func_unsetenv_works=yes], [gl_cv_func_unsetenv_works=no],
+      [gl_cv_func_unsetenv_works="guessing no"])])
+    if test "$gl_cv_func_unsetenv_works" != yes; then
+      REPLACE_UNSETENV=1
+      AC_LIBOBJ([unsetenv])
+    fi
+  fi
+])
+
+# Prerequisites of lib/setenv.c.
+AC_DEFUN([gl_PREREQ_SETENV],
+[
+  AC_REQUIRE([AC_FUNC_ALLOCA])
+  AC_REQUIRE([gl_ENVIRON])
+  AC_CHECK_HEADERS_ONCE([unistd.h])
+  AC_CHECK_HEADERS([search.h])
+  AC_CHECK_FUNCS([tsearch])
+])
+
+# Prerequisites of lib/unsetenv.c.
+AC_DEFUN([gl_PREREQ_UNSETENV],
+[
+  AC_REQUIRE([gl_ENVIRON])
+  AC_CHECK_HEADERS_ONCE([unistd.h])
+])
+
 # socketlib.m4 serial 1
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -10217,6 +10342,119 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # Local Variables:
 # indent-tabs-mode: nil
 # End:
+
+# stdlib_h.m4 serial 30
+dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_STDLIB_H],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  gl_CHECK_NEXT_HEADERS([stdlib.h])
+  AC_CHECK_HEADERS([random.h], [], [], [AC_INCLUDES_DEFAULT])
+  if test $ac_cv_header_random_h = yes; then
+    HAVE_RANDOM_H=1
+  else
+    HAVE_RANDOM_H=0
+  fi
+  AC_SUBST([HAVE_RANDOM_H])
+  AC_CHECK_TYPES([struct random_data],
+    [], [HAVE_STRUCT_RANDOM_DATA=0],
+    [[#include <stdlib.h>
+      #if HAVE_RANDOM_H
+      # include <random.h>
+      #endif
+    ]])
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use, and which is not
+  dnl guaranteed by C89.
+  gl_WARN_ON_USE_PREPARE([[#include <stdlib.h>
+#if HAVE_SYS_LOADAVG_H
+# include <sys/loadavg.h>
+#endif
+#if HAVE_RANDOM_H
+# include <random.h>
+#endif
+    ]], [_Exit atoll canonicalize_file_name getloadavg getsubopt grantpt mkdtemp
+    mkostemp mkostemps mkstemp mkstemps ptsname random_r initstat_r srandom_r
+    setstate_r realpath rpmatch setenv strtod strtoll strtoull unlockpt
+    unsetenv])
+])
+
+AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
+])
+
+AC_DEFUN([gl_STDLIB_H_DEFAULTS],
+[
+  GNULIB__EXIT=0;         AC_SUBST([GNULIB__EXIT])
+  GNULIB_ATOLL=0;         AC_SUBST([GNULIB_ATOLL])
+  GNULIB_CALLOC_POSIX=0;  AC_SUBST([GNULIB_CALLOC_POSIX])
+  GNULIB_CANONICALIZE_FILE_NAME=0;  AC_SUBST([GNULIB_CANONICALIZE_FILE_NAME])
+  GNULIB_GETLOADAVG=0;    AC_SUBST([GNULIB_GETLOADAVG])
+  GNULIB_GETSUBOPT=0;     AC_SUBST([GNULIB_GETSUBOPT])
+  GNULIB_GRANTPT=0;       AC_SUBST([GNULIB_GRANTPT])
+  GNULIB_MALLOC_POSIX=0;  AC_SUBST([GNULIB_MALLOC_POSIX])
+  GNULIB_MKDTEMP=0;       AC_SUBST([GNULIB_MKDTEMP])
+  GNULIB_MKOSTEMP=0;      AC_SUBST([GNULIB_MKOSTEMP])
+  GNULIB_MKOSTEMPS=0;     AC_SUBST([GNULIB_MKOSTEMPS])
+  GNULIB_MKSTEMP=0;       AC_SUBST([GNULIB_MKSTEMP])
+  GNULIB_MKSTEMPS=0;      AC_SUBST([GNULIB_MKSTEMPS])
+  GNULIB_PTSNAME=0;       AC_SUBST([GNULIB_PTSNAME])
+  GNULIB_PUTENV=0;        AC_SUBST([GNULIB_PUTENV])
+  GNULIB_RANDOM_R=0;      AC_SUBST([GNULIB_RANDOM_R])
+  GNULIB_REALLOC_POSIX=0; AC_SUBST([GNULIB_REALLOC_POSIX])
+  GNULIB_REALPATH=0;      AC_SUBST([GNULIB_REALPATH])
+  GNULIB_RPMATCH=0;       AC_SUBST([GNULIB_RPMATCH])
+  GNULIB_SETENV=0;        AC_SUBST([GNULIB_SETENV])
+  GNULIB_STRTOD=0;        AC_SUBST([GNULIB_STRTOD])
+  GNULIB_STRTOLL=0;       AC_SUBST([GNULIB_STRTOLL])
+  GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
+  GNULIB_UNLOCKPT=0;      AC_SUBST([GNULIB_UNLOCKPT])
+  GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE__EXIT=1;              AC_SUBST([HAVE__EXIT])
+  HAVE_ATOLL=1;              AC_SUBST([HAVE_ATOLL])
+  HAVE_CANONICALIZE_FILE_NAME=1;  AC_SUBST([HAVE_CANONICALIZE_FILE_NAME])
+  HAVE_DECL_GETLOADAVG=1;    AC_SUBST([HAVE_DECL_GETLOADAVG])
+  HAVE_GETSUBOPT=1;          AC_SUBST([HAVE_GETSUBOPT])
+  HAVE_GRANTPT=1;            AC_SUBST([HAVE_GRANTPT])
+  HAVE_MKDTEMP=1;            AC_SUBST([HAVE_MKDTEMP])
+  HAVE_MKOSTEMP=1;           AC_SUBST([HAVE_MKOSTEMP])
+  HAVE_MKOSTEMPS=1;          AC_SUBST([HAVE_MKOSTEMPS])
+  HAVE_MKSTEMP=1;            AC_SUBST([HAVE_MKSTEMP])
+  HAVE_MKSTEMPS=1;           AC_SUBST([HAVE_MKSTEMPS])
+  HAVE_PTSNAME=1;            AC_SUBST([HAVE_PTSNAME])
+  HAVE_RANDOM_R=1;           AC_SUBST([HAVE_RANDOM_R])
+  HAVE_REALPATH=1;           AC_SUBST([HAVE_REALPATH])
+  HAVE_RPMATCH=1;            AC_SUBST([HAVE_RPMATCH])
+  HAVE_SETENV=1;             AC_SUBST([HAVE_SETENV])
+  HAVE_STRTOD=1;             AC_SUBST([HAVE_STRTOD])
+  HAVE_STRTOLL=1;            AC_SUBST([HAVE_STRTOLL])
+  HAVE_STRTOULL=1;           AC_SUBST([HAVE_STRTOULL])
+  HAVE_STRUCT_RANDOM_DATA=1; AC_SUBST([HAVE_STRUCT_RANDOM_DATA])
+  HAVE_SYS_LOADAVG_H=0;      AC_SUBST([HAVE_SYS_LOADAVG_H])
+  HAVE_UNLOCKPT=1;           AC_SUBST([HAVE_UNLOCKPT])
+  HAVE_UNSETENV=1;           AC_SUBST([HAVE_UNSETENV])
+  REPLACE_CALLOC=0;          AC_SUBST([REPLACE_CALLOC])
+  REPLACE_CANONICALIZE_FILE_NAME=0;  AC_SUBST([REPLACE_CANONICALIZE_FILE_NAME])
+  REPLACE_MALLOC=0;          AC_SUBST([REPLACE_MALLOC])
+  REPLACE_MKSTEMP=0;         AC_SUBST([REPLACE_MKSTEMP])
+  REPLACE_PUTENV=0;          AC_SUBST([REPLACE_PUTENV])
+  REPLACE_REALLOC=0;         AC_SUBST([REPLACE_REALLOC])
+  REPLACE_REALPATH=0;        AC_SUBST([REPLACE_REALPATH])
+  REPLACE_SETENV=0;          AC_SUBST([REPLACE_SETENV])
+  REPLACE_STRTOD=0;          AC_SUBST([REPLACE_STRTOD])
+  REPLACE_UNSETENV=0;        AC_SUBST([REPLACE_UNSETENV])
+])
 
 # Configure a GNU-like replacement for <string.h>.
 
@@ -21856,46 +22094,6 @@ AC_DEFUN([CL_PROTO_MISSING],
 
 m4_define([CONST_VARIANTS],['' 'const' '__const'])
 m4_define([SIZE_VARIANTS],['unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
-AC_DEFUN([CL_PUTENV],
-[AC_REQUIRE([AC_GNU_SOURCE])
-dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
-AC_CACHE_CHECK([for putenv], ac_cv_func_putenv, [
-AC_LINK_IFELSE(AC_LANG_PROGRAM([#include <stdlib.h>], [putenv("")]),
-ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
-if test $ac_cv_func_putenv = yes; then
-  AC_DEFINE(HAVE_PUTENV, 1, [Define if you have the putenv() function.])
-fi
-AC_CHECK_FUNCS(setenv unsetenv)dnl
-AC_CHECK_DECLS(environ,,,[#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif])
-if test "$ac_cv_func_unsetenv" = yes; then
-  AC_MSG_CHECKING(return value of unsetenv)
-  CL_PROTO_RET([#include <stdlib.h>],[int unsetenv(char*);],
-cl_cv_proto_unsetenv_ret,int,void)
-  AC_MSG_RESULT($cl_cv_proto_unsetenv_ret)
-  if test "$cl_cv_proto_unsetenv_ret" = int;
-  then cl_cv_proto_unsetenv_posix=1
-  else cl_cv_proto_unsetenv_posix=0
-  fi
-  AC_DEFINE_UNQUOTED(UNSETENV_POSIX,$cl_cv_proto_unsetenv_posix,
-  [define to 1 if the return type of unsetenv is int])
-fi
-])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 2002-2008, 2010 Sam Steingold, Bruno Haible
