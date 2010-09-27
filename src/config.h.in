@@ -940,6 +940,9 @@
 /* Define to 1 if you have the <sys/utsname.h> header file. */
 #undef HAVE_SYS_UTSNAME_H
 
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#undef HAVE_SYS_WAIT_H
+
 /* have tcgetattr(), either as a function or as a macro defined by <termios.h>
    */
 #undef HAVE_TCGETATTR

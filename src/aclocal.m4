@@ -1921,7 +1921,7 @@ AC_DEFUN([gl_PREREQ_MBRLEN], [
   :
 ])
 
-# serial 15
+# serial 16
 dnl Copyright (C) 2002-2003, 2005-2007, 2009-2010 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1930,10 +1930,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Jim Meyering.
 
-# Redefine AC_FUNC_MKTIME, to fix a bug in Autoconf 2.61a and earlier.
-# This redefinition can be removed once a new version of Autoconf is assumed.
-# The redefinition is taken from
-# <http://cvs.sv.gnu.org/viewcvs/*checkout*/autoconf/autoconf/lib/autoconf/functions.m4?rev=1.119>.
+# Redefine AC_FUNC_MKTIME, because it is no longer maintained in Autoconf.
 # AC_FUNC_MKTIME
 # --------------
 AC_DEFUN([AC_FUNC_MKTIME],
@@ -4787,6 +4784,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module sys_socket:
   # Code from module sys_time:
+  # Code from module sys_wait:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
   # Code from module unistd:
@@ -4895,6 +4893,9 @@ AC_DEFUN([gl_INIT],
   AC_PROG_MKDIR_P
   # Code from module sys_time:
   gl_HEADER_SYS_TIME_H
+  AC_PROG_MKDIR_P
+  # Code from module sys_wait:
+  gl_SYS_WAIT_H
   AC_PROG_MKDIR_P
   # Code from module uniname/base:
   gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
@@ -5091,6 +5092,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/sys_socket.in.h
   lib/sys_time.in.h
+  lib/sys_wait.in.h
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
@@ -5167,6 +5169,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/sys_socket_h.m4
   m4/sys_time_h.m4
+  m4/sys_wait_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
@@ -10553,6 +10556,32 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   HAVE_STRUCT_TIMEVAL=1;     AC_SUBST([HAVE_STRUCT_TIMEVAL])
   HAVE_SYS_TIME_H=1;         AC_SUBST([HAVE_SYS_TIME_H])
   REPLACE_GETTIMEOFDAY=0;    AC_SUBST([REPLACE_GETTIMEOFDAY])
+])
+
+# sys_wait_h.m4 serial 4
+dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SYS_WAIT_H],
+[
+  AC_REQUIRE([gl_SYS_WAIT_H_DEFAULTS])
+
+  dnl <sys/wait.h> is always overridden, because of GNULIB_POSIXCHECK.
+  gl_CHECK_NEXT_HEADERS([sys/wait.h])
+])
+
+AC_DEFUN([gl_SYS_WAIT_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_WAIT_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+])
+
+AC_DEFUN([gl_SYS_WAIT_H_DEFAULTS],
+[
+  dnl Assume proper GNU behavior unless another module says otherwise.
 ])
 
 # unistd_h.m4 serial 46
