@@ -1,5 +1,12 @@
 2010-09-27  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): add sys_wait
+	* configure.in: call gl_SYS_WAIT_H
+	* pathname.d (EXECUTE): assume that WEXITSTATUS et al are present
+	* gllib/sys_wait.in.h, glm4/sys_wait_h.m4: add
+
+2010-09-27  Sam Steingold  <sds@gnu.org>
+
 	SIGWINCH updates the SCREEN's idea of window size
 	* lispbibl.d (resize_screen) [SCREEN]: declare
 	* spvw_sigwinch.d (update_linelength) [SCREEN]: call resize_screen()
