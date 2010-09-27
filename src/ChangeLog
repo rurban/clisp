@@ -1,5 +1,20 @@
 2010-09-27  Sam Steingold  <sds@gnu.org>
 
+	rely on gnulib for setenv portability
+	* lispbibl.d (clisp_setenv): remove
+	* misc.d (push_envar): return no values
+	(GETENV): remove dead code
+	(cat_env_var, setenv_via_environ, clisp_setenv): remove
+	(SETENV): use setenv and unsetenv instead of clisp_setenv
+	* spvw_language.d (init_language): ditto
+	* Makefile.devel (GNULIB_CORE): add setenv & unsetenv
+	* gllib/malloca.c, gllib/malloca.h, gllib/malloca.valgrind:
+	* gllib/setenv.c, gllib/stdlib.in.h, gllib/unsetenv.c:
+	* glm4/eealloc.m4, glm4/environ.m4, glm4/malloca.m4:
+	* glm4/setenv.m4, glm4/stdlib_h.m4: add
+
+2010-09-27  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CORE): add sys_wait
 	* configure.in: call gl_SYS_WAIT_H
 	* pathname.d (EXECUTE): assume that WEXITSTATUS et al are present

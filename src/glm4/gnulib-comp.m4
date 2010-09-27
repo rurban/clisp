@@ -34,6 +34,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module c++defs:
   # Code from module close-hook:
   # Code from module configmake:
+  # Code from module environ:
   # Code from module errno:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
@@ -49,6 +50,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module localcharset:
+  # Code from module malloca:
   # Code from module mbrtowc:
   # Code from module mbsinit:
   # Code from module mbsrtowcs:
@@ -57,12 +59,14 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module setenv:
   # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
   # Code from module stdbool:
   # Code from module stddef:
   # Code from module stdint:
+  # Code from module stdlib:
   # Code from module streq:
   # Code from module string:
   # Code from module strnlen1:
@@ -75,6 +79,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module unitypes:
   # Code from module uniwidth/base:
   # Code from module uniwidth/width:
+  # Code from module unsetenv:
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -105,6 +110,9 @@ AC_DEFUN([gl_INIT],
   # Code from module c++defs:
   # Code from module close-hook:
   # Code from module configmake:
+  # Code from module environ:
+  gl_ENVIRON
+  gl_UNISTD_MODULE_INDICATOR([environ])
   # Code from module errno:
   gl_HEADER_ERRNO_H
   # Code from module extensions:
@@ -136,6 +144,8 @@ AC_DEFUN([gl_INIT],
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+  # Code from module malloca:
+  gl_MALLOCA
   # Code from module mbrtowc:
   gl_FUNC_MBRTOWC
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
@@ -156,6 +166,9 @@ AC_DEFUN([gl_INIT],
   # Code from module no-c++:
   gt_NO_CXX
   # Code from module nocrash:
+  # Code from module setenv:
+  gl_FUNC_SETENV
+  gl_STDLIB_MODULE_INDICATOR([setenv])
   # Code from module socketlib:
   gl_SOCKETLIB
   # Code from module sockets:
@@ -168,6 +181,8 @@ AC_DEFUN([gl_INIT],
   gl_STDDEF_H
   # Code from module stdint:
   gl_STDINT_H
+  # Code from module stdlib:
+  gl_STDLIB_H
   # Code from module streq:
   # Code from module string:
   gl_HEADER_STRING_H
@@ -193,6 +208,9 @@ AC_DEFUN([gl_INIT],
   gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
   # Code from module uniwidth/width:
   gl_LIBUNISTRING_MODULE([0.9], [uniwidth/width])
+  # Code from module unsetenv:
+  gl_FUNC_UNSETENV
+  gl_STDLIB_MODULE_INDICATOR([unsetenv])
   # Code from module verify:
   # Code from module warn-on-use:
   # Code from module wchar:
@@ -356,6 +374,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/langinfo.in.h
   lib/localcharset.c
   lib/localcharset.h
+  lib/malloca.c
+  lib/malloca.h
+  lib/malloca.valgrind
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbsrtowcs-state.c
@@ -365,11 +386,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
+  lib/setenv.c
   lib/sockets.c
   lib/sockets.h
   lib/stdbool.in.h
   lib/stddef.in.h
   lib/stdint.in.h
+  lib/stdlib.in.h
   lib/streq.h
   lib/string.in.h
   lib/strnlen1.c
@@ -386,6 +409,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth.in.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
+  lib/unsetenv.c
   lib/verify.h
   lib/w32sock.h
   lib/wchar.in.h
@@ -393,6 +417,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/00gnulib.m4
   m4/alloca.m4
   m4/codeset.m4
+  m4/eealloc.m4
+  m4/environ.m4
   m4/errno_h.m4
   m4/extensions.m4
   m4/fcntl-o.m4
@@ -427,6 +453,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
+  m4/malloca.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
   m4/mbsrtowcs.m4
@@ -441,6 +468,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
+  m4/setenv.m4
   m4/size_max.m4
   m4/socketlib.m4
   m4/sockets.m4
@@ -450,6 +478,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stddef_h.m4
   m4/stdint.m4
   m4/stdint_h.m4
+  m4/stdlib_h.m4
   m4/string_h.m4
   m4/sys_socket_h.m4
   m4/sys_time_h.m4
