@@ -16196,6 +16196,11 @@ extern maygc void stream_set_fasl (object stream, bool value);
   /* is used by SPVW */
 #endif
 
+#if defined(SCREEN)
+/* UP: reset terminal size on SIGWINCH */
+extern void resize_screen (int rows, int columns);
+#endif
+
 /* Function: test whether a stream is a terminal stream. */
 extern bool terminal_stream_p(object stream);
 
