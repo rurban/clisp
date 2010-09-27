@@ -14529,14 +14529,6 @@ extern object memq (const object obj, const object lis);
 
 /* ####################### MISCBIBL for MISC.D ############################# */
 
-#ifdef HAVE_ENVIRONMENT
-/* Modify the environment variables.
- clisp_setenv(name,value) sets the value of the environment variable `name'
- to `value' and returns 0. Returns -1 if not enough memory. */
-  extern int clisp_setenv (const char * name, const char * value);
-
-#endif
-
 /* for modules */
 typedef struct { long c_const; gcv_object_t *l_const; } c_lisp_pair_t;
 typedef struct {

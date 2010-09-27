@@ -206,7 +206,7 @@ extern_C char** environ;
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
-local inline maygc char* push_envar (char *env) {
+local inline maygc void push_envar (char *env) {
   char *ep = env;
   while ((*ep != 0) && (*ep != '=')) ep++;
   pushSTACK(allocate_cons());
@@ -216,8 +216,6 @@ local inline maygc char* push_envar (char *env) {
     var object val_string = asciz_to_string(ep+1,O(misc_encoding));
     Cdr(STACK_0) = val_string;
   }
-  while (*ep != 0) ep++;
-  return ep;
 }
 
 /* (EXT:GETENV string) return the string associated with the given string
@@ -227,19 +225,9 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
   var object arg = popSTACK();
   if (missingp(arg)) { /* return all the environment at once */
     var uintL count = 0;
-   #if 0 && defined(WIN32_NATIVE)
-    /* see below, clisp_setenv(), for references */
-    var char* eblock_orig = GetEnvironmentStrings();
-    var char* eblock = eblock_orig;
-    for (; *eblock; eblock++, count++) eblock = push_envar(eblock);
-   #else
     var char** epp;
     for (epp = environ; *epp; epp++, count++) push_envar(*epp);
-   #endif
     VALUES1(listof(count));
-   #if 0 && defined(WIN32_NATIVE)
-    FreeEnvironmentStrings(eblock_orig);
-   #endif
     return;
   }
   arg = check_string(arg);
@@ -255,134 +243,6 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
     VALUES1(NIL);
 }
 
-/* Creates a string concatenating an environment variable and its value.
- Like sprintf(buffer, "%s=%s", name, value); */
-local char * cat_env_var (char * buffer, const char * name, uintL namelen,
-                          const char * value, uintL valuelen) {
-  memcpy(buffer,name,namelen);
-  if (value == NULL) abort();
-  buffer[namelen++] = '=';
-  memcpy(buffer+namelen,value,valuelen);
-  buffer[namelen+valuelen] = 0;
-  return buffer;
-}
-
-/* Uh oh, neither putenv() nor setenv(), have to frob the environment
-   ourselves. Routine taken from glibc and fixed in several aspects. */
-local int setenv_via_environ (const char * name, uintL namelen,
-                              const char * value, uintL valuelen) {
-  var char** epp;
-  var char* ep;
-  var uintL envvar_count = 0;
-  for (epp = environ; (ep = *epp) != NULL; epp++) {
-    var const char * np = name;
-    /* Compare *epp and name: */
-    while (*np != '\0' && *np == *ep) { np++; ep++; }
-    if (*np == '\0' && *ep == '=')
-      break;
-    envvar_count++;
-  }
-  ep = *epp;
-  if (ep == NULL) {
-    if (value != NULL) {
-      /* name not found in environ, add it.
-         if value is NULL - nothing is to be done!
-         Remember the environ, so that we can free it if
-         we need to reallocate it again next time. */
-      var static char** last_environ = NULL;
-      var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
-      if (!new_environ)
-        return -1; /* no need to set errno = ENOMEM */
-      { /* copy environ */
-        var uintL count;
-        epp = environ;
-        for (count = 0; count < envvar_count; count++)
-          new_environ[count] = epp[count];
-      }
-      ep = (char*) malloc(namelen+1+valuelen+1);
-      if (!ep) {
-        free(new_environ); return -1; /* no need to set errno = ENOMEM */
-      }
-      new_environ[envvar_count] = cat_env_var(ep,name,namelen,value,valuelen);
-      new_environ[envvar_count+1] = NULL;
-      environ = new_environ;
-      if (last_environ != NULL)
-        free(last_environ);
-      last_environ = new_environ;
-    }
-  } else {
-    /* name found, replace its value.
-       We could be tempted to overwrite name's value directly if
-       the new value is not longer than the old value.
-       But that's not a good idea - maybe someone still has a pointer to
-       this area around.
-       should we free() the old value?! */
-    ep = (char*) malloc(namelen+1+valuelen+1);
-    if (!ep)
-      return -1; /* no need to set errno = ENOMEM */
-    if (value == NULL) *epp = NULL;
-    else *epp = cat_env_var(ep,name,namelen,value,valuelen);
-  }
-  return 0;
-}
-
-/* Modify the environment variables. putenv() is POSIX, but some BSD systems
- only have setenv(). Therefore (and because it's simpler to use) we
- implement this interface, but without the third argument.
- clisp_setenv(name,value) sets the value of the environment variable `name'
- to `value' and returns 0. Returns -1 if not enough memory. */
-global int clisp_setenv (const char * name, const char * value) {
-  var uintL namelen = asciz_length(name);
-  var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
-#if defined(WIN32_NATIVE)
-  /* On Woe32, each process has two copies of the environment variables,
-     one managed by the OS and one managed by the C library. We set
-     the value in both locations, so that other software that looks in
-     one place or the other is guaranteed to see the value. Even if it's
-     a bit slow. See also
-     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8272>
-     <http://article.gmane.org/gmane.comp.gnu.mingw.user/8273>
-     <http://www.cygwin.com/ml/cygwin/1999-04/msg00478.html> */
-  if (!SetEnvironmentVariableA(name,value)
-      && (value || GetLastError() != ERROR_ENVVAR_NOT_FOUND))
-    return -1;
-#endif
-#if defined(HAVE_UNSETENV)
-  if (value == NULL)
-   #if UNSETENV_POSIX
-    return unsetenv(name);
-   #else
-    { unsetenv(name); return 0; }
-   #endif
-#endif
-#if defined(HAVE_PUTENV)
-  if (value == NULL) {
-    putenv((char*)name);
-    if (getenv(name) != NULL)
-      /* putenv(name) may silently fail - as on *BSD (which have unsetenv)
-         Solaris & woe32 do not have unsetenv
-         _and_ putenv(name) does not work */
-      setenv_via_environ(name,namelen,NULL,0);
-    return 0;
-  } else
-   #if defined(WIN32_NATIVE)
-    /* putenv("FOO=") unsets FOO on woe32!! */
-    if (valuelen == 0) return setenv_via_environ(name,namelen,"",0); else
-   #endif
-  { var char* buffer = (char*)malloc(namelen+1+valuelen+1);
-    if (!buffer)
-      return -1; /* no need to set errno = ENOMEM */
-    return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
-  }
-#elif defined(HAVE_SETENV)
-  /* setenv(name,NULL,1) ==> segfault */
-  if (value == NULL) return setenv_via_environ(name,namelen,NULL,0);
-  else return setenv(name,value,1);
-#else
-  return setenv_via_environ(name,namelen,value,valuelen);
-#endif
-}
-
 LISPFUNN(set_env,2)
 { /* (SYS::SETENV name value)
  define the OS Environment variable NAME to have VALUE (string or NIL) */
@@ -395,12 +255,12 @@ LISPFUNN(set_env,2)
     begin_system_call();
     if (nullp(value)) {
       if (getenv(namez))
-        ret = clisp_setenv(namez,NULL);
+        ret = unsetenv(namez);
       else
         ret = 0;
     } else {
       with_string_0(value,O(misc_encoding),valuez, {
-        ret = clisp_setenv(namez,valuez);
+        ret = setenv(namez,valuez,1);
       });
     }
     end_system_call();

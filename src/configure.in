@@ -107,7 +107,6 @@ AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
 gethostname readlink getcwd uname readdir_r rand_r)
-CL_PUTENV dnl DEFS HAVE_PUTENV, HAVE_SETENV
 gt_LC_MESSAGES dnl DEFS HAVE_LC_MESSAGES
 CL_RLIMIT dnl DEFS HAVE_GETRLIMIT, HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
 AC_FUNC_VFORK dnl DEFS HAVE_VFORK_H, vfork
