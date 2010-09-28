@@ -15,7 +15,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt close-hook extensions getpagesize gettext gettimeofday gnu-make havelib host-cpu-c-abi include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr nl_langinfo no-c++ nocrash setenv sockets socklen stdbool stdint streq string sys_time sys_wait uniname/uniname unitypes uniwidth/width unsetenv verify wchar wctype
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt close-hook errno extensions getpagesize gettext gettimeofday gnu-make havelib host-cpu-c-abi include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr nl_langinfo no-c++ nocrash setenv sockets socklen stdbool stdint streq string sys_time sys_wait uniname/uniname unitypes uniwidth/width unsetenv verify wchar wctype
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -23,6 +23,7 @@ gl_MODULES([
   alloca
   alloca-opt
   close-hook
+  errno
   extensions
   getpagesize
   gettext
