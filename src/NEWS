@@ -31,6 +31,7 @@ User visible changes
 
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
+  + Fix SCREEN behavior when the window is resized.
 
 
 2.49 (2010-07-07)
