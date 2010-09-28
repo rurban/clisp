@@ -13,6 +13,9 @@
 /* Define to 1 when the gnulib module mktime should be tested. */
 #undef GNULIB_TEST_MKTIME
 
+/* Define to 1 when the gnulib module strerror should be tested. */
+#undef GNULIB_TEST_STRERROR
+
 /* Define to 1 when the gnulib module strptime should be tested. */
 #undef GNULIB_TEST_STRPTIME
 
@@ -55,6 +58,10 @@
 /* Define to 1 if you have the declaration of `signgam', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIGNGAM
+
+/* Define to 1 if you have the declaration of `strerror', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRERROR
 
 /* Define to 1 if you have the declaration of `strncasecmp', and to 0 if you
    don't. */
@@ -564,9 +571,6 @@
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP
 
-/* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
-
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
@@ -746,6 +750,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* Define this to 1 if strerror is broken. */
+#undef REPLACE_STRERROR
 
 /* type of `resource' in setrlimit() declaration */
 #undef RLIMIT_RESOURCE_T
