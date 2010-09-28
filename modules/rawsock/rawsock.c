@@ -1565,15 +1565,8 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
   VALUES1(fixnum(length)); skipSTACK(1);
 }
 
-#ifdef __GNUC__ /* to prevent a gcc-warning "statement with no effect" */
-# define unused  (void)
-#else
-# define unused
-#endif
-
 void module__rawsock__init_function_2 (module_t* module);
-void module__rawsock__init_function_2 (module_t* module) {
-  unused module;
+void module__rawsock__init_function_2 (module_t* module _GL_UNUSED) {
 #if defined(WIN32_NATIVE)
   HMODULE ws2 = LoadLibrary("ws2_32.dll");
   if (ws2 != NULL) {
