@@ -1,5 +1,20 @@
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
+	get strerror from gnulib for POSIX:STRERROR
+	* Makefile.devel (GNULIB_CORE): explicitly request already present errno
+	(gnulib-imported): request strerror for syscalls
+	* modules/syscalls/configure.in:
+	call gl_HEADER_ERRNO_H instead of checking for <errno.h>;
+	call gl_FUNC_STRERROR instead of checking for strerror
+	* modules/syscalls/calls.c: include <errno.h> unconditionally
+	(STRERROR): always define (errno.h & strerror ensured by gnulib)
+	* modules/syscalls/gllib/errno.in.h, modules/syscalls/glm4/errno_h.m4:
+	remove (already present in src/)
+	* modules/syscalls/gllib/intprops.h, modules/syscalls/gllib/strerror.c:
+	* modules/syscalls/glm4/strerror.m4: add
+
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: simplify makemake generation, substitute SHELL
 	* makemake.in: use @SHELL@
 	* Makefile.devel ($(MAKEMAKE_TMP)): substitute @SHELL@

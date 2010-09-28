@@ -29,13 +29,14 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module errno:
   # Code from module gethostname:
+  # Code from module intprops:
   # Code from module mbrlen:
   # Code from module mktime:
   # Code from module multiarch:
   # Code from module stddef:
   # Code from module strcase:
+  # Code from module strerror:
   # Code from module strftime:
   # Code from module strings:
   # Code from module strptime:
@@ -68,11 +69,10 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module errno:
-  gl_HEADER_ERRNO_H
   # Code from module gethostname:
   gl_FUNC_GETHOSTNAME
   gl_UNISTD_MODULE_INDICATOR([gethostname])
+  # Code from module intprops:
   # Code from module mbrlen:
   gl_FUNC_MBRLEN
   gl_WCHAR_MODULE_INDICATOR([mbrlen])
@@ -85,6 +85,9 @@ AC_DEFUN([sc_gl_INIT],
   gl_STDDEF_H
   # Code from module strcase:
   gl_STRCASE
+  # Code from module strerror:
+  gl_FUNC_STRERROR
+  gl_STRING_MODULE_INDICATOR([strerror])
   # Code from module strftime:
   gl_FUNC_GNU_STRFTIME
   # Code from module strings:
@@ -258,13 +261,14 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/warn-on-use.h
   lib/alignof.h
   lib/dummy.c
-  lib/errno.in.h
   lib/gethostname.c
+  lib/intprops.h
   lib/mbrlen.c
   lib/mktime-internal.h
   lib/mktime.c
   lib/stddef.in.h
   lib/strcasecmp.c
+  lib/strerror.c
   lib/strftime.c
   lib/strftime.h
   lib/strings.in.h
@@ -279,7 +283,6 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/unistd.in.h
   lib/w32sock.h
   m4/00gnulib.m4
-  m4/errno_h.m4
   m4/gethostname.m4
   m4/gnulib-common.m4
   m4/mbrlen.m4
@@ -289,6 +292,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/sockpfaf.m4
   m4/stddef_h.m4
   m4/strcase.m4
+  m4/strerror.m4
   m4/strftime.m4
   m4/strings_h.m4
   m4/strptime.m4

@@ -32,9 +32,7 @@
 #if defined(HAVE_SYS_UNISTD_H)
 # include <sys/unistd.h>
 #endif
-#if defined(HAVE_ERRNO_H)
-# include <errno.h>
-#endif
+#include <errno.h>              /* from gnulib */
 #include <sys/types.h>
 #if defined(HAVE_SYS_STAT_H)
 # include <sys/stat.h>
@@ -4749,7 +4747,6 @@ DEFUN(POSIX::%STDIO, &optional which) {
   skipSTACK(1);
 }
 
-#if (defined(HAVE_ERRNO_H) && defined(HAVE_STRERROR)) || defined(WIN32_NATIVE)
 /* http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html */
 #if defined(WIN32_NATIVE)
 # include <winerror.h>
@@ -5757,7 +5754,7 @@ DEFUN(OS::ERRNO, &optional newval) {
   }
   skipSTACK(1);
 }
-DEFUN(OS::STRERROR, &optional error_code) {
+DEFUN(POSIX::STRERROR, &optional error_code) {
   char *ret = NULL;
 # if defined(WIN32_NATIVE)
   DWORD error_code = missingp(STACK_0) ? (DWORD)-1 : check_errno(STACK_0);
@@ -5785,7 +5782,6 @@ DEFUN(OS::STRERROR, &optional error_code) {
 # endif
   skipSTACK(1);
 }
-#endif  /* (HAVE_ERRNO_H & HAVE_STRERROR) | WIN32_NATIVE */
 
 #endif  /* HAVE_FFI */
 
