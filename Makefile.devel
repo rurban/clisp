@@ -42,11 +42,10 @@ win32msvc/makefile.msvc7 : $(MAKEMAKE_TMP)
 		win32msvc msvc7 > ../win32msvc/makefile.msvc7
 
 $(MAKEMAKE_TMP) : src/makemake.in version.sh
-	. ./version.sh; { \
-	  echo "#!/bin/sh" ; \
+	. ./version.sh; \
 	  sed -e "s/@PACKAGE_VERSION@/$${VERSION_NUMBER}/g" \
-        -e "s/@CLISP_DECOLONIZE@/echo $$x/" src/makemake.in ; \
-	} > $(MAKEMAKE_TMP)
+	      -e "s/@CLISP_DECOLONIZE@/echo $$x/" src/makemake.in  \
+	      -e "s,@SHELL@,/bin/sh," > $(MAKEMAKE_TMP)
 	chmod a+x $(MAKEMAKE_TMP)
 
 CURDIR=$(shell pwd)

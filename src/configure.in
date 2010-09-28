@@ -181,12 +181,6 @@ PACKAGE="clisp"
 AC_CONFIG_FILES([po/Makefile.in gllib/Makefile])
 dnl
 dnl
-AC_CONFIG_FILES([makemake],[
-  echo "#!$SHELL" > makemake.tmp
-  echo "# Generated from makemake.in by configure using:" >> makemake.tmp
-  echo "CONFIG_SHELL=$SHELL" >> makemake.tmp
-  cat makemake >> makemake.tmp
-  mv makemake.tmp makemake
-  chmod a+x makemake
-])
+AC_SUBST([SHELL])
+AC_CONFIG_FILES([makemake], [chmod a+x makemake])
 AC_OUTPUT
