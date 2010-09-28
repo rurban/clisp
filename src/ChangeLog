@@ -1,5 +1,13 @@
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: simplify makemake generation, substitute SHELL
+	* makemake.in: use @SHELL@
+	* Makefile.devel ($(MAKEMAKE_TMP)): substitute @SHELL@
+	Suggested by Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
+	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13369>
+
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (resize_screen): call redisplay()
 
 2010-09-27  Sam Steingold  <sds@gnu.org>
