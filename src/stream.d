@@ -11079,8 +11079,6 @@ local int rows; /* number of rows of the screen, >0 */
 local int cols; /* number of columns of the screen, >0 */
 /* top row is row 0, bottom row is row rows-1.
    left-most column is column 0, right-most column is column cols-1. */
-global void resize_screen (int lines, int columns)
-{ rows = lines; cols = columns; }
 #if WANT_ATTR || WANT_CHARSET
 local uintB* null; /* Pointer to cols Zeros */
 #endif
@@ -11517,6 +11515,11 @@ local void redisplay (void) {
     set_insert_mode(true);
  #endif
   gofromto(last_y,last_x,curr->y,curr->x);
+}
+
+global void resize_screen (int lines, int columns) {
+  rows = lines; cols = columns;
+  if (curr->image) redisplay();
 }
 
 /* Further Cursor-Movements: */
