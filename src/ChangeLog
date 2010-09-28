@@ -1,5 +1,14 @@
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel ($(MAKEMAKE_TMP)): substitute
+	--disable-option-checking for @module_configure_flags@
+	* configure.in: substitute $ac_configure_args
+	for @module_configure_flags
+	* makemake.in (module_configure_flags): use @module_configure_flags@
+	instead of hard-wired --disable-option-checking
+
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
 	get strerror from gnulib for POSIX:STRERROR
 	* Makefile.devel (GNULIB_CORE): explicitly request already present errno
 	(gnulib-imported): request strerror for syscalls
