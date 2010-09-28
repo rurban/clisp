@@ -196,6 +196,30 @@ CP='cp -p'
 LN_S='ln -s'
 HLN='ln'
 
+# strip out -srcdir* & -cache-file*
+tmp=""
+keep_next=maybe
+for arg in $module_configure_flags; do
+  case $arg in
+    CFLAGS* ) continue ;;
+    *\'*) arg="`$echo "$arg" | sed "s/'/'\\\\\\\\''/g"`" ;;
+  esac
+  case $keep_next in
+    yes ) tmp="$tmp '$arg'"; keep_next=maybe; ;;
+    no ) keep_next=maybe; ;;
+    maybe ) case $arg in
+      --cache-file=* | --srcdir=*) continue ;;
+      --cache-file | --srcdir ) keep_next=no; ;;
+      *=* ) tmp="$tmp '$arg'"; ;;
+      *) tmp="$tmp '$arg'"; keep_next=yes; ;;
+    esac ;;
+  esac
+done
+module_configure_flags="$tmp"
+unset tmp
+unset arg
+unset keep_next
+
 # NLS nuisances.
 # Needed e.g. for some versions of `tr' so that character classes in `[]' work.
 if test "${LC_ALL+set}" = 'set'; then LC_ALL=C ; export LC_ALL ; fi
@@ -261,8 +285,6 @@ EOF
       test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`" && \
         fail "$package: invalid package name"
       my_eval "with_`echol $package|sed s/-/_/g`=no"
-      test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
-        module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -with-* | --with-*)
@@ -283,8 +305,6 @@ EOF
         fi
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=${packopt}"
-      test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
-        module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -disable-* | --disable-*)
@@ -294,7 +314,6 @@ EOF
         fail "$feature: invalid feature name"
       feature=`echol $feature | sed 's/-/_/g'`
       my_eval "enable_$feature=no"
-      module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -enable-* | --enable-*)
@@ -304,7 +323,6 @@ EOF
         fail "$feature: invalid feature name"
       feature=`echol $feature | sed 's/-/_/g'`
       my_eval "enable_$feature=yes"
-      module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -srcdir* | --srcdir*)
@@ -1120,6 +1138,7 @@ fi
 test "${verbose}" = true -o "${verbose}" = yes && \
   cat <<EOF >&2
 EXPORT_DYNAMIC_FLAG_SPEC=${EXPORT_DYNAMIC_FLAG_SPEC}
+module_configure_flags=${module_configure_flags}
 # host system:
  hostname = "${hostname}"
      HSYS = "${HSYS}"

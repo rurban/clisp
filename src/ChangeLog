@@ -1,5 +1,12 @@
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3076160: pass the top-level configure arguments --build= &
+	--host= to the module configures
+	* makemake.in (module_configure_flags):
+	strip out -srcdir* & -cache-file*
+
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (module__rawsock__init_function_2):
 	use _GL_UNUSED instead of the ad hoc `unused'
 
