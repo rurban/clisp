@@ -182,5 +182,6 @@ AC_CONFIG_FILES([po/Makefile.in gllib/Makefile])
 dnl
 dnl
 AC_SUBST([SHELL])
+AC_SUBST([module_configure_flags], ["$ac_configure_args"])
 AC_CONFIG_FILES([makemake], [chmod a+x makemake])
 AC_OUTPUT

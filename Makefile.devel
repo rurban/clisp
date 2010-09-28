@@ -45,6 +45,7 @@ $(MAKEMAKE_TMP) : src/makemake.in version.sh
 	. ./version.sh; \
 	  sed -e "s/@PACKAGE_VERSION@/$${VERSION_NUMBER}/g" \
 	      -e "s/@CLISP_DECOLONIZE@/echo $$x/" src/makemake.in  \
+	      -e "s/@module_configure_flags@/--disable-option-checking/" \
 	      -e "s,@SHELL@,/bin/sh," > $(MAKEMAKE_TMP)
 	chmod a+x $(MAKEMAKE_TMP)
 
