@@ -1,3 +1,7 @@
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (resize_screen): call redisplay()
+
 2010-09-27  Sam Steingold  <sds@gnu.org>
 
 	rely on gnulib for setenv portability
