@@ -549,12 +549,12 @@ DEFUN(POSIX:CLOSELOG,) {
 /* ========================== time conversion ========================== */
 /* call ENCODE-UNIVERSAL-TIME on struct tm and timezone  */
 static Values tm_to_lisp (struct tm *tm, object timezone) {
-  pushSTACK(fixnum(tm.tm_sec));
-  pushSTACK(fixnum(tm.tm_min));
-  pushSTACK(fixnum(tm.tm_hour));
-  pushSTACK(fixnum(tm.tm_mday));
-  pushSTACK(fixnum(1+tm.tm_mon));
-  pushSTACK(fixnum(1900+tm.tm_year));
+  pushSTACK(fixnum(tm->tm_sec));
+  pushSTACK(fixnum(tm->tm_min));
+  pushSTACK(fixnum(tm->tm_hour));
+  pushSTACK(fixnum(tm->tm_mday));
+  pushSTACK(fixnum(1+tm->tm_mon));
+  pushSTACK(fixnum(1900+tm->tm_year));
   pushSTACK(timezone);
   funcall(S(encode_universal_time),7);
 }
