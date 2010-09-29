@@ -2632,7 +2632,7 @@ if [ ${SHREXT} = .dll -a "${with_dynamic_modules}" != no ]; then
   # linker, and when creating lisp.dll, we must give $(LIBS) to it.
   # Some unixes (SHREXT=.so) need -fPIC when compiling clisp core for a DLL,
   # which loses performance; besides, we do not need lisp.so on unix anyway.
-  echol "lisp${SHREXT} : \$(OBJECTS) modules.o ${GLLIB_A}"
+  echol "lisp${SHREXT} : ${GLLIB_A} \$(OBJECTS) modules.o"
   CLISP_DEF=" lisp.def"
   XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
   echotab "`eval \"lib=\$\@; libs=\$^\ \$\(LIBS\); echo ${XCC_CREATESHARED_}\"`"
@@ -2698,7 +2698,7 @@ finish_runtime () {
 }
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) ${GLLIB_A} modules${TOBJ} ${XCL_GETTEXTLIB} data"
+echol "lisp${LEXE} : ${GLLIB_A} \$(OBJECTS) modules${TOBJ} ${XCL_GETTEXTLIB} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
