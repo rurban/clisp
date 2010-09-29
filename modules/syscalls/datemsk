@@ -1,0 +1,16 @@
+%m
+%A %B %d, %Y, %H:%M:%S
+%A
+%B
+%m/%d/%y %I %p
+%d,%m,%Y %H:%M
+%m/%d/%y
+%d.%m.%y
+%y-%m-%d
+%A %H:%M:%S
+%a
+%b %a
+%b %a %Y
+%a %H
+%b %H:%S
+%H:%M
