@@ -54,17 +54,6 @@ erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx dnl
 gethostid sethostid getdomainname setdomainname nftw)
 AC_FUNC_CHOWN
-gl_FUNC_MKTIME
-gl_FUNC_GNU_STRFTIME
-gl_FUNC_STRPTIME
-gl_TIME_MODULE_INDICATOR([strptime])
-gl_GETDATE
-gl_FUNC_STRVERSCMP
-gl_STRING_MODULE_INDICATOR([strverscmp])
-gl_FUNC_UNAME
-gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
-gl_FUNC_STRERROR
-gl_STRING_MODULE_INDICATOR([strerror])
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 CL_STAT
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
