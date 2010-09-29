@@ -5837,13 +5837,13 @@ void module__syscalls__init_function_2 (module_t* module) {
 #endif
   /* if DATEMSK is not set, set it to the clisp-supplied value */
   if (NULL == getenv("DATEMSK")) {
-    with_string_0(GLO(lib_dir), GLO(pathname_encoding), ldz, {
+    with_string_0(physical_namestring(GLO(lib_dir)),GLO(pathname_encoding),ldz,{
         char datemsk[MAXPATHLEN];
         strcpy(datemsk,ldz);
         if (ldz[ldz_len-1] == '/')
           strcat(datemsk,"syscalls/datemsk");
         else strcat(datemsk,"/syscalls/datemsk");
-        setenv("DATEMSK",datemsk);
+        setenv("DATEMSK",datemsk,0);
       });
   }
 }
