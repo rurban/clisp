@@ -1,7 +1,7 @@
 2010-09-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (module__syscalls__init_function_2): if
-	DATEMSK is not set, point it to the inluded file ...
+	DATEMSK is not set, point it to the included file ...
 	* modules/syscalls/datemsk: add (based on
 	http://www.opengroup.org/onlinepubs/009695399/functions/getdate.html)
 	* modules/syscalls/Makefile.in (GENERATED): add datemsk
