@@ -29,7 +29,6 @@ dnl
 RSE_BOLD
 BOLD_MSG([check for host type])
 AC_CANONICAL_HOST
-gl_HOST_CPU_C_ABI
 CL_DECOLONIZE
 BOLD_MSG([checks for programs])
 dnl
@@ -55,7 +54,6 @@ CL_CC_SUNPRO        dnl sets variable CC_SUNPRO
 CL_CC_CPLUSPLUS     dnl sets variable CC_CPLUSPLUS
 CL_CC_NEED_DEEMA    dnl sets variable CC_NEED_DEEMA
 CL_AS_UNDERSCORE    dnl sets variable AS_UNDERSCORE, DEFS ASM_UNDERSCORE
-gl_SOCKETS          dnl sets LIBSOCKET
 CL_CC_WORKS         dnl final CC check
 dnl
 BOLD_MSG([check for add-ons])
@@ -83,7 +81,6 @@ AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS
 dnl
 BOLD_MSG([checks for typedefs])
 CL_CADDR_T    dnl DEFS CADDR_T
-gl_TYPE_SOCKLEN_T  dnl DEFS socklen_t
 AC_CHECK_SIZEOF([off_t])
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])
@@ -111,7 +108,6 @@ gt_LC_MESSAGES dnl DEFS HAVE_LC_MESSAGES
 CL_RLIMIT dnl DEFS HAVE_GETRLIMIT, HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
 AC_FUNC_VFORK dnl DEFS HAVE_VFORK_H, vfork
 CL_WAITPID dnl DEFS PID_T
-gl_SYS_WAIT_H
 CL_RUSAGE dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
 CL_STAT        dnl DEFS HAVE_LSTAT etc
 CL_ELOOP       dnl DEFS ELOOP_VALUE
