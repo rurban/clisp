@@ -29,7 +29,12 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module c-ctype:
+  # Code from module clock-time:
+  # Code from module getdate:
   # Code from module gethostname:
+  # Code from module gettime:
+  # Code from module inline:
   # Code from module intprops:
   # Code from module mbrlen:
   # Code from module mktime:
@@ -45,9 +50,11 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module sys_utsname:
   # Code from module time:
   # Code from module time_r:
+  # Code from module timespec:
   # Code from module uname:
   # Code from module unistd:
   # Code from module warn-on-use:
+  # Code from module xalloc:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -69,9 +76,18 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module c-ctype:
+  # Code from module clock-time:
+  gl_CLOCK_TIME
+  # Code from module getdate:
+  gl_GETDATE
   # Code from module gethostname:
   gl_FUNC_GETHOSTNAME
   gl_UNISTD_MODULE_INDICATOR([gethostname])
+  # Code from module gettime:
+  gl_GETTIME
+  # Code from module inline:
+  gl_INLINE
   # Code from module intprops:
   # Code from module mbrlen:
   gl_FUNC_MBRLEN
@@ -109,13 +125,16 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module time_r:
   gl_TIME_R
   gl_TIME_MODULE_INDICATOR([time_r])
+  # Code from module timespec:
+  gl_TIMESPEC
   # Code from module uname:
   gl_FUNC_UNAME
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module warn-on-use:
-  # Code from module dummy:
+  # Code from module xalloc:
+  gl_XALLOC
   # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
@@ -259,9 +278,14 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
   build-aux/c++defs.h
   build-aux/warn-on-use.h
+  doc/getdate.texi
   lib/alignof.h
-  lib/dummy.c
+  lib/c-ctype.c
+  lib/c-ctype.h
+  lib/getdate.h
+  lib/getdate.y
   lib/gethostname.c
+  lib/gettime.c
   lib/intprops.h
   lib/mbrlen.c
   lib/mktime-internal.h
@@ -279,12 +303,20 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/sys_utsname.in.h
   lib/time.in.h
   lib/time_r.c
+  lib/timespec.h
   lib/uname.c
   lib/unistd.in.h
   lib/w32sock.h
+  lib/xalloc.h
+  lib/xmalloc.c
   m4/00gnulib.m4
+  m4/bison.m4
+  m4/clock_time.m4
+  m4/getdate.m4
   m4/gethostname.m4
+  m4/gettime.m4
   m4/gnulib-common.m4
+  m4/inline.m4
   m4/mbrlen.m4
   m4/mbstate_t.m4
   m4/mktime.m4
@@ -301,9 +333,11 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/sys_utsname_h.m4
   m4/time_h.m4
   m4/time_r.m4
+  m4/timespec.m4
   m4/tm_gmtoff.m4
   m4/uname.m4
   m4/unistd_h.m4
   m4/warn-on-use.m4
   m4/wchar_t.m4
+  m4/xalloc.m4
 ])

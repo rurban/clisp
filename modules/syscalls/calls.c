@@ -547,6 +547,17 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif  /* HAVE_SYSLOG */
 
 /* ========================== time conversion ========================== */
+/* call ENCODE-UNIVERSAL-TIME on struct tm and timezone  */
+static Values tm_to_lisp (struct tm *tm, object timezone) {
+  pushSTACK(fixnum(tm.tm_sec));
+  pushSTACK(fixnum(tm.tm_min));
+  pushSTACK(fixnum(tm.tm_hour));
+  pushSTACK(fixnum(tm.tm_mday));
+  pushSTACK(fixnum(1+tm.tm_mon));
+  pushSTACK(fixnum(1900+tm.tm_year));
+  pushSTACK(timezone);
+  funcall(S(encode_universal_time),7);
+}
 DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/strptime.html
      http://www.opengroup.org/onlinepubs/009695399/functions/strftime.html */
@@ -572,15 +583,7 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
       pushSTACK(TheSubr(subr_self)->name);
       error(error_condition,GETTEXT("~S: invalid format ~S or datum ~S"));
     }
-    pushSTACK(fixnum(tm.tm_sec));
-    pushSTACK(fixnum(tm.tm_min));
-    pushSTACK(fixnum(tm.tm_hour));
-    pushSTACK(fixnum(tm.tm_mday));
-    pushSTACK(fixnum(1+tm.tm_mon));
-    pushSTACK(fixnum(1900+tm.tm_year));
-    pushSTACK(STACK_(0+6));     /* timezone */
-    funcall(S(encode_universal_time),7);
-    /* value1 from ENCODE-UNIVERSAL-TIME */
+    tm_to_lisp(&tm,STACK_0);    /* set value1 */
     value2 = tm.tm_isdst > 0 ? T : NIL;
     value3 = fixnum(offset);
     mv_count = 3;
@@ -614,6 +617,34 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
       });
     skipSTACK(1);
   } else error_string_integer(STACK_1);
+}
+
+nonreturning_function(extern, xalloc_die, (void)) {
+  pushSTACK(TheSubr(subr_self)->name);
+  error(storage_condition,GETTEXT("~S: malloc() failed"));
+}
+
+DEFUN(POSIX:GETDATE, timespec &optional timezone)
+{ /* http://www.opengroup.org/onlinepubs/009695399/functions/getdate.html */
+  struct tm *tm;
+ getdate_restart:
+  STACK_1 = check_string(STACK_1);
+  with_string_0(STACK_1,GLO(misc_encoding),timespec, {
+      begin_system_call();
+      tm = getdate(timespec);
+      end_system_call();
+    });
+  if (tm == NULL) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(fixnum(getdate_err));
+    pushSTACK(STACK_(1+2));
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(error_condition,GETTEXT("~S(~S): getdate error ~S"));
+    STACK_1 = value1;
+    goto getdate_restart;
+  }
+  tm_to_lisp(tm,STACK_0);
+  skipSTACK(2);
 }
 
 /* ========================== string comparison ========================== */
