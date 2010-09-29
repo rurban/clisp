@@ -397,8 +397,10 @@ gnulib-imported : update-gnulib force
 		$(GNULIB_COMMON) | tee -a $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=modules/syscalls/gllib \
 		--macro-prefix=sc_gl --m4-base=modules/syscalls/glm4 \
-		$(GNULIB_AVOID) mktime strftime strptime strverscmp uname \
-		strerror | tee -a $(GNULIB_IMPORTED_LOG)
+		$(GNULIB_AVOID) --avoid=xalloc-die \
+		mktime strftime strptime strverscmp uname \
+		strerror getdate | tee -a $(GNULIB_IMPORTED_LOG)
+	$(RM) doc/getdate.texi
 	$(GNULIB_TOOL) --source-base=modules/regexp/gllib \
 		--macro-prefix=rx_gl --m4-base=modules/regexp/glm4 \
 		$(GNULIB_AVOID) regex | tee -a $(GNULIB_IMPORTED_LOG)

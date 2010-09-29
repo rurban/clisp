@@ -1,5 +1,22 @@
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
+	implement POSIX:GETDATE using gnulib
+	* Makefile.devel (gnulib-imported): import getdate into syscalls
+	* modules/syscalls/calls.c (tm_to_lisp): extract from STRING-TIME
+	(POSIX:GETDATE, xalloc_die): implement
+	* modules/syscalls/configure.in: call gl_GETDATE
+	* modules/syscalls/gllib/c-ctype.c, modules/syscalls/gllib/c-ctype.h:
+        * modules/syscalls/gllib/getdate.h, modules/syscalls/gllib/getdate.y:
+        * modules/syscalls/gllib/gettext.h, modules/syscalls/gllib/gettime.c:
+        * modules/syscalls/gllib/timespec.h, modules/syscalls/gllib/xalloc.h:
+        * modules/syscalls/gllib/xmalloc.c, modules/syscalls/glm4/bison.m4:
+        * modules/syscalls/glm4/clock_time.m4, modules/syscalls/glm4/error.m4:
+        * modules/syscalls/glm4/getdate.m4, modules/syscalls/glm4/gettime.m4:
+        * modules/syscalls/glm4/inline.m4, modules/syscalls/glm4/timespec.m4:
+        * modules/syscalls/glm4/xalloc.m4: add
+
+2010-09-28  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3076160: pass the top-level configure arguments --build= &
 	--host= to the module configures
 	* makemake.in (module_configure_flags):

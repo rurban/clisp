@@ -821,15 +821,21 @@ which compute the error functions, Bessel functions and Gamma.</para>
   <listitem><simpara>Calls <function role="unix">setutxent</function>.
 </simpara></listitem></varlistentry></variablelist></section>
 
-<section id="strtime"><title>Time conversion</title>
-<para><code>(OS:STRING-TIME &fmt-r; &optional-amp; &object-r; timezone)</code>
- <itemizedlist><listitem><simpara>When &object-r; is a &string-t;, is is
-    parsed according to &fmt-r; by <function role="unix">strptime</function>.
-  </simpara></listitem><listitem><simpara>When it is an &integer-t;, it
-    is formatted according to &fmt-r; by
-    <function role="unix">strftime</function>.
+<section id="posix-time"><title>Time and Data Conversion</title>
+<variablelist><varlistentry id="strtime"><term><code>(OS:STRING-TIME
+  &fmt-r; &optional-amp; &object-r; timezone)</code></term>
+  <listitem><itemizedlist><listitem><simpara>When &object-r; is a &string-t;,
+   it is parsed into a universal time according to &fmt-r; by
+   <function role="unix">strptime</function>.</simpara></listitem>
+   <listitem><simpara>When it is an &integer-t;, it is formatted according
+    to &fmt-r; by <function role="unix">strftime</function>.
     &object-r; defaults to <code>(&get-universal-time;)</code>.
-</simpara></listitem></itemizedlist></para></section>
+</simpara></listitem></itemizedlist></listitem></varlistentry>
+<varlistentry id="getdate"><term><code>(OS:GETDATE &string-r;
+   &optional-amp; timezone)</code></term>
+ <listitem><simpara>Parse the &string-r; into a universal time using
+  <function role="unix">getdate</function>.</simpara></listitem></varlistentry>
+</variablelist></section>
 
 <section id="strverscmp"><title>String comparision</title>
 <para>Functions <simplelist columns="1">
