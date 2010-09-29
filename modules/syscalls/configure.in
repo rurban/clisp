@@ -12,7 +12,6 @@ BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS()
 AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
-AC_PROG_YACC
 sc_gl_EARLY
 sc_gl_INIT
 
@@ -52,9 +51,10 @@ fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 ftruncate truncate getusershell endusershell dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx dnl
-gethostid sethostid getdomainname setdomainname nftw)
+gethostid sethostid getdomainname setdomainname nftw getdate)
 AC_FUNC_CHOWN
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
+AC_CHECK_DECLS([getdate_err],,,[#include <time.h>])
 CL_STAT
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
  AC_MSG_CHECKING([whether f_fsid is scalar])
