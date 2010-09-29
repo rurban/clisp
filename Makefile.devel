@@ -353,6 +353,7 @@ build-aux-update : update-gnulib force
 	  cp -afuv $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; \
 	done
 	cp -afuv /usr/share/automake*/compile src/build-aux
+	cp -afuv /usr/share/automake*/ylwrap src/build-aux
 	test -f $(LIBTOOL_SOURCE_FILE) || wget $(LIBTOOL_SOURCE_URL)
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
