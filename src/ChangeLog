@@ -5,7 +5,7 @@
 	(build-aux-update): get ylwrap from automake
 	* modules/syscalls/calls.c (tm_to_lisp): extract from STRING-TIME
 	(POSIX:GETDATE, xalloc_die): implement
-	* modules/syscalls/configure.in: call gl_GETDATE
+	* modules/syscalls/configure.in: call gl_GETDATE & AC_PROG_YACC
 	* modules/syscalls/gllib/c-ctype.c, modules/syscalls/gllib/c-ctype.h:
 	* modules/syscalls/gllib/getdate.h, modules/syscalls/gllib/getdate.y:
 	* modules/syscalls/gllib/gettext.h, modules/syscalls/gllib/gettime.c:

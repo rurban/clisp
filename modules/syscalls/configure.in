@@ -12,6 +12,7 @@ BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS()
 AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
+AC_PROG_YACC
 sc_gl_EARLY
 sc_gl_INIT
 
