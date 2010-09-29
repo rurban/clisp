@@ -1,3 +1,8 @@
+2010-09-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (lisp${SHREXT}, lisp${LEXE}): put ${GLLIB_A} before
+	$(OBJECTS) so that gllib is rebuilt before compiling charstrg.d
+
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
 	implement POSIX:GETDATE using gnulib
