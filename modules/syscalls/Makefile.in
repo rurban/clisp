@@ -17,7 +17,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = calls.o bogomips.o posix.fas libgnu_sc.a preload.lisp
+GENERATED = calls.o bogomips.o posix.fas libgnu_sc.a preload.lisp datemsk
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/posix.lisp $(srcdir)/README
 distribdir =
@@ -43,6 +43,9 @@ calls.o : calls.m.c config.h gllib
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
+
+datemsk : $(srcdir)/datemsk
+	$(LN_S) $(srcdir)/datemsk .
 
 am--refresh :
 
