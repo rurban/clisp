@@ -881,6 +881,11 @@ GNULIB_DUP3
 GNULIB_DUP2
 GNULIB_CLOSE
 GNULIB_CHOWN
+YFLAGS
+YACC
+HAVE__BOOL
+STDBOOL_H
+LIB_CLOCK_GETTIME
 GL_COND_LIBTOOL_FALSE
 GL_COND_LIBTOOL_TRUE
 RANLIB
@@ -997,7 +1002,9 @@ CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
-CPP'
+CPP
+YACC
+YFLAGS'
 
 
 # Initialize some variables set by options.
@@ -1634,6 +1641,13 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
+  YACC        The `Yet Another C Compiler' implementation to use. Defaults to
+              `bison -y'. Values other than `bison -y' will most likely break
+              on most systems.
+  YFLAGS      YFLAGS contains the list arguments that will be passed by
+              default to Bison. This script will default YFLAGS to the empty
+              string to avoid a default value of `-d' given by some make
+              applications.
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -2069,6 +2083,156 @@ $as_echo "$ac_res" >&6; }
 
 } # ac_fn_c_check_func
 
+# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
+# -------------------------------------------
+# Tests whether TYPE exists after having included INCLUDES, setting cache
+# variable VAR accordingly.
+ac_fn_c_check_type ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  eval "$3=no"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof ($2))
+	 return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof (($2)))
+	    return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+else
+  eval "$3=yes"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
+
+} # ac_fn_c_check_type
+
+# ac_fn_c_check_member LINENO AGGR MEMBER VAR INCLUDES
+# ----------------------------------------------------
+# Tries to find if the field MEMBER exists in type AGGR, after including
+# INCLUDES, setting cache variable VAR accordingly.
+ac_fn_c_check_member ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2.$3" >&5
+$as_echo_n "checking for $2.$3... " >&6; }
+if { as_var=$4; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$5
+int
+main ()
+{
+static $2 ac_aggr;
+if (ac_aggr.$3)
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$4=yes"
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$5
+int
+main ()
+{
+static $2 ac_aggr;
+if (sizeof ac_aggr.$3)
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$4=yes"
+else
+  eval "$4=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$4
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
+
+} # ac_fn_c_check_member
+
+# ac_fn_c_check_decl LINENO SYMBOL VAR
+# ------------------------------------
+# Tests whether SYMBOL is declared, setting cache variable VAR accordingly.
+ac_fn_c_check_decl ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $2 is declared" >&5
+$as_echo_n "checking whether $2 is declared... " >&6; }
+if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+#ifndef $2
+  (void) $2;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
+
+} # ac_fn_c_check_decl
+
 # ac_fn_c_compute_int LINENO EXPR VAR INCLUDES
 # --------------------------------------------
 # Tries to find the compile-time value of EXPR in a program that includes
@@ -2246,156 +2410,6 @@ rm -f conftest.val
   as_fn_set_status $ac_retval
 
 } # ac_fn_c_compute_int
-
-# ac_fn_c_check_decl LINENO SYMBOL VAR
-# ------------------------------------
-# Tests whether SYMBOL is declared, setting cache variable VAR accordingly.
-ac_fn_c_check_decl ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $2 is declared" >&5
-$as_echo_n "checking whether $2 is declared... " >&6; }
-if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-#ifndef $2
-  (void) $2;
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  eval "$3=yes"
-else
-  eval "$3=no"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
-
-} # ac_fn_c_check_decl
-
-# ac_fn_c_check_member LINENO AGGR MEMBER VAR INCLUDES
-# ----------------------------------------------------
-# Tries to find if the field MEMBER exists in type AGGR, after including
-# INCLUDES, setting cache variable VAR accordingly.
-ac_fn_c_check_member ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2.$3" >&5
-$as_echo_n "checking for $2.$3... " >&6; }
-if { as_var=$4; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$5
-int
-main ()
-{
-static $2 ac_aggr;
-if (ac_aggr.$3)
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  eval "$4=yes"
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$5
-int
-main ()
-{
-static $2 ac_aggr;
-if (sizeof ac_aggr.$3)
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  eval "$4=yes"
-else
-  eval "$4=no"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$4
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
-
-} # ac_fn_c_check_member
-
-# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
-# -------------------------------------------
-# Tests whether TYPE exists after having included INCLUDES, setting cache
-# variable VAR accordingly.
-ac_fn_c_check_type ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
-  $as_echo_n "(cached) " >&6
-else
-  eval "$3=no"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof ($2))
-	 return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof (($2)))
-	    return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-else
-  eval "$3=yes"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
-
-} # ac_fn_c_check_type
 cat >config.log <<_ACEOF
 This file contains any messages produced by compilers while
 running configure, to aid debugging if configure makes a mistake.
@@ -2682,6 +2696,8 @@ fi
 as_fn_append ac_header_list " sys/socket.h"
 as_fn_append ac_header_list " sys/param.h"
 as_fn_append ac_header_list " netdb.h"
+as_fn_append ac_func_list " gettimeofday"
+as_fn_append ac_func_list " nanotime"
 as_fn_append ac_func_list " mbsinit"
 as_fn_append ac_func_list " mbrtowc"
 as_fn_append ac_func_list " mbrlen"
@@ -5119,7 +5135,12 @@ fi
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module c-ctype:
+  # Code from module clock-time:
+  # Code from module getdate:
   # Code from module gethostname:
+  # Code from module gettime:
+  # Code from module inline:
   # Code from module intprops:
   # Code from module mbrlen:
   # Code from module mktime:
@@ -5135,9 +5156,11 @@ fi
   # Code from module sys_utsname:
   # Code from module time:
   # Code from module time_r:
+  # Code from module timespec:
   # Code from module uname:
   # Code from module unistd:
   # Code from module warn-on-use:
+  # Code from module xalloc:
 
 
 
@@ -5145,6 +5168,248 @@ fi
 
           LIBC_FATAL_STDERR_=1
   export LIBC_FATAL_STDERR_
+
+
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for stdbool.h that conforms to C99" >&5
+$as_echo_n "checking for stdbool.h that conforms to C99... " >&6; }
+if test "${ac_cv_header_stdbool_h+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+             #include <stdbool.h>
+             #ifndef bool
+              "error: bool is not defined"
+             #endif
+             #ifndef false
+              "error: false is not defined"
+             #endif
+             #if false
+              "error: false is not 0"
+             #endif
+             #ifndef true
+              "error: true is not defined"
+             #endif
+             #if true != 1
+              "error: true is not 1"
+             #endif
+             #ifndef __bool_true_false_are_defined
+              "error: __bool_true_false_are_defined is not defined"
+             #endif
+
+             struct s { _Bool s: 1; _Bool t; } s;
+
+             char a[true == 1 ? 1 : -1];
+             char b[false == 0 ? 1 : -1];
+             char c[__bool_true_false_are_defined == 1 ? 1 : -1];
+             char d[(bool) 0.5 == true ? 1 : -1];
+             /* See body of main program for 'e'.  */
+             char f[(_Bool) 0.0 == false ? 1 : -1];
+             char g[true];
+             char h[sizeof (_Bool)];
+             char i[sizeof s.t];
+             enum { j = false, k = true, l = false * true, m = true * 256 };
+             /* The following fails for
+                HP aC++/ANSI C B3910B A.05.55 [Dec 04 2003]. */
+             _Bool n[m];
+             char o[sizeof n == m * sizeof n[0] ? 1 : -1];
+             char p[-1 - (_Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
+             /* Catch a bug in an HP-UX C compiler.  See
+                http://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
+                http://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
+              */
+             _Bool q = true;
+             _Bool *pq = &q;
+
+int
+main ()
+{
+
+             bool e = &s;
+             *pq |= q;
+             *pq |= ! q;
+             /* Refer to every declared value, to avoid compiler optimizations.  */
+             return (!a + !b + !c + !d + !e + !f + !g + !h + !i + !!j + !k + !!l
+                     + !m + !n + !o + !p + !q + !pq);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_header_stdbool_h=yes
+else
+  ac_cv_header_stdbool_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_header_stdbool_h" >&5
+$as_echo "$ac_cv_header_stdbool_h" >&6; }
+   ac_fn_c_check_type "$LINENO" "_Bool" "ac_cv_type__Bool" "$ac_includes_default"
+if test "x$ac_cv_type__Bool" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE__BOOL 1
+_ACEOF
+
+
+fi
+
+   if test $ac_cv_header_stdbool_h = yes; then
+
+$as_echo "#define HAVE_STDBOOL_H 1" >>confdefs.h
+
+   fi
+
+
+
+  # Define two additional variables used in the Makefile substitution.
+
+  if test "$ac_cv_header_stdbool_h" = yes; then
+    STDBOOL_H=''
+  else
+    STDBOOL_H='stdbool.h'
+  fi
+
+
+  if test "$ac_cv_type__Bool" = yes; then
+    HAVE__BOOL=1
+  else
+    HAVE__BOOL=0
+  fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
+$as_echo_n "checking for inline... " >&6; }
+if test "${ac_cv_c_inline+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_cv_c_inline=no
+for ac_kw in inline __inline__ __inline; do
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifndef __cplusplus
+typedef int foo_t;
+static $ac_kw foo_t static_foo () {return 0; }
+$ac_kw foo_t foo () {return 0; }
+#endif
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_c_inline=$ac_kw
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  test "$ac_cv_c_inline" != no && break
+done
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_inline" >&5
+$as_echo "$ac_cv_c_inline" >&6; }
+
+case $ac_cv_c_inline in
+  inline | yes) ;;
+  *)
+    case $ac_cv_c_inline in
+      no) ac_val=;;
+      *) ac_val=$ac_cv_c_inline;;
+    esac
+    cat >>confdefs.h <<_ACEOF
+#ifndef __cplusplus
+#define inline $ac_val
+#endif
+_ACEOF
+    ;;
+esac
+
+
+
+
+
+  # getdate.y works with bison only.
+  : ${YACC='bison -y'}
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for compound literals" >&5
+$as_echo_n "checking for compound literals... " >&6; }
+if test "${gl_cv_compound_literals+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+struct s { int i, j; };
+int
+main ()
+{
+struct s t = (struct s) { 3, 4 };
+        if (t.i != 0) return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_compound_literals=yes
+else
+  gl_cv_compound_literals=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_compound_literals" >&5
+$as_echo "$gl_cv_compound_literals" >&6; }
+  if test $gl_cv_compound_literals = yes; then
+
+$as_echo "#define HAVE_COMPOUND_LITERALS 1" >>confdefs.h
+
+  fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether struct tm is in sys/time.h or time.h" >&5
+$as_echo_n "checking whether struct tm is in sys/time.h or time.h... " >&6; }
+if test "${ac_cv_struct_tm+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <time.h>
+
+int
+main ()
+{
+struct tm tm;
+				     int *p = &tm.tm_sec;
+				     return !p;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_struct_tm=time.h
+else
+  ac_cv_struct_tm=sys/time.h
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_tm" >&5
+$as_echo "$ac_cv_struct_tm" >&6; }
+if test $ac_cv_struct_tm = sys/time.h; then
+
+$as_echo "#define TM_IN_SYS_TIME 1" >>confdefs.h
+
+fi
+
+
+ ac_fn_c_check_member "$LINENO" "struct tm" "tm_gmtoff" "ac_cv_member_struct_tm_tm_gmtoff" "#include <time.h>
+"
+if test "x$ac_cv_member_struct_tm_tm_gmtoff" = x""yes; then :
+
+$as_echo "#define HAVE_TM_GMTOFF 1" >>confdefs.h
+
+fi
+
 
 
   GNULIB_CHOWN=0;
@@ -5274,6 +5539,26 @@ done
 
 
 
+
+
+  for ac_func in $ac_func_list
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+eval as_val=\$$as_ac_var
+   if test "x$as_val" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+
+
+
+
+
   GNULIB_BTOWC=0;
   GNULIB_WCTOB=0;
   GNULIB_MBSINIT=0;
@@ -5346,22 +5631,6 @@ $as_echo "#define HAVE_MBSTATE_T 1" >>confdefs.h
 $as_echo "#define mbstate_t int" >>confdefs.h
 
    fi
-
-
-
-
-  for ac_func in $ac_func_list
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-eval as_val=\$$as_ac_var
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
 
 
 
@@ -6156,48 +6425,6 @@ $as_echo "#define AA_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
   fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
-$as_echo_n "checking for inline... " >&6; }
-if test "${ac_cv_c_inline+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_cv_c_inline=no
-for ac_kw in inline __inline__ __inline; do
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#ifndef __cplusplus
-typedef int foo_t;
-static $ac_kw foo_t static_foo () {return 0; }
-$ac_kw foo_t foo () {return 0; }
-#endif
-
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_c_inline=$ac_kw
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-  test "$ac_cv_c_inline" != no && break
-done
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_inline" >&5
-$as_echo "$ac_cv_c_inline" >&6; }
-
-case $ac_cv_c_inline in
-  inline | yes) ;;
-  *)
-    case $ac_cv_c_inline in
-      no) ac_val=;;
-      *) ac_val=$ac_cv_c_inline;;
-    esac
-    cat >>confdefs.h <<_ACEOF
-#ifndef __cplusplus
-#define inline $ac_val
-#endif
-_ACEOF
-    ;;
-esac
-
 
     REPLACE_NULL=0;
   HAVE_WCHAR_T=1;
@@ -6815,118 +7042,6 @@ done
 
   fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether struct tm is in sys/time.h or time.h" >&5
-$as_echo_n "checking whether struct tm is in sys/time.h or time.h... " >&6; }
-if test "${ac_cv_struct_tm+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <sys/types.h>
-#include <time.h>
-
-int
-main ()
-{
-struct tm tm;
-				     int *p = &tm.tm_sec;
-				     return !p;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_struct_tm=time.h
-else
-  ac_cv_struct_tm=sys/time.h
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_tm" >&5
-$as_echo "$ac_cv_struct_tm" >&6; }
-if test $ac_cv_struct_tm = sys/time.h; then
-
-$as_echo "#define TM_IN_SYS_TIME 1" >>confdefs.h
-
-fi
-
-ac_fn_c_check_member "$LINENO" "struct tm" "tm_zone" "ac_cv_member_struct_tm_tm_zone" "#include <sys/types.h>
-#include <$ac_cv_struct_tm>
-
-"
-if test "x$ac_cv_member_struct_tm_tm_zone" = x""yes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_STRUCT_TM_TM_ZONE 1
-_ACEOF
-
-
-fi
-
-if test "$ac_cv_member_struct_tm_tm_zone" = yes; then
-
-$as_echo "#define HAVE_TM_ZONE 1" >>confdefs.h
-
-else
-  ac_fn_c_check_decl "$LINENO" "tzname" "ac_cv_have_decl_tzname" "#include <time.h>
-"
-if test "x$ac_cv_have_decl_tzname" = x""yes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_TZNAME $ac_have_decl
-_ACEOF
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for tzname" >&5
-$as_echo_n "checking for tzname... " >&6; }
-if test "${ac_cv_var_tzname+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <time.h>
-#if !HAVE_DECL_TZNAME
-extern char *tzname[];
-#endif
-
-int
-main ()
-{
-return tzname[0][0];
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_var_tzname=yes
-else
-  ac_cv_var_tzname=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_var_tzname" >&5
-$as_echo "$ac_cv_var_tzname" >&6; }
-  if test $ac_cv_var_tzname = yes; then
-
-$as_echo "#define HAVE_TZNAME 1" >>confdefs.h
-
-  fi
-fi
-
-
- ac_fn_c_check_member "$LINENO" "struct tm" "tm_gmtoff" "ac_cv_member_struct_tm_tm_gmtoff" "#include <time.h>
-"
-if test "x$ac_cv_member_struct_tm_tm_gmtoff" = x""yes; then :
-
-$as_echo "#define HAVE_TM_GMTOFF 1" >>confdefs.h
-
-fi
-
-
 
 
 
@@ -7270,11 +7385,6 @@ $as_echo "$gl_cv_next_time_h" >&6; }
 
 
 
-
-
-
-
-
    if false; then
   GL_COND_LIBTOOL_TRUE=
   GL_COND_LIBTOOL_FALSE='#'
@@ -7300,6 +7410,189 @@ fi
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
+  # Code from module c-ctype:
+  # Code from module clock-time:
+
+
+
+  # Solaris 2.5.1 needs -lposix4 to get the clock_gettime function.
+  # Solaris 7 prefers the library name -lrt to the obsolescent name -lposix4.
+
+  # Save and restore LIBS so e.g., -lrt, isn't added to it.  Otherwise, *all*
+  # programs in the package would end up linked with that potentially-shared
+  # library, inducing unnecessary run-time overhead.
+  LIB_CLOCK_GETTIME=
+
+  gl_saved_libs=$LIBS
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing clock_gettime" >&5
+$as_echo_n "checking for library containing clock_gettime... " >&6; }
+if test "${ac_cv_search_clock_gettime+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char clock_gettime ();
+int
+main ()
+{
+return clock_gettime ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' rt posix4; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_clock_gettime=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if test "${ac_cv_search_clock_gettime+set}" = set; then :
+  break
+fi
+done
+if test "${ac_cv_search_clock_gettime+set}" = set; then :
+
+else
+  ac_cv_search_clock_gettime=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_clock_gettime" >&5
+$as_echo "$ac_cv_search_clock_gettime" >&6; }
+ac_res=$ac_cv_search_clock_gettime
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  test "$ac_cv_search_clock_gettime" = "none required" ||
+                    LIB_CLOCK_GETTIME=$ac_cv_search_clock_gettime
+fi
+
+    for ac_func in clock_gettime clock_settime
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+eval as_val=\$$as_ac_var
+   if test "x$as_val" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+  LIBS=$gl_saved_libs
+
+  # Code from module getdate:
+
+
+
+
+
+
+  ac_fn_c_check_member "$LINENO" "struct tm" "tm_zone" "ac_cv_member_struct_tm_tm_zone" "#include <sys/types.h>
+#include <$ac_cv_struct_tm>
+
+"
+if test "x$ac_cv_member_struct_tm_tm_zone" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_TM_TM_ZONE 1
+_ACEOF
+
+
+fi
+
+if test "$ac_cv_member_struct_tm_tm_zone" = yes; then
+
+$as_echo "#define HAVE_TM_ZONE 1" >>confdefs.h
+
+else
+  ac_fn_c_check_decl "$LINENO" "tzname" "ac_cv_have_decl_tzname" "#include <time.h>
+"
+if test "x$ac_cv_have_decl_tzname" = x""yes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_TZNAME $ac_have_decl
+_ACEOF
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for tzname" >&5
+$as_echo_n "checking for tzname... " >&6; }
+if test "${ac_cv_var_tzname+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <time.h>
+#if !HAVE_DECL_TZNAME
+extern char *tzname[];
+#endif
+
+int
+main ()
+{
+return tzname[0][0];
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_var_tzname=yes
+else
+  ac_cv_var_tzname=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_var_tzname" >&5
+$as_echo "$ac_cv_var_tzname" >&6; }
+  if test $ac_cv_var_tzname = yes; then
+
+$as_echo "#define HAVE_TZNAME 1" >>confdefs.h
+
+  fi
+fi
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <time.h> /* for time_t */
+#include <limits.h> /* for CHAR_BIT, LONG_MIN, LONG_MAX */
+#define TYPE_MINIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) 0 : ~ (t) 0 << (sizeof (t) * CHAR_BIT - 1)))
+#define TYPE_MAXIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) -1 : ~ (~ (t) 0 << (sizeof (t) * CHAR_BIT - 1))))
+typedef int verify_min[2 * (LONG_MIN <= TYPE_MINIMUM (time_t)) - 1];
+typedef int verify_max[2 * (TYPE_MAXIMUM (time_t) <= LONG_MAX) - 1];
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define TIME_T_FITS_IN_LONG_INT 1" >>confdefs.h
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
   # Code from module gethostname:
 
 
@@ -7483,6 +7776,64 @@ _ACEOF
 $as_echo "#define GNULIB_TEST_GETHOSTNAME 1" >>confdefs.h
 
 
+
+  # Code from module gettime:
+
+
+
+
+
+
+
+
+
+  sc_gl_LIBOBJS="$sc_gl_LIBOBJS gettime.$ac_objext"
+
+
+
+
+
+
+  # Code from module inline:
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the compiler generally respects inline" >&5
+$as_echo_n "checking whether the compiler generally respects inline... " >&6; }
+if test "${gl_cv_c_inline_effective+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test $ac_cv_c_inline = no; then
+       gl_cv_c_inline_effective=no
+     else
+                                          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+#ifdef __NO_INLINE__
+               #error "inline is not effective"
+             #endif
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_c_inline_effective=yes
+else
+  gl_cv_c_inline_effective=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_c_inline_effective" >&5
+$as_echo "$gl_cv_c_inline_effective" >&6; }
+  if test $gl_cv_c_inline_effective = yes; then
+
+$as_echo "#define HAVE_INLINE 1" >>confdefs.h
+
+  fi
 
   # Code from module intprops:
   # Code from module mbrlen:
@@ -8592,6 +8943,10 @@ $as_echo "#define GNULIB_TEST_TIME_R 1" >>confdefs.h
 
 
 
+  # Code from module timespec:
+
+
+
   # Code from module uname:
 
 
@@ -8751,7 +9106,27 @@ fi
 
 
   # Code from module warn-on-use:
-  # Code from module dummy:
+  # Code from module xalloc:
+
+
+
+
+
+
+
+
+
+  sc_gl_LIBOBJS="$sc_gl_LIBOBJS xmalloc.$ac_objext"
+
+
+
+
+  :
+
+
+  :
+
+
   # End of code from modules
 
 
@@ -9742,6 +10117,102 @@ esac
 $as_echo "#define GNULIB_TEST_STRPTIME 1" >>confdefs.h
 
 
+
+
+
+
+
+
+
+  ac_fn_c_check_member "$LINENO" "struct tm" "tm_zone" "ac_cv_member_struct_tm_tm_zone" "#include <sys/types.h>
+#include <$ac_cv_struct_tm>
+
+"
+if test "x$ac_cv_member_struct_tm_tm_zone" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_TM_TM_ZONE 1
+_ACEOF
+
+
+fi
+
+if test "$ac_cv_member_struct_tm_tm_zone" = yes; then
+
+$as_echo "#define HAVE_TM_ZONE 1" >>confdefs.h
+
+else
+  ac_fn_c_check_decl "$LINENO" "tzname" "ac_cv_have_decl_tzname" "#include <time.h>
+"
+if test "x$ac_cv_have_decl_tzname" = x""yes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_TZNAME $ac_have_decl
+_ACEOF
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for tzname" >&5
+$as_echo_n "checking for tzname... " >&6; }
+if test "${ac_cv_var_tzname+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <time.h>
+#if !HAVE_DECL_TZNAME
+extern char *tzname[];
+#endif
+
+int
+main ()
+{
+return tzname[0][0];
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_var_tzname=yes
+else
+  ac_cv_var_tzname=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_var_tzname" >&5
+$as_echo "$ac_cv_var_tzname" >&6; }
+  if test $ac_cv_var_tzname = yes; then
+
+$as_echo "#define HAVE_TZNAME 1" >>confdefs.h
+
+  fi
+fi
+
+
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <time.h> /* for time_t */
+#include <limits.h> /* for CHAR_BIT, LONG_MIN, LONG_MAX */
+#define TYPE_MINIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) 0 : ~ (t) 0 << (sizeof (t) * CHAR_BIT - 1)))
+#define TYPE_MAXIMUM(t) \
+  ((t) ((t) 0 < (t) -1 ? (t) -1 : ~ (~ (t) 0 << (sizeof (t) * CHAR_BIT - 1))))
+typedef int verify_min[2 * (LONG_MIN <= TYPE_MINIMUM (time_t)) - 1];
+typedef int verify_max[2 * (TYPE_MAXIMUM (time_t) <= LONG_MAX) - 1];
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define TIME_T_FITS_IN_LONG_INT 1" >>confdefs.h
+
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
 
