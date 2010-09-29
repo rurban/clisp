@@ -1312,117 +1312,6 @@ AC_DEFUN([wc_gl_FILE_LIST], [
   m4/mbstate_t.m4
 ])
 
-# serial 5
-
-# Copyright (C) 2002, 2005, 2009, 2010 Free Software Foundation, Inc.
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_BISON],
-[
-  # getdate.y works with bison only.
-  : ${YACC='bison -y'}
-dnl
-dnl Declaring YACC & YFLAGS precious will not be necessary after GNULIB
-dnl requires an Autoconf greater than 2.59c, but it will probably still be
-dnl useful to override the description of YACC in the --help output, re
-dnl getdate.y assuming `bison -y'.
-  AC_ARG_VAR([YACC],
-[The `Yet Another C Compiler' implementation to use.  Defaults to `bison -y'.
-Values other than `bison -y' will most likely break on most systems.])dnl
-  AC_ARG_VAR([YFLAGS],
-[YFLAGS contains the list arguments that will be passed by default to Bison.
-This script will default YFLAGS to the empty string to avoid a default value of
-`-d' given by some make applications.])dnl
-])
-
-# clock_time.m4 serial 10
-dnl Copyright (C) 2002-2006, 2009-2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-# Check for clock_gettime and clock_settime, and set LIB_CLOCK_GETTIME.
-# For a program named, say foo, you should add a line like the following
-# in the corresponding Makefile.am file:
-# foo_LDADD = $(LDADD) $(LIB_CLOCK_GETTIME)
-
-AC_DEFUN([gl_CLOCK_TIME],
-[
-  dnl Persuade glibc and Solaris <time.h> to declare these functions.
-  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
-
-  # Solaris 2.5.1 needs -lposix4 to get the clock_gettime function.
-  # Solaris 7 prefers the library name -lrt to the obsolescent name -lposix4.
-
-  # Save and restore LIBS so e.g., -lrt, isn't added to it.  Otherwise, *all*
-  # programs in the package would end up linked with that potentially-shared
-  # library, inducing unnecessary run-time overhead.
-  LIB_CLOCK_GETTIME=
-  AC_SUBST([LIB_CLOCK_GETTIME])
-  gl_saved_libs=$LIBS
-    AC_SEARCH_LIBS([clock_gettime], [rt posix4],
-                   [test "$ac_cv_search_clock_gettime" = "none required" ||
-                    LIB_CLOCK_GETTIME=$ac_cv_search_clock_gettime])
-    AC_CHECK_FUNCS([clock_gettime clock_settime])
-  LIBS=$gl_saved_libs
-])
-
-# getdate.m4 serial 16
-dnl Copyright (C) 2002-2006, 2008-2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl Define HAVE_COMPOUND_LITERALS if the C compiler supports compound literals
-dnl as in ISO C99.
-dnl Note that compound literals such as (struct s) { 3, 4 } can be used for
-dnl initialization of stack-allocated variables, but are not constant
-dnl expressions and therefore cannot be used as initializer for global or
-dnl static variables (even though gcc supports this in pre-C99 mode).
-AC_DEFUN([gl_C_COMPOUND_LITERALS],
-[
-  AC_CACHE_CHECK([for compound literals], [gl_cv_compound_literals],
-  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[struct s { int i, j; };]],
-      [[struct s t = (struct s) { 3, 4 };
-        if (t.i != 0) return 0;]])],
-    gl_cv_compound_literals=yes,
-    gl_cv_compound_literals=no)])
-  if test $gl_cv_compound_literals = yes; then
-    AC_DEFINE([HAVE_COMPOUND_LITERALS], [1],
-      [Define if you have compound literals.])
-  fi
-])
-
-AC_DEFUN([gl_GETDATE],
-[
-  dnl Prerequisites of lib/getdate.h.
-  AC_REQUIRE([AM_STDBOOL_H])
-  AC_REQUIRE([gl_TIMESPEC])
-
-  dnl Prerequisites of lib/getdate.y.
-  AC_REQUIRE([gl_BISON])
-  AC_REQUIRE([gl_C_COMPOUND_LITERALS])
-  AC_STRUCT_TIMEZONE
-  AC_REQUIRE([gl_CLOCK_TIME])
-  AC_REQUIRE([gl_TM_GMTOFF])
-  AC_COMPILE_IFELSE(
-    [AC_LANG_SOURCE([[
-#include <time.h> /* for time_t */
-#include <limits.h> /* for CHAR_BIT, LONG_MIN, LONG_MAX */
-#define TYPE_MINIMUM(t) \
-  ((t) ((t) 0 < (t) -1 ? (t) 0 : ~ (t) 0 << (sizeof (t) * CHAR_BIT - 1)))
-#define TYPE_MAXIMUM(t) \
-  ((t) ((t) 0 < (t) -1 ? (t) -1 : ~ (~ (t) 0 << (sizeof (t) * CHAR_BIT - 1))))
-typedef int verify_min[2 * (LONG_MIN <= TYPE_MINIMUM (time_t)) - 1];
-typedef int verify_max[2 * (TYPE_MAXIMUM (time_t) <= LONG_MAX) - 1];
-       ]])],
-    [AC_DEFINE([TIME_T_FITS_IN_LONG_INT], [1],
-       [Define to 1 if all 'time_t' values fit in a 'long int'.])
-    ])
-])
-
 # gethostname.m4 serial 9
 dnl Copyright (C) 2002, 2008, 2009, 2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1525,22 +1414,6 @@ AC_DEFUN([gl_PREREQ_GETHOSTNAME], [
   fi
 ])
 
-# gettime.m4 serial 7
-dnl Copyright (C) 2002, 2004-2006, 2009-2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_GETTIME],
-[
-  AC_LIBOBJ([gettime])
-
-  dnl Prerequisites of lib/gettime.c.
-  AC_REQUIRE([gl_CLOCK_TIME])
-  AC_REQUIRE([gl_TIMESPEC])
-  AC_CHECK_FUNCS_ONCE([gettimeofday nanotime])
-])
-
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # Copyright (C) 2002-2010 Free Software Foundation, Inc.
 #
@@ -1572,12 +1445,7 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module c-ctype:
-  # Code from module clock-time:
-  # Code from module getdate:
   # Code from module gethostname:
-  # Code from module gettime:
-  # Code from module inline:
   # Code from module intprops:
   # Code from module mbrlen:
   # Code from module mktime:
@@ -1593,11 +1461,9 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module sys_utsname:
   # Code from module time:
   # Code from module time_r:
-  # Code from module timespec:
   # Code from module uname:
   # Code from module unistd:
   # Code from module warn-on-use:
-  # Code from module xalloc:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -1619,18 +1485,9 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module alignof:
   # Code from module arg-nonnull:
   # Code from module c++defs:
-  # Code from module c-ctype:
-  # Code from module clock-time:
-  gl_CLOCK_TIME
-  # Code from module getdate:
-  gl_GETDATE
   # Code from module gethostname:
   gl_FUNC_GETHOSTNAME
   gl_UNISTD_MODULE_INDICATOR([gethostname])
-  # Code from module gettime:
-  gl_GETTIME
-  # Code from module inline:
-  gl_INLINE
   # Code from module intprops:
   # Code from module mbrlen:
   gl_FUNC_MBRLEN
@@ -1668,16 +1525,13 @@ AC_DEFUN([sc_gl_INIT],
   # Code from module time_r:
   gl_TIME_R
   gl_TIME_MODULE_INDICATOR([time_r])
-  # Code from module timespec:
-  gl_TIMESPEC
   # Code from module uname:
   gl_FUNC_UNAME
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
   # Code from module unistd:
   gl_UNISTD_H
   # Code from module warn-on-use:
-  # Code from module xalloc:
-  gl_XALLOC
+  # Code from module dummy:
   # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
@@ -1821,14 +1675,9 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
   build-aux/c++defs.h
   build-aux/warn-on-use.h
-  doc/getdate.texi
   lib/alignof.h
-  lib/c-ctype.c
-  lib/c-ctype.h
-  lib/getdate.h
-  lib/getdate.y
+  lib/dummy.c
   lib/gethostname.c
-  lib/gettime.c
   lib/intprops.h
   lib/mbrlen.c
   lib/mktime-internal.h
@@ -1846,20 +1695,12 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/sys_utsname.in.h
   lib/time.in.h
   lib/time_r.c
-  lib/timespec.h
   lib/uname.c
   lib/unistd.in.h
   lib/w32sock.h
-  lib/xalloc.h
-  lib/xmalloc.c
   m4/00gnulib.m4
-  m4/bison.m4
-  m4/clock_time.m4
-  m4/getdate.m4
   m4/gethostname.m4
-  m4/gettime.m4
   m4/gnulib-common.m4
-  m4/inline.m4
   m4/mbrlen.m4
   m4/mbstate_t.m4
   m4/mktime.m4
@@ -1876,54 +1717,11 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/sys_utsname_h.m4
   m4/time_h.m4
   m4/time_r.m4
-  m4/timespec.m4
   m4/tm_gmtoff.m4
   m4/uname.m4
   m4/unistd_h.m4
   m4/warn-on-use.m4
   m4/wchar_t.m4
-  m4/xalloc.m4
-])
-
-# inline.m4 serial 4
-dnl Copyright (C) 2006, 2009, 2010 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl Test for the 'inline' keyword or equivalent.
-dnl Define 'inline' to a supported equivalent, or to nothing if not supported,
-dnl like AC_C_INLINE does.  Also, define HAVE_INLINE if 'inline' or an
-dnl equivalent is effectively supported, i.e. if the compiler is likely to
-dnl drop unused 'static inline' functions.
-AC_DEFUN([gl_INLINE],
-[
-  AC_REQUIRE([AC_C_INLINE])
-  AC_CACHE_CHECK([whether the compiler generally respects inline],
-    [gl_cv_c_inline_effective],
-    [if test $ac_cv_c_inline = no; then
-       gl_cv_c_inline_effective=no
-     else
-       dnl GCC defines __NO_INLINE__ if not optimizing or if -fno-inline is
-       dnl specified.
-       dnl Use AC_COMPILE_IFELSE here, not AC_EGREP_CPP, because the result
-       dnl depends on optimization flags, which can be in CFLAGS.
-       dnl (AC_EGREP_CPP looks only at the CPPFLAGS.)
-       AC_COMPILE_IFELSE(
-         [AC_LANG_PROGRAM([[]],
-           [[#ifdef __NO_INLINE__
-               #error "inline is not effective"
-             #endif]])],
-         [gl_cv_c_inline_effective=yes],
-         [gl_cv_c_inline_effective=no])
-     fi
-    ])
-  if test $gl_cv_c_inline_effective = yes; then
-    AC_DEFINE([HAVE_INLINE], [1],
-      [Define to 1 if the compiler supports one of the keywords
-       'inline', '__inline__', '__inline' and effectively inlines
-       functions marked as such.])
-  fi
 ])
 
 # mbrlen.m4 serial 3
@@ -2809,22 +2607,6 @@ AC_DEFUN([gl_PREREQ_TIME_R], [
   :
 ])
 
-#serial 14
-
-# Copyright (C) 2000-2001, 2003-2007, 2009-2010 Free Software Foundation, Inc.
-
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-dnl From Jim Meyering
-
-AC_DEFUN([gl_TIMESPEC],
-[
-  dnl Prerequisites of lib/timespec.h.
-  AC_REQUIRE([AC_C_INLINE])
-])
-
 # tm_gmtoff.m4 serial 3
 dnl Copyright (C) 2002, 2009-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -2858,32 +2640,6 @@ AC_DEFUN([gl_FUNC_UNAME],
 
 # Prerequisites of lib/uname.c.
 AC_DEFUN([gl_PREREQ_UNAME], [
-  :
-])
-
-# xalloc.m4 serial 16
-dnl Copyright (C) 2002, 2003, 2004, 2005, 2006, 2009, 2010 Free Software
-dnl Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_XALLOC],
-[
-  AC_LIBOBJ([xmalloc])
-
-  gl_PREREQ_XALLOC
-  gl_PREREQ_XMALLOC
-])
-
-# Prerequisites of lib/xalloc.h.
-AC_DEFUN([gl_PREREQ_XALLOC], [
-  AC_REQUIRE([gl_INLINE])
-  :
-])
-
-# Prerequisites of lib/xmalloc.c.
-AC_DEFUN([gl_PREREQ_XMALLOC], [
   :
 ])
 
@@ -11113,7 +10869,7 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   REPLACE_GETTIMEOFDAY=0;    AC_SUBST([REPLACE_GETTIMEOFDAY])
 ])
 
-# sys_wait_h.m4 serial 4
+# sys_wait_h.m4 serial 5
 dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11125,6 +10881,11 @@ AC_DEFUN([gl_SYS_WAIT_H],
 
   dnl <sys/wait.h> is always overridden, because of GNULIB_POSIXCHECK.
   gl_CHECK_NEXT_HEADERS([sys/wait.h])
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use.
+  gl_WARN_ON_USE_PREPARE([[#include <sys/wait.h>]],
+    [waitpid])
 ])
 
 AC_DEFUN([gl_SYS_WAIT_MODULE_INDICATOR],
@@ -11132,10 +10893,13 @@ AC_DEFUN([gl_SYS_WAIT_MODULE_INDICATOR],
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
   AC_REQUIRE([gl_SYS_WAIT_H_DEFAULTS])
   gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
 ])
 
 AC_DEFUN([gl_SYS_WAIT_H_DEFAULTS],
 [
+  GNULIB_WAITPID=0; AC_SUBST([GNULIB_WAITPID])
   dnl Assume proper GNU behavior unless another module says otherwise.
 ])
 

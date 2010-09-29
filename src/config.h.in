@@ -60,66 +60,6 @@
 #endif
 
 
-/* CPU and C ABI indicator */
-#ifndef __i386__
-#undef __i386__
-#endif
-#ifndef __x86_64__
-#undef __x86_64__
-#endif
-#ifndef __alpha__
-#undef __alpha__
-#endif
-#ifndef __arm__
-#undef __arm__
-#endif
-#ifndef __armel__
-#undef __armel__
-#endif
-#ifndef __hppa__
-#undef __hppa__
-#endif
-#ifndef __hppa64__
-#undef __hppa64__
-#endif
-#ifndef __ia64__
-#undef __ia64__
-#endif
-#ifndef __m68k__
-#undef __m68k__
-#endif
-#ifndef __mips__
-#undef __mips__
-#endif
-#ifndef __mipsn32__
-#undef __mipsn32__
-#endif
-#ifndef __mips64__
-#undef __mips64__
-#endif
-#ifndef __powerpc__
-#undef __powerpc__
-#endif
-#ifndef __powerpc64__
-#undef __powerpc64__
-#endif
-#ifndef __s390__
-#undef __s390__
-#endif
-#ifndef __s390x__
-#undef __s390x__
-#endif
-#ifndef __sh__
-#undef __sh__
-#endif
-#ifndef __sparc__
-#undef __sparc__
-#endif
-#ifndef __sparc64__
-#undef __sparc64__
-#endif
-
-
 /* Define if the compiler is building for multiple architectures of Apple
    platforms at once. */
 #undef AA_APPLE_UNIVERSAL_BUILD
@@ -816,6 +756,9 @@
 
 /* Define to 1 if usleep is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_USLEEP
+
+/* Define to 1 if waitpid is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_WAITPID
 
 /* Define to 1 if wcrtomb is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_WCRTOMB

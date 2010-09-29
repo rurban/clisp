@@ -15,12 +15,11 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/syscalls/gllib --m4-base=modules/syscalls/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=no-c++ --avoid=stdint --avoid=stdbool --avoid=havelib --avoid=gettext --avoid=localcharset --avoid=uniwidth/width --avoid=streq --avoid=uniname/uniname --avoid=unitypes --avoid=link-follow --avoid=host-cpu-c-abi --avoid=socklen --avoid=sockets --avoid=close-hook --avoid=setenv --avoid=unsetenv --avoid=errno --avoid=nocrash --avoid=libsigsegv --avoid=gnu-make --avoid=gettimeofday --avoid=getpagesize --avoid=sys_time --avoid=sys_wait --avoid=alloca-opt --avoid=alloca --avoid=extensions --avoid=include_next --avoid=verify --avoid=string --avoid=mbsinit --avoid=wchar --avoid=wctype --avoid=mbrtowc --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --avoid=xalloc-die --no-libtool --macro-prefix=sc_gl --no-vc-files getdate mktime strerror strftime strptime strverscmp uname
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/syscalls/gllib --m4-base=modules/syscalls/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=no-c++ --avoid=stdint --avoid=stdbool --avoid=havelib --avoid=gettext --avoid=localcharset --avoid=uniwidth/width --avoid=streq --avoid=uniname/uniname --avoid=unitypes --avoid=link-follow --avoid=host-cpu-c-abi --avoid=socklen --avoid=sockets --avoid=close-hook --avoid=setenv --avoid=unsetenv --avoid=errno --avoid=nocrash --avoid=libsigsegv --avoid=gnu-make --avoid=gettimeofday --avoid=getpagesize --avoid=sys_time --avoid=sys_wait --avoid=alloca-opt --avoid=alloca --avoid=extensions --avoid=include_next --avoid=verify --avoid=string --avoid=mbsinit --avoid=wchar --avoid=wctype --avoid=mbrtowc --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --avoid=xalloc-die --no-libtool --macro-prefix=sc_gl --no-vc-files mktime strerror strftime strptime strverscmp uname
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
-  getdate
   mktime
   strerror
   strftime
