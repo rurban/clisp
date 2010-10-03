@@ -1505,7 +1505,7 @@ local inline maygc uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
   var gcv_object_t* stream_ = &STACK_0;
   var uintL count = 0;
   var p_backtrace_t bt = back_trace;
-  while (!((gcv_object_t*)STACK_start cmpSTACKop FRAME)
+  while (!((gcv_object_t*)STACK_start == FRAME)
          && (frame_limit==0 || count<frame_limit)) {
     fresh_line(stream_);
     print_bt_to_frame(stream_,FRAME,&bt,&count);

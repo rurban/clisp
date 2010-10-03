@@ -17315,15 +17315,6 @@ struct object_tab_tl_ {
    #endif
   #endif /* !defined(per_thread)*/
 
-  #ifdef STACK_DOWN
-    #define THREAD_LISP_STACK_START(thread) \
-      ((gcv_object_t *)thread->_STACK_bound-0x40)
-  #endif
-  #ifdef STACK_UP
-    #define THREAD_LISP_STACK_START(thread) \
-      ((gcv_object_t *)thread->_STACK_start)
-  #endif
-
 /* just the beginning of the structure is exported -
    what modules want to know about (in order to build) */
 %% puts("struct object_tab_tl_ {");
