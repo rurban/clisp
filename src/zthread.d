@@ -221,14 +221,8 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
   set_current_thread(me); /* first: initialize TLS */
   var struct backtrace_t bt;
   me->_SP_anchor=(void*)SP();
-  /* initialize backtrace */
-  bt.bt_next = NULL;
-  bt.bt_function = L(make_thread); /* not exactly */
-  bt.bt_stack = STACK STACKop -1;
-  bt.bt_num_arg = -1;
-  back_trace = &bt;
-  /* push the exit tag */
-  pushSTACK(O(thread_exit_tag));
+  back_trace = NULL; /* no back trace */
+  pushSTACK(O(thread_exit_tag)); /* push the exit tag */
   var gcv_object_t *initial_bindings = &STACK_1;
   var gcv_object_t *funptr = &STACK_2;
   /* create the thread exit CATCH frame */

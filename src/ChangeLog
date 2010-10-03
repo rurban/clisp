@@ -1,3 +1,12 @@
+2010-10-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	fix bug#3077583: show-stack segfaults with MT
+	* lispbibl.d (THREAD_LISP_STACK_START): remove
+	* spvw.d (delete_thread): calculate thread stack address and free it
+	* debug.d (show_stack): do not use cmpSTACKop for testing end of stack.
+	FRAME == STACK_start should be correct end condition in all cases
+	* zthread.d (thread_stub): no back trace for new thread
+
 2010-10-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: make charstrg.o depend on gllib

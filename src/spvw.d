@@ -599,12 +599,12 @@ local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_size)
   if (!low) return NULL;
   high = low + byte_size;
   #ifdef STACK_DOWN
-   thread->_STACK_bound=(gcv_object_t *)(low + 0x40);
-   thread->_STACK=(gcv_object_t *)high;
+   thread->_STACK_bound = (gcv_object_t *)(low + 0x40);
+   thread->_STACK = (gcv_object_t *)high;
   #endif
   #ifdef STACK_UP
-   thread->_STACK_bound=(gcv_object_t *)(high - 0x40);
-   thread->_STACK=(gcv_object_t *)low;
+   thread->_STACK_bound = (gcv_object_t *)(high - 0x40);
+   thread->_STACK = (gcv_object_t *)low;
   #endif
   thread->_STACK_start=thread->_STACK;
   return thread->_STACK;
@@ -740,8 +740,13 @@ global void delete_thread (clisp_thread_t *thread) {
   /* The LISP stack should be unwound so no
      interesting stuff on it. Let's deallocate it.*/
   begin_system_call();
-  if (thread->_own_stack)
-    free(THREAD_LISP_STACK_START(thread));
+  if (thread->_own_stack) {
+   #ifdef STACK_DOWN
+    free((char *)thread->_STACK_bound - 0x40);
+   #else /* STACK_UP */
+    free(thread->_STACK_start);
+   #endif
+  }
   free(thread->_ptr_symvalues); /* free per trread special var bindings */
   free(thread);
   end_system_call();
