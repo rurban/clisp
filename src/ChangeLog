@@ -1,3 +1,7 @@
+2010-10-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: make charstrg.o depend on gllib
+
 2010-09-29  Sam Steingold  <sds@gnu.org>
 
 	do not use gnulib module getdate which should have been called get_date
