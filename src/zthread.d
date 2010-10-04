@@ -77,6 +77,22 @@ local object check_name_arg (object name_arg, object dflt) {
   return name_arg;
 }
 
+/* return default thread name depending on the type of function
+ > fun: functionp object
+ < returns default name to be used of none is specified */
+local object default_thread_name(object fun) {
+  if (subrp(fun))
+    return TheSubr(fun)->name;
+  else if (cclosurep(fun))
+    return Closure_name(fun);
+#ifdef DYNAMIC_FFI
+  else if (ffunctionp(fun))
+    return TheFfunction(fun)->ff_name;
+#endif
+  else  /* interpreted closure */
+    return TheIclosure(fun)->clos_name;
+}
+
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list) {
   /* Nothing to do here actually. In the past the memory of some
@@ -219,9 +235,7 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
   #endif
   clisp_thread_t *me=(clisp_thread_t *)arg;
   set_current_thread(me); /* first: initialize TLS */
-  var struct backtrace_t bt;
   me->_SP_anchor=(void*)SP();
-  back_trace = NULL; /* no back trace */
   pushSTACK(O(thread_exit_tag)); /* push the exit tag */
   var gcv_object_t *initial_bindings = &STACK_1;
   var gcv_object_t *funptr = &STACK_2;
@@ -301,7 +315,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (!functionp(STACK_2))
     STACK_2 = check_function_replacement(STACK_2);
   /* set thread name */
-  STACK_1 = check_name_arg(STACK_1,Closure_name(STACK_2));
+  STACK_1 = check_name_arg(STACK_1,default_thread_name(STACK_2));
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
   pushSTACK(allocate_cons());
