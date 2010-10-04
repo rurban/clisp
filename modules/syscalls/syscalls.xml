@@ -837,6 +837,7 @@ which compute the error functions, Bessel functions and Gamma.</para>
   <function role="unix">getdate</function>.</simpara>
   <simpara>If the the &env-var; <envar>DATEMSK</envar> is not set when
    &clisp; is invoked, &clisp; sets it to point to the file
+   <filename role="clisp">modules/syscalls/datemsk</filename>, installed as
    <code>(&merge-pathnames; "syscalls/datemsk" &libdir;)</code>.
 </simpara></listitem></varlistentry></variablelist></section>
 
