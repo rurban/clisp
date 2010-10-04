@@ -34,6 +34,43 @@ T
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
 T
 
+;; for this to work, datum must specify _all_ fields in struct tm
+(defun check-time-date (fmt datum)
+  (let ((gd (os:getdate datum)) (st (os:string-time fmt datum)))
+    (print (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
+    (unless (= gd st)
+      (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st))))))
+CHECK-TIME-DATE
+
+(check-time-date "%m/%d/%y %I %p" "10/1/87 4 PM") NIL
+(check-time-date "%A %B %d, %Y, %H:%M:%S" "Friday September 18, 1987, 10:30:30") NIL
+(check-time-date "%d,%m,%Y %H:%M" "24,9,1986 10:30") NIL
+
+(defun check-time-date (fmt datum)
+  (declare (ignore fmt))
+  (null (show (os:string-time "%Y-%m-%d %a %H:%M:%S" (os:getdate datum)))))
+CHECK-TIME-DATE
+
+(check-time-date "%m/%d/%y" "11/27/86") NIL
+(check-time-date "%d.%m.%y" "27.11.86") NIL
+(check-time-date "%y-%m-%d" "86-11-27") NIL
+(check-time-date "%A %H:%M:%S" "Friday 12:00:00") NIL
+(check-time-date "%A" "Friday") NIL
+(check-time-date "%a" "Mon") NIL
+(check-time-date "%a" "Sun") NIL
+(check-time-date "%a" "Fri") NIL
+(check-time-date "%B" "September") NIL
+(check-time-date "%B" "January") NIL
+(check-time-date "%B" "December") NIL
+(check-time-date "%b %a" "Sep Mon") NIL
+(check-time-date "%b %a" "Jan Fri") NIL
+(check-time-date "%b %a" "Dec Mon") NIL
+(check-time-date "%b %a %Y" "Jan Wed 1989") NIL
+(check-time-date "%a %H" "Fri 9") NIL
+(check-time-date "%b %H:%S" "Feb 10:30") NIL
+(check-time-date "%H:%M" "10:30") NIL
+(check-time-date "%H:%M" "13:30") NIL
+
 #+unix
 (when (fboundp 'os:getutxent)
   (not (integerp (show (length (loop :for utmpx = (os:getutxent) :while utmpx
@@ -658,5 +695,6 @@ RUN-SLEEP
        (symbol-cleanup 'flush-clisp)
        (symbol-cleanup 'proc-send)
        (setq *features* (delete :no-stream-lock *features*))
+       (symbol-cleanup 'check-time-date)
        T)
 T
