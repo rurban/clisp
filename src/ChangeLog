@@ -1,3 +1,9 @@
+2010-10-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX:STRING-TIME): when calling strptime,
+	init tm fields to reasonable values because strptime does not set
+	fields which are not specified by datum
+
 2010-10-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (default_thread_name): returns name for functionp object
