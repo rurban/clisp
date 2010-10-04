@@ -78,9 +78,10 @@ local object check_name_arg (object name_arg, object dflt) {
 }
 
 /* return default thread name depending on the type of function
+   cf. functions.lisp:function-name (maybe move it to C?)
  > fun: functionp object
  < returns default name to be used of none is specified */
-local object default_thread_name(object fun) {
+local object default_thread_name (object fun) {
   if (subrp(fun))
     return TheSubr(fun)->name;
   else if (cclosurep(fun))
