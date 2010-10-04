@@ -1,3 +1,8 @@
+2010-10-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (default_thread_name): returns name for functionp object
+	(MAKE-THREAD): use it
+
 2010-10-04  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full): show which system supplied functionality is
