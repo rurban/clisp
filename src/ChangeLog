@@ -1,3 +1,8 @@
+2010-10-05  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (full): print gnulib replacements only when -verbose
+	and do not fail the build when none is found
+
 2010-10-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:STRING-TIME): when calling strptime,
