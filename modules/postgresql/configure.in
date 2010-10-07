@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for postgresql
-dnl Copyright (C) 2003-2009 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2010 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)

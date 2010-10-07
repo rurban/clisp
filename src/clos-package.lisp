@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2007, 2009
+;;;; Sam Steingold 1998 - 2007, 2009-2010
 
 ;; to use it: (USE-PACKAGE "CLOS").
 
