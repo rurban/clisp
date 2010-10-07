@@ -311,10 +311,16 @@ Beware - this will modify the original C-mode too!"
 (define-key d-mode-map (kbd "<f5>") 'd-mode-convert-next-comment)
 
 ;; update the dates in headers
-(defvar clisp-home-dir "d:/gnu/clisp/sf/clisp/"
-  "*the location of clisp sources for `clisp-update-dates'")
+(defvar clisp-home-dir
+  (eval-when-compile
+    (flet ((clisp-p (dir)
+             (and (file-exists-p (concat dir "/src/makemake.in")) dir)))
+      (or (clisp-p "~/clisp") (clisp-p "~/src/clisp")
+          (clisp-p "~/src/clisp/current")
+          (clisp-p "d:/gnu/clisp/current"))))
+  "*The location of clisp sources for `clisp-update-dates'")
 (defvar clisp-update-dates-user user-full-name
-  "*default argument for `clisp-update-dates'")
+  "*Default argument for `clisp-update-dates'")
 (defun clisp-update-dates (&optional user)
   "Update the dates in file header for the user.
 Look at the files that are mentioned in `clisp-home-dir'/src/ChangeLog
