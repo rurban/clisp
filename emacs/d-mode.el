@@ -208,8 +208,9 @@ The point should be on the prototype and the definition should follow."
   (d-mode-add-font-locking
    (if (boundp 'running-xemacs)
        (get 'c-mode 'font-lock-defaults)
-       ;; for pre-21 emacs; newer versions inherit font lock automatically
-       (cdr (assq 'c-mode font-lock-defaults-alist))))
+       (when (> 21 emacs-major-version)
+         ;; for pre-21 emacs; newer versions inherit font lock automatically
+         (cdr (assq 'c-mode font-lock-defaults-alist)))))
   "The `font-lock-defaults' for `d-mode'.")
 
 (defvar d-mode-build-dir "../build/"
