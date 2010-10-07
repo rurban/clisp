@@ -1,5 +1,5 @@
 ;;;; Generic documentation
-;;;; Sam Steingold 2002 - 2006, 2008
+;;;; Sam Steingold 2002 - 2006, 2008, 2010
 ;;;; Bruno Haible 2004
 
 (in-package "CLOS")

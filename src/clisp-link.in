@@ -5,7 +5,7 @@
 # For more usage information, see <doc/impnotes.html#mod-overview>.
 # Or <http://clisp.cons.org/modules.html#mod-overview>.
 # Bruno Haible 19.10.1994
-# Sam Steingold 2002-2009
+# Sam Steingold 2002-2010
 
 # This could as well be written in Lisp, for portability, but syscalls is
 # a module, so most useful scripting functionality will not be available.

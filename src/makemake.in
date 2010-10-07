@@ -2,7 +2,7 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2008
+# Bruno Haible 1991-2010
 # Sam Steingold 1999-2010
 
 # Simple usage:
