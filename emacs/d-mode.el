@@ -311,11 +311,16 @@ Beware - this will modify the original C-mode too!"
 ;; some keybindings
 (define-key d-mode-map (kbd "<f5>") 'd-mode-convert-next-comment)
 
+(eval-and-compile
+  (defun clisp-existing-file (f &optional r)
+    "Check that F exists and return R or F if it does."
+    (and (file-exists-p f) (or r f))))
+
 ;; update the dates in headers
 (defvar clisp-home-dir
   (eval-when-compile
     (flet ((clisp-p (dir)
-             (and (file-exists-p (concat dir "/src/makemake.in")) dir)))
+             (clisp-existing-file (concat dir "/src/makemake.in") dir)))
       (or (clisp-p "~/clisp") (clisp-p "~/src/clisp")
           (clisp-p "~/src/clisp/current")
           (clisp-p "d:/gnu/clisp/current"))))
@@ -331,7 +336,7 @@ as changed by the `user' and check that this date is in that file's header."
   (message "clisp-update-dates: %s" user)
   (let* ((c-l (find-file-noselect (expand-file-name "src/ChangeLog"
                                                     clisp-home-dir)))
-         (year (format-time-string "%Y")) start all bad
+         (year (format-time-string "%Y")) start all add update
          (re (concat "^" year "-.*" user)))
     (with-current-buffer c-l
       (save-excursion
@@ -340,33 +345,42 @@ as changed by the `user' and check that this date is in that file's header."
           (let ((end (re-search-forward "^[0-9]")))
             (goto-char start)
             (while (re-search-forward "^\t\\* " end t)
-              (setq all (nconc (split-string
-                                (buffer-substring-no-properties
-                                 (point) (re-search-forward
-                                          "[:()]" (line-end-position) t))
-                                "[ ,():]+" t)
-                               all)))))))
+              (dolist (file (split-string
+                             (buffer-substring-no-properties
+                              (point) (re-search-forward
+                                       "[:()]" (line-end-position) t))
+                             "[ ,():]+" t))
+                (unless (string-match "gl\\(m4\\|lib\\)\\|build-aux" file)
+                  (push file all))))))))
     (setq all (delete-dups all))
     (message "clisp-update-dates: %d files: %s" (length all) all)
     (dolist (file all)
-      (let ((buf (find-file-noselect
-                  (expand-file-name
-                   (if (string-match "/" file) file (concat "src/" file))
-                   clisp-home-dir))))
-        (with-current-buffer buf
-          (save-excursion
-            (goto-char 0)
-            (cond ((null (search-forward user nil t))
-                   (message "clisp-update-dates: %s does not mention %s"
-                            file user)
-                   (push file bad))
-                  ((progn (beginning-of-line)
-                          (search-forward year (line-end-position) t))
-                   (message "clisp-update-dates: %s is good!" file)
-                   (kill-buffer buf))
-                  (t (message "clisp-update-dates: %s needs updating" file)
-                     (push file bad)))))))
-    (message "clisp-update-dates: %d files need updating: %s" (length bad) bad)
-    (values bad all)))
+      (let ((fn (or (clisp-existing-file
+                     (expand-file-name file clisp-home-dir))
+                    (clisp-existing-file
+                     (expand-file-name file (concat clisp-home-dir "/src")))
+                    (clisp-existing-file
+                     (expand-file-name
+                      file (concat clisp-home-dir "/modules"))))))
+        (if fn
+            (let ((buf (find-file-noselect fn)))
+              (with-current-buffer buf
+                (save-excursion
+                  (goto-char 0)
+                  (cond ((null (search-forward user nil t))
+                         (message "clisp-update-dates: %s does not mention %s"
+                                  file user)
+                         (push file add))
+                        ((progn (beginning-of-line)
+                                (search-forward year (line-end-position) t))
+                         (message "clisp-update-dates: %s is good!" file)
+                         (kill-buffer buf))
+                        (t (message "clisp-update-dates: %s needs updating"
+                                    file)
+                           (push file update))))))
+            (message "clisp-update-dates: %s does not exist" file))))
+    (message "clisp-update-dates: update %d files %s; add to %d files %s"
+             (length update) update (length add) add)
+    (values update add all)))
 
 (provide 'd-mode)
