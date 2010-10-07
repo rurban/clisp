@@ -1394,7 +1394,7 @@
 
 2010-03-18  Sam Steingold  <sds@gnu.org>
 
-	* ../Makefile.devel (GET_PREFIX): add
+	* Makefile.devel (GET_PREFIX): add
 	($(MAKEFILE_IN)): use it
 	(gnulib-imported): remove macro-prefix from _GL_UNUSED which is
 	defined in config.h using gnulib-common.m4:gl_COMMON_BODY and thus
@@ -1409,7 +1409,7 @@
 
 2010-03-17  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in, modules/regexp/Makefile.in,
+	* makemake.in, modules/regexp/Makefile.in:
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in (gllib):
 	do not pass build_aux= to make in subdir (revert the 2010-03-17
 	patch because it does not look like gnulib will ever use $(build_aux))
@@ -1464,7 +1464,7 @@
 
 2010-03-16  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in, modules/regexp/Makefile.in,
+	* makemake.in, modules/regexp/Makefile.in:
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in (gllib):
 	pass build_aux= to make in subdir
 
@@ -47729,8 +47729,7 @@
 
 	* genclisph.d (main): Define minus_bit, needed for minus_wbit. Define
 	  minus_wbit, needed for framecode. In end_callback, use `framecode'
-	  instead of `mtypecode'. Define uintP, needed for framebottomwordf1
-	,
+	  instead of `mtypecode'. Define uintP, needed for framebottomwordf1,
 	  needed for finish_frame, needed for begin_callback.
 
 1999-09-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
