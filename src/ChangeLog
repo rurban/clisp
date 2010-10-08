@@ -1,3 +1,9 @@
+2010-10-08  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (check_typecodes): run in the generated
+	clisp-test-lispbibl instead of genclisph so that the check is
+	always enabled
+
 2010-10-05  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full): print gnulib replacements only when -verbose
