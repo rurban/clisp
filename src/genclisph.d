@@ -224,7 +224,7 @@ static void emit_export_declaration (char *prefix, char *o, char *suffix) {
   printf("%s %s%s;\n",prefix,o,suffix);
 }
 
-#if defined(TYPECODES) && 0 /* cannot always enable: redefines typecode macro */
+#if defined(TYPECODES)
 struct typecode_entry {
   char* name;
   int code;
@@ -239,15 +239,12 @@ struct typecode_entry {
   int mdarrayP;
   int closureP;
 };
-#undef typecode
-#define typecode(te)   ((te)->code)
-#define CHECK_FIELD(test)   if (test##p(te) != te->test##P) {        \
-  fprintf(stderr,#test "p(%s=%d)=%d, should be %d\n",                \
-          te->name,te->code,test##p(te),te->test##P);                \
-  ret = false;                                                       \
- }
-static bool check_typecode_entry (struct typecode_entry *te) {
-  bool ret = true;
+#define CHECK_FIELD(test)                                               \
+  fprintf(test_f," #ifdef " #test "p\n  if (" #test "p(%d) != %d) {\n"  \
+          "    fprintf(stderr,\"" #test "p(%s=%d)=%%d, should be %d\\n\","\
+          #test "p(%d));\n    failure_count++;\n  }\n #endif\n",        \
+          te->code,te->test##P,te->name,te->code,te->test##P,te->code)
+static void check_typecode_entry (struct typecode_entry *te) {
   CHECK_FIELD(vector);
   CHECK_FIELD(simple);
   CHECK_FIELD(array_simple);
@@ -258,7 +255,6 @@ static bool check_typecode_entry (struct typecode_entry *te) {
   CHECK_FIELD(array);
   CHECK_FIELD(mdarray);
   CHECK_FIELD(closure);
-  return ret;
 }
 struct typecode_entry all_typecodes[] = {
   { "machine_type",    machine_type,       0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
@@ -301,15 +297,14 @@ struct typecode_entry all_typecodes[] = {
 };
 int typecode_count = sizeof(all_typecodes)/sizeof(struct typecode_entry);
 static void check_typecodes (void) {
-  int i, failure_count = 0;
+  int i;
+  if (test_f == NULL) return;
+  fprintf(test_f,"#if !USE_CLISP_H\n #undef typecode\n "
+          "#define typecode(c)   (c)\n {int failure_count = 0;\n");
   for (i=0; i<typecode_count; i++)
-    if (!check_typecode_entry(&(all_typecodes[i])))
-      failure_count++;
-  if (failure_count>0) {
-    fprintf(stderr,"failed %d typecodes out of %d\n",
-            failure_count,typecode_count);
-    exit(1);
-  }
+    check_typecode_entry(&(all_typecodes[i]));
+  fprintf(test_f,"  if (failure_count>0) { fprintf(stderr,\"%%d typecode"
+          " error(s)\\n\",failure_count); abort(); }}\n#endif\n");
 }
 #else
 #define check_typecodes()
@@ -319,7 +314,6 @@ int main(int argc, char* argv[])
 {
   char buf[BUFSIZ];
 
-  check_typecodes();
   header_f = stdout;
   if (argc >= 2) {              /* open the test file and start it */
     test_f = fopen(argv[1],"w");
@@ -415,6 +409,7 @@ int main(int argc, char* argv[])
   /* done - check for errors, close test files &c */
   if (ferror(stdout)) exit(1);
   if (ferror(header_f)) exit(1);
+  check_typecodes();
   if (test_f) {
     fprintf(test_f,"  return 0;\n}\n");
     if (ferror(test_f)) exit(1);
