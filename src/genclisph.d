@@ -299,6 +299,8 @@ int typecode_count = sizeof(all_typecodes)/sizeof(struct typecode_entry);
 static void check_typecodes (void) {
   int i;
   if (test_f == NULL) return;
+  /* cannot run the check when including clisp.h because there typecode(obj)
+     has already been expanded to something horrible */
   fprintf(test_f,"#if !USE_CLISP_H\n #undef typecode\n "
           "#define typecode(c)   (c)\n {int failure_count = 0;\n");
   for (i=0; i<typecode_count; i++)
