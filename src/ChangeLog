@@ -1,3 +1,8 @@
+2010-10-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: make charstrg.o depend on $(GLLIB_A) instead of
+	gllib because the latter is _always_ rebuilt
+
 2010-10-08  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (check_typecodes): run in the generated
