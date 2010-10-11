@@ -2502,7 +2502,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   test $f = spvw -o $f = hashtabl && depends=$depends' aridecl'
   if [ $f = charstrg -a "${with_unicode}" != no ] ; then
     depends=$depends${UNICODE_INCLUDES}
-    dependsc=${dependsc}${UNICODE_EXTRA}' gllib'
+    dependsc=${dependsc}${UNICODE_EXTRA}' '${GLLIB_A}
   fi
   test $f = encoding && depends=$depends''$NLS_INCLUDES
   test $f = error && depends=$depends' '$ERROR_INCLUDES
