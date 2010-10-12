@@ -191,32 +191,31 @@ MODULES=''
 elispdir=''
 vimdir=''
 aclocaldir=''
-module_configure_flags='@module_configure_flags@'
 CP='cp -p'
 LN_S='ln -s'
 HLN='ln'
 
+# <http://thread.gmane.org/gmane.comp.sysutils.autoconf.general/13368>
 # strip out -srcdir* & -cache-file*
-tmp=""
 keep_next=maybe
-for arg in $module_configure_flags; do
+module_configure_flags=''
+for arg in @module_configure_flags@; do
   case $arg in
-    CFLAGS* ) continue ;;
-    *\'*) arg="`$echo "$arg" | sed "s/'/'\\\\\\\\''/g"`" ;;
+    *\'*) arg=`$echo "$arg" | sed "s/'/'\\\\\\\\''/g"` ;;
   esac
   case $keep_next in
-    yes ) tmp="$tmp '$arg'"; keep_next=maybe; ;;
+    yes ) module_configure_flags="$module_configure_flags '$arg'";
+      keep_next=maybe; ;;
     no ) keep_next=maybe; ;;
     maybe ) case $arg in
       --cache-file=* | --srcdir=*) continue ;;
       --cache-file | --srcdir ) keep_next=no; ;;
-      *=* ) tmp="$tmp '$arg'"; ;;
-      *) tmp="$tmp '$arg'"; keep_next=yes; ;;
+      *=* ) module_configure_flags="$module_configure_flags '$arg'"; ;;
+      *) module_configure_flags="$module_configure_flags '$arg'";
+        keep_next=yes; ;;
     esac ;;
   esac
 done
-module_configure_flags="$tmp"
-unset tmp
 unset arg
 unset keep_next
 
