@@ -21,6 +21,7 @@
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
 #endif
+@PRAGMA_COLUMNS@
 
 /* The include_next requires a split double-inclusion guard.  */
 #@INCLUDE_NEXT@ @NEXT_STRING_H@
@@ -50,8 +51,8 @@
 #endif
 
 /* NetBSD 5.0 declares strsignal in <unistd.h>, not in <string.h>.  */
-/* But avoid namespace pollution on glibc systems.  */
-#if (@GNULIB_STRSIGNAL@ || defined GNULIB_POSIXCHECK)  \
+/* But in any case avoid namespace pollution on glibc systems.  */
+#if (@GNULIB_STRSIGNAL@ || defined GNULIB_POSIXCHECK) && defined __NetBSD__ \
     && ! defined __GLIBC__
 # include <unistd.h>
 #endif

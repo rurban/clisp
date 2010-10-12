@@ -1,5 +1,24 @@
 2010-10-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/gllib/stddef.in.h, modules/regexp/gllib/stdlib.in.h:
+	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/stdlib_h.m4:
+	* modules/syscalls/gllib/stddef.in.h, modules/syscalls/gllib/strerror.c:
+	* modules/syscalls/gllib/strings.in.h:
+	* modules/syscalls/gllib/sys_socket.in.h:
+	* modules/syscalls/gllib/sys_utsname.in.h:
+	* modules/syscalls/gllib/time.in.h:
+	* modules/syscalls/gllib/unistd.in.h, modules/wildcard/glm4/fnmatch.m4:
+	* gllib/errno.in.h, gllib/langinfo.in.h, gllib/malloca.c:
+	* gllib/stddef.in.h, gllib/stdint.in.h, gllib/stdlib.in.h:
+	* gllib/string.in.h, gllib/sys_socket.in.h, gllib/sys_time.in.h:
+	* gllib/sys_wait.in.h, gllib/unistd.in.h, gllib/wchar.in.h:
+	* gllib/wctype.in.h, glm4/errno_h.m4, glm4/include_next.m4:
+	* glm4/stdlib_h.m4, glm4/threadlib.m4: update from gnulib to fix
+	error: redefinition of `struct random_data'
+	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23606>
+
+2010-10-12  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (module_configure_flags): fix according to
 	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13381>
 
