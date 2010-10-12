@@ -2667,7 +2667,9 @@ if [ -n "$USE_GETTEXT" ] ; then
 
 fi
 
-for f in localcharset.h ${UNICODE_EXTRA}; do
+# headers needed for modules/*/gllib
+GLLIB_MODULE_HEADERS="sockets.h close-hook.h"
+for f in localcharset.h ${GLLIB_MODULE_HEADERS} ${UNICODE_EXTRA}; do
   link_dep "${f}" `find ${SRCDIR}gllib/ -name ${f}`
 done
 
@@ -3179,7 +3181,7 @@ done
 test "${verbose}" = true -o "${verbose}" = yes && \
   echo "BUILD_AUX =${BUILD_AUX}" >&2
 
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux"
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux ${GLLIB_MODULE_HEADERS}"
 echodummyrule modular
 echol
 # while the top-level makevars can contain arbitrary paths in LIBS and FILES,

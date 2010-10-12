@@ -1,5 +1,10 @@
 2010-10-12  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (GLLIB_MODULE_HEADERS): some headers, e.g.,
+	sockets.h, are only needed by modules/*/gllib, not boot
+
+2010-10-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/gllib/stddef.in.h, modules/regexp/gllib/stdlib.in.h:
 	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/stdlib_h.m4:
 	* modules/syscalls/gllib/stddef.in.h, modules/syscalls/gllib/strerror.c:
