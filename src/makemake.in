@@ -3268,7 +3268,7 @@ test "${with_dynamic_modules}" = no || echotab "rm -rf dynmod; mkdir dynmod"
 echotab "MAKE=\$(MAKE) CLISP=\"${HEREP}/clisp ${someflags}\" ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 # show which system supplied functionality is replaced by gnulib
 test "${verbose}" = true -o "${verbose}" = yes && \
-  echotab 'grep "define REPLACE_.*1" `find . -name config.log` || true'
+  echotab 'grep "^#define REPLACE_.*1" `find . -name config.log` || true'
 cygwin_finish full
 
 echol "mod-check : base-mod-check full-mod-check"
