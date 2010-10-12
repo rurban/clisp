@@ -1006,7 +1006,9 @@ AC_DEFUN([gl_FUNC_FNMATCH_POSIX],
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 
   FNMATCH_H=
-  gl_fnmatch_required_lowercase=`echo $gl_fnmatch_required | tr 'A-Z' 'a-z'`
+  gl_fnmatch_required_lowercase=`
+    echo $gl_fnmatch_required | tr '[[A-Z]]' '[[a-z]]'
+  `
   gl_fnmatch_cache_var="gl_cv_func_fnmatch_${gl_fnmatch_required_lowercase}"
   AC_CACHE_CHECK([for working $gl_fnmatch_required fnmatch],
     [$gl_fnmatch_cache_var],
@@ -3615,8 +3617,8 @@ AC_DEFUN([gt_CHECK_VAR_DECL],
   undefine([gt_cv_var])
 ])
 
-# errno_h.m4 serial 6
-dnl Copyright (C) 2004, 2006, 2008, 2009, 2010 Free Software Foundation, Inc.
+# errno_h.m4 serial 7
+dnl Copyright (C) 2004, 2006, 2008-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3652,6 +3654,9 @@ booboo
 booboo
 #endif
 #if !defined ESTALE
+booboo
+#endif
+#if !defined EDQUOT
 booboo
 #endif
 #if !defined ECANCELED
@@ -5714,7 +5719,7 @@ size_t iconv();
   fi
 ])
 
-# include_next.m4 serial 15
+# include_next.m4 serial 16
 dnl Copyright (C) 2006-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5740,6 +5745,13 @@ dnl does not warn about some things, and on some systems (Solaris and Interix)
 dnl __STDC__ evaluates to 0 instead of to 1. The latter is an undesired side
 dnl effect; we are therefore careful to use 'defined __STDC__' or '1' instead
 dnl of plain '__STDC__'.
+dnl
+dnl PRAGMA_COLUMNS can be used in files that override system header files, so
+dnl as to avoid compilation errors on HP NonStop systems when the gnulib file
+dnl is included by a system header file that does a "#pragma COLUMNS 80" (which
+dnl has the effect of truncating the lines of that file and all files that it
+dnl includes to 80 columns) and the gnulib file has lines longer than 80
+dnl columns.
 
 AC_DEFUN([gl_INCLUDE_NEXT],
 [
@@ -5814,6 +5826,24 @@ dnl We intentionally avoid using AC_LANG_SOURCE here.
   AC_SUBST([INCLUDE_NEXT])
   AC_SUBST([INCLUDE_NEXT_AS_FIRST_DIRECTIVE])
   AC_SUBST([PRAGMA_SYSTEM_HEADER])
+  AC_CACHE_CHECK([whether system header files limit the line length],
+    [gl_cv_pragma_columns],
+    [dnl HP NonStop systems, which define __TANDEM, have this misfeature.
+     AC_EGREP_CPP([choke me],
+       [
+#ifdef __TANDEM
+choke me
+#endif
+       ],
+       [gl_cv_pragma_columns=yes],
+       [gl_cv_pragma_columns=no])
+    ])
+  if test $gl_cv_pragma_columns = yes; then
+    PRAGMA_COLUMNS="#pragma COLUMNS 10000"
+  else
+    PRAGMA_COLUMNS=
+  fi
+  AC_SUBST([PRAGMA_COLUMNS])
 ])
 
 # gl_CHECK_NEXT_HEADERS(HEADER1 HEADER2 ...)
@@ -10416,7 +10446,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # indent-tabs-mode: nil
 # End:
 
-# stdlib_h.m4 serial 30
+# stdlib_h.m4 serial 31
 dnl Copyright (C) 2007-2010 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -10491,6 +10521,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_STRTOD=0;        AC_SUBST([GNULIB_STRTOD])
   GNULIB_STRTOLL=0;       AC_SUBST([GNULIB_STRTOLL])
   GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
+  GNULIB_SYSTEM_POSIX=0;  AC_SUBST([GNULIB_SYSTEM_POSIX])
   GNULIB_UNLOCKPT=0;      AC_SUBST([GNULIB_UNLOCKPT])
   GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
   dnl Assume proper GNU behavior unless another module says otherwise.

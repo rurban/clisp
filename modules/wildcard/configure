@@ -4687,7 +4687,9 @@ fi
 
 
   FNMATCH_H=
-  gl_fnmatch_required_lowercase=`echo $gl_fnmatch_required | tr 'A-Z' 'a-z'`
+  gl_fnmatch_required_lowercase=`
+    echo $gl_fnmatch_required | tr '[A-Z]' '[a-z]'
+  `
   gl_fnmatch_cache_var="gl_cv_func_fnmatch_${gl_fnmatch_required_lowercase}"
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working $gl_fnmatch_required fnmatch" >&5
 $as_echo_n "checking for working $gl_fnmatch_required fnmatch... " >&6; }

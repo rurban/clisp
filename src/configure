@@ -769,6 +769,7 @@ HAVE_ATOLL
 HAVE__EXIT
 GNULIB_UNSETENV
 GNULIB_UNLOCKPT
+GNULIB_SYSTEM_POSIX
 GNULIB_STRTOULL
 GNULIB_STRTOLL
 GNULIB_STRTOD
@@ -933,6 +934,7 @@ EMULTIHOP_HIDDEN
 ERRNO_H
 NEXT_AS_FIRST_DIRECTIVE_ERRNO_H
 NEXT_ERRNO_H
+PRAGMA_COLUMNS
 PRAGMA_SYSTEM_HEADER
 INCLUDE_NEXT_AS_FIRST_DIRECTIVE
 INCLUDE_NEXT
@@ -13144,6 +13146,37 @@ $as_echo "$gl_cv_have_include_next" >&6; }
 
 
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether system header files limit the line length" >&5
+$as_echo_n "checking whether system header files limit the line length... " >&6; }
+if test "${gl_cv_pragma_columns+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifdef __TANDEM
+choke me
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "choke me" >/dev/null 2>&1; then :
+  gl_cv_pragma_columns=yes
+else
+  gl_cv_pragma_columns=no
+fi
+rm -f conftest*
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_pragma_columns" >&5
+$as_echo "$gl_cv_pragma_columns" >&6; }
+  if test $gl_cv_pragma_columns = yes; then
+    PRAGMA_COLUMNS="#pragma COLUMNS 10000"
+  else
+    PRAGMA_COLUMNS=
+  fi
+
 
 
 
@@ -13202,6 +13235,9 @@ booboo
 booboo
 #endif
 #if !defined ESTALE
+booboo
+#endif
+#if !defined EDQUOT
 booboo
 #endif
 #if !defined ECANCELED
@@ -14986,6 +15022,7 @@ $as_echo "#define AA_APPLE_UNIVERSAL_BUILD 1" >>confdefs.h
   GNULIB_STRTOD=0;
   GNULIB_STRTOLL=0;
   GNULIB_STRTOULL=0;
+  GNULIB_SYSTEM_POSIX=0;
   GNULIB_UNLOCKPT=0;
   GNULIB_UNSETENV=0;
     HAVE__EXIT=1;
