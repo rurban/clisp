@@ -660,7 +660,7 @@ If you get mmap errors on the first invocation of lisp.run, this is
 likely due to the new randomizing malloc.
 Pass "--with-gmalloc" to ./configure to work around this problem.
 If the problem persists, copy ftp://gee.cs.oswego.edu/pub/misc/malloc.c
-to malloc/gmalloc.c; change line 509 to "#define HAVE_MMAP 0";
+to clisp/src/gmalloc.c; change line 509 to "#define HAVE_MMAP 0";
 and try "--with-gmalloc" again.
 
 
