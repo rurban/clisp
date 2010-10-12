@@ -1,0 +1,12 @@
+This is a console text editor based on the SCREEN package and *KEYWORD-INPUT*
+stream, written by Michael Stoll & Bruno Haible in 1992.
+
+Bruno Haible removed it from CLISP in 1998 because he believed that the
+era of console (i.e., non-GUI) text editors (like vi) is over.
+
+Sam Steingold resurrected it as a module in 2010 to give SCREEN enthusiasts
+something to play with.
+
+This module is in desperate need of TLC (Tender Loving Care)
+and it will not be included in the official distribution
+until someone volunteers to worn on it and brings it up to date.
