@@ -64,7 +64,7 @@ options:
        --with-jitc=FLAVOR      use a given Just-In-Time Compiler.
                 The only flavor at this time is lightning
                   (GNU lightning must be installed in the standard place).
-       --with-gmalloc          use the GNU malloc instead of of the libc one
+       --with-gmalloc          use the GNU malloc instead of the libc one
                                (needed on HP-UX and OpenBSD)
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
@@ -2553,9 +2553,9 @@ done
 
 if [ "${with_gmalloc}" = yes ]; then
   for f in $GMALLOC ; do
-    echol "${f}${TOBJ} : ${SRCDIR}malloc${NEXT_M}${f}.c"
+    echol "${f}${TOBJ} : ${SRCDIR}${f}.c"
     # gmalloc.c needs -DUSG on Solaris and then needs -DMEMMOVE_MISSING for SunOS 4.
-    echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -DUSG -DMEMMOVE_MISSING -c ${SRCDIR}malloc${NEXT_}${f}.c -o ${f}${TOBJ}"
+    echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -DUSG -DMEMMOVE_MISSING -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
     echol
   done
 fi

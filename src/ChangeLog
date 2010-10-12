@@ -1,3 +1,9 @@
+2010-10-12  Sam Steingold  <sds@gnu.org>
+
+	* gmalloc.c: move from src/malloc/ to src/
+	* malloc/getpagesize.c: remove obsolete file
+	* makemake.in: update
+
 2010-10-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: make charstrg.o depend on $(GLLIB_A) instead of
