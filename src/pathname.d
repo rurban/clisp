@@ -6027,13 +6027,13 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
      "none", "none/" ==> NIL
   the first value is the truename,
   the second is the "correct" absolute pathname */
-  if (builtin_stream_p(STACK_0)) { /* stream -> treat extra: */
-    if (probe_path_from_stream(&STACK_0))
-      { VALUES1(popSTACK()); return; }
-  } else /* turn into a pathname */
+  if (builtin_stream_p(STACK_0)) { /* stream -> path */
+    probe_path_from_stream(&STACK_0); /* STACK_0 is now an absolute truename */
+  } else { /* turn into a pathname */
     STACK_0 = merge_defaults(coerce_pathname(STACK_0));
-  check_no_wildcards(STACK_0);
-  STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
+    check_no_wildcards(STACK_0);
+    STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
+  }
   /* STACK_0 is a non-wild non-logical absolute pathname */
   var namestring_kind_t classification;
   var char resolved[MAXPATHLEN];
@@ -6080,7 +6080,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
     } break;
     case NAMESTRING_FILE:       /* file */
       if (namenullp(STACK_0)) { /* make STACK_0 a regular file pathname */
-        STACK_0 =  copy_pathname(STACK_0);
+        STACK_0 = copy_pathname(STACK_0);
         var object tmp = ThePathname(STACK_0)->pathname_directory;
         while (!nullp(Cdr(Cdr(tmp)))) tmp = Cdr(tmp);
         pushSTACK(Car(Cdr(tmp))); Cdr(tmp) = NIL; /* chop off last dir comp */
