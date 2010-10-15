@@ -1255,6 +1255,42 @@ NIL
     (rmrf d)))
 #+clisp ((2 T) (7 T) (2 T) (7 T))
 
+#+clisp (consp (show (multiple-value-list (ext:probe-pathname "/")))) #+clisp T
+
+#+(and clisp unix)
+(equalp (show (multiple-value-list (ext:probe-pathname "/etc")))
+        (show (multiple-value-list (ext:probe-pathname "/etc/"))))
+#+(and clisp unix) T
+
+#+clisp
+(equalp
+ (show (multiple-value-list (ext:probe-pathname (ext:default-directory))))
+ (show (multiple-value-list (ext:probe-pathname ""))))
+#+clisp T
+
+#+clisp
+(let* ((path "test-pathname")
+       (s1 (open path :direction :probe :if-does-not-exist :create))
+       (s2 (open path :direction :input)))
+  (unwind-protect
+       (let ((p-p (show (multiple-value-list (ext:probe-pathname path))))
+             (p-c (show (multiple-value-list (ext:probe-pathname s1))))
+             (p-o (show (multiple-value-list (ext:probe-pathname s2)))))
+         (list (equalp p-p p-c) (equalp p-p p-o) (equalp p-c p-o)))
+    (close s2)
+    (delete-file s1)))
+#+clisp (T T T)
+
+;; top-level directory on disk C
+#+(and clisp win32) (pathname-directory (ext:probe-pathname "c:/"))
+#+(and clisp win32) (:ABSOLUTE)
+
+;; default directory on disk C
+#+(and clisp win32)
+(let ((p (ext:probe-pathname "c:")))
+  (list (pathname-name p) (pathname-type p)))
+#+(and clisp win32) (NIL NIL)
+
 #+(and clisp unicode)
 (block test-weird-pathnames
   (handler-bind ((parse-error
