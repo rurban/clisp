@@ -1,3 +1,7 @@
+2010-10-15  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: more PROBE-PATHNAME tests
+
 2010-09-21  Sam Steingold  <sds@gnu.org>
 
 	* screen.tst: add demo for the SCREEN package
