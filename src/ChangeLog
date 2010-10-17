@@ -1,3 +1,12 @@
+2010-10-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	fix bug#3088751: SIGSEGV on large (unsigned-byte 8) arrays
+	* spvw_typealloc.d (allocate_bit_vector): use uintM. uintL overflows on
+	64 bit builds for large vectors
+	* spvw_objsize.d (size_sbvector): use uintM instead of uintL
+	* spvw_garcol.d (fill_varobject_heap_holes) [MULTITHREAD]: holes may be
+	larger than 2^32 bytes (uintL). use uintM.
+
 2010-10-15  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PROBE-PATHNAME): fix open stream handling

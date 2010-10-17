@@ -1760,7 +1760,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
        elements) - "allocate" few vectors. */
     while (holes->size != 0) {
       var Sbvector ptr=(Sbvector)holes->start;
-      var uintL len = holes->size - offsetofa(sbvector_,data);
+      var uintM len = holes->size - offsetofa(sbvector_,data);
       if (len > arraysize_limit_1) {
         /* In case of very large block (>= arraysize_limit_1) make sure we
            leave space for the next vector header */
@@ -1796,7 +1796,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       var bool vector=true;
       var Varobject ptr=(Varobject)holes->start;
       var Varobject pinned=(Varobject)(holes->start+holes->size);
-      uintL len = holes->size - sizeof(vrecord_);
+      uintM len = holes->size - sizeof(vrecord_);
       set_GCself(holes->start,mtypecode(pinned->GCself),holes->start);
       switch (typecode_at(holes->start)) {
       case_sbvector: ((Sbvector)ptr)->length = len<<=3; break;

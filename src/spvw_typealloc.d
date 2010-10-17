@@ -118,7 +118,7 @@ modexp maygc object allocate_vector (uintL len) {
  < result: fresh simple bit/byte-vector of the given length
  can trigger GC */
 modexp maygc object allocate_bit_vector (uintB atype, uintL len) {
-  var uintL need = size_sbvector(len<<atype); /* needed memory in bytes */
+  var uintM need = size_sbvector((uintM)len<<atype); /* needed memory in bytes */
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
  #else
