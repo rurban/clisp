@@ -58,7 +58,7 @@ global uintM varobject_bytelength (object obj);
       round_up( sizeof(symbol_), varobject_alignment)
 #endif
 #define size_sbvector(length)                  /* simple-bit-vector */ \
-  ( ceiling( (uintL)(length) + 8*offsetofa(sbvector_,data),     \
+  ( ceiling( (uintM)(length) + 8*offsetofa(sbvector_,data),     \
              8*varobject_alignment ) * varobject_alignment )
 #define size_sb2vector(length)                /* simple-2bit-vector */ \
   ( ceiling( (uintL)(length) + 4*offsetofa(sbvector_,data),     \
