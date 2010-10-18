@@ -1274,19 +1274,19 @@ def")
 
 
 (progn
-  (symbol-cleanup 'format-blocksatz) 
+  (symbol-cleanup 'format-blocksatz)
   (symbol-cleanup 'type-clash-error)
-  (symbol-cleanup 'foo) 
+  (symbol-cleanup 'foo)
   (symbol-cleanup 'x)
-  (symbol-cleanup 'y) 
-  (symbol-cleanup 'n) 
-  (symbol-cleanup 'liste) 
-  (symbol-cleanup 'donestr) 
-  (symbol-cleanup 'tellstr) 
+  (symbol-cleanup 'y)
+  (symbol-cleanup 'n)
+  (symbol-cleanup 'liste)
+  (symbol-cleanup 'donestr)
+  (symbol-cleanup 'tellstr)
   (symbol-cleanup 'gray-string-output-stream))
 T
 
 ;; local variables:
-;; eval: (make-local-variable 'write-file-functions)
-;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
+;; eval: (make-local-variable 'before-save-hook)
+;; eval: (remove-hook 'before-save-hook 'delete-trailing-whitespace t)
 ;; end:
