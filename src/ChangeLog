@@ -1,25 +1,24 @@
 2010-10-18  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	* pathname.d (FIND_DATA_FWD) [WIN32_NATIVE]: fixed condition.
+	* pathname.d (FIND_DATA_FWD) [WIN32_NATIVE]: fixed condition
 
 2010-10-18  Julian Squires  <julian@cipht.net>
             Arseny Slobodyuk  <ampy@users.sourceforge.net>
-            Fix for bug#3087668 - when probe-pathname used for
-            root directories on WIN32.
 
-	* pathname.d (PROBE-PATHNAME) [!UNIX]: do not remove trailing slash.
+        fix bug#3087668: probe-pathname on root directories on WIN32
+	* pathname.d (PROBE-PATHNAME) [!UNIX]: do not remove trailing slash
 	(classify_namestring) [WIN32_NATIVE]: use GetFileAttributesEx instead
-	of FindFirstFile to retrieve size and modify date/time, because
-	GetFileAttributesEx unlike FFF can handle root directories.
+	of FindFirstFile to retrieve size and modification date/time,
+	because GetFileAttributesEx unlike FFF can handle root directories
 
 2010-10-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix bug#3088751: SIGSEGV on large (unsigned-byte 8) arrays
-	* spvw_typealloc.d (allocate_bit_vector): use uintM. uintL overflows on
-	64 bit builds for large vectors
+	* spvw_typealloc.d (allocate_bit_vector): use uintM;
+	uintL overflows on 64 bit builds for large vectors
 	* spvw_objsize.d (size_sbvector): use uintM instead of uintL
-	* spvw_garcol.d (fill_varobject_heap_holes) [MULTITHREAD]: holes may be
-	larger than 2^32 bytes (uintL). use uintM.
+	* spvw_garcol.d (fill_varobject_heap_holes) [MULTITHREAD]:
+	holes may be larger than 2^32 bytes (uintL); use uintM
 
 2010-10-15  Sam Steingold  <sds@gnu.org>
 
