@@ -17,7 +17,7 @@ User visible changes
   for details.
 
 * New user variable CUSTOM:*MODULE-PROVIDER-FUNCTIONS* allows user to
-  influence REQUIRE behavior.
+  influence behavior of REQUIRE.
   See <http://clisp.cons.org/impnotes/require.html#module-providers>
   for details.
 
@@ -37,6 +37,9 @@ User visible changes
   + Fix SCREEN behavior when the window is resized.
   + Pass the top-level configure arguments --build= & --host=
     to the module configures (bug#3076160).
+  + Fix PROBE-PATHNAME behavior on win32 and on open file streams (bug#3087668).
+  + Fix handling of huge byte arrays on 64-bit platforms (bug#3088751).
+  + Macro LOOP now detects incomplete FOR clauses (bug#3089988).
 
 
 2.49 (2010-07-07)

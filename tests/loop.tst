@@ -873,13 +873,17 @@ nil
 NIL
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
-(handler-case
-    (eval (macroexpand '(loop :for i :from 1 :to 20 :sum i :maximize i)))
+(handler-case (macroexpand '(loop :for i :from 1 :to 20 :sum i :maximize i))
   (program-error (c) (princ c) (values '(correct program-error))))
 (correct program-error)
 
 (handler-case
-    (eval (macroexpand '(loop :for i :from 1 :to 20 :sum i :always (evenp i))))
+    (macroexpand '(loop :for i :from 1 :to 20 :sum i :always (evenp i)))
+  (program-error (c) (princ c) (values '(correct program-error))))
+(correct program-error)
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3089988&group_id=1355
+(handler-case (macroexpand '(loop :for i :do (print i)))
   (program-error (c) (princ c) (values '(correct program-error))))
 (correct program-error)
 

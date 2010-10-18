@@ -1,3 +1,7 @@
+2010-10-18  Sam Steingold  <sds@gnu.org>
+
+	* loop.tst: add a test for bug#3089988: (loop for x do (print x))
+
 2010-10-15  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: more PROBE-PATHNAME tests
