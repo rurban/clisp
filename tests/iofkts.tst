@@ -919,6 +919,6 @@ yyy"
 T
 
 ;; local variables:
-;; eval: (make-local-variable 'write-file-functions)
-;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
+;; eval: (make-local-variable 'before-save-hook)
+;; eval: (remove-hook 'before-save-hook 'delete-trailing-whitespace t)
 ;; end:
