@@ -4949,7 +4949,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
    &mutex-r;)</code></term>
  <listitem><simpara>Return a indicator whether &mutex-r; is recursive.
 </simpara></listitem></varlistentry>
-<varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
+<varlistentry id="with-mutex-lock"><term><code>(&with-mutex-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
  <listitem><simpara>Execute &body-r; with &mutex-r; locked.
    Upon exit &mutex-r; is released. Return whatever &body-r; returns.
