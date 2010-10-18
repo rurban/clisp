@@ -5994,24 +5994,25 @@ local maygc namestring_kind_t classify_namestring
   bool ret;
   begin_blocking_system_call();
   if (real_path(namestring,resolved)) {
-    DWORD fileattr;
-    fileattr = GetFileAttributes(resolved);
+    WIN32_FILE_ATTRIBUTE_DATA filedata;
+    BOOL success = GetFileAttributesEx(resolved, GetFileExInfoStandard, &filedata);
     end_blocking_system_call();
-    if (fileattr == 0xFFFFFFFF) {
+    if (success) {                  /* file exists. */
+      if (fwd) *fwd = convert_time_to_universal(
+        filedata.ftLastWriteTime.dwLowDateTime
+        || filedata.ftLastWriteTime.dwLowDateTime
+        ? &filedata.ftLastWriteTime : &filedata.ftCreationTime);
+      if (fsize) *fsize = off_to_I(
+        ((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow);
+      if (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
+        return NAMESTRING_DIR;
+      else return NAMESTRING_FILE;
+    } else {
       /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
          when file "foo" exists */
       if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
         OS_file_error(STACK_0);
       return NAMESTRING_NONE;   /* does not exist */
-    } else {                                   /* file exists. */
-      if (fwd || fsize) {
-        WIN32_FIND_DATA filedata;
-        find_first_file(resolved,&filedata); /* success is assured */
-        if (fwd) *fwd = convert_time_to_universal(FIND_DATA_FWD(filedata));
-        if (fsize) *fsize = off_to_I(FIND_DATA_FSIZE(filedata));
-      }
-      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return NAMESTRING_DIR;
-      else return NAMESTRING_FILE;
     }
   } else { end_blocking_system_call(); return NAMESTRING_NONE; }
 #else
@@ -6040,8 +6041,10 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   pushSTACK(NIL); pushSTACK(STACK_1); /* space for FWD & FSIZE */
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),
                  namestring_asciz, {
+#if defined(UNIX)
     if (cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
       namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
+#endif
     classification = classify_namestring(namestring_asciz,resolved,
                                          &STACK_1/*fwd*/,&STACK_2/*fsize*/);
   });

@@ -1,3 +1,13 @@
+2010-10-18  Julian Squires  <julian@cipht.net>
+            Arseny Slobodyuk  <ampy@users.sourceforge.net>
+            Fix for bug#3087668 - when probe-pathname used for
+            root directories on WIN32.
+
+	* pathname.d (probe_pathname) [!UNIX]: do not remove trailing slash.
+	(classify_namestring) [WIN32_NATIVE]: use GetFileAttributesEx instead
+	of FindFirstFile to retrieve size and modify date/time, because
+	GetFileAttributesEx unlike FFF can handle root directories.
+
 2010-10-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix bug#3088751: SIGSEGV on large (unsigned-byte 8) arrays
