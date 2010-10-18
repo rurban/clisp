@@ -122,6 +122,10 @@ enum cygsym_enum is_cygwin_symlink (const char * filename)
 
 HRESULT BTCoCreateInstance (REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
                             DWORD dwClsContext, REFIID riid,
+                            LPVOID * ppv);
+
+HRESULT BTCoCreateInstance (REFCLSID rclsid,  LPUNKNOWN pUnkOuter,
+                            DWORD dwClsContext, REFIID riid,
                             LPVOID * ppv)
 {
   HRESULT result = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
