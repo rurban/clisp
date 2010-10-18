@@ -1,3 +1,8 @@
+2010-10-18  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3089988: (loop for x do (print x)) should barf
+	* loop.lisp (expand-loop): fail when the FOR clause lacks subclauses
+
 2010-10-18  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* pathname.d (FIND_DATA_FWD) [WIN32_NATIVE]: fixed condition

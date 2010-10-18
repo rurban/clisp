@@ -940,7 +940,14 @@
                                                  (TEXT "~S: questionable iteration direction after ~A")
                                                  'loop (symbol-name kw))
                                                'down)
-                                             'up)))
+                                             (if (or step-start-p step-end-p step-by-p)
+                                               'up
+                                               (error-of-type 'source-program-error
+                                                 :form *whole* :detail
+                                                 (list kw pattern preposition)
+                                                 (TEXT "~S: invalid keyword ~A after ~A")
+                                                 'loop (symbol-name preposition)
+                                                 (symbol-name kw))))))
                                      ;; Determine start, unless given:
                                      (unless step-start-p
                                        (when (eq step-direction 'down)
