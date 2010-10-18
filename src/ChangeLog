@@ -7,7 +7,7 @@
             Fix for bug#3087668 - when probe-pathname used for
             root directories on WIN32.
 
-	* pathname.d (probe_pathname) [!UNIX]: do not remove trailing slash.
+	* pathname.d (PROBE-PATHNAME) [!UNIX]: do not remove trailing slash.
 	(classify_namestring) [WIN32_NATIVE]: use GetFileAttributesEx instead
 	of FindFirstFile to retrieve size and modify date/time, because
 	GetFileAttributesEx unlike FFF can handle root directories.
