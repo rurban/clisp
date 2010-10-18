@@ -5936,7 +5936,7 @@ LISPFUNNS(probe_file,1)
 #if defined(WIN32_NATIVE)
 #define FIND_DATA_FWD(filedata)                                 \
   ((filedata.ftLastWriteTime.dwLowDateTime == 0                 \
-    && filedata.ftLastWriteTime.dwHighDateTime)                 \
+    && filedata.ftLastWriteTime.dwHighDateTime == 0)            \
    ? &(filedata.ftCreationTime) : &(filedata.ftLastWriteTime))
 #define FIND_DATA_FSIZE(filedata)                               \
   (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
