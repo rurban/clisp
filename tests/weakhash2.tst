@@ -142,3 +142,7 @@ nil
          (simple-vector-p (whal_itable kvt)))))
 #+CLISP
 T
+
+(progn ; cleanup
+  (symbol-cleanup 'tab))
+T

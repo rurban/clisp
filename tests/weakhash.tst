@@ -369,3 +369,12 @@ B
   (list (gethash "foo" tab) (gethash 1 tab) (gethash "zoo" tab)))
 #+(or CLISP LISPWORKS)
 (1 "bar" NIL)
+
+(progn ; cleanup
+  (symbol-cleanup 'weak-ht-fill-initially)
+  (symbol-cleanup 'make-freak-mapping)
+  (symbol-cleanup 'freak-mapping-pair)
+  (symbol-cleanup 'freak-mapping-value)
+  (symbol-cleanup 'test-weak-mapping-chain)
+  (symbol-cleanup 'test-weak-mapping-chain-reverse))
+T
