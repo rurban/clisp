@@ -158,8 +158,8 @@ T
 (444 (progv '("foo" :const) '(123 321) (+ foo zz)))
 
 (handler-bind ((type-error #'use-value-read))
-  (multiple-value-setq (a "foo") (values 123 321))
-  (list foo a))
+  (multiple-value-setq (baz "foo") (values 123 321))
+  (list foo baz))
 (321 123)
 
 (handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
@@ -371,5 +371,12 @@ T
   (documentation 'use-value-read 'function))
 "docstring for use-value-read"
 
-(unintern 'check-use-value) T
-(unintern 'use-value-read) T
+(progn ; cleanup
+  (symbol-cleanup 'check-use-value)
+  (symbol-cleanup 'use-value-read)
+  (symbol-cleanup 'zot)
+  (symbol-cleanup 'foo)
+  (symbol-cleanup 'bar)
+  (symbol-cleanup 'baz)
+  (symbol-cleanup 'xyzzy))
+T

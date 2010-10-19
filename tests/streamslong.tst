@@ -328,3 +328,8 @@ nil
            (loop for i below 1000 do (assert (= i (read in))))))
     (delete-file file)))
 #+(and CLISP UNIX) NIL
+
+(progn ; cleanup
+  (symbol-cleanup '*A*)
+  (symbol-cleanup 'bin-stream-test))
+T

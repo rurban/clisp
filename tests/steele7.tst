@@ -76,7 +76,7 @@ a
 (setf a 0)
 0
 
-(let ((a 1) (b 2) c )
+(let ((a 1) (b 2) c)
   (declare (integer a b))
   (list a b c))
 (1 2 nil)
@@ -417,3 +417,9 @@ b
 (labels ((z () (return-from z 4))) (z))
 4
 
+(progn ; cleanup
+  (symbol-cleanup 'plus)
+  (symbol-cleanup 'adder)
+  (symbol-cleanup 'a)
+  (symbol-cleanup 'b))
+T
