@@ -2435,7 +2435,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    compare <function>RAWSOCK:HTONS</function> (defined
    in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>)
    with <programlisting language="lisp">
-(&def-call-out; htons (:name "htons") (&library-k; :default)
+(&def-call-out; htons (&name-k; "htons") (&library-k; :default)
   (&arguments-k; (s ffi:short)) (&ret-type-k; ffi:short) (&lang-k; :stdc))
 </programlisting> and observe that <function>RAWSOCK:HTONS</function> is
    almost 3 times as fast (this really does compare the &ffi-pac;
@@ -2752,17 +2752,17 @@ or just evaluates the appropriate form in the &repl;.</para>
    Lisp (using &setq; or similar).</simpara></listitem></varlistentry>
 <varlistentry><term><code>(:ALLOC &allocation;)</code></term>
  <listitem><simpara>This option can be either &none-k; or
-   &malloc-free-k; and defaults to &none-k;.  If it is
-   &malloc-free-k;, any values of type &c-string;, &c-ptr;,
+   &malloc-free-k; and defaults to &none-k;.
+   If it is &malloc-free-k;, any values of type &c-string;, &c-ptr;,
    &c-ptr-null;, &c-array-ptr; within the foreign value are assumed
    to be pointers to &malloc;-allocated storage, and when &setq;
    replaces an old value by a new one, the old storage is freed using
-   &free; and the new storage allocated using &malloc;.  If it is
-   &none-k;, &setq; assumes that the pointers point to good storage
-   (not &c-NULL;!) and overwrites the old values by the new ones.
-   This is dangerous (just think of overwriting a string with a
-   longer one or storing some data in a &c-NULL; pointer...)  and
-   deprecated.</simpara></listitem></varlistentry>
+   &free; and the new storage allocated using &malloc;.
+   If it is &none-k;, &setq; assumes that the pointers point to good
+   storage (not &c-NULL;!) and overwrites the old values by the new ones.
+   This is dangerous (just think of overwriting a string with a longer
+   one or storing some data in a &c-NULL; pointer...) and deprecated.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&library-k; &name-r;)</code></term>
  <listitem><simpara>Specifies the (optional) dynamic library
    which contains the variable, the default is set by
@@ -3993,8 +3993,8 @@ int my_foo (int x) { return FOO(x); }
 int my_bar (int x) { return bar(x); }~%")
 (&def-c-const; bar)
 (&def-c-const; zot-size (:name "sizeof(struct zot)") (:guard nil))
-(&def-call-out; my-foo (:name "my_foo") (&arguments-k; (x ffi:int)) (&ret-type-k; ffi:int))
-(&def-call-out; my-bar (:name "my_bar") (&arguments-k; (x ffi:int)) (&ret-type-k; ffi:int))
+(&def-call-out; my-foo (&name-k; "my_foo") (&arguments-k; (x ffi:int)) (&ret-type-k; ffi:int))
+(&def-call-out; my-bar (&name-k; "my_bar") (&arguments-k; (x ffi:int)) (&ret-type-k; ffi:int))
 </programlisting></para>
 <para>Compiling this file will produce <filename>my.c</filename>
  and <filename>my.fas</filename> and you have two options:
@@ -4044,19 +4044,19 @@ This is accompanied by <filename>sort2.lisp</filename>:
 <programlisting language="lisp">
 (&defpackage; "FFI-TEST" (:use &cl-pac; &ffi-pac;))
 (&in-package; "FFI-TEST")
-(&eval-when; (compile) (setq &ffi-out-fun; t))
+(&eval-when; (compile) (&setq; &ffi-out-fun; t))
 (&def-call-in; lispsort_begin (&arguments-k; (n int))
   (&ret-type-k; nil)
   (&lang-k; :stdc))
 (&def-c-var; lispsort_function (:type c-pointer))
-(defun lispsort_begin (n)
-  (setf (cast lispsort_function
-              `(c-function
+(&defun; lispsort_begin (n)
+  (&setf; (&cast; lispsort_function
+              `(&c-function;
                  (&arguments-k; (v (c-ptr (c-array double-float ,n))))
                  (&ret-type-k; (c-ptr (c-array double-float ,n))
                                :malloc-free)))
         #'sort2))
-(defun sort2 (v)
+(&defun; sort2 (v)
   (declare (type vector v))
   (sort v #'&lt;))
 </programlisting>
@@ -4066,7 +4066,7 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 <programlisting language="lisp">
 (&eval-when; (compile) (setq &ffi-out-fun; t))
 (&def-call-out; sort10
-  (:name "lispsort_double")
+  (&name-k; "lispsort_double")
   (&lang-k; :stdc)
   (&arguments-k; (n int)
               (array (c-ptr (c-array double-float 10)) :in-out)))
@@ -4111,10 +4111,10 @@ int CallInFunc(LispFunc f) {
   and call it from Lisp:
   <programlisting language="lisp">
 (ffi:def-call-out callout
-  (:name "CallInFunc")
+  (&name-k; "CallInFunc")
   (&library-k; "lispdll.dll")
   (&arguments-k; (function-arg
-               (ffi:c-function (&arguments-k; (number ffi:int))
+               (&c-function; (&arguments-k; (number ffi:int))
                                (&ret-type-k; ffi:int) (&lang-k; :stdc))))
   (&ret-type-k; ffi:int)
   (&lang-k; :stdc))
@@ -4251,7 +4251,7 @@ double test_dll(struct bar *ptr)
 (&def-call-out; get-own-c-float
   (&library-k; "libtest.so")
   (&lang-k; :stdc)
-  (:name "test_dll")
+  (&name-k; "test_dll")
   (&arguments-k; (ptr c-pointer :in :alloca))
   (&ret-type-k; double-float))
 
@@ -4325,7 +4325,7 @@ and compile it with
 <screen>&sh-prompt; gcc -shared -o libsum.so sum.c</screen>
 Now you can sum doubles:
 <programlisting language="lisp">
-(&def-call-out; sum (:name "sum") (&library-k; "libsum.so") (&lang-k; :stdc)
+(&def-call-out; sum (&name-k; "sum") (&library-k; "libsum.so") (&lang-k; :stdc)
   (&ret-type-k; ffi:double-float)
   (&arguments-k; (len ffi:int) (vec (&c-array-ptr; ffi:double-float))))
 (sum 3 #(1d0 2d0 3d0))
@@ -5229,8 +5229,8 @@ Another problem is that no user input will be available.</para></formalpara>
 
 <section id="quickstart-linux">
  <title>Associating extensions with &clisp; via kernel</title>
- <subtitle><emphasis role="plat-dep">&linux; platforms
-   only.</emphasis></subtitle>
+ <subtitle><emphasis role="plat-dep">&linux; platforms only.
+ </emphasis></subtitle>
 
 <para>You have to build your kernel with
  <option>CONFIG_BINFMT_MISC=y</option> and
