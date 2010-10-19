@@ -1201,9 +1201,6 @@ error
 x
 "edcba"
 
-(makunbound 'x)
-X
-
 (let* ((x (make-array 10 :fill-pointer 4 :element-type 'character
                          :initial-element #\space :adjustable t))
        (y (make-array 10 :fill-pointer 4 :element-type 'character
@@ -1254,3 +1251,7 @@ error
 
 #+clisp (trim-if #'sys::whitespacep "  asdf 	 ")
 #+clisp "asdf"
+
+(progn ; cleanup
+  (symbol-cleanup 'x))
+T

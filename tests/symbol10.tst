@@ -563,3 +563,16 @@ T
   (mapc #'unintern l)
   (length l))
 4
+
+(progn ; cleanup
+  (symbol-cleanup 'testvar)
+  (symbol-cleanup 'clrvar)
+  (symbol-cleanup 'v1)
+  (symbol-cleanup 'v2)
+  (symbol-cleanup 'v3)
+  (symbol-cleanup 'v4)
+  (symbol-cleanup 'v5)
+  (symbol-cleanup 'v6)
+  (symbol-cleanup 'var3)
+  (symbol-cleanup 'var33))
+T

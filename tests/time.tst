@@ -84,6 +84,7 @@ NIL
    (encode-universal-time 12 34 20 23 12 2208))
 3600
 
-;; clean up
-(unintern 'time-loop) T
-(unintern 'check-universal-time) T
+(progn ; clean up
+  (symbol-cleanup 'check-universal-time)
+  (symbol-cleanup 'time-loop))
+T
