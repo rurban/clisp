@@ -538,7 +538,7 @@
  <varlistentry id="rlimit"><term><code>(&rlimit;
     &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the current and the maximal limits as two
-    values when &what-r; is specified or the &alist; of all available
+    values when &what-r; is specified or the &plist; of all available
     limits (as an <type>RLIMIT</type> structure) when &what-r; is
     missing or &nil;, by calling <function role="unix">getrlimit</function>.
  </simpara></listitem></varlistentry>
@@ -548,7 +548,7 @@
   <term><code>(&setf; (&rlimit; &what-r;)
     <replaceable>rlimit</replaceable>)</code></term>
   <term><code>(&setf; (&rlimit;)
-    <replaceable>rlimit-alist</replaceable>)</code></term>
+    <replaceable>rlimit-plist</replaceable>)</code></term>
   <listitem><para>Set the limits using
     <function role="unix">setrlimit</function>.<orderedlist>
      <listitem><simpara>In the first form, <replaceable>cur</replaceable>
@@ -557,13 +557,15 @@
      <listitem><simpara>In the second form, <replaceable>rlimit</replaceable>
        is an <type>RLIMIT</type> structure.</simpara></listitem>
      <listitem><simpara>In the third form,
-       <replaceable>rlimit-alist</replaceable> is an &alist;, as returned by
+       <replaceable>rlimit-plist</replaceable> is a &plist;, as returned by
        <code>(&rlimit;)</code>.</simpara></listitem>
  </orderedlist></para></listitem></varlistentry>
- <varlistentry id="usage"><term><code>(POSIX:USAGE)</code></term>
-  <listitem><simpara>Return 2 structures describing the resource usage
-    by the lisp process and its children, using
-    <function role="unix">getrusage</function>.
+ <varlistentry id="usage"><term><code>(POSIX:USAGE
+   &optional-amp; &what-r;)</code></term>
+  <listitem><simpara>Return the <type>USAGE</type> structure describing the
+   resource usage of the thread, process, or its children, using
+   <function role="unix">getrusage</function>. WHen &what-r; is missing
+   or &nil;, return all available data as a &plist;.
  </simpara></listitem></varlistentry>
  <varlistentry id="bogomips"><term><code>(POSIX:BOGOMIPS)</code></term>
   <listitem><simpara>Compute the

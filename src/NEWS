@@ -28,7 +28,11 @@ User visible changes
   See <http://clisp.cons.org/impnotes/syscalls.html#file-tree-walk> for details.
 
 * New function POSIX:GETDATE calls getdate().
-  See <http://clisp.cons.org/impnotes/syscalls.html#getdate> for details
+  See <http://clisp.cons.org/impnotes/syscalls.html#getdate> for details.
+
+* Function POSIX:USAGE now accept an optional argument and returns a
+  single value.
+  See <http://clisp.cons.org/impnotes/syscalls.html#usage> for details.
 
 * FFI now converts REALs to FLOATs automatically as necessary.
 
