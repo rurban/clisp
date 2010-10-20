@@ -266,12 +266,10 @@ NIL
                         (os:pathconf *tmp1*) '(no os:pathconf)) :pretty t)) T
 
 #+unix
-(listp (show (if (fboundp 'os:usage)
-                 (multiple-value-list (os:usage)) '(no os:usage)) :pretty t))
+(listp (show (if (fboundp 'os:usage) (os:usage) '(no os:usage)) :pretty t))
 T
 #+unix
-(listp (show (if (fboundp 'os:rlimit)
-                 (multiple-value-list (os:rlimit)) '(no os:rlimit)) :pretty t))
+(listp (show (if (fboundp 'os:rlimit) (os:rlimit) '(no os:rlimit)) :pretty t))
 T
 
 (os:uname-p (show (os:uname) :pretty t)) T

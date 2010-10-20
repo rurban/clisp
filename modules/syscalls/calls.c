@@ -1432,12 +1432,29 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
 #endif  /* HAVE_SYS_WAIT_H */
 
 #if defined(HAVE_GETRUSAGE)
-DEFUN(POSIX::USAGE,) { /* getrusage(3) */
+DEFCHECKER(check_rusage, prefix=RUSAGE, SELF CHILDREN THREAD LWP)
+DEFUN(POSIX::USAGE, &optional what) { /* getrusage(3) */
   struct rusage ru;
-#define GETRU(who) begin_system_call(); getrusage(who,&ru); end_system_call(); rusage_to_lisp(&ru); pushSTACK(value1)
-  GETRU(RUSAGE_CHILDREN); GETRU(RUSAGE_SELF);
-#undef GETRU
-  VALUES2(STACK_0,STACK_1); skipSTACK(2);
+  object what = popSTACK();
+  if (missingp(what)) {
+    unsigned int pos;
+    for (pos = 0; pos < check_rusage_map.size; pos++) {
+      int status;
+      pushSTACK(*check_rusage_map.table[pos].l_const);
+      begin_system_call();
+      status = getrusage(check_rusage_map.table[pos].c_const,&ru);
+      end_system_call();
+      if (status) pushSTACK(S(Kerror));
+      else { rusage_to_lisp(&ru); pushSTACK(value1); }
+    }
+    VALUES1(listof(2*check_rusage_map.size));
+  } else {
+    int who = check_rusage(what);
+    begin_system_call();
+    if (getrusage(who,&ru)) OS_error();
+    end_system_call();
+    rusage_to_lisp(&ru);
+  }
 }
 #endif /* HAVE_GETRUSAGE */
 #endif /* HAVE_SYS_RESOURCE_H */
@@ -1502,7 +1519,7 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
 { /* setrlimit(3): 3 ways to call:
    (setf (rlimit what) (values cur max))
    (setf (rlimit what) #S(rlimit :cur cur :max max))
-   (setf (rlimit) rlimit-alist-as-returned-by-rlimit-without-arguments) */
+   (setf (rlimit) rlimit-plist-as-returned-by-rlimit-without-arguments) */
   if (nullp(STACK_2)) {         /* 3rd way */
     if (!nullp(STACK_0)) goto rlimit_bad;
     STACK_0 = STACK_1;
