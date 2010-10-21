@@ -1,3 +1,8 @@
+2010-10-22  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* time.d (get_running_times_helper): fix real time calculation. use
+	the value returned from get_real_time()
+
 2010-10-21  Sam Steingold  <sds@gnu.org>
 
 	* time.d (GET-INTERNAL-RUN-TIME): when *ANSI*!=NIL, reject the

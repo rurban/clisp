@@ -242,14 +242,14 @@ local uintL /*maygc*/ get_running_times_helper (timescore_t* tm, object thread) 
     /* Get real time: */
     var internal_time_t real_time;
     get_real_time(&real_time);
-    tm->realtime.tv_sec = real_time.tv_sec - realstart_time.tv_sec;
+    tm->realtime.tv_sec = real_time.tv_sec - real_start.tv_sec;
     tm->realtime.tv_usec = real_time.tv_usec;
 #endif
 #ifdef TIME_WIN32
     /* Get real time: */
     var internal_time_t real_time;
     get_real_time(&real_time);
-    sub_internal_time(real_time,realstart_time, tm->realtime);
+    sub_internal_time(real_time,real_start, tm->realtime);
 #endif
   } else
     ret |= REAL_TIME_INVALID;
