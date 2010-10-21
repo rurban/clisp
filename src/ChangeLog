@@ -1,3 +1,8 @@
+2010-10-21  Sam Steingold  <sds@gnu.org>
+
+	* time.d (GET-INTERNAL-RUN-TIME): when *ANSI*!=NIL, reject the
+	optional argument (for strict ANSI compliance)
+
 2010-10-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: provide real/run time information on individual threads
@@ -7,9 +12,9 @@
 	(struct clisp_thread_t): add thr_realstart_time - real time at which
 	thread has started
 	(check_thread): make it global (used from time.d)
-	*  spvw_gcstat.d (gc_timer_on, gc_timer_off): use get_run_time()
-	instead	of get_running_time() (which was causing unused C stack area to
-	be overwritten)
+	* spvw_gcstat.d (gc_timer_on, gc_timer_off): use get_run_time()
+	instead	of get_running_time() (which was causing unused C stack
+	area to be overwritten)
 	* stream.d: remove run_time_start()and run_time_restart() calls (anyway
 	these were nop when HAVE_RUN_TIME was not defined i.e. always)
 	* zthread.d (check_thread): make it global
