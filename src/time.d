@@ -44,15 +44,48 @@
 #ifdef TIME_WIN32
   /* The unit is 0.1 µsec. */
 #endif
-  /* Running time: */
+  /* Real time: */
+local bool realstart_time_initialized = false;
 local internal_time_t realstart_time; /* real time at start of LISP session */
-#ifndef HAVE_RUN_TIME
-/* Time that the LISP session consumes: */
-local uintL run_time = 0;       /* total runtime up to now */
-local uintL runstop_time;       /* if the stop watch is running:
-                                   the time of the last run-stop change */
-local bool run_flag = false; /* true if the stop watch is running */
+
+/* UP: return thread object from optional argument passed to
+   GET-INTERNAL-RUN-TIME and %%TIME
+   < obj: optional argument passed
+   > thread object (always nullobj w/o threads) */
+local inline object thread_from_arg(object obj) {
+#ifndef MULTITHREAD
+  return nullobj;
+#else
+  return missingp(obj) ? nullobj :
+    ((eq(T,obj)) ? current_thread()->_lthread : check_thread(obj));
 #endif
+}
+
+/* UP: gets thread or process real start time */
+local /*maygc*/ bool real_start_time(object thread, internal_time_t *tp) {
+  var bool ret = true;
+  if (eq(thread, nullobj)) /* always true when ! MT*/
+    *tp = realstart_time;
+  else
+#ifdef MULTITHREAD
+    if (eq(thread, current_thread()->_lthread)) /* we are alive for sure */
+      *tp = current_thread()->thr_realstart_time;
+    else {
+      /* it's another thread - have to be sure it does not exit while we
+         obtain its real start time (xth_globals are released upon termination)*/
+      pushSTACK(thread);
+      WITH_OS_MUTEX_LOCK(1,&allthreads_lock, {
+        var clisp_thread_t *clt = TheThread(STACK_0)->xth_globals;
+        if ((ret = (clt != NULL))) /* still alive */
+          *tp = clt->thr_realstart_time;
+      });
+      skipSTACK(1);
+    }
+#else /* ! MT */
+    ASSERT(0); /* w/o MT thread == nullobj always */
+#endif
+  return ret;
+}
 
 #ifdef TIME_UNIX
 
@@ -79,20 +112,39 @@ global void get_real_time (internal_time_t* it)
 }
 
 /* Returns the run time counter.
- get_run_time(&runtime);
- < internal_time_t runtime: consumed run time since session start (in ticks) */
-global void get_run_time (internal_time_t* runtime)
+ get_thread_run_time(&runtime, thread);
+ > thread: thread for which to obtain info (nullobj for process wide)
+ < internal_time_t runtime: consumed run time since session start (in ticks)
+ < returns true if successful (may fail in MT) */
+global bool get_thread_run_time (internal_time_t* runtime, object thread)
 {
  #if defined(HAVE_GETRUSAGE)
   var struct rusage rusage;
+  var int who = RUSAGE_SELF;
+#ifdef MULTITHREAD
+  if (!eq(thread, nullobj)) {
+  #ifdef RUSAGE_THREAD
+    /* we can obtain info only about current thread */
+    if (!eq(thread, current_thread()->_lthread))
+      return false;
+    who = RUSAGE_THREAD;
+  #else
+    /* TODO: implement for UNIX_MACOSX */
+    return false; /* no RUSAGE_THREAD  */
+  #endif
+  }
+#endif
   begin_system_call();
-  if (!( getrusage(RUSAGE_SELF,&rusage) ==0)) { OS_error(); }
+  if (!( getrusage(who,&rusage) ==0)) { OS_error(); }
   end_system_call();
   /* runtime = user time + system time */
   add_internal_time(rusage.ru_utime,rusage.ru_stime, *runtime);
  #elif defined(HAVE_SYS_TIMES_H)
   var uintL used_time;     /* consumed time, measured in 1/HZ seconds */
   var struct tms tms;
+#ifdef MULTITHREAD
+  if (!eq(thread, nullobj)) return false;
+#endif
   begin_system_call();
   if (times(&tms) == (clock_t)(-1))
     used_time = 0;             /* times() failed -> used_time unknown */
@@ -112,6 +164,7 @@ global void get_run_time (internal_time_t* runtime)
   runtime->tv_sec = floor(used_time,HZ);
   runtime->tv_usec = (used_time % HZ) * floor(2*1000000+HZ,2*HZ);
  #endif
+  return true;
 }
 
 #endif
@@ -125,72 +178,102 @@ global void get_real_time (internal_time_t* it)
 { GetSystemTimeAsFileTime(it); }
 
 /* Returns the run time counter.
- get_run_time(&runtime);
- < internal_time_t runtime: consumed run time since session start (in ticks) */
-global void get_run_time (internal_time_t* runtime)
+ get_thread_run_time(&runtime, thread);
+ > thread: thread for which to obtain info (nullobj for process wide)
+ < internal_time_t runtime: consumed run time since session start (in ticks)
+ < returns true if successful (may fail in MT) */
+global bool get_thread_run_time (internal_time_t* runtime, object thread)
 {
   var FILETIME creation_time;
   var FILETIME exit_time;
   var FILETIME kernel_time;
   var FILETIME user_time;
-  begin_system_call();
-  if (GetProcessTimes(GetCurrentProcess(),&creation_time,&exit_time,
-                      &kernel_time,&user_time)) {
+  var BOOL time_obtained;
+#ifdef MULTITHREAD
+  if (!eq(thread, nullobj)) {
+    time_obtained = FALSE;
+    var HANDLE hThread = OpenThread(THREAD_QUERY_INFORMATION , FALSE,
+                                    TheThread(thread)->xth_system);
+    if (hThread != NULL) {
+      time_obtained = GetThreadTimes(hThread,&creation_time, &exit_time,
+                                     &kernel_time,&user_time);
+      CloseHandle(hThread);
+    }
+    if (!time_obtained) return false;
+  } else
+#endif
+  {
+    begin_system_call();
+    time_obtained = GetProcessTimes(GetCurrentProcess(),&creation_time,
+                                    &exit_time,&kernel_time,&user_time);
     end_system_call();
+  }
+
+  if (time_obtained) {
     /* runtime = User time + Kernel time */
     add_internal_time(user_time,kernel_time, *runtime);
   } else {
     if (!(GetLastError()==ERROR_CALL_NOT_IMPLEMENTED)) { OS_error(); }
     /* GetProcessTimes() is not implemented on Win95. Use get_real_time()
      instead. This is only a crude approximation, I know.
-     (We keep HAVE_RUN_TIME defined, so that Win95 users will notice
-     that "Run time" and "Real time" are always the same and draw their
-     conclusions from it.) */
-    end_system_call();
+     ( Win95 users will notice that "Run time" and "Real time" are always
+     the same and draw their conclusions from it.) */
     var internal_time_t real_time;
     get_real_time(&real_time);
     sub_internal_time(real_time,realstart_time, *runtime);
   }
+  return true;
 }
-
 #endif
 
-/* Returns the whole set of run time counters.
- get_running_times(&timescore);
- < timescore.runtime:  consumed run time since start of session (in ticks)
- < timescore.realtime: real time since start of session (in ticks)
- < timescore.gctime:   GC time since start of session (in ticks)
- < timescore.gccount:  number of GCs since start of session
- < timescore.gcfreed:  number of reclaimed bytes since start of session */
-global void get_running_times (timescore_t* tm)
-{
- #ifndef HAVE_RUN_TIME
-  var uintL time = get_time();
-  tm->realtime = time - realstart_time;
-  tm->runtime = (run_flag ?
-                 time - runstop_time + run_time : /* stop-watch still running*/
-                 run_time);  /* stop-watched stopped */
- #endif
- #ifdef TIME_UNIX
-  /* Get real time: */
-  var internal_time_t real_time;
-  get_real_time(&real_time);
-  tm->realtime.tv_sec = real_time.tv_sec - realstart_time.tv_sec;
-  tm->realtime.tv_usec = real_time.tv_usec;
-  /* Get run time: */
-  get_run_time(&tm->runtime);
- #endif
- #ifdef TIME_WIN32
-  /* Get real time: */
-  var internal_time_t real_time;
-  get_real_time(&real_time);
-  sub_internal_time(real_time,realstart_time, tm->realtime);
-  /* Get run time: */
-  get_run_time(&tm->runtime);
- #endif
+/* UP: helper function for obtaining timing statistics for thread/process
+   > thread: thread for which we want info. nullobj for process
+   < tm: run time, real time, gc time and gc stat
+   < returns bitmask indicating which fields in tm are valid
+ Failures are possible only in threaded builds. Asking for process info
+ always succeeds and does not GC */
+#define RUN_TIME_INVALID  1
+#define REAL_TIME_INVALID 2
+local uintL /*maygc*/ get_running_times_helper (timescore_t* tm, object thread) {
+  var uintL ret = 0; /* everything valid */
+  var internal_time_t real_start;
+  if (real_start_time(thread, &real_start)) {
+#ifdef TIME_UNIX
+    /* Get real time: */
+    var internal_time_t real_time;
+    get_real_time(&real_time);
+    tm->realtime.tv_sec = real_time.tv_sec - realstart_time.tv_sec;
+    tm->realtime.tv_usec = real_time.tv_usec;
+#endif
+#ifdef TIME_WIN32
+    /* Get real time: */
+    var internal_time_t real_time;
+    get_real_time(&real_time);
+    sub_internal_time(real_time,realstart_time, tm->realtime);
+#endif
+  } else
+    ret |= REAL_TIME_INVALID;
+   /* Get run time: */
+  if (!get_thread_run_time(&tm->runtime, thread))
+    ret |= RUN_TIME_INVALID;
+  /* GC stat */
   tm->gctime = gc_time;
   tm->gccount = gc_count;
   tm->gcfreed = gc_space;
+  return ret;
+}
+
+
+/* Returns the whole set of run time counters.
+ get_running_times(&timescore);
+ < timescore.runtime:  Run-time since LISP-system-start (in Ticks)
+ < timescore.realtime: Real-time since LISP-system-start (in Ticks)
+ < timescore.gctime:   GC-Time since LISP-system-start (in Ticks)
+ < timescore.gccount:  Number of GC's since LISP-system-start
+ < timescore.gcfreed:  Size of the space reclaimed by the GC's so far*/
+global void get_running_times (timescore_t* tm) {
+  /* no failure or GC possible with following call  */
+  get_running_times_helper(tm, nullobj);
 }
 
 /* Converts an internal_time_t to a Lisp integer.
@@ -222,11 +305,14 @@ LISPFUNNR(get_internal_real_time,0)
   VALUES1(internal_time_to_I(&tp)); /* convert to integer */
 }
 
-LISPFUNNR(get_internal_run_time,0)
-{ /* (GET-INTERNAL-RUN-TIME), CLTL p. 446 */
-  var timescore_t tm;
-  get_running_times(&tm); /* get run time since start of session */
-  VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
+LISPFUN(get_internal_run_time,seclass_read,0,1,norest,nokey,0,NIL)
+{ /* (GET-INTERNAL-RUN-TIME), CLTL p. 446
+     extension: optional argument (GET-INTERNAL-RUN-TIME thread) */
+  var internal_time_t tp;
+  if (get_thread_run_time(&tp, thread_from_arg(popSTACK())))
+    VALUES1(internal_time_to_I(&tp)); /* convert to integer */
+  else
+    VALUES1(NIL); /* could not obtain it */
 }
 
 /* ------------------------------------------------------------------------
@@ -378,21 +464,21 @@ LISPFUNNR(get_universal_time,0)
   VALUES1(UL_to_I(real_time_sec()));
 }
 
-/* UP: Initialises the time variables at the LISP session start.
+/* UP: Initialises the time variables at the LISP session/thread start.
  init_time(); */
-global void init_time (void)
-{ /* No gc happened -> no time to be added.
-     gc_count=0;
-     gc_time=0;
-     gc_space=0; */
- #ifndef HAVE_RUN_TIME
-  /* run_time = 0; -- no run-time used, */
-  run_flag = false;         /* because system is not yet running. */
-  run_time_restart();       /* start run-time stopwatch */
- #endif
- #if defined(TIME_UNIX) || defined(TIME_WIN32)
-  get_real_time(&realstart_time); /* Current time counter, now at the session start */
- #endif
+void init_time () {
+#ifdef MULTITHREAD
+  get_real_time(&current_thread()->thr_realstart_time);
+  if (!realstart_time_initialized) {
+    realstart_time = current_thread()->thr_realstart_time;
+    realstart_time_initialized = true;
+  }
+#else /* ! MT */
+  if (!realstart_time_initialized) {
+    get_real_time(&realstart_time);
+    realstart_time_initialized = true;
+  }
+#endif
 }
 
 /* ------------------------------------------------------------------------
@@ -573,8 +659,8 @@ LISPFUNN(sleep,2)
 }
 #endif
 
-LISPFUNNR(time,0)
-{ /* (SYSTEM::%%TIME) returns the time/space resource usage,
+LISPFUN(time,seclass_read,0,1,norest,nokey,0,NIL)
+{ /* (SYSTEM::%%TIME thread) returns the time/space resource usage,
      without allocating space by itself and thereby causing a GC.
  9 values:
    Real-Time (system time since system start) in 2 values,
@@ -592,25 +678,32 @@ LISPFUNNR(time,0)
      in 2 values: (ldb (byte 24 24) Space), (ldb (byte 24 0) Space).
    GC-Count (number of garbage collections in this session so far). */
   var timescore_t tm;
-  get_running_times(&tm);     /* get run-time */
+  var uintL ts = get_running_times_helper(&tm, thread_from_arg(popSTACK()));
  #if defined(TIME_UNIX)
   #define as_2_values(time)                 \
     pushSTACK(fixnum(time.tv_sec));         \
     pushSTACK(fixnum(time.tv_usec));
  #elif defined(TIME_WIN32)
-  #define as_2_values(time)               \
-    { var uintL tv_sec;                       \
-      var uintL tv_usec;                                              \
+  #define as_2_values(time)                 \
+    { var uintL tv_sec;                     \
+      var uintL tv_usec;                    \
       divu_6432_3232(time.dwHighDateTime,time.dwLowDateTime,ticks_per_second, tv_sec=, tv_usec=); \
-      pushSTACK(fixnum(tv_sec));                                      \
-      pushSTACK(fixnum(tv_usec));                                     \
+      pushSTACK(fixnum(tv_sec));            \
+      pushSTACK(fixnum(tv_usec));           \
     }
  #else
   #error SYSTEM::%%TIME: neither TIME_UNIX nor TIME_WIN32
  #endif
-  as_2_values(tm.realtime);   /* first two values: Real-Time */
-  as_2_values(tm.runtime);    /* next two values: Run-Time */
-  as_2_values(tm.gctime);     /* next two values: GC-Time */
+  /* first two values: Real-Time */
+  if (ts & REAL_TIME_INVALID) {
+    pushSTACK(NIL); pushSTACK(NIL);
+  } else { as_2_values(tm.realtime); }
+  /* next two values: Run-Time */
+  if (ts & RUN_TIME_INVALID) {
+    pushSTACK(NIL); pushSTACK(NIL);
+  } else { as_2_values(tm.runtime); }
+   /* next two values: GC-Time */
+  as_2_values(tm.gctime);
   /* next two values: Space
      tm.gcfreed = freed space by the GC */
   {

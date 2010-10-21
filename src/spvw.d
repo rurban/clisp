@@ -3807,7 +3807,7 @@ global int main (argc_t argc, char* argv[]) {
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   install_sigpipe_handler();
  #endif
-  /* initialize time variables: */
+  /* initialize global time variables: */
   init_time();
   /* Initialize locale dependent encodings: */
   init_dependent_encodings();

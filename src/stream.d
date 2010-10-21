@@ -3997,7 +3997,7 @@ global object iconv_range (object encoding, uintL start, uintL end, uintL maxint
 nonreturning_function(extern, error_unencodable, (object encoding, chart ch));
 
 /* Avoid annoying warning caused by a wrongly standardized iconv() prototype. */
-#ifdef GNU_LIBICONV
+#if defined(GNU_LIBICONV) && !defined(UNIX_MACOSX)
   #undef iconv
   #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
     libiconv(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
@@ -4758,11 +4758,9 @@ local maygc sintL low_read_unbuffered_handle (object stream) {
   var uintB b;
   pushSTACK(stream);
   /*restart_it:*/
-  run_time_stop(); /* hold run time clock */
   /* try to read a byte */
   var ssize_t result;
   GC_SAFE_SYSTEM_CALL(result=, full_read(handle,&b,1));
-  run_time_restart(); /* resume run time clock */
   stream=popSTACK();
   if (result<0) {
     #ifdef WIN32_NATIVE
@@ -5035,12 +5033,10 @@ local maygc uintB* low_read_array_unbuffered_handle (object stream,
   if ((persev == persev_immediate || persev == persev_bonus)
       && ChannelStream_regular(stream))
     persev = persev_partial;
-  run_time_stop(); /* hold run time clock */
   pushSTACK(stream);
   var ssize_t result;
   GC_SAFE_SYSTEM_CALL(result=, fd_read(handle,byteptr,len,persev));
   stream = popSTACK();
-  run_time_restart(); /* resume run time clock */
   if (result<0) {
    #if !defined(WIN32_NATIVE)
     begin_system_call();
@@ -8768,11 +8764,9 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
   { /* read a character: */
     var uintB c;
    read_next_char: {
-      run_time_stop(); /* hold run time clock */
       begin_system_call();
       var int result = read(stdin_handle,&c,1); /* try to read a byte */
       end_system_call();
-      run_time_restart(); /* resume run time clock */
       if (result<0) {
         begin_system_call();
         if (errno==EINTR) { /* break (poss. by Ctrl-C) ? */
@@ -8838,11 +8832,9 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       pollfd_bag[0].events = POLLIN;
       pollfd_bag[0].revents = 0;
      restart_poll:
-      run_time_stop(); /* hold run time clock */
       begin_system_call();
       var int result = poll(&pollfd_bag[0],1,100); /* 1/10 sec */
       end_system_call();
-      run_time_restart(); /* resume run time clock */
       if (result<0) {
         begin_system_call();
         if (errno==EINTR) {
@@ -8865,12 +8857,10 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       FD_ZERO(&handle_set); FD_SET(stdin_handle,&handle_set);
     restart_select:
       small_time.tv_sec = 0; small_time.tv_usec = 1000000/10; /* 1/10 sec */
-      run_time_stop(); /* hold run time clock */
       begin_system_call();
       var int result;
       result = select(FD_SETSIZE,&handle_set,NULL,NULL,&small_time);
       end_system_call();
-      run_time_restart(); /* resume run time clock */
       if (result<0) {
         begin_system_call();
         if (errno==EINTR) {
@@ -8899,7 +8889,6 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       var struct termio oldtermio;
       var struct termio newtermio;
      #endif
-      run_time_stop(); /* hold run time clock */
       begin_system_call();
      #ifdef UNIX_TERM_TERMIOS
       if (!( tcgetattr(stdin_handle,&oldtermio) ==0)) {
@@ -8937,7 +8926,6 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       }
      #endif
       end_system_call();
-      run_time_restart(); /* resume run time clock */
       if (result<0) {
         begin_system_call();
         if (errno==EINTR) { /* break (poss. by Ctrl-C) ? */
@@ -9733,12 +9721,10 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       rl_basic_word_break_characters = "\t\n \"#'(),;`";
       rl_basic_quote_characters = "\"|";
       rl_completer_quote_characters = "\\|";
-      run_time_stop(); /* hold run time clock */
       begin_blocking_system_call();
       rl_already_prompted = true;
       var char* line = strip_white(readline(prompt==NULL ? "" : prompt));
       end_blocking_system_call();
-      run_time_restart(); /* resume run time clock */
       if (line==NULL)
         /* detect EOF (at the start of line) */
         return eof_value;

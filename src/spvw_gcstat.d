@@ -48,10 +48,10 @@ global internal_time_t gc_time = {0,0};
 
 #define gc_timer_on()                                                   \
   { var internal_time_t gcstart_time;                                   \
-    get_running_time(gcstart_time); /* get current elapsed time and store */
+  get_run_time(&gcstart_time); /* get current elapsed time and store */
 #define gc_timer_off()                                                \
   { var internal_time_t gcend_time;                                   \
-    get_running_time(gcend_time);                                     \
+    get_run_time(&gcend_time);                                        \
     /* calculate difference between gcend_time and gcstart_time: */   \
     sub_internal_time(gcend_time,gcstart_time, gcend_time);           \
     /* add this difference to gc_time: */                             \

@@ -2219,13 +2219,6 @@ typedef enum {
 #endif
 /* When changed: extend time.d */
 
-/* Whether the operating system can give us the run-time, or whether we'll have
- to accumulate it ourselves: */
-#if defined(UNIX) || defined(WIN32_NATIVE)
-  #define HAVE_RUN_TIME
-#endif
-/* When changed: extend time.d */
-
 /* Whether the operating system provides virtual memory. */
 #if (defined(UNIX) || defined(WIN32)) && !defined(NO_VIRTUAL_MEMORY)
   #define VIRTUAL_MEMORY
@@ -8829,22 +8822,6 @@ typedef /* struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } */
     } while(0)
 #endif
 
-#ifndef HAVE_RUN_TIME
-/* UP: Stops the run-time timer
-   run_time_stop(); */
-  extern void run_time_stop (void);
-  /* is used by STREAM */
-
-  /* UP: restarts the run-time timer
-   run_time_restart(); */
-  extern void run_time_restart (void);
-  /* is used by STREAM */
-#else
-  /* You don't need a run-time timer */
-  #define run_time_stop()
-  #define run_time_restart()
-#endif
-
 /* UP: yields the real-time
  get_real_time()
  < internal_time_t* result: absolute time */
@@ -8857,7 +8834,7 @@ typedef /* struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } */
  < timescore.realtime: Real-time since LISP-system-start (in Ticks)
  < timescore.gctime:   GC-Time since LISP-system-start (in Ticks)
  < timescore.gccount:  Number of GC's since LISP-system-start
- < timescore.gcfreed:  Size of the space reclaimed by the GC's so far */
+ < timescore.gcfreed:  Size of the space reclaimed by the GC's so far*/
 typedef struct {
   internal_time_t runtime;
   internal_time_t realtime;
@@ -8874,18 +8851,12 @@ extern object internal_time_to_I (const internal_time_t* tp);
 /* used by TIME, DEBUG */
 
 /* UP: yields the run-time
- get_running_time(runtime);
- < runtime: Run-time (in Ticks) */
-  #ifndef HAVE_RUN_TIME
-    #define get_running_time(runtime)  runtime = get_time()
-    extern uintL get_time (void);
-  #endif
-  #if defined(TIME_UNIX) || defined(TIME_WIN32)
-    #define get_running_time(runtime)  get_run_time(&runtime)
-    #if defined(TIME_UNIX) || defined(TIME_WIN32)
-      extern void get_run_time (internal_time_t* runtime);
-    #endif
-  #endif
+ get_thread_run_time(&runtime, thread);
+ > thread: thread for which to obtain info (nullobj for process wide)
+ < runtime: Run-time (in Ticks)
+ < returns true if successful (may fail in MT) */
+extern bool get_thread_run_time (internal_time_t* runtime, object thread);
+#define get_run_time(runtime) get_thread_run_time(runtime, nullobj)
 /* is used by SPVW */
 
 /* Time in decoded-time: */
@@ -8957,9 +8928,8 @@ extern void convert_time_from_universal (object universal, FILETIME* time);
 %%   exportF(void,convert_time_from_universal,(object universal, FILETIME* time));
 %% #endif
 
-/* UP: Initializes the time variables upon the LISP-System-Start.
- init_time(); */
-  extern void init_time (void);
+/* UP: Initializes the thread or global time variables. */
+extern void init_time ();
 /* is used by SPVW */
 
 
@@ -17106,6 +17076,8 @@ struct object_tab_tl_ {
     bool _thread_is_dying;
     /* the current thread. NOT GC VISIBLE. */
     gcv_object_t _lthread;
+    /* real time when the thread started */
+    internal_time_t thr_realstart_time;
     /* previous and next thread. all active threads are kept in double
        linked list*/
     struct clisp_thread_t *thr_prev;
@@ -17502,6 +17474,8 @@ global void release_mutexes(object list);
 global void release_exemptions(object list);
 /* called at thread exiting. performs cleanup/checks. */
 global maygc void thread_cleanup(void);
+/* signals an error of obj is not thread. returns the thread*/
+global maygc object check_thread(object obj);
 /* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
  symbol: the symbol
  returns: the new index in the _symvalues thread array */
