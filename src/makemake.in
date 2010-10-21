@@ -3251,8 +3251,9 @@ echol
 cygwin_finish() {
   # make sure no cygwin libraries crept into the mingw distribution
   if [ "$host_os" = cygwin -a "${TSYS}" = win32gcc ]; then
-    echotab "if cygcheck $1/lisp.exe | grep 'cyg[^/\\\\]*\$\$'; then false; else true; fi"
+    # cygcheck can fail with symlinks so resolve them
     # 'cyg[^/\\\\]*\$\$' here should look as 'cyg[^/\]*$' for grep
+    echotab "if cygcheck \`realpath $1/lisp.exe | cygpath --windows -f -\` | grep 'cyg[^/\\\\]*\$\$'; then false; else true; fi"
   fi
   finish_runtime $1/lisp${LEXE}
 }
