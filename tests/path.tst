@@ -1291,6 +1291,13 @@ NIL
   (list (pathname-name p) (pathname-type p)))
 #+(and clisp win32) (NIL NIL)
 
+#+(and clisp win32)
+(equalp (multiple-value-list (ext:probe-pathname "/"))
+        (multiple-value-list (ext:probe-pathname ; default device
+                              (make-pathname :directory '(:absolute) :defaults
+                                             (ext:default-directory)))))
+#+(and clisp win32) T
+
 #+(and clisp unicode)
 (block test-weird-pathnames
   (handler-bind ((parse-error
