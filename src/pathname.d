@@ -6047,7 +6047,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
       if (classification == NAMESTRING_NONE 
           && namestring_asciz_bytelen > 1    /* no need to classify "" */
           && cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
-        namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
+        namestring_asciz[--namestring_asciz_bytelen] = 0; /* strip last slash */
       else break;
     }
   });
