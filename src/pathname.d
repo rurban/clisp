@@ -5981,7 +5981,7 @@ local maygc namestring_kind_t classify_namestring
   int ret;
   GC_SAFE_SYSTEM_CALL(ret=, stat(namestring,&status));
   if (ret) {
-    if (errno != ENOENT) OS_file_error(STACK_0);
+    if (errno != ENOENT && errno != ENOTDIR) OS_file_error(STACK_0);
     return NAMESTRING_NONE;        /* does not exist */
   } else {                         /* file exists. */
     realpath(namestring,resolved); /* ==> success assured */
@@ -6041,12 +6041,15 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   pushSTACK(NIL); pushSTACK(STACK_1); /* space for FWD & FSIZE */
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),
                  namestring_asciz, {
-#if defined(UNIX)
-    if (cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
-      namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
-#endif
-    classification = classify_namestring(namestring_asciz,resolved,
+    while (true) {
+      classification = classify_namestring(namestring_asciz,resolved,
                                          &STACK_1/*fwd*/,&STACK_2/*fsize*/);
+      if (classification == NAMESTRING_NONE 
+          && namestring_asciz_bytelen > 1    /* no need to classify "" */
+          && cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
+        namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
+      else break;
+    }
   });
   switch (classification) {
     case NAMESTRING_NONE:       /* does not exist */

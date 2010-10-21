@@ -1,3 +1,11 @@
+2010-10-21  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Fix (PROBE-PATHNAME "/") on UNIX and support DWIM: 
+	(PP "lisp.exe/") -> "path/lisp.exe" broken 10-18
+	* pathname.d (PROBE-PATHNAME): strip last "/" in a loop
+	(classify_namestring) [UNIX]: handle ENOTDIR 
+	like ERROR_INVALID_NAME is handled on WIN32
+
 2010-10-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (check_rusage): add
