@@ -6004,7 +6004,7 @@ local maygc namestring_kind_t classify_namestring
         ? &filedata.ftLastWriteTime : &filedata.ftCreationTime);
       if (fsize) *fsize = off_to_I(
         ((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow);
-      if (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
+      if (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         return NAMESTRING_DIR;
       else return NAMESTRING_FILE;
     } else {
@@ -6043,8 +6043,8 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
                  namestring_asciz, {
     while (true) {
       classification = classify_namestring(namestring_asciz,resolved,
-                                         &STACK_1/*fwd*/,&STACK_2/*fsize*/);
-      if (classification == NAMESTRING_NONE 
+                                           &STACK_1/*fwd*/,&STACK_2/*fsize*/);
+      if (classification == NAMESTRING_NONE
           && namestring_asciz_bytelen > 1    /* no need to classify "" */
           && cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
         namestring_asciz[--namestring_asciz_bytelen] = 0; /* strip last slash */
