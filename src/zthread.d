@@ -15,7 +15,7 @@ global xmutex_t all_mutexes_lock;
 global xmutex_t all_exemptions_lock;
 
 /* signals an error of obj is not thread. returns the thread*/
-local maygc object check_thread(object obj)
+global maygc object check_thread(object obj)
 {
   while (!threadp(obj)) {
     pushSTACK(NIL);             /* no PLACE */
@@ -255,6 +255,7 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
        error (error xxx) happens in the thread. */
     finish_entry_frame(DRIVER,returner,,{
       skipSTACK(2+3+1);STACK_0=NIL;goto end_of_thread;});
+    init_time(); /* initialize thread time variables */
     /* initialize the low level i/o stuff for this thread*/
     init_reader_low(me);
     /* initialize thread special variables bindings */

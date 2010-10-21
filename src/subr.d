@@ -739,13 +739,13 @@ LISPFUNN(machine_instance,0)
 #endif
 /* ---------- TIME ---------- */
 LISPFUNNR(get_internal_real_time,0)
-LISPFUNNR(get_internal_run_time,0)
+LISPFUN(get_internal_run_time,seclass_read,0,1,norest,nokey,0,NIL)
 LISPFUNNR(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
 LISPFUNNR(default_time_zone,2)
 #endif
 LISPFUNN(sleep,2)
-LISPFUNNR(time,0)
+LISPFUN(time,seclass_read,0,1,norest,nokey,0,NIL)
 LISPFUNNF(delta4,5)
 /* ---------- PACKAGE ---------- */
 LISPFUNNR(make_symbol,1)
