@@ -309,6 +309,8 @@ LISPFUN(get_internal_run_time,seclass_read,0,1,norest,nokey,0,NIL)
 { /* (GET-INTERNAL-RUN-TIME), CLTL p. 446
      extension: optional argument (GET-INTERNAL-RUN-TIME thread) */
   var internal_time_t tp;
+  if (!nullp(O(ansi)) && !eq(STACK_0,unbound))
+    error_too_many_args(unbound,S(get_internal_run_time),1,0);
   if (get_thread_run_time(&tp, thread_from_arg(popSTACK())))
     VALUES1(internal_time_to_I(&tp)); /* convert to integer */
   else
