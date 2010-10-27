@@ -1,3 +1,7 @@
+2010-10-27  Bruno Haible  <bruno@clisp.org>
+
+	* clhs.lisp (*browsers*): Add :firefox-window and :firefox-tab.
+
 2010-10-22  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* time.d (get_running_times_helper): fix real time calculation. use

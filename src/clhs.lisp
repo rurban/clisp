@@ -17,6 +17,8 @@
     (:mozilla-window "mozilla" "-remote" "openURL(~a,new-window)")
     (:mozilla-tab "mozilla" "-remote" "openURL(~a,new-tab)")
     (:firefox "firefox" "~a")
+    (:firefox-window "firefox" "-new-window" "~a")
+    (:firefox-tab "firefox" "-new-tab" "~a")
     (:konqueror "kfmclient" "openURL" "~a")
     (:lynx "lynx" "~a")
     #+unix (:lynx-xterm "xterm" "-e" "lynx" "~a")
