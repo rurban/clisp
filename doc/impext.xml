@@ -4972,7 +4972,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
   <simpara>Cf. <function role="unix">pthread_cond_init</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-name"><term><code>(&exemption-name;
-   &thr;)</code></term>
+   &exemp-r;)</code></term>
  <listitem><simpara>Return the &name-r; of the &exemp-r;.
 </simpara></listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
