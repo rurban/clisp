@@ -397,7 +397,7 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
   wrap_finalize(dbe,NIL,`BDB::MKDBE`,``BDB::DBE-CLOSE``);
 }
 
-static void time_stamp (FILE* out, char* prefix) {
+static void time_stamp (FILE* out, const char* prefix) {
   fputs(prefix,out);
 #if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_LOCALTIME) && defined(HAVE_STRFTIME)
   { char str[80]; struct timeval tv; gettimeofday(&tv,NULL);

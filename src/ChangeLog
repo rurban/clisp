@@ -1,3 +1,8 @@
+2010-10-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (time_stamp): make "prefix" const to avoid
+	warning: deprecated conversion from string constant to 'char*'
+
 2010-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* clhs.lisp (*browsers*): Add :firefox-window and :firefox-tab.
