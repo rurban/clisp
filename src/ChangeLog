@@ -2,6 +2,8 @@
 
 	* modules/berkeley-db/bdb.c (time_stamp): make "prefix" const to avoid
 	warning: deprecated conversion from string constant to 'char*'
+	* modules/syscalls/calls.c (POSIX:FILE-TREE-WALK): add a cast to
+	fix g++ compilation
 
 2010-10-27  Bruno Haible  <bruno@clisp.org>
 

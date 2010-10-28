@@ -2294,7 +2294,7 @@ DEFUN(POSIX:FILE-TREE-WALK, path func &key FD-LIMIT CHDIR DEPTH MOUNT PHYS)
       ret = nftw(path,nftw_fn,fd_limit,flags);
       end_blocking_system_call();
     });
-  VALUES1(ret ? STACK_1 : NIL); skipSTACK(2);
+  VALUES1(ret ? (object)STACK_1 : NIL); skipSTACK(2);
 }
 #endif  /* HAVE_NFTW */
 
