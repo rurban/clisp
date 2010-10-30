@@ -1451,7 +1451,7 @@ LISPFUNN(exemptionp,1)
 LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
 LISPFUNNR(exemption_name,1)
 LISPFUNN(exemption_signal,1)
-LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
-        (kw(timeout)))
+LISPFUN(exemption_wait,seclass_default,2,0,norest,key,2,
+        (kw(test),kw(timeout)))
 LISPFUNN(exemption_broadcast,1)
 #endif

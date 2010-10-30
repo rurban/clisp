@@ -839,59 +839,95 @@ LISPFUNNR(exemption_name,1)
   VALUES1(TheExemption(obj)->xco_name);
 }
 
-LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,(kw(timeout)))
-{ /* (EXEMPTION-WAIT exemption mutex) */
+#if defined(POSIX_THREADS)
+/* UP: fills timespec with millis milliseconds form "now"
+   <> r: timespec to be filled
+   > millis: milliseconds */
+local inline struct timespec *get_abs_timeout(struct timespec *r,
+                                              uintL millis) {
+  var struct timeval tv;
+  gettimeofday(&tv, NULL);
+  r->tv_sec = tv.tv_sec + (tv.tv_usec + millis * 1000) / 1000000;
+  r->tv_nsec = 1000 * ((tv.tv_usec + millis*1000) % 1000000);
+  return r;
+}
+#endif
+
+LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,(kw(test),kw(timeout)))
+{ /* (EXEMPTION-WAIT exemption mutex :test predicate :timeout to) */
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
-  STACK_0 = check_mutex(STACK_0);
-  STACK_1 = check_exemption(STACK_1);
-  if (!eq(TheMutex(STACK_0)->xmu_owner, current_thread()->_lthread)) {
+  if (!missingp(STACK_0) && !functionp(STACK_0))
+    STACK_0 = check_function_replacement(STACK_0);
+  STACK_1 = check_mutex(STACK_1);
+  STACK_2 = check_exemption(STACK_2);
+  if (!eq(TheMutex(STACK_1)->xmu_owner, current_thread()->_lthread)) {
     /* the mutex should be owned by the calling thread. */
-    var object mx = STACK_0;
+    var object mx = STACK_1;
     pushSTACK(mx); /* CELL-ERROR Slot NAME */
     pushSTACK(current_thread()->_lthread);
     pushSTACK(mx); pushSTACK(S(exemption_wait));
     error(control_error,GETTEXT("~S: mutex ~S should be owned by ~S"));
   }
-  /* we are the owners - let's see how many times we we have locked it */
-  if (TheMutex(STACK_0)->xmu_recurse_count != 1) {
+  /* we are the owners - let's see how many times it is locked */
+  if (TheMutex(STACK_1)->xmu_recurse_count != 1) {
     /* using recursive mutex with condition variables may cause really
        weird errors that are almost impossible to debug.
        Let's check that we have locked it only once. */
-    var object mx = STACK_0;
+    var object mx = STACK_1;
     pushSTACK(mx); /* CELL-ERROR Slot NAME */
     pushSTACK(current_thread()->_lthread);
     pushSTACK(mx); pushSTACK(S(exemption_wait));
     error(control_error,GETTEXT("~S: recursive mutex ~S is locked multiple times by ~S"));
   }
-  /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
-  TheMutex(STACK_0)->xmu_owner = NIL; TheMutex(STACK_0)->xmu_recurse_count = 0;
   /* get the pointer before we allow the GC to run */
-  var xmutex_t *m = TheMutex(STACK_0)->xmu_system;
-  var xcondition_t *c = TheExemption(STACK_1)->xco_system;
-  var gcv_object_t *mxrec = &STACK_0; /*in case of interrupt STACK_0 != mutex*/
-  clisp_thread_t *thr = current_thread();
-  var int res;
-
-  thr->_wait_condition = c;
-  thr->_wait_mutex = m;
-  begin_system_call(); GC_SAFE_REGION_BEGIN();
-  if (tvp)
-    res = xcondition_timedwait(c,m,tvp->tv_sec*1000 + tvp->tv_usec/1000);
-  else
-    res = xcondition_wait(c,m);
-  thr->_wait_mutex = NULL;
-  thr->_wait_condition = NULL;
-  /* do not (possibly) handle pending interrupts here since on non-local exit
-     from interrupt we may leave the mutex object in inconsistent state*/
-  GC_SAFE_REGION_END_WITHOUT_INTERRUPTS(); end_system_call();
-
-  /* set again the owner. even in case of error - this should be fine. */
-  TheMutex(*mxrec)->xmu_owner = current_thread()->_lthread;
-  TheMutex(*mxrec)->xmu_recurse_count = 1;
-  /* handle (if any) interrupts */
-  HANDLE_PENDING_INTERRUPTS(thr);
-  skipSTACK(2);
+  var xmutex_t *m = TheMutex(STACK_1)->xmu_system;
+  var xcondition_t *c = TheExemption(STACK_2)->xco_system;
+  /* in case of interrupt STACK is changed - save pointers to objects needed
+     before handling the interrupt */
+  var gcv_object_t *mxrec = &STACK_1;
+  var gcv_object_t *predicate = &STACK_0;
+  var clisp_thread_t *thr = current_thread();
+  var int res = 0;
+  var bool wait_more = true;
+#ifdef POSIX_THREADS
+  /* absolute time is needed in order to handle properly possible
+     spurious wakeups */
+  var struct timespec _timeout, *timeout = tvp ?
+    get_abs_timeout(&_timeout,tvp->tv_sec*1000 + tvp->tv_usec/1000) : NULL;
+#else /* WIN32_THREADS */
+  var uintL _timeout, *timeout =
+    tvp ? (_timeout = tvp->tv_sec*1000 + tvp->tv_usec/1000, &_timeout) : NULL;
+#endif
+  while (wait_more) {
+    if (!missingp(*predicate)) { /* there is :test predicate */
+      funcall(*predicate,0);
+      if (!nullp(value1)) break;
+    } else
+      wait_more = false; /* on next iteration we will exit */
+    /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
+    TheMutex(*mxrec)->xmu_owner = NIL; TheMutex(*mxrec)->xmu_recurse_count = 0;
+    /* mark on what the thread is waiting */
+    thr->_wait_condition = c;
+    thr->_wait_mutex = m;
+    begin_system_call(); GC_SAFE_REGION_BEGIN();
+    res = xcondition_wait(c,m,timeout);
+#ifdef POSIX_THREADS
+    /* handle possible spurious wakeups */
+    wait_more = (res == 0 && !missingp(*predicate));
+#endif
+    thr->_wait_mutex = NULL;
+    thr->_wait_condition = NULL;
+    /* do not (possibly) handle pending interrupts here since on non-local exit
+       from interrupt we may leave the mutex object in inconsistent state*/
+    GC_SAFE_REGION_END_WITHOUT_INTERRUPTS(); end_system_call();
+    /* set again the owner. even in case of error - this should be fine. */
+    TheMutex(*mxrec)->xmu_owner = current_thread()->_lthread;
+    TheMutex(*mxrec)->xmu_recurse_count = 1;
+    /* handle (if any) interrupts */
+    HANDLE_PENDING_INTERRUPTS(thr);
+  }
+  skipSTACK(3);
   VALUES1(res ? NIL : T);
 }
 
@@ -919,21 +955,7 @@ LISPFUNN(exemption_broadcast,1)
 /* LOW-LEVEL THREADS STUFF */
 
 /* TODO: not the right place to put these stuff. separate file is better ? */
-#if defined(POSIX_THREADS)
-
-/* UP: fills timespec with millis milliseconds form "now"
-   <> r: timespec to be filled
-   > millis: milliseconds */
-local inline void get_abs_timeout(struct timespec *r, uintL millis) {
-  var struct timeval tv;
-  gettimeofday(&tv, NULL);
-  r->tv_sec = tv.tv_sec + (tv.tv_usec + millis * 1000) / 1000000;
-  r->tv_nsec = 1000 * ((tv.tv_usec + millis*1000) % 1000000);
-}
-
-
-#else /* WIN32_THREADS */
-
+#if defined(WIN32_THREADS)
 /* UP: helper function for waiting on a condition associated with "raw" mutex
  > c: condition object
  > m: xmutex_raw_t object
@@ -946,12 +968,11 @@ local inline int win32_xcondition_wait(xcondition_t *c,xmutex_raw_t *m,
   (c)->waiting_count++;
   LeaveCriticalSection(&(c)->cs);
   LeaveCriticalSection(m);
-  var DWORD timeout = millis == THREAD_WAIT_INFINITE ? INFINITE : millis;
+  var DWORD timeout = (millis == THREAD_WAIT_INFINITE) ? INFINITE : millis;
   var DWORD r = WaitForSingleObject((c)->sem,timeout);
   EnterCriticalSection(m);
   return r == WAIT_OBJECT_0 ? 0 : 1;
 }
-
 #endif
 
 /* UP: initializes xlock_t
@@ -1092,24 +1113,22 @@ int xlock_unlock_helper(xlock_t *l, bool unlock_real)
    signals can be handled if arrive
    > c: the condition variable
    > m: the mutex /xlock_t/
-   > timeout: timeout in milliseconds
+   > timeout: timeout (NULL for infinite). POSIX_THREADS - this is pointer
+              to struct timespec. WIN32_THREADS - ptr to uintL in ms
    < Returns 0 on success, otherwise the error code from pthreads */
-int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout)
+int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout)
 {
   var int r=-1;
   /* mutex is owned by us and it is locked just once.
      our caller assures this */
   xlock_unlock_helper(m,false); /* mark as unlocked */
 #ifdef POSIX_THREADS
-  if (timeout != THREAD_WAIT_INFINITE) {
-    var struct timespec ww;
-    get_abs_timeout(&ww,timeout);
-    r = pthread_cond_timedwait(c,&m->xl_mutex,&ww);
-  } else {
-    r = pthread_cond_wait(c,&m->xl_mutex);
-  }
+  r = timeout ?
+    pthread_cond_timedwait(c,&m->xl_mutex,(struct timespec *)timeout) :
+    pthread_cond_wait(c,&m->xl_mutex);
 #else /* WIN32 */
-  r = win32_xcondition_wait(c,&m->xl_mutex,timeout);
+  r = win32_xcondition_wait(c,&m->xl_mutex,
+                            timeout ? *(uintL*)timeout : THREAD_WAIT_INFINITE);
 #endif
   /* mark again the mutex as ours */
   xlock_lock_helper(m,0,false);

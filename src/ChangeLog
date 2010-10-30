@@ -1,3 +1,15 @@
+2010-10-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: add optional :TEST predicate to MT:EXEMPTION-WAIT
+	* subr.d, subrkw.d (EXEMPTION-WAIT): accept optional :TEST argument
+	* xthread.d (xcondition_wait): accept timeout as void pointer. with
+	POSIX_THREADS it is absolute struct timespec, with WIN32_THREADS it is
+	unsigned integer specifying milliseconds to wait
+	* zthread.d (EXEMPTION-WAIT): loop until :TEST predicate is satisfied
+	thus simplifies EXEMPTION-WAIT usage with POSIX_THREADS where spurious
+	wakeups are possible
+	(xcondition_wait): handle timeout parameter properly
+
 2010-10-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (time_stamp): make "prefix" const to avoid
