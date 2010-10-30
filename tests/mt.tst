@@ -182,22 +182,32 @@ T
 (sleep 0.5) NIL
 (thread-active-p *th3*) T ;; kill is deferred
 
-;; test exemtpion-broadcast and thread-interrupt :override
+;; test exemption-broadcast and thread-interrupt :override
 (with-mutex-lock (*mu1*)
   (thread-interrupt *th3* :function (lambda ()
                                       (with-mutex-lock (*mu1*)
                                         (setf *exemption-state* :broadcasted)
                                         (exemption-broadcast *exemption*)))
                     :override t)
-  (loop until (eq *exemption-state* :broadcasted)
-     do (exemption-wait *exemption* *mu1*)
-     finally (return *exemption-state*)))
+  (exemption-wait *exemption* *mu1*
+                  :test (lambda () (eq *exemption-state* :broadcasted)))
+  *exemption-state*)
 :BROADCASTED
 
 (thread-active-p *th3*) T ;; thread should be still running
 (eq (thread-interrupt *th3* :function t :override t) *th3*) T
 (thread-join *th3*) NIL
 (thread-active-p *th3*) NIL ;; should be dead
+
+;; exemption-wait with :timeout (and combined with test predicate)
+(let ((m (make-mutex))
+      (e (make-exemption)))
+  (with-timeout (5 t)
+    (with-mutex-lock (m)
+      (list
+       (exemption-wait e m :timeout 1)
+       (exemption-wait e m :timeout 1 :test (constantly nil))))))
+(NIL NIL)
 
 ;; create thread with very tiny lisp stack (thus preserving memory)
 ;; on mac osx lisp heap overlaps lisp stack regions (malloc-ed) when
