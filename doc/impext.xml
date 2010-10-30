@@ -4982,12 +4982,15 @@ spawning threads, multithreading should work fine.</simpara></warning>
   <simpara>Cf. <function role="unix">pthread_cond_signal</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
-   &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
+   &exemp-r; &mutex-r; &key-amp; &timeout-k; &test-k;)</code></term>
  <listitem><simpara>Wait for another &thread; to call &exemption-signal;
    or &exemption-broadcast; on &exemp-r;.
    &mutex-r; should be locked by the caller; otherwise an &err-sig;.
    The function releases the &mutex-r; and waits for &exemp-r;.
    On return &mutex-r; is acquired again.</simpara>
+  <simpara>When using exemptions there is always a boolean predicate involving
+   shared variables associated with each exemption wait that is true if the
+   thread should proceed.</simpara>
   <simpara>The function waits up to &timeout-k; &seconds;.
    If timeout is not specified, waits forever.</simpara><simpara>
    Returns &t; if &exemp-r; was signaled and &nil; on timeout.</simpara>
@@ -4995,9 +4998,17 @@ spawning threads, multithreading should work fine.</simpara></warning>
    <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious
     wakeup</ulink>s, i.e., this function may return &t; even though no
    thread called &exemption-broadcast; or &exemption-signal;.
-   Therefore, a common idiom for using this function is <code>(&loop;
-    :while (some-condition-is-satisfied) :do (&exemption-wait; &exemp-r;
-    &mutex-r;))</code>.</para>
+   Therefore, a common idiom for using this function is: <simpara><code>(&loop;
+   :until (some-predicate) :do (&exemption-wait; &exemp-r; &mutex-r;))</code>
+   </simpara><simpara>Optional &test-k; argument simplifies this. When supplied
+   &exemption-wait; returns when either &test-k; predicate is satisfied (always
+   called while &mutex-r; is held) or when &timeout-k; elapses. The above loop
+   is equivalent to:<simpara><code>(&exemption-wait; &exemp-r; &mutex-r;
+   &test-k; #'some-predicate)</code></simpara>
+   When &test-k; is supplied &exemption-wait; returns &t; when &exemp-r; was
+     signaled and &test-k; predicate is satisfied and &nil; on timeout.
+   </simpara><simpara>This is the preferred and most portable way to wait on
+     exemption.</simpara></para>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
