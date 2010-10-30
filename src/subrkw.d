@@ -232,7 +232,7 @@ v(1, (kw(timeout)))
 s(mutex_lock)
 v(1, (kw(name)))
 s(make_exemption)
-v(1, (kw(timeout)))
+v(2, (kw(test),kw(timeout)))
 s(exemption_wait)
 #endif
 v(7, (kw(name),kw(code),kw(constants),kw(seclass),kw(lambda_list),kw(documentation),kw(jitc_p)) )

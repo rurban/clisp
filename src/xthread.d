@@ -34,7 +34,6 @@
 
  Upon entry to this file, one of these symbols shall be defined:
  POSIX_THREADS       POSIX.1c            pthread_*
- SOLARIS_THREADS     Solaris 2.4, 2.5    thr_*
  WIN32_THREADS       Win32               *Thread
 
  This file defines the following types:
@@ -78,9 +77,6 @@
    - Unlock a mutex.
    extern int            xmutex_unlock (xmutex_t* m);
  - Thread-local storage:
-   - (This is probably not useful at all. The number of thread-local storage
-   - words is limited: 512 on Win32, 128 with LinuxThreads. And it's probably
-   - much slower than my current_thread() function.)
    - Create a word of thread-local storage, and return a key to it.
    extern int            xthread_key_create (xthread_key_t* key);
    - Delete a word of thread-local storage.
@@ -91,8 +87,7 @@
    extern void           xthread_key_set (xthread_key_t key, void* value);
 */
 
-
-#if !(defined(POSIX_THREADS) || defined(SOLARIS_THREADS) || defined(WIN32_THREADS))
+#if !(defined(POSIX_THREADS) || defined(WIN32_THREADS))
   #error Define your flavour of multithreading
 #endif
 
@@ -241,7 +236,7 @@ int xlock_init(xlock_t *l);
 int xlock_destroy(xlock_t *l);
 int xlock_lock_helper(xlock_t *l, uintL timeout, bool lock_real);
 int xlock_unlock_helper(xlock_t *l, bool unlock_real);
-int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
+int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout);
 
 /* our lisp space mutex */
 #define xmutex_t  xlock_t
@@ -253,11 +248,6 @@ int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
 #define xmutex_timedlock(m,millis)  xlock_lock_helper(m,millis,true)
 #define xmutex_trylock(m)  xlock_lock_helper(m,0,true)
 #define xmutex_unlock(m)  xlock_unlock_helper(m,true)
-
-/* and some xcondition_t operations  */
-#define xcondition_wait(c,m)  xcondition_wait_helper(c,m,THREAD_WAIT_INFINITE)
-#define xcondition_timedwait(c,m,millis)  xcondition_wait_helper(c,m,millis)
-
 
 /* ==========================================================================
 
