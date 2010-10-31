@@ -4998,17 +4998,17 @@ spawning threads, multithreading should work fine.</simpara></warning>
    <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious
     wakeup</ulink>s, i.e., this function may return &t; even though no
    thread called &exemption-broadcast; or &exemption-signal;.
-   Therefore, a common idiom for using this function is: <simpara><code>(&loop;
+   Therefore, a common idiom for using this function is: <code>(&loop;
    :until (some-predicate) :do (&exemption-wait; &exemp-r; &mutex-r;))</code>
-   </simpara><simpara>Optional &test-k; argument simplifies this. When supplied
-   &exemption-wait; returns when either &test-k; predicate is satisfied (always
-   called while &mutex-r; is held) or when &timeout-k; elapses. The above loop
-   is equivalent to:<simpara><code>(&exemption-wait; &exemp-r; &mutex-r;
-   &test-k; #'some-predicate)</code></simpara>
-   When &test-k; is supplied &exemption-wait; returns &t; when &exemp-r; was
-     signaled and &test-k; predicate is satisfied and &nil; on timeout.
+  <simpara>The &test-k; argument simplifies this. When supplied,
+   &exemption-wait; returns when either &test-k; predicate is satisfied
+   (always called while &mutex-r; is held) or when &timeout-k; elapses.
+   The above loop is equivalent to: <code>(&exemption-wait; &exemp-r;
+    &mutex-r; &test-k; #'some-predicate)</code>.
+   When &test-k; is supplied, &exemption-wait; returns &t; when &exemp-r; was
+   signaled and &test-k; predicate is satisfied and &nil; on timeout.
    </simpara><simpara>This is the preferred and most portable way to wait on
-     exemption.</simpara></para>
+     an exemption.</simpara></para>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
