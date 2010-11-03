@@ -405,6 +405,9 @@
 <!ENTITY set-global-handler '<olink targetdoc="impnotes" targetptr="global-handler"><function>EXT:SET-GLOBAL-HANDLER</function></olink>'>
 <!ENTITY without-global-handlers '<olink targetdoc="impnotes" targetptr="without-global-handlers"><function>EXT:WITHOUT-GLOBAL-HANDLERS</function></olink>'>
 <!ENTITY shell '<olink targetdoc="impnotes" targetptr="exec"><function>EXT:SHELL</function></olink>'>
+<!ENTITY show-stack '<link linkend="show-stack"><function>EXT:SHOW-STACK</function></link>'>
+<!ENTITY frame-limit '<link linkend="frame-limit"><replaceable>frame-limit</replaceable></link>'>
+<!ENTITY stack-mode '<link linkend="stack-mode"><replaceable>stack-mode</replaceable></link>'>
 <!ENTITY so-accept '<link linkend="so-accept"><function>SOCKET:SOCKET-ACCEPT</function></link>'>
 <!ENTITY so-connect '<link linkend="so-connect"><function>SOCKET:SOCKET-CONNECT</function></link>'>
 <!ENTITY so-opt '<link linkend="so-opt"><function>SOCKET:SOCKET-OPTIONS</function></link>'>
@@ -504,6 +507,7 @@
 <!ENTITY canonicalize '<link linkend="canonicalize"><function>EXT:CANONICALIZE</function></link>'>
 <!ENTITY mod-expt '<link linkend="mod-expt"><function>EXT:MOD-EXPT</function></link>'>
 <!ENTITY compiled-file-p '<link linkend="compiled-file-p"><function>EXT:COMPILED-FILE-P</function></link>'>
+<!ENTITY backtrace '<link linkend="backtrace"><command>backtrace</command></link>'>
 <!ENTITY help '<olink targetdoc="impnotes" targetptr="debugger-main-deb-step"><command>help</command></olink>'>
 <!ENTITY debugger '<link linkend="debugger">debugger</link>'>
 <!ENTITY format-bang '<link linkend="format-bang"><literal>~!</literal></link>'>
