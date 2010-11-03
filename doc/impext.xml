@@ -4999,7 +4999,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
     wakeup</ulink>s, i.e., this function may return &t; even though no
    thread called &exemption-broadcast; or &exemption-signal;.
    Therefore, a common idiom for using this function is: <code>(&loop;
-   :until (&pred-r;) :do (&exemption-wait; &exemp-r; &mutex-r;))</code>
+   :until (&pred-r;) :do (&exemption-wait; &exemp-r; &mutex-r;))</code></para>
   <simpara>The &test-k; argument simplifies this. When supplied,
    &exemption-wait; returns when either &test-k; &pred-r; is satisfied
    (always called while &mutex-r; is held) or when &timeout-k; elapses.
@@ -5008,7 +5008,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
    When &test-k; is supplied, &exemption-wait; returns &t; when &exemp-r; was
    signaled and &test-k; &pred-r; is satisfied and &nil; on timeout.
    </simpara><simpara>This is the preferred and most portable way to wait on
-     an exemption.</simpara></para>
+     an exemption.</simpara>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
