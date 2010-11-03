@@ -1332,7 +1332,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <formalpara id="err-pr-bt"><title>Variable &err-pr-bt;</title>
 <para>When this variable is non-&nil; the error message printed by
- &abort-on-error; and &exit-on-error; includes the backtrace (stack).
+ &abort-on-error; and &exit-on-error; includes the &backtrace; (stack).
 </para></formalpara>
 
 <formalpara id="global-handler"><title>Function &set-global-handler;</title>
@@ -2131,7 +2131,7 @@ can give problems:
  precision contagion: set it to &t; to have &clisp; &signal; a
  &warning-t; on float precision contagion; set it to &error; to have
  &clisp; &signal; an &error-t; on float precision contagion, so that you
- can look at the stack backtrace.</para></simplesect>
+ can look at the stack &backtrace;.</para></simplesect>
 
 </section>
 
@@ -2163,7 +2163,7 @@ can give problems:
  would be possible: set it to &t; to have &clisp; &signal; a &warning-t;
  in such situations; set it to &error; to have &clisp; &signal; an
  &error-t; in such situations, so that you can look at the stack
- backtrace.</para></simplesect>
+ &backtrace;.</para></simplesect>
 
 <simplesect id="phasecont"><title>Variable &phasecont;</title>
 <para>A similar variable, &phasecont;, controls the return
@@ -5600,9 +5600,10 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  below the frame that corresponds to the form or the function call that
  binds that variable.</para>
 
+<formalpara id="stack-mode"><title>Stack Printing Mode</title>
 <para>There is a current <firstterm>stack mode</firstterm> which defines
  in how much detail the stack is shown by the stack-related debugger
- commands:<orderedlist>
+ commands (&backtrace; et al):<orderedlist>
   <listitem><simpara>All the stack elements are considered.
     This mode works fine for debugging compiled functions.</simpara></listitem>
   <listitem><simpara>All the frames are considered.</simpara></listitem>
@@ -5614,7 +5615,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <listitem><simpara>Only &apply; frames are considered.
     Every invocation of an interpreted function corresponds to one
     &apply; frame.</simpara></listitem>
-</orderedlist></para>
+</orderedlist></para></formalpara>
 
 <table id="debugger-deb-step-1" frame="all">
  <title>Commands common to the debugger and the stepper</title>
@@ -5643,17 +5644,18 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <entry><command>:b</command></entry>
   <entry>goes to bottom (most recent) frame, i.e., most probably to the
    form or function that caused the debugger to be entered.</entry></row>
- <row><entry><command>Mode</command> &mode-r;</entry>
-  <entry><command>:m</command> &mode-r;</entry>
-  <entry>sets the current stack mode</entry></row>
- <row><entry><command>Frame-limit</command> &l-r;</entry>
+ <row><entry><command>Mode</command> &stack-mode;</entry>
+  <entry><command>:m</command> &stack-mode;</entry>
+  <entry>sets the current stack printing mode</entry></row>
+ <row id="frame-limit"><entry><command>Frame-limit</command> &l-r;</entry>
   <entry><command>:fl</command></entry>
-  <entry>set the frame-limit: this many frames will be printed
-   by <command>Backtrace</command> at most.</entry></row>
- <row><entry><command>Backtrace</command> [&mode-r; [&l-r;]]</entry>
-  <entry><command>:bt</command> [&mode-r; [&l-r;]]</entry>
-  <entry>lists the stack in the given &mode-r;, bottom frame first, top
-   frame last; at most &l-r; frames are printed.</entry></row>
+  <entry>set the &frame-limit;: this many frames will be printed
+   by &backtrace; at most.</entry></row>
+ <row id="backtrace"><entry>&backtrace; [&stack-mode; [&l-r;]]</entry>
+  <entry><command>:bt</command> [&stack-mode; [&l-r;]]</entry>
+  <entry>lists the stack in the given &stack-mode;, bottom frame first,
+  top frame last; at most &l-r; frames are printed;
+  calls &show-stack;.</entry></row>
 </tbody></tgroup></table>
 
 <para>If the &cur-frame; is an &eval; or &apply; frame, the
@@ -5781,6 +5783,14 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  &func-r; (name), that has been entered or loaded in the same session
  and then compiled, back to its interpreted form.</para>
 </section>
+
+<section id="show-stack"><title>Function &show-stack;</title>
+<para>The function &show-stack; is called by the &backtrace; command.</para>
+<para>It accepts 3 optional arguments:<orderedlist>
+<listitem><simpara>&stack-mode;</simpara></listitem>
+<listitem><simpara>&frame-limit;</simpara></listitem>
+<listitem><simpara><replaceable>start-frame</replaceable></simpara></listitem>
+</orderedlist></para></section>
 
 <section id="documentation"><title>Function &documentation;</title>
 <para>No on-line documentation is available for the system functions
