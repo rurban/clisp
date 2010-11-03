@@ -5786,11 +5786,19 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 <section id="show-stack"><title>Function &show-stack;</title>
 <para>The function &show-stack; is called by the &backtrace; command.</para>
-<para>It accepts 3 optional arguments:<orderedlist>
-<listitem><simpara>&stack-mode;</simpara></listitem>
+<para>It prints to &standard-output-var; and accepts 3 optional
+arguments:<orderedlist><listitem><simpara>&stack-mode;</simpara></listitem>
 <listitem><simpara>&frame-limit;</simpara></listitem>
 <listitem><simpara><replaceable>start-frame</replaceable></simpara></listitem>
-</orderedlist></para></section>
+</orderedlist></para>
+<para>It can used to find out what all the threads are up to:
+<programlisting language="lisp">
+(&loop; :with out = &standard-output-var; :for &thr; :in (&list-threads;) :do
+   (&format; out "===~A===~;" &thr;)
+   (&thread-interrupt; &thr; :function
+     (&lambda-m; () (&let; ((&standard-output-var; out)) (&show-stack; 1 3)))))
+</programlisting>
+</para></section>
 
 <section id="documentation"><title>Function &documentation;</title>
 <para>No on-line documentation is available for the system functions
