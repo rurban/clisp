@@ -5629,31 +5629,31 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <entry>&inspect-my; the last error object.</entry></row>
  <row><entry><command>Where</command></entry>
   <entry><command>:w</command></entry>
-  <entry>shows the &cur-frame;.</entry></row>
+  <entry>show the &cur-frame;.</entry></row>
  <row><entry><command>Up</command></entry>
   <entry><command>:u</command></entry>
-  <entry>goes up one frame, i.e., to the caller if in mode-5</entry></row>
+  <entry>go up one frame, i.e., to the caller if in mode-5</entry></row>
  <row><entry><command>Down</command></entry>
   <entry><command>:d</command></entry>
-  <entry>does down one frame, i.e., to the callee if in mode-5</entry></row>
+  <entry>do down one frame, i.e., to the callee if in mode-5</entry></row>
  <row><entry><command>Top</command></entry>
   <entry><command>:t</command></entry>
-  <entry>goes to top frame, i.e., to the top-level form if in mode-4
+  <entry>go to top frame, i.e., to the top-level form if in mode-4
  </entry></row>
  <row><entry><command>Bottom</command></entry>
   <entry><command>:b</command></entry>
-  <entry>goes to bottom (most recent) frame, i.e., most probably to the
+  <entry>go to bottom (most recent) frame, i.e., most probably to the
    form or function that caused the debugger to be entered.</entry></row>
  <row><entry><command>Mode</command> &stack-mode;</entry>
   <entry><command>:m</command> &stack-mode;</entry>
-  <entry>sets the current stack printing mode</entry></row>
+  <entry>set the current stack printing mode</entry></row>
  <row id="frame-limit"><entry><command>Frame-limit</command> &l-r;</entry>
   <entry><command>:fl</command></entry>
   <entry>set the &frame-limit;: this many frames will be printed
    by &backtrace; at most.</entry></row>
  <row id="backtrace"><entry>&backtrace; [&stack-mode; [&l-r;]]</entry>
   <entry><command>:bt</command> [&stack-mode; [&l-r;]]</entry>
-  <entry>lists the stack in the given &stack-mode;, bottom frame first,
+  <entry>list the stack in the given &stack-mode;, bottom frame first,
   top frame last; at most &l-r; frames are printed;
   calls &show-stack;.</entry></row>
 </tbody></tgroup></table>
@@ -5667,20 +5667,20 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   &cmd-abbrev-oper-header;<tbody>
 <row><entry><command>Break+</command></entry>
  <entry><command>:br+</command></entry>
- <entry>sets a breakpoint in the current frame.  When the corresponding
+ <entry>set a breakpoint in the current frame.  When the corresponding
   form or function will be left, the debugger will be entered again, with
   the variable &trace-val; containing a list of its values.</entry></row>
 <row><entry><command>Break-</command></entry>
  <entry><command>:br-</command></entry>
- <entry>removes a breakpoint from the current frame.</entry></row>
+ <entry>remove a breakpoint from the current frame.</entry></row>
 <row><entry><command>Redo</command></entry>
  <entry><command>:rd</command></entry>
- <entry>re-evaluates the corresponding form or function call. This
+ <entry>re-evaluate the corresponding form or function call. This
   command can be used to restart parts of a computation without
   aborting it entirely.</entry></row>
 <row><entry><command>Return</command> &value-r;</entry>
  <entry><command>:rt</command> &value-r;</entry>
- <entry>leaves the current frame, returning the given value.</entry></row>
+ <entry>leave the current frame, returning the given value.</entry></row>
 </tbody></tgroup></table>
 
 <table id="debugger-deb" frame="all">
@@ -5689,7 +5689,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   &cmd-abbrev-oper-header;<tbody>
 <row><entry><command>Continue</command></entry>
    <entry><command>:c</command></entry>
-   <entry>continues evaluation of the program.</entry></row>
+   <entry>continue evaluation of the program.</entry></row>
 </tbody></tgroup></table>
 
 <table id="debugger-step" frame="all">
