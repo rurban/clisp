@@ -1227,8 +1227,16 @@ DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
     if (status==0) return retform;                                      \
     else return (err_p ? OS_file_error(fixnum(sock)),NIL : S(Kerror));  \
   } while(0)
+static int check_sockopt_name (int name) {
+  pushSTACK(NIL);           /* no PLACE */
+  pushSTACK(fixnum(name));
+  pushSTACK(TheSubr(subr_self)->name);
+  check_value(error_condition,GETTEXT("~S: invalid option ~S"));
+  return sockopt_name(value1);
+}
 /* can trigger GC */
 static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
+ get_sock_opt_restart:
   switch (name) {
 #  if defined(SO_DEBUG)
     case SO_DEBUG:
@@ -1289,7 +1297,8 @@ static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
     case SO_SNDTIMEO:
 #  endif
       GET_SOCK_OPT(struct timeval,sec_usec_number(val.tv_sec,val.tv_usec,0));
-    default: NOTREACHED;
+    default: name = check_sockopt_name(name);
+      goto get_sock_opt_restart;
   }
 }
 #undef GET_SOCK_OPT
@@ -1342,6 +1351,7 @@ DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
   } while(0)
 static void set_sock_opt (rawsock_t sock, int level, int name, object value) {
   if (eq(value,S(Kerror))) return;
+ set_sock_opt_restart:
   switch (name) {
 #  if defined(SO_DEBUG)
     case SO_DEBUG:
@@ -1405,7 +1415,8 @@ static void set_sock_opt (rawsock_t sock, int level, int name, object value) {
     case SO_SNDTIMEO:
 #  endif
       SET_SOCK_OPT(struct timeval,sec_usec(value,NIL,&val));
-    default: NOTREACHED;
+    default: name = check_sockopt_name(name);
+      goto set_sock_opt_restart;
   }
 }
 #undef SET_SOCK_OPT
