@@ -296,7 +296,9 @@
     &stream-r; &command-r; &optional-amp; &value-r;)</code></term>
   <listitem><simpara>Call <function role="unix">fcntl</function>,
     &command-r; can be <constant>:FD</constant> or <constant>:FL</constant>.
- </simpara></listitem></varlistentry>
+ </simpara><simpara>When &value-r; is missing, the option is queried and
+  the value is returned; if &value-r; is supplied, the option is set and
+  no values are returned.</simpara></listitem></varlistentry>
  <varlistentry id="file-size"><term><code>(&file-size; &file-r;)</code></term>
   <term><code>(&setf; (&file-size; &file-r;) &size-r;)</code></term>
   <listitem><simpara>Extend &file-length; to operate on &path-des;s.</simpara>
