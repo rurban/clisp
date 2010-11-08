@@ -683,7 +683,7 @@ if [ "${gl_cv_lib_sigsegv}" != "yes" ]; then
     if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
     else host_arg=" --host=$ac_cv_host";
     fi
-    SIGSEGV=libsigsegv-2.8
+    SIGSEGV=libsigsegv-2.9
     cat <<EOF 1>&2
 $0: libsigsegv was not detected, thus some features, such as
   generational garbage collection and
