@@ -130,7 +130,6 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <listitem><simpara>A &structure-object-t; <type>RAWSOCK:SOCKADDR</type>
    returned by
    <link linkend="make-sockaddr"><function>MAKE-SOCKADDR</function></link>.
-   You do not need to supply its length because Lisp can determine it itself.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>struct msghdr</type> &mesg-r;</term>
  <listitem><para>A &structure-object-t; <type>RAWSOCK:MESSAGE</type>
@@ -282,8 +281,10 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <listitem><simpara>Create a <type>sockaddr</type> object.
    &data-r; should be a sequence of &ubyte-8; or an &integer-t;
    (meaning <code>(&make-list; &data-r; :initial-element 0)</code>).
-   When omitted, the standard platform-specific size is used.
-</simpara></listitem></varlistentry>
+   When omitted, the standard platform-specific size is used.</simpara>
+  <note><simpara>It is critical to use &data-r; of the corrent size (usually
+   <code>sizeof(struct sockaddr)</code>, but may be something depending
+   on the protocol to be used).</simpara></note></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKADDR-FAMILY &addr-r;)</code></term>
  <listitem><simpara>Return the symbolic &family-r; of the
    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
