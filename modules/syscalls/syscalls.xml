@@ -118,7 +118,7 @@
      return <quote>similar</quote> objects (&open;ing a file changes its
      access time though).  This is &not-e; the case on &win32;, where
      <function role="unix">stat</function> works but &fstat; does &not-e;.
-     Specifically, &fstat; requires an <type>int</type> argument of an unknown
+     Specifically, &fstat; requires an &int-t; argument of an unknown
      nature, and it is not clear how do deduce it from the &win32; file handle.
      Therefore, instead of always failing on open &file-stream-t; arguments,
      this function calls

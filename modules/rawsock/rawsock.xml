@@ -98,28 +98,28 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    vector length because Lisp can determine it itself, but, if you want
    to, you can use &end-k; argument for that.
 </simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> &sock-r;</term>
+<varlistentry><term>&int-t; &sock-r;</term>
  <listitem><simpara>An &integer-t; (returned by &socketpair; or
    &socket;).</simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> &family-r;</term>
- <term><type>int</type> &dom-r;</term>
+<varlistentry><term>&int-t; &family-r;</term>
+ <term>&int-t; &dom-r;</term>
  <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
    &integer-t;, or a platform-specific keyword, e.g.,
    <constant>:INET</constant> stands for <constant>AF_INET</constant>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> &type-r;</term>
+<varlistentry><term>&int-t; &type-r;</term>
  <listitem><simpara>A &nil; (stands for 0); &integer-t;; or a
    platform-specific keyword, e.g.,
    <constant>:DGRAM</constant> stands for <constant>SOCK_DGRAM</constant>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> &proto-r;</term>
+<varlistentry><term>&int-t; &proto-r;</term>
  <listitem><simpara>A &nil; (stands for 0); &integer-t;; a
    platform-specific keyword, e.g., <constant>:ETH_P_ARP</constant> stands
    for <constant>ETH_P_ARP</constant>, <constant>:IPPROTO-ICMP</constant>
    stands for <constant>IPPROTO_ICMP</constant>; or a &string-t; (passed
    to <function role="unix">getprotobyname</function>).
 </simpara></listitem></varlistentry>
-<varlistentry><term><type>int</type> <replaceable>flags</replaceable></term>
+<varlistentry><term>&int-t; <replaceable>flags</replaceable></term>
  <listitem><simpara>This &c-lang; argument corresponds to keyword
    arguments to the Lisp functions.  E.g., <function>rawsock:send</function>
    accepts <constant>:OOB</constant> and <constant>EOR</constant> arguments,

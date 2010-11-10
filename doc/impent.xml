@@ -1071,6 +1071,7 @@
 <!ENTITY subrkw-d '<link linkend="subrkw-d"><filename>subrkw.d</filename></link>'>
 
 <!-- *** shortcuts *** -->
+<!ENTITY int-t '<type>int</type>'>
 <!ENTITY sbyte-16 '<literal role="type">(&signed-byte-t; 16)</literal>'>
 <!ENTITY sbyte-32 '<literal role="type">(&signed-byte-t; 32)</literal>'>
 <!ENTITY sbyte-8 '<literal role="type">(&signed-byte-t; 8)</literal>'>
