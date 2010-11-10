@@ -2049,7 +2049,13 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     } else {                    /* file is a stream, fd is valid */
 #    if defined(WIN32_NATIVE)
       /* woe32 does have fstat(), but it does not accept a file handle,
-         only an integer of an unknown nature */
+         only an integer of an unknown nature.
+         FIXME: actually, the integer is an "OS File Hangle"
+         accessibe via int _open_osfhandle (intptr_t osfhandle, int flags);
+         http://msdn.microsoft.com/en-us/library/bdts1c9x.aspx
+         however, it is not clear whether this itroduces a leak:
+         the osfhandle is supposed to be closed by _close, but it also closes
+         the original handle which is no good */
       BY_HANDLE_FILE_INFORMATION fi;
       begin_blocking_system_call();
       error_p = !GetFileInformationByHandle(fd,&fi);
