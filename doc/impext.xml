@@ -4168,7 +4168,7 @@ int CallInFunc(LispFunc f) {
 <computeroutput>#(97 98 97 122 111 110 107)</computeroutput></programlisting>
 It is a &simple-vector-t;, not a &string-t;, because the &name-r;
 argument is an array of <type>char</type> (an &integer-t; type, see
-<xref linkend="dffi-types"/>), not <type>character</type>.
+<xref linkend="dffi-types"/>), &not-e; <type>character</type>.
 <programlisting language="lisp">
 (&def-call-out; gethostname
   (&arguments-k; (name (&c-ptr; (&c-array-max; character 256))
