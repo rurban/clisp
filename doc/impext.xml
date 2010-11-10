@@ -3394,7 +3394,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
    <entry/><entry>as a result type only</entry></row>
 <row><entry>&boolean-t;</entry><entry>&boolean-t;</entry>
-   <entry><type>int</type></entry><entry><type>BOOLEAN</type></entry></row>
+   <entry>&int-t;</entry><entry><type>BOOLEAN</type></entry></row>
 <row><entry>&character-t;</entry><entry>&character-t;</entry>
    <entry><type>char</type></entry>
    <entry><type>SHORT CHARACTER</type></entry></row>
@@ -3406,8 +3406,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
    <entry><type>short</type></entry></row>
 <row><entry><type>ushort</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned short</type></entry></row>
-<row><entry><type>int</type></entry><entry>&integer-t;</entry>
-   <entry><type>int</type></entry></row>
+<row><entry>&int-t;</entry><entry>&integer-t;</entry>
+   <entry>&int-t;</entry></row>
 <row><entry><type>uint</type></entry><entry>&integer-t;</entry>
    <entry><type>unsigned int</type></entry></row>
 <row><entry><type>long</type></entry><entry>&integer-t;</entry>
@@ -4129,7 +4129,7 @@ int CallInFunc(LispFunc f) {
 
 <para>The standard &unix; function
  <funcsynopsis id="gethostname-synopsis"><funcprototype>
-   <funcdef><type>int</type> <function>gethostname</function></funcdef>
+   <funcdef>&int-t; <function>gethostname</function></funcdef>
    <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
    <paramdef><type>size_t</type> <parameter>length</parameter></paramdef>
 </funcprototype></funcsynopsis>
