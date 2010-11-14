@@ -322,7 +322,9 @@
   /* default-package for -modern: */
   LISPOBJ(modern_user_package,".")
 /* for SYMBOL.D: */
-  LISPOBJ(gensym_prefix,"\"G\"") /* prefix for gensym, a string */
+  LISPOBJ_S(gensym_prefix,"G") /* prefix for gensym */
+  LISPOBJ_S(gentemp_prefix, "T") /* prefix for gentemp */
+  LISPOBJ(gentemp_counter, "0") /* gentemp internal counter */
 /* for MISC.D:
    basic knowledge: */
   LISPOBJ_S(lisp_implementation_type_string,"CLISP")
@@ -720,7 +722,6 @@
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")
   LISPOBJ(foreign_callin_vector,"#.(let ((array (make-array 1 :adjustable t :fill-pointer 1))) (sys::store array 0 0) array)")
  #endif
-
 #if !defined(MULTITHREAD)
 #define LISPOBJ_TL(n,initstring)  LISPOBJ(n,initstring)
 #include "constobj_tl.c"

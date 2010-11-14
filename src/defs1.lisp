@@ -34,18 +34,6 @@
       )
     sym))
 
-(let ((gentemp-count 0)) ;; Common LISP, p. 170
-  (defun gentemp (&optional (prefix "T") (package *package*))
-    (loop
-      (setq gentemp-count (1+ gentemp-count))
-      (multiple-value-bind (sym flag)
-        (intern
-          (string-concat prefix
-            (write-to-string gentemp-count :base 10 :radix nil :readably nil))
-          package)
-        (unless flag (return sym))))))
-
-
 ;;; macros for packages (Chapter 11), p. 187-188
 (defmacro do-symbols ((var &optional (packageform '*package*) (resultform nil))
                       &body body)

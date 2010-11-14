@@ -17106,7 +17106,7 @@ struct object_tab_tl_ {
   /* helper macro for locking mutex that allows GC and thread interrupts while
      waiting. To be used only here and in zthread.d. In all other places
      WITH_OS_MUTEX_LOCK() should be used since it guarantees correct unlocking
-     in case of non-local exit and thread interruption
+     in case of non-local exit and thread interrupt
     > mutex: mutex to lock
     > locked: pointer to bool filled with true in case the lock
     has been acquired (before handling of pending interrupts) */
@@ -17496,8 +17496,13 @@ extern xmutex_t all_weakpointers_lock;
 /* mutex for guarding access to O(all_packages) */
 extern xmutex_t all_packages_lock;
 /* mutex protecting the O(all_threads) and list of clisp_thread_t structs
- NB: when it is hold heap allocation will cause deadlock */
+ NB: when it is hold - any heap allocation will cause deadlock */
 extern xmutex_t allthreads_lock;
+/* mutex serializing gensym (only when *gensym-counter* is not
+   per thread bound) */
+extern xmutex_t gensym_lock;
+/* mutex guarding internal counter used by gentemp */
+extern xmutex_t gentemp_lock;
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */

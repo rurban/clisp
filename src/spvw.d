@@ -552,6 +552,8 @@ local void init_multithread (void) {
   xmutex_init(&all_exemptions_lock); /* O(all_exemptions) lock */
   xmutex_init(&all_weakpointers_lock); /* O(all_weakpointers) lock */
   xmutex_init(&all_packages_lock); /* O(all_packages) lock */
+  xmutex_init(&gensym_lock); /* GENSYM lock */
+  xmutex_init(&gentemp_lock); /* internal GENTEMP counter lock */
 
   initialize_circ_detection(); /* initialize the circ detection */
   spinlock_init(&timeout_call_chain_lock);

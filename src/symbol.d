@@ -314,56 +314,70 @@ LISPFUNNR(keywordp,1)
   VALUES_IF(symbolp(obj) && keywordp(obj));
 }
 
+#ifdef MULTITHREAD
+global xmutex_t gensym_lock; /* global GENSYM counter lock */
+global xmutex_t gentemp_lock; /* global GETEMP counter lock */
+#endif
+
 LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
-{ /* (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
-  (defun gensym (&optional (x nil s))
-    (let ((prefix "G") ; a String
-          (counter *gensym-counter*)) ; an integer >=0
-      (when s
-        (cond ((stringp x) (setq prefix x))
-              ((integerp x)
-               (if (minusp x)
-                 (error-of-type 'type-error
-                        :datum x :expected-type '(INTEGER 0 *)
-                        (ENGLISH "~S: index ~S is negative")
-                        'gensym x)
-                 (setq counter x)))
-              (t (error-of-type 'type-error
-                        :datum x :expected-type '(OR STRING INTEGER)
-                        (ENGLISH "~S: invalid argument ~S")
-                        'gensym x))))
-      (prog1
-        (make-symbol
-          (string-concat
-            prefix
-            #-CLISP (write-to-string counter :base 10 :radix nil)
-            #+CLISP (sys::decimal-string counter)))
-        (unless (integerp x) (setq *gensym-counter* (1+ counter)))))) */
-  var object prefix = O(gensym_prefix); /* "G" */
-  var object counter = Symbol_value(S(gensym_counter)); /* *GENSYM-COUNTER* */
-  var object x = popSTACK(); /* Argument */
-  if (boundp(x)) { /* x supplied */
-    if (stringp(x)) {
-      prefix = x; /* set prefix */
-    } else if (integerp(x)) {
-      counter = x = check_pos_integer(x); /* set counter to an integer >=0 */
-      prefix = O(gensym_prefix);          /* reset: invalidated by GC */
-    } else error_string_integer(x);
+{ /* (GENSYM x), CLTL S. 169, CLtL2 S. 245-246 */
+  if (!boundp(STACK_0)) {
+    STACK_0 = O(gensym_prefix); /* set default prefix */
+    goto string_arg_supplied; /* skip next "if (stringp(STACK_0))" */
   }
-  /* construct string: */
-  pushSTACK(prefix);  /* 1st part of string */
-  pushSTACK(counter); /* counter */
-  if (!integerp(x)) {
-    if (!(integerp(counter) && !R_minusp(counter))) { /* integer >= 0 */
-      var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; /* reset *GENSYM-COUNTER* */
+  if (stringp(STACK_0)) { /* have string - use *gensym-counter* */
+  string_arg_supplied:
+    /* with MT if *gensym-counter* is bound in calling thread there is no need
+       to lock. however this should be extremely rare case and checking for
+       it will eat more cycles overall */
+    var bool was_negative;
+    WITH_OS_MUTEX_LOCK(0, &gensym_lock, {
+      pushSTACK(Symbol_value(S(gensym_counter)));
+      if (!(was_negative = R_minusp(STACK_0))) {
+        Symbol_value(S(gensym_counter)) = I_1_plus_I(STACK_0);
+      } else {
+        Symbol_value(S(gensym_counter)) = Fixnum_0;/* reset *GENSYM-COUNTER* */
+      }
+      value1 = popSTACK();
+    });
+    if (was_negative) { /* complain about negative *GENSYM-COUNTER* */
+      var object counter = value1;
       pushSTACK(counter);            /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(new_value); pushSTACK(counter);
+      pushSTACK(Fixnum_0); pushSTACK(counter);
       error(type_error,GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S."));
     }
-    Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); /* (incf *GENSYM-COUNTER*) */
-  }
+    pushSTACK(value1); /* counter */
+  } else if (integerp(STACK_0)) { /* counter available */
+    var object counter = check_pos_integer(popSTACK());/* ensure positive */
+    pushSTACK(O(gensym_prefix)); pushSTACK(counter);
+  } else /* argument with incorrect type */
+    error_string_integer(popSTACK());
+  /* STACK layout: STACK_0 = counter, STACK_1 = prefix */
   funcall(L(decimal_string),1); /* (sys::decimal-string counter) */
   pushSTACK(value1); /* 2nd part of string */
   VALUES1(make_symbol(coerce_imm_ss(string_concat(2))));
+}
+
+LISPFUN(gentemp,seclass_read,0,2,norest,nokey,0,NIL)
+{ /* (GENTEMP prefix package), CLTL p. 170 */
+  var gcv_object_t *prefix = &STACK_1;
+  var gcv_object_t *package = &STACK_0;
+  /* validate prefix */
+  *prefix = (boundp(*prefix) ? check_string(*prefix) : O(gentemp_prefix));
+  /* do not validate package argument - intern will barf anyway */
+  do {
+    WITH_OS_MUTEX_LOCK(0, &gentemp_lock, {
+      value1 = O(gentemp_counter) = I_1_plus_I(O(gentemp_counter));
+    });
+    pushSTACK(*prefix); /* 1st part of string */
+    pushSTACK(value1); /* counter */
+    funcall(L(decimal_string),1); /* (sys::decimal-string counter) */
+    pushSTACK(value1); /* 2nd part of string */
+    pushSTACK(coerce_imm_ss(string_concat(2))); /* concatenate */
+    pushSTACK(*package);
+    funcall(L(intern),2); /* try to intern */
+  } while (!nullp(value2));
+  skipSTACK(2);
+  mv_count = 1; /* single value */
 }
