@@ -1056,6 +1056,7 @@ LISPSYM(cs_symbol_name,"SYMBOL-NAME",cs_lisp)
 LISPSYM(keywordp,"KEYWORDP",lisp)
 LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",ext)
 LISPSYM(gensym,"GENSYM",lisp)
+LISPSYM(gentemp,"GENTEMP",lisp)
 LISPSYM(plist,"PLIST",system) /* type in type.lisp */
 /* ---------- LISPARIT ---------- */
 LISPSYM(decimal_string,"DECIMAL-STRING",system)

@@ -1274,6 +1274,7 @@ LISPFUN(symbol_name,seclass_no_se,1,0,norest,nokey,0,NIL)
 LISPFUNNR(cs_symbol_name,1)
 LISPFUNNR(keywordp,1)
 LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
+LISPFUN(gentemp,seclass_read,0,2,norest,nokey,0,NIL)
 /* ---------- LISPARIT ---------- */
 LISPFUN(decimal_string,seclass_no_se,1,0,norest,nokey,0,NIL)
 LISPFUNNF(zerop,1)

@@ -39,7 +39,6 @@
 ;; standartd input/output streams).
 (defvar *DEFAULT-SPECIAL-BINDINGS*
   '((*random-state* . *random-state*)
-    (*gensym-counter* . *gensym-counter*)
     (ext::*command-index* . ext::*command-index*)
     (*print-base* . *print-base*)
     (*print-length* . *print-length*)
