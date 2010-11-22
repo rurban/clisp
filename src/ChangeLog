@@ -1,3 +1,7 @@
+2010-11-21  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: use ${MODULESDIR_} instead of ${SRCTOPDIR}modules
+
 2010-11-14  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: thread safe GENSYM and GENTEMP
