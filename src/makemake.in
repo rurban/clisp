@@ -3149,7 +3149,7 @@ done
 echol
 
 # scripts in build-aux
-MODULE_CONFIGURES=`find ${SRCTOPDIR}modules -name configure`
+MODULE_CONFIGURES=`find ${MODULESDIR_} -name configure`
 BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
 BUILD_AUX=''
 test -n "${SRCDIR}" && case "${LN_S}" in
@@ -3168,7 +3168,7 @@ done
 
 # headers in build-aux
 BUILD_AUX_HEADERS=`cd ${SRCDIR}build-aux; ls *.h`
-MODULE_AM=`find ${SRCTOPDIR}modules -name Makefile.am`
+MODULE_AM=`find ${MODULESDIR_} -name Makefile.am`
 for h in ${BUILD_AUX_HEADERS}; do
   for m in ${MODULE_AM}; do
     if fgrep "BUILT_SOURCES += $h" $m >/dev/null 2>&1; then
@@ -3968,7 +3968,7 @@ clean6 : clean5
 
 # clean-modules remove the copies of modules, do it if you change modprep and such
 clean-modules :
-	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+	-\$(RMRF) \`ls -d ${MODULESDIR_}*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6 clean-modules
