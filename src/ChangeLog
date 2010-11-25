@@ -1,3 +1,7 @@
+2010-11-25  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp, constsym.d (stream-handles): move from SOCKET to EXT
+
 2010-11-21  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: use ${MODULESDIR_} instead of ${SRCTOPDIR}modules

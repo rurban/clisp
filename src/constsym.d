@@ -1,7 +1,7 @@
 /*
  * List of all symbols known to the C-program ("program constants")
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  */
 
 /* The macro LISPSYM declares a LISP symbol.
@@ -1009,7 +1009,7 @@ LISPSYM(socket_options,"SOCKET-OPTIONS",socket)
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
 LISPSYM(make_stream,"MAKE-STREAM",ext)
-LISPSYM(stream_handles,"STREAM-HANDLES",socket)
+LISPSYM(stream_handles,"STREAM-HANDLES",ext)
 #endif
 LISPSYM(built_in_stream_open_p,"BUILT-IN-STREAM-OPEN-P",system)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
