@@ -4778,6 +4778,19 @@ as if with <command role="unix">tail -f</command>.</para>
 </para></formalpara>
 </section>
 
+<section id="stream-handles"><title>Function
+  <function>EXT:STREAM-HANDLES</function></title>
+
+<para>The function <code>(EXT:STREAM-HANDLES &stream-r;)</code> returns
+two values:<orderedlist>
+<listitem><simpara>The OS &file-des; for the &input-s; side of the
+&stream-r;, or &nil; if the &stream-r; is an &output-s;-only &stream-t;
+or if there is no &file-des; associated with it.</simpara></listitem>
+<listitem><simpara>The OS &file-des; for the &output-s; side of the
+&stream-r;, or &nil; if the &stream-r; is an &input-s;-only &stream-t;
+or if there is no &file-des; associated with it.</simpara></listitem>
+</orderedlist></para></section>
+
 </chapter>
 
 
