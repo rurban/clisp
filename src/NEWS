@@ -34,6 +34,10 @@ User visible changes
   single value.
   See <http://clisp.cons.org/impnotes/syscalls.html#usage> for details.
 
+* Function EXT:STREAM-HANDLES returns the OS file handles for the stream.
+  It has been present since 2.36 in package SOCKET but was not documented.
+  See <http://clisp.cons.org/impnotes/stream-handles.html> for details.
+
 * FFI now converts REALs to FLOATs automatically as necessary.
 
 * Bug fixes:
