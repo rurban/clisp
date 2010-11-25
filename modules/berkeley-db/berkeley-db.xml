@@ -348,7 +348,7 @@
    (<function role="bdb">DB-&gt;del</function>).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-FD db)</code></term>
- <listitem><simpara>Return a file descriptor from a database
+ <listitem><simpara>Return the &file-des; for the database
    (<function role="bdb">DB-&gt;fd</function>).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-GET db key &key-amp; ACTION AUTO-COMMIT
