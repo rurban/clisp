@@ -1,3 +1,8 @@
+2010-11-26  Sam Steingold  <sds@gnu.org>
+
+	* constsym.d, subr.d, subrkw.d, stream.d (make_stream, stream_handles):
+	define even when SOCKET_STREAMS is not defined
+
 2010-11-25  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp, constsym.d (stream-handles): move from SOCKET to EXT

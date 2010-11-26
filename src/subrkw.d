@@ -1,7 +1,7 @@
 /*
  * List of all the SUBRs with Keywords
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
  */
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
@@ -201,11 +201,11 @@ s(make_pipe_io_stream)
 v(4, (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 s(socket_accept)
 s(socket_connect)
-v(4, (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
-s(make_stream)
 v(2, (kw(backlog),kw(interface)) )
 s(socket_server)
 #endif
+v(4, (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
+s(make_stream)
 v(1, (kw(abort)) )
 s(built_in_stream_close)
 #ifdef DYNAMIC_FFI

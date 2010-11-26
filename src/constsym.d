@@ -1008,9 +1008,9 @@ LISPSYM(socket_options,"SOCKET-OPTIONS",socket)
 #ifdef HAVE_SHUTDOWN
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
+#endif
 LISPSYM(make_stream,"MAKE-STREAM",ext)
 LISPSYM(stream_handles,"STREAM-HANDLES",ext)
-#endif
 LISPSYM(built_in_stream_open_p,"BUILT-IN-STREAM-OPEN-P",system)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
 LISPSYM(output_stream_p,"OUTPUT-STREAM-P",lisp)

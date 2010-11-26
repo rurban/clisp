@@ -14806,14 +14806,6 @@ LISPFUN(socket_stream_local,seclass_default,1,1,norest,nokey,0,NIL)
   publish_host_data (&socket_getlocalname);
 }
 
-LISPFUNN(stream_handles,1)
-{ /* (STREAM-HANDLES stream) */
-  var SOCKET in_sock=INVALID_SOCKET, out_sock=INVALID_SOCKET;
-  stream_handles(popSTACK(),false,NULL,&in_sock,&out_sock);
-  VALUES2(in_sock  == INVALID_SOCKET ? NIL : fixnum(in_sock),
-          out_sock == INVALID_SOCKET ? NIL : fixnum(out_sock));
-}
-
 #ifdef HAVE_SHUTDOWN
 
 /* close a socket stream using shutdown(2)
@@ -15071,6 +15063,14 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
     error(errortype,GETTEXT("Invalid direction ~S for accessing ~S"));
   }
   return make_file_stream(dir,false,dir == DIRECTION_IO);
+}
+
+LISPFUNN(stream_handles,1)
+{ /* (STREAM-HANDLES stream) */
+  var SOCKET in_sock=INVALID_SOCKET, out_sock=INVALID_SOCKET;
+  stream_handles(popSTACK(),false,NULL,&in_sock,&out_sock);
+  VALUES2(in_sock  == INVALID_SOCKET ? NIL : fixnum(in_sock),
+          out_sock == INVALID_SOCKET ? NIL : fixnum(out_sock));
 }
 
 LISPFUN(make_stream,seclass_default,1,0,norest,key,4,

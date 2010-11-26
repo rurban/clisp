@@ -1,7 +1,7 @@
 /*
  * list of all SUBRs
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2010
 
  A C-compiled LISP-function is defined by a declaration
  LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
@@ -1226,10 +1226,10 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL)
 #ifdef HAVE_SHUTDOWN
 LISPFUNN(socket_stream_shutdown,2)
 #endif
+#endif
 LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
         (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUNN(stream_handles,1)
-#endif
 LISPFUNNR(built_in_stream_open_p,1)
 LISPFUNNR(input_stream_p,1)
 LISPFUNNR(output_stream_p,1)
