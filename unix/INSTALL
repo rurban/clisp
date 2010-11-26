@@ -287,7 +287,7 @@ Additional Information for Maintainers of Binary Packages:
    E. Module selection: we recommend distributing at least asdf, rawsock, and
       wildcard, which have no external dependencies, i.e., modules "clisp-asdf",
       "clisp-rawsock", and "clisp-wildcard" depend only on "clisp".
-      Moreover, they can be bundled with "clisp" into a single module.
+      Moreover, they can be bundled with "clisp" into a single package.
    See also <http://clisp.cons.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 
