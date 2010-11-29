@@ -1,3 +1,9 @@
+2010-11-29  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3122505: LOAD does not close FAS files with a bad version marker
+	* init.lisp (open-for-load): catch errors when READing the version
+	marker
+
 2010-11-26  Sam Steingold  <sds@gnu.org>
 
 	* constsym.d, subr.d, subrkw.d, stream.d (make_stream, stream_handles):
