@@ -1246,6 +1246,21 @@ T
     (assert (load s :verbose nil))))
 "1234"
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3122505&group_id=1355
+(let* ((lisp "tmp.lisp") (fas (compile-file-pathname lisp)))
+  (unwind-protect
+       (progn
+         (with-open-file (s lisp :direction :output)
+           (write-line "1" s))
+         (with-open-file (s fas :direction :output)
+           (write-char #\Null s))
+         (handler-case (load fas)
+           (error (c) (princ-error c)))
+         (handler-case (equalp (compile-file lisp) (truename fas))
+           (error (c) (princ-error c))))
+    (post-compile-file-cleanup lisp)))
+T
+
 (progn
   (symbol-cleanup 's)
   (symbol-cleanup 's1)

@@ -1632,7 +1632,12 @@
                      (or (eq *load-obsolete-action* :error)
                          (eq present-files t)
                          (cdr present-files))
-                     (setq obj (read stream)))
+                     (setq obj
+                           #+compiler ; normal operation; handler-bind works
+                           (block nil
+                             (handler-bind ((error (lambda (c) (return c))))
+                               (read stream)))
+                           #-compiler (read stream))) ; bootstrap
                    #+compiler
                    (if (and bad-file (eq *load-obsolete-action* :compile))
                      ;; assume that BAD-FILE was compiled from STREAM

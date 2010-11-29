@@ -1,3 +1,7 @@
+2010-11-29  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: add a test for bug#3122505: LOAD bad FAS
+
 2010-10-31  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: add tests for :TEST and :TIMEOUT arguments of EXEMPTION-WAIT
