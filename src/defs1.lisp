@@ -157,25 +157,23 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 (defvar *user-lib-directory* nil
   "The location of user-installed modules.")
 
-(defun augment-load-path (paths)
-  (dolist (path paths *load-paths*)
-    (when path (setq *load-paths* (adjoin path *load-paths* :test #'equal)))))
-
 (defun load-path-augmentations (dynmod)
-  (list (merge-pathnames dynmod *lib-directory*)
-        (and *user-lib-directory*
-             (merge-pathnames dynmod *user-lib-directory*))
-        (and *load-pathname* ; not truename to respect symlinks
-             (make-pathname :name nil :type nil :defaults *load-pathname*))
-        (and *compile-file-pathname* ; could be called by eval-when-compile
-             (make-pathname :name nil :type nil
-                            :defaults *compile-file-pathname*))))
+  (delete nil
+    (list (merge-pathnames dynmod *lib-directory*)
+          (and *user-lib-directory*
+               (merge-pathnames dynmod *user-lib-directory*))
+          (and *load-pathname* ; not truename to respect symlinks
+               (make-pathname :name nil :type nil :defaults *load-pathname*))
+          (and *compile-file-pathname* ; could be called by eval-when-compile
+               (make-pathname :name nil :type nil
+                              :defaults *compile-file-pathname*)))))
 
 (defmacro with-augmented-load-path (dirs &body body)
   `(let ((*load-paths*
           ;; the name "dynmod/" used here should be in sync with clisp-link
-          (augment-load-path
-           ,(if dirs `(list ,@dirs) '(load-path-augmentations "dynmod/")))))
+          (union *load-paths*
+                 ,(if dirs `(list ,@dirs) '(load-path-augmentations "dynmod/"))
+                 :test #+win32 #'equalp #-win32 #'equal)))
      ,@body))
 
 (defvar *module-provider-functions* '()

@@ -1,3 +1,10 @@
+2010-12-02  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (load-path-augmentations): delete NILs
+	(augment-load-path): remove
+	(with-augmented-load-path): use UNION instead of AUGMENT-LOAD-PATH
+	to avoid modifying the global value of *LOAD-PATHS*
+
 2010-12-01  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (SET-LIB-DIRECTORY): call TRUENAME on argument to
