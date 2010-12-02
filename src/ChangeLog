@@ -1,3 +1,8 @@
+2010-12-01  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (SET-LIB-DIRECTORY): call TRUENAME on argument to
+	ensure an existing absolute path
+
 2010-11-29  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3122505: LOAD does not close FAS files with a bad version marker
