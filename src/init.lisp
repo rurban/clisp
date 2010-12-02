@@ -1749,8 +1749,6 @@
            (*current-source-file* *load-truename*)
            (*current-source-line-1* nil)
            (*current-source-line-2* nil)
-           ;; allow reference sharing between forms in the file
-           (SYS::*READ-REFERENCE-TABLE* NIL) ; cf. compiler.lisp:compile-file
            #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
            #+ffi (ffi::*foreign-library* ffi::*foreign-library*)
            (*package* *package*) ; bind *PACKAGE*
