@@ -9209,9 +9209,8 @@ LISPFUNN(lib_directory,0)
 LISPFUNN(set_lib_directory,1)
 { /* (SYS::SET-LIB-DIRECTORY path) sets the CLISP's private library directory
   (called $(lisplibdir) in the Makefile) */
-  var object path = popSTACK();
-  if (stringp(path)) path = ensure_last_slash(path);
-  VALUES1(O(lib_dir) = coerce_xpathname(path));
+  if (stringp(STACK_0)) STACK_0 = ensure_last_slash(STACK_0);
+  funcall(L(truename),1); O(lib_dir) = value1;
 }
 
 /* ===================================================================== */
