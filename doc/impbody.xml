@@ -501,7 +501,7 @@ ignored by the interpreter.</para>
  was <emphasis>interpreted</emphasis>.
  Whenever <function>ADD-I-10</function> is executed, its definition is
  interpreted all over again.  Before &defvar;, &value-r; is evaluated as
- a lexical (because is is &not-e; declared &special-dec; yet), but after
+ a lexical (because it is &not-e; declared &special-dec; yet), but after
  &defvar;, we see a globally &special-dec; symbol &value-r; which
  can have only a global &symbol-value; (not a local binding), and thus
  we are compelled to evaluate it to <returnvalue>12</returnvalue>.</para>
@@ -4296,7 +4296,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
       </simpara></listitem><listitem><simpara>
         <quote role="format">First line.~%Second line.~%~%</quote>
  </simpara></listitem></orderedlist></listitem></orderedlist></para></listitem>
- <listitem><simpara>Is is possible to optimize away blank lines?
+ <listitem><simpara>Is it possible to optimize away blank lines?
    I.e. is it possible to avoid a blank line even though another piece
    of code uses one of A1 ... C2, without risking that adjacent lines be
    unseparated?</simpara></listitem>
@@ -4503,7 +4503,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 <warning id="stream-eltype-stdio"><simpara>&clisp; expects to be able to
   do &character-t; i/o on standard streams like &terminal-io-var;,
   &standard-output-var;, &standard-input-var;, &error-output-var;,
-  &query-io-var; et al, thus is is a &very-e; bad idea
+  &query-io-var; et al, thus it is a &very-e; bad idea
   to change their &stream-element-type; even when you can. Use
   &make-stream; instead, see <xref linkend="bin-stdio"/>.</simpara></warning>
 
