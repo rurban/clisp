@@ -1,6 +1,7 @@
 2010-12-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/asdf/asdf.lisp: update to upstream "2.011"
+	* src/gmalloc.c: update to upstream
 
 2010-12-10  Sam Steingold  <sds@gnu.org>
 
