@@ -1,3 +1,8 @@
+2010-12-10  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: add a test for bug#3124200:
+	setting *DEFAULT-PATHNAME-DEFAULTS* breaks REQUIRE
+
 2010-11-29  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: add a test for bug#3122505: LOAD bad FAS

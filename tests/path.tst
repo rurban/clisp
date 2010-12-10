@@ -1349,6 +1349,32 @@ NIL
     (rmrf dir)))
 #+(and clisp unicode) (1234 T)
 
+#+clisp ;; bug#3124200
+(let* ((dir "tmp-dir/")
+       (file (ext:string-concat dir "foo.lisp")))
+  (ext:make-directory dir)
+  (with-open-file (out file :direction :output)
+    (write-line "(defparameter *load-var* 100)" out))
+  (unwind-protect
+       (list (load "foo" :if-does-not-exist nil)
+             (equalp (load file) (truename file)) *load-var*
+             (let ((*load-paths* (list dir)))
+               (setq *load-var* 3) (load "foo") *load-var*)
+             (let ((*load-paths* (list dir))
+                   (*default-pathname-defaults* (ext:cd)))
+               (setq *load-var* 3) (load "foo" :if-does-not-exist nil) *load-var*)
+             (block nil
+               (handler-bind ((file-error (lambda (c) (princ c) (return 'file-error))))
+                 (require "foo")))
+             (let ((*load-paths* (list dir)))
+               (setq *load-var* 3) (require "foo") *load-var*)
+             (let ((*load-paths* (list dir))
+                   (*default-pathname-defaults* (ext:cd)))
+               (setq *load-var* 3) (require "foo") *load-var*))
+    (delete-file file)
+    (ext:delete-directory dir)))
+#+clisp (NIL T 100 100 3 FILE-ERROR 100 100)
+
 (progn
   (symbol-cleanup '*dir*)
   (symbol-cleanup 'a)

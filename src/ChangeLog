@@ -1,7 +1,21 @@
 2010-12-10  Sam Steingold  <sds@gnu.org>
 
+	Fix bug#3124200: setting *DEFAULT-PATHNAME-DEFAULTS* breaks REQUIRE
+	* init.lisp (open-for-load): accept ignore-pathname-defaults and
+	do not call MERGE-PATHNAMES if it is non-NIL;
+	use PROBE-PATHNAME instead of DIRECTORY to probe for a directory
+	(load): ccept :IGNORE-PATHNAME-DEFAULTS and pass it to OPEN-FOR-LOAD;
+	pathname merging is done in OPEN-FOR-LOAD
+	(search-file): call PATHNAME instead of MERGE-PATHNAMES on the
+	argument to avoid being killed by *DEFAULT-PATHNAME-DEFAULTS*
+	* defs1.lisp (with-augmented-load-path): do not use UNION since
+	the augmentations must come first in *LOAD-PATHS*
+	(simple-require): pass :IGNORE-PATHNAME-DEFAULTS T to LOAD
+
+2010-12-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/asdf/asdf.lisp: update to upstream "2.011"
-	* src/gmalloc.c: update to upstream
+	* src/gmalloc.c: update from upstream (emacs)
 
 2010-12-10  Sam Steingold  <sds@gnu.org>
 

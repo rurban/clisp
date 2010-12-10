@@ -5327,7 +5327,8 @@ when being loaded, this is important as well.</para></section>
                     ((&print-k; &load-print-var;) &load-print-var;)
                     ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
                     ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
-                    ((&obsolete-action-k; &load-obs;) &load-obs;))
+                    ((&obsolete-action-k; &load-obs;) &load-obs;)
+                    (ignore-pathname-defaults nil))
 </programlisting>
 
 <variablelist>
@@ -5395,6 +5396,10 @@ when being loaded, this is important as well.</para></section>
      <indexterm id="load-obs" significance="preferred">
       <primary>*LOAD-OBSOLETE-ACTION*</primary></indexterm></firstterm>,
     which is initially &nil;.</para></listitem></varlistentry>
+  <varlistentry><term><constant>:IGNORE-PATHNAME-DEFAULTS</constant></term>
+  <listitem><simpara>Do not merge &default-pathname-defaults-var; to the
+   argument using &merge-pathnames; (as required by &ansi-cl;) and rely
+   on &load-paths; instead.</simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The variables &load-verbose-var;, &load-print-var;,

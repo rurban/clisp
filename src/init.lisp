@@ -1584,6 +1584,7 @@
   (sys::%putd 'ext::muffle-cerrors #'identity))
 
 (defun open-for-load (filename extra-file-types external-format
+                      ignore-pathname-defaults
                       &aux stream (present-files t) obj path bad-file)
  (block open-for-load
   (when (and (streamp filename)
@@ -1615,15 +1616,14 @@
                       (bad last-p stream (TEXT "~S: compiled file ~A has a corrupt version marker ~S")))
                   (or (equal (system::version) (eval (second obj)))
                       (bad last-p stream (TEXT "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"))))))
-    (setq filename (pathname filename)
-          ;; appending "/" to a logical pathname makes it invalid
-          path (if (logical-pathname-p filename)
-                   (translate-logical-pathname filename)
-                   filename))
+    (setq filename (if ignore-pathname-defaults
+                       (pathname filename) (merge-pathnames filename))
+          path filename)
     ;; (OPEN "foo") errors out if we do (LOAD "foo")
     ;; and both "foo.lisp" and "foo/" are present
-    (unless (directory (string-concat (namestring path) "/"))
-      (setq stream (my-open path)))
+    (let ((truename? (probe-pathname path)))
+      (unless (and truename? (null (pathname-name truename?)))
+        (setq stream (my-open path))))
     (tagbody proceed
       (when (and stream
                  (if (compiledp stream)
@@ -1726,9 +1726,11 @@
                   ((:obsolete-action *load-obsolete-action*)
                    *load-obsolete-action*)
                   (extra-file-types '())
+                  (ignore-pathname-defaults nil)
              &aux stream)
   (multiple-value-setq (stream filename)
-    (open-for-load filename extra-file-types external-format))
+    (open-for-load filename extra-file-types external-format
+                   ignore-pathname-defaults))
   (if (null stream)
     (if if-does-not-exist
       (error-of-type 'file-error
@@ -1743,7 +1745,7 @@
            (*load-level* (1+ *load-level*))
            (*load-input-stream* input-stream)
            (*load-pathname*
-            (if (pathnamep filename) (merge-pathnames filename) nil))
+            (if (pathnamep filename) filename nil))
            (*load-truename*
              (if (pathnamep filename) (truename filename) nil))
            (*current-source-file* *load-truename*)
@@ -2176,7 +2178,12 @@
   ;; starting up (unless -norc or -E 1:1 is passed)
   ;; because (DIRECTORY "~/*") fails
   (let* ((already-searched nil) found
-         (path-nonW (merge-pathnames filename))
+         ;; not (merge-pathnames filename) because filename can come
+         ;; from `load-logical-pathname-translations' or `require'
+         ;; and must be searched in "implementation-defined" locations
+         ;; while `*default-pathname-defaults*' may contain a directore
+         ;; which would preclude searching
+         (path-nonW (pathname filename))
          (path-wild (if (pathname-name path-nonW)
                         (merge-pathnames path-nonW '#P"*.*")
                         ;; do not append *.* to directories
