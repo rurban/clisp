@@ -49,3 +49,24 @@
                   (t (error "unknown bug kind [%s]" kind))))))
 
 (put 'clisp-bug-reference-url-format 'bug-reference-url-format t)
+
+(autoload 'rng-dtd-trivial-p "rng-valid")
+(autoload 'nxml-parent-document-set "nxml-mode")
+(defun clisp-nxml-mode-hook ()
+  "Set `nxml-mode-hook' for clisp impnotes."
+  (when (and (null nxml-parent-document)
+             (rng-dtd-trivial-p rng-dtd)
+             (eq (vc-backend buffer-file-name) 'CVS))
+    (let ((dir (file-name-directory buffer-file-name)) parent)
+      (when (clisp-repo-p dir)
+        (cond ((file-exists-p
+                (setq parent (expand-file-name "impnotes.xml.in" dir)))
+               (unless (string= parent buffer-file-name)
+                 (nxml-parent-document-set parent)))
+              ((file-exists-p
+                (setq parent (expand-file-name "doc/impnotes.xml.in"
+                                               (locate-dominating-file
+                                                dir "ANNOUNCE"))))
+               (nxml-parent-document-set parent))
+              (t (message "Cannot find parent document")))))))
+(add-hook 'nxml-mode-hook 'clisp-nxml-mode-hook)
