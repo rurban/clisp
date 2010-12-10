@@ -169,11 +169,13 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
                               :defaults *compile-file-pathname*)))))
 
 (defmacro with-augmented-load-path (dirs &body body)
-  `(let ((*load-paths*
-          ;; the name "dynmod/" used here should be in sync with clisp-link
-          (union *load-paths*
-                 ,(if dirs `(list ,@dirs) '(load-path-augmentations "dynmod/"))
-                 :test #+win32 #'equalp #-win32 #'equal)))
+  `(let ((*load-paths* *load-paths*))
+     ;; cannot use UNION because DIRS must come _first_ in *LOAD-PATHS*
+     ;; the name "dynmod/" used here should be in sync with clisp-link
+     (dolist (path ,(if dirs
+                        `(list ,@dirs)
+                        '(load-path-augmentations "dynmod/")))
+          (pushnew path *load-paths* :test #+win32 #'equalp #-win32 #'equal))
      ,@body))
 
 (defvar *module-provider-functions* '()
@@ -181,7 +183,9 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 
 (defun simple-require (pathname)
   (with-augmented-load-path ()
-    (if (atom pathname) (load pathname) (mapcar #'load pathname))))
+    (if (atom pathname)
+        (load pathname :ignore-pathname-defaults t)
+        (mapcar (lambda (p) (load p :ignore-pathname-defaults t)) pathname))))
 
 (defun require (module-name &optional (pathname nil p-given))
   (setq module-name (module-name module-name))
