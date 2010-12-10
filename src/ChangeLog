@@ -1,3 +1,7 @@
+2010-12-10  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (update-gmalloc): new target: get gmalloc.c from emacs
+
 2010-12-02  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (load-path-augmentations): delete NILs
