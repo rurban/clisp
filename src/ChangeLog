@@ -1,9 +1,9 @@
 2010-12-29  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	Fix for bug #3144993: OS:FILE-INFO crashes when file's times 
+	Fix for bug#3144993: OS:FILE-INFO crashes when file's times
 	are corrupted (Y2.04k bug)
 	* time.d (convert_time_to_universal) [WIN32_NATIVE]: use 64 bit
-	when dividing ticks by ticks_per_second, because universal time 
+	when dividing ticks by ticks_per_second, because universal time
 	exceeds 32 bits around year 2035.
 
 2010-12-10  Sam Steingold  <sds@gnu.org>
@@ -12,7 +12,7 @@
 	* init.lisp (open-for-load): accept ignore-pathname-defaults and
 	do not call MERGE-PATHNAMES if it is non-NIL;
 	use PROBE-PATHNAME instead of DIRECTORY to probe for a directory
-	(load): ccept :IGNORE-PATHNAME-DEFAULTS and pass it to OPEN-FOR-LOAD;
+	(load): accept :IGNORE-PATHNAME-DEFAULTS and pass it to OPEN-FOR-LOAD;
 	pathname merging is done in OPEN-FOR-LOAD
 	(search-file): call PATHNAME instead of MERGE-PATHNAMES on the
 	argument to avoid being killed by *DEFAULT-PATHNAME-DEFAULTS*
