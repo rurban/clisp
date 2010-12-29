@@ -407,13 +407,13 @@ modexp maygc object convert_time_to_universal (const FILETIME* time) {
     { 0xFDE04000, 0x14F373B };
    #endif
   var internal_time_t internal_real_time;
-  var uintL real_time;
+  var uintL uni_high, uni_low, r1;
   sub_internal_time(*time,offset,internal_real_time);
-  divu_6432_3232(internal_real_time.dwHighDateTime,
-                 internal_real_time.dwLowDateTime,
-                 ticks_per_second,
-                 real_time=,);
-  return UL_to_I(real_time);
+  divu_6432_3232(0,internal_real_time.dwHighDateTime,
+    ticks_per_second, uni_high = , r1 = );
+  divu_6432_3232(r1,internal_real_time.dwLowDateTime,
+    ticks_per_second, uni_low = , );
+  return L2_to_I(uni_high, uni_low);
 }
 /* the inverse of convert_time_to_universal() */
 modexp void convert_time_from_universal (object universal, FILETIME* time) {

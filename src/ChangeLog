@@ -1,3 +1,11 @@
+2010-12-29  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	Fix for bug #3144993: OS:FILE-INFO crashes when file's times 
+	are corrupted (Y2.04k bug)
+	* time.d (convert_time_to_universal) [WIN32_NATIVE]: use 64 bit
+	when dividing ticks by ticks_per_second, because universal time 
+	exceeds 32 bits around year 2035.
+
 2010-12-10  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#3124200: setting *DEFAULT-PATHNAME-DEFAULTS* breaks REQUIRE
