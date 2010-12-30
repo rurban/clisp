@@ -5999,7 +5999,7 @@ local maygc namestring_kind_t classify_namestring
     end_blocking_system_call();
     if (success) {                  /* file exists. */
       if (fwd) *fwd = convert_time_to_universal(
-        filedata.ftLastWriteTime.dwLowDateTime
+        filedata.ftLastWriteTime.dwHighDateTime
         || filedata.ftLastWriteTime.dwLowDateTime
         ? &filedata.ftLastWriteTime : &filedata.ftCreationTime);
       if (fsize) *fsize = off_to_I(

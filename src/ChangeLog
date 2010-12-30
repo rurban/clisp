@@ -1,3 +1,7 @@
+2010-12-30  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* pathname.d (classify_namestring) [WIN32_NATIVE]: fixed condition.
+
 2010-12-29  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	Fix for bug#3144993: OS:FILE-INFO crashes when file's times
