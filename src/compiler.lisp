@@ -823,7 +823,7 @@ for-value   NIL or T
                  (UNWIND-PROTECT
                    (here)
                    (unless for-value
-                     ;; When for-value=NIL at the the first occurring
+                     ;; When for-value=NIL at the first occurring
                      ;; UNWIND-PROTECT-Frame a '(VALUES0) is inserted.
                      (setq for-value t)
                      (push '(VALUES0) codelist))
