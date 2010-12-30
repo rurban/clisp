@@ -16000,7 +16000,7 @@
 	config.status failed with
 	error: `CFLAGS' was not set in the previous run
 	This is a partial reversal of the 2005-10-07 patch (dependency of
-	C files on on config.h are kept).
+	C files on config.h are kept).
 
 2005-10-11  Sam Steingold  <sds@gnu.org>
 
@@ -21266,7 +21266,7 @@
 	(c-HANDLER-BIND): handle HANDLER-BIND in function syntax
 	* init.lisp (%expand-form): do not handle %HANDLER-BIND specially
 	* clos-class3.lisp (reinitialize-instance-<defined-class>):
-	use use the function syntax for %HANDLER-BIND
+	use the function syntax for %HANDLER-BIND
 	* clos-genfun4.lisp (generic-function-undeterminedp): ditto
 	* clos-methcomb2.lisp (any-method-combination-check-options): ditto
 
@@ -33240,7 +33240,7 @@
 2004-03-18  Sam Steingold  <sds@gnu.org>
 
 	* io.d (circle_p): when SYS::*PRINT-CIRCLE-TABLE* is NIL, assume
-	that the the object has no circularities and print it normally
+	that the object has no circularities and print it normally
 	(pr_enter_2): bind SYS::*PRINT-CIRCLE-TABLE* to NIL when there
 	are no circularities but *PRINT-READABLY* is non-NIL
 
@@ -34707,7 +34707,7 @@
 	(c-bind-with-svars, c-UNWIND-PROTECT, c-MULTIPLE-VALUE-PROG1): use it
 	(c-VARSET): set SECLASS-USES-BINDING for SPECIAL variables
 	(c-PROGV, c-parallel-bind-movable-var-anode):
-	check both both USES and USES-BINDING
+	check both USES and USES-BINDING
 	(c-FUNCTION, c-HANDLER-BIND): use *SECLASS-READ* instead of a literal
 	(f-side-effect, c-unlist, c-DEFUN, c-RETURN-FROM, c-GO):
 	use *SECLASS-DIRTY* instead of a literal
@@ -36674,7 +36674,7 @@
 	(fehler_undef_function, fehler_kein_symbol, fehler_function)
 	(test_symbol_non_constant): remove
 	(check_symbol_non_constant, check_fdefinition, check_function): add
-	(COERCE): use use check_fdefinition()
+	(COERCE): use check_fdefinition()
 	instead of fehler_undef_function()
 	* record.d (MAKE-MACRO, MAKE-FUNCTION-MACRO): use check_function()
 	instead of fehler_function()
@@ -37037,7 +37037,7 @@
 	(DIR-KEY-OPEN, DKEY-SEARCH-ITERATOR, init_iteration_node)
 	(DIR-KEY-VALUE, SET-DKEY-VALUE, REG_KEY_DEL):
 	use check_string() instead of fehler_string()
-	* eval.d (SPECIAL-VARIABLE-P): use use check_symbol()
+	* eval.d (SPECIAL-VARIABLE-P): use check_symbol()
 	instead of test_symbol()
 	(sym_value_place, check_local_symbol_value): new functions
 	(sym_value): now a macro that calls sym_value_place()
@@ -40826,7 +40826,7 @@
 
 2002-06-12  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d (schar): match the cast in return the the return type
+	* lispbibl.d (schar): match the cast in return with the return type
 
 2002-06-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
