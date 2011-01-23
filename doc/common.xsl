@@ -373,14 +373,6 @@
 <xsl:template match="screen/prompt">
  <strong><xsl:apply-imports/></strong></xsl:template>
 
-<xsl:template match="comment()">  <!-- pass through comments -->
- <xsl:text>&#10;</xsl:text>
- <xsl:comment><xsl:value-of select="normalize-space(.)"/></xsl:comment>
- <!-- http://article.gmane.org/gmane.text.docbook.apps:13033 -->
- <xsl:if test="not(following-sibling::node()[1][self::comment()])">
-  <xsl:text>&#10;</xsl:text></xsl:if>
-</xsl:template>
-
 <!-- http://article.gmane.org/gmane.text.docbook.apps:19941
      http://article.gmane.org/gmane.text.docbook.apps:19957
      list examples in the section toc -->
