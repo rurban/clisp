@@ -5010,18 +5010,19 @@ Otherwise, when the variable &pathprint; is non-&nil;, the
  <subtitle>Function &format;</subtitle>
 
 <para>The additional &format; instruction
- <firstterm>~!<indexterm id="format-bang" significance="preferred">
+ <firstterm><literal>~!</literal><indexterm id="format-bang" significance="preferred">
    <primary>&format;</primary><secondary>~!</secondary></indexterm></firstterm>
  is similar to &format-slash;, but avoids putting a function name into a
- string, thus, even if the function is not interned in the &clu-pac;
- package, you might not need to specify the package explicitly.
+ string, thus it is &read; in the current &package-var;, so, even if the
+ function is not interned in the &clu-pac; package, you might not need
+ to specify the package explicitly.
  <code>(&format; &stream-r; "~arguments!" &func-r; &object-r;)</code> is
   equivalent to <code>(&funcall; &func-r; &stream-r; &object-r;
   <replaceable>colon-modifier-p</replaceable>
   <replaceable>atsign-modifier-p</replaceable> &args-r;)</code>.</para>
 
 <para>The additional &format; instruction
- <firstterm>~.<indexterm id="format-dot" significance="preferred">
+ <firstterm><literal>~.</literal><indexterm id="format-dot" significance="preferred">
    <primary>&format;</primary><secondary>~.</secondary></indexterm></firstterm>
  is a kind of opposite to <code>~&amp;</code>: It outputs a conditional
  newline, by calling the function &elastic-newline;.
