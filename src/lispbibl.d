@@ -17641,11 +17641,11 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 
 /* UP: executes body while thread interrupts are deferred. after body
    finishes - deferred interrupts are executed (if any) */
-#define WITH_DEFERED_INTERRUPTS(body) do {                  \
+#define WITH_DEFERRED_INTERRUPTS(body) do {                 \
   dynamic_bind(S(defer_interrupts), T);                     \
   body;                                                     \
   dynamic_unbind(S(defer_interrupts));                      \
-  if (nullp(Symbol_thread_value(S(deferred_interrupts))))   \
+  if (nullp(Symbol_thread_value(S(defer_interrupts))))      \
     while (!nullp(Symbol_thread_value(S(deferred_interrupts)))) {         \
       var object intr = Car(Symbol_thread_value(S(deferred_interrupts))); \
       Symbol_thread_value(S(deferred_interrupts)) =         \
@@ -17716,7 +17716,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     if (we_own && (!we_owned || rc > rec_count)) {                      \
       var uintC cnt=mv_count;                                           \
       if (keep_mv_space) mv_to_STACK();                                 \
-      WITH_DEFERED_INTERRUPTS({                                         \
+      WITH_DEFERRED_INTERRUPTS({                                        \
         pushSTACK(*(mutex));                                            \
         funcall(L(mutex_unlock),1);                                     \
       });                                                               \

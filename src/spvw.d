@@ -646,6 +646,9 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
     objptr=(gcv_object_t*)&(thread->_object_tab);
     dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),
               { *objptr++=NIL; });
+    /* allow interrupts in new (not yet spawned) thread */
+    thread->_ptr_symvalues[TheSymbol(S(defer_interrupts))->tls_index] = NIL;
+    thread->_ptr_symvalues[TheSymbol(S(deferred_interrupts))->tls_index] = NIL;
   }
   if (lisp_stack_size) {
     /* allocate the LISP stack */
