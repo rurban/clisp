@@ -1,3 +1,11 @@
+2011-02-11  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (WITH_DEFERRED_INTERRUPTS): fix typo in name and really
+	execute deferred interrupts
+	* spvw.d (create_thread): allow interrupts in newly created threads
+	* zthread.d (thread_stub): defer interrupts until low level per thread
+	variables are initialized
+
 2010-12-30  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
 	* pathname.d (classify_namestring) [WIN32_NATIVE]: fixed condition.

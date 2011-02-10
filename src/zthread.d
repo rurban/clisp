@@ -196,9 +196,6 @@ global maygc void thread_cleanup (void) {
 /* UP: creates initial bindings in thread context from alist
  > initial_bindings: alist of (symbol . form) elements */
 global void initialize_thread_bindings(gcv_object_t *initial_bindings) {
-  /* do not defer interrupts by default and while evaluating initial forms */
-  Symbol_thread_value(S(defer_interrupts)) = NIL;
-  Symbol_thread_value(S(deferred_interrupts)) = NIL;
   if (!missingp(*initial_bindings)) {
     var uintC bind_count = 0;
     var gcv_object_t *bottom = &STACK_0;
@@ -255,9 +252,10 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
        error (error xxx) happens in the thread. */
     finish_entry_frame(DRIVER,returner,,{
       skipSTACK(2+3+1);STACK_0=NIL;goto end_of_thread;});
-    init_time(); /* initialize thread time variables */
-    /* initialize the low level i/o stuff for this thread*/
-    init_reader_low(me);
+    WITH_DEFERRED_INTERRUPTS({
+      init_time(); /* initialize thread time variables */
+      init_reader_low(me); /* initialize the low level i/o for this thread*/
+    });
     /* initialize thread special variables bindings */
     initialize_thread_bindings(initial_bindings);
     funcall(*funptr,0); /* call fun */
