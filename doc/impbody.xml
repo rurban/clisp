@@ -4646,7 +4646,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
   <itemizedlist>
    <listitem><simpara>for functions that create &socket-stream;s and
     <link linkend="pipe">pipes</link>, &default-k; is equivalent to
-    &t; on the input side and to &nil; on the output side; it you are
+    &t; on the input side and to &nil; on the output side; if you are
     transmitting a lot of data then using buffering
     will significantly speed up your i/o;</simpara></listitem>
    <listitem><simpara>for functions that <link linkend="open">open</link>
