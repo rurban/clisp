@@ -1,3 +1,9 @@
+2011-02-17  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:CREATE-GCONTEXT):
+	use error_required_keywords()
+	Reported by Peter Van Eynde <pvaneynd@debian.org>
+
 2011-02-11  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (WITH_DEFERRED_INTERRUPTS): fix typo in name and really
