@@ -1,7 +1,7 @@
 /* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2008
+Sam Steingold 2001-2011
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -2954,7 +2954,7 @@ DEFUN(XLIB:CREATE-PIXMAP, &key PIXMAP :WIDTH HEIGHT DEPTH DRAWABLE)
   Window root;
 
   if (!boundp(STACK_0))
-    error_required_keywords(`(:DRAWABLE)`);
+    error_required_keywords(`:DRAWABLE`);
   da = get_drawable_and_display (STACK_0, &dpy);
 
   /* mit-clx requires width, height, depth, but the manual does not */
@@ -3107,10 +3107,8 @@ DEFUN(XLIB:CREATE-GCONTEXT, &key DRAWABLE FUNCTION PLANE-MASK FOREGROUND \
       funcall(``XLIB:SET-GCONTEXT-DASHES``,2);
       value1 = popSTACK();      /* restore gcontext */
     }
-  } else {
-    pushSTACK(TheSubr (subr_self)->name);
-    error(error_condition,"~S: At least :DRAWABLE should be specifed.");
-  }
+  } else
+    error_required_keywords(`:DRAWABLE`);
   skipSTACK(26);
 }
 
