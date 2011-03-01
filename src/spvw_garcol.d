@@ -1735,7 +1735,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
 /* UP: fills all holes specified by holes structures.
  <> holes: array of memory regions in the heap left as holes. the array
  ends with invalid item.
- As an output the holes are replaced with VM paged aligned memory regions
+ As an output the holes are replaced with VM page aligned memory regions
  that have to keep PROT_READ_WRITE protection in gen0 (GENERATIONAL_GC only)
 */
 #ifdef SPVW_PURE
@@ -1836,7 +1836,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       var bool writable = true; /* if obj is in gen1 heap - it is writable */
       var aint vs = holes->start;
       if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
-          (heap->physpages != NULL)) {  /* is the object on old gen? */
+          (heap->physpages != NULL)) {  /* is the object in old gen? */
         var uintL pageno = (vs>>physpageshift) -
           (heap->heap_gen0_start>>physpageshift);
         var physpage_state_t* physpage = &heap->physpages[pageno];
@@ -1846,7 +1846,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
         var aint es = vs + objsize((Varobject)vs);
         holes->start &= -physpagesize; /* page-aligned */
         holes->size = (((es + (physpagesize-1)) & -physpagesize) -  holes->start);
-        /* now the hole contains the paged aligned region that has to remain
+        /* now the hole contains the page aligned region that has to remain
            with PROT_READ_WRITE after GC */
       }
     }
@@ -1890,8 +1890,8 @@ local bool split_gen0_on_holes(uintL heapnr, varobj_mem_region *rwareas)
     }
     hl = hh->hh_next; /* next hole */
   }
-  /* if there are not holes or their size os "relatively" small to used area -
-     do not consider them for reuse */
+  /* if there are no holes or their size is "relatively" small compared to used
+     area - do not consider them for reuse */
   if ((last_hole == heap->heap_end) || (used > (in_holes << 1))) {
     heap->holes_list = 0; /* clear holes - all of them will remain in gen0*/
     return false; /* no splitting - everything goes in gen0 */
@@ -1945,7 +1945,7 @@ local bool split_gen0_on_holes(uintL heapnr, varobj_mem_region *rwareas)
   while (rwareas->size)
  #endif
   {
-    if (rwareas->start == last_rwarea) {
+    if (rwareas->start >= last_rwarea) {
       rwareas->start = 0;
      #ifdef SPVW_PURE
       rwareas->heapnr = heapcount + 1;
