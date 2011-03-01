@@ -1,3 +1,9 @@
+2011-03-01  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (split_gen0_on_holes) [MULTITHREAD]: correctly mark the
+	end of old generation (it is possible the split-hole to be for
+	read-only pinned object)
+
 2011-02-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:CREATE-GCONTEXT):
