@@ -1,0 +1,40 @@
+# the master HG ignore file for clisp
+
+syntax: glob
+
+# autoconf
+autom4te.cache
+
+doc/html
+doc/impnotes.fo
+doc/impnotes.pdf
+doc/impnotes.tex
+doc/impnotes.texi
+doc/impnotes.xml
+doc/impnotes-src.zip
+doc/*.err
+doc/clisp.1
+doc/clisp.html
+doc/clisp.xml
+doc/clisp-link.1
+doc/clisp-link.html
+doc/clisp-link.xml
+doc/*.tdb
+doc/catalog.xml
+doc/docbook-xsl
+doc/docbook-dtd
+doc/id-href.map
+emacs/*.elc
+
+syntax: regexp
+
+# build directories & their logs
+^build.*
+
+# cf Makefile.devel:update-ansi-tests
+^ansi-tests
+# cf Makefile.devel:update-gnulib
+^gnulib
+# cf Makefile.devel:tags & TAGS
+^tags
+^TAGS
