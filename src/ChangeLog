@@ -1,3 +1,7 @@
+2011-03-08  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel: update for the cvs->hg switch
+
 2011-03-01  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_garcol.d (split_gen0_on_holes) [MULTITHREAD]: correctly mark the

@@ -5,8 +5,11 @@
   (defvar change-log-default-name))
 
 (defun clisp-repo-p (dir)
-  (let ((host (vc-cvs-repository-hostname dir)))
-    (and host (string-match "^clisp\\." host))))
+  (let ((root
+         (with-temp-buffer
+           (and (zerop (call-process vc-hg-program nil t nil "paths" "default"))
+                (buffer-string)))))
+    (and root (string-match "clisp\\.hg" root))))
 
 (eval-after-load "grep"         ; for rgrep
   '(progn
@@ -17,7 +20,7 @@
 
 (defun clisp-set-change-log-default-name ()
   "Set `change-log-default-name' appropriately."
-  (when (eq (vc-backend buffer-file-name) 'CVS)
+  (when (eq (vc-backend buffer-file-name) 'Hg)
     (let ((dir (file-name-directory buffer-file-name)))
       (when (clisp-repo-p dir)
         (let ((cl (expand-file-name "ChangeLog" dir)))
@@ -31,7 +34,7 @@
 (add-hook 'find-file-hooks 'clisp-set-change-log-default-name t)
 
 (defun clisp-set-change-log-vc-dir ()
-  (when (and (eq vc-dir-backend 'CVS)
+  (when (and (eq vc-dir-backend 'Hg)
              (clisp-repo-p default-directory))
     (set (make-local-variable 'change-log-default-name)
          (expand-file-name "src/ChangeLog" default-directory))))
@@ -56,7 +59,7 @@
   "Set `nxml-mode-hook' for clisp impnotes."
   (when (and (null nxml-parent-document)
              (rng-dtd-trivial-p rng-dtd)
-             (eq (vc-backend buffer-file-name) 'CVS))
+             (eq (vc-backend buffer-file-name) 'Hg))
     (let ((dir (file-name-directory buffer-file-name)) parent)
       (when (clisp-repo-p dir)
         (cond ((file-exists-p

@@ -426,7 +426,7 @@ gnulib-imported : update-gnulib force
 	  if test -f ../m4/$$f; then \
 	    echo == $$f; \
 	    if cmp $$f ../m4/$$f; then \
-	      cd ../m4; cvs rm -f $$f; cd ../glm4; \
+	      cd ../m4; hg rm -f $$f; cd ../glm4; \
 	    fi; \
 	  fi; \
 	done
@@ -484,13 +484,13 @@ GNU_SYM=$(ARCHIVE)/$(TOPDIR).symlink.directive
 
 # Assume tar/bzip2/gzip are present
 # set this if you are using GNU tar
-EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
+EXCLUDE=--exclude .hg --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
-        --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
+        --exclude .hgignore --exclude \*~ --exclude .\#\*                  \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
-        --exclude libtool-\*.tar.gz                                        \
-        `sed "s/^/--exclude /" doc/.cvsignore`                             \
-        --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
+        --exclude libtool-\*.tar.gz --exclude TAGS --exclude tags          \
+        `grep '^doc/' .hgignore | sed "s,^doc/,--exclude ,"`               \
+         --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure
@@ -560,7 +560,7 @@ gnu-distrib : $(SRC_DIST1) force
 	$(GPG) --clearsign $(GNU_SYM)
 
 tag-release : force
-	cvs tag -FR clisp_$(subst .,_,$(VER))-$(REL) .
+	hg tag clisp_$(subst .,_,$(VER))-$(REL) .
 
 TP_EMAIL=coordinator@translationproject.org
 MESSAGE_FILE=tp_message
