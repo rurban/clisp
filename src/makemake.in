@@ -3051,7 +3051,7 @@ if [ $CROSS = false ] ; then
   #    that happens to fail in clisp. But we don't want to put out new releases
   #    on a weekly or monthly basis, nor do we want to get flooded by reports
   #    of failing "make check".
-  # 2. 'cvs' does not work on machines that are not connected to the internet.
+  # 2. 'svn' does not work on machines that are not connected to the internet.
   # 3. Makefile.devel does not work if 'make' is not GNU make.
   # echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel update-ansi-tests"
     echotab "-mkdir ${ANSITESTSDIR}"
@@ -3077,14 +3077,14 @@ if [ $CROSS = false ] ; then
     echol
   fi
 
-  # have CVS + developer with a network connection => check id-href.map
+  # have .hg + developer with a network connection => check id-href.map
   # Try wget, lynx, curl in order. wget is common, but MacOS X only has curl.
   # use beta pages for the latest id-href.map
   # NB: keep in sync with doc/Makefile:DIST
   MYIMPROOT=http://clisp.podval.org/impnotes/
   # MYIMPROOT=http://clisp.org/beta/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
-  if test -d "${SRCTOPDIR_}CVS" \
+  if test -d "${SRCTOPDIR_}.hg" \
      && { if wget --version >/dev/null 2>/dev/null ; then \
             wget --tries=1 --timeout=10 -q ${MYTESTURL}; \
           elif lynx --version >/dev/null 2>/dev/null ; then \
@@ -3968,7 +3968,7 @@ clean6 : clean5
 
 # clean-modules remove the copies of modules, do it if you change modprep and such
 clean-modules :
-	-\$(RMRF) \`ls -d ${MODULESDIR_}*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+	-\$(RMRF) \`ls -d ${MODULESDIR_}*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,'\`
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6 clean-modules
