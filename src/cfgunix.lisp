@@ -48,7 +48,7 @@
 ;; which browser do you use? (see `*browsers*' in clhs.lisp)
 ;; (setq *browser* :firefox)
 
-(defvar *impnotes-root-default* "http://clisp.cons.org/impnotes/")
+(defvar *impnotes-root-default* "http://clisp.org/impnotes/")
 (defun impnotes-root ()
   "This returns the root URL for the CLISP implementation notes.
 You can set the environment variable `IMPNOTES' or redefine this function

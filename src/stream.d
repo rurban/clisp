@@ -3868,7 +3868,7 @@ typedef struct strm_channel_extrafields_t {
     some Microsoft editors insert new lines with eol = CR/LF,
     while other Microsoft editors insert new lines with eol = CR.
     Java learned the lesson and understands all three line-terminators.
-    So do we, see http://clisp.cons.org/impnotes/clhs-newline.html
+    So do we, see http://clisp.org/impnotes/clhs-newline.html
     See also http://www.unicode.org/reports/tr13/tr13-9.html */
   /*bool*/int  ignore_next_LF : 8;     /* true after reading a CR */
   struct file_id fid;                  /* unique file ID */

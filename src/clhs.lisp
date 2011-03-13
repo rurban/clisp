@@ -1,5 +1,5 @@
 ;;; Sam Steingold 2000-2008, 2010
-;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
+;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
 (in-package "EXT")

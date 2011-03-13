@@ -3,7 +3,7 @@
 # where
 #   command = create, add, run, install
 # For more usage information, see <doc/impnotes.html#mod-overview>.
-# Or <http://clisp.cons.org/modules.html#mod-overview>.
+# Or <http://clisp.org/modules.html#mod-overview>.
 # Bruno Haible 19.10.1994
 # Sam Steingold 2002-2010
 

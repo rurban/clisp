@@ -1050,7 +1050,7 @@ nonreturning_function(modexp, error_notreached,
   pushSTACK(ascii_to_string(file));
   error(serious_condition,
         GETTEXT("Internal error: statement in file ~S, line ~S has been reached!!\n"
-                "Please see <http://clisp.cons.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."));
+                "Please see <http://clisp.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."));
 }
 
 #include "spvw_ctype.c"

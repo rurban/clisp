@@ -113,6 +113,6 @@
   (when (y-or-n-p "Create CLISP URL file on your desktop <~a>?" url-file)
     (with-open-file (url (substitute #\/ #\\ url-file) :direction :output)
       (format t "~&writing <~a>..." url-file) (force-output)
-      (format url "[Internetshortcut]~%URL=http://clisp.cons.org
+      (format url "[Internetshortcut]~%URL=http://clisp.org
 IconFile=~adoc\\clisp.ico~%" *clisp-home*)
       (format t "done~%"))))

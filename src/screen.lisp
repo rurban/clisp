@@ -5,7 +5,7 @@
 ;; thus we have to use DEFPACKAGE here just in case
 
 (defpackage "SCREEN"
-  (:documentation "http://clisp.cons.org/impnotes/screen.html")
+  (:documentation "http://clisp.org/impnotes/screen.html")
   (:use "COMMON-LISP" "EXT")
   (:export ;; exported functions and macros:
    #:make-window #:window-size

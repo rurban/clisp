@@ -141,7 +141,7 @@ src/version.h: version.sh
 	  echo "#define PACKAGE_TARNAME \"clisp\"" ; \
 	  echo "#define PACKAGE_VERSION \"$$VERSION_NUMBER ($$RELEASE_DATE)\"" ; \
 	  echo "#define PACKAGE_STRING \"GNU CLISP $$VERSION_NUMBER ($$RELEASE_DATE)\"" ; \
-	  echo "#define PACKAGE_BUGREPORT \"http://clisp.cons.org/\""; \
+	  echo "#define PACKAGE_BUGREPORT \"http://clisp.org/\""; \
 	} > src/version.h
 
 src/asmi386.h : src/asmi386.hh

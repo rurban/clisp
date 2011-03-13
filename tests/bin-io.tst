@@ -2,10 +2,10 @@
 ;; CLISP-specific tests of binary i/o
 ;; READ-FLOAT, WRITE-FLOAT
 ;; READ-INTEGER, WRITE-INTEGER
-;; <http://clisp.cons.org/impnotes/stream-dict.html#bin-input>
-;; <http://clisp.cons.org/impnotes/stream-dict.html#bin-output>
-;; <http://clisp.cons.org/impnotes.html#bin-input>
-;; <http://clisp.cons.org/impnotes.html#bin-output>
+;; <http://clisp.org/impnotes/stream-dict.html#bin-input>
+;; <http://clisp.org/impnotes/stream-dict.html#bin-output>
+;; <http://clisp.org/impnotes.html#bin-input>
+;; <http://clisp.org/impnotes.html#bin-output>
 
 (defun clisp-test-bin-i/o (&key (num 10) (file-name "bin-io-tst")
                            (type 'unsigned-byte) (size 40) (endianness :little)

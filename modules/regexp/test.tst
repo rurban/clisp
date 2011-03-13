@@ -41,7 +41,7 @@
 ;;; implementation rather than CLISP regexp interface.
 ;;; a test failure should be reported to the regexp maintainer.
 ;;; a segmentation fault should be reported to the clisp maintainers
-;;; at <http://clisp.cons.org/impnotes/faq.html#faq-bugs>
+;;; at <http://clisp.org/impnotes/faq.html#faq-bugs>
 
 ;;; note also that some original tests had empty alternatives in grouping
 ;;; which is forbidden by POSIX

@@ -14,7 +14,7 @@
 ;;; and only then merged into this file.
 ;;; If you encounter a bug in this file, please set sys::*inspect-debug*
 ;;; to 5 and report all output with a detailed description of what you did
-;;; to <clisp-list> (see http://clisp.cons.org about CLISP mailing lists),
+;;; to <clisp-list> (see http://clisp.org about CLISP mailing lists),
 ;;; as you do with any other CLISP bugs.
 ;;; If you would like to fix a bug in this file, please get CLOCC from
 ;;; the link above, build PORT and CLLIB as described there, and work

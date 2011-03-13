@@ -160,7 +160,7 @@
 
 #|
 The compiler's target is the virtual machine described in <doc/impbyte.xml>
-and <http://clisp.cons.org/impnotes/bytecode.html>.
+and <http://clisp.org/impnotes/bytecode.html>.
 
 1. Pass of the Compiler:
    macro-expansion,

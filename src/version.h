@@ -3,4 +3,4 @@
 #define PACKAGE_TARNAME "clisp"
 #define PACKAGE_VERSION "2.49 (2010-07-07)"
 #define PACKAGE_STRING "GNU CLISP 2.49 (2010-07-07)"
-#define PACKAGE_BUGREPORT "http://clisp.cons.org/"
+#define PACKAGE_BUGREPORT "http://clisp.org/"

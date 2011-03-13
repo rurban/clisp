@@ -1010,7 +1010,7 @@ type-error
 type-error
 
 ;; recursive-p=T on top-level form
-;; http://clisp.cons.org/impnotes/recursive-p.html
+;; http://clisp.org/impnotes/recursive-p.html
 (with-input-from-string (s "#1=(#1#)") (read s nil nil t))
 error
 

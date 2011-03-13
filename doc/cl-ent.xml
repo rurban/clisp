@@ -128,7 +128,7 @@
 <!-- *** implementations *** -->
 <!ENTITY abcl '<ulink url="http://armedbear-j.sourceforge.net/"><command>ABCL</command></ulink>'>
 <!ENTITY ccl '<ulink url="http://corman.net/lisp"><command>CormanLisp</command></ulink>'>
-<!ENTITY clisp '<ulink url="http://clisp.cons.org"><command>CLISP</command></ulink>'>
+<!ENTITY clisp '<ulink url="http://clisp.org"><command>CLISP</command></ulink>'>
 <!ENTITY cmucl '<ulink url="http://www.cons.org/cmucl/"><command>CMU CL</command></ulink>'>
 <!ENTITY gcl '<ulink url="http://www.gnu.org/software/gcl/"><command>GCL</command></ulink>'>
 <!ENTITY openmcl '<ulink url="http://openmcl.clozure.com/"><command>OpenMCL</command></ulink>'>

@@ -5853,8 +5853,8 @@ arguments:<orderedlist><listitem><simpara>&stack-mode;</simpara></listitem>
  looks at <code>(&getenv; "IMPNOTES")</code> and &impnotes-root-default;,
  but you may redefine it in &config-lisp; or &RC-file;.
  The return value should be a &string-t; terminated with a &file-slash;,
- e.g., <ulink url="http://clisp.cons.org/impnotes/"/>, or the path to
- the monolithic page, e.g., <ulink url="http://clisp.cons.org/impnotes.html"/>
+ e.g., <ulink url="http://clisp.org/impnotes/"/>, or the path to
+ the monolithic page, e.g., <ulink url="http://clisp.org/impnotes.html"/>
  or <filename>/usr/doc/clisp/impnotes.html</filename>.
  If the return value is &nil;, the feature is completely disabled.
 </para></formalpara>
