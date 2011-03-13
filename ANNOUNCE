@@ -8,13 +8,12 @@ GNU CLISP is available via anonymous ftp (sources and selected binaries) from
   <ftp://ftp.gnu.org/pub/gnu/clisp/>
 and its mirrors.
 More information at
-  <http://clisp.cons.org/>,
-  <http://www.clisp.org/>,
+  <http://clisp.org/>,
   <http://www.gnu.org/software/clisp/> and
   <http://clisp.sourceforge.net/>.
 
 See file <resources.html> on these sites, e.g.
-  <http://clisp.cons.org/resources.html>,
+  <http://clisp.org/resources.html>,
 where you will find links to general Common Lisp information
 and documentation, as well as CLISP-specific links.
 

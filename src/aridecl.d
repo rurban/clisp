@@ -30,7 +30,7 @@
              (1.0 +- 1e-8) + (1.0 +- 1e-16) = (2.0 +- 1e-8),
              so (+ 1.0s0 1.0d0) ==> 2.0s0 justified.
       In short: unavailable accuracy may not be fooled by precision.
-      See also <http://clisp.cons.org/impnotes/num-concepts.html#flocont>.
+      See also <http://clisp.org/impnotes/num-concepts.html#flocont>.
   - With Single and Double Float we hold on to the IEEE-Standard (1981),
       but without such features such as +0,-0, +inf,-inf, gradual underflow,
       NAN, ..., because COMMON LISP has no use for that.

@@ -126,7 +126,7 @@ further explanations of the issues could be provided).</para>
       and some other user may be able to help you in the meantine;
       as well as for the benefit of the other &clisp; users,
       since the mailing lists are publicly archived (you are encouraged
-      to <ulink url="http://clisp.cons.org/#search">search</ulink> them
+      to <ulink url="http://clisp.org/#search">search</ulink> them
       before asking).</simpara>
      <simpara>Please do &not-e; copy your messages to the individual
       developers.</simpara></listitem></varlistentry>
@@ -478,7 +478,7 @@ format for <command>&cvs; co -D</command>.</para></formalpara>
   to build them and see <xref linkend="faq-modules"/>.</simpara></answer>
 <answer><label>3rd party</label>
  <simpara>See the <emphasis>incomplete</emphasis> list of
-  <ulink url="http://clisp.cons.org/resources.html#software"><quote>Common
+  <ulink url="http://clisp.org/resources.html#software"><quote>Common
     Lisp software running in &clisp;</quote></ulink>.</simpara></answer>
 <answer><label><acronym>DIY<alt>Do It Yourself</alt></acronym></label>
  <simpara>See <xref linkend="modules"/> and <xref linkend="dffi"/>
@@ -546,7 +546,7 @@ format for <command>&cvs; co -D</command>.</para></formalpara>
 &sh-prompt; ./configure --with-module=gtk2 --cbc build-gtk
 &sh-prompt; ./build-gtk/clisp &opt-K; full &opt-x; '(gtk:run-glade-file "ui.glade")'</screen></para>
   <para>There are many other options,
-  see <ulink url="http://clisp.cons.org/resources.html#software">"Common
+  see <ulink url="http://clisp.org/resources.html#software">"Common
     Lisp software running in &clisp;"</ulink>.</para></answer></qandaentry>
 </qandadiv>
 

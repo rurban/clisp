@@ -9852,7 +9852,7 @@ local maygc void pr_stream (const gcv_object_t* stream_, object obj) {
    #if 0
     /* this is disabled with "#if 0" because the string may be huge.
        normally one should use :i/:d in debugger, as described in
-       http://clisp.cons.org/impnotes/faq.html#faq-bad-error
+       http://clisp.org/impnotes/faq.html#faq-bad-error
        and enable this only for build process debugging
        when reploop, inspect, and describe are not yet available */
     case strmtype_str_in:       /* STRING-INPUT-STREAM */

@@ -33,7 +33,7 @@ typedef enum {
    * retrieved when #*101 was stored), and the length would take a full
    * word which would nix any potential saving from using bits instead
    * of full bytes (this is similar to sub-byte :ELEMENT-TYPE for streams,
-   * see <http://clisp.cons.org/impnotes/stream-dict.html#eltype>).
+   * see <http://clisp.org/impnotes/stream-dict.html#eltype>).
    * Also, Atype_16Bit is not exported from lispbibl.
    *     GDBM_DATA_BIT_VECTOR,
    *     GDBM_DATA_2BIT_VECTOR,

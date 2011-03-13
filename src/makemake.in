@@ -264,7 +264,7 @@ while test -z "$endofargs"; do
       case " $BASE_MODULES readline " in
         *" $module "*) cat <<EOF >&2
 $0: argument $1 is ignored because $module is a base module
-$0: see http://clisp.cons.org/impnotes/modules.html#base-modules
+$0: see http://clisp.org/impnotes/modules.html#base-modules
 EOF
           ;;
         *) MODULES="$MODULES $module" ;;
@@ -2029,7 +2029,7 @@ cat <<\!!
 #                       -------------------------------
 #
 # The general layout of add-on modules is described in
-#  <http://clisp.cons.org/impnotes/modules.html>.
+#  <http://clisp.org/impnotes/modules.html>.
 # The requirements made there (i.e. the existence of a "link.sh" file
 # which defines certain variables) make sure that such an add-on module
 # can be distributed with CLISP.
@@ -3082,7 +3082,7 @@ if [ $CROSS = false ] ; then
   # use beta pages for the latest id-href.map
   # NB: keep in sync with doc/Makefile:DIST
   MYIMPROOT=http://clisp.podval.org/impnotes/
-  # MYIMPROOT=http://clisp.cons.org/beta/impnotes/
+  # MYIMPROOT=http://clisp.org/beta/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}CVS" \
      && { if wget --version >/dev/null 2>/dev/null ; then \

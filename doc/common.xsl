@@ -68,7 +68,7 @@
  <link rel="contents" title="Table of Contents" href="index.html"/>
  <link rel="glossary" href="{$glossary.href}"/>
  <link rel="help" href="{$help.href}" title="{$help.title}"/>
- <link rel="home" title="Home" href="http://clisp.cons.org"/>
+ <link rel="home" title="Home" href="http://clisp.org"/>
  <link rel="index" href="idx.html"/>
 </xsl:template>
 
@@ -443,7 +443,7 @@ set       toc,title
       <xsl:apply-templates select="/book/bookinfo/date/node()"/>
  </td></th></table></div></xsl:if>
  <div class="custom-footer"><hr /><table width="100%">
-   <tr><td align="left"><a href="http://clisp.cons.org">
+   <tr><td align="left"><a href="http://clisp.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
     <td align="center"><a href="https://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
     <td align="right"><a href="https://sourceforge.net/projects/clisp"><img width="120" height="30" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
@@ -453,7 +453,7 @@ set       toc,title
   <table width="100%" border="0"><tr>
     <td nowrap="nowrap" align="center">
      <input type="hidden" name="domains"
-            value="clisp.cons.org;clisp.podval.org;www.lisp.org"/>
+            value="clisp.org;clisp.podval.org;www.lisp.org"/>
      <label for="sbi" style="display: none">Enter your search terms</label>
      <input type="text" name="q" size="50" maxlength="255" id="sbi">
       <xsl:attribute name="value">
@@ -464,9 +464,9 @@ set       toc,title
    <tr><td nowrap="nowrap" align="center">
      <input type="radio" name="sitesearch" value="" checked="1" id="ss0"/>
      <label for="ss0" title="Search the Web"><small>Web</small></label>
-     <input type="radio" name="sitesearch" value="clisp.cons.org" id="ss1"/>
-     <label for="ss1" title="Search clisp.cons.org">
-      <small>clisp.cons.org</small></label>
+     <input type="radio" name="sitesearch" value="clisp.org" id="ss1"/>
+     <label for="ss1" title="Search clisp.org">
+      <small>clisp.org</small></label>
      <input type="radio" name="sitesearch" value="clisp.podval.org" id="ss2"/>
      <label for="ss2" title="Search clisp.podval.org">
       <small>clisp.podval.org</small></label>

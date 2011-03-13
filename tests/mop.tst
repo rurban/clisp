@@ -3289,7 +3289,7 @@ ERROR
   t)
 T
 
-;; http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn
+;; http://clisp.org/impnotes/mop-clisp.html#mop-clisp-warn
 (let ((book-counter 0) (sale-stats (make-hash-table :test 'equal))
        (already-called 0) (replacing-method 0))
   (defmethod initialize-instance :after ((o clos:gf-already-called-warning) &rest opts) (incf already-called))
