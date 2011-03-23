@@ -132,13 +132,6 @@
     <function role="unix">chown</function>,
     and <function role="unix">utime</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="chroot"><term><code>(POSIX:CHROOT &path-r;)</code></term>
- <listitem><simpara>Change the apparent disk root directory for the current
-   running process (and its children) using
-   <function role="bsd">chroot</function>.</simpara>
-  <simpara>Unless the process has superuser privileges, the operation will
-    probably fail with <constant>EPERM</constant>.</simpara>
- </listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><code>(POSIX:STAT-VFS &path-r;)</code></term>
  <listitem><para>Return a <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
@@ -188,6 +181,13 @@
    </simpara></listitem></varlistentry></variablelist>
    All slots are read-only.
  </para></listitem></varlistentry>
+ <varlistentry id="chroot"><term><code>(POSIX:CHROOT &path-r;)</code></term>
+ <listitem><simpara>Change the apparent disk root directory for the current
+   running process (and its children) using
+   <function role="bsd">chroot</function>.</simpara>
+  <simpara>Unless the process has superuser privileges, the operation will
+    probably fail with <constant>EPERM</constant>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="file-tree-walk"><term><code>(POSIX:FILE-TREE-WALK &path-r;
    &func-r; &key-amp; FD-LIMIT CHDIR DEPTH MOUNT PHYS)</code></term>
   <listitem><para>For each object under &path-r; calls &func-r; with 5
@@ -520,18 +520,19 @@
 
 <section id="sysinfo"><title>System Information</title>
 <variablelist>
- <varlistentry><term><code>(POSIX:UNAME)</code></term>
+ <varlistentry id="uname"><term><code>(POSIX:UNAME)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
     <function role="unix">uname</function>.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(POSIX:SYSCONF &optional-amp; &what-r;)</code></term>
+ <varlistentry id="sysconf">
+  <term><code>(POSIX:SYSCONF &optional-amp; &what-r;)</code></term>
   <term><code>(POSIX:CONFSTR &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
     &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">sysconf</function>
     and <function role="unix">confstr</function> respectively.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(POSIX:PATHCONF &path-r; &optional-amp;
-    &what-r;)</code></term>
+ <varlistentry id="pathconf"><term><code>(POSIX:PATHCONF &path-r;
+    &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
     &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">fpathconf</function> on
