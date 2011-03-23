@@ -4663,7 +4663,7 @@ Now you can sum doubles:
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
   </simpara>&sost-raw-too;</listitem></varlistentry>
- <varlistentry id="so-handles"><term><code>(&so-handles;
+ <varlistentry id="st-handles"><term><code>(&st-handles;
     &stream-r;)</code></term>
   <listitem><simpara>Return the input and output OS &file-des;s of the
     &stream-r; as &mul-val;.  See <xref linkend="rawsock"/>.
