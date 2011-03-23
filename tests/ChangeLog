@@ -1,5 +1,10 @@
 2011-03-23  Sam Steingold  <sds@gnu.org>
 
+	* ext-clisp.tst: add (SETF STREAM-ELEMENT-TYPE),
+	WRITE-BYTE-SEQUENCE, & WRITE-CHAR-SEQUENCE tests
+
+2011-03-23  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (cmd-args): fix bug#3203319:
 	do not merge lispinit with *LIB-DIRECTORY*
 
