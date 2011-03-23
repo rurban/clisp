@@ -1336,15 +1336,7 @@
 
 (def-call-out fork (:arguments) (:return-type pid_t))
 (def-call-out vfork (:arguments) (:return-type pid_t))
-
-(c-lines "#include <sys/wait.h>~%")
-
-(def-call-out wait (:arguments (status (c-ptr int) :out :alloca))
-  (:return-type pid_t))
-
-(def-call-out waitpid
-    (:arguments (pid pid_t) (status (c-ptr int) :out :alloca) (options int))
-  (:return-type pid_t))
+;; use POSIX:WAIT instead of FFI because SIGCHLD is ignored by CLISP
 
 ;; --------------- <bits/waitstatus.h> ---------------
 (defun WEXITSTATUS (status) (ash (logand status #xff00) -8))

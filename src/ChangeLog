@@ -1,3 +1,9 @@
+2011-03-23  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/glibc/linux.lisp (wait, waitpid): remove, these
+	functions never worked properly because clisp ignores SIGCHLD by
+	default; one should be using POSIX:WAIT instead (bug#3224360)
+
 2011-03-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (clean-modules, check-doc): update for the cvs->hg switch
