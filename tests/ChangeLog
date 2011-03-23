@@ -1,3 +1,8 @@
+2011-03-23  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (cmd-args): fix bug#3203319:
+	do not merge lispinit with *LIB-DIRECTORY*
+
 2010-12-10  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: add a test for bug#3124200:

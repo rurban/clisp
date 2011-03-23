@@ -21,12 +21,16 @@
   (ensure-directories-exist name :verbose t)
   (kill-down name))
 (defun cmd-args ()
-  "command and arg list for cloning this clisp process"
+  "Command and arg list for cloning this clisp process.
+This will not work right after (cd) if -M was a relative pathname."
   (let* ((argv (ext:argv))
-         (lispinit (aref argv (1+ (position "-M" argv :test #'string=)))))
+         (lispinit-pos (position "-M" argv :test #'string=))
+         (lispinit (and lispinit-pos (aref argv (1+ lispinit-pos))))
+         (args (list "-q" "-norc" "-B" (namestring *lib-directory*))))
     (values (aref argv 0)
-            (list "-q" "-norc" "-B" (namestring *lib-directory*) "-M"
-                  (namestring (merge-pathnames lispinit *lib-directory*))))))
+            (if lispinit
+                (nconc args (list "-M" lispinit))
+                args))))
 (export '(kill-down rmrf prepare-directory cmd-args))
 )
 (defun show-file (file)         ; return line count
