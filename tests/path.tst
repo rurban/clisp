@@ -1200,6 +1200,17 @@ NIL
 (directory "path-tst-bar/" :full t) NIL
 (pathname-version (car (directory "./"))) NIL
 
+(let (lp) ; bug#3165355: bind *load-pathname* to the original arg
+  (setf (logical-pathname-translations "FOO") '(("*" "./*")))
+  (setq lp (logical-pathname "FOO:load-test"))
+  (with-open-file (o lp :direction :output)
+    (write-line "(defparameter *load-var* *load-pathname*)" o))
+  (unwind-protect (list (equalp (truename lp) (load lp))
+                        (equalp (merge-pathnames lp) *load-var*))
+    (delete-file lp)
+    (setf (logical-pathname-translations "FOO") NIL)))
+(T T)
+
 #+clisp
 (let ((f "path-tst-my-file") tn)
   (unwind-protect
