@@ -19,8 +19,6 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-   $Id$
-
 */
 
 /* Oracle OCI library */
@@ -95,7 +93,7 @@ int main(int argc, char **argv) {
 
   int           success = 0;
   char *        sql     = 0;
-  
+
   int               nrow            = 0;
   int               n               = 0;
   ub4               ncol            = 0;
@@ -115,7 +113,7 @@ int main(int argc, char **argv) {
 			   1,    /* Auto-commit? */
 			   0,    /* Long read len */
 			   0);   /* Truncate OK? */
-			          
+
   if ( ! db ) {
     /* Should never really get this */
     printf("Error initting connection\n");
@@ -138,7 +136,7 @@ int main(int argc, char **argv) {
   while ( 1 ) {
 
     int eof = 0;
-    
+
     success = fetch_row(db);
     if ( ! success ) {
       strcat(db->errmsg, "A row-fetch error occured.\n");
@@ -150,16 +148,16 @@ int main(int argc, char **argv) {
     /* Successful fetch.  Extract column data */
     printf("-------  ROW ----------\n");
     nrow++;
-  
+
     if ( nrow % 5000 == 0 )
       printf("Fetched %d rows ...\n", nrow);
 
     for ( n=0; n < db->ncol; n++ ) {
-    
+
       col = &db->columns[n];
-      
+
       printf("%-30s %4d %4d ", col->name, col->indicator, strlen(col->data));
-      
+
       /* First check if null */
       if ( col->indicator == -1 ) {
         printf("<NULL>\n");
@@ -170,7 +168,7 @@ int main(int argc, char **argv) {
         sprintf(db->errmsg, "Got unexpected indicator value %d in column '%s'\n", col->indicator, col->name);
         return 0;
       }
-    
+
       /* Should have the result as a null-terminated string */
       printf("'%s'\n", (char *) col->data);
     }
@@ -178,7 +176,7 @@ int main(int argc, char **argv) {
 
   printf("Fetched %d rows\n", nrow);
 
-  /* Success */ 
+  /* Success */
   return 0;
 }
 #endif
@@ -222,7 +220,7 @@ static struct db_conn * connect(char * user, char * schema, char * password, cha
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
-  
+
 /* Fetch a row of data.  Data will be placed in the structures pointed
    to by columns[] array.  Return 0 for failure, 1 for fetch, 2 for EOF
    Once EOF is returned, it is an error to fetch again.
@@ -236,11 +234,11 @@ static int fetch_row(struct db_conn * db)
   struct column *   col             = 0;
   int               n               = 0;
   sb4               fetch_status    = OCI_SUCCESS;
-  
+
   /* Clear out results */
   *db->errmsg = '\0';
   db->success = 0;
-  
+
   /* Make sure we have a connection, and active SELECT */
   if ( ! check_active_select(db, "fetch result row") )
     return db->success = 0;
@@ -252,7 +250,7 @@ static int fetch_row(struct db_conn * db)
     col->indicator = 0;
     col->nfetched = 0;
   }
-  
+
   /* Init row data if not already.  The presence of a non-NULL
      db->currow indicates the first fetch has been called.  Some
      functions are not valid until that time. */
@@ -277,26 +275,26 @@ static int fetch_row(struct db_conn * db)
 
   /* Get one row at a time */
   fetch_status = OCIStmtFetch(db->stmt, db->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
-  
+
   if ( fetch_status == OCI_NO_DATA ) {
     /* EOF */
     db->eof = 1;
     return db->success = 2;
   }
-  
+
   if ( fetch_status != OCI_SUCCESS && fetch_status != OCI_SUCCESS_WITH_INFO ) {
     /* Error fetching */
     sprintf(db->errmsg, "Fetch error %d:\n", fetch_status);
     append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
-  
+
   /* If have success "with info" could mean null value, truncated
      data, or EOF.  Error codes are 01405 (null), 01406 (truncated
      data) and 01403 (EOF).  For null and truncated data, have to
      look at each column's "indicator variable" for what
      happened. */
-  
+
   if ( fetch_status == OCI_SUCCESS_WITH_INFO ) {
     char * dummy = 0;
     sb4 errcode = 0;
@@ -347,7 +345,7 @@ static int fetch_row(struct db_conn * db)
 		col->indicator = 0; /* Reset it as if not truncated */
 	  }
 	}
-	  
+
   /* Positive indicator means truncated because it was that large, -2 means truncated from value so large, size does not fit in a SB2 */
   for ( n=0; n < db->ncol; n++ ) {
     col = &db->columns[n];
@@ -363,7 +361,7 @@ static int fetch_row(struct db_conn * db)
 	append_oci_error(db->errmsg, db->err, 0);
 	return db->success = 0;
   }
-  
+
   /* Loop over columns, fetching propagating is-null status and fetching BLOB data */
   for ( n=0; n < db->ncol; n++ ) {
     struct sqlval * r = db->currow[n];
@@ -403,7 +401,7 @@ static int fetch_row(struct db_conn * db)
 			append_oci_error(db->errmsg, db->err, 0);
 			return db->success = 0;
 		  }
-		
+
                   /* For BLOB or BFILE, convert to hex */
                   if ( col->dtype == SQLT_BLOB || col->dtype == SQLT_BFILE )
                     hexify((unsigned char *) col->data, act_nread);
@@ -420,7 +418,7 @@ static int fetch_row(struct db_conn * db)
 	  return db->success = 0;
     }
   }
-  
+
   /* Maintain row count */
   db->rows_affected++;
 
@@ -470,7 +468,7 @@ static int get_cols(struct db_conn * db)
   /* Allocate buffers for column info */
   db->ncol = param_count;
   db->columns = (struct column *) malloc(db->ncol * sizeof(struct column));
-  
+
   /* Successfully parsed: now get the names, types and lengths of the result columns */
   ncol = 0;
 
@@ -518,7 +516,7 @@ static int get_cols(struct db_conn * db)
         return db->success = 0;
       }
     }
-      
+
     /* Set up for a new column */
 
     /* Make sure we are not overflowing our buffer (i.e., that Oracle
@@ -527,7 +525,7 @@ static int get_cols(struct db_conn * db)
       sprintf(db->errmsg, "Error: more than expected count of %d columns returned", param_count);
       return db->success = 0;
     }
-    
+
     col = &db->columns[ncol-1];
 
     /* Get param attributes */
@@ -553,7 +551,7 @@ static int get_cols(struct db_conn * db)
 	  return db->success = 0;
 	}
 	col->precision = tmp_precision;
-	
+
     /*
       printf("Col %2d: type is %-10s name = %-20s size = %4d precision = %2d scale = %2d null-ok=%d\n",
              ncol, decode_data_type(col->dtype), col->name, col->dsize, col->precision, col->scale, col->null_ok);
@@ -569,7 +567,7 @@ static int get_cols(struct db_conn * db)
     col->nfetched = 0;
     col->rcode = 0;
 	col->lob_locator = 0;
-	
+
 	/* Fetch LOB's as LobLocator's, everything else as SQLT_STR */
 	if ( is_blob_type(col->dtype) ) {
 	  /* Allocate LOB locator */
@@ -588,7 +586,7 @@ static int get_cols(struct db_conn * db)
 	  define_len = fetch_buflen;
 	  define_type = SQLT_STR;
 	}
-	
+
 	/* Do the Define */
     define_status = OCIDefineByPos(db->stmt, &col->def, db->err, ncol, define_dest, define_len, define_type,
                                    &col->indicator, &col->nfetched, &col->rcode, OCI_DEFAULT);
@@ -605,7 +603,7 @@ static int get_cols(struct db_conn * db)
     sprintf(db->errmsg, "Column count mismatch - we have %d and Oracle had %d\n", ncol - 1, param_count);
     return db->success = 0;
   }
-  
+
   /* Copy column info to structures suitable for returning to external
      interface.  Allocate ncol+1 struct pointers, and terminate w/ a
      zero pointer. */
@@ -625,7 +623,7 @@ static int get_cols(struct db_conn * db)
   }
   /* Terminate pointer array */
   db->sqlcols[ncol] = 0;
-            
+
   /* Success */
   return db->success = 1;
 }
@@ -640,7 +638,7 @@ static int commit(struct db_conn * db)
 
   *db->errmsg = '\0';
   db->success = 0;
- 
+
   status = OCITransCommit(db->svc, db->err, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error commiting transaction:\n");
@@ -661,7 +659,7 @@ static int rollback(struct db_conn * db)
 
   *db->errmsg = '\0';
   db->success = 0;
-  
+
   /* Make sure we are not in "auto-commit" mode */
   if ( db->auto_commit ) {
     sprintf(db->errmsg, "Rollback called while autocommit turned on.");
@@ -689,7 +687,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   ub4                   iters   = 0;
   int                   nparam  = 0;
   struct sqlparam **    params_save = params;
-  
+
   /* Clear out results */
   *db->errmsg = '\0';
   db->success = 0;
@@ -697,7 +695,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   /* Reset EOF indicator  and row count */
   db->eof = 0;
   db->rows_affected = 0;
-  
+
   /* Make sure we are connected */
   if ( ! db->svc ) {
     sprintf(db->errmsg, "Attempt to run SQL statement when not connected");
@@ -718,7 +716,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
     free(db->sql);
   db->sql = (char *) strdup(sql);
   db->is_command = is_command;
-  
+
   /* Get a new statement handle - ISSUE: will Oracle roll back an
      active transaction currently in progress with the old handle?  It
      probably should.  */
@@ -756,12 +754,12 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
     char *              pname   = p->name;
     struct sqlval *     val     = &p->value;
     dvoid *             data    = 0;
-    
+
     if ( empty(pname) ) {
       sprintf(db->errmsg, "Null bind-parameter name given\n");
       return db->success = 0;
     }
-    
+
     if ( ! val->data || val->is_null ) {
       indp = (dvoid *) &null_indicator;
       data = (dvoid * ) "";     /* Shouldn't really need this */
@@ -770,7 +768,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
       indp = (dvoid *) &non_null_indicator;
       data = val->data;
     }
-    
+
     status = OCIBindByName(db->stmt,                /* Statment handle */
                            &dummy,                  /* Output bind handle (Oracle will free it with db->stmt) */
                            db->err,                 /* Error handle */
@@ -829,7 +827,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
       }
       strcat(db->errmsg, "---\n");
     }
-    
+
     append_oci_error(db->errmsg, db->err, 0);
 	append_indicator(db, sql);
     return db->success = 0;
@@ -880,20 +878,20 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   ub4           attval  = 0;
 
   char sqlbuf[1000];
-  
+
   /* Clear out results */
   db->success = 0;
 
   /* If already connected, drop and re-connect */
   if ( db->env )
     disconnect(db);
-  
+
   /* Clear out results */
   *db->errmsg = '\0';
   db->env = 0;
   db->err = 0;
   db->svc = 0;
-  
+
   /* VALIDATE INPUTS */
   /* Default schema to userid */
   if ( empty(schema) )
@@ -906,7 +904,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
     sprintf(db->errmsg, "Null user ID given connecting to Oracle server '%s'", sid);
     return db->success = 0;
   }
-  
+
   /* Init Oracle library */
   /* If the Oracle 8 version is really old (< 8.1.5) use these old calls instead of OCIEnvCreate */
 #if 0
@@ -961,7 +959,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   db->user      = (char *) strdup(user);
   db->schema    = (char *) strdup(schema);
   db->sid       = (char *) strdup(sid);
-  
+
   /* Set up for ANSI date formatting. */
   success = exec_sql(db, "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'", 0, 1);
   if ( ! success ) {
@@ -991,7 +989,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
     append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
-    
+
   /* Set pre-fetch rows to some very large value.  Oracle will clamp
      this down automatically to what will fit in PREFETCH_MEMORY.
      It's not documented if that would be what happens if we set
@@ -1043,14 +1041,14 @@ static void append_oci_error(char *errbuf, void * err, int isenv)
 
   /* If Oracle message begins with this, it means we cannot locate
      error messages.  Probably issue with ORACLE_HOME */
-    
+
   /* Hack: this is highly language dependent */
   char * leading = "Error while trying to retrieve text for error";
 
   /* Do nothing if don't have a handle */
   if ( ! err )
 	return;
-    
+
   status = OCIErrorGet(err, 1, dummy, &errcode, buf, sizeof buf, isenv ? OCI_HTYPE_ENV : OCI_HTYPE_ERROR);
   if ( status ) {
 	char reason[1000];
@@ -1061,7 +1059,7 @@ static void append_oci_error(char *errbuf, void * err, int isenv)
 
   /* Append Oracle error */
   strcat(errbuf, buf);
-  
+
   /* See if having trouble getting error text */
   if ( 0 == strncmp(buf, leading, strlen(leading)) ) {
     char reason[1000];
@@ -1070,7 +1068,7 @@ static void append_oci_error(char *errbuf, void * err, int isenv)
       strcpy(reason, "ORACLE_HOME is not set.");
     else if ( ! *home )
       strcpy(reason, "ORACLE_HOME is set to the empty string.");
-    else 
+    else
       sprintf(reason, "ORACLE_HOME value '%s' is possibly not valid.", home);
 
     strcat(errbuf, "Cannot get Oracle error message text.  Check ORACLE_HOME environment variable.\n");
@@ -1085,7 +1083,7 @@ void append_indicator(struct db_conn * db, char * sql)
 {
     ub2		err_offset = 0;
 	sword	status  = 0;
-					  
+
     /* Get the parse error offset so we can print an indicator as to
        where the error occurred */
     status = OCIAttrGet(db->stmt, OCI_HTYPE_STMT, (dvoid *) &err_offset, (ub4 *) 0, OCI_ATTR_PARSE_ERROR_OFFSET, db->err);
@@ -1109,7 +1107,7 @@ void append_indicator(struct db_conn * db, char * sql)
 /* ------------------------------------------------------------------------------------------------------------- */
 
 /* Decode data type code */
-static char * decode_data_type(int dtype) 
+static char * decode_data_type(int dtype)
 {
   static char buf[100];
   switch (dtype) {
@@ -1167,20 +1165,20 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
   case 1:   /* VARCHAR2 (SQLT_CHR) */
   case 96:  /* CHAR (SQLT_AFC) */
     return dlen + 1;
-    
+
 	/* Use 1000 for numbers so that very large/small floats will never be truncated */
   case 2:   /* NUMBER (SQLT_NUM) */
   case 3:   /* INTEGER (SQLT_INT) */
   case 4:   /* FLOAT (SQLT_FLT) */
     return 1000;
-    
+
   case 104: /* ROWID DESC (SQLT_RDD) */
 	return 50;
 
   case 8:   /* LONG (SQLT_LNG) */
   case 112: /* CLOB (SQLT_CLOB) */
     return long_len + 1;
-    
+
 	/* Use twice long_len for BLOBs so we can convert to hex */
   case 113: /* BLOB (SQLT_BLOB) */
   case 114: /* BFILE (SQLT_FILE) */
@@ -1191,7 +1189,7 @@ static int fetch_data_len(int dtype, int dlen, int long_len)
 
   case 23:  /* RAW (returned in hex) (SQLT_BIN) */
 	return 2 * dlen + 1;
-    
+
   case 12:  /* DATE (SQLT_DAT) */
     return 50;
 
@@ -1244,7 +1242,7 @@ static int disconnect(struct db_conn * db)
     return 0;
 
   free_columns(db);
-  
+
   /* Tell the server we are disconnecting */
   if ( db->svc )
     OCILogoff(db->svc, db->err);
@@ -1270,7 +1268,7 @@ static int disconnect(struct db_conn * db)
 static void free_columns(struct db_conn * db)
 {
   int i;
-  
+
   /* Clear out internal column struct */
   if ( db->columns ) {
     for ( i=0; i < db->ncol; i++ )
@@ -1325,7 +1323,7 @@ static int check_active_statement(struct db_conn * db, char * action)
   /* Clear out results */
   *db->errmsg = '\0';
   db->success = 0;
-  
+
   /* Make sure we have a connection, and an active SQL statement */
   if ( ! db->env || ! db->svc ) {
     sprintf(db->errmsg, "Attempt to %s while not connected.\n", action);
@@ -1402,7 +1400,7 @@ static struct sqlcol ** column_info(struct db_conn * db)
 static struct sqlval ** row_values(struct db_conn * db)
 {
   int n;
-  
+
   /* Make sure have an active SELECT */
   if ( ! check_active_select(db, "get row values for SELECT results") ) {
     db->success = 0;
@@ -1433,7 +1431,7 @@ static struct sqlval ** row_values(struct db_conn * db)
   }
   printf("terminator is '%d'\n", db->currow[n]);
   */
-  
+
   db->success = 1;
   return db->currow;
 }
@@ -1466,7 +1464,7 @@ static char * valid_string(char * s) { return s ? s : ""; }
    start so we don't stomp on ourselves. */
 /* Convert int to hex */
 #define itoh(n)(((n) > 9) ? ((n) - 10 + 'A') : ((n) + '0'))
-static void hexify (unsigned char * buf, int n) 
+static void hexify (unsigned char * buf, int n)
 {
   int i;
   for ( i = n-1; i >= 0; i-- ) {

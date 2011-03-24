@@ -1,19 +1,17 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $Id$
-;; 
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
 ;; are met:
-;; 
+;;
 ;;  * Redistributions of source code must retain the above copyright
 ;;    notice, this list of conditions and the following disclaimer.
 ;;  * Redistributions in binary form must reproduce the above copyright
 ;;    notice, this list of conditions and the following disclaimer in
 ;;    the documentation and/or other materials provided with the
 ;;    distribution.
-;; 
+;;
 ;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ;; "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 ;; LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -285,7 +283,7 @@
        (equal (sort alist0 #'< :key #'car)
 	      (setq alist1 (sort alist1 #'< :key #'car)))
        (equal alist1 (sort alist2 #'< :key #'car))))
-       
+
 
 
 (let ((table (make-hash-table :rehash-size 100))
@@ -318,7 +316,7 @@
 (let ((table (make-hash-table)))
   (and (null (dotimes (i 10) (setf (gethash i table) i)))
        (eql (let ((sum-of-squares 0))
-	      (maphash #'(lambda (key val) 
+	      (maphash #'(lambda (key val)
 			   (let ((square (* val val)))
 			     (incf sum-of-squares square)
 			     (setf (gethash key table) square)))
@@ -359,7 +357,7 @@
 	   (maphash #'(lambda (key value) (push (list key value) all-entries))
 		    hash-table)
 	   (with-hash-table-iterator (generator-fn hash-table)
-	     (loop     
+	     (loop
 	      (multiple-value-bind (more? key value) (generator-fn)
 		(unless more? (return))
 		(unless (eql value (gethash key hash-table unique))

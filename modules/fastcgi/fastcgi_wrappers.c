@@ -19,7 +19,6 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-   $Id$
 */
 
 #ifdef HAVE_UNISTD_H
@@ -34,7 +33,7 @@ extern char **environ;
 
 /* For strchr(), strncmp() and friends */
 #define _GNU_SOURCE
-#include <string.h> 
+#include <string.h>
 
 #include "fcgi_stdio.h"
 
@@ -70,7 +69,7 @@ char * fcgi_getenv(char * var) {
 char ** fcgi_env() {
   char **envp = environ, **result = NULL;
   int nvar = 0, i;
-  
+
   /* Count up # of vars.  Allocate space for array of twice that many
      strings (key & value for each env var) plus a terminating NULL
      pointer. */
@@ -78,7 +77,7 @@ char ** fcgi_env() {
     nvar++;
   result = (char **) malloc(sizeof(*result) * (2 * nvar + 1));
   if ( ! result ) return NULL;
-  
+
   envp = environ;
   i = 0;
   for ( ; *envp != NULL; envp++, i+=2 ) {
@@ -158,7 +157,7 @@ void fcgi_finish_wrapper() {
    start so we don't stomp on ourselves. */
 /* Convert int to hex */
 #define itoh(n)(((n) > 9) ? ((n) - 10 + 'A') : ((n) + '0'))
-static void hexify (unsigned char * buf, int n) 
+static void hexify (unsigned char * buf, int n)
 {
   int i;
   for ( i = n-1; i >= 0; i-- ) {

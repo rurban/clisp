@@ -4,8 +4,6 @@
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
-;;; $Id$
-;;; $Source$
 
 (in-package :clx-demos)
 

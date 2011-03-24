@@ -1,7 +1,6 @@
 #
 # This is the "link.sh" for the Oracle CLISP module
 #
-# $Id$
 
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
