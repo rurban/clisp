@@ -5,6 +5,10 @@ syntax: glob
 # autoconf
 autom4te.cache
 
+# backup files
+*.orig
+*~
+
 doc/html
 doc/impnotes.fo
 doc/impnotes.pdf
