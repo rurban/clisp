@@ -1,7 +1,6 @@
 #
 # Makefile.in for FastCGI CLISP module
 #
-# $Id$
 
 srcdir = @srcdir@
 CC = @CC@

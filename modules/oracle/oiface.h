@@ -16,8 +16,6 @@
   along with this program; if not, write to the Free Software Foundation,
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
-  $Id$
-
 */
 
 /* Column info returned to external program.  All pointers here point
@@ -86,7 +84,7 @@ struct db_conn {
   int               truncate_ok;    /* Flag: allow truncated fetch? */
   int               auto_commit;    /* Flag: commit after each command? */
   OCIStmt *         stmt;           /* Oracle statement */
-  
+
   char *            user;           /* User ID */
   char *            schema;         /* Schema */
   char *            sid;            /* SID logged on to */

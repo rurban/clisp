@@ -1,7 +1,6 @@
 #
 # Makefile.in for CLISP module set oracle
 #
-# $Id$
 
 # This will come from the environment
 # ORACLE_HOME = /usr/local/oracle

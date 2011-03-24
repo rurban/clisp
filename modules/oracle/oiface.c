@@ -5,12 +5,8 @@
 /* This library implements a simplified, but fairly complete interface
    on top of the Oracle V.8 OCI client library.  It maintains one or
    more connections to an Oracle server and allows each connection to
-   issue any SQL command and retrieve results.
+   issue any SQL command and retrieve results. */
 
-   $Id$
-
-  */
-   
 #include <stdlib.h>
 #include <oci.h>
 #include "oiface.h"
@@ -20,7 +16,7 @@ static char * valid_string(char *);
 
 /* ---------------------------------------------------------------------- */
 
-/* Return text of last error */ 
+/* Return text of last error */
 char * oracle_last_error(void * dbptr)
 {
   struct db_conn * db = (struct db_conn *) dbptr;

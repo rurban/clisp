@@ -2,8 +2,6 @@
 ; Examples to test the Oracle CLISP library This is VERY incomplete,
 ; but should at least tell you if you built it right.
 
-; $Id$
-
 ; Replace the connect info with your user and server
 
 (oracle:connect "myuser" "mypasswd" "myserver")
