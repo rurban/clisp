@@ -49,6 +49,12 @@ User visible changes
   + Macro LOOP now detects incomplete FOR clauses (bug#3089988).
   + Fix LOADing corrupt FAS files (bug#3122505).
   + Fix interaction of *DEFAULT-PATHNAME-DEFAULTS* with REQUIRE (bug#3124200).
+  + Fix OS:FILE-INFO on files with corrupt times (bug#3144993).
+  + Remove LINUX:wait and LINUX:waitpid because they cannot work since
+    CLISP ignores SIGCHLD during normal operation; use POSIX:WAIT
+    instead (bug#3224360).
+  + Make wrong keyword argument a STYLE-WARNING in the presence of
+    :ALLOW-OTHER-KEYS T (bug#3198722).
 
 
 2.49 (2010-07-07)

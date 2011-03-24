@@ -1,5 +1,12 @@
 2011-03-24  Sam Steingold  <sds@gnu.org>
 
+	Fix bug#3198722: arg warnings despite :ALLOW-OTHER-KEYS T
+	* compiler.lisp (test-argument-syntax): report all wrong keys but
+	only if :ALLOW-OTHER-KEYS T is not supplied
+	(c-DIRECT-FUNCTION-CALL): duplicate and ignored keys are STYLE warnings
+
+2011-03-24  Sam Steingold  <sds@gnu.org>
+
 	* configure.in (AC_REVISION): explicitly call hg instead of using $Id$
 	* m4/general.m4, modules/rawsock/configure.in:
 	quote AC_LANG_PROGRAM to avoid an autoconf 2.68 warning

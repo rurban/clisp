@@ -1,3 +1,7 @@
+2011-03-24  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: fix bug#3198722: arg warnings despite :ALLOW-OTHER-KEYS T
+
 2011-03-23  Sam Steingold  <sds@gnu.org>
 
 	* ext-clisp.tst: add (SETF STREAM-ELEMENT-TYPE),
