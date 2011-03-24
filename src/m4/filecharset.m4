@@ -17,7 +17,7 @@ AC_CACHE_CHECK(for the valid characters in filenames,
 cl_cv_os_valid_filename_char,[dnl
 dnl Create the subdirectory the test program will use for its files.
 mkdir conftestdir
-AC_RUN_IFELSE([[#include "confdefs.h"
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include "confdefs.h"
 #include <sys/types.h>
 #include <stdlib.h>
 /* Declare chdir(). */
@@ -34,9 +34,7 @@ AC_RUN_IFELSE([[#include "confdefs.h"
  * valid in filenames.
  * The actual result may depend on OS, its version, and the file system
  * on which the test is run. */
-#define N 256
-int main ()
-{
+#define N 256]],[[
   if (freopen("conftest.out", "w", stdout) == NULL) return 1;
   char legal[N];
   char filename[4];
@@ -113,7 +111,7 @@ int main ()
     printf("\n");
   }
   return ferror(stdout) || fclose(stdout);
-}]],[cl_cv_os_valid_filename_char=`cat conftest.out`],
+]])],[cl_cv_os_valid_filename_char=`cat conftest.out`],
 [cl_cv_os_valid_filename_char=''],[cl_cv_os_valid_filename_char=''])
 dnl clean up
 # Workaround a problem with NFS on Solaris 7, where unlink()ed files reappear

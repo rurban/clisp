@@ -25,10 +25,10 @@ int printf_address (unsigned long addr) {
 #define chop_address(addr) ((unsigned long)(char*)(addr) & ~0x00FFFFFFL)
 '
 AC_CACHE_CHECK(for the code address range, cl_cv_address_code, [dnl
-AC_RUN_IFELSE([#include "confdefs.h"
-$address_range_prog
+AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
+$address_range_prog],[
 dnl printf_address(chop_address(&main)); doesn't work in C++.
-int main() { return printf_address(chop_address(&printf_address)); }],
+return printf_address(chop_address(&printf_address));])],
 [cl_cv_address_code=`cat conftest.h`],[cl_cv_address_code='guessing 0'],
 [cl_cv_address_code='guessing 0'])
 rm -f conftest.h
@@ -37,15 +37,14 @@ x=`echo $cl_cv_address_code | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(CODE_ADDRESS_RANGE,$x,[address range of program code (text+data+bss)])
 dnl
 AC_CACHE_CHECK(for the malloc address range, cl_cv_address_malloc, [dnl
-AC_RUN_IFELSE([#include "confdefs.h"
+AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
 #include <sys/types.h>
 /* declare malloc() */
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-$address_range_prog
-int main() { return printf_address(chop_address(malloc(10000))); }],
+$address_range_prog],[return printf_address(chop_address(malloc(10000)));])],
 [cl_cv_address_malloc=`cat conftest.h`],[cl_cv_address_malloc='guessing 0'],
 [cl_cv_address_malloc='guessing 0'])
 rm -f conftest.h
@@ -54,7 +53,7 @@ x=`echo $cl_cv_address_malloc | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(MALLOC_ADDRESS_RANGE,$x,[address range of malloc() memory])
 dnl
 AC_CACHE_CHECK(for the shared library address range, cl_cv_address_shlib, [dnl
-AC_RUN_IFELSE([#include "confdefs.h"
+AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
 $address_range_prog
 /* Declare printf(). */
 #if defined(sun) /* for SunOS 4, but not for IRIX 6 */
@@ -70,6 +69,7 @@ extern "C" char* tmpnam (char*);
 #else
 extern char* tmpnam ();
 #endif
+],[
 /* With normal simple DLLs, &printf is in the shared library. Fine.
    But with ELF, &printf is a trampoline function allocated near the
    program's code range. errno and other global variables - such as
@@ -77,12 +77,11 @@ extern char* tmpnam ();
    However, the return value of tmpnam(NULL) is a pointer to a static
    buffer in the shared library. (This buffer is unlikely to be named
    by a global symbol.) */
-int main() {
   char* addr;
   addr = (char*) tmpnam((char*)0);
   if (!addr) addr = (char*) &printf;
   return printf_address(chop_address(addr));
-}],[cl_cv_address_shlib=`cat conftest.h`],[cl_cv_address_shlib='guessing 0'],
+])],[cl_cv_address_shlib=`cat conftest.h`],[cl_cv_address_shlib='guessing 0'],
 [cl_cv_address_shlib='guessing 0'])
 rm -f conftest.h
 ])
@@ -90,10 +89,9 @@ x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"UL"
 AC_DEFINE_UNQUOTED(SHLIB_ADDRESS_RANGE,$x,[address range of shared library code])
 
 AC_CACHE_CHECK(for the stack address range, cl_cv_address_stack, [dnl
-AC_RUN_IFELSE([#include "confdefs.h"
+AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
 #include "confdefs.h"
-$address_range_prog
-int main() { int dummy; return printf_address(chop_address(&dummy)); }],
+$address_range_prog],[int dummy; return printf_address(chop_address(&dummy));])],
 [cl_cv_address_stack=`cat conftest.h`],[cl_cv_address_stack='guessing ~0'],
 [cl_cv_address_stack='guessing ~0'])
 rm -f conftest.h

@@ -13,7 +13,7 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_ELOOP],
 [AC_REQUIRE([AC_PROG_CC])dnl
 AC_CACHE_CHECK(for ELOOP, cl_cv_decl_eloop, [dnl
-AC_RUN_IFELSE([#include "confdefs.h"
+AC_RUN_IFELSE([AC_LANG_SOURCE([#include "confdefs.h"
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -38,7 +38,8 @@ int main() {
   printf("%d\n",errno); unlink(foo);
   return ferror(stdout) || fclose(stdout);
 }
-#endif],[cl_cv_decl_ELOOP=`cat conftest.out`
+#endif
+])],[cl_cv_decl_ELOOP=`cat conftest.out`
 if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
   cl_cv_decl_eloop=yes
 else
