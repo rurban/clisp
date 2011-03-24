@@ -62,7 +62,7 @@ if test "$ac_cv_header_winsock2_h" = "yes"; then
   dnl requires including <winsock2.h>
   AC_MSG_CHECKING([for socket() in ws2_32])
   LIBS=${LIBS}' -lws2_32';
-  AC_LINK_IFELSE(AC_LANG_PROGRAM([#include <winsock2.h>],[socket(0,0,0)]),
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <winsock2.h>],[socket(0,0,0)])],
   [ac_cv_search_socket=yes
   AC_MSG_RESULT(yes)],
   [ac_cv_search_socket=no

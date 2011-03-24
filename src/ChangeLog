@@ -1,6 +1,12 @@
 2011-03-24  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (AC_REVISION): explicitly call hg instead of using $Id$
+	* m4/general.m4, modules/rawsock/configure.in:
+	quote AC_LANG_PROGRAM to avoid an autoconf 2.68 warning
+	* m4/address.m4, m4/filecharset.m4:
+	use AC_LANG_PROGRAM to avoid an autoconf 2.68 warning
+	* m4/eloop.m4, m4/param.m4:
+	use AC_LANG_SOURCE to avoid an autoconf 2.68 warning
 
 2011-03-23  Sam Steingold  <sds@gnu.org>
 
