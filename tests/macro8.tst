@@ -1125,6 +1125,19 @@ NIL
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3198722&group_id=1355&atid=101355
+(rest (multiple-value-list
+       (compile nil (lambda () (directory "/" 'a t 'b 1 'c 0
+                                          :allow-other-keys t)))))
+(3 NIL)
+(rest (multiple-value-list
+       (compile nil (lambda () (directory "/" :allow-other-keys t 'a t)))))
+(1 NIL)
+(rest (multiple-value-list (compile nil (lambda () (directory "/" 'a t)))))
+(1 1)
+(rest (multiple-value-list (compile nil (lambda () (directory "/" 'a t 'b 2)))))
+(1 1)
+
 #+clisp
 (let (ret)
   (defmacro test-macro-arglist (a) a)

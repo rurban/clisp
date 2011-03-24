@@ -2775,13 +2775,13 @@ for-value   NIL or T
     (do ((keyargs args (cddr keyargs))
          (allow-other-keys-seen nil)
          (allow-flag allow-p)
-         (wrong-key-p nil)
-         wrong-key)
+         wrong-keys)
         ((null keyargs)
-         (cond (wrong-key-p
-                (c-warn (TEXT "keyword ~S is not allowed for function ~S.~
+         (cond ((and wrong-keys (not allow-flag))
+                (c-warn (TEXT "illegal keyword~P ~{~S~#[~; and ~S~:;, ~]~} for function ~S.~
                              ~%The only allowed keyword~[s are~; is~:;s are~] ~{~S~#[~; and ~S~:;, ~]~}.")
-                        wrong-key fun (length keylist) keylist)
+                        (length wrong-keys) wrong-keys fun
+                        (length keylist) keylist)
                 NIL)
                (t 'STATIC-KEYS)))
       (let ((key (first keyargs)))
@@ -2797,9 +2797,8 @@ for-value   NIL or T
           (unless (c-constantp (second keyargs))
             (return-from test-argument-syntax 'DYNAMIC-KEYS))
           (when (c-constant-value (second keyargs)) (setq allow-flag t)))
-        (unless (or allow-flag (memq key keylist) wrong-key-p)
-          (setq wrong-key-p t)
-          (setq wrong-key key))))))
+        (unless (memq key keylist)
+          (push key wrong-keys))))))
 
 ;; try to evaluate FORM for side effects
 ;; returns NIL on error and T on success
@@ -2961,12 +2960,13 @@ for-value   NIL or T
                              ;; or Slot already filled
                              (unless for-value
                                (if tripel
-                                 (c-warn
+                                 (c-style-warn
                                    (TEXT "~S: ignored duplicate keyword ~S ~S")
                                    fun key arg)
                                  (unless (eq key ':ALLOW-OTHER-KEYS)
-                                   (c-warn (TEXT "~S: ignored keyword ~S ~S")
-                                           fun key arg))))
+                                   (c-style-warn
+                                     (TEXT "~S: ignored keyword ~S ~S")
+                                     fun key arg))))
                              (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
                                     (anode (c-form arg (if for-value 'ONE 'NIL))))
                                (seclass-or-f seclass anode)
