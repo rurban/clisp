@@ -20,7 +20,7 @@ When building with gcc that does not support __thread qualifier for per
 thread variables it's better to add to CFLAGS: -DUSE_CUSTOM_TLS=3 (or 2).
 Built executable will be significantly faster than the one with default settings
 (if we rely on OS API for thread local storage i.e. pthread_getspecific()).
-See comments in: http://clisp.cvs.sourceforge.net/viewvc/*checkout*/clisp/clisp/src/lispbibl.d
+See comments in: http://clisp.hg.sourceforge.net/hgweb/clisp/clisp/raw-file/default/src/lispbibl.d
 Platforms on which gcc does not support __thread qualifier are (encountered
 up to now): MacOSX, Win32+mingw
 

@@ -50,8 +50,8 @@ further explanations of the issues could be provided).</para>
    <ulink url="http://www.cygwin.com/acronyms/#PTC"><acronym>PTC<alt>Patches
       Thoughtfully Considered</alt></acronym></ulink>.</para>
   <para>Additionally, the nightly builds of the &clisp; implementation
-   notes documenting the current &cvs; <literal>HEAD</literal> are
-   available at <ulink url="http://clisp.podval.org/impnotes/"/>.
+   notes documenting the current &hg; <literal>default</literal> branch
+   are available at <ulink url="http://clisp.podval.org/impnotes/"/>.
    It contains both the documentation for the new features and the
    general improvements in the documentation.</para>
 </answer></qandaentry>
@@ -162,7 +162,7 @@ further explanations of the issues could be provided).</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="ml">clisp-devel</ulink></term>
   <listitem><simpara>Subscribe to this list if you want to influence
-    &clisp; developments; &cvs; commit notes go here (as a daily digest).
+    &clisp; developments; &hg; commit notes go here (as a daily digest).
     If you subscribe to this list, you probably want to subscribe
     to <ulink url="ml">clisp-list</ulink>
     &and-e; <ulink url="ml">clisp-announce</ulink> too.</simpara>
@@ -222,8 +222,7 @@ further explanations of the issues could be provided).</para>
  <para>If your patch is more than just a few lines, it is
   <emphasis>much</emphasis> preferred that you make your patch available
   on the web and send the link to the list.</para>
- <para>The patch must be against the &cvs; head
-  (reasonably recent).</para></answer></qandaentry>
+ <para>The patch should be created using &hg;.</para></answer></qandaentry>
 
 
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
@@ -306,31 +305,12 @@ following command:
 </para></formalpara>
 
 <formalpara id="faq-debug-binary-search"><title>Binary Search in Time</title>
-<para>When you encounter an <emphasis>regression error</emphasis> (i.e.,
+<para>When you encounter a <emphasis>regression error</emphasis> (i.e.,
 something worked in a previous version of &clisp;, but does not work in
 the current version) which we cannot reproduce, we will often ask you to
-figure out which specific &cvs; commit introduced it.
-The way to figure that out is to use the <emphasis>binary search in
-time</emphasis>, specifically:<orderedlist>
-<listitem><simpara>Write a script <command>test-clisp</command>, which tests
-for the bug given a path to the &clisp; executable.</simpara></listitem>
-<listitem><simpara>Select dates <replaceable>good-date</replaceable> and
-<replaceable>bad-date</replaceable> such that the bug is present at
-<replaceable>bad-date</replaceable> (e.g., set it to the current date) and
-&not-e; present at <replaceable>good-date</replaceable>.</simpara></listitem>
-<listitem><para>Let date &m-r; be the midpoint between
-<replaceable>good-date</replaceable> and <replaceable>bad-date</replaceable>.
- Do:<screen>&sh-prompt; cvs co -D &m-r; clisp
-&sh-prompt; cd clisp; ./configure --cbc build; cd ..;
-&sh-prompt; if test-clisp ./clisp/build/clisp; then rm -rf good; mv clisp good; else rm -rf bad; mv clisp bad; fi</screen>
-Is the <command>test-clisp</command> command succeeded, then set
-<replaceable>good-date</replaceable> to &m-r;, otherwise set
-<replaceable>bad-date</replaceable> to &m-r;.</para></listitem>
-<listitem><para>Repeat the previous listitem until there is only one &cvs;
-commit between <replaceable>bad-date</replaceable> and
-<replaceable>good-date</replaceable>.</para></listitem></orderedlist>
-See output of <command>&cvs; log</command> for the acceptable date
-format for <command>&cvs; co -D</command>.</para></formalpara>
+figure out which specific &hg; commit introduced it.
+The way to figure that out is to use <command>hg bisect</command>.
+</para></formalpara>
 </answer></qandaentry>
 </qandadiv>
 
