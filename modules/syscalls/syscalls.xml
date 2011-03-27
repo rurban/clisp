@@ -793,12 +793,18 @@ which compute the error functions, Bessel functions and Gamma.</para>
      </variablelist></para>
    <simpara>The fourth value is only returned if <constant>:USAGE</constant>
     is non-&nil; and in that case it is a structure describing resource
-    usage by the terminated process, similar to what
-    <link linkend="usage"><function>USAGE</function></link> returns.</simpara>
+    usage by the terminated process, similar to what &usage; returns.</simpara>
+   <simpara>To avoid race conditions, it is important to start your
+    subprocesses &and-e; &wait; for them inside the &body-r; of
+    a &with-subprocesses; form.</simpara>
    <simpara>Calls <function role="unix">waitpid</function> and
     (when <constant>:USAGE</constant> is non-&nil;)
-    <function role="bsd">wait4</function>.</simpara></listitem>
- </varlistentry>
+    <function role="bsd">wait4</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="with-subprocesses">
+   <term><code>(POSIX:WITH-SUBPROCESSES &body-amp;)</code></term>
+   <listitem><simpara>Evaluate &body-r; while receiving signals from
+   subprocesses; your &run-prog; and related <function>POSIX:WAIT</function>
+   calls should be inside the it.</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="accounting"><title>Accounting</title>

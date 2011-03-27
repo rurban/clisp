@@ -1431,6 +1431,21 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
 }
 #endif  /* HAVE_SYS_WAIT_H */
 
+/* http://article.gmane.org/gmane.lisp.clisp.devel/20422
+ https://sourceforge.net/tracker/?func=detail&aid=3243683&group_id=1355&atid=101355 */
+DEFUN(POSIX::BEGIN-SUBPROCESSES,) {
+    begin_system_call();
+    begin_want_sigcld();
+    end_system_call();
+    VALUES0;
+}
+DEFUN(POSIX::END-SUBPROCESSES,) {
+    begin_system_call();
+    end_want_sigcld();
+    end_system_call();
+    VALUES0;
+}
+
 #if defined(HAVE_GETRUSAGE)
 DEFCHECKER(check_rusage, prefix=RUSAGE, SELF CHILDREN THREAD LWP)
 DEFUN(POSIX::USAGE, &optional what) { /* getrusage(3) */

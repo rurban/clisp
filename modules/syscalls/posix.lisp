@@ -15,7 +15,7 @@
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:errno #:strerror #:hostid #:domainname #:file-size #:user-shells
-   #+unix chroot
+   #+unix #:chroot #:with-subprocesses
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
@@ -366,6 +366,13 @@
 (without-package-lock ("EXT")
   (export (find-symbol "SOCKET-SERVICE-PORT" "SOCKET") "EXT"))
 
+;;;--------------------------------------------------------------------------
+(defmacro with-subprocesses (&body body)
+  "Execute body while accepting SIGCLD signal."
+  `(unwind-protect
+        (progn (posix::begin-subprocesses)
+               ,@body)
+     (posix::end-subprocesses)))
 ;;;--------------------------------------------------------------------------
 #+unix
 (defun make-xterm-io-stream (&key (title "CLISP I/O") (xterm "xterm"))
