@@ -610,11 +610,28 @@ RUN-SLEEP
 #+unix (T :EXITED 0)
 
 #+unix
-(progn
-  (run-sleep 1)
-  (multiple-value-bind (pid kind status) (posix:wait)
-    (list (integerp (show pid)) kind status)))
+(posix:with-subprocesses
+  (let ((pid-l (run-sleep 1)))
+    (sleep 2)
+    (multiple-value-bind (pid-w kind status) (posix:wait)
+      (show (list 'pid-l pid-l 'pid-w pid-w))
+      (list (= pid-l pid-w) kind status))))
 #+unix (T :EXITED 0)
+
+#+unix
+(posix:with-subprocesses
+  (let ((pid-l-1 (run-sleep 1))
+        (pid-l-2 (run-sleep 1)))
+    (sleep 2)
+    (multiple-value-bind (pid-w-1 kind1 status1) (posix:wait)
+      (multiple-value-bind (pid-w-2 kind2 status2) (posix:wait)
+        (show (list 'pid-l-1 pid-l-1 'pid-l-2 pid-l-2
+                    'pid-w-1 pid-w-1 'pid-w-2 pid-w-2))
+        (list (or (and (= pid-l-1 pid-w-1) (= pid-l-2 pid-w-2))
+                  (and (= pid-l-1 pid-w-2) (= pid-l-2 pid-w-1)))
+              kind1 kind2 status1 status2)))))
+#+unix (T :EXITED :EXITED 0 0)
+
 
 #+unix (posix:wait :pid (run-sleep 1) :nohang t) #+unix 0
 

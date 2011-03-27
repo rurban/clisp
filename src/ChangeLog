@@ -1,3 +1,14 @@
+2011-03-27  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3243683: (posix:wait) race condition
+	* spvw_sigcld.d (sigcld_enabled): static var which counts how many
+	times we have enabled SIGCLD
+	(sigcld_enabled_lock) [MULTITHREAD]: spinlock for sigcld_enabled
+	(install_sigcld_handler) [MULTITHREAD]: init sigcld_enabled_lock
+	(begin_want_sigcld, end_want_sigcld): only act if sigcld_enabled==0
+	* modules/syscalls/calls.c (BEGIN-SUBPROCESSES, END-SUBPROCESSES): add
+	* modules/syscalls/posix.lisp (with-subprocesses): add
+
 2011-03-24  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#3198722: arg warnings despite :ALLOW-OTHER-KEYS T
@@ -18,7 +29,7 @@
 2011-03-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/glibc/linux.lisp (wait, waitpid): remove, these
-	functions never worked properly because clisp ignores SIGCHLD by
+	functions never worked properly because clisp ignores SIGCLD by
 	default; one should be using POSIX:WAIT instead (bug#3224360)
 
 2011-03-13  Sam Steingold  <sds@gnu.org>

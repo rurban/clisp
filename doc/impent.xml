@@ -596,6 +596,9 @@
 <!ENTITY copy-file '<link linkend="copy-file"><function>POSIX:COPY-FILE</function></link>'>
 <!ENTITY file-size '<link linkend="file-size"><function>POSIX:FILE-SIZE</function></link>'>
 <!ENTITY dup-handle '<link linkend="dup-handle"><function>POSIX:DUPLICATE-HANDLE</function></link>'>
+<!ENTITY usage '<link linkend="usage"><function>POSIX:USAGE</function></link>'>
+<!ENTITY wait '<link linkend="wait"><function>POSIX:WAIT</function></link>'>
+<!ENTITY with-subprocesses '<link linkend="with-subprocesses"><function>POSIX:WITH-SUBPROCESSES</function></link>'>
 
 <!-- *** netica *** -->
 <!ENTITY netica-link '<ulink url="http://norsys.com/netica_c_api.htm">Netica C API</ulink>'>

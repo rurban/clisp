@@ -22,26 +22,59 @@ local void install_sigcld_handler (void);
    SIGNAL(SIGCLD,handle_child);
  The following is equivalent (but better, since it doesn't interrupt system
  calls):
-   SIGNAL(SIGCLD,SIG_IGN); */
+   SIGNAL(SIGCLD,SIG_IGN);
+ However, sometimes we may want to enable SIGCLD
+ (see syscalls/posix.lisp:with-subprocesses)
+ in such a way that the end_want_sigcld at the end of LAUNCH does not cause
+ a race condition, thus sigcld_enabled counts how many times we have enabled
+ the signal. */
+
+local int sigcld_enabled = 0;
+#if defined(MULTITHREAD)
+local spinlock_t sigcld_enabled_lock;
+#define sigcld_enabled_INCF(v)                  \
+  spinlock_acquire(&sigcld_enabled_lock);       \
+  v = sigcld_enabled_lock++;                    \
+  spinlock_release(&sigcld_enabled_lock)
+#define sigcld_enabled_DECF(v)                  \
+  spinlock_acquire(&sigcld_enabled_lock);       \
+  if (sigcld_enabled_lock)                      \
+    v = --sigcld_enabled_lock;                  \
+  else v = 0;                                   \
+  spinlock_release(&sigcld_enabled_lock)
+#else
+#define sigcld_enabled_INCF(v)  v = sigcld_enabled++
+#define sigcld_enabled_DECF(v)  v = --sigcld_enabled
+#endif
 
 local void install_sigcld_handler (void) {
+ #if defined(MULTITHREAD)
+  spinlock_init(&sigcld_enabled_lock);
+ #endif
  #if defined(SIGCLD)
   SIGNAL(SIGCLD,SIG_IGN);
  #endif
 }
 
 modexp void begin_want_sigcld () {
+  int sigcld_level;
+  sigcld_enabled_INCF(sigcld_level);
  #if defined(SIGCLD)
-  SIGNAL(SIGCLD,SIG_DFL);
+  if (sigcld_level == 0)
+    SIGNAL(SIGCLD,SIG_DFL);
  #endif
 }
 
 modexp void end_want_sigcld () {
+  int sigcld_level;
+  sigcld_enabled_DECF(sigcld_level);
  #if defined(SIGCLD)
-  SIGNAL(SIGCLD,SIG_IGN);
-  /* Try to remove zombies which may have been created since the last
-     begin_want_sigcld() call. */
-  while (waitpid(-1,NULL,WNOHANG) > 0) {}
+  if (sigcld_level == 0) {
+    SIGNAL(SIGCLD,SIG_IGN);
+    /* Try to remove zombies which may have been created since the last
+       begin_want_sigcld() call. */
+    while (waitpid(-1,NULL,WNOHANG) > 0) {}
+  }
  #endif
 }
 
