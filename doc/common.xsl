@@ -122,11 +122,9 @@
 <!-- ============================== / SF mail ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
-<xsl:param name="clisp.cvs.file"
-           select="'http://clisp.cvs.sourceforge.net/*checkout*/clisp/clisp/'"/>
-<xsl:param name="clisp.cvs.dir"
-           select="'http://clisp.cvs.sourceforge.net/clisp/clisp/'"/>
-<xsl:template name="clisp.cvs"> <!-- prepend the correct clisp cvs url -->
+<xsl:param name="clisp.cvs.file" select="'http://clisp.hg.sourceforge.net/hgweb/clisp/clisp/raw-file/default/'"/>
+<xsl:param name="clisp.cvs.dir" select="'http://clisp.hg.sourceforge.net/hgweb/clisp/clisp/file/default/'"/>
+<xsl:template name="clisp.cvs"> <!-- prepend the correct clisp hg url -->
  <xsl:param name="path"/>
  <!-- xsltproc does not support ends-with - see http://www.w3.org/TR/xpath -->
  <xsl:choose><xsl:when test="substring($path,string-length($path)) = '/'">

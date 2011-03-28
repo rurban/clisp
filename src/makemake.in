@@ -3,7 +3,7 @@
 CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2010
-# Sam Steingold 1999-2010
+# Sam Steingold 1999-2011
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
