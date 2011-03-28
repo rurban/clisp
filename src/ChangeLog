@@ -1,5 +1,11 @@
 2011-03-28  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3182685: socket-connect with timeout non-zero ->ETIMEDOUT
+	* socket.d (connect_via_ip): do not reuse "ret" when checking for
+	socket errors (fixes patch 2008-06-30)
+
+2011-03-28  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3165405: LOOP mixing WITH & Hash Table FOR
 	* loop.lisp (expand-loop): reverse the order of INITFORMS and
 	ENDTEST-FORMS in preamble (tweak the 2006-07-20 patch)

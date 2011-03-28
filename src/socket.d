@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -992,13 +992,14 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
           saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
         }
        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
-        var socklen_t len = sizeof(ret);
-        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&ret,&len) < 0) {
+        var int errorp;
+        var socklen_t len = sizeof(errorp);
+        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
           CLOSESOCKET(fd);
           return INVALID_SOCKET;
         }
-        if (ret) {
-          CLOSESOCKET(fd); sock_set_errno(ret);
+        if (errorp) {
+          CLOSESOCKET(fd); sock_set_errno(errorp);
           return INVALID_SOCKET;
         }
        #endif
