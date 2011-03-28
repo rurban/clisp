@@ -57,6 +57,7 @@ User visible changes
   + Make wrong keyword argument a STYLE-WARNING in the presence of
     :ALLOW-OTHER-KEYS T (bug#3198722).
   + Fix LOOP mixing WITH & Hash Table FOR (bug#3165405).
+  + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
 
 
 2.49 (2010-07-07)
