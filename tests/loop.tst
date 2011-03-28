@@ -913,6 +913,27 @@ NIL
     :finally (write-char #\b)))
 "a1b"
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3165405&group_id=1355&atid=101355
+(let ((ht (make-hash-table)))
+  (setf (gethash 1 ht) 2)
+  (list (loop for k being the hash-keys of ht as v being the
+          hash-values of ht count t)
+        (loop for k being the hash-keys of ht as v being the
+          hash-values of ht with ut = 3 count t)
+        (loop with ut = 3 for k being the hash-keys of ht as v
+          being the hash-values of ht count t)
+        (loop for k being the hash-keys of ht with ut = 3 as v
+          being the hash-values of ht count t)))
+(1 1 1 1)
+
+(let ((ht (make-hash-table)))
+  (setf (gethash 1 ht) 2)
+  (list (loop for k being the hash-keys of ht using (hash-values v) count t)
+        (loop for k being the hash-keys of ht using (hash-values v)
+          with ut = 3 count t)
+        (loop with ut = 3 for k being the hash-keys of ht
+          using (hash-values v) count t)))
+(1 1 1)
 
 ;; local variables:
 ;; eval: (make-local-variable 'before-save-hook)

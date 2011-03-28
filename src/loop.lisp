@@ -3,7 +3,7 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
 ;; Bruno Haible 1991-2004
-;; Sam Steingold 1999-2009
+;; Sam Steingold 1999-2011
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
@@ -220,7 +220,7 @@
 ;; Flag whether this variable is used.
 (defvar *used-it*)
 
-;;; (revadd a b c d)) ==
+;;; (revadd a b c d) ==
 ;;; (SETF A (REVAPPEND B (REVAPPEND C (REVAPPEND D A))))
 (defmacro revadd (place &rest forms)
   (labels ((expand (rest)
@@ -1071,11 +1071,11 @@
                   (if (li-later-depend initialization)
                     (progn ; double code: preamble and stepafter-code
                       (revadd (cdr (li-preamble initialization))
-                              endtest-forms initforms)
+                              initforms endtest-forms)
                       (revadd (cdr everytime) endtest-forms initforms))
                     (revadd stepbefore-code endtest-forms initforms))
                   (revadd (cdr (li-preamble initialization))
-                          endtest-forms initforms)))
+                          initforms endtest-forms)))
               ; Initialisierungsklausel nach initializations1 schaffen:
               (progn
                 (push

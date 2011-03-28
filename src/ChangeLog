@@ -1,3 +1,9 @@
+2011-03-28  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3165405: LOOP mixing WITH & Hash Table FOR
+	* loop.lisp (expand-loop): reverse the order of INITFORMS and
+	ENDTEST-FORMS in preamble (tweak the 2006-07-20 patch)
+
 2011-03-27  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3243683: (posix:wait) race condition
