@@ -1,3 +1,9 @@
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
+	* trace.lisp (subclosure-pos, trace1): use SYMBOL-SUFFIX instead
+	of CONCAT-PNAMES to keep the named of the traced definition in the
+	same package as the original name
+
 2011-03-28  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3182685: socket-connect with timeout non-zero ->ETIMEDOUT
