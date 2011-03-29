@@ -1,5 +1,12 @@
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3258485: HANDLER-BIND: no CONSTANTLY as a handler
+	* compiler.lisp (insert-combined-LAPs): we have HANDLER-BEGIN&PUSH
+	but not HANDLER-BEGIN, so insert a (PUSH)+(POP) after
+	HANDLER-BEGIN which is not followed by a (PUSH)
+
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (insert-combined-LAPs): remove noop GOs
 
 2011-03-29  Sam Steingold  <sds@gnu.org>

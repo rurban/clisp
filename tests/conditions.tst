@@ -584,6 +584,15 @@ NIL
                           #'clos::any-method-combination-check-options))
 #+clisp NIL
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3258485&group_id=1355&atid=101355
+#+clisp
+(find-if #'sys::closurep
+         (sys::closure-consts
+          (compile nil (lambda (arg)
+                         (handler-bind ((error (constantly nil)))
+                           (car arg))))))
+#+clisp NIL
+
 (progn ; Clean up.
   (symbol-cleanup 'my-cpl)
   (symbol-cleanup 'check-superclasses)

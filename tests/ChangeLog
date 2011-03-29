@@ -1,5 +1,10 @@
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst: fix bug#3258485:
+	HANDLER-BIND cannot handle handlers defined using CONSTANTLY
+
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
 	* conditions.tst: fix bug#3147908: too much consing in IGNORE-ERRORS
 
 2011-03-29  Sam Steingold  <sds@gnu.org>

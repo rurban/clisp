@@ -10074,6 +10074,10 @@ This step works on the code-list and changes is destructively.
         (case (first item)
           (CONST ; (CONST n c) -> (CONST n)
            (setf (cddr item) '()))
+          (HANDLER-BEGIN ; we have HANDLER-BEGIN&PUSH but not HANDLER-BEGIN
+           (unless (eq (caadr crest) 'PUSH)
+             (push '(POP) (cdr crest))
+             (push '(PUSH) (cdr crest))))
           ((ATOM CONSP)
            (setq item (first item))
            (if (and #| (consp (cdr crest)) |#
