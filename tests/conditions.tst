@@ -574,6 +574,16 @@ T
       (push tp bad))))
 NIL
 
+;; bug#3147908: handler-bind should not cons at run time
+#+clisp
+(let ((closure (compile nil (lambda (x y) (ignore-errors (= x y))))))
+  (find-if #'sys::closurep (sys::closure-consts closure)))
+#+clisp NIL
+#+clisp                         ; abi in clos-methcomb2.lisp
+(find-if #'sys::closurep (sys::closure-consts
+                          #'clos::any-method-combination-check-options))
+#+clisp NIL
+
 (progn ; Clean up.
   (symbol-cleanup 'my-cpl)
   (symbol-cleanup 'check-superclasses)

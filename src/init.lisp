@@ -1489,18 +1489,6 @@
                 (%expand-lambdabody (caddr funmacdef)))
               (cdddr funmacdef) nil)))
         (%expand-funmacdefs-2 (rest funmacdefs))))))
-;; (%expand-handlers handlers) expands a Typ/Handler-List
-;; like in %HANDLER-BIND. returns 2 values.
-(defun %expand-handlers (handlers)
-  (if (atom handlers)
-    (values handlers nil)
-    (let ((handler (car handlers)))
-      (multiple-value-call #'%expand-cons handlers
-        (multiple-value-call #'%expand-cons handler
-          (car handler) nil
-          (%expand-list (cdr handler)))
-        (%expand-handlers (cdr handlers))))))
-
 ;; expands (lambdalist . body) in a given function-environment.
 ;; Is called by GET_CLOSURE.
 (defun %expand-lambdabody-main (lambdabody *venv* *fenv*)

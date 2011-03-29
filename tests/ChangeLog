@@ -1,5 +1,9 @@
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst: fix bug#3147908: too much consing in IGNORE-ERRORS
+
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
 	* restarts.tst: add tests for HANDLER-BIND inside
 	MACROLET & SYMBOL-MACROLET
 

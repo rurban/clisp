@@ -3578,7 +3578,7 @@ with a different configuration, so the configuration would be re-read then."
 (defun* module-provide-asdf (name)
   (handler-bind
       ((style-warning #'muffle-warning)
-       (missing-component (constantly nil))
+       (missing-component (lambda (c) (declare (ignore c)) nil))
        (error (lambda (e)
                 (format *error-output* "ASDF could not load ~(~A~) because ~A.~%"
                         name e))))
