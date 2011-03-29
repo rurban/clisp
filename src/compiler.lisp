@@ -10209,8 +10209,7 @@ This step works on the code-list and changes is destructively.
                      (setq right (cdr right)))
                    (setf (car middle)
                          (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
-                         (cdr middle) right)
-                   (go next)))))
+                         (cdr middle) right)))))
             (CONST
              (when (and #| (consp right) |# (consp (car right)))
                (case (first (car right))
@@ -10301,8 +10300,7 @@ This step works on the code-list and changes is destructively.
                  (setq right (cdr right)))
                (unless (eql count 1)
                  (setf (car middle) `(UNBIND ,count))
-                 (setf (cdr middle) right)
-                 (go next))))
+                 (setf (cdr middle) right))))
             ;; We need these two rules because (RET) and (RETGF) are not
             ;; always preceded by (SKIP n); they can also be preceded by
             ;; (SKIPI k1 k2 n) with n >= 1.

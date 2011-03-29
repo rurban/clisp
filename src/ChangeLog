@@ -1,5 +1,9 @@
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (insert-combined-LAPs): remove noop GOs
+
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3147908: too much consing in IGNORE-ERRORS,
 	partially reverting the 2005-01-21 patch
 	* compiler.lisp (c-form-table): map HANDLER-BIND to c-HANDLER-BIND
