@@ -1,7 +1,7 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 ;; German comments translated into English: Stefan Kain 2001-12-26
-;; Sam Steingold 2001-2009
+;; Sam Steingold 2001-2009, 2011
 
 (in-package "COMMON-LISP")
 (export '(trace untrace))
@@ -32,18 +32,18 @@
 (defvar *trace-level* 0) ; nesting depth for Trace-Output
 
 (labels ((subclosure-pos (closure name)
-           (do ((length (sys::%record-length closure))
-                ;; sys::symbol-suffix is defined in compiler.lisp
-                (nm (sys::symbol-suffix (closure-name closure) name))
-                (pos 0 (1+ pos)) obj)
-               ((= pos length)
-                (error (TEXT "~S: no local name ~S in ~S")
-                       'local name closure))
+           (do* ((length (sys::%record-length closure))
+                 ;; SYMBOL-SUFFIX is defined in compiler.lisp
+                 (nm (symbol-suffix (closure-name closure) name))
+                 (nm-traced (symbol-suffix nm "TRACED"))
+                 (pos 0 (1+ pos)) obj)
+                ((= pos length)
+                 (error (TEXT "~S: no local name ~S in ~S")
+                        'local name closure))
              (setq obj (sys::closure-const closure pos))
              (when (and (closurep obj)
                         (or (eq (closure-name obj) nm)
-                            (eq (closure-name obj)
-                                (concat-pnames "TRACED-" nm))))
+                            (eq (closure-name obj) nm-traced)))
                (return pos))))
          (force-cclosure (name)
            (let ((closure (fdefinition name)))
@@ -190,7 +190,7 @@ TRACE and UNTRACE are also applicable to functions (SETF symbol) and macros,
             macro-flag (tracer-name trr))
     (setf (get (tracer-symb trr) 'sys::tracing-definition)
           ;; new function, that replaces the original one:
-          (let ((newname (concat-pnames "TRACED-" (tracer-symb trr)))
+          (let ((newname (symbol-suffix (tracer-symb trr) "TRACED"))
                 (body
                  `((declare (inline car cdr cons apply values-list))
                    (let ((*trace-level* (1+ *trace-level*))
