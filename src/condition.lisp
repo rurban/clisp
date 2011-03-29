@@ -628,9 +628,10 @@
 |#
 
 ;; HANDLER-BIND, CLtL2 p. 898
-;; Since we can build handler frames only in compiled code
-;; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
-;; that SYS::%HANDLER-BIND only occurs in compiled code.
+;; Since we can build handler frames only in compiled code there is
+;; SYS::%HANDLER-BIND which is analogous to HANDLER-BIND except that the former
+;; only occurs in compiled code and has the normal function syntax.
+;; cf. compiler.lisp:c-HANDLER-BIND
 (defmacro handler-bind (clauses &body body)
   (let* ((typespecs (mapcar #'first clauses))
          (handlers (nconc (mapcar #'rest clauses) (list body)))
