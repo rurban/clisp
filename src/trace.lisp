@@ -116,15 +116,15 @@ Format for fun:
  Either a function name
  or a list made of a function-cell and a few keyword arguments (pairwise!)
   (function-name
-   [:suppress-if form]   ; no Trace-Output, as long as form is true
+   [:suppress-if form]   ; no trace output, as long as form is true
    [:max-depth form]     ; no trace output, as long as (> *trace-level* form)
-   [:step-if form]       ; Trace moves into the Stepper, if form is true
+   [:step-if form]       ; trace moves into the stepper, if form is true
    [:bindings ((variable form)...)] ; binds variables around the following forms
    [:pre form]           ; executes form before function call
    [:post form]          ; executes form after  function call
-   [:pre-break-if form]  ; Trace moves into break-loop before function call,
+   [:pre-break-if form]  ; trace moves into break-loop before function call,
                          ; if form is true
-   [:post-break-if form] ; Trace moves into break-loop after  function call,
+   [:post-break-if form] ; trace moves into break-loop after  function call,
                          ; if form is true
    [:pre-print form]     ; prints the values of form before function call
    [:post-print form]    ; prints the values of form after  function call
