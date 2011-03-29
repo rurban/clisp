@@ -2157,7 +2157,8 @@ for-value   NIL or T
        (%OPTIMIZE-FUNCTION-LAMBDA . c-%OPTIMIZE-FUNCTION-LAMBDA)
        (CLOS:GENERIC-FLET . c-GENERIC-FLET)
        (CLOS:GENERIC-LABELS . c-GENERIC-LABELS)
-       (SYS::%HANDLER-BIND . c-HANDLER-BIND)
+       (HANDLER-BIND . c-HANDLER-BIND)
+       (SYS::%HANDLER-BIND . c-%HANDLER-BIND)
        (SYS::CONSTANT-EQL . c-CONSTANT-EQL)
        (WITHOUT-PACKAGE-LOCK . c-WITHOUT-PACKAGE-LOCK)
        ;; Inline-compiled functions:
@@ -5998,81 +5999,104 @@ for-value   NIL or T
 
 ;;;;****             FIRST PASS :    MACROS
 
-;;; (SYS::%HANDLER-BIND body-function 'typespec1 handler1 ...)
+;; helpers for c-HANDLER-BIND & c-%HANDLER-BIND
+(defun c-handler-bind-handler-anode (label handler)
+  ;; the handler is a function with dynamic extent.
+  (let* ((*stackz* (cons 'ANYTHING *stackz*))
+         (oldstackz *stackz*)
+         (*venv* *venv*))
+    ;; work place for the function:
+    (push 1 *stackz*)
+    (let* ((condition-sym (gensym))
+           (condition-anode
+            (make-anode :type 'CONDITION
+                        :sub-anodes '()
+                        :seclass *seclass-read*
+                        :code '())) ; first comes (HANDLER-BEGIN)
+           (condition-var (bind-movable-var condition-sym condition-anode)))
+      (push-*venv* condition-var)
+      (let ((body-anode (c-form `(FUNCALL ,handler ,condition-sym) 'NIL)))
+        ;; Check the variables (must not happen in the closure):
+        (checking-movable-var-list (list condition-var) (list condition-anode))
+        (let* ((codelist
+                `(,label
+                  (HANDLER-BEGIN)
+                  ,@(c-bind-movable-var-anode condition-var condition-anode)
+                  ,body-anode
+                  (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
+                  (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
+                  (RET)))
+               (anode (make-anode
+                       :type 'HANDLER
+                       :sub-anodes `(,body-anode)
+                       :seclass *seclass-dirty* ; actually irrelevant
+                       :stackz oldstackz
+                       :code codelist)))
+          (optimize-var-list (list condition-var))
+          anode)))))
+
+(defun c-handler-bind-anode (body-form types handler-labels handler-anodes)
+  (if types
+    (let* ((label (make-label 'NIL))
+           (oldstackz *stackz*)
+           (*stackz* (cons 4 *stackz*)) ; HANDLER-Frame
+           (body-anode (c-form body-form)))
+      (make-anode
+       :type 'HANDLER-BIND
+       :sub-anodes `(,body-anode ,@handler-anodes)
+       :seclass (anodelist-seclass-or `(,body-anode ,@handler-anodes))
+       :stackz oldstackz
+       :code `((HANDLER-OPEN ,(new-const (coerce types 'vector))
+                             ,*stackz* ,@handler-labels)
+               (JMP ,label)
+               ,@handler-anodes
+               ,label
+               ,body-anode
+               (UNWIND ,*stackz* ,oldstackz ,*for-value*))))
+    (c-form body-form)))
+
+;; Making HANDLER-BIND a special form is a preformance optimization to avoid
+;; consing at run time in IGNORE-ERRORS, see bug#3147908 & conditions.tst.
+;; %HANDLER-BIND + macro in condition.lisp works correctly.
+;; NB: even though HANDLER-BIND is a special form, it does not need a special
+;;  treatment in init.lisp:EXPAND-FORM because it expands to %HANDLER-BIND
+;;  which looks like a regular function (for evaluation).
+
+;;; (HANDLER-BIND ({(typespec handler)}*) {form}*)
 (defun c-HANDLER-BIND ()
+  (test-list *form* 2)
+  (test-list (second *form*) 0)
+  (let ((body (cddr *form*))
+        (types '())
+        (handler-labels '())
+        (handler-anodes '()))
+    (dolist (clause (second *form*))
+      (test-list clause 2 2)
+      (let ((type (first clause)) (handler (second clause))
+            (label (make-label 'ONE)))
+        (push type types)
+        (push label handler-labels)
+        (push (c-handler-bind-handler-anode label handler) handler-anodes)))
+    (c-handler-bind-anode `(PROGN ,@body)
+                          (nreverse types) (nreverse handler-labels)
+                          (nreverse handler-anodes))))
+
+;;; (SYS::%HANDLER-BIND body-function 'typespec1 handler1 ...)
+(defun c-%HANDLER-BIND ()
   (test-list *form* 1)
   (let ((body-f (second *form*))
         (types '())
         (handler-labels '())
         (handler-anodes '()))
     (do ((tail (cddr *form*))) ((endp tail))
-      (let ((type (pop tail)) (handler (pop tail)))
-        (unless (quote-p type) (compiler-error 'c-HANDLER-BIND type))
-        ;; the handler is a function with dynamic extent.
-        (let ((label (make-label 'ONE)))
-          (push (second type) types)
-          (push label handler-labels)
-          (push
-           (let* ((*stackz* (cons 'ANYTHING *stackz*))
-                  (oldstackz *stackz*)
-                  (*venv* *venv*))
-             ;; work place for the function:
-             (push 1 *stackz*)
-             (let* ((condition-sym (gensym))
-                    (condition-anode
-                      (make-anode :type 'CONDITION
-                                  :sub-anodes '()
-                                  :seclass *seclass-read*
-                                  :code '())) ; first comes (HANDLER-BEGIN)
-                    (condition-var (bind-movable-var condition-sym
-                                                     condition-anode)))
-               (push-*venv* condition-var)
-               (let ((body-anode
-                       (c-form `(FUNCALL ,handler ,condition-sym) 'NIL)))
-                 ;; Check the variables (must not happen in the closure):
-                 (checking-movable-var-list (list condition-var)
-                                            (list condition-anode))
-                 (let* ((codelist
-                          `(,label
-                            (HANDLER-BEGIN)
-                            ,@(c-bind-movable-var-anode condition-var
-                                                        condition-anode)
-                            ,body-anode
-                            (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
-                            (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
-                            (RET)))
-                        (anode
-                          (make-anode
-                            :type 'HANDLER
-                            :sub-anodes `(,body-anode)
-                            :seclass *seclass-dirty* ; actually irrelevant
-                            :stackz oldstackz
-                            :code codelist)))
-                   (optimize-var-list (list condition-var))
-                   anode))))
-           handler-anodes))))
-    (if (null types)
-      (c-form `(FUNCALL ,body-f))
-      (progn
-        (setq types (nreverse types))
-        (setq handler-labels (nreverse handler-labels))
-        (setq handler-anodes (nreverse handler-anodes))
-        (let* ((label (make-label 'NIL))
-               (oldstackz *stackz*)
-               (*stackz* (cons 4 *stackz*)) ; HANDLER-Frame
-               (body-anode (c-form `(FUNCALL ,body-f))))
-          (make-anode
-            :type 'HANDLER-BIND
-            :sub-anodes `(,body-anode ,@handler-anodes)
-            :seclass (anodelist-seclass-or `(,body-anode ,@handler-anodes))
-            :stackz oldstackz
-            :code `((HANDLER-OPEN ,(new-const (coerce types 'vector))
-                     ,*stackz* ,@handler-labels)
-                    (JMP ,label)
-                    ,@handler-anodes
-                    ,label
-                    ,body-anode
-                    (UNWIND ,*stackz* ,oldstackz ,*for-value*))))))))
+      (let ((type (pop tail)) (handler (pop tail)) (label (make-label 'ONE)))
+        (unless (quote-p type) (compiler-error 'c-%HANDLER-BIND type))
+        (push (second type) types)
+        (push label handler-labels)
+        (push (c-handler-bind-handler-anode label handler) handler-anodes)))
+    (c-handler-bind-anode `(FUNCALL ,body-f)
+                          (nreverse types) (nreverse handler-labels)
+                          (nreverse handler-anodes))))
 
 ;; compile (SYS::CONSTANT-EQL form1 form2 form3)
 (defun c-CONSTANT-EQL ()
