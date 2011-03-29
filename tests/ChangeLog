@@ -1,3 +1,8 @@
+2011-03-29  Sam Steingold  <sds@gnu.org>
+
+	* restarts.tst: add tests for HANDLER-BIND inside
+	MACROLET & SYMBOL-MACROLET
+
 2011-03-28  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: fix bug#3182685: socket-connect with non-0 timeout

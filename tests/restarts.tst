@@ -371,6 +371,17 @@ T
   (documentation 'use-value-read 'function))
 "docstring for use-value-read"
 
+(macrolet ((u (v) `(lambda (c) (princ c) (use-value ,v))))
+  (handler-bind ((type-error (u "docstring for use-value-read"))
+                 (error (u 'use-value-read)))
+    (string= '(foo) (documentation '(foo) 'function))))
+T
+
+(symbol-macrolet ((u (lambda (c) (princ c) (use-value 1))))
+  (handler-bind ((type-error u))
+    (+ 'symbol-macrolet 'handler-bind 'type-error)))
+3
+
 (progn ; cleanup
   (symbol-cleanup 'check-use-value)
   (symbol-cleanup 'use-value-read)
