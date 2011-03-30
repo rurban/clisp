@@ -1,9 +1,12 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; restarts
+(defun handler-use-value (value)
+  (lambda (c) (princ-error c) (use-value value)))
+HANDLER-USE-VALUE
 (defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
-  `(handler-bind ((,type (lambda (c) (princ-error c) (use-value ',good))))
+  `(handler-bind ((,type (handler-use-value ',good)))
      (,test (,fun ',good) (,fun ',bad))))
-check-use-value
+CHECK-USE-VALUE
 
 (check-use-value char-code #\1 12 :test =) t
 (check-use-value symbol-name good "bad" :test string=) t
@@ -33,22 +36,22 @@ check-use-value
     (broadcast-stream-streams 10)))
 NIL
 
-(handler-bind ((error (lambda (c) (princ-error c) (use-value #\#))))
+(handler-bind ((error (handler-use-value #\#)))
   (eq (get-dispatch-macro-character #\a #\()
       (get-dispatch-macro-character #\# #\()))
 T
 
 (with-output-to-string (o)
-  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value o))))
+  (handler-bind ((type-error (handler-use-value o)))
     (princ "no error!" 123)))
 "no error!"
 
-(handler-bind ((type-error (lambda (c) (princ-error c) (use-value 16))))
+(handler-bind ((type-error (handler-use-value 16)))
   (parse-integer "ABC" :radix 'lambda))
 2748
 
 (with-input-from-string (s "bazonk")
-  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value s))))
+  (handler-bind ((type-error (handler-use-value s)))
     (list (read-char 123) (read-char 1) (read-char 'read-char))))
 (#\b #\a #\z)
 
@@ -76,7 +79,7 @@ T
   (nth-value 1 (get-macro-character 1 2)))
 T
 
-(handler-bind ((type-error (lambda (c) (princ-error c) (use-value 7))))
+(handler-bind ((type-error (handler-use-value 7)))
   (list (digit-char-p #\3 300)
         (digit-char-p #\8 'digit-char-p)))
 (3 NIL)
@@ -134,7 +137,7 @@ T
   (setf (readtable-case (copy-readtable nil)) ":UPCASE"))
 :UPCASE
 
-(handler-bind ((error (lambda (c) (princ-error c) (use-value '+))))
+(handler-bind ((error (handler-use-value '+)))
   (eval '(function "+")))
 #.#'+
 
@@ -147,13 +150,13 @@ T
   (progv '("foo") '(123) foo))
 123
 
-(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
+(handler-bind ((program-error (handler-use-value 'zz)))
   (progv '(:const-var) '(123) zz))
 123
 
 (let ((form '(progv '("foo" :const) '(123 321) (+ foo zz))))
   (handler-bind ((type-error #'use-value-read)
-                 (program-error (lambda (c) (princ-error c) (use-value 'zz))))
+                 (program-error (handler-use-value 'zz)))
     (list (eval form) form)))
 (444 (progv '("foo" :const) '(123 321) (+ foo zz)))
 
@@ -162,13 +165,12 @@ T
   (list foo baz))
 (321 123)
 
-(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
+(handler-bind ((program-error (handler-use-value 'zz)))
   (setq :const-var 125)
   zz)
 125
 
-(handler-bind ((program-error
-                (lambda (c) (princ-error c) (use-value '(zz 48)))))
+(handler-bind ((program-error (handler-use-value '(zz 48))))
   (let (("foo" 32)) zz))
 48
 
@@ -180,7 +182,7 @@ T
 ;;   that's what normal EVAL in the interpreter would do) or should be
 ;;   evaluated to lookup (symbol-value 'zz) - since that's what the compiler
 ;;   would make from the code.
-(handler-bind ((program-error (lambda (c) (princ-error c) (use-value 'zz))))
+(handler-bind ((program-error (handler-use-value 'zz)))
   (let ((:const-var 64)) zz))
 64
 
@@ -230,7 +232,7 @@ T
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2941408&group_id=1355
 (let ((count 5))
   (flet ((handler (c)
-           (princ c)
+           (princ-error c)
            (decf count)
            (use-value (if (zerop count) 'x count))))
     (handler-bind ((program-error #'handler)
@@ -251,8 +253,8 @@ T
 (flet ((mht (tr) (make-hash-table :rehash-threshold tr)))
   (check-use-value mht 5d-1 bazonk :test equalp)) t
 
-(handler-bind ((program-error (lambda (c) (princ-error c) (use-value '1+)))
-               (type-error (lambda (c) (princ-error c) (use-value '1-))))
+(handler-bind ((program-error (handler-use-value '1+))
+               (type-error (handler-use-value '1-)))
   (list (eval '(1 10)) (funcall 1 100) (apply 1 '(1000))))
 (11 99 999)
 
@@ -352,32 +354,32 @@ T
   (delete-package p3) (delete-package p4))
 T
 
-(handler-bind ((error (lambda (c) (princ-error c) (use-value '(9 8 7 6)))))
+(handler-bind ((error (handler-use-value '(9 8 7 6))))
   (list (butlast 123 2)
         (butlast '#1=(1 2 3 . #1#) 2)
         (last 123 2)
         (last '#1# 2)))
 ((9 8) (9 8) (7 6) (7 6))
 
-(handler-bind ((error (lambda (c) (princ c) (use-value 'check-use-value))))
+(handler-bind ((error (handler-use-value 'check-use-value)))
   (setf (documentation '(check-use-value) 'function)
         "docstring for check-use-value")
   (documentation 'check-use-value 'function))
 "docstring for check-use-value"
 
-(handler-bind ((error (lambda (c) (princ c) (use-value 'use-value-read))))
+(handler-bind ((error (handler-use-value 'use-value-read)))
   (setf (documentation '(use-value-read) 'function)
         "docstring for use-value-read")
   (documentation 'use-value-read 'function))
 "docstring for use-value-read"
 
-(macrolet ((u (v) `(lambda (c) (princ c) (use-value ,v))))
+(macrolet ((u (v) `(handler-use-value ,v)))
   (handler-bind ((type-error (u "docstring for use-value-read"))
                  (error (u 'use-value-read)))
     (string= '(foo) (documentation '(foo) 'function))))
 T
 
-(symbol-macrolet ((u (lambda (c) (princ c) (use-value 1))))
+(symbol-macrolet ((u (handler-use-value 1)))
   (handler-bind ((type-error u))
     (+ 'symbol-macrolet 'handler-bind 'type-error)))
 3
