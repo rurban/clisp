@@ -1,3 +1,7 @@
+2011-03-30  Sam Steingold  <sds@gnu.org>
+
+	* restarts.tst (handler-use-value): add and use throughout
+
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: fix bug#3258485:
