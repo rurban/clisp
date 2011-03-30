@@ -1246,7 +1246,7 @@ for-value   NIL or T
   ltv-form      ; (LOAD-TIME-VALUE form) as it occurs in the source, or nil
   horizon       ; validity range of value and form:
                 ; :VALUE  -  only value is valid
-                ;            (then form is implicitly: form = `(QUOTE ,value) )
+                ;            (then form is implicitly: form = `(QUOTE ,value))
                 ; :ALL    -  value and form are both valid
                 ; :FORM   -  only form is valid
   ;; For *compiling-from-file* = nil only :VALUE and :ALL are possible.
@@ -3134,8 +3134,8 @@ for-value   NIL or T
     (SYS::%SVSTORE '((SVSET)))
     (EQ '((EQ)))
     (VALUES (case arg-count
-              (0 '((VALUES0)) )
-              (1 '((VALUES1)) )
+              (0 '((VALUES0)))
+              (1 '((VALUES1)))
               (t `((PUSH) ; also push last argument to the Stack
                    (STACK-TO-MV ,arg-count)))))
     (VALUES-LIST '((LIST-TO-MV)))
@@ -3144,8 +3144,8 @@ for-value   NIL or T
               `((PUSH) (LIST ,arg-count))
               '((NIL))))
     (LIST* (case arg-count
-             (1 '((VALUES1)) )
-             (t `((LIST* ,(1- arg-count))) )))
+             (1 '((VALUES1)))
+             (t `((LIST* ,(1- arg-count))))))
     (t (compiler-error 'c-GLOBAL-FUNCTION-CALL fun))))
 
 ;; global function call: (fun {form}*)
@@ -5048,7 +5048,7 @@ for-value   NIL or T
        (valueslist '()))
       ((null L)
        (progv (nreverse varlist) (nreverse valueslist)
-         (funcall c `(PROGN ,@(cddr *form*)) )))
+         (funcall c `(PROGN ,@(cddr *form*)))))
     (cond ((symbolp (car L)) (push (car L) varlist) (push nil valueslist))
           ((and (consp (car L)) (symbolp (caar L))
                 (or (null (cdar L))
@@ -6057,7 +6057,7 @@ for-value   NIL or T
 
 ;; Making HANDLER-BIND a special form is a preformance optimization to avoid
 ;; consing at run time in IGNORE-ERRORS, see bug#3147908 & conditions.tst.
-;; %HANDLER-BIND + macro in condition.lisp works correctly.
+;; %HANDLER-BIND + macro in condition.lisp work correctly.
 ;; NB: even though HANDLER-BIND is a special form, it does not need a special
 ;;  treatment in init.lisp:EXPAND-FORM because it expands to %HANDLER-BIND
 ;;  which looks like a regular function (for evaluation).
@@ -8137,8 +8137,8 @@ New Operations:
 (defun make-const-code (const)
   (unless (eq (const-horizon const) ':form)
     (let ((value (const-value const)))
-      (cond ((eq value 'nil) (return-from make-const-code '(NIL) ))
-            ((eq value 't) (return-from make-const-code '(T) )))))
+      (cond ((eq value 'nil) (return-from make-const-code '(NIL)))
+            ((eq value 't) (return-from make-const-code '(T))))))
   `(CONST ,(const-index const) ,const))
 
 ;; (bconst-index block) returns the Index in FUNC,
@@ -8327,7 +8327,7 @@ New Operations:
                             (access-in-stack stackz (var-stackz var))
                           (if k
                             `(LOADI ,(car k) ,(cdr k) ,n)
-                            `(LOAD ,n) ))))))
+                            `(LOAD ,n)))))))
                 *code-part*)
                (setq *current-vars* (list var)))))
           (SET
@@ -8350,7 +8350,7 @@ New Operations:
                     ;; lexical and in Stack, so in the same function
                     (multiple-value-bind (k n)
                         (access-in-stack stackz (var-stackz var))
-                      (if k `(STOREI ,(car k) ,(cdr k) ,n) `(STORE ,n) ))))
+                      (if k `(STOREI ,(car k) ,(cdr k) ,n) `(STORE ,n)))))
                 *code-part*)
                (push var *current-vars*)))) ; *current-value* is unchanged
           (GETVALUE
@@ -8430,7 +8430,7 @@ New Operations:
               (if (consp (car venvc)) ; fetch from Stack
                 (multiple-value-bind (k n)
                     (access-in-stack stackz (cdr (car venvc)))
-                  (if k `(LOADI ,(car k) ,(cdr k) ,n) `(LOAD ,n) ))
+                  (if k `(LOADI ,(car k) ,(cdr k) ,n) `(LOAD ,n)))
                 (if (eq (car venvc) *func*)
                   (if (fnode-Venvconst *func*) '(VENV) '(NIL))
                   (compiler-error 'traverse-anode 'VENV)))
@@ -10408,33 +10408,33 @@ freshly rebuilt as list of bytes.
                 (B (incf instr-length 1))
                 (L (incf PC 1) (push 1 (second item)))
                 (NN (incf instr-length (num-operand-length (second item)))
-                    (incf instr-length (num-operand-length (third item))) )
+                    (incf instr-length (num-operand-length (third item))))
                 (NB (incf instr-length (num-operand-length (second item)))
-                    (incf instr-length 1) )
+                    (incf instr-length 1))
                 (BN (incf instr-length 1)
-                    (incf instr-length (num-operand-length (third item))) )
+                    (incf instr-length (num-operand-length (third item))))
                 (NNN (incf instr-length (num-operand-length (second item)))
                      (incf instr-length (num-operand-length (third item)))
-                     (incf instr-length (num-operand-length (fourth item))) )
+                     (incf instr-length (num-operand-length (fourth item))))
                 (NBN (incf instr-length (num-operand-length (second item)))
                      (incf instr-length 1)
-                     (incf instr-length (num-operand-length (fourth item))) )
+                     (incf instr-length (num-operand-length (fourth item))))
                 (NNNN (incf instr-length (num-operand-length (second item)))
                       (incf instr-length (num-operand-length (third item)))
                       (incf instr-length (num-operand-length (fourth item)))
-                      (incf instr-length (num-operand-length (fifth item))) )
+                      (incf instr-length (num-operand-length (fifth item))))
                 (NL (incf instr-length (num-operand-length (second item)))
-                    (incf PC 1) (push 1 (third item)) )
+                    (incf PC 1) (push 1 (third item)))
                 (BL (incf instr-length 1)
-                    (incf PC 1) (push 1 (third item)) )
+                    (incf PC 1) (push 1 (third item)))
                 (NNL (incf instr-length (num-operand-length (second item)))
                      (incf instr-length (num-operand-length (third item)))
-                     (incf PC 1) (push 1 (fourth item)) )
+                     (incf PC 1) (push 1 (fourth item)))
                 (NBL (incf instr-length (num-operand-length (second item)))
                      (incf instr-length 1)
-                     (incf PC 1) (push 1 (fourth item)) )
+                     (incf PC 1) (push 1 (fourth item)))
                 (NHL (incf instr-length (num-operand-length (second item)))
-                     (incf PC 1) (push 1 (fourth item)) )
+                     (incf PC 1) (push 1 (fourth item)))
                 (NLX (incf instr-length (num-operand-length (second item)))
                      (do ((L (cddr item) (cdr L)))
                          ((null L))
@@ -10523,31 +10523,31 @@ freshly rebuilt as list of bytes.
               (B (new-byte (second (cddr item))))
               (L (label-operand (second (cddr item))))
               (NN (num-operand (second (cddr item)))
-                  (num-operand (third (cddr item))) )
+                  (num-operand (third (cddr item))))
               (NB (num-operand (second (cddr item)))
-                  (new-byte (third (cddr item))) )
+                  (new-byte (third (cddr item))))
               (BN (new-byte (second (cddr item)))
-                  (num-operand (third (cddr item))) )
+                  (num-operand (third (cddr item))))
               (NNN (num-operand (second (cddr item)))
                    (num-operand (third (cddr item)))
-                   (num-operand (fourth (cddr item))) )
+                   (num-operand (fourth (cddr item))))
               (NBN (num-operand (second (cddr item)))
                    (new-byte (third (cddr item)))
-                   (num-operand (fourth (cddr item))) )
+                   (num-operand (fourth (cddr item))))
               (NNNN (num-operand (second (cddr item)))
                     (num-operand (third (cddr item)))
                     (num-operand (fourth (cddr item)))
-                    (num-operand (fifth (cddr item))) )
+                    (num-operand (fifth (cddr item))))
               (NL (num-operand (second (cddr item)))
-                  (label-operand (third (cddr item))) )
+                  (label-operand (third (cddr item))))
               (BL (new-byte (second (cddr item)))
-                  (label-operand (third (cddr item))) )
+                  (label-operand (third (cddr item))))
               (NNL (num-operand (second (cddr item)))
                    (num-operand (third (cddr item)))
-                   (label-operand (fourth (cddr item))) )
+                   (label-operand (fourth (cddr item))))
               (NBL (num-operand (second (cddr item)))
                    (new-byte (third (cddr item)))
-                   (label-operand (fourth (cddr item))) )
+                   (label-operand (fourth (cddr item))))
               (NHL (num-operand (second (cddr item)))
                    (let ((ht (third (cddr item))))
                      (maphash
@@ -10562,7 +10562,7 @@ freshly rebuilt as list of bytes.
                         ((>= i m))
                       (setf (svref v i) (symbol-value (svref v i))))))
               (NLX (num-operand (second (cddr item)))
-                   (dolist (x (cddr (cddr item))) (label-operand x)) ))))))
+                   (dolist (x (cddr (cddr item))) (label-operand x))))))))
     (nreverse byte-list)))
 
 ;; the reversion of assemble-LAP : returns for a bytecode-list the belonging
@@ -11087,7 +11087,7 @@ The function make-closure is required.
     (let ((*package-tasks* '()))
       (setq form
         (compile-lambdabody *toplevel-name*
-          `(() ,form ,@(if *toplevel-for-value* '() '((VALUES)) ) )))
+          `(() ,form ,@(if *toplevel-for-value* '() '((VALUES))))))
       (when *c-listing-output*
         (disassemble-closures form *c-listing-output*))
       (when *fasoutput-stream*
