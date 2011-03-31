@@ -46,7 +46,6 @@ User visible changes
     to the module configures (bug#3076160).
   + Fix PROBE-PATHNAME behavior on win32 and on open file streams (bug#3087668).
   + Fix handling of huge byte arrays on 64-bit platforms (bug#3088751).
-  + Macro LOOP now detects incomplete FOR clauses (bug#3089988).
   + Fix LOADing corrupt FAS files (bug#3122505).
   + Fix interaction of *DEFAULT-PATHNAME-DEFAULTS* with REQUIRE (bug#3124200).
   + Correctly bind *LOAD-PATHNAME* in LOAD (bug#3165355).
@@ -56,7 +55,9 @@ User visible changes
     with a new macro POSIX:WITH-SUBPROCESSES instead (bug#3224360).
   + Make wrong keyword argument a STYLE-WARNING in the presence of
     :ALLOW-OTHER-KEYS T (bug#3198722).
-  + Fix LOOP mixing WITH & Hash Table FOR (bug#3165405).
+  + Fix LOOP mixing WITH & Hash Table FOR (bug#3165405);
+    avoid destructuring null patterns (bug#1731469);
+    detect incomplete FOR clauses (bug#3089988).
   + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
 
 
