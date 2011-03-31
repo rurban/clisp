@@ -1312,12 +1312,10 @@ NIL
 #+(and clisp unicode)
 (block test-weird-pathnames
   (handler-bind ((parse-error
-                  (lambda (c)
-                    ;; http://article.gmane.org/gmane.lisp.clisp.devel:18772
-                    ;; some systems, e.g., OSX PPC 10.4.11 (Darwin Kernel
-                    ;; Version 8.11.0), allow only ASCII pathnames
-                    (princ-error c)
-                    (return-from test-weird-pathnames '(T NIL T T)))))
+                  ;; http://article.gmane.org/gmane.lisp.clisp.devel:18772
+                  ;; some systems, e.g., OSX PPC 10.4.11 (Darwin Kernel
+                  ;; Version 8.11.0), allow only ASCII pathnames
+                  (handler-return test-weird-pathnames '(T NIL T T))))
     (letf* ((custom:*pathname-encoding* charset:iso-8859-1) ; 1:1
             (weird (concatenate 'string "weird" (string (code-char 160))))
             (dir (list (make-pathname :version :newest

@@ -13,23 +13,19 @@
 
 ;; similarly, without enclosing lexical binding
 (block foo
-  (handler-bind ((unbound-variable
-                  (lambda (c) (princ-error c) (return-from foo 'good))))
+  (handler-bind ((unbound-variable (handler-return foo 'good)))
     (let ((x (1+ x))) (declare (special x)) x)))
 GOOD
 (block foo
-  (handler-bind ((unbound-variable
-                  (lambda (c) (princ-error c) (return-from foo 'good))))
+  (handler-bind ((unbound-variable (handler-return foo 'good)))
     (let* ((x (1+ x))) (declare (special x)) x)))
 GOOD
 (block foo
-  (handler-bind ((unbound-variable
-                  (lambda (c) (princ-error c) (return-from foo 'good))))
+  (handler-bind ((unbound-variable (handler-return foo 'good)))
     (multiple-value-bind (x) (1+ x) (declare (special x)) x)))
 GOOD
 (block foo
-  (handler-bind ((unbound-variable
-                  (lambda (c) (princ-error c) (return-from foo 'good))))
+  (handler-bind ((unbound-variable (handler-return foo 'good)))
     ((lambda (x) (declare (special x)) x) (1+ x))))
 GOOD
 

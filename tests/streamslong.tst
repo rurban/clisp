@@ -266,8 +266,7 @@ nil
              (lambda (c) (push c list) (error (string c))))))
   (list (write-char #\a out)
         (block b
-          (handler-bind ((error (lambda (c)
-                                  (princ-error c) (return-from b list))))
+          (handler-bind ((error (handler-return b list)))
             (close out)))))
 #+CLISP (#\a ("a"))
 
