@@ -896,7 +896,7 @@ arguments received by the &ensure-class; function.  Examples of typical
      are not symbols accessible in the &clu-pac; package, or exported by
      any package defined in the &ansi-cl;.</simpara></listitem>
   </itemizedlist></para></listitem>
-<listitem><simpara>The <replaceable>default initargs</replaceable> class
+<listitem><simpara>The <constant>:DEFAULT-INITARGS</constant> class
   option, if it is present in the &defclass; form, becomes the value of
   the &direct-default-initargs-k; keyword argument to &ensure-class;.
   Special processing of this value is done to properly capture the
@@ -911,21 +911,21 @@ arguments received by the &ensure-class; function.  Examples of typical
   the second is the actual form itself; and the third is a function of
   zero arguments which, when called, returns the result of evaluating
   the default value form in its proper &lex-env;.</simpara>
-  <note>&clisp-only;<simpara>If a <replaceable>default initargs</replaceable>
+  <note>&clisp-only;<simpara>If a <constant>:DEFAULT-INITARGS</constant>
     class option is not present in the &defclass; form,
     &direct-default-initargs-k; &nil; is passed to &ensure-class;.</simpara>
    &clisp-defclass-ensure-class-default;</note></listitem>
-<listitem><simpara>The <replaceable>metaclass</replaceable> class
+<listitem><simpara>The &metaclass-k; class
   option, if it is present in the &defclass; form, becomes the value of
   the &metaclass-k; keyword argument to &ensure-class;.</simpara>
- <note>&clisp-only;<simpara>If a <replaceable>metaclass</replaceable>
+ <note>&clisp-only;<simpara>If a &metaclass-k;
    class option is not present in the &defclass; form,
    &metaclass-k; &standard-class; is passed to &ensure-class;.</simpara>
   &clisp-defclass-ensure-class-default;</note></listitem>
-<listitem><simpara>The <replaceable>documentation</replaceable> class
+<listitem><simpara>The &documentation-k; class
   option, if it is present in the &defclass; form, becomes the value of
   the &documentation-k; keyword argument to &ensure-class;.</simpara>
-  <note>&clisp-only;<simpara>If a <replaceable>documentation</replaceable>
+  <note>&clisp-only;<simpara>If a &documentation-k;
     class option is not present in the &defclass; form,
     &direct-default-initargs-k; &nil; is passed to &ensure-class;.</simpara>
     &clisp-defclass-ensure-class-default;</note></listitem>
@@ -934,7 +934,7 @@ arguments received by the &ensure-class; function.  Examples of typical
   the tail of the class option.  An &err-sig; if any class
   option appears more than once in the &defclass; form.</simpara>
  <note>&clisp-only;<simpara>The default initargs of the
-    <replaceable>metaclass</replaceable> are added at the end of the list
+    &metaclass-k; are added at the end of the list
     of arguments to pass to &ensure-class;.</simpara>
    &clisp-defclass-ensure-class-default;</note></listitem>
 </itemizedlist>
@@ -2704,7 +2704,7 @@ are derived from the &defgeneric; form in a defined way.  As with
 &defgeneric; form is not defined, only the relationship between the
 arguments to the macro and the arguments received by &ensure-gf;.</para>
 
-<itemizedlist><listitem><simpara>The <replaceable>function-name</replaceable>
+<itemizedlist><listitem><simpara>The &funcname-r;
 argument to &defgeneric; becomes the first argument to &ensure-gf;.
 This is the only positional argument accepted by &ensure-gf;; all other
 arguments are keyword arguments.</simpara></listitem>
