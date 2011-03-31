@@ -32,7 +32,7 @@ CHECK-USE-VALUE
 (check-use-value array-has-fill-pointer-p #2A((a b) (c d)) 1) t
 
 (let ((bs (make-broadcast-stream)))
-  (handler-bind ((type-error (lambda (c) (princ-error c) (use-value bs))))
+  (handler-bind ((type-error (handler-use-value bs)))
     (broadcast-stream-streams 10)))
 NIL
 
