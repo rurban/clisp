@@ -1,3 +1,11 @@
+2011-03-31  Sam Steingold  <sds@gnu.org>
+
+	fix bug#1731469: loop expansion: spurious LET twice
+	* loop.lisp (destructure): warn on destructuring empty patterns
+	(expand-loop): do not destructure empty patterns and bind useless
+	variables; this makes macroexpansion smaller but does not affect
+	compiled code
+
 2011-03-29  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3258485: HANDLER-BIND: no CONSTANTLY as a handler

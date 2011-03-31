@@ -1,5 +1,8 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
+;; bug#1731469: warning when fail to ignore a null pattern
+(setq *break-on-signals* 'warning) WARNING
+
 (loop for x from 1 to 9
       for y = nil then x
       collect (list x y))
@@ -934,6 +937,10 @@ NIL
         (loop with ut = 3 for k being the hash-keys of ht
           using (hash-values v) count t)))
 (1 1 1)
+
+;; bug#1731469: unnecessary bindings
+(loop for nil on '(1 2 . 3) count t) 2
+(setq *break-on-signals* NIL) NIL ; revert to the default
 
 ;; local variables:
 ;; eval: (make-local-variable 'before-save-hook)
