@@ -215,40 +215,27 @@ nil
 ;;; Handlers should not interfere with values in non-error situations.
 (multiple-value-list
     (block foo
-      (handler-bind
-          ((error #'(lambda (c)
-                      (princ-error c)
-                      (return-from foo 23))))
+      (handler-bind ((error (handler-return foo 23)))
         (values 42 17))))
 (42 17)
 
 ;;; Handlers should work.
 (multiple-value-list
     (block foo
-      (handler-bind
-          ((error #'(lambda (c)
-                      (princ-error c)
-                      (return-from foo (values 23 17)))))
+      (handler-bind ((error (handler-return foo (values 23 17))))
         (error "Foo"))))
 (23 17)
 
 ;;; Only the appropriate handlers should be called.
 (ignore-errors
  (block foo
-   (handler-bind
-       ((type-error #'(lambda (c)
-                        (princ-error c)
-                        (return-from foo 23))))
+   (handler-bind ((type-error (handler-return foo 23)))
      (error "Foo"))))
 nil
 
 ;;; Handlers can be specified type expressions.
 (block foo
-  (handler-bind
-      (((or type-error error)
-        #'(lambda (c)
-            (princ-error c)
-            (return-from foo 23))))
+  (handler-bind (((or type-error error) (handler-return foo 23)))
     (error "Foo")))
 23
 
@@ -271,11 +258,7 @@ nil
 ;;; Handlers should be undone.
 (block foo
   (let ((first-time t))
-    (handler-bind
-        ((error
-          #'(lambda (c)
-              (princ-error c)
-              (return-from foo 23))))
+    (handler-bind ((error (handler-return foo 23)))
       (handler-bind
           ((error
             #'(lambda (c)
@@ -292,38 +275,23 @@ nil
 (ignore-errors
  (block foo
    (handler-bind
-       ((error
-         #'(lambda (c) (princ-error c) nil))
-        (error
-         #'(lambda (c) (princ-error c) (return-from foo 23))))
+       ((error #'(lambda (c) (princ-error c) nil))
+        (error (handler-return foo 23)))
      (error "Foo"))))
 23
 
 ;;; Multiple handlers should work.
 (block foo
-  (handler-bind
-      ((type-error
-        #'(lambda (c)
-            (princ-error c)
-            (return-from foo 42)))
-       (error
-        #'(lambda (c)
-            (princ-error c)
-            (return-from foo 23))))
+  (handler-bind ((type-error (handler-return foo 42))
+                 (error (handler-return foo 23)))
     (error "Foo")))
 23
 
 ;;; Handlers should be undone.
 (block foo
-  (handler-bind
-      ((error #'(lambda (c)
-                  (princ-error c)
-                  (return-from foo 23))))
+  (handler-bind ((error (handler-return foo 23)))
     (block bar
-      (handler-bind
-          ((error #'(lambda (c)
-                      (princ-error c)
-                      (return-from foo 42))))
+      (handler-bind ((error (handler-return foo 42)))
         (return-from bar)))
     (error "Foo")))
 23
@@ -508,7 +476,7 @@ good
 nil
 
 (block nil
-  (handler-bind ((unbound-variable (lambda (c) (princ-error c) (return :good))))
+  (handler-bind ((unbound-variable (handler-return nil :good)))
     (let ((foo (gensym "UNBOUND-")))
       (declare (compile) (optimize safety (debug 1)))
       (progn (symbol-value foo) :bad))))
@@ -517,8 +485,7 @@ nil
 (block nil
   (declaim (optimize safety (debug 1)))
   (unwind-protect
-       (handler-bind ((unbound-variable
-                       (lambda (c) (princ-error c) (return :good))))
+       (handler-bind ((unbound-variable (handler-return nil :good)))
          (let ((foo (gensym "UNBOUND-")))
            (declare (compile))
            (progn (symbol-value foo) :bad)))
@@ -526,7 +493,7 @@ nil
 :GOOD
 
 (block nil
-  (handler-bind ((unbound-variable (lambda (c) (princ-error c) (return :good))))
+  (handler-bind ((unbound-variable (handler-return nil :good)))
     (let ((foo (gensym "UNBOUND-")))
       (progn (symbol-value foo) :bad))))
 :GOOD
@@ -547,10 +514,7 @@ T
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/21281>
 (block nil
-  (handler-bind ((style-warning
-                  (lambda (c)
-                    (princ-error c)
-                    (return t))))
+  (handler-bind ((style-warning (handler-return nil t)))
     (defun test~ (b $) #+clisp (declare (compile)) (cond (b nil) (t t)))))
 T
 
