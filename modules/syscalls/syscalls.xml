@@ -563,7 +563,7 @@
        <replaceable>rlimit-plist</replaceable> is a &plist;, as returned by
        <code>(&rlimit;)</code>.</simpara></listitem>
  </orderedlist></para></listitem></varlistentry>
- <varlistentry id="usage"><term><code>(POSIX:USAGE
+ <varlistentry id="usage"><term><code>(&usage;
    &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the <type>USAGE</type> structure describing the
    resource usage of the thread, process, or its children, using
@@ -758,7 +758,7 @@ which compute the error functions, Bessel functions and Gamma.</para>
   <listitem><simpara>Call <function role="unix">getgroups</function> and
    <function role="bsd">setgroups</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="wait"><term><code>(POSIX:WAIT &key-amp; :PID :USAGE
+ <varlistentry id="wait"><term><code>(&wait; &key-amp; :PID :USAGE
     :NOHANG :UNTRACED :STOPPED :EXITED :CONTINUED :NOWAIT)</code></term>
   <listitem><simpara>Wait for termination of the child process
     <constant>:PID</constant> (or any child process if not specified).</simpara>
@@ -800,11 +800,11 @@ which compute the error functions, Bessel functions and Gamma.</para>
    <simpara>Calls <function role="unix">waitpid</function> and
     (when <constant>:USAGE</constant> is non-&nil;)
     <function role="bsd">wait4</function>.</simpara></listitem></varlistentry>
- <varlistentry id="with-subprocesses">
-   <term><code>(POSIX:WITH-SUBPROCESSES &body-amp;)</code></term>
+ <varlistentry id="with-subprocesses"><term><code>(&with-subprocesses;
+    &body-amp;)</code></term>
    <listitem><simpara>Evaluate &body-r; while receiving signals from
-   subprocesses; your &run-prog; and related <function>POSIX:WAIT</function>
-   calls should be inside the it.</simpara></listitem></varlistentry>
+   subprocesses; your &run-prog; and related &wait; calls should be
+   inside it.</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="accounting"><title>Accounting</title>
