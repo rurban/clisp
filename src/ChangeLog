@@ -1,3 +1,11 @@
+2011-04-03  Bruno Haible  <bruno@clisp.org>
+
+	Support for generational GC on Linux/S390.
+	* configure (SIGSEGV): Recommend libsigsegv-2.10.
+	* lispbibl.d (GENERATIONAL_GC): Consider also SIGSEGV_FAULT_ADDRESS_ALIGNMENT.
+	* spvw_fault.d (handle_fault): Likewise.
+	Reported by Christoph Egger <christoph@debian.org>.
+
 2011-03-31  Sam Steingold  <sds@gnu.org>
 
 	fix bug#1731469: loop expansion: spurious LET twice
