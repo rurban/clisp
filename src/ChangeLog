@@ -1,7 +1,8 @@
 2011-04-04  Sam Steingold  <sds@gnu.org>
 
 	* spvw_fault.d (handle_fault): fix last patch to restore support
-	to libsigsegv-2.9 and before
+	to libsigsegv-2.9 and earlier
+	* lispbibl.d (GENERATIONAL_GC): ditto
 
 2011-04-03  Bruno Haible  <bruno@clisp.org>
 
