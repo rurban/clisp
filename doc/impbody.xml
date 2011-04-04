@@ -4791,9 +4791,9 @@ or if there is no &file-des; associated with it.</simpara></listitem>
 or if there is no &file-des; associated with it.</simpara></listitem>
 </orderedlist></para>
 <warning><para>It is dangerous to &close; the &file-des;s returned by
-this function.  This may lead to <constant>EBADF</constant> OS
-&error-t;s and, eventually, segmentation faults.  Always use &close; on
-the original Lisp &stream-r;s instead.</para></warning>
+this function.  This may lead to <constant role="errno">EBADF</constant>
+OS &error-t;s and, eventually, segmentation faults.  Always use &close;
+on the original Lisp &stream-r;s instead.</para></warning>
 </section>
 
 </chapter>
