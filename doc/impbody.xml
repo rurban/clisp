@@ -4789,7 +4789,12 @@ or if there is no &file-des; associated with it.</simpara></listitem>
 <listitem><simpara>The OS &file-des; for the &output-s; side of the
 &stream-r;, or &nil; if the &stream-r; is an &input-s;-only &stream-t;
 or if there is no &file-des; associated with it.</simpara></listitem>
-</orderedlist></para></section>
+</orderedlist></para>
+<warning><para>It is dangerous to &close; the &file-des;s returned by
+this function.  This may lead to <constant>EBADF</constant> OS
+&error-t;s and, eventually, segmentation faults.  Always use &close; on
+the original Lisp &stream-r;s instead.</para></warning>
+</section>
 
 </chapter>
 
