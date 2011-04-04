@@ -73,8 +73,9 @@ CHECK-TIME-DATE
 
 #+unix
 (when (fboundp 'os:getutxent)
-  (not (integerp (show (length (loop :for utmpx = (os:getutxent) :while utmpx
-                                 :collect (show utmpx :pretty t)))))))
+  (show (loop :for utmpx = (os:getutxent) :while utmpx
+          :count (show utmpx :pretty t)))
+  (os:endutxent))               ; close the FD!
 #+unix NIL
 
 (defparameter *tmp1* (os:mkstemp "syscalls-tests-")) *tmp1*
