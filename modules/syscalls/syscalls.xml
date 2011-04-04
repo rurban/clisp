@@ -186,7 +186,7 @@
    running process (and its children) using
    <function role="bsd">chroot</function>.</simpara>
   <simpara>Unless the process has superuser privileges, the operation will
-    probably fail with <constant>EPERM</constant>.</simpara>
+    probably fail with <constant role="errno">EPERM</constant>.</simpara>
  </listitem></varlistentry>
  <varlistentry id="file-tree-walk"><term><code>(POSIX:FILE-TREE-WALK &path-r;
    &func-r; &key-amp; FD-LIMIT CHDIR DEPTH MOUNT PHYS)</code></term>
