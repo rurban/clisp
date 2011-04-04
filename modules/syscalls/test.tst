@@ -679,7 +679,8 @@ RUN-SLEEP
         (posix:file-tree-walk "dir1"
           (lambda (f s k b l)
             (print (list k f))
-            (push (list f s k b l) res1)
+            (case k
+              ((:D :DP :DNR) (push (list f s k b l) res1)))
             (if (= l 3) f))))
   (posix:file-tree-walk "dir1"
     (lambda (f s k b l)
@@ -692,19 +693,24 @@ RUN-SLEEP
     :depth t)
   (list
    (pathname-name res0)
-   (mapcar (lambda (l) (pathname-name (first l)))
-           (show (nreverse res1) :pretty t))
-   (mapcar (lambda (l)
-             (list (equalp (first l) (os:file-stat-file (second l)))
-                   (pathname-name (first l))
-                   (third l) (fifth l)))
-           (show (nreverse res2) :pretty t))))
+   (set-exclusive-or
+    (mapcar (lambda (l) (pathname-name (first l)))
+            (show (nreverse res1) :pretty t))
+    '("dir1" "dir2" "dir3")
+    :test #'equal)
+   (set-exclusive-or
+    (mapcar (lambda (l)
+              (list (equalp (first l) (os:file-stat-file (second l)))
+                    (pathname-name (first l))
+                    (third l) (fifth l)))
+            (show (nreverse res2) :pretty t))
+    '((T "file3" :F 3) (T "dir3" :DP 2)
+      (T "file2" :F 2) (T "dir2" :DP 1)
+      (T "file1" :F 1) (T "dir1" :DP 0))
+    :test #'equal)
+   (ext:probe-directory "dir1/")))
 #+unix
-("file3"
- ("dir1" "dir2" "dir3" "file3")
- ((T "file3" :F 3) (T "dir3" :DP 2)
-  (T "file2" :F 2) (T "dir2" :DP 1)
-  (T "file1" :F 1) (T "dir1" :DP 0)))
+("file3" NIL NIL NIL)
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
