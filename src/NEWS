@@ -59,6 +59,7 @@ User visible changes
     avoid destructuring null patterns (bug#1731469);
     detect incomplete FOR clauses (bug#3089988).
   + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
+  + Reduce consing in HANDLER-BIND et al (bug#3147908).
 
 
 2.49 (2010-07-07)
