@@ -3003,7 +3003,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* Flavor of the garbage collection: normal or generational. */
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && (defined(SINGLEMAP_MEMORY) || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL) && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY)                                             \
+    && (defined(SINGLEMAP_MEMORY)                                       \
+        || (defined(TRIVIALMAP_MEMORY)                                  \
+            && (!defined(SIGSEGV_FAULT_ADDRESS_ALIGNMENT)               \
+                || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL)))            \
+    && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) \
+    && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM)           \
+    && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   /* "generational garbage collection" has some requirements.
    With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
    On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME! */
