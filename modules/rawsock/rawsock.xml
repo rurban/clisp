@@ -122,9 +122,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <varlistentry><term>&int-t; <replaceable>flags</replaceable></term>
  <listitem><simpara>This &c-lang; argument corresponds to keyword
    arguments to the Lisp functions.  E.g., <function>rawsock:send</function>
-   accepts <constant>:OOB</constant> and <constant>EOR</constant> arguments,
-   while <function>rawsock:recv</function> accepts <constant>PEEK</constant>,
-   <constant>OOB</constant> and <constant>WAITALL</constant>.
+   accepts <constant>:OOB</constant> and <constant>:EOR</constant> arguments,
+   while <function>rawsock:recv</function> accepts <constant>:PEEK</constant>,
+   <constant>:OOB</constant> and <constant>:WAITALL</constant>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>struct sockaddr</type> &addr-r;</term>
  <listitem><simpara>A &structure-object-t; <type>RAWSOCK:SOCKADDR</type>
