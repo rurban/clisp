@@ -1,6 +1,6 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
- * Bruno Haible 1990-2010
+ * Bruno Haible 1990-2011
  * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2002-03-24
 
@@ -26,6 +26,12 @@
 #ifdef MULTITHREAD
   #define bzero(ptr,len)  memset(ptr,0,len)
   #define bcopy(source,dest,len)  memcpy(dest,source,len)
+#endif
+
+/* libsigsegv >= 2.10 defines SIGSEGV_FAULT_ADDRESS_ALIGNMENT in <sigsegv.h>,
+   but older versions didn't define it. */
+#ifndef SIGSEGV_FAULT_ADDRESS_ALIGNMENT
+#define SIGSEGV_FAULT_ADDRESS_ALIGNMENT 1UL
 #endif
 
 /* in this file, the table macros have a different utilization: */
