@@ -522,10 +522,16 @@ T
 
 ;; bug#3182685: non-0 timeout
 (multiple-value-bind (run args) (cmd-args)
-  (let ((is (ext:run-program run :arguments (append args '("-q" "-q" "-x" "(let ((se (socket:socket-server))) (write-line (princ-to-string (socket:socket-server-port se))) (let ((so (socket:socket-accept se))) (write-line (lisp-implementation-version) so) (close so)) (socket:socket-server-close se))"))
+  (let ((is (ext:run-program run :arguments (append args '("-q" "-q" "-x" "
+            (let ((se (socket:socket-server)))
+              (write-line (princ-to-string (socket:socket-server-port se)))
+              (with-open-stream (so (socket:socket-accept se))
+                (write-line (lisp-implementation-version) so))
+              (socket:socket-server-close se))"))
                              :input nil :output :stream)))
     (loop :until (digit-char-p (peek-char nil is)) :do (read-line is))
-    (with-open-stream (so (socket:socket-connect (read is) "localhost" :timeout 10))
+    (with-open-stream (so (socket:socket-connect (read is) "localhost"
+                                                 :timeout 10))
       (string= (lisp-implementation-version) (read-line so)))))
 T
 
