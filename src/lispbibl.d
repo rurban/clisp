@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2010
+ * Bruno Haible 1990-2011
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2010
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -3003,17 +3003,29 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* Flavor of the garbage collection: normal or generational. */
-#if defined(VIRTUAL_MEMORY)                                             \
-    && (defined(SINGLEMAP_MEMORY)                                       \
-        || (defined(TRIVIALMAP_MEMORY)                                  \
-            && (!defined(SIGSEGV_FAULT_ADDRESS_ALIGNMENT)               \
-                || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL)))            \
-    && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) \
-    && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM)           \
-    && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
-  /* "generational garbage collection" has some requirements.
-   With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
-   On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME! */
+#if /* Generational GC requires virtual memory. */                            \
+    defined(VIRTUAL_MEMORY)                                                   \
+    && /* It requires memory mapping so that every object is visible at a     \
+          single address. */                                                  \
+       (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY))              \
+    && /* It requires a working mprotect(). */                                \
+       defined(HAVE_WORKING_MPROTECT)                                         \
+    && /* It requires SIGSEGV recovery, provided by libsigsegv. */            \
+       defined(HAVE_SIGSEGV_RECOVERY)                                         \
+    && /* If the SIGSEGV recovery provides only the page-rounded address,     \
+          not the precise address of the fault, we can use it only if every   \
+          page contains only a single type of Lisp objects. */                \
+       (defined(SINGLEMAP_MEMORY) || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL)  \
+    && /* On IRIX 6, it worked in the past, but leads to core dumps now.      \
+          Reason unknown. FIXME! */                                           \
+       !defined(UNIX_IRIX)                                                    \
+    && /* Not worth spending effort on making it work with                    \
+          WIDE_SOFT_LARGEFIXNUM. */                                           \
+       !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
+    && /* Generational GC is tricky stuff. Turn it off at safety 3. */        \
+       (SAFETY < 3)                                                           \
+    && /* The user can also turn off generational GC explicitly. */           \
+       !defined(NO_GENERATIONAL_GC)
   #define GENERATIONAL_GC
 #endif
 

@@ -126,15 +126,14 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
   #ifdef SPVW_PURE_BLOCKS
   heapnr = typecode(obj);
   #else
-  #if defined(GENERATIONAL_GC) && defined(SIGSEGV_FAULT_ADDRESS_ALIGNMENT)
+  #if defined(GENERATIONAL_GC)
   /* Compile-time check: SIGSEGV_FAULT_ADDRESS_ALIGNMENT is 1.
      Otherwise the address argument is not the exact fault address, but the
      address rounded down to page alignment, and the comparisons below may
      yield a wrong heapnr. */
-  typedef int sigsegv_fault_address_alignment_check[2 * (SIGSEGV_FAULT_ADDRESS_ALIGNMENT == 1UL) - 1];
-  #define HEAP_START_ADJUST  & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT-1)
-  #else
-  #define HEAP_START_ADJUST
+  #if SIGSEGV_FAULT_ADDRESS_ALIGNMENT != 1UL
+  #error "GENERATIONAL_GC is defined with SPVW_MIXED_BLOCKS although SIGSEGV_FAULT_ADDRESS_ALIGNMENT is > 1"
+  #endif
   #endif
   #if defined(SPVW_MIXED_BLOCKS_STAGGERED)
   heapnr = (address >= mem.heaps[1].heap_mgen_start ? 1 : 0);
@@ -147,7 +146,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     var Heap* heap = &mem.heaps[heapnr];
     if (!is_heap_containing_objects(heapnr))
       goto error1;
-    if (!((heap->heap_gen0_start HEAP_START_ADJUST <= address)
+    if (!((heap->heap_gen0_start & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT-1) <= address)
           && (address < heap->heap_gen0_end)))
       goto error2;
     if (heap->physpages == NULL)
