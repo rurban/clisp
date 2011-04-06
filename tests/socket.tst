@@ -543,6 +543,22 @@ T
           interfaces))
 ("0.0.0.0" "127.0.0.1" "0.0.0.0" "127.0.0.1")
 
+(multiple-value-bind (run args) (cmd-args)
+  (let ((se (socket:socket-server)))
+    (ext:run-program run :arguments (append args (list "-q" "-q" "-x" (format nil "(close (socket:socket-connect ~D))" (socket:socket-server-port se))))
+                     :wait nil :input nil :output nil)
+    (with-open-stream (so (socket:socket-accept se))
+      (list
+       (handler-case (write-line "foo" so)
+         (error (c) (princ 'write-line) (princ-error c) 'error))
+       (handler-case (read-char so) ; ECONNRESET
+         (stream-error (c) (princ 'read-char) (princ-error c) 'stream-error))
+       (handler-case (write-line "bar" so) ; EPIPE
+         (error (c) (princ 'write-line) (princ-error c) 'error))
+       (handler-case (read-char so)
+         (end-of-file (c) (princ 'read-char) (princ-error c) 'end-of-file))))))
+("foo" STREAM-ERROR ERROR END-OF-FILE)
+
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
        (delete-file *file*) (makunbound '*file*) (unintern '*file*)

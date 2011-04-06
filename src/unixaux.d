@@ -319,11 +319,6 @@ modexp ssize_t fd_read
       errno = ENOENT;
       break;
     } else if (retval < 0) {
-     #ifdef ECONNRESET
-      if (errno == ECONNRESET)
-        /* avoid SIGPIPE on further accesses to fd */
-        close(fd); /* errno is still ECONNRESET */
-     #endif
      #ifdef EINTR
       if (errno != EINTR)
      #endif
