@@ -4699,14 +4699,26 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
   VALUES1(popSTACK()); /* return sequence */
 }
 
+/* Parse the :NO-HANG (STACK_1) and :INTERACTIVE (STACK_0) options
+ and remove them from STACK */
+local perseverance_t interactive_no_hang (bool *interactive, bool *no_hang) {
+  bool interactive_p = !missingp(STACK_0);
+  bool no_hang_p = !missingp(STACK_1);
+  skipSTACK(2);
+  if (interactive) *interactive = interactive_p;
+  if (no_hang) *no_hang = no_hang_p;
+  return no_hang_p ? persev_immediate
+      : interactive_p ? persev_partial : persev_full;
+}
+
 LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,4,
         (kw(start),kw(end),kw(no_hang),kw(interactive)) )
 { /* (READ-BYTE-SEQUENCE sequence stream [:start] [:end] [:no-hang] [:interactive]),
     cf. dpANS p. 21-26 */
   /* Stack layout: sequence, stream, start, end, no-hang, interactive. */
-  var bool interactive = !missingp(STACK_0);
-  var bool no_hang = !missingp(STACK_1);
-  skipSTACK(2);
+  var bool interactive;
+  var bool no_hang;
+  var perseverance_t persev = interactive_no_hang(&interactive,&no_hang);
   pushSTACK(get_valid_seq_type(STACK_3)); /* check sequence */
   /* Stack layout: sequence, stream, start, end, typdescr. */
   STACK_3 = check_stream(STACK_3);
@@ -4720,9 +4732,7 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,4,
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
     var uintL result =
-      read_byte_array(&STACK_3,&STACK_0,index+start,end-start,
-                      no_hang ? persev_immediate : interactive
-                      ? persev_partial : persev_full);
+      read_byte_array(&STACK_3,&STACK_0,index+start,end-start,persev);
     VALUES1(fixnum(start+result));
     skipSTACK(5);
   } else {
@@ -4759,9 +4769,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
       (sequence length if everything was written, including :no-hang nil)
     cf. dpANS p. 21-27 */
   /* Stack layout: sequence, stream, start, end, no-hang, interactive. */
-  var bool interactive = !missingp(STACK_0);
-  var bool no_hang = !missingp(STACK_1);
-  skipSTACK(2);
+  var perseverance_t persev = interactive_no_hang(NULL,NULL);
   pushSTACK(get_valid_seq_type(STACK_3)); /* sequence check */
   /* Stack layout: sequence, stream, start, end, typdescr. */
   STACK_3 = check_stream(STACK_3);
@@ -4775,9 +4783,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
     var uintL result =
-      write_byte_array(&STACK_3,&STACK_0,index+start,end-start,
-                       no_hang ? persev_immediate : interactive
-                       ? persev_partial : persev_full);
+      write_byte_array(&STACK_3,&STACK_0,index+start,end-start,persev);
     skipSTACK(4);
     VALUES2(popSTACK(),fixnum(start+result));
   } else {
@@ -4790,7 +4796,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
     funcall(seq_init_start(STACK_(0+2)),2); /*(SEQ-INIT-START sequence start)*/
     STACK_2 = value1; /* =: pointer */
     /* Stack layout: sequence, stream, pointer, count, typdescr. */
-    if (no_hang || interactive) /* FIXME: need write_byte_will_hang_p() */
+    if (persev != persev_full) /* FIXME: need write_byte_will_hang_p() */
       error_illegal_streamop(S(write_byte_sequence),STACK_3);
     while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
       pushSTACK(STACK_4); pushSTACK(STACK_(2+1));

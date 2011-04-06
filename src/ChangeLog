@@ -1,5 +1,10 @@
 2011-04-06  Sam Steingold  <sds@gnu.org>
 
+	* sequence.d (interactive_no_hang): new function
+	(READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): use it
+
+2011-04-06  Sam Steingold  <sds@gnu.org>
+
 	* unixaux.d (fd_read): revert the 2008-12-30 patch which closed
 	the fd on ECONNRESET without marking the lisp stream as closed,
 	thus leading to EBADF when the stream was closed
