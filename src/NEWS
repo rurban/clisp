@@ -60,6 +60,8 @@ User visible changes
     detect incomplete FOR clauses (bug#3089988).
   + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
   + Reduce consing in HANDLER-BIND et al (bug#3147908).
+  + Implement :NO-HANG and :INTERACTIVE in WRITE-BYTE-SEQUENCE for all
+    sequences, not just byte vectors (bug#3182597).
 
 
 2.49 (2010-07-07)

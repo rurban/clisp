@@ -1,5 +1,11 @@
 2011-04-06  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3182597: WRITE-BYTE-SEQUENCE :no-hang t is only for byte vectors
+	* sequence.d (WRITE-BYTE-SEQUENCE): implement "persev !=
+	persev_full" for sequences other than (VECTOR (UNSIGNED-BYTE 8))
+
+2011-04-06  Sam Steingold  <sds@gnu.org>
+
 	* sequence.d (interactive_no_hang): new function
 	(READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): use it
 

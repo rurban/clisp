@@ -328,9 +328,8 @@ CHECK-LOAD
 (equal (truename *s1*) (truename *s4*)) T
 (let ((*reopen-open-file* 0)) (open "ext-clisp-tst-abazonk")) ERROR
 (setf (stream-element-type *s1*) '(unsigned-byte 8)) (UNSIGNED-BYTE 8)
-(ext:write-byte-sequence #(1) *s1*) #(1)
-;; see "FIXME:FIXME: need write_byte_will_hang_p()" in stream.d & sequence.d
-;; (ext:write-byte-sequence #(1) *s1* :no-hang t) #(1)
+(ext:write-byte-sequence #(1 2 3) *s1*) #(1 2 3)
+(ext:write-byte-sequence #(4 5 6) *s1* :no-hang t) #(4 5 6)
 (ext:write-byte-sequence #A((unsigned-byte 8) (3) (1 2 3)) *s1* :no-hang t)
 #A((unsigned-byte 8) (3) (1 2 3))
 (setf (stream-element-type *s1*) 'character) CHARACTER
