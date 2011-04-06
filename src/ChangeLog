@@ -1,3 +1,11 @@
+2011-04-05  Bruno Haible  <bruno@clisp.org>
+
+	Tweak last two changes.
+	* lispbibl.d (GENERATIONAL_GC): Add more comments.
+	* spvw.d (SIGSEGV_FAULT_ADDRESS_ALIGNMENT): Define fallback.
+	* spvw_fault.d (handle_fault): Simplify use of
+	SIGSEGV_FAULT_ADDRESS_ALIGNMENT.
+
 2011-04-04  Sam Steingold  <sds@gnu.org>
 
 	* spvw_fault.d (handle_fault): fix last patch to restore support
