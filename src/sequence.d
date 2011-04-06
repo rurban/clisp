@@ -4796,16 +4796,33 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
     funcall(seq_init_start(STACK_(0+2)),2); /*(SEQ-INIT-START sequence start)*/
     STACK_2 = value1; /* =: pointer */
     /* Stack layout: sequence, stream, pointer, count, typdescr. */
-    if (persev != persev_full) /* FIXME: need write_byte_will_hang_p() */
-      error_illegal_streamop(S(write_byte_sequence),STACK_3);
-    while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
-      pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
-      funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */
-      write_byte(STACK_3,value1); /* output an element  */
-      /* pointer := (SEQ-UPD sequence pointer) : */
-      pointer_update(STACK_2,STACK_4,STACK_0);
-      /* count := (1- count) : */
-      decrement(STACK_1);
+    if (persev == persev_full) {
+      while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
+        pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
+        funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */
+        write_byte(STACK_3,value1); /* output an element  */
+        /* pointer := (SEQ-UPD sequence pointer) : */
+        pointer_update(STACK_2,STACK_4,STACK_0);
+        /* count := (1- count) : */
+        decrement(STACK_1);
+      }
+    } else { /* TODO: need write_byte_will_hang_p() to optimize */
+      /* create a Temp Aux Byte Vector TABV and go through it */
+      pushSTACK(Fixnum_1); pushSTACK(S(Kelement_type));
+      pushSTACK(O(type_uint8)); funcall(L(make_array),3); pushSTACK(value1);
+      /* Stack layout: sequence, stream, pointer, count, typdescr, tabv. */
+      while (!eq(STACK_(1+1),Fixnum_0)) { /* count (an integer) = 0 -> done */
+        pushSTACK(STACK_(4+1)); pushSTACK(STACK_(2+1+1));
+        funcall(seq_access(STACK_(0+2+1)),2); /*(SEQ-ACCESS sequence pointer)*/
+        pushSTACK(STACK_0); pushSTACK(Fixnum_0); pushSTACK(value1);
+        funcall(L(store),3);        /* (setf (aref tabv 0) element) */
+        write_byte_array(&STACK_(3+1),&STACK_0,0,1,persev); /* output tabv */
+        /* pointer := (SEQ-UPD sequence pointer) : */
+        pointer_update(STACK_(2+1),STACK_(4+1),STACK_(0+1));
+        /* count := (1- count) : */
+        decrement(STACK_(1+1));
+      }
+      skipSTACK(1);             /* drop tabv */
     }
     skipSTACK(4);
     VALUES2(popSTACK(),fixnum(end)); /* return sequence */
