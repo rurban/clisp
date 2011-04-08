@@ -1,3 +1,8 @@
+2011-04-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_sigpipe.d [MULTITHREAD, UNIX_MACOSX, GENERATIONAL_GC]:
+	patch for strange SIGPIPE delivered to libsigsegv thread
+
 2011-04-06  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3182597: WRITE-BYTE-SEQUENCE :no-hang t is only for byte vectors
