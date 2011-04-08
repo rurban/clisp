@@ -38,7 +38,18 @@ global void disable_sigpipe (void);
 local void sigpipe_handler (int sig)
 {
   signal_acknowledge(SIGPIPE,&sigpipe_handler);
-  if (writing_to_subprocess)
+#if defined(MULTITHREAD) && defined(UNIX_MACOSX) && defined(HAVE_LIBSIGSEGV)
+ /* NB: patch
+    On OSX "clisp --version | head -n 1" causes (sometimes) SIGPIPE to be
+    delivered to libsigsegv thread (why?) while control is in mach_msg().
+    sigpipe_handler is executed but since there is no lisp thread associated,
+    accessing writing_to_subprocess causes segfault. The result is that
+    process hangs forever. The behavior was observed on different versions
+    of osx when *standard-output* is closed. */
+ if (!current_thread())
+   return;
+#endif
+ if (writing_to_subprocess)
     /* Ignore the signal, the write() error code is sufficient. */
     return;
   /* Revert to the default handler and re-raise the signal.
