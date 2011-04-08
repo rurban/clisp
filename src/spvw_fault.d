@@ -146,7 +146,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     var Heap* heap = &mem.heaps[heapnr];
     if (!is_heap_containing_objects(heapnr))
       goto error1;
-    if (!((heap->heap_gen0_start & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT-1) <= address)
+    if (!(((heap->heap_gen0_start & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT-1)) <= address)
           && (address < heap->heap_gen0_end)))
       goto error2;
     if (heap->physpages == NULL)
