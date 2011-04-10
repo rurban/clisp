@@ -1,7 +1,7 @@
 ;;; Condition System for CLISP
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 ;;; Bruno Haible 24.11.1993, 2.12.1993 -- 2005
-;;; Sam Steingold 1998-2005, 2007-2010
+;;; Sam Steingold 1998-2005, 2007-2011
 
 (in-package "COMMON-LISP")
 ;;; exports:

@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2005
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2009, 2011
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
