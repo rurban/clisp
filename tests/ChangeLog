@@ -1,3 +1,8 @@
+2011-04-10  Sam Steingold  <sds@gnu.org>
+
+	* socket.tst (ECONNRESET/EPIPE): on some machines SOCKET-STATUS
+	after ECONNRESET returns :EOF and on others it returns :APPEND
+
 2011-04-06  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: add an IPC test which triggers ECONNRESET and EPIPE

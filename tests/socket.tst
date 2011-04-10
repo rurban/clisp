@@ -551,23 +551,21 @@ T
          (with-open-stream (so (socket:socket-accept se))
            (list
             (socket:socket-status so)
-            (handler-case (write-line "foo" so)
-              (error (c)
-                (princ 'write-line) (princ-error c) 'error))
+            (write-line "foo" so)
             (socket:socket-status so)
             (handler-case (read-char so) ; ECONNRESET
               (stream-error (c)
                 (princ 'read-char) (princ-error c) 'stream-error))
-            (socket:socket-status so)
+            (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (write-line "bar" so) ; EPIPE
               (error (c)
                 (princ 'write-line) (princ-error c) 'error))
-            (socket:socket-status so)
+            (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (read-char so)
               (end-of-file (c)
                 (princ 'read-char) (princ-error c) 'end-of-file))))
       (socket:socket-server-close se))))
-(:OUTPUT "foo" :OUTPUT STREAM-ERROR :EOF ERROR :EOF END-OF-FILE)
+(:OUTPUT "foo" :OUTPUT STREAM-ERROR NIL ERROR NIL END-OF-FILE)
 
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
