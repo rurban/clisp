@@ -1,3 +1,8 @@
+2011-04-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX:SERVICE): fix non-missing
+	protocol handling (bug#3280915)
+
 2011-04-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_sigpipe.d [MULTITHREAD, UNIX_MACOSX, GENERATIONAL_GC]:
