@@ -1,7 +1,9 @@
 ;; Foreign functions provided by the Linux C library version 6,
 ;; i.e. the GNU C library version 2.0.7.
 ;; Bruno Haible 10.4.1998, 19.4.1998
-;; Sam Steingold 2002-2008
+;; Sam Steingold 2002-2008, 2011
+
+;; NB: quite a few functions here have more portable counterparts in POSIX
 
 (defpackage "LINUX"
   (:modern t)
@@ -1336,7 +1338,17 @@
 
 (def-call-out fork (:arguments) (:return-type pid_t))
 (def-call-out vfork (:arguments) (:return-type pid_t))
-;; use POSIX:WAIT instead of FFI because SIGCHLD is ignored by CLISP
+
+;; wrap calls to wait & waitpid in POSIX:WITH-SUBPROCESSES
+;; and, better yet, use POSIX:WAIT instead
+(c-lines "#include <sys/wait.h>~%")
+
+(def-call-out wait (:arguments (status (c-ptr int) :out :alloca))
+  (:return-type pid_t))
+
+(def-call-out waitpid
+    (:arguments (pid pid_t) (status (c-ptr int) :out :alloca) (options int))
+  (:return-type pid_t))
 
 ;; --------------- <bits/waitstatus.h> ---------------
 (defun WEXITSTATUS (status) (ash (logand status #xff00) -8))
