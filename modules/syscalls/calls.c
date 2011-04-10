@@ -1676,12 +1676,12 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol) {
   object serv;
   struct servent * se;
   if (!missingp(protocol)) {    /* check protocol */
-    with_string_0(check_string(protocol),Symbol_value(GLO(misc_encoding)),
-                  protocolz, {
-                    begin_system_call();
-                    strncpy(proto_buf,protocolz,15);
-                    end_system_call();
-                  });
+    protocol = check_string(protocol);
+    with_string_0(protocol,GLO(misc_encoding), protocolz, {
+        begin_system_call();
+        strncpy(proto_buf,protocolz,15);
+        end_system_call();
+      });
     proto = proto_buf;
     proto_buf[15] = 0;
   }
@@ -1691,11 +1691,12 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol) {
 #  if defined(HAVE_SETSERVENT) && defined(HAVE_GETSERVENT) && defined(HAVE_ENDSERVENT)
     begin_system_call();
     setservent(1);
-    for (; (se = getservent()); count++) {
-      end_system_call();
-      servent_to_lisp(se); pushSTACK(value1);
-      begin_system_call();
-    }
+    while ((se = getservent()))
+      if (proto==NULL || (se->s_proto && !strcmp(proto,se->s_proto))) {
+        end_system_call();
+        servent_to_lisp(se); pushSTACK(value1); count++;
+        begin_system_call();
+      }
     endservent();
     end_system_call();
 #  else /* no getservent - emulate */

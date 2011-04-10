@@ -62,6 +62,7 @@ User visible changes
   + Reduce consing in HANDLER-BIND et al (bug#3147908).
   + Implement :NO-HANG and :INTERACTIVE in WRITE-BYTE-SEQUENCE for all
     sequences, not just byte vectors (bug#3182597).
+  + Fix protocol argument handling in POSIX:SERVICE (bug#3280915).
 
 
 2.49 (2010-07-07)

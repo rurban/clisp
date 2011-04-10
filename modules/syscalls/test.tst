@@ -11,7 +11,8 @@ T
 (listp (show (os:resolve-host-ipaddr) :pretty t)) T
 (os:service-p (show (os:service "smtp"))) T
 (os:service-p (show (os:service 25))) T
-(listp (show (os:service) :pretty t)) T
+(> (length (show (os:service) :pretty t)) (length (os:service nil "tcp"))) T
+(equalp (os:service "www") (os:service "http" "tcp")) T
 
 #+unix ;; (encrypt (encrypt X t) nil) == X
 (handler-case
