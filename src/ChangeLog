@@ -1,3 +1,8 @@
+2011-04-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/glibc/linux.lisp (wait, waitpid): restore (revert
+	the 2011-03-23 patch); recommend POSIX:WITH-SUBPROCESSES in comments
+
 2011-04-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:SERVICE): fix non-missing

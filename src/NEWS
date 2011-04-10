@@ -29,6 +29,11 @@ User visible changes
 * New function POSIX:GETDATE calls getdate().
   See <http://clisp.cons.org/impnotes/syscalls.html#getdate> for details.
 
+* New macro POSIX:WITH-SUBPROCESSES temporarily enables SIGCLD so that
+  functions POSIX:WAIT, LINUX:wait and LINUX:waitpid work (bug#3224360).
+  See <http://clisp.cons.org/impnotes/syscalls.html#with-subprocesses>
+  for details.
+
 * Function POSIX:USAGE now accept an optional argument and returns a
   single value.
   See <http://clisp.cons.org/impnotes/syscalls.html#usage> for details.
@@ -50,9 +55,6 @@ User visible changes
   + Fix interaction of *DEFAULT-PATHNAME-DEFAULTS* with REQUIRE (bug#3124200).
   + Correctly bind *LOAD-PATHNAME* in LOAD (bug#3165355).
   + Fix OS:FILE-INFO on files with corrupt times (bug#3144993).
-  + Remove LINUX:wait and LINUX:waitpid because they cannot work since
-    CLISP ignores SIGCHLD during normal operation; use POSIX:WAIT
-    with a new macro POSIX:WITH-SUBPROCESSES instead (bug#3224360).
   + Make wrong keyword argument a STYLE-WARNING in the presence of
     :ALLOW-OTHER-KEYS T (bug#3198722).
   + Fix LOOP mixing WITH & Hash Table FOR (bug#3165405);
