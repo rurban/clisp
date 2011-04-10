@@ -798,7 +798,7 @@ which compute the error functions, Bessel functions and Gamma.</para>
     subprocesses &and-e; &wait; for them inside the &body-r; of
     a &with-subprocesses; form.</simpara>
    <simpara>Calls <function role="unix">waitpid</function> and
-    (when <constant>:USAGE</constant> is non-&nil;)
+    (when the <constant>:USAGE</constant> argument is non-&nil;)
     <function role="bsd">wait4</function>.</simpara></listitem></varlistentry>
  <varlistentry id="with-subprocesses"><term><code>(&with-subprocesses;
     &body-amp;)</code></term>
@@ -815,9 +815,9 @@ which compute the error functions, Bessel functions and Gamma.</para>
  <varlistentry id="getutxent"><term><code>(POSIX:GETUTXENT
     &optional-amp; utmpx)</code></term>
   <listitem><simpara>Calls <function role="unix">getutxent</function>,
-    returns a &structure-object-t; of
-    type <type>POSIX:UTMPX</type>, which can be passed to subsequent calls to
-    this function and re-used.</simpara></listitem></varlistentry>
+    returns a &structure-object-t; of type <type>POSIX:UTMPX</type>,
+    which can be passed to subsequent calls to this function and re-used.
+ </simpara></listitem></varlistentry>
  <varlistentry id="getutxid"><term><code>(POSIX:GETUTXID id)</code></term>
   <listitem><simpara>Calls <function role="unix">getutxid</function>,
     the argument is filled and returned.</simpara></listitem></varlistentry>
