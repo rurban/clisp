@@ -78,6 +78,11 @@
 
 2011-04-10  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (init_language): use strcat and strncat instead
+	of while and dotimespL
+
+2011-04-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/glibc/linux.lisp (wait, waitpid): restore (revert
 	the 2011-03-23 patch); recommend POSIX:WITH-SUBPROCESSES in comments
 
