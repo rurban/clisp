@@ -1,4 +1,4 @@
-;;; Sam Steingold 2000-2008, 2010
+;;; Sam Steingold 2000-2008, 2010-2011
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
