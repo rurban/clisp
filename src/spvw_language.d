@@ -195,26 +195,19 @@ global void init_language (const char* argv_language,
     if (argv_localedir != NULL)
       if (argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
         var char currdir[MAXPATHLEN];
-        if (!(getwd(currdir) == NULL)) {
+        if (getwd(currdir)) {
           var uintL currdirlen = asciz_length(currdir);
           if (currdirlen > 0 && currdir[0] == '/') {
             var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
             var char* abs_localedir = (char*)malloc(len*sizeof(char));
-            if (!(abs_localedir == NULL)) {
+            if (abs_localedir) {
               must_free_argv_localedir = true;
               /* Append currdir, maybe '/', and argv_localedir into abs_localedir: */
-              var char* ptr = abs_localedir;
-              {
-                var const char * srcptr = currdir;
-                var uintL count;
-                dotimespL(count,currdirlen, { *ptr++ = *srcptr++; });
-              }
+              strncat(abs_localedir,currdir,currdirlen);
+              var char* ptr = abs_localedir + currdirlen;
               if (ptr[-1] != '/')
                 *ptr++ = '/';
-              {
-                var const char * srcptr = argv_localedir;
-                while ((*ptr++ = *srcptr++) != '\0') continue;
-              }
+              strcat(ptr,argv_localedir);
               argv_localedir = abs_localedir;
             }
           }
