@@ -4527,7 +4527,8 @@ Now you can sum doubles:
     &stream-t; and only for input, and &so-wait;, which works only with
     &socket-server;s.</simpara>
    <simpara>We define &status-r; for a &socket-server; or a &socket-stream;
-    to be &error-k; if any i/o operation will cause an &error-t;.</simpara>
+    to be &error-k; if &select; finds an exceptional condition pending
+    on any of the argument &file-des;s.</simpara>
    <simpara>Additionally, for a &socket-server;, we define
     &status-r; to be &t; if a connection is available, i.e.,
     is &so-accept; will not block, and &nil; otherwise.</simpara>
@@ -4599,10 +4600,7 @@ Now you can sum doubles:
     return, then the second value is positive (this is the reason &nil;
     is &not-e; treated as an empty &list-t;, but as an invalid
     argument).</simpara>
-   <simpara>Note that &so-status; may &signal; a &stream-error-t;.
-    This happens if the &socket-stream; receives an <code>RST</code> packet,
-    see <filename role="clisp-cvs">tests/econnreset.lisp</filename>.</simpara>
-   <simpara>This is the interface to <function role="unix">select</function>
+   <simpara>This is the interface to &select;
     (on some platforms, <function role="unix">poll</function>),
     so it will work on any &clisp; &stream-t; which is based on a
     &file-des;, e.g., &kbd-in; and &file-pipe-socket-s;s, as well as
