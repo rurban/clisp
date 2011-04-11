@@ -45,6 +45,9 @@
     # get installation folder from registry if available
     InstallDirRegKey HKCU "Software\${NAME} ${VERSION}" ""
 
+    # execute with highest level of permissions available to the user
+    RequestExecutionLevel highest
+
 # variables
 
     Var LinkingSet
