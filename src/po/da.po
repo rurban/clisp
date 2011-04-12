@@ -11,6 +11,7 @@ msgstr ""
 "PO-Revision-Date: 2011-01-19 23:56:00 0100\n"
 "Last-Translator: Keld Simonsen <keld@keldix.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
@@ -90,22 +91,20 @@ msgstr ""
 # læs-find værdi-udskriv-sløjfe
 #
 #: spvw.d:2082
-#, fuzzy
 msgid ""
 "Usage:  %s [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 msgstr ""
-" [tilvalg] [lispfil [argument ...]]\n"
-" Hvis 'lispfil' angives, indlæses den og '*ARGS*' sættes\n"
+"Brug:  %s [tilvalg] [lispfil [argument ...]]\n"
+" Hvis 'lispfil' angives, indlæses den, og '*ARGS*' sættes\n"
 " til listen af argumentstrenge. Ellers påbegyndes en interaktiv\n"
 " prompt (læs, find værdi og udskriv-løkke).\n"
 
 #: spvw.d:2086
-#, fuzzy
 msgid "Informative output:"
-msgstr "Generelle informationer:\n"
+msgstr "Generelle informationer:"
 
 #: spvw.d:2087
 msgid " -h, --help    - print this help and exit"
@@ -221,9 +220,8 @@ msgid " -norc         - do not load the user ~/.clisprc file"
 msgstr " -norc         - indlæs ikke brugerens fil ~/.clisprc"
 
 #: spvw.d:2115
-#, fuzzy
 msgid " -lp dir       - add dir to *LOAD-PATHS* (can be repeated)"
-msgstr " -i fil        - indlæs initialfil (kan gentages)\n"
+msgstr " -lp kat       - tilføj katalog til *LOAD-PATHS* (kan gentages)"
 
 #: spvw.d:2116
 msgid " -i file       - load initfile (can be repeated)"
@@ -243,7 +241,7 @@ msgstr " -x udtryk - eksekvér udtrykkene og afslut"
 
 #: spvw.d:2120
 msgid " Depending on the image, positional arguments can mean:"
-msgstr ""
+msgstr " Afhængig af billedet kan positionelle argumenter betyde:"
 
 #: spvw.d:2121
 msgid "   lispscript [argument ...] - load script, then exit"
@@ -251,11 +249,11 @@ msgstr " lispfil [argument ...] - indlæs fil og afslut"
 
 #: spvw.d:2122
 msgid "   [argument ...]            - run the init-function"
-msgstr ""
+msgstr "   [argument ...]            - kør init-funktionen"
 
 #: spvw.d:2123
 msgid "  arguments are placed in EXT:*ARGS* as strings."
-msgstr ""
+msgstr "  argumenter placeres i EXT:*ARGS* som strenge."
 
 #: spvw.d:2124
 msgid "These actions put CLISP into a batch mode, which is overridden by"
@@ -1043,19 +1041,19 @@ msgstr ""
 "De gyldige nøgleord er ~S"
 
 #: encoding.d:242
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Invalid base64 encoding termination at position ~S"
-msgstr "Ugyldig parameteranvisning, ~S, i funktionen ~S"
+msgstr "~S: Ugyldig afslutning på base64-kodning ved position ~S"
 
 #: encoding.d:250
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Invalid base64 encoding at ~S (character ~S of ~S)"
-msgstr "Ugyldig parameteranvisning, ~S, i funktionen ~S"
+msgstr "~S: Ugyldig base64-kodning ved position ~S (tegn ~S af ~S)"
 
 #: encoding.d:285
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Character #\\u~C~C~C~C cannot be represented in the character set ~S"
-msgstr "Tegnet #\\u~C~C~C~C kan ikke repræsenteres i tegnsættet ~S"
+msgstr "~S: Tegnet #\\u~C~C~C~C kan ikke repræsenteres i tegnsættet ~S"
 
 #: encoding.d:290
 #, lisp-format
@@ -1063,9 +1061,9 @@ msgid "~S: Character #\\u00~C~C~C~C~C~C cannot be represented in the character s
 msgstr "~S: Tegnet #\\u00~C~C~C~C~C~C  kan ikke repræsenteres i tegnsættet ~S"
 
 #: encoding.d:308
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Incomplete byte sequence at end of buffer for ~S"
-msgstr "Ukomplet bytesekvens i bufferafslutningen for ~S"
+msgstr "~S: Ukomplet bytesekvens i bufferafslutningen for ~S"
 
 #: encoding.d:571
 #, lisp-format
@@ -1319,7 +1317,7 @@ msgstr ""
 
 #: pathname.d:6678
 msgid "Open the file anyway"
-msgstr ""
+msgstr "Åbn filen alligevel"
 
 #: pathname.d:6696
 #, lisp-format
@@ -1342,17 +1340,17 @@ msgstr "Laver katalog: "
 #: pathname.d:9043
 #, lisp-format
 msgid "~S: There are multiple running threads. Currently they do not survive image saving/loading."
-msgstr ""
+msgstr "~S: Der er flere kørende tråde. For nærværende vil de ikke overleve indlæsning eller gemning af billede."
 
 #: pathname.d:9056
 #, lisp-format
 msgid "~S: Mutex ~S is locked by thread ~S. Currently locked mutexes are not allowed in memory files."
-msgstr ""
+msgstr "~S: Mutex ~S er låst af tråden ~S. For nærværende er låste mutexer iikke tilladt i hukommelsesfiler."
 
 #: pathname.d:9148
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
-msgstr "~S: bibliotekskatalog er ikke kendt. Brug et kommandotilvalg til at anføre det"
+msgstr "~S: installationskatalog er ikke kendt. Brug et kommandotilvalget -B til at anføre det,  eller sæt *LIB-DIRECTORY*"
 
 #: stream.d:276 stream.d:13948
 #, lisp-format
@@ -1892,9 +1890,9 @@ msgid "~S from ~S: the number base must be given between # and R"
 msgstr "~S fra ~S: basistallet skal angives mellem # og R"
 
 #: io.d:3044
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: The base ~S given between # and R should lie between 2 and 36"
-msgstr "~S fra ~S: basistallet skal angives mellem # og R"
+msgstr "~S fra ~S: Basistallet ~S angivet mellem # og R bør ligge mellem 2 og 36"
 
 #: io.d:3089
 #, lisp-format
@@ -2538,13 +2536,13 @@ msgstr ""
 "Hvilket symbol med navn ~S skal være tilgængeligt i ~S?"
 
 #: package.d:1797
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The value of *PACKAGE* was not a package and was reset. The old value was ~S. The new value is ~S."
-msgstr "Værdien af *PACKAGE* var ikke en pakke.  Gammel værdi ~S. Ny værdi ~S."
+msgstr "Værdien af *PACKAGE* var ikke en pakke og blev nulstillet. Den gamle værdi var ~S. Den nye værdi er ~S."
 
 #: package.d:1798
 msgid "Proceed with the new value."
-msgstr ""
+msgstr "Fortsæt med den nye værdi."
 
 #: package.d:1821
 #, lisp-format
@@ -2786,14 +2784,14 @@ msgstr "~S: størrelse skal være et heltal >= 0, ikke ~S"
 # Den engelske mening er også dårlig udtrykt: "Must" udtrykker fysisk
 # nødvendighed, ikke moralsk bud!
 #: sequence.d:984
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: :UPDATE must not be specified without :INITIAL-ELEMENT"
-msgstr "~S: ~S skal anføres med ~S"
+msgstr "~S: :UPDATE må ikke angives uden :INITIAL-ELEMENT"
 
 #: sequence.d:2011
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: sequence ~S is too long: ~S is not a FIXNUM"
-msgstr "~S: sekvensen ~S er for lang"
+msgstr "~S: sekvensen ~S er for lang: ~S er ikke et FIXNUM"
 
 #: charstrg.d:1527
 #, lisp-format
@@ -3073,7 +3071,7 @@ msgstr "~S: ~S er ikke et symbol, kan ikke deklareres ~S"
 
 #: error.d:1015
 msgid "Remove the global SYMBOL-MACRO definition"
-msgstr ""
+msgstr "Fjern den globale SYMBOL-MACRO-definition"
 
 #: error.d:1017
 #, lisp-format
@@ -3086,9 +3084,9 @@ msgid "~S: attempting to turn ~S into a constant, but it is already a global SYM
 msgstr "~S: forsøger at skifte ~S til en konstant, men det er allerede en global SYMBOL-MACRO."
 
 #: error.d:1020
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
-msgstr "~S: At importere ~S ind i ~S ville skifte den til en konstant, men den er allerede en global SYMBOL-MACRO."
+msgstr "~S: At importere ~S ind i KEYWORD-pakken ville skifte den til en konstant, men den er allerede en global SYMBOL-MACRO."
 
 #: error.d:1039 error.d:1051
 #, lisp-format
@@ -3714,14 +3712,14 @@ msgid "C compiler"
 msgstr "C-oversætter"
 
 #: misc.d:702
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Lisp value ~S is not found in table ~S: ~S"
-msgstr "~S-symbolværdien, ~S, stemmer ikke med dens tabelværdi, ~S, i ~S"
+msgstr "~S: Lisp-værdien ~S findes ikke i tabel ~S: ~S"
 
 #: misc.d:729
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: C value ~S is not found in table ~S: ~S"
-msgstr "~S: argumentet ~S er ikke en hashtabel"
+msgstr "~S: C-værdien ~S findes ikke i tabel ~S: ~S"
 
 #: time.d:654
 #, lisp-format
@@ -3853,9 +3851,9 @@ msgid "~S: index ~S is negative"
 msgstr "~S: indekset ~S er negativt"
 
 #: intlog.d:665
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: shift ~S is too large"
-msgstr "~S: argumentet ~S er for stort"
+msgstr "~S: skift ~S er for stort"
 
 #: intbyte.d:13
 #, lisp-format
@@ -3986,12 +3984,12 @@ msgstr "~S: elementtypen har størrelsen 0: ~S"
 #: foreign.d:1108
 #, lisp-format
 msgid "~S: trying to read an object of type ~S from NULL address"
-msgstr ""
+msgstr "~S: prøver på at læse et objekt af type ~S fra NULL-adresse"
 
 #: foreign.d:1928
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: trying to write object ~S of type ~S into NULL address"
-msgstr "~S: ekstern variabel ~S af typen ~S er ikke en tabel"
+msgstr "~S: prøver på at skrive objekt ~S af type ~S ud i NULL-adresse"
 
 #: foreign.d:2437
 #, lisp-format
