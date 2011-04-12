@@ -31,6 +31,7 @@
 <!ENTITY dlsym '<function role="unix">dlsym</function>'>
 <!ENTITY dup '<function role="unix">dup</function>'>
 <!ENTITY fstat '<function role="unix">fstat</function>'>
+<!ENTITY select '<function role="unix">select</function>'>
 <!ENTITY setsockopt '<function role="unix">setsockopt</function>'>
 <!ENTITY socket '<function role="unix">socket</function>'>
 <!ENTITY socketpair '<function role="unix">socketpair</function>'>

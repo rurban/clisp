@@ -175,9 +175,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 
 <section id="rawsock-not-implemented"><title>Not Implemented</title>
 
-<para>We do not interface to <function role="unix">select</function>
- or <function role="unix">poll</function> in this module,
- they are already available through &so-status;.</para>
+<para>We do not interface to &select; or <function role="unix">poll</function>
+ in this module, they are already available through &so-status;.</para>
 
 <para>We do not interface to <function role="unix">shutdown</function>
  in this module, it is already available through &sost-shut;.</para>
