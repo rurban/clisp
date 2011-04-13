@@ -13160,7 +13160,7 @@
 	* m4/socklen_t.m4, configure.in, socket.d, stream.d, win32.d:
 	* modules/rawsock/rawsock.c: replace SOCKLEN_T with CLISP_SOCKLEN_T
 	because AIX defines SOCKLEN_T internally
-	Thanks to Laurent Vaucher <laurentvaucher@users.sourceforge.net>
+	Thanks to Laurent Vaucher <laurentvaucher@users.sourceforge.net>.
 
 2007-02-27  Shawn Betts  <sabetts@vcn.bc.ca>
 	Sam Steingold  <sds@gnu.org>
@@ -13224,7 +13224,7 @@
 	CONVERT-STRING-FROM-BYTES
 	* stream.d (rd_ch_keyboard, wr_ch_array_window) [WIN32_NATIVE]:
 	fix cint/chart conversion
-	Thanks to Michael Kappert <michael.kappert@gmx.net> for testing
+	Thanks to Michael Kappert <michael.kappert@gmx.net> for testing.
 
 2007-02-03  Sam Steingold  <sds@gnu.org>
 
@@ -13966,7 +13966,7 @@
 	fix bug#1555096: cannot create pathnames with :wild-inferiors
 	* pathname.d (PARSE-NAMESTRING) [WIN32_NATIVE]: when converting
 	/cygdrive/c to C: check that the first directory component is a string
-	Thanks to Yaroslav Kavenchuk <kavenchuk@tut.by> for debugging
+	Thanks to Yaroslav Kavenchuk <kavenchuk@tut.by> for debugging.
 
 2006-09-09  Sam Steingold  <sds@podval.org>
 
@@ -38172,7 +38172,7 @@
 	(unsetenv): return int
 	(realpath): return C-STRING
 	(execv, execve, execvp): add
-	Thanks to Dan Knapp, John K. Hinsdale, and Jörg Höhle
+	Thanks to Dan Knapp, John K. Hinsdale, and Jörg Höhle.
 
 2003-02-09  Sam Steingold  <sds@gnu.org>
 
