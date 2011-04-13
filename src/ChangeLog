@@ -1,3 +1,20 @@
+2011-04-12  Sam Steingold  <sds@gnu.org>
+
+	On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
+	be changed because MacOSX pathnames are UTF-8 strings, not byte
+	sequences (http://thread.gmane.org/gmane.lisp.clisp.general/13725
+	and http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html)
+	* lispbibl.d (CONSTANT_PATHNAME_ENCODING) [UNIX_MACOSX]: define to UTF-8
+	* encoding.d (init_dependent_encodings) [CONSTANT_PATHNAME_ENCODING]:
+	set O(pathname_encoding) to CONSTANT_PATHNAME_ENCODING
+	(SYSTEM::SET-PATHNAME-ENCODING): signal an error when the encoding
+	argument is not CONSTANT_PATHNAME_ENCODING
+	* spvw.d (argv_encoding_pathname): do not define when
+	CONSTANT_PATHNAME_ENCODING is defined
+	(parse_options): do not accept -Epathname
+	* makemake.in (encflags) [TSYSOS=darwin]: do not add -Epathname
+	Thanks to Carlos Ungil <carlos.ungil@gmail.com> for testing.
+
 2011-04-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/glibc/linux.lisp (wait, waitpid): restore (revert

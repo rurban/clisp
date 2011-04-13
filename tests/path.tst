@@ -1309,7 +1309,7 @@ NIL
                                              (ext:default-directory)))))
 #+(and clisp win32) T
 
-#+(and clisp unicode)
+#+(and clisp unicode (not macos))
 (block test-weird-pathnames
   (handler-bind ((parse-error
                   ;; http://article.gmane.org/gmane.lisp.clisp.devel:18772
@@ -1333,12 +1333,12 @@ NIL
                       (equal (directory "weird*") dir))
                     (eq custom:*pathname-encoding* charset:iso-8859-1))))
         (delete-file weird)))))
-#+(and clisp unicode) (T NIL T T)
+#+(and clisp unicode (not macos)) (T NIL T T)
 
 ;; DOS attack: bad pathnames in search can break LOAD
 ;; http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520
 ;; http://thread.gmane.org/gmane.lisp.clisp.devel/18532
-#+(and clisp unicode)
+#+(and clisp unicode (not macos))
 (letf* ((custom:*pathname-encoding* charset:iso-8859-1) ; 1:1
         (weird (concatenate 'string "weird" (string (code-char 160))))
         (good "path-tst-good-file") (dir "path-tst-load-weird-dir/")
@@ -1356,7 +1356,7 @@ NIL
                *load-var*)
              (eq custom:*pathname-encoding* charset:iso-8859-1))
     (rmrf dir)))
-#+(and clisp unicode) (1234 T)
+#+(and clisp unicode (not macos)) (1234 T)
 
 #+clisp ;; bug#3124200
 (let* ((dir "tmp-dir/")

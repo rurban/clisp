@@ -2753,9 +2753,12 @@ if [ "${with_unicode}" != no ] ; then
   # The first "-E" sets all encodings to UTF-8, so that we can read
   #   CLISP source files and dump everything to the terminal;
   #   this is also important for the wildcard and regexp test suite.
-  # The second "-E" ensures that we can parse all pathnames.
-  # The third "-E" ensures that syscalls tests pass (user names may be 8bit)
-  encflags=' -E UTF-8 -Epathname 1:1 -Emisc 1:1'
+  # The second "-E" ensures that syscalls tests pass (user names may be 8bit)
+  encflags=' -E UTF-8 -Emisc 1:1'
+  if [ "${TSYSOS}" != darwin ]; then # utf-8 on Darwin is good enough
+    # The last "-E" ensures that we can parse all pathnames.
+    encflags=${encflags}' -Epathname 1:1'
+  fi
 else
   encflags=''
 fi

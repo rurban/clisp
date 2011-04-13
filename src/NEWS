@@ -42,6 +42,10 @@ User visible changes
 
 * FFI now converts REALs to FLOATs automatically as necessary.
 
+* On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
+  be changed because Mac OS X pathnames are UTF-8 strings, not byte sequences.
+  See <http://clisp.org/impnotes/encoding.html#path-enc> for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
   + Fix SCREEN behavior when the window is resized.

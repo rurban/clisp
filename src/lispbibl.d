@@ -287,6 +287,10 @@
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  /* MacOS X */
+    /* MacOSX pathnames are UTF-8 strings, not byte sequences
+       http://thread.gmane.org/gmane.lisp.clisp.general/13725
+       http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html */
+    #define CONSTANT_PATHNAME_ENCODING  Symbol_value(S(utf_8))
   #endif
   #ifdef AMIX
     #define UNIX_AMIX  /* Amiga UNIX */

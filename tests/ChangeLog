@@ -1,3 +1,8 @@
+2011-04-12  Sam Steingold  <sds@gnu.org>
+
+	* path.tst (test-weird-pathnames): *PATHNAME-ENCODING* is a
+	constant on Mac OS X
+
 2011-04-10  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst (ECONNRESET/EPIPE): on some machines SOCKET-STATUS
