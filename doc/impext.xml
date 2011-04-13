@@ -825,6 +825,9 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    on &win32; it varies wildly for the bytes 128-256, depending on the
    OS version and the file system.</simpara>
   <simpara>The &line-term; mode of &path-enc; is ignored.</simpara>
+  <simpara><emphasis role="plat-dep">&macosx; platform only</emphasis>:
+   &macosx; pathnames are actually &unicode; &string-t;s, so
+   &path-enc; is a constant with value &utf-8;.</simpara>
 </listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">

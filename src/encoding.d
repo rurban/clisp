@@ -2599,7 +2599,9 @@ global void init_dependent_encodings(void) {
 #ifdef ENABLE_UNICODE
   extern const char* locale_encoding; /* GNU locale encoding canonical name */
   extern const char* argv_encoding_file; /* override *DEFAULT-FILE-ENCODING* */
+ #ifndef CONSTANT_PATHNAME_ENCODING
   extern const char* argv_encoding_pathname; /* override *PATHNAME-ENCODING* */
+ #endif
   extern const char* argv_encoding_terminal; /* override *terminal-encoding* */
   extern const char* argv_encoding_foreign; /* override *foreign-encoding* */
   extern const char* argv_encoding_misc; /* override *misc-encoding* */
@@ -2615,8 +2617,12 @@ global void init_dependent_encodings(void) {
     (argv_encoding_file == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_file,"*DEFAULT-FILE-ENCODING*"));
   O(pathname_encoding) =
+   #ifdef CONSTANT_PATHNAME_ENCODING
+    CONSTANT_PATHNAME_ENCODING;
+   #else
     (argv_encoding_pathname == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_pathname,"*PATHNAME-ENCODING*"));
+   #endif
  #if defined(WIN32_NATIVE)
   /* cf src/glllib/localcharset.c locale_charset() */
   if (argv_encoding_terminal == NULL) {
@@ -2677,7 +2683,15 @@ LISPFUNNR(pathname_encoding,0) {
 /* (SYSTEM::SET-PATHNAME-ENCODING encoding) */
 LISPFUNN(set_pathname_encoding,1) {
   var object encoding = check_encoding(popSTACK(),&O(pathname_encoding),false);
+ #ifdef CONSTANT_PATHNAME_ENCODING
+  if (eq(encoding,O(pathname_encoding))) VALUES1(encoding);
+  else {
+    pushSTACK(CONSTANT_PATHNAME_ENCODING);
+    error(error_condition,GETTEXT("*PATHNAME_ENCODING* on this platform can only be ~S"));
+  }
+ #else
   VALUES1(O(pathname_encoding) = encoding);
+ #endif
 }
 
 /* (SYSTEM::TERMINAL-ENCODING) */

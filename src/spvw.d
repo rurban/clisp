@@ -2304,7 +2304,9 @@ local inline void fini_lowest_level (void) {
 global const char* locale_encoding = NULL; /* GNU canonical name of locale encoding */
 global const char* argv_encoding_misc = NULL; /* override for *misc-encoding* */
 global const char* argv_encoding_file = NULL; /* ... for *default-file-encoding* */
+#ifndef CONSTANT_PATHNAME_ENCODING
 global const char* argv_encoding_pathname = NULL; /* ... for *pathname-encoding* */
+#endif
 global const char* argv_encoding_terminal = NULL; /* ... for *terminal-encoding* */
 global const char* argv_encoding_foreign = NULL; /* ... for *foreign-encoding* */
 
@@ -2610,8 +2612,10 @@ local inline int parse_options (int argc, const char* const* argv,
             }
             if (asciz_equal(&arg[2],"file"))
               argv_encoding_file = *argptr++;
+           #ifndef CONSTANT_PATHNAME_ENCODING
             else if (asciz_equal(&arg[2],"pathname"))
               argv_encoding_pathname = *argptr++;
+           #endif
             else if (asciz_equal(&arg[2],"terminal"))
               argv_encoding_terminal = *argptr++;
             else if (asciz_equal(&arg[2],"foreign"))
@@ -2619,9 +2623,11 @@ local inline int parse_options (int argc, const char* const* argv,
             else if (asciz_equal(&arg[2],"misc"))
               argv_encoding_misc = *argptr++;
             else if (arg[2] == '\0') /* unspecified => all */
-              argv_encoding_file = argv_encoding_pathname =
-                argv_encoding_terminal = argv_encoding_foreign =
-                argv_encoding_misc = *argptr++;
+             #ifndef CONSTANT_PATHNAME_ENCODING
+              argv_encoding_pathname =
+             #endif
+              argv_encoding_file = argv_encoding_terminal =
+                argv_encoding_foreign = argv_encoding_misc = *argptr++;
             else
               INVALID_ARG(arg);
             break;
