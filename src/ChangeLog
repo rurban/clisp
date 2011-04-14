@@ -13160,7 +13160,7 @@
 	* m4/socklen_t.m4, configure.in, socket.d, stream.d, win32.d:
 	* modules/rawsock/rawsock.c: replace SOCKLEN_T with CLISP_SOCKLEN_T
 	because AIX defines SOCKLEN_T internally
-	Thanks to Laurent Vaucher <laurentvaucher@users.sourceforge.net>.
+	Reported by Laurent Vaucher <laurentvaucher@users.sourceforge.net>.
 
 2007-02-27  Shawn Betts  <sabetts@vcn.bc.ca>
 	Sam Steingold  <sds@gnu.org>
