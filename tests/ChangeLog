@@ -1,3 +1,7 @@
+2011-04-15  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: more checks for compiler warnings
+
 2011-04-12  Sam Steingold  <sds@gnu.org>
 
 	* path.tst (test-weird-pathnames): *PATHNAME-ENCODING* is a

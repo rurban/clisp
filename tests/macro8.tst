@@ -1264,6 +1264,9 @@ check-const-fold
 (cdr (multiple-value-list (compile nil (lambda () t)))) (NIL NIL)
 (cdr (multiple-value-list (compile nil (lambda () (let (a) (setq a 1)))))) (1 NIL)
 (cdr (multiple-value-list (compile nil (lambda (&optional a &key b) (cons a b))))) (1 NIL)
+(cdr (multiple-value-list (compile nil (lambda (s) (read-from-string s :start 7))))) (1 NIL)
+(cdr (multiple-value-list (compile nil (lambda (s) (read-from-string s t t :start 7))))) (NIL NIL)
+(cdr (multiple-value-list (compile nil (lambda (s) (format "~A" s))))) (1 1)
 
 (progn ; Clean up.
   (symbol-cleanup '*c*)
