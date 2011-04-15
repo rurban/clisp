@@ -1126,17 +1126,13 @@ NIL
 NIL
 
 ;; https://sourceforge.net/tracker/?func=detail&aid=3198722&group_id=1355&atid=101355
-(rest (multiple-value-list
-       (compile nil (lambda () (directory "/" 'a t 'b 1 'c 0
-                                          :allow-other-keys t)))))
-(3 NIL)
-(rest (multiple-value-list
-       (compile nil (lambda () (directory "/" :allow-other-keys t 'a t)))))
-(1 NIL)
-(rest (multiple-value-list (compile nil (lambda () (directory "/" 'a t)))))
-(1 1)
-(rest (multiple-value-list (compile nil (lambda () (directory "/" 'a t 'b 2)))))
-(1 1)
+(multiple-value-list
+ (compile 'x (lambda () (directory "/" 'a t 'b 1 'c 0 :allow-other-keys t))))
+(X 3 NIL)
+(multiple-value-list
+ (compile 'x (lambda () (directory "/" :allow-other-keys t 'a t)))) (X 1 NIL)
+(multiple-value-list (compile 'x (lambda () (directory "/" 'a t)))) (X 1 1)
+(multiple-value-list (compile 'x (lambda () (directory "/" 'a t 'b 2)))) (X 1 1)
 
 #+clisp
 (let (ret)
@@ -1260,13 +1256,13 @@ check-const-fold
 :GOOD
 
 ;; compiler warnings
-(cdr (multiple-value-list (compile nil (lambda () (let (a) t))))) (1 NIL)
-(cdr (multiple-value-list (compile nil (lambda () t)))) (NIL NIL)
-(cdr (multiple-value-list (compile nil (lambda () (let (a) (setq a 1)))))) (1 NIL)
-(cdr (multiple-value-list (compile nil (lambda (&optional a &key b) (cons a b))))) (1 NIL)
-(cdr (multiple-value-list (compile nil (lambda (s) (read-from-string s :start 7))))) (1 NIL)
-(cdr (multiple-value-list (compile nil (lambda (s) (read-from-string s t t :start 7))))) (NIL NIL)
-(cdr (multiple-value-list (compile nil (lambda (s) (format "~A" s))))) (1 1)
+(multiple-value-list (compile 'x (lambda () (let (a) t)))) (X 1 NIL)
+(multiple-value-list (compile 'x (lambda () t))) (X NIL NIL)
+(multiple-value-list (compile 'x (lambda () (let (a) (setq a 1))))) (X 1 NIL)
+(multiple-value-list (compile 'x (lambda (&optional a &key b) (cons a b)))) (X 1 NIL)
+(multiple-value-list (compile 'x (lambda (s) (read-from-string s :start 7)))) (X 1 NIL)
+(multiple-value-list (compile 'x (lambda (s) (read-from-string s t t :start 7)))) (X NIL NIL)
+(multiple-value-list (compile 'x (lambda (s) (format "~A" s)))) (X 1 1)
 
 (progn ; Clean up.
   (symbol-cleanup '*c*)
