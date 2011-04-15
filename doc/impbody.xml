@@ -546,6 +546,21 @@ ignored by the interpreter.</para>
    above which triggered the &error-t;</simpara></listitem></varlistentry>
 </variablelist></para>
 
+<formalpara id="key-optional"><title>Mixing &optional-amp; and &key-amp;</title>
+<para>It is a bad design to have both &optional-amp; and &key-amp; in the
+same &lalist;, especially if the number of optional arguments is even:
+the users will often forget to supply optional arguments when supplying
+keys, e.g., <code>(&read-from-string; &string-r; &start-k; 5)</code>
+instead of <code>(&read-from-string; &string-r; t nil &start-k; 5)</code>.
+This is why the &clisp; compiler issues a &style-warning-t; in such cases:
+<programlisting>(&defun; foo (&optional-amp; a &key-amp; b) (cons a b))
+(&compile; 'foo)
+WARNING: in FOO : Mixing &optional-amp; and &key-amp; in lambda list (&optional-amp; A &key-amp; B) is bad design
+FOO ;
+1 ;
+NIL
+</programlisting></para></formalpara>
+
 </section>
 
 </section>

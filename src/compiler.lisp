@@ -4014,6 +4014,9 @@ for-value   NIL or T
                 (sys::specialized-lambda-list-to-ordinary
                  lalist 'compile)))
             (c-analyze-lambdalist lalist)))
+      (when (and optvar keyvar)
+        (c-style-warn (TEXT "Mixing ~S and ~S in lambda list ~S is bad design")
+                      '&OPTIONAL '&KEY lalist))
       (setf (fnode-req-num *func*) (length reqvar)
             (fnode-opt-num *func*) (length optvar)
             (fnode-rest-flag *func*) (not (eql restvar 0))
