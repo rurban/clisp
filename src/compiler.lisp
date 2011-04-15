@@ -3251,6 +3251,16 @@ for-value   NIL or T
                (c-NORMAL-FUNCTION-CALL fun)))
             (t ; is the SUBR fun contained in the FUNTAB?
              (let ((index (gethash fun function-codes)))
+               (case fun
+                 ;; accept &KEY and an even number of &OPTIONAL
+                 ((PARSE-NAMESTRING MERGE-PATHNAMES READ-FROM-STRING)
+                  ;; (#:ARG0 &OPTIONAL #:ARG1 #:ARG2 &KEY ...)
+                  ;; it just so happens that a keyword is a bad
+                  ;; (or, in case of READ-FROM-STRING, an unusual)
+                  ;; second (1st optional) argument for these functions,
+                  ;; thus this keywordp test is good enough
+                  (when (keywordp (second args))
+                    (c-style-warn (TEXT "Apparently passing &KEY arguments without &OPTIONAL arguments in ~S") *form*))))
                (if index
                  (case check
                    ((NO-KEYS STATIC-KEYS)

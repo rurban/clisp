@@ -1,5 +1,13 @@
 2011-04-15  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): issue a style-warning
+	when PARSE-NAMESTRING, MERGE-PATHNAMES, or READ-FROM-STRING, i.e.,
+	a function which accept both &KEY arguments and an even number of
+	&OPTIONAL arguments, is, apparently, invoked with &KEY but without
+	&OPTIONAL arguments
+
+2011-04-15  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-LAMBDABODY): issue a style-warning when lambda
 	list contains both &optional and &key
 
