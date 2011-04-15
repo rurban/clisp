@@ -1,3 +1,8 @@
+2011-04-15  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-LAMBDABODY): issue a style-warning when lambda
+	list contains both &optional and &key
+
 2011-04-12  Sam Steingold  <sds@gnu.org>
 
 	On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot

@@ -1263,6 +1263,7 @@ check-const-fold
 (cdr (multiple-value-list (compile nil (lambda () (let (a) t))))) (1 NIL)
 (cdr (multiple-value-list (compile nil (lambda () t)))) (NIL NIL)
 (cdr (multiple-value-list (compile nil (lambda () (let (a) (setq a 1)))))) (1 NIL)
+(cdr (multiple-value-list (compile nil (lambda (&optional a &key b) (cons a b))))) (1 NIL)
 
 (progn ; Clean up.
   (symbol-cleanup '*c*)
