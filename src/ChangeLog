@@ -1,3 +1,9 @@
+2011-04-18  Sam Steingold  <sds@gnu.org>
+
+	* configure (makemake_args): when configure detects mingw/msys,
+	pass --win32gcc to makemake
+	Reported by Elliott Slaughter <elliottslaughter@gmail.com>.
+
 2011-04-15  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): issue a style-warning
