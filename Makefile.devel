@@ -76,10 +76,11 @@ $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) $(MAKEFILE_IN)
 
+CP = cp -afv
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CONFIGURES))
 	$(RM) configure.ac
-	cp src/configure.in configure.ac
+	$(CP) src/configure.in configure.ac
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
 		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
@@ -354,17 +355,16 @@ GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 # because otherwise every make will rebuild all configures
 build-aux-update : update-gnulib force
 	for f in $(GNULIB_AUX); do \
-	  cp -afuv $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; \
-	done
-	cp -afuv /usr/share/automake*/compile src/build-aux
-	cp -afuv /usr/share/automake*/ylwrap src/build-aux
+	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; done \
+	$(CP) /usr/share/automake*/compile src/build-aux
+	$(CP) /usr/share/automake*/ylwrap src/build-aux
 	test -f $(LIBTOOL_SOURCE_FILE) || wget $(LIBTOOL_SOURCE_URL)
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
-	cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
+	$(CP) libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
 	chmod +x src/build-aux/ltmain.sh
 	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
-	  cp -afuv libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
+	  $(CP) libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
@@ -396,7 +396,7 @@ gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(RM) $(addsuffix /glm4/gnulib-cache.m4, $(GNULIB_USERS)) \
 		$(GNULIB_IMPORTED_LOG)
-	cp $(GNULIB_CHECKOUT)/gnulib-tool $(GNULIB_CHECKOUT)/gnulib-tool-patched
+	$(CP) $(GNULIB_CHECKOUT)/gnulib-tool $(GNULIB_CHECKOUT)/gnulib-tool-patched
 	patch $(GNULIB_CHECKOUT)/gnulib-tool-patched $(GNULIB_TOOL_PATCH)
 	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
 		$(GNULIB_COMMON) | tee -a $(GNULIB_IMPORTED_LOG)
@@ -537,7 +537,7 @@ doc-distrib : force
 GPG=gpg --use-agent --yes
 gnu-distrib : $(SRC_DIST1) force
 	mkdir -p $(ARCHIVE)
-	cp -f src/NEWS SUMMARY $(ARCHIVE)
+	$(CP) src/NEWS SUMMARY $(ARCHIVE)
 	for f in $(GNU_DIST); do $(GPG) -b $$f; done
 	for f in $(GNU_TOP); do \
 		$(RM) $$f.directive; \
