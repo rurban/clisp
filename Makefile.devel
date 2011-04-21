@@ -349,6 +349,9 @@ LIBTOOL_VERSION = 2.4
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 # an alternative way to update libtool files is "cd src; libtoolize --copy"
+AUTOMAKE_VERSION = 1.11.1
+AUTOMAKE_SOURCE_FILE = automake-$(AUTOMAKE_VERSION).tar.gz
+AUTOMAKE_SOURCE_URL = http://ftp.gnu.org/gnu/automake/$(AUTOMAKE_SOURCE_FILE)
 GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 # it is important not to have "*.m4" targets with ": force" dependencies
@@ -356,8 +359,13 @@ GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 build-aux-update : update-gnulib force
 	for f in $(GNULIB_AUX); do \
 	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; done \
-	$(CP) /usr/share/automake*/compile src/build-aux
-	$(CP) /usr/share/automake*/ylwrap src/build-aux
+	test -f $(AUTOMAKE_SOURCE_FILE) || wget $(AUTOMAKE_SOURCE_URL)
+	rm -rf automake-$(AUTOMAKE_VERSION)
+	gunzip -c < $(AUTOMAKE_SOURCE_FILE) | tar xf -
+	$(CP) automake-$(AUTOMAKE_VERSION)/lib/compile src/build-aux
+	$(CP) automake-$(AUTOMAKE_VERSION)/lib/ylwrap src/build-aux
+	chmod +x src/build-aux/compile src/build-aux/ylwrap
+	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	test -f $(LIBTOOL_SOURCE_FILE) || wget $(LIBTOOL_SOURCE_URL)
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
