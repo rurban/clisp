@@ -9,6 +9,8 @@ PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
 RM = rm -f
+CP = cp -afv
+WGET = wget --execute netrc=off --no-verbose --retry-connrefused --timeout=60
 # http://ctags.sourceforge.net
 CTAGS = ctags
 
@@ -76,7 +78,6 @@ $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) $(MAKEFILE_IN)
 
-CP = cp -afv
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CONFIGURES))
 	$(RM) configure.ac
@@ -294,7 +295,7 @@ SBCL_SOURCE_FILE = sbcl-$(SBCL_VERSION)-source.tar.bz2
 SBCL_SOURCE_URL = http://www.haible.de/bruno/$(SBCL_SOURCE_FILE)
 check-sbcl:
 	./configure --cbc build-for-sbcl
-	test -f $(SBCL_SOURCE_FILE) || wget $(SBCL_SOURCE_URL)
+	test -f $(SBCL_SOURCE_FILE) || $(WGET) $(SBCL_SOURCE_URL)
 	rm -rf sbcl-$(SBCL_VERSION)
 	bunzip2 -c < $(SBCL_SOURCE_FILE) | tar xvf -
 	clisp=$(CURDIR)/build-for-sbcl/clisp; \
@@ -310,7 +311,7 @@ GCC_SOURCE_URL = http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/$(GCC_SOURCE_FILE
 # It should *not* be the same --prefix as you use for other programs.
 GCC_INSTALL_DIR = $(shell dirname $$(dirname $$(which clisp | head -1)))/inst-gcc-$(GCC_VERSION)
 install-gcc:
-	test -f $(GCC_SOURCE_FILE) || wget $(GCC_SOURCE_URL)
+	test -f $(GCC_SOURCE_FILE) || $(WGET) $(GCC_SOURCE_URL)
 	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION)-build
 	bunzip2 -c < $(GCC_SOURCE_FILE) | tar xvf -
 	mkdir gcc-$(GCC_VERSION)-build
@@ -337,11 +338,11 @@ update-gnulib:
 
 ASDF_URL = http://common-lisp.net/project/asdf/asdf.lisp
 update-asdf : force
-	wget -O modules/asdf/asdf.lisp $(ASDF_URL)
+	$(WGET) -O modules/asdf/asdf.lisp $(ASDF_URL)
 
 GMALLOC_URL = http://git.savannah.gnu.org/cgit/emacs.git/plain/src/gmalloc.c
 update-gmalloc : force
-	wget -O src/gmalloc.c $(GMALLOC_URL)
+	$(WGET) -O src/gmalloc.c $(GMALLOC_URL)
 
 # it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
@@ -350,8 +351,7 @@ LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 # an alternative way to update libtool files is "cd src; libtoolize --copy"
 AUTOMAKE_VERSION = 1.11.1
-AUTOMAKE_SOURCE_FILE = automake-$(AUTOMAKE_VERSION).tar.gz
-AUTOMAKE_SOURCE_URL = http://ftp.gnu.org/gnu/automake/$(AUTOMAKE_SOURCE_FILE)
+AUTOMAKE_GIT = http://git.savannah.gnu.org/cgit/automake.git/plain/lib/
 GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 # it is important not to have "*.m4" targets with ": force" dependencies
@@ -359,14 +359,12 @@ GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 build-aux-update : update-gnulib force
 	for f in $(GNULIB_AUX); do \
 	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; done \
-	test -f $(AUTOMAKE_SOURCE_FILE) || wget $(AUTOMAKE_SOURCE_URL)
-	rm -rf automake-$(AUTOMAKE_VERSION)
-	gunzip -c < $(AUTOMAKE_SOURCE_FILE) | tar xf -
-	$(CP) automake-$(AUTOMAKE_VERSION)/lib/compile src/build-aux
-	$(CP) automake-$(AUTOMAKE_VERSION)/lib/ylwrap src/build-aux
+	for f in compile ylwrap; do \
+	  $(WGET) -O src/build-aux/$$f $(AUTOMAKE_GIT)$$f?v$(AUTOMAKE_VERSION); \
+	done
 	chmod +x src/build-aux/compile src/build-aux/ylwrap
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
-	test -f $(LIBTOOL_SOURCE_FILE) || wget $(LIBTOOL_SOURCE_URL)
+	test -f $(LIBTOOL_SOURCE_FILE) || $(WGET) $(LIBTOOL_SOURCE_URL)
 	rm -rf libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
 	$(CP) libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
@@ -374,7 +372,7 @@ build-aux-update : update-gnulib force
 	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
 	  $(CP) libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
-	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
+	cd src/m4; rm -fv gtk-2.0.m4; $(WGET) $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
 # gnulib-tool hack to support multiple gllib directories:
 # headers are generated for each gllib differently, depending on which
