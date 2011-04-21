@@ -3,6 +3,8 @@
 	* Makefile.devel (CP): new variable; do _not_ pass "-u" so that
 	fresh checkouts will not override updating in build-aux-update et al
 	(LIBTOOL_VERSION): bump to 2.4
+	(build-aux-update): get compile & ylwrap from a specific automake
+	version instead of whatever happens to be currently installed
 
 2011-04-18  Sam Steingold  <sds@gnu.org>
 
