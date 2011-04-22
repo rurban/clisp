@@ -710,6 +710,8 @@ EXT:PACKAGE-SHORTEST-NAME
 package-shortest-name
 EXT:*COMMAND-INDEX*
 command-index
+CUSTOM:*ANSI*
+ansi
 EXT:ETHE
 ethe
 EXT:LETF*
@@ -746,14 +748,14 @@ EXT:HTTP-PROXY
 http-proxy
 CUSTOM:*HTTP-PROXY*
 http-proxy
+EXT:CANONICALIZE
+canonicalize
 EXT:EXPAND-FORM
 code-walk
 EXT:MODULE-INFO
 modinfo
 SYS::DYNLOAD-MODULES
 mod-dynload
-SYS::PROCESS-ID
-process-id
 FFI:DEF-C-TYPE
 def-c-type
 FFI:DEF-C-VAR
@@ -1224,7 +1226,7 @@ POSIX:SYSLOG
 syslog
 POSIX:CLOSELOG
 closelog
-POSIX:PROCESS-ID
+SYS::PROCESS-ID
 process-id
 POSIX:PRIORITY
 priority
