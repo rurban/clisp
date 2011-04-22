@@ -368,6 +368,12 @@ x
 (list y z w v u)
 (2 nil nil 8 9)
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3291585&group_id=1355
+(multiple-value-list (setf (values (values) y z) (values 1 2 3))) (NIL 2 3)
+Y 2 Z 3
+(multiple-value-list (setf (values x (values) z) (values 'x 'y 'z))) (X NIL Z)
+X X Z Z
+
 (let ((i #x69)) (rotatef (ldb (byte 4 4) i)
                          (ldb (byte 4 0) i)) i)
 #x96

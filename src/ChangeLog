@@ -1,3 +1,8 @@
+2011-04-22  Sam Steingold  <sds@gnu.org>
+
+	* places.lisp (setf-VALUES-aux): even if subform sets no values,
+	it should consume one assigned value (bug#3291585)
+
 2011-04-21  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (CP): new variable; do _not_ pass "-u" so that

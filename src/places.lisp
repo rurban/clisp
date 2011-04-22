@@ -1183,12 +1183,12 @@
         (get-setf-expansion (pop placesr) env)
       (setq temps (revappend SM-temps temps))
       (setq subforms (revappend SM-subforms subforms))
-      (when SM-stores
-        ;; See ANSI CL 5.1.2.3.
-        (dolist (extra-store (rest SM-stores))
-          (push extra-store temps)
-          (push 'NIL subforms))
-        (push (first SM-stores) stores))
+      (dolist (extra-store (rest SM-stores)) ; See ANSI CL 5.1.2.3.
+        (push extra-store temps)
+        (push 'NIL subforms))
+      ;; even if subform sets no values [e.g., (setf (values (values) .) .) ]
+      ;; it should consume one assigned value
+      (setq stores (cons (or (first SM-stores) (gensym "NEW-")) stores))
       (setq setterforms (cons SM-setterform setterforms))
       (setq getterforms (cons SM-getterform getterforms)))))
 ;;;----------------------------------------------------------------------------
