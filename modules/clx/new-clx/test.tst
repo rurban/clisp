@@ -370,6 +370,30 @@ NIL
          (funcall f window))))))
 MAP-WINDOWS
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3292605&group_id=1355
+(xlib:with-open-display (dpy)
+  (let ((window (xlib:create-window
+                 :parent (xlib:screen-root (first (xlib:display-roots dpy)))
+                 :x 0 :y 0 :width 100 :height 100))
+        (hints (xlib:make-wm-size-hints :x 1 :y 2 :width 3 :height 4
+                                        :program-specified-position-p t
+                                        :program-specified-size-p t)))
+    (show (setf (xlib:wm-normal-hints window) hints))
+    (equalp hints (show (xlib:wm-normal-hints window)))))
+T
+(map-windows
+ (lambda (window)
+   (multiple-value-bind (data type format bytes-after)
+       (xlib:get-property window :WM_NORMAL_HINTS)
+     (when data
+       (assert (eq type :WM_SIZE_HINTS))
+       (assert (= format 32))
+       (assert (= bytes-after 0))
+       (assert (= (length data) 18))
+       (show (list (xlib:wm-name window) data))
+       (show (xlib:wm-normal-hints window))))))
+NIL
+
 (defun iter-windows (getter &optional setter (name getter))
   (let ((window-count 0) (value-count 0))
     (map-windows (lambda (window)
