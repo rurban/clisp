@@ -1,3 +1,11 @@
+2011-04-27  Elliott Slaughter  <elliottslaughter@gmail.com>
+
+	* install.nsi: Fix PATH bug by insisting that packager uses long
+	strings version of NSIS. Also upgrade EnvVarUpdate library.
+	* add_to_path.nsh: Obsoleted by env_var_update.nsh.
+	* env_var_update.nsh: Added to supercede add_to_path.nsh.
+	* makemake.in: Use env_var_update.nsh rather than add_to_path.nsh.
+
 2011-04-22  Sam Steingold  <sds@gnu.org>
 
 	* places.lisp (setf-VALUES-aux): even if subform sets no values,

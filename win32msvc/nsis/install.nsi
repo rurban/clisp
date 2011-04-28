@@ -14,6 +14,15 @@
 # note: this script globs all files in the current
 # directory, ignoring files that match "install*"
 
+# check that this is being compiled by long-strings version of NSIS.
+# this is needed to avoid a bug where users' PATHs get clobbered.
+
+    !if ${NSIS_MAX_STRLEN} < 8192
+    !error "\
+Please use a large-strings build of NSIS. This is really important! Bugs will \
+appear in the installer if you don't do this! Get the build from: \
+http://nsis.sourceforge.net/Special_Builds"
+    !endif
 
 # general
 
@@ -33,7 +42,7 @@
     !define BASE_MODULES "@BASE_MODULES@"
 
     # http://nsis.sourceforge.net/Path_Manipulation
-    !include "add_to_path.nsh"
+    !include "env_var_update.nsh"
 
     # name and output of file
     Name "${NAME} ${VERSION}"
@@ -261,8 +270,15 @@ SectionGroup /e "!${NAME} Core"
     SectionIn 1
 
         # add to PATH Variable
-        Push $INSTDIR
-        Call AddToPath
+        StrCmp $UserSetting ${SecAllUsers} AddToPath_all
+            ${EnvVarUpdate} $0 "PATH" "A" "HKCU" "$INSTDIR"
+        Goto AddToPath_done
+        AddToPath_all:
+            ${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$INSTDIR"
+        AddToPath_done:
+
+        # record installation of PATH setting in registry
+        WriteRegStr HKCU "Software\${NAME} ${VERSION}" "PATH" "true"
     SectionEnd
 SectionGroupEnd
 
@@ -328,13 +344,17 @@ FunctionEnd
 
 # uninstaller sections
 
+Var un.UserSetting
+
 Section "un.Install For"
 
     # get state of SetShellVarContext
     ReadRegStr $R0 HKCU "Software\${NAME} ${VERSION}" "Shell Var Context"
     StrCmp $R0 "all" SetShellUserContext_all
+        StrCpy $un.UserSetting "current"
         Goto SetShellUserContext_done
     SetShellUserContext_all:
+        StrCpy $un.UserSetting "all"
         SetShellVarContext all
     SetShellUserContext_done:
 
@@ -379,8 +399,18 @@ Section "Uninstall"
         DeleteRegKey HKCR "memfile"
     DeleteFileAssociations_done:
 
-    Push $INSTDIR
-    Call un.RemoveFromPath
+    # remove PATH Variable
+    ReadRegStr $R0 HKCU "Software\${NAME} ${VERSION}" "PATH"
+    StrCmp $R0 "true" DeletePathEntry
+        Goto DeletePathEntry_done
+    DeletePathEntry:
+        StrCmp $un.UserSetting "all" AddToPath_all
+            ${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" "$INSTDIR"
+        Goto AddToPath_done
+        AddToPath_all:
+            ${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR"
+        AddToPath_done:
+    DeletePathEntry_done:
 
     # delete contents of start menu folder
     !insertmacro MUI_STARTMENU_GETFOLDER StartMenu $STARTMENU_TEMP
