@@ -2373,7 +2373,7 @@ if [ -n "${SRCDIR}" ] ; then
 fi
 
 if [ ${HOS} = win32 ]; then
-  for f in add_to_path.nsh is_user_admin.nsh; do
+  for f in env_var_update.nsh is_user_admin.nsh; do
     link_dep "${f}" "${SRCTOPDIR_}win32msvc/nsis/${f}"
   done
   echol "install.nsi : ${SRCTOPDIR_}win32msvc/nsis/install.nsi config.status"
@@ -3831,7 +3831,7 @@ echol
 echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : install.lisp install.bat config.lisp ${manpages_less} clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
+  echol "distrib : install.lisp install.bat config.lisp ${manpages_less} clisp.html COPYRIGHT.rtf env_var_update.nsh install.nsi is_user_admin.nsh force"
   echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "rm -rf \$\$distdir; \\"
