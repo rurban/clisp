@@ -7550,6 +7550,12 @@ DEFUN(XLIB::SET-ACCESS-CONTROL, dpy state)
 }
 
 #if defined(HAVE_SYS_SOCKET_H) && defined(HAVE_NETDB_H) && defined(HAVE_NETINET_IN_H)
+/* cf rawsock:check_socket_domain */
+DEFCHECKER(check_family,INET=FamilyInternet DECnet=FamilyDECnet         \
+           CHAOS=FamilyChaos INET6=FamilyInternet6                      \
+           SERVER-INTERPRETED=FamilyServerInterpreted                   \
+           LOCAL=FamilyLocal :WILD=FamilyWild NET-NAME=FamilyNetname    \
+           KRB-5-PRINCIPAL=FamilyKrb5Principal LOCAL-HOST=FamilyLocalHost)
 /* see module syscalls */
 extern Values hostent_to_lisp (struct hostent *he);
 DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
@@ -7565,7 +7571,6 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
     int i = nhosts;
     XHostAddress *ho = hosts;
     while (i--) {
-      if (ho->length) {
         int family;
         switch (ho->family) {
 #        if defined(HAVE_IPV6) && defined(FamilyInternet6)
@@ -7597,12 +7602,13 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
           } break;
 #        endif
           default: bad_family:
-            pushSTACK(fixnum(ho->family));
+          pushSTACK(check_family_reverse(ho->family));
+          if (ho->length) {
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
             SYS_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
             { object tmp = listof(2); pushSTACK(tmp); }
         }
-      } else pushSTACK(NIL);
+      }
       ho++;
     }
     X_CALL(XFree(hosts));

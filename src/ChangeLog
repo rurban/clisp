@@ -1,5 +1,10 @@
 2011-04-28  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (check_family): add
+	(XLIB:ACCESS-HOSTS): handle all host families from my X.h and Xauth.h
+
+2011-04-28  Sam Steingold  <sds@gnu.org>
+
 	fix bug#3292605: GET-PROPERTY unpacks properties incorrectly on 64bit
 	http://www.x.org/releases/X11R7.6/doc/man/man3/XChangeProperty.3.xhtml
 	format = 8/16/32 means char/short/long, __NOT__ int8/int16/int32
