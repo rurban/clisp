@@ -1525,13 +1525,28 @@ static object make_client_message_format (int format)
   }
 }
 
-static int get_client_message_format (object obj)
+static int get_client_message_format1 (object obj, int *format_bytesize)
 {
   int format = get_uint32 (obj);
+  /* http://www.x.org/releases/X11R7.6/doc/man/man3/XChangeProperty.3.xhtml */
   switch (format) {
-    case 32: case 16: case 8: return format;
+    case 32:
+      if (format_bytesize)
+        *format_bytesize = sizeof(long);
+      return format;
+    case 16:
+      if (format_bytesize)
+        *format_bytesize = sizeof(short);
+      return format;
+    case 8:
+      if (format_bytesize)
+        *format_bytesize = sizeof(char);
+      return format;
     default: my_type_error (`(MEMBER 8 16 32)`, obj);
   }
+}
+static int get_client_message_format (object obj) {
+  return get_client_message_format1 (obj, NULL);
 }
 
 static object make_client_message_data (XClientMessageEvent *xclient)
@@ -1542,17 +1557,17 @@ static object make_client_message_data (XClientMessageEvent *xclient)
   switch (xclient->format) {
     case 8:
       for (i=0; i<20; i++)
-        pushSTACK (make_uint8 (xclient->data.b[i]));
+        pushSTACK(fixnum(xclient->data.b[i]));
       cnt = 20;
       break;
     case 16:
       for (i=0; i<10; i++)
-        pushSTACK (make_uint16 (xclient->data.s[i]));
+        pushSTACK(fixnum(xclient->data.s[i]));
       cnt = 10;
       break;
     case 32:
       for (i=0; i<5; i++)
-        pushSTACK (make_uint32 (xclient->data.l[i]));
+        pushSTACK(L_to_I(xclient->data.l[i]));
       cnt = 5;
       break;
     default:
@@ -1572,7 +1587,7 @@ static void get_client_message_data (XClientMessageEvent *event, uint32 format,
           if (nullp (data)) {
             event->data.b[i] = 0;
           } else {
-            event->data.b[i] = get_uint8 (Car(data));
+            event->data.b[i] = get_fixnum(Car(data));
             data = Cdr(data);
           }
         }
@@ -1582,7 +1597,7 @@ static void get_client_message_data (XClientMessageEvent *event, uint32 format,
           if (nullp (data)) {
             event->data.s[i] = 0;
           } else {
-            event->data.s[i] = get_uint16 (Car(data));
+            event->data.s[i] = get_fixnum(Car(data));
             data = Cdr(data);
           }
         }
@@ -1592,7 +1607,7 @@ static void get_client_message_data (XClientMessageEvent *event, uint32 format,
           if (nullp (data)) {
             event->data.l[i] = 0;
           } else {
-            event->data.l[i] = get_uint32 (Car(data));
+            event->data.l[i] = I_to_L(Car(data));
             data = Cdr(data);
           }
         }
@@ -5384,13 +5399,19 @@ void coerce_into_map (void *arg, object element) {
   if (!missingp(*(sm->transform))) { /* call the transform function */
     pushSTACK(element); funcall(*(sm->transform),1); element = value1;
   }
-  switch (sm->format) {
-    case 8:   *((uint8*)(sm->data)) = get_uint8(element);  sm->data++;  break;
-    case 16: *((uint16*)(sm->data)) = get_uint16(element); sm->data+=2; break;
-    case 32: *((uint32*)(sm->data)) = get_aint32(element); sm->data+=4; break;
-      /* NOTE: I am using aint32, here not knowing if that is correct,
-         the manual does not specify of which type the property data
-         should be. [aint16, aint8 also?]. */
+  switch (sm->format) {         /* cf XLIB:GET-PROPERTY */
+    case 8:
+      *((char*)(sm->data)) = get_fixnum(element);
+      sm->data++;
+      break;
+    case 16:
+      *((short*)(sm->data)) = get_fixnum(element);
+      sm->data += sizeof(short);
+      break;
+    case 32:
+      *((long*)(sm->data)) = I_to_L(element);
+      sm->data += sizeof(long);
+      break;
     default:
       NOTREACHED;
   }
@@ -5408,7 +5429,8 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   Window    win = get_window_and_display (STACK_8, &dpy);
   Atom property = get_xatom (dpy, STACK_7);
   Atom     type = get_xatom (dpy, STACK_5);
-  int    format = get_client_message_format (STACK_4);
+  int format_bytesize;
+  int    format = get_client_message_format1 (STACK_4, &format_bytesize);
   int      mode = check_propmode(STACK_3);
   int     start = get_uint32_0 (STACK_2);
   int       end;
@@ -5419,7 +5441,7 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   else
     end = get_uint32 (STACK_1);
 
-  len = (end-start) * (format/8);
+  len = (end-start) * format_bytesize;
 
   if (len < 0) {
     pushSTACK(make_sint32 (len));
@@ -5509,10 +5531,15 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
         if (boundp(*transform_f))
           pushSTACK(*transform_f); /* transform function .. */
 
+        /* http://www.x.org/releases/X11R7.6/doc/man/man3/XChangeProperty.3.xhtml */
         switch (actual_format_return) {
-          case  8: pushSTACK(make_uint8(prop_return[i])); break;
-          case 16: pushSTACK(make_uint16(((uint16*)prop_return)[i])); break;
-          case 32: pushSTACK(make_uint32(((uint32*)prop_return)[i])); break;
+          case  8: /* the returned data is represented as a char array */
+            pushSTACK(fixnum(((char*)prop_return)[i])); break;
+          case 16: /* array of short int type and should be cast to that type */
+            pushSTACK(fixnum(((short*)prop_return)[i])); break;
+          case 32: /* array of longs (which in a 64-bit application will be
+                      64-bit values that are padded in the upper 4 bytes). */
+            pushSTACK(L_to_I(((long*)prop_return)[i])); break;
           default:
             NOTREACHED;
         }
