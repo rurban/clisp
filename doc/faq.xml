@@ -777,9 +777,8 @@ the second invocation will produce a <ulink url="clhs/glo">circular
   at least not a bug in &clisp;.
   You may argue that this is a bug in &ieee-bfp;,
   but, before you do, please make sure that you do know
-  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
-   Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>
-  (or are at least familiar with the
+  <ulink url="http://download.oracle.com/docs/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point
+  Arithmetic</ulink> (or are at least familiar with the
   <ulink url="http://floating-point-gui.de/">light version</ulink> thereof).
  </para><para>See also <ulink url="ml">clisp-list</ulink>
   (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para></answer>
