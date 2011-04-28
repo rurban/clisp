@@ -72,6 +72,8 @@ User visible changes
     sequences, not just byte vectors (bug#3182597).
   + Fix protocol argument handling in POSIX:SERVICE (bug#3280915).
   + Fix (SETF (VALUES (VALUES) ...) ...) (bug#3291585).
+  + Fix handling properties with "format=32" in NEW-CLX on 64-bit
+    machines (bug#3292605); handle more host families in XLIB:ACCESS-HOSTS.
 
 
 2.49 (2010-07-07)
