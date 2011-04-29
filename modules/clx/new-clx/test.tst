@@ -362,6 +362,14 @@ NIL
 (xlib:display-finish-output *dpy*) NIL
 (xlib:display-p (show (xlib:close-display *dpy*))) T
 
+(handler-case
+    (xlib:with-open-display (dpy)
+      (xlib:iconify-window nil (xlib:display-default-screen dpy)))
+  (error (c)
+    (list (type-of c) (type-error-datum c) (type-error-expected-type c)
+          (xlib::x-error-caller c) (xlib::x-type-error-type-string c))))
+(XLIB::X-TYPE-ERROR NIL XLIB:WINDOW XLIB:ICONIFY-WINDOW NIL)
+
 (defun map-windows (f)
   (xlib:with-open-display (dpy)
     (ext:appease-cerrors
