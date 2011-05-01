@@ -313,6 +313,7 @@ the actual object #<MACRO expander> for the FENV.
 (defun analyze1 (lambdalist accessexp name wholevar)
   (do ((listr lambdalist (cdr listr))
        (within-optional nil)
+       (disallow-whole nil)
        (item)
        (g) (g1) (test))
       ((atom listr)
@@ -328,12 +329,18 @@ the actual object #<MACRO expander> for the FENV.
     (setq item (car listr))
     (cond ((eq item '&WHOLE)
            (if (and wholevar (cdr listr))
-             (if (symbolp (cadr listr))
-               (setq %let-list (cons `(,(cadr listr) ,wholevar) %let-list)
-                     listr (cdr listr))
-               (let ((%min-args 0) (%arg-count 0) (%restp nil))
-                 (setq listr (cdr listr)) ; pop &WHOLE
-                 (analyze1 (car listr) wholevar name wholevar)))
+             (if disallow-whole
+               (progn
+                 (cerror #2=(TEXT "It will be ignored.")
+                         (TEXT "The lambda list of macro ~S contains a badly placed ~S.")
+                         name item)
+                 (setq listr (cdr listr)))
+               (if (symbolp (cadr listr))
+                 (setq %let-list (cons `(,(cadr listr) ,wholevar) %let-list)
+                       listr (cdr listr))
+                 (let ((%min-args 0) (%arg-count 0) (%restp nil))
+                   (setq listr (cdr listr)) ; pop &WHOLE
+                   (analyze1 (car listr) wholevar name wholevar))))
              (error-of-type 'source-program-error
                :form %whole-form
                :detail listr
@@ -341,10 +348,10 @@ the actual object #<MACRO expander> for the FENV.
                name listr)))
           ((eq item '&OPTIONAL)
            (if within-optional
-               (cerror #2=(TEXT "It will be ignored.")
-                       (TEXT "The lambda list of macro ~S contains a superfluous ~S.")
+               (cerror #2# (TEXT "The lambda list of macro ~S contains a superfluous ~S.")
                        name item))
-           (setq within-optional t))
+           (setq within-optional t
+                 disallow-whole t))
           ((or (eq item '&REST) (eq item '&BODY))
            (return-from nil (analyze-rest (cdr listr) accessexp name)))
           ((eq item '&KEY)
@@ -427,7 +434,8 @@ the actual object #<MACRO expander> for the FENV.
                                  (TEXT "~S: ~S does not match lambda list element ~:S")
                                  ',name ,g ',item)
                                ,g)))))
-           (setq accessexp (cons-cdr accessexp))))))
+           (setq accessexp (cons-cdr accessexp)
+                 disallow-whole t)))))
 
 (defun remove-env-arg (lambdalist name)
   (do ((listr lambdalist (cdr listr)))
