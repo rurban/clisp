@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2010 Sam Steingold
+ * Copyright (C) 2003-2011 Sam Steingold
  * Copyright (C) 2005,2008 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * GPL2
@@ -4701,8 +4701,7 @@ DEFUN(OS:CLIPBOARD,) {
 
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
-#if defined(HAVE_FFI)
-/* STDIO inteface for postgresql et al */
+/* STDIO inteface for postgresql et al and to access wild files like 'foo*' */
 DEFUN(POSIX::FOPEN, path mode) {
   STACK_0 = check_string(STACK_0);
   STACK_1 = check_string(STACK_1);
@@ -5857,8 +5856,6 @@ DEFUN(POSIX::STRERROR, &optional error_code) {
 # endif
   skipSTACK(1);
 }
-
-#endif  /* HAVE_FFI */
 
 #if defined(DEBUG_SPVW)
 /* internal playground - see spvd.d & spvw_debug.d */

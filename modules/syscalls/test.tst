@@ -543,22 +543,22 @@ T
     (delete-file file)))
 (0 100 100 1000 1000)
 
-#+ffi (defparameter *foo* (os:fopen "foo" "w")) #+ffi *foo*
-#+ffi (os::%fputc 65 *foo*) #+ffi 65
-#+ffi (os:feof *foo*) #+ffi NIL
-#+ffi (os:ferror *foo*) #+ffi NIL
-#+ffi (os:clearerr *foo*) #+ffi NIL
-#+ffi (os:fflush *foo*) #+ffi NIL
-#+ffi (os:fclose *foo*) #+ffi NIL
-#+ffi (defparameter *foo* (os:fopen "foo" "r")) #+ffi *foo*
-#+ffi (os::%fgetc *foo*) #+ffi 65
-#+ffi (os:feof *foo*) #+ffi NIL
-#+ffi (os::%fgetc *foo*) #+ffi -1
-#+ffi (os:feof *foo*) #+ffi T
-#+ffi (os:ferror *foo*) #+ffi NIL
-#+ffi (os:clearerr *foo*) #+ffi NIL
-#+ffi (os:fclose *foo*) #+ffi NIL
-#+ffi (finish-file "foo") #+ffi 1
+(defparameter *foo* (os:fopen "foo" "w")) *foo*
+(os::%fputc 65 *foo*) 65
+(os:feof *foo*) NIL
+(os:ferror *foo*) NIL
+(os:clearerr *foo*) NIL
+(os:fflush *foo*) NIL
+(os:fclose *foo*) NIL
+(defparameter *foo* (os:fopen "foo" "r")) *foo*
+(os::%fgetc *foo*) 65
+(os:feof *foo*) NIL
+(os::%fgetc *foo*) -1
+(os:feof *foo*) T
+(os:ferror *foo*) NIL
+(os:clearerr *foo*) NIL
+(os:fclose *foo*) NIL
+(finish-file "foo") 1
 
 ;; unknown errnos are reported differently on different platforms.
 ;; linux: "unknown error 47"
