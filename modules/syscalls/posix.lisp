@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2010
+;;; Sam Steingold 1999-2011
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -405,13 +405,11 @@
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
 ;;;--------------------------------------------------------------------------
-#+FFI (progn
 (export '(fopen fdopen freopen fclose fflush ; fgetc fputc ungetc
           clearerr feof ferror fileno stdin stdout stderr))
 (defconstant stdin (%stdio 0))
 (defconstant stdout (%stdio 1))
 (defconstant stderr (%stdio 2))
-)
 ;;;--------------------------------------------------------------------------
 (defun ffs (n) (integer-length (logand n (- n))))
 ;; http://www.opengroup.org/onlinepubs/009695399/functions/ffs.html

@@ -1,8 +1,14 @@
-2011-05-01  Bruno Haible  <sds@gnu.org>
+2011-05-02  Sam Steingold  <sds@gnu.org>
 
-	Disallow &whole if it comes too late.
-	* defmacro.lisp (analyze1): Report an error if &whole appears after the
-	first required variable or after &optional.
+	* modules/syscalls/calls.c, modules/syscalls/posix.lisp (stdio):
+	enable even without FFI because it is useful for bypassing the
+	normal CL filename processing
+
+2011-05-01  Bruno Haible  <bruno@clisp.org>
+
+	Disallow &WHOLE if it comes too late.
+	* defmacro.lisp (analyze1): Report an error if &WHOLE appears
+	after the first required variable or after &OPTIONAL.
 	Refer to CLHS 3.4.4 and 3.4.5
 	<http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_3-4-4.html>
 	<http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_3-4-5.html>
@@ -796,7 +802,7 @@
 
 	use gnulib sockets.m4 and socklen.m4 instead of the clisp ones
 	* Makefile.devel (GNULIB_CORE): add socklen, sockets, close-hook
-	* modules/rawsock/rawsock.c, stream.d, socket.di, win32.d:
+	* modules/rawsock/rawsock.c, stream.d, socket.d, win32.d:
 	use socklen_t instead of CLISP_SOCKLEN_T
 	* configure.in: use gl_SOCKETS instead of CL_SOCKET
 	and gl_TYPE_SOCKLEN_T instead of CL_SOCKLEN_T

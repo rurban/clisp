@@ -939,14 +939,23 @@ returns either <literal role="data">&lt;</literal>,
    <member><constant>OS:STDOUT</constant></member>
    <member><constant>OS:STDERR</constant></member>
  </simplelist></para>
- <note><simpara>This functionality is &not-e; for i/o, but merely for
-   for &ffi-pac; modules which interface to functions which use the
-   &c-lang; <type>FILE*</type> pointers. E.g., &postgresql-mod; has a
-   function <function role="pq">PQtrace</function>
-   which expects a <type>FILE*</type> argument.
-   You can use <function>OS:FOPEN</function>
-   and <function>OS:FCLOSE</function> for that.</simpara></note>
- <simpara>This functionality is only present if &ffi-pac; is present.</simpara>
+<simplesect id="stdio-rationale"><title>Rationale</title>
+<formalpara id="stdio-ffi"><title>Iterface to foreign libraries</title>
+ <para>This functionality can be used by &ffi-pac; &module;s which
+  interface to functions which use the &c-lang; <type>FILE*</type> pointers.
+  E.g., &postgresql-mod; has a function <function role="pq">PQtrace</function>
+  which expects a <type>FILE*</type> argument.
+  You can use <function>OS:FOPEN</function>
+  and <function>OS:FCLOSE</function> for that.</para></formalpara>
+<formalpara id="stdio-wild"><title>Bypass &cl; filename processing</title>
+ <para>You can also use this functionality to access files whose
+  names are interpreted as wild by &cl;. E.g.,<programlisting language="lisp">
+(&let; ((file (posix:fopen "foo*" "r")))
+  (&unwind-protect;
+      (&with-open-stream; (s (&make-stream; (posix:fileno file)))
+        (&read-line; s))
+    (posix:fclose file)))
+</programlisting></para></formalpara></simplesect>
 </section>
 
 <section id="errno"><title>Error handling</title>
@@ -970,7 +979,6 @@ returns either <literal role="data">&lt;</literal>,
    <function role="win32">FormatMessage</function> on &win32;.</simpara>
 </listitem></varlistentry>
 </variablelist></para>
-<simpara>This functionality is only present if &ffi-pac; is present.</simpara>
 </section>
 
 <section id="misc"><title>Miscellanea</title>
