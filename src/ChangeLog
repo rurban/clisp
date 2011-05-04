@@ -1,5 +1,10 @@
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): replace close-hook with
+	fd-hook (renamed in gnulib 2011-04-19)
+
+2011-05-04  Sam Steingold  <sds@gnu.org>
+
 	* spvw_language.d (init_language): fix the 2011-04-10 patch (use
 	strcpy instead of strcat)
 
