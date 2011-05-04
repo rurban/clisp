@@ -1212,11 +1212,7 @@
 %% #endif
 
 #include <stdbool.h>  /* boolean values */
-%% #ifdef HAVE_STDBOOL_H
-%%   puts("#include <stdbool.h>");
-%% #else
-%%   print_file("stdbool.h");
-%% #endif
+%% include_file("stdbool.h");
 
 /* Type for signed values, results of comparisons, tertiary enums
  with values +1, 0, -1 */

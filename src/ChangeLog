@@ -1,3 +1,10 @@
+2011-05-03  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (include_file): renamed from print_file; when fname
+	does not exist, emit "#include <fname>"
+	* lispbibl.d (stdbool.h): do not check for HAVE_STDBOOL_H because
+	it is no longer defined by gnulib
+
 2011-05-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c, modules/syscalls/posix.lisp (stdio):
