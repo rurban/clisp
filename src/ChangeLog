@@ -1,5 +1,9 @@
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
+	* symbol.d (GENTEMP): add a cast to fix g++ compilation
+
+2011-05-04  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CORE): add
 	arpa_inet, netinet_in, inet_ntop, inet_pton
 	* lispbibl.d: assume that <netinet/in.h> is always present

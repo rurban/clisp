@@ -364,7 +364,7 @@ LISPFUN(gentemp,seclass_read,0,2,norest,nokey,0,NIL)
   var gcv_object_t *prefix = &STACK_1;
   var gcv_object_t *package = &STACK_0;
   /* validate prefix */
-  *prefix = (boundp(*prefix) ? check_string(*prefix) : O(gentemp_prefix));
+  *prefix = boundp(*prefix) ? check_string(*prefix) : (object)O(gentemp_prefix);
   /* do not validate package argument - intern will barf anyway */
   do {
     WITH_OS_MUTEX_LOCK(0, &gentemp_lock, {
