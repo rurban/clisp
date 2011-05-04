@@ -1574,12 +1574,8 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
-#if defined(HAVE_NETINET_IN_H)
-# include <netinet/in.h>
-#endif
-#if defined(HAVE_ARPA_INET_H)
-# include <arpa/inet.h>
-#endif
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define H_ERRMSG                                                           \
         (h_errno == HOST_NOT_FOUND ? "host not found" :                    \

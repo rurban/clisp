@@ -1,3 +1,25 @@
+2011-05-04  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (GNULIB_CORE): add
+	arpa_inet, netinet_in, inet_ntop, inet_pton
+	* lispbibl.d: assume that <netinet/in.h> is always present
+	* win32.d (CONNECT_NAME_T, CONNECT_CONST, CONNECT_ADDRLEN_T)
+	(HAVE_NETINET_IN_H, HAVE_ARPA_INET_H, RET_INET_ADDR_TYPE)
+	(INET_ADDR_SUFFIX, INET_ADDR_CONST): remove
+	* socket.d: assume HAVE_ARPA_INET_H, HAVE_INET_NTOP, HAVE_INET_PTON,
+	thus inet_addr() is never used
+	(connect, inet_addr): remove the prototypes
+	(all_digits_dots): remove the function
+	* configure.in: do not call CL_CONNECT
+	(LIBS): add -lnsl & -lsocket if required for connect() & gethostbyname()
+	* m4/connect.m4, m4/socket.m4: remove
+	* m4/tcpconn.m4: do not check for inet_pton & inet_ntop (get them
+	from gnulib) and inet_addr (never used)
+	* modules/rawsock/rawsock.c, modules/syscalls/calls.c: include
+	<netinet/in.h> & <arpa/inet.h> unconditionally
+	* modules/syscalls/configure.in: do not check for <netinet/in.h> &
+	<arpa/inet.h>; do not call CL_SOCKET
+
 2011-05-03  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (include_file): renamed from print_file; when fname

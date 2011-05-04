@@ -2152,14 +2152,10 @@ typedef enum {
   #ifdef HAVE_SYS_UN_H  /* have <sys/un.h> and Unix domain sockets? */
     #define UNIXCONN  /* use Unix domain sockets */
   #endif
-  #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE)  /* have <netinet/in.h> ? */
-    #define TCPCONN  /* use TCP/IP sockets */
-  #endif
+  #define TCPCONN  /* use TCP/IP sockets */
   /* Now, which kinds of socket streams: */
   #define X11SOCKETS  /* works even without TCPCONN (very young Linux) */
-  #ifdef TCPCONN
-    #define SOCKET_STREAMS
-  #endif
+  #define SOCKET_STREAMS
 #endif
 /* When changed: extend stream.d, socket.d */
 

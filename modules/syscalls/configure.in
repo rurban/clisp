@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for syscalls
-dnl Copyright (C) 2003-2010 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2011 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -18,7 +18,7 @@ sc_gl_INIT
 BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
 pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h dnl
-grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h dnl
+grp.h crypt.h utmpx.h stdlib.h shlobj.h dnl
 sys/statvfs.h sys/statfs.h sys/param.h sys/wait.h ftw.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
@@ -34,7 +34,6 @@ gl_HEADER_ERRNO_H
 
 BOLD_MSG([System Calls (Functions)])
 CL_RLIMIT
-CL_SOCKET dnl for getservbyport et al
 AC_SEARCH_LIBS(crypt, crypt)
 AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(getloadavg confstr fcntl gethostent sysconf dnl

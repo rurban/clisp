@@ -86,9 +86,7 @@
   #endif
   #if defined(TCPCONN)
     #include <netinet/in.h> /* declares htons(), defines struct sockaddr_in */
-    #ifdef HAVE_ARPA_INET_H
-      #include <arpa/inet.h> /* declares inet_addr() and maybe inet_pton(), inet_ntop() */
-    #endif
+    #include <arpa/inet.h> /* declares inet_pton(), inet_ntop() */
     #ifdef IPV6_NEED_LINUX_IN6_H
       #include <linux/in6.h> /* defines struct in6_addr, struct sockaddr_in6 */
     #endif
@@ -99,7 +97,7 @@
     #endif
   #endif
   #ifdef HAVE_GETHOSTBYNAME
-/* gethostbyname() prototype should be already available */
+  /* gethostbyname() prototype should be already available */
   #endif
 #elif defined(HAVE_IPV6)
   #define in6_addr in_addr6
@@ -134,13 +132,7 @@
  < char[] buffer: printable address
  buffer should have at least 15+1 characters. */
 #ifdef HAVE_IPV4
-  #ifdef HAVE_INET_NTOP
-    #define ipv4_ntop(buffer,addr)  \
-      inet_ntop(AF_INET,&addr,buffer,15+1)
-  #else
-    #define ipv4_ntop(buffer,addr)  \
-      strcpy(buffer,inet_ntoa(addr))
-  #endif
+  #define ipv4_ntop(buffer,addr)  inet_ntop(AF_INET,&addr,buffer,15+1)
 #endif
 
 /* Converts an AF_INET6 address to a printable, presentable format.
@@ -149,29 +141,7 @@
  < char[] buffer: printable address
  buffer should have at least 45+1 characters. */
 #ifdef HAVE_IPV6
-  #ifndef s6_addr16
-    #define s6_addr16 in6_u.u6_addr16
-  #endif
-  #if defined(WIN32) || defined(UNIX_CYGWIN32)
-    #define S6_ADDR16(addr)   ((u_short*)((addr).s6_addr))
-  #else
-    #define S6_ADDR16(addr)   (addr).s6_addr16
-  #endif
-  #ifdef HAVE_INET_NTOP
-    #define ipv6_ntop(buffer,addr)  \
-      inet_ntop(AF_INET6,&addr,buffer,45+1)
-  #else
-    #define ipv6_ntop(buffer,addr)                      \
-     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x",         \
-              ntohs(S6_ADDR16(addr)[0]),                \
-              ntohs(S6_ADDR16(addr)[1]),                \
-              ntohs(S6_ADDR16(addr)[2]),                \
-              ntohs(S6_ADDR16(addr)[3]),                \
-              ntohs(S6_ADDR16(addr)[4]),                \
-              ntohs(S6_ADDR16(addr)[5]),                \
-              ntohs(S6_ADDR16(addr)[6]),                \
-              ntohs(S6_ADDR16(addr)[7])),buffer)
-  #endif
+  #define ipv6_ntop(buffer,addr)  inet_ntop(AF_INET6,&addr,buffer,45+1)
 #endif
 
 /* Convert the IP address from C format to Lisp
@@ -265,9 +235,6 @@ LISPFUNN(machine_instance,0)
 #ifndef WIN32
   /* #include <sys/socket.h> */
   extern_C SOCKET socket (int domain, int type, int protocol);
-  #ifndef __GLIBC__ /* glibc2 has a very weird declaration of connect(), autoconf cannot help */
-    extern_C int connect (SOCKET fd, CONNECT_CONST CONNECT_NAME_T name, CONNECT_ADDRLEN_T namelen);
-  #endif
   extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
 #endif
 
@@ -300,29 +267,10 @@ global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
 
 #if defined(TCPCONN)
 
-#if !defined(WIN32) && !defined(__CYGWIN__)
-  extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
-#endif
-
-#if !defined(HAVE_INET_PTON)
-/* Newer RPCs specify that FQDNs can start with a digit, but can never consist
-   only of digits and dots, because of the top level domain. Use this criterion
-   to distinguish possible IP addresses from FQDNs. */
-local bool all_digits_dots (const char* host) {
-  while (*host != '\0') {
-    var char c = *host++;
-    if (!((c >= '0' && c <= '9') || (c == '.')))
-      return false;
-  }
-  return true;
-}
-#endif
-
 /* for syscalls and rawsock modules */
 typedef int (*host_fn_t) (const void* addr, int addrlen, int family, void* opts);
 /* call FN on host/size/opts if HOST is an IP address */
 local int with_host (const char* host, host_fn_t fn, void* opts) {
-#ifdef HAVE_INET_PTON
  #ifdef HAVE_IPV6
   {
     var struct in6_addr inaddr;
@@ -335,15 +283,6 @@ local int with_host (const char* host, host_fn_t fn, void* opts) {
     if (inet_pton(AF_INET,host,&inaddr) > 0)
       return fn(&inaddr,sizeof(struct in_addr),AF_INET,opts);
   }
-#else
-  /* if numeric host name then try to parse it as such; do the number check
-     first because some systems return garbage instead of INVALID_INETADDR */
-  if (all_digits_dots(host)) {
-    var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
-    if (!(hostinetaddr == ((uint32) -1)))
-      return fn(&hostinetaddr,sizeof(uint32),AF_INET,opts);
-  }
-#endif
   return fn(host,0,0,opts);
 }
 
@@ -485,7 +424,6 @@ typedef SOCKET (*socket_connect_fn_t) (struct sockaddr * addr, int addrlen,
                                        void* opts);
 local SOCKET with_host_port (const char* host, unsigned short port,
                              socket_connect_fn_t connector, void* opts) {
-#ifdef HAVE_INET_PTON
  #ifdef HAVE_IPV6
   {
     var struct sockaddr_in6 inaddr;
@@ -508,22 +446,6 @@ local SOCKET with_host_port (const char* host, unsigned short port,
                        sizeof(struct sockaddr_in), opts);
     }
   }
-#else
-  /* if numeric host name then try to parse it as such; do the number check
-     first because some systems return garbage instead of INVALID_INETADDR */
-  if (all_digits_dots(host)) {
-    var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
-    if (!(hostinetaddr == ((uint32) -1))) {
-      var struct sockaddr_in inaddr;
-      FILL0(inaddr);
-      inaddr.sin_family = AF_INET;
-      inaddr.sin_addr.s_addr = hostinetaddr;
-      inaddr.sin_port = htons(port);
-      return connector((struct sockaddr *) &inaddr,
-                       sizeof(struct sockaddr_in), opts);
-    }
-  }
-#endif
   {
     var struct hostent * host_ptr; /* entry in hosts table */
     if ((host_ptr = gethostbyname(host)) == NULL) {

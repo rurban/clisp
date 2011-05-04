@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2011 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -33,45 +33,7 @@ CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
 AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
 AC_DEFINE(HAVE_IPV6))
 fi
-AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr setsockopt getsockopt)
-AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
-if test $ac_cv_func_inet_addr = yes; then
-CL_PROTO([inet_addr], [
-for x in CONST_VARIANTS; do
-for y in SIZE_VARIANTS; do
-if test -z "$have_inet_addr"; then
-CL_PROTO_TRY([
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <netinet/in.h>
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef __BEOS__
-#include <sys/socket.h>
-#include <netdb.h>
-#endif
-], [$y inet_addr ($x char *);], [
-cl_cv_proto_inet_addr_ret="$y"
-cl_cv_proto_inet_addr_arg1="$x"
-have_inet_addr=1])
-fi
-done
-done
-if test -z "$have_inet_addr"; then
-CL_PROTO_MISSING(inet_addr)
-fi
-], [extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto_inet_addr_arg1 char*);])
-AC_DEFINE_UNQUOTED(RET_INET_ADDR_TYPE,$cl_cv_proto_inet_addr_ret,[return type of inet_addr()])
-AC_DEFINE_UNQUOTED(INET_ADDR_CONST,$cl_cv_proto_inet_addr_arg1,[declaration of inet_addr() needs const])
-if test "$cl_cv_proto_inet_addr_ret" = "struct in_addr"; then
-AC_DEFINE(INET_ADDR_SUFFIX,[.s_addr],[Define as .s_addr if the return type of inet_addr() is a struct type, as empty if it is a scalar type])
-else
-AC_DEFINE(INET_ADDR_SUFFIX,[])
-fi
-fi
+AC_CHECK_FUNCS(setsockopt getsockopt)
 AC_CHECK_HEADERS(netinet/tcp.h,,,
 dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
 [#if HAVE_NETINET_IN_H
