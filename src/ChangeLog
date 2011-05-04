@@ -2,6 +2,7 @@
 
 	* Makefile.devel (GNULIB_CORE): replace close-hook with
 	fd-hook (renamed in gnulib 2011-04-19)
+	(gnulib-imported): pipe stderr to $(GNULIB_IMPORTED_LOG) too
 
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
