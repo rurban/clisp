@@ -1,5 +1,10 @@
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (init_language): fix the 2011-04-10 patch (use
+	strcpy instead of strcat)
+
+2011-05-04  Sam Steingold  <sds@gnu.org>
+
 	* symbol.d (GENTEMP): add a cast to fix g++ compilation
 
 2011-05-04  Sam Steingold  <sds@gnu.org>
@@ -30,6 +35,7 @@
 	does not exist, emit "#include <fname>"
 	* lispbibl.d (stdbool.h): do not check for HAVE_STDBOOL_H because
 	it is no longer defined by gnulib
+	<http://lists.gnu.org/archive/html/bug-gnulib/2011-01/msg00571.html>
 
 2011-05-02  Sam Steingold  <sds@gnu.org>
 

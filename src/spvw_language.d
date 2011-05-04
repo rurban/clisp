@@ -203,11 +203,11 @@ global void init_language (const char* argv_language,
             if (abs_localedir) {
               must_free_argv_localedir = true;
               /* Append currdir, maybe '/', and argv_localedir into abs_localedir: */
-              strncat(abs_localedir,currdir,currdirlen);
+              strncpy(abs_localedir,currdir,currdirlen);
               var char* ptr = abs_localedir + currdirlen;
               if (ptr[-1] != '/')
                 *ptr++ = '/';
-              strcat(ptr,argv_localedir);
+              strcpy(ptr,argv_localedir);
               argv_localedir = abs_localedir;
             }
           }
