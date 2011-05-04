@@ -1,5 +1,5 @@
-# mbsrtowcs.m4 serial 7
-dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
+# mbsrtowcs.m4 serial 10
+dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -39,6 +39,7 @@ dnl Result is gl_cv_func_mbsrtowcs_works.
 AC_DEFUN([gl_MBSRTOWCS_WORKS],
 [
   AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_FR])
   AC_REQUIRE([gt_LOCALE_FR_UTF8])
   AC_REQUIRE([gt_LOCALE_JA])
   AC_REQUIRE([gt_LOCALE_ZH_CN])
@@ -50,20 +51,41 @@ AC_DEFUN([gl_MBSRTOWCS_WORKS],
       dnl is present.
 changequote(,)dnl
       case "$host_os" in
-                          # Guess no on HP-UX and Solaris.
-        hpux* | solaris*) gl_cv_func_mbsrtowcs_works="guessing no" ;;
-                          # Guess yes otherwise.
-        *)                gl_cv_func_mbsrtowcs_works="guessing yes" ;;
+                                   # Guess no on HP-UX, Solaris, mingw.
+        hpux* | solaris* | mingw*) gl_cv_func_mbsrtowcs_works="guessing no" ;;
+                                   # Guess yes otherwise.
+        *)                         gl_cv_func_mbsrtowcs_works="guessing yes" ;;
       esac
 changequote([,])dnl
-      if test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
+      if test $LOCALE_FR != none || test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
         AC_RUN_IFELSE(
           [AC_LANG_SOURCE([[
 #include <locale.h>
 #include <string.h>
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
 #include <wchar.h>
 int main ()
 {
+  int result = 0;
+  /* Test whether the function supports a NULL destination argument.
+     This fails on native Windows.  */
+  if (setlocale (LC_ALL, "$LOCALE_FR") != NULL)
+    {
+      const char input[] = "\337er";
+      const char *src = input;
+      mbstate_t state;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbsrtowcs (NULL, &src, 1, &state) != 3
+          || src != input)
+        result |= 1;
+    }
   /* Test whether the function works when started with a conversion state
      in non-initial state.  This fails on HP-UX 11.11 and Solaris 10.  */
   if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
@@ -77,7 +99,7 @@ int main ()
           {
             const char *src = input + 2;
             if (mbsrtowcs (NULL, &src, 10, &state) != 4)
-              return 1;
+              result |= 2;
           }
     }
   if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
@@ -91,7 +113,7 @@ int main ()
           {
             const char *src = input + 4;
             if (mbsrtowcs (NULL, &src, 10, &state) != 3)
-              return 1;
+              result |= 4;
           }
     }
   if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
@@ -105,10 +127,10 @@ int main ()
           {
             const char *src = input + 2;
             if (mbsrtowcs (NULL, &src, 10, &state) != 4)
-              return 1;
+              result |= 8;
           }
     }
-  return 0;
+  return result;
 }]])],
           [gl_cv_func_mbsrtowcs_works=yes],
           [gl_cv_func_mbsrtowcs_works=no],

@@ -1,4 +1,4 @@
-/* Copyright (C) 1992, 1995-2003, 2005-2010 Free Software Foundation, Inc.
+/* Copyright (C) 1992, 1995-2003, 2005-2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #if !_LIBC
+# define _gl_GL_USE_STDLIB_ALLOC 1
 # include <config.h>
 #endif
 
@@ -64,10 +65,6 @@ __libc_lock_define_initialized (static, envlock)
 # define clearenv __clearenv
 # define tfind __tfind
 # define tsearch __tsearch
-#else
-/* Use the system functions, not the gnulib overrides in this file.  */
-# undef malloc
-# undef realloc
 #endif
 
 /* In the GNU C library implementation we try to be more clever and

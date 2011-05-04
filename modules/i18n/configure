@@ -3910,6 +3910,9 @@ done
 
 
 
+
+
+
      if test $gl_cv_have_include_next = yes; then
        gl_cv_next_langinfo_h='<'langinfo.h'>'
      else
@@ -3919,26 +3922,29 @@ if test "${gl_cv_next_langinfo_h+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
 
-          if test $ac_cv_header_langinfo_h = yes; then
-            cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+             if test $ac_cv_header_langinfo_h = yes; then
+
+
+               cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <langinfo.h>
 
 _ACEOF
-                                                                                                case "$host_os" in
-              aix*) gl_absname_cpp="$ac_cpp -C" ;;
-              *)    gl_absname_cpp="$ac_cpp" ;;
-            esac
-                                                gl_cv_next_langinfo_h='"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
-               sed -n '\#/langinfo.h#{
-                 s#.*"\(.*/langinfo.h\)".*#\1#
-                 s#^/[^/]#//&#
-                 p
-                 q
-               }'`'"'
+                                                                                                                        case "$host_os" in
+                 aix*) gl_absname_cpp="$ac_cpp -C" ;;
+                 *)    gl_absname_cpp="$ac_cpp" ;;
+               esac
+                                                            gl_cv_next_langinfo_h='"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+                  sed -n '\#/langinfo.h#{
+                    s#.*"\(.*/langinfo.h\)".*#\1#
+                    s#^/[^/]#//&#
+                    p
+                    q
+                  }'`'"'
           else
-            gl_cv_next_langinfo_h='<'langinfo.h'>'
-          fi
+               gl_cv_next_langinfo_h='<'langinfo.h'>'
+             fi
+
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_langinfo_h" >&5
@@ -3954,6 +3960,7 @@ $as_echo "$gl_cv_next_langinfo_h" >&6; }
        gl_next_as_first_directive=$gl_cv_next_langinfo_h
      fi
      NEXT_AS_FIRST_DIRECTIVE_LANGINFO_H=$gl_next_as_first_directive
+
 
 
 
@@ -4162,8 +4169,60 @@ done
 
 
 
-  if test $ac_cv_func_nl_langinfo = yes; then
-    if test $HAVE_LANGINFO_CODESET = 1 && test $HAVE_LANGINFO_ERA = 1; then
+     if test $ac_cv_func_nl_langinfo = yes; then
+    # On Irix 6.5, YESEXPR is defined, but nl_langinfo(YESEXPR) is broken.
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether YESEXPR works" >&5
+$as_echo_n "checking whether YESEXPR works... " >&6; }
+if test "${gl_cv_func_nl_langinfo_yesexpr_works+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+
+         case "$host_os" in
+                   # Guess no on irix systems.
+           irix*)  gl_cv_func_nl_langinfo_yesexpr_works="guessing no";;
+                   # Guess yes elsewhere.
+           *)      gl_cv_func_nl_langinfo_yesexpr_works="guessing yes";;
+         esac
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <langinfo.h>
+
+int
+main ()
+{
+return !*nl_langinfo(YESEXPR);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_nl_langinfo_yesexpr_works=yes
+else
+  gl_cv_func_nl_langinfo_yesexpr_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_nl_langinfo_yesexpr_works" >&5
+$as_echo "$gl_cv_func_nl_langinfo_yesexpr_works" >&6; }
+    case $gl_cv_func_nl_langinfo_yesexpr_works in
+      *yes) FUNC_NL_LANGINFO_YESEXPR_WORKS=1 ;;
+      *)    FUNC_NL_LANGINFO_YESEXPR_WORKS=0 ;;
+    esac
+
+cat >>confdefs.h <<_ACEOF
+#define FUNC_NL_LANGINFO_YESEXPR_WORKS $FUNC_NL_LANGINFO_YESEXPR_WORKS
+_ACEOF
+
+    if test $HAVE_LANGINFO_CODESET = 1 && test $HAVE_LANGINFO_ERA = 1 \
+        && test $FUNC_NL_LANGINFO_YESEXPR_WORKS = 1; then
       :
     else
       REPLACE_NL_LANGINFO=1

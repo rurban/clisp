@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to 1 if you have the <arpa/inet.h> header file. */
-#undef HAVE_ARPA_INET_H
-
 /* Define to 1 if you have the <asm/types.h> header file. */
 #undef HAVE_ASM_TYPES_H
 
@@ -75,15 +72,6 @@
 /* Define to 1 if you have the `if_nametoindex' function. */
 #undef HAVE_IF_NAMETOINDEX
 
-/* Define to 1 if you have the `inet_addr' function. */
-#undef HAVE_INET_ADDR
-
-/* Define to 1 if you have the `inet_ntop' function. */
-#undef HAVE_INET_NTOP
-
-/* Define to 1 if you have the `inet_pton' function. */
-#undef HAVE_INET_PTON
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -107,9 +95,6 @@
 
 /* Define to 1 if you have the <netinet/if_ether.h> header file. */
 #undef HAVE_NETINET_IF_ETHER_H
-
-/* Define to 1 if you have the <netinet/in.h> header file. */
-#undef HAVE_NETINET_IN_H
 
 /* Define to 1 if you have the <netinet/tcp.h> header file. */
 #undef HAVE_NETINET_TCP_H
@@ -213,13 +198,6 @@
 /* Define to 1 if you have the <ws2tcpip.h> header file. */
 #undef HAVE_WS2TCPIP_H
 
-/* declaration of inet_addr() needs const */
-#undef INET_ADDR_CONST
-
-/* Define as .s_addr if the return type of inet_addr() is a struct type, as
-   empty if it is a scalar type */
-#undef INET_ADDR_SUFFIX
-
 /* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
 #undef IPV6_NEED_LINUX_IN6_H
 
@@ -240,9 +218,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* return type of inet_addr() */
-#undef RET_INET_ADDR_TYPE
 
 /* type of `optval' in setsockopt() declaration */
 #undef SETSOCKOPT_ARG_T

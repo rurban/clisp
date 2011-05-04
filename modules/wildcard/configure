@@ -607,6 +607,27 @@ LIBOBJS
 LIBGNU_LTLIBDEPS
 LIBGNU_LIBDEPS
 wc_gltests_WITNESS
+REPLACE_ISWCNTRL
+HAVE_WCTYPE_H
+NEXT_AS_FIRST_DIRECTIVE_WCTYPE_H
+NEXT_WCTYPE_H
+PRAGMA_COLUMNS
+PRAGMA_SYSTEM_HEADER
+INCLUDE_NEXT_AS_FIRST_DIRECTIVE
+INCLUDE_NEXT
+HAVE_WINT_T
+HAVE_ISWCNTRL
+REPLACE_ISWBLANK
+HAVE_WCTRANS_T
+HAVE_WCTYPE_T
+HAVE_ISWBLANK
+GNULIB_TOWCTRANS
+GNULIB_WCTRANS
+GNULIB_ISWCTYPE
+GNULIB_WCTYPE
+GNULIB_ISWBLANK
+GL_GENERATE_FNMATCH_H_FALSE
+GL_GENERATE_FNMATCH_H_TRUE
 FNMATCH_H
 GL_COND_LIBTOOL_FALSE
 GL_COND_LIBTOOL_TRUE
@@ -2127,6 +2148,7 @@ as_fn_append ac_func_list " wmemcpy"
 as_fn_append ac_func_list " wmempcpy"
 as_fn_append ac_header_list " wctype.h"
 gl_fnmatch_required=GNU
+as_fn_append ac_func_list " iswcntrl"
 # Check that the precious variables saved in the cache have kept the same
 # value.
 ac_cache_corrupted=false
@@ -4556,8 +4578,11 @@ fi
 
 
   # Code from module arg-nonnull:
+  # Code from module c++defs:
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
+  # Code from module warn-on-use:
+  # Code from module wctype-h:
 
 
 
@@ -4576,7 +4601,14 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 $ac_includes_default
-#           include <wchar.h>
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
 int
 main ()
 {
@@ -4657,6 +4689,216 @@ done
 
 
 
+  GNULIB_ISWBLANK=0;
+  GNULIB_WCTYPE=0;
+  GNULIB_ISWCTYPE=0;
+  GNULIB_WCTRANS=0;
+  GNULIB_TOWCTRANS=0;
+    HAVE_ISWBLANK=1;
+  HAVE_WCTYPE_T=1;
+  HAVE_WCTRANS_T=1;
+  REPLACE_ISWBLANK=0;
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for inline" >&5
+$as_echo_n "checking for inline... " >&6; }
+if test "${ac_cv_c_inline+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_cv_c_inline=no
+for ac_kw in inline __inline__ __inline; do
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#ifndef __cplusplus
+typedef int foo_t;
+static $ac_kw foo_t static_foo () {return 0; }
+$ac_kw foo_t foo () {return 0; }
+#endif
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ac_cv_c_inline=$ac_kw
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  test "$ac_cv_c_inline" != no && break
+done
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_c_inline" >&5
+$as_echo "$ac_cv_c_inline" >&6; }
+
+case $ac_cv_c_inline in
+  inline | yes) ;;
+  *)
+    case $ac_cv_c_inline in
+      no) ac_val=;;
+      *) ac_val=$ac_cv_c_inline;;
+    esac
+    cat >>confdefs.h <<_ACEOF
+#ifndef __cplusplus
+#define inline $ac_val
+#endif
+_ACEOF
+    ;;
+esac
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for wint_t" >&5
+$as_echo_n "checking for wint_t... " >&6; }
+if test "${gt_cv_c_wint_t+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be included
+   before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+            wint_t foo = (wchar_t)'\0';
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gt_cv_c_wint_t=yes
+else
+  gt_cv_c_wint_t=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gt_cv_c_wint_t" >&5
+$as_echo "$gt_cv_c_wint_t" >&6; }
+  if test $gt_cv_c_wint_t = yes; then
+
+$as_echo "#define HAVE_WINT_T 1" >>confdefs.h
+
+  fi
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the preprocessor supports include_next" >&5
+$as_echo_n "checking whether the preprocessor supports include_next... " >&6; }
+if test "${gl_cv_have_include_next+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  rm -rf conftestd1a conftestd1b conftestd2
+     mkdir conftestd1a conftestd1b conftestd2
+                                                  cat <<EOF > conftestd1a/conftest.h
+#define DEFINED_IN_CONFTESTD1
+#include_next <conftest.h>
+#ifdef DEFINED_IN_CONFTESTD2
+int foo;
+#else
+#error "include_next doesn't work"
+#endif
+EOF
+     cat <<EOF > conftestd1b/conftest.h
+#define DEFINED_IN_CONFTESTD1
+#include <stdio.h>
+#include_next <conftest.h>
+#ifdef DEFINED_IN_CONFTESTD2
+int foo;
+#else
+#error "include_next doesn't work"
+#endif
+EOF
+     cat <<EOF > conftestd2/conftest.h
+#ifndef DEFINED_IN_CONFTESTD1
+#error "include_next test doesn't work"
+#endif
+#define DEFINED_IN_CONFTESTD2
+EOF
+     gl_save_CPPFLAGS="$CPPFLAGS"
+     CPPFLAGS="$gl_save_CPPFLAGS -Iconftestd1b -Iconftestd2"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <conftest.h>
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_have_include_next=yes
+else
+  CPPFLAGS="$gl_save_CPPFLAGS -Iconftestd1a -Iconftestd2"
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <conftest.h>
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_have_include_next=buggy
+else
+  gl_cv_have_include_next=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     CPPFLAGS="$gl_save_CPPFLAGS"
+     rm -rf conftestd1a conftestd1b conftestd2
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_have_include_next" >&5
+$as_echo "$gl_cv_have_include_next" >&6; }
+  PRAGMA_SYSTEM_HEADER=
+  if test $gl_cv_have_include_next = yes; then
+    INCLUDE_NEXT=include_next
+    INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include_next
+    if test -n "$GCC"; then
+      PRAGMA_SYSTEM_HEADER='#pragma GCC system_header'
+    fi
+  else
+    if test $gl_cv_have_include_next = buggy; then
+      INCLUDE_NEXT=include
+      INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include_next
+    else
+      INCLUDE_NEXT=include
+      INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include
+    fi
+  fi
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether system header files limit the line length" >&5
+$as_echo_n "checking whether system header files limit the line length... " >&6; }
+if test "${gl_cv_pragma_columns+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+       cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifdef __TANDEM
+choke me
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "choke me" >/dev/null 2>&1; then :
+  gl_cv_pragma_columns=yes
+else
+  gl_cv_pragma_columns=no
+fi
+rm -f conftest*
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_pragma_columns" >&5
+$as_echo "$gl_cv_pragma_columns" >&6; }
+  if test $gl_cv_pragma_columns = yes; then
+    PRAGMA_COLUMNS="#pragma COLUMNS 10000"
+  else
+    PRAGMA_COLUMNS=
+  fi
+
+
+
    if false; then
   GL_COND_LIBTOOL_TRUE=
   GL_COND_LIBTOOL_FALSE='#'
@@ -4679,8 +4921,6 @@ fi
 
 
   gl_source_base='modules/wildcard/gllib'
-  # Code from module arg-nonnull:
-  # Code from module fnmatch:
 
 
 
@@ -4731,33 +4971,60 @@ char const *Apat = 'A' < '\\\\' ? "[A-\\\\\\\\]" : "[\\\\\\\\-A]";
             static char const a01[] = { 'a' + 1, 0 };
             static char const bs_1[] = { '\\\\' - 1, 0 };
             static char const bs01[] = { '\\\\' + 1, 0 };
-            return
-             !(n ("a*", "", 0)
-               && y ("a*", "abc", 0)
-               && n ("d*/*1", "d/s/1", FNM_PATHNAME)
-               && y ("a\\\\bc", "abc", 0)
-               && n ("a\\\\bc", "abc", FNM_NOESCAPE)
-               && y ("*x", ".x", 0)
-               && n ("*x", ".x", FNM_PERIOD)
-               && y (Apat, "\\\\", 0) && y (Apat, "A", 0)
-               && y (apat, "\\\\", 0) && y (apat, "a", 0)
-               && n (Apat, A_1, 0) == ('A' < '\\\\')
-               && n (apat, a_1, 0) == ('a' < '\\\\')
-               && y (Apat, A01, 0) == ('A' < '\\\\')
-               && y (apat, a01, 0) == ('a' < '\\\\')
-               && y (Apat, bs_1, 0) == ('A' < '\\\\')
-               && y (apat, bs_1, 0) == ('a' < '\\\\')
-               && n (Apat, bs01, 0) == ('A' < '\\\\')
-               && n (apat, bs01, 0) == ('a' < '\\\\')
-               $gl_fnmatch_gnu_start
-               && y ("xxXX", "xXxX", FNM_CASEFOLD)
-               && y ("a++(x|yy)b", "a+xyyyyxb", FNM_EXTMATCH)
-               && n ("d*/*1", "d/s/1", FNM_FILE_NAME)
-               && y ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR)
-               && y ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR)
-               && y ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR)
-               $gl_fnmatch_gnu_end
-              );
+            int result = 0;
+            if (!n ("a*", "", 0))
+              return 1;
+            if (!y ("a*", "abc", 0))
+              return 1;
+            if (!n ("d*/*1", "d/s/1", FNM_PATHNAME))
+              return 2;
+            if (!y ("a\\\\bc", "abc", 0))
+              return 3;
+            if (!n ("a\\\\bc", "abc", FNM_NOESCAPE))
+              return 3;
+            if (!y ("*x", ".x", 0))
+              return 4;
+            if (!n ("*x", ".x", FNM_PERIOD))
+              return 4;
+            if (!y (Apat, "\\\\", 0))
+              return 5;
+            if (!y (Apat, "A", 0))
+              return 5;
+            if (!y (apat, "\\\\", 0))
+              return 5;
+            if (!y (apat, "a", 0))
+              return 5;
+            if (!(n (Apat, A_1, 0) == ('A' < '\\\\')))
+              return 5;
+            if (!(n (apat, a_1, 0) == ('a' < '\\\\')))
+              return 5;
+            if (!(y (Apat, A01, 0) == ('A' < '\\\\')))
+              return 5;
+            if (!(y (apat, a01, 0) == ('a' < '\\\\')))
+              return 5;
+            if (!(y (Apat, bs_1, 0) == ('A' < '\\\\')))
+              return 5;
+            if (!(y (apat, bs_1, 0) == ('a' < '\\\\')))
+              return 5;
+            if (!(n (Apat, bs01, 0) == ('A' < '\\\\')))
+              return 5;
+            if (!(n (apat, bs01, 0) == ('a' < '\\\\')))
+              return 5;
+            $gl_fnmatch_gnu_start
+            if (!y ("xxXX", "xXxX", FNM_CASEFOLD))
+              result |= 8;
+            if (!y ("a++(x|yy)b", "a+xyyyyxb", FNM_EXTMATCH))
+              result |= 16;
+            if (!n ("d*/*1", "d/s/1", FNM_FILE_NAME))
+              result |= 32;
+            if (!y ("*", "x", FNM_FILE_NAME | FNM_LEADING_DIR))
+              result |= 64;
+            if (!y ("x*", "x/y/z", FNM_FILE_NAME | FNM_LEADING_DIR))
+              result |= 64;
+            if (!y ("*c*", "c/x", FNM_FILE_NAME | FNM_LEADING_DIR))
+              result |= 64;
+            $gl_fnmatch_gnu_end
+            return result;
 
   ;
   return 0;
@@ -4814,14 +5081,314 @@ _ACEOF
 
   fi
 
+   if test -n "$FNMATCH_H"; then
+  GL_GENERATE_FNMATCH_H_TRUE=
+  GL_GENERATE_FNMATCH_H_FALSE='#'
+else
+  GL_GENERATE_FNMATCH_H_TRUE='#'
+  GL_GENERATE_FNMATCH_H_FALSE=
+fi
 
-  # Code from module fnmatch-gnu:
 
 
 
 
 
-  # Code from module dummy:
+
+
+
+
+
+
+  if test $ac_cv_func_iswcntrl = yes; then
+    HAVE_ISWCNTRL=1
+  else
+    HAVE_ISWCNTRL=0
+  fi
+
+
+
+
+
+  if test $gt_cv_c_wint_t = yes; then
+    HAVE_WINT_T=1
+  else
+    HAVE_WINT_T=0
+  fi
+
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_wctype_h='<'wctype.h'>'
+     else
+       { $as_echo "$as_me:${as_lineno-$LINENO}: checking absolute name of <wctype.h>" >&5
+$as_echo_n "checking absolute name of <wctype.h>... " >&6; }
+if test "${gl_cv_next_wctype_h+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+
+             if test $ac_cv_header_wctype_h = yes; then
+
+
+               cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <wctype.h>
+
+_ACEOF
+                                                                                                                        case "$host_os" in
+                 aix*) gl_absname_cpp="$ac_cpp -C" ;;
+                 *)    gl_absname_cpp="$ac_cpp" ;;
+               esac
+                                                            gl_cv_next_wctype_h='"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+                  sed -n '\#/wctype.h#{
+                    s#.*"\(.*/wctype.h\)".*#\1#
+                    s#^/[^/]#//&#
+                    p
+                    q
+                  }'`'"'
+          else
+               gl_cv_next_wctype_h='<'wctype.h'>'
+             fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_next_wctype_h" >&5
+$as_echo "$gl_cv_next_wctype_h" >&6; }
+     fi
+     NEXT_WCTYPE_H=$gl_cv_next_wctype_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'wctype.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_wctype_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_WCTYPE_H=$gl_next_as_first_directive
+
+
+
+
+  if test $ac_cv_header_wctype_h = yes; then
+    if test $ac_cv_func_iswcntrl = yes; then
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether iswcntrl works" >&5
+$as_echo_n "checking whether iswcntrl works... " >&6; }
+if test "${gl_cv_func_iswcntrl_works+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+
+          if test "$cross_compiling" = yes; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdlib.h>
+                          #if __GNU_LIBRARY__ == 1
+                          Linux libc5 i18n is broken.
+                          #endif
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_func_iswcntrl_works=yes
+else
+  gl_cv_func_iswcntrl_works=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+               /* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
+                  included before <wchar.h>.
+                  BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h>
+                  must be included before <wchar.h>.  */
+               #include <stddef.h>
+               #include <stdio.h>
+               #include <time.h>
+               #include <wchar.h>
+               #include <wctype.h>
+               int main () { return iswprint ('x') == 0; }
+
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  gl_cv_func_iswcntrl_works=yes
+else
+  gl_cv_func_iswcntrl_works=no
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_iswcntrl_works" >&5
+$as_echo "$gl_cv_func_iswcntrl_works" >&6; }
+    fi
+    HAVE_WCTYPE_H=1
+  else
+    HAVE_WCTYPE_H=0
+  fi
+
+
+  if test "$gl_cv_func_iswcntrl_works" = no; then
+    REPLACE_ISWCNTRL=1
+  else
+    REPLACE_ISWCNTRL=0
+  fi
+
+
+  if test $HAVE_ISWCNTRL = 0 || test $REPLACE_ISWCNTRL = 1; then
+        :
+  fi
+
+          { $as_echo "$as_me:${as_lineno-$LINENO}: checking for wctype_t" >&5
+$as_echo_n "checking for wctype_t... " >&6; }
+if test "${gl_cv_type_wctype_t+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
+               included before <wchar.h>.
+               BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h>
+               must be included before <wchar.h>.  */
+            #include <stddef.h>
+            #include <stdio.h>
+            #include <time.h>
+            #include <wchar.h>
+            #if HAVE_WCTYPE_H
+            # include <wctype.h>
+            #endif
+            wctype_t a;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_type_wctype_t=yes
+else
+  gl_cv_type_wctype_t=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_type_wctype_t" >&5
+$as_echo "$gl_cv_type_wctype_t" >&6; }
+  if test $gl_cv_type_wctype_t = no; then
+    HAVE_WCTYPE_T=0
+  fi
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for wctrans_t" >&5
+$as_echo_n "checking for wctrans_t... " >&6; }
+if test "${gl_cv_type_wctrans_t+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
+               included before <wchar.h>.
+               BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h>
+               must be included before <wchar.h>.  */
+            #include <stddef.h>
+            #include <stdio.h>
+            #include <time.h>
+            #include <wchar.h>
+            #include <wctype.h>
+            wctrans_t a;
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_type_wctrans_t=yes
+else
+  gl_cv_type_wctrans_t=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_type_wctrans_t" >&5
+$as_echo "$gl_cv_type_wctrans_t" >&6; }
+  if test $gl_cv_type_wctrans_t = no; then
+    HAVE_WCTRANS_T=0
+  fi
+
+
+    for gl_func in wctype iswctype wctrans towctrans     ; do
+    as_gl_Symbol=`$as_echo "gl_cv_have_raw_decl_$gl_func" | $as_tr_sh`
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $gl_func is declared without a macro" >&5
+$as_echo_n "checking whether $gl_func is declared without a macro... " >&6; }
+if { as_var=$as_gl_Symbol; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#if !(defined __GLIBC__ && !defined __UCLIBC__)
+# include <stddef.h>
+# include <stdio.h>
+# include <time.h>
+# include <wchar.h>
+#endif
+#include <wctype.h>
+
+int
+main ()
+{
+#undef $gl_func
+  (void) $gl_func;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$as_gl_Symbol=yes"
+else
+  eval "$as_gl_Symbol=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$as_gl_Symbol
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+     eval as_val=\$$as_gl_Symbol
+   if test "x$as_val" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_RAW_DECL_$gl_func" | $as_tr_cpp` 1
+_ACEOF
+
+                     eval ac_cv_have_decl_$gl_func=yes
+fi
+      done
+
+
   # End of code from modules
 
 
@@ -4980,6 +5547,10 @@ fi
 
 if test -z "${GL_COND_LIBTOOL_TRUE}" && test -z "${GL_COND_LIBTOOL_FALSE}"; then
   as_fn_error "conditional \"GL_COND_LIBTOOL\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${GL_GENERATE_FNMATCH_H_TRUE}" && test -z "${GL_GENERATE_FNMATCH_H_FALSE}"; then
+  as_fn_error "conditional \"GL_GENERATE_FNMATCH_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

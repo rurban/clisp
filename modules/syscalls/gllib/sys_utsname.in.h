@@ -1,5 +1,5 @@
 /* Substitute for <sys/utsname.h>.
-   Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+   Copyright (C) 2009-2011 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ extern "C" {
 #  define _UTSNAME_MACHINE_LENGTH _UTSNAME_LENGTH
 # endif
 
+# if !GNULIB_defined_struct_utsname
 /* Structure describing the system and machine.  */
 struct utsname
   {
@@ -73,6 +74,9 @@ struct utsname
     /* Name of the hardware type the system is running on.  */
     char machine[_UTSNAME_MACHINE_LENGTH];
   };
+#  define GNULIB_defined_struct_utsname 1
+# endif
+
 #endif /* !@HAVE_STRUCT_UTSNAME@ */
 
 

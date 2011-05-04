@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2011 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -32,6 +32,7 @@ AC_DEFUN([rx_gl_EARLY],
   # Code from module gettext-h:
   # Code from module malloc-gnu:
   # Code from module malloc-posix:
+  # Code from module mbtowc:
   # Code from module regex:
   # Code from module ssize_t:
   # Code from module stddef:
@@ -39,6 +40,7 @@ AC_DEFUN([rx_gl_EARLY],
   # Code from module unistd:
   # Code from module warn-on-use:
   # Code from module wcrtomb:
+  # Code from module wctype-h:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -57,35 +59,24 @@ AC_DEFUN([rx_gl_INIT],
   m4_pushdef([rx_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/regexp/gllib'
-  # Code from module arg-nonnull:
-  # Code from module btowc:
-  gl_FUNC_BTOWC
-  gl_WCHAR_MODULE_INDICATOR([btowc])
-  # Code from module c++defs:
-  # Code from module gettext-h:
-  AC_SUBST([LIBINTL])
-  AC_SUBST([LTLIBINTL])
-  # Code from module malloc-gnu:
-  gl_FUNC_MALLOC_GNU
-  gl_MODULE_INDICATOR([malloc-gnu])
-  # Code from module malloc-posix:
-  gl_FUNC_MALLOC_POSIX
-  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
-  # Code from module regex:
-  gl_REGEX
-  # Code from module ssize_t:
-  gt_TYPE_SSIZE_T
-  # Code from module stddef:
-  gl_STDDEF_H
-  # Code from module stdlib:
-  gl_STDLIB_H
-  # Code from module unistd:
-  gl_UNISTD_H
-  # Code from module warn-on-use:
-  # Code from module wcrtomb:
-  gl_FUNC_WCRTOMB
-  gl_WCHAR_MODULE_INDICATOR([wcrtomb])
-  # Code from module dummy:
+gl_FUNC_BTOWC
+gl_WCHAR_MODULE_INDICATOR([btowc])
+AC_SUBST([LIBINTL])
+AC_SUBST([LTLIBINTL])
+gl_FUNC_MALLOC_GNU
+gl_MODULE_INDICATOR([malloc-gnu])
+gl_FUNC_MALLOC_POSIX
+gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+gl_FUNC_MBTOWC
+gl_STDLIB_MODULE_INDICATOR([mbtowc])
+gl_REGEX
+gt_TYPE_SSIZE_T
+gl_STDDEF_H
+gl_STDLIB_H
+gl_UNISTD_H
+gl_FUNC_WCRTOMB
+gl_WCHAR_MODULE_INDICATOR([wcrtomb])
+gl_WCTYPE_H
   # End of code from modules
   m4_ifval(rx_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([rx_gl_LIBSOURCES_DIR])[ ||
@@ -233,6 +224,8 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   lib/dummy.c
   lib/gettext.h
   lib/malloc.c
+  lib/mbtowc-impl.h
+  lib/mbtowc.c
   lib/regcomp.c
   lib/regex.c
   lib/regex.h
@@ -243,6 +236,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   lib/stdlib.in.h
   lib/unistd.in.h
   lib/wcrtomb.c
+  lib/wctype.in.h
   m4/00gnulib.m4
   m4/btowc.m4
   m4/codeset.m4
@@ -253,6 +247,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbrtowc.m4
   m4/mbstate_t.m4
+  m4/mbtowc.m4
   m4/regex.m4
   m4/ssize_t.m4
   m4/stddef_h.m4
@@ -261,4 +256,6 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/warn-on-use.m4
   m4/wchar_t.m4
   m4/wcrtomb.m4
+  m4/wctype_h.m4
+  m4/wint_t.m4
 ])

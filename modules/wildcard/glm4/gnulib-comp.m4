@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2011 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -27,8 +27,11 @@ AC_DEFUN([wc_gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   # Code from module arg-nonnull:
+  # Code from module c++defs:
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
+  # Code from module warn-on-use:
+  # Code from module wctype-h:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -47,12 +50,9 @@ AC_DEFUN([wc_gl_INIT],
   m4_pushdef([wc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/wildcard/gllib'
-  # Code from module arg-nonnull:
-  # Code from module fnmatch:
-  gl_FUNC_FNMATCH_POSIX
-  # Code from module fnmatch-gnu:
-  gl_FUNC_FNMATCH_GNU
-  # Code from module dummy:
+gl_FUNC_FNMATCH_POSIX
+gl_FUNC_FNMATCH_GNU
+gl_WCTYPE_H
   # End of code from modules
   m4_ifval(wc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([wc_gl_LIBSOURCES_DIR])[ ||
@@ -194,12 +194,18 @@ AC_DEFUN([wc_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([wc_gl_FILE_LIST], [
   build-aux/arg-nonnull.h
+  build-aux/c++defs.h
+  build-aux/warn-on-use.h
   lib/dummy.c
   lib/fnmatch.c
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
+  lib/wctype.in.h
   m4/00gnulib.m4
   m4/fnmatch.m4
   m4/gnulib-common.m4
   m4/mbstate_t.m4
+  m4/warn-on-use.m4
+  m4/wctype_h.m4
+  m4/wint_t.m4
 ])

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2011 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -15,14 +15,14 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/wildcard/gllib --m4-base=modules/wildcard/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=no-c++ --avoid=stdint --avoid=stdbool --avoid=havelib --avoid=gettext --avoid=localcharset --avoid=uniwidth/width --avoid=streq --avoid=uniname/uniname --avoid=unitypes --avoid=link-follow --avoid=host-cpu-c-abi --avoid=socklen --avoid=sockets --avoid=close-hook --avoid=setenv --avoid=unsetenv --avoid=errno --avoid=nocrash --avoid=libsigsegv --avoid=gnu-make --avoid=gettimeofday --avoid=getpagesize --avoid=sys_time --avoid=sys_wait --avoid=alloca-opt --avoid=alloca --avoid=extensions --avoid=include_next --avoid=verify --avoid=string --avoid=mbsinit --avoid=wchar --avoid=wctype --avoid=mbrtowc --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --no-libtool --macro-prefix=wc_gl --no-vc-files fnmatch-gnu
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=modules/wildcard/gllib --m4-base=modules/wildcard/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=no-c++ --avoid=stdint --avoid=stdbool --avoid=havelib --avoid=gettext --avoid=localcharset --avoid=uniwidth/width --avoid=streq --avoid=uniname/uniname --avoid=unitypes --avoid=link-follow --avoid=host-cpu-c-abi --avoid=socklen --avoid=sockets --avoid=close-hook --avoid=setenv --avoid=unsetenv --avoid=errno --avoid=arpa_inet --avoid=netinet_in --avoid=inet_ntop --avoid=inet_pton --avoid=nocrash --avoid=libsigsegv --avoid=gnu-make --avoid=gettimeofday --avoid=getpagesize --avoid=sys_time --avoid=sys_wait --avoid=alloca-opt --avoid=alloca --avoid=extensions --avoid=include_next --avoid=verify --avoid=string --avoid=mbsinit --avoid=wchar --avoid=wctype --avoid=mbrtowc --avoid=mbsrtowcs --avoid=memchr --avoid=nl_langinfo --no-libtool --macro-prefix=wc_gl --no-vc-files fnmatch-gnu
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
   fnmatch-gnu
 ])
-gl_AVOID([ no-c++ stdint stdbool havelib gettext localcharset uniwidth/width streq uniname/uniname unitypes link-follow host-cpu-c-abi socklen sockets close-hook setenv unsetenv errno nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait alloca-opt alloca extensions include_next verify string mbsinit wchar wctype mbrtowc mbsrtowcs memchr nl_langinfo])
+gl_AVOID([ no-c++ stdint stdbool havelib gettext localcharset uniwidth/width streq uniname/uniname unitypes link-follow host-cpu-c-abi socklen sockets close-hook setenv unsetenv errno arpa_inet netinet_in inet_ntop inet_pton nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait alloca-opt alloca extensions include_next verify string mbsinit wchar wctype mbrtowc mbsrtowcs memchr nl_langinfo])
 gl_SOURCE_BASE([modules/wildcard/gllib])
 gl_M4_BASE([modules/wildcard/glm4])
 gl_PO_BASE([])
