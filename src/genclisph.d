@@ -152,18 +152,19 @@ static void printf_with_args (const char* string, int argcount,
     printf_with_args(string,7,args); \
   }
 
-#if !defined(HAVE_STDBOOL_H)
 /* an alternative for "#include <fname>" */
-static void print_file (const char* fname) {
+static void include_file (const char* fname) {
   char buf[BUFSIZ];
   FILE* includefile = fopen(fname,"r");
-  char* line;
-  if (includefile == NULL) { perror(fname); exit(1); }
-  while ((line = fgets(buf,BUFSIZ,includefile)) != NULL)
-    fputs(line,stdout);
-  if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
+  if (includefile == NULL) {    /* no local file => system include */
+    printf("#include <%s>\n",fname);
+  } else {
+    char* line;
+    while ((line = fgets(buf,BUFSIZ,includefile)) != NULL)
+      fputs(line,stdout);
+    if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
+  }
 }
-#endif
 
 static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0, define_count = 0;
