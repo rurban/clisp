@@ -406,18 +406,18 @@ gnulib-imported : update-gnulib force
 	$(CP) $(GNULIB_CHECKOUT)/gnulib-tool $(GNULIB_CHECKOUT)/gnulib-tool-patched
 	patch $(GNULIB_CHECKOUT)/gnulib-tool-patched $(GNULIB_TOOL_PATCH)
 	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
-		$(GNULIB_COMMON) | tee -a $(GNULIB_IMPORTED_LOG)
+		$(GNULIB_COMMON) 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=modules/syscalls/gllib \
 		--macro-prefix=sc_gl --m4-base=modules/syscalls/glm4 \
 		$(GNULIB_AVOID) --avoid=xalloc-die \
 		mktime strftime strptime strverscmp uname \
-		strerror | tee -a $(GNULIB_IMPORTED_LOG)
+		strerror 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=modules/regexp/gllib \
 		--macro-prefix=rx_gl --m4-base=modules/regexp/glm4 \
-		$(GNULIB_AVOID) regex | tee -a $(GNULIB_IMPORTED_LOG)
+		$(GNULIB_AVOID) regex 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=modules/wildcard/gllib \
 		--macro-prefix=wc_gl --m4-base=modules/wildcard/glm4 \
-		$(GNULIB_AVOID) fnmatch-gnu | tee -a $(GNULIB_IMPORTED_LOG)
+		$(GNULIB_AVOID) fnmatch-gnu 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
 	$(RM) configure.ac
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/gllib -name \*~`; done
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/glm4 -name \*~`; done
