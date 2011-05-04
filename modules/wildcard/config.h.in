@@ -13,6 +13,9 @@
 /* Define to 1 if you have the `isblank' function. */
 #undef HAVE_ISBLANK
 
+/* Define to 1 if you have the `iswcntrl' function. */
+#undef HAVE_ISWCNTRL
+
 /* Define to 1 if you have the `iswctype' function. */
 #undef HAVE_ISWCTYPE
 
@@ -27,6 +30,18 @@
 
 /* Define to 1 if you have the `mempcpy' function. */
 #undef HAVE_MEMPCPY
+
+/* Define to 1 if iswctype is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_ISWCTYPE
+
+/* Define to 1 if towctrans is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_TOWCTRANS
+
+/* Define to 1 if wctrans is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_WCTRANS
+
+/* Define to 1 if wctype is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_WCTYPE
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -57,6 +72,9 @@
 
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H
+
+/* Define if you have the 'wint_t' type. */
+#undef HAVE_WINT_T
 
 /* Define to 1 if you have the `wmemchr' function. */
 #undef HAVE_WMEMCHR
@@ -125,6 +143,12 @@
 
 /* Define to a replacement function name for fnmatch(). */
 #undef fnmatch
+
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
+#undef inline
+#endif
 
 /* Work around a bug in Apple GCC 4.0.1 build 5465: In C99 mode, it supports
    the ISO C 99 semantics of 'extern inline' (unlike the GNU C semantics of

@@ -1,14 +1,7 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define if the compiler is building for multiple architectures of Apple
-   platforms at once. */
-#undef AA_APPLE_UNIVERSAL_BUILD
-
 /* Define to 1 when the gnulib module gethostname should be tested. */
 #undef GNULIB_TEST_GETHOSTNAME
-
-/* Define to 1 when the gnulib module mbrlen should be tested. */
-#undef GNULIB_TEST_MBRLEN
 
 /* Define to 1 when the gnulib module mktime should be tested. */
 #undef GNULIB_TEST_MKTIME
@@ -27,9 +20,6 @@
 
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
-
-/* Define to 1 if you have the <arpa/inet.h> header file. */
-#undef HAVE_ARPA_INET_H
 
 /* Define to 1 if you have the `chmod' function. */
 #undef HAVE_CHMOD
@@ -59,6 +49,10 @@
    don't. */
 #undef HAVE_DECL_GETDATE_ERR
 
+/* Define to 1 if you have the declaration of `localtime_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_LOCALTIME_R
+
 /* Define to 1 if you have the declaration of `signgam', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIGNGAM
@@ -66,10 +60,6 @@
 /* Define to 1 if you have the declaration of `strerror', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRERROR
-
-/* Define to 1 if you have the declaration of `strncasecmp', and to 0 if you
-   don't. */
-#undef HAVE_DECL_STRNCASECMP
 
 /* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
    */
@@ -98,9 +88,6 @@
 
 /* Define to 1 if you have the `erfc' function. */
 #undef HAVE_ERFC
-
-/* Define to 1 if you have the <errno.h> header file. */
-#undef HAVE_ERRNO_H
 
 /* Define to 1 if you have the `fchmod' function. */
 #undef HAVE_FCHMOD
@@ -241,9 +228,6 @@
 /* Define to 1 if you have the `kill' function. */
 #undef HAVE_KILL
 
-/* Define if you have <langinfo.h> and nl_langinfo(CODESET). */
-#undef HAVE_LANGINFO_CODESET
-
 /* Define to 1 if you have the `lgamma' function. */
 #undef HAVE_LGAMMA
 
@@ -255,18 +239,6 @@
 
 /* have lstat()? */
 #undef HAVE_LSTAT
-
-/* Define to 1 if you have the `mbrlen' function. */
-#undef HAVE_MBRLEN
-
-/* Define to 1 if you have the `mbrtowc' function. */
-#undef HAVE_MBRTOWC
-
-/* Define to 1 if you have the `mbsinit' function. */
-#undef HAVE_MBSINIT
-
-/* Define to 1 if <wchar.h> declares mbstate_t. */
-#undef HAVE_MBSTATE_T
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -288,9 +260,6 @@
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
-
-/* Define to 1 if you have the <netinet/in.h> header file. */
-#undef HAVE_NETINET_IN_H
 
 /* Define to 1 if you have the `nftw' function. */
 #undef HAVE_NFTW
@@ -403,6 +372,9 @@
 /* Define to 1 if lseek is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_LSEEK
 
+/* Define to 1 if pipe is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_PIPE
+
 /* Define to 1 if pipe2 is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_PIPE2
 
@@ -447,12 +419,6 @@
 
 /* Define to 1 if socket is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_SOCKET
-
-/* Define to 1 if strcasecmp is declared even after undefining macros. */
-#undef HAVE_RAW_DECL_STRCASECMP
-
-/* Define to 1 if strncasecmp is declared even after undefining macros. */
-#undef HAVE_RAW_DECL_STRNCASECMP
 
 /* Define to 1 if symlink is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_SYMLINK
@@ -566,17 +532,11 @@
 /* Define to 1 if you have the `statvfs' function. */
 #undef HAVE_STATVFS
 
-/* Define to 1 if you have the <stddef.h> header file. */
-#undef HAVE_STDDEF_H
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
-
-/* Define to 1 if you have the `strcasecmp' function. */
-#undef HAVE_STRCASECMP
 
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
@@ -584,14 +544,14 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strncasecmp' function. */
-#undef HAVE_STRNCASECMP
-
 /* Define to 1 if you have the `strptime' function. */
 #undef HAVE_STRPTIME
 
 /* Define to 1 if the system has the type `struct sockaddr_storage'. */
 #undef HAVE_STRUCT_SOCKADDR_STORAGE
+
+/* Define to 1 if `ss_family' is a member of `struct sockaddr_storage'. */
+#undef HAVE_STRUCT_SOCKADDR_STORAGE_SS_FAMILY
 
 /* Define to 1 if `st_blksize' is a member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_BLKSIZE
@@ -655,6 +615,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/uio.h> header file. */
+#undef HAVE_SYS_UIO_H
 
 /* Define to 1 if you have the <sys/unistd.h> header file. */
 #undef HAVE_SYS_UNISTD_H
@@ -728,17 +691,9 @@
 #undef HOST_NAME_MAX
 
 /* Define to 1 if `link(2)' dereferences symbolic links, 0 if it creates hard
-   links to symlinks, and -1 if unknown. */
+   links to symlinks, -1 if it depends on the variable __xpg4, and -2 if
+   unknown. */
 #undef LINK_FOLLOWS_SYMLINKS
-
-/* Define if the mbrtowc function has the NULL string argument bug. */
-#undef MBRTOWC_NULL_ARG_BUG
-
-/* Define if the mbrtowc function does not return 0 for a NUL character. */
-#undef MBRTOWC_NUL_RETVAL_BUG
-
-/* Define if the mbrtowc function returns a wrong return value. */
-#undef MBRTOWC_RETVAL_BUG
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -810,6 +765,10 @@
    this defined. */
 #undef _POSIX_1_SOURCE
 
+/* Define to 1 in order to get the POSIX compatible declarations of socket
+   functions. */
+#undef _POSIX_PII_SOCKET
+
 /* Define to 1 if you need to in order for `stat' and other things to work. */
 #undef _POSIX_SOURCE
 
@@ -856,9 +815,6 @@
 #if defined __APPLE__ && defined __MACH__ && __APPLE_CC__ >= 5465 && !defined __cplusplus && __STDC_VERSION__ >= 199901L && !defined __GNUC_STDC_INLINE__
 # define __GNUC_STDC_INLINE__ 1
 #endif
-
-/* Define to a type if <wchar.h> does not define. */
-#undef mbstate_t
 
 /* Define to the name of the strftime replacement function. */
 #undef my_strftime

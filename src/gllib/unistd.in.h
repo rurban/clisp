@@ -1,5 +1,5 @@
 /* Substitute for and wrapper around <unistd.h>.
-   Copyright (C) 2003-2010 Free Software Foundation, Inc.
+   Copyright (C) 2003-2011 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -61,14 +61,16 @@
 /* Cygwin 1.7.1 declares symlinkat in <stdio.h>, not in <unistd.h>.  */
 /* But avoid namespace pollution on glibc systems.  */
 #if (!(defined SEEK_CUR && defined SEEK_END && defined SEEK_SET) \
-     || (@GNULIB_SYMLINKAT@ || defined GNULIB_POSIXCHECK)) \
+     || ((@GNULIB_SYMLINKAT@ || defined GNULIB_POSIXCHECK) \
+         && defined __CYGWIN__)) \
     && ! defined __GLIBC__
 # include <stdio.h>
 #endif
 
 /* Cygwin 1.7.1 declares unlinkat in <fcntl.h>, not in <unistd.h>.  */
 /* But avoid namespace pollution on glibc systems.  */
-#if (@GNULIB_UNLINKAT@ || defined GNULIB_POSIXCHECK) && ! defined __GLIBC__
+#if (@GNULIB_UNLINKAT@ || defined GNULIB_POSIXCHECK) && defined __CYGWIN__ \
+    && ! defined __GLIBC__
 # include <fcntl.h>
 #endif
 
@@ -86,7 +88,17 @@
 # include <io.h>
 #endif
 
-#if (@GNULIB_WRITE@ || @GNULIB_READLINK@ || @GNULIB_READLINKAT@ \
+/* AIX and OSF/1 5.1 declare getdomainname in <netdb.h>, not in <unistd.h>.
+   NonStop Kernel declares gethostname in <netdb.h>, not in <unistd.h>.  */
+/* But avoid namespace pollution on glibc systems.  */
+#if ((@GNULIB_GETDOMAINNAME@ && (defined _AIX || defined __osf__)) \
+     || (@GNULIB_GETHOSTNAME@ && defined __TANDEM)) \
+    && !defined __GLIBC__
+# include <netdb.h>
+#endif
+
+#if (@GNULIB_READ@ || @GNULIB_WRITE@ \
+     || @GNULIB_READLINK@ || @GNULIB_READLINKAT@ \
      || @GNULIB_PREAD@ || @GNULIB_PWRITE@ || defined GNULIB_POSIXCHECK)
 /* Get ssize_t.  */
 # include <sys/types.h>
@@ -426,6 +438,10 @@ _gl_GL_EXTERN_C void _gl_unregister_fd (int fd);
 _gl_GL_EXTERN_C int _gl_register_dup (int oldfd, int newfd);
 _gl_GL_EXTERN_C const char *_gl_directory_name (int fd);
 
+# else
+#  if !@HAVE_DECL_FCHDIR@
+_gl_GL_FUNCDECL_SYS (fchdir, int, (int /*fd*/));
+#  endif
 # endif
 _gl_GL_CXXALIAS_SYS (fchdir, int, (int /*fd*/));
 _gl_GL_CXXALIASWARN (fchdir);
@@ -549,13 +565,21 @@ _gl_GL_WARN_ON_USE (getcwd, "getcwd is unportable - "
    Null terminate it if the name is shorter than LEN.
    If the NIS domain name is longer than LEN, set errno = EINVAL and return -1.
    Return 0 if successful, otherwise set errno and return -1.  */
-# if !@HAVE_GETDOMAINNAME@
+# if @REPLACE_GETDOMAINNAME@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef getdomainname
+#   define getdomainname rpl_getdomainname
+#  endif
+_gl_GL_FUNCDECL_RPL (getdomainname, int, (char *name, size_t len)
+                                      _gl_GL_ARG_NONNULL ((1)));
+_gl_GL_CXXALIAS_RPL (getdomainname, int, (char *name, size_t len));
+# else
+#  if !@HAVE_DECL_GETDOMAINNAME@
 _gl_GL_FUNCDECL_SYS (getdomainname, int, (char *name, size_t len)
                                       _gl_GL_ARG_NONNULL ((1)));
+#  endif
+_gl_GL_CXXALIAS_SYS (getdomainname, int, (char *name, size_t len));
 # endif
-/* Need to cast, because on MacOS X 10.5 systems, the second parameter is
-                                                        int len.  */
-_gl_GL_CXXALIAS_SYS_CAST (getdomainname, int, (char *name, size_t len));
 _gl_GL_CXXALIASWARN (getdomainname);
 #elif defined GNULIB_POSIXCHECK
 # undef getdomainname
@@ -633,7 +657,8 @@ _gl_GL_CXXALIAS_RPL (gethostname, int, (char *name, size_t len));
 _gl_GL_FUNCDECL_SYS (gethostname, int, (char *name, size_t len)
                                     _gl_GL_ARG_NONNULL ((1)));
 #  endif
-/* Need to cast, because on Solaris 10 systems, the second parameter is
+/* Need to cast, because on Solaris 10 and OSF/1 5.1 systems, the second
+   parameter is
                                                       int len.  */
 _gl_GL_CXXALIAS_SYS_CAST (gethostname, int, (char *name, size_t len));
 # endif
@@ -690,13 +715,22 @@ _gl_GL_WARN_ON_USE (getlogin, "getlogin is unportable - "
      ${LOGNAME-$USER}        on Unix platforms,
      $USERNAME               on native Windows platforms.
  */
-# if !@HAVE_DECL_GETLOGIN_R@
+# if @REPLACE_GETLOGIN_R@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   define getlogin_r rpl_getlogin_r
+#  endif
+_gl_GL_FUNCDECL_RPL (getlogin_r, int, (char *name, size_t size)
+                                   _gl_GL_ARG_NONNULL ((1)));
+_gl_GL_CXXALIAS_RPL (getlogin_r, int, (char *name, size_t size));
+# else
+#  if !@HAVE_DECL_GETLOGIN_R@
 _gl_GL_FUNCDECL_SYS (getlogin_r, int, (char *name, size_t size)
                                    _gl_GL_ARG_NONNULL ((1)));
-# endif
+#  endif
 /* Need to cast, because on Solaris 10 systems, the second argument is
                                                      int size.  */
 _gl_GL_CXXALIAS_SYS_CAST (getlogin_r, int, (char *name, size_t size));
+# endif
 _gl_GL_CXXALIASWARN (getlogin_r);
 #elif defined GNULIB_POSIXCHECK
 # undef getlogin_r
@@ -763,11 +797,14 @@ _gl_GL_CXXALIAS_RPL (getpagesize, int, (void));
 #    if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #     define getpagesize() _gl_getpagesize ()
 #    else
+#     if !GNULIB_defined_getpagesize_function
 static inline int
 getpagesize ()
 {
   return _gl_getpagesize ();
 }
+#      define GNULIB_defined_getpagesize_function 1
+#     endif
 #    endif
 #   endif
 #  endif
@@ -955,6 +992,24 @@ _gl_GL_WARN_ON_USE (lseek, "lseek does not fail with ESPIPE on pipes on some "
 #endif
 
 
+#if @GNULIB_PIPE@
+/* Create a pipe, defaulting to O_BINARY mode.
+   Store the read-end as fd[0] and the write-end as fd[1].
+   Return 0 upon success, or -1 with errno set upon failure.  */
+# if !@HAVE_PIPE@
+_gl_GL_FUNCDECL_SYS (pipe, int, (int fd[2]) _gl_GL_ARG_NONNULL ((1)));
+# endif
+_gl_GL_CXXALIAS_SYS (pipe, int, (int fd[2]));
+_gl_GL_CXXALIASWARN (pipe);
+#elif defined GNULIB_POSIXCHECK
+# undef pipe
+# if HAVE_RAW_DECL_PIPE
+_gl_GL_WARN_ON_USE (pipe, "pipe is unportable - "
+                 "use gnulib module pipe-posix for portability");
+# endif
+#endif
+
+
 #if @GNULIB_PIPE2@
 /* Create a pipe, applying the given flags when opening the read-end of the
    pipe and the write-end of the pipe.
@@ -1048,6 +1103,28 @@ _gl_GL_CXXALIASWARN (pwrite);
 _gl_GL_WARN_ON_USE (pwrite, "pwrite is unportable - "
                  "use gnulib module pwrite for portability");
 # endif
+#endif
+
+
+#if @GNULIB_READ@
+/* Read up to COUNT bytes from file descriptor FD into the buffer starting
+   at BUF.  See the POSIX:2001 specification
+   <http://www.opengroup.org/susv3xsh/read.html>.  */
+# if @REPLACE_READ@ && @GNULIB_UNISTD_H_NONBLOCKING@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef read
+#   define read rpl_read
+#  endif
+_gl_GL_FUNCDECL_RPL (read, ssize_t, (int fd, void *buf, size_t count)
+                                 _gl_GL_ARG_NONNULL ((2)));
+_gl_GL_CXXALIAS_RPL (read, ssize_t, (int fd, void *buf, size_t count));
+# else
+/* Need to cast, because on mingw, the third parameter is
+                                                          unsigned int count
+   and the return type is 'int'.  */
+_gl_GL_CXXALIAS_SYS_CAST (read, ssize_t, (int fd, void *buf, size_t count));
+# endif
+_gl_GL_CXXALIASWARN (read);
 #endif
 
 
@@ -1209,7 +1286,7 @@ _gl_GL_FUNCDECL_RPL (ttyname_r, int,
 _gl_GL_CXXALIAS_RPL (ttyname_r, int,
                   (int fd, char *buf, size_t buflen));
 # else
-#  if !@HAVE_TTYNAME_R@
+#  if !@HAVE_DECL_TTYNAME_R@
 _gl_GL_FUNCDECL_SYS (ttyname_r, int,
                   (int fd, char *buf, size_t buflen) _gl_GL_ARG_NONNULL ((2)));
 #  endif
@@ -1305,7 +1382,7 @@ _gl_GL_WARN_ON_USE (usleep, "usleep is unportable - "
 /* Write up to COUNT bytes starting at BUF to file descriptor FD.
    See the POSIX:2001 specification
    <http://www.opengroup.org/susv3xsh/write.html>.  */
-# if @REPLACE_WRITE@ && @GNULIB_UNISTD_H_SIGPIPE@
+# if @REPLACE_WRITE@ && (@GNULIB_UNISTD_H_NONBLOCKING@ || @GNULIB_UNISTD_H_SIGPIPE@)
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   undef write
 #   define write rpl_write

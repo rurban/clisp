@@ -1,6 +1,6 @@
 /* Provide a sys/socket header file for systems lacking it (read: MinGW)
    and for systems where it is incomplete.
-   Copyright (C) 2005-2010 Free Software Foundation, Inc.
+   Copyright (C) 2005-2011 Free Software Foundation, Inc.
    Written by Simon Josefsson.
 
    This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,10 @@
    <sys/types.h>.  */
 # include <sys/types.h>
 
+/* On FreeBSD 6.4, <sys/socket.h> defines some macros that assume that NULL
+   is defined.  */
+# include <stddef.h>
+
 /* The include_next requires a split double-inclusion guard.  */
 # @INCLUDE_NEXT@ @NEXT_SYS_SOCKET_H@
 
@@ -67,10 +71,20 @@
 /* The definition of _gl_GL_WARN_ON_USE is copied here.  */
 
 #if !@HAVE_SA_FAMILY_T@
+# if !GNULIB_defined_sa_family_t
 typedef unsigned short  sa_family_t;
+#  define GNULIB_defined_sa_family_t 1
+# endif
 #endif
 
-#if !@HAVE_STRUCT_SOCKADDR_STORAGE@
+#if @HAVE_STRUCT_SOCKADDR_STORAGE@
+/* Make the 'struct sockaddr_storage' field 'ss_family' visible on AIX 7.1.  */
+# if !@HAVE_STRUCT_SOCKADDR_STORAGE_SS_FAMILY@
+#  ifndef ss_family
+#   define ss_family __ss_family
+#  endif
+# endif
+#else
 # include <alignof.h>
 /* Code taken from glibc sysdeps/unix/sysv/linux/bits/socket.h on
    2009-05-08, licensed under LGPLv2.1+, plus portability fixes. */
@@ -82,12 +96,22 @@ typedef unsigned short  sa_family_t;
                   : alignof (__ss_aligntype))                           \
                  + sizeof (__ss_aligntype)))
 
+# if !GNULIB_defined_struct_sockaddr_storage
 struct sockaddr_storage
 {
   sa_family_t ss_family;      /* Address family, etc.  */
   __ss_aligntype __ss_align;  /* Force desired alignment.  */
   char __ss_padding[_SS_PADSIZE];
 };
+#  define GNULIB_defined_struct_sockaddr_storage 1
+# endif
+
+#endif
+
+/* Get struct iovec.  */
+/* But avoid namespace pollution on glibc systems.  */
+#if ! defined __GLIBC__
+# include <sys/uio.h>
 #endif
 
 #if @HAVE_SYS_SOCKET_H@
@@ -128,7 +152,6 @@ struct sockaddr_storage
    suggests that getaddrinfo should be available on all Windows
    releases. */
 
-
 # if @HAVE_WINSOCK2_H@
 #  include <winsock2.h>
 # endif
@@ -152,13 +175,28 @@ struct sockaddr_storage
 #  include <sys/types.h>
 #  include <io.h>
 
+#  if !GNULIB_defined_socklen_t
 typedef int socklen_t;
+#   define GNULIB_defined_socklen_t 1
+#  endif
 
 # endif
+
+/* Rudimentary 'struct msghdr'; this works as long as you don't try to
+   access msg_control or msg_controllen.  */
+struct msghdr {
+  void *msg_name;
+  socklen_t msg_namelen;
+  struct iovec *msg_iov;
+  int msg_iovlen;
+  int msg_flags;
+};
 
 #endif
 
 #if @HAVE_WINSOCK2_H@
+
+# if !GNULIB_defined_rpl_fd_isset
 
 /* Re-define FD_ISSET to avoid a WSA call while we are not using
    network sockets.  */
@@ -175,6 +213,9 @@ rpl_fd_isset (SOCKET fd, fd_set * set)
 
   return 0;
 }
+
+#  define GNULIB_defined_rpl_fd_isset 1
+# endif
 
 # undef FD_ISSET
 # define FD_ISSET(fd, set) rpl_fd_isset(fd, set)
@@ -238,8 +279,11 @@ _gl_GL_FUNCDECL_RPL (connect, int,
 _gl_GL_CXXALIAS_RPL (connect, int,
                   (int fd, const struct sockaddr *addr, socklen_t addrlen));
 # else
-_gl_GL_CXXALIAS_SYS (connect, int,
-                  (int fd, const struct sockaddr *addr, socklen_t addrlen));
+/* Need to cast, because on NonStop Kernel, the third parameter is
+                                                     size_t addrlen.  */
+_gl_GL_CXXALIAS_SYS_CAST (connect, int,
+                       (int fd,
+                        const struct sockaddr *addr, socklen_t addrlen));
 # endif
 _gl_GL_CXXALIASWARN (connect);
 #elif @HAVE_WINSOCK2_H@
@@ -293,8 +337,11 @@ _gl_GL_FUNCDECL_RPL (bind, int,
 _gl_GL_CXXALIAS_RPL (bind, int,
                   (int fd, const struct sockaddr *addr, socklen_t addrlen));
 # else
-_gl_GL_CXXALIAS_SYS (bind, int,
-                  (int fd, const struct sockaddr *addr, socklen_t addrlen));
+/* Need to cast, because on NonStop Kernel, the third parameter is
+                                                     size_t addrlen.  */
+_gl_GL_CXXALIAS_SYS_CAST (bind, int,
+                       (int fd,
+                        const struct sockaddr *addr, socklen_t addrlen));
 # endif
 _gl_GL_CXXALIASWARN (bind);
 #elif @HAVE_WINSOCK2_H@
@@ -515,9 +562,11 @@ _gl_GL_CXXALIAS_RPL (sendto, ssize_t,
                   (int fd, const void *buf, size_t len, int flags,
                    const struct sockaddr *to, socklen_t tolen));
 # else
-_gl_GL_CXXALIAS_SYS (sendto, ssize_t,
-                  (int fd, const void *buf, size_t len, int flags,
-                   const struct sockaddr *to, socklen_t tolen));
+/* Need to cast, because on NonStop Kernel, the sixth parameter is
+                                                   size_t tolen.  */
+_gl_GL_CXXALIAS_SYS_CAST (sendto, ssize_t,
+                       (int fd, const void *buf, size_t len, int flags,
+                        const struct sockaddr *to, socklen_t tolen));
 # endif
 _gl_GL_CXXALIASWARN (sendto);
 #elif @HAVE_WINSOCK2_H@
@@ -543,8 +592,11 @@ _gl_GL_FUNCDECL_RPL (setsockopt, int, (int fd, int level, int optname,
 _gl_GL_CXXALIAS_RPL (setsockopt, int, (int fd, int level, int optname,
                                     const void * optval, socklen_t optlen));
 # else
-_gl_GL_CXXALIAS_SYS (setsockopt, int, (int fd, int level, int optname,
-                                    const void * optval, socklen_t optlen));
+/* Need to cast, because on NonStop Kernel, the fifth parameter is
+                                             size_t optlen.  */
+_gl_GL_CXXALIAS_SYS_CAST (setsockopt, int,
+                       (int fd, int level, int optname,
+                        const void * optval, socklen_t optlen));
 # endif
 _gl_GL_CXXALIASWARN (setsockopt);
 #elif @HAVE_WINSOCK2_H@

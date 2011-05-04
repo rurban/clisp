@@ -1,5 +1,5 @@
-# serial 16
-dnl Copyright (C) 2002-2003, 2005-2007, 2009-2010 Free Software Foundation,
+# serial 19
+dnl Copyright (C) 2002-2003, 2005-2007, 2009-2011 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -162,22 +162,26 @@ year_2050_test ()
 int
 main ()
 {
+  int result = 0;
   time_t t, delta;
   int i, j;
+  int time_t_signed_magnitude = (time_t) ~ (time_t) 0 < (time_t) -1;
+  int time_t_signed = ! ((time_t) 0 < (time_t) -1);
 
   /* This test makes some buggy mktime implementations loop.
      Give up after 60 seconds; a mktime slower than that
      isn't worth using anyway.  */
   alarm (60);
 
-  for (;;)
-    {
-      t = (time_t_max << 1) + 1;
-      if (t <= time_t_max)
-        break;
-      time_t_max = t;
-    }
-  time_t_min = - ((time_t) ~ (time_t) 0 == (time_t) -1) - time_t_max;
+  time_t_max = (! time_t_signed
+                ? (time_t) -1
+                : ((((time_t) 1 << (sizeof (time_t) * CHAR_BIT - 2)) - 1)
+                   * 2 + 1));
+  time_t_min = (! time_t_signed
+                ? (time_t) 0
+                : time_t_signed_magnitude
+                ? ~ (time_t) 0
+                : ~ time_t_max);
 
   delta = time_t_max / 997; /* a suitable prime number */
   for (i = 0; i < N_STRINGS; i++)
@@ -187,21 +191,27 @@ main ()
 
       for (t = 0; t <= time_t_max - delta; t += delta)
         if (! mktime_test (t))
-          return 1;
+          result |= 1;
       if (! (mktime_test ((time_t) 1)
              && mktime_test ((time_t) (60 * 60))
              && mktime_test ((time_t) (60 * 60 * 24))))
-        return 1;
+        result |= 2;
 
       for (j = 1; ; j <<= 1)
         if (! bigtime_test (j))
-          return 1;
+          result |= 4;
         else if (INT_MAX / 2 < j)
           break;
       if (! bigtime_test (INT_MAX))
-        return 1;
+        result |= 8;
     }
-  return ! (irix_6_4_bug () && spring_forward_gap () && year_2050_test ());
+  if (! irix_6_4_bug ())
+    result |= 16;
+  if (! spring_forward_gap ())
+    result |= 32;
+  if (! year_2050_test ())
+    result |= 64;
+  return result;
 }]])],
                [ac_cv_func_working_mktime=yes],
                [ac_cv_func_working_mktime=no],

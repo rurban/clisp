@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if nl_langinfo (YESEXPR) returns a non-empty string. */
+#undef FUNC_NL_LANGINFO_YESEXPR_WORKS
+
 /* Define to 1 when the gnulib module nl_langinfo should be tested. */
 #undef GNULIB_TEST_NL_LANGINFO
 

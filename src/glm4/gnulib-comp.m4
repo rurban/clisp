@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2011 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -31,13 +31,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module arg-nonnull:
+  # Code from module arpa_inet:
   # Code from module c++defs:
-  # Code from module close-hook:
+  # Code from module c-ctype:
   # Code from module configmake:
   # Code from module environ:
   # Code from module errno:
   # Code from module extensions:
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  # Code from module fd-hook:
   # Code from module getpagesize:
   # Code from module gettext:
   # Code from module gettext-h:
@@ -46,6 +48,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
   # Code from module include_next:
+  # Code from module inet_ntop:
+  # Code from module inet_pton:
+  # Code from module iswblank:
   # Code from module langinfo:
   # Code from module libsigsegv:
   # Code from module link-follow:
@@ -56,6 +61,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module mbsrtowcs:
   # Code from module memchr:
   # Code from module multiarch:
+  # Code from module netinet_in:
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
@@ -72,6 +78,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module sys_socket:
   # Code from module sys_time:
+  # Code from module sys_uio:
   # Code from module sys_wait:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -84,6 +91,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module warn-on-use:
   # Code from module wchar:
   # Code from module wctype:
+  # Code from module wctype-h:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -102,121 +110,80 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
-  # Code from module alignof:
-  # Code from module alloca:
-  # Code from module alloca-opt:
-  gl_FUNC_ALLOCA
-  # Code from module arg-nonnull:
-  # Code from module c++defs:
-  # Code from module close-hook:
-  # Code from module configmake:
-  # Code from module environ:
-  gl_ENVIRON
-  gl_UNISTD_MODULE_INDICATOR([environ])
-  # Code from module errno:
-  gl_HEADER_ERRNO_H
-  # Code from module extensions:
-  # Code from module getpagesize:
-  gl_FUNC_GETPAGESIZE
-  gl_UNISTD_MODULE_INDICATOR([getpagesize])
-  # Code from module gettext:
-  dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.18.1])
-  # Code from module gettext-h:
-  AC_SUBST([LIBINTL])
-  AC_SUBST([LTLIBINTL])
-  # Code from module gettimeofday:
-  gl_FUNC_GETTIMEOFDAY
-  gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
-  # Code from module gnu-make:
-  gl_GNU_MAKE
-  # Code from module havelib:
-  # Code from module host-cpu-c-abi:
-  gl_HOST_CPU_C_ABI
-  # Code from module include_next:
-  # Code from module langinfo:
-  gl_LANGINFO_H
-  # Code from module libsigsegv:
-  gl_LIBSIGSEGV
-  # Code from module link-follow:
-  gl_FUNC_LINK_FOLLOWS_SYMLINK
-  # Code from module localcharset:
-  gl_LOCALCHARSET
-  LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
-  AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
-  # Code from module malloca:
-  gl_MALLOCA
-  # Code from module mbrtowc:
-  gl_FUNC_MBRTOWC
-  gl_WCHAR_MODULE_INDICATOR([mbrtowc])
-  # Code from module mbsinit:
-  gl_FUNC_MBSINIT
-  gl_WCHAR_MODULE_INDICATOR([mbsinit])
-  # Code from module mbsrtowcs:
-  gl_FUNC_MBSRTOWCS
-  gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
-  # Code from module memchr:
-  gl_FUNC_MEMCHR
-  gl_STRING_MODULE_INDICATOR([memchr])
-  # Code from module multiarch:
-  gl_MULTIARCH
-  # Code from module nl_langinfo:
-  gl_FUNC_NL_LANGINFO
-  gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
-  # Code from module no-c++:
-  gt_NO_CXX
-  # Code from module nocrash:
-  # Code from module setenv:
-  gl_FUNC_SETENV
-  gl_STDLIB_MODULE_INDICATOR([setenv])
-  # Code from module socketlib:
-  gl_SOCKETLIB
-  # Code from module sockets:
-  gl_SOCKETS
-  # Code from module socklen:
-  gl_TYPE_SOCKLEN_T
-  # Code from module stdbool:
-  AM_STDBOOL_H
-  # Code from module stddef:
-  gl_STDDEF_H
-  # Code from module stdint:
-  gl_STDINT_H
-  # Code from module stdlib:
-  gl_STDLIB_H
-  # Code from module streq:
-  # Code from module string:
-  gl_HEADER_STRING_H
-  # Code from module strnlen1:
-  # Code from module sys_socket:
-  gl_HEADER_SYS_SOCKET
-  AC_PROG_MKDIR_P
-  # Code from module sys_time:
-  gl_HEADER_SYS_TIME_H
-  AC_PROG_MKDIR_P
-  # Code from module sys_wait:
-  gl_SYS_WAIT_H
-  AC_PROG_MKDIR_P
-  # Code from module uniname/base:
-  gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
-  # Code from module uniname/uniname:
-  gl_LIBUNISTRING_MODULE([0.9], [uniname/uniname])
-  # Code from module unistd:
-  gl_UNISTD_H
-  # Code from module unitypes:
-  gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
-  # Code from module uniwidth/base:
-  gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
-  # Code from module uniwidth/width:
-  gl_LIBUNISTRING_MODULE([0.9], [uniwidth/width])
-  # Code from module unsetenv:
-  gl_FUNC_UNSETENV
-  gl_STDLIB_MODULE_INDICATOR([unsetenv])
-  # Code from module verify:
-  # Code from module warn-on-use:
-  # Code from module wchar:
-  gl_WCHAR_H
-  # Code from module wctype:
-  gl_WCTYPE_H
+gl_FUNC_ALLOCA
+gl_HEADER_ARPA_INET
+AC_PROG_MKDIR_P
+gl_CONFIGMAKE_PREP
+gl_ENVIRON
+gl_UNISTD_MODULE_INDICATOR([environ])
+gl_HEADER_ERRNO_H
+gl_FUNC_GETPAGESIZE
+gl_UNISTD_MODULE_INDICATOR([getpagesize])
+dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
+AM_GNU_GETTEXT_VERSION([0.18.1])
+AC_SUBST([LIBINTL])
+AC_SUBST([LTLIBINTL])
+gl_FUNC_GETTIMEOFDAY
+gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
+gl_GNU_MAKE
+gl_HOST_CPU_C_ABI
+gl_FUNC_INET_NTOP
+gl_ARPA_INET_MODULE_INDICATOR([inet_ntop])
+gl_FUNC_INET_PTON
+gl_ARPA_INET_MODULE_INDICATOR([inet_pton])
+gl_FUNC_ISWBLANK
+gl_WCTYPE_MODULE_INDICATOR([iswblank])
+gl_LANGINFO_H
+gl_LIBSIGSEGV
+gl_FUNC_LINK_FOLLOWS_SYMLINK
+gl_LOCALCHARSET
+LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
+AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+gl_MALLOCA
+gl_FUNC_MBRTOWC
+gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+gl_FUNC_MBSINIT
+gl_WCHAR_MODULE_INDICATOR([mbsinit])
+gl_FUNC_MBSRTOWCS
+gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
+gl_FUNC_MEMCHR
+gl_STRING_MODULE_INDICATOR([memchr])
+gl_MULTIARCH
+gl_HEADER_NETINET_IN
+AC_PROG_MKDIR_P
+gl_FUNC_NL_LANGINFO
+gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
+gt_NO_CXX
+gl_FUNC_SETENV
+gl_STDLIB_MODULE_INDICATOR([setenv])
+gl_SOCKETLIB
+gl_SOCKETS
+gl_TYPE_SOCKLEN_T
+AM_STDBOOL_H
+gl_STDDEF_H
+gl_STDINT_H
+gl_STDLIB_H
+gl_HEADER_STRING_H
+gl_HEADER_SYS_SOCKET
+AC_PROG_MKDIR_P
+gl_HEADER_SYS_TIME_H
+AC_PROG_MKDIR_P
+gl_HEADER_SYS_UIO
+AC_PROG_MKDIR_P
+gl_SYS_WAIT_H
+AC_PROG_MKDIR_P
+gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
+gl_LIBUNISTRING_MODULE([0.9], [uniname/uniname])
+gl_UNISTD_H
+gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
+gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
+gl_LIBUNISTRING_MODULE([0.9.4], [uniwidth/width])
+gl_FUNC_UNSETENV
+gl_STDLIB_MODULE_INDICATOR([unsetenv])
+gl_WCHAR_H
+gl_FUNC_WCTYPE
+gl_WCTYPE_MODULE_INDICATOR([wctype])
+gl_WCTYPE_H
   # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -364,13 +331,19 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
-  lib/close-hook.c
-  lib/close-hook.h
+  lib/arpa_inet.in.h
+  lib/c-ctype.c
+  lib/c-ctype.h
   lib/config.charset
   lib/errno.in.h
+  lib/fd-hook.c
+  lib/fd-hook.h
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/inet_ntop.c
+  lib/inet_pton.c
+  lib/iswblank.c
   lib/langinfo.in.h
   lib/localcharset.c
   lib/localcharset.h
@@ -379,10 +352,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/malloca.valgrind
   lib/mbrtowc.c
   lib/mbsinit.c
+  lib/mbsrtowcs-impl.h
   lib/mbsrtowcs-state.c
   lib/mbsrtowcs.c
   lib/memchr.c
   lib/memchr.valgrind
+  lib/netinet_in.in.h
   lib/nl_langinfo.c
   lib/ref-add.sin
   lib/ref-del.sin
@@ -399,6 +374,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/sys_socket.in.h
   lib/sys_time.in.h
+  lib/sys_uio.in.h
   lib/sys_wait.in.h
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -413,10 +389,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/verify.h
   lib/w32sock.h
   lib/wchar.in.h
+  lib/wctype-impl.h
+  lib/wctype.c
   lib/wctype.in.h
   m4/00gnulib.m4
   m4/alloca.m4
+  m4/arpa_inet_h.m4
   m4/codeset.m4
+  m4/configmake.m4
   m4/eealloc.m4
   m4/environ.m4
   m4/errno_h.m4
@@ -432,6 +412,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/include_next.m4
+  m4/inet_ntop.m4
+  m4/inet_pton.m4
   m4/intdiv0.m4
   m4/intl.m4
   m4/intldir.m4
@@ -439,6 +421,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/intmax.m4
   m4/inttypes-pri.m4
   m4/inttypes_h.m4
+  m4/iswblank.m4
   m4/langinfo_h.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
@@ -461,6 +444,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memchr.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
+  m4/netinet_in_h.m4
   m4/nl_langinfo.m4
   m4/nls.m4
   m4/no-c++.m4
@@ -482,6 +466,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/sys_socket_h.m4
   m4/sys_time_h.m4
+  m4/sys_uio_h.m4
   m4/sys_wait_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
@@ -490,6 +475,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/warn-on-use.m4
   m4/wchar_h.m4
   m4/wchar_t.m4
+  m4/wctype.m4
   m4/wctype_h.m4
   m4/wint_t.m4
   m4/xsize.m4

@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2010 Free Software Foundation, Inc.
+# Copyright (C) 2002-2011 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -31,17 +31,15 @@ AC_DEFUN([sc_gl_EARLY],
   # Code from module c++defs:
   # Code from module gethostname:
   # Code from module intprops:
-  # Code from module mbrlen:
   # Code from module mktime:
   # Code from module multiarch:
   # Code from module stddef:
-  # Code from module strcase:
   # Code from module strerror:
   # Code from module strftime:
-  # Code from module strings:
   # Code from module strptime:
   # Code from module strverscmp:
   # Code from module sys_socket:
+  # Code from module sys_uio:
   # Code from module sys_utsname:
   # Code from module time:
   # Code from module time_r:
@@ -66,56 +64,31 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/syscalls/gllib'
-  # Code from module alignof:
-  # Code from module arg-nonnull:
-  # Code from module c++defs:
-  # Code from module gethostname:
-  gl_FUNC_GETHOSTNAME
-  gl_UNISTD_MODULE_INDICATOR([gethostname])
-  # Code from module intprops:
-  # Code from module mbrlen:
-  gl_FUNC_MBRLEN
-  gl_WCHAR_MODULE_INDICATOR([mbrlen])
-  # Code from module mktime:
-  gl_FUNC_MKTIME
-  gl_TIME_MODULE_INDICATOR([mktime])
-  # Code from module multiarch:
-  gl_MULTIARCH
-  # Code from module stddef:
-  gl_STDDEF_H
-  # Code from module strcase:
-  gl_STRCASE
-  # Code from module strerror:
-  gl_FUNC_STRERROR
-  gl_STRING_MODULE_INDICATOR([strerror])
-  # Code from module strftime:
-  gl_FUNC_GNU_STRFTIME
-  # Code from module strings:
-  gl_HEADER_STRINGS_H
-  # Code from module strptime:
-  gl_FUNC_STRPTIME
-  gl_TIME_MODULE_INDICATOR([strptime])
-  # Code from module strverscmp:
-  gl_FUNC_STRVERSCMP
-  gl_STRING_MODULE_INDICATOR([strverscmp])
-  # Code from module sys_socket:
-  gl_HEADER_SYS_SOCKET
-  AC_PROG_MKDIR_P
-  # Code from module sys_utsname:
-  gl_SYS_UTSNAME_H
-  AC_PROG_MKDIR_P
-  # Code from module time:
-  gl_HEADER_TIME_H
-  # Code from module time_r:
-  gl_TIME_R
-  gl_TIME_MODULE_INDICATOR([time_r])
-  # Code from module uname:
-  gl_FUNC_UNAME
-  gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
-  # Code from module unistd:
-  gl_UNISTD_H
-  # Code from module warn-on-use:
-  # Code from module dummy:
+gl_FUNC_GETHOSTNAME
+gl_UNISTD_MODULE_INDICATOR([gethostname])
+gl_FUNC_MKTIME
+gl_TIME_MODULE_INDICATOR([mktime])
+gl_MULTIARCH
+gl_STDDEF_H
+gl_FUNC_STRERROR
+gl_STRING_MODULE_INDICATOR([strerror])
+gl_FUNC_GNU_STRFTIME
+gl_FUNC_STRPTIME
+gl_TIME_MODULE_INDICATOR([strptime])
+gl_FUNC_STRVERSCMP
+gl_STRING_MODULE_INDICATOR([strverscmp])
+gl_HEADER_SYS_SOCKET
+AC_PROG_MKDIR_P
+gl_HEADER_SYS_UIO
+AC_PROG_MKDIR_P
+gl_SYS_UTSNAME_H
+AC_PROG_MKDIR_P
+gl_HEADER_TIME_H
+gl_TIME_R
+gl_TIME_MODULE_INDICATOR([time_r])
+gl_FUNC_UNAME
+gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
+gl_UNISTD_H
   # End of code from modules
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
@@ -263,19 +236,16 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/dummy.c
   lib/gethostname.c
   lib/intprops.h
-  lib/mbrlen.c
   lib/mktime-internal.h
   lib/mktime.c
   lib/stddef.in.h
-  lib/strcasecmp.c
   lib/strerror.c
   lib/strftime.c
   lib/strftime.h
-  lib/strings.in.h
-  lib/strncasecmp.c
   lib/strptime.c
   lib/strverscmp.c
   lib/sys_socket.in.h
+  lib/sys_uio.in.h
   lib/sys_utsname.in.h
   lib/time.in.h
   lib/time_r.c
@@ -285,19 +255,16 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/00gnulib.m4
   m4/gethostname.m4
   m4/gnulib-common.m4
-  m4/mbrlen.m4
-  m4/mbstate_t.m4
   m4/mktime.m4
   m4/multiarch.m4
   m4/sockpfaf.m4
   m4/stddef_h.m4
-  m4/strcase.m4
   m4/strerror.m4
   m4/strftime.m4
-  m4/strings_h.m4
   m4/strptime.m4
   m4/strverscmp.m4
   m4/sys_socket_h.m4
+  m4/sys_uio_h.m4
   m4/sys_utsname_h.m4
   m4/time_h.m4
   m4/time_r.m4
