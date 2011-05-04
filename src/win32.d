@@ -332,16 +332,8 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
   #define MAXHOSTNAMELEN 64
 #endif
 #define HAVE_GETHOSTBYNAME
-#define CONNECT_NAME_T struct sockaddr
-#define CONNECT_CONST const
-#define CONNECT_ADDRLEN_T int
 #define HAVE_IPV4
 #define HAVE_IPV6
-#undef HAVE_NETINET_IN_H
-#undef HAVE_ARPA_INET_H
-#define RET_INET_ADDR_TYPE unsigned long
-#define INET_ADDR_SUFFIX
-#define INET_ADDR_CONST const
 #undef HAVE_NETINET_TCP_H
 #define SETSOCKOPT_CONST const
 #define SETSOCKOPT_ARG_T char*
