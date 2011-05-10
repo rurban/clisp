@@ -981,7 +981,6 @@ nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
 #define lslashp(c)   pslashp(c)
 #endif
 #define dotp(c)      chareq(c,ascii('.'))
-#define starp(c)     chareq(c,ascii('*'))
 
 /* UP: add a character to an ASCII string and return as a Lisp string
  can trigger GC */
@@ -1097,7 +1096,7 @@ local maygc object parse_logical_word (zustand* z, bool subdirp) {
   while (z->count) {
     ch = schar(STACK_2,z->index); /* next character */
     if (!legal_logical_word_char(ch)) {
-      if (starp(ch)) {
+      if (multiwild_char_p(ch)) {
         if (last_was_star) {
           if (subdirp && (z->index - startz.index == 1))
             seen_starstar = true;
@@ -1121,7 +1120,7 @@ local maygc object parse_logical_word (zustand* z, bool subdirp) {
   }
   if (len==0)
     return NIL;
-  else if ((len==1) && starp(schar(STACK_2,startz.index)))
+  else if ((len==1) && multiwild_char_p(schar(STACK_2,startz.index)))
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
@@ -1167,7 +1166,7 @@ local bool looks_logical_p (object string) {
         if (!legal_logical_word_char(ch)) {
           if (semicolonp(ch))
             logical_p = true;
-          else if (!colonp(ch) && !dotp(ch) && !starp(ch))
+          else if (!colonp(ch) && !dotp(ch) && !multiwild_char_p(ch))
             return false; /* invalid logical pathname char */
         }
       } while (--len);
@@ -1697,8 +1696,7 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
           goto no_drivespec; /* string already through ? */
         ch = TheSnstring(STACK_1)->data[z.index]; /* next character */
         ch = up_case(ch); /* as capital letter */
-        if (starp(ch)) {
-          /* ch = '*' -> Device := :WILD */
+        if (multiwild_char_p(ch)) { /* ch = '*' -> Device := :WILD */
           device = S(Kwild);
         } else if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) {
           /* 'A' <= ch <= 'Z' -> Device := "ch" */
@@ -3172,9 +3170,9 @@ local bool legal_logical_word (object obj) {
     var bool last_was_star = false;
     dotimespL(len,len, {
       var chart cc = as_chart(*charptr++);
-      if (!(legal_logical_word_char(cc) || starp(cc)))
+      if (!(legal_logical_word_char(cc) || multiwild_char_p(cc)))
         return false;
-      if (starp(cc)) {
+      if (multiwild_char_p(cc)) {
         if (last_was_star)
           return false; /* adjacent '*' are forbidden */
         last_was_star = true;
@@ -3700,51 +3698,35 @@ local maygc object copy_pathname (object pathname) {
  * =========
  */
 
-#ifdef PATHNAME_NOEXT
 /* UP: check whether the object is wild
- wild_p(object)
+ name(object)
  > object: normal simple-string or symbol
  < return: true when the object is wild */
-local bool wild_p (object obj, bool dirp) {
-  if (simple_string_p(obj)) {
-    var uintL len = Sstring_length(obj);
-    if (len > 0) {
-      SstringDispatch(obj,X, {
-        var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
-        dotimespL(len,len, {
-          var chart ch = as_chart(*charptr++);
-          if (wild_char_p(ch))
-            return true;
-        });
-      });
-    }
-    return false;
-  } else
-    return eq(obj,S(Kwild)) || (dirp && eq(obj,S(Kwild_inferiors)));
+#define DEF_WILD_CHECKER(name,char_wild_p)                              \
+local bool name (object obj, bool dirp) {                               \
+  if (simple_string_p(obj)) {                                           \
+    var uintL len = Sstring_length(obj);                                \
+    if (len > 0) {                                                      \
+      SstringDispatch(obj,X, {                                          \
+        const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0]; \
+        dotimespL(len,len, {                                            \
+          chart ch = as_chart(*charptr++);                              \
+          if (char_wild_p(ch))                                          \
+            return true;                                                \
+        });                                                             \
+      });                                                               \
+    }                                                                   \
+    return false;                                                       \
+  } else                                                                \
+    return eq(obj,S(Kwild)) || (dirp && eq(obj,S(Kwild_inferiors)));    \
 }
+
+#ifdef PATHNAME_NOEXT
+DEF_WILD_CHECKER(wild_p,wild_char_p)
 #endif
 
 #ifdef LOGICAL_PATHNAMES
-/* UP: check whether the obj is a string with '*' or a :WILD
- word_wild_p(object)
- > object: normal simple-string or symbol
- < return: true when the object is word-wild */
-local bool word_wild_p (object obj, bool dirp) {
-  if (simple_string_p(obj)) {
-    var uintL len = Sstring_length(obj);
-    if (len > 0) {
-      SstringDispatch(obj,X, {
-        var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
-        dotimespL(len,len, {
-          if (starp(as_chart(*charptr++)))
-            return true;
-        });
-      });
-    }
-    return false;
-  } else
-    return eq(obj,S(Kwild)) || (dirp && eq(obj,S(Kwild_inferiors)));
-}
+DEF_WILD_CHECKER(word_wild_p,multiwild_char_p)
 #endif
 
 /* UP: checks, if the host-component of a pathname contains wildcards.
@@ -3937,10 +3919,10 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
       return (b_count==0); /* "" matches only "" */
     m_count--;
     c = *m_ptr++; /* next match-character */
-    if (chareq(c,ascii('?'))) { /* wildcard '?' */
+    if (singlewild_char_p(c)) { /* wildcard '?' */
       if (b_count==0) return false; /* at least one character still has to come */
       b_count--; b_ptr++; /* it will be ignored */
-    } else if (starp(c))
+    } else if (multiwild_char_p(c))
       break; /* wildcard '*' later */
     else { /* everything else must match exactly: */
       if (b_count==0) return false;
@@ -3955,12 +3937,11 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
     if (m_count==0) return true; /* wildcard at the end matches the rest. */
     m_count--;
     c = *m_ptr++; /* next match-character */
-    if (chareq(c,ascii('?'))) {
+    if (singlewild_char_p(c)) {
       /* question mark: move forward, process instantly */
       if (b_count==0) return false;
       b_count--; b_ptr++;
-    }
-    else if (!starp(c))
+    } else if (!multiwild_char_p(c))
       break;
   }
   /* c = next non-wildcard-character. Search it. */
@@ -4202,11 +4183,11 @@ local maygc void wildcard_diff_ab (object pattern, object sample,
       return;
     }
     cc = schar(pattern,m_index++);
-    if (starp(cc))
+    if (multiwild_char_p(cc))
       break;
     if (b_index == Sstring_length(sample))
       return;
-    if (chareq(cc,ascii('?'))) {
+    if (singlewild_char_p(cc)) {
       /* recursive call to wildcard_diff_ab(), with extended previous: */
       cc = schar(sample,b_index++);
       pushSTACK(pattern); pushSTACK(sample);
@@ -4235,7 +4216,7 @@ local maygc void wildcard_diff_ab (object pattern, object sample,
     if (m_index == Sstring_length(pattern)
         ? b_index == Sstring_length(sample)
         : (cc = schar(pattern,m_index),
-           starp(cc) || chareq(cc,ascii('?'))
+           wild_char_p(cc)
            || (b_index < Sstring_length(sample)
                && equal_pathchar(schar(sample,b_index),cc)))) {
       /* wildcard_diff_ab() recursive call, with extended previous: */
@@ -4666,7 +4647,7 @@ local maygc object translate_nametype_aux (gcv_object_t* subst, object pattern,
       pattern = *pattern_;
       while (index != len) {
         cc = schar(pattern,index);
-        if ((starp(cc) /* wildcard for arbitrary many characters */
+        if ((multiwild_char_p(cc) /* wildcard for arbitrary many characters */
              || (!logical && singlewild_char_p(cc))) /* wildcard for exactly one character */
             && mconsp(*subst))
           break;

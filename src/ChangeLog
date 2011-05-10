@@ -1,3 +1,11 @@
+2011-05-10  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (starp): remove
+	(multiwild_char_p, singlewild_char_p, wild_char_p): use
+	consistently throughout the file
+	(DEF_WILD_CHECKER): new macro
+	(word_wild_p, wild_p): defined using it
+
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (IS_EINVAL_EXTRA) [UNIX_SUNOS5]: add ENXIO
