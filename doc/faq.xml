@@ -216,12 +216,10 @@ further explanations of the issues could be provided).</para>
 <answer><para>Please read <xref linkend="extend"/> and submit your patch,
   together with a <filename role="clisp-cvs">src/ChangeLog</filename>
   entry (see other entries there for inspiration),
-  to <ulink url="ml">clisp-devel</ulink>.</para>
+  to <ulink url="ml">clisp-devel</ulink> (if it is small) or
+  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=301355">SourceForge patch tracker</ulink>.</para>
  <para>See <filename role="clisp-cvs">src/CodingStyle</filename> for the
   style one should follow.</para>
- <para>If your patch is more than just a few lines, it is
-  <emphasis>much</emphasis> preferred that you make your patch available
-  on the web and send the link to the list.</para>
  <para>The patch should be created using &hg;.</para></answer></qandaentry>
 
 
