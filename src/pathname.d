@@ -14,8 +14,8 @@
 
 /* enable the following #define to debug pathname translations
  setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output
- WARNING: PRIN1 can trigger GC! BEWARE!
- define DEBUG_TRANSLATE_PATHNAME 1 */
+ WARNING: PRIN1 can trigger GC! BEWARE! */
+#  define DEBUG_TRANSLATE_PATHNAME 1
 #if DEBUG_TRANSLATE_PATHNAME
 #define string_concat(x) (printf("[%d]string_concat(%d)\n",__LINE__,x),(string_concat)(x))
 #define DOUT(label,obj)  OBJECT_OUT(obj,label)
@@ -27,24 +27,6 @@
 
 /* ========================================================================
                        Low level functions */
-
-/* UP: Tests whether a pathname is possibly a symlink.
- possible_symlink(path) */
-#ifdef UNIX_LINUX
-local inline bool possible_symlink (const char* path) {
-  /* In Linux 2.0.35, /proc/<pid>/{cwd,exe,root} and /proc/<pid>/fd/<n>
-   are symlinks pointing to void. Treat them like non-symlinks, in order
-   to avoid errors. */
-  if (path[0]=='/'
-      && path[1]=='p' && path[2]=='r' && path[3]=='o' && path[4]=='c'
-      && path[5]=='/'
-      && (path[6]>='0' && path[6]<='9'))
-    return false;
-  return true;
-}
-#else
-  #define possible_symlink(path)  true
-#endif
 
 #ifdef UNIX_LINUX
 /* The Linux /proc filesystem has some symlinks whose readlink value is
@@ -166,7 +148,6 @@ local char* realpath (const char* path, char* resolved_path) {
         default:
           /* after a normal subdir */
           #ifdef HAVE_READLINK
-          if (possible_symlink(resolved_path)) {
             /* read symbolic link: */
             to_ptr[-1]=0; /* replace '/' with 0 */
             #ifdef UNIX_CYGWIN32
@@ -235,7 +216,6 @@ local char* realpath (const char* path, char* resolved_path) {
                     return NULL; /* error */
                 }
               }
-          }
           #endif
           break;
       }
@@ -5592,8 +5572,7 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
   if (S_ISDIR(fs->fs_stat.st_mode))
     error_directory(*(fs->fs_pathname));
  #ifdef HAVE_LSTAT
-  else if (possible_symlink(namestring_asciz)
-           && S_ISLNK(fs->fs_stat.st_mode)) {
+  else if (S_ISLNK(fs->fs_stat.st_mode)) {
     /* is it a symbolic link? yes -> continue resolving: */
     if (*allowed_links == 0) { /* no more links allowed? */
       /* yes -> simulate UNIX-Error ELOOP */

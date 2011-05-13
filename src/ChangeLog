@@ -1,10 +1,14 @@
+2011-05-13  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (possible_symlink): remove (linux 2.0.35 is long gone)
+
 2011-05-10  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (starp): remove
 	(multiwild_char_p, singlewild_char_p, wild_char_p): use
 	consistently throughout the file
 	(DEF_WILD_CHECKER): new macro
-	(word_wild_p, wild_p): defined using it
+	(word_wild_p, wild_p): define using it
 
 2011-05-04  Sam Steingold  <sds@gnu.org>
 
