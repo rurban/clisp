@@ -9722,6 +9722,8 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
     #define GETTEXTL clgettextl
   #endif
 
+  /* the value of *current-language* */
+  extern object current_language_o (void);
   /* init the language and the locale */
   extern void init_language (const char*, const char*);
 #endif

@@ -41,7 +41,7 @@ LISPFUNN(set_current_language,1) {
     error(error_condition,GETTEXT("~S: cannot set language to ~S"));
   }
  #endif
-  VALUES1(O(current_language)); skipSTACK(1);
+  VALUES1(O(current_language) = current_language_o()); skipSTACK(1);
 }
 
 LISPFUNNR(text,1)
