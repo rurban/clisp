@@ -4,9 +4,6 @@
 
 #ifndef LANGUAGE_STATIC
 
-/* The current user interface language. */
-extern uintL language;
-
 /* Initializes the current interface language, according to the given
    arguments, getting the defaults from environment variables. */
 global void init_language (const char* argv_language, const char* argv_localedir);
@@ -33,7 +30,7 @@ global object CLOTEXT (const char*);
 #ifndef LANGUAGE_STATIC
 
 /* language, that is used for communication with the user: */
-global uintL language;
+local uintL language;
 
 /* Initializes the language, given the language name. */
 local bool init_language_from (const char* langname);
@@ -46,8 +43,8 @@ local bool init_language_from (const char* langname);
   #define language_danish    6
 #endif
 
-local object current_language_o (uintL lang) {
-  switch (lang) {
+global object current_language_o (void) {
+  switch (language) {
     case language_english:  { return S(english); }
    #ifdef GNU_GETTEXT
     case language_deutsch:  { return S(german); }
@@ -192,35 +189,35 @@ global void init_language (const char* argv_language,
      convert argv_localedir to be an absolute pathname, if possible. */
     var bool must_free_argv_localedir = false;
     #ifdef UNIX
-    if (argv_localedir != NULL)
-      if (argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
-        var char currdir[MAXPATHLEN];
-        if (getwd(currdir)) {
-          var uintL currdirlen = asciz_length(currdir);
-          if (currdirlen > 0 && currdir[0] == '/') {
-            var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
-            var char* abs_localedir = (char*)malloc(len*sizeof(char));
-            if (abs_localedir) {
-              must_free_argv_localedir = true;
-              /* Append currdir, maybe '/', and argv_localedir into abs_localedir: */
-              strncpy(abs_localedir,currdir,currdirlen);
-              var char* ptr = abs_localedir + currdirlen;
-              if (ptr[-1] != '/')
+    if (argv_localedir != NULL  /* FIXME: use realpath() instead */
+        && argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
+      var char currdir[MAXPATHLEN];
+      if (getwd(currdir)) {
+        var uintL currdirlen = asciz_length(currdir);
+        if (currdirlen > 0 && currdir[0] == '/') {
+          var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
+          var char* abs_localedir = (char*)malloc(len*sizeof(char));
+          if (abs_localedir) {
+            must_free_argv_localedir = true;
+            /* Append currdir, maybe '/', and argv_localedir into abs_localedir: */
+            strncpy(abs_localedir,currdir,currdirlen);
+            var char* ptr = abs_localedir + currdirlen;
+            if (ptr[-1] != '/')
                 *ptr++ = '/';
-              strcpy(ptr,argv_localedir);
-              argv_localedir = abs_localedir;
-            }
+            strcpy(ptr,argv_localedir);
+            argv_localedir = abs_localedir;
           }
         }
       }
+    }
     #endif
-    /* If argv_localedir is NULL, the user is not interested in localized
-     messages. Therefore use a directory that doesn't contain message
-     catalogs. */
-    if (argv_localedir == NULL)
-      argv_localedir = "/nonexistent";
-    bindtextdomain("clisp",argv_localedir);
-    bindtextdomain("clisplow",argv_localedir);
+    /* argv_localedir=NULL usually means (setq *current-language* ...)
+       in which case reusing text domain from the original (or previous)
+       call to bindtextdomain() is a wise choice */
+    if (argv_localedir) {
+      bindtextdomain("clisp",argv_localedir);
+      bindtextdomain("clisplow",argv_localedir);
+    }
     if (must_free_argv_localedir) free((void*)argv_localedir);
    #ifdef ENABLE_UNICODE
     bind_textdomain_codeset("clisp","UTF-8");

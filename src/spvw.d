@@ -3301,7 +3301,7 @@ local inline int init_memory (struct argv_initparams *p) {
     uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
 #endif
   /* init O(current_language) */
-  O(current_language) = current_language_o(language);
+  O(current_language) = current_language_o();
   /* set current evaluator-environments to the toplevel-value: */
   aktenv.var_env   = NIL;
   aktenv.fun_env   = NIL;

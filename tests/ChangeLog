@@ -1,3 +1,7 @@
+2011-05-16  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: check that setting *current-language* actually works
+
 2011-04-22  Sam Steingold  <sds@gnu.org>
 
 	* setf.tst: bug#3291585 (setf (values (values) ...) ...)

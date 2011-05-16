@@ -1,3 +1,15 @@
+2011-05-16  Sam Steingold  <sds@gnu.org>
+
+	* spvw_language.d (language): static, not global
+	(current_language_o): global, not static
+	(init_language): do not call bindtextdomain() with a nonexistent
+	localedir because that it is usually called by SET-CURRENT-LANGUAGE
+	with a NULL second argument
+	* lispbibl.d (current_language_o) [!LANGUAGE_STATIC]: declare extern
+	* spvw.d (init_memory): update initialization of O(current_language)
+	* i18n.d (SET-CURRENT-LANGUAGE): use current_language_o() to set
+	O(current_language)
+
 2011-05-13  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (possible_symlink): remove (linux 2.0.35 is long gone)
