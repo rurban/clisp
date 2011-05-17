@@ -16,7 +16,7 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 
-#ifndef _gl_GL_SYS_WAIT_H
+#ifndef _GL_SYS_WAIT_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -28,16 +28,16 @@
 # @INCLUDE_NEXT@ @NEXT_SYS_WAIT_H@
 #endif
 
-#ifndef _gl_GL_SYS_WAIT_H
-#define _gl_GL_SYS_WAIT_H
+#ifndef _GL_SYS_WAIT_H
+#define _GL_SYS_WAIT_H
 
 /* Get pid_t.  */
 #include <sys/types.h>
 
 
-/* The definitions of _gl_GL_FUNCDECL_RPL etc. are copied here.  */
+/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
-/* The definition of _gl_GL_WARN_ON_USE is copied here.  */
+/* The definition of _GL_WARN_ON_USE is copied here.  */
 
 
 #if !((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__)
@@ -113,18 +113,18 @@
 
 #if @GNULIB_WAITPID@
 # if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
-_gl_GL_FUNCDECL_SYS (waitpid, pid_t, (pid_t pid, int *statusp, int options));
+_GL_FUNCDECL_SYS (waitpid, pid_t, (pid_t pid, int *statusp, int options));
 # endif
-_gl_GL_CXXALIAS_SYS (waitpid, pid_t, (pid_t pid, int *statusp, int options));
-_gl_GL_CXXALIASWARN (waitpid);
+_GL_CXXALIAS_SYS (waitpid, pid_t, (pid_t pid, int *statusp, int options));
+_GL_CXXALIASWARN (waitpid);
 #elif defined GNULIB_POSIXCHECK
 # undef waitpid
 # if HAVE_RAW_DECL_WAITPID
-_gl_GL_WARN_ON_USE (waitpid, "waitpid is unportable - "
+_GL_WARN_ON_USE (waitpid, "waitpid is unportable - "
                  "use gnulib module sys_wait for portability");
 # endif
 #endif
 
 
-#endif /* _gl_GL_SYS_WAIT_H */
-#endif /* _gl_GL_SYS_WAIT_H */
+#endif /* _GL_SYS_WAIT_H */
+#endif /* _GL_SYS_WAIT_H */

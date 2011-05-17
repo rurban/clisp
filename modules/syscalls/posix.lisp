@@ -15,7 +15,7 @@
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:errno #:strerror #:hostid #:domainname #:file-size #:user-shells
-   #+unix #:chroot #:with-subprocesses
+   #+unix #:chroot #:with-subprocesses #:fnmatch #:fnmatch-matcher
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
@@ -422,6 +422,21 @@
   (defun os:tgamma (x)
     (multiple-value-bind (lg sg) (os:lgamma x)
       (* (or sg 1) (exp lg)))))
+;;;--------------------------------------------------------------------------
+(defun fnmatch-matcher (pattern)
+  "A valid value for *APROPOS-MATCHER*."
+  (lambda (name) (fnmatch pattern name :case-sensitive nil)))
+;; deprecated code - to be removed 2013-05-17
+(defpackage "WILDCARD"
+  (:modern t) (:use "COMMON-LISP")
+  (:documentation "Obsolete and deprecated")
+  (:export #:match #:wildcard-matcher))
+(pushnew "WILDCARD" custom:*system-package-list* :test #'string=)
+(pushnew :wildcard *features*)
+(provide "wildcard")
+(setf (documentation (find-package "WILDCARD") 'sys::impnotes) "wildcard")
+(sys::deprecate 'wildcard:match 'fnmatch)
+(sys::deprecate 'wildcard:wildcard-matcher 'fnmatch-matcher)
 ;;;--------------------------------------------------------------------------
 (setf (package-lock "EXT") nil)
 (use-package '("POSIX") "EXT")

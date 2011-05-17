@@ -12,8 +12,6 @@ BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS()
 AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
-sc_gl_EARLY
-sc_gl_INIT
 
 BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
@@ -54,7 +52,6 @@ gethostid sethostid getdomainname setdomainname nftw getdate)
 AC_FUNC_CHOWN
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 AC_CHECK_DECLS([getdate_err],,,[#include <time.h>])
-CL_STAT
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
  AC_MSG_CHECKING([whether f_fsid is scalar])
  AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],

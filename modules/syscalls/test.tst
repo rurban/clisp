@@ -713,6 +713,21 @@ RUN-SLEEP
 #+unix
 ("file3" NIL NIL NIL)
 
+(fnmatch "foo" "bar") NIL
+
+(letf (#+unicode (*misc-encoding* charset:utf-8)
+       (*apropos-matcher* #'fnmatch-matcher))
+  (apropos-list "FNMATCH*R"))
+(POSIX:FNMATCH-MATCHER)
+
+(fnmatch "foo*bar" "foobar") T
+(fnmatch "foo*bar" "foo*bar") T
+(fnmatch "foo*bar" "fooAbar") T
+(fnmatch "foo*bar" "foo/bar") T
+(fnmatch "foo*bar" "foo/bar" :pathname t) NIL
+(fnmatch "foo*bar" "fooABAR") NIL
+(fnmatch "foo*bar" "fooABAR" :case-sensitive nil) T
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)

@@ -23,7 +23,7 @@
 #endif
 @PRAGMA_COLUMNS@
 
-#if defined _gl_GL_SYS_TIME_H
+#if defined _GL_SYS_TIME_H
 
 /* Simply delegate to the system's header, without adding anything.  */
 # if @HAVE_SYS_TIME_H@
@@ -32,7 +32,7 @@
 
 #else
 
-# define _gl_GL_SYS_TIME_H
+# define _GL_SYS_TIME_H
 
 # if @HAVE_SYS_TIME_H@
 #  @INCLUDE_NEXT@ @NEXT_SYS_TIME_H@
@@ -40,11 +40,11 @@
 #  include <time.h>
 # endif
 
-/* The definitions of _gl_GL_FUNCDECL_RPL etc. are copied here.  */
+/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
-/* The definition of _gl_GL_ARG_NONNULL is copied here.  */
+/* The definition of _GL_ARG_NONNULL is copied here.  */
 
-/* The definition of _gl_GL_WARN_ON_USE is copied here.  */
+/* The definition of _GL_WARN_ON_USE is copied here.  */
 
 # ifdef __cplusplus
 extern "C" {
@@ -73,29 +73,29 @@ struct timeval
 #    undef gettimeofday
 #    define gettimeofday rpl_gettimeofday
 #   endif
-_gl_GL_FUNCDECL_RPL (gettimeofday, int,
+_GL_FUNCDECL_RPL (gettimeofday, int,
                   (struct timeval *restrict, void *restrict)
-                  _gl_GL_ARG_NONNULL ((1)));
-_gl_GL_CXXALIAS_RPL (gettimeofday, int,
+                  _GL_ARG_NONNULL ((1)));
+_GL_CXXALIAS_RPL (gettimeofday, int,
                   (struct timeval *restrict, void *restrict));
 #  else
 #   if !@HAVE_GETTIMEOFDAY@
-_gl_GL_FUNCDECL_SYS (gettimeofday, int,
+_GL_FUNCDECL_SYS (gettimeofday, int,
                   (struct timeval *restrict, void *restrict)
-                  _gl_GL_ARG_NONNULL ((1)));
+                  _GL_ARG_NONNULL ((1)));
 #   endif
 /* Need to cast, because on glibc systems, by default, the second argument is
                                                   struct timezone *.  */
-_gl_GL_CXXALIAS_SYS_CAST (gettimeofday, int,
+_GL_CXXALIAS_SYS_CAST (gettimeofday, int,
                        (struct timeval *restrict, void *restrict));
 #  endif
-_gl_GL_CXXALIASWARN (gettimeofday);
+_GL_CXXALIASWARN (gettimeofday);
 # elif defined GNULIB_POSIXCHECK
 #  undef gettimeofday
 #  if HAVE_RAW_DECL_GETTIMEOFDAY
-_gl_GL_WARN_ON_USE (gettimeofday, "gettimeofday is unportable - "
+_GL_WARN_ON_USE (gettimeofday, "gettimeofday is unportable - "
                  "use gnulib module gettimeofday for portability");
 #  endif
 # endif
 
-#endif /* _gl_GL_SYS_TIME_H */
+#endif /* _GL_SYS_TIME_H */

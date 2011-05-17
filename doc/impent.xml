@@ -575,7 +575,6 @@
 <!ENTITY matlab-mod '<filename role="module" path="matlab">matlab</filename>'>
 <!ENTITY netica-mod '<filename role="module" path="netica">netica</filename>'>
 <!ENTITY pcre-mod '<filename role="module" path="pcre">pcre</filename>'>
-<!ENTITY wildcard-mod '<filename role="module" path="wildcard">wildcard</filename>'>
 <!ENTITY zlib-mod '<filename role="module" path="zlib">zlib</filename>'>
 <!ENTITY rawsock-mod '<filename role="module" path="rawsock">rawsock</filename>'>
 <!ENTITY dbus-mod '<filename role="module" path="dbus">dbus</filename>'>

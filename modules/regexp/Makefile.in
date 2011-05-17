@@ -18,7 +18,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = regexp.fas regexi.o libgnu_rx.a preload.lisp
+GENERATED = regexp.fas regexi.o preload.lisp
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/README $(srcdir)/regexp.lisp $(srcdir)/regexp.texinfo
 distribdir =
@@ -31,28 +31,18 @@ clisp-module : $(GENERATED)
 regexp.fas: $(srcdir)/regexp.lisp
 	$(CLISP) -c $(srcdir)/regexp.lisp -o ./
 
-regexi.o : regexi.m.c config.h gllib
+regexi.o : regexi.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
-		-Igllib -I$(srcdir)/gllib -c regexi.m.c -o regexi.o
+		-I$(srcdir)/gllib -c regexi.m.c -o regexi.o
 
 regexi.m.c : $(srcdir)/regexi.c
 	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/regexi.c ./
 
+config.h : $(srcdir)/config.h.in config.status
+	sh config.status --header=config.h
+
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
-
-am--refresh :
-
-# regexp relies on src/gllib, so we must also include files in the build dir
-gllib libgnu_rx.a : force
-	rm -f libgnu_rx.a
-	mkdir -p gllib
-	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
-	cd gllib; \
-	  $(MAKE) srcdir="$(srcdir)/gllib" \
-		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(CLISP_LIBDIR) $(NO_CXX)"; \
-	  $(LN) libgnu.a ../libgnu_rx.a
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

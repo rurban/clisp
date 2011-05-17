@@ -1,5 +1,38 @@
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
+	merge the wildcard module into syscalls; import gnulib into src only
+	before: clisp:52,284k modules:14,136k src:25,876k
+	after:  clisp:44,200k modules: 8,684k src:24,836k
+	* Makefile.devel (MODULES): remove wildcard
+	(GNULIB_USERS, MAKEFILE_IN): remove
+	(gnulib-imported): import files into src/ only
+	(GNULIB_CORE): import explicitly "unistd alloca-opt environ"
+	which have been already included because of dependencies;
+	also import lstat, stat, readlink
+	* gnulib-tool.patch: remove
+	* configure.in: rely on lstat, stat, readlink
+	* makemake.in (GLLIB_A): no need for "_cl" suffix
+	* pathname.d: lstat() is always present (from gnulib)
+	* unix.d: readlink, lstat, gethostname come from gnulib
+	* win32.d: gethostname comes from gnulib
+	* m4/stat.m4: remove
+	* modules/wildcard, modules/regexp/gl*, modules/syscalls/gl*: remove
+	* modules/regexp/Makefile.in, modules/syscalls/Makefile.in:
+	remove gnulib targets
+	(GENERATED): remove libgnu_*.a
+	(config.h): add target
+	* modules/regexp/configure.in, modules/syscalls/configure.in:
+	remove gnulib calls
+	* modules/regexp/link.sh.in, modules/syscalls/link.sh.in
+	(NEW_FILES): remove libgnu_*.a
+	* modules/syscalls/calls.c (FNMATCH): add
+	* modules/syscalls/posix.lisp: export FNMATCH & FNMATCH-MATCHER
+	(fnmatch-matcher): implement
+	(wildcard:match, wildcard:wildcard-matcher): add for
+	backward-compatibility
+
+2011-05-17  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (environ) [HAVE_ENVIRONMENT]: included for dependencies
 	gnulib module environ already provides the declaration
 	* socket.d: no need to guard including <unistd.h> - it is always

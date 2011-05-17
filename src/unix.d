@@ -281,31 +281,8 @@ extern_C int raise (int sig);
 #endif
 /* used by PATHNAME */
 
-/* resolve symbolic links in pathname: */
-#ifdef HAVE_READLINK
-/* extern_C ssize_t readlink (const char* path, char* buf, size_t bufsiz); */ /* READLINK(2) */
-#endif
-/* used by PATHNAME */
-
 /* get information about a file: */
 #include <sys/stat.h>
-/* extern/extern_C int stat (const char* path, struct stat * buf); */ /* STAT(2V) */
-#ifdef HAVE_LSTAT
-  /* extern/extern_C int lstat (const char* path, struct stat * buf); */ /* STAT(2V) */
-#else
-  #define lstat stat
-  #define S_ISLNK(m)  false
-#endif
-/* extern/extern_C int fstat (int fd, struct stat * buf); */ /* STAT(2V) */
-#ifndef S_ISDIR
-  #define S_ISDIR(m)  (((m)&S_IFMT) == S_IFDIR)
-#endif
-#ifndef S_ISLNK
-  #define S_ISLNK(m)  (((m)&S_IFMT) == S_IFLNK)
-#endif
-#ifndef S_ISREG
-  #define S_ISREG(m)  (((m)&S_IFMT) == S_IFREG)
-#endif
 /* used by PATHNAME, STREAM, SPVW */
 struct file_id {              /* Unique ID for a file on this machine */
 #if defined(SIZEOF_DEV_T)
@@ -626,9 +603,6 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 /* used by MISC */
 
 /* determine MACHINE-INSTANCE: */
-#ifdef HAVE_GETHOSTNAME
-  /* extern_C int gethostname (char* name, size_t namelen); */ /* GETHOSTNAME(2) */
-#endif
 #ifdef HAVE_GETHOSTBYNAME
   #include <sys/socket.h>
   #include <netdb.h>

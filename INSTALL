@@ -18,9 +18,7 @@ Documentation:
 
 Source:
 
-      src/FILES.1        source documentation
       src/_README        README master
-      src/_clisp.1       manual page master
       src/*.c            C source files
       src/*.d            C source files
       src/*.lisp         Lisp source files
@@ -37,7 +35,7 @@ Installation:
 
 Other:
 
-      src/malloc/        a GNU malloc library routine
+      src/gmalloc.c      a GNU malloc library routine
 
   modules:           add-on sofware
       modules/queens/    sample external module for CLISP for you to explore
@@ -61,7 +59,6 @@ Other:
         netica           Bayesian belief networks and influence diagrams
       matching, file processing
         pcre             Perl-compatible regular expressions
-        wildcard         wildcard matching (shell globbing)
         zlib             compress vectors
       communication, networking
         rawsock          low level socket interface

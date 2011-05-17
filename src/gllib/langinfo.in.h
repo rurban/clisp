@@ -20,7 +20,7 @@
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/langinfo.h.html>
  */
 
-#ifndef _gl_GL_LANGINFO_H
+#ifndef _GL_LANGINFO_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -32,8 +32,8 @@
 # @INCLUDE_NEXT@ @NEXT_LANGINFO_H@
 #endif
 
-#ifndef _gl_GL_LANGINFO_H
-#define _gl_GL_LANGINFO_H
+#ifndef _GL_LANGINFO_H
+#define _GL_LANGINFO_H
 
 
 #if !@HAVE_LANGINFO_H@
@@ -138,9 +138,9 @@ typedef int nl_item;
 
 #endif
 
-/* The definitions of _gl_GL_FUNCDECL_RPL etc. are copied here.  */
+/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
-/* The definition of _gl_GL_WARN_ON_USE is copied here.  */
+/* The definition of _GL_WARN_ON_USE is copied here.  */
 
 /* Declare overridden functions.  */
 
@@ -155,23 +155,23 @@ typedef int nl_item;
 #   undef nl_langinfo
 #   define nl_langinfo rpl_nl_langinfo
 #  endif
-_gl_GL_FUNCDECL_RPL (nl_langinfo, char *, (nl_item item));
-_gl_GL_CXXALIAS_RPL (nl_langinfo, char *, (nl_item item));
+_GL_FUNCDECL_RPL (nl_langinfo, char *, (nl_item item));
+_GL_CXXALIAS_RPL (nl_langinfo, char *, (nl_item item));
 # else
 #  if !@HAVE_NL_LANGINFO@
-_gl_GL_FUNCDECL_SYS (nl_langinfo, char *, (nl_item item));
+_GL_FUNCDECL_SYS (nl_langinfo, char *, (nl_item item));
 #  endif
-_gl_GL_CXXALIAS_SYS (nl_langinfo, char *, (nl_item item));
+_GL_CXXALIAS_SYS (nl_langinfo, char *, (nl_item item));
 # endif
-_gl_GL_CXXALIASWARN (nl_langinfo);
+_GL_CXXALIASWARN (nl_langinfo);
 #elif defined GNULIB_POSIXCHECK
 # undef nl_langinfo
 # if HAVE_RAW_DECL_NL_LANGINFO
-_gl_GL_WARN_ON_USE (nl_langinfo, "nl_langinfo is not portable - "
+_GL_WARN_ON_USE (nl_langinfo, "nl_langinfo is not portable - "
                  "use gnulib module nl_langinfo for portability");
 # endif
 #endif
 
 
-#endif /* _gl_GL_LANGINFO_H */
-#endif /* _gl_GL_LANGINFO_H */
+#endif /* _GL_LANGINFO_H */
+#endif /* _GL_LANGINFO_H */

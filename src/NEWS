@@ -50,6 +50,11 @@ User visible changes
   and now triggers a STYLE-WARNING during compilation.
   See <http://clisp.org/impnotes/compilation.html#key-optional> for details.
 
+* Module wildcard has been removed.
+  Functions WILDCARD:MATCH and WILDCARD:WILDCARD-MATCHER are deprecated
+  in favor of POSIX:FNMATCH and POSIX:FNMATCH-MATCHER.
+  See <http://clisp.org/impnotes/syscalls.html#wildcard> for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
   + Fix SCREEN behavior when the window is resized.

@@ -1510,8 +1510,8 @@ test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
 
 test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 
-GLLIB_A=libgnu_cl.a
-# libgnu_cl.a must come _before_ -lws2_32
+GLLIB_A=libgnu.a
+# libgnu.a must come _before_ -lws2_32
 LIBS="${LIBS} ${GLLIB_A} ${LIBSOCKET}"
 FILES="${GLLIB_A} "${FILES}
 
@@ -1796,6 +1796,7 @@ echol "# This file was created on host $hostname as the output of the command:"
 echol "# $0$makemake_args"
 echol
 echol '# -------------- Start of configurable section --------------------'
+echol "srcdir = ${srcdir}"
 echol
 if [ $TSYS = win32msvc ] ; then
   echol "# Flags that can be set on the nmake command line:"
@@ -1855,7 +1856,6 @@ echol     "# rawsock              raw socket access"
 echol     "# pcre                 Perl-compatible regular expressions"
 if [ "${with_dynamic_ffi}" != no ]; then
   echol   "# libsvm               build Support Vector Machine models"
-  echol   "# wildcard             wildcard matching"
   echol   "# postgresql           interface to PostgreSQL ODBMS"
   echol   "# fastcgi              FastCGI (http://www.fastcgi.com/) interface"
   echol   "# oracle               Oracle (http://www.oracle.com/) interface"
@@ -2039,7 +2039,7 @@ cat <<\!!
 #
 # 1. The module must be located in a subdirectory of clisp's build
 #    directory.
-#    Examples: clisp/build/wildcard/
+#    Examples: clisp/build/regexp/
 #              clisp/build/bindings/glibc/
 #
 # 2. If the module contains a file called "configure", it is assumed
@@ -2752,7 +2752,7 @@ if [ "${with_unicode}" != no ] ; then
   # make sure that no encoding is left as ASCII (the C locale encoding)
   # The first "-E" sets all encodings to UTF-8, so that we can read
   #   CLISP source files and dump everything to the terminal;
-  #   this is also important for the wildcard and regexp test suite.
+  #   this is also important for the regexp test suite.
   # The second "-E" ensures that syscalls tests pass (user names may be 8bit)
   encflags=' -E UTF-8 -Emisc 1:1'
   if [ "${TSYSOS}" != darwin ]; then # utf-8 on Darwin is good enough

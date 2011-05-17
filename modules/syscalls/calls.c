@@ -20,15 +20,9 @@
 #include "clisp.h"
 #include "config.h"
 
-#if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
-#endif
-#if defined(HAVE_TIME_H)
 # include <time.h>
-#endif
-#if defined(HAVE_UNISTD_H)
 # include <unistd.h>
-#endif
 #if defined(HAVE_SYS_UNISTD_H)
 # include <sys/unistd.h>
 #endif
@@ -77,6 +71,7 @@
 #if defined(HAVE_FTW_H)
 # include <ftw.h>
 #endif
+#include <fnmatch.h>
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
@@ -5851,6 +5846,28 @@ DEFUN(POSIX::STRERROR, &optional error_code) {
   VALUES1(safe_to_string(ret));
 # endif
   skipSTACK(1);
+}
+
+DEFFLAGSET(fnm_flags, !FNM_CASEFOLD FNM_PATHNAME FNM_PERIOD FNM_NOESCAPE)
+DEFUN(POSIX:FNMATCH, pattern string &key \
+      :CASE-SENSITIVE PATHNAME PERIOD NOESCAPE) {
+  int flags = fnm_flags();
+  STACK_0 = check_string(STACK_0);
+  STACK_1 = check_string(STACK_1);
+  with_string_0(STACK_0,GLO(misc_encoding),stringz, {
+      with_string_0(STACK_1,GLO(misc_encoding),patternz, {
+          begin_system_call();
+          flags = fnmatch(patternz,stringz,flags);
+          end_system_call();
+      });
+  });
+  switch (flags) {
+    case 0: VALUES1(T); break;
+    case FNM_NOMATCH: VALUES1(NIL); break;
+    default: pushSTACK(fixnum(flags));
+      error(error_condition,GETTEXT("fnmatch: error ~S"));
+  }
+  skipSTACK(2);
 }
 
 #if defined(DEBUG_SPVW)

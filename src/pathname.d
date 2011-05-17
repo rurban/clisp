@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2008
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2010
+ * ANSI compliance, bugs: Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
@@ -5571,7 +5571,6 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
   /* file exists. */
   if (S_ISDIR(fs->fs_stat.st_mode))
     error_directory(*(fs->fs_pathname));
- #ifdef HAVE_LSTAT
   else if (S_ISLNK(fs->fs_stat.st_mode)) {
     /* is it a symbolic link? yes -> continue resolving: */
     if (*allowed_links == 0) { /* no more links allowed? */
@@ -5607,9 +5606,7 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
     pushSTACK(pathname);
     funcall(L(merge_pathnames),2);
     *(fs->fs_pathname) = value1;
-  }
- #endif /* HAVE_LSTAT */
-  else /* normal file */
+  } else /* normal file */
     return ((fs->fs_stat_validp = true));
   return false;
 }

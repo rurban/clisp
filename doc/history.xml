@@ -167,7 +167,7 @@
 
 <revision><revnumber>2.15</revnumber><date>1995-04-25</date>&bruno-a;
  <revdescription><itemizedlist>
-   <listitem><simpara>New modules: &wildcard-mod;,
+   <listitem><simpara>New modules: <filename>wildcard</filename>,
      &regexp-mod;</simpara></listitem>
    <listitem><simpara>&formatter;, &finalize;</simpara></listitem>
    <listitem><simpara>&file-stream-t;, &synonym-stream-t;,
