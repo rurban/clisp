@@ -1,5 +1,10 @@
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (environ) [HAVE_ENVIRONMENT]: included for dependencies
+	gnulib module environ already provides the declaration
+
+2011-05-17  Sam Steingold  <sds@gnu.org>
+
 	* configure: detect building for mingw from $CC -dumpmachine
 
 2011-05-17  Sam Steingold  <sds@gnu.org>
