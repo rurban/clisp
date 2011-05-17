@@ -4005,9 +4005,8 @@ _ACEOF
 
 fi
 
-for ac_header in sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
-asm/types.h \
-sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h unistd.h
+for ac_header in linux/if_packet.h netdb.h sys/uio.h \
+asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -4024,12 +4023,8 @@ done
 for ac_header in net/if.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "net/if.h" "ac_cv_header_net_if_h" "
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h> /* for u_long on *BSD */
-#endif
-#if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
+#include <sys/types.h> /* for u_long on *BSD */
+#include <sys/socket.h>
 
 "
 if test "x$ac_cv_header_net_if_h" = x""yes; then :
@@ -4044,9 +4039,8 @@ done
 for ac_header in netinet/if_ether.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "netinet/if_ether.h" "ac_cv_header_netinet_if_ether_h" "
-#if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
+#include <sys/types.h> /* for u_long on *BSD */
+#include <sys/socket.h>
 #if HAVE_NET_IF_H
 # include <net/if.h>
 #endif
@@ -4115,9 +4109,7 @@ fi
 
 fi
 ac_fn_c_check_type "$LINENO" "struct iovec" "ac_cv_type_struct_iovec" "
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h> /* for size_t */
-#endif
+#include <sys/types.h> /* for size_t */
 #if defined(HAVE_SYS_UIO_H)
 # include <sys/uio.h>
 #endif

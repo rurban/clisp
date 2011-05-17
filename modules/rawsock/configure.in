@@ -12,21 +12,15 @@ CL_MODULE_COMMON_CHECKS()
 
 BOLD_MSG([Rawsock (Headers)])
 CL_TCPCONN
-AC_CHECK_HEADERS([sys/socket.h linux/if_packet.h netdb.h sys/uio.h \
-asm/types.h \
-sys/types.h sys/ioctl.h errno.h stropts.h poll.h sys/un.h ifaddrs.h unistd.h])
+AC_CHECK_HEADERS([linux/if_packet.h netdb.h sys/uio.h \
+asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h> /* for u_long on *BSD */
-#endif
-#if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
+#include <sys/types.h> /* for u_long on *BSD */
+#include <sys/socket.h>
 ])
 AC_CHECK_HEADERS([netinet/if_ether.h],[],[],[
-#if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
+#include <sys/types.h> /* for u_long on *BSD */
+#include <sys/socket.h>
 #if HAVE_NET_IF_H
 # include <net/if.h>
 #endif
@@ -42,9 +36,7 @@ else AC_CHECK_MEMBERS([struct msghdr.msg_flags, struct msghdr.msg_control],,,
 [#include <sys/socket.h>])
 fi
 AC_CHECK_TYPES(struct iovec,,,[
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h> /* for size_t */
-#endif
+#include <sys/types.h> /* for size_t */
 #if defined(HAVE_SYS_UIO_H)
 # include <sys/uio.h>
 #endif
@@ -78,9 +70,6 @@ readv writev getnameinfo getaddrinfo freeaddrinfo gai_strerror dnl
 endprotoent getprotobyname getprotobynumber getprotoent setprotoent dnl
 if_nametoindex if_indextoname if_nameindex if_freenameindex dnl
 endnetent getnetbyaddr getnetbyname getnetent setnetent getifaddrs freeifaddrs)
-dnl AC_CHECK_FUNCS(inet_pton inet_ntop inet_addr inet_ntoa)
-dnl CL_POLL
-dnl CL_SELECT
 
 BOLD_MSG([Rawsock (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

@@ -1,5 +1,13 @@
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c, modules/berkeley-db/bdb.c:
+	* modules/berkeley-db/configure.in, modules/syscalls/configure.in:
+	* modules/fastcgi/fastcgi_wrappers.c, modules/gdbm/gdbm.c:
+	* rawsock/rawsock.c, modules/rawsock/configure.in:
+	no need to check and guard gnulib #include files and functions
+
+2011-05-17  Sam Steingold  <sds@gnu.org>
+
 	merge the wildcard module into syscalls; import gnulib into src only
 	before: clisp:52,284k modules:14,136k src:25,876k
 	after:  clisp:44,200k modules: 8,684k src:24,836k

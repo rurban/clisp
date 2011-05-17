@@ -1,6 +1,6 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
- * Copyright (C) 2003-2010 by Sam Steingold
+ * Copyright (C) 2003-2011 by Sam Steingold
  */
 
 #include "clisp.h"
@@ -28,12 +28,8 @@
 # endif
 #endif
 
-#if defined(HAVE_SYS_TIME_H)
-# include <sys/time.h>
-#endif
-#if defined(HAVE_TIME_H)
-# include <time.h>
-#endif
+#include <sys/time.h>
+#include <time.h>
 
 #include <string.h>             /* for memset() */
 #include <stdio.h>              /* fopen/fclose for db->verify */
@@ -399,14 +395,10 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
 
 static void time_stamp (FILE* out, const char* prefix) {
   fputs(prefix,out);
-#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_LOCALTIME) && defined(HAVE_STRFTIME)
   { char str[80]; struct timeval tv; gettimeofday(&tv,NULL);
     strftime(str,80," [%Y-%m-%d %a %H:%M:%S %Z]",localtime(&tv.tv_sec));
     fputs(str,out);
   }
-#else
-  fprintf(out," [%s:%d: FIXME time_stamp()]",__FILE__,__LINE__);
-#endif
   fputs("\n",out);
 }
 

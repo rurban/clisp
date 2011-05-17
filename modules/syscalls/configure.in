@@ -72,9 +72,7 @@ if test "$ac_cv_func_setpgrp" = "yes"; then
 dnl BSD versions of setpgrp() are identical to setpgid()
 AC_CACHE_CHECK([whether setpgrp() is POSIX],ac_cv_func_setpgrp_posix,[
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <sys/types.h>
 ],[[pid_t pid = setpgrp();]])],
 ac_cv_func_setpgrp_posix=yes,ac_cv_func_setpgrp_posix=no)])

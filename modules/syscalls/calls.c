@@ -1410,11 +1410,11 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
     } else if (WIFSTOPPED(status)) {
       value3 = check_signal_reverse(WSTOPSIG(status));
       value2 = `:STOPPED`;
-#if defined(WIFCONTINUED)       /* cygwin does not have this */
+#  if defined(WIFCONTINUED)       /* cygwin does not have this */
     } else if (WIFCONTINUED(status)) {
       value2 = `:CONTINUED`;
       value3 = NIL;
-#endif
+#  endif
     } else {
       value2 = NIL;
       value3 = fixnum(status);
@@ -1582,18 +1582,18 @@ DEFUN(POSIX::SET-RLIMIT, what cur max)
 
 #if 0
 void print_he (struct hostent *he) {
- int ii;
- char **pp;
- struct in_addr in;
- printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
-        he->h_name,he->h_length,he->h_addrtype,sizeof(in.s_addr));
- for (pp = he->h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
- printf("\n IP:");
- for (pp = he->h_addr_list; *pp != 0; pp++) {
-   (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
-   (void) printf("\t%s", inet_ntoa(in));
- }
- printf("\n");
+  int ii;
+  char **pp;
+  struct in_addr in;
+  printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
+         he->h_name,he->h_length,he->h_addrtype,sizeof(in.s_addr));
+  for (pp = he->h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
+  printf("\n IP:");
+  for (pp = he->h_addr_list; *pp != 0; pp++) {
+    (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
+    (void) printf("\t%s", inet_ntoa(in));
+  }
+  printf("\n");
 }
 #endif
 
@@ -1995,9 +1995,6 @@ DEFUN(POSIX::%SETDOMAINNAME, domain) {
 #endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
-# if !defined(HAVE_LSTAT)
-#  define lstat stat
-# endif
 static void file_stat_to_STACK (object file, const struct stat *ps) {
   pushSTACK(file);                    /* the object stat'ed */
   pushSTACK(L_to_I(ps->st_dev));      /* device */
@@ -5859,8 +5856,8 @@ DEFUN(POSIX:FNMATCH, pattern string &key \
           begin_system_call();
           flags = fnmatch(patternz,stringz,flags);
           end_system_call();
-      });
-  });
+        });
+    });
   switch (flags) {
     case 0: VALUES1(T); break;
     case FNM_NOMATCH: VALUES1(NIL); break;
