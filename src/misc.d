@@ -199,10 +199,6 @@ LISPFUNN(machine_version,0)
 #endif /* MACHINE_KNOWN */
 
 #if defined(HAVE_ENVIRONMENT)
-/* declared in <stdlib.h> or <unistd.h> */
-#if !HAVE_DECL_ENVIRON
-extern_C char** environ;
-#endif
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
