@@ -9,7 +9,7 @@
  * All other options are passed to the main program.
  *
  * Bruno Haible 31.3.1997
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2009, 2011
  */
 
 /*
@@ -40,6 +40,8 @@
  * 'hardcode' program will not work any more.)
  */
 #endif
+
+#include "config.h"
 
 /* Declare strlen(), strcpy(), strcat(). */
 # include <string.h>
