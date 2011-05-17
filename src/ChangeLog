@@ -1,5 +1,9 @@
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
+	* configure: detect building for mingw from $CC -dumpmachine
+
+2011-05-17  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (print-tables-1): DEFFLAGSET(..., !CONST)
 	means that to add CONST to flags one passes NIL to the lisp function
 
