@@ -46,9 +46,7 @@
 #if defined(UNIX) || defined(WIN32_NATIVE)
 
 #include <sys/types.h>
-#ifdef HAVE_UNISTD_H
 #include <unistd.h> /* declares fcntl(), close(), sleep() */
-#endif
 
 #include <errno.h>
 

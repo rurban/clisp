@@ -2,6 +2,8 @@
 
 	* misc.d (environ) [HAVE_ENVIRONMENT]: included for dependencies
 	gnulib module environ already provides the declaration
+	* socket.d: no need to guard including <unistd.h> - it is always
+	provided by the gnulib module unistd
 
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
