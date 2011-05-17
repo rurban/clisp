@@ -17,15 +17,9 @@
 /* Declaration of types of I/O parameters of operating system functions */
 #include <stdlib.h>
 #include <sys/types.h>  /* declares pid_t, uid_t */
-#ifdef HAVE_SYS_TIME_H
  #include <sys/time.h>
-#endif
-#ifdef HAVE_TIME_H
  #include <time.h>
-#endif
-#ifdef HAVE_UNISTD_H
   #include <unistd.h>
-#endif
 #if defined(HAVE_SYS_RESOURCE_H)
  #include <sys/resource.h>
 #endif
@@ -628,9 +622,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 /* used by LISPARIT */
 
 /* determine MACHINE-TYPE and MACHINE-VERSION and MACHINE-INSTANCE: */
-#ifdef HAVE_SYS_UTSNAME_H
   #include <sys/utsname.h>
-#endif
 /* used by MISC */
 
 /* determine MACHINE-INSTANCE: */

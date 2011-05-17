@@ -4,6 +4,8 @@
 	gnulib module environ already provides the declaration
 	* socket.d: no need to guard including <unistd.h> - it is always
 	provided by the gnulib module unistd
+	* unix.d: no need to guard including <unistd.h>, <sys/time.h>,
+	<time.h>, <sys/utsname.h> - they are always provided by gnulib
 	* aridecl.d, arilev0.d, arilev1.d, lispbibl.d, win32.d:
 	remove the last vestiges of Borland support
 
