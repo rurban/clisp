@@ -2,19 +2,15 @@
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
  * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
- * Copyright (C) 2007-2008, 2010  Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2007-2008, 2010-2011  Sam Steingold <sds@gnu.org>
  * GPL2
  */
 
 #include "clisp.h"
 #include "config.h"
 
-#if defined(HAVE_STRING_H)
-# include <string.h>            /* memcpy */
-#endif
-#if defined(HAVE_UNISTD_H)
-# include <unistd.h>            /* for lseek */
-#endif
+#include <string.h>             /* memcpy */
+#include <unistd.h>             /* for lseek */
 
 #if defined(HAVE_GDBM_H)
 # include <gdbm.h>

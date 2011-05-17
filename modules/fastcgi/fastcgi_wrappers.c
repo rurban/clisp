@@ -21,9 +21,7 @@
 
 */
 
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
 #ifdef _WIN32
 #include <process.h>

@@ -4821,7 +4821,7 @@ $as_echo "$ac_cv_sizeof_off_t" >&6; }
 
 
 
-  cat >>confdefs.h <<_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define SIZEOF_OFF_T $ac_cv_sizeof_off_t
 _ACEOF
 
@@ -4923,7 +4923,7 @@ $as_echo "$ac_cv_sizeof_uid_t" >&6; }
 
 
 
-    cat >>confdefs.h <<_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define SIZEOF_UID_T $ac_cv_sizeof_uid_t
 _ACEOF
 
@@ -6195,9 +6195,7 @@ else
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 #include <sys/types.h>
 
 int

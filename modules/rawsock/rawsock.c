@@ -11,24 +11,14 @@
 
 #include "config.h"
 
-#if defined(HAVE_SYS_TIME_H)
-# include <sys/time.h>
-#endif
-#if defined(HAVE_TIME_H)
-# include <time.h>
-#endif
-#if defined(HAVE_SYS_TYPES_H)
-# include <sys/types.h>
-#endif
+#include <sys/time.h>
+#include <time.h>
+#include <sys/types.h>
 #include <stdio.h>
-#if defined(HAVE_UNISTD_H)
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #include <string.h>            /* for memcpy(3) */
 #include <stddef.h>            /* for offsetof */
-#if defined(HAVE_SYS_SOCKET_H)
-# include <sys/socket.h>
-#endif
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #if defined(HAVE_LINUX_IF_PACKET_H)
@@ -52,9 +42,7 @@
 #if defined(HAVE_SYS_UN_H)
 # include <sys/un.h>
 #endif
-#if defined(HAVE_ERRNO_H)
-# include <errno.h>
-#endif
+#include <errno.h>
 #if defined(HAVE_STROPS_H)
 # include <stropts.h>
 #endif
