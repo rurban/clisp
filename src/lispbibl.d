@@ -1064,43 +1064,8 @@
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 %%  puts("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)");
 
-/* alloca() */
-#ifdef GNU
-  #define alloca  __builtin_alloca
-#elif defined(MICROSOFT)
-  #include <malloc.h>
-  #define alloca _alloca
-#elif defined(HAVE_ALLOCA_H)
   #include <alloca.h>
-  #ifndef alloca /* some define 'alloca' as macro... */
-    #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX))
-      /* OSF/1 V3 declares `alloca' as returning char*, but in OSF/1 V4
-       it returns void*. I don't know how to distinguish the two. */
-      extern_C void* alloca (int size); /* see MALLOC(3V) */
-    #endif
-  #endif
-#elif defined(_AIX)
-  #pragma alloca /* AIX requires this to be the first thing in the file. */
-#elif !defined(NO_ALLOCA)
-  extern_C void* alloca (int size); /* see MALLOC(3V) */
-#endif
-%% #ifdef GNU
-%%   emit_define("alloca","__builtin_alloca");
-%% #elif defined(MICROSOFT)
-%%   puts("#include <malloc.h>");
-%%   emit_define("alloca","_alloca");
-%% #elif defined(HAVE_ALLOCA_H)
-%%   puts("#include <alloca.h>");
-%%   #ifndef alloca
-%%     #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX))
-%%       puts("extern void* alloca (int size);");
-%%     #endif
-%%   #endif
-%% #elif defined(_AIX)
-%%   puts("#pragma alloca");
-%% #elif !defined(NO_ALLOCA)
-%%   puts("extern void* alloca (int size);");
-%% #endif
+%% include_file("alloca.h");
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
@@ -1437,7 +1402,7 @@ typedef signed int  signean;
     #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
       arrayeltype arrayvar[(arraysize)+1]
   #endif
-#elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
+#elif (defined(UNIX) && (defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
   /* Allocate space in machine stack.
    { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... } */
   #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
