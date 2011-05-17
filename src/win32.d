@@ -413,13 +413,6 @@ extern STDCALL DWORD CoGetCurrentProcess (void);
 /* used by lisparit.d
  requires linking with ole32.lib */
 
-/* Getting information about the machine.
-   extern void GetSystemInfo (LPSYSTEM_INFO SystemInfo); */
-#if defined(BORLAND)
-  #define wProcessorArchitecture u.s.wProcessorArchitecture
-#endif
-/* used by misc.d */
-
 /* Getting more information about the machine.
    extern LONG RegOpenKeyEx (HKEY Key, LPCTSTR SubKey, DWORD Options, REGSAM Desired, PHKEY Result);
    extern LONG RegQueryValueEx (HKEY Key, LPTSTR ValueName, LPDWORD Reserved, LPDWORD Type, LPBYTE Data, LPDWORD cbData);

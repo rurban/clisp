@@ -102,7 +102,7 @@
 #if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
-#if (defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))) || (defined(__WIN32__) && defined(__BORLANDC__))
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
   #undef WIN32                  /* because of __MINGW32__ */
   #define WIN32
 #endif
@@ -397,19 +397,14 @@
     #error g++ 4.2.* and 4.3.0 are not supported due to g++ bug 35708
   #endif
 #endif
-#if defined(__STDC__) || defined(__BORLANDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus)
   /* ANSI C compilers define __STDC__ (but some define __STDC__=0 !).
-   Borland C has an ANSI preprocessor and compiler, but fails to define
-   __STDC__.
    HP aCC is an example of a C++ compiler which defines __cplusplus but
    not __STDC__. */
   #define ANSI
 #endif
 #if defined(_MSC_VER)
   #define MICROSOFT
-#endif
-#if defined(__BORLANDC__)
-  #define BORLAND
 #endif
 #if defined(__INTEL_COMPILER)
   #define INTEL
@@ -1086,8 +1081,6 @@
   #endif
 #elif defined(_AIX)
   #pragma alloca /* AIX requires this to be the first thing in the file. */
-#elif defined(BORLAND)
-  #include <malloc.h> /* defines  'alloca' as macro */
 #elif !defined(NO_ALLOCA)
   extern_C void* alloca (int size); /* see MALLOC(3V) */
 #endif
@@ -1419,7 +1412,7 @@ typedef signed int  signean;
 
 /* An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
  See spvw_alloca.d. */
-#if !(defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
+#if !(defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(MICROSOFT))
   #define NEED_MALLOCA
   #include <stdlib.h>
   extern void* malloca (size_t size);
@@ -1444,7 +1437,7 @@ typedef signed int  signean;
     #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
       arrayeltype arrayvar[(arraysize)+1]
   #endif
-#elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(BORLAND) || defined(MICROSOFT)
+#elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
   /* Allocate space in machine stack.
    { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... } */
   #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
@@ -5208,7 +5201,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define standard_cint_p(x)  ((('~' >= (x)) && ((x) >= ' ')) || ((x) == NL))
 
 /* Whether to use three different kinds of string representations. */
-#if defined(ENABLE_UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
+#if defined(ENABLE_UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
 #define HAVE_SMALL_SSTRING
 #endif
 

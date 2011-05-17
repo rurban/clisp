@@ -287,7 +287,7 @@
      unused (low_assignment &__array[1]);                               \
      unused (high_assignment &__array[__need]);                         \
     }
-#elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)
+#elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(MICROSOFT)
   /* reserve space at the machine stack. */
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
