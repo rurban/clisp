@@ -26,7 +26,7 @@
  * wctrans_t, and wctype_t are not yet implemented.
  */
 
-#ifndef _gl_GL_WCTYPE_H
+#ifndef _GL_WCTYPE_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -52,12 +52,12 @@
 # @INCLUDE_NEXT@ @NEXT_WCTYPE_H@
 #endif
 
-#ifndef _gl_GL_WCTYPE_H
-#define _gl_GL_WCTYPE_H
+#ifndef _GL_WCTYPE_H
+#define _GL_WCTYPE_H
 
-/* The definitions of _gl_GL_FUNCDECL_RPL etc. are copied here.  */
+/* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
-/* The definition of _gl_GL_WARN_ON_USE is copied here.  */
+/* The definition of _GL_WARN_ON_USE is copied here.  */
 
 /* Define wint_t and WEOF.  (Also done in wchar.in.h.)  */
 #if !@HAVE_WINT_T@ && !defined wint_t
@@ -286,9 +286,9 @@ towupper
 #   if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #    define iswblank rpl_iswblank
 #   endif
-_gl_GL_FUNCDECL_RPL (iswblank, int, (wint_t wc));
+_GL_FUNCDECL_RPL (iswblank, int, (wint_t wc));
 #  else
-_gl_GL_FUNCDECL_SYS (iswblank, int, (wint_t wc));
+_GL_FUNCDECL_SYS (iswblank, int, (wint_t wc));
 #  endif
 
 # endif
@@ -332,49 +332,49 @@ rpl_towupper (wint_t wc)
 #endif
 
 #if @REPLACE_ISWCNTRL@
-_gl_GL_CXXALIAS_RPL (iswalnum, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswalpha, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswcntrl, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswdigit, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswgraph, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswlower, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswprint, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswpunct, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswspace, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswupper, int, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (iswxdigit, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswalnum, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswalpha, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswcntrl, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswdigit, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswgraph, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswlower, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswprint, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswpunct, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswspace, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswupper, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswxdigit, int, (wint_t wc));
 #else
-_gl_GL_CXXALIAS_SYS (iswalnum, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswalpha, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswcntrl, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswdigit, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswgraph, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswlower, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswprint, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswpunct, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswspace, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswupper, int, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (iswxdigit, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswalnum, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswalpha, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswcntrl, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswdigit, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswgraph, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswlower, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswprint, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswpunct, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswspace, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswupper, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswxdigit, int, (wint_t wc));
 #endif
-_gl_GL_CXXALIASWARN (iswalnum);
-_gl_GL_CXXALIASWARN (iswalpha);
-_gl_GL_CXXALIASWARN (iswcntrl);
-_gl_GL_CXXALIASWARN (iswdigit);
-_gl_GL_CXXALIASWARN (iswgraph);
-_gl_GL_CXXALIASWARN (iswlower);
-_gl_GL_CXXALIASWARN (iswprint);
-_gl_GL_CXXALIASWARN (iswpunct);
-_gl_GL_CXXALIASWARN (iswspace);
-_gl_GL_CXXALIASWARN (iswupper);
-_gl_GL_CXXALIASWARN (iswxdigit);
+_GL_CXXALIASWARN (iswalnum);
+_GL_CXXALIASWARN (iswalpha);
+_GL_CXXALIASWARN (iswcntrl);
+_GL_CXXALIASWARN (iswdigit);
+_GL_CXXALIASWARN (iswgraph);
+_GL_CXXALIASWARN (iswlower);
+_GL_CXXALIASWARN (iswprint);
+_GL_CXXALIASWARN (iswpunct);
+_GL_CXXALIASWARN (iswspace);
+_GL_CXXALIASWARN (iswupper);
+_GL_CXXALIASWARN (iswxdigit);
 
 #if @GNULIB_ISWBLANK@
 # if @REPLACE_ISWCNTRL@ || @REPLACE_ISWBLANK@
-_gl_GL_CXXALIAS_RPL (iswblank, int, (wint_t wc));
+_GL_CXXALIAS_RPL (iswblank, int, (wint_t wc));
 # else
-_gl_GL_CXXALIAS_SYS (iswblank, int, (wint_t wc));
+_GL_CXXALIAS_SYS (iswblank, int, (wint_t wc));
 # endif
-_gl_GL_CXXALIASWARN (iswblank);
+_GL_CXXALIASWARN (iswblank);
 #endif
 
 #if !@HAVE_WCTYPE_T@
@@ -387,14 +387,14 @@ typedef void * wctype_t;
 /* Get a descriptor for a wide character property.  */
 #if @GNULIB_WCTYPE@
 # if !@HAVE_WCTYPE_T@
-_gl_GL_FUNCDECL_SYS (wctype, wctype_t, (const char *name));
+_GL_FUNCDECL_SYS (wctype, wctype_t, (const char *name));
 # endif
-_gl_GL_CXXALIAS_SYS (wctype, wctype_t, (const char *name));
-_gl_GL_CXXALIASWARN (wctype);
+_GL_CXXALIAS_SYS (wctype, wctype_t, (const char *name));
+_GL_CXXALIASWARN (wctype);
 #elif defined GNULIB_POSIXCHECK
 # undef wctype
 # if HAVE_RAW_DECL_WCTYPE
-_gl_GL_WARN_ON_USE (wctype, "wctype is unportable - "
+_GL_WARN_ON_USE (wctype, "wctype is unportable - "
                  "use gnulib module wctype for portability");
 # endif
 #endif
@@ -404,27 +404,27 @@ _gl_GL_WARN_ON_USE (wctype, "wctype is unportable - "
    The argument DESC must have been returned by the wctype() function.  */
 #if @GNULIB_ISWCTYPE@
 # if !@HAVE_WCTYPE_T@
-_gl_GL_FUNCDECL_SYS (iswctype, int, (wint_t wc, wctype_t desc));
+_GL_FUNCDECL_SYS (iswctype, int, (wint_t wc, wctype_t desc));
 # endif
-_gl_GL_CXXALIAS_SYS (iswctype, int, (wint_t wc, wctype_t desc));
-_gl_GL_CXXALIASWARN (iswctype);
+_GL_CXXALIAS_SYS (iswctype, int, (wint_t wc, wctype_t desc));
+_GL_CXXALIASWARN (iswctype);
 #elif defined GNULIB_POSIXCHECK
 # undef iswctype
 # if HAVE_RAW_DECL_ISWCTYPE
-_gl_GL_WARN_ON_USE (iswctype, "iswctype is unportable - "
+_GL_WARN_ON_USE (iswctype, "iswctype is unportable - "
                  "use gnulib module iswctype for portability");
 # endif
 #endif
 
 #if @REPLACE_ISWCNTRL@ || defined __MINGW32__
-_gl_GL_CXXALIAS_RPL (towlower, wint_t, (wint_t wc));
-_gl_GL_CXXALIAS_RPL (towupper, wint_t, (wint_t wc));
+_GL_CXXALIAS_RPL (towlower, wint_t, (wint_t wc));
+_GL_CXXALIAS_RPL (towupper, wint_t, (wint_t wc));
 #else
-_gl_GL_CXXALIAS_SYS (towlower, wint_t, (wint_t wc));
-_gl_GL_CXXALIAS_SYS (towupper, wint_t, (wint_t wc));
+_GL_CXXALIAS_SYS (towlower, wint_t, (wint_t wc));
+_GL_CXXALIAS_SYS (towupper, wint_t, (wint_t wc));
 #endif
-_gl_GL_CXXALIASWARN (towlower);
-_gl_GL_CXXALIASWARN (towupper);
+_GL_CXXALIASWARN (towlower);
+_GL_CXXALIASWARN (towupper);
 
 #if !@HAVE_WCTRANS_T@
 # if !GNULIB_defined_wctrans_t
@@ -436,14 +436,14 @@ typedef void * wctrans_t;
 /* Get a descriptor for a wide character case conversion.  */
 #if @GNULIB_WCTRANS@
 # if !@HAVE_WCTRANS_T@
-_gl_GL_FUNCDECL_SYS (wctrans, wctrans_t, (const char *name));
+_GL_FUNCDECL_SYS (wctrans, wctrans_t, (const char *name));
 # endif
-_gl_GL_CXXALIAS_SYS (wctrans, wctrans_t, (const char *name));
-_gl_GL_CXXALIASWARN (wctrans);
+_GL_CXXALIAS_SYS (wctrans, wctrans_t, (const char *name));
+_GL_CXXALIASWARN (wctrans);
 #elif defined GNULIB_POSIXCHECK
 # undef wctrans
 # if HAVE_RAW_DECL_WCTRANS
-_gl_GL_WARN_ON_USE (wctrans, "wctrans is unportable - "
+_GL_WARN_ON_USE (wctrans, "wctrans is unportable - "
                  "use gnulib module wctrans for portability");
 # endif
 #endif
@@ -453,18 +453,18 @@ _gl_GL_WARN_ON_USE (wctrans, "wctrans is unportable - "
    The argument DESC must have been returned by the wctrans() function.  */
 #if @GNULIB_TOWCTRANS@
 # if !@HAVE_WCTRANS_T@
-_gl_GL_FUNCDECL_SYS (towctrans, wint_t, (wint_t wc, wctrans_t desc));
+_GL_FUNCDECL_SYS (towctrans, wint_t, (wint_t wc, wctrans_t desc));
 # endif
-_gl_GL_CXXALIAS_SYS (towctrans, wint_t, (wint_t wc, wctrans_t desc));
-_gl_GL_CXXALIASWARN (towctrans);
+_GL_CXXALIAS_SYS (towctrans, wint_t, (wint_t wc, wctrans_t desc));
+_GL_CXXALIASWARN (towctrans);
 #elif defined GNULIB_POSIXCHECK
 # undef towctrans
 # if HAVE_RAW_DECL_TOWCTRANS
-_gl_GL_WARN_ON_USE (towctrans, "towctrans is unportable - "
+_GL_WARN_ON_USE (towctrans, "towctrans is unportable - "
                  "use gnulib module towctrans for portability");
 # endif
 #endif
 
 
-#endif /* _gl_GL_WCTYPE_H */
-#endif /* _gl_GL_WCTYPE_H */
+#endif /* _GL_WCTYPE_H */
+#endif /* _GL_WCTYPE_H */

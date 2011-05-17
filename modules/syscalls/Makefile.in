@@ -17,7 +17,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = calls.o bogomips.o posix.fas libgnu_sc.a preload.lisp datemsk
+GENERATED = calls.o bogomips.o posix.fas preload.lisp datemsk
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/posix.lisp $(srcdir)/README
 distribdir =
@@ -37,28 +37,18 @@ posix.fas: $(srcdir)/posix.lisp
 calls.m.c: $(srcdir)/calls.c
 	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/calls.c ./
 
-calls.o : calls.m.c config.h gllib
+calls.o : calls.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
-		-Igllib -I$(srcdir)/gllib -c calls.m.c -o calls.o
+		-I$(srcdir)/gllib -c calls.m.c -o calls.o
+
+config.h : $(srcdir)/config.h.in config.status
+	sh config.status --header=config.h
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
 
 datemsk : $(srcdir)/datemsk
 	$(LN_S) $(srcdir)/datemsk .
-
-am--refresh :
-
-# syscalls relies on src/gllib, so we must also include files in the build dir
-gllib libgnu_sc.a : force
-	rm -f libgnu_sc.a
-	mkdir -p gllib
-	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
-	cd gllib; \
-	  $(MAKE) srcdir="$(srcdir)/gllib" \
-		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(CLISP_LIBDIR)"; \
-	  $(LN) libgnu.a ../libgnu_sc.a
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

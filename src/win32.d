@@ -265,12 +265,6 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #endif
 
 #include <unistd.h> /* from gnulib for getpagesize */
-/* we do not include gnulib gethostname, so, to avoid
-     undefined reference to `_gethostname_used_without_requesting_gnulib_module_gethostname'
-   we need to undef gethostname (defined to the above in gnulib unistd.h)
-   and then include the woe32 socket headers
-   <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23076> */
-#undef gethostname
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -294,7 +288,6 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
    extern int send (SOCKET s, const char* buf, int len, int flags);
    extern int select (int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, const struct timeval * timeout);
    extern int closesocket (SOCKET s);
-   extern int gethostname (char* name, int namelen);
    extern struct hostent * gethostbyname (const char* name);
    extern struct hostent * gethostbyaddr (const char* addr, int len, int type);
    extern struct servent * getservbyname (const char* name, const char* proto);

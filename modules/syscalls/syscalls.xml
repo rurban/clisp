@@ -867,6 +867,25 @@ returns either <literal role="data">&lt;</literal>,
 <literal role="data">&gt;</literal> or <literal role="data">=</literal>.
 </para></section>
 
+<section id="wildcard"><title>Wildcard Matching</title>
+<para>Wildcards describe sets of file names; see <quote>&path-match;
+Notation</quote> for the syntax description.</para>
+<formalpara id="fnmatch-f"><title><code>(FNMATCH &pattern-r; &string-r;
+  &key-amp; :PATHNAME :PERIOD :NOESCAPE (:CASE-SENSITIVE &t;))</code></title>
+<para>This function returns a non-&nil; value if the &string-r; matches
+ the &pattern-r; by calling <function role="unix">fnmatch</function>.
+</para></formalpara>
+
+<formalpara id="fnmatch-matcher"><title><code>(FNMATCH-MATCHER
+   &pattern-r;)</code></title>
+ <para>This function is a valid value for &apropos-matcher;.
+</para></formalpara>
+
+<note><para>These two functions used to reside in a separate package
+<quote role="package">WILDCARD</quote>, which has been now deprecated.
+</para></note>
+</section>
+
 <section id="mk-xterm-io"><title>XTerm</title>
 <para><code>(&mk-xterm-io; &key-amp; title xterm)</code>
  When running under the &X;, you can create a &bidi-s;, which uses a new

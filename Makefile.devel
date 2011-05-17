@@ -54,29 +54,18 @@ $(MAKEMAKE_TMP) : src/makemake.in version.sh
 CURDIR=$(shell pwd)
 
 MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre dbus \
-  postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm libsvm
+  postgresql rawsock readline regexp syscalls zlib gtk2 gdbm libsvm
 CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
-GNULIB_USERS = src modules/regexp modules/syscalls modules/wildcard
-MAKEFILE_IN = $(addsuffix /gllib/Makefile.in, $(GNULIB_USERS))
-GET_PREFIX = grep -- --macro-prefix $$d/glm4/gnulib-cache.m4 | sed -e 's/.*--macro-prefix=\([^ ]*\) .*/\1/'
-$(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
-	cd $* && cd .. && \
-	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
-	ln -s $(CURDIR)/src '$$cl_cv_clisp_libdir' && \
-	automake gllib/Makefile && \
-	$(RM) '$$cl_cv_clisp_libdir' && \
-	d=. && PREFIX=`$(GET_PREFIX)` && \
+src/gllib/Makefile.in : src/gllib/Makefile.am src/configure.in src/aclocal.m4
+	cd src && automake gllib/Makefile && \
 	sed -i -e 's,$$(top_srcdir)/src/build-aux,$$(CLISP_LIBDIR)/build-aux,' \
 	  -e 's,$$(top_srcdir)/$$cl_cv_clisp_libdir,$$(CLISP_LIBDIR),' \
-	  -e '/<.*build.aux/a\	| sed -e '"'"'s/_GL_/_'$${PREFIX}'_GL_/g'"'"' \\' \
-	  -e 's/\(definition.*\) of _GL_/\1 of _'$${PREFIX}'_GL_/' \
-		gllib/Makefile.in && \
-	(test -L aclocal.m4 && $(RM) aclocal.m4 || true)
+		gllib/Makefile.in
 
-configures : $(CONFIGURES) $(CONFIG_H_IN) $(MAKEFILE_IN)
+configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CONFIGURES))
@@ -85,8 +74,7 @@ src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
 		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
-	aclocal --output=src/aclocal.m4 -I $(CURDIR)/src/m4 \
-		$(patsubst %, -I $(CURDIR)/%/glm4, $(GNULIB_USERS))
+	aclocal --output=src/aclocal.m4 -I $(CURDIR)/src/m4 -I $(CURDIR)/src/glm4
 	$(RM) configure.ac
 
 AUTOCONF_FILES = src/aclocal.m4
@@ -374,60 +362,25 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; $(WGET) $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
-# gnulib-tool hack to support multiple gllib directories:
-# headers are generated for each gllib differently, depending on which
-# features are actually used, so we need to be able to include all these
-# generated headers without fear that one will shadow another, so we
-# prepend the macro-prefix before the guard macros
-GNULIB_TOOL_PATCH = gnulib-tool.patch
-
-GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool-patched --import \
+GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
-# unistd is needed in both syscalls and core separately because unistd.h
-# is generated differently depending on whether gethostname (required by
-# uname) is present
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset \
+	unistd alloca-opt environ lstat stat readlink \
 	uniwidth/width streq uniname/uniname unitypes link-follow \
 	host-cpu-c-abi socklen sockets fd-hook setenv unsetenv errno \
 	arpa_inet netinet_in inet_ntop inet_pton \
 	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait
-# these modules are included as dependencies by regexp and fnmatch
-# so we include them here so that they appear once in src/gl*
-# instead of N times in $(GNULIB_USERS)/gl*
-GNULIB_MODULES = alloca-opt alloca extensions include_next verify string \
-	mbsinit wchar wctype mbrtowc mbsrtowcs memchr nl_langinfo
+GNULIB_SYSCALLS = mktime strftime strptime strverscmp uname strerror fnmatch-gnu
+GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex
 GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
-GNULIB_AVOID = $(addprefix --avoid=, $(GNULIB_COMMON))
 GNULIB_IMPORTED_LOG = /tmp/gnulib-imported.log
 gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
-	$(RM) $(addsuffix /glm4/gnulib-cache.m4, $(GNULIB_USERS)) \
-		$(GNULIB_IMPORTED_LOG)
-	$(CP) $(GNULIB_CHECKOUT)/gnulib-tool $(GNULIB_CHECKOUT)/gnulib-tool-patched
-	patch $(GNULIB_CHECKOUT)/gnulib-tool-patched $(GNULIB_TOOL_PATCH)
+	$(RM) src/glm4/gnulib-cache.m4 $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
-		$(GNULIB_COMMON) 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB_TOOL) --source-base=modules/syscalls/gllib \
-		--macro-prefix=sc_gl --m4-base=modules/syscalls/glm4 \
-		$(GNULIB_AVOID) --avoid=xalloc-die \
-		mktime strftime strptime strverscmp uname \
-		strerror 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB_TOOL) --source-base=modules/regexp/gllib \
-		--macro-prefix=rx_gl --m4-base=modules/regexp/glm4 \
-		$(GNULIB_AVOID) regex 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB_TOOL) --source-base=modules/wildcard/gllib \
-		--macro-prefix=wc_gl --m4-base=modules/wildcard/glm4 \
-		$(GNULIB_AVOID) fnmatch-gnu 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
-	$(RM) configure.ac
-	for d in $(GNULIB_USERS); do $(RM) `find $$d/gllib -name \*~`; done
-	for d in $(GNULIB_USERS); do $(RM) `find $$d/glm4 -name \*~`; done
-# _GL_UNUSED is defined by gnulib-common.m4:gl_COMMON_BODY which places
-# the definition into config.h. Since we cannot know which gnulib-common
-# will be used by a given configure.in, we cannot use a prefix for it
-# and thus must revert the effects of --macro-prefix in imported code.
-	for d in $(GNULIB_USERS); do \
-	  PREFIX=`$(GET_PREFIX)`; test -n "$${PREFIX}" && \
-	  sed -i -e 's/_'$${PREFIX}'_GL_UNUSED/_GL_UNUSED/g' $$d/gllib/*.c; done
+		--avoid=xalloc-die \
+		$(GNULIB_IMPORTS) 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
+	$(RM) configure.ac src/gl*/*~
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \
@@ -437,7 +390,6 @@ gnulib-imported : update-gnulib force
 	    fi; \
 	  fi; \
 	done
-	$(RM) $(GNULIB_CHECKOUT)/gnulib-tool-patched
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib

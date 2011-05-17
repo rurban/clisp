@@ -18,7 +18,7 @@
 
 /* Don't use __attribute__ __nonnull__ in this compilation unit.  Otherwise gcc
    optimizes away the name == NULL test below.  */
-#define _gl_GL_ARG_NONNULL(params)
+#define _GL_ARG_NONNULL(params)
 
 /* Specification.  */
 #include <stdlib.h>

@@ -21,7 +21,7 @@
  * <http://www.opengroup.org/susv3xbd/stdint.h.html>
  */
 
-#ifndef _gl_GL_STDINT_H
+#ifndef _GL_STDINT_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -32,7 +32,7 @@
    use the system <inttypes.h>, not our substitute.  This avoids
    problems with (for example) VMS, whose <sys/bitypes.h> includes
    <inttypes.h>.  */
-#define _gl_GL_JUST_INCLUDE_SYSTEM_INTTYPES_H
+#define _GL_JUST_INCLUDE_SYSTEM_INTTYPES_H
 
 /* Get those types that are already defined in other system include
    files, so that we can "#define int8_t signed char" below without
@@ -52,13 +52,13 @@
   /* Other systems may have an incomplete or buggy <stdint.h>.
      Include it before <inttypes.h>, since any "#include <stdint.h>"
      in <inttypes.h> would reinclude us, skipping our contents because
-     _gl_GL_STDINT_H is defined.
+     _GL_STDINT_H is defined.
      The include_next requires a split double-inclusion guard.  */
 # @INCLUDE_NEXT@ @NEXT_STDINT_H@
 #endif
 
-#if ! defined _gl_GL_STDINT_H && ! defined _gl_GL_JUST_INCLUDE_SYSTEM_STDINT_H
-#define _gl_GL_STDINT_H
+#if ! defined _GL_STDINT_H && ! defined _GL_JUST_INCLUDE_SYSTEM_STDINT_H
+#define _GL_STDINT_H
 
 /* <sys/types.h> defines some of the stdint.h types as well, on glibc,
    IRIX 6.5, and OpenBSD 3.8 (via <machine/types.h>).
@@ -91,7 +91,7 @@
 # include <sys/bitypes.h>
 #endif
 
-#undef _gl_GL_JUST_INCLUDE_SYSTEM_INTTYPES_H
+#undef _GL_JUST_INCLUDE_SYSTEM_INTTYPES_H
 
 /* Minimum and maximum values for a integer type under the usual assumption.
    Return an unspecified value if BITS == 0, adding a check to pacify
@@ -503,9 +503,9 @@ typedef int _verify_intmax_size[sizeof (intmax_t) == sizeof (uintmax_t)
 # include <stddef.h>
 # include <stdio.h>
 # include <time.h>
-# define _gl_GL_JUST_INCLUDE_SYSTEM_WCHAR_H
+# define _GL_JUST_INCLUDE_SYSTEM_WCHAR_H
 # include <wchar.h>
-# undef _gl_GL_JUST_INCLUDE_SYSTEM_WCHAR_H
+# undef _GL_JUST_INCLUDE_SYSTEM_WCHAR_H
 #endif
 #undef WCHAR_MIN
 #undef WCHAR_MAX
@@ -588,5 +588,5 @@ typedef int _verify_intmax_size[sizeof (intmax_t) == sizeof (uintmax_t)
 
 #endif /* !defined __cplusplus || defined __STDC_CONSTANT_MACROS */
 
-#endif /* _gl_GL_STDINT_H */
-#endif /* !defined _gl_GL_STDINT_H && !defined _gl_GL_JUST_INCLUDE_SYSTEM_STDINT_H */
+#endif /* _GL_STDINT_H */
+#endif /* !defined _GL_STDINT_H && !defined _GL_JUST_INCLUDE_SYSTEM_STDINT_H */

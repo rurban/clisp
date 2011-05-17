@@ -20,8 +20,8 @@
 
 /* Avoid using the symbol _ALLOCA_H here, as Bison assumes _ALLOCA_H
    means there is a real alloca function.  */
-#ifndef _gl_GL_ALLOCA_H
-#define _gl_GL_ALLOCA_H
+#ifndef _GL_ALLOCA_H
+#define _GL_ALLOCA_H
 
 /* alloca (N) returns a pointer to N bytes of memory
    allocated on the stack, which will last until the function returns.
@@ -53,4 +53,4 @@ void *alloca (size_t);
 # endif
 #endif
 
-#endif /* _gl_GL_ALLOCA_H */
+#endif /* _GL_ALLOCA_H */
