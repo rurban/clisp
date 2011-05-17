@@ -36,7 +36,7 @@ The input file is normal C code, modified like this:
   using the backquote syntax.) The variable can be referred to as
     O(variable_name)
   These variables are private to the module.
-- DEFFLAGSET(c_name, C_CONST1 C_CONST2 C_CONST3)
+- DEFFLAGSET(c_name, C_CONST1 !C_CONST2 C_CONST3)
   is converted to
   static uint32 c_name (void) {
    uint32 ret = 0
@@ -44,7 +44,7 @@ The input file is normal C code, modified like this:
       | (missingp(STACK_0) ? 0 : C_CONST3)
     #endif
     #if defined(C_CONST2)
-      | (missingp(STACK_1) ? 0 : C_CONST2)
+      | (!null(STACK_1) ? 0 : C_CONST2)
     #endif
     #if defined(C_CONST1)
       | (missingp(STACK_2) ? 0 : C_CONST1)
@@ -1078,12 +1078,15 @@ commas and parentheses."
             (formatln out "static uintL ~A (void) {" (flag-set-name fs))
             (formatln out "  uintL flags = 0")
             (loop :for cpp-name :in (flag-set-cpp-names fs) :for nn :upfrom 0
-              :do (formatln out "#  ifdef ~A" cpp-name)
-                  (formatln out "    | (missingp(STACK_(~D)) ? 0 : ~A)"
-                            nn cpp-name)
-                  (formatln out "#  endif")
-              :finally (progn (formatln out "   ;")
-                              (formatln out "  skipSTACK(~D);" nn)))
+              :for reverse-default = (char= #\! (char cpp-name 0))
+              :for check = (if reverse-default "!nullp" "missingp")
+              :do (when reverse-default (setq cpp-name (subseq cpp-name 1)))
+                  (formatln out "#  ifdef ~A" cpp-name)
+                  (formatln out "    | (~A(STACK_(~D)) ? 0 : ~A)"
+                            check nn cpp-name)
+                  (formatln out "#  endif"))
+            (formatln out "   ;")
+            (formatln out "  skipSTACK(~D);" (length (flag-set-cpp-names fs)))
             (formatln out "  return flags;")
             (formatln out "}")))
     (newline out)

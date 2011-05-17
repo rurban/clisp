@@ -1,3 +1,8 @@
+2011-05-17  Sam Steingold  <sds@gnu.org>
+
+	* utils/modprep.lisp (print-tables-1): DEFFLAGSET(..., !CONST)
+	means that to add CONST to flags one passes NIL to the lisp function
+
 2011-05-16  Sam Steingold  <sds@gnu.org>
 
 	* spvw_language.d (language): static, not global
