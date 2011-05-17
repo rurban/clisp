@@ -9,6 +9,7 @@
 	* aridecl.d, arilev0.d, arilev1.d, lispbibl.d, win32.d:
 	remove the last vestiges of Borland support
 	* _clisp.c: add '#include "config.h"' (necessary for gnulib)
+	* lispbibl.d: rely on alloca.h provided by gnulib/alloca-opt
 
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
