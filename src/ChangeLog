@@ -8,6 +8,7 @@
 	<time.h>, <sys/utsname.h> - they are always provided by gnulib
 	* aridecl.d, arilev0.d, arilev1.d, lispbibl.d, win32.d:
 	remove the last vestiges of Borland support
+	* _clisp.c: add '#include "config.h"' (necessary for gnulib)
 
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
