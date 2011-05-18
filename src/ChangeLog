@@ -7,6 +7,7 @@
 	* m4/rusage.m4: do not check for gnulib files
 	* Makefile.devel (GNULIB_CORE): add sys_uio & socketlib (already
 	present as dependencies)
+	* m4/putenv.m4: remove (should have been removed on 2010-09-27)
 
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
