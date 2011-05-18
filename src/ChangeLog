@@ -13,6 +13,11 @@
 
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: finish the 2008-05-31 CL_CC_NEED_CCPAUX patch
+	by removing the special case of comment5 in UTIL building
+
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c: do not include <ws2tcpip.h> twice
 	* modules/rawsock/configure.in: <winsock2.h> is checked by gl_SOCKETLIB;
 	add LIBSOCKET to LIBS while checking for functions
