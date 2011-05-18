@@ -1,3 +1,8 @@
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (SUBDIR_CFLAGS): add @NO_CXX@ because
+	gnulib regexp and fnmatch cannot be compiled with C++
+
 2011-05-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c, modules/berkeley-db/bdb.c:
