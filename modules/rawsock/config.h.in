@@ -171,14 +171,8 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
 /* Define to 1 if you have the `writev' function. */
 #undef HAVE_WRITEV
-
-/* Define to 1 if you have the <ws2tcpip.h> header file. */
-#undef HAVE_WS2TCPIP_H
 
 /* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
 #undef IPV6_NEED_LINUX_IN6_H
