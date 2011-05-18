@@ -15,6 +15,7 @@
 
 	* makemake.in: finish the 2008-05-31 CL_CC_NEED_CCPAUX patch
 	by removing the special case of comment5 in UTIL building
+	(full): fix the grep REPLACE_ regexp (gnulib replacements)
 
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
