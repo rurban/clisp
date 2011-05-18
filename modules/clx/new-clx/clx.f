@@ -421,15 +421,9 @@ For further for grepability I use the following tags in comments:
 #include <stdio.h>              /* sprintf() */
 #include <string.h>             /* memcpy(), strchr(), strcpy() */
 #include "config.h"
-#if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
-#endif
-#if defined(HAVE_TIME_H)
 # include <time.h>
-#endif
-#if defined(HAVE_SYS_SOCKET_H)
 # include <sys/socket.h>
-#endif
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
@@ -7549,7 +7543,7 @@ DEFUN(XLIB::SET-ACCESS-CONTROL, dpy state)
   VALUES1(popSTACK()); skipSTACK(1);
 }
 
-#if defined(HAVE_SYS_SOCKET_H) && defined(HAVE_NETDB_H) && defined(HAVE_NETINET_IN_H)
+#if defined(HAVE_NETDB_H) && defined(HAVE_NETINET_IN_H)
 /* cf rawsock:check_socket_domain */
 DEFCHECKER(check_family,INET=FamilyInternet DECnet=FamilyDECnet         \
            CHAOS=FamilyChaos INET6=FamilyInternet6                      \
@@ -7654,7 +7648,7 @@ DEFUN(XLIB:REMOVE-ACCESS-HOST, display host)
   X_CALL(XRemoveHost(dpy,&xha));
   VALUES0;
 }
-#endif  /* HAVE_SYS_SOCKET_H & HAVE_NETDB_H & HAVE_NETINET_IN_H */
+#endif  /* HAVE_NETDB_H & HAVE_NETINET_IN_H */
 
 /* 14.7  Screen Saver */
 DEFUN(XLIB:ACTIVATE-SCREEN-SAVER, display)

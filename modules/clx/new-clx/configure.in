@@ -1,6 +1,6 @@
 dnl -*- Autoconf -*- script for new-clx
 dnl Gilbert Baumann, 1999-10-11
-dnl Sam Steingold 2002-2009
+dnl Sam Steingold 2002-2009, 2011
 
 AC_PREREQ(2.57)
 AC_INIT(clx/new-clx, 1.0, clisp-list)
@@ -11,7 +11,7 @@ RSE_BOLD
 BOLD_MSG([NEW CLX])
 CL_MODULE_COMMON_CHECKS()
 AC_HEADER_TIME
-AC_CHECK_HEADERS([sys/socket.h netdb.h netinet/in.h])
+AC_CHECK_HEADERS([netdb.h netinet/in.h])
 dnl find a path to X11 - set X_LIBS and X_CFLAGS
 AC_PATH_XTRA
 

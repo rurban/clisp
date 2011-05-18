@@ -16,7 +16,7 @@ dnl Search for libfcgi and define LIBFCGI, LTLIBFCGI and INCFCGI.
 AC_LIB_LINKFLAGS([fcgi])
 
 BOLD_MSG([FastCGI (Headers)])
-AC_CHECK_HEADERS([fcgi_stdio.h string.h unistd.h])
+AC_CHECK_HEADERS([fcgi_stdio.h])
 if test "$ac_cv_header_fcgi_stdio_h" = "no"; then
   AC_MSG_ERROR([cannot find FastCGI headers])
 fi

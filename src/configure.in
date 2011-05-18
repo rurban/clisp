@@ -73,8 +73,6 @@ CL_BUILTIN_STRLEN   dnl DEFS HAVE_BUILTIN_STRLEN
 AC_TYPE_LONG_LONG_INT dnl HAVE_LONG_LONG_INT
 dnl
 BOLD_MSG([checks for header files])
-AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h time.h sys/time.h dnl
-sys/utsname.h)
 CL_SHM_H       dnl DEFS HAVE_SYS_IPC_H, HAVE_SYS_SHM_H
 CL_TERM        dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
 AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS, X_EXTRA_LIBS, X_PRE_LIBS

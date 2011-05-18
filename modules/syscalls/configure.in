@@ -14,10 +14,9 @@ AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
 
 BOLD_MSG([System Calls (Headers)])
-AC_CHECK_HEADERS(fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
-pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h dnl
-grp.h crypt.h utmpx.h stdlib.h shlobj.h dnl
-sys/statvfs.h sys/statfs.h sys/param.h sys/wait.h ftw.h)
+AC_CHECK_HEADERS(fcntl.h netdb.h utime.h wchar.h dnl
+pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h dnl
+sys/statvfs.h sys/statfs.h sys/param.h ftw.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
 fi
