@@ -1,3 +1,7 @@
+2011-05-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
+        * spvw_sigcld.d (sigcld_enabled_INCF/DECF): fix counting
+
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c: do not include <ws2tcpip.h> twice
