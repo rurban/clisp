@@ -12,7 +12,7 @@ CL_MODULE_COMMON_CHECKS()
 
 BOLD_MSG([Rawsock (Headers)])
 CL_TCPCONN
-AC_CHECK_HEADERS([linux/if_packet.h netdb.h sys/uio.h \
+AC_CHECK_HEADERS([linux/if_packet.h netdb.h \
 asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h])
 AC_CHECK_HEADERS([net/if.h],[],[],[
 #include <sys/types.h> /* for u_long on *BSD */
@@ -35,12 +35,6 @@ AC_CHECK_HEADERS([winsock2.h ws2tcpip.h])dnl windows
 else AC_CHECK_MEMBERS([struct msghdr.msg_flags, struct msghdr.msg_control],,,
 [#include <sys/socket.h>])
 fi
-AC_CHECK_TYPES(struct iovec,,,[
-#include <sys/types.h> /* for size_t */
-#if defined(HAVE_SYS_UIO_H)
-# include <sys/uio.h>
-#endif
-])
 AC_CHECK_TYPES(struct if_nameindex,,,[
 #if HAVE_NET_IF_H
 # include <net/if.h>

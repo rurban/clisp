@@ -67,9 +67,7 @@
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
-#if defined(HAVE_SYS_UIO_H)
 # include <sys/uio.h>
-#endif
 #if defined(HAVE_IFADDRS_H)
 # include <ifaddrs.h>
 #endif
@@ -971,7 +969,7 @@ DEFUN(RAWSOCK:RECVFROM,socket buffer address &key :START :END PEEK OOB WAITALL){
   VALUES3(fixnum(retval),fixnum(sa_size),STACK_0); skipSTACK(3);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL)
 DEFCHECKER(check_msg_flags,prefix=MSG,bitmasks=both,default=0,          \
            OOB PEEK DONTROUTE TRYHARD CTRUNC PROXY TRUNC DONTWAIT EOR   \
            WAITALL FIN SYN CONFIRM RST ERRQUEUE NOSIGNAL MORE)
@@ -1075,7 +1073,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key :START :END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
-#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
+#if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL)
 /* POSIX sendmsg() */
 DEFUN(RAWSOCK:SENDMSG,socket message &key :START :END OOB EOR) {
   int flags = send_flags();

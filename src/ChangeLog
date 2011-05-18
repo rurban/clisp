@@ -1,5 +1,13 @@
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f, modules/clx/new-clx/configure.in:
+	* modules/fastcgi/configure.in, modules/regexp/configure.in:
+	* modules/rawsock/configure.in, modules/rawsock/rawsock.c:
+	* modules/syscalls/configure.in, configure.in, m4/general.m4:
+	* m4/rusage.m4: do not check for gnulib files
+
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (SUBDIR_CFLAGS): add @NO_CXX@ because
 	gnulib regexp and fnmatch cannot be compiled with C++
 

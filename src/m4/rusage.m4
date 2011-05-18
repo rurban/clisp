@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,7 +11,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold, Peter Burwood.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_RUSAGE],
-[AC_CHECK_HEADERS(sys/resource.h sys/times.h)dnl
+[AC_CHECK_HEADERS(sys/resource.h)dnl
 if test $ac_cv_header_sys_resource_h = yes; then
   dnl HAVE_SYS_RESOURCE_H defined
   CL_LINK_CHECK([getrusage], cl_cv_func_getrusage,
