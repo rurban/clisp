@@ -34,9 +34,7 @@
 #if defined(HAVE_SYS_RESOURCE_H)
 # include <sys/resource.h>
 #endif
-#if defined(HAVE_SYS_WAIT_H)
-# include <sys/wait.h>   /* always present on unix, but not elsewhere */
-#endif
+#include <sys/wait.h>    /* always present on unix, imported from gnulib elsewhere */
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
 #endif
@@ -46,9 +44,7 @@
 #if defined(HAVE_UTIME_H)
 # include <utime.h>
 #endif
-#if defined(HAVE_WCHAR_H)
-# include <wchar.h>
-#endif
+#include <wchar.h>
 #include <limits.h>
 #if !defined(NZERO)             /* should be defined in <limits.h> */
 # define NZERO 20
@@ -1375,7 +1371,6 @@ static /*maygc*/ Values rusage_to_lisp (struct rusage *ru) {
   funcall(`POSIX::MAKE-USAGE`,count);
 }
 
-#if defined(HAVE_SYS_WAIT_H)
 #if !defined(HAVE_WAIT4)
 #  define wait4(p,s,o,r)  (errno=ENOSYS,OS_error(),(pid_t)-1)
 #endif
@@ -1424,7 +1419,6 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
   }
   skipSTACK(2);
 }
-#endif  /* HAVE_SYS_WAIT_H */
 
 /* http://article.gmane.org/gmane.lisp.clisp.devel/20422
  https://sourceforge.net/tracker/?func=detail&aid=3243683&group_id=1355&atid=101355 */

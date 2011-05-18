@@ -14,7 +14,7 @@ AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
 
 BOLD_MSG([System Calls (Headers)])
-AC_CHECK_HEADERS(fcntl.h netdb.h utime.h wchar.h dnl
+AC_CHECK_HEADERS(fcntl.h netdb.h utime.h dnl
 pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h dnl
 sys/statvfs.h sys/statfs.h sys/param.h ftw.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
