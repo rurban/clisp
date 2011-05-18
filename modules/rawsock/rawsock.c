@@ -61,9 +61,6 @@
 # define READ  read
 # define WRITE  write
 #endif
-#if defined(HAVE_WS2TCPIP_H)
-# include <ws2tcpip.h>
-#endif
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
