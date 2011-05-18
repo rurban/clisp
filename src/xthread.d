@@ -264,10 +264,10 @@ int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout);
  - Acquiring a lock which is previously unlocked, and releasing a lock are
    fast operations.
 
-   Inline assembly syntax is gcc specific - so we use the gcc extension for
-   block expressions in testandset(). On win32 with MSVC - InterlockedXXX
-   function should be used .*/
-
+   TODO: gcc 4.1.0+ support built-in atomic operations (__sync_xxx) for many
+   but not all) platforms. use them when available and add MSVC specific ones
+   (InterlockedXXX).
+*/
 
 #if defined(GNU) && (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC) || defined(AMD64))
 
@@ -416,14 +416,14 @@ int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout);
     #error Generational GC is not compatible with "slow" spinlocks.
   #endif
   /* Slow, but portable. */
-  #define spinlock_t xmutex_t
+  #define spinlock_t xmutex_raw_t
   /* do not check for errors from xmutex_xxxx() even if there is
      problem it is too generic in order to be handled properly.*/
-  #define spinlock_init(spinlock) xmutex_init(spinlock)
-  #define spinlock_tryacquire(spinlock) xmutex_trylock(spinlock)
-  #define spinlock_acquire(spinlock) xmutex_lock(spinlock)
-  #define spinlock_release(spinlock) xmutex_unlock(spinlock)
-  #define spinlock_destroy(spinlock) xmutex_destroy(spinlock)
+  #define spinlock_init(spinlock) xmutex_raw_init(spinlock)
+  #define spinlock_tryacquire(spinlock) xmutex_raw_trylock(spinlock)
+  #define spinlock_acquire(spinlock) xmutex_raw_lock(spinlock)
+  #define spinlock_release(spinlock) xmutex_raw_unlock(spinlock)
+  #define spinlock_destroy(spinlock) xmutex_raw_destroy(spinlock)
 
 #endif
 
