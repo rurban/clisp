@@ -1,5 +1,11 @@
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c: do not include <ws2tcpip.h> twice
+	* modules/rawsock/configure.in: <winsock2.h> is checked by gl_SOCKETLIB;
+	add LIBSOCKET to LIBS while checking for functions
+
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/configure.in: gl_FUNC_NL_LANGINFO is already called
 	by gl_INIT in the top-level config file
 
