@@ -1,5 +1,9 @@
 2011-05-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* time.d (thread_from_arg) [MULTITHREAD]: fix g++ gcsafety build
+
+2011-05-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
         * xthread.d: use "raw" mutexes for emulating spinlocks on
         architectures with no inline asm versions
 
