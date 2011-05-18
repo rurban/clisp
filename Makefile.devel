@@ -365,10 +365,10 @@ build-aux-update : update-gnulib force
 GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset \
-	unistd alloca-opt environ lstat stat readlink \
+	unistd alloca-opt environ lstat stat readlink sys_uio \
 	uniwidth/width streq uniname/uniname unitypes link-follow \
 	host-cpu-c-abi socklen sockets fd-hook setenv unsetenv errno \
-	arpa_inet netinet_in inet_ntop inet_pton \
+	arpa_inet netinet_in inet_ntop inet_pton socketlib \
 	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait
 GNULIB_SYSCALLS = mktime strftime strptime strverscmp uname strerror fnmatch-gnu
 GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex
