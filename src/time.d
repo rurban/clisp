@@ -57,7 +57,7 @@ local inline object thread_from_arg(object obj) {
   return nullobj;
 #else
   return missingp(obj) ? nullobj :
-    ((eq(T,obj)) ? current_thread()->_lthread : check_thread(obj));
+    ((eq(T,obj)) ? (object)current_thread()->_lthread : check_thread(obj));
 #endif
 }
 
