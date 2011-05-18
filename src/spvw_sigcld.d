@@ -31,15 +31,17 @@ local void install_sigcld_handler (void);
 
 local int sigcld_enabled = 0;
 #if defined(MULTITHREAD)
+/* TODO: following should be just atomic increment/decrement.
+   should add atomic primitives to xthread.d  */
 local spinlock_t sigcld_enabled_lock;
 #define sigcld_enabled_INCF(v)                  \
   spinlock_acquire(&sigcld_enabled_lock);       \
-  v = sigcld_enabled_lock++;                    \
+  v = sigcld_enabled++;                         \
   spinlock_release(&sigcld_enabled_lock)
 #define sigcld_enabled_DECF(v)                  \
   spinlock_acquire(&sigcld_enabled_lock);       \
-  if (sigcld_enabled_lock)                      \
-    v = --sigcld_enabled_lock;                  \
+  if (sigcld_enabled)                           \
+    v = --sigcld_enabled;                       \
   else v = 0;                                   \
   spinlock_release(&sigcld_enabled_lock)
 #else
@@ -73,7 +75,7 @@ modexp void end_want_sigcld () {
     SIGNAL(SIGCLD,SIG_IGN);
     /* Try to remove zombies which may have been created since the last
        begin_want_sigcld() call. */
-    while (waitpid(-1,NULL,WNOHANG) > 0) {}
+    while (waitpid(-1,NULL,WNOHANG) > 0) { fprintf(stderr, "VTZ: waitpid() iteration"); }
   }
  #endif
 }
