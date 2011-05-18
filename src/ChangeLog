@@ -5,6 +5,8 @@
 	* modules/rawsock/configure.in, modules/rawsock/rawsock.c:
 	* modules/syscalls/configure.in, configure.in, m4/general.m4:
 	* m4/rusage.m4: do not check for gnulib files
+	* Makefile.devel (GNULIB_CORE): add sys_uio & socketlib (already
+	present as dependencies)
 
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
