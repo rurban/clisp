@@ -13,7 +13,7 @@ CL_MODULE_COMMON_CHECKS()
 AM_INIT_AUTOMAKE([no-define])
 AC_C_RESTRICT
 BOLD_MSG([Regexp (Output)])
-AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
+AC_CONFIG_FILES([Makefile link.sh])
 AC_OUTPUT
 
 BOLD_MSG([Regexp (Done)])

@@ -82,7 +82,7 @@ fi
 fi
 
 BOLD_MSG([System Calls (output)])
-AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
+AC_CONFIG_FILES([Makefile link.sh])
 AC_OUTPUT
 
 BOLD_MSG([System Calls (done)])
