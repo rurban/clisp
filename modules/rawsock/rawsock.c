@@ -67,7 +67,7 @@
 #if defined(HAVE_NETDB_H)
 # include <netdb.h>
 #endif
-# include <sys/uio.h>
+#include <sys/uio.h>
 #if defined(HAVE_IFADDRS_H)
 # include <ifaddrs.h>
 #endif
@@ -146,9 +146,6 @@ static int check_iovec_arg (gcv_object_t *arg_, uintL *offset) {
       check_byte_vector(TheSvector(*arg_)->data[ii]);
   return sa.len;
 }
-#if !defined(HAVE_STRUCT_IOVEC)
-struct iovec { void *iov_base; size_t iov_len; };
-#endif  /* HAVE_STRUCT_IOVEC */
 #if !defined(HAVE_READV)        /* emulate readv using read */
 static ssize_t readv (rawsock_t sock, const struct iovec *iov, int len) {
   ssize_t retval = 0;
