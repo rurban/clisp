@@ -4059,21 +4059,7 @@ fi
 
 done
 
-if test "$ac_cv_header_sys_socket_h" = "no"; then
-for ac_header in winsock2.h ws2tcpip.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-else ac_fn_c_check_member "$LINENO" "struct msghdr" "msg_flags" "ac_cv_member_struct_msghdr_msg_flags" "#include <sys/socket.h>
+ac_fn_c_check_member "$LINENO" "struct msghdr" "msg_flags" "ac_cv_member_struct_msghdr_msg_flags" "#include <sys/socket.h>
 "
 if test "x$ac_cv_member_struct_msghdr_msg_flags" = x""yes; then :
 
@@ -4094,7 +4080,6 @@ _ACEOF
 
 fi
 
-fi
 ac_fn_c_check_type "$LINENO" "struct if_nameindex" "ac_cv_type_struct_if_nameindex" "
 #if HAVE_NET_IF_H
 # include <net/if.h>
@@ -4113,41 +4098,8 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Functions)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Functions)${term_norm}" >&6;}
-if test "$ac_cv_header_winsock2_h" = "yes"; then
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for socket() in ws2_32" >&5
-$as_echo_n "checking for socket() in ws2_32... " >&6; }
-  LIBS=${LIBS}' -lws2_32';
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <winsock2.h>
-int
-main ()
-{
-socket(0,0,0)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_search_socket=yes
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  ac_cv_search_socket=no
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-else
-  CL_SOCKET
-fi
-if test "$ac_cv_search_socket" = "no"; then
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error "cannot find SOCKET library
-See \`config.log' for more details." "$LINENO" 5; }
-fi
+cl_save_LIBS=$LIBS
+LIBS="$LIBS $LIBSOCKET"
 for ac_func in socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs readv writev getnameinfo getaddrinfo freeaddrinfo gai_strerror endprotoent getprotobyname getprotobynumber getprotoent setprotoent if_nametoindex if_indextoname if_nameindex if_freenameindex endnetent getnetbyaddr getnetbyname getnetent setnetent getifaddrs freeifaddrs
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
@@ -4161,6 +4113,7 @@ _ACEOF
 fi
 done
 
+LIBS=$cl_save_LIBS
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Output)${term_norm}" >&6;}

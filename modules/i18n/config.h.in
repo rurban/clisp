@@ -1,28 +1,13 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* Define to 1 if nl_langinfo (YESEXPR) returns a non-empty string. */
-#undef FUNC_NL_LANGINFO_YESEXPR_WORKS
-
-/* Define to 1 when the gnulib module nl_langinfo should be tested. */
-#undef GNULIB_TEST_NL_LANGINFO
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the <langinfo.h> header file. */
-#undef HAVE_LANGINFO_H
 
 /* Define to 1 if you have the `localeconv' function. */
 #undef HAVE_LOCALECONV
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define to 1 if you have the `nl_langinfo' function. */
-#undef HAVE_NL_LANGINFO
-
-/* Define to 1 if nl_langinfo is declared even after undefining macros. */
-#undef HAVE_RAW_DECL_NL_LANGINFO
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -80,9 +65,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* Define if nl_langinfo exists but is overridden by gnulib. */
-#undef REPLACE_NL_LANGINFO
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
