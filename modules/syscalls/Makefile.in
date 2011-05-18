@@ -39,7 +39,7 @@ calls.m.c: $(srcdir)/calls.c
 
 calls.o : calls.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
-		-I$(srcdir)/gllib -c calls.m.c -o calls.o
+		-c calls.m.c -o calls.o
 
 config.h : $(srcdir)/config.h.in config.status
 	sh config.status --header=config.h

@@ -33,7 +33,7 @@ regexp.fas: $(srcdir)/regexp.lisp
 
 regexi.o : regexi.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
-		-I$(srcdir)/gllib -c regexi.m.c -o regexi.o
+		-c regexi.m.c -o regexi.o
 
 regexi.m.c : $(srcdir)/regexi.c
 	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/regexi.c ./

@@ -4310,7 +4310,7 @@ _ACEOF
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Regexp (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Regexp (Output)${term_norm}" >&6;}
-ac_config_files="$ac_config_files Makefile link.sh gllib/Makefile"
+ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5026,7 +5026,6 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "link.sh") CONFIG_FILES="$CONFIG_FILES link.sh" ;;
-    "gllib/Makefile") CONFIG_FILES="$CONFIG_FILES gllib/Makefile" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
