@@ -4007,19 +4007,6 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
 
 
-for ac_header in time.h sys/time.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
 
 am__api_version='1.11'
 
@@ -4775,7 +4762,7 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
-for ac_header in fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h sys/statvfs.h sys/statfs.h sys/param.h sys/wait.h ftw.h
+for ac_header in fcntl.h netdb.h utime.h wchar.h pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h sys/statvfs.h sys/statfs.h sys/param.h ftw.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -5898,14 +5885,12 @@ _ACEOF
 
 
 fi
-for ac_header in sys/resource.h sys/times.h
+for ac_header in sys/resource.h
 do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
+  ac_fn_c_check_header_mongrel "$LINENO" "sys/resource.h" "ac_cv_header_sys_resource_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_resource_h" = x""yes; then :
   cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+#define HAVE_SYS_RESOURCE_H 1
 _ACEOF
 
 fi

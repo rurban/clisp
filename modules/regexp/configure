@@ -597,7 +597,6 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-NO_CXX
 am__fastdepCC_FALSE
 am__fastdepCC_TRUE
 CCDEPMODE
@@ -3603,19 +3602,6 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
 
 
-for ac_header in time.h sys/time.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
 
 am__api_version='1.11'
 
@@ -4276,20 +4262,6 @@ fi
 
 
 
-for ac_header in string.h sys/types.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for C/C++ restrict keyword" >&5
 $as_echo_n "checking for C/C++ restrict keyword... " >&6; }
 if test "${ac_cv_c_restrict+set}" = set; then :
@@ -4335,24 +4307,6 @@ $as_echo "$ac_cv_c_restrict" >&6; }
 _ACEOF
  ;;
  esac
-
-
-  NO_CXX=
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#if defined __GNUC__ && defined __cplusplus
-  Is g++
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "Is g++" >/dev/null 2>&1; then :
-  NO_CXX="-x c"
-fi
-rm -f conftest*
-
-
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Regexp (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Regexp (Output)${term_norm}" >&6;}

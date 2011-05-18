@@ -3779,19 +3779,6 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
 
 
-for ac_header in time.h sys/time.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-eval as_val=\$$as_ac_Header
-   if test "x$as_val" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Headers)${term_norm}" >&5
@@ -4005,7 +3992,7 @@ _ACEOF
 
 fi
 
-for ac_header in linux/if_packet.h netdb.h sys/uio.h \
+for ac_header in linux/if_packet.h netdb.h \
 asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
@@ -4108,22 +4095,6 @@ _ACEOF
 fi
 
 fi
-ac_fn_c_check_type "$LINENO" "struct iovec" "ac_cv_type_struct_iovec" "
-#include <sys/types.h> /* for size_t */
-#if defined(HAVE_SYS_UIO_H)
-# include <sys/uio.h>
-#endif
-
-"
-if test "x$ac_cv_type_struct_iovec" = x""yes; then :
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_STRUCT_IOVEC 1
-_ACEOF
-
-
-fi
-
 ac_fn_c_check_type "$LINENO" "struct if_nameindex" "ac_cv_type_struct_if_nameindex" "
 #if HAVE_NET_IF_H
 # include <net/if.h>
