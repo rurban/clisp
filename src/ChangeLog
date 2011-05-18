@@ -1,5 +1,10 @@
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/i18n/configure.in: gl_FUNC_NL_LANGINFO is already called
+	by gl_INIT in the top-level config file
+
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f, modules/clx/new-clx/configure.in:
 	* modules/fastcgi/configure.in, modules/regexp/configure.in:
 	* modules/rawsock/configure.in, modules/rawsock/rawsock.c:
