@@ -1394,12 +1394,12 @@ if [ "$DEBUGGING" = debug ] ; then
   esac
 fi
 
-if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin ]; then
-  # This is necessary for g++ to handle w32shell.c: The member lpVtbl is not
-  # defined by the w32api include files if
+if [ $CC_CPLUSPLUS = true -a \( ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin \) ]
+then # This is necessary for g++ to handle w32shell.c:
+  # The member lpVtbl is not defined by the w32api include files if
   #   defined(__cplusplus) && !defined(CINTERFACE)
   # cf <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
-  case "$CC" in *"g++"* ) XCFLAGS=$XCFLAGS' -DCINTERFACE'; ;; esac
+  XCFLAGS=$XCFLAGS' -DCINTERFACE'
 fi
 
 if [ "$cpu" = i386 -a "$TSYSOS" = "sinix-z" ] ; then # SINIX-Z V5.41
@@ -2206,7 +2206,8 @@ echol '.PHONY: subdirs $(SUBDIRS) clean0 clean1 clean2 clean3 clean4 clean5 clea
 echol
 echol 'subdirs: $(SUBDIRS)'
 echol
-echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
+# gnulib cannot be compiled with C++, thus NO_CXX
+echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG} @NO_CXX@"
 echol '$(SUBDIRS): build-aux config.status'
 echotab 'mkdir -p $@'
 echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
