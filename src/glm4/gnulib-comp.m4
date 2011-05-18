@@ -75,6 +75,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module readlink:
   # Code from module regex:
   # Code from module setenv:
   # Code from module socketlib:
@@ -190,6 +191,8 @@ AC_PROG_MKDIR_P
 gl_FUNC_NL_LANGINFO
 gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
 gt_NO_CXX
+gl_FUNC_READLINK
+gl_UNISTD_MODULE_INDICATOR([readlink])
 gl_REGEX
 gl_FUNC_SETENV
 gl_STDLIB_MODULE_INDICATOR([setenv])
@@ -427,6 +430,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mktime.c
   lib/netinet_in.in.h
   lib/nl_langinfo.c
+  lib/readlink.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -542,6 +546,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
+  m4/readlink.m4
   m4/regex.m4
   m4/setenv.m4
   m4/size_max.m4
