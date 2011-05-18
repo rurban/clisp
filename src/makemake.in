@@ -2342,17 +2342,9 @@ else
 fi
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
-  case ${util} in
-    comment5 )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
       echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
       echol
-      ;;
-    * )
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
-      echol ;;
-  esac
 done
 
 echol
