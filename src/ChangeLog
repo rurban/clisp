@@ -1,5 +1,14 @@
 2011-05-19  Sam Steingold  <sds@gnu.org>
 
+	* subrkw.d: remove
+	* spvw.d (init_subr_tab_2): use subr with LISPFUN_H instead of subrkw
+	* subr.d (LISPFUN_H): fix
+	* makemake.in (OTHER_INCLUDES): remove subrkw
+	* po/Makefile.devel (DSOURCES): ditto
+	* check-lispfun.lisp (check-lisp-defs): do not look at subrkw.d
+
+2011-05-19  Sam Steingold  <sds@gnu.org>
+
 	* zthread.d (EXEMPTION-WAIT): fix the key count in the definition
 	to match the (correct) declaration in subr.d
 

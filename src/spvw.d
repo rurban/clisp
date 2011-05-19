@@ -1408,35 +1408,11 @@ local void init_other_modules_1 (void) {
  during the second part of the initialization phase:
  finish initialization of subr_tab: enter keyword-vectors. */
 local void init_subr_tab_2 (void) {
-#if 0
-  /* I would love to have a simple solution here, but
-   TURBO-C doesn't get enough memory for compilation!
-   traverse subr_tab */
-  var object vec;
-  var gcv_object_t* vecptr;
  #define LISPFUN  LISPFUN_H
   #define kw(name)  *vecptr++ = S(K##name)
   #include "subr.c"
   #undef LISPFUN
  #undef kw
-#else
-  /* create keyword-vectors individually: */
-  var object vec;
-  var gcv_object_t* vecptr;
-  /* fills another single keyword into the vector: */
-  #define kw(name)  *vecptr++ = S(K##name)
-  /* creates vector with given keywords: */
-  #define v(key_count,keywords)                 \
-     vec = allocate_vector(key_count);          \
-     vecptr = &TheSvector(vec)->data[0];        \
-     keywords;
-  /* sets the vector as keyword-vector for SUBR name: */
-  #define s(name)  subr_tab.D_##name.keywords = vec;
-  #include "subrkw.c"
-  #undef s
-  #undef v
-  #undef kw
-#endif
 }
 /* finish initialization of symbol_tab: enter printnames and home-package. */
 local void init_symbol_tab_2 (void) {

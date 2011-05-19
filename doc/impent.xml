@@ -1070,7 +1070,6 @@
 <!ENTITY news '<link linkend="src-news"><filename>src/NEWS</filename></link>'>
 <!ENTITY spvw-d '<link linkend="spvw-d"><filename>spvw.d</filename></link>'>
 <!ENTITY subr-d '<link linkend="subr-d"><filename>subr.d</filename></link>'>
-<!ENTITY subrkw-d '<link linkend="subrkw-d"><filename>subrkw.d</filename></link>'>
 
 <!-- *** shortcuts *** -->
 <!ENTITY int-t '<type>int</type>'>

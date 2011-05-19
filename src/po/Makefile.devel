@@ -20,7 +20,7 @@ OTHER_LINGUAS = da de fr es nl ru
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
 DSOURCES = \
- lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw \
+ lispbibl fsubr subr pseudofun constsym constobj constpack avl sort \
     bytecode unix win32 xthread \
  spvw spvw_module spvw_debug spvw_alloca spvw_mmap \
     spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space \

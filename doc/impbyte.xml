@@ -139,11 +139,7 @@
        Landis) trees.</simpara></listitem></varlistentry>
     <varlistentry><term><filename role="clisp-cvs">src/sort.d</filename></term>
      <listitem><simpara>A sorting routine.</simpara></listitem></varlistentry>
-    <varlistentry id="subrkw-d">
-     <term><filename role="clisp-cvs">src/subrkw.d</filename></term>
-     <listitem><simpara>The list of all built-in functions with keywords
-       in &lalist;.</simpara></listitem></varlistentry></variablelist>
-</para></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/spvwtabf.d</filename></term>
  <listitem><simpara>The table of built-in special operators and functions.
 </simpara></listitem></varlistentry>
@@ -1462,9 +1458,8 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   <listitem><simpara>declare the function name in file &constsym-d; in
     the appropriate package (probably &ext-pac;, if there is no specific
     package)</simpara></listitem>
-  <listitem><simpara>if your function accepts keyword arguments, then an
-    appropriate pair of forms must be added to &subrkw-d; and you must
-    make sure that the keyword symbols are declared in &constsym-d;;
+  <listitem><simpara>if your function accepts keyword arguments, then you must
+    make sure that the keyword symbols are declared in &constsym-d;
   </simpara></listitem>
   <listitem><simpara>see the example in <xref linkend="modprep"/> for
     argument passing and returning values</simpara></listitem>
@@ -1473,7 +1468,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   <listitem><simpara>when you are done, you should run
     <command role="unix">make check-sources</command> in your build directory:
     this will check that the definitions (source files) and the declarations
-    (&subr-d;, &subrkw-d; and &fsubr-d;) are in sync.</simpara></listitem>
+    (&subr-d; and &fsubr-d;) are in sync.</simpara></listitem>
 </itemizedlist></para>
 
 <warning><para>Be very careful with the <emphasis>GC-unsafe</emphasis>
@@ -1512,8 +1507,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   <member>&constobj-d;</member>
   <member>&constsym-d;</member>
   <member>&fsubr-d;</member>
-  <member>&subr-d;</member>
-  <member>&subrkw-d;</member></simplelist>
+  <member>&subr-d;</member></simplelist>
  your &lispinit; will <emphasis>have</emphasis> to be re-dumped.</para>
 
 <warning id="byte-version"><para>If you change the signature of any
