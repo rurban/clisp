@@ -1769,13 +1769,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     O(standard_input_file_stream) = NIL;
     O(standard_output_file_stream) = NIL;
     O(standard_error_file_stream) = NIL;
-   #ifdef MACHINE_KNOWN
     /* declare (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
        as unknown again: */
     O(machine_type_string) = NIL;
     O(machine_version_string) = NIL;
     O(machine_instance_string) = NIL;
-   #endif
    #ifdef GNU_GETTEXT
     /* delete cache of (LISP-IMPLEMENTATION-VERSION)
        (depends on (SYS::CURRENT-LANGUAGE) ): */

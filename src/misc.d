@@ -109,14 +109,11 @@ LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
   }
 }
 
-#ifdef MACHINE_KNOWN
-
 LISPFUNN(machinetype,0)
 { /* (MACHINE-TYPE), CLTL S. 447 */
   var object ret = O(machine_type_string);
   if (nullp(ret)) { /* not yet known? -> compute */
   #if defined(UNIX)
-   #ifdef HAVE_UNAME            /* all known platforms have uname(2) */
     var struct utsname utsname;
     begin_system_call();
     if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
@@ -124,9 +121,6 @@ LISPFUNN(machinetype,0)
     pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
     funcall(L(nstring_upcase),1); /* convert to uppercase */
     ret = value1;
-   #else
-    #error MACHINE-TYPE: uname is missing
-   #endif
   #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
@@ -151,7 +145,6 @@ LISPFUNN(machine_version,0)
   var object ret = O(machine_version_string);
   if (nullp(ret)) { /* not yet known? -> compute */
   #if defined(UNIX)
-   #ifdef HAVE_UNAME            /* all known platforms have uname(2) */
     var struct utsname utsname;
     begin_system_call();
     if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
@@ -159,9 +152,6 @@ LISPFUNN(machine_version,0)
     pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
     funcall(L(nstring_upcase),1); /* convert to uppercase */
     ret = value1;
-   #else
-    #error MACHINE-VERSION: uname is missing
-   #endif
   #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
@@ -195,8 +185,6 @@ LISPFUNN(machine_version,0)
   }
   VALUES1(ret);
 }
-
-#endif /* MACHINE_KNOWN */
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */

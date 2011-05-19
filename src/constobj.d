@@ -342,11 +342,9 @@
      or the arglist of any built-in function in FUNTAB or FUNTABR */
   /* when changing, remove legacy ABI! */
   LISPOBJ(version,"(20100806)")
-#ifdef MACHINE_KNOWN
   LISPOBJ(machine_type_string,"NIL")
   LISPOBJ(machine_version_string,"NIL")
   LISPOBJ(machine_instance_string,"NIL")
-#endif
   LISPOBJ(software_type,"NIL")  /* initialized later */
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)

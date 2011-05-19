@@ -708,10 +708,8 @@ LISPFUNN(list_fe_init_end,2)
 LISPFUN(lisp_implementation_type,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
-#ifdef MACHINE_KNOWN
 LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
-#endif
 LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(set_env,2)
 #ifdef WIN32_NATIVE
@@ -732,9 +730,7 @@ LISPFUNNR(current_language,0)
 LISPFUNN(set_current_language,1)
 LISPFUNNR(text,1)
 /* ---------- SOCKET ---------- */
-#ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
-#endif
 /* ---------- TIME ---------- */
 LISPFUNNR(get_internal_real_time,0)
 LISPFUN(get_internal_run_time,seclass_read,0,1,norest,nokey,0,NIL)

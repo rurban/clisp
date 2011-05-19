@@ -540,10 +540,8 @@ LISPSYM(list_fe_init_end,"LIST-FE-INIT-END",system)
 LISPSYM(lisp_implementation_type,"LISP-IMPLEMENTATION-TYPE",lisp)
 LISPSYM(lisp_implementation_version,"LISP-IMPLEMENTATION-VERSION",lisp)
 LISPSYM(version,"VERSION",system)
-#ifdef MACHINE_KNOWN
 LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
-#endif
 LISPSYM(get_env,"GETENV",ext)
 LISPSYM(set_env,"SETENV",system)
 #ifdef WIN32_NATIVE
@@ -567,9 +565,7 @@ LISPSYM(current_language,"CURRENT-LANGUAGE",system) /* ABI */
 LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system) /* ABI */
 LISPSYM(text,"TEXT",system)
 /* ---------- SOCKET ---------- */
-#ifdef MACHINE_KNOWN
 LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
-#endif
 /* ---------- TIME ---------- */
 LISPSYM(get_internal_real_time,"GET-INTERNAL-REAL-TIME",lisp)
 LISPSYM(get_internal_run_time,"GET-INTERNAL-RUN-TIME",lisp)

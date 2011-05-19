@@ -6305,7 +6305,6 @@ exhaust the available line length.</para></simplesect>
 
 <section id="machine"><title>Machine</title>
 <variablelist>
-<!-- #ifdef MACHINE_KNOWN -->
 <varlistentry><term>&unix-only;</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
    should be defined in a site-specific &config-lisp; file.
@@ -6318,13 +6317,6 @@ exhaust the available line length.</para></simplesect>
    should be defined in a site-specific &config-lisp; file.
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
-<!-- #else -->
-<varlistentry><term>&no-platform-only;</term>
- <listitem><simpara>The functions &machine-type;, &machine-version;,
-   &machine-instance; and &short-site-name;, &long-site-name; should be
-   defined by every user in his user-specific &config-lisp; file.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
 </variablelist>
 </section>
 

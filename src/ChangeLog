@@ -1,5 +1,11 @@
 2011-05-19  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d, constsym.d, lispbibl.d, misc.d, socket.d:
+	* spvw_memfile.d, subr.d: remove MACHINE_KNOWN
+	which is always defined on all platforms supported by CLISP
+
+2011-05-19  Sam Steingold  <sds@gnu.org>
+
 	* constsym.d, lispbibl.d, misc.d, subr.d: remove HAVE_ENVIRONMENT
 	which is always defined on all platforms supported by CLISP
 

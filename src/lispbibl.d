@@ -2114,13 +2114,6 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether the OS provides the required information for the
- functions  MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE */
-#if defined(UNIX) || defined(WIN32_NATIVE)
-  #define MACHINE_KNOWN
-#endif
-/* When changed: extend misc.d, socket.d */
-
 /* Whether there are LOGICAL-PATHNAMEs: */
 #if 1
   #define LOGICAL_PATHNAMES
