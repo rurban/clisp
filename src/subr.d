@@ -801,11 +801,9 @@ LISPFUN(pathnamedirectory,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUN(pathnamename,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUNNR(pathnameversion,1)
-#ifdef LOGICAL_PATHNAMES
 LISPFUNNS(logical_pathname,1)
 LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
         (kw(absolute)))
-#endif
 LISPFUNNR(file_namestring,1)
 LISPFUNNR(directory_namestring,1)
 LISPFUNNR(host_namestring,1)
@@ -814,11 +812,9 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
          kw(name),kw(type),kw(version)) )
-#ifdef LOGICAL_PATHNAMES
 LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
          kw(name),kw(type),kw(version)) )
-#endif
 LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUN(wild_pathname_p,seclass_rd_sig,1,1,norest,nokey,0,NIL)
 LISPFUNNS(pathname_match_p,2)

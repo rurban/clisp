@@ -116,17 +116,13 @@ s(pathnamedevice)
 s(pathnamedirectory)
 s(pathnamename)
 s(pathnametype)
-#ifdef LOGICAL_PATHNAMES
 v(1, (kw(absolute)))
 s(translate_logical_pathname)
-#endif
 v(1, (kw(wild)) )
 s(merge_pathnames)
 v(8, (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
 s(make_pathname)
-#ifdef LOGICAL_PATHNAMES
 s(make_logical_pathname)
-#endif
 v(3, (kw(all),kw(merge),kw(absolute)) )
 s(translate_pathname)
 v(1, (kw(if_exists)))

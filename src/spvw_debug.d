@@ -174,14 +174,12 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #undef SLOT
     fputs(")",out);
   } else if (logpathnamep(obj)) {
-   #ifdef LOGICAL_PATHNAMES
     fputs("#(",out); XOUT(S(logical_pathname));
    #define SLOT(s) fputc(' ',out); XOUT(S(K##s)); fputc(' ',out); \
      XOUT(TheLogpathname(obj)->pathname_##s)
     SLOT(host); SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
    #undef SLOT
     fputc(')',out);
-   #endif
   } else if (hash_table_p(obj)) {
     fputs("#(",out); XOUT(S(hash_table));
     fprintf(out," size=%u maxcount=%u mincount=%u\n",

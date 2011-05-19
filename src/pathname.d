@@ -496,7 +496,6 @@ local maygc void rename_existing_path (object old_pathstring,
  (parse-namestring (namestring pathname)) will not be the same as pathname.
 #endif
 
-#ifdef LOGICAL_PATHNAMES
  Components of Logical Pathnames:
  HOST          Simple-String or NIL
  DEVICE        always NIL
@@ -514,7 +513,6 @@ local maygc void rename_existing_path (object old_pathstring,
                Simple-String, poss. with Wildcard-Character *
  VERSION       NIL or :NEWEST or :WILD or Integer
  External Notation: see CLtl2 p. 628-629.
-#endif
 
  access functions without case transforms:
  xpathname_host(logical,pathname)
@@ -545,7 +543,6 @@ local maygc void rename_existing_path (object old_pathstring,
 #define pathname_version_maybe(obj) (unused(obj), NIL)
 #endif
 
-#ifdef LOGICAL_PATHNAMES
 #define xpathname_host(logical,pathname)                       \
   (logical ? (object)TheLogpathname(pathname)->pathname_host : \
              pathname_host_maybe(pathname))
@@ -563,20 +560,6 @@ local maygc void rename_existing_path (object old_pathstring,
 #define xpathname_version(logical,pathname)                       \
   (logical ? (object)TheLogpathname(pathname)->pathname_version : \
                 (object)ThePathname(pathname)->pathname_version)
-#else /* no logical pathnames */
-#define xpathname_host(logical,pathname) \
-  pathname_host_maybe(pathname)
-#define xpathname_device(logical,pathname) \
-  pathname_device_maybe(pathname)
-#define xpathname_directory(logical,pathname) \
-  ThePathname(pathname)->pathname_directory
-#define xpathname_name(logical,pathname) \
-  ThePathname(pathname)->pathname_name
-#define xpathname_type(logical,pathname) \
-  ThePathname(pathname)->pathname_type
-#define xpathname_version(logical,pathname) \
-  ThePathname(pathname)->pathname_version
-#endif
 
 #define SUBST_RECURSE(atom_form,self_call)                      \
   if (atomp(obj)) return atom_form;                             \
@@ -643,8 +626,6 @@ local object subst_common_case (object obj) {
   SUBST_RECURSE(common_case(obj),subst_common_case);
 }
 
-#ifdef LOGICAL_PATHNAMES
-
 local bool legal_logical_word_char (chart ch) {
   ch = up_case(ch);
   var cint c = as_cint(ch);
@@ -652,8 +633,6 @@ local bool legal_logical_word_char (chart ch) {
           || ((c >= '0') && (c <= '9'))
           || (c == '-'));
 }
-
-#endif
 
 #if HAS_HOST
 
@@ -719,8 +698,6 @@ local maygc object test_optional_host (object host, bool convert) {
 
 #else
 
-#ifdef LOGICAL_PATHNAMES
-
 /* UP: check an optional HOST argument
  test_optional_host(host)
  > host: Host-Argument
@@ -760,27 +737,6 @@ local maygc object test_optional_host (object host) {
   pushSTACK(TheSubr(subr_self)->name);
   error(parse_error,GETTEXT("~S: illegal hostname ~S"));
 }
-
-#else
-
-/* UP: check an optional HOST argument
- test_optional_host(host);
- > host: Host-Argument
- < result: valid host-component */
-local object test_optional_host (object host) {
-  if (boundp(host)       /* not specified -> OK */
-      && !nullp(host)    /* specified -> should be NIL or :UNSPECIFIC */
-      && !eq(host,S(Kunspecific))) {
-    pushSTACK(host);     /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(null));  /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(host);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: host should be NIL, not ~S"));
-  }
-  return NIL;
-}
-
-#endif
 
 #endif
 
@@ -853,9 +809,6 @@ local object coerce_xpathname (object obj); /* later */
 
 /* Converts an object into a non-logical pathname. */
 local object coerce_pathname (object obj); /* later */
-#if !defined(LOGICAL_PATHNAMES)
-#define coerce_pathname(obj)  coerce_xpathname(obj)
-#endif
 
 /* Returns a default-pathname. */
 local object defaults_pathname (void); /* later */
@@ -957,9 +910,6 @@ nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
  #define cpslashp(c) ((c) == slash)
 #endif
 #define colonp(c)    chareq(c,ascii(':'))
-#ifndef LOGICAL_PATHNAMES
-#define lslashp(c)   pslashp(c)
-#endif
 #define dotp(c)      chareq(c,ascii('.'))
 
 /* UP: add a character to an ASCII string and return as a Lisp string
@@ -1032,8 +982,6 @@ typedef struct {
 
 /* Replace this string with a substring. */
 #define Z_SUB(z,s) ((s) = subsstring((s),(z).index,(z).index+(z).count), (z).index = 0)
-
-#ifdef LOGICAL_PATHNAMES
 
 /* Parsing of logical pathnames. */
 
@@ -1396,8 +1344,6 @@ local bool logical_host_p (object host) {
                  nullobj));
 }
 
-#endif
-
 #define string2wild(str)  (equal(str,O(wild_string)) ? S(Kwild) : (object)(str))
 #define wild2string(obj)  (eq(obj,S(Kwild)) ? (object)O(wild_string) : (obj))
 
@@ -1480,9 +1426,7 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
    2. default-value for start is 0: */
   if (!boundp(STACK_1))
     STACK_1 = Fixnum_0;
-  /* 3. check host: */
- #if HAS_HOST || defined(LOGICAL_PATHNAMES)
-  {
+  { /* 3. check host: */
     var object host = STACK_3;
    #if HAS_HOST
     host = test_optional_host(host,false);
@@ -1492,23 +1436,14 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
     if (nullp(host)) {
       /* host := (PATHNAME-HOST defaults) */
       var object defaults = test_default_pathname(STACK_2);
-     #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(defaults))
         parse_logical = true;
-     #endif
       host = xpathname_host(parse_logical,defaults);
-    } else {
-     #ifdef LOGICAL_PATHNAMES
-      if (logical_host_p(host)) {
-        parse_logical = true; host = string_upcase(host);
-      }
-     #endif
+    } else if (logical_host_p(host)) {
+      parse_logical = true; host = string_upcase(host);
     }
     STACK_3 = host;
   }
- #else
-  test_optional_host(STACK_3);
- #endif
   /* 4. thing must be a String: */
   DOUT("parse-namestring:[thng]",STACK_4);
   DOUT("parse-namestring:[host]",STACK_3);
@@ -1550,7 +1485,6 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
       z.count = arg.len;           /* z.count = number of characters. */
       z.FNindex = fixnum(arg.index); /* z.FNindex = start-Index as Fixnum. */
     }
-   #ifdef LOGICAL_PATHNAMES
     if (!parse_logical) {
       /* Check whether *PARSE-NAMESTRING-ANSI* is true and the string
        starts with a logical hostname. */
@@ -1577,7 +1511,6 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
           parse_logical = looks_logical_p(string);
       }
     }
-   #endif
     if (thing_symbol && !parse_logical) {
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       /* operating system with preference for small letters */
@@ -1594,15 +1527,12 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
     #endif
     pushSTACK(string);
   }
- #ifdef LOGICAL_PATHNAMES
   if (parse_logical) {
     pushSTACK(allocate_logpathname());
     /* stack layout: ..., data-vector, pathname. */
     var uintL remaining = parse_logical_pathnamestring(z);
     z.index += z.count-remaining; z.FNindex = fixnum_inc(z.FNindex,z.count-remaining); z.count = remaining;
-  } else
- #endif
-  {
+  } else {
     pushSTACK(allocate_pathname());
     /* stack layout: ..., data-vector, pathname.
      separator between subdirs is on WIN32 both '\' and '/': */
@@ -1981,12 +1911,10 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
       error(parse_error,
              GETTEXT("~S: syntax error in filename ~S at position ~S"));
     }
- #if HAS_HOST || defined(LOGICAL_PATHNAMES)
   /* Check that if a :host argument (or :host component of the :defaults
    argument) was present and the parsed pathname has a host component,
    they agree; and set the :host component of the result otherwise */
   if (!missingp(STACK_(3+2))) {
-   #ifdef LOGICAL_PATHNAMES
     if (parse_logical) {
       var object parsed_host = TheLogpathname(STACK_0)->pathname_host;
       if (!nullp(parsed_host)) {
@@ -1999,9 +1927,7 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         }
       } else
         TheLogpathname(STACK_0)->pathname_host = STACK_(3+2);
-    } else
-   #endif
-    {
+    } else {
      #if HAS_HOST
       var object parsed_host = ThePathname(STACK_0)->pathname_host;
       if (!nullp(parsed_host)) {
@@ -2017,7 +1943,6 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
      #endif
     }
   }
- #endif /* HAS_HOST || LOGICAL_PATHNAMES */
   value1 = STACK_0; /* pathname as 1st value */
   value2 = z.FNindex; /* index as 2nd value */
   mv_count=2; /* 2 values */
@@ -2053,12 +1978,8 @@ LISPFUNNR(pathname,1) { /* (PATHNAME pathname), CLTL p. 413 */
   object ret = ThePathname(pathname)->slot;             \
   value1 = eq(STACK_0,S(Kcommon)) ? common(ret) : ret;  \
  } while(0)
-#if defined(LOGICAL_PATHNAMES)
 #define LOG_PATH_VALUE(slot)                                             \
   if (logpathnamep(pathname)) value1 = TheLogpathname(pathname)->slot; else
-#else
-#define LOG_PATH_VALUE(slot)
-#endif
 
 /* (PATHNAME-HOST pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
 LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case))) {
@@ -2075,12 +1996,10 @@ LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case))) {
 /* (PATHNAME-DEVICE pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
 LISPFUN(pathnamedevice,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
     /* http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html */
     value1 = S(Kunspecific);
   } else
- #endif
    #if HAS_DEVICE
     PATH_VALUE(pathname_device,common_case);
    #else
@@ -2111,8 +2030,6 @@ LISPFUNNR(pathnameversion,1) {
   var object pathname = coerce_xpathname(popSTACK());
   VALUES1(xpathname_version(logpathnamep(pathname),pathname));
 }
-
-#ifdef LOGICAL_PATHNAMES
 
 /* Converts obj to a pathname. If obj is a string, it is even converted to a
    logical pathname.
@@ -2309,8 +2226,6 @@ local maygc object coerce_pathname (object obj) {
     NOTREACHED;
 }
 
-#endif
-
 /* UP: Pushes substrings for STRING_CONCAT on the STACK, that together yield
  the string for a subdirectory (car path) .
  subdir_namestring_parts(path,logicalp)
@@ -2341,7 +2256,6 @@ local uintC subdir_namestring_parts (object path,bool logp) {
  > pathname: non-logical pathname
  < result: number of strings pushed on the stack
  changes STACK */
-#if HAS_HOST || defined(LOGICAL_PATHNAMES)
 local uintC host_namestring_parts (object pathname) {
   var bool logp = logpathnamep(pathname);
   var object host = xpathname_host(logp,pathname);
@@ -2360,9 +2274,6 @@ local uintC host_namestring_parts (object pathname) {
     return 2;
   }
 }
-#else
-  #define host_namestring_parts(pathname)  (unused (pathname), 0)  /* no strings */
-#endif
 
 /* UP: Pushes substrings for STRING_CONCAT on the STACK, that together
  yield the String for the Device and Directory of the Pathname pathname.
@@ -2393,13 +2304,11 @@ local uintC directory_namestring_parts (object pathname) {
  #endif
   { /* Directory: */
     var object directory = xpathname_directory(logp,pathname);
-   #if defined(LOGICAL_PATHNAMES)
     if (logp) {
       if (consp(directory) && eq(Car(directory),S(Krelative))) {
         pushSTACK(O(semicolon_string)); stringcount++; /* ";" on the Stack */
       }
-    } else
-   #endif
+    } else {
 #if defined(PATHNAME_WIN32)
 #define push_slash pushSTACK(O(backslash_string))
 #elif defined(PATHNAME_UNIX)
@@ -2407,7 +2316,6 @@ local uintC directory_namestring_parts (object pathname) {
 #else
 #error what is the directory separator on your platform?
 #endif
-    {
       if (!mconsp(directory)) return stringcount; /* no directory */
       /* is the first subdir = :ABSOLUTE or = :RELATIVE ? */
       if (eq(Car(directory),S(Kabsolute))) {
@@ -2416,17 +2324,15 @@ local uintC directory_namestring_parts (object pathname) {
         pushSTACK(O(dot_string)); stringcount++; /* "." */
         push_slash; stringcount++; /* "/" */
         return stringcount;
-    }}
+      }
+    }
     directory = Cdr(directory); /* skip */
     /* other subdirs on the stack: */
     while (consp(directory)) {
       stringcount += subdir_namestring_parts(directory,logp);
-     #if defined(LOGICAL_PATHNAMES)
       if (logp) {
         pushSTACK(O(semicolon_string)); stringcount++; /* ";" */
-      } else
-     #endif
-      {
+      } else {
        #ifdef PATHNAME_WIN32
         pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
        #endif
@@ -2489,14 +2395,12 @@ local maygc uintC nametype_namestring_parts (object name, object type, object ve
  can trigger GC
  changes STACK */
 local maygc uintC file_namestring_parts (object pathname) {
- #if defined(LOGICAL_PATHNAMES)
   if (logpathnamep(pathname))
     return nametype_namestring_parts
       (TheLogpathname(pathname)->pathname_name,
        TheLogpathname(pathname)->pathname_type,
        TheLogpathname(pathname)->pathname_version);
   else
- #endif
     /* do not print version when the underlying physical file system
        does not support it */
     return nametype_namestring_parts(ThePathname(pathname)->pathname_name,
@@ -2575,13 +2479,9 @@ local object test_optional_version (object def) {
   } else if (posfixnump(version) && !eq(version,Fixnum_0)) {/*Fixnum>0 is OK*/
   } else if (pathnamep(version)) { /* Pathname -> its Version */
     STACK_0 = ThePathname(version)->pathname_version;
-  }
-#ifdef LOGICAL_PATHNAMES
-  else if (logpathnamep(version)) { /* Logical Pathname -> its Version */
+  } else if (logpathnamep(version)) { /* Logical Pathname -> its Version */
     STACK_0 = TheLogpathname(version)->pathname_version;
-  }
-#endif
-  else { /* None of the desired cases -> error: */
+  } else { /* None of the desired cases -> error: */
     pushSTACK(version);         /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_version)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(version);
@@ -2802,15 +2702,13 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
    (coerce defaults 'pathname): */
   STACK_1 = test_default_pathname(STACK_1);
   /* (coerce pathname 'pathname): */
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(STACK_1)) {
     if (!xpathnamep(STACK_2)) { /* pathname */
       STACK_2 = parse_as_logical(STACK_2);
       DOUT("merge-pathnames:[log_pathname]",STACK_2);
     }
   } else
-  #endif
-  STACK_2 = coerce_xpathname(STACK_2); /* pathname */
+    STACK_2 = coerce_xpathname(STACK_2); /* pathname */
   var bool d_log = logpathnamep(STACK_1);
   var bool p_log = logpathnamep(STACK_2);
 
@@ -2830,7 +2728,6 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   /* stack layout: default-version, pathname, defaults. */
 
   /* do the merge */
- #ifdef LOGICAL_PATHNAMES
   DOUT("merge-pathnames:[defaults]",STACK_0);
   DOUT("merge-pathnames:[pathname]",STACK_1);
   if (d_log || p_log) {
@@ -2877,7 +2774,6 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   /* not both are logical pathnames -> first, convert into normal pathnames: */
   STACK_1 = coerce_pathname(STACK_1);
   STACK_0 = coerce_pathname(STACK_0);
- #endif
   var object newp = allocate_pathname(); /* fetch new pathname */
   var object d = popSTACK(); /* defaults */
   var object p = popSTACK(); /* pathname */
@@ -3130,8 +3026,6 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
 }
 #undef SET_NEWP
 
-#ifdef LOGICAL_PATHNAMES
-
 /* UP: checks, if object is an admissible name:
  :WILD or a Simple-String made of valid characters, without adjacent '*'.
  legal_logical_word(object)
@@ -3163,8 +3057,6 @@ local bool legal_logical_word (object obj) {
   });
   return true;
 }
-
-#endif
 
 #ifdef PATHNAME_NOEXT
 
@@ -3272,14 +3164,11 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
   while (consp(dirlist)) {
     /* check the next subdir = POP(dirlist); */
     var object subdir = Car(dirlist); dirlist = Cdr(dirlist);
-   #ifdef LOGICAL_PATHNAMES
     if (logical) {
       if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
             || legal_logical_word(subdir) || eq(subdir,S(Kup))))
         return false;
-    } else
-   #endif
-    {
+    } else {
      #ifdef PATHNAME_NOEXT
       #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
@@ -3292,13 +3181,8 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
   return true;
 }
 
-#ifdef LOGICAL_PATHNAMES
- #define COERCE_PATHNAME_SLOT(slot,obj,stack_res)       \
-   stack_res = ThePathname(coerce_pathname(obj))->pathname_##slot
-#else
- #define COERCE_PATHNAME_SLOT(slot,obj,stack_res)       \
-   stack_res = ThePathname(obj)->pathname_##slot
-#endif
+#define COERCE_PATHNAME_SLOT(slot,obj,stack_res)                        \
+  stack_res = ThePathname(coerce_pathname(obj))->pathname_##slot
 
 /* (MAKE-PATHNAME [:host] [:device] [:directory] [:name] [:type] [:version]
                 [:defaults] [:case]),
@@ -3312,21 +3196,17 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   var bool convert = eq(STACK_6,S(Kcommon));
   /* 0. check defaults (STACK_7): */
   if (boundp(STACK_7)) {
-   #ifdef LOGICAL_PATHNAMES
     if (!nullpSv(parse_namestring_ansi)
         && stringp(STACK_7) && looks_logical_p(STACK_7))
       STACK_7 = parse_as_logical(STACK_7);
     else
-   #endif
       STACK_7 = coerce_xpathname(STACK_7);
   }
   /* 1. check host: */
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(STACK_5)) {
     STACK_5 = TheLogpathname(STACK_5)->pathname_host;
     logical = true;
   }
- #endif
   if (!boundp(STACK_5)) {
     var object d_path = defaults_pathname();
     STACK_5 = (!boundp(STACK_7) ?
@@ -3339,11 +3219,9 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     STACK_5 = test_optional_host(STACK_5);
    #endif
   }
- #ifdef LOGICAL_PATHNAMES
   if (!nullp(STACK_5) && logical_host_p(STACK_5)) {
     logical = true; STACK_5 = string_upcase(STACK_5);
   }
- #endif
   DOUT("make-pathname:[version]",STACK_0);
   DOUT("make-pathname:[type]",STACK_1);
   DOUT("make-pathname:[name]",STACK_2);
@@ -3365,14 +3243,12 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         STACK_4 = device = common_case(device);
       if (nullp(device)) /* = NIL ? */
         goto device_ok;
-     #ifdef LOGICAL_PATHNAMES
       else if (logical) {
         if (logpathnamep(device) /* Pathname -> its device */
             || (eq(device,S(Kunspecific)))) { /* :UNSPECIFIC -> NIL */
           STACK_4 = NIL; goto device_ok;
         }
       }
-     #endif
      #ifdef PATHNAME_WIN32
       else if (eq(device,S(Kwild))) /* = :WILD ? */
         goto device_ok;
@@ -3442,16 +3318,12 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         goto directory_bad;
       else
         goto directory_ok;
-    }
-   #ifdef LOGICAL_PATHNAMES
-    else if (logical) {
+    } else if (logical) {
       if (logpathnamep(directory)) { /* Pathname -> its Directory */
         STACK_3 = TheLogpathname(directory)->pathname_directory;
         goto directory_ok;
       }
-    }
-   #endif
-    else if (xpathnamep(directory)) { /* Pathname -> its Directory */
+    } else if (xpathnamep(directory)) { /* Pathname -> its Directory */
       COERCE_PATHNAME_SLOT(directory,directory,STACK_3);
       goto directory_ok;
     }
@@ -3473,9 +3345,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     } else if (equal(name,O(empty_string))) { /* name = "" ? */
       STACK_2 = NIL; /* -> use NIL */
     } else if (nullp(name)) { /* NIL is OK */
-    }
-   #ifdef LOGICAL_PATHNAMES
-    else if (logical) {
+    } else if (logical) {
       if (legal_logical_word(name)) { /* OK */
       } else if (logpathnamep(name)) { /* Pathname -> its Name */
         STACK_2 = TheLogpathname(name)->pathname_name;
@@ -3483,7 +3353,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         pushSTACK(STACK_2); pushSTACK(S(Kname)); goto error_arg;
       }
     }
-   #endif
    #ifdef PATHNAME_NOEXT
     else if (eq(name,S(Kwild))) { /* :WILD is OK */
     }
@@ -3507,9 +3376,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       if (!boundp(STACK_7)) /* no Defaults ? */
         STACK_1 = NIL; /* -> use NIL */
     } else if (nullp(type)) { /* NIL is OK */
-    }
-   #ifdef LOGICAL_PATHNAMES
-    else if (logical) {
+    } else if (logical) {
       if (legal_logical_word(type)) { /* OK */
       } else if (logpathnamep(type)) { /* Pathname -> its Type */
         STACK_1 = TheLogpathname(type)->pathname_type;
@@ -3517,7 +3384,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto error_arg;
       }
     }
-   #endif
    #ifdef PATHNAME_NOEXT
     else if (eq(type,S(Kwild))) { /* :WILD is OK */
     }
@@ -3535,7 +3401,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   DOUT("make-pathname:[ver]",STACK_7);
   { /* 7. build Pathname: */
     var object pathname;
-   #ifdef LOGICAL_PATHNAMES
     if (logical) {
       pathname = allocate_logpathname(); /* new Logical Pathname */
       TheLogpathname(pathname)->pathname_version   = popSTACK();
@@ -3544,9 +3409,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       TheLogpathname(pathname)->pathname_directory = popSTACK();
       skipSTACK(1);
       TheLogpathname(pathname)->pathname_host      = popSTACK();
-    } else
-   #endif
-    {
+    } else {
       pathname = allocate_pathname(); /* new Pathname */
       ThePathname(pathname)->pathname_version   = popSTACK();
       ThePathname(pathname)->pathname_type      = popSTACK();
@@ -3587,8 +3450,6 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
 }
 #undef COERCE_PATHNAME_SLOT
 
-#ifdef LOGICAL_PATHNAMES
-
 /* (MAKE-LOGICAL-PATHNAME [:host] [:device] [:directory] [:name]
                           [:type] [:version] [:defaults] [:case]),
  like MAKE-PATHNAME, except that a Logical Pathname is built. */
@@ -3608,8 +3469,6 @@ LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
   /* continue at MAKE-PATHNAME. */
   C_make_pathname();
 }
-
-#endif
 
 /* (USER-HOMEDIR-PATHNAME [host]), CLTL p. 418 */
 LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
@@ -3705,9 +3564,7 @@ local bool name (object obj, bool dirp) {                               \
 DEF_WILD_CHECKER(wild_p,wild_char_p)
 #endif
 
-#ifdef LOGICAL_PATHNAMES
 DEF_WILD_CHECKER(word_wild_p,multiwild_char_p)
-#endif
 
 /* UP: checks, if the host-component of a pathname contains wildcards.
  has_host_wildcards(pathname)
@@ -3723,10 +3580,8 @@ local bool has_host_wildcards (object pathname);
  < result: true if (PATHNAME-DEVICE pathname) contains wildcards. */
 local bool has_device_wildcards (object pathname) {
  #ifdef PATHNAME_WIN32
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname))
     return false;
- #endif
   /* check device: = :WILD ? */
   return eq(ThePathname(pathname)->pathname_device,S(Kwild));
  #else
@@ -3740,7 +3595,6 @@ local bool has_device_wildcards (object pathname) {
  < result: true if (PATHNAME-DIRECTORY pathname) contains wildcards. */
 local bool has_directory_wildcards (object pathname) {
   /* check directory: */
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
     var object directory = TheLogpathname(pathname)->pathname_directory;
     for (;consp(directory); directory = Cdr(directory))
@@ -3748,7 +3602,6 @@ local bool has_directory_wildcards (object pathname) {
         return true;
     return false;
   }
- #endif
   var object directory = ThePathname(pathname)->pathname_directory;
   for (;consp(directory); directory = Cdr(directory))
     if (wild_p(Car(directory),true))
@@ -3762,10 +3615,8 @@ local bool has_directory_wildcards (object pathname) {
  < result: true if (PATHNAME-NAME pathname) contains wildcards. */
 local bool has_name_wildcards (object pathname) {
   /* check name: */
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname))
     return word_wild_p(TheLogpathname(pathname)->pathname_name,false);
- #endif
  #ifdef PATHNAME_NOEXT
   return wild_p(ThePathname(pathname)->pathname_name,false);
  #endif
@@ -3778,10 +3629,8 @@ local bool has_name_wildcards (object pathname) {
  < result: true if (PATHNAME-TYPE pathname) contains wildcards. */
 local bool has_type_wildcards (object pathname) {
   /* check type: */
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname))
     return word_wild_p(TheLogpathname(pathname)->pathname_type,false);
- #endif
  #ifdef PATHNAME_NOEXT
   return wild_p(ThePathname(pathname)->pathname_type,false);
  #endif
@@ -3867,9 +3716,7 @@ LISPFUN(wild_pathname_p,seclass_rd_sig,1,1,norest,nokey,0,NIL)
 /* For the purposes of wildcard matching, according to CLHS, non-present
  components (i.e. NIL or a directory = (:RELATIVE)) are treated as wild. */
 
-#if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
-
-  /* UP: Matches a Wildcard-String ("Pattern") with a "Sample".
+/* UP: Matches a Wildcard-String ("Pattern") with a "Sample".
    > pattern : Normal-Simple-String, with wildcards
              '?' for exactly 1 character
              '*' for arbitrary many characters
@@ -3935,8 +3782,6 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
   }
 }
 
-#endif
-
 /* UPs: matches a pathname-component ("Sample") and
  a pathname-component ("Pattern") at a time. */
 local bool host_match (object pattern, object sample, bool logical);
@@ -3946,20 +3791,14 @@ local bool nametype_match (object pattern, object sample, bool logical);
 local bool version_match (object pattern, object sample, bool logical);
 local bool host_match (object pattern, object sample, bool logical)
 {/* logical is ignored */
- #if defined(LOGICAL_PATHNAMES) || HAS_HOST
   if (nullp(pattern)) return true;
   return equal(pattern,sample);
- #else
-  return true;
- #endif
 }
 local bool device_match (object pattern, object sample, bool logical) {
  #if HAS_DEVICE
-  #ifdef LOGICAL_PATHNAMES
   if (logical) {
     return true;
   }
-  #endif
   if (nullp(pattern)) return true;
   #ifdef PATHNAME_WIN32
   if (eq(pattern,S(Kwild))) return true;
@@ -3976,7 +3815,6 @@ local bool device_match (object pattern, object sample, bool logical) {
 }
 local bool nametype_match_aux (object pattern, object sample, bool logical)
 { /* logical is ignored */
- #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   if (eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   if (nullp(pattern)) {
@@ -3988,20 +3826,13 @@ local bool nametype_match_aux (object pattern, object sample, bool logical)
   if (nullp(sample))
     return false;
   return wildcard_match(pattern,sample);
- #else
-  return true;                 /* when do we get here?! */
- #endif
 }
 local bool subdir_match (object pattern, object sample, bool logical)
 { /* logical is ignored */
   if (eq(pattern,sample)) return true;
- #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   if (eq(pattern,S(Kwild))) return true;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
   return wildcard_match(pattern,sample);
- #else
-  return true;                 /* when do we get here?! */
- #endif
 }
 /* recursive implementation because of backtracking: */
 local bool directory_match_ab (object m_list, object b_list, bool logical);
@@ -4066,7 +3897,6 @@ LISPFUNNS(pathname_match_p,2)
   var bool logical = false;
   STACK_1 = coerce_xpathname(STACK_1);
   STACK_0 = coerce_xpathname(STACK_0);
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(STACK_1) && logpathnamep(STACK_0)) {
     logical = true;
   } else {
@@ -4074,7 +3904,6 @@ LISPFUNNS(pathname_match_p,2)
     STACK_1 = coerce_pathname(STACK_1);
     STACK_0 = coerce_pathname(STACK_0);
   }
- #endif
   DOUT("pathname-match-p:[s0]",STACK_0);
   DOUT("pathname-match-p:[s1]",STACK_1);
   var object wildname = popSTACK();
@@ -4147,8 +3976,6 @@ LISPFUNNS(pathname_match_p,2)
       Car(new_cons) = popSTACK(); Cdr(new_cons) = *solutions;   \
       *solutions = new_cons;                                    \
     }} while(0)
-
-#if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
 /* recursive implementation because of backtracking: */
 local maygc void wildcard_diff_ab (object pattern, object sample,
@@ -4224,8 +4051,6 @@ local maygc void wildcard_diff (object pattern, object sample,
   wildcard_diff_ab(pattern,sample,0,0,previous,solutions);
 }
 
-#endif
-
 #if DEBUG_TRANSLATE_PATHNAME>1
 /* all arguments to *_diff are on stack - this should be safe */
 #define DEBUG_DIFF(f)                                         \
@@ -4255,15 +4080,12 @@ local maygc void version_diff   (object pattern, object sample, bool logical,
 local maygc void host_diff (object pattern, object sample, bool logical,
                             const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(host_diff);
- #ifdef LOGICAL_PATHNAMES
   if (logical) {
     if (nullp(pattern)) {
       push_solution_with(sample); return;
     }
     if (!equal(pattern,sample)) return;
-  } else
- #endif
-  {
+  } else {
  #if HAS_HOST
     if (nullp(pattern)) {
       push_solution_with(sample); return;
@@ -4280,7 +4102,6 @@ local maygc void host_diff (object pattern, object sample, bool logical,
 local maygc void device_diff (object pattern, object sample, bool logical,
                               const gcv_object_t* previous, gcv_object_t* solutions) {
   DEBUG_DIFF(device_diff);
- #ifdef LOGICAL_PATHNAMES
   if (logical) {
    #if HAS_DEVICE
     push_solution_with(S(Kdevice));
@@ -4289,7 +4110,6 @@ local maygc void device_diff (object pattern, object sample, bool logical,
    #endif
     return;
   }
- #endif
  #if HAS_DEVICE
   #ifdef PATHNAME_WIN32
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
@@ -4317,7 +4137,6 @@ local maygc void device_diff (object pattern, object sample, bool logical,
 local maygc void nametype_diff_aux (object pattern, object sample, bool logical,
                                     const gcv_object_t* previous,
                                     gcv_object_t* solutions) {
- #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   unused(logical);
   if (eq(pattern,S(Kwild))) {
     var object string = wild2string(sample);
@@ -4333,7 +4152,6 @@ local maygc void nametype_diff_aux (object pattern, object sample, bool logical,
   if (nullp(sample))
     return;
   wildcard_diff(pattern,sample,previous,solutions);
- #endif
 }
 local maygc void subdir_diff (object pattern, object sample, bool logical,
                               const gcv_object_t* previous, gcv_object_t* solutions)
@@ -4346,7 +4164,6 @@ local maygc void subdir_diff (object pattern, object sample, bool logical,
       push_solution();
     return;
   }
- #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   unused(logical);
   if (eq(pattern,S(Kwild))) {
     var object string = wild2string(sample);
@@ -4356,7 +4173,6 @@ local maygc void subdir_diff (object pattern, object sample, bool logical,
   if (eq(sample,S(Kwild))) return;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return;
   wildcard_diff(pattern,sample,previous,solutions);
- #endif
 }
 /* recursive implementation because of backtracking: */
 local maygc void directory_diff_ab (object m_list, object b_list, bool logical,
@@ -4469,8 +4285,6 @@ local maygc void version_diff (object pattern, object sample, bool logical,
  A Normal-Simple-String fits only with '?' or '*' or :WILD,
  A List fits only with :WILD-INFERIORS. */
 
-#ifdef LOGICAL_PATHNAMES
-
 /* On insertion of pieces of normal pathnames in logical pathnames:
  Conversion to capital letters.
  logical_case(string)
@@ -4505,8 +4319,6 @@ local maygc object customary_case (object string) {
 local maygc object subst_customary_case (object obj) {
   SUBST_RECURSE(customary_case(obj),subst_customary_case);
 }
-
-#endif
 
 #undef SUBST_RECURSE
 
@@ -4557,12 +4369,9 @@ local maygc object translate_host (gcv_object_t* subst, object pattern,
           } else                                        \
             return nullobj;                             \
         }
- #ifdef LOGICAL_PATHNAMES
   if (logical) {
     TRAN_HOST(subst,pattern);
-  } else
- #endif
-  {
+  } else {
  #if HAS_HOST
     TRAN_HOST(subst,pattern);
  #endif
@@ -4578,13 +4387,11 @@ local maygc object translate_device (gcv_object_t* subst, object pattern,
                                      bool logical) {
   DEBUG_TRAN(translate_device);
  #if HAS_DEVICE
-  #ifdef LOGICAL_PATHNAMES
   if (logical) {
     if (eq(Car(*subst),S(Kdevice)))
       { *subst = Cdr(*subst); }
     return pattern;
   }
-  #endif
   #ifdef PATHNAME_WIN32
   if (nullp(pattern) && mconsp(*subst))
   #else
@@ -4658,9 +4465,7 @@ local maygc object translate_nametype_aux (gcv_object_t* subst, object pattern,
 local maygc object translate_subdir (gcv_object_t* subst, object pattern,
                                      bool logical) {
   DEBUG_TRAN(translate_subdir);
- #if defined(LOGICAL_PATHNAMES) || defined(PATHNAME_NOEXT)
   return translate_nametype_aux(subst,pattern,logical);
- #endif
 }
 local maygc object translate_directory (gcv_object_t* subst, object pattern,
                                         bool logical) {
@@ -4741,10 +4546,8 @@ local maygc object translate_pathname (gcv_object_t* subst, object pattern) {
   var object item;
   pushSTACK(*subst); /* save subst for the error message */
   pushSTACK(pattern);
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pattern))
     logical = true;
- #endif
 #define GET_ITEM(what,xwhat,where,skip)    do {                         \
   item = translate_##what(subst,xpathname_##xwhat(logical,where),logical); \
   if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }          \
@@ -4763,12 +4566,9 @@ local maygc object translate_pathname (gcv_object_t* subst, object pattern) {
   /* All replacement pieces must be consumed! */
   if (mconsp(*subst)) { skipSTACK(2+2*HAS_DEVICE+8); goto subst_error; }
   /* call (MAKE-PATHNAME ...) resp. (SYS::MAKE-LOGICAL-PATHNAME ...) : */
- #ifdef LOGICAL_PATHNAMES
   if (logical)
     funcall(L(make_logical_pathname),2+2*HAS_DEVICE+8);
-  else
- #endif
-    funcall(L(make_pathname),2+2*HAS_DEVICE+8);
+  else funcall(L(make_pathname),2+2*HAS_DEVICE+8);
   skipSTACK(2);
   return value1;
  subst_error: /* Error because of nullobj. */
@@ -4796,7 +4596,6 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
   STACK_4 = coerce_xpathname(STACK_4);
   STACK_3 = coerce_xpathname(STACK_3);
   STACK_2 = coerce_xpathname(STACK_2);
- #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(STACK_4) && logpathnamep(STACK_3)) {
     logical = true;
   } else {
@@ -4806,7 +4605,6 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
   }
   if (logpathnamep(STACK_2))
     logical2 = true;
- #endif
   /* 1. step: construct list of all fitting substitutions. */
   pushSTACK(NIL); pushSTACK(NIL);
   host_diff(xpathname_host(logical,STACK_(3+2)),
@@ -4868,7 +4666,6 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
     { /* reverse list solution */
       var object solution = reverse(Car(solutions));
       /* 2. step: insert substitution in pattern2. */
-     #ifdef LOGICAL_PATHNAMES
       /* convert capital-/small letters suitably: */
       if (!logical) {
         if (logical2)
@@ -4877,7 +4674,6 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
         if (!logical2)
           solution = subst_customary_case(solution);
       }
-     #endif
       pushSTACK(solution);
       STACK_0 = translate_pathname(&STACK_0,STACK_(2+1+2));
     }
@@ -4969,11 +4765,6 @@ nonreturning_function(local, error_directory, (object pathname)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: ~S names a directory, not a file"));
 }
-
-#ifdef LOGICAL_PATHNAMES
-/* An "absolute pathname" is always a non-logical pathname, poss.
- with further restrictions. */
-#endif
 
 #ifdef PATHNAME_WIN32
 
@@ -6857,11 +6648,9 @@ LISPFUN(open,seclass_default,1,0,norest,key,6,
   } else {
     filename = coerce_xpathname(filename); /* turn into a pathname */
     pushSTACK(filename);
-   #ifdef LOGICAL_PATHNAMES
     /* Convert from logical to physical pathname: */
     if (logpathnamep(filename))
       filename = coerce_pathname(filename);
-   #endif
     filename = merge_defaults(filename);
   }
   /* Stack layout: filename-arg, direction, element-type, if-exists,

@@ -3459,12 +3459,10 @@ checks whether the &hash-table-t; is weak.</para>
 
 </section>
 
-<!-- #ifdef LOGICAL_PATHNAMES -->
 <section id="log-path"><title>Logical Pathnames
   <ulink role="clhs" url="sec_19-3"/></title>
  <para>No notes.</para>
 </section>
-<!-- #endif -->
 
 <section id="filename-misc"><title>Miscellaneous</title>
 
@@ -5483,11 +5481,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>see <xref linkend="gstream"/>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
-<!-- #ifdef LOGICAL_PATHNAMES -->
 <varlistentry><term><constant>:LOGICAL-PATHNAMES</constant></term>
  <listitem><simpara><link linkend="log-path">Logical Pathnames</link>
    are implemented</simpara></listitem></varlistentry>
-<!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
 <varlistentry><term><constant>:FFI</constant></term>
  <listitem><simpara>if a foreign function interface

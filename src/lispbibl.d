@@ -2114,12 +2114,6 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether there are LOGICAL-PATHNAMEs: */
-#if 1
-  #define LOGICAL_PATHNAMES
-#endif
-/* When changed: do nothing */
-
 /* Whether a foreign function interface is provided: */
 #if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
   #define HAVE_FFI
@@ -4754,12 +4748,8 @@ enum {
 %% printf("#define Rectype_Readtable %d\n",Rectype_Readtable);
   Rectype_Pathname,
 %% printf("#define Rectype_Pathname %d\n",Rectype_Pathname);
-#ifdef LOGICAL_PATHNAMES
-%% #ifdef LOGICAL_PATHNAMES
   Rectype_Logpathname,
 %% printf("#define Rectype_Logpathname %d\n",Rectype_Logpathname);
-%% #endif
-#endif  /* LOGICAL_PATHNAMES */
   Rectype_Random_State,
 %% printf("#define Rectype_Random_State %d\n",Rectype_Random_State);
 #ifndef case_stream
@@ -5892,7 +5882,6 @@ typedef struct {
 } *  Pathname;
 #define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
-#ifdef LOGICAL_PATHNAMES
 /* Logical Pathnames */
 typedef struct {
   XRECORD_HEADER
@@ -5903,7 +5892,6 @@ typedef struct {
   gcv_object_t pathname_version   _attribute_aligned_object_;
 } *  Logpathname;
 #define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
-#endif
 
 /* Random-States */
 typedef struct {
@@ -7036,9 +7024,7 @@ typedef struct {
   #define TheHashtable(obj)  ((Hashtable)(ngci_types_pointable(orecord_type,obj)))
   #define TheReadtable(obj)  ((Readtable)(ngci_types_pointable(orecord_type,obj)))
   #define ThePathname(obj)  ((Pathname)(ngci_types_pointable(orecord_type,obj)))
-  #ifdef LOGICAL_PATHNAMES
   #define TheLogpathname(obj)  ((Logpathname)(ngci_types_pointable(orecord_type,obj)))
-  #endif
   #define The_Random_state(obj)  ((Random_state)(ngci_types_pointable(orecord_type,obj)))
   #define TheByte(obj)  ((Byte)(ngci_types_pointable(orecord_type,obj)))
   #define TheFsubr(obj)  ((Fsubr)(ngci_types_pointable(orecord_type,obj)))
@@ -7160,9 +7146,7 @@ typedef struct {
   #define TheHashtable(obj)  ((Hashtable)(ngci_pointable(obj)-varobject_bias))
   #define TheReadtable(obj)  ((Readtable)(ngci_pointable(obj)-varobject_bias))
   #define ThePathname(obj)  ((Pathname)(ngci_pointable(obj)-varobject_bias))
-  #ifdef LOGICAL_PATHNAMES
   #define TheLogpathname(obj)  ((Logpathname)(ngci_pointable(obj)-varobject_bias))
-  #endif
   #define The_Random_state(obj)  ((Random_state)(ngci_pointable(obj)-varobject_bias))
   #define TheByte(obj)  ((Byte)(ngci_pointable(obj)-varobject_bias))
   #define TheFsubr(obj)  ((Fsubr)(ngci_pointable(obj)-varobject_bias))
@@ -7835,23 +7819,15 @@ typedef struct {
   (orecordp(obj) && (Record_type(obj) == Rectype_Pathname))
 
 /* Test for Logical Pathname */
-#ifdef LOGICAL_PATHNAMES
-  #define logpathnamep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Logpathname))
-#else
-  #define logpathnamep(obj)  false
-#endif
+#define logpathnamep(obj) \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Logpathname))
 
 /* Test for Extended Pathname (i.e., Pathname or Logical Pathname)
  define xpathnamep(obj)  (pathnamep(obj) || logpathnamep(obj)) */
-#ifdef LOGICAL_PATHNAMES
-  #define xpathnamep(obj)  \
-    (orecordp(obj)                                    \
-     && ((Record_type(obj) == Rectype_Pathname)       \
-         || (Record_type(obj) == Rectype_Logpathname)))
-#else
-  #define xpathnamep(obj)  pathnamep(obj)
-#endif
+#define xpathnamep(obj)                                 \
+  (orecordp(obj)                                        \
+   && ((Record_type(obj) == Rectype_Pathname)           \
+       || (Record_type(obj) == Rectype_Logpathname)))
 
 /* Test for Random-State */
 #define random_state_p(obj)  \
@@ -10159,7 +10135,6 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
   allocate_xrecord(0,Rectype_Pathname,pathname_length,0,orecord_type)
 /* is used by PATHNAME */
 
-#ifdef LOGICAL_PATHNAMES
 /* UP: allocates Logical Pathname
  allocate_logpathname()
  < result: LISP-object Logical Pathname
@@ -10167,7 +10142,6 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_logpathname()  \
   allocate_xrecord(0,Rectype_Logpathname,logpathname_length,0,orecord_type)
 /* is used by PATHNAME */
-#endif
 
 /* UP: allocates Random-State
  allocate_random_state()

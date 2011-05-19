@@ -3995,18 +3995,13 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
     if (eq(name,S(pathname))) { /* Symbol PATHNAME ? */
       /* yes -> treat specially, no Structure: */
       STACK_1 = make_references(args); pushSTACK(L(make_pathname));
-    }
-   #ifdef LOGICAL_PATHNAMES
-    else if (eq(name,S(logical_pathname))) { /* Symbol LOGICAL-PATHNAME ? */
+    } else if (eq(name,S(logical_pathname))) { /* Symbol LOGICAL-PATHNAME ? */
       /* yes -> treat specially, no Structure: */
       STACK_1 = make_references(args); pushSTACK(L(make_logical_pathname));
-    }
-   #endif
-    else if (eq(name,S(byte))) { /* Symbol BYTE ? */
+    } else if (eq(name,S(byte))) { /* Symbol BYTE ? */
       /* yes -> treat specially, no Structure: */
       pushSTACK(S(make_byte));
-    }
-    else {
+    } else {
       var object constructor;
       { /* execute (GET name 'CLOS::CLOSCLASS): */
         var object clas = get(name,S(closclass));
@@ -8920,7 +8915,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       skipSTACK(2);
      #endif
     } break;
-   #ifdef LOGICAL_PATHNAMES
     case Rectype_Logpathname:
       if (!nullpSv(print_readably) || nullpSv(parse_namestring_ansi)) {
         /* when printing readably or when "host:path" is not logical
@@ -8938,7 +8932,6 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         pr_string(stream_,obj);
       }
       break;
-   #endif
     case Rectype_Random_State:  /* #S(RANDOM-STATE seed) */
       LEVEL_CHECK;
       {

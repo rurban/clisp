@@ -583,9 +583,7 @@ local uint32 hashcode3_atom (object obj, int level) {
       case Rectype_S32string: case Rectype_Imm_S32string:
       case Rectype_reallocstring: case Rectype_string:
         return hashcode_string(obj);
-     #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
-     #endif
       case Rectype_Pathname:    /* look at it component-wise */
         return hashcode_pathname(obj);
       default:
@@ -745,9 +743,7 @@ local uint32 hashcode3stable_atom (object obj, int level) {
       case Rectype_S32string: case Rectype_Imm_S32string:
       case Rectype_reallocstring: case Rectype_string:
         return hashcode_string(obj);
-     #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
-     #endif
       case Rectype_Pathname:    /* look at it component-wise */
         return hashcode_pathname(obj);
       default:
@@ -2843,9 +2839,7 @@ local uint32 sxhash_atom (object obj, int level) {
           /* utilize name */
           check_SP(); return sxhash(TheFsubr(obj)->name) + 0xFF3319BAUL;
         case Rectype_Pathname:  /* pathname */
-       #ifdef LOGICAL_PATHNAMES
-        case Rectype_Logpathname: /* pathname */
-       #endif
+        case Rectype_Logpathname: /* log pathname */
         case Rectype_Byte:         /* byte */
         case Rectype_Loadtimeeval: /* loadtimeeval */
           goto record_all;

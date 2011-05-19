@@ -1782,14 +1782,12 @@ local void init_symbol_values (void) {
   #endif
  #endif
   /* for PATHNAME: */
- #ifdef LOGICAL_PATHNAMES
   { /* SYS::*LOGICAL-PATHNAME-TRANSLATIONS* :=
       (MAKE-HASH-TABLE :KEY-TYPE 'STRING :VALUE-TYPE 'LIST :TEST #'EQUALP) */
     pushSTACK(S(Ktest)); pushSTACK(L(equalp)); funcall(L(make_hash_table),2);
     define_variable(S(logpathname_translations),value1);
   }
   O(empty_logical_pathname) = allocate_logpathname();
- #endif
   /* initialize *DEFAULT-PATHNAME-DEFAULTS* preliminarily: */
   define_variable(S(default_pathname_defaults),allocate_pathname());
   define_variable(S(user_lib_directory),NIL);
@@ -1805,7 +1803,7 @@ local void init_object_tab (void) {
   };
   {                             /* initialize *FEATURES* : */
     var const char * features_initstring =
-      "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER"
+      "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER :LOGICAL-PATHNAMES"
      #ifdef DEBUG_COMPILER
       " :CLISP-DEBUG"
      #endif
@@ -1817,9 +1815,6 @@ local void init_object_tab (void) {
      #endif
      #ifdef GENERIC_STREAMS
       " :GENERIC-STREAMS"
-     #endif
-     #ifdef LOGICAL_PATHNAMES
-      " :LOGICAL-PATHNAMES"
      #endif
      #ifdef SCREEN
       " :SCREEN"
