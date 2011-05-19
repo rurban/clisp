@@ -712,10 +712,8 @@ LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
 #endif
-#ifdef HAVE_ENVIRONMENT
 LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(set_env,2)
-#endif
 #ifdef WIN32_NATIVE
 LISPFUNN(registry,2)
 #endif

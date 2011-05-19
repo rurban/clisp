@@ -2127,13 +2127,6 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether the operating system manages an environment that associates Strings
- with Strings */
-#if defined(UNIX) || defined(WIN32)
-  #define HAVE_ENVIRONMENT
-#endif
-/* When changed: do nothing */
-
 /* Whether the operating system has a preferred command-interpreter: */
 #if defined(UNIX) || defined(WIN32_NATIVE)
   #define HAVE_SHELL

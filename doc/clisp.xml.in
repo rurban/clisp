@@ -632,7 +632,6 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
  see <olink targetdoc="impnotes" targetptr="source-files"/>.</para>
 </refsection>
 
-<!-- #ifdef HAVE_ENVIRONMENT -->
 <refsection id="environment"><title>Environment</title>
 
 <para>All &env-var;s that &clisp; uses are read at most once.</para>
@@ -717,7 +716,6 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
 
 </variablelist>
 </refsection>
-<!-- #endif -->
 
 <refsection id="input-output"><title>Input and Outut</title>
 
