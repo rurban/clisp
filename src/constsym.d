@@ -633,19 +633,15 @@ LISPSYM(pathnamedirectory,"PATHNAME-DIRECTORY",lisp)
 LISPSYM(pathnamename,"PATHNAME-NAME",lisp)
 LISPSYM(pathnametype,"PATHNAME-TYPE",lisp)
 LISPSYM(pathnameversion,"PATHNAME-VERSION",lisp)
-#ifdef LOGICAL_PATHNAMES
 LISPSYM(logical_pathname,"LOGICAL-PATHNAME",lisp)
 LISPSYM(translate_logical_pathname,"TRANSLATE-LOGICAL-PATHNAME",lisp)
-#endif
 LISPSYM(file_namestring,"FILE-NAMESTRING",lisp)
 LISPSYM(directory_namestring,"DIRECTORY-NAMESTRING",lisp)
 LISPSYM(host_namestring,"HOST-NAMESTRING",lisp)
 LISPSYM(merge_pathnames,"MERGE-PATHNAMES",lisp)
 LISPSYM(enough_namestring,"ENOUGH-NAMESTRING",lisp)
 LISPSYM(make_pathname,"MAKE-PATHNAME",lisp)
-#ifdef LOGICAL_PATHNAMES
 LISPSYM(make_logical_pathname,"MAKE-LOGICAL-PATHNAME",system)
-#endif
 LISPSYM(user_homedir_pathname,"USER-HOMEDIR-PATHNAME",lisp)
 LISPSYM(wild_pathname_p,"WILD-PATHNAME-P",lisp)
 LISPSYM(pathname_match_p,"PATHNAME-MATCH-P",lisp)
@@ -1582,10 +1578,8 @@ LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",custom) /* variable in P
 #ifdef PATHNAME_NOEXT
 LISPSYM(parse_namestring_dot_file,"*PARSE-NAMESTRING-DOT-FILE*",custom) /* variable in PATHNAME */
 #endif
-#ifdef LOGICAL_PATHNAMES
 LISPSYM(type_error,"TYPE-ERROR",lisp) /* type for PATHNAME */
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) /* variable in PATHNAME */
-#endif
 LISPSYM(Kwild,"WILD",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kwild_inferiors,"WILD-INFERIORS",keyword) /* pathname component in PATHNAME */
 LISPSYM(Krelative,"RELATIVE",keyword) /* pathname component in PATHNAME */

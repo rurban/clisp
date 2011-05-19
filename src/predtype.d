@@ -220,7 +220,6 @@ modexp bool equal (object obj1, object obj2)
            #endif
             return true;
           }
-       #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname:
           /* compare logical pathnames component-wise, too: */
           if (!logpathnamep(obj2)) goto no;
@@ -234,7 +233,6 @@ modexp bool equal (object obj1, object obj2)
             });
             return true;
           }
-         #endif
         default: goto no;
       }
       /* otherwise, obj1 and obj2 are considered different. */
@@ -1610,10 +1608,8 @@ LISPFUNNR(type_of,1)
           { value1 = S(readtable); break; }
         case Rectype_Pathname: /* Pathname */
           { value1 = S(pathname); break; }
-       #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname: /* Logical Pathname */
           { value1 = S(logical_pathname); break; }
-       #endif
         case Rectype_Random_State: /* Random-State */
           { value1 = S(random_state); break; }
         case Rectype_Byte: /* Byte */
@@ -1932,10 +1928,8 @@ LISPFUNNR(class_of,1)
           { value1 = O(class_readtable); break; }
         case Rectype_Pathname: /* Pathname */
           { value1 = O(class_pathname); break; }
-       #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname: /* Logical Pathname */
           { value1 = O(class_logical_pathname); break; }
-       #endif
         case Rectype_Random_State: /* Random-State */
           { value1 = O(class_random_state); break; }
         case Rectype_Byte: /* Byte -> <t> */
@@ -2576,9 +2570,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_package,
   enum_hs_readtable,
   enum_hs_pathname,
- #ifdef LOGICAL_PATHNAMES
   enum_hs_logical_pathname,
- #endif
   enum_hs_random_state,
   enum_hs_byte,
   enum_hs_special_operator,
@@ -2915,10 +2907,8 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
           pighole = &locals->builtins[(int)enum_hs_readtable]; break;
         case Rectype_Pathname: /* Pathname */
           pighole = &locals->builtins[(int)enum_hs_pathname]; break;
-       #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname: /* Logical Pathname */
           pighole = &locals->builtins[(int)enum_hs_logical_pathname]; break;
-       #endif
         case Rectype_Random_State: /* Random-State */
           pighole = &locals->builtins[(int)enum_hs_random_state]; break;
         case Rectype_Byte: /* Byte */

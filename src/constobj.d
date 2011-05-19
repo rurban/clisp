@@ -185,9 +185,7 @@
   LISPOBJ(class_null,"NULL")
   LISPOBJ(class_package,"PACKAGE")
   LISPOBJ(class_pathname,"PATHNAME")
-  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(class_logical_pathname,"LOGICAL-PATHNAME")
-  #endif
   LISPOBJ(class_random_state,"RANDOM-STATE")
   LISPOBJ(class_ratio,"RATIO")
   LISPOBJ(class_readtable,"READTABLE")
@@ -250,9 +248,7 @@
   LISPOBJ(hs_package,"PACKAGE")
   LISPOBJ(hs_readtable,"READTABLE")
   LISPOBJ(hs_pathname,"PATHNAME")
-  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(hs_logical_pathname,"LOGICAL-PATHNAME")
-  #endif
   LISPOBJ(hs_random_state,"RANDOM-STATE")
   LISPOBJ(hs_byte,"BYTE")
   LISPOBJ(hs_special_operator,"EXT::SPECIAL-OPERATOR")
@@ -404,9 +400,7 @@
   LISPOBJ(type_stringsize,"(INTEGER 0 (#.SYS::STRING-DIMENSION-LIMIT))")
   LISPOBJ(type_uint8_vector,"(ARRAY (UNSIGNED-BYTE 8) (*))")
   LISPOBJ(type_position,"(OR (MEMBER :START :END) (INTEGER 0 4294967295))")
- #if HAS_HOST || defined(LOGICAL_PATHNAMES)
   LISPOBJ(type_host,"(OR NULL STRING)")
- #endif
   LISPOBJ(type_version,"(OR (MEMBER NIL :WILD :NEWEST) (INTEGER (0) #.MOST-POSITIVE-FIXNUM) PATHNAME)")
   LISPOBJ(type_direction,"(MEMBER :INPUT :INPUT-IMMUTABLE :OUTPUT :IO :PROBE)")
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
@@ -417,9 +411,7 @@
  #ifdef SOCKET_STREAMS
   LISPOBJ(type_socket_option,"(MEMBER :SO-DEBUG : SO-ACCEPTCONN :SO-BROADCAST :SO-REUSEADDR :SO-DONTROUTE :SO-KEEPALIVE :SO-ERROR :SO-LINGER :SO-OOBINLINE :SO-TYPE :SO-RCVBUF :SO-SNDBUF :SO-RCVLOWAT :SO-SNDLOWAT :SO-RCVTIMEO :SO-SNDTIMEO)")
  #endif
- #ifdef LOGICAL_PATHNAMES
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
- #endif
   LISPOBJ(type_builtin_stream,"(SATISFIES SYSTEM::BUILT-IN-STREAM-P)")
 /* for PATHNAME.D: */
   LISPOBJ(lib_dir,"NIL")     /* must be set via a command line option */
@@ -427,12 +419,10 @@
  #if defined(UNIX) || defined (WIN32_NATIVE)
   LISPOBJ(type_priority,"(OR (MEMBER :HIGH :NORMAL :LOW) INTEGER)")
  #endif
- #ifdef LOGICAL_PATHNAMES
   LISPOBJ(empty_logical_pathname,".") /* (already initialized) */
   LISPOBJ(handler_for_parse_error,"(#(PARSE-ERROR NIL))")
   LISPOBJ(type_logical_pathname_string,"(AND STRING (SATISFIES SYSTEM::VALID-LOGICAL-PATHNAME-STRING-P))")
-  LISPOBJ(default_logical_pathname_host,"\"SYS\"")
- #endif
+  LISPOBJ_S(default_logical_pathname_host,"SYS")
   LISPOBJ_S(empty_string,"")
   LISPOBJ_S(wild_string,"*")
   LISPOBJ_S(colon_string,":")
