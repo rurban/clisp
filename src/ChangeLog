@@ -13,6 +13,17 @@
 
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
+	simplify UI language code
+	* lispbibl.d (ENGLISH, LANGUAGE_STATIC): remove
+	(language_english): move to ...
+	* spvw_language.d (language_english): ... here
+	(language): static enum
+	(init_language): simplify, remove gotos
+	* spvw_memfile.d (loadmem_from_handle): LANGUAGE_STATIC => !GNU_GETTEXT
+	* i18n.d (TEXT) [!GNU_GETTEXT]: return the argument as string
+
+2011-05-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: finish the 2008-05-31 CL_CC_NEED_CCPAUX patch
 	by removing the special case of comment5 in UTIL building
 	(full): fix the grep REPLACE_ regexp (gnulib replacements)

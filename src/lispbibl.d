@@ -436,15 +436,6 @@
   #undef FAST_FLOAT
 #endif
 
-
-/* Selection of the language: */
-#ifdef ENGLISH
-  #undef ENGLISH
-  #define ENGLISH 1
-  #define LANGUAGE_STATIC
-#endif
-
-
 /* Selection of the safety-level:
  SAFETY=0 : all optimizations are turned on
  SAFETY=1 : all optimizations on, but keep STACKCHECKs
@@ -9646,20 +9637,7 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
 %% exportE(error_notreached,(const char * file, uintL line));
 
 /* Language that's used to communicate with the user: */
-#ifdef LANGUAGE_STATIC
-  #if ENGLISH
-    #define GETTEXT(english)   english
-    #define GETTEXTL(english)  english
-  #endif
-#else
-  #define language_english   0
-  #ifndef GNU_GETTEXT
-    /* Language is determined at runtime by the variable language. */
-    extern uintL language;
-    #define ENGLISH  (language==language_english)
-    #define GETTEXT(english)  english
-    #define GETTEXTL(english)  english
-  #else /* GNU_GETTEXT */
+#if defined(GNU_GETTEXT)    /* many languages, determined at runtime. */
     #ifndef COMPILE_STANDALONE
       #include <libintl.h>
     #endif
@@ -9678,22 +9656,26 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
      developers. */
     #define GETTEXT  clgettext
     #define GETTEXTL clgettextl
-  #endif
-
   /* the value of *current-language* */
   extern object current_language_o (void);
   /* init the language and the locale */
   extern void init_language (const char*, const char*);
+#else  /* static language */
+  #define GETTEXT(english)   english
+  #define GETTEXTL(english)  english
+  #define current_language_o()  S(english)
 #endif
-%% #if !defined(LANGUAGE_STATIC) && defined(GNU_GETTEXT)
+%% #if defined(GNU_GETTEXT)
 %%   puts("#define GNU_GETTEXT");
 %%   puts("#ifndef COMPILE_STANDALONE");
 %%   puts("#include <libintl.h>");
 %%   puts("#endif");
 %%   exportF(const char *,clgettext,(const char * msgid));
 %%   export_def(GETTEXT);
+%%   exportF(object,CLSTEXT,(const char* asciz));
 %% #else
 %%   export_def(GETTEXT(english));
+%%   emit_define("CLSTEXT","ascii_to_string");
 %% #endif
 
 /* Fetch the message translations of a string: "CL String getTEXT"
@@ -9702,13 +9684,6 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
  < result: String
  can trigger GC */
 extern maygc object CLSTEXT (const char*);
-%% #ifndef LANGUAGE_STATIC
-%%   #ifndef GNU_GETTEXT
-%%     emit_define("CLSTEXT","ascii_to_string");
-%%   #else
-%%     exportF(object,CLSTEXT,(const char* asciz));
-%%   #endif
-%% #endif
 
 /* Fetch the "translation" of a Lisp object: "CL Object getTEXT"
  CLOTEXT(string)

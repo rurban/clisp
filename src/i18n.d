@@ -1,7 +1,7 @@
 /*
  * Internationalization for CLISP
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2004
+ * Sam Steingold 1998-2004, 2007, 2011
  */
 
 #include "lispbibl.c"
@@ -20,7 +20,7 @@ LISPFUNNR(current_language,0) {
  (SETQ *CURRENT-LANGUAGE* LANG)
  LANG is either LANGUAGE or (LANGUAGE . LOCALE-DIRECTORY) */
 LISPFUNN(set_current_language,1) {
- #ifndef LANGUAGE_STATIC
+ #ifdef GNU_GETTEXT
   if (consp(STACK_0)) {
     pushSTACK(check_symbol(Car(STACK_0)));
     pushSTACK(check_string(Cdr(STACK_(0+1))));
@@ -46,13 +46,13 @@ LISPFUNN(set_current_language,1) {
 
 LISPFUNNR(text,1)
 { /* (SYS::TEXT english) returns the message in the current language */
- #ifndef GNU_GETTEXT
-  VALUES1(ENGLISH ? (object)STACK_0 : NIL);
- #else
   STACK_0 = check_string(STACK_0);
+ #ifdef GNU_GETTEXT
   with_string_0(STACK_0,Symbol_value(S(ascii)),asciz, {
     VALUES1(CLSTEXT(asciz));
   });
+ #else
+  VALUES1(STACK_0);
  #endif
   skipSTACK(1);
 }

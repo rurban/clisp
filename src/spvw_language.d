@@ -2,7 +2,7 @@
 
 /* -------------------------- Specification ---------------------------- */
 
-#ifndef LANGUAGE_STATIC
+#ifdef GNU_GETTEXT
 
 /* Initializes the current interface language, according to the given
    arguments, getting the defaults from environment variables. */
@@ -27,33 +27,31 @@ global object CLOTEXT (const char*);
 
 /* -------------------------- Implementation --------------------------- */
 
-#ifndef LANGUAGE_STATIC
+#ifdef GNU_GETTEXT
 
 /* language, that is used for communication with the user: */
-local uintL language;
+enum {
+  language_english,
+  language_deutsch,
+  language_francais,
+  language_spanish,
+  language_dutch,
+  language_russian,
+  language_danish
+} language;
 
 /* Initializes the language, given the language name. */
 local bool init_language_from (const char* langname);
-#ifdef GNU_GETTEXT
-  #define language_deutsch   1
-  #define language_francais  2
-  #define language_spanish   3
-  #define language_dutch     4
-  #define language_russian   5
-  #define language_danish    6
-#endif
 
 global object current_language_o (void) {
   switch (language) {
     case language_english:  { return S(english); }
-   #ifdef GNU_GETTEXT
     case language_deutsch:  { return S(german); }
     case language_francais: { return S(french); }
     case language_spanish:  { return S(spanish); }
     case language_dutch:    { return S(dutch); }
     case language_russian:  { return S(russian); }
     case language_danish:   { return S(danish); }
-   #endif
     default: NOTREACHED;
   }
 }
@@ -63,7 +61,6 @@ local bool init_language_from (const char* langname) {
   if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english")) {
     language = language_english; return true;
   }
- #ifdef GNU_GETTEXT
   if (asciz_equal(langname,"DEUTSCH") || asciz_equal(langname,"deutsch")
       || asciz_equal(langname,"GERMAN") || asciz_equal(langname,"german")) {
     language = language_deutsch; return true;
@@ -102,7 +99,6 @@ local bool init_language_from (const char* langname) {
       || asciz_equal(langname,"DANISH") || asciz_equal(langname,"danish")) {
     language = language_danish; return true;
   }
- #endif
   return false;
 }
 
@@ -110,44 +106,14 @@ local bool init_language_from (const char* langname) {
 global void init_language (const char* argv_language,
                            const char* argv_localedir) {
   /* language is set with priorities in this order:
-     1. built in fix, LANGUAGE_STATIC
-     2. -L command line argument
-     3. environment-variable CLISP_LANGUAGE
-     4. environment-variable LANG
-     5. default: English */
-  if (init_language_from(argv_language))
-    goto chosen1;
- #ifdef HAVE_ENVIRONMENT
-  if (init_language_from(getenv("CLISP_LANGUAGE")))
-    goto chosen1;
- #endif
- #ifdef GNU_GETTEXT
-  /* The analysis of getenv("LANG") below will be done - in more detail -
-   by bindtextdomain() and textdomain(). No need to do it ourselves.
-   Do we need to call setlocale(LC_MESSAGES,"") or not?? */
-  goto chosen2;
- #else
-  #ifdef HAVE_ENVIRONMENT
-   #define ascii_alphanumericp(c)  \
-     ((c>='A' && c<='Z') || (c>='a' && c<='z') || (c>='0' && c<='9'))
-  {
-    var const char* lang = getenv("LANG");
-    if (lang) {
-      /* LANG has in general the syntax language[_country][.charset] */
-      if (lang[0]=='e' && lang[1]=='n'
-          && !ascii_alphanumericp(lang[2])) { /* "en" */
-        language = language_english; goto chosen2;
-      }
-    }
-  }
-  #endif
-  /* Default: english */
-  language = language_english; goto chosen2;
- #endif
- chosen1:
+     1. -L command line argument
+     2. environment-variable CLISP_LANGUAGE
+     3. environment-variable LANG
+     4. default: English */
+  if (init_language_from(argv_language)
+      || init_language_from(getenv("CLISP_LANGUAGE"))) {
   /* At this point we have chosen the language based upon the
    command-line option or the clisp-specific environment variables. */
- #ifdef GNU_GETTEXT
   /* GNU gettext chooses the message catalog based upon:
    1. environment variable LANGUAGE [only if dcgettext.c, not with
       cat-compat.c],
@@ -155,7 +121,6 @@ global void init_language (const char* argv_language,
    3. environment variable LC_MESSAGES,
    4. environment variable LANG.
    We clobber LC_MESSAGES and unset the earlier two variables. */
-  {
     var const char * locale;
     switch (language) {
       case language_english:  locale = "en_US"; break;
@@ -177,11 +142,8 @@ global void init_language (const char* argv_language,
     /* Invalidate the gettext internal caches. */
     textdomain(textdomain(NULL));
   }
- #endif
- chosen2: ;
   /* At this point we have chosen the language based upon an
    environment variable GNU gettext knows about. */
- #ifdef GNU_GETTEXT
   {
     /* We apparently don't need to check whether argv_localedir is
      not NULL and a valid directory. But since we may call chdir()
@@ -223,10 +185,7 @@ global void init_language (const char* argv_language,
     bind_textdomain_codeset("clisp","UTF-8");
    #endif
   }
- #endif
 }
-
-  #ifdef GNU_GETTEXT
 
 local const char * clisp_gettext (const char * domain, const char * msgid) {
   var const char * translated_msg;
@@ -254,17 +213,11 @@ global const char * clgettextl (const char * msgid)
 
   #endif
 
-#endif
-
 /* FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
  given by the "Content-Type:" line in the meta information.
  in anticipation of this fix, CLSTEXT is a function, not a macro */
 modexp maygc object CLSTEXT (const char* asciz) {
- #ifdef GNU_GETTEXT
   return asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
- #else
-  return ascii_to_string(asciz);
- #endif
 }
 
 global maygc object CLOTEXT (const char* asciz) {
