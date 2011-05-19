@@ -227,7 +227,7 @@
                             minimum-application-address
                             maximum-application-address
                             active-processor-mask number-of-processors
-                            allocation-granularity
+                            processor-type allocation-granularity
                             processor-level processor-revision)))
   (processor-architecture nil :read-only t)
   (page-size nil :read-only t)
@@ -235,6 +235,7 @@
   (maximum-application-address nil :read-only t)
   (active-processor-mask nil :read-only t)
   (number-of-processors nil :read-only t)
+  (processor-type nil :read-only t)
   (allocation-granularity nil :read-only t)
   (processor-level nil :read-only t)
   (processor-revision nil :read-only t))

@@ -3742,30 +3742,26 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
  fail_none: end_blocking_system_call(); OS_file_error(*file);
 }
 
+DEFCHECKER(processor_architecture, type=WORD, default=,                \
+           prefix=PROCESSOR_ARCHITECTURE, INTEL MIPS ALPHA PPC SHX ARM \
+           IA64 ALPHA64 MSIL AMD64 IA32_ON_WIN64 UNKNOWN)
 DEFUN(POSIX::SYSTEM-INFO,)
 { /* interface to GetSystemInfo() */
   SYSTEM_INFO si;
   begin_system_call();
   GetSystemInfo(&si);
   end_system_call();
-  switch (si.wProcessorArchitecture) {
-    case PROCESSOR_ARCHITECTURE_UNKNOWN: pushSTACK(`:UNKNOWN`); break;
-    case PROCESSOR_ARCHITECTURE_INTEL:   pushSTACK(`:INTEL`); break;
-    case PROCESSOR_ARCHITECTURE_MIPS:    pushSTACK(`:MIPS`); break;
-    case PROCESSOR_ARCHITECTURE_ALPHA:   pushSTACK(`:ALPHA`); break;
-    case PROCESSOR_ARCHITECTURE_PPC:     pushSTACK(`:PPC`); break;
-    case PROCESSOR_ARCHITECTURE_IA64 :   pushSTACK(`:IA64`); break;
-    default: pushSTACK(UL_to_I(si.wProcessorArchitecture));
-  }
+  pushSTACK(processor_architecture_reverse(si.wProcessorArchitecture))
   pushSTACK(UL_to_I(si.dwPageSize));
   pushSTACK(UL_to_I((DWORD)si.lpMinimumApplicationAddress));
   pushSTACK(UL_to_I((DWORD)si.lpMaximumApplicationAddress));
   pushSTACK(UL_to_I(si.dwActiveProcessorMask));
   pushSTACK(UL_to_I(si.dwNumberOfProcessors));
+  pushSTACK(UL_to_I(si.dwProcessorType));
   pushSTACK(UL_to_I(si.dwAllocationGranularity));
   pushSTACK(fixnum(si.wProcessorLevel));
   pushSTACK(fixnum(si.wProcessorRevision));
-  funcall(`POSIX::MAKE-SYSTEM-INFO`,9);
+  funcall(`POSIX::MAKE-SYSTEM-INFO`,10);
 }
 
 DEFUN(POSIX::VERSION,)
