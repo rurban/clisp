@@ -467,15 +467,14 @@
   LISPOBJ(directory_absolute,"(:ABSOLUTE)") /* directory of the empty absolute pathname */
  #endif
   LISPOBJ(user_homedir,"#\".\"") /* user-homedir-pathname */
- #ifdef HAVE_SHELL
  #ifdef UNIX
   LISPOBJ(command_shell,"\""SHELL"\"") /* command-shell as string */
   LISPOBJ(command_shell_option,"\"-c\"") /* command-shell-option for command */
   LISPOBJ(user_shell,"\"/bin/csh\"")     /* user-shell as string */
- #endif
- #ifdef WIN32_NATIVE
+ #elif defined(WIN32_NATIVE)
   LISPOBJ(command_shell,"NIL")  /* command-interpreter as string */
- #endif
+ #else
+  #error command_shell is not defined
  #endif
   /* list of all open channel-streams, terminal-streams: */
   LISPOBJ(open_files,"NIL")

@@ -8157,8 +8157,7 @@ global maygc void init_pathnames (void) {
  #else  /* !UNIX & !WIN32 */
   #error O(user_homedir) not initialized
  #endif
- #ifdef HAVE_SHELL
-  #if defined(UNIX)
+ #if defined(UNIX)
   /* the command-shell O(command_shell) remains unchanged, otherwise
    we get too many portability problems. */
   { /* search the environment for variable SHELL: */
@@ -8170,7 +8169,7 @@ global maygc void init_pathnames (void) {
     }
     /* else O(user_shell) remains on the default value "/bin/csh". */
   }
-  #elif defined(WIN32_NATIVE)
+ #elif defined(WIN32_NATIVE)
   { /* search in the environment for variable COMSPEC: */
     begin_system_call();
     var const char* shell = getenv("COMSPEC");
@@ -8190,9 +8189,8 @@ global maygc void init_pathnames (void) {
       O(command_shell) = ascii_to_string(shell); /* enter */
     }
   }
-  #else
-  #error HAVE_SHELL is defined - extend init_pathnames
-  #endif
+ #else
+  #error O(command_shell) not initialized
  #endif
 }
 
@@ -8451,8 +8449,6 @@ modexp Handle handle_dup2 (Handle old_handle, Handle new_handle) {
   return new_handle;
 }
 
-#ifdef HAVE_SHELL
-
 /* (SHELL) calls a shell.
  (SHELL command) calls a shell and lets it execute a command. */
 
@@ -8522,10 +8518,8 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
 }
 
 #else
-#error HAVE_SHELL is defined but EXT:SHELL definition is missing
+#error EXT:SHELL is not defined
 #endif
-
-#endif  /* HAVE_SHELL */
 
 /* stringlist_to_ascizlist (stringlist, encoding)
  convert a stringlist to list of asciz strings
