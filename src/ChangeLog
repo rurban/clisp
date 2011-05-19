@@ -1,5 +1,10 @@
 2011-05-19  Sam Steingold  <sds@gnu.org>
 
+	* constobj.d, constsym.d, lispbibl.d, pathname.d, subr.d: remove
+	HAVE_SHELL which is always defined on all platforms supported by CLISP
+
+2011-05-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (processor_architecture): add DEFCHECKER
 	(SYSTEM-INFO): use it; also push dwProcessorType on STACK
 	* modules/syscalls/posix.lisp (system-info): add PROCESSOR-TYPE slot

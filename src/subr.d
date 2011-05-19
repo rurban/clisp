@@ -848,12 +848,10 @@ LISPFUNNS(file_author,1)
 #ifdef UNIX
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 #endif
-#ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPFUNN(shell_name,0)
 #endif
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL)
-#endif
 #if defined(UNIX) || defined(WIN32_NATIVE)
 LISPFUN(launch,seclass_default,1,0,norest,key,9,(kw(element_type),kw(external_format),kw(buffered),kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 #endif

@@ -673,12 +673,10 @@ LISPSYM(file_author,"FILE-AUTHOR",lisp)
 #ifdef UNIX
 LISPSYM(execute,"EXECUTE",ext)
 #endif
-#ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
 #endif
 LISPSYM(shell,"SHELL",ext)
-#endif
 #if defined(UNIX) || defined(WIN32_NATIVE)
 LISPSYM(launch,"LAUNCH",ext)
 #endif

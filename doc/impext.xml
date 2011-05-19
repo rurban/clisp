@@ -5292,7 +5292,6 @@ EOF
  </simpara></listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #ifdef HAVE_SHELL -->
 <varlistentry><term>&unix-w32-only;</term>
  <listitem><simpara><code>(&shell; [&command-r;])</code>
    calls the operating system's shell, the value of the &env-var;
@@ -5301,7 +5300,6 @@ EOF
    <code>(&shell; &command-r;)</code> calls the shell
    only for execution of the one given &command-r;.
  </simpara></listitem></varlistentry>
-<!-- #endif -->
 
 <!-- #ifdef PIPES2 -->
 <varlistentry id="run-prog"><term>&unix-w32-only;</term>

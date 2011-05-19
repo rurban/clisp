@@ -2120,12 +2120,6 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether the operating system has a preferred command-interpreter: */
-#if defined(UNIX) || defined(WIN32_NATIVE)
-  #define HAVE_SHELL
-#endif
-/* When changed: extend pathname.d */
-
 /* Whether a foreign function interface is provided: */
 #if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
   #define HAVE_FFI
