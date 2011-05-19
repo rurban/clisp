@@ -1,7 +1,7 @@
 /*
  * list of all SUBRs
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2010
+ * Sam Steingold 1998-2011
 
  A C-compiled LISP-function is defined by a declaration
  LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
@@ -200,12 +200,12 @@
 
 /* expander for the second initialization of the SUBR-table: */
 #define LISPFUN_H(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords_) \
-  (subr_##key_flag==subr_key) ?                                         \
-  subr_tab.D_##name.keywords =                                          \
-    (vec = allocate_vector(key_count),                                  \
-     vecptr = &TheSvector(vec)->data[0],                                \
-     (keywords_),                                                       \
-     vec) : 0;
+  if (subr_##key_flag==subr_key) {                                      \
+    object vec = allocate_vector(key_count);                            \
+    gcv_object_t* vecptr = &TheSvector(vec)->data[0];                   \
+    (void)(keywords_);                                                  \
+    subr_tab.D_##name.keywords = vec;                                   \
+  }
 
 /* which expander is used must be specified in the main file.
    the default is #define LISPFUN LISPFUN_B */

@@ -47,7 +47,7 @@
 (defun check-lisp-defs (dir)
   (format t "~&~s: ~s~%" 'check-lisp-defs dir)
   (let* ((exclude (append *const-decls* *form-decls*))
-         (error-count 0) kwd kw-forms
+         (error-count 0)
          (dec-forms
           (delete-duplicates
            (sort (mapcan #'get-lisp-defs
@@ -84,27 +84,6 @@
       (cerror #1# "definition differs from the declaration (subr.d):~%~s"
               (set-difference def-forms dec-forms :test #'equal))
       (incf error-count))
-    (with-open-file (st (merge-pathnames "subrkw.d" dir)
-                        :direction :input :external-format charset:utf-8)
-      (format t "~&~s: file ~s~%" 'check-lisp-defs
-              (merge-pathnames "subrkw.d" dir))
-      (loop (let* ((line (read-line st nil nil)) (len (length line)))
-              (unless line (return))
-              (when (plusp len)
-                (cond ((char= #\v (char line 0))
-                       (setq kwd (get-lisp-def line st)))
-                      ((char= #\s (char line 0))
-                       (let* ((fn (car (get-lisp-def line st)))
-                              (fk (cdr (member 'key (assoc fn dec-forms)))))
-                         (push (cons fn fk) kw-forms)
-                         (unless (equal fk kwd)
-                           (cerror #1# "subrkw.d vs subr.d (~s):~%~s~%~s"
-                                   fn kwd fk)
-                           (incf error-count)))))))))
-    (dolist (fn dec-forms)
-      (when (and (member 'key fn)
-                 (not (member (car fn) kw-forms :key #'car)))
-        (cerror #1# "in subr.d but not in subrkw.d: ~s" fn)))
     (when (plusp error-count)
       (error "~d errors" error-count))))
 

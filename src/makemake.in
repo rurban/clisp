@@ -1582,7 +1582,7 @@ fi
 XCFLAGS=${XCFLAGS}' -I.'
 EVERY_INCLUDES_H=$EVERY_INCLUDES_H' localcharset.h'
 
-OTHER_INCLUDES=' constpack avl sort subrkw bytecode'
+OTHER_INCLUDES=' constpack avl sort bytecode'
 
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigpipe spvw_sigint spvw_sigwinch spvw_sigterm spvw_garcol spvw_garcol_old spvw_genera1 spvw_gcmark spvw_genera2 spvw_weak spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile'
 
@@ -2488,7 +2488,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   dependsc=''
   test $f = spvw -o $f = package && depends=$depends' constpack'
   test $f = spvw -o $f = predtype && depends=$depends' avl'
-  test $f = spvw && depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
+  test $f = spvw && depends=$depends''$SPVW_INCLUDES' sort spvw_calendar'
   test $f = eval && depends=$depends' bytecode '${with_jitc}
   test $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = foreign && depends=$depends' arilev0'
   test $f = spvw -o $f = hashtabl && depends=$depends' aridecl'
@@ -2850,7 +2850,7 @@ if [ $CROSS = false ] ; then
   CHECK_DEPS="check-recompile check-fresh-line check-script check-exec-image check-tests"
 
   echol "# check the sources:"
-  echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
+  echol "# 1. subr.d, fsubr.d and all the LISPFUNs must add up"
   echol "# 2. no variables of type gcv_object_t - only pointers to it"
   echol "check-sources : # lisp${LEXE} lispinit.mem"
   echotab '$(RUN) -M lispinit.mem -C -i '"${SRCDIR}"'check-lispfun.lisp -x "(check-lisp-defs \"'"${SRCDIR}"'\")"'
