@@ -11,6 +11,11 @@
 
         * spvw_sigcld.d (sigcld_enabled_INCF/DECF): fix counting
 
+2011-05-19  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (UTILCOMPILE): turn into a make variable and use it
+	on win32 and when cross-compiling
+
 2011-05-18  Sam Steingold  <sds@gnu.org>
 
 	simplify UI language code
