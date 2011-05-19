@@ -162,11 +162,8 @@ modexp maygc object addr_to_string (short type, char *addr) {
   else return NIL ;
 }
 
-#ifdef MACHINE_KNOWN
-
-/* (MACHINE-INSTANCE), CLTL p. 447 */
 LISPFUNN(machine_instance,0)
-{
+{ /* (MACHINE-INSTANCE), CLTL p. 447 */
   var object result = O(machine_instance_string);
   if (nullp(result)) { /* still unknown? */
     /* yes -> query hostname and fetch its internet address:
@@ -219,8 +216,6 @@ LISPFUNN(machine_instance,0)
   }
   VALUES1(result);
 }
-
-#endif /* MACHINE_KNOWN */
 
 /* We assume that if we have gethostbyname(), we have a networking OS
    (Unix or Win32). */
