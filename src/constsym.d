@@ -544,10 +544,8 @@ LISPSYM(version,"VERSION",system)
 LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
 #endif
-#ifdef HAVE_ENVIRONMENT
 LISPSYM(get_env,"GETENV",ext)
 LISPSYM(set_env,"SETENV",system)
-#endif
 #ifdef WIN32_NATIVE
 LISPSYM(registry,"REGISTRY",system)
 #endif

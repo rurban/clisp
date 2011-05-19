@@ -198,8 +198,6 @@ LISPFUNN(machine_version,0)
 
 #endif /* MACHINE_KNOWN */
 
-#if defined(HAVE_ENVIRONMENT)
-
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
 local inline maygc void push_envar (char *env) {
@@ -269,8 +267,6 @@ LISPFUNN(set_env,2)
   }
   VALUES1(value);
 }
-
-#endif
 
 #ifdef WIN32_NATIVE
 
