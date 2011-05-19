@@ -3733,7 +3733,7 @@ global int main (argc_t argc, char* argv[]) {
   init_ctype();
   /* Deal with LC_MESSAGE.
    (This must come last, because it may unset environment variable LC_ALL) */
- #ifndef LANGUAGE_STATIC
+ #ifdef GNU_GETTEXT
   init_language(argv0.argv_language,argv0.argv_localedir);
  #endif
 

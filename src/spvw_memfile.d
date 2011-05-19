@@ -1776,7 +1776,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     O(machine_version_string) = NIL;
     O(machine_instance_string) = NIL;
    #endif
-   #ifndef LANGUAGE_STATIC
+   #ifdef GNU_GETTEXT
     /* delete cache of (LISP-IMPLEMENTATION-VERSION)
        (depends on (SYS::CURRENT-LANGUAGE) ): */
     O(lisp_implementation_version_string) = NIL;
