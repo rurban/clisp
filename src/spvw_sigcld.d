@@ -75,7 +75,7 @@ modexp void end_want_sigcld () {
     SIGNAL(SIGCLD,SIG_IGN);
     /* Try to remove zombies which may have been created since the last
        begin_want_sigcld() call. */
-    while (waitpid(-1,NULL,WNOHANG) > 0) { fprintf(stderr, "VTZ: waitpid() iteration"); }
+    while (waitpid(-1,NULL,WNOHANG) > 0) {}
   }
  #endif
 }
