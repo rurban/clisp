@@ -851,7 +851,7 @@ local inline struct timespec *get_abs_timeout(struct timespec *r,
 }
 #endif
 
-LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,(kw(test),kw(timeout)))
+LISPFUN(exemption_wait,seclass_default,2,0,norest,key,2,(kw(test),kw(timeout)))
 { /* (EXEMPTION-WAIT exemption mutex :test predicate :timeout to) */
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);

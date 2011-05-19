@@ -1,5 +1,10 @@
 2011-05-19  Sam Steingold  <sds@gnu.org>
 
+	* zthread.d (EXEMPTION-WAIT): fix the key count in the definition
+	to match the (correct) declaration in subr.d
+
+2011-05-19  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d, constsym.d, hashtabl.d, io.d, lispbibl.d,
 	* pathname.d, predtype.d, spvw.d, spvw_debug.d, subr.d, subrkw.d:
 	remove the LOGICAL_PATHNAMES CPP macro;
