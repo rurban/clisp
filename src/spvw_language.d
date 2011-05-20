@@ -211,7 +211,9 @@ modexp const char * clgettext (const char * msgid)
 global const char * clgettextl (const char * msgid)
 { return clisp_gettext("clisplow", msgid); }
 
-  #endif
+#else
+  #define clgettext(m)  m       /* for CLSTEXT below */
+#endif
 
 /* FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
  given by the "Content-Type:" line in the meta information.
