@@ -1,3 +1,7 @@
+2011-05-20  Sam Steingold  <sds@gnu.org>
+
+	* spvw_language.d (clgettext) [!GNU_GETTEXT]: define for CLSTEXT
+
 2011-05-19  Sam Steingold  <sds@gnu.org>
 
 	* subrkw.d: remove
