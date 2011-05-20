@@ -1,5 +1,5 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2010 Sam Steingold
+# (c) 2000-2011 Sam Steingold
 
 # To generate HTML, you will need xsltproc & xmllint from the libxml2
 # (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
@@ -34,7 +34,6 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/readline/readline.xml	\
 	../modules/regexp/regexp.xml		\
 	../modules/syscalls/syscalls.xml	\
-	../modules/wildcard/wildcard.xml	\
 	../modules/zlib/zlib.xml
 # all used stylesheets
 CLISP_XSL = chunk.xsl common.xsl fo.xsl id-href-map.xsl man.xsl pile.xsl
