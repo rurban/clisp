@@ -41,7 +41,6 @@
   <!ENTITY readline-file SYSTEM "../modules/readline/readline.xml">
   <!ENTITY regexp-file SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY syscalls-file SYSTEM "../modules/syscalls/syscalls.xml">
-  <!ENTITY wildcard-file SYSTEM "../modules/wildcard/wildcard.xml">
   <!ENTITY zlib-file SYSTEM "../modules/zlib/zlib.xml">
 ]>
 
@@ -198,7 +197,6 @@
 
 <!-- matching, file processing -->
 &pcre-file;
-&wildcard-file;
 &zlib-file;
 
 <!-- communications, networking -->
