@@ -5186,7 +5186,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
 <formalpara id="script-bad"><title>If nothing works</title>
 <para>Another, quite inferior, alternative is to put the following into a file:
 <programlisting language="shell">
-#!/bin/sh
+#!&sh;
 exec &clisp-cmd; &lt;&lt;EOF
 (lisp-form)
 (another-lisp-form)
@@ -5294,12 +5294,26 @@ EOF
 
 <varlistentry><term>&unix-w32-only;</term>
  <listitem><simpara><code>(&shell; [&command-r;])</code>
-   calls the operating system's shell, the value of the &env-var;
-   <envar>SHELL</envar> on &unix; and <envar>COMSPEC</envar> on &win32;.
-   <code>(&shell;)</code> calls the shell for interactive use.
-   <code>(&shell; &command-r;)</code> calls the shell
-   only for execution of the one given &command-r;.
- </simpara></listitem></varlistentry>
+   calls the operating system's shell.</simpara>
+  <simpara><code>(&shell;)</code> calls the shell for interactive use.</simpara>
+  <para><code>(&shell; &command-r;)</code> calls the shell
+   only for execution of the one given &command-r;, which can be a
+   complex expression: <programlisting language="lisp">
+(&shell; "for x in 1 2 3; do echo $x; done")
+1
+2
+3
+<computeroutput>&nil;</computeroutput></programlisting></para>
+<variablelist><varlistentry><term>&unix-only;</term>
+ <listitem><simpara>&exec; is called on the value of the &env-var;
+  <envar>SHELL</envar> if used interactively;
+  <command>&sh; -c &command-r;</command> if used non-interactively.
+</simpara></listitem></varlistentry>
+<varlistentry><term>&win32-only;</term>
+ <listitem><simpara><function role="win32">CreateProcess</function> is
+ called on <code>(&or-m; &command-r; (&getenv; <envar>COMSPEC</envar>))</code>
+</simpara></listitem></varlistentry></variablelist>
+</listitem></varlistentry>
 
 <!-- #ifdef PIPES2 -->
 <varlistentry id="run-prog"><term>&unix-w32-only;</term>
@@ -5320,18 +5334,7 @@ EOF
 
   <variablelist>
    <varlistentry><term>&command-r;</term>
-    <listitem><simpara>the shell command.</simpara>
-<!-- #ifdef UNIX -->
-     <variablelist>
-      <varlistentry><term>&unix-only;</term>
-      <listitem><simpara>The shell the command is passed to is the value
-       of the &env-var; <envar>SHELL</envar>, which normally is &sh;.
-       The command should be a <quote>simple command</quote>;
-       a <quote>command list</quote> should be enclosed in "{
-       ... ; }" (for &sh;) or "( ... )" (for <filename>/bin/csh</filename>).
-     </simpara></listitem></varlistentry></variablelist>
-<!-- #endif -->
-    </listitem></varlistentry>
+    <listitem><simpara>the shell command.</simpara></listitem></varlistentry>
    <varlistentry><term>&program-r;</term>
     <listitem><simpara>the program.  The directories listed in the
      &env-var; <envar>PATH</envar> will be searched for it.
