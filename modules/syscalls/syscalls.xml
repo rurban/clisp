@@ -870,13 +870,13 @@ returns either <literal role="data">&lt;</literal>,
 <section id="wildcard"><title>Wildcard Matching</title>
 <para>Wildcards describe sets of file names; see <quote>&path-match;
 Notation</quote> for the syntax description.</para>
-<formalpara id="fnmatch-f"><title><code>(FNMATCH &pattern-r; &string-r;
+<formalpara id="fnmatch-f"><title><code>(POSIX:FNMATCH &pattern-r; &string-r;
   &key-amp; :PATHNAME :PERIOD :NOESCAPE (:CASE-SENSITIVE &t;))</code></title>
 <para>This function returns a non-&nil; value if the &string-r; matches
  the &pattern-r; by calling <function role="unix">fnmatch</function>.
 </para></formalpara>
 
-<formalpara id="fnmatch-matcher"><title><code>(FNMATCH-MATCHER
+<formalpara id="fnmatch-matcher"><title><code>(POSIX:FNMATCH-MATCHER
    &pattern-r;)</code></title>
  <para>This function is a valid value for &apropos-matcher;.
 </para></formalpara>
