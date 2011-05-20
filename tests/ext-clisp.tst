@@ -422,11 +422,13 @@ T
   (2) (3 2)
   3 2 NIL))
 
+#+:gettext
 (with-collect (c) ; check that setting *current-language* actually works
   (dolist (l '(german french russian english))
     (c (list (setq *current-language* l)
              (getenv "LC_MESSAGES")
              (sys::text "Bye.")))))
+#+:gettext
 ((DEUTSCH "de_DE" "Bis bald!")
  (FRANÇAIS "fr_FR" "À bientôt!")
  (РУССКИЙ "ru_RU" "До свидания! Не поминайте лихом!")
