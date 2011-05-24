@@ -1996,6 +1996,165 @@ AC_DEFUN([gl_PREREQ_GETHOSTNAME], [
   fi
 ])
 
+# Check for getloadavg.
+
+# Copyright (C) 1992-1996, 1999-2000, 2002-2003, 2006, 2008-2011 Free Software
+# Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+#serial 2
+
+# Autoconf defines AC_FUNC_GETLOADAVG, but that is obsolescent.
+# New applications should use gl_GETLOADAVG instead.
+
+# gl_GETLOADAVG(LIBOBJDIR)
+# ------------------------
+AC_DEFUN([gl_GETLOADAVG],
+[AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+
+# Persuade glibc <stdlib.h> to declare getloadavg().
+AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
+
+# Make sure getloadavg.c is where it belongs, at configure-time.
+test -f "$srcdir/$1/getloadavg.c" ||
+  AC_MSG_ERROR([$srcdir/$1/getloadavg.c is missing])
+
+gl_save_LIBS=$LIBS
+
+# getloadvg is present in libc on glibc >= 2.2, MacOS X, FreeBSD >= 2.0,
+# NetBSD >= 0.9, OpenBSD >= 2.0, Solaris >= 7.
+AC_CHECK_FUNC([getloadavg], [],
+  [gl_have_func=no
+
+   # Some systems with -lutil have (and need) -lkvm as well, some do not.
+   # On Solaris, -lkvm requires nlist from -lelf, so check that first
+   # to get the right answer into the cache.
+   # For kstat on solaris, we need to test for libelf and libkvm to force the
+   # definition of SVR4 below.
+   if test $gl_have_func = no; then
+     AC_CHECK_LIB([elf], [elf_begin], [LIBS="-lelf $LIBS"])
+     AC_CHECK_LIB([kvm], [kvm_open], [LIBS="-lkvm $LIBS"])
+     # Check for the 4.4BSD definition of getloadavg.
+     AC_CHECK_LIB([util], [getloadavg],
+       [LIBS="-lutil $LIBS" gl_have_func=yes])
+   fi
+
+   if test $gl_have_func = no; then
+     # There is a commonly available library for RS/6000 AIX.
+     # Since it is not a standard part of AIX, it might be installed locally.
+     gl_getloadavg_LIBS=$LIBS
+     LIBS="-L/usr/local/lib $LIBS"
+     AC_CHECK_LIB([getloadavg], [getloadavg],
+                  [LIBS="-lgetloadavg $LIBS" gl_have_func=yes],
+                  [LIBS=$gl_getloadavg_LIBS])
+   fi
+
+   # Set up the replacement function if necessary.
+   if test $gl_have_func = no; then
+     AC_LIBOBJ([getloadavg])
+     gl_PREREQ_GETLOADAVG
+   fi])
+
+if test "x$gl_save_LIBS" = x; then
+  GETLOADAVG_LIBS=$LIBS
+else
+  GETLOADAVG_LIBS=`echo "$LIBS" | sed "s!$gl_save_LIBS!!"`
+fi
+LIBS=$gl_save_LIBS
+
+AC_SUBST([GETLOADAVG_LIBS])dnl
+
+# Test whether the system declares getloadavg. Solaris has the function
+# but declares it in <sys/loadavg.h>, not <stdlib.h>.
+AC_CHECK_HEADERS([sys/loadavg.h])
+if test $ac_cv_header_sys_loadavg_h = yes; then
+  HAVE_SYS_LOADAVG_H=1
+else
+  HAVE_SYS_LOADAVG_H=0
+fi
+AC_CHECK_DECL([getloadavg], [], [HAVE_DECL_GETLOADAVG=0],
+  [#if HAVE_SYS_LOADAVG_H
+   # include <sys/loadavg.h>
+   #endif
+   #include <stdlib.h>])
+])# gl_GETLOADAVG
+
+
+# gl_PREREQ_GETLOADAVG
+# --------------------
+# Set up the AC_LIBOBJ replacement of `getloadavg'.
+AC_DEFUN([gl_PREREQ_GETLOADAVG],
+[
+# Figure out what our getloadavg.c needs.
+
+# Solaris has libkstat which does not require root.
+AC_CHECK_LIB([kstat], [kstat_open])
+test $ac_cv_lib_kstat_kstat_open = yes && gl_have_func=yes
+
+# On HPUX9, an unprivileged user can get load averages this way.
+if test $gl_have_func = no; then
+  AC_CHECK_FUNCS([pstat_getdynamic], [gl_have_func=yes])
+fi
+
+# AIX has libperfstat which does not require root
+if test $gl_have_func = no; then
+  AC_CHECK_LIB([perfstat], [perfstat_cpu_total])
+  test $ac_cv_lib_perfstat_perfstat_cpu_total = yes && gl_have_func=yes
+fi
+
+if test $gl_have_func = no; then
+  AC_CHECK_HEADER([sys/dg_sys_info.h],
+    [gl_have_func=yes
+     AC_DEFINE([DGUX], [1], [Define to 1 for DGUX with <sys/dg_sys_info.h>.])
+     AC_CHECK_LIB([dgc], [dg_sys_info])])
+fi
+
+# We cannot check for <dwarf.h>, because Solaris 2 does not use dwarf (it
+# uses stabs), but it is still SVR4.  We cannot check for <elf.h> because
+# Irix 4.0.5F has the header but not the library.
+if test $gl_have_func = no && test "$ac_cv_lib_elf_elf_begin" = yes \
+    && test "$ac_cv_lib_kvm_kvm_open" = yes; then
+  gl_have_func=yes
+  AC_DEFINE([SVR4], [1], [Define to 1 on System V Release 4.])
+fi
+
+if test $gl_have_func = no; then
+  AC_CHECK_HEADER([inq_stats/cpustats.h],
+  [gl_have_func=yes
+   AC_DEFINE([UMAX], [1], [Define to 1 for Encore UMAX.])
+   AC_DEFINE([UMAX4_3], [1],
+             [Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h>
+              instead of <sys/cpustats.h>.])])
+fi
+
+if test $gl_have_func = no; then
+  AC_CHECK_HEADER([sys/cpustats.h],
+  [gl_have_func=yes; AC_DEFINE([UMAX])])
+fi
+
+if test $gl_have_func = no; then
+  AC_CHECK_HEADERS([mach/mach.h])
+fi
+
+AC_CHECK_HEADERS([nlist.h],
+[AC_CHECK_MEMBERS([struct nlist.n_un.n_name],
+                  [], [],
+                  [@%:@include <nlist.h>])
+ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <nlist.h>]],
+                   [[struct nlist x;
+                    #ifdef HAVE_STRUCT_NLIST_N_UN_N_NAME
+                    x.n_un.n_name = "";
+                    #else
+                    x.n_name = "";
+                    #endif]])],
+                [AC_DEFINE([N_NAME_POINTER], [1],
+                           [Define to 1 if the nlist n_name member is a pointer])])
+])dnl
+])# gl_PREREQ_GETLOADAVG
+
 # getpagesize.m4 serial 8
 dnl Copyright (C) 2002, 2004-2005, 2007, 2009-2011 Free Software Foundation,
 dnl Inc.
@@ -2891,6 +3050,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
   # Code from module gethostname:
+  # Code from module getloadavg:
   # Code from module getpagesize:
   # Code from module gettext:
   # Code from module gettext-h:
@@ -2906,6 +3066,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module localcharset:
+  # Code from module lock:
   # Code from module lstat:
   # Code from module malloc-gnu:
   # Code from module malloc-posix:
@@ -2915,6 +3076,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module mbsrtowcs:
   # Code from module mbtowc:
   # Code from module memchr:
+  # Code from module mkdtemp:
+  # Code from module mkfifo:
+  # Code from module mknod:
+  # Code from module mkstemp:
   # Code from module mktime:
   # Code from module multiarch:
   # Code from module netinet_in:
@@ -2935,6 +3100,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdlib:
   # Code from module streq:
   # Code from module strerror:
+  # Code from module strerror_r-posix:
   # Code from module strftime:
   # Code from module string:
   # Code from module strnlen1:
@@ -2946,6 +3112,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module sys_uio:
   # Code from module sys_utsname:
   # Code from module sys_wait:
+  # Code from module tempname:
+  # Code from module threadlib:
+  gl_THREADLIB_EARLY
   # Code from module time:
   # Code from module time_r:
   # Code from module uname:
@@ -2992,6 +3161,8 @@ gl_FUNC_FNMATCH_POSIX
 gl_FUNC_FNMATCH_GNU
 gl_FUNC_GETHOSTNAME
 gl_UNISTD_MODULE_INDICATOR([gethostname])
+gl_GETLOADAVG([$gl_source_base])
+gl_STDLIB_MODULE_INDICATOR([getloadavg])
 gl_FUNC_GETPAGESIZE
 gl_UNISTD_MODULE_INDICATOR([getpagesize])
 dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
@@ -3012,6 +3183,7 @@ gl_FUNC_LINK_FOLLOWS_SYMLINK
 gl_LOCALCHARSET
 LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
 AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+gl_LOCK
 gl_FUNC_LSTAT
 gl_SYS_STAT_MODULE_INDICATOR([lstat])
 gl_FUNC_MALLOC_GNU
@@ -3029,6 +3201,14 @@ gl_FUNC_MBTOWC
 gl_STDLIB_MODULE_INDICATOR([mbtowc])
 gl_FUNC_MEMCHR
 gl_STRING_MODULE_INDICATOR([memchr])
+gl_FUNC_MKDTEMP
+gl_STDLIB_MODULE_INDICATOR([mkdtemp])
+gl_FUNC_MKFIFO
+gl_UNISTD_MODULE_INDICATOR([mkfifo])
+gl_FUNC_MKNOD
+gl_UNISTD_MODULE_INDICATOR([mknod])
+gl_FUNC_MKSTEMP
+gl_STDLIB_MODULE_INDICATOR([mkstemp])
 gl_FUNC_MKTIME
 gl_TIME_MODULE_INDICATOR([mktime])
 gl_MULTIARCH
@@ -3053,7 +3233,10 @@ gl_STDDEF_H
 gl_STDINT_H
 gl_STDLIB_H
 gl_FUNC_STRERROR
+gl_MODULE_INDICATOR([strerror])
 gl_STRING_MODULE_INDICATOR([strerror])
+gl_FUNC_STRERROR_R
+gl_STRING_MODULE_INDICATOR([strerror_r])
 gl_FUNC_GNU_STRFTIME
 gl_HEADER_STRING_H
 gl_FUNC_STRPTIME
@@ -3072,6 +3255,8 @@ gl_SYS_UTSNAME_H
 AC_PROG_MKDIR_P
 gl_SYS_WAIT_H
 AC_PROG_MKDIR_P
+gl_FUNC_GEN_TEMPNAME
+gl_THREADLIB
 gl_HEADER_TIME_H
 gl_TIME_R
 gl_TIME_MODULE_INDICATOR([time_r])
@@ -3249,9 +3434,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
   lib/gethostname.c
+  lib/getloadavg.c
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/glthread/lock.c
+  lib/glthread/lock.h
+  lib/glthread/threadlib.c
   lib/inet_ntop.c
   lib/inet_pton.c
   lib/intprops.h
@@ -3272,6 +3461,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mbtowc.c
   lib/memchr.c
   lib/memchr.valgrind
+  lib/mkdtemp.c
+  lib/mkfifo.c
+  lib/mknod.c
+  lib/mkstemp.c
   lib/mktime-internal.h
   lib/mktime.c
   lib/netinet_in.in.h
@@ -3294,7 +3487,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
+  lib/strerror-impl.h
   lib/strerror.c
+  lib/strerror_r.c
   lib/strftime.c
   lib/strftime.h
   lib/string.in.h
@@ -3308,6 +3503,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/sys_uio.in.h
   lib/sys_utsname.in.h
   lib/sys_wait.in.h
+  lib/tempname.c
+  lib/tempname.h
   lib/time.in.h
   lib/time_r.c
   lib/uname.c
@@ -3339,6 +3536,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl-o.m4
   m4/fnmatch.m4
   m4/gethostname.m4
+  m4/getloadavg.m4
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
@@ -3381,6 +3579,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/mbtowc.m4
   m4/memchr.m4
+  m4/mkdtemp.m4
+  m4/mkfifo.m4
+  m4/mknod.m4
+  m4/mkstemp.m4
   m4/mktime.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
@@ -3408,6 +3610,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdlib_h.m4
   m4/strerror.m4
+  m4/strerror_r.m4
   m4/strftime.m4
   m4/string_h.m4
   m4/strptime.m4
@@ -3418,6 +3621,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sys_uio_h.m4
   m4/sys_utsname_h.m4
   m4/sys_wait_h.m4
+  m4/tempname.m4
   m4/threadlib.m4
   m4/time_h.m4
   m4/time_r.m4
@@ -6346,6 +6550,48 @@ changequote([,])dnl
   AC_SUBST([LOCALE_ZH_CN])
 ])
 
+# lock.m4 serial 11 (gettext-0.18.2)
+dnl Copyright (C) 2005-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+AC_DEFUN([gl_LOCK],
+[
+  AC_REQUIRE([gl_THREADLIB])
+  if test "$gl_threads_api" = posix; then
+    # OSF/1 4.0 and MacOS X 10.1 lack the pthread_rwlock_t type and the
+    # pthread_rwlock_* functions.
+    AC_CHECK_TYPE([pthread_rwlock_t],
+      [AC_DEFINE([HAVE_PTHREAD_RWLOCK], [1],
+         [Define if the POSIX multithreading library has read/write locks.])],
+      [],
+      [#include <pthread.h>])
+    # glibc defines PTHREAD_MUTEX_RECURSIVE as enum, not as a macro.
+    AC_COMPILE_IFELSE([
+      AC_LANG_PROGRAM(
+        [[#include <pthread.h>]],
+        [[
+#if __FreeBSD__ == 4
+error "No, in FreeBSD 4.0 recursive mutexes actually don't work."
+#else
+int x = (int)PTHREAD_MUTEX_RECURSIVE;
+return !x;
+#endif
+        ]])],
+      [AC_DEFINE([HAVE_PTHREAD_MUTEX_RECURSIVE], [1],
+         [Define if the <pthread.h> defines PTHREAD_MUTEX_RECURSIVE.])])
+  fi
+  gl_PREREQ_LOCK
+])
+
+# Prerequisites of lib/lock.c.
+AC_DEFUN([gl_PREREQ_LOCK], [
+  AC_REQUIRE([AC_C_INLINE])
+])
+
 # longlong.m4 serial 16
 dnl Copyright (C) 1999-2007, 2009-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -7518,7 +7764,209 @@ AC_DEFUN([gl_PREREQ_MEMCHR], [
   AC_CHECK_HEADERS([bp-sym.h])
 ])
 
-# serial 19
+# mkdtemp.m4 serial 7
+dnl Copyright (C) 2001-2003, 2006-2007, 2009-2011 Free Software Foundation,
+dnl Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_MKDTEMP],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_REPLACE_FUNCS([mkdtemp])
+  if test $ac_cv_func_mkdtemp = no; then
+    HAVE_MKDTEMP=0
+    gl_PREREQ_MKDTEMP
+  fi
+])
+
+# Prerequisites of lib/mkdtemp.c
+AC_DEFUN([gl_PREREQ_MKDTEMP],
+[:
+])
+
+# serial 2
+# See if we need to provide mkfifo replacement.
+
+dnl Copyright (C) 2009-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Written by Eric Blake.
+
+AC_DEFUN([gl_FUNC_MKFIFO],
+[
+  AC_REQUIRE([gl_SYS_STAT_H_DEFAULTS])
+  AC_CHECK_FUNCS_ONCE([mkfifo])
+  if test $ac_cv_func_mkfifo = no; then
+    HAVE_MKFIFO=0
+    AC_LIBOBJ([mkfifo])
+  else
+    dnl Check for Solaris 9 and FreeBSD bug with trailing slash.
+    AC_CHECK_FUNCS_ONCE([lstat])
+    AC_CACHE_CHECK([whether mkfifo rejects trailing slashes],
+      [gl_cv_func_mkfifo_works],
+      [# Assume that if we have lstat, we can also check symlinks.
+       if test $ac_cv_func_lstat = yes; then
+         ln -s conftest.tmp conftest.lnk
+       fi
+       AC_RUN_IFELSE(
+         [AC_LANG_PROGRAM(
+           [[#include <sys/stat.h>
+           ]],
+           [[int result = 0;
+             if (!mkfifo ("conftest.tmp/", 0600))
+               result |= 1;
+#if HAVE_LSTAT
+             if (!mkfifo ("conftest.lnk/", 0600))
+               result |= 2;
+#endif
+             return result;
+           ]])],
+         [gl_cv_func_mkfifo_works=yes], [gl_cv_func_mkfifo_works=no],
+         [gl_cv_func_mkfifo_works="guessing no"])
+       rm -f conftest.tmp conftest.lnk])
+    if test "$gl_cv_func_mkfifo_works" != yes; then
+      AC_DEFINE([MKFIFO_TRAILING_SLASH_BUG], [1], [Define to 1 if mkfifo
+        does not reject trailing slash])
+      REPLACE_MKFIFO=1
+      AC_LIBOBJ([mkfifo])
+    fi
+  fi
+])
+
+# serial 3
+# See if we need to provide mknod replacement.
+
+dnl Copyright (C) 2009-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Written by Eric Blake.
+
+AC_DEFUN([gl_FUNC_MKNOD],
+[
+  AC_REQUIRE([gl_SYS_STAT_H_DEFAULTS])
+  AC_REQUIRE([gl_FUNC_MKFIFO])
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_FUNCS_ONCE([mknod])
+  if test $ac_cv_func_mknod = no; then
+    HAVE_MKNOD=0
+    AC_LIBOBJ([mknod])
+  else
+    dnl Detect BSD bug, where mknod requires root privileges to create fifo.
+    AC_CACHE_CHECK([whether mknod can create fifo without root privileges],
+      [gl_cv_func_mknod_works],
+      [AC_RUN_IFELSE(
+         [AC_LANG_PROGRAM(
+           [[#include <sys/stat.h>
+             #include <unistd.h>
+]], [[/* Indeterminate for super-user, assume no.  Why are you running
+         configure as root, anyway?  */
+      if (!geteuid ()) return 99;
+      if (mknod ("conftest.fifo", S_IFIFO | 0600, 0)) return 2;]])],
+         [gl_cv_func_mknod_works=yes],
+         [if test $? = 99 && test x"$FORCE_UNSAFE_CONFIGURE" = x; then
+            AC_MSG_FAILURE([you should not run configure as root ]dnl
+[(set FORCE_UNSAFE_CONFIGURE=1 in environment to bypass this check)])
+          fi
+          gl_cv_func_mknod_works=no],
+         [gl_cv_func_mknod_works="guessing no"])
+       rm -f conftest.fifo])
+    if test "$gl_cv_func_mknod_works" != yes; then
+      AC_DEFINE([MKNOD_FIFO_BUG], [1], [Define to 1 if mknod cannot create
+        a fifo without super-user privileges])
+    fi
+    dnl Systems that mishandle trailing slash on mkfifo also goof on mknod.
+    if test $REPLACE_MKFIFO = 1 || test "$gl_cv_func_mknod_works" != yes; then
+      REPLACE_MKNOD=1
+      AC_LIBOBJ([mknod])
+    fi
+  fi
+])
+
+#serial 20
+
+# Copyright (C) 2001, 2003-2007, 2009-2011 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# On some hosts (e.g., HP-UX 10.20, SunOS 4.1.4, Solaris 2.5.1), mkstemp has a
+# silly limit that it can create no more than 26 files from a given template.
+# Other systems lack mkstemp altogether.
+# On OSF1/Tru64 V4.0F, the system-provided mkstemp function can create
+# only 32 files per process.
+# On some hosts, mkstemp creates files with mode 0666, which is a security
+# problem and a violation of POSIX 2008.
+# On systems like the above, arrange to use the replacement function.
+AC_DEFUN([gl_FUNC_MKSTEMP],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_REQUIRE([AC_SYS_LARGEFILE])
+
+  AC_CHECK_FUNCS_ONCE([mkstemp])
+  if test $ac_cv_func_mkstemp = yes; then
+    AC_CACHE_CHECK([for working mkstemp],
+      [gl_cv_func_working_mkstemp],
+      [
+        mkdir conftest.mkstemp
+        AC_RUN_IFELSE(
+          [AC_LANG_PROGRAM(
+            [AC_INCLUDES_DEFAULT],
+            [[int result = 0;
+              int i;
+              off_t large = (off_t) 4294967295u;
+              if (large < 0)
+                large = 2147483647;
+              umask (0);
+              for (i = 0; i < 70; i++)
+                {
+                  char templ[] = "conftest.mkstemp/coXXXXXX";
+                  int (*mkstemp_function) (char *) = mkstemp;
+                  int fd = mkstemp_function (templ);
+                  if (fd < 0)
+                    result |= 1;
+                  else
+                    {
+                      struct stat st;
+                      if (lseek (fd, large, SEEK_SET) != large)
+                        result |= 2;
+                      if (fstat (fd, &st) < 0)
+                        result |= 4;
+                      else if (st.st_mode & 0077)
+                        result |= 8;
+                      if (close (fd))
+                        result |= 16;
+                    }
+                }
+              return result;]])],
+          [gl_cv_func_working_mkstemp=yes],
+          [gl_cv_func_working_mkstemp=no],
+          [gl_cv_func_working_mkstemp="guessing no"])
+        rm -rf conftest.mkstemp
+      ])
+    if test "$gl_cv_func_working_mkstemp" != yes; then
+      REPLACE_MKSTEMP=1
+      AC_LIBOBJ([mkstemp])
+      gl_PREREQ_MKSTEMP
+    fi
+  else
+    HAVE_MKSTEMP=0
+    AC_LIBOBJ([mkstemp])
+    gl_PREREQ_MKSTEMP
+  fi
+])
+
+# Prerequisites of lib/mkstemp.c.
+AC_DEFUN([gl_PREREQ_MKSTEMP],
+[
+])
+
+# serial 20
 dnl Copyright (C) 2002-2003, 2005-2007, 2009-2011 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -7751,6 +8199,23 @@ AC_DEFUN([gl_FUNC_MKTIME],
     gl_PREREQ_MKTIME
   else
     REPLACE_MKTIME=0
+  fi
+])
+
+AC_DEFUN([gl_FUNC_MKTIME_INTERNAL], [
+  AC_REQUIRE([gl_FUNC_MKTIME])
+  if test $REPLACE_MKTIME = 0; then
+    dnl BeOS has __mktime_internal in libc, but other platforms don't.
+    AC_CHECK_FUNC([__mktime_internal],
+      [AC_DEFINE([mktime_internal], [__mktime_internal],
+         [Define to the real name of the mktime_internal function.])
+      ],
+      [dnl mktime works but it doesn't export __mktime_internal,
+       dnl so we need to substitute our own mktime implementation.
+       REPLACE_MKTIME=1
+       AC_LIBOBJ([mktime])
+       gl_PREREQ_MKTIME
+      ])
   fi
 ])
 
@@ -8665,7 +9130,7 @@ fi
 AC_SUBST([$1])dnl
 ])
 
-# readlink.m4 serial 9
+# readlink.m4 serial 10
 dnl Copyright (C) 2003, 2007, 2009-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8715,7 +9180,8 @@ AC_DEFUN([gl_FUNC_READLINK],
   fi
 ])
 
-# Like gl_FUNC_READLINK, except prepare for separate compilation (no AC_LIBOBJ).
+# Like gl_FUNC_READLINK, except prepare for separate compilation
+# (no REPLACE_READLINK, no AC_LIBOBJ).
 AC_DEFUN([gl_FUNC_READLINK_SEPARATE],
 [
   AC_CHECK_FUNCS_ONCE([readlink])
@@ -8954,7 +9420,7 @@ AC_DEFUN([gl_PREREQ_REGEX],
   AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
 ])
 
-# setenv.m4 serial 21
+# setenv.m4 serial 22
 dnl Copyright (C) 2001-2004, 2006-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8963,20 +9429,6 @@ dnl with or without modifications, as long as this notice is preserved.
 AC_DEFUN([gl_FUNC_SETENV],
 [
   AC_REQUIRE([gl_FUNC_SETENV_SEPARATE])
-  if test $HAVE_SETENV$REPLACE_SETENV != 10; then
-    AC_LIBOBJ([setenv])
-  fi
-])
-
-# Like gl_FUNC_SETENV, except prepare for separate compilation (no AC_LIBOBJ).
-AC_DEFUN([gl_FUNC_SETENV_SEPARATE],
-[
-  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  AC_CHECK_DECLS_ONCE([setenv])
-  if test $ac_cv_have_decl_setenv = no; then
-    HAVE_DECL_SETENV=0
-  fi
-  AC_CHECK_FUNCS_ONCE([setenv])
   if test $ac_cv_func_setenv = no; then
     HAVE_SETENV=0
   else
@@ -9006,9 +9458,23 @@ AC_DEFUN([gl_FUNC_SETENV_SEPARATE],
       [gl_cv_func_setenv_works="guessing no"])])
     if test "$gl_cv_func_setenv_works" != yes; then
       REPLACE_SETENV=1
-      AC_LIBOBJ([setenv])
     fi
   fi
+  if test $HAVE_SETENV$REPLACE_SETENV != 10; then
+    AC_LIBOBJ([setenv])
+  fi
+])
+
+# Like gl_FUNC_SETENV, except prepare for separate compilation
+# (no REPLACE_SETENV, no AC_LIBOBJ).
+AC_DEFUN([gl_FUNC_SETENV_SEPARATE],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_CHECK_DECLS_ONCE([setenv])
+  if test $ac_cv_have_decl_setenv = no; then
+    HAVE_DECL_SETENV=0
+  fi
+  AC_CHECK_FUNCS_ONCE([setenv])
   gl_PREREQ_SETENV
 ])
 
@@ -10202,24 +10668,13 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   REPLACE_WCTOMB=0;          AC_SUBST([REPLACE_WCTOMB])
 ])
 
-# strerror.m4 serial 9
+# strerror.m4 serial 11
 dnl Copyright (C) 2002, 2007-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN([gl_FUNC_STRERROR],
-[
-  AC_REQUIRE([gl_FUNC_STRERROR_SEPARATE])
-  if test $REPLACE_STRERROR = 1; then
-    AC_LIBOBJ([strerror])
-    AC_DEFINE_UNQUOTED([REPLACE_STRERROR], [$REPLACE_STRERROR],
-      [Define this to 1 if strerror is broken.])
-  fi
-])
-
-# Like gl_FUNC_STRERROR, except prepare for separate compilation (no AC_LIBOBJ).
-AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
 [
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
   AC_REQUIRE([gl_HEADER_ERRNO_H])
@@ -10229,19 +10684,18 @@ AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
      [AC_RUN_IFELSE(
         [AC_LANG_PROGRAM(
            [[#include <string.h>
+             #include <errno.h>
            ]],
-           [[return !*strerror (-2);]])],
+           [[int result = 0;
+             if (!*strerror (-2)) result |= 1;
+             errno = 0;
+             if (!*strerror (0)) result |= 2;
+             if (errno) result |= 4;
+             return result;]])],
         [gl_cv_func_working_strerror=yes],
         [gl_cv_func_working_strerror=no],
-        [dnl Assume crossbuild works if it compiles.
-         AC_COMPILE_IFELSE(
-           [AC_LANG_PROGRAM(
-              [[#include <string.h>
-              ]],
-              [[return !*strerror (-2);]])],
-           [gl_cv_func_working_strerror=yes],
-           [gl_cv_func_working_strerror=no])
-      ])
+        [dnl Be pessimistic on cross-compiles for now.
+         gl_cv_func_working_strerror=no])
     ])
     if test $gl_cv_func_working_strerror = no; then
       dnl The system's strerror() fails to return a string for out-of-range
@@ -10254,6 +10708,7 @@ AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
     REPLACE_STRERROR=1
   fi
   if test $REPLACE_STRERROR = 1; then
+    AC_LIBOBJ([strerror])
     gl_PREREQ_STRERROR
   fi
 ])
@@ -10269,6 +10724,120 @@ AC_DEFUN([gl_PREREQ_STRERROR], [
     dnl cygwin, all socket information should come from sys/socket.h).
     AC_CHECK_HEADERS([winsock2.h])
   fi
+])
+
+# strerror_r.m4 serial 8
+dnl Copyright (C) 2002, 2007-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_STRERROR_R],
+[
+  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
+  AC_REQUIRE([gl_HEADER_ERRNO_H])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+
+  dnl Persuade Solaris <string.h> to declare strerror_r().
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+
+  dnl Some systems don't declare strerror_r() if _THREAD_SAFE and _REENTRANT
+  dnl are not defined.
+  AC_CHECK_DECLS_ONCE([strerror_r])
+  if test $ac_cv_have_decl_strerror_r = no; then
+    HAVE_DECL_STRERROR_R=0
+  fi
+
+  AC_CHECK_FUNCS([strerror_r])
+  if test $ac_cv_func_strerror_r = yes; then
+    if test -z "$ERRNO_H"; then
+      dnl The POSIX prototype is:  int strerror_r (int, char *, size_t);
+      dnl glibc, Cygwin:           char *strerror_r (int, char *, size_t);
+      dnl AIX 5.1, OSF/1 5.1:      int strerror_r (int, char *, int);
+      AC_CACHE_CHECK([for strerror_r with POSIX signature],
+        [gl_cv_func_strerror_r_posix_signature],
+        [AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM(
+              [[#include <string.h>
+                int strerror_r (int, char *, size_t);
+              ]],
+              [])],
+           [gl_cv_func_strerror_r_posix_signature=yes],
+           [gl_cv_func_strerror_r_posix_signature=no])
+        ])
+      if test $gl_cv_func_strerror_r_posix_signature = yes; then
+        dnl AIX 6.1 strerror_r fails by returning -1, not an error number.
+        dnl HP-UX 11.31 strerror_r always fails when the buffer length argument
+        dnl is less than 80.
+        dnl FreeBSD 8.s strerror_r claims failure on 0
+        dnl Solaris 10 strerror_r corrupts errno on failure
+        AC_CACHE_CHECK([whether strerror_r works],
+          [gl_cv_func_strerror_r_works],
+          [AC_RUN_IFELSE(
+             [AC_LANG_PROGRAM(
+                [[#include <errno.h>
+                  #include <string.h>
+                ]],
+                [[int result = 0;
+                  char buf[79];
+                  if (strerror_r (EACCES, buf, 0) < 0)
+                    result |= 1;
+                  errno = 0;
+                  if (strerror_r (EACCES, buf, sizeof buf) != 0)
+                    result |= 2;
+                  if (strerror_r (0, buf, sizeof buf) != 0)
+                    result |= 4;
+                  if (errno)
+                    result |= 8;
+                  errno = 0;
+                  if (strerror_r (-3, buf, sizeof buf) != 0)
+                    result |= 0x10;
+                  if (errno)
+                    result |= 0x20;
+                  return result;
+                ]])],
+             [gl_cv_func_strerror_r_works=yes],
+             [gl_cv_func_strerror_r_works=no],
+             [
+changequote(,)dnl
+              case "$host_os" in
+                       # Guess no on AIX.
+                aix*)  gl_cv_func_strerror_r_works="guessing no";;
+                       # Guess no on HP-UX.
+                hpux*) gl_cv_func_strerror_r_works="guessing no";;
+                       # Guess no on FreeBSD.
+                freebsd*)  gl_cv_func_strerror_r_works="guessing no";;
+                       # Guess yes otherwise.
+                *)     gl_cv_func_strerror_r_works="guessing yes";;
+              esac
+changequote([,])dnl
+             ])
+          ])
+        case "$gl_cv_func_strerror_r_works" in
+          *no) REPLACE_STRERROR_R=1 ;;
+        esac
+      else
+        dnl The system's strerror() has a wrong signature. Replace it.
+        REPLACE_STRERROR_R=1
+        dnl glibc >= 2.3.4 and cygwin 1.7.9 have a function __xpg_strerror_r.
+        AC_CHECK_FUNCS([__xpg_strerror_r])
+      fi
+    else
+      dnl The system's strerror_r() cannot know about the new errno values we
+      dnl add to <errno.h>. Replace it.
+      REPLACE_STRERROR_R=1
+    fi
+  fi
+  if test $HAVE_DECL_STRERROR_R = 0 || test $REPLACE_STRERROR_R = 1; then
+    AC_LIBOBJ([strerror_r])
+    gl_PREREQ_STRERROR_R
+  fi
+])
+
+# Prerequisites of lib/strerror_r.c.
+AC_DEFUN([gl_PREREQ_STRERROR_R], [
+  AC_CHECK_FUNCS_ONCE([catgets])
+  :
 ])
 
 # serial 32
@@ -10915,6 +11484,399 @@ AC_DEFUN([gl_SYS_WAIT_H_DEFAULTS],
   GNULIB_WAITPID=0; AC_SUBST([GNULIB_WAITPID])
   dnl Assume proper GNU behavior unless another module says otherwise.
 ])
+
+#serial 3
+
+# Copyright (C) 2006-2007, 2009-2011 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# glibc provides __gen_tempname as a wrapper for mk[ds]temp.  Expose
+# it as a public API, and provide it on systems that are lacking.
+AC_DEFUN([gl_FUNC_GEN_TEMPNAME],
+[
+  AC_REQUIRE([AC_SYS_LARGEFILE])
+
+  AC_LIBOBJ([tempname])
+  gl_PREREQ_TEMPNAME
+])
+
+# Prerequisites of lib/tempname.c.
+AC_DEFUN([gl_PREREQ_TEMPNAME],
+[
+  :
+])
+
+# threadlib.m4 serial 8 (gettext-0.18.2)
+dnl Copyright (C) 2005-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+dnl gl_THREADLIB
+dnl ------------
+dnl Tests for a multithreading library to be used.
+dnl If the configure.ac contains a definition of the gl_THREADLIB_DEFAULT_NO
+dnl (it must be placed before the invocation of gl_THREADLIB_EARLY!), then the
+dnl default is 'no', otherwise it is system dependent. In both cases, the user
+dnl can change the choice through the options --enable-threads=choice or
+dnl --disable-threads.
+dnl Defines at most one of the macros USE_POSIX_THREADS, USE_SOLARIS_THREADS,
+dnl USE_PTH_THREADS, USE_WIN32_THREADS
+dnl Sets the variables LIBTHREAD and LTLIBTHREAD to the linker options for use
+dnl in a Makefile (LIBTHREAD for use without libtool, LTLIBTHREAD for use with
+dnl libtool).
+dnl Sets the variables LIBMULTITHREAD and LTLIBMULTITHREAD similarly, for
+dnl programs that really need multithread functionality. The difference
+dnl between LIBTHREAD and LIBMULTITHREAD is that on platforms supporting weak
+dnl symbols, typically LIBTHREAD="" whereas LIBMULTITHREAD="-lpthread".
+dnl Adds to CPPFLAGS the flag -D_REENTRANT or -D_THREAD_SAFE if needed for
+dnl multithread-safe programs.
+
+AC_DEFUN([gl_THREADLIB_EARLY],
+[
+  AC_REQUIRE([gl_THREADLIB_EARLY_BODY])
+])
+
+dnl The guts of gl_THREADLIB_EARLY. Needs to be expanded only once.
+
+AC_DEFUN([gl_THREADLIB_EARLY_BODY],
+[
+  dnl Ordering constraints: This macro modifies CPPFLAGS in a way that
+  dnl influences the result of the autoconf tests that test for *_unlocked
+  dnl declarations, on AIX 5 at least. Therefore it must come early.
+  AC_BEFORE([$0], [gl_FUNC_GLIBC_UNLOCKED_IO])dnl
+  AC_BEFORE([$0], [gl_ARGP])dnl
+
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  dnl _GNU_SOURCE is needed for pthread_rwlock_t on glibc systems.
+  dnl AC_USE_SYSTEM_EXTENSIONS was introduced in autoconf 2.60 and obsoletes
+  dnl AC_GNU_SOURCE.
+  m4_ifdef([AC_USE_SYSTEM_EXTENSIONS],
+    [AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])],
+    [AC_REQUIRE([AC_GNU_SOURCE])])
+  dnl Check for multithreading.
+  m4_ifdef([gl_THREADLIB_DEFAULT_NO],
+    [m4_divert_text([DEFAULTS], [gl_use_threads_default=no])],
+    [m4_divert_text([DEFAULTS], [gl_use_threads_default=])])
+  AC_ARG_ENABLE([threads],
+AC_HELP_STRING([--enable-threads={posix|solaris|pth|win32}], [specify multithreading API])m4_ifdef([gl_THREADLIB_DEFAULT_NO], [], [
+AC_HELP_STRING([--disable-threads], [build without multithread safety])]),
+    [gl_use_threads=$enableval],
+    [if test -n "$gl_use_threads_default"; then
+       gl_use_threads="$gl_use_threads_default"
+     else
+changequote(,)dnl
+       case "$host_os" in
+         dnl Disable multithreading by default on OSF/1, because it interferes
+         dnl with fork()/exec(): When msgexec is linked with -lpthread, its
+         dnl child process gets an endless segmentation fault inside execvp().
+         dnl Disable multithreading by default on Cygwin 1.5.x, because it has
+         dnl bugs that lead to endless loops or crashes. See
+         dnl <http://cygwin.com/ml/cygwin/2009-08/msg00283.html>.
+         osf*) gl_use_threads=no ;;
+         cygwin*)
+               case `uname -r` in
+                 1.[0-5].*) gl_use_threads=no ;;
+                 *)         gl_use_threads=yes ;;
+               esac
+               ;;
+         *)    gl_use_threads=yes ;;
+       esac
+changequote([,])dnl
+     fi
+    ])
+  if test "$gl_use_threads" = yes || test "$gl_use_threads" = posix; then
+    # For using <pthread.h>:
+    case "$host_os" in
+      osf*)
+        # On OSF/1, the compiler needs the flag -D_REENTRANT so that it
+        # groks <pthread.h>. cc also understands the flag -pthread, but
+        # we don't use it because 1. gcc-2.95 doesn't understand -pthread,
+        # 2. putting a flag into CPPFLAGS that has an effect on the linker
+        # causes the AC_LINK_IFELSE test below to succeed unexpectedly,
+        # leading to wrong values of LIBTHREAD and LTLIBTHREAD.
+        CPPFLAGS="$CPPFLAGS -D_REENTRANT"
+        ;;
+    esac
+    # Some systems optimize for single-threaded programs by default, and
+    # need special flags to disable these optimizations. For example, the
+    # definition of 'errno' in <errno.h>.
+    case "$host_os" in
+      aix* | freebsd*) CPPFLAGS="$CPPFLAGS -D_THREAD_SAFE" ;;
+      solaris*) CPPFLAGS="$CPPFLAGS -D_REENTRANT" ;;
+    esac
+  fi
+])
+
+dnl The guts of gl_THREADLIB. Needs to be expanded only once.
+
+AC_DEFUN([gl_THREADLIB_BODY],
+[
+  AC_REQUIRE([gl_THREADLIB_EARLY_BODY])
+  gl_threads_api=none
+  LIBTHREAD=
+  LTLIBTHREAD=
+  LIBMULTITHREAD=
+  LTLIBMULTITHREAD=
+  if test "$gl_use_threads" != no; then
+    dnl Check whether the compiler and linker support weak declarations.
+    AC_CACHE_CHECK([whether imported symbols can be declared weak],
+      [gl_cv_have_weak],
+      [gl_cv_have_weak=no
+       dnl First, test whether the compiler accepts it syntactically.
+       AC_LINK_IFELSE(
+         [AC_LANG_PROGRAM(
+            [[extern void xyzzy ();
+#pragma weak xyzzy]],
+            [[xyzzy();]])],
+         [gl_cv_have_weak=maybe])
+       if test $gl_cv_have_weak = maybe; then
+         dnl Second, test whether it actually works. On Cygwin 1.7.2, with
+         dnl gcc 4.3, symbols declared weak always evaluate to the address 0.
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([[
+#include <stdio.h>
+#pragma weak fputs
+int main ()
+{
+  return (fputs == NULL);
+}]])],
+           [gl_cv_have_weak=yes],
+           [gl_cv_have_weak=no],
+           [dnl When cross-compiling, assume that only ELF platforms support
+            dnl weak symbols.
+            AC_EGREP_CPP([Extensible Linking Format],
+              [#ifdef __ELF__
+               Extensible Linking Format
+               #endif
+              ],
+              [gl_cv_have_weak="guessing yes"],
+              [gl_cv_have_weak="guessing no"])
+           ])
+       fi
+      ])
+    if test "$gl_use_threads" = yes || test "$gl_use_threads" = posix; then
+      # On OSF/1, the compiler needs the flag -pthread or -D_REENTRANT so that
+      # it groks <pthread.h>. It's added above, in gl_THREADLIB_EARLY_BODY.
+      AC_CHECK_HEADER([pthread.h],
+        [gl_have_pthread_h=yes], [gl_have_pthread_h=no])
+      if test "$gl_have_pthread_h" = yes; then
+        # Other possible tests:
+        #   -lpthreads (FSU threads, PCthreads)
+        #   -lgthreads
+        gl_have_pthread=
+        # Test whether both pthread_mutex_lock and pthread_mutexattr_init exist
+        # in libc. IRIX 6.5 has the first one in both libc and libpthread, but
+        # the second one only in libpthread, and lock.c needs it.
+        AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM(
+             [[#include <pthread.h>]],
+             [[pthread_mutex_lock((pthread_mutex_t*)0);
+               pthread_mutexattr_init((pthread_mutexattr_t*)0);]])],
+          [gl_have_pthread=yes])
+        # Test for libpthread by looking for pthread_kill. (Not pthread_self,
+        # since it is defined as a macro on OSF/1.)
+        if test -n "$gl_have_pthread"; then
+          # The program links fine without libpthread. But it may actually
+          # need to link with libpthread in order to create multiple threads.
+          AC_CHECK_LIB([pthread], [pthread_kill],
+            [LIBMULTITHREAD=-lpthread LTLIBMULTITHREAD=-lpthread
+             # On Solaris and HP-UX, most pthread functions exist also in libc.
+             # Therefore pthread_in_use() needs to actually try to create a
+             # thread: pthread_create from libc will fail, whereas
+             # pthread_create will actually create a thread.
+             case "$host_os" in
+               solaris* | hpux*)
+                 AC_DEFINE([PTHREAD_IN_USE_DETECTION_HARD], [1],
+                   [Define if the pthread_in_use() detection is hard.])
+             esac
+            ])
+        else
+          # Some library is needed. Try libpthread and libc_r.
+          AC_CHECK_LIB([pthread], [pthread_kill],
+            [gl_have_pthread=yes
+             LIBTHREAD=-lpthread LTLIBTHREAD=-lpthread
+             LIBMULTITHREAD=-lpthread LTLIBMULTITHREAD=-lpthread])
+          if test -z "$gl_have_pthread"; then
+            # For FreeBSD 4.
+            AC_CHECK_LIB([c_r], [pthread_kill],
+              [gl_have_pthread=yes
+               LIBTHREAD=-lc_r LTLIBTHREAD=-lc_r
+               LIBMULTITHREAD=-lc_r LTLIBMULTITHREAD=-lc_r])
+          fi
+        fi
+        if test -n "$gl_have_pthread"; then
+          gl_threads_api=posix
+          AC_DEFINE([USE_POSIX_THREADS], [1],
+            [Define if the POSIX multithreading library can be used.])
+          if test -n "$LIBMULTITHREAD" || test -n "$LTLIBMULTITHREAD"; then
+            if case "$gl_cv_have_weak" in *yes) true;; *) false;; esac; then
+              AC_DEFINE([USE_POSIX_THREADS_WEAK], [1],
+                [Define if references to the POSIX multithreading library should be made weak.])
+              LIBTHREAD=
+              LTLIBTHREAD=
+            fi
+          fi
+        fi
+      fi
+    fi
+    if test -z "$gl_have_pthread"; then
+      if test "$gl_use_threads" = yes || test "$gl_use_threads" = solaris; then
+        gl_have_solaristhread=
+        gl_save_LIBS="$LIBS"
+        LIBS="$LIBS -lthread"
+        AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM(
+             [[
+#include <thread.h>
+#include <synch.h>
+             ]],
+             [[thr_self();]])],
+          [gl_have_solaristhread=yes])
+        LIBS="$gl_save_LIBS"
+        if test -n "$gl_have_solaristhread"; then
+          gl_threads_api=solaris
+          LIBTHREAD=-lthread
+          LTLIBTHREAD=-lthread
+          LIBMULTITHREAD="$LIBTHREAD"
+          LTLIBMULTITHREAD="$LTLIBTHREAD"
+          AC_DEFINE([USE_SOLARIS_THREADS], [1],
+            [Define if the old Solaris multithreading library can be used.])
+          if case "$gl_cv_have_weak" in *yes) true;; *) false;; esac; then
+            AC_DEFINE([USE_SOLARIS_THREADS_WEAK], [1],
+              [Define if references to the old Solaris multithreading library should be made weak.])
+            LIBTHREAD=
+            LTLIBTHREAD=
+          fi
+        fi
+      fi
+    fi
+    if test "$gl_use_threads" = pth; then
+      gl_save_CPPFLAGS="$CPPFLAGS"
+      AC_LIB_LINKFLAGS([pth])
+      gl_have_pth=
+      gl_save_LIBS="$LIBS"
+      LIBS="$LIBS $LIBPTH"
+      AC_LINK_IFELSE(
+        [AC_LANG_PROGRAM([[#include <pth.h>]], [[pth_self();]])],
+        [gl_have_pth=yes])
+      LIBS="$gl_save_LIBS"
+      if test -n "$gl_have_pth"; then
+        gl_threads_api=pth
+        LIBTHREAD="$LIBPTH"
+        LTLIBTHREAD="$LTLIBPTH"
+        LIBMULTITHREAD="$LIBTHREAD"
+        LTLIBMULTITHREAD="$LTLIBTHREAD"
+        AC_DEFINE([USE_PTH_THREADS], [1],
+          [Define if the GNU Pth multithreading library can be used.])
+        if test -n "$LIBMULTITHREAD" || test -n "$LTLIBMULTITHREAD"; then
+          if case "$gl_cv_have_weak" in *yes) true;; *) false;; esac; then
+            AC_DEFINE([USE_PTH_THREADS_WEAK], [1],
+              [Define if references to the GNU Pth multithreading library should be made weak.])
+            LIBTHREAD=
+            LTLIBTHREAD=
+          fi
+        fi
+      else
+        CPPFLAGS="$gl_save_CPPFLAGS"
+      fi
+    fi
+    if test -z "$gl_have_pthread"; then
+      if test "$gl_use_threads" = yes || test "$gl_use_threads" = win32; then
+        if { case "$host_os" in
+               mingw*) true;;
+               *) false;;
+             esac
+           }; then
+          gl_threads_api=win32
+          AC_DEFINE([USE_WIN32_THREADS], [1],
+            [Define if the Win32 multithreading API can be used.])
+        fi
+      fi
+    fi
+  fi
+  AC_MSG_CHECKING([for multithread API to use])
+  AC_MSG_RESULT([$gl_threads_api])
+  AC_SUBST([LIBTHREAD])
+  AC_SUBST([LTLIBTHREAD])
+  AC_SUBST([LIBMULTITHREAD])
+  AC_SUBST([LTLIBMULTITHREAD])
+])
+
+AC_DEFUN([gl_THREADLIB],
+[
+  AC_REQUIRE([gl_THREADLIB_EARLY])
+  AC_REQUIRE([gl_THREADLIB_BODY])
+])
+
+
+dnl gl_DISABLE_THREADS
+dnl ------------------
+dnl Sets the gl_THREADLIB default so that threads are not used by default.
+dnl The user can still override it at installation time, by using the
+dnl configure option '--enable-threads'.
+
+AC_DEFUN([gl_DISABLE_THREADS], [
+  m4_divert_text([INIT_PREPARE], [gl_use_threads_default=no])
+])
+
+
+dnl Survey of platforms:
+dnl
+dnl Platform          Available   Compiler    Supports   test-lock
+dnl                   flavours    option      weak       result
+dnl ---------------   ---------   ---------   --------   ---------
+dnl Linux 2.4/glibc   posix       -lpthread       Y      OK
+dnl
+dnl GNU Hurd/glibc    posix
+dnl
+dnl FreeBSD 5.3       posix       -lc_r           Y
+dnl                   posix       -lkse ?         Y
+dnl                   posix       -lpthread ?     Y
+dnl                   posix       -lthr           Y
+dnl
+dnl FreeBSD 5.2       posix       -lc_r           Y
+dnl                   posix       -lkse           Y
+dnl                   posix       -lthr           Y
+dnl
+dnl FreeBSD 4.0,4.10  posix       -lc_r           Y      OK
+dnl
+dnl NetBSD 1.6        --
+dnl
+dnl OpenBSD 3.4       posix       -lpthread       Y      OK
+dnl
+dnl MacOS X 10.[123]  posix       -lpthread       Y      OK
+dnl
+dnl Solaris 7,8,9     posix       -lpthread       Y      Sol 7,8: 0.0; Sol 9: OK
+dnl                   solaris     -lthread        Y      Sol 7,8: 0.0; Sol 9: OK
+dnl
+dnl HP-UX 11          posix       -lpthread       N (cc) OK
+dnl                                               Y (gcc)
+dnl
+dnl IRIX 6.5          posix       -lpthread       Y      0.5
+dnl
+dnl AIX 4.3,5.1       posix       -lpthread       N      AIX 4: 0.5; AIX 5: OK
+dnl
+dnl OSF/1 4.0,5.1     posix       -pthread (cc)   N      OK
+dnl                               -lpthread (gcc) Y
+dnl
+dnl Cygwin            posix       -lpthread       Y      OK
+dnl
+dnl Any of the above  pth         -lpth                  0.0
+dnl
+dnl Mingw             win32                       N      OK
+dnl
+dnl BeOS 5            --
+dnl
+dnl The test-lock result shows what happens if in test-lock.c EXPLICIT_YIELD is
+dnl turned off:
+dnl   OK if all three tests terminate OK,
+dnl   0.5 if the first test terminates OK but the second one loops endlessly,
+dnl   0.0 if the first test already loops endlessly.
 
 # Configure a more-standard replacement for <time.h>.
 
