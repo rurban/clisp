@@ -60,6 +60,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module localcharset:
+  # Code from module lock:
   # Code from module lstat:
   # Code from module malloc-gnu:
   # Code from module malloc-posix:
@@ -89,6 +90,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdlib:
   # Code from module streq:
   # Code from module strerror:
+  # Code from module strerror_r-posix:
   # Code from module strftime:
   # Code from module string:
   # Code from module strnlen1:
@@ -100,6 +102,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module sys_uio:
   # Code from module sys_utsname:
   # Code from module sys_wait:
+  # Code from module threadlib:
+  gl_THREADLIB_EARLY
   # Code from module time:
   # Code from module time_r:
   # Code from module uname:
@@ -166,6 +170,7 @@ gl_FUNC_LINK_FOLLOWS_SYMLINK
 gl_LOCALCHARSET
 LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
 AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
+gl_LOCK
 gl_FUNC_LSTAT
 gl_SYS_STAT_MODULE_INDICATOR([lstat])
 gl_FUNC_MALLOC_GNU
@@ -207,7 +212,10 @@ gl_STDDEF_H
 gl_STDINT_H
 gl_STDLIB_H
 gl_FUNC_STRERROR
+gl_MODULE_INDICATOR([strerror])
 gl_STRING_MODULE_INDICATOR([strerror])
+gl_FUNC_STRERROR_R
+gl_STRING_MODULE_INDICATOR([strerror_r])
 gl_FUNC_GNU_STRFTIME
 gl_HEADER_STRING_H
 gl_FUNC_STRPTIME
@@ -226,6 +234,7 @@ gl_SYS_UTSNAME_H
 AC_PROG_MKDIR_P
 gl_SYS_WAIT_H
 AC_PROG_MKDIR_P
+gl_THREADLIB
 gl_HEADER_TIME_H
 gl_TIME_R
 gl_TIME_MODULE_INDICATOR([time_r])
@@ -406,6 +415,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/glthread/lock.c
+  lib/glthread/lock.h
+  lib/glthread/threadlib.c
   lib/inet_ntop.c
   lib/inet_pton.c
   lib/intprops.h
@@ -448,7 +460,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
+  lib/strerror-impl.h
   lib/strerror.c
+  lib/strerror_r.c
   lib/strftime.c
   lib/strftime.h
   lib/string.in.h
@@ -562,6 +576,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdlib_h.m4
   m4/strerror.m4
+  m4/strerror_r.m4
   m4/strftime.m4
   m4/string_h.m4
   m4/strptime.m4

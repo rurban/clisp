@@ -1,4 +1,4 @@
-/* strerror.c --- POSIX compatible system error routine
+/* strerror-impl.h --- Implementation of POSIX compatible strerror() function.
 
    Copyright (C) 2007-2011 Free Software Foundation, Inc.
 
@@ -15,19 +15,28 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#include <config.h>
+#ifdef STATIC
+STATIC
+#endif
+char *
+strerror (int n)
+{
+  static char buf[256];
 
-/* Specification.  */
-#include <string.h>
+  int ret = strerror_r (n, buf, sizeof (buf));
 
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+  if (ret == 0)
+    return buf;
 
-#include "intprops.h"
-#include "verify.h"
+  if (ret == ERANGE)
+    /* If this happens, increase the size of buf.  */
+    abort ();
 
-/* Use the system functions, not the gnulib overrides in this file.  */
-#undef sprintf
-
-#include "strerror-impl.h"
+  {
+    static char const fmt[] = "Unknown error (%d)";
+    verify (sizeof (buf) >= sizeof (fmt) + INT_STRLEN_BOUND (n));
+    sprintf (buf, fmt, n);
+    errno = ret;
+    return buf;
+  }
+}
