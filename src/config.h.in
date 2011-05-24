@@ -95,6 +95,9 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
+/* Define to 1 for DGUX with <sys/dg_sys_info.h>. */
+#undef DGUX
+
 /* Define to 1 if 'double' division by zero raises an exception. */
 #undef DOUBLE_DIV0_EXCEPTION
 
@@ -140,6 +143,10 @@
    whether the gnulib module malloc-gnu shall be considered present. */
 #undef GNULIB_MALLOC_GNU
 
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module strerror shall be considered present. */
+#undef GNULIB_STRERROR
+
 /* Define to 1 when the gnulib module btowc should be tested. */
 #undef GNULIB_TEST_BTOWC
 
@@ -148,6 +155,9 @@
 
 /* Define to 1 when the gnulib module gethostname should be tested. */
 #undef GNULIB_TEST_GETHOSTNAME
+
+/* Define to 1 when the gnulib module getloadavg should be tested. */
+#undef GNULIB_TEST_GETLOADAVG
 
 /* Define to 1 when the gnulib module getpagesize should be tested. */
 #undef GNULIB_TEST_GETPAGESIZE
@@ -176,6 +186,18 @@
 /* Define to 1 when the gnulib module memchr should be tested. */
 #undef GNULIB_TEST_MEMCHR
 
+/* Define to 1 when the gnulib module mkdtemp should be tested. */
+#undef GNULIB_TEST_MKDTEMP
+
+/* Define to 1 when the gnulib module mkfifo should be tested. */
+#undef GNULIB_TEST_MKFIFO
+
+/* Define to 1 when the gnulib module mknod should be tested. */
+#undef GNULIB_TEST_MKNOD
+
+/* Define to 1 when the gnulib module mkstemp should be tested. */
+#undef GNULIB_TEST_MKSTEMP
+
 /* Define to 1 when the gnulib module mktime should be tested. */
 #undef GNULIB_TEST_MKTIME
 
@@ -193,6 +215,9 @@
 
 /* Define to 1 when the gnulib module strerror should be tested. */
 #undef GNULIB_TEST_STRERROR
+
+/* Define to 1 when the gnulib module strerror_r should be tested. */
+#undef GNULIB_TEST_STRERROR_R
 
 /* Define to 1 when the gnulib module strptime should be tested. */
 #undef GNULIB_TEST_STRPTIME
@@ -236,6 +261,9 @@
 
 /* Define to 1 if you have the <callback.h> header file. */
 #undef HAVE_CALLBACK_H
+
+/* Define to 1 if you have the `catgets' function. */
+#undef HAVE_CATGETS
 
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
@@ -292,6 +320,10 @@
 /* Define to 1 if you have the declaration of `strerror', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRERROR
+
+/* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRERROR_R
 
 /* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
    */
@@ -425,8 +457,17 @@
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
 
+/* Define to 1 if you have the `dgc' library (-ldgc). */
+#undef HAVE_LIBDGC
+
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
+
+/* Define to 1 if you have the `kstat' library (-lkstat). */
+#undef HAVE_LIBKSTAT
+
+/* Define to 1 if you have the `perfstat' library (-lperfstat). */
+#undef HAVE_LIBPERFSTAT
 
 /* Define if you have the libsigsegv library. */
 #undef HAVE_LIBSIGSEGV
@@ -442,6 +483,9 @@
 
 /* Define to 1 if you have the `lstat' function. */
 #undef HAVE_LSTAT
+
+/* Define to 1 if you have the <mach/mach.h> header file. */
+#undef HAVE_MACH_MACH_H
 
 /* have vm_allocate() and task_self() functions */
 #undef HAVE_MACH_VM
@@ -477,6 +521,18 @@
 
 /* Define to 1 if you have the `memset' function. */
 #undef HAVE_MEMSET
+
+/* Define to 1 if you have the `mkdtemp' function. */
+#undef HAVE_MKDTEMP
+
+/* Define to 1 if you have the `mkfifo' function. */
+#undef HAVE_MKFIFO
+
+/* Define to 1 if you have the `mknod' function. */
+#undef HAVE_MKNOD
+
+/* Define to 1 if you have the `mkstemp' function. */
+#undef HAVE_MKSTEMP
 
 /* have <sys/mmap.h> and the mmap() function */
 #undef HAVE_MMAP
@@ -515,6 +571,9 @@
 /* Define to 1 if you have the `nice' function. */
 #undef HAVE_NICE
 
+/* Define to 1 if you have the <nlist.h> header file. */
+#undef HAVE_NLIST_H
+
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
 
@@ -523,6 +582,15 @@
 
 /* Define to 1 if you have the 'poll' function and it works. */
 #undef HAVE_POLL
+
+/* Define to 1 if you have the `pstat_getdynamic' function. */
+#undef HAVE_PSTAT_GETDYNAMIC
+
+/* Define if the <pthread.h> defines PTHREAD_MUTEX_RECURSIVE. */
+#undef HAVE_PTHREAD_MUTEX_RECURSIVE
+
+/* Define if the POSIX multithreading library has read/write locks. */
+#undef HAVE_PTHREAD_RWLOCK
 
 /* Define to 1 if you have the `rand_r' function. */
 #undef HAVE_RAND_R
@@ -1101,6 +1169,9 @@
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
+/* Define to 1 if you have the `strerror_r' function. */
+#undef HAVE_STRERROR_R
+
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
@@ -1112,6 +1183,9 @@
 
 /* Define to 1 if `d_namlen' is a member of `struct dirent'. */
 #undef HAVE_STRUCT_DIRENT_D_NAMLEN
+
+/* Define to 1 if `n_un.n_name' is a member of `struct nlist'. */
+#undef HAVE_STRUCT_NLIST_N_UN_N_NAME
 
 /* Define to 1 if the system has the type `struct sockaddr_storage'. */
 #undef HAVE_STRUCT_SOCKADDR_STORAGE
@@ -1139,6 +1213,9 @@
 
 /* Define to 1 if you have the <sys/ipc.h> header file. */
 #undef HAVE_SYS_IPC_H
+
+/* Define to 1 if you have the <sys/loadavg.h> header file. */
+#undef HAVE_SYS_LOADAVG_H
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
 #undef HAVE_SYS_MMAN_H
@@ -1302,6 +1379,9 @@
 /* have _setjmp() and _longjmp() */
 #undef HAVE__JMP
 
+/* Define to 1 if you have the `__xpg_strerror_r' function. */
+#undef HAVE___XPG_STRERROR_R
+
 /* Define HOST_NAME_MAX when <limits.h> does not define it. */
 #undef HOST_NAME_MAX
 
@@ -1357,6 +1437,12 @@
 /* Define if the mbrtowc function returns a wrong return value. */
 #undef MBRTOWC_RETVAL_BUG
 
+/* Define to 1 if mkfifo does not reject trailing slash */
+#undef MKFIFO_TRAILING_SLASH_BUG
+
+/* Define to 1 if mknod cannot create a fifo without super-user privileges */
+#undef MKNOD_FIFO_BUG
+
 /* need <sys/filio.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_FILIO_H
 
@@ -1365,6 +1451,9 @@
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
+
+/* Define to 1 if the nlist n_name member is a pointer */
+#undef N_NAME_POINTER
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -1386,6 +1475,9 @@
 
 /* type of `pid' in waitpid() declaration */
 #undef PID_T
+
+/* Define if the pthread_in_use() detection is hard. */
+#undef PTHREAD_IN_USE_DETECTION_HARD
 
 /* Define to l, ll, u, ul, ull, etc., as suitable for constants of type
    'ptrdiff_t'. */
@@ -1412,9 +1504,6 @@
 
 /* Define if nl_langinfo exists but is overridden by gnulib. */
 #undef REPLACE_NL_LANGINFO
-
-/* Define this to 1 if strerror is broken. */
-#undef REPLACE_STRERROR
 
 /* type of `resource' in setrlimit() declaration */
 #undef RLIMIT_RESOURCE_T
@@ -1502,8 +1591,42 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Define to 1 on System V Release 4. */
+#undef SVR4
+
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
+
+/* Define to 1 for Encore UMAX. */
+#undef UMAX
+
+/* Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h> instead of
+   <sys/cpustats.h>. */
+#undef UMAX4_3
+
+/* Define if the POSIX multithreading library can be used. */
+#undef USE_POSIX_THREADS
+
+/* Define if references to the POSIX multithreading library should be made
+   weak. */
+#undef USE_POSIX_THREADS_WEAK
+
+/* Define if the GNU Pth multithreading library can be used. */
+#undef USE_PTH_THREADS
+
+/* Define if references to the GNU Pth multithreading library should be made
+   weak. */
+#undef USE_PTH_THREADS_WEAK
+
+/* Define if the old Solaris multithreading library can be used. */
+#undef USE_SOLARIS_THREADS
+
+/* Define if references to the old Solaris multithreading library should be
+   made weak. */
+#undef USE_SOLARIS_THREADS_WEAK
+
+/* Define if the Win32 multithreading API can be used. */
+#undef USE_WIN32_THREADS
 
 /* expression in ch which is true if ch is a valid character in filenames */
 #undef VALID_FILENAME_CHAR
