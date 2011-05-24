@@ -461,17 +461,14 @@
    <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
  <varlistentry id="mkstemp"><term><code>(POSIX:MKSTEMP &filename-r;
     &key-amp; &direction-k; &eltype; &extfmt; &buffered;)</code></term>
-  <listitem><simpara>Calls &mkstemp;, returns a &file-stream-t;.</simpara>
+  <listitem><simpara>Calls <function role="unix">mkstemp</function>;
+    returns a &file-stream-t;.</simpara>
    <simpara>&direction-k; should allow output.</simpara>
-   <simpara>When &mkstemp; is missing,
-    use <function role="unix">tempnam</function>.
-    On &win32; use <function role="win32">GetTempFileName</function>.
- </simpara></listitem></varlistentry>
+ </listitem></varlistentry>
  <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
     &filename-r;)</code></term>
-  <listitem><simpara>Calls <function role="bsd">mkdtemp</function>
-    (similar to &mkstemp; but not in &posix;),
-    returns the namestring of a new empty temporary directory.
+  <listitem><simpara>Calls <function role="unix">mkdtemp</function>;
+    creates a new empty temporary directory and returns its namestring.
  </simpara></listitem></varlistentry>
  <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
     &stream-r;)</code></term>
@@ -512,7 +509,7 @@
    &optional-amp; &user-r;)</code></term>
  <listitem><simpara>Call <function role="win32">LookupAccountName</function>
   on &user-r; or, if that is not supplied, call
-  <function role="win32">OpenProcessToken</function>
+  <function role="win32">OpenProcessToken</function>,
   <function role="win32">GetTokenInformation</function>, and then
   <function role="win32">ConvertSidToStringSid</function> on
   <structfield>User.Sid</structfield>.</simpara></listitem></varlistentry>

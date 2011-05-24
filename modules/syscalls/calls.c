@@ -668,32 +668,22 @@ DEFUN(OS:VERSION>,  string1 string2){VALUES_IF(string_version_compare() >  0);}
 DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
 
 /* ========================== temporary files ========================== */
-#if defined(HAVE_MKSTEMP) || defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
-#if defined(HAVE_TEMPNAM)
-static object temp_name (char *dir, char *prefix) {
-  char *ret_s; object ret_o;
-  begin_blocking_system_call();
-  ret_s = tempnam(dir,prefix);
-  end_blocking_system_call();
-  if (ret_s == NULL) OS_error();
-  ret_o = asciz_to_string(ret_s,GLO(pathname_encoding));
-  begin_system_call(); free(ret_s); end_system_call();
-  return ret_o;
-}
-#elif defined(WIN32_NATIVE)
-static object temp_name (char *dir, char *prefix) {
-  char path[MAX_PATH];
-  int ret;
-  begin_blocking_system_call();
-  ret = GetTempFileName(dir,prefix,0,path);
-  end_blocking_system_call();
-  if (0 == ret) OS_error();
-  return asciz_to_string(path,GLO(pathname_encoding));
-}
-#endif
+#define ENSURE_6X(name,template)                        \
+  if (name##_bytelen > 6                                \
+      && name[name##_bytelen-1]=='X'                    \
+      && name[name##_bytelen-2]=='X'                    \
+      && name[name##_bytelen-3]=='X'                    \
+      && name[name##_bytelen-4]=='X'                    \
+      && name[name##_bytelen-5]=='X'                    \
+      && name[name##_bytelen-6]=='X') {                 \
+    c_template = name;                                  \
+  } else {                                              \
+    c_template = (char*)alloca(name##_bytelen+6);       \
+    strcpy(c_template,name);                            \
+    strcat(c_template,"XXXXXX");                        \
+  }
 DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
       :ELEMENT-TYPE) {
-#if defined(HAVE_MKSTEMP)
   /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
   object fname = physical_namestring(STACK_4);
   direction_t dir = (boundp(STACK_3) ? check_direction(STACK_3)
@@ -702,19 +692,7 @@ DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
   with_string_0(fname,GLO(pathname_encoding),namez,{
       char *c_template;
       begin_blocking_system_call();
-      if (namez_bytelen > 6
-          && namez[namez_bytelen-1]=='X'
-          && namez[namez_bytelen-2]=='X'
-          && namez[namez_bytelen-3]=='X'
-          && namez[namez_bytelen-4]=='X'
-          && namez[namez_bytelen-5]=='X'
-          && namez[namez_bytelen-6]=='X') {
-        c_template = namez;
-      } else {
-        c_template = (char*)alloca(namez_bytelen+6);
-        strcpy(c_template,namez);
-        strcat(c_template,"XXXXXX");
-      }
+      ENSURE_6X(namez,c_template);
       fd = mkstemp(c_template);
       end_blocking_system_call();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
@@ -724,30 +702,7 @@ DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
   pushSTACK(allocate_handle(fd));
   /* stack layout: FD, eltype, extfmt, buff, truename, filename */
   VALUES1(make_file_stream(dir,false,true));
-#elif defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
-  /* http://www.opengroup.org/onlinepubs/009695399/functions/tempnam.html */
-  object path;
-  pushSTACK(STACK_4); funcall(L(pathname),1); pushSTACK(value1);
-  pushSTACK(value1); funcall(L(directory_namestring),1); pushSTACK(value1);
-  pushSTACK(STACK_1); funcall(L(file_namestring),1); pushSTACK(value1);
-  with_string_0(STACK_0,GLO(pathname_encoding),prefix, {
-      with_string_0(STACK_1,GLO(pathname_encoding),dir, {
-          /* if no directory ==> use current "." */
-          STACK_7 = temp_name(dir[0] ? dir : (char*)".",prefix);
-        });
-    });
-  pushSTACK(STACK_3);           /* ELEMENT-TYPE */
-  STACK_1 = S(Kelement_type);
-  STACK_2 = STACK_5;            /* EXTERNAL-FORMAT */
-  STACK_3 = S(Kexternal_format);
-  STACK_4 = STACK_6;            /* BUFFERED */
-  STACK_5 = S(Kbuffered);
-  STACK_6 = missingp(STACK_7) ? S(Koutput) : STACK_7; /* DIRECTION */
-  STACK_7 = S(Kdirection);
-  funcall(L(open),9);
-#endif
 }
-#endif /* HAVE_MKSTEMP || HAVE_TEMPNAM || WIN32_NATIVE */
 
 /* ================= user accounting database functions ================= */
 #if defined(HAVE_UTMPX_H)
@@ -1045,7 +1000,6 @@ DEFUNF(POSIX::LGAMMA,x) {
 extern double bogomips (void);
 DEFUN(OS:BOGOMIPS,) { N_D(bogomips(),value1); mv_count=1; }
 
-#if defined(HAVE_GETLOADAVG)
 DEFUN(POSIX:LOADAVG, &optional percentp) {
   double loadavg[3];
   int ret;
@@ -1066,7 +1020,6 @@ DEFUN(POSIX:LOADAVG, &optional percentp) {
   }
   skipSTACK(1);
 }
-#endif  /* HAVE_GETLOADAVG */
 
 #undef D_S
 #undef I_S
@@ -2326,134 +2279,42 @@ DEFUN(POSIX::UMASK, cmask)
 }
 #endif  /* umask */
 
-#if defined(HAVE_MKNOD) || defined(HAVE_MKFIFO) || defined(HAVE_MKDIR) || defined(HAVE_CREAT)
-#if defined(HAVE_CREAT) && !defined(HAVE_MKNOD)
-static int creat1 (const char *path, mode_t mode)
-{ /* creat() and close() immediately  */
-  int fd = creat(path,mode);
-  if (fd == -1) return -1;
-  return close(fd);
-}
-#endif
-#if defined(WIN32_NATIVE)
-static int mkdir1 (const char *path, mode_t mode)
-{ (void)mode; return mkdir(path); }
-#else
-# define mkdir1 mkdir
+#if defined(WIN32_NATIVE)       /* see gnulib/mkdir.texi */
+# define mkdir(path,mode) _mkdir(path)
 #endif
 DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
            FIFO FSOCK FCHR FDIR FBLK FREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = check_chmod_mode_of_list(popSTACK());
-#if defined(HAVE_MKNOD)
-  mode |= mknod_type_check(popSTACK());
-#else
-  /* emulate mknod using mkfifo(), mkdir() and creat() */
-#define mknod(p,m,d) mknod1(p,m)
-  int (*mknod1)(const char *path, mode_t mode);
- mknod_restart:
-# if defined(HAVE_MKFIFO)
-  if (eq(`:FIFO`,STACK_0)) {
-    mknod1 = mkfifo; skipSTACK(1);
-    goto mknod_do_it;
-  }
-# endif  /* mkfifo */
-# if defined(HAVE_MKDIR)
-  if (eq(`:FDIR`,STACK_0)) {
-    mknod1 = mkdir1; skipSTACK(1);
-    goto mknod_do_it;
-  }
-# endif  /* mkfifo */
-# if defined(HAVE_CREAT)
-  if (eq(`:FDIR`,STACK_0)) {
-    mknod1 = creat1; skipSTACK(1);
-    goto mknod_do_it;
-  }
-# endif  /* mkfifo */
-  /* invalid type */
-  pushSTACK(NIL);               /* no PLACE */
-  pushSTACK(STACK_1);           /* TYPE-ERROR slot DATUM */
-  { int count = 1;
-    pushSTACK(S(member));
-#  if defined(HAVE_MKFIFO)
-    pushSTACK(`:FIFO`); count++;
-#  endif
-#  if defined(HAVE_MKDIR)
-    pushSTACK(`:FDIR`); count++;
-#  endif
-#  if defined(HAVE_CREAT)
-    pushSTACK(`:FREG`); count++;
-#  endif
-    value1 = listof(count);
-  } pushSTACK(value1);          /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_0); pushSTACK(STACK_2);
-  pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-  STACK_0 = value1;
-  goto mknod_restart;
- mknod_do_it:
-#endif                          /* no mknod() */
-  funcall(L(namestring),1);     /* drop path from STACK */
-  with_string_0(value1,GLO(pathname_encoding),path, {
-      int ret;
+  mode_t mode = check_chmod_mode_of_list(popSTACK())
+      | mknod_type_check(popSTACK());
+  int ret;
+  STACK_0 = physical_namestring(STACK_0);
+  with_string_0(STACK_0,GLO(pathname_encoding),path, {
       begin_blocking_system_call();
       ret = mknod(path,mode,0);
       end_blocking_system_call();
-      if (ret) OS_file_error(value1);
     });
+  if (ret) OS_file_error(STACK_0);
+  skipSTACK(1);
   VALUES0;
 }
-#endif  /* mknod | mkfifo | mkdir | creat */
 
-#if defined(HAVE_MKDTEMP) || defined(WIN32_NATIVE) || (defined(HAVE_MKDIR) && defined(HAVE_TEMPNAM))
 DEFUN(POSIX:MKDTEMP, template) {
-#if defined(HAVE_MKDTEMP)
   object fname = physical_namestring(popSTACK());
   with_string_0(fname,GLO(pathname_encoding),namez,{
       char *c_template;
       if (namez[namez_bytelen-1] == '/') /* mkdtemp(".../") --> ENOENT */
         namez[--namez_bytelen] = 0;
       begin_blocking_system_call();
-      if (namez_bytelen > 6
-          && namez[namez_bytelen-1]=='X'
-          && namez[namez_bytelen-2]=='X'
-          && namez[namez_bytelen-3]=='X'
-          && namez[namez_bytelen-4]=='X'
-          && namez[namez_bytelen-5]=='X'
-          && namez[namez_bytelen-6]=='X') {
-        c_template = namez;
-      } else {
-        c_template = (char*)alloca(namez_bytelen+6);
-        strcpy(c_template,namez);
-        strcat(c_template,"XXXXXX");
-      }
+      ENSURE_6X(namez,c_template);
       c_template = mkdtemp(c_template);
       end_blocking_system_call();
       if (NULL == c_template) OS_error();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
   pushSTACK(fname);
-#else  /* WIN32_NATIVE || (MKDIR && TEMPNAM) */
-  /* http://www.opengroup.org/onlinepubs/009695399/functions/tempnam.html */
-  pushSTACK(STACK_0); funcall(L(pathname),1); pushSTACK(value1);
-  pushSTACK(value1); funcall(L(directory_namestring),1); pushSTACK(value1);
-  pushSTACK(STACK_1); funcall(L(file_namestring),1); pushSTACK(value1);
-  /* stack layout: template arg, template pathname, dir, file */
-  with_string_0(STACK_0,GLO(pathname_encoding),prefix, {
-      with_string_0(STACK_1,GLO(pathname_encoding),dir, {
-          /* if no directory ==> use current "." */
-          STACK_3 = temp_name(dir[0] ? dir : (char*)".",prefix);
-          with_string_0(STACK_3,GLO(pathname_encoding),newdir, {
-              begin_blocking_system_call();
-              if (mkdir1(newdir,0700)) OS_file_error(STACK_2);
-              end_blocking_system_call();
-            });
-        });
-    });
-  skipSTACK(3);
-#endif
   /* stack layout: the name of the new directory - without the trailing slash */
 #if defined(WIN32_NATIVE)
   pushSTACK(GLO(backslash_string));
@@ -2462,7 +2323,6 @@ DEFUN(POSIX:MKDTEMP, template) {
 #endif
   VALUES1(string_concat(2));
 }
-#endif
 
 #if defined(WIN32_NATIVE) || (defined(HAVE_STATVFS) && defined(HAVE_SYS_STATVFS_H))
 #if defined(WIN32_NATIVE)

@@ -33,14 +33,13 @@ BOLD_MSG([System Calls (Functions)])
 CL_RLIMIT
 AC_SEARCH_LIBS(crypt, crypt)
 AC_SEARCH_LIBS(erf, m)
-AC_CHECK_FUNCS(getloadavg confstr fcntl gethostent sysconf dnl
+AC_CHECK_FUNCS(confstr fcntl gethostent sysconf dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
-openlog setlogmask syslog closelog dnl
+openlog setlogmask syslog closelog chroot dnl
 getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath dnl
 getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
-mkfifo mkdir creat mkstemp tempnam mkdtemp chroot dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
 setreuid setregid getgroups setgroups wait4 dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl

@@ -45,6 +45,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
   # Code from module gethostname:
+  # Code from module getloadavg:
   # Code from module getpagesize:
   # Code from module gettext:
   # Code from module gettext-h:
@@ -70,6 +71,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module mbsrtowcs:
   # Code from module mbtowc:
   # Code from module memchr:
+  # Code from module mkdtemp:
+  # Code from module mkfifo:
+  # Code from module mknod:
+  # Code from module mkstemp:
   # Code from module mktime:
   # Code from module multiarch:
   # Code from module netinet_in:
@@ -102,6 +107,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module sys_uio:
   # Code from module sys_utsname:
   # Code from module sys_wait:
+  # Code from module tempname:
   # Code from module threadlib:
   gl_THREADLIB_EARLY
   # Code from module time:
@@ -150,6 +156,8 @@ gl_FUNC_FNMATCH_POSIX
 gl_FUNC_FNMATCH_GNU
 gl_FUNC_GETHOSTNAME
 gl_UNISTD_MODULE_INDICATOR([gethostname])
+gl_GETLOADAVG([$gl_source_base])
+gl_STDLIB_MODULE_INDICATOR([getloadavg])
 gl_FUNC_GETPAGESIZE
 gl_UNISTD_MODULE_INDICATOR([getpagesize])
 dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
@@ -188,6 +196,14 @@ gl_FUNC_MBTOWC
 gl_STDLIB_MODULE_INDICATOR([mbtowc])
 gl_FUNC_MEMCHR
 gl_STRING_MODULE_INDICATOR([memchr])
+gl_FUNC_MKDTEMP
+gl_STDLIB_MODULE_INDICATOR([mkdtemp])
+gl_FUNC_MKFIFO
+gl_UNISTD_MODULE_INDICATOR([mkfifo])
+gl_FUNC_MKNOD
+gl_UNISTD_MODULE_INDICATOR([mknod])
+gl_FUNC_MKSTEMP
+gl_STDLIB_MODULE_INDICATOR([mkstemp])
 gl_FUNC_MKTIME
 gl_TIME_MODULE_INDICATOR([mktime])
 gl_MULTIARCH
@@ -234,6 +250,7 @@ gl_SYS_UTSNAME_H
 AC_PROG_MKDIR_P
 gl_SYS_WAIT_H
 AC_PROG_MKDIR_P
+gl_FUNC_GEN_TEMPNAME
 gl_THREADLIB
 gl_HEADER_TIME_H
 gl_TIME_R
@@ -412,6 +429,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
   lib/gethostname.c
+  lib/getloadavg.c
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
@@ -438,6 +456,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mbtowc.c
   lib/memchr.c
   lib/memchr.valgrind
+  lib/mkdtemp.c
+  lib/mkfifo.c
+  lib/mknod.c
+  lib/mkstemp.c
   lib/mktime-internal.h
   lib/mktime.c
   lib/netinet_in.in.h
@@ -476,6 +498,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/sys_uio.in.h
   lib/sys_utsname.in.h
   lib/sys_wait.in.h
+  lib/tempname.c
+  lib/tempname.h
   lib/time.in.h
   lib/time_r.c
   lib/uname.c
@@ -507,6 +531,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/fcntl-o.m4
   m4/fnmatch.m4
   m4/gethostname.m4
+  m4/getloadavg.m4
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
@@ -549,6 +574,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/mbtowc.m4
   m4/memchr.m4
+  m4/mkdtemp.m4
+  m4/mkfifo.m4
+  m4/mknod.m4
+  m4/mkstemp.m4
   m4/mktime.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
@@ -587,6 +616,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/sys_uio_h.m4
   m4/sys_utsname_h.m4
   m4/sys_wait_h.m4
+  m4/tempname.m4
   m4/threadlib.m4
   m4/time_h.m4
   m4/time_r.m4
