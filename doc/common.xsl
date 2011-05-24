@@ -160,7 +160,7 @@
 <!-- =========================== / CLISP CVS =========================== -->
 
 <!-- ======= The Open Group Base Specifications Issue 6 (SUS v3) ======= -->
-<xsl:param name="unix.top" select="'http://www.opengroup.org/susv3/'"/>
+<xsl:param name="unix.top" select="'http://pubs.opengroup.org/onlinepubs/9699919799/'"/>
 <xsl:template match="function[@role='unix'] | varname[@role='unix']">
  <a class="{@role}" href="{$unix.top}functions/{.}.html"
     ><xsl:apply-imports/></a>
