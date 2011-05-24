@@ -336,7 +336,7 @@
     (define-condition program-error (error) ())
     ; all the other errors must be detected by the runtime system
 
-      ; statically detectable errors of a program, source available
+      ; statically detectable errors of a program, source available [CLISP specific]
       (define-condition source-program-error (program-error)
         (;; The "outer-most" bad form, i.e. the list whose first element is the
          ;; macro or special-operator name.
@@ -344,7 +344,6 @@
          ;; The "inner-most" detail of the bad form, e.g., when a string is
          ;; given as a variable name, this is the string, not the whole form.
          ($detail :initarg :detail :reader source-program-error-detail)))
-      ; CLISP specific
 
     ; not statically detectable errors in program control
     (define-condition control-error (error) ())
@@ -386,21 +385,18 @@
       (($datum         :initarg :datum         :reader type-error-datum)
        ($expected-type :initarg :expected-type :reader type-error-expected-type)))
 
-      ; when some keyword does not belong to one of the allowed keywords
+      ; when some keyword does not belong to one of the allowed keywords [CLISP specific]
       ; ANSI CL 3.5.1.4., 3.5.1.5. want this to be a subclass of PROGRAM-ERROR.
       (define-condition keyword-error (program-error type-error) ())
-      ; CLISP specific
 
-      ; when some character does not belong to a given character set
+      ; when some character does not belong to a given character set [CLISP specific]
       (define-condition charset-type-error (type-error) ())
-      ; CLISP specific
 
-      ; when an argument list in APPLY is dotted
+      ; when an argument list in APPLY is dotted [CLISP specific]
       ; ANSI CL 3.5.1.2. want this to be a subclass of PROGRAM-ERROR.
       ; For the use of APPLY in the expansion of the FORMATTER macro, this
       ; must also be a subclass of TYPE-ERROR.
       (define-condition argument-list-dotted (program-error type-error) ())
-      ; CLISP specific
 
     ; errors during operation on packages
     (define-condition package-error (error)
@@ -427,16 +423,14 @@
     (define-condition file-error (error)
       (($pathname :initarg :pathname :reader file-error-pathname)))
 
-    ; general OS errors
+    ; general OS errors [CLISP specific]
     (define-condition os-error (error) ())
-    ; CLISP specific
 
   ; "Virtual memory exhausted"
   (define-condition storage-condition (serious-condition) ())
 
-  ; "User break"
+  ; "User break" [CLISP specific]
   (define-condition interrupt-condition (serious-condition) ())
-  ; CLISP specific
 
 ; conditions for which user notification is appropriate
 (define-condition warning () ())
@@ -446,7 +440,7 @@
 
   ; CLOS user notifications [CLISP specific]
   (define-condition clos:clos-warning (warning) ())
-  (define-condition clos:clos-novice-warning (clos:clos-warning) ())
+    (define-condition clos:clos-novice-warning (clos:clos-warning) ())
 
     (define-condition clos:clos-style-warning (style-warning clos:clos-warning) ())
 
