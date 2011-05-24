@@ -8,7 +8,7 @@
   (:shadowing-import-from "EXPORTING" #:defstruct)
   (:export
    #:resolve-host-ipaddr #:bogomips #:loadavg #:mkstemp #:mkdtemp #+unix #:wait
-   #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
+   #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file #:mknod
    #:file-owner #:physical-memory #:stream-options #:string-time #:getdate
    #:version-compare #:version< #:version<= #:version> #:version>=
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
@@ -70,7 +70,7 @@
   (addrtype 2 :type fixnum :read-only t))
 
 ;;; ============================================================
-#+unix (export '(crypt encrypt setkey mknod))
+#+unix (export '(crypt encrypt setkey))
 
 #+unix
 (defstruct (user-info (:constructor

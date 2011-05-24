@@ -659,8 +659,8 @@ RUN-SLEEP
     (assert (null status) () "status=~S is non-NIL" status)))
 #+(and :unix (not :cygwin)) NIL
 
-#+(and :unix (not :cygwin)) (every #'sys::double-float-p (show (multiple-value-list (os:loadavg)))) T
-#+(and :unix (not :cygwin)) (every #'sys::fixnump (show (multiple-value-list (os:loadavg t)))) T
+(every #'sys::double-float-p (show (multiple-value-list (os:loadavg)))) T
+(every #'sys::fixnump (show (multiple-value-list (os:loadavg t)))) T
 
 (os:version<= "a" "b") T
 (os:version< "1.10" "1.8") NIL
