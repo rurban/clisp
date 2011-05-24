@@ -1,21 +1,10 @@
-# strerror.m4 serial 9
+# strerror.m4 serial 11
 dnl Copyright (C) 2002, 2007-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN([gl_FUNC_STRERROR],
-[
-  AC_REQUIRE([gl_FUNC_STRERROR_SEPARATE])
-  if test $REPLACE_STRERROR = 1; then
-    AC_LIBOBJ([strerror])
-    AC_DEFINE_UNQUOTED([REPLACE_STRERROR], [$REPLACE_STRERROR],
-      [Define this to 1 if strerror is broken.])
-  fi
-])
-
-# Like gl_FUNC_STRERROR, except prepare for separate compilation (no AC_LIBOBJ).
-AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
 [
   AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
   AC_REQUIRE([gl_HEADER_ERRNO_H])
@@ -25,19 +14,18 @@ AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
      [AC_RUN_IFELSE(
         [AC_LANG_PROGRAM(
            [[#include <string.h>
+             #include <errno.h>
            ]],
-           [[return !*strerror (-2);]])],
+           [[int result = 0;
+             if (!*strerror (-2)) result |= 1;
+             errno = 0;
+             if (!*strerror (0)) result |= 2;
+             if (errno) result |= 4;
+             return result;]])],
         [gl_cv_func_working_strerror=yes],
         [gl_cv_func_working_strerror=no],
-        [dnl Assume crossbuild works if it compiles.
-         AC_COMPILE_IFELSE(
-           [AC_LANG_PROGRAM(
-              [[#include <string.h>
-              ]],
-              [[return !*strerror (-2);]])],
-           [gl_cv_func_working_strerror=yes],
-           [gl_cv_func_working_strerror=no])
-      ])
+        [dnl Be pessimistic on cross-compiles for now.
+         gl_cv_func_working_strerror=no])
     ])
     if test $gl_cv_func_working_strerror = no; then
       dnl The system's strerror() fails to return a string for out-of-range
@@ -50,6 +38,7 @@ AC_DEFUN([gl_FUNC_STRERROR_SEPARATE],
     REPLACE_STRERROR=1
   fi
   if test $REPLACE_STRERROR = 1; then
+    AC_LIBOBJ([strerror])
     gl_PREREQ_STRERROR
   fi
 ])

@@ -495,6 +495,12 @@ EXTRA_DIST += config.charset ref-add.sin ref-del.sin
 
 ## end   gnulib module localcharset
 
+## begin gnulib module lock
+
+libgnu_a_SOURCES += glthread/lock.h glthread/lock.c
+
+## end   gnulib module lock
+
 ## begin gnulib module lstat
 
 
@@ -867,11 +873,20 @@ EXTRA_DIST += streq.h
 ## begin gnulib module strerror
 
 
-EXTRA_DIST += strerror.c
+EXTRA_DIST += strerror-impl.h strerror.c
 
 EXTRA_libgnu_a_SOURCES += strerror.c
 
 ## end   gnulib module strerror
+
+## begin gnulib module strerror_r-posix
+
+
+EXTRA_DIST += strerror_r.c
+
+EXTRA_libgnu_a_SOURCES += strerror_r.c
+
+## end   gnulib module strerror_r-posix
 
 ## begin gnulib module strftime
 
@@ -1222,6 +1237,14 @@ MOSTLYCLEANDIRS += sys
 EXTRA_DIST += sys_wait.in.h
 
 ## end   gnulib module sys_wait
+
+## begin gnulib module threadlib
+
+libgnu_a_SOURCES += glthread/threadlib.c
+
+EXTRA_DIST += $(top_srcdir)/src/build-aux/config.rpath
+
+## end   gnulib module threadlib
 
 ## begin gnulib module time
 
