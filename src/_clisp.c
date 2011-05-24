@@ -369,9 +369,10 @@ int main (int argc, char* argv[])
     }
     /* Launch the executable. */
 #if defined(WIN32_NATIVE)
+  #define W32ERR(f)  { what = #f; goto w32err; }
     {
       PROCESS_INFORMATION pinfo;
-      char * command_line = NULL;
+      char * command_line = NULL, *what;
       int cmd_len = 0, cmd_pos = 0;
       DWORD exitcode = 0;
       STARTUPINFO sinfo;
@@ -385,11 +386,11 @@ int main (int argc, char* argv[])
       sinfo.lpReserved2 = NULL;
       sinfo.dwFlags = STARTF_USESTDHANDLES;
       sinfo.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-      if (sinfo.hStdInput == INVALID_HANDLE_VALUE)  goto w32err;
+      if (sinfo.hStdInput == INVALID_HANDLE_VALUE)  W32ERR(STD_INPUT_HANDLE);
       sinfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-      if (sinfo.hStdOutput == INVALID_HANDLE_VALUE) goto w32err;
+      if (sinfo.hStdOutput == INVALID_HANDLE_VALUE) W32ERR(STD_OUTPUT_HANDLE);
       sinfo.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
-      if (sinfo.hStdError == INVALID_HANDLE_VALUE)  goto w32err;
+      if (sinfo.hStdError == INVALID_HANDLE_VALUE)  W32ERR(STD_ERROR_HANDLE);
       /* conmand line */
       for (argv = new_argv; *argv; argv++) cmd_len += 2*strlen(*argv)+3;
       command_line = (char*)malloc(cmd_len);
@@ -404,20 +405,28 @@ int main (int argc, char* argv[])
                           ? resolved : executable),
                          command_line, NULL, NULL, 1, 0,
                          NULL, NULL, &sinfo, &pinfo))
-        goto w32err;
+        W32ERR(CreateProcess);
       /* there is no reason to wait for CLISP to terminate, except that
          if we do not, the console i/o breaks down. */
       if (WaitForSingleObject(pinfo.hProcess,INFINITE) == WAIT_FAILED)
-        goto w32err;
-      if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) goto w32err;
-      if (!CloseHandle(pinfo.hProcess)) goto w32err;
+        w32err(WaitForSingleObject);
+      if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) W32ERR(GetExitCodeProcess);
+      if (!CloseHandle(pinfo.hProcess)) W32ERR(CloseHandle);
       if (com_initialized) CoUninitialize();
       return exitcode;
-     w32err:
-      fprintf(stderr,"%s:\n * %s\n * %s\n * [%s]\n = %s\n",program_name,
-              executable,resolved,command_line,strerror(GetLastError()));
+     w32err: {
+      char *ret = NULL;
+      int status = FormatMessage(FeORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                 FORMAT_MESSAGE_FROM_SYSTEM |
+                                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL,GetLastError(),0,(LPTSTR) &ret,0,NULL);
+      fprintf(stderr,"%s:\n * %s\n * %s\n * [%s]\n%s: %s\n",program_name,
+              executable,resolved,command_line,what,
+              (status ? ret : "FormatMessage() failed"));
       return 1;
+     }
     }
+  #undef W32ERR
 #else
     execv(executable,new_argv);
     { /* execv() returns only if there was an error. */

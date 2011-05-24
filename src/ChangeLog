@@ -1,5 +1,11 @@
 2011-05-24  Sam Steingold  <sds@gnu.org>
 
+	* _clisp.c (main) [WIN32_NATIVE]: use FormatMessage()
+	instead of strerror() for GetLastError()
+	Reported by Bruno Haible
+
+2011-05-24  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CORE): import mkfifo mknod mkstemp
 	mkdtemp getloadavg
 	* modules/syscalls/calls.c (MKSTEMP, MKDTEMP, LOADAVG, MKNOD):
