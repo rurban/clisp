@@ -20,10 +20,6 @@ AC_DEFUN([gl_GETLOADAVG],
 # Persuade glibc <stdlib.h> to declare getloadavg().
 AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 
-# Make sure getloadavg.c is where it belongs, at configure-time.
-test -f "$srcdir/$1/getloadavg.c" ||
-  AC_MSG_ERROR([$srcdir/$1/getloadavg.c is missing])
-
 gl_save_LIBS=$LIBS
 
 # getloadvg is present in libc on glibc >= 2.2, MacOS X, FreeBSD >= 2.0,
