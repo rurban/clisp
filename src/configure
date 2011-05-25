@@ -19617,10 +19617,6 @@ $as_echo "#define GNULIB_TEST_GETHOSTNAME 1" >>confdefs.h
 # Persuade glibc <stdlib.h> to declare getloadavg().
 
 
-# Make sure getloadavg.c is where it belongs, at configure-time.
-test -f "$srcdir/$gl_source_base/getloadavg.c" ||
-  as_fn_error "$srcdir/$gl_source_base/getloadavg.c is missing" "$LINENO" 5
-
 gl_save_LIBS=$LIBS
 
 # getloadvg is present in libc on glibc >= 2.2, MacOS X, FreeBSD >= 2.0,
