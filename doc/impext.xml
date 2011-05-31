@@ -2430,7 +2430,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 
 <section id="mod-ffi-vs-c"><title>Trade-offs: &ffi-pac; vs. &c-lang;
   modules</title>
-<para>When deciding how to write a module: whether to use &ffi-pac;  or
+<para>When deciding how to write a module: whether to use &ffi-pac; or
  to stick with &c-lang; and &modprep;, one has to take into account
  several issues: <variablelist>
 <varlistentry><term>Speed: &c-lang; wins</term>
@@ -2495,7 +2495,22 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    However, with &c-lang;, one has to watch
    for <link linkend="gc-safety">GC-safety</link> too.
 </simpara></listitem></varlistentry>
-</variablelist></para>
+<varlistentry><term>System requirements: &ffi-pac; wins</term>
+ <listitem><para>Some &linux; distributions offer separate
+ <emphasis>library</emphasis> (containing shared libraries only)
+ and <emphasis>development</emphasis> (containing static libraries and
+ &c-lang; headers) packages.<itemizedlist>
+ <listitem><simpara>When <emphasis>developing</emphasis> using &ffi-pac;
+  with &library-k; (and avoiding &def-c-const;), the
+  <emphasis>development</emphasis> package is &not-e; needed.
+ </simpara></listitem>
+ <listitem><simpara>When <emphasis>developing</emphasis> with &modprep;,
+  the <emphasis>development</emphasis> package &is-e; necessary.
+ </simpara></listitem>
+ <listitem><simpara>When <emphasis>distributing</emphasis> module (built
+  with either &ffi-pac; or &modprep;), only the <emphasis>library</emphasis>
+  package is needed.</simpara></listitem></itemizedlist></para></listitem>
+</varlistentry></variablelist></para>
 <note id="mod-ffi-vs-c-granularity"><simpara>The granularity of the
   choice is <emphasis>per function</emphasis>: the same module can use
   both &modprep; and &ffi-pac;.</simpara></note>
