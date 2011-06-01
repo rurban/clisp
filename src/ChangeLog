@@ -1,5 +1,10 @@
 2011-06-01  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d, subr.d (PROBE-PATHNAME): mark as seclass_rd_sig
+	because it may signal permission errors
+
+2011-06-01  Sam Steingold  <sds@gnu.org>
+
 	finish the 2011-05-13 possible_symlink patch
 	* pathname.d (my_readlink) [UNIX_LINUX]: do not handle /proc specially
 	(stat_for_search) [UNIX_LINUX]: ditto
