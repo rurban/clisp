@@ -670,7 +670,7 @@ RUN-SLEEP
 (os:version-compare "z" "z") =
 (os:version-compare "foo2" "foo10") <
 
-#+unix
+#+unix                          ; no file-tree-walk on windows
 (let (res0 res1 res2)
   (ensure-directories-exist "dir1/dir2/dir3/" :verbose t)
   (open "dir1/file1" :direction :probe :if-does-not-exist :create)
@@ -712,6 +712,33 @@ RUN-SLEEP
    (ext:probe-directory "dir1/")))
 #+unix
 ("file3" NIL NIL NIL)
+
+#+unix                          ; no file-tree-walk on windows
+(let* ((d1 "test-dir-1") (d2 "test-dir-2") (f1 "test-file-1")
+       (d (make-pathname :directory (list :relative d1 d2)))
+       (f (make-pathname :name f1 :defaults d))
+       (l (lambda (p) (string= f1 (pathname-name p))))
+       (w (make-pathname :directory (list :relative d1 :wild-inferiors)
+                         :name :wild)))
+  (ensure-directories-exist d :verbose t)
+  (open f :direction :probe :if-does-not-exist :create)
+  (list
+   (mapcar l (directory w))
+   (os:set-file-stat d :mode 0)
+   (handler-case (directory w)
+     (error (e) (princ-error e) (type-of e)))
+   ;; http://article.gmane.org/gmane.lisp.clisp.general:13778
+   (directory w :if-does-not-exist :keep) ; cannot recurse but no error
+   (os:set-file-stat d :mode :RWXU)
+   (mapcar l (directory w))
+   (posix:file-tree-walk d1
+    (lambda (f s k b l)
+      (case k
+        ((:D :DP :DNR) (ext:delete-directory (ext:probe-pathname f)))
+        (T (delete-file f)))
+      nil)
+    :depth t)))
+#+unix ((T) NIL SYSTEM::SIMPLE-FILE-ERROR NIL NIL (T) NIL)
 
 (fnmatch "foo" "bar") NIL
 
