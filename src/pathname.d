@@ -28,19 +28,6 @@
 /* ========================================================================
                        Low level functions */
 
-#ifdef UNIX_LINUX
-/* The Linux /proc filesystem has some symlinks whose readlink value is
- zero-terminated: /proc/self in Linux 2.0.35, /proc/<pid>/fd/<n> in
- Linux 2.2.2. Remove this extraneous trailing zero byte. */
-local inline int my_readlink (const char* path, char* buf, size_t bufsiz) {
-  var int linklen = readlink(path,buf,bufsiz);
-  if (linklen > 0 && buf[linklen-1] == '\0')
-    linklen--;
-  return linklen;
-}
-#define readlink  my_readlink
-#endif
-
 /* we need realpath() (declared in <stdlib.h>)
    http://www.opengroup.org/onlinepubs/009695399/functions/realpath.html
    which is alleged to be broken on some systems
@@ -5845,7 +5832,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         skipSTACK(2);
       }
       break;
-    case NAMESTRING_BAD: OS_file_error(STACK_0);  
+    case NAMESTRING_BAD: OS_file_error(STACK_0);
   }
   pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
   funcall(L(truename),1);
@@ -6788,12 +6775,6 @@ local maygc void with_stat_info_computed (struct file_status *fs) {
 /* Just like stat(), except that directories or files which would lead
  to problems are silently hidden. */
 local maygc inline int stat_for_search (char* pathstring, struct stat * statbuf) {
- #ifdef UNIX_LINUX
-  /* Avoid searching /proc: It is a zoo containing strange animals:
-   directories which go away constantly, pseudo-regular files which
-   are really pipes, etc. */
-  if (asciz_equal(pathstring,"/proc")) { errno = ENOENT; return -1; }
- #endif
   var int result;
   GC_SAFE_SYSTEM_CALL(result=, stat(pathstring,statbuf));
  #ifdef UNIX_CYGWIN32

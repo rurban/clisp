@@ -1,13 +1,20 @@
 2011-06-01  Sam Steingold  <sds@gnu.org>
 
+	finish the 2011-05-13 possible_symlink patch
+	* pathname.d (my_readlink) [UNIX_LINUX]: do not handle /proc specially
+	(stat_for_search) [UNIX_LINUX]: ditto
+
+2011-06-01  Sam Steingold  <sds@gnu.org>
+
 	avoid errors on weird pathnames like ~/.gvfs under gnome
 	* pathname.d (get_path_info): accept tolerantp
 	(assure_dir_exists): pass tolerantp to get_path_info
-	(namestring_kind_t): add NAMESTRING_BAD for existing objects for which no
-	information could be obtained
+	(namestring_kind_t): add NAMESTRING_BAD for existing objects
+        for which no information could be obtained
 	(classify_namestring): return NAMESTRING_BAD instead of signaling
 	(PROBE-PATHNAME): signal the error here
-	(directory_search_direntry_ok): never signal any errors, just return false
+	(directory_search_direntry_ok): never signal any errors,
+	just return false
 	(directory_search_scandir): call OS_file_error instead of
 	error_file_not_exists after a failed directory_search_direntry_ok
 	when if_none=DIR_IF_NONE_ERROR
