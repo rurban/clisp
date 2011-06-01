@@ -5756,8 +5756,7 @@ local maygc namestring_kind_t classify_namestring
 #endif
 }
 
-/* NB: this is seclass_read, while other PROBE- functions are seclass_rd_sig */
-LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
+LISPFUNNS(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
 { /* a safe way to distinguish between files and dirs:
      "dir", "dir/" ==> #p"dir/"
      "file", "file/" ==> #p"file"

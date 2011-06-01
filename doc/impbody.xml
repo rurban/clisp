@@ -3689,7 +3689,10 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <computeroutput>#P"/.../link-dir/"</computeroutput>
 <computeroutput>3426940352</computeroutput>
 <computeroutput>1024</computeroutput>
-</programlisting></para></section></section>
+</programlisting></para>
+<para>This function may also &sig-err; if, e.g., its argument resides
+under a tree for which you do not have sufficient access privileges.</para>
+</section></section>
 
 <section id="file-func"><title>File functions</title>
 
