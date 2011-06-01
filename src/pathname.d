@@ -5348,10 +5348,10 @@ local maygc char* realpath_obj (object namestring, char *path_buffer) {
 }
 /* return true if assure_dir_exists is done */
 local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
-                                uintC *allowed_links) {
+                                uintC *allowed_links, bool tolerantp) {
   begin_blocking_system_call();
   if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
-    if (!(errno==ENOENT))
+    if (!tolerantp && (errno!=ENOENT))
       { end_blocking_system_call(); OS_file_error(*(fs->fs_pathname)); }
     /* file does not exist. */
     end_blocking_system_call();
@@ -5455,7 +5455,7 @@ local maygc void assure_dir_exists (struct file_status *fs,
     pushSTACK(fs->fs_namestring); /* save for get_path_info() */
     var bool done;
     with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
-      done = get_path_info(fs,namestring_asciz,&allowed_links);
+      done = get_path_info(fs,namestring_asciz,&allowed_links,tolerantp);
     });
     fs->fs_namestring = popSTACK(); /* restore */
     if (done) return;
@@ -5720,6 +5720,7 @@ local void find_first_file (const char *namestring_asciz,
 typedef enum {
   NAMESTRING_FILE, /* regular file */
   NAMESTRING_DIR,  /* directory */
+  NAMESTRING_BAD,  /* exists but cannot figure out what it is, check errno */
   NAMESTRING_NONE  /* namestring does not name an existing file or directory */
 } namestring_kind_t;
 local maygc namestring_kind_t classify_namestring
@@ -5729,7 +5730,7 @@ local maygc namestring_kind_t classify_namestring
   int ret;
   GC_SAFE_SYSTEM_CALL(ret=, stat(namestring,&status));
   if (ret) {
-    if (errno != ENOENT && errno != ENOTDIR) OS_file_error(STACK_0);
+    if (errno != ENOENT && errno != ENOTDIR) return NAMESTRING_BAD;
     return NAMESTRING_NONE;        /* does not exist */
   } else {                         /* file exists. */
     realpath(namestring,resolved); /* ==> success assured */
@@ -5759,7 +5760,7 @@ local maygc namestring_kind_t classify_namestring
       /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
          when file "foo" exists */
       if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
-        OS_file_error(STACK_0);
+        return NAMESTRING_BAD;
       return NAMESTRING_NONE;   /* does not exist */
     }
   } else { end_blocking_system_call(); return NAMESTRING_NONE; }
@@ -5844,6 +5845,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         skipSTACK(2);
       }
       break;
+    case NAMESTRING_BAD: OS_file_error(STACK_0);  
   }
   pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
   funcall(L(truename),1);
@@ -6921,8 +6923,8 @@ local maygc object directory_search_hashcode (void) {
 #endif
 
 #ifdef UNIX
-/* Tests whether a directory entry actually exists.
- (It could be a link pointing to nowhere, or an undesired directory.)
+/* Tests whether a directory entry actually exists and is accessible.
+ (It could be a link pointing to nowhere, or a directory without permissions)
  directory_search_direntry_ok(namestring,&statbuf)
  STACK_2 = pathname
  < result: true and statbuf filled, or false. */
@@ -6930,10 +6932,7 @@ local maygc bool directory_search_direntry_ok (object namestring,
                                                struct stat * statbuf) {
   var bool exists = true;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    if (!( stat_for_search(namestring_asciz,statbuf) ==0)) {
-      if (!((errno==ENOENT) || (errno==ELOOP_VALUE))) {
-        OS_file_error(STACK_2);
-      }
+    if (stat_for_search(namestring_asciz,statbuf)) {
       exists = false;
     }
   });
@@ -7073,8 +7072,13 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
       GC_SAFE_SYSTEM_CALL(dirp=, opendir(namestring_asciz));
     });
     if (dirp == (DIR*)NULL) {
-      if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
-      else OS_file_error(STACK_1);
+      switch (dsp->if_none) {
+        case DIR_IF_NONE_IGNORE: return;
+        case DIR_IF_NONE_DISCARD: /* ansi cl: unaccessible directory => error */
+        case DIR_IF_NONE_ERROR: OS_file_error(STACK_1);
+        case DIR_IF_NONE_KEEP: return;
+        default: NOTREACHED;
+      }
     }
     while (1) {
      #if defined(MULTITHREAD) && defined(HAVE_READDIR_R)
@@ -7144,10 +7148,9 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                   goto push_matching_subdir;
               } else
                 switch (dsp->if_none) {
-                  case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
-                  case DIR_IF_NONE_ERROR:
-                    pushSTACK(namestring);
-                    error_file_not_exists();
+                  case DIR_IF_NONE_IGNORE: break;
+                  case DIR_IF_NONE_DISCARD: case DIR_IF_NONE_ERROR:
+                    OS_file_error(namestring);
                   case DIR_IF_NONE_KEEP:
                     goto push_matching_file;
                   default: NOTREACHED;
@@ -7161,8 +7164,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                 switch (dsp->if_none) {
                   case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
                   case DIR_IF_NONE_ERROR:
-                    pushSTACK(namestring);
-                    error_file_not_exists();
+                    OS_file_error(namestring);
                   case DIR_IF_NONE_KEEP:
                     goto push_matching_file;
                   default: NOTREACHED;
@@ -7229,8 +7231,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
           switch (dsp->if_none) {
             case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
             case DIR_IF_NONE_ERROR:
-              pushSTACK(namestring);
-              error_file_not_exists();
+              OS_file_error(namestring);
             case DIR_IF_NONE_KEEP:
               goto push_matching_file;
             default: NOTREACHED;
@@ -7511,7 +7512,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
                 DEFAULT_VERSION; /* original may be :WILD! */
               pushSTACK(pathname);
               var struct file_status fs; file_status_init(&fs,&STACK_0);
-              assure_dir_exists(&fs,true,false); /* resolve links, stat file */
+              assure_dir_exists(&fs,true,true); /* resolve links, stat file */
               if (file_exists(&fs)) { /* if file exists */
                 /* extend result-list: */
                 if (dsp->full_p) /* :FULL wanted? */
