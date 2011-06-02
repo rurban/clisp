@@ -94,8 +94,8 @@
 
 <refsection id="interactive-mode"><title>Interactive Mode</title>
 
-<para>When called without arguments, executes the &repl;,
-in which expressions are in turn <itemizedlist>
+<para>When called without <link linkend="batch-mode">batch</link> arguments,
+ executes the &repl;, in which expressions are in turn <itemizedlist>
 <listitem><simpara>&read; from the standard input,</simpara></listitem>
 <listitem><simpara>&eval;uated by the lisp interpreter,</simpara></listitem>
 <listitem><simpara>and their results are &print;ed to the standard output.
