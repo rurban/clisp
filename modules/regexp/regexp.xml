@@ -84,11 +84,11 @@ such as your local &regex; manual and &emacs; info pages.</para>
    subexpression which successfully matched and one for the whole pattern),
    unless <constant>:BOOLEAN</constant> was non-&nil;, in which case
    return &t; as an indicator of success, but do not allocate anything.
-  </simpara><simpara>If <constant>:RETURN-TYPE</constant> is &list-t; (or
-   &vector-t;), the &match-t; structures are returned as a &list-t; (or
-   a &vector-t;) instead.  If there are more than &multiple-values-limit;
-   &match-t; structures to return, a &list-t; is returned instead of
-   &mul-val;.</simpara></listitem></varlistentry>
+  </simpara><simpara>If &return-type-k; is &list-t; (or &vector-t;), the
+   &match-t; structures are returned as a &list-t; (or a &vector-t;) instead.
+   If there are more than &multiple-values-limit; &match-t; structures
+   to return, a &list-t; is returned instead of &mul-val;.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-split"><term><code>(&re-regexp-split;
      &pattern-r; &string-r; &key-amp; (&start-k; 0) &end-k;

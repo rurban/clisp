@@ -3794,7 +3794,7 @@ under the current directory (similar to the <command role="unix">ls
       (this roughly corresponds to the <code>(&directory;
        ... <constant>:TRUNAMEP</constant> &nil;)</code> call in &cmucl;)
    </simpara></listitem></varlistentry>
-   <varlistentry><term><constant>:IGNORE</constant></term>
+   <varlistentry><term>&ignore-k;</term>
     <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also do
       &not-e; &signal; an &error-t; when a directory is unaccessible (contrary
       to the &ansi-cl; specification).</simpara></listitem></varlistentry>
@@ -3967,9 +3967,9 @@ under the current directory (similar to the <command role="unix">ls
           <row><entry><keycode>Delete</keycode></entry>
            <entry><constant>:DELETE</constant></entry></row>
           <row><entry><keycode>Home</keycode></entry>
-           <entry><constant>:HOME</constant></entry></row>
+           <entry>&home-k;</entry></row>
           <row><entry><keycode>End</keycode></entry>
-           <entry><constant>:END</constant></entry></row>
+           <entry>&end-k;</entry></row>
           <row><entry><keycode>Center</keycode></entry>
            <entry><constant>:CENTER</constant></entry></row>
           <row><entry><keycode>PgUp</keycode></entry>
@@ -3985,7 +3985,7 @@ under the current directory (similar to the <command role="unix">ls
  <varlistentry><term><replaceable>bits</replaceable></term>
   <listitem><para><variablelist>
      <!-- #ifdef WIN32 -->
-     <varlistentry><term><constant>:HYPER</constant></term>
+     <varlistentry><term>&hyper-k;</term>
       <listitem><simpara>(&win32-only;) if a non-standard key.
         These keys are:
         <!-- #ifdef WIN32 -->
@@ -3993,16 +3993,16 @@ under the current directory (similar to the <command role="unix">ls
         Function keys, cursor keypads, numeric keypad.
         <!-- #endif -->
      </simpara></listitem></varlistentry>
-     <varlistentry><term><constant>:SUPER</constant></term>
+     <varlistentry><term>&super-k;</term>
       <listitem><simpara>(&win32-only;) if pressed together with &shift;
         key(s) and if the keystroke would have been different without
         &shift;.</simpara></listitem></varlistentry>
      <!-- #endif -->
-     <varlistentry><term><constant>:CONTROL</constant></term>
+     <varlistentry><term>&control-k;</term>
       <listitem><simpara>if pressed together with the &ctrl; key.
      </simpara></listitem></varlistentry>
      <!-- #ifdef WIN32 -->
-     <varlistentry><term><constant>:META</constant></term>
+     <varlistentry><term>&meta-k;</term>
       <listitem><simpara>(&win32-only;) if pressed together with the
         &alt; key.</simpara></listitem></varlistentry>
      <!-- #endif -->

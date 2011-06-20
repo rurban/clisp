@@ -86,7 +86,7 @@
     please <emphasis>append</emphasis> your banner to ours (using
     &init-function;) instead of <emphasis>replacing</emphasis> it.
  </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:VERBOSE</constant></term>
+ <varlistentry><term>&verbose-k;</term>
   <listitem><simpara>Print a message after writing the file.
     This argument defaults to &savemem-verbose;; initial value is &t;.
  </simpara></listitem></varlistentry>
