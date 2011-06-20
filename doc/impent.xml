@@ -402,6 +402,7 @@
 <!ENTITY run-cmd '<link linkend="run-prog"><function>EXT:RUN-SHELL-COMMAND</function></link>'>
 <!ENTITY run-prog '<link linkend="run-prog"><function>EXT:RUN-PROGRAM</function></link>'>
 <!ENTITY scr-win '<link linkend="screen"><varname>SCREEN:*WINDOW*</varname></link>'>
+<!ENTITY script-k '<olink targetdoc="impnotes" targetptr="image-script"><constant>:SCRIPT</constant></olink>'>
 <!ENTITY set-global-handler '<olink targetdoc="impnotes" targetptr="global-handler"><function>EXT:SET-GLOBAL-HANDLER</function></olink>'>
 <!ENTITY without-global-handlers '<olink targetdoc="impnotes" targetptr="without-global-handlers"><function>EXT:WITHOUT-GLOBAL-HANDLERS</function></olink>'>
 <!ENTITY shell '<olink targetdoc="impnotes" targetptr="exec"><function>EXT:SHELL</function></olink>'>

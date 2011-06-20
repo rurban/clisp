@@ -463,8 +463,8 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
    If &lf; is <command>-</command>,
    the &standard-input-var; is used instead of a file.</simpara>
 <simpara>This option is <emphasis>disabled</emphasis> if the &mem-image;
- was created by &savemem; with &nil; <constant>:SCRIPT</constant>
- argument.  In that case the &list-t; &args; starts with &lf;.</simpara>
+ was created by &savemem; with &nil; &script-k; argument.
+ In that case the &list-t; &args; starts with &lf;.</simpara>
 <simpara>This option must be the last one.</simpara>
 <simpara>No &RC-file; will be executed.</simpara>
 <simpara>Imposes &batch-mode;.</simpara>

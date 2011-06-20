@@ -9,8 +9,7 @@
 <subtitle>What is done when</subtitle>
 <procedure><step><title>Initialization</title>
  <substeps><step><simpara>Parse command line arguments until the first
-    positional argument (see <constant>:SCRIPT</constant> in
-    <xref linkend="image"/>).</simpara></step>
+    positional argument (see &script-k;).</simpara></step>
   <step><simpara>Load the &mem-image;.</simpara></step>
   <step><simpara>Install internal signal handlers.</simpara></step>
   <step><simpara>Initialize time variables.</simpara></step>
@@ -106,7 +105,7 @@
      manual</olink> for passing command line arguments to this function.
    </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
  </listitem></varlistentry>
- <varlistentry><term><constant>:SCRIPT</constant></term>
+ <varlistentry id="image-script"><term>&script-k;</term>
   <listitem><para>This options determines the handling of positional
     arguments when the image is invoked.<itemizedlist>
      <listitem><simpara>If it is &t;, then the first positional argument
@@ -2846,7 +2845,7 @@ or just evaluates the appropriate form in the &repl;.</para>
    &default-foreign-library;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&version-k; &version-r;)</code></term>
  <listitem><simpara>Specifies the (optional) symbol version in the library
-   (therefore, if &version-k; is supplied, &library-k; must also be supplied)
+   (therefore, if &version-k; is supplied, &library-k; must also be supplied).
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &function-doc; documentation.
@@ -2887,15 +2886,14 @@ or just evaluates the appropriate form in the &repl;.</para>
    the <constant>:REQUIRE</constant> argument.</simpara>
   <simpara>Unless the library has dependencies, this is only needed if
    you want to test for <emphasis>presence</emphasis> of a library
-   without creating a foreign object.
+   without creating a foreign object referencing its contents.
    When you create a &foreign-variable-t; or a &foreign-function-t;
    using &def-c-var; or &def-call-out; with a &library-k; argument,
    the library &name-r; is opened automatically.</simpara>
   <para>E.g., <filename>libgsl.so</filename>
   requires <filename>libgslcblas.so</filename>:<programlisting language="lisp">
 (&open-foreign-library; "libgsl.so")
-*** - FFI:OPEN-FOREIGN-LIBRARY: Cannot open library "libgsl.so":
-      "/usr/lib64/libgsl.so: undefined symbol: cblas_ctrmv"
+*** - FFI:OPEN-FOREIGN-LIBRARY: Cannot open library "libgsl.so": "/usr/lib64/libgsl.so: undefined symbol: cblas_ctrmv"
 </programlisting> so a common way is to pre-open the dependency:
 <programlisting language="lisp">
 (&open-foreign-library; "libgslcblas.so")
@@ -2924,9 +2922,9 @@ or just evaluates the appropriate form in the &repl;.</para>
  <listitem><simpara>Close (unload) a shared foreign library (opened by
    &open-foreign-library; or the &library-k; argument to &def-call-out;
    or &def-c-var;).</simpara>
-  <simpara>If you modify your shared library, you need to use close it
-   using &close-foreign-library; first.  When you use the
-   &foreign-variable-t; or the &foreign-function-t; which resides in the
+  <simpara>If you want to modify your shared library, you need to close
+   it using &close-foreign-library; first.  When you use a
+   &foreign-variable-t; or a &foreign-function-t; which resides in the
    library &name-r;, it will be re-opened automatically.
 </simpara></listitem></varlistentry>
 
