@@ -386,8 +386,7 @@
    <constant>:TYPE</constant> should be one of
    <simplelist columns="2"><member><constant>:BTREE</constant></member>
     <member><constant>:HASH</constant></member>
-    <member><constant>:QUEUE</constant></member>
-    <member><constant>:RECNO</constant></member>
+    <member><constant>:QUEUE</constant></member> <member>&recno-k;</member>
     <member><constant>:UNKNOWN</constant> (default)</member></simplelist>
    <constant>:FLAGS</constant> may be the value of a previous call
    to <code>(&db-get-options; db :OPEN)</code>
@@ -557,8 +556,7 @@
        (<function role="bdb">DB-&gt;get_q_extentsize</function>).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:RE-DELIM</constant></term>
-     <listitem><simpara>the record delimiter
-       for <constant>:RECNO</constant> databases
+     <listitem><simpara>the record delimiter for &recno-k; databases
        (<function role="bdb">DB-&gt;get_re_delim</function>).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:RE-LEN</constant></term>
@@ -570,8 +568,7 @@
        (<function role="bdb">DB-&gt;get_re_pad</function>).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:RE-SOURCE</constant></term>
-     <listitem><simpara>the underlying source file
-       for <constant>:RECNO</constant> databases
+     <listitem><simpara>the underlying source file for &recno-k; databases
        (<function role="bdb">DB-&gt;get_re_source</function>).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LORDER</constant></term>
@@ -595,7 +592,7 @@
     the handle can only be used for that type.
     The methods <function role="bdb">DB-&gt;get_re_delim</function>
     and <function role="bdb">DB-&gt;get_re_source</function> are for
-    a <constant>:RECNO</constant> database so you &cannot-e; call them
+    a &recno-k; database so you &cannot-e; call them
     (by passing <constant>:RE-DELIM</constant>
     or <constant>:RE-SOURCE</constant> to this function)
     and then use the database handle to open a database of different type
