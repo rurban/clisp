@@ -434,7 +434,7 @@
              <member><constant>:BOOL</constant></member>
              <member><constant>:BSTR</constant></member>
              <member><constant>:DATE</constant></member>
-             <member><constant>:ERROR</constant></member>
+             <member>&error-k;</member>
              <member><constant>:FILETIME</constant></member>
              <member><constant>:I1</constant></member>
              <member><constant>:I2</constant></member>

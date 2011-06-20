@@ -92,7 +92,7 @@ namely <simplelist>
 <varlistentry><term><code>(netica:get-beliefs node
    &key-amp; :env :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">GetNodeBeliefs_bn</function>
-   on the node and pretty-print the results when <constant>:VERBOSE</constant>
+   on the node and pretty-print the results when &verbose-k;
    is non-&nil;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:enter-finding net node
    state &key-amp; :env :verbose)</code></term>

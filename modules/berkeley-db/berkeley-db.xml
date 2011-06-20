@@ -217,7 +217,7 @@
      <term><constant>:NOLOCKING</constant></term>
      <term><constant>:NOMMAP</constant></term>
      <term><constant>:NOPANIC</constant></term>
-     <term><constant>:OVERWRITE</constant></term>
+     <term>&overwrite-k;</term>
      <term><constant>:PANIC-ENVIRONMENT</constant></term>
      <term><constant>:REGION-INIT</constant></term>
      <term><constant>:TXN-NOSYNC</constant></term>
@@ -311,7 +311,7 @@
        &ubyte-vec; which must be passed to
        <function role="bdb">DB_TXN-&gt;prepare</function>.
     </simpara></listitem></varlistentry>
-    <varlistentry><term><constant>:HOME</constant></term>
+    <varlistentry><term>&home-k;</term>
      <listitem><simpara>the home directory when open
        (<function role="bdb">DB_ENV-&gt;get_home</function>).
     </simpara></listitem></varlistentry>
@@ -368,7 +368,7 @@
 <listitem><para>Store items into a database
   (<function role="bdb">DB-&gt;put</function>).
   <constant>:ACTION</constant> should be one of
-  <simplelist columns="3"><member><constant>:APPEND</constant></member>
+  <simplelist columns="3"><member>&append-k;</member>
    <member><constant>:NODUPDATA</constant></member>
    <member><constant>:NOOVERWRITE</constant></member></simplelist>
 </para></listitem></varlistentry>
@@ -383,7 +383,7 @@
    DATABASE TYPE MODE FLAGS CREATE DIRTY-READ EXCL NOMMAP RDONLY
    THREAD TRUNCATE AUTO-COMMIT TRANSACTION)</code></term>
  <listitem><para>Open a database (<function role="bdb">DB-&gt;open</function>).
-   <constant>:TYPE</constant> should be one of
+   &type-k; should be one of
    <simplelist columns="2"><member><constant>:BTREE</constant></member>
     <member><constant>:HASH</constant></member>
     <member><constant>:QUEUE</constant></member> <member>&recno-k;</member>
@@ -633,7 +633,7 @@
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
    is returned instead, as appropriate.
    <replaceable>action</replaceable> should be one of
-   <simplelist columns="4"><member><constant>:CURRENT</constant></member>
+   <simplelist columns="4"><member>&current-k;</member>
     <member><constant>:FIRST</constant></member>
     <member><constant>:GET-BOTH</constant></member>
     <member><constant>:GET-BOTH-RANGE</constant></member>
@@ -749,7 +749,7 @@
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> is returned instead.
    <variablelist><title>Valid <replaceable>action</replaceable>s</title>
-    <varlistentry><term><constant>:CURRENT</constant></term>
+    <varlistentry><term>&current-k;</term>
      <term><constant>:FIRST</constant></term>
      <term><constant>:LAST</constant></term>
      <term><constant>:NEXT</constant></term>
