@@ -905,7 +905,7 @@ DEFUN(OS:PRIORITY, pid &optional which) {
     HANDLE handle;
     begin_system_call();
     handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
-    if (handle != NULL) {
+    if (handle != INVALID_HANDLE_VALUE) {
       res = (int)GetPriorityClass(handle);
       CloseHandle(handle);
     } else failed_p = true;
@@ -931,7 +931,7 @@ DEFUN(OS::%SET-PRIORITY, value pid which) {
     HANDLE handle;
     begin_system_call();
     handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
-    if (handle != NULL) {
+    if (handle != INVALID_HANDLE_VALUE) {
       failed_p = !SetPriorityClass(handle,value);
       CloseHandle(handle);
     }
