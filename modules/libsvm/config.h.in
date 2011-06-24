@@ -33,6 +33,9 @@
 /* Define to 1 if you have the `svm_destroy_param' function. */
 #undef HAVE_SVM_DESTROY_PARAM
 
+/* Define to 1 if you have the `svm_free_and_destroy_model' function. */
+#undef HAVE_SVM_FREE_AND_DESTROY_MODEL
+
 /* Define to 1 if you have the `svm_get_labels' function. */
 #undef HAVE_SVM_GET_LABELS
 
