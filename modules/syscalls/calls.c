@@ -907,6 +907,7 @@ DEFUN(OS:PRIORITY, pid &optional which) {
     handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
     if (handle != INVALID_HANDLE_VALUE) {
       res = (int)GetPriorityClass(handle);
+      failed_p = (res == 0);
       CloseHandle(handle);
     } else failed_p = true;
     end_system_call();
