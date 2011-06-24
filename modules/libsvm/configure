@@ -4541,7 +4541,7 @@ fi
 if test "$ac_cv_search_svm_train" = "no"; then
   as_fn_error "cannot find LibSVM library" "$LINENO" 5
 fi
-for ac_func in svm_check_parameter svm_check_probability_model svm_cross_validation svm_destroy_model svm_destroy_param svm_get_labels svm_get_nr_class svm_get_svm_type svm_get_svr_probability svm_load_model svm_predict svm_predict_probability svm_predict_values svm_save_model svm_train svm_set_print_string_function
+for ac_func in svm_check_parameter svm_check_probability_model svm_cross_validation svm_destroy_model svm_destroy_param svm_free_and_destroy_model svm_get_labels svm_get_nr_class svm_get_svm_type svm_get_svr_probability svm_load_model svm_predict svm_predict_probability svm_predict_values svm_save_model svm_train svm_set_print_string_function
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
