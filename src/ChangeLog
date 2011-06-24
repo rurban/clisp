@@ -2,6 +2,7 @@
 
 	* modules/syscalls/calls.c (PRIORITY, %SET-PRIORITY) [WIN32_NATIVE]:
 	compare handles with INVALID_HANDLE_VALUE, not NULL
+	(PRIORITY) [WIN32_NATIVE]: make sure failed_p is always set
 	* modules/bindings/win32/win32.lisp (GetPriorityClass): add
 
 2011-06-01  Sam Steingold  <sds@gnu.org>
