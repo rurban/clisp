@@ -85,6 +85,9 @@
               (inherit-handle boolean)
               (pid dword)))
 
+(def-call-out GetPriorityClass (:return-type dword)
+  (:arguments (process-handle handle)))
+
 (eval-when (compile eval load)
   (defconstant BUFSIZ 4096)     ; <stdio.h>
   (defconstant MAX_PATH 260))   ; <windef.h>
