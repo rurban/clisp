@@ -97,7 +97,8 @@
  <varlistentry><term><code>(destroy-model &model-r;)</code></term>
   <listitem><simpara>Release the memory taken by the <type>model</type>
     object and invalidate the &foreign-variable-t; &model-r;.</simpara>
-   <simpara>Calls <function>svm_destroy_model</function>.</simpara>
+   <simpara>Calls <function>svm_destroy_model</function> or
+    <function>svm_svm_free_and_destroy_model</function>.</simpara>
    <simpara>You do &not-e; have to call this function yourself, it is
     attached to the &model-r; by <function>train</function>
     and <function>load-model</function> via &finalize;.</simpara>

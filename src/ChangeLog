@@ -1,5 +1,12 @@
 2011-06-24  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/configure.in: check for svm_free_and_destroy_model
+	* modules/libsvm/libsvm.lisp: in libsvm 3.1 svm_destroy_model is
+	replaced with svm_free_and_destroy_model with a different
+	signature, so we have to work around that
+
+2011-06-24  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (PRIORITY, %SET-PRIORITY) [WIN32_NATIVE]:
 	compare handles with INVALID_HANDLE_VALUE, not NULL
 	(PRIORITY) [WIN32_NATIVE]: make sure failed_p is always set

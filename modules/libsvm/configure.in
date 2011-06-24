@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for libsvm
-dnl Sam Steingold 2010
+dnl Sam Steingold 2010-2011
 
 AC_PREREQ(2.57)
 AC_INIT(libsvm, 1.0, clisp-list)
@@ -30,8 +30,9 @@ fi
 AC_CHECK_FUNCS(svm_check_parameter dnl
 svm_check_probability_model dnl
 svm_cross_validation dnl
-svm_destroy_model dnl
+svm_destroy_model dnl removed in 3.1
 svm_destroy_param dnl
+svm_free_and_destroy_model dnl since 3.0
 svm_get_labels dnl
 svm_get_nr_class dnl
 svm_get_svm_type dnl

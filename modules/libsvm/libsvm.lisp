@@ -1,7 +1,7 @@
 ;;; LIBSVM interface
 ;;; <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>
 ;;;
-;;; Copyright (C) 2006-2010 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2006-2011 Sam Steingold <sds@gnu.org>
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -28,6 +28,15 @@
  #else
   svm_print_string = (void (*) (const char*))&libsvm_print_string;
  #endif~%")
+(c-lines "
+#if !defined(HAVE_SVM_DESTROY_MODEL)
+# if defined(HAVE_SVM_FREE_AND_DESTROY_MODEL)
+void svm_destroy_model (svm_model *model){ svm_free_and_destroy_model(&model); }
+# else
+#  error No svm_destroy_model and no svm_free_and_destroy_model!
+# endif
+#endif
+")
 
 ;;;
 ;;; types and constants
