@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008-2010 Free Software Foundation, Inc.
+dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -35,7 +35,7 @@ AC_DEFUN([CL_DECOLONIZE],
 [case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
   *-mingw* ) cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'" ;;
-  * ) cl_cv_decolonize='echo $x'
+  * ) cl_cv_decolonize='echo $x' ;;
 esac])
 CLISP_DECOLONIZE=$cl_cv_decolonize
 AC_SUBST(CLISP_DECOLONIZE)])
@@ -55,7 +55,7 @@ if test "$cl_use_clisp" != "no"; then
   then AC_PATH_PROG(cl_cv_clisp, clisp)
   else cl_cv_clisp="$cl_use_clisp"
   fi
-  if test "X$cl_cv_clisp" != "X"; then
+  if test -n "$cl_cv_clisp"; then
     AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
      dnl head closes its input after the 1st line and clisp (at least on woe32)
      dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
@@ -94,7 +94,7 @@ if test "$cl_use_clisp" != "no"; then
     AC_SUBST(CLISP_LIBS)dnl
     AC_SUBST(CLISP_CFLAGS)dnl
     AC_SUBST(CLISP_CPPFLAGS)dnl
-    test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
+    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
   fi
 fi
 AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
