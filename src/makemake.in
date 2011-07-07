@@ -2899,7 +2899,7 @@ if [ $CROSS = false ] ; then
   echol "check-fresh-line : lisp${LEXE} lispinit.mem"
   OBSOLETE="$OBSOLETE fresh-line.out"
   echotab "-\$(RM) fresh-line.out"
-  if [ "$HOS" = win32 ] || [ "$HSYS" = win32gcc ] ; then
+  if [ "$HOS" = win32 -o "$HSYS" = win32gcc ] ; then
     echotab "\$(RUN) -q -M lispinit.mem -x '(progn (dolist (s (quote (*terminal-io* *standard-output* *error-output* *query-io* *debug-io* *trace-output*))) (format t \"~S = ~S~%\" s (symbol-value s))) (values))' 2>&1 > fresh-line.out"
     for stream1 in '*terminal-io*' '*standard-output*' '*error-output*' '*query-io*' '*debug-io*' '*trace-output*'; do
       for stream2 in '*terminal-io*' '*standard-output*' '*error-output*' '*query-io*' '*debug-io*' '*trace-output*'; do
