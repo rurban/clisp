@@ -6,7 +6,7 @@ CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Sam Steingold 1999-2011
 
 # Simple usage:
-#        ./makemake [--with-PACKAGE] [debug] > Makefile
+#        ./makemake [--with-PACKAGE] > Makefile
 
 HSDEFAULT="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec"
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
@@ -15,7 +15,7 @@ fail () { echo "$0: $*" >&2; exit 1; }
 
 info_help () {
 cat << EOP
-Usage: ./makemake [options] [debug] > Makefile
+Usage: ./makemake [options] > Makefile
 options:
     The following general options are recognized:
        --help                  print this message and exit
@@ -66,18 +66,18 @@ options:
                   (GNU lightning must be installed in the standard place).
        --with-gmalloc          use the GNU malloc instead of the libc one
                                (needed on HP-UX and OpenBSD)
+       --with-debug            will need to debug the C sources.
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
        --with-module=bindings/glibc
        --with-module=pari
-debug: Specify this if you will need to debug the C sources.
 Example:
        ./makemake --with-dynamic-ffi > Makefile
 EOP
 }
 
 # Advanced usage:
-#        ./makemake [--with-PACKAGE] TARGET COMPILER [debug] > Makefile
+#        ./makemake [--with-PACKAGE] TARGET COMPILER > Makefile
 #  where PACKAGE is one of
 #        noreadline       no readline library
 #        gettext          internationalization, needs GNU gettext
@@ -98,8 +98,8 @@ EOP
 
 # Examples:
 #   makemake > Makefile
-#   makemake debug > Makefile
-#   makemake --with-noreadline debug > Makefile
+#   makemake --with-debug > Makefile
+#   makemake --with-noreadline --with-debug > Makefile
 #   makemake i386 gcc > make.gcc/makefile
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
@@ -242,6 +242,7 @@ with_dynamic_ffi=no      # often set to yes by the toplevel configure
 with_dynamic_modules=default
 with_threads=no
 with_gmalloc=no
+with_debug=no
 # i18n: essential for internationalized programs
 # syscalls: very useful for scripting
 # regexp: useful for scripting and text processing
@@ -688,9 +689,6 @@ else
   XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
 fi
 
-# DEBUGGING should be debug or nothing
-DEBUGGING=$1
-
 if [ "${with_dynamic_modules}" = default ]; then
   # if --with-dynamic-modules is not supplied:
   # C=yes, C++=no because of symbol mangling:
@@ -719,7 +717,7 @@ if [ $TSYS = win32msvc ] ; then
   # -GZ - runtime debug checks
   case $COMPILER in
     msvc6 | msvc7)
-      if [ "$DEBUGGING" != debug ] ; then
+      if [ "${with_debug}" = no ] ; then
         CFLAGS=${CFLAGS}" -G5 -Os -Oy -Ob1 -Gs -Gf -Gy"
       else
         CFLAGS=${CFLAGS}" -Zi -Od -GZ"
@@ -1235,7 +1233,7 @@ if [ $XCC_GCC = true ] ; then
       * ) ;;
     esac
   fi
-  if [ "${DEBUGGING}" != debug ] ; then # select optimizations
+  if [ "${with_debug}" = no ] ; then # select optimizations
     if [ "$cpu" = i386 ] ; then
       # gcc <= 2.3.2 may crash when compiling lisparit with -O2
       if [ $CROSS = false ] ; then
@@ -1296,7 +1294,7 @@ if [ $XCC_GCC = true ] ; then
         fi
         ;;
     esac
-  fi # !DEBUGGING
+  fi # with_debug
   case "$XCC_GCC_VERSION" in
     3* | 4*)
       # When not optimizing on linux, or with Apple's gcc 4 on MacOS X,
@@ -1382,7 +1380,7 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
     echo "XCC_CREATESHARED = ${XCC_CREATESHARED}" >&2
 fi
 
-if [ "$DEBUGGING" = debug ] ; then
+if [ "${with_debug}" != no ] ; then
   if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS' -gstabs'
   elif [ ${HSYS} != "win32msvc" ]; then
@@ -2195,7 +2193,7 @@ needs="${SUBDIRS} init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem li
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) '"clisp${TEXE} boot base full"
 fi
-if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
+if [ $TSYS = win32msvc -a "${with_debug}" != no ] ; then
   needs=$needs" lisp.bsc"
 fi
 echol "all : $needs"
@@ -2680,7 +2678,7 @@ for f in ${DATA_FILES_TOP_PATH}; do
 done
 echol
 
-if [ ${HSYS} = win32gcc -a "${DEBUGGING}" != debug ]; then
+if [ ${HSYS} = win32gcc -a "${with_debug}" = no ]; then
 finish_runtime () {
   # woe32 users do not have gcc, so they cannot disassemble CAR anyway
   echotab "strip -s lisp${LEXE}"
@@ -2715,7 +2713,7 @@ else
 fi
 finish_runtime lisp${LEXE}
 
-if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
+if [ $TSYS = win32msvc -a "${with_debug}" != no ] ; then
   echol "${SRCDIR}lisp.bsc : lisp${LEXE}"
   echotab "bscmake /n /o lisp *.sbr"
   echol
