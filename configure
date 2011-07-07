@@ -82,7 +82,7 @@ options: The following options are recognized:
   --hyperspec=URL       the path to the Common Lisp HyperSpec (the default is
          http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/
          or the value of the environment variable CLHSROOT, if set)
-  --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
+  --with-debug          passed to makemake (CFLAGS+=g &c)
   --with-gmalloc        use the GNU malloc instead of of the libc one
                         (needed on HP-UX and OpenBSD)
   --edit-config         edit config.lisp with ${EDITOR:-vi} before make
@@ -144,7 +144,6 @@ edit_config=''
 
 prev=''
 passnext=''
-debug=''
 do_ffi='default'
 target=''
 ignore_absence_of_libsigsegv=''
@@ -440,8 +439,7 @@ do
         passnext=configure ;;
 
       --with-debug)
-        makemake_args="--verbose=yes $makemake_args"
-        debug="debug" ;;
+        makemake_args="--verbose=yes --with-debug $makemake_args" ;;
 
       --without-ffcall | --with-ffcall=no | --with-no-ffcall)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -455,6 +453,7 @@ do
         makemake_args="--with-dynamic-modules=no ${makemake_args}" ;;
 
       --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
+        echo "$0: $arg is deprecated; use --build= or CC=... instead"
         CC="${CC:-gcc} -mno-cygwin"; export CC;
         makemake_args="$makemake_args --win32gcc" ;;
 
@@ -653,7 +652,7 @@ makemake_args="${makemake_args} ${subdir_srcdir_args}";
 . "${ABS_DIRNAME}/config.cache"
 
 test -n "${target}" && target="${target} ${ac_cv_host} ${ac_cv_prog_CC}"
-makemake_args="${makemake_args} ${target} ${debug}";
+makemake_args="${makemake_args} ${target}";
 case ${ac_cv_host} in           # mingw/msys
   *mingw32*)  makemake_args="${makemake_args} --win32gcc" ;;
 esac

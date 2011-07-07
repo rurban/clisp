@@ -1,3 +1,8 @@
+2011-07-07  Sam Steingold  <sds@gnu.org>
+
+	* configure: pass --with-debug to makemake
+	* makemake.in: accept --with-debug instead of positional
+
 2011-07-06  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): quote variable in test to avoid error
