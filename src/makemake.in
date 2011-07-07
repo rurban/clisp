@@ -120,24 +120,22 @@ if echo 'rs\tuv' | grep t > /dev/null 2> /dev/null; then
   echol () {
     echo "$*"
   }
+elif type printf >/dev/null 2>/dev/null; then
+  # The "Single Unix Specification" (which also adheres to this broken
+  # "echo") recommends the following workaround.
+  echol () {
+    printf '%s\n' "$*"
+  }
 else
-  if type printf >/dev/null 2>/dev/null; then
-    # The "Single Unix Specification" (which also adheres to this broken
-    # "echo") recommends the following workaround.
-    echol () {
-      printf '%s\n' "$*"
-    }
-  else
-    # This one looks harmless, but in Solaris /bin/sh, when called inside
-    # shell backquote `...`, it prefixes every character with a backslash!
-    # Therefore we use this only as a last resort, if `printf' is missing
-    # (for example, on OpenStep V4.2).
+  # This one looks harmless, but in Solaris /bin/sh, when called inside
+  # shell backquote `...`, it prefixes every character with a backslash!
+  # Therefore we use this only as a last resort, if `printf' is missing
+  # (for example, on OpenStep V4.2).
 echol () {
 cat <<ECHOVAL_END
 $*
 ECHOVAL_END
 }
-  fi
 fi
 
 link_dep() {
@@ -299,10 +297,8 @@ EOF
         fail "$package: invalid package name";
       if test "${packopt}" = "on"; then
         packopt=yes
-      else
-        if test "${packopt}" = "off"; then
-          packopt=no
-        fi
+      elif test "${packopt}" = "off"; then
+        packopt=no
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=${packopt}"
       shift
@@ -2574,17 +2570,13 @@ for f in $ARI_ASMS $SP_ASMS ; do
     if [ $f = arihppa ] ; then
       # Only the native as groks the .SHORTDATA statements in arihppa.d
       echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
+    elif [ $f = arimips -a "$TSYSOS" != linux ] ; then
+      # Avoid problem during incremental linking of lisp.o.
+      echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
+    elif [ $XCC_GCC = true ] ; then
+      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
     else
-      if [ $f = arimips -a "$TSYSOS" != linux ] ; then
-        # Avoid problem during incremental linking of lisp.o.
-        echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
-      else
-        if [ $XCC_GCC = true ] ; then
-          echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
-        else
-          echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s"
-        fi
-      fi
+      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s"
     fi
     echol
   fi
@@ -2863,15 +2855,13 @@ if [ $CROSS = false ] ; then
     done
     echotab 'echo "Test passed."'
     echol
+  elif [ $HSYS = win32msvc ] ; then
+    echotab "comp *.fas ${RECOMPILEDIR}"
+    echotab "echo The test passed if only GENSYM differences were found."
+    echol
   else
-    if [ $HSYS = win32msvc ] ; then
-      echotab "comp *.fas ${RECOMPILEDIR}"
-      echotab "echo The test passed if only GENSYM differences were found."
-      echol
-    else
-      echotab 'echo "Compare the .fas files by hand."'
-      echol
-    fi
+    echotab 'echo "Compare the .fas files by hand."'
+    echol
   fi
 
   echol "${RECOMPILEDIR} :"
