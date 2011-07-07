@@ -2078,7 +2078,7 @@ else
   case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
   *-mingw* ) cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'" ;;
-  * ) cl_cv_decolonize='echo $x'
+  * ) cl_cv_decolonize='echo $x' ;;
 esac
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_decolonize" >&5
@@ -2139,7 +2139,7 @@ fi
 
   else cl_cv_clisp="$cl_use_clisp"
   fi
-  if test "X$cl_cv_clisp" != "X"; then
+  if test -n "$cl_cv_clisp"; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
 $as_echo_n "checking for CLISP version... " >&6; }
 if test "${cl_cv_clisp_version+set}" = set; then :
@@ -2189,7 +2189,7 @@ $as_echo "$cl_cv_clisp_linkset" >&6; }
     CLISP=$cl_cv_clisp;     CLISP_LIBDIR="${cl_cv_clisp_libdir}";     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     . ./conftestvars
     rm -f conftestvars
-                    test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
+                    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
   fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
