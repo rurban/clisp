@@ -1,3 +1,7 @@
+2011-07-08  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: avoid $@ in single-target rules
+
 2011-07-07  Sam Steingold  <sds@gnu.org>
 
 	* configure: pass --with-debug to makemake

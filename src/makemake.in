@@ -2208,7 +2208,7 @@ echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
 echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" CLISP_LIBDIR='${CLISP_LIBDIR}
 echol
 echol "${GLLIB_A}: gllib"
-echotab 'test -r $@ || $(LN_S) gllib/libgnu.a $@'
+echotab "test -r ${GLLIB_A} || \$(LN_S) gllib/${GLLIB_A} ${GLLIB_A}"
 echol
 
 # in the toplevel Makefile.devel, makemake depends also on version.sh.
