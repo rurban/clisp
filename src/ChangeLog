@@ -1,5 +1,11 @@
 2011-07-08  Sam Steingold  <sds@gnu.org>
 
+	* win32.d, unix.d, lispbibl.d (stdlib, sys/types, unistd, locale)
+	(errno): include files which are included in both unix.h and
+	win32.d from lispbibl.d instead
+
+2011-07-08  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: avoid $@ in single-target rules
 
 2011-07-07  Sam Steingold  <sds@gnu.org>
