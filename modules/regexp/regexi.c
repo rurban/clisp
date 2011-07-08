@@ -17,9 +17,6 @@
 #error Go into the main CLISP makefile and add a -DFOREIGN=void*
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
 #endif
-#ifndef HAVE_ALLOCA
-/* clisp.h probably defines alloca... */
-#endif
 
 DEFMODULE(regexp,"REGEXP")
 
@@ -70,25 +67,27 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
   } else VALUES1(NIL);
 }
 
-typedef enum { ret_values, ret_list, ret_vector } rettype_t;
-#define CHECK_RETTYPE(x)                                                \
-  (eq(x,S(list)) ? ret_list : eq(x,S(vector)) ? ret_vector : ret_values)
+typedef enum { ret_values, ret_list, ret_vector, ret_bool } rettype_t;
+#define CHECK_RETTYPE(x)                                              \
+  (eq(x,S(list)) ? ret_list                                           \
+   : eq(x,S(vector)) ? ret_vector                                     \
+   : eq(x,S(boolean)) ? ret_bool                                      \
+   : ret_values)
 
 DEFFLAGSET(regexp_exec_flags, REG_NOTBOL REG_NOTEOL)
 DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
-      RETURN-TYPE BOOLEAN :START :END NOTBOL NOTEOL)
+      RETURN-TYPE :START :END NOTBOL NOTEOL)
 { /* match the compiled pattern against the string */
   int eflags = regexp_exec_flags();
-  object string = (STACK_4 = check_string(STACK_4));
+  object string = (STACK_3 = check_string(STACK_3));
   unsigned int length = vector_length(string);
   unsigned int start = check_uint_defaulted(STACK_1,0);
   unsigned int end = check_uint_defaulted(STACK_0,length);
   int status;
-  bool bool_p = !missingp(STACK_2);
-  rettype_t rettype = CHECK_RETTYPE(STACK_3);
+  rettype_t rettype = CHECK_RETTYPE(STACK_2);
   regex_t *re;
   regmatch_t *ret;
-  skipSTACK(4);                 /* drop all options */
+  skipSTACK(3);                 /* drop all options */
   for (;;) {
     STACK_1 = check_fpointer(STACK_1,true);
     re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
@@ -116,34 +115,31 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
     end_system_call();
   });
-  if (bool_p) {
-    VALUES_IF(!status);         /* success indicator */
-  } else if (status) {
+  if (status) {
     switch (rettype) {
       case ret_values: VALUES0; break;        /* VALUES => no values */
       case ret_list:   VALUES1(NIL); break;   /* LIST => () */
       case ret_vector: VALUES1(`#()`); break; /* VECTOR => #() */
+      case ret_bool:   VALUES1(NIL); break;   /* BOOLEAN => NIL */
     }
   } else {
     uintL re_count;
-    for (re_count = 0; re_count <= re->re_nsub; re_count++)
-      if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
-        pushSTACK(posfixnum(start+ret[re_count].rm_so));
-        pushSTACK(posfixnum(start+ret[re_count].rm_eo));
-        funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
-      } else pushSTACK(NIL);
+    if (rettype != ret_bool)
+      for (re_count = 0; re_count <= re->re_nsub; re_count++)
+        if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
+          pushSTACK(posfixnum(start+ret[re_count].rm_so));
+          pushSTACK(posfixnum(start+ret[re_count].rm_eo));
+          funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
+        } else pushSTACK(NIL);
     switch (rettype) {
       case ret_values:
         if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
           STACK_to_mv(re_count);
           break;
         } /* else FALLTHROUGH */
-      case ret_list:
-        VALUES1(listof(re_count));
-        break;
-      case ret_vector:
-        VALUES1(vectorof(re_count));
-        break;
+      case ret_list:   VALUES1(listof(re_count)); break;
+      case ret_vector: VALUES1(vectorof(re_count)); break;
+      case ret_bool:   VALUES1(T); break;
     }
   }
   skipSTACK(2);                 /* drop pattern & string */

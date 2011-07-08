@@ -55,6 +55,10 @@ User visible changes
   in favor of POSIX:FNMATCH and POSIX:FNMATCH-MATCHER.
   See <http://clisp.org/impnotes/syscalls.html#wildcard> for details.
 
+* Function REGEXP:REGEXP-EXEC no longer accepts :BOOLEAN argument; use
+  :RETURN-TYPE 'BOOLEAN instead.
+  See <http://clisp.org/impnotes/regexp.html#re-regexp-exec> for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
   + Fix SCREEN behavior when the window is resized.
