@@ -739,24 +739,38 @@ The way to figure that out is to use <command>hg bisect</command>.
 </simpara></listitem></varlistentry></variablelist></answer></qandaentry>
 
 <qandaentry id="faq-self-mod"><question id="faq-self-mod-q">
-  <simpara>Why does my program return different values on each
-   invocation?</simpara></question>
+  <simpara>Why does my function return different values on each
+   invocation and then hangs forever?</simpara></question>
 <answer><para>The following code modifies itself:
-<programlisting language="lisp">(let ((var '(a b c)))
-  (nconc var '(1 2 3)))</programlisting>
-and will not work as one would naively expect.
-(on the first invocation, it will return
-<returnvalue>(a b c 1 2 3)</returnvalue>,
-the second invocation will produce a <ulink url="clhs/glo">circular
- list</ulink>, the third will hang trying to &nconc; a circular list).</para>
+<programlisting language="lisp">(defun my-func ()<lineannotation>modifies internal data!</lineannotation>
+  (let ((var '(a b c)))
+    (nconc var '(1 2 3))))</programlisting>
+and will not work as one would naively expect:<programlisting language="lisp">
+(&setq; &print-circle-var; &t;)
+(&function-lambda-expression; #'my-func)
+<computeroutput>(LAMBDA NIL (DECLARE (SYSTEM::IN-DEFUN MY-FUNC))
+ (BLOCK MY-FUNC (LET ((VAR '(A B C))) (NCONC VAR '(1 2 3)))))</computeroutput>
+(my-func)<lineannotation>the first invocation</lineannotation>
+<computeroutput>(a b c 1 2 3)</computeroutput><lineannotation>modifies the internal data:</lineannotation>
+(&function-lambda-expression; #'my-func)
+<computeroutput>(LAMBDA NIL (DECLARE (SYSTEM::IN-DEFUN MY-FUNC))
+ (BLOCK MY-FUNC (LET ((VAR '(A B C . #1=(1 2 3)))) (NCONC VAR '#1#))))</computeroutput><lineannotation>note shared structure!</lineannotation>
+(my-func)
+<computeroutput>(A B C . #1=(1 2 3 . #1#))</computeroutput><lineannotation><ulink url="clhs/glo">circular list</ulink>!</lineannotation>
+(function-lambda-expression #'my-func )
+<computeroutput>(LAMBDA NIL (DECLARE (SYSTEM::IN-DEFUN MY-FUNC))
+ (BLOCK MY-FUNC (LET ((VAR '(A B C . #1=(1 2 3 . #1#)))) (NCONC VAR '#1#))))</computeroutput><lineannotation>note circular value of var</lineannotation>
+(my-func)<lineannotation>hangs because &nconc; cannot handle a circular argument</lineannotation></programlisting></para>
 
 <para>Instead you must do
-<programlisting language="lisp">(let ((var (copy-list '(a b c))))
-  (nconc var (copy-list '(1 2 3))))</programlisting></para>
+<programlisting language="lisp">(defun my-func ()
+  (let ((var (copy-list '(a b c))))
+    (nconc var (copy-list '(1 2 3)))))</programlisting></para>
 
-<para>&disassemble; will show the constants in your compiled
- functions.  See <xref linkend="bytecode"/> for the explanation of the
- &disassemble; output.</para>
+<para>&disassemble; will show the constants in your compiled functions
+(see <xref linkend="bytecode"/> for the explanation of the &disassemble;
+output.)  As you see above, &function-lambda-expression; works for the
+interpreted ones.</para>
 
 <para>See <ulink url="http://norvig.com/luv-slides.ps">Lisp Programming
   Style</ulink> for more useful information.</para>
