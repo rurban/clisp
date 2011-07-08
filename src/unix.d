@@ -15,18 +15,12 @@
 #define stderr_handle  2  /* the file handle for the standard error */
 
 /* Declaration of types of I/O parameters of operating system functions */
-#include <stdlib.h>
-#include <sys/types.h>  /* declares pid_t, uid_t */
- #include <sys/time.h>
- #include <time.h>
-  #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 #if defined(HAVE_SYS_RESOURCE_H)
  #include <sys/resource.h>
 #endif
 
-/* the table of the system error messages */
-#include <errno.h>
-/* extern int errno; */ /* last error code */
 /* NB: errno may be a macro which expands to a function call.
    Therefore access and assignment to errno must be wrapped in
    begin_system_call()/end_system_call() */
@@ -240,14 +234,6 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 extern_C int raise (int sig);
 /* used by SPVW */
 
-/* check environment variables:
-   getenv(), putenv(), setenv() are declared in <stdlib.h> */
-
-/* Adjustment to locale preferences: */
-#include <locale.h>
-/* declares setlocale() */
-/* used by SPVW */
-
 /* get user home directory: */
 #include <pwd.h>
 /* declares getpwnam(), getpwuid(), getuid(), getlogin() */
@@ -327,7 +313,6 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 
 /* work with open files: */
 #include <fcntl.h> /* declares open(), O_RDWR etc. */
-/* #include <unistd.h> - declares R_OK, W_OK, X_OK - included above */
 /* Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
    BeOS 5 has them, but they have no effect. */
 #ifdef UNIX_BEOS

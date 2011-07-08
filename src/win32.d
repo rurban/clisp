@@ -26,10 +26,6 @@
   #define unused_void
 #endif
 
-/* Declaration of operating system types,
-   in particular needed for ssize_t and before <sys/timeb.h> */
-#include <sys/types.h>
-
 /* Shell object handling for shell link resolution */
 #include <objbase.h>
 #include <shlobj.h>
@@ -48,15 +44,10 @@
 #define OS_set_errno(e) SetLastError(e)
 /* used by error.d, spvw.d, stream.d, pathname.d, socket.d */
 
-/* Table of ANSI C error messages */
-#include <errno.h>
-/* used by error.d, stream.d */
-
 #define HAVE_STRERROR 1
 /* used by errunix.d */
 
 /* Getting memory. */
-#include <stdlib.h>
 #include <malloc.h>
 extern void* malloc (size_t size);
 extern void free (void* memblock);
@@ -109,15 +100,7 @@ extern void interrupt_handler (void);
 extern void install_sigint_handler (void);
 /* used by spvw.d */
 
-/* Environment variables - getenv()
- (note that win32 maintains two separate enviroment block,
-  one accessed by getenv and referred to by environ
-  and the other for GetEnvironmentStrings() &Co) */
-#include <stdlib.h>
-/* used by pathname.d, misc.d */
-
 /* Locale definition function */
-#include <locale.h>
 extern_C char *setlocale (int category, const char *locale);
 #ifdef _MSC_VER
   #define HAVE_LC_MESSAGES 0
@@ -264,7 +247,6 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #define USE_SYS_TYPES_FD_SET
 #endif
 
-#include <unistd.h> /* from gnulib for getpagesize */
 #include <winsock2.h>
 #include <ws2tcpip.h>
 

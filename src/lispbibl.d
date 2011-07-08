@@ -1055,8 +1055,15 @@
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 %%  puts("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)");
 
-  #include <alloca.h>
+#include <alloca.h>
 %% include_file("alloca.h");
+#include <stdlib.h>
+%% puts("#include <stdlib.h>");
+#include <sys/types.h>
+%% puts("#include <sys/types.h>");
+#include <unistd.h>
+#include <locale.h>
+#include <errno.h>
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
@@ -1370,7 +1377,6 @@ typedef signed int  signean;
  See spvw_alloca.d. */
 #if !(defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(MICROSOFT))
   #define NEED_MALLOCA
-  #include <stdlib.h>
   extern void* malloca (size_t size);
   extern void freea (void* ptr);
 #endif
@@ -1934,8 +1940,6 @@ typedef enum {
 #ifdef WIN32_NATIVE
   #include "win32.c"
 #endif
-%% puts("#include <stdlib.h>");
-%% puts("#include <sys/types.h>");
 %% #if defined(UNIX)
 %%   emit_typedef("int","Handle");
 %%   emit_typedef("int","SOCKET");
@@ -2218,7 +2222,6 @@ typedef enum {
 /* Feature dependent include files. */
 
 #ifdef HAVE_ICONV
-  #include <stdlib.h>
   #include <iconv.h>
   #if _LIBICONV_VERSION
     /* We use GNU libiconv. */
