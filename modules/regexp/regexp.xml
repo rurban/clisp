@@ -75,19 +75,19 @@ such as your local &regex; manual and &emacs; info pages.</para>
   object suitable for &re-regexp-exec;.</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-exec"><term><code>(&re-regexp-exec;
-   &pattern-r; &string-r; &key-amp; &ret-type-k; :BOOLEAN
+   &pattern-r; &string-r; &key-amp; &ret-type-k;
    (&start-k; 0) &end-k; &re-eflags-opts;)</code></term>
  <listitem><simpara>Execute the &pattern-r;, which must be a compiled
    &reg-exp; returned by &re-regexp-compile;, against the appropriate
    portion of the &string-r;.</simpara>
   <simpara>Returns &match-t; structures as &mul-val; (one for each
-   subexpression which successfully matched and one for the whole pattern),
-   unless <constant>:BOOLEAN</constant> was non-&nil;, in which case
-   return &t; as an indicator of success, but do not allocate anything.
+   subexpression which successfully matched and one for the whole pattern).
   </simpara><simpara>If &ret-type-k; is &list-t; (or &vector-t;), the
    &match-t; structures are returned as a &list-t; (or a &vector-t;) instead.
-   If there are more than &multiple-values-limit; &match-t; structures
+   Also, if there are more than &multiple-values-limit; &match-t; structures
    to return, a &list-t; is returned instead of &mul-val;.
+   If &ret-type-k; is &boolean-t;, return &t; or &nil; as an indicator
+   of success or failure, but do &not-e; allocate anything.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-split"><term><code>(&re-regexp-split;
