@@ -1,3 +1,10 @@
+2011-07-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (EXTRAOBJ): set to ${GLLIB_A} to avoid
+	"undefined reference to `rpl_malloc'" on mingw;
+	but put it after the C file in the compilation command
+	<http://article.gmane.org/gmane.lisp.clisp.devel:22573>
+
 2011-07-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-EXEC):
@@ -8,7 +15,7 @@
 2011-07-08  Sam Steingold  <sds@gnu.org>
 
 	* win32.d, unix.d, lispbibl.d (stdlib, sys/types, unistd, locale)
-	(errno): include files which are included in both unix.h and
+	(errno): include files which are included in both unix.d and
 	win32.d from lispbibl.d instead
 
 2011-07-08  Sam Steingold  <sds@gnu.org>

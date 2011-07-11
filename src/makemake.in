@@ -2334,10 +2334,13 @@ elif [ $CROSS = true ]; then
 else
   echol "UTILCC=\$(CC)"
 fi
-UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
+# without GLLIB_A we get "undefined reference to `rpl_malloc'" on mingw.
+# with GLLIB_A we get "undefined reference to `__errno'" on mingw. go figure.
+EXTRAOBJ=${GLLIB_A}
+UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 for util in ${UTILS} ; do
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
+      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c ${EXTRAOBJ}" "${util}"
       echol
 done
 
