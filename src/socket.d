@@ -45,11 +45,6 @@
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
 
-#include <sys/types.h>
-#include <unistd.h> /* declares fcntl(), close(), sleep() */
-
-#include <errno.h>
-
 #include <string.h> /* declares strcmp(), strlen(), strcpy(), memset() */
 
 /* ============ hostnames and IP addresses only (no sockets) ============

@@ -17,6 +17,7 @@
 	* win32.d, unix.d, lispbibl.d (stdlib, sys/types, unistd, locale)
 	(errno): include files which are included in both unix.d and
 	win32.d from lispbibl.d instead
+	* socket.d: do not include these files here
 
 2011-07-08  Sam Steingold  <sds@gnu.org>
 
