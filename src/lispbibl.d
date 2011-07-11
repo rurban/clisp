@@ -1062,6 +1062,8 @@
 #include <sys/types.h>
 %% puts("#include <sys/types.h>");
 #include <unistd.h>
+/* gnulib defines listen to listen_used_without_including_sys_socket_h in unistd.h */
+#undef listen
 #include <locale.h>
 #include <errno.h>
 

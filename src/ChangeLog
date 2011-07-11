@@ -1,5 +1,10 @@
 2011-07-11  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (listen): undef after including unistd because gnulib
+	defines it to listen_used_without_including_sys_socket_h
+
+2011-07-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (EXTRAOBJ): set to ${GLLIB_A} to avoid
 	"undefined reference to `rpl_malloc'" on mingw;
 	but put it after the C file in the compilation command
