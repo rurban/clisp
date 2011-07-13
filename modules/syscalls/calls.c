@@ -3612,7 +3612,7 @@ DEFUN(POSIX::SYSTEM-INFO,)
   begin_system_call();
   GetSystemInfo(&si);
   end_system_call();
-  pushSTACK(processor_architecture_reverse(si.wProcessorArchitecture))
+  pushSTACK(processor_architecture_reverse(si.wProcessorArchitecture));
   pushSTACK(UL_to_I(si.dwPageSize));
   pushSTACK(UL_to_I((DWORD)si.lpMinimumApplicationAddress));
   pushSTACK(UL_to_I((DWORD)si.lpMaximumApplicationAddress));
