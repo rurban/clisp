@@ -1,3 +1,9 @@
+2011-07-13  Sam Steingold  <sds@gnu.org>
+
+	* win32.d (HAVE_IPV4, HAVE_IPV6): define to 1 to avoid
+	warning: "HAVE_IPV4" redefined
+	Reported by Yaroslav Kavenchuk <kavenchuk@gmail.com>
+
 2011-07-11  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (listen): undef after including unistd because gnulib
@@ -2765,7 +2771,6 @@
 	calling dynload_modules
 	* lispbibl.d (dynload_modules): maygc
 
-
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (interpret_bytecode_): use error_mv_toomany
@@ -4646,7 +4651,6 @@
 
 	* configure.in: restore gt_LC_MESSAGES: removing it removes
 	#undef HAVE_LC_MESSAGES from src/config.h.in
-
 
 2009-06-22  Sam Steingold  <sds@gnu.org>
 

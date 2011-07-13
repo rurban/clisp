@@ -307,8 +307,8 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
   #define MAXHOSTNAMELEN 64
 #endif
 #define HAVE_GETHOSTBYNAME
-#define HAVE_IPV4
-#define HAVE_IPV6
+#define HAVE_IPV4  1
+#define HAVE_IPV6  1
 #undef HAVE_NETINET_TCP_H
 #define SETSOCKOPT_CONST const
 #define SETSOCKOPT_ARG_T char*
