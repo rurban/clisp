@@ -74,7 +74,6 @@
 
 #ifndef WIN32
   #if defined(UNIXCONN) || defined(TCPCONN)
-    /* #include <sys/types.h> */
     #include <sys/socket.h> /* declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET, AF_INET6 */
   #endif
   #if defined(TCPCONN)
