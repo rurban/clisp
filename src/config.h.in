@@ -1082,6 +1082,9 @@
 /* Define to 1 if you have the `readlink' function. */
 #undef HAVE_READLINK
 
+/* Define to 1 if you have the `realpath' function. */
+#undef HAVE_REALPATH
+
 /* have the FIONREAD ioctl() and it works reliably on files */
 #undef HAVE_RELIABLE_FIONREAD
 
