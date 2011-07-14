@@ -101,7 +101,7 @@ CL_SIGACTION_REINSTALL dnl DEFS SIGACTION_NEED_REINSTALL
 CL_SIGACTION_UNBLOCK   dnl DEFS SIGACTION_NEED_UNBLOCK
 CL_SIGINTERRUPT        dnl DEFS HAVE_SIGINTERRUPT
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
-fsync flock gethostent shutdown usleep ualarm setitimer nice ftime dnl
+fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
 gethostname getcwd uname readdir_r rand_r)
 gt_LC_MESSAGES dnl DEFS HAVE_LC_MESSAGES

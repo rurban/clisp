@@ -1,5 +1,9 @@
 2011-07-14  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: restore the readline check (accidentally removed)
+
+2011-07-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (UTILS): fix the last patch by making utils depend
 	on ${EXTRAOBJ}
 
