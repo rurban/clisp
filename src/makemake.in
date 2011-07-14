@@ -2339,7 +2339,7 @@ fi
 EXTRAOBJ=${GLLIB_A}
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 for util in ${UTILS} ; do
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${EXTRAOBJ}"
       echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c ${EXTRAOBJ}" "${util}"
       echol
 done

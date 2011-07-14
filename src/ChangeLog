@@ -1,3 +1,8 @@
+2011-07-14  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (UTILS): fix the last patch by making utils depend
+	on ${EXTRAOBJ}
+
 2011-07-13  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (HAVE_IPV4, HAVE_IPV6): define to 1 to avoid
@@ -40621,7 +40626,7 @@
 	(init_win32): initialize COM library.
 	(done_win32): deinitialize COM library.
 	* win32.d: include shell object headers.
-	* pathname.d [WIN32_NATIVE] (FullName): new function,
+	* pathname.d (FullName) [WIN32_NATIVE]: new function,
 	translates short name to long one.
 	(resolve_shell_shortcut): new function handles shortcuts.
 	(assure_dir_exists): now trying to resolve ersatzsymlinkshortcuts.
