@@ -22,7 +22,6 @@
  version */
 #include "lispbibl.c"
 
-#include <string.h> /* declares strchr() and possibly memset() */
 #ifdef MULTITHREAD
   #define bzero(ptr,len)  memset(ptr,0,len)
   #define bcopy(source,dest,len)  memcpy(dest,source,len)

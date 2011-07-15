@@ -26,12 +26,6 @@
    begin_system_call()/end_system_call() */
 #define OS_errno errno
 #define OS_set_errno(e) (errno=(e))
-#ifdef HAVE_STRERROR
-#include <string.h>
-extern_C char* strerror (int errnum);
-#else
-/* sys_errlist[] and sys_nerr are defined in either <stdio.h> or <errno.h> */
-#endif
 /* perror(3)
    On UnixWare 7.0.1 some errno value is defined to an invalid negative value,
    causing an out-of-bounds array access in errunix.d. */
@@ -354,9 +348,6 @@ extern_C int fsync (int fd); /* FSYNC(2) */
   #define HAVE_SELECT /* see unixaux.d */
 #endif
 #ifdef HAVE_SELECT
-  #ifdef UNIX_BEOS
-    #include <sys/socket.h>
-  #endif
   #ifdef HAVE_SYS_SELECT_H
     #include <sys/select.h>
   #endif
@@ -374,7 +365,6 @@ extern_C int fsync (int fd); /* FSYNC(2) */
     #define FD_CLR(n,p)  ((p)->fds_bits[(n)/NFDBITS] &= ~bit((n)%NFDBITS))
     #define FD_ISSET(n,p)  ((p)->fds_bits[(n)/NFDBITS] & bit((n)%NFDBITS))
     #define FD_ZERO(p)  bzero((char*)(p),sizeof(*(p)))
-    #include <string.h>
     #define bzero(ptr,len)  memset(ptr,0,len)
   #endif
   extern_C int select (SELECT_WIDTH_T width, SELECT_SET_T* readfds,

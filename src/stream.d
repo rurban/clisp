@@ -20,7 +20,6 @@
   #include <readline/readline.h>
   #include <readline/history.h>
 #endif
-#include <string.h>           /* declares strcpy(), strcat() */
 
 /* off_t is a signed type, defined in <sys/types.h> and <fcntl.h>, denoting
  a file descriptor's position. Here we also need the unsigned equivalent. */

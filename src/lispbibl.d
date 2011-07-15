@@ -1062,10 +1062,10 @@
 #include <sys/types.h>
 %% puts("#include <sys/types.h>");
 #include <unistd.h>
-/* gnulib defines listen to listen_used_without_including_sys_socket_h in unistd.h */
-#undef listen
+#include <sys/socket.h>
 #include <locale.h>
 #include <errno.h>
+#include <string.h> /* declares strlen() et al */
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
@@ -10422,7 +10422,6 @@ extern uintL asciz_length (const char * asciz);
      require a begin_system_call()/end_system_call() . */
   #else
     /* let us presume, that strlen() is implemented efficiently. */
-    #include <string.h> /* declares strlen() */
     #define asciz_length(a)  ((uintL)strlen(a))
   #endif
 #endif
