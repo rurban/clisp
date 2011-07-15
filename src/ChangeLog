@@ -1,5 +1,13 @@
 2011-07-15  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (ipv4_ntop, ipv6_ntop): remove
+	(addr_to_string): simplify
+	(MACHINE-INSTANCE): use it
+	(socket_getlocalname_aux, socket_getpeername): use inet_ntop
+	instead of ipv[46]_ntop
+
+2011-07-15  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d, lispbibl.d, pathname.d, socket.d, spvw.d, stream.d:
 	* unix.d: always include <string.h> & <sys/socket.h> in lispbibl.d
 

@@ -112,24 +112,6 @@
    see bug 1399376 http://sourceforge.net/tracker/index.php?func=detail&aid=1399376&group_id=1355&atid=101355 */
 #define FILL0(s)  memset((void*)&s,0,sizeof(s))
 
-/* Converts an AF_INET address to a printable, presentable format.
- ipv4_ntop(buffer,addr);
- > struct in_addr addr: IPv4 address
- < char[] buffer: printable address
- buffer should have at least 15+1 characters. */
-#ifdef HAVE_IPV4
-  #define ipv4_ntop(buffer,addr)  inet_ntop(AF_INET,&addr,buffer,15+1)
-#endif
-
-/* Converts an AF_INET6 address to a printable, presentable format.
- ipv6_ntop(buffer,addr);
- > struct in6_addr addr: IPv6 address
- < char[] buffer: printable address
- buffer should have at least 45+1 characters. */
-#ifdef HAVE_IPV6
-  #define ipv6_ntop(buffer,addr)  inet_ntop(AF_INET6,&addr,buffer,45+1)
-#endif
-
 /* Convert the IP address from C format to Lisp
  > type: address type (AF_INET..)
  > addr: whatever the address is for this type
@@ -138,16 +120,7 @@
  can trigger GC */
 modexp maygc object addr_to_string (short type, char *addr) {
   var char buffer[MAXHOSTNAMELEN];
- #ifdef HAVE_IPV6
-  if (type == AF_INET6)
-    return asciz_to_string(ipv6_ntop(buffer,*(const struct in6_addr*)addr),
-                           O(misc_encoding));
-  else
- #endif
-  if (type ==  AF_INET)
-    return asciz_to_string(ipv4_ntop(buffer,*(const struct in_addr*)addr),
-                           O(misc_encoding));
-  else return NIL ;
+  return safe_to_string(inet_ntop(type,addr,buffer,MAXHOSTNAMELEN));
 }
 
 LISPFUNN(machine_instance,0)
@@ -172,27 +145,16 @@ LISPFUNN(machine_instance,0)
       begin_system_call();
       h = gethostbyname(host);
       end_system_call();
-      if (!(h == (struct hostent *)NULL)) {
+      if (h) {
         STACK_0 = asciz_to_string(h->h_name,O(misc_encoding));
-        if (!(h->h_addr == (char*)NULL) && (h->h_length > 0)) {
-         #ifdef HAVE_IPV6
-          if (h->h_addrtype == AF_INET6) {
-            var char buffer[45+1];
-            (void)ipv6_ntop(buffer,*(const struct in6_addr*)h->h_addr);
-            pushSTACK(ascii_to_string(" ["));
-            pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
-            pushSTACK(ascii_to_string("]"));
-            stringcount += 3;
-          } else
-         #endif
-            if (h->h_addrtype == AF_INET) {
-              var char buffer[15+1];
-              ipv4_ntop(buffer,*(const struct in_addr*)h->h_addr);
-              pushSTACK(ascii_to_string(" ["));
-              pushSTACK(asciz_to_string(buffer,O(misc_encoding)));
+        if (h->h_addr && (h->h_length > 0)) {
+          object hostname = addr_to_string(h->h_addrtype,h->h_addr);
+          if (!nullp(hostname)) {
+              pushSTACK(NIL); pushSTACK(hostname);
+              STACK_1 = ascii_to_string(" [");
               pushSTACK(ascii_to_string("]"));
               stringcount += 3;
-            }
+          }
         }
       }
       /* concatenate Strings: */
@@ -676,12 +638,14 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
   switch (((struct sockaddr *)&addr)->sa_family) {
    #ifdef HAVE_IPV6
     case AF_INET6:
-      (void)ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
+                sizeof(hd->hostname));
       hd->port = ntohs(addr.inaddr6.sin6_port);
       break;
    #endif
     case AF_INET:
-      ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+      inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
+                sizeof(hd->hostname));
       hd->port = ntohs(addr.inaddr.sin_port);
       break;
     default:                    /* AF_UNIX, AF_LOCAL &c */
@@ -728,7 +692,8 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
   switch (((struct sockaddr *)&addr)->sa_family) {
     #ifdef HAVE_IPV6
     case AF_INET6:
-      (void)ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
+      inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
+                sizeof(hd->hostname));
       hd->port = ntohs(addr.inaddr6.sin6_port);
       if (resolve_p)
         hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,
@@ -736,7 +701,8 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
       break;
     #endif
     case AF_INET:
-      ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
+      inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
+                sizeof(hd->hostname));
       hd->port = ntohs(addr.inaddr.sin_port);
       if (resolve_p)
         hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
