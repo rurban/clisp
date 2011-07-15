@@ -10,7 +10,6 @@
 #ifdef WIN32_NATIVE
 #include "w32shell.c"
 #endif
-#include <string.h> /* declares strlen() */
 
 /* enable the following #define to debug pathname translations
  setting DEBUG_TRANSLATE_PATHNAME to a larger value results in more output

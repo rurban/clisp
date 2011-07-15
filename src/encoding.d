@@ -6,8 +6,6 @@
 
 #include "lispbibl.c"
 
-#include <string.h>             /* declares memcpy() */
-
 #ifdef ENABLE_UNICODE
 #include "localcharset.h"       /* from gnulib */
 #endif

@@ -45,8 +45,6 @@
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
 
-#include <string.h> /* declares strcmp(), strlen(), strcpy(), memset() */
-
 /* ============ hostnames and IP addresses only (no sockets) ============
 
  Fetches the machine's host name.
@@ -72,27 +70,23 @@
   #error get_hostname is not defined
 #endif
 
-#ifndef WIN32
-  #if defined(UNIXCONN) || defined(TCPCONN)
-    #include <sys/socket.h> /* declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET, AF_INET6 */
+#if defined(UNIXCONN) || defined(TCPCONN)
+  #include <sys/socket.h> /* declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET, AF_INET6 */
+#endif
+#if defined(TCPCONN)
+  #include <netinet/in.h> /* declares htons(), defines struct sockaddr_in */
+  #include <arpa/inet.h> /* declares inet_pton(), inet_ntop() */
+  #ifdef IPV6_NEED_LINUX_IN6_H
+    #include <linux/in6.h> /* defines struct in6_addr, struct sockaddr_in6 */
   #endif
-  #if defined(TCPCONN)
-    #include <netinet/in.h> /* declares htons(), defines struct sockaddr_in */
-    #include <arpa/inet.h> /* declares inet_pton(), inet_ntop() */
-    #ifdef IPV6_NEED_LINUX_IN6_H
-      #include <linux/in6.h> /* defines struct in6_addr, struct sockaddr_in6 */
-    #endif
-    #if defined(HAVE_IPV6) && defined(UNIX_DARWIN)
-      /* Access the internals of a 'struct in6_addr'. */
-      #define in6_u __u6_addr
-      #define u6_addr16 __u6_addr16
-    #endif
+  #if defined(HAVE_IPV6) && defined(UNIX_DARWIN)
+    /* Access the internals of a 'struct in6_addr'. */
+    #define in6_u __u6_addr
+    #define u6_addr16 __u6_addr16
   #endif
-  #ifdef HAVE_GETHOSTBYNAME
-  /* gethostbyname() prototype should be already available */
+  #if defined(HAVE_IPV6) && defined(WIN32)
+    #define in6_addr in_addr6
   #endif
-#elif defined(HAVE_IPV6)
-  #define in6_addr in_addr6
 #endif
 
 /* "Older BSDs" (specifically, Mac OS X 10.4.[34]) require that

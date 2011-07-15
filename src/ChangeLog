@@ -1,3 +1,8 @@
+2011-07-15  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d, lispbibl.d, pathname.d, socket.d, spvw.d, stream.d:
+	* unix.d: always include <string.h> & <sys/socket.h> in lispbibl.d
+
 2011-07-14  Sam Steingold  <sds@gnu.org>
 
 	* configure.in: restore the readline check (accidentally removed)
