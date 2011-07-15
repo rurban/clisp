@@ -349,12 +349,13 @@
   <listitem><simpara>This is an interface to the &dup; system calls on
     &unix; systems and to <function role="win32">DuplicateHandle</function>
     system call on &win32;.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(OS:SHORTCUT-INFO &path-r;)</code></term>
+ <varlistentry id="shortcut-info"><term><code>(OS:SHORTCUT-INFO
+    &path-r;)</code></term>
   <listitem><simpara>Return information about a &win32; shortcut
     (<filename>#P".lnk"</filename>) file contents in a
     <type>SHORTCUT-INFO</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(OS:MAKE-SHORTCUT &path-r; &key-amp;
-    :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON :DESCRIPTION
+ <varlistentry id="make-shortcut"><term><code>(OS:MAKE-SHORTCUT &path-r;
+    &key-amp; :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON :DESCRIPTION
     :HOT-KEY :PATH)</code></term>
   <listitem><simpara>Create (or modify the properties of an existing one)
     a &win32; shortcut (<filename>#P".lnk"</filename>) file.
