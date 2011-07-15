@@ -1,5 +1,10 @@
 2011-07-15  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (language): make it static to avoid
+	warning: non-local variable '<anonymous enum> language' uses anonymous type
+
+2011-07-15  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (ipv4_ntop, ipv6_ntop): remove
 	(addr_to_string): simplify
 	(MACHINE-INSTANCE): use it
