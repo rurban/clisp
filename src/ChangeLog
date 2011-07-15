@@ -10,6 +10,8 @@
 
 	* encoding.d, lispbibl.d, pathname.d, socket.d, spvw.d, stream.d:
 	* unix.d: always include <string.h> & <sys/socket.h> in lispbibl.d
+	(socket, setsockopt): drop explicit prototypes, they are declared
+	in <sys/socket.h> (from gnulib, if necessary)
 
 2011-07-14  Sam Steingold  <sds@gnu.org>
 

@@ -579,7 +579,6 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 
 /* determine MACHINE-INSTANCE: */
 #ifdef HAVE_GETHOSTBYNAME
-  #include <sys/socket.h>
   #include <netdb.h>
 /* gethostbyname() is declared in the above files */
 #endif

@@ -70,9 +70,6 @@
   #error get_hostname is not defined
 #endif
 
-#if defined(UNIXCONN) || defined(TCPCONN)
-  #include <sys/socket.h> /* declares socket(), connect(), setsockopt(), defines AF_UNIX, AF_INET, AF_INET6 */
-#endif
 #if defined(TCPCONN)
   #include <netinet/in.h> /* declares htons(), defines struct sockaddr_in */
   #include <arpa/inet.h> /* declares inet_pton(), inet_ntop() */
@@ -174,12 +171,6 @@ LISPFUNN(machine_instance,0)
 /* ====================== General socket utilities ====================== */
 
 #if defined(UNIXCONN) || defined(TCPCONN)
-
-#ifndef WIN32
-  /* #include <sys/socket.h> */
-  extern_C SOCKET socket (int domain, int type, int protocol);
-  extern_C int setsockopt (SOCKET fd, int level, int optname, SETSOCKOPT_CONST SETSOCKOPT_ARG_T optval, SETSOCKOPT_OPTLEN_T optlen);
-#endif
 
 /* A wrapper around the closesocket() function/macro. */
 #define CLOSESOCKET(fd)  \
