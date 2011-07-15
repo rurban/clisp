@@ -1062,7 +1062,7 @@
 #include <sys/types.h>
 %% puts("#include <sys/types.h>");
 #include <unistd.h>
-#include <sys/socket.h>
+#include <sys/socket.h>         /* declares select, used in stream.d */
 #include <locale.h>
 #include <errno.h>
 #include <string.h> /* declares strlen() et al */
