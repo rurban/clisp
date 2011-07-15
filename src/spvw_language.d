@@ -30,7 +30,7 @@ global object CLOTEXT (const char*);
 #ifdef GNU_GETTEXT
 
 /* language, that is used for communication with the user: */
-enum {
+static enum {
   language_english,
   language_deutsch,
   language_francais,
