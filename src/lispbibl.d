@@ -1995,14 +1995,14 @@ typedef enum {
   /* Handling of UNIX errors
    OS_error();
    > int errno: error code */
-    _Noreturn extern void OS_error (void);
+    extern _Noreturn void OS_error (void);
   /* used by SPVW, STREAM, PATHNAME, GRAPH */
 #endif
 #if defined(WIN32_NATIVE)
   /* Handling of Win32 errors
    OS_error();
    > GetLastError(): error code */
-    _Noreturn extern void OS_error (void);
+    extern _Noreturn void OS_error (void);
 #endif
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_error(). For debugging. */
@@ -9513,7 +9513,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     #endif
   #endif
 #endif
-extern void* SP_bound;
+extern  void* SP_bound;
 extern _Noreturn void SP_ueber (void);
 #ifdef UNIX
   #define check_SP_notUNIX()
@@ -12458,9 +12458,9 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
  can trigger GC */
 #ifdef __cplusplus
   /* g++-3.4 doesn't like nonreturning in a typedef */
-  typedef /* _Noreturn */ /*maygc */ void (*restartf_t)(gcv_object_t* upto_frame);
+  typedef /* _Noreturn */ /*maygc*/ void (*restartf_t)(gcv_object_t* upto_frame);
 #else
-  typedef _Noreturn /*maygc */ void (*restartf_t) (gcv_object_t* upto_frame);
+  typedef _Noreturn /*maygc*/ void (*restartf_t) (gcv_object_t* upto_frame);
 #endif
 typedef struct {
   restartf_t fun;
@@ -14829,7 +14829,7 @@ extern _Noreturn void error_sstring (object obj);
   /* Error message, if a Simple-String is immutable:
    error_sstring_immutable(obj);
    > obj: the String */
-  _Noreturn extern void error_sstring_immutable (object obj);
+  extern _Noreturn void error_sstring_immutable (object obj);
   /* is used by Macro check_sstring_mutable */
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
@@ -14976,8 +14976,8 @@ global _Noreturn void error_c_integer (object obj, int tcode, bool signedp);
 #define error_sint32(obj)  error_c_integer(obj,2,true)
 #define error_uint64(obj)  error_c_integer(obj,3,false)
 #define error_sint64(obj)  error_c_integer(obj,3,true)
-/* _Noreturn extern void error_uint (object obj);
- _Noreturn extern void error_sint (object obj); */
+/* extern _Noreturn void error_uint (object obj);
+ extern _Noreturn void error_sint (object obj); */
 #if (int_bitsize==16)
   #define error_uint  error_uint16
   #define error_sint  error_sint16
@@ -14985,8 +14985,8 @@ global _Noreturn void error_c_integer (object obj, int tcode, bool signedp);
   #define error_uint  error_uint32
   #define error_sint  error_sint32
 #endif
-/* _Noreturn extern void error_ulong (object obj);
- _Noreturn extern void error_slong (object obj); */
+/* extern _Noreturn void error_ulong (object obj);
+ extern _Noreturn void error_slong (object obj); */
 #if (long_bitsize==32)
   #define error_ulong  error_uint32
   #define error_slong  error_sint32
