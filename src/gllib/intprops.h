@@ -22,14 +22,13 @@
 
 #include <limits.h>
 
-/* Return a integer value, converted to the same type as the integer
-   expression E after integer type promotion.  V is the unconverted value.
-   E should not have side effects.  */
-#define _GL_INT_CONVERT(e, v) ((e) - (e) + (v))
+/* Return an integer value, converted to the same type as the integer
+   expression E after integer type promotion.  V is the unconverted value.  */
+#define _GL_INT_CONVERT(e, v) (0 * (e) + (v))
 
 /* Act like _GL_INT_CONVERT (E, -V) but work around a bug in IRIX 6.5 cc; see
    <http://lists.gnu.org/archive/html/bug-gnulib/2011-05/msg00406.html>.  */
-#define _GL_INT_NEGATE_CONVERT(e, v) ((e) - (e) - (v))
+#define _GL_INT_NEGATE_CONVERT(e, v) (0 * (e) - (v))
 
 /* The extra casts in the following macros work around compiler bugs,
    e.g., in Cray C 5.0.3.0.  */
@@ -53,7 +52,7 @@
 #define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
 
 /* Return 1 if the integer expression E, after integer promotion, has
-   a signed type.  E should not have side effects.  */
+   a signed type.  */
 #define _GL_INT_SIGNED(e) (_GL_INT_NEGATE_CONVERT (e, 1) < 0)
 
 
@@ -314,7 +313,7 @@
    Arguments should be free of side effects.  */
 #define _GL_BINARY_OP_OVERFLOW(a, b, op_result_overflow)        \
   op_result_overflow (a, b,                                     \
-                      _GL_INT_MINIMUM ((b) - (b) + (a)),        \
-                      _GL_INT_MAXIMUM ((b) - (b) + (a)))
+                      _GL_INT_MINIMUM (0 * (b) + (a)),          \
+                      _GL_INT_MAXIMUM (0 * (b) + (a)))
 
 #endif /* _GL_INTPROPS_H */

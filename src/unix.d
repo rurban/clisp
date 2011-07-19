@@ -595,12 +595,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #define INVALID_SOCKET  (SOCKET)(-1)
   /* Error value for functions returning an `int' status */
   #define SOCKET_ERROR  (-1)
-  /* Accessing the error code */
-  #define sock_errno  errno
-  #define sock_errno_is(val)  (errno == val)
-  #define sock_set_errno(val)  (void)(errno = val)
   /* Signalling a socket-related error */
-  #define SOCK_error()  OS_error()
   #ifdef UNIX_BEOS
     /* BeOS 5 sockets cannot be used like file descriptors.
        Reading and writing from a socket */
@@ -620,17 +615,6 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #define TheSocket(obj)  TheHandle(obj)
 #endif
 /* used by SOCKET, STREAM */
-
-/* shutdown(2) - older systems do not define SHUT_* */
-#ifndef SHUT_RD
- #define SHUT_RD 0
-#endif
-#ifndef SHUT_WR
- #define SHUT_WR 1
-#endif
-#ifndef SHUT_RDWR
- #define SHUT_RDWR 2
-#endif
 
 /* Dynamic module loading:
    Even though HP-UX 10.20 and 11.00 support shl_load *and* dlopen,

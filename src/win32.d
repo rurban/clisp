@@ -280,17 +280,11 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
    Error value for functions returning a socket
    define INVALID_SOCKET  (SOCKET)(-1)
    Error value for functions returning an `int' status
-   define SOCKET_ERROR  (-1)
-   Accessing the error code */
-#define sock_errno  WSAGetLastError()
-#define sock_errno_is(val)  (WSAGetLastError() == WSA##val)
-#define sock_set_errno(val)  WSASetLastError(WSA##val)
+   define SOCKET_ERROR  (-1) */
 /* Error values when sock_read, sock_write return 0: */
 #define WSAEAGAIN WSAEWOULDBLOCK
 #define WSAENOENT WSAESHUTDOWN
-/* Signalling a socket related error
-   extern void SOCK_error (void);
-   Reading and writing from a socket */
+/* Reading and writing from a socket */
 extern int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev);
 extern int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t persev);
 /* Interruptible wait for something on socket */
@@ -314,11 +308,6 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
 #define SETSOCKOPT_ARG_T char*
 #define SETSOCKOPT_OPTLEN_T int
 #define HAVE_SHUTDOWN
-#ifdef HAVE_SHUTDOWN
-  #define SHUT_RD   SD_RECEIVE
-  #define SHUT_WR   SD_SEND
-  #define SHUT_RDWR SD_BOTH
-#endif
 /* Do not define HAVE_SELECT because select() works on sockets only.
  used by error.d, misc.d, socket.d, stream.d
  requires linking with wsock32.lib */

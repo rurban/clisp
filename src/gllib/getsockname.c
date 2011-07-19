@@ -1,6 +1,6 @@
-/* Get descriptor for a wide character property.
-   Copyright (C) 2011 Free Software Foundation, Inc.
-   Written by Bruno Haible <bruno@clisp.org>, 2011.
+/* getsockname.c --- wrappers for Windows getsockname function
+
+   Copyright (C) 2008-2011 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,11 +15,26 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
+/* Written by Paolo Bonzini */
+
 #include <config.h>
 
-/* Specification.  */
-#include <wctype.h>
+#define WIN32_LEAN_AND_MEAN
+/* Get winsock2.h. */
+#include <sys/socket.h>
 
-#include <string.h>
+/* Get set_winsock_errno, FD_TO_SOCKET etc. */
+#include "w32sock.h"
 
-#include "wctype-impl.h"
+#undef getsockname
+
+int
+rpl_getsockname (int fd, struct sockaddr *addr, socklen_t *addrlen)
+{
+  SOCKET sock = FD_TO_SOCKET (fd);
+  int r = getsockname (sock, addr, addrlen);
+  if (r < 0)
+    set_winsock_errno ();
+
+  return r;
+}

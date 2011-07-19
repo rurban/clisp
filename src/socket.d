@@ -61,7 +61,7 @@
   #define get_hostname(host_assignment)                                 \
     do {  var char hostname[MAXHOSTNAMELEN+1];                          \
       begin_system_call();                                              \
-      if ( gethostname(&hostname[0],MAXHOSTNAMELEN) <0) { SOCK_error(); } \
+      if (gethostname(&hostname[0],MAXHOSTNAMELEN) <0) { ANSIC_error(); } \
       end_system_call();                                                \
       hostname[MAXHOSTNAMELEN] = '\0';                                  \
       host_assignment &hostname[0];                                     \
@@ -174,7 +174,7 @@ LISPFUNN(machine_instance,0)
 
 /* A wrapper around the closesocket() function/macro. */
 #define CLOSESOCKET(fd)  \
-  do { while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ; } while (0)
+  do { while ((closesocket(fd) < 0) && errno == EINTR) ; } while (0)
 
 /* A wrapper around the connect() function.
  To be used inside begin/end_system_call() only. */
@@ -182,20 +182,16 @@ global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
   var int retval;
   do {
     retval = connect(fd,name,namelen);
-  } while ((retval < 0) && sock_errno_is(EINTR));
+  } while ((retval < 0) && errno == EINTR);
   return retval;
 }
 #undef connect  /* because of UNIX_CYGWIN32 */
 #define connect nonintr_connect
 
-/* Execute a statement, but save sock_errno during it. */
-#ifdef WIN32
-  #define saving_sock_errno(statement)                                    \
-    do { int _olderrno = WSAGetLastError(); statement; WSASetLastError(_olderrno); } while(0)
-#else
-  #define saving_sock_errno(statement)                            \
+/* Execute a statement, but save errno during it.
+ NB: gnulib ensures that the win32 errors are in errno, not WSA */
+#define saving_errno(statement)                                         \
     do { int _olderrno = errno; statement; errno = _olderrno; } while(0)
-#endif
 
 #endif /* UNIXCONN || TCPCONN */
 
@@ -383,7 +379,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
   {
     var struct hostent * host_ptr; /* entry in hosts table */
     if ((host_ptr = gethostbyname(host)) == NULL) {
-      sock_set_errno(EINVAL); return INVALID_SOCKET; /* No such host! */
+      errno = EINVAL; return INVALID_SOCKET; /* No such host! */
     }
     /* Check the address type for an internet host. */
    #ifdef HAVE_IPV6
@@ -408,7 +404,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
       return connector((struct sockaddr *) &inaddr,
                        sizeof(struct sockaddr_in), opts);
     } else { /* Not an Internet host! */
-      sock_set_errno(EPROTOTYPE); return INVALID_SOCKET;
+      errno = EPROTOTYPE; return INVALID_SOCKET;
     }
   }
 }
@@ -466,8 +462,8 @@ local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
        then ECONNREFUSED will be returned. */
     if (connect(fd, addr, addrlen) >= 0)
       break;
-    saving_sock_errno(CLOSESOCKET(fd));
-    if (!(sock_errno_is(ECONNREFUSED) && (retries > 0)))
+    saving_errno(CLOSESOCKET(fd));
+    if (!(errno == ECONNREFUSED && (retries > 0)))
       return INVALID_SOCKET;
     sleep (1);
   } while (retries-- > 0);
@@ -555,7 +551,7 @@ global SOCKET connect_to_x_server (const char* host, int display)
         if (connect(fd, addr, addrlen) >= 0)
           break;
         else
-          saving_sock_errno(CLOSESOCKET(fd));
+          saving_errno(CLOSESOCKET(fd));
       }
      #ifdef hpux /* this is disgusting */
       if (errno == ENOENT) {
@@ -564,7 +560,7 @@ global SOCKET connect_to_x_server (const char* host, int display)
           if (connect(fd, oaddr, oaddrlen) >= 0)
             break;
           else
-            saving_sock_errno(CLOSESOCKET(fd));
+            saving_errno(CLOSESOCKET(fd));
         }
       }
      #endif
@@ -741,7 +737,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
     var unsigned int flag = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag,
                    sizeof(flag)) < 0) {
-      saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+      saving_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
     }
   }
   /* Bind it to the desired port. */
@@ -749,7 +745,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
     /* Start listening for client connections. */
     if (listen(fd, *(int *)backlog) >= 0)
       return fd;
-  saving_sock_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
 
@@ -764,7 +760,7 @@ global SOCKET create_server_socket_by_string (host_data_t *hd,
   /* Retrieve the assigned port. */
   if (socket_getlocalname_aux(fd,hd) != NULL)
     return fd;
-  saving_sock_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
 
@@ -794,7 +790,7 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
   /* Retrieve the assigned port. */
   if (socket_getlocalname_aux(fd,hd) != NULL)
     return fd;
-  saving_sock_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
 
@@ -836,7 +832,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   if (connect(fd, addr, addrlen) >= 0)
     return fd;
  #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
-  if (sock_errno_is(EINPROGRESS) || sock_errno_is(EWOULDBLOCK)) {
+  if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
     var struct timeval *tvp = (struct timeval*)timeout;
     if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
      var int ret = 0;
@@ -848,8 +844,8 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
         ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
         if (ret < 0) {
-          if (sock_errno_is(EINTR)) goto restart_select;
-          saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+          if (errno == EINTR) goto restart_select;
+          saving_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
         }
        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
         var int errorp;
@@ -859,14 +855,14 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
           return INVALID_SOCKET;
         }
         if (errorp) {
-          CLOSESOCKET(fd); sock_set_errno(errorp);
+          CLOSESOCKET(fd); errno = errorp;
           return INVALID_SOCKET;
         }
        #endif
       }
      #endif
       if (ret == 0) {
-        CLOSESOCKET(fd); sock_set_errno(ETIMEDOUT);
+        CLOSESOCKET(fd); errno = ETIMEDOUT;
         return INVALID_SOCKET;
       }
     }
@@ -877,7 +873,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
     }
   }
  #endif
-  saving_sock_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSESOCKET(fd));
   return INVALID_SOCKET;
 }
 

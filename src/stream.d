@@ -13441,7 +13441,7 @@ local void low_close_socket (object stream, object handle, uintB abort) {
   var SOCKET socket = TheSocket(handle);
   GC_SAFE_CALL(closed=, closesocket(socket));
   if (!(closed == 0) && !abort)
-    { SOCK_error(); }
+    { ANSIC_error(); }
   end_system_call();
 }
 #else
@@ -13467,7 +13467,7 @@ local void low_close_socket (object stream, object handle, uintB abort) {
     begin_blocking_call();                           \
     result = (call);                                 \
     end_blocking_call();                             \
-    if (result<0) { CHECK_INTERRUPT; SOCK_error(); } \
+    if (result<0) { CHECK_INTERRUPT; ANSIC_error(); } \
     end_system_call();                               \
   } while(0)
 
@@ -13512,7 +13512,7 @@ local listen_t low_listen_unbuffered_socket (object stream) {
     if (errno==EINTR)
       goto restart_select;
    #endif
-    SOCK_error();
+    ANSIC_error();
   } else {
     /* result = number of handles in handle_set for which read() would
      return without blocking. */
@@ -13527,7 +13527,7 @@ local listen_t low_listen_unbuffered_socket (object stream) {
     var ssize_t result = sock_read(handle,&b,1,persev_full);
     if (result<0) {
       CHECK_INTERRUPT;
-      SOCK_error();
+      ANSIC_error();
     }
     end_system_call();
     if (result==0) {
@@ -13681,7 +13681,7 @@ LISPFUNN(make_x11socket_stream,2) {
   with_string_0(STACK_1,O(misc_encoding),host, {
     GC_SAFE_SYSTEM_CALL(handle=, connect_to_x_server(host,display));
   });
-  if (handle == INVALID_SOCKET) { SOCK_error(); }
+  if (handle == INVALID_SOCKET) { ANSIC_error(); }
   /* build list: */
   { var object list = listof(2); pushSTACK(list); }
   pushSTACK(test_external_format_arg(S(Kunix)));
@@ -13841,7 +13841,7 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
   } else { /* not everything written */
     if (result<0) {
       CHECK_INTERRUPT;
-      SOCK_error();
+      ANSIC_error();
     }
     end_system_call();
     error_unwritable(TheSubr(subr_self)->name,stream);
@@ -13968,7 +13968,7 @@ LISPFUNN(socket_server_close,1) {
       var int closed;
       GC_SAFE_CALL(closed=, closesocket(s));
       if (closed >= 0) break;
-      if (!sock_errno_is(EINTR)) { SOCK_error(); }
+      if (errno != EINTR) { ANSIC_error(); }
     }
     end_system_call();
     ss = STACK_0;
@@ -14050,7 +14050,7 @@ LISPFUN(socket_server,seclass_default,0,1,norest,key,2,
       sk = create_server_socket_by_string(&myname,"0.0.0.0",port,backlog);
     end_blocking_system_call();
    got_sk:
-    if (sk == INVALID_SOCKET) { SOCK_error(); }
+    if (sk == INVALID_SOCKET) { ANSIC_error(); }
     pushSTACK(allocate_socket(sk));
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
@@ -14150,10 +14150,10 @@ local maygc bool socket_server_wait (gcv_object_t *sose_, struct timeval *tvp) {
   FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
   GC_SAFE_CALL(ret=, select(FD_SETSIZE,&handle_set,NULL,NULL,tvp));
   if (ret < 0) {
-    if (sock_errno_is(EINTR)) {
+    if (errno == EINTR) {
       end_system_call(); goto restart_select;
     }
-    SOCK_error();
+    ANSIC_error();
   }
   end_system_call();
   return (ret != 0);
@@ -14186,7 +14186,7 @@ LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
 
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   if (tvp && !socket_server_wait(&STACK_3,tvp)) { /* handle :TIMEOUT */
-    skipSTACK(4); sock_set_errno(ETIMEDOUT); OS_error();
+    skipSTACK(4); errno = ETIMEDOUT; OS_error();
   }
  #endif
 
@@ -14194,7 +14194,7 @@ LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
   begin_blocking_system_call();
   var SOCKET handle = accept_connection (sock);
   end_blocking_system_call();
-  if (handle == INVALID_SOCKET) { SOCK_error(); }
+  if (handle == INVALID_SOCKET) { ANSIC_error(); }
   value1 = make_socket_stream(handle,&eltype,buffered,
                               TheSocketServer(STACK_3)->host,
                               TheSocketServer(STACK_3)->port);
@@ -14251,7 +14251,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
     handle = create_client_socket(hostname,I_to_uint16(STACK_4),tvp);
   });
   end_blocking_system_call();
-  if (handle == INVALID_SOCKET) { SOCK_error(); }
+  if (handle == INVALID_SOCKET) { ANSIC_error(); }
 
   value1 = make_socket_stream(handle,&eltype,buffered,STACK_3,STACK_4);
   VALUES1(add_to_open_streams(value1));
@@ -14521,8 +14521,8 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
     var int selectret;
     GC_SAFE_CALL(selectret=, select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr));
     if (selectret < 0) {
-      if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
-      if (!sock_errno_is(EBADF)) { SOCK_error(); }
+      if (errno == EINTR) { end_system_call(); goto restart_select; }
+      if (errno != EBADF) { ANSIC_error(); }
     }
     all=STACK_2; /* reload */
     if (many_sockets_p) {
@@ -14780,7 +14780,7 @@ local maygc void publish_host_data (host_data_fetcher_t* func) {
   skipSTACK(2);                 /* drop the arguments */
   begin_system_call();
   begin_blocking_call();
-  if ((*func)(sk,&hd,resolve_p) == NULL) { end_blocking_call(); SOCK_error(); }
+  if ((*func)(sk,&hd,resolve_p) == NULL) { end_blocking_call();ANSIC_error(); }
   end_blocking_call();
   end_system_call();
   if (hd.truename[0] == '\0') {
@@ -14898,7 +14898,7 @@ LISPFUNN(socket_stream_shutdown,2) {
   begin_blocking_call();
   if (shutdown(handle,shutdown_how)) {
     end_blocking_call();
-    SOCK_error();
+    ANSIC_error();
   }
   end_blocking_call();
   end_system_call();

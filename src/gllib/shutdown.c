@@ -1,6 +1,6 @@
-/* strerror-impl.h --- Implementation of POSIX compatible strerror() function.
+/* shutdown.c --- wrappers for Windows shutdown function
 
-   Copyright (C) 2007-2011 Free Software Foundation, Inc.
+   Copyright (C) 2008-2011 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -15,28 +15,26 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#ifdef STATIC
-STATIC
-#endif
-char *
-strerror (int n)
+/* Written by Paolo Bonzini */
+
+#include <config.h>
+
+#define WIN32_LEAN_AND_MEAN
+/* Get winsock2.h. */
+#include <sys/socket.h>
+
+/* Get set_winsock_errno, FD_TO_SOCKET etc. */
+#include "w32sock.h"
+
+#undef shutdown
+
+int
+rpl_shutdown (int fd, int how)
 {
-  static char buf[256];
+  SOCKET sock = FD_TO_SOCKET (fd);
+  int r = shutdown (sock, how);
+  if (r < 0)
+    set_winsock_errno ();
 
-  int ret = strerror_r (n, buf, sizeof (buf));
-
-  if (ret == 0)
-    return buf;
-
-  if (ret == ERANGE)
-    /* If this happens, increase the size of buf.  */
-    abort ();
-
-  {
-    static char const fmt[] = "Unknown error (%d)";
-    verify (sizeof (buf) >= sizeof (fmt) + INT_STRLEN_BOUND (n));
-    sprintf (buf, fmt, n);
-    errno = ret;
-    return buf;
-  }
+  return r;
 }
