@@ -345,8 +345,7 @@ static void open_reg_key (HKEY hkey, char* path, direction_t dir,
 #endif
 
 #if defined(ACCESS_LDAP)
-nonreturning_function(static, error_ldap,
-                      (object dk, object path, char* errmsg)) {
+static _Noreturn void error_ldap (object dk, object path, char* errmsg) {
   end_blocking_system_call();
   pushSTACK(NIL); pushSTACK(path); pushSTACK(dk);
   pushSTACK(TheSubr(subr_self)->name);

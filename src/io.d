@@ -451,7 +451,7 @@ local maygc object copy_readtable (object from_readtable) {
 
 /* error at wrong value of *READTABLE*
  error_bad_readtable(); */
-nonreturning_function(local, error_bad_readtable, (void)) {
+local _Noreturn void error_bad_readtable (void) {
   /* correct *READTABLE*: */
   var object sym = S(readtablestar); /* Symbol *READTABLE* */
   var object oldvalue = Symbol_value(sym);
@@ -896,7 +896,7 @@ local uintL get_base (object symbol) {
 
  error, if read object is not a character:
  error_charread(ch,&stream); */
-nonreturning_function(local, error_charread, (object ch, const gcv_object_t* stream_)) {
+local _Noreturn void error_charread (object ch, const gcv_object_t* stream_) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(ch);                /* Character */
   pushSTACK(*stream_);          /* Stream */
@@ -928,7 +928,7 @@ nonreturning_function(local, error_charread, (object ch, const gcv_object_t* str
 /* error-message at EOF outside of objects
  error_eof_outside(&stream);
  > stream: Stream */
-nonreturning_function(local, error_eof_outside, (const gcv_object_t* stream_)) {
+local _Noreturn void error_eof_outside (const gcv_object_t* stream_) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(*stream_);          /* Stream */
   pushSTACK(S(read));
@@ -938,7 +938,7 @@ nonreturning_function(local, error_eof_outside, (const gcv_object_t* stream_)) {
 /* error-message at EOF inside of objects
  error_eof_inside(&stream);
  > stream: Stream */
-nonreturning_function(local, error_eof_inside, (const gcv_object_t* stream_)) {
+local _Noreturn void error_eof_inside (const gcv_object_t* stream_) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   if (posfixnump(Symbol_value(S(read_line_number)))) { /* check SYS::*READ-LINE-NUMBER* */
     pushSTACK(Symbol_value(S(read_line_number)));      /* line-number */
@@ -955,7 +955,7 @@ nonreturning_function(local, error_eof_inside, (const gcv_object_t* stream_)) {
 /* error-message at EOF, according to *READ-RECURSIVE-P*
  error_eof(&stream);
  > stream: Stream */
-nonreturning_function(local, error_eof, (const gcv_object_t* stream_)) {
+local _Noreturn void error_eof (const gcv_object_t* stream_) {
   if (!nullpSv(read_recursive_p)) /* *READ-RECURSIVE-P* /= NIL ? */
     error_eof_inside(stream_);
   else
@@ -2154,7 +2154,7 @@ local maygc object read_recursive (const gcv_object_t* stream_) {
 /* error-message because of out-of-place Dot
  error_dot(stream);
  > stream: Stream */
-nonreturning_function(local, error_dot, (object stream)) {
+local _Noreturn void error_dot (object stream) {
   pushSTACK(stream);            /* STREAM-ERROR slot STREAM */
   pushSTACK(stream);            /* Stream */
   pushSTACK(S(read));
@@ -2181,7 +2181,7 @@ local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
 }
 
 /* error-message due to an invalid value of an internal variable */
-nonreturning_function(local, error_invalid_value, (object symbol)) {
+local _Noreturn void error_invalid_value (object symbol) {
   pushSTACK(Symbol_value(symbol)); pushSTACK(symbol);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
@@ -2682,7 +2682,7 @@ LISPFUNN(line_comment_reader,2) { /* reads ; */
  error_dispatch_number()
  > STACK_1: Stream
  > STACK_0: sub-char */
-nonreturning_function(local, error_dispatch_number, (void)) {
+local _Noreturn void error_dispatch_number (void) {
   pushSTACK(STACK_1);           /* STREAM-ERROR slot STREAM */
   pushSTACK(STACK_(0+1));       /* sub-char */
   pushSTACK(STACK_(1+2));       /* Stream */
@@ -3445,7 +3445,7 @@ LISPFUNN(array_reader,3) {                             /* reads #A */
  error_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
  > stream: Stream
  > obj: Object, whose Evaluation was examined */
-nonreturning_function(local, error_read_eval_forbidden, (const gcv_object_t* stream_, object obj)) {
+local _Noreturn void error_read_eval_forbidden (const gcv_object_t* stream_, object obj) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(obj);               /* Object */
   pushSTACK(NIL);               /* NIL */
@@ -3720,7 +3720,7 @@ LISPFUNN(syntax_error_reader,3) { /* reads #) and #whitespace */
  > expr: a Feature-Expresion
  > STACK_1: Stream or unbound
  < result: truth value: 0 if satisfied, ~0 if not. */
-nonreturning_function(local, error_feature, (object expr)) {
+local _Noreturn void error_feature (object expr) {
   /* Wrong structure of feature expression. */
   if (boundp(STACK_1)) {        /* Called from READ. */
     pushSTACK(STACK_1);         /* STREAM-ERROR slot STREAM */
@@ -4146,7 +4146,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
  error-message because of wrong Syntax of a Code-Vector
  error_closure_badchar();
  > stack layout: stream, sub-char, arg. */
-nonreturning_function(local, error_closure_badchar, (void)) {
+local _Noreturn void error_closure_badchar (void) {
   pushSTACK(STACK_2);           /* STREAM-ERROR slot STREAM */
   pushSTACK(STACK_(0+1));       /* n */
   pushSTACK(STACK_(2+2));       /* Stream */
@@ -4955,7 +4955,7 @@ local maygc void pr_hex8 (const gcv_object_t* stream_, uintP x) {
 
  error-message when *PRINT-READABLY* /= NIL.
  error_print_readably(obj); */
-nonreturning_function(local, error_print_readably, (object obj)) {
+local _Noreturn void error_print_readably (object obj) {
   /* (error-of-type 'print-not-readable
           "~S: Despite ~S, ~S cannot be printed readably."
           'print '*print-readably* obj) */
@@ -4973,7 +4973,7 @@ nonreturning_function(local, error_print_readably, (object obj)) {
 
 /* error message for inadmissible value of *PRINT-CASE*.
  error_print_case(); */
-nonreturning_function(local, error_print_case, (void)) {
+local _Noreturn void error_print_case (void) {
   /* (error "~S: the value ~S of ~S is neither ~S nor ~S nor ~S.
            it is reset to ~S."
           'print *print-case* '*print-case* ':upcase ':downcase ':capitalize

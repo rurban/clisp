@@ -374,7 +374,7 @@
 /* Error, when the quotient is not an integer
  > STACK_1: numerator x
  > STACK_0: denominator y */
-nonreturning_function(local, error_exquo, (void)) {
+local _Noreturn void error_exquo (void) {
   pushSTACK(S(exquo)); /* ARITHMETIC-ERROR slot OPERATION */
   pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
   { var object tmp = listof(2); pushSTACK(tmp); } /* ARITHMETIC-ERROR slot OPERANDS */

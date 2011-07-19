@@ -101,7 +101,7 @@ global maygc bool call_if_not (const gcv_object_t* stackptr,
 
 /* Error when both :TEST and :TEST-NOT are supplied
  error_both_tests(); */
-nonreturning_function(local, error_both_tests, (void)) {
+local _Noreturn void error_both_tests (void) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
         GETTEXT("~S: must not specify both :TEST and :TEST-NOT arguments"));

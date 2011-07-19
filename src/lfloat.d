@@ -1,7 +1,7 @@
 /* Basic functions for Long-Floats */
 
 /* error-message for too long Long-FLoat */
-nonreturning_function(local, error_LF_toolong, (void)) {
+local _Noreturn void error_LF_toolong (void) {
   pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
   pushSTACK(NIL);               /* slot :OPERANDS not available */
   error(arithmetic_error,GETTEXT("long float too long"));

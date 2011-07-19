@@ -323,7 +323,7 @@ local object get_seq_type (object seq) {
 }
 
 /* Signal a "not a SEQUENCE" type-error */
-nonreturning_function(local, error_sequence, (object obj)) {
+local _Noreturn void error_sequence (object obj) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(sequence)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -342,8 +342,7 @@ local object get_valid_seq_type (object seq)
 
 /* Error, if the sequence type defines another length as the sequence
  actually has. */
-nonreturning_function(local, error_seqtype_length,
-                      (object seqtype_length, object computed_length)) {
+local _Noreturn void error_seqtype_length (object seqtype_length, object computed_length) {
   pushSTACK(computed_length); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE - filled later */
   pushSTACK(computed_length);
@@ -364,7 +363,7 @@ nonreturning_function(local, error_seqtype_length,
 
 /* Error when the argument is not an integer >=0
  YES, we _CAN_ create lists longer than MOST-POSITIVE-FIXNUM! */
-nonreturning_function(local, error_posint, (object kw, object obj)) {
+local _Noreturn void error_posint (object kw, object obj) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
@@ -485,7 +484,7 @@ local void test_start_end_1 (const gcv_object_t* kwptr,
 
 /* Error message when trying to access past the end of a vector.
  > vector: the vector */
-nonreturning_function(local, error_vector_index_range, (object vector)) {
+local _Noreturn void error_vector_index_range (object vector) {
   var uintL len = vector_length(vector);
   pushSTACK(UL_to_I(len));
   error_index_range(vector,len);

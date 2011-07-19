@@ -18,7 +18,7 @@
  > STACK_1: record
  > STACK_0: (bad) index
  > limit: exclusive upper bound on the index */
-nonreturning_function(local, error_index, (uintL limit)) {
+local _Noreturn void error_index (uintL limit) {
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   {
     var object tmp;
@@ -34,7 +34,7 @@ nonreturning_function(local, error_index, (uintL limit)) {
 
 /* Error message
  > STACK_0: (bad) record */
-nonreturning_function(local, error_record, (void)) {
+local _Noreturn void error_record (void) {
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
         GETTEXT("~S: ~S is not a record"));
@@ -90,7 +90,7 @@ LISPFUNNR(record_length,1)
         && ((length = posfixnum_to_V(STACK_0)) <= (uintV)(vbitm(intWsize)-1)) \
         && (length>0)))                                                       \
     error_record_length()
-nonreturning_function(local, error_record_length, (void)) {
+local _Noreturn void error_record_length (void) {
   /* STACK_0 = length, TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_posint16)); /* type */
@@ -277,7 +277,7 @@ LISPFUNNR(structure_type_p,2) {
 */
 
 /* error, if argument is not a closure */
-nonreturning_function(local, error_closure, (object obj)) {
+local _Noreturn void error_closure (object obj) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
@@ -305,7 +305,7 @@ LISPFUNN(set_closure_name,2) {
 }
 
 /* error, if argument is not a compiled closure */
-nonreturning_function(local, error_cclosure, (object obj)) {
+local _Noreturn void error_cclosure (object obj) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */

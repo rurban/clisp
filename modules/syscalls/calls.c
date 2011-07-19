@@ -177,7 +177,7 @@ static Handle stream_get_handle (gcv_object_t *stream_) {
 }
 
 /* signal the appropriate error error */
-nonreturning_function(static, error_OS_stream, (object stream)) {
+static _Noreturn void error_OS_stream (object stream) {
   if (eq(nullobj,stream)) OS_error();
   else OS_filestream_error(stream);
 }

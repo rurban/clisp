@@ -16,7 +16,7 @@ BEGIN_DECLS
 END_DECLS
 
 /* complain about non-foreign object */
-nonreturning_function(local, error_foreign_object, (object arg)) {
+local _Noreturn void error_foreign_object (object arg) {
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: argument is not a foreign object: ~S"));
 }
@@ -311,14 +311,14 @@ LISPFUNNF(parse_foreign_inttype,1) { /* "size_t" --> FFI:UINT64 */
 #define C_UNION_C_TYPE_START   (C_UNION_ALT+1)
 
 /* Error message. */
-nonreturning_function(local, error_foreign_type, (object fvd)) {
+local _Noreturn void error_foreign_type (object fvd) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: illegal foreign data type ~S"));
 }
 
 /* Error message. */
-nonreturning_function(local, error_convert, (object fvd, object obj)) {
+local _Noreturn void error_convert (object fvd, object obj) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
@@ -327,7 +327,7 @@ nonreturning_function(local, error_convert, (object fvd, object obj)) {
 
 #if !defined(HAVE_LONG_LONG_INT)
 /* Error message. */
-nonreturning_function(local, error_64bit, (object fvd)) {
+local _Noreturn void error_64bit (object fvd) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"));
@@ -1098,7 +1098,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
   return array;
 }
 /* Error message */
-nonreturning_function (local, error_eltype_zero_size, (object fvd)) {
+local _Noreturn void error_eltype_zero_size (object fvd) {
   pushSTACK(fvd);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: element type has size 0: ~S"));
@@ -2429,7 +2429,7 @@ modexp void* nomalloc (void* old_data, uintL size, uintL alignment,
 { return old_data; }
 
 /* Error messages. */
-nonreturning_function(local, error_foreign_variable, (object obj)) {
+local _Noreturn void error_foreign_variable (object obj) {
   pushSTACK(NIL);                 /* no PLACE */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(S(foreign_variable)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -2437,7 +2437,7 @@ nonreturning_function(local, error_foreign_variable, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
-nonreturning_function(local, error_variable_no_fvd, (object obj)) {
+local _Noreturn void error_variable_no_fvd (object obj) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"));
@@ -2505,8 +2505,7 @@ static maygc object foreign_library_variable
 (gcv_object_t *name, gcv_object_t* fvd,
  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset);
 
-nonreturning_function(local, error_version_nonlibrary,
-                      (object name, object version)) {
+local _Noreturn void error_version_nonlibrary (object name, object version) {
   pushSTACK(version); pushSTACK(name), pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
         GETTEXT("~S(~S): version ~S without library does not make sense"));
@@ -3193,7 +3192,7 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 }
 
 /* Error messages. */
-nonreturning_function(local, error_foreign_function, (object obj)) {
+local _Noreturn void error_foreign_function (object obj) {
   pushSTACK(NIL);                 /* no PLACE */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(S(foreign_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -3201,8 +3200,7 @@ nonreturning_function(local, error_foreign_function, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
-nonreturning_function(local, error_function_no_fvd,
-                      (object obj, object caller)) {
+local _Noreturn void error_function_no_fvd (object obj, object caller) {
   pushSTACK(obj);
   pushSTACK(caller);
   error(error_condition,GETTEXT("~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"));
@@ -4583,7 +4581,7 @@ local inline object validate_fpointer (object obj)
 }
 
 /* error-message about lack of dlsym */
-nonreturning_function(local,error_no_dlsym,(object name, object library)) {
+local _Noreturn void error_no_dlsym (object name, object library) {
   pushSTACK(library); pushSTACK(name);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot find ~S in ~S due to lack of dlsym() on this platform"));

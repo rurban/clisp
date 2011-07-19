@@ -8,11 +8,11 @@ unlet b:current_syntax
 set enc=utf-8
 
 syn keyword dObject true false NIL T nullobj unbound
-syn keyword dType local global maygc var inline object chart
+syn keyword dType _Noreturn local global maygc var inline object chart
 syn match dType "\<[us]int[BCDLMPQVW2]*\>"
 syn match dType "\<[a-zA-Z0-9_]*_t\>"
 syn keyword dOperator popSTACK pushSTACK skipSTACK skipSTACKop STACKop loop
-syn keyword dOperator nonreturning_function return_Values DEFUN O S funcall
+syn keyword dOperator return_Values DEFUN O S funcall
 syn keyword dOperator SstringDispatch SstringCase NOTREACHED GETTEXT until
 syn match dOperator "\<dotimesp?[CLW]\>"
 syn match dOperator "\<LISPFUN[NRF]*\>"

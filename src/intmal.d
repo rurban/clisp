@@ -1,7 +1,7 @@
 # Multiplikation ganzer Zahlen
 
 # meldet Überlauf bei der Multiplikation:
-nonreturning_function(local, mal_ueberlauf, (void)) {
+local _Noreturn void mal_ueberlauf (void) {
   pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
   pushSTACK(NIL);               /* slot :OPERANDS not available */
   error(arithmetic_error,

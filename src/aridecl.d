@@ -340,7 +340,7 @@
 #ifdef LISPARIT
 
 /* Error message for division by zero */
-nonreturning_function(local, divide_0, (void)) {
+local _Noreturn void divide_0 (void) {
   pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
   pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
@@ -349,7 +349,7 @@ nonreturning_function(local, divide_0, (void)) {
 
 /* Error message for floating point overflow
  error_overflow(); */
-nonreturning_function(local, error_overflow, (void)) {
+local _Noreturn void error_overflow (void) {
   pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
   pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
@@ -358,7 +358,7 @@ nonreturning_function(local, error_overflow, (void)) {
 
 /* Error message for floating point underflow
  error_underflow(); */
-nonreturning_function(local, error_underflow, (void)) {
+local _Noreturn void error_underflow (void) {
   pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
   pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);

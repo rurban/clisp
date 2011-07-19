@@ -1,9 +1,9 @@
 /* Handling of UNIX errors
  OS_error();
  > int errno: error code */
-nonreturning_function(modexp, OS_error, (void));
+modexp _Noreturn void OS_error (void);
 #ifdef UNIX
-nonreturning_function(modexp, OS_error_arg, (object etype, object arg));
+modexp _Noreturn void OS_error_arg (object etype, object arg);
 #endif
 
 /* Problem: many different UNIX variants, each with its own set of error
@@ -673,7 +673,7 @@ local void OS_error_internal (uintC errcode)
     write_errorasciz(errormsg.msg);
   }
 }
-nonreturning_function(global, OS_error, (void)) {
+global _Noreturn void OS_error (void) {
   var uintC errcode; /* positive error number */
   end_system_call(); /* just in case */
   begin_system_call();
@@ -689,7 +689,7 @@ nonreturning_function(global, OS_error, (void)) {
   NOTREACHED;
 }
 #ifdef UNIX
-nonreturning_function(global, OS_error_arg, (object etype, object arg)) {
+global _Noreturn void OS_error_arg (object etype, object arg) {
   var uintC errcode; /* positive error number */
   begin_system_call();
   errcode = errno;

@@ -288,7 +288,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 #define end_sock_call()    end_blocking_system_call(); STOP_WRITING_TO_SUBPROCESS
 
 /* report error on the given socket or OS_error if socket<0 */
-nonreturning_function(static, rawsock_error, (int socket)) {
+static _Noreturn void rawsock_error (int socket) {
   if (socket < 0) OS_error();
   begin_system_call(); {
     int ecode = errno;
@@ -789,7 +789,7 @@ DEFUN(RAWSOCK:SOCK-LISTEN,socket &optional backlog) {
 }
 
 #if defined(WIN32_NATIVE)
-nonreturning_function(static, error_missing, (object function)) {
+static _Noreturn void error_missing (object function) {
   pushSTACK(function); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: your ws2_32.dll does not implement ~S"));
 }
@@ -810,7 +810,7 @@ DEFCHECKER(check_gai_ecode,prefix=EAI,default=,AGAIN BADFLAGS FAIL FAMILY \
 #else
 # define check_gai_ecode_reverse L_to_I
 #endif
-nonreturning_function(static, error_eai, (int ecode)) {
+static _Noreturn void error_eai (int ecode) {
   begin_system_call();
 #if defined(HAVE_GAI_STRERROR) || defined(WIN32_NATIVE)
   const char* msg = gai_strerror_f(ecode);

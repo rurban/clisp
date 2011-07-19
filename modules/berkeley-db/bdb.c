@@ -174,7 +174,7 @@ DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
            ALREADY-ABORTED DELETED LOCK-NOTEXIST NEEDSPLIT REP-EGENCHG  \
            REP-LOGREADY REP-PAGEDONE SURPRISE-KID SWAPBYTES :TIMEOUT TXN-CKP \
            VERIFY-FATAL)
-nonreturning_function(static, error_bdb, (int status, const char *caller)) {
+static _Noreturn void error_bdb (int status, const char *caller) {
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
   pushSTACK(S(Kcode)); pushSTACK(bdb_errno_reverse(status));
   if (error_message)

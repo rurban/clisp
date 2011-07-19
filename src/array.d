@@ -240,7 +240,7 @@ local object iarray_displace (object array, uintL* index) {
 }
 
 /* error: a displaced array does not fit into its target array. */
-nonreturning_function(local, error_displaced_inconsistent, (void)) {
+local _Noreturn void error_displaced_inconsistent (void) {
   error(error_condition,GETTEXT("An array has been shortened by adjusting it while another array was displaced to it."));
 }
 
@@ -339,8 +339,7 @@ modexp object array_displace_check (object array, uintV size, uintL* index) {
 /* error: bad number of subscripts
  > array: array
  > argcount: (wrong) number of subscripts */
-nonreturning_function(local, error_subscript_count,
-                      (object array, uintC argcount)) {
+local _Noreturn void error_subscript_count (object array, uintC argcount) {
   pushSTACK(arrayrank(array));
   pushSTACK(array);
   pushSTACK(fixnum(argcount));
@@ -352,7 +351,7 @@ nonreturning_function(local, error_subscript_count,
  > argcount: number of subscripts
  > STACK_(argcount): array
  > STACK_(argcount-1),...,STACK_(0): subscripts */
-nonreturning_function(local, error_subscript_type, (uintC argcount)) {
+local _Noreturn void error_subscript_type (uintC argcount) {
   var object list = listof(argcount); /* list of subscripts */
   /* STACK_0 is now the array. */
   pushSTACK(list);
@@ -364,8 +363,7 @@ nonreturning_function(local, error_subscript_type, (uintC argcount)) {
  > argcount: number of subscripts
  > STACK_(argcount): array
  > STACK_(argcount-1),...,STACK_(0): subscripts */
-nonreturning_function(local, error_subscript_range,
-                      (uintC argcount, uintL subscript, uintL bound)) {
+local _Noreturn void error_subscript_range (uintC argcount, uintL subscript, uintL bound) {
   var object list = listof(argcount); /* list of subscripts */
   pushSTACK(list);
   /* On STACK: array, subscript-list. */
@@ -430,7 +428,7 @@ local uintL test_subscripts (object array, gcv_object_t* argptr, uintC argcount)
 /* error: bad index
  > array: array (usually a vector)
  > STACK_0: (erroneous) index */
-nonreturning_function(local, error_index_type, (object array)) {
+local _Noreturn void error_index_type (object array) {
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(array);
@@ -442,7 +440,7 @@ nonreturning_function(local, error_index_type, (object array)) {
 /* error: bad index
  > array: array (usually a vector)
  > STACK_0: (erroneous) index */
-nonreturning_function(global, error_index_range, (object array, uintL bound)) {
+global _Noreturn void error_index_range (object array, uintL bound) {
   var object tmp;
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   pushSTACK(array);
@@ -498,19 +496,19 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
 }
 
 /* error message: attempt to retrieve a value from (ARRAY NIL) */
-nonreturning_function(modexp, error_nilarray_retrieve, (void)) {
+modexp _Noreturn void error_nilarray_retrieve (void) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot retrieve values from an array of element type NIL"));
 }
 
 /* error message: attempt to store a value in (ARRAY NIL) */
-nonreturning_function(global, error_nilarray_store, (void)) {
+global _Noreturn void error_nilarray_store (void) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot store values in an array of element type NIL"));
 }
 
 /* error message: attempt to access a value from (ARRAY NIL) */
-nonreturning_function(global, error_nilarray_access, (void)) {
+global _Noreturn void error_nilarray_access (void) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot access values of an array of element type NIL"));
 }
@@ -549,7 +547,7 @@ global /*maygc*/ object storagevector_aref (object datenvektor, uintL index) {
 
 /* error: attempting to store an invalid value in an array.
  error_store(array,value); */
-nonreturning_function(global, error_store, (object array, object value)) {
+global _Noreturn void error_store (object array, object value) {
   pushSTACK(value); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE */
   if (!simple_nilarray_p(array)) {
@@ -1154,7 +1152,7 @@ LISPFUNN(array_displacement,1)
 /* error: not a bit array
  error_bit_array()
  > array: array, that is not a bit-array */
-nonreturning_function(local, error_bit_array, (object array)) {
+local _Noreturn void error_bit_array (object array) {
   pushSTACK(array); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_bit)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(array);
@@ -3729,7 +3727,7 @@ LISPFUNNR(array_has_fill_pointer_p,1)
 }
 
 /* signal an error when the vector does not have a fill pointer */
-nonreturning_function(local,error_no_fillp,(object vec)) {
+local _Noreturn void error_no_fillp (object vec) {
   pushSTACK(vec); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_vector_with_fill_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(vec); pushSTACK(TheSubr(subr_self)->name);
@@ -3806,7 +3804,7 @@ LISPFUNN(vector_pop,1) /* (VECTOR-POP vector), CLTL p. 296 */
 }
 
 /* Vector will be too long -> error */
-nonreturning_function(local, error_extension, (object extension)) {
+local _Noreturn void error_extension (object extension) {
   pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
          GETTEXT("~S: extending the vector by ~S elements makes it too long"));
@@ -4000,7 +3998,7 @@ global void sbvector_bset (object sbvector, uintL index) {
 
 /* error: bad dimension
  > dim: wrong dimension */
-nonreturning_function(local, error_dim_type, (object dim)) {
+local _Noreturn void error_dim_type (object dim) {
   pushSTACK(dim); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(dim);

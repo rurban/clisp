@@ -867,7 +867,7 @@ LISPSPECFORM(progv, 2,0,body)
 /* error-message at FLET/LABELS, if there is no function specification.
  > caller: Caller, a symbol
  > obj: erroneous function specification */
-nonreturning_function(local, error_funspec, (object caller, object obj)) {
+local _Noreturn void error_funspec (object caller, object obj) {
   pushSTACK(obj);               /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(obj); pushSTACK(caller);
   error(source_program_error,GETTEXT("~S: ~S is not a function specification"));
@@ -1325,7 +1325,7 @@ LISPSPECFORM(block, 1,0,body)
 /* error-message, if a block has already been left.
  error_block_left(name);
  > name: block-name */
-nonreturning_function(global, error_block_left, (object name)) {
+global _Noreturn void error_block_left (object name) {
   pushSTACK(name);
   pushSTACK(S(return_from));
   error(control_error,GETTEXT("~S: the block named ~S has already been left"));
@@ -1727,7 +1727,7 @@ LISPSPECFORM(go, 1,0,nobody)
 /* error-message, when there are too many values
  error_mv_toomany(caller);
  > caller: Caller, a symbol */
-nonreturning_function(modexp, error_mv_toomany, (object caller)) {
+modexp _Noreturn void error_mv_toomany (object caller) {
   pushSTACK(caller);
   error(error_condition,GETTEXT("~S: too many return values"));
 }

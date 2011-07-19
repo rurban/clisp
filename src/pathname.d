@@ -838,7 +838,7 @@ local maygc object merge_defaults (object pathname) {
 /* error-message because of illegal pathname-argument.
  error_pathname_designator(thing); ( error_... )
  > thing: (erroneous) argument */
-nonreturning_function(local, error_pathname_designator, (object thing)) {
+local _Noreturn void error_pathname_designator (object thing) {
   pushSTACK(thing);                       /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_designator_pathname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_designator_pathname));
@@ -874,7 +874,7 @@ local object as_file_stream (object stream) {
   do { if (nullp(TheStream(stream)->strm_file_truename)) \
          error_file_stream_unnamed(stream);             \
   } while(0)
-nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
+local _Noreturn void error_file_stream_unnamed (object stream) {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Filename for ~S is unknown"));
@@ -4729,7 +4729,7 @@ modexp maygc object physical_namestring (object thing)
 
 /* error, if directory does not exist
  > obj: pathname or (better) erroneous component */
-nonreturning_function(local, error_dir_not_exists, (object obj)) {
+local _Noreturn void error_dir_not_exists (object obj) {
   pushSTACK(obj); /* FILE-ERROR slot PATHNAME */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Directory ~S does not exist"));
@@ -4737,7 +4737,7 @@ nonreturning_function(local, error_dir_not_exists, (object obj)) {
 
 /* error, if a file already exits
  > STACK_0: pathname */
-nonreturning_function(local, error_file_exists, (void)) {
+local _Noreturn void error_file_exists (void) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
@@ -4745,7 +4745,7 @@ nonreturning_function(local, error_file_exists, (void)) {
 }
 
 /* error, if the pathname is a directory */
-nonreturning_function(local, error_directory, (object pathname)) {
+local _Noreturn void error_directory (object pathname) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(whole_namestring(pathname));
   pushSTACK(TheSubr(subr_self)->name);
@@ -5528,7 +5528,7 @@ LISPFUNNR(namestring,1) { /* (NAMESTRING pathname), CLTL p. 417 */
 /* error-message because of missing file name
  error_noname(pathname);
  > pathname: pathname */
-nonreturning_function(local, error_noname, (object pathname)) {
+local _Noreturn void error_noname (object pathname) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: No file name given: ~S"));
@@ -5539,7 +5539,7 @@ nonreturning_function(local, error_noname, (object pathname)) {
 /* error-message because of illegal Name/Type-specification
  error_notdir(pathname);
  > pathname: pathname */
-nonreturning_function(local, error_notdir, (object pathname)) {
+local _Noreturn void error_notdir (object pathname) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Not a directory: ~S"));
@@ -5582,7 +5582,7 @@ nonreturning_function(local, error_notdir, (object pathname)) {
 /* error-message because of non-existent file
  error_file_not_exists();
  > STACK_0: pathname */
-nonreturning_function(local, error_file_not_exists, (void)) {
+local _Noreturn void error_file_not_exists (void) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
@@ -5980,7 +5980,7 @@ local maygc bool openp (object pathname) {
 /* error-message because of deletion attempt on opened file
  error_delete_open(pathname);
  > pathname: truename of the file */
-nonreturning_function(local, error_delete_open, (object pathname)) {
+local _Noreturn void error_delete_open (object pathname) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Cannot delete file ~S since there is a file stream open to it"));
@@ -6024,7 +6024,7 @@ LISPFUNN(delete_file,1) {
 /* error-message because of renaming attempt of an opened file
  error_rename_open(pathname);
  > pathname: truename of the file */
-nonreturning_function(local, error_rename_open, (object pathname)) {
+local _Noreturn void error_rename_open (object pathname) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Cannot rename file ~S since there is a file stream open to it"));

@@ -984,7 +984,7 @@
    local            function that is only visible in the file (local)
    extern           pointer to a function that's defined externally
    extern_C         pointer to a c-function that's defined externally
-   nonreturning     function that will never return
+   _Noreturn        function that will never return (draft C1X)
    maygc            function that can trigger GC */
 #define global
 #define local  static
@@ -994,33 +994,6 @@
 #else
   #define extern_C  extern
 #endif
-
-/* Declaration of a function that will never return (nonreturning function)
- nonreturning_function(extern,abort,(void)); == extern void abort (void); */
-#if defined(GNU) && !(__APPLE_CC__ > 1)
-  #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
-    /* Note:
-       storclass __attribute__((__noreturn__)) void funname arguments
-         works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
-       storclass void __attribute__((__noreturn__)) funname arguments
-         works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
-       storclass void funname arguments __attribute__((__noreturn__))
-         works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
-         only when followed by a semicolon, not in a function definition. */
-    #define nonreturning_function(storclass,funname,arguments)  \
-      storclass void __attribute__((__noreturn__)) funname arguments
-  #else
-    #define nonreturning_function(storclass,funname,arguments)  \
-      storclass void funname arguments
-  #endif
-#elif defined(MICROSOFT)
-  #define nonreturning_function(storclass,funname,arguments)  \
-    __declspec(noreturn) storclass void funname arguments
-#else
-  #define nonreturning_function(storclass,funname,arguments)  \
-    storclass void funname arguments
-#endif
-%% export_def(nonreturning_function(storclass,funname,arguments));
 
 /* A function that can trigger GC is declared either as
    - maygc, if (1) all callers must assume the worst case: that it triggers GC,
@@ -2022,14 +1995,14 @@ typedef enum {
   /* Handling of UNIX errors
    OS_error();
    > int errno: error code */
-    nonreturning_function(extern, OS_error, (void));
+    _Noreturn extern void OS_error (void);
   /* used by SPVW, STREAM, PATHNAME, GRAPH */
 #endif
 #if defined(WIN32_NATIVE)
   /* Handling of Win32 errors
    OS_error();
    > GetLastError(): error code */
-    nonreturning_function(extern, OS_error, (void));
+    _Noreturn extern void OS_error (void);
 #endif
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_error(). For debugging. */
@@ -2044,7 +2017,7 @@ typedef enum {
 #ifdef UNIX
   #define ANSIC_error OS_error
 #else
-  nonreturning_function(extern, ANSIC_error, (void));
+  _Noreturn extern void ANSIC_error (void);
 #endif
 /* used by SPVW, STREAM */
 
@@ -9540,8 +9513,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     #endif
   #endif
 #endif
-extern  void* SP_bound;
-nonreturning_function(extern, SP_ueber, (void));
+extern void* SP_bound;
+extern _Noreturn void SP_ueber (void);
 #ifdef UNIX
   #define check_SP_notUNIX()
 #else
@@ -9559,7 +9532,7 @@ nonreturning_function(extern, SP_ueber, (void));
 #endif
 extern  void* STACK_bound;
 extern  void* STACK_start;
-nonreturning_function(extern, STACK_ueber, (void));
+extern _Noreturn void STACK_ueber (void);
 %% #if notused
 %% export_def(check_STACK());
 %% export_def(STACK_overflow());
@@ -9581,7 +9554,7 @@ nonreturning_function(extern, STACK_ueber, (void));
 /* Exit the LISP-Interpreter
  quit();
  > final_exitcode: 0 for a normal end, >0 for failure, -signum for a signal */
-nonreturning_function(extern, quit, (void));
+extern _Noreturn void quit (void);
 extern int final_exitcode;
 /* is used by CONTROL */
 
@@ -9590,7 +9563,7 @@ extern int final_exitcode;
  error_notreached(file,line);
  > file: Filename (with quotation marks) as constant ASCIZ-String
  > line: line number */
-nonreturning_function(extern, error_notreached, (const char * file, uintL line));
+extern _Noreturn void error_notreached (const char * file, uintL line);
 /* used by all modules */
 %% exportE(error_notreached,(const char * file, uintL line));
 
@@ -11801,7 +11774,7 @@ re-enters the corresponding top-level loop.
 /* Error message if there are too many values
  error_mv_toomany(caller);
  > caller: caller, a Symbol */
-nonreturning_function(extern, error_mv_toomany, (object caller));
+extern _Noreturn void error_mv_toomany (object caller);
 /* is used by EVAL, CONTROL, LISPARIT */
 %% #if notused
 %% exportE(error_mv_toomany,(object caller));
@@ -12463,7 +12436,7 @@ extern maygc Values eval_no_hooks (object form);
  error_dotted_form(form,fun)
  > form: full form being evaluated
  > fun: caller (car form) */
-nonreturning_function(global, error_dotted_form, (object form, object fun));
+global _Noreturn void error_dotted_form (object form, object fun);
 /* is used by CONTROL */
 
 /* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
@@ -12485,9 +12458,9 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
  can trigger GC */
 #ifdef __cplusplus
   /* g++-3.4 doesn't like nonreturning in a typedef */
-  typedef /* nonreturning */ /*maygc*/ void (*restartf_t)(gcv_object_t* upto_frame);
+  typedef /* _Noreturn */ /*maygc */ void (*restartf_t)(gcv_object_t* upto_frame);
 #else
-  nonreturning_function(typedef /*maygc*/, (*restartf_t), (gcv_object_t* upto_frame));
+  typedef _Noreturn /*maygc */ void (*restartf_t) (gcv_object_t* upto_frame);
 #endif
 typedef struct {
   restartf_t fun;
@@ -12500,7 +12473,7 @@ extern /*maygc*/ void unwind (void);
 /* UP: "unwinds" the STACK to the next DRIVER_FRAME and
  jumps to the corresponding Top-Level-loop
  if count=0, unwind to TOP; otherwise reset that many times */
-nonreturning_function(extern, reset, (uintL count));
+extern _Noreturn void reset (uintL count);
 /* is used by SPVW, CONTROL */
 
 /* UP: binds the symbols of the list symlist dynamically
@@ -12521,7 +12494,7 @@ extern maygc void progv (object symlist, object vallist);
  modifies STACK,SP
  can trigger GC
  Jumps to the found Frame. */
-nonreturning_function(extern /*maygc*/, unwind_upto, (gcv_object_t* upto_frame));
+extern _Noreturn /*maygc*/ void unwind_upto (gcv_object_t* upto_frame);
 /* is used by CONTROL, DEBUG */
 
 /* UP: throws to the Tag tag and passes the values mv_count/mv_space.
@@ -12841,7 +12814,7 @@ extern void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count);
 /* Error if a block has already been left.
  error_block_left(name);
  > name: Block-name */
-nonreturning_function(extern, error_block_left, (object name));
+extern _Noreturn void error_block_left (object name);
 /* is used by EVAL */
 
 /* convert the numeric side-effect class as stored in subr_t or cclosure_t
@@ -13050,7 +13023,7 @@ extern maygc object ascii_to_string (const char * asciz);
 
 /* Error, when a character cannot be converted to an encoding.
  error_unencodable(encoding,ch); */
-nonreturning_function(extern, error_unencodable, (object encoding, chart ch));
+extern _Noreturn void error_unencodable (object encoding, chart ch);
 /* is used by STREAM */
 
 /* ####################### ARRBIBL for ARRAY.D ############################# */
@@ -13176,19 +13149,19 @@ extern object array_displace_check (object array, uintV size, uintL* index);
 /* error-message
  > array: array (usually a Vector)
  > STACK_0: (erroneous) Index */
-nonreturning_function(extern, error_index_range, (object array, uintL bound));
+extern _Noreturn void error_index_range (object array, uintL bound);
 /* used by SEQUENCE */
 
 /* error message: attempt to retrieve a value from (ARRAY NIL) */
-nonreturning_function(extern, error_nilarray_retrieve, (void));
+extern _Noreturn void error_nilarray_retrieve (void);
 /* used by PREDTYPE */
 %% exportE(error_nilarray_retrieve,(void));
 
 /* error message: attempt to store a value in (ARRAY NIL) */
-nonreturning_function(extern, error_nilarray_store, (void));
+extern _Noreturn void error_nilarray_store (void);
 
 /* error message: attempt to access a value from (ARRAY NIL) */
-nonreturning_function(extern, error_nilarray_access, (void));
+extern _Noreturn void error_nilarray_access (void);
 
 /* Function: Performs an AREF access.
  storagevector_aref(storagevector,index)
@@ -13201,7 +13174,7 @@ extern /*maygc*/ object storagevector_aref (object storagevector, uintL index);
 
 /* Error when attempting to store an invalid value in an array.
  error_store(array,value); */
-nonreturning_function(extern, error_store, (object array, object value));
+extern _Noreturn void error_store (object array, object value);
 /* used by SEQUENCE */
 
 /* Macro: Tests a bit in a simple-bit-vector.
@@ -14476,7 +14449,7 @@ typedef enum {
    At every tilde-S, a LISP-object is taken from the STACK and printed
    instead of the tilde-S.
  > on the STACK: initial values for the Condition, depending on error-type */
-nonreturning_function(extern, error, (condition_t errortype, const char * errorstring));
+extern _Noreturn void error (condition_t errortype, const char * errorstring);
 /* used by all modules */
 %% exportE(error,(condition_t errortype, const char * errorstring));
 
@@ -14519,7 +14492,7 @@ extern maygc void correctable_error (condition_t errortype, const char* errorstr
  > etype: symbolic name of the error type
  > arg: error argument
  > end_system_call() already called */
-nonreturning_function(extern, OS_error_arg, (object etype, object arg));
+extern _Noreturn void OS_error_arg (object etype, object arg);
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_file_error().
    For debugging. */
@@ -14534,7 +14507,7 @@ nonreturning_function(extern, OS_error_arg, (object etype, object arg));
  OS_filestream_error(stream);
  > stream: a channel stream
  > end_system_call() already called */
-nonreturning_function(extern, OS_filestream_error, (object stream));
+extern _Noreturn void OS_filestream_error (object stream);
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_filestream_error(). For debugging. */
   #define OS_filestream_error(stream)  \
@@ -14599,7 +14572,7 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 /* Error message, if an object isn't a list.
  error_list(obj);
  > obj: non-list */
-nonreturning_function(extern, error_list, (object obj));
+extern _Noreturn void error_list (object obj);
 /* used by LIST, EVAL, STREAM */
 %% #if notused
 %% exportE(error_list,(object obj));
@@ -14634,7 +14607,7 @@ MAKE_CHECK(list)
  error_proper_list_dotted(caller,obj);
  > caller: caller (a symbol)
  > obj: End of list, non-list */
-nonreturning_function(extern, error_proper_list_dotted, (object caller, object obj));
+extern _Noreturn void error_proper_list_dotted (object caller, object obj);
 /* is used by LIST */
 %% exportE(error_proper_list_dotted,(object caller, object obj));
 
@@ -14642,7 +14615,7 @@ nonreturning_function(extern, error_proper_list_dotted, (object caller, object o
  error_proper_list_circular(caller,obj);
  > caller: caller (a symbol)
  > obj: circular list */
-nonreturning_function(extern, error_proper_list_circular, (object caller, object obj));
+extern _Noreturn void error_proper_list_circular (object caller, object obj);
 /* is used by LIST */
 
 /* check_symbol(obj)
@@ -14696,7 +14669,7 @@ global maygc object check_symbol_not_global_special (object symbol);
  error_no_svector(caller,obj);
  > caller: caller (a Symbol)
  > obj: non-Svector */
-nonreturning_function(extern, error_no_svector, (object caller, object obj));
+extern _Noreturn void error_no_svector (object caller, object obj);
 /* is used by ARRAY, EVAL */
 %% #if notused
 %% exportE(error_no_svector,(object caller, object obj));
@@ -14705,7 +14678,7 @@ nonreturning_function(extern, error_no_svector, (object caller, object obj));
 /* Error message, if an object isn't a vector.
  error_vector(obj);
  > obj: non-vector */
-nonreturning_function(extern, error_vector, (object obj));
+extern _Noreturn void error_vector (object obj);
 /* is used by ARRAY */
 %% #if notused
 %% exportE(error_vector,(object obj));
@@ -14757,12 +14730,12 @@ MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj))
 /* error-message, if an object is not an environment.
  error_environment(obj);
  > obj: non-vector */
-nonreturning_function(extern, error_environment, (object obj));
+extern _Noreturn void error_environment (object obj);
 /* used by EVAL, CONTROL */
 
 /* Error message, if an argument isn't a Fixnum >=0:
  > obj: the faulty argument */
-nonreturning_function(extern, error_posfixnum, (object obj));
+extern _Noreturn void error_posfixnum (object obj);
 /* used by DEBUG, ENCODING, FOREIGN, IO, STREAM, TIME */
 
 /* check_posfixnum(obj)
@@ -14806,7 +14779,7 @@ MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj)))
 /* Error message, if an argument isn't a Character:
  error_char(obj);
  > obj: the faulty argument */
-nonreturning_function(extern, error_char, (object obj));
+extern _Noreturn void error_char (object obj);
 /* used by IO, STREAM */
 
 /* check_char(obj)
@@ -14842,7 +14815,7 @@ MAKE_CHECK(string)
 /* Error message, if an argument isn't a Simple-String:
  error_sstring(obj);
  > obj: the faulty argument */
-nonreturning_function(extern, error_sstring, (object obj));
+extern _Noreturn void error_sstring (object obj);
 /* is used by CHARSTRG */
 %% #if notused
 %% exportE(error_sstring,(object obj));
@@ -14856,18 +14829,18 @@ nonreturning_function(extern, error_sstring, (object obj));
   /* Error message, if a Simple-String is immutable:
    error_sstring_immutable(obj);
    > obj: the String */
-  nonreturning_function(extern, error_sstring_immutable, (object obj));
+  _Noreturn extern void error_sstring_immutable (object obj);
   /* is used by Macro check_sstring_mutable */
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
  error_string_integer(obj); */
-nonreturning_function(extern, error_string_integer, (object obj));
+extern _Noreturn void error_string_integer (object obj);
 %% exportE(error_string_integer,(object obj));
 
 /* Error message, if a string size is too big.
  error_stringsize(size);
  > size: the desired string length */
-nonreturning_function(extern, error_stringsize, (uintV size));
+extern _Noreturn void error_stringsize (uintV size);
 
 /* Check a string size, reporting an error when it's too big. */
 #define check_stringsize(size)  \
@@ -14877,7 +14850,7 @@ nonreturning_function(extern, error_stringsize, (uintV size));
 /* error message if an argument is not a class.
  error_class(caller,obj);
  > obj: the erroneous argument */
-nonreturning_function(extern, error_class, (object obj));
+extern _Noreturn void error_class (object obj);
 
 /* Report an error when the argument is not an encoding:
  check_encoding(obj,&default,keyword_p)
@@ -14895,28 +14868,27 @@ extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
  > typ: expected type (may be nullobj to signal a regular error
         instead of a type-error)
  > key: the argument name (usually a keyword) */
-nonreturning_function(global, error_illegal_arg,
-                      (object arg, object typ, object key));
+global _Noreturn void error_illegal_arg (object arg, object typ, object key);
 /* used by ENCODING, PATHNAME, STREAM */
 
 /* Error when the property list has odd length
  error_plist_odd(caller,plist);
  > plist: bad plist */
-nonreturning_function(extern, error_plist_odd, (object plist));
+extern _Noreturn void error_plist_odd (object plist);
 %% exportE(error_plist_odd,(object plist));
 
 /* error-message for non-paired keyword-arguments
  error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(extern, error_key_odd, (uintC argcount, object caller));
+extern _Noreturn void error_key_odd (uintC argcount, object caller);
 %% exportE(error_key_odd,(uintC argcount, object caller));
 
 /* error-message for flawed keyword
  error_key_notkw(kw);
  > key: Non-Symbol
  > caller: function */
-nonreturning_function(extern, error_key_notkw, (object key, object caller));
+extern _Noreturn void error_key_notkw (object key, object caller);
 
 /* error-message for flawed keyword
  error_key_badkw(fun,kw,kwlist);
@@ -14924,8 +14896,7 @@ nonreturning_function(extern, error_key_notkw, (object key, object caller));
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(extern, error_key_badkw,
-                      (object fun, object key, object val, object kwlist));
+extern _Noreturn void error_key_badkw (object fun, object key, object val, object kwlist);
 %% exportE(error_key_badkw,(object fun, object key, object val, object kwlist));
 
 /* check_function(obj)
@@ -14968,7 +14939,7 @@ static inline maygc object check_funname (condition_t errtype, object caller, ob
  error_lambda_expression(caller,obj);
  caller: caller (a symbol)
  obj: the faulty argument */
-nonreturning_function(extern, error_lambda_expression, (object caller, object obj));
+extern _Noreturn void error_lambda_expression (object caller, object obj);
 /* is used by EVAL, SYMBOL */
 
 /* too many/few arguments in a function call
@@ -14977,10 +14948,8 @@ nonreturning_function(extern, error_lambda_expression, (object caller, object ob
  > ngiven : the number of arguments given
  < nmax   : the maximum number of arguments accepted
  < nmin   : the minimum number of arguments required */
-nonreturning_function(extern, error_too_many_args,
-                      (object caller, object func, uintL ngiven, uintL nmax));
-nonreturning_function(extern, error_too_few_args,
-                      (object caller, object func, uintL ngiven, uintL nmin));
+extern _Noreturn void error_too_many_args (object caller, object func, uintL ngiven, uintL nmax);
+extern _Noreturn void error_too_few_args (object caller, object func, uintL ngiven, uintL nmin);
 
 /* used by EVAL, FOREIGN */
 
@@ -14997,8 +14966,7 @@ extern maygc void check_variable_value_replacement (gcv_object_t *symbol_,
 /* Error message, if an argument isn't of a given elementary C type.
  error_<ctype>(obj);
  > obj: the faulty argument */
-nonreturning_function(global, error_c_integer,
-                      (object obj, int tcode, bool signedp));
+global _Noreturn void error_c_integer (object obj, int tcode, bool signedp);
 %% exportE(error_c_integer,(object obj, int tcode, bool signedp));
 #define error_uint8(obj)   error_c_integer(obj,0,true)
 #define error_sint8(obj)   error_c_integer(obj,0,true)
@@ -15008,8 +14976,8 @@ nonreturning_function(global, error_c_integer,
 #define error_sint32(obj)  error_c_integer(obj,2,true)
 #define error_uint64(obj)  error_c_integer(obj,3,false)
 #define error_sint64(obj)  error_c_integer(obj,3,true)
-/* nonreturning_function(extern, error_uint, (object obj));
- nonreturning_function(extern, error_sint, (object obj)); */
+/* _Noreturn extern void error_uint (object obj);
+ _Noreturn extern void error_sint (object obj); */
 #if (int_bitsize==16)
   #define error_uint  error_uint16
   #define error_sint  error_sint16
@@ -15017,8 +14985,8 @@ nonreturning_function(global, error_c_integer,
   #define error_uint  error_uint32
   #define error_sint  error_sint32
 #endif
-/* nonreturning_function(extern, error_ulong, (object obj));
- nonreturning_function(extern, error_slong, (object obj)); */
+/* _Noreturn extern void error_ulong (object obj);
+ _Noreturn extern void error_slong (object obj); */
 #if (long_bitsize==32)
   #define error_ulong  error_uint32
   #define error_slong  error_sint32
@@ -15628,7 +15596,7 @@ extern maygc void init_streamvars (bool batch_p);
  error_illegal_streamop(caller,stream);
  > caller: Caller (a symbol)
  > stream: Stream */
-nonreturning_function(extern, error_illegal_streamop, (object caller, object stream));
+extern _Noreturn void error_illegal_streamop (object caller, object stream);
 /* is used by IO */
 
 /* Reads a byte from a stream.

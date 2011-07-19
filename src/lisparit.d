@@ -315,7 +315,7 @@ global maygc void print_float (object z, const gcv_object_t* stream_) {
 
 /* error-message because of illegal digits-argument obj.
  > obj: object */
-nonreturning_function(local, error_digits, (object obj)) {
+local _Noreturn void error_digits (object obj) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);

@@ -1040,7 +1040,7 @@ LISPFUNN(driver_frame_p,1)
 /* error-message, if there is no EVAL/APPLY-frame-pointer.
  error_evalframe(obj);
  > obj: not an EVAL/APPLY-frame-pointer */
-nonreturning_function(local, error_evalframe, (object obj)) {
+local _Noreturn void error_evalframe (object obj) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: ~S is not a pointer to an EVAL/APPLY frame"));

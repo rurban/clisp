@@ -2100,7 +2100,7 @@ global maygc object string_invertcase (object string) {
 }
 
 /* error, if index-argument is not an integer. */
-nonreturning_function(local, error_int, (object kw, object obj)) {
+local _Noreturn void error_int (object kw, object obj) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2114,7 +2114,7 @@ nonreturning_function(local, error_int, (object kw, object obj)) {
 }
 
 /* error, if index-argument is not an integer or NIL. */
-nonreturning_function(local, error_int_null, (object kw, object obj)) {
+local _Noreturn void error_int_null (object kw, object obj) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_end_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2128,7 +2128,7 @@ nonreturning_function(local, error_int_null, (object kw, object obj)) {
 }
 
 /* error, if index-argument is negative. */
-nonreturning_function(local, error_posint, (object kw, object obj)) {
+local _Noreturn void error_posint (object kw, object obj) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2142,8 +2142,7 @@ nonreturning_function(local, error_posint, (object kw, object obj)) {
 }
 
 /* error, if index-argument is not <= limit. */
-nonreturning_function(local, error_cmp_inclusive, (object kw, object obj,
-                                                    uintL grenze)) {
+local _Noreturn void error_cmp_inclusive (object kw, object obj, uintL grenze) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL);
   pushSTACK(obj);
@@ -2163,8 +2162,7 @@ nonreturning_function(local, error_cmp_inclusive, (object kw, object obj,
 }
 
 /* error, if index-argument is not < limit. */
-nonreturning_function(local, error_cmp_exclusive, (object kw, object obj,
-                                                    uintL grenze)) {
+local _Noreturn void error_cmp_exclusive (object kw, object obj, uintL grenze) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL);
   pushSTACK(obj);

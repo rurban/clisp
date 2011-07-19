@@ -3852,8 +3852,8 @@ local void get_OS_error_info (DWORD errcode, OS_error_info_callback* func)
 /* handling of Win32 errors
  OS_error();
  > GetLastError(): error code */
-nonreturning_function(modexp, OS_error, (void));
-nonreturning_function(modexp, OS_error_arg, (object etype, object arg));
+modexp _Noreturn void OS_error (void);
+modexp _Noreturn void OS_error_arg (object etype, object arg);
 local void OS_error_internal (DWORD errcode);
 local void OS_error_internal_body (const char* name, const char* msg) {
   if (name != NULL) {           /* known name? */
@@ -3874,7 +3874,7 @@ local void OS_error_internal (DWORD errcode) {
   /* maybe more details?*/
   get_OS_error_info(errcode,&OS_error_internal_body);
 }
-nonreturning_function(modexp, OS_error, (void)) {
+modexp _Noreturn void OS_error (void) {
   var DWORD errcode;
   end_system_call();            /* just in case */
   begin_system_call();
@@ -3888,7 +3888,7 @@ nonreturning_function(modexp, OS_error, (void)) {
   end_error(args_end_pointer STACKop 7,true);
   NOTREACHED;
 }
-nonreturning_function(modexp, OS_error_arg, (object etype, object arg)) {
+modexp _Noreturn void OS_error_arg (object etype, object arg) {
   var DWORD errcode;
   begin_system_call();
   errcode = GetLastError();

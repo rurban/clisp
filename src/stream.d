@@ -267,8 +267,7 @@ Additionally a list of all open File-Streams is maintained (for safety). */
  error_illegal_streamop(caller,stream);
  > caller: Caller (a Symbol)
  > stream: Stream */
-nonreturning_function(global, error_illegal_streamop,
-                      (object caller, object stream)) {
+global _Noreturn void error_illegal_streamop (object caller, object stream) {
   pushSTACK(stream); /* STREAM-ERROR slot STREAM */
   pushSTACK(stream);
   pushSTACK(caller);
@@ -1062,7 +1061,7 @@ local void stream_dummy_fill (object stream) {
 }
 
 /* returns error-message, if the value of the Symbol sym is not a Stream. */
-nonreturning_function(local, error_value_stream, (object sym));
+local _Noreturn void error_value_stream (object sym);
 /* see below */
 
 /* UP: Returns the Stream, that is the value of a Variable.
@@ -1110,7 +1109,7 @@ LISPFUN(symbol_stream,seclass_read,1,1,norest,nokey,0,NIL) {
 }
 
 /* signal an error if for some obscure reason a WRITE should not work: */
-nonreturning_function(local, error_unwritable, (object caller, object stream))
+local _Noreturn void error_unwritable (object caller, object stream)
 {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream);
@@ -1120,8 +1119,7 @@ nonreturning_function(local, error_unwritable, (object caller, object stream))
 
 /* signal an error if an Object is not the needed type:
  error_write(stream,obj,type); */
-nonreturning_function(local, error_write, (object stream, object obj,
-                                           object type)) {
+local _Noreturn void error_write (object stream, object obj, object type) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(type);              /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(type); pushSTACK(stream); pushSTACK(obj);
@@ -1149,7 +1147,7 @@ local maygc void wr_ch_array_forbidden (const gcv_object_t* stream_,
 
 /* signal an error if an Integer is out of range:
  error_bad_integer(stream,obj); */
-nonreturning_function(local, error_bad_integer, (object stream, object obj)) {
+local _Noreturn void error_bad_integer (object stream, object obj) {
   pushSTACK(stream); /* STREAM-ERROR slot STREAM */
   pushSTACK(stream); pushSTACK(obj);
   error(stream_error,GETTEXT("integer ~S is out of range, cannot be output onto ~S"));
@@ -1220,7 +1218,7 @@ local bool output_stream_p (object stream) {
  > stream: Stream */
 #define test_input_stream(stream)  \
     if (!input_stream_p(stream)) error_input_stream(stream);
-nonreturning_function(local, error_input_stream, (object stream)) {
+local _Noreturn void error_input_stream (object stream) {
   pushSTACK(stream);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_input_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -1232,7 +1230,7 @@ nonreturning_function(local, error_input_stream, (object stream)) {
  > stream: Stream */
 #define test_output_stream(stream)  \
     if (!output_stream_p(stream)) error_output_stream(stream);
-nonreturning_function(local, error_output_stream, (object stream)) {
+local _Noreturn void error_output_stream (object stream) {
   pushSTACK(stream);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_output_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -2365,7 +2363,7 @@ LISPFUNNR(echo_stream_output_stream,1)
 /* error-message, if index >= length(string):
  error_str_in_adjusted(stream);
  > stream: problematic String-Input-Stream */
-nonreturning_function(local, error_str_in_adjusted, (object stream)) {
+local _Noreturn void error_str_in_adjusted (object stream) {
   pushSTACK(stream); /* STREAM-ERROR slot STREAM */
   pushSTACK(TheStream(stream)->strm_str_in_string);
   pushSTACK(stream);
@@ -2466,8 +2464,7 @@ LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
   VALUES1(stream); /* stream as value */
 }
 
-nonreturning_function(local, error_string_stream,
-                      (object stream, const char *message)) {
+local _Noreturn void error_string_stream (object stream, const char *message) {
   pushSTACK(stream);           /* TYPE-ERROR slot DATUM */
   pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(stream);
@@ -3936,7 +3933,7 @@ typedef struct strm_unbuffered_extrafields_t {
 
 /* Error message after user interrupt.
  error_interrupt(); */
-nonreturning_function(local, error_interrupt, (void)) {
+local _Noreturn void error_interrupt (void) {
   pushSTACK(TheSubr(subr_self)->name);
   error(interrupt_condition,GETTEXT("~S: Ctrl-C: User break"));
 }
@@ -3995,7 +3992,7 @@ global object iconv_range (object encoding, uintL start, uintL end, uintL maxint
 
 /* Error, when a character cannot be converted to an encoding.
  error_unencodable(encoding); */
-nonreturning_function(extern, error_unencodable, (object encoding, chart ch));
+extern _Noreturn void error_unencodable (object encoding, chart ch);
 
 /* Avoid annoying warning caused by a wrongly standardized iconv() prototype. */
 #if defined(GNU_LIBICONV) && !defined(UNIX_MACOSX)
@@ -6380,7 +6377,7 @@ local maygc void buffered_writebyte (object stream, uintB b) {
 
  error-message because of positioning behind EOF.
  error_position_beyond_EOF(stream); */
-nonreturning_function(local, error_position_beyond_EOF, (object stream)) {
+local _Noreturn void error_position_beyond_EOF (object stream) {
   pushSTACK(Truename_or_Self(stream)); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream);
   error(file_error,GETTEXT("cannot position ~S beyond EOF"));
@@ -13742,7 +13739,7 @@ local maygc void test_n_bytes_args (uintL* index_, uintL* count_) {
 
 /* UP: report END-OF-FILE error
  > stream: the stream that has reached EOS */
-nonreturning_function(local, error_eos, (object stream)) {
+local _Noreturn void error_eos (object stream) {
   pushSTACK(stream);            /* STREAM-ERROR slot STREAM */
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
   error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
@@ -15421,7 +15418,7 @@ local void error_value_stream (object sym) {
 
 #ifdef GNU_READLINE
 /* Auxiliary functions for the GNU ReadLine Library: */
-nonreturning_function(local, rl_memory_abort, (void)) {
+local _Noreturn void rl_memory_abort (void) {
   /* when there is no more memory for the ReadLine
    drop it and replace the *TERMINAL-IO* with another
    terminal-stream without ReadLine */

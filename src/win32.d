@@ -54,12 +54,12 @@ extern void free (void* memblock);
 /* used by spvw.d */
 
 /* Normal program exit */
-nonreturning_function(extern, _exit, (int status));
+extern _Noreturn void _exit (int status);
 /* used by spvw.d */
 
 /* Abrupt program termination */
 /* win32aux.d overwrites abort() */
-nonreturning_function(extern, abort, (void));
+extern _Noreturn void abort (void);
 /* used by spvw.d, debug.d, eval.d, io.d */
 
 /* Type of a file handle */
