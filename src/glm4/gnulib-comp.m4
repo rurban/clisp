@@ -27,15 +27,16 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
+  # Code from module accept:
   # Code from module alignof:
   # Code from module alloca:
   # Code from module alloca-opt:
-  # Code from module arg-nonnull:
   # Code from module arpa_inet:
+  # Code from module bind:
   # Code from module btowc:
-  # Code from module c++defs:
   # Code from module c-ctype:
   # Code from module configmake:
+  # Code from module connect:
   # Code from module dosname:
   # Code from module environ:
   # Code from module errno:
@@ -47,6 +48,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module gethostname:
   # Code from module getloadavg:
   # Code from module getpagesize:
+  # Code from module getpeername:
+  # Code from module getsockname:
   # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettimeofday:
@@ -60,6 +63,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module langinfo:
   # Code from module libsigsegv:
   # Code from module link-follow:
+  # Code from module listen:
   # Code from module localcharset:
   # Code from module lock:
   # Code from module lstat:
@@ -82,8 +86,17 @@ AC_DEFUN([gl_EARLY],
   # Code from module no-c++:
   # Code from module nocrash:
   # Code from module readlink:
+  # Code from module recv:
   # Code from module regex:
+  # Code from module send:
   # Code from module setenv:
+  # Code from module setsockopt:
+  # Code from module shutdown:
+  # Code from module snippet/_Noreturn:
+  # Code from module snippet/arg-nonnull:
+  # Code from module snippet/c++defs:
+  # Code from module snippet/warn-on-use:
+  # Code from module socket:
   # Code from module socketlib:
   # Code from module sockets:
   # Code from module socklen:
@@ -94,7 +107,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdint:
   # Code from module stdlib:
   # Code from module streq:
-  # Code from module strerror:
+  # Code from module strerror-override:
   # Code from module strerror_r-posix:
   # Code from module strftime:
   # Code from module string:
@@ -121,7 +134,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module uniwidth/width:
   # Code from module unsetenv:
   # Code from module verify:
-  # Code from module warn-on-use:
   # Code from module wchar:
   # Code from module wcrtomb:
   # Code from module wctype-h:
@@ -143,100 +155,281 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([accept])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([accept])
 gl_FUNC_ALLOCA
 gl_HEADER_ARPA_INET
 AC_PROG_MKDIR_P
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([bind])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([bind])
 gl_FUNC_BTOWC
+if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
+  AC_LIBOBJ([btowc])
+  gl_PREREQ_BTOWC
+fi
 gl_WCHAR_MODULE_INDICATOR([btowc])
 gl_CONFIGMAKE_PREP
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([connect])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([connect])
 gl_ENVIRON
 gl_UNISTD_MODULE_INDICATOR([environ])
 gl_HEADER_ERRNO_H
 gl_FUNC_FNMATCH_POSIX
+if test -n "$FNMATCH_H"; then
+  AC_LIBOBJ([fnmatch])
+  gl_PREREQ_FNMATCH
+fi
 gl_FUNC_FNMATCH_GNU
+if test -n "$FNMATCH_H"; then
+  AC_LIBOBJ([fnmatch])
+  gl_PREREQ_FNMATCH
+fi
 gl_FUNC_GETHOSTNAME
+if test $HAVE_GETHOSTNAME = 0; then
+  AC_LIBOBJ([gethostname])
+  gl_PREREQ_GETHOSTNAME
+fi
 gl_UNISTD_MODULE_INDICATOR([gethostname])
-gl_GETLOADAVG([$gl_source_base])
+gl_GETLOADAVG
+if test $HAVE_GETLOADAVG = 0; then
+  AC_LIBOBJ([getloadavg])
+  gl_PREREQ_GETLOADAVG
+fi
 gl_STDLIB_MODULE_INDICATOR([getloadavg])
 gl_FUNC_GETPAGESIZE
+if test $REPLACE_GETPAGESIZE = 1; then
+  AC_LIBOBJ([getpagesize])
+fi
 gl_UNISTD_MODULE_INDICATOR([getpagesize])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([getpeername])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([getpeername])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([getsockname])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([getsockname])
 dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
 AM_GNU_GETTEXT_VERSION([0.18.1])
 AC_SUBST([LIBINTL])
 AC_SUBST([LTLIBINTL])
 gl_FUNC_GETTIMEOFDAY
+if test $HAVE_GETTIMEOFDAY = 0 || test $REPLACE_GETTIMEOFDAY = 1; then
+  AC_LIBOBJ([gettimeofday])
+  gl_PREREQ_GETTIMEOFDAY
+fi
 gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
 gl_GNU_MAKE
 gl_HOST_CPU_C_ABI
 gl_FUNC_INET_NTOP
+if test $HAVE_INET_NTOP = 0; then
+  AC_LIBOBJ([inet_ntop])
+  gl_PREREQ_INET_NTOP
+fi
 gl_ARPA_INET_MODULE_INDICATOR([inet_ntop])
 gl_FUNC_INET_PTON
+if test $HAVE_INET_PTON = 0; then
+  AC_LIBOBJ([inet_pton])
+  gl_PREREQ_INET_PTON
+fi
 gl_ARPA_INET_MODULE_INDICATOR([inet_pton])
 gl_LANGINFO_H
 gl_LIBSIGSEGV
 gl_FUNC_LINK_FOLLOWS_SYMLINK
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([listen])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([listen])
 gl_LOCALCHARSET
 LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
 AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
 gl_LOCK
 gl_FUNC_LSTAT
+if test $REPLACE_LSTAT = 1; then
+  AC_LIBOBJ([lstat])
+  gl_PREREQ_LSTAT
+fi
 gl_SYS_STAT_MODULE_INDICATOR([lstat])
 gl_FUNC_MALLOC_GNU
+if test $REPLACE_MALLOC = 1; then
+  AC_LIBOBJ([malloc])
+fi
 gl_MODULE_INDICATOR([malloc-gnu])
 gl_FUNC_MALLOC_POSIX
+if test $REPLACE_MALLOC = 1; then
+  AC_LIBOBJ([malloc])
+fi
 gl_STDLIB_MODULE_INDICATOR([malloc-posix])
 gl_MALLOCA
 gl_FUNC_MBRTOWC
+if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
+  AC_LIBOBJ([mbrtowc])
+  gl_PREREQ_MBRTOWC
+fi
 gl_WCHAR_MODULE_INDICATOR([mbrtowc])
 gl_FUNC_MBSINIT
+if test $HAVE_MBSINIT = 0 || test $REPLACE_MBSINIT = 1; then
+  AC_LIBOBJ([mbsinit])
+  gl_PREREQ_MBSINIT
+fi
 gl_WCHAR_MODULE_INDICATOR([mbsinit])
 gl_FUNC_MBSRTOWCS
+if test $HAVE_MBSRTOWCS = 0 || test $REPLACE_MBSRTOWCS = 1; then
+  AC_LIBOBJ([mbsrtowcs])
+  AC_LIBOBJ([mbsrtowcs-state])
+  gl_PREREQ_MBSRTOWCS
+fi
 gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
 gl_FUNC_MBTOWC
+if test $REPLACE_MBTOWC = 1; then
+  AC_LIBOBJ([mbtowc])
+  gl_PREREQ_MBTOWC
+fi
 gl_STDLIB_MODULE_INDICATOR([mbtowc])
 gl_FUNC_MEMCHR
+if test $HAVE_MEMCHR = 0 || test $REPLACE_MEMCHR = 1; then
+  AC_LIBOBJ([memchr])
+  gl_PREREQ_MEMCHR
+fi
 gl_STRING_MODULE_INDICATOR([memchr])
 gl_FUNC_MKDTEMP
+if test $HAVE_MKDTEMP = 0; then
+  AC_LIBOBJ([mkdtemp])
+  gl_PREREQ_MKDTEMP
+fi
 gl_STDLIB_MODULE_INDICATOR([mkdtemp])
 gl_FUNC_MKFIFO
+if test $HAVE_MKFIFO = 0 || test $REPLACE_MKFIFO = 1; then
+  AC_LIBOBJ([mkfifo])
+fi
 gl_UNISTD_MODULE_INDICATOR([mkfifo])
 gl_FUNC_MKNOD
+if test $HAVE_MKNOD = 0 || test $REPLACE_MKNOD = 1; then
+  AC_LIBOBJ([mknod])
+fi
 gl_UNISTD_MODULE_INDICATOR([mknod])
 gl_FUNC_MKSTEMP
+if test $HAVE_MKSTEMP = 0 || test $REPLACE_MKSTEMP = 1; then
+  AC_LIBOBJ([mkstemp])
+  gl_PREREQ_MKSTEMP
+fi
 gl_STDLIB_MODULE_INDICATOR([mkstemp])
 gl_FUNC_MKTIME
+if test $REPLACE_MKTIME = 1; then
+  AC_LIBOBJ([mktime])
+  gl_PREREQ_MKTIME
+fi
 gl_TIME_MODULE_INDICATOR([mktime])
 gl_MULTIARCH
 gl_HEADER_NETINET_IN
 AC_PROG_MKDIR_P
 gl_FUNC_NL_LANGINFO
+if test $HAVE_NL_LANGINFO = 0 || test $REPLACE_NL_LANGINFO = 1; then
+  AC_LIBOBJ([nl_langinfo])
+fi
 gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
 gt_NO_CXX
 gl_FUNC_READLINK
+if test $HAVE_READLINK = 0 || test $REPLACE_READLINK = 1; then
+  AC_LIBOBJ([readlink])
+  gl_PREREQ_READLINK
+fi
 gl_UNISTD_MODULE_INDICATOR([readlink])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([recv])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([recv])
 gl_REGEX
+if test $ac_use_included_regex = yes; then
+  AC_LIBOBJ([regex])
+  gl_PREREQ_REGEX
+fi
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([send])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([send])
 gl_FUNC_SETENV
+if test $HAVE_SETENV = 0 || test $REPLACE_SETENV = 1; then
+  AC_LIBOBJ([setenv])
+fi
 gl_STDLIB_MODULE_INDICATOR([setenv])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([setsockopt])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([setsockopt])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([shutdown])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([shutdown])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([socket])
+fi
+# When this module is used, sockets may actually occur as file descriptors,
+# hence it is worth warning if the modules 'close' and 'ioctl' are not used.
+m4_ifdef([gl_UNISTD_H_DEFAULTS], [AC_REQUIRE([gl_UNISTD_H_DEFAULTS])])
+m4_ifdef([gl_SYS_IOCTL_H_DEFAULTS], [AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])])
+AC_REQUIRE([gl_PREREQ_SYS_H_WINSOCK2])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS=1
+  SYS_IOCTL_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS=1
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([socket])
 gl_SOCKETLIB
 gl_SOCKETS
 gl_TYPE_SOCKLEN_T
 gt_TYPE_SSIZE_T
 gl_FUNC_STAT
+if test $REPLACE_STAT = 1; then
+  AC_LIBOBJ([stat])
+  gl_PREREQ_STAT
+fi
 gl_SYS_STAT_MODULE_INDICATOR([stat])
 AM_STDBOOL_H
 gl_STDDEF_H
 gl_STDINT_H
 gl_STDLIB_H
-gl_FUNC_STRERROR
-gl_MODULE_INDICATOR([strerror])
-gl_STRING_MODULE_INDICATOR([strerror])
+AC_REQUIRE([gl_HEADER_ERRNO_H])
+AC_REQUIRE([gl_FUNC_STRERROR_0])
+if test -n "$ERRNO_H" || test $REPLACE_STRERROR_0 = 1; then
+  AC_LIBOBJ([strerror-override])
+  gl_PREREQ_SYS_H_WINSOCK2
+fi
 gl_FUNC_STRERROR_R
+if test $HAVE_DECL_STRERROR_R = 0 || test $REPLACE_STRERROR_R = 1; then
+  AC_LIBOBJ([strerror_r])
+  gl_PREREQ_STRERROR_R
+fi
 gl_STRING_MODULE_INDICATOR([strerror_r])
 gl_FUNC_GNU_STRFTIME
 gl_HEADER_STRING_H
 gl_FUNC_STRPTIME
+if test $HAVE_STRPTIME = 0; then
+  AC_LIBOBJ([strptime])
+  gl_PREREQ_STRPTIME
+fi
 gl_TIME_MODULE_INDICATOR([strptime])
 gl_FUNC_STRVERSCMP
+if test $HAVE_STRVERSCMP = 0; then
+  AC_LIBOBJ([strverscmp])
+  gl_PREREQ_STRVERSCMP
+fi
 gl_STRING_MODULE_INDICATOR([strverscmp])
 gl_HEADER_SYS_SOCKET
 AC_PROG_MKDIR_P
@@ -254,8 +447,16 @@ gl_FUNC_GEN_TEMPNAME
 gl_THREADLIB
 gl_HEADER_TIME_H
 gl_TIME_R
+if test $HAVE_LOCALTIME_R = 0 || test $REPLACE_LOCALTIME_R = 1; then
+  AC_LIBOBJ([time_r])
+  gl_PREREQ_TIME_R
+fi
 gl_TIME_MODULE_INDICATOR([time_r])
 gl_FUNC_UNAME
+if test $HAVE_UNAME = 0; then
+  AC_LIBOBJ([uname])
+  gl_PREREQ_UNAME
+fi
 gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
 gl_LIBUNISTRING_LIBHEADER([0.9], [uniname.h])
 gl_LIBUNISTRING_MODULE([0.9], [uniname/uniname])
@@ -264,9 +465,17 @@ gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
 gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
 gl_LIBUNISTRING_MODULE([0.9.4], [uniwidth/width])
 gl_FUNC_UNSETENV
+if test $HAVE_UNSETENV = 0 || test $REPLACE_UNSETENV = 1; then
+  AC_LIBOBJ([unsetenv])
+  gl_PREREQ_UNSETENV
+fi
 gl_STDLIB_MODULE_INDICATOR([unsetenv])
 gl_WCHAR_H
 gl_FUNC_WCRTOMB
+if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
+  AC_LIBOBJ([wcrtomb])
+  gl_PREREQ_WCRTOMB
+fi
 gl_WCHAR_MODULE_INDICATOR([wcrtomb])
 gl_WCTYPE_H
   # End of code from modules
@@ -409,18 +618,22 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # This macro records the list of files which have been installed by
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
-  build-aux/arg-nonnull.h
-  build-aux/c++defs.h
   build-aux/config.rpath
-  build-aux/warn-on-use.h
+  build-aux/snippet/_Noreturn.h
+  build-aux/snippet/arg-nonnull.h
+  build-aux/snippet/c++defs.h
+  build-aux/snippet/warn-on-use.h
+  lib/accept.c
   lib/alignof.h
   lib/alloca.c
   lib/alloca.in.h
   lib/arpa_inet.in.h
+  lib/bind.c
   lib/btowc.c
   lib/c-ctype.c
   lib/c-ctype.h
   lib/config.charset
+  lib/connect.c
   lib/dosname.h
   lib/errno.in.h
   lib/fd-hook.c
@@ -431,6 +644,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/gethostname.c
   lib/getloadavg.c
   lib/getpagesize.c
+  lib/getpeername.c
+  lib/getsockname.c
   lib/gettext.h
   lib/gettimeofday.c
   lib/glthread/lock.c
@@ -440,6 +655,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/inet_pton.c
   lib/intprops.h
   lib/langinfo.in.h
+  lib/listen.c
   lib/localcharset.c
   lib/localcharset.h
   lib/lstat.c
@@ -465,6 +681,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/netinet_in.in.h
   lib/nl_langinfo.c
   lib/readlink.c
+  lib/recv.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -473,7 +690,11 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
+  lib/send.c
   lib/setenv.c
+  lib/setsockopt.c
+  lib/shutdown.c
+  lib/socket.c
   lib/sockets.c
   lib/sockets.h
   lib/stat.c
@@ -482,8 +703,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
-  lib/strerror-impl.h
-  lib/strerror.c
+  lib/strerror-override.c
+  lib/strerror-override.h
   lib/strerror_r.c
   lib/strftime.c
   lib/strftime.h

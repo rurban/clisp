@@ -15,19 +15,24 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=xalloc-die --no-libtool --macro-prefix=gl --no-vc-files alloca-opt arpa_inet environ errno fd-hook fnmatch-gnu getloadavg getpagesize gettext gettimeofday gnu-make havelib host-cpu-c-abi inet_ntop inet_pton libsigsegv link-follow localcharset lstat mkdtemp mkfifo mknod mkstemp mktime netinet_in no-c++ nocrash readlink regex setenv socketlib sockets socklen stat stdbool stdint streq strerror strftime strptime strverscmp sys_time sys_uio sys_wait uname uniname/uniname unistd unitypes uniwidth/width unsetenv
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=xalloc-die --no-conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files accept alloca-opt arpa_inet bind connect environ errno fd-hook fnmatch-gnu getloadavg getpagesize getpeername getsockname gettext gettimeofday gnu-make havelib host-cpu-c-abi inet_ntop inet_pton libsigsegv link-follow listen localcharset lstat mkdtemp mkfifo mknod mkstemp mktime netinet_in no-c++ nocrash readlink recv regex send setenv setsockopt shutdown socket socketlib sockets socklen stat stdbool stdint streq strerror_r-posix strftime strptime strverscmp sys_time sys_uio sys_wait uname uniname/uniname unistd unitypes uniwidth/width unsetenv
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
+  accept
   alloca-opt
   arpa_inet
+  bind
+  connect
   environ
   errno
   fd-hook
   fnmatch-gnu
   getloadavg
   getpagesize
+  getpeername
+  getsockname
   gettext
   gettimeofday
   gnu-make
@@ -37,6 +42,7 @@ gl_MODULES([
   inet_pton
   libsigsegv
   link-follow
+  listen
   localcharset
   lstat
   mkdtemp
@@ -48,8 +54,13 @@ gl_MODULES([
   no-c++
   nocrash
   readlink
+  recv
   regex
+  send
   setenv
+  setsockopt
+  shutdown
+  socket
   socketlib
   sockets
   socklen
@@ -57,7 +68,7 @@ gl_MODULES([
   stdbool
   stdint
   streq
-  strerror
+  strerror_r-posix
   strftime
   strptime
   strverscmp
@@ -81,4 +92,5 @@ gl_LIB([libgnu])
 gl_MAKEFILE_NAME([])
 gl_MACRO_PREFIX([gl])
 gl_PO_DOMAIN([])
+gl_WITNESS_C_DOMAIN([])
 gl_VC_FILES([false])

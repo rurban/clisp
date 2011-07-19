@@ -786,9 +786,9 @@ local inline int sock_read_will_hang_p (int fd)
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
   var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
   if (result<0) {
-    if (sock_errno_is(EINTR))
+    if (errno == EINTR)
       goto restart_select;
-    SOCK_error();
+    ANSIC_error();
   } else {
     /* result = number of handles in handle_set for which read() would
      return without blocking. */
@@ -808,7 +808,7 @@ local inline int sock_read_will_hang_p (int fd)
 local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
 {
   if (nbyte == 0) {
-    sock_set_errno(EAGAIN);
+    errno = EAGAIN;
     return 0;
   }
   /* in MT builds the heap protection is managed by pin_varobject() */
@@ -821,7 +821,7 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
     if (persev == persev_immediate || persev == persev_bonus) {
       int will_hang = sock_read_will_hang_p(fd);
       if (will_hang > 0) {
-        sock_set_errno(EAGAIN);
+        errno = EAGAIN;
         break;
       }
       if (will_hang < 0) {
@@ -829,7 +829,7 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
           NOTREACHED;
         #else
           if (persev == persev_bonus) {
-            sock_set_errno(EAGAIN);
+            errno = EAGAIN;
             break;
           }
         #endif
@@ -838,7 +838,7 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = recv(fd,buf,limited_nbyte,0);
     if (retval == 0) {
-      sock_set_errno(ENOENT);
+      errno = ENOENT;
       break;
     } else if (retval < 0)
       return retval;
@@ -897,9 +897,9 @@ local inline int sock_write_will_hang_p (int fd)
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
   var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
   if (result<0) {
-    if (sock_errno_is(EINTR))
+    if (errno == EINTR)
       goto restart_select;
-    SOCK_error();
+    ANSIC_error();
   } else {
     /* result = number of handles in handle_set for which write() would
      return without blocking. */
@@ -919,7 +919,7 @@ local inline int sock_write_will_hang_p (int fd)
 local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
 {
   if (nbyte == 0) {
-    sock_set_errno(EAGAIN);
+    errno = EAGAIN;
     return 0;
   }
   /* in MT builds the heap protection is managed by pin_varobject() */
@@ -932,7 +932,7 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
     if (persev == persev_immediate || persev == persev_bonus) {
       int will_hang = sock_write_will_hang_p(fd);
       if (will_hang > 0) {
-        sock_set_errno(EAGAIN);
+        errno = EAGAIN;
         break;
       }
       if (will_hang < 0) {
@@ -940,7 +940,7 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
           NOTREACHED;
         #else
           if (persev == persev_bonus) {
-            sock_set_errno(EAGAIN);
+            errno = EAGAIN;
             break;
           }
         #endif
@@ -949,7 +949,7 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = send(fd,buf,limited_nbyte,0);
     if (retval == 0) {
-      sock_set_errno(ENOENT);
+      errno = ENOENT;
       break;
     } else if (retval < 0)
       return retval;
@@ -1017,10 +1017,10 @@ local DWORD WINAPI do_socket_wait (LPVOID arg) {
                  params->event==socket_wait_except?&handle_set:NULL,
                  params->timeout);
     if (ret < 0) {
-      if (sock_errno_is(EINTR)) {
+      if (errno == EINTR) {
         end_system_call(); goto restart_select;
       }
-      SOCK_error();
+      ANSIC_error();
     }
       end_system_call();
       if (ret != SOCKET_ERROR && ret != 0) /* success */

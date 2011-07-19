@@ -1063,6 +1063,7 @@
 %% puts("#include <sys/types.h>");
 #include <unistd.h>
 #include <sys/socket.h>         /* declares select, used in stream.d */
+#include <sys/select.h>
 #include <locale.h>
 #include <errno.h>
 #include <string.h> /* declares strlen() et al */
@@ -2029,10 +2030,6 @@ typedef enum {
    OS_error();
    > GetLastError(): error code */
     nonreturning_function(extern, OS_error, (void));
-  /* Handling of Winsock errors
-   SOCK_error();
-   > WSAGetLastError(): error code */
-    nonreturning_function(extern, SOCK_error, (void));
 #endif
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_error(). For debugging. */

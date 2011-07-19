@@ -1,3 +1,17 @@
+2011-07-19  Sam Steingold  <sds@gnu.org>
+
+	use gnulib modules to convert windows WSAGetLastError to errno
+	* Makefile.devel (GNULIB_CORE): add bind accept listen recv send
+	setsockopt shutdown connect socket setsockopt getsockname getpeername
+	replace strerror with strerror_r-posix
+	* errwin32.d (SOCK_error): remove
+	* lispbibl.d: include <sys/select.h>
+	* socket.d, stream.d, win32aux.d: use ANSIC_error instead of SOCK_error;
+	use errno instead of sock_errno_is/sock_set_errno
+	* unix.d, win32.d (SHUT_RD, SHUT_WR, SHUT_RDWR): do not defined
+	here, ensured by gnulib (in sys/socket)
+	(sock_errno, sock_errno_is, sock_set_errno, SOCK_error): remove
+
 2011-07-15  Sam Steingold  <sds@gnu.org>
 
 	* spvw_language.d (language): make it static to avoid
