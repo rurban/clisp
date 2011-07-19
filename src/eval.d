@@ -551,7 +551,7 @@ global /*maygc*/ void unwind (void)
 /* UP: "unwinds" the STACK up to the next DRIVER_FRAME and
  jumps into the corresponding top-level-loop.
  if count=0, unwind to TOP; otherwise reset that many times */
-nonreturning_function(global, reset, (uintL count)) {
+global _Noreturn void reset (uintL count) {
   /* when unwinding UNWIND-PROTECT-frames, don't save values: */
   bool top_p = (count==0);
   gcv_object_t *last_driver_frame = NULL;
@@ -659,7 +659,7 @@ global maygc void progv (object symlist, object vallist) {
  changes STACK,SP
  can trigger GC
  then jumps to the frame, which was found. */
-nonreturning_function(global /*maygc*/, unwind_upto, (gcv_object_t* upto_frame)) {
+global _Noreturn /*maygc*/ void unwind_upto (gcv_object_t* upto_frame) {
   GCTRIGGER1(mv_space);
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
@@ -2272,7 +2272,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
  error_specialform(caller,funname);
  > caller: caller (a symbol)
  > funname: a symbol */
-nonreturning_function(local, error_specialform, (object caller, object funname)) {
+local _Noreturn void error_specialform (object caller, object funname) {
   pushSTACK(funname);           /* CELL-ERROR slot NAME */
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2284,7 +2284,7 @@ nonreturning_function(local, error_specialform, (object caller, object funname))
  error_macro(caller,funname);
  > caller: caller (a symbol)
  > funname: a symbol */
-nonreturning_function(local, error_macro, (object caller, object funname)) {
+local _Noreturn void error_macro (object caller, object funname) {
   pushSTACK(funname);           /* CELL-ERROR slot NAME */
   pushSTACK(funname);
   pushSTACK(caller);
@@ -3308,7 +3308,7 @@ local maygc Values eval_applyhook(object fun) {
 }
 
 /* In EVAL: error, if too few arguments */
-nonreturning_function(local, error_eval_toofew, (object fun)) {
+local _Noreturn void error_eval_toofew (object fun) {
   var object form = STACK_(frame_form); /* Form */
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
@@ -3318,7 +3318,7 @@ nonreturning_function(local, error_eval_toofew, (object fun)) {
 }
 
 /* In EVAL: error, if too many arguments */
-nonreturning_function(local, error_eval_toomany, (object fun)) {
+local _Noreturn void error_eval_toomany (object fun) {
   var object form = STACK_(frame_form); /* Form */
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
@@ -3328,7 +3328,7 @@ nonreturning_function(local, error_eval_toomany, (object fun)) {
 }
 
 /* In EVAL: error, if dotted argument-list */
-nonreturning_function(global, error_dotted_form, (object form, object fun)) {
+global _Noreturn void error_dotted_form (object form, object fun) {
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   error(source_program_error,
@@ -4089,7 +4089,7 @@ modexp maygc Values apply (object fun, uintC args_on_stack, object other_args) {
 
 /* Error because of dotted argument-list
  > name: name of function */
-nonreturning_function(local, error_apply_dotted, (object name, object end)) {
+local _Noreturn void error_apply_dotted (object name, object end) {
   pushSTACK(end);
   pushSTACK(name);
   pushSTACK(S(apply));
@@ -4098,7 +4098,7 @@ nonreturning_function(local, error_apply_dotted, (object name, object end)) {
 
 /* Error because of too many arguments
  > name: name of function */
-nonreturning_function(local, error_apply_toomany, (object name)) {
+local _Noreturn void error_apply_toomany (object name) {
   pushSTACK(name);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   error(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
@@ -4107,7 +4107,7 @@ nonreturning_function(local, error_apply_toomany, (object name)) {
 /* Error because of too few arguments
  > name: name of function
  > tail: atom at the end of the argument list */
-nonreturning_function(local, error_apply_toofew, (object name, object tail)) {
+local _Noreturn void error_apply_toofew (object name, object tail) {
   if (!nullp(tail)) {
     pushSTACK(tail); /* ARGUMENT-LIST-DOTTED slot DATUM */
     pushSTACK(tail); pushSTACK(name);
@@ -4122,13 +4122,13 @@ nonreturning_function(local, error_apply_toofew, (object name, object tail)) {
 
 /* Error because of too many arguments for a SUBR
  > fun: function, a SUBR */
-nonreturning_function(local, error_subr_toomany, (object fun));
+local _Noreturn void error_subr_toomany (object fun);
 #define error_subr_toomany(fun)  error_apply_toomany(TheSubr(fun)->name)
 
 /* Error because of too few arguments for a SUBR
  > fun: function, a SUBR
  > tail: atom at the end of the argument list */
-nonreturning_function(local, error_subr_toofew, (object fun, object tail));
+local _Noreturn void error_subr_toofew (object fun, object tail);
 #define error_subr_toofew(fun,tail)  \
   error_apply_toofew(TheSubr(fun)->name,tail)
 
@@ -4443,13 +4443,13 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
 
 /* Error because of too many arguments for a Closure
  > closure: function, a Closure */
-nonreturning_function(local, error_closure_toomany, (object closure));
+local _Noreturn void error_closure_toomany (object closure);
 #define error_closure_toomany(closure)  error_apply_toomany(closure)
 
 /* Error because of too few arguments for a Closure
  > closure: function, a Closure
  > tail: atom at the end of the argument list */
-nonreturning_function(local, error_closure_toofew, (object closure, object tail));
+local _Noreturn void error_closure_toofew (object closure, object tail);
 #define error_closure_toofew(closure,tail)  error_apply_toofew(closure,tail)
 
 /* In APPLY: Applies a Closure to an argument-list, cleans up STACK

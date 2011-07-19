@@ -197,7 +197,7 @@ local gcv_object_t* write_errorstring (const char* errorstring)
 }
 
 /* SIGNAL the CONDITION and INVOKE the debugger */
-nonreturning_function(local, signal_and_debug, (object condition)) {
+local _Noreturn void signal_and_debug (object condition) {
   if (quit_on_signal_in_progress) /* if we are terminating on sighup, */
     quit();              /* printing the "exiting" messages will fail */
   pushSTACK(condition); /* save condition */
@@ -373,8 +373,7 @@ local void prepare_error (condition_t errortype, const char* errorstring,
    the tilde-S.
  > on the STACK: initialization values for the condition,
                  according to errortype */
-nonreturning_function(modexp, error,
-                      (condition_t errortype, const char* errorstring)) {
+modexp _Noreturn void error (condition_t errortype, const char* errorstring) {
   prepare_error(errortype,errorstring,true); /* finish error message */
   /* there is no point in using the condition system here:
      we will get into an infinite loop reporting the error */
@@ -453,7 +452,7 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
  OS_filestream_error(stream);
  > stream: a channel stream
  > end_system_call() already called */
-nonreturning_function(modexp, OS_filestream_error, (object stream)) {
+modexp _Noreturn void OS_filestream_error (object stream) {
   if (streamp(stream)) {
     if (TheStream(stream)->strmtype == strmtype_file
         && !nullp(TheStream(stream)->strm_file_truename))
@@ -884,7 +883,7 @@ modexp maygc object check_fpointer_replacement (object obj, bool restart_p) {
 /* error-message, if an object is not a list.
  error_list(obj);
  > obj: non-list */
-nonreturning_function(modexp, error_list, (object obj)) {
+modexp _Noreturn void error_list (object obj) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -919,8 +918,7 @@ MAKE_CHECK_REPLACEMENT(list,S(list),listp,GETTEXT("~S: ~S is not a list"))
  error_proper_list_dotted(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
-nonreturning_function(modexp, error_proper_list_dotted,
-                      (object caller, object obj)) {
+modexp _Noreturn void error_proper_list_dotted (object caller, object obj) {
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
@@ -931,8 +929,7 @@ nonreturning_function(modexp, error_proper_list_dotted,
  error_proper_list_circular(caller,obj);
  > caller: the caller (a symbol)
  > obj: circular list */
-nonreturning_function(global, error_proper_list_circular,
-                      (object caller, object obj)) {
+global _Noreturn void error_proper_list_circular (object caller, object obj) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1065,7 +1062,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
  error_no_svector(caller,obj);
  > caller: caller (a symbol)
  > obj: non-Svector */
-nonreturning_function(modexp, error_no_svector, (object caller, object obj)) {
+modexp _Noreturn void error_no_svector (object caller, object obj) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
@@ -1075,7 +1072,7 @@ nonreturning_function(modexp, error_no_svector, (object caller, object obj)) {
 /* error-message, if an object is not a vector.
  error_vector(obj);
  > obj: non-vector */
-nonreturning_function(modexp, error_vector, (object obj)) {
+modexp _Noreturn void error_vector (object obj) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1117,7 +1114,7 @@ modexp maygc object check_byte_vector_replacement (object obj) {
 /* error-message, if an object is not an environment.
  error_environment(obj);
  > obj: non-vector */
-nonreturning_function(global, error_environment, (object obj)) {
+global _Noreturn void error_environment (object obj) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_svector5)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1127,7 +1124,7 @@ nonreturning_function(global, error_environment, (object obj)) {
 /* error-message, if an argument is not a Fixnum >=0 :
  error_posfixnum(obj);
  > obj: the erroneous argument */
-nonreturning_function(global, error_posfixnum, (object obj)) {
+global _Noreturn void error_posfixnum (object obj) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1168,7 +1165,7 @@ modexp maygc object check_pos_integer_replacement (object obj) {
 /* error-message, if an argument is not a Character:
  error_char(obj);
  > obj: the erroneous argument */
-nonreturning_function(global, error_char, (object obj)) {
+global _Noreturn void error_char (object obj) {
   pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -1192,7 +1189,7 @@ MAKE_CHECK_REPLACEMENT(string,S(string),stringp,
 
 /* error-message, if an argument is not a Simple-String:
  > obj: the erroneous argument */
-nonreturning_function(modexp, error_sstring, (object obj)) {
+modexp _Noreturn void error_sstring (object obj) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_string)); pushSTACK(obj);
@@ -1203,14 +1200,14 @@ nonreturning_function(modexp, error_sstring, (object obj)) {
 /* error-message, if a Simple-String is immutable:
  error_sstring_immutable(obj);
  > obj: the String */
-nonreturning_function(global, error_sstring_immutable, (object obj)) {
+global _Noreturn void error_sstring_immutable (object obj) {
   pushSTACK(obj);
   error(error_condition,GETTEXT("Attempt to modify a read-only string: ~S"));
 }
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
  error_string_integer(obj)  */
-nonreturning_function(modexp, error_string_integer, (object obj)) {
+modexp _Noreturn void error_string_integer (object obj) {
   pushSTACK(obj);                    /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1221,7 +1218,7 @@ nonreturning_function(modexp, error_string_integer, (object obj)) {
 /* Error message, if a string size is too big.
  error_stringsize(size);
  > size: the desired string length  */
-nonreturning_function(global, error_stringsize, (uintV size)) {
+global _Noreturn void error_stringsize (uintV size) {
   var object obj = UV_to_I(size);
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1232,7 +1229,7 @@ nonreturning_function(global, error_stringsize, (uintV size)) {
 /* error message if an argument is not a class.
  error_class(caller,obj);
  > obj: the erroneous argument */
-nonreturning_function(global, error_class, (object obj)) {
+global _Noreturn void error_class (object obj) {
   pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -1309,8 +1306,7 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
  > typ: expected type (may be nullobj to signal a regular error
         instead of a type-error)
  > key: the argument name (usually a keyword) */
-nonreturning_function(global, error_illegal_arg,
-                      (object arg, object typ, object key)) {
+global _Noreturn void error_illegal_arg (object arg, object typ, object key) {
   condition_t errtype = error_condition;
   if (!eq(typ,nullobj)) {
     pushSTACK(arg); /* TYPE-ERROR slot DATUM */
@@ -1324,7 +1320,7 @@ nonreturning_function(global, error_illegal_arg,
 /* Error when the property list has odd length
  error_plist_odd(caller,plist);
  > plist: bad plist */
-nonreturning_function(modexp, error_plist_odd, (object plist)) {
+modexp _Noreturn void error_plist_odd (object plist) {
   pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(TheSubr(subr_self)->name);
@@ -1335,7 +1331,7 @@ nonreturning_function(modexp, error_plist_odd, (object plist)) {
  error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(modexp, error_key_odd, (uintC argcount, object caller)) {
+modexp _Noreturn void error_key_odd (uintC argcount, object caller) {
   var uintC count;
   pushSTACK(NIL); pushSTACK(NIL);
   for (count=0; count<argcount; count++) STACK_(count) = STACK_(count+2);
@@ -1351,7 +1347,7 @@ nonreturning_function(modexp, error_key_odd, (uintC argcount, object caller)) {
  error_key_notkw(kw);
  > kw: Non-Symbol
  > caller: function */
-nonreturning_function(global, error_key_notkw, (object kw, object caller)) {
+global _Noreturn void error_key_notkw (object kw, object caller) {
   pushSTACK(kw);        /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
@@ -1364,8 +1360,7 @@ nonreturning_function(global, error_key_notkw, (object kw, object caller)) {
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(modexp, error_key_badkw,
-                      (object fun, object key, object val, object kwlist)) {
+modexp _Noreturn void error_key_badkw (object fun, object key, object val, object kwlist) {
   pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
   pushSTACK(kwlist);
   pushSTACK(kwlist);
@@ -1496,8 +1491,7 @@ global maygc object check_funname_replacement
 /* error-message, if an argument is a lambda-expression instead of a function:
  caller: caller (a symbol)
  obj: the erroneous argument */
-nonreturning_function(global, error_lambda_expression,
-                      (object caller, object obj)) {
+global _Noreturn void error_lambda_expression (object caller, object obj) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
@@ -1512,8 +1506,7 @@ nonreturning_function(global, error_lambda_expression,
  > func   : the function being incorrectly called
  > ngiven : the number of arguments given
  < nmax   : the maximum number of arguments accepted */
-nonreturning_function(global, error_too_many_args,
-                      (object caller, object func, uintL ngiven, uintL nmax)) {
+global _Noreturn void error_too_many_args (object caller, object func, uintL ngiven, uintL nmax) {
   pushSTACK(func);
   pushSTACK(fixnum(nmax));
   pushSTACK(fixnum(ngiven));
@@ -1531,8 +1524,7 @@ nonreturning_function(global, error_too_many_args,
  > func   : the function being incorrectly called
  > ngiven : the number of arguments given
  < nmin   : the minimum number of arguments required */
-nonreturning_function(global, error_too_few_args,
-                      (object caller, object func, uintL ngiven, uintL nmin)) {
+global _Noreturn void error_too_few_args (object caller, object func, uintL ngiven, uintL nmin) {
   pushSTACK(func);
   pushSTACK(fixnum(nmin));
   pushSTACK(fixnum(ngiven));
@@ -1578,8 +1570,7 @@ local const char* prepare_c_integer_signal (object obj, int tcode, bool signedp)
     ? GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)")
     : GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits");
 }
-nonreturning_function(modexp, error_c_integer,
-                      (object obj, int tcode, bool signedp)) {
+modexp _Noreturn void error_c_integer (object obj, int tcode, bool signedp) {
   error(type_error,prepare_c_integer_signal(obj,tcode,signedp));
 }
 

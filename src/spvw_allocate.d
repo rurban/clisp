@@ -77,7 +77,7 @@ local void* mymalloc (uintM need);
 /* -------------------------- Implementation --------------------------- */
 
 /* error-message because of full memory */
-nonreturning_function(local, error_speicher_voll, (void)) {
+local _Noreturn void error_speicher_voll (void) {
   dynamic_bind(S(use_clcs),NIL); /* bind SYS::*USE-CLCS* to NIL */
   if (posfixnump(Symbol_value(S(gc_statistics_star)))) {
     /* bind SYS::*GC-STATISTICS* to 0 */
@@ -89,7 +89,7 @@ nonreturning_function(local, error_speicher_voll, (void)) {
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 
 /* emergency measure, when memory is full: tap the reserve and error-message. */
-nonreturning_function(local, error_speicher_voll, (void)) {
+local _Noreturn void error_speicher_voll (void) {
   /* Abhilfe: Reservespeicher wird halbiert. */
   var uintL reserve = mem.MEMTOP - mem.MEMRES; /* noch freie Reserve */
   if (reserve>=8) { /* reserve memory also full? */

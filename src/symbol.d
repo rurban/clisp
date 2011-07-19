@@ -10,7 +10,7 @@
 /* Error when the symbol's property list has odd length.
  error_sym_plist_odd(symbol);
  > symbol: Symbol */
-nonreturning_function(local, error_sym_plist_odd, (object symbol)) {
+local _Noreturn void error_sym_plist_odd (object symbol) {
   pushSTACK(Symbol_plist(symbol)); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(symbol); pushSTACK(S(get));

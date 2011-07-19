@@ -59,12 +59,8 @@ A valid value for `imenu-extract-index-name-function'."
           ((looking-at "DEFUN")
            (re-search-forward "([-A-Za-Z]*::?\\([^ ,]+\\)")
            (match-string 1))
-          ((looking-at "\\(local\\|global\\|modexp\\)")
+          ((looking-at "\\(local\\|global\\|modexp\\|_Noreturn\\)")
            (search-forward "(") (forward-char -1)
-           (let ((beg (scan-sexps (point) -1)))
-             (buffer-substring-no-properties beg (scan-sexps beg 1))))
-          ((looking-at "nonreturning_function")
-           (search-forward "(") (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
              (buffer-substring-no-properties beg (scan-sexps beg 1))))
           (t ;; (or (looking-at "struct ") (looking-at "#define ")
@@ -84,7 +80,7 @@ A valid value for `imenu-extract-index-name-function'."
    (eval-when-compile
     (concat "^" (regexp-opt '("LISPFUN" "LISPSPECFORM"
                               "local " "global " "modexp "
-                              "#define " "nonreturning_function"
+                              "#define " "_Noreturn"
                               "typedef " "struct " "DEFUN")
                             t)))
    nil 1))                      ; move to the limit
@@ -182,7 +178,7 @@ The point should be on the prototype and the definition should follow."
                  "loop" "inline" "NULL" "nullobj" "maygc" "per_thread"
                  "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
-                 "dotimesW" "nonreturning_function" "return_Values"
+                 "dotimesW" "_Noreturn" "return_Values"
                  "SstringDispatch" "SstringCase")
                'words)))
 
@@ -273,7 +269,7 @@ Beware - this will modify the original C-mode too!"
   (c-set-offset 'block-close 'd-indent-to-boi)
   (c-set-offset 'statement-block-intro 'd-indent-to-boi+offset)
   ;; (setq defun-prompt-regexp
-  ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|modexp\\|nonreturning_function\\) .*\\)")
+  ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|modexp\\|_Noreturn\\) .*\\)")
   (set (make-local-variable 'beginning-of-defun-function)
        'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)

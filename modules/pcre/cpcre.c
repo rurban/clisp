@@ -161,7 +161,7 @@ DEFCHECKER(error_pcre_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
            BADUTF8 BADUTF8-OFFSET PARTIAL BADPARTIAL :INTERNAL BADCOUNT \
            DFA-UITEM DFA-UCOND DFA-UMLIMIT DFA-WSSIZE DFA-RECURSE       \
            RECURSIONLIMIT NULLWSLIMIT BADNEWLINE)
-nonreturning_function(static, error_pcre, (int status)) {
+static _Noreturn void error_pcre (int status) {
   pushSTACK(error_pcre_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,"~S/~S=~S: ~S ~S");

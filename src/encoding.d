@@ -269,8 +269,7 @@ local char const hex_table[] = "0123456789ABCDEF";
 
 /* Error, when a character cannot be converted to an encoding.
  error_unencodable(encoding,ch); */
-nonreturning_function(global, error_unencodable,
-                      (object encoding, chart ch)) {
+global _Noreturn void error_unencodable (object encoding, chart ch) {
   pushSTACK(code_char(ch)); /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding); /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
@@ -293,7 +292,7 @@ nonreturning_function(global, error_unencodable,
 
 /* used in CONVERT-STRING-FROM-BYTES, so must not depend on ENABLE_UNICODE */
 /* missing bytes at the end */
-nonreturning_function(local, error_incomplete, (object encoding)) {
+local _Noreturn void error_incomplete (object encoding) {
   pushSTACK(NIL);     /* <end-of-file?> CHARSET-TYPE-ERROR slot DATUM */
 #ifdef ENABLE_UNICODE
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
@@ -555,8 +554,7 @@ global void uni32le_wcstombs (object encoding, object stream,
 
 /* Error when an invalid character was encountered.
  error_uni32_invalid(encoding,code); */
-nonreturning_function(local, error_uni32_invalid,
-                      (object encoding, uint32 code)) {
+local _Noreturn void error_uni32_invalid (object encoding, uint32 code) {
   pushSTACK(NIL); /* CHARSET-TYPE-ERROR slot datum - filled below */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
@@ -759,8 +757,7 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
 
 /* Error when an invalid 1-byte sequence was encountered.
  error_utf8_invalid1(encoding,b1); */
-nonreturning_function(local, error_utf8_invalid1,
-                      (object encoding, uintB b1)) {
+local _Noreturn void error_utf8_invalid1 (object encoding, uintB b1) {
   pushSTACK(fixnum(b1));        /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding);          /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
@@ -772,8 +769,7 @@ nonreturning_function(local, error_utf8_invalid1,
 
 /* Error when an invalid 2-byte sequence was encountered.
  error_utf8_invalid2(encoding,b1,b2); */
-nonreturning_function(local, error_utf8_invalid2,
-                      (object encoding, uintB b1, uintB b2)) {
+local _Noreturn void error_utf8_invalid2 (object encoding, uintB b1, uintB b2) {
   pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   STACK_1 = allocate_bit_vector(Atype_8Bit,2);
@@ -790,8 +786,7 @@ nonreturning_function(local, error_utf8_invalid2,
 
 /* Error when an invalid 3-byte sequence was encountered.
  error_utf8_invalid3(encoding,b1,b2,b3); */
-nonreturning_function(local, error_utf8_invalid3,
-                      (object encoding, uintB b1, uintB b2, uintB b3)) {
+local _Noreturn void error_utf8_invalid3 (object encoding, uintB b1, uintB b2, uintB b3) {
   pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   STACK_1 = allocate_bit_vector(Atype_8Bit,3);
@@ -811,8 +806,7 @@ nonreturning_function(local, error_utf8_invalid3,
 
 /* Error when an invalid 4-byte sequence was encountered.
  error_utf8_invalid4(encoding,b1,b2,b3,b4); */
-nonreturning_function(local, error_utf8_invalid4,
-                      (object encoding, uintB b1, uintB b2, uintB b3, uintB b4))
+local _Noreturn void error_utf8_invalid4 (object encoding, uintB b1, uintB b2, uintB b3, uintB b4)
 {
   pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
@@ -1630,7 +1624,7 @@ global object nls_range (object encoding, uintL start, uintL end, uintL maxinter
 
 /* Error when an invalid byte was encountered.
  error_nls_invalid(encoding,b); */
-nonreturning_function(local, error_nls_invalid, (object encoding, uintB b)) {
+local _Noreturn void error_nls_invalid (object encoding, uintB b) {
   pushSTACK(fixnum(b));      /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);

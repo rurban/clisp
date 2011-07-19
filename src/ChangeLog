@@ -1,5 +1,16 @@
 2011-07-19  Sam Steingold  <sds@gnu.org>
 
+	* bdb.c, clx.f, dirkey.c, gdbm.c, cpcre.c, rawsock.c, calls.c:
+	* aridecl.d, array.d, charstrg.d, control.d, debug.d, encoding.d:
+	* error.d, errunix.d, errwin32.d, eval.d, flo_konv.d, foreign.d:
+	* funarg.d, genclisph.d, intbyte.d, intdiv.d, intelem.d, intmal.d:
+	* io.d, lfloat.d, lisparit.d, lispbibl.d, makemake.in, pathname.d:
+	* record.d, sequence.d, spvw.d, spvw_allocate.d, stream.d, symbol.d:
+	* unix.d, win32.d, win32aux.d: gnulib module stdlib prodvides
+	macro _Noreturn; use it instead of nonreturning_function()
+
+2011-07-19  Sam Steingold  <sds@gnu.org>
+
 	use gnulib modules to convert windows WSAGetLastError to errno
 	* Makefile.devel (GNULIB_CORE): add bind accept listen recv send
 	setsockopt shutdown connect socket setsockopt getsockname getpeername

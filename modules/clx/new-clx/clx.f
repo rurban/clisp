@@ -497,8 +497,7 @@ extern void disable_sigpipe(void);
 static inline object funcall1 (object fun, object arg)
 { pushSTACK(arg); funcall(fun,1); return value1; }
 
-nonreturning_function(static, x_type_error,
-                      (object type, object datum, object type_string)) {
+static _Noreturn void x_type_error (object type, object datum, object type_string) {
   pushSTACK(`XLIB::X-TYPE-ERROR`);
   pushSTACK(`:CALLER`); pushSTACK(TheSubr(subr_self)->name);
   pushSTACK(S(Kdatum)); pushSTACK(datum);
@@ -509,8 +508,7 @@ nonreturning_function(static, x_type_error,
 }
 #define my_type_error(t,d)  x_type_error(t,d,NIL)
 
-nonreturning_function (static, error_closed_display,
-                       (object caller, object dpy)) {
+static _Noreturn void error_closed_display (object caller, object dpy) {
   pushSTACK(`XLIB::CLOSED-DISPLAY`);
   pushSTACK(`:DISPLAY`); pushSTACK(dpy);
   pushSTACK(`:CALLER`); pushSTACK(caller);
@@ -2478,7 +2476,7 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
  *  Chapter 4   Windows and Pixmaps
  * ----------------------------------------------------------------------- */
 
-nonreturning_function(static, error_required_keywords, (object list)) {
+static _Noreturn void error_required_keywords (object list) {
   pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,"~S: At least ~S must be specified");
 }
@@ -4939,8 +4937,7 @@ DEFUN(XLIB:COLORMAP-VISUAL-INFO, colormap)
   skipSTACK(1);
 }
 
-nonreturning_function(static, error_no_such_color,
-                      (object display, object color)) {
+static _Noreturn void error_no_such_color (object display, object color) {
   pushSTACK(display); /* get_display_obj() can trigger GC! */
   pushSTACK(color); /* color argument */
   pushSTACK(TheSubr(subr_self)->name);

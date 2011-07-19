@@ -3108,7 +3108,7 @@ fi
 
 echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* config.h */' ; grep '^#' config.h ) > clisp.h"
+echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* ==== config.h ==== */' ; cat config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done

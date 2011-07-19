@@ -26,13 +26,11 @@
   }
 
 # Fehler, wenn Argument kein Byte.
-  nonreturning_function(local, error_byte, (object bad)) {
+  _Noreturn local void error_byte (object bad) {
     pushSTACK(bad); # TYPE-ERROR slot DATUM
     pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(bad);
-    error(type_error,
-           GETTEXT("~S is not a BYTE specifier")
-          );
+    error(type_error,GETTEXT("~S is not a BYTE specifier"));
   }
 
 # Zugriffsfunktionen:

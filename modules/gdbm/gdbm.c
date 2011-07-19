@@ -66,7 +66,7 @@ DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            READER-CANT-REORGANIZE UNKNOWN-UPDATE ITEM-NOT-FOUND              \
            REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET     \
            OPT-ILLEGAL)
-nonreturning_function(static, error_gdbm, (char *fatal_message)) {
+static _Noreturn void error_gdbm (char *fatal_message) {
   end_blocking_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
@@ -214,7 +214,7 @@ static object coerce_bitvector (object arg) {
   }
 }
 
-nonreturning_function(static, error_bad_type, (object lisp_obj)) {
+static _Noreturn error_bad_type (object lisp_obj) {
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
   pushSTACK(`"invalid lisp object type: "`);

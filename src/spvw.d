@@ -168,7 +168,7 @@ global break_sems_ break_sems;
 /* --------------------------------------------------------------------------
                          fast program-exit */
 
-nonreturning_function(local, quit_instantly, (int));
+local _Noreturn void quit_instantly (int);
 /* --------------------------------------------------------------------------
                          memory management, common part */
 
@@ -860,7 +860,7 @@ global bool near_SP_overflow (void) {
 #endif
 
 /* At overflow of one of the stacks: */
-nonreturning_function(global, SP_ueber, (void)) {
+global _Noreturn void SP_ueber (void) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
   fputc('\n',stderr);
@@ -875,7 +875,7 @@ nonreturning_function(global, SP_ueber, (void)) {
     final_exitcode = 1; quit();
   }
 }
-nonreturning_function(modexp, STACK_ueber, (void)) {
+modexp _Noreturn void STACK_ueber (void) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
   fputc('\n',stderr);
@@ -1048,8 +1048,7 @@ global void* SP_anchor;
  error_notreached(file,line);
  > file: filename (with quotation marks) as constant ASCIZ-string
  > line: line number */
-nonreturning_function(modexp, error_notreached,
-                      (const char* file, uintL line)) {
+modexp _Noreturn void error_notreached (const char* file, uintL line) {
   end_system_call();            /* just in case */
   pushSTACK(fixnum(line));
   pushSTACK(ascii_to_string(file));
@@ -1248,8 +1247,7 @@ local inline void module_set_argtypes (module_t *module)
   #define verify_code_alignment(ptr,symbol)  \
     if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
       error_code_alignment((uintP)(void*)(ptr),symbol)
-nonreturning_function(local, error_code_alignment,
-                      (uintP address, object symbol)) {
+local _Noreturn void error_code_alignment (uintP address, object symbol) {
   fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n",
           TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))),
           address);
@@ -2050,7 +2048,7 @@ local void arg_error (const char *error_message, const char *arg) {
 } while (0)
 
 /* print license */
-nonreturning_function (local, print_license, (void)) {
+local _Noreturn void print_license (void) {
   local const char * const license [] = {
     PACKAGE_NAME " is free software; you can redistribute and/or modify it\n",
     "under the terms of the GNU General Public License as published by\n",
@@ -3896,7 +3894,7 @@ global int main (argc_t argc, char* argv[]) {
    In threads builds it is not good to make longjmp() across
    threads. Since argv1 and argv2 are global now - it's ok to
    have quit_instantly() as function */
-nonreturning_function(local, quit_instantly, (int exitcode))
+local _Noreturn void quit_instantly (int exitcode)
 {
   free_argv_initparams(&argv1);
   free_argv_actions(&argv2);
@@ -3934,7 +3932,7 @@ nonreturning_function(local, quit_instantly, (int exitcode))
 global int final_exitcode = 0;
 global bool quit_on_signal_in_progress = false;
 local int quit_retry = 0;
-nonreturning_function(global, quit, (void)) {
+global _Noreturn void quit (void) {
   /* first "unwind" the STACK downto STACK-end: */
   VALUES0; /* do not save values for UNWIND-PROTECT-frames */
   unwind_protect_to_save.fun = (restartf_t)&quit;
@@ -4087,9 +4085,8 @@ global void* find_name (void *handle, const char *name)
 
 /* Attaches a shared library to this process' memory, and attempts to load
  a number of clisp modules from it. */
-nonreturning_function(local, error_dlerror,
-                      (const char* func, const char* symbol, object errstring))
-{
+local _Noreturn void error_dlerror (const char* func, const char* symbol,
+                                    object errstring) {
   end_system_call();
   pushSTACK(errstring);
   if (symbol != NULL)

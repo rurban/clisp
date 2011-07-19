@@ -133,8 +133,8 @@
 /* used by SPVW */
 
 /* normal program end */
-nonreturning_function(extern_C, _exit, (int status)); /* EXIT(2V) */
-nonreturning_function(extern_C, exit, (int status)); /* EXIT(2V) */
+extern_C _Noreturn void _exit (int status); /* EXIT(2V) */
+extern_C _Noreturn void exit (int status); /* EXIT(2V) */
 /* used by SPVW, PATHNAME, STREAM */
 
 /* Immediate abnormal termination, jump into the debugger */
