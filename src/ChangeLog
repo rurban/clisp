@@ -1,5 +1,11 @@
 2011-07-19  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: do not call gt_LC_MESSAGES
+	* spvw_ctype.d, spvw_language.d: assume LC_MESSAGES is present
+	* win32.d: do not define HAVE_LC_MESSAGES
+
+2011-07-19  Sam Steingold  <sds@gnu.org>
+
 	* bdb.c, clx.f, dirkey.c, gdbm.c, cpcre.c, rawsock.c, calls.c:
 	* aridecl.d, array.d, charstrg.d, control.d, debug.d, encoding.d:
 	* error.d, errunix.d, errwin32.d, eval.d, flo_konv.d, foreign.d:

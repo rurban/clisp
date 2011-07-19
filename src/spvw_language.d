@@ -135,9 +135,8 @@ global void init_language (const char* argv_language,
     if (getenv("LANGUAGE")) unsetenv("LANGUAGE");
     if (getenv("LC_ALL")) unsetenv("LC_ALL");
     setenv("LC_MESSAGES",locale,1);
-    /* Given the above, the following line is only needed for those
-     platforms for which gettext is compiled with HAVE_LOCALE_NULL
-     defined. */
+    /* Given the above, the following line is only needed for those platforms
+       for which gettext is compiled with HAVE_LOCALE_NULL defined. */
     setlocale(LC_MESSAGES,locale);
     /* Invalidate the gettext internal caches. */
     textdomain(textdomain(NULL));
