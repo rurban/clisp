@@ -12,6 +12,7 @@ RM = rm -f
 RMRF = rm -rf
 CP = cp -afv
 WGET = wget --execute netrc=off --no-verbose --retry-connrefused --timeout=60
+HG = hg
 # http://ctags.sourceforge.net
 CTAGS = ctags
 
@@ -378,6 +379,7 @@ GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex
 GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
 GNULIB_IMPORTED_LOG = /tmp/gnulib-imported.log
 gnulib-imported : update-gnulib force
+	$(RMRF) src/glm4 src/gllib
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(RM) src/glm4/gnulib-cache.m4 $(GNULIB_IMPORTED_LOG)
 	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
@@ -389,10 +391,12 @@ gnulib-imported : update-gnulib force
 	  if test -f ../m4/$$f; then \
 	    echo == $$f; \
 	    if cmp $$f ../m4/$$f; then \
-	      cd ../m4; hg rm -f $$f; cd ../glm4; \
+	      cd ../m4; $(HG) rm -f $$f; cd ../glm4; \
 	    fi; \
 	  fi; \
 	done
+	$(HG) revert src/gllib/Makefile.in src/gllib/README src/glm4/README
+	$(HG) st --unknown --deleted
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
@@ -522,7 +526,7 @@ gnu-distrib : $(SRC_DIST1) force
 	$(GPG) --clearsign $(GNU_SYM)
 
 tag-release : force
-	hg tag clisp_$(subst .,_,$(VER))-$(REL) .
+	$(HG) tag clisp_$(subst .,_,$(VER))-$(REL) .
 
 TP_EMAIL=coordinator@translationproject.org
 MESSAGE_FILE=tp_message
