@@ -1,5 +1,10 @@
 2011-07-20  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: pass "--execute netrc=off" to wget to avoid
+	"unknown token" errors
+
+2011-07-20  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CORE): add sys_select
 
 2011-07-19  Sam Steingold  <sds@gnu.org>
