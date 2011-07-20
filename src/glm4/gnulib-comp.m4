@@ -92,6 +92,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module setenv:
   # Code from module setsockopt:
   # Code from module shutdown:
+  # Code from module signal:
   # Code from module snippet/_Noreturn:
   # Code from module snippet/arg-nonnull:
   # Code from module snippet/c++defs:
@@ -114,6 +115,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module strptime:
   # Code from module strverscmp:
+  # Code from module sys_select:
   # Code from module sys_socket:
   # Code from module sys_stat:
   # Code from module sys_time:
@@ -377,6 +379,7 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([shutdown])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([shutdown])
+gl_SIGNAL_H
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
 if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([socket])
@@ -431,6 +434,8 @@ if test $HAVE_STRVERSCMP = 0; then
   gl_PREREQ_STRVERSCMP
 fi
 gl_STRING_MODULE_INDICATOR([strverscmp])
+gl_HEADER_SYS_SELECT
+AC_PROG_MKDIR_P
 gl_HEADER_SYS_SOCKET
 AC_PROG_MKDIR_P
 gl_HEADER_SYS_STAT_H
@@ -694,6 +699,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/setenv.c
   lib/setsockopt.c
   lib/shutdown.c
+  lib/signal.in.h
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
@@ -713,6 +719,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/strptime.c
   lib/strverscmp.c
+  lib/sys_select.in.h
   lib/sys_socket.in.h
   lib/sys_stat.in.h
   lib/sys_time.in.h
@@ -813,6 +820,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/readlink.m4
   m4/regex.m4
   m4/setenv.m4
+  m4/signal_h.m4
   m4/size_max.m4
   m4/socketlib.m4
   m4/sockets.m4
@@ -831,6 +839,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/strptime.m4
   m4/strverscmp.m4
+  m4/sys_select_h.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
   m4/sys_time_h.m4

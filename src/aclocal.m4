@@ -3231,6 +3231,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module setenv:
   # Code from module setsockopt:
   # Code from module shutdown:
+  # Code from module signal:
   # Code from module snippet/_Noreturn:
   # Code from module snippet/arg-nonnull:
   # Code from module snippet/c++defs:
@@ -3253,6 +3254,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module strptime:
   # Code from module strverscmp:
+  # Code from module sys_select:
   # Code from module sys_socket:
   # Code from module sys_stat:
   # Code from module sys_time:
@@ -3516,6 +3518,7 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([shutdown])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([shutdown])
+gl_SIGNAL_H
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
 if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([socket])
@@ -3570,6 +3573,8 @@ if test $HAVE_STRVERSCMP = 0; then
   gl_PREREQ_STRVERSCMP
 fi
 gl_STRING_MODULE_INDICATOR([strverscmp])
+gl_HEADER_SYS_SELECT
+AC_PROG_MKDIR_P
 gl_HEADER_SYS_SOCKET
 AC_PROG_MKDIR_P
 gl_HEADER_SYS_STAT_H
@@ -3833,6 +3838,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/setenv.c
   lib/setsockopt.c
   lib/shutdown.c
+  lib/signal.in.h
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
@@ -3852,6 +3858,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/strptime.c
   lib/strverscmp.c
+  lib/sys_select.in.h
   lib/sys_socket.in.h
   lib/sys_stat.in.h
   lib/sys_time.in.h
@@ -3952,6 +3959,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/readlink.m4
   m4/regex.m4
   m4/setenv.m4
+  m4/signal_h.m4
   m4/size_max.m4
   m4/socketlib.m4
   m4/sockets.m4
@@ -3970,6 +3978,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/strptime.m4
   m4/strverscmp.m4
+  m4/sys_select_h.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
   m4/sys_time_h.m4
@@ -9852,6 +9861,84 @@ AC_DEFUN([gl_PREREQ_UNSETENV],
   AC_CHECK_HEADERS_ONCE([unistd.h])
 ])
 
+# signal_h.m4 serial 16
+dnl Copyright (C) 2007-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SIGNAL_H],
+[
+  AC_REQUIRE([gl_SIGNAL_H_DEFAULTS])
+  AC_REQUIRE([gl_CHECK_TYPE_SIGSET_T])
+  gl_NEXT_HEADERS([signal.h])
+
+# AIX declares sig_atomic_t to already include volatile, and C89 compilers
+# then choke on 'volatile sig_atomic_t'.  C99 requires that it compile.
+  AC_CHECK_TYPE([volatile sig_atomic_t], [],
+    [HAVE_TYPE_VOLATILE_SIG_ATOMIC_T=0], [[
+#include <signal.h>
+    ]])
+
+  AC_REQUIRE([AC_TYPE_UID_T])
+
+  dnl Persuade glibc <signal.h> to define sighandler_t.
+  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_TYPE([sighandler_t], [], [HAVE_SIGHANDLER_T=0], [[
+#include <signal.h>
+    ]])
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use.
+  gl_WARN_ON_USE_PREPARE([[#include <signal.h>
+    ]], [pthread_sigmask sigaction
+    sigaddset sigdelset sigemptyset sigfillset sigismember
+    sigpending sigprocmask])
+])
+
+AC_DEFUN([gl_CHECK_TYPE_SIGSET_T],
+[
+  AC_CHECK_TYPES([sigset_t],
+    [gl_cv_type_sigset_t=yes], [gl_cv_type_sigset_t=no],
+    [[
+      #include <signal.h>
+      /* Mingw defines sigset_t not in <signal.h>, but in <sys/types.h>.  */
+      #include <sys/types.h>
+    ]])
+  if test $gl_cv_type_sigset_t != yes; then
+    HAVE_SIGSET_T=0
+  fi
+])
+
+AC_DEFUN([gl_SIGNAL_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SIGNAL_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
+])
+
+AC_DEFUN([gl_SIGNAL_H_DEFAULTS],
+[
+  GNULIB_PTHREAD_SIGMASK=0;    AC_SUBST([GNULIB_PTHREAD_SIGMASK])
+  GNULIB_SIGNAL_H_SIGPIPE=0;   AC_SUBST([GNULIB_SIGNAL_H_SIGPIPE])
+  GNULIB_SIGPROCMASK=0;        AC_SUBST([GNULIB_SIGPROCMASK])
+  GNULIB_SIGACTION=0;          AC_SUBST([GNULIB_SIGACTION])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_POSIX_SIGNALBLOCKING=1; AC_SUBST([HAVE_POSIX_SIGNALBLOCKING])
+  HAVE_PTHREAD_SIGMASK=1;      AC_SUBST([HAVE_PTHREAD_SIGMASK])
+  HAVE_SIGSET_T=1;             AC_SUBST([HAVE_SIGSET_T])
+  HAVE_SIGINFO_T=1;            AC_SUBST([HAVE_SIGINFO_T])
+  HAVE_SIGACTION=1;            AC_SUBST([HAVE_SIGACTION])
+  HAVE_STRUCT_SIGACTION_SA_SIGACTION=1;
+                               AC_SUBST([HAVE_STRUCT_SIGACTION_SA_SIGACTION])
+  HAVE_TYPE_VOLATILE_SIG_ATOMIC_T=1;
+                               AC_SUBST([HAVE_TYPE_VOLATILE_SIG_ATOMIC_T])
+  HAVE_SIGHANDLER_T=1;         AC_SUBST([HAVE_SIGHANDLER_T])
+  REPLACE_PTHREAD_SIGMASK=0;   AC_SUBST([REPLACE_PTHREAD_SIGMASK])
+])
+
 # socketlib.m4 serial 1
 dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -11394,6 +11481,94 @@ AC_DEFUN([gl_FUNC_STRVERSCMP],
 # Prerequisites of lib/strverscmp.c.
 AC_DEFUN([gl_PREREQ_STRVERSCMP], [
   :
+])
+
+# sys_select_h.m4 serial 19
+dnl Copyright (C) 2006-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_HEADER_SYS_SELECT],
+[
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_REQUIRE([gl_SYS_SELECT_H_DEFAULTS])
+  AC_CACHE_CHECK([whether <sys/select.h> is self-contained],
+    [gl_cv_header_sys_select_h_selfcontained],
+    [
+      dnl Test against two bugs:
+      dnl 1. On many platforms, <sys/select.h> assumes prior inclusion of
+      dnl    <sys/types.h>.
+      dnl 2. On OSF/1 4.0, <sys/select.h> provides only a forward declaration
+      dnl    of 'struct timeval', and no definition of this type.
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/select.h>]],
+                                         [[struct timeval b;]])],
+        [gl_cv_header_sys_select_h_selfcontained=yes],
+        [gl_cv_header_sys_select_h_selfcontained=no])
+      dnl Test against another bug:
+      dnl 3. On Solaris 10, <sys/select.h> provides an FD_ZERO implementation
+      dnl    that relies on memset(), but without including <string.h>.
+      if test $gl_cv_header_sys_select_h_selfcontained = yes; then
+        AC_COMPILE_IFELSE(
+          [AC_LANG_PROGRAM([[#include <sys/select.h>]],
+                           [[int memset; int bzero;]])
+          ],
+          [AC_LINK_IFELSE(
+             [AC_LANG_PROGRAM([[#include <sys/select.h>]], [[
+                  #undef memset
+                  #define memset nonexistent_memset
+                  extern void *memset (void *, int, unsigned long);
+                  #undef bzero
+                  #define bzero nonexistent_bzero
+                  extern void bzero (void *, unsigned long);
+                  fd_set fds;
+                  FD_ZERO (&fds);
+                ]])
+             ],
+             [],
+             [gl_cv_header_sys_select_h_selfcontained=no])
+          ])
+      fi
+    ])
+  dnl <sys/select.h> is always overridden, because of GNULIB_POSIXCHECK.
+  gl_CHECK_NEXT_HEADERS([sys/select.h])
+  if test $ac_cv_header_sys_select_h = yes; then
+    HAVE_SYS_SELECT_H=1
+  else
+    HAVE_SYS_SELECT_H=0
+  fi
+  AC_SUBST([HAVE_SYS_SELECT_H])
+  gl_PREREQ_SYS_H_WINSOCK2
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use.
+  gl_WARN_ON_USE_PREPARE([[
+/* Some systems require prerequisite headers.  */
+#include <sys/types.h>
+#if !(defined __GLIBC__ && !defined __UCLIBC__) && HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+#include <sys/select.h>
+    ]], [pselect select])
+])
+
+AC_DEFUN([gl_SYS_SELECT_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_SELECT_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
+])
+
+AC_DEFUN([gl_SYS_SELECT_H_DEFAULTS],
+[
+  GNULIB_PSELECT=0; AC_SUBST([GNULIB_PSELECT])
+  GNULIB_SELECT=0; AC_SUBST([GNULIB_SELECT])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_PSELECT=1; AC_SUBST([HAVE_PSELECT])
+  REPLACE_PSELECT=0; AC_SUBST([REPLACE_PSELECT])
+  REPLACE_SELECT=0; AC_SUBST([REPLACE_SELECT])
 ])
 
 # sys_socket_h.m4 serial 22
