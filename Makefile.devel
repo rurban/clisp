@@ -9,6 +9,7 @@ PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
 RM = rm -f
+RMRF = rm -rf
 CP = cp -afv
 WGET = wget --execute netrc=off --no-verbose --retry-connrefused --timeout=60
 # http://ctags.sourceforge.net
@@ -89,7 +90,7 @@ $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
 # syntax check
 check-configures : configures
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done
-	rm -rf `find . -name $(AUTOCONF_CACHE)`;
+	$(RMRF) `find . -name $(AUTOCONF_CACHE)`;
 
 
 ANSITESTS_SVN = svn://common-lisp.net/project/ansi-test/svn/trunk/ansi-tests
@@ -158,52 +159,52 @@ multibuild-linux-x86:  build-linux-x86-standard-spvw_mixed_blocks-staggered \
 	build-linux-x86-spvw_pure_blocks			\
 	build-linux-x86-wide
 build-linux-x86-standard-spvw_mixed_blocks-staggered:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-standard-spvw_mixed_blocks-opposite:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-standard-spvw_mixed_blocks-opposite-fixedmemsize:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-standard-spvw_mixed_pages:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-noexec-spvw_mixed_blocks-staggered:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-noexec-spvw_mixed_blocks-opposite:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-noexec-spvw_mixed_pages:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-spvw_pure_blocks:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DTYPECODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-wide:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DWIDE" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
@@ -220,52 +221,52 @@ multibuild-darwin-powerpc: \
 	build-darwin-powerpc-spvw_pure_blocks			\
 	build-darwin-powerpc-wide
 build-darwin-powerpc-standard-spvw_mixed_blocks-staggered:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-standard-spvw_mixed_blocks-opposite:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-standard-spvw_mixed_blocks-opposite-fixedmemsize:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-standard-spvw_mixed_pages:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_pages:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-spvw_pure_blocks:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DTYPECODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-wide:
-	rm -rf $@
+	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DWIDE" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
@@ -284,7 +285,7 @@ SBCL_SOURCE_URL = http://www.haible.de/bruno/$(SBCL_SOURCE_FILE)
 check-sbcl:
 	./configure --cbc build-for-sbcl
 	test -f $(SBCL_SOURCE_FILE) || $(WGET) $(SBCL_SOURCE_URL)
-	rm -rf sbcl-$(SBCL_VERSION)
+	$(RMRF) sbcl-$(SBCL_VERSION)
 	bunzip2 -c < $(SBCL_SOURCE_FILE) | tar xvf -
 	clisp=$(CURDIR)/build-for-sbcl/clisp; \
 	cd sbcl-$(SBCL_VERSION) && sh make.sh $$clisp
@@ -300,15 +301,15 @@ GCC_SOURCE_URL = http://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/$(GCC_SOURCE_FILE
 GCC_INSTALL_DIR = $(shell dirname $$(dirname $$(which clisp | head -1)))/inst-gcc-$(GCC_VERSION)
 install-gcc:
 	test -f $(GCC_SOURCE_FILE) || $(WGET) $(GCC_SOURCE_URL)
-	rm -rf gcc-$(GCC_VERSION) gcc-$(GCC_VERSION)-build
+	$(RMRF) gcc-$(GCC_VERSION) gcc-$(GCC_VERSION)-build
 	bunzip2 -c < $(GCC_SOURCE_FILE) | tar xvf -
 	mkdir gcc-$(GCC_VERSION)-build
 	gcc_install_dir='$(GCC_INSTALL_DIR)' ; \
 	cd gcc-$(GCC_VERSION)-build && ../gcc-$(GCC_VERSION)/configure --prefix="$$gcc_install_dir" --enable-shared --enable-threads `if grep __GLIBC__ /usr/include/features.h > /dev/null 2>/dev/null; then echo --enable-__cxa_atexit; fi` --enable-version-specific-runtime-libs --enable-languages=c,c++ --enable-nls
 	cd gcc-$(GCC_VERSION)-build && make bootstrap
 	cd gcc-$(GCC_VERSION)-build && make install
-	rm -rf gcc-$(GCC_VERSION)-build
-	rm -rf gcc-$(GCC_VERSION)
+	$(RMRF) gcc-$(GCC_VERSION)-build
+	$(RMRF) gcc-$(GCC_VERSION)
 
 GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
 GNULIB_CVS_REPOSITORY = HEAD
@@ -351,16 +352,16 @@ build-aux-update : update-gnulib force
 	  $(WGET) -O src/build-aux/$$f $(AUTOMAKE_GIT)$$f?v$(AUTOMAKE_VERSION); \
 	done
 	chmod +x src/build-aux/compile src/build-aux/ylwrap
-	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
+	$(RMRF) libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	test -f $(LIBTOOL_SOURCE_FILE) || $(WGET) $(LIBTOOL_SOURCE_URL)
-	rm -rf libtool-$(LIBTOOL_VERSION)
+	$(RMRF) libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
 	$(CP) libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
 	chmod +x src/build-aux/ltmain.sh
 	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
 	  $(CP) libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
-	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
-	cd src/m4; rm -fv gtk-2.0.m4; $(WGET) $(GTK2_SVN_ROOT)/gtk-2.0.m4
+	$(RMRF) libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
+	cd src/m4; $(RM) gtk-2.0.m4; $(WGET) $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
 GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux

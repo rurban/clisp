@@ -1,5 +1,9 @@
 2011-07-20  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (RMRF): new variable
+
+2011-07-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: pass "--execute netrc=off" to wget to avoid
 	"unknown token" errors
 
