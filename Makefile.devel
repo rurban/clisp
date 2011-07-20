@@ -365,7 +365,7 @@ build-aux-update : update-gnulib force
 GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset \
-	unistd alloca-opt environ lstat stat readlink sys_uio \
+	unistd alloca-opt environ lstat stat readlink sys_uio sys_select \
 	mkfifo mknod mkstemp mkdtemp getloadavg bind accept listen recv send \
 	setsockopt shutdown connect socket setsockopt getsockname getpeername \
 	uniwidth/width streq uniname/uniname unitypes link-follow \
