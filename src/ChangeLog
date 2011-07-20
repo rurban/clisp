@@ -1,6 +1,8 @@
 2011-07-20  Sam Steingold  <sds@gnu.org>
 
-	* Makefile.devel (RMRF): new variable
+	* Makefile.devel (RMRF, HG): new variables
+	(gnulib-imported): remove gnulib directories before import to see
+	added and deleted files right away
 
 2011-07-20  Sam Steingold  <sds@gnu.org>
 
