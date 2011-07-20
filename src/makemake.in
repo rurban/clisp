@@ -3073,7 +3073,7 @@ if [ $CROSS = false ] ; then
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}.hg" \
      && { if wget --version >/dev/null 2>/dev/null ; then \
-            wget --tries=1 --timeout=10 -q ${MYTESTURL}; \
+            wget --execute netrc=off --tries=1 --timeout=10 -q ${MYTESTURL}; \
           elif lynx --version >/dev/null 2>/dev/null ; then \
             lynx -connect_timeout=10 -source ${MYTESTURL} > id-href.map; \
           elif curl --version >/dev/null 2>/dev/null ; then \
