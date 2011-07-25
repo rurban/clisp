@@ -433,19 +433,6 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
 #elif defined(NEED_SYS_IOCTL_H)
   #include <sys/ioctl.h>
 #endif
-#ifdef HAVE_IOCTL
-  #ifdef IOCTL_DOTS
-    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); /* IOCTL(2) */
-    #define IOCTL_ARGUMENT_T  CADDR_T
-  #else
-    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); /* IOCTL(2) */
-    /* 3rd argument is always cast to type IOCTL_ARGUMENT_T (usually CADDR_T): */
-    #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
-  #endif
-#endif
-#ifndef HAVE_SELECT
-/* fcntl() will be used, declared in <fcntl.h> */
-#endif
 /* START_NO_BLOCK() & END_NO_BLOCK() should appear in pairs
    inside { NO_BLOCK_DECL(); ... };
  NO_BLOCK_DECL() should be before the first statement,
@@ -500,9 +487,9 @@ extern_C int tgetflag (const char* id); /* TERMCAP(3X) */
 extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 #ifdef EINTR
   /* wrapper around the system call, which intercepts and handles EINTR: */
-  extern int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg);
+  extern int nonintr_ioctl (int fd, int request, void *arg);
   #undef ioctl
-  #define ioctl(fd,request,arg)  nonintr_ioctl(fd,request,(IOCTL_ARGUMENT_T)(arg))
+  #define ioctl  nonintr_ioctl
   #ifdef UNIX_TERM_TERMIOS
     extern int nonintr_tcsetattr (int fd, int optional_actions, struct termios * tp);
     extern int nonintr_tcdrain (int fd); /* TERMIOS(3V) */
@@ -601,14 +588,10 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
        Reading and writing from a socket */
     extern ssize_t sock_read (int socket, void* buf, size_t size, perseverance_t persev);
     extern ssize_t sock_write (int socket, const void* buf, size_t size, perseverance_t persev);
-    /* Closing a socket */
-    /* extern int closesocket (int socket); */
   #else
     /* Reading and writing from a socket */
     #define sock_read(socket,buf,nbyte,persev)   fd_read(socket,buf,nbyte,persev)
     #define sock_write(socket,buf,nbyte,persev)  fd_write(socket,buf,nbyte,persev)
-    /* Closing a socket */
-    #define closesocket  close
   #endif
   /* Wrapping and unwrapping of a socket in a Lisp object */
   #define allocate_socket(fd)  allocate_handle(fd)

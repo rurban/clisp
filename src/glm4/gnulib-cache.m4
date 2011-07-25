@@ -15,7 +15,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=xalloc-die --no-conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files accept alloca-opt arpa_inet bind connect environ errno fd-hook fnmatch-gnu getloadavg getpagesize getpeername getsockname gettext gettimeofday gnu-make havelib host-cpu-c-abi inet_ntop inet_pton libsigsegv link-follow listen localcharset lstat mkdtemp mkfifo mknod mkstemp mktime netinet_in no-c++ nocrash readlink recv regex send setenv setsockopt shutdown socket socketlib sockets socklen stat stdbool stdint streq strerror_r-posix strftime strptime strverscmp sys_select sys_time sys_uio sys_wait uname uniname/uniname unistd unitypes uniwidth/width unsetenv
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --avoid=xalloc-die --no-conditional-dependencies --no-libtool --macro-prefix=gl --no-vc-files accept alloca-opt arpa_inet bind close connect environ errno fd-hook fnmatch-gnu getloadavg getpagesize getpeername getsockname gettext gettimeofday gnu-make havelib host-cpu-c-abi inet_ntop inet_pton ioctl libsigsegv link-follow listen localcharset lstat mkdtemp mkfifo mknod mkstemp mktime netinet_in no-c++ nocrash readlink recv regex send setenv setsockopt shutdown socket socketlib sockets socklen stat stdbool stdint stdlib streq strerror_r-posix strftime strptime strverscmp sys_select sys_time sys_uio sys_wait uname uniname/uniname unistd unitypes uniwidth/width unsetenv
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -24,6 +24,7 @@ gl_MODULES([
   alloca-opt
   arpa_inet
   bind
+  close
   connect
   environ
   errno
@@ -40,6 +41,7 @@ gl_MODULES([
   host-cpu-c-abi
   inet_ntop
   inet_pton
+  ioctl
   libsigsegv
   link-follow
   listen
@@ -67,6 +69,7 @@ gl_MODULES([
   stat
   stdbool
   stdint
+  stdlib
   streq
   strerror_r-posix
   strftime
