@@ -2,10 +2,11 @@
  * Moved out of memory management:
  * table of all fixed symbols
  * Bruno Haible 1990-2006
- * Sam Steingold 2002-2009
+ * Sam Steingold 2002-2009, 2011
  */
 
 #include "lispbibl.c"
+#include "undef-gnulib.h"
 
 #undef LISPSYM
 
