@@ -1,5 +1,14 @@
 2011-07-25  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (src/undef-gnulib.h): new target
+	(gnulib-imported): call it at the end
+	* spvwtabf.d, spvwtabo.d, spvwtabs.d: include undef-gnulib.h after
+	lispbibl to undefine the lisp symbols redefined by gnulib
+	* makemake.in: link undef-gnulib.h into the build directory
+	* undef-gnulib.h: new file, regenerated on each gnulib-imported
+
+2011-07-25  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (CL_DECOLONIZE): even when $ac_cv_build is mingw, use
 	cygpath when available because cross-compiling on cygwin is not detected
 

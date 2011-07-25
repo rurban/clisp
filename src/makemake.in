@@ -2352,6 +2352,7 @@ if [ -n "${SRCDIR}" ] ; then
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     link_dep modules.h "${SRCDIR}modules.h"
+    link_dep undef-gnulib.h "${SRCDIR}undef-gnulib.h"
     echol
   fi
   if [ ${HSYS} = win32gcc ] ; then

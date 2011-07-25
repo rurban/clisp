@@ -2,10 +2,11 @@
  * Moved out of memory management:
  * Table of all fixed objects
  * Bruno Haible 1990-2002
- * Sam Steingold 2002-2009
+ * Sam Steingold 2002-2009, 2011
  */
 
 #include "lispbibl.c"
+#include "undef-gnulib.h"
 
 #undef LISPOBJ
 
