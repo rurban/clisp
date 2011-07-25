@@ -409,14 +409,14 @@ int main (int argc, char* argv[])
       /* there is no reason to wait for CLISP to terminate, except that
          if we do not, the console i/o breaks down. */
       if (WaitForSingleObject(pinfo.hProcess,INFINITE) == WAIT_FAILED)
-        w32err(WaitForSingleObject);
+        W32ERR(WaitForSingleObject);
       if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) W32ERR(GetExitCodeProcess);
       if (!CloseHandle(pinfo.hProcess)) W32ERR(CloseHandle);
       if (com_initialized) CoUninitialize();
       return exitcode;
      w32err: {
       char *ret = NULL;
-      int status = FormatMessage(FeORMAT_MESSAGE_ALLOCATE_BUFFER |
+      int status = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                                  FORMAT_MESSAGE_FROM_SYSTEM |
                                  FORMAT_MESSAGE_IGNORE_INSERTS,
                                  NULL,GetLastError(),0,(LPTSTR) &ret,0,NULL);
