@@ -1,5 +1,13 @@
 2011-07-20  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): add close, ioctl, and make stdlib
+	inclusion explicit (it has always been present as a dependency)
+	* modules/rawsock/rawsock.c, socket.d, stream.d, unix.d, win32.d:
+	use close() instead of closesocket() and ioctl() instead of
+	ioctlsocket() on all platforms
+
+2011-07-20  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (RMRF, HG): new variables
 	(gnulib-imported): remove gnulib directories before import to see
 	added and deleted files right away

@@ -253,27 +253,7 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #ifndef socklen_t
 #define socklen_t  int
 #endif
-/* extern SOCKET socket (int af, int type, int protocol);
-   extern int bind (SOCKET s, const struct sockaddr * addr, int addrlen);
-   extern int listen (SOCKET s, int backlog);
-   extern SOCKET accept (SOCKET s, struct sockaddr * addr, int * addrlen);
-   extern int connect (SOCKET s, const struct sockaddr * addr, int addrlen);
-   extern int setsockopt (SOCKET s, int level, int optname, const char * optval, int option);
-   extern int recv (SOCKET s, char* buf, int len, int flags);
-   extern int send (SOCKET s, const char* buf, int len, int flags);
-   extern int select (int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, const struct timeval * timeout);
-   extern int closesocket (SOCKET s);
-   extern struct hostent * gethostbyname (const char* name);
-   extern struct hostent * gethostbyaddr (const char* addr, int len, int type);
-   extern struct servent * getservbyname (const char* name, const char* proto);
-   extern struct servent * getservbyport (int port, const char* proto);
-   extern int getpeername (SOCKET s, struct sockaddr * addr, int * addrlen);
-   Type of a socket
-   define SOCKET  unsigned int
-   Error value for functions returning a socket
-   define INVALID_SOCKET  (SOCKET)(-1)
-   Error value for functions returning an `int' status
-   define SOCKET_ERROR  (-1) */
+
 /* Error values when sock_read, sock_write return 0: */
 #define WSAEAGAIN WSAEWOULDBLOCK
 #define WSAENOENT WSAESHUTDOWN
@@ -283,8 +263,6 @@ extern int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t 
 /* Interruptible wait for something on socket */
 typedef enum { socket_wait_read, socket_wait_write, socket_wait_except } socket_wait_event;
 extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event waitwhat, struct timeval * timeout_ptr);
-/* ioctl for sockets */
-#define ioctl ioctlsocket
 /* Wrapping and unwrapping of a socket in a Lisp object */
 #define allocate_socket(fd)  allocate_handle((Handle)(fd))
 #define TheSocket(obj)  (SOCKET)TheHandle(obj)

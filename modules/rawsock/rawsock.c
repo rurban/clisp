@@ -53,11 +53,9 @@
 # include <winsock2.h>
 # include <ws2tcpip.h>
 # define SETSOCKOPT_ARG_T char*
-# define CLOSESOCK  closesocket
 # define READ(s,b,l)  recv(s,b,l,0)
 # define WRITE(s,b,l)  send(s,b,l,0)
 #else
-# define CLOSESOCK  close
 # define READ  read
 # define WRITE  write
 #endif
@@ -688,7 +686,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
   SYSCALL(retval,sock[0],connect(sock[0],(struct sockaddr*)&addr,sa_size));
   SYSCALL(newsock,sock[1],accept(sock[1],(struct sockaddr*)&addr,&sa_size));
   /* do not need the server anymore: */
-  SYSCALL(retval,sock[1],CLOSESOCK(sock[1]));
+  SYSCALL(retval,sock[1],close(sock[1]));
   sock[1] = newsock;
 #endif
   VALUES2(fixnum(sock[0]),fixnum(sock[1]));
@@ -1128,7 +1126,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key :START :END)
 DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
   rawsock_t sock = I_to_uint(check_uint(popSTACK()));
   int retval;
-  SYSCALL(retval,sock,CLOSESOCK(sock));
+  SYSCALL(retval,sock,close(sock));
   VALUES1(fixnum(retval));
 }
 

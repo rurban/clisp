@@ -100,7 +100,7 @@ global int nonintr_close (int fd) {
 
 /* a wrapper for ioctl(). */
 #undef ioctl
-global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg) {
+global int nonintr_ioctl (int fd, int request, void *arg) {
   var int retval;
   do {
     retval = ioctl(fd,request,arg);

@@ -172,9 +172,9 @@ LISPFUNN(machine_instance,0)
 
 #if defined(UNIXCONN) || defined(TCPCONN)
 
-/* A wrapper around the closesocket() function/macro. */
-#define CLOSESOCKET(fd)  \
-  do { while ((closesocket(fd) < 0) && errno == EINTR) ; } while (0)
+/* A wrapper around the close() function. */
+#define CLOSE(fd)  \
+  do { while ((close(fd) < 0) && errno == EINTR) ; } while (0)
 
 /* A wrapper around the connect() function.
  To be used inside begin/end_system_call() only. */
@@ -462,7 +462,7 @@ local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
        then ECONNREFUSED will be returned. */
     if (connect(fd, addr, addrlen) >= 0)
       break;
-    saving_errno(CLOSESOCKET(fd));
+    saving_errno(CLOSE(fd));
     if (!(errno == ECONNREFUSED && (retries > 0)))
       return INVALID_SOCKET;
     sleep (1);
@@ -551,7 +551,7 @@ global SOCKET connect_to_x_server (const char* host, int display)
         if (connect(fd, addr, addrlen) >= 0)
           break;
         else
-          saving_errno(CLOSESOCKET(fd));
+          saving_errno(CLOSE(fd));
       }
      #ifdef hpux /* this is disgusting */
       if (errno == ENOENT) {
@@ -560,7 +560,7 @@ global SOCKET connect_to_x_server (const char* host, int display)
           if (connect(fd, oaddr, oaddrlen) >= 0)
             break;
           else
-            saving_errno(CLOSESOCKET(fd));
+            saving_errno(CLOSE(fd));
         }
       }
      #endif
@@ -737,7 +737,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
     var unsigned int flag = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag,
                    sizeof(flag)) < 0) {
-      saving_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+      saving_errno(CLOSE(fd)); return INVALID_SOCKET;
     }
   }
   /* Bind it to the desired port. */
@@ -745,7 +745,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
     /* Start listening for client connections. */
     if (listen(fd, *(int *)backlog) >= 0)
       return fd;
-  saving_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
 }
 
@@ -760,7 +760,7 @@ global SOCKET create_server_socket_by_string (host_data_t *hd,
   /* Retrieve the assigned port. */
   if (socket_getlocalname_aux(fd,hd) != NULL)
     return fd;
-  saving_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
 }
 
@@ -790,7 +790,7 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
   /* Retrieve the assigned port. */
   if (socket_getlocalname_aux(fd,hd) != NULL)
     return fd;
-  saving_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
 }
 
@@ -845,24 +845,24 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
         if (ret < 0) {
           if (errno == EINTR) goto restart_select;
-          saving_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+          saving_errno(CLOSE(fd)); return INVALID_SOCKET;
         }
        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
         var int errorp;
         var socklen_t len = sizeof(errorp);
         if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
-          CLOSESOCKET(fd);
+          CLOSE(fd);
           return INVALID_SOCKET;
         }
         if (errorp) {
-          CLOSESOCKET(fd); errno = errorp;
+          CLOSE(fd); errno = errorp;
           return INVALID_SOCKET;
         }
        #endif
       }
      #endif
       if (ret == 0) {
-        CLOSESOCKET(fd); errno = ETIMEDOUT;
+        CLOSE(fd); errno = ETIMEDOUT;
         return INVALID_SOCKET;
       }
     }
@@ -873,7 +873,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
     }
   }
  #endif
-  saving_errno(CLOSESOCKET(fd));
+  saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
 }
 

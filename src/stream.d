@@ -13436,7 +13436,7 @@ local void low_close_socket (object stream, object handle, uintB abort) {
   begin_system_call();
   var int closed;
   var SOCKET socket = TheSocket(handle);
-  GC_SAFE_CALL(closed=, closesocket(socket));
+  GC_SAFE_CALL(closed=, close(socket));
   if (!(closed == 0) && !abort)
     { ANSIC_error(); }
   end_system_call();
@@ -13963,7 +13963,7 @@ LISPFUNN(socket_server_close,1) {
     begin_system_call();
     while (1) {
       var int closed;
-      GC_SAFE_CALL(closed=, closesocket(s));
+      GC_SAFE_CALL(closed=, close(s));
       if (closed >= 0) break;
       if (errno != EINTR) { ANSIC_error(); }
     }
