@@ -152,6 +152,9 @@
 /* Define to 1 when the gnulib module btowc should be tested. */
 #undef GNULIB_TEST_BTOWC
 
+/* Define to 1 when the gnulib module close should be tested. */
+#undef GNULIB_TEST_CLOSE
+
 /* Define to 1 when the gnulib module connect should be tested. */
 #undef GNULIB_TEST_CONNECT
 
@@ -175,6 +178,9 @@
 
 /* Define to 1 when the gnulib module gettimeofday should be tested. */
 #undef GNULIB_TEST_GETTIMEOFDAY
+
+/* Define to 1 when the gnulib module ioctl should be tested. */
+#undef GNULIB_TEST_IOCTL
 
 /* Define to 1 when the gnulib module listen should be tested. */
 #undef GNULIB_TEST_LISTEN
@@ -744,6 +750,9 @@
 /* Define to 1 if initstat_r is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_INITSTAT_R
 
+/* Define to 1 if ioctl is declared even after undefining macros. */
+#undef HAVE_RAW_DECL_IOCTL
+
 /* Define to 1 if iswctype is declared even after undefining macros. */
 #undef HAVE_RAW_DECL_ISWCTYPE
 
@@ -1275,6 +1284,9 @@
 /* Define to 1 if you have the <sys/inttypes.h> header file. */
 #undef HAVE_SYS_INTTYPES_H
 
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
+
 /* Define to 1 if you have the <sys/ipc.h> header file. */
 #undef HAVE_SYS_IPC_H
 
@@ -1783,6 +1795,10 @@
 /* Enable extensions on AIX 3, Interix.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
+#endif
+/* Enable general extensions on MacOS X.  */
+#ifndef _DARWIN_C_SOURCE
+# undef _DARWIN_C_SOURCE
 #endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE

@@ -3882,6 +3882,8 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
   $as_echo "#define _ALL_SOURCE 1" >>confdefs.h
 
+  $as_echo "#define _DARWIN_C_SOURCE 1" >>confdefs.h
+
   $as_echo "#define _GNU_SOURCE 1" >>confdefs.h
 
   $as_echo "#define _POSIX_PTHREAD_SEMANTICS 1" >>confdefs.h

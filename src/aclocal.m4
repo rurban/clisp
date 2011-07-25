@@ -1310,6 +1310,33 @@ AC_DEFUN([gl_PREREQ_BTOWC], [
   :
 ])
 
+# close.m4 serial 6
+dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_CLOSE],
+[
+  m4_ifdef([gl_PREREQ_SYS_H_WINSOCK2], [
+    gl_PREREQ_SYS_H_WINSOCK2
+    if test $UNISTD_H_HAVE_WINSOCK2_H = 1; then
+      dnl Even if the 'socket' module is not used here, another part of the
+      dnl application may use it and pass file descriptors that refer to
+      dnl sockets to the close() function. So enable the support for sockets.
+      gl_REPLACE_CLOSE
+    fi
+  ])
+])
+
+AC_DEFUN([gl_REPLACE_CLOSE],
+[
+  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
+  REPLACE_CLOSE=1
+  AC_LIBOBJ([close])
+  m4_ifdef([gl_REPLACE_FCLOSE], [gl_REPLACE_FCLOSE])
+])
+
 # codeset.m4 serial 5 (gettext-0.18.2)
 dnl Copyright (C) 2000-2002, 2006, 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1577,7 +1604,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
   AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
 ])
 
-# serial 9  -*- Autoconf -*-
+# serial 10  -*- Autoconf -*-
 # Enable extensions on systems that normally disable them.
 
 # Copyright (C) 2003, 2006-2011 Free Software Foundation, Inc.
@@ -1646,6 +1673,10 @@ AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
 #endif
+/* Enable general extensions on MacOS X.  */
+#ifndef _DARWIN_C_SOURCE
+# undef _DARWIN_C_SOURCE
+#endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
@@ -1674,6 +1705,7 @@ AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
   test $ac_cv_safe_to_define___extensions__ = yes &&
     AC_DEFINE([__EXTENSIONS__])
   AC_DEFINE([_ALL_SOURCE])
+  AC_DEFINE([_DARWIN_C_SOURCE])
   AC_DEFINE([_GNU_SOURCE])
   AC_DEFINE([_POSIX_PTHREAD_SEMANTICS])
   AC_DEFINE([_TANDEM_SOURCE])
@@ -3174,6 +3206,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module bind:
   # Code from module btowc:
   # Code from module c-ctype:
+  # Code from module close:
   # Code from module configmake:
   # Code from module connect:
   # Code from module dosname:
@@ -3199,6 +3232,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module inet_ntop:
   # Code from module inet_pton:
   # Code from module intprops:
+  # Code from module ioctl:
   # Code from module langinfo:
   # Code from module libsigsegv:
   # Code from module link-follow:
@@ -3254,6 +3288,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strnlen1:
   # Code from module strptime:
   # Code from module strverscmp:
+  # Code from module sys_ioctl:
   # Code from module sys_select:
   # Code from module sys_socket:
   # Code from module sys_stat:
@@ -3315,6 +3350,8 @@ if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
   gl_PREREQ_BTOWC
 fi
 gl_WCHAR_MODULE_INDICATOR([btowc])
+gl_FUNC_CLOSE
+gl_UNISTD_MODULE_INDICATOR([close])
 gl_CONFIGMAKE_PREP
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
 if test "$ac_cv_header_winsock2_h" = yes; then
@@ -3385,6 +3422,11 @@ if test $HAVE_INET_PTON = 0; then
   gl_PREREQ_INET_PTON
 fi
 gl_ARPA_INET_MODULE_INDICATOR([inet_pton])
+gl_FUNC_IOCTL
+if test $HAVE_IOCTL = 0 || test $REPLACE_IOCTL = 1; then
+  AC_LIBOBJ([ioctl])
+fi
+gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
 gl_LANGINFO_H
 gl_LIBSIGSEGV
 gl_FUNC_LINK_FOLLOWS_SYMLINK
@@ -3573,6 +3615,8 @@ if test $HAVE_STRVERSCMP = 0; then
   gl_PREREQ_STRVERSCMP
 fi
 gl_STRING_MODULE_INDICATOR([strverscmp])
+gl_SYS_IOCTL_H
+AC_PROG_MKDIR_P
 gl_HEADER_SYS_SELECT
 AC_PROG_MKDIR_P
 gl_HEADER_SYS_SOCKET
@@ -3776,6 +3820,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/btowc.c
   lib/c-ctype.c
   lib/c-ctype.h
+  lib/close.c
   lib/config.charset
   lib/connect.c
   lib/dosname.h
@@ -3798,6 +3843,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/inet_ntop.c
   lib/inet_pton.c
   lib/intprops.h
+  lib/ioctl.c
   lib/langinfo.in.h
   lib/listen.c
   lib/localcharset.c
@@ -3858,6 +3904,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strnlen1.h
   lib/strptime.c
   lib/strverscmp.c
+  lib/sys_ioctl.in.h
   lib/sys_select.in.h
   lib/sys_socket.in.h
   lib/sys_stat.in.h
@@ -3889,6 +3936,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/alloca.m4
   m4/arpa_inet_h.m4
   m4/btowc.m4
+  m4/close.m4
   m4/codeset.m4
   m4/configmake.m4
   m4/eealloc.m4
@@ -3918,6 +3966,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/intmax.m4
   m4/inttypes-pri.m4
   m4/inttypes_h.m4
+  m4/ioctl.m4
   m4/langinfo_h.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
@@ -3978,6 +4027,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/string_h.m4
   m4/strptime.m4
   m4/strverscmp.m4
+  m4/sys_ioctl_h.m4
   m4/sys_select_h.m4
   m4/sys_socket_h.m4
   m4/sys_stat_h.m4
@@ -4882,6 +4932,48 @@ AC_DEFUN([gt_INTL_MACOSX],
     INTL_MACOSX_LIBS="-Wl,-framework -Wl,CoreFoundation"
   fi
   AC_SUBST([INTL_MACOSX_LIBS])
+])
+
+# ioctl.m4 serial 4
+dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_IOCTL],
+[
+  AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])
+  AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+  HAVE_IOCTL=1
+  if test "$ac_cv_header_winsock2_h" = yes; then
+    dnl Even if the 'socket' module is not used here, another part of the
+    dnl application may use it and pass file descriptors that refer to
+    dnl sockets to the ioctl() function. So enable the support for sockets.
+    HAVE_IOCTL=0
+  else
+    AC_CHECK_FUNCS([ioctl])
+    dnl On glibc systems, the second parameter is 'unsigned long int request',
+    dnl not 'int request'. We cannot simply cast the function pointer, but
+    dnl instead need a wrapper.
+    AC_CACHE_CHECK([for ioctl with POSIX signature],
+      [gl_cv_func_ioctl_posix_signature],
+      [AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM(
+            [[#include <sys/ioctl.h>]],
+            [[extern
+              #ifdef __cplusplus
+              "C"
+              #endif
+              int ioctl (int, int, ...);
+            ]])
+         ],
+         [gl_cv_func_ioctl_posix_signature=yes],
+         [gl_cv_func_ioctl_posix_signature=no])
+      ])
+    if test $gl_cv_func_ioctl_posix_signature != yes; then
+      REPLACE_IOCTL=1
+    fi
+  fi
 ])
 
 # langinfo_h.m4 serial 7
@@ -11118,7 +11210,7 @@ AC_DEFUN([gl_FUNC_STRERROR_0],
   fi
 ])
 
-# strerror_r.m4 serial 12
+# strerror_r.m4 serial 13
 dnl Copyright (C) 2002, 2007-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11258,7 +11350,11 @@ changequote([,])dnl
                [AC_LANG_PROGRAM(
                   [[#include <errno.h>
                     #include <string.h>
-                    extern int __xpg_strerror_r(int, char *, size_t);
+                    extern
+                    #ifdef __cplusplus
+                    "C"
+                    #endif
+                    int __xpg_strerror_r(int, char *, size_t);
                   ]],
                   [[int result = 0;
                     char buf[256] = "^";
@@ -11483,7 +11579,72 @@ AC_DEFUN([gl_PREREQ_STRVERSCMP], [
   :
 ])
 
-# sys_select_h.m4 serial 19
+# sys_ioctl_h.m4 serial 10
+dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl Written by Bruno Haible.
+
+AC_DEFUN([gl_SYS_IOCTL_H],
+[
+  dnl Use AC_REQUIRE here, so that the default behavior below is expanded
+  dnl once only, before all statements that occur in other macros.
+  AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])
+
+  AC_CHECK_HEADERS_ONCE([sys/ioctl.h])
+  if test $ac_cv_header_sys_ioctl_h = yes; then
+    HAVE_SYS_IOCTL_H=1
+    dnl Test whether <sys/ioctl.h> declares ioctl(), or whether some other
+    dnl header file, such as <unistd.h> or <stropts.h>, is needed for that.
+    AC_CACHE_CHECK([whether <sys/ioctl.h> declares ioctl],
+      [gl_cv_decl_ioctl_in_sys_ioctl_h],
+      [dnl We cannot use AC_CHECK_DECL because it produces its own messages.
+       AC_COMPILE_IFELSE(
+         [AC_LANG_PROGRAM(
+            [AC_INCLUDES_DEFAULT([#include <sys/ioctl.h>])],
+            [(void) ioctl;])],
+         [gl_cv_decl_ioctl_in_sys_ioctl_h=yes],
+         [gl_cv_decl_ioctl_in_sys_ioctl_h=no])
+      ])
+  else
+    HAVE_SYS_IOCTL_H=0
+  fi
+  AC_SUBST([HAVE_SYS_IOCTL_H])
+  dnl <sys/ioctl.h> is always overridden, because of GNULIB_POSIXCHECK.
+  gl_CHECK_NEXT_HEADERS([sys/ioctl.h])
+
+  dnl Check for declarations of anything we want to poison if the
+  dnl corresponding gnulib module is not in use.
+  gl_WARN_ON_USE_PREPARE([[#include <sys/ioctl.h>
+/* Some platforms declare ioctl in the wrong header.  */
+#if !(defined __GLIBC__ && !defined __UCLIBC__)
+# include <unistd.h>
+#endif
+    ]], [ioctl])
+])
+
+AC_DEFUN([gl_SYS_IOCTL_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])
+  gl_MODULE_INDICATOR_SET_VARIABLE([$1])
+  dnl Define it also as a C macro, for the benefit of the unit tests.
+  gl_MODULE_INDICATOR_FOR_TESTS([$1])
+])
+
+AC_DEFUN([gl_SYS_IOCTL_H_DEFAULTS],
+[
+  GNULIB_IOCTL=0;         AC_SUBST([GNULIB_IOCTL])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  SYS_IOCTL_H_HAVE_WINSOCK2_H=0; AC_SUBST([SYS_IOCTL_H_HAVE_WINSOCK2_H])
+  SYS_IOCTL_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS=0;
+                        AC_SUBST([SYS_IOCTL_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS])
+  REPLACE_IOCTL=0;      AC_SUBST([REPLACE_IOCTL])
+])
+
+# sys_select_h.m4 serial 20
 dnl Copyright (C) 2006-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11517,10 +11678,18 @@ AC_DEFUN([gl_HEADER_SYS_SELECT],
              [AC_LANG_PROGRAM([[#include <sys/select.h>]], [[
                   #undef memset
                   #define memset nonexistent_memset
-                  extern void *memset (void *, int, unsigned long);
+                  extern
+                  #ifdef __cplusplus
+                  "C"
+                  #endif
+                  void *memset (void *, int, unsigned long);
                   #undef bzero
                   #define bzero nonexistent_bzero
-                  extern void bzero (void *, unsigned long);
+                  extern
+                  #ifdef __cplusplus
+                  "C"
+                  #endif
+                  void bzero (void *, unsigned long);
                   fd_set fds;
                   FD_ZERO (&fds);
                 ]])
