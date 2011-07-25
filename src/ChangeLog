@@ -5,6 +5,7 @@
 	* spvwtabf.d, spvwtabo.d, spvwtabs.d: include undef-gnulib.h after
 	lispbibl to undefine the lisp symbols redefined by gnulib
 	* makemake.in: link undef-gnulib.h into the build directory
+	(spvwtab*.o): depend on undef-gnulib.h
 	* undef-gnulib.h: new file, regenerated on each gnulib-imported
 
 2011-07-25  Sam Steingold  <sds@gnu.org>
