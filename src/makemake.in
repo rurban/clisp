@@ -2484,6 +2484,9 @@ echol
 for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   depends=$EVERY_INCLUDES
   dependsc=''
+  case $f in
+    spvwtab* ) dependsc=$dependsc' undef-gnulib.h' ;;
+  esac
   test $f = spvw -o $f = package && depends=$depends' constpack'
   test $f = spvw -o $f = predtype && depends=$depends' avl'
   test $f = spvw && depends=$depends''$SPVW_INCLUDES' sort spvw_calendar'
