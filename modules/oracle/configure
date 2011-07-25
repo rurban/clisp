@@ -2144,7 +2144,12 @@ if test "${cl_cv_decolonize+set}" = set; then :
 else
   case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* ) cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'" ;;
+  *-mingw* ) # cross-compiling on cygwin is not detected
+    if cygpath -v > /dev/null 2>&1; then
+      cl_cv_decolonize='cygpath --unix $x'
+    else
+      cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+    fi  ;;
   * ) cl_cv_decolonize='echo $x' ;;
 esac
 fi
