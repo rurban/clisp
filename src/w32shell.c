@@ -33,6 +33,8 @@ int shell_quote (char * dest, const char * source) {
 #include <shlobj.h>
 
 /* is_cygwin_symlink based on path.cc from cygwin sources
+   only CYGWIN=winsymlinks is supported (i.e., a symlink is a windows *.lnk
+   file); system file with a cookie is NOT (FIXME!)
    for win_shortcut_hdr description see also,
    http://msdn.microsoft.com/en-us/library/dd871305(PROT.10).aspx */
 
