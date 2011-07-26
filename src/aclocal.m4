@@ -14176,7 +14176,7 @@ if test "$cl_use_clisp" != "no"; then
      dnl we avoid this message by redirecting clisp stderr to /dev/null
      if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
      then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
-     else cl_cv_clisp_version='not a CLISP'
+     else AC_MSG_ERROR(['$cl_cv_clisp' is not a CLISP])
      fi])
     AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
      CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
@@ -14187,7 +14187,8 @@ if test "$cl_use_clisp" != "no"; then
      for f in modules.c clisp.h; do
        test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
      done
-     test -n "${missing}" && cl_cv_clisp_libdir="missing${missing}"])
+     test -n "${missing}" && \
+     AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_libdir}linkkit'])])
     AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset], [dnl
      CLISP_SET(cl_cv_clisp_linkset,[(sys::program-name)])
      cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
@@ -14197,7 +14198,8 @@ if test "$cl_use_clisp" != "no"; then
      for f in lisp.a lispinit.mem modules.h modules.o makevars; do
        test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
      done
-     test -n "${missing}" && cl_cv_clisp_linkset="missing${missing}"])
+     test -n "${missing}" && \
+     AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_linkset}'])])
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
     CLISP_LIBDIR="${cl_cv_clisp_libdir}"; AC_SUBST(CLISP_LIBDIR)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl

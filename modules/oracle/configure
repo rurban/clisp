@@ -2219,7 +2219,7 @@ if test "${cl_cv_clisp_version+set}" = set; then :
 else
                       if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
      then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     else cl_cv_clisp_version='not a CLISP'
+     else as_fn_error "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
      fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_version" >&5
@@ -2237,7 +2237,8 @@ else
      for f in modules.c clisp.h; do
        test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
      done
-     test -n "${missing}" && cl_cv_clisp_libdir="missing${missing}"
+     test -n "${missing}" && \
+     as_fn_error "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_libdir" >&5
 $as_echo "$cl_cv_clisp_libdir" >&6; }
@@ -2254,7 +2255,8 @@ else
      for f in lisp.a lispinit.mem modules.h modules.o makevars; do
        test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
      done
-     test -n "${missing}" && cl_cv_clisp_linkset="missing${missing}"
+     test -n "${missing}" && \
+     as_fn_error "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
