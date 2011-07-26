@@ -1,5 +1,9 @@
 2011-07-26  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): add select
+
+2011-07-26  Sam Steingold  <sds@gnu.org>
+
 	revert last patch; fix the gnulib defines in a more robust way:
 	change C names for Lisp symbols to avoid clashes with the C world
 	Suggested by Bruno

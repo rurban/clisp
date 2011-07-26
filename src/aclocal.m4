@@ -1310,7 +1310,7 @@ AC_DEFUN([gl_PREREQ_BTOWC], [
   :
 ])
 
-# close.m4 serial 6
+# close.m4 serial 7
 dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1318,23 +1318,26 @@ dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN([gl_FUNC_CLOSE],
 [
+  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
   m4_ifdef([gl_PREREQ_SYS_H_WINSOCK2], [
     gl_PREREQ_SYS_H_WINSOCK2
     if test $UNISTD_H_HAVE_WINSOCK2_H = 1; then
       dnl Even if the 'socket' module is not used here, another part of the
       dnl application may use it and pass file descriptors that refer to
       dnl sockets to the close() function. So enable the support for sockets.
-      gl_REPLACE_CLOSE
+      REPLACE_CLOSE=1
     fi
   ])
-])
-
-AC_DEFUN([gl_REPLACE_CLOSE],
-[
-  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
-  REPLACE_CLOSE=1
-  AC_LIBOBJ([close])
-  m4_ifdef([gl_REPLACE_FCLOSE], [gl_REPLACE_FCLOSE])
+  dnl Replace close() for supporting the gnulib-defined fchdir() function,
+  dnl to keep fchdir's bookkeeping up-to-date.
+  m4_ifdef([gl_FUNC_FCHDIR], [
+    if test $REPLACE_CLOSE = 0; then
+      gl_TEST_FCHDIR
+      if test $HAVE_FCHDIR = 0; then
+        REPLACE_CLOSE=1
+      fi
+    fi
+  ])
 ])
 
 # codeset.m4 serial 5 (gettext-0.18.2)
@@ -3234,6 +3237,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module intprops:
   # Code from module ioctl:
   # Code from module langinfo:
+  # Code from module largefile:
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module listen:
@@ -3261,6 +3265,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module readlink:
   # Code from module recv:
   # Code from module regex:
+  # Code from module select:
   # Code from module send:
   # Code from module setenv:
   # Code from module setsockopt:
@@ -3351,6 +3356,9 @@ if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
 fi
 gl_WCHAR_MODULE_INDICATOR([btowc])
 gl_FUNC_CLOSE
+if test $REPLACE_CLOSE = 1; then
+  AC_LIBOBJ([close])
+fi
 gl_UNISTD_MODULE_INDICATOR([close])
 gl_CONFIGMAKE_PREP
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
@@ -3540,6 +3548,11 @@ if test $ac_use_included_regex = yes; then
   AC_LIBOBJ([regex])
   gl_PREREQ_REGEX
 fi
+gl_FUNC_SELECT
+if test $REPLACE_SELECT = 1; then
+  AC_LIBOBJ([select])
+fi
+gl_SYS_SELECT_MODULE_INDICATOR([select])
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
 if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([send])
@@ -3880,6 +3893,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
+  lib/select.c
   lib/send.c
   lib/setenv.c
   lib/setsockopt.c
@@ -3968,6 +3982,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/inttypes_h.m4
   m4/ioctl.m4
   m4/langinfo_h.m4
+  m4/largefile.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
   m4/lib-link.m4
@@ -4007,6 +4022,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/progtest.m4
   m4/readlink.m4
   m4/regex.m4
+  m4/select.m4
   m4/setenv.m4
   m4/signal_h.m4
   m4/size_max.m4
@@ -5081,6 +5097,111 @@ AC_DEFUN([gl_LANGINFO_H_DEFAULTS],
   HAVE_NL_LANGINFO=1;    AC_SUBST([HAVE_NL_LANGINFO])
   REPLACE_NL_LANGINFO=0; AC_SUBST([REPLACE_NL_LANGINFO])
 ])
+
+# Enable large files on systems where this is not the default.
+
+# Copyright 1992-1996, 1998-2011 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# The following implementation works around a problem in autoconf <= 2.68;
+# AC_SYS_LARGEFILE does not configure for large inodes on Mac OS X 10.5.
+m4_version_prereq([2.69], [] ,[
+
+# _AC_SYS_LARGEFILE_TEST_INCLUDES
+# -------------------------------
+m4_define([_AC_SYS_LARGEFILE_TEST_INCLUDES],
+[@%:@include <sys/types.h>
+ /* Check that off_t can represent 2**63 - 1 correctly.
+    We can't simply define LARGE_OFF_T to be 9223372036854775807,
+    since some C++ compilers masquerading as C compilers
+    incorrectly reject 9223372036854775807.  */
+@%:@define LARGE_OFF_T (((off_t) 1 << 62) - 1 + ((off_t) 1 << 62))
+  int off_t_is_large[[(LARGE_OFF_T % 2147483629 == 721
+		       && LARGE_OFF_T % 2147483647 == 1)
+		      ? 1 : -1]];[]dnl
+])
+
+
+# _AC_SYS_LARGEFILE_MACRO_VALUE(C-MACRO, VALUE,
+#				CACHE-VAR,
+#				DESCRIPTION,
+#				PROLOGUE, [FUNCTION-BODY])
+# --------------------------------------------------------
+m4_define([_AC_SYS_LARGEFILE_MACRO_VALUE],
+[AC_CACHE_CHECK([for $1 value needed for large files], [$3],
+[while :; do
+  m4_ifval([$6], [AC_LINK_IFELSE], [AC_COMPILE_IFELSE])(
+    [AC_LANG_PROGRAM([$5], [$6])],
+    [$3=no; break])
+  m4_ifval([$6], [AC_LINK_IFELSE], [AC_COMPILE_IFELSE])(
+    [AC_LANG_PROGRAM([@%:@define $1 $2
+$5], [$6])],
+    [$3=$2; break])
+  $3=unknown
+  break
+done])
+case $$3 in #(
+  no | unknown) ;;
+  *) AC_DEFINE_UNQUOTED([$1], [$$3], [$4]);;
+esac
+rm -rf conftest*[]dnl
+])# _AC_SYS_LARGEFILE_MACRO_VALUE
+
+
+# AC_SYS_LARGEFILE
+# ----------------
+# By default, many hosts won't let programs access large files;
+# one must use special compiler options to get large-file access to work.
+# For more details about this brain damage please see:
+# http://www.unix-systems.org/version2/whatsnew/lfs20mar.html
+AC_DEFUN([AC_SYS_LARGEFILE],
+[AC_ARG_ENABLE(largefile,
+	       [  --disable-largefile     omit support for large files])
+if test "$enable_largefile" != no; then
+
+  AC_CACHE_CHECK([for special C compiler options needed for large files],
+    ac_cv_sys_largefile_CC,
+    [ac_cv_sys_largefile_CC=no
+     if test "$GCC" != yes; then
+       ac_save_CC=$CC
+       while :; do
+	 # IRIX 6.2 and later do not support large files by default,
+	 # so use the C compiler's -n32 option if that helps.
+	 AC_LANG_CONFTEST([AC_LANG_PROGRAM([_AC_SYS_LARGEFILE_TEST_INCLUDES])])
+	 AC_COMPILE_IFELSE([], [break])
+	 CC="$CC -n32"
+	 AC_COMPILE_IFELSE([], [ac_cv_sys_largefile_CC=' -n32'; break])
+	 break
+       done
+       CC=$ac_save_CC
+       rm -f conftest.$ac_ext
+    fi])
+  if test "$ac_cv_sys_largefile_CC" != no; then
+    CC=$CC$ac_cv_sys_largefile_CC
+  fi
+
+  _AC_SYS_LARGEFILE_MACRO_VALUE(_FILE_OFFSET_BITS, 64,
+    ac_cv_sys_file_offset_bits,
+    [Number of bits in a file offset, on hosts where this is settable.],
+    [_AC_SYS_LARGEFILE_TEST_INCLUDES])
+  if test $ac_cv_sys_file_offset_bits = unknown; then
+    _AC_SYS_LARGEFILE_MACRO_VALUE(_LARGE_FILES, 1,
+      ac_cv_sys_large_files,
+      [Define for large files, on AIX-style hosts.],
+      [_AC_SYS_LARGEFILE_TEST_INCLUDES])
+  fi
+
+  AH_VERBATIM([_DARWIN_USE_64_BIT_INODE],
+[/* Enable large inode numbers on Mac OS X.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif])
+fi
+])# AC_SYS_LARGEFILE
+
+])# m4_version_prereq 2.69
 
 # lib-ld.m4 serial 5 (gettext-0.18.2)
 dnl Copyright (C) 1996-2003, 2009-2011 Free Software Foundation, Inc.
@@ -8293,7 +8414,7 @@ AC_DEFUN([gl_FUNC_MKNOD],
   fi
 ])
 
-#serial 21
+#serial 22
 
 # Copyright (C) 2001, 2003-2007, 2009-2011 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -8311,7 +8432,6 @@ AC_DEFUN([gl_FUNC_MKNOD],
 AC_DEFUN([gl_FUNC_MKSTEMP],
 [
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  AC_REQUIRE([AC_SYS_LARGEFILE])
 
   AC_CHECK_FUNCS_ONCE([mkstemp])
   if test $ac_cv_func_mkstemp = yes; then
@@ -9806,6 +9926,57 @@ AC_DEFUN([gl_PREREQ_REGEX],
   AC_CHECK_HEADERS([libintl.h])
   AC_CHECK_FUNCS_ONCE([isblank iswctype wcscoll])
   AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
+])
+
+# select.m4 serial 5
+dnl Copyright (C) 2009-2011 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_SELECT],
+[
+  AC_REQUIRE([gl_HEADER_SYS_SELECT])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_REQUIRE([gl_SOCKETS])
+  if test "$ac_cv_header_winsock2_h" = yes; then
+    REPLACE_SELECT=1
+  else
+    dnl On Interix 3.5, select(0, NULL, NULL, NULL, timeout) fails with error
+    dnl EFAULT.
+    AC_CHECK_HEADERS_ONCE([sys/select.h])
+    AC_CACHE_CHECK([whether select supports a 0 argument],
+      [gl_cv_func_select_supports0],
+      [
+        AC_RUN_IFELSE([AC_LANG_SOURCE([[
+#include <sys/types.h>
+#include <sys/time.h>
+#if HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+int main ()
+{
+  struct timeval timeout;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 5;
+  return select (0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &timeout) < 0;
+}]])], [gl_cv_func_select_supports0=yes], [gl_cv_func_select_supports0=no],
+          [
+changequote(,)dnl
+           case "$host_os" in
+                       # Guess no on Interix.
+             interix*) gl_cv_func_select_supports0="guessing no";;
+                       # Guess yes otherwise.
+             *)        gl_cv_func_select_supports0="guessing yes";;
+           esac
+changequote([,])dnl
+          ])
+      ])
+    case "$gl_cv_func_select_supports0" in
+      *yes) ;;
+      *) REPLACE_SELECT=1 ;;
+    esac
+  fi
 ])
 
 # setenv.m4 serial 24
@@ -12188,7 +12359,7 @@ AC_DEFUN([gl_SYS_WAIT_H_DEFAULTS],
   dnl Assume proper GNU behavior unless another module says otherwise.
 ])
 
-#serial 4
+#serial 5
 
 # Copyright (C) 2006-2007, 2009-2011 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -12199,8 +12370,6 @@ AC_DEFUN([gl_SYS_WAIT_H_DEFAULTS],
 # it as a public API, and provide it on systems that are lacking.
 AC_DEFUN([gl_FUNC_GEN_TEMPNAME],
 [
-  AC_REQUIRE([AC_SYS_LARGEFILE])
-
   gl_PREREQ_TEMPNAME
 ])
 
