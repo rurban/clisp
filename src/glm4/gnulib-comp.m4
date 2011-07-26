@@ -63,6 +63,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module intprops:
   # Code from module ioctl:
   # Code from module langinfo:
+  # Code from module largefile:
   # Code from module libsigsegv:
   # Code from module link-follow:
   # Code from module listen:
@@ -90,6 +91,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module readlink:
   # Code from module recv:
   # Code from module regex:
+  # Code from module select:
   # Code from module send:
   # Code from module setenv:
   # Code from module setsockopt:
@@ -180,6 +182,9 @@ if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
 fi
 gl_WCHAR_MODULE_INDICATOR([btowc])
 gl_FUNC_CLOSE
+if test $REPLACE_CLOSE = 1; then
+  AC_LIBOBJ([close])
+fi
 gl_UNISTD_MODULE_INDICATOR([close])
 gl_CONFIGMAKE_PREP
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
@@ -369,6 +374,11 @@ if test $ac_use_included_regex = yes; then
   AC_LIBOBJ([regex])
   gl_PREREQ_REGEX
 fi
+gl_FUNC_SELECT
+if test $REPLACE_SELECT = 1; then
+  AC_LIBOBJ([select])
+fi
+gl_SYS_SELECT_MODULE_INDICATOR([select])
 AC_REQUIRE([gl_HEADER_SYS_SOCKET])
 if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([send])
@@ -709,6 +719,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
+  lib/select.c
   lib/send.c
   lib/setenv.c
   lib/setsockopt.c
@@ -797,6 +808,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/inttypes_h.m4
   m4/ioctl.m4
   m4/langinfo_h.m4
+  m4/largefile.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
   m4/lib-link.m4
@@ -836,6 +848,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/progtest.m4
   m4/readlink.m4
   m4/regex.m4
+  m4/select.m4
   m4/setenv.m4
   m4/signal_h.m4
   m4/size_max.m4
