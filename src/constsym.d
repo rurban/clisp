@@ -1,7 +1,7 @@
 /*
  * List of all symbols known to the C-program ("program constants")
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2010
+ * Sam Steingold 1998-2011
  */
 
 /* The macro LISPSYM declares a LISP symbol.
@@ -393,21 +393,21 @@ LISPSYM(ansi_pathname_reader,"ANSI-PATHNAME-READER",system)
 #if defined(UNIX) || defined(WIN32_NATIVE)
 LISPSYM(unix_executable_reader,"UNIX-EXECUTABLE-READER",system)
 #endif
-LISPSYM(read,"READ",lisp)
+LISPSYM(readL,"READ",lisp)
 LISPSYM(read_preserving_whitespace,"READ-PRESERVING-WHITESPACE",lisp)
 LISPSYM(read_delimited_list,"READ-DELIMITED-LIST",lisp)
 LISPSYM(read_line,"READ-LINE",lisp)
 LISPSYM(read_char,"READ-CHAR",lisp)
 LISPSYM(unread_char,"UNREAD-CHAR",lisp)
 LISPSYM(peek_char,"PEEK-CHAR",lisp)
-LISPSYM(listen,"LISTEN",lisp)
+LISPSYM(listenL,"LISTEN",lisp)
 LISPSYM(read_char_will_hang_p,"READ-CHAR-WILL-HANG-P",ext)
 LISPSYM(read_char_no_hang,"READ-CHAR-NO-HANG",lisp)
 LISPSYM(clear_input,"CLEAR-INPUT",lisp)
 LISPSYM(read_from_string,"READ-FROM-STRING",lisp)
 LISPSYM(parse_integer,"PARSE-INTEGER",lisp)
 LISPSYM(print_structure,"PRINT-STRUCTURE",system) /* ABI */
-LISPSYM(write,"WRITE",lisp)
+LISPSYM(writeL,"WRITE",lisp)
 LISPSYM(prin1,"PRIN1",lisp)
 LISPSYM(print,"PRINT",lisp)
 LISPSYM(pprint,"PPRINT",lisp)
@@ -573,8 +573,8 @@ LISPSYM(get_universal_time,"GET-UNIVERSAL-TIME",lisp)
 #if defined(UNIX) || defined(WIN32)
 LISPSYM(default_time_zone,"DEFAULT-TIME-ZONE",system)
 #endif
-LISPSYM(sleep,"%SLEEP",system)
-LISPSYM(time,"%%TIME",system) /* ABI */
+LISPSYM(psleep,"%SLEEP",system)
+LISPSYM(pptime,"%%TIME",system) /* ABI */
 LISPSYM(delta4,"DELTA4",system)
 /* ---------- PACKAGE ---------- */
 LISPSYM(make_symbol,"MAKE-SYMBOL",lisp)
@@ -657,7 +657,7 @@ LISPSYM(rename_file,"RENAME-FILE",lisp)
 LISPSYM(file_error,"FILE-ERROR",lisp)
 LISPSYM(open,"OPEN",lisp)
 LISPSYM(reopen_open_file,"*REOPEN-OPEN-FILE*",custom)
-LISPSYM(close,"CLOSE",lisp)
+LISPSYM(closeL,"CLOSE",lisp)
 LISPSYM(directory,"DIRECTORY",lisp)
 LISPSYM(cd,"CD",ext)
 LISPSYM(make_directory,"MAKE-DIRECTORY",ext)

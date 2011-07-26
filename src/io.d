@@ -900,7 +900,7 @@ local _Noreturn void error_charread (object ch, const gcv_object_t* stream_) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(ch);                /* Character */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(stream_error,
         GETTEXT("~S from ~S: character read should be a character: ~S"));
 }
@@ -931,7 +931,7 @@ local _Noreturn void error_charread (object ch, const gcv_object_t* stream_) {
 local _Noreturn void error_eof_outside (const gcv_object_t* stream_) {
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
 }
 
@@ -943,11 +943,11 @@ local _Noreturn void error_eof_inside (const gcv_object_t* stream_) {
   if (posfixnump(Symbol_value(S(read_line_number)))) { /* check SYS::*READ-LINE-NUMBER* */
     pushSTACK(Symbol_value(S(read_line_number)));      /* line-number */
     pushSTACK(*stream_);                               /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(end_of_file,GETTEXT("~S: input stream ~S ends within an object. Last opening parenthesis probably in line ~S."));
   } else {
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(end_of_file,GETTEXT("~S: input stream ~S ends within an object"));
   }
 }
@@ -1209,7 +1209,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
         pushSTACK(ch);          /* character */
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error, /* ANSI CL 2.2. wants a reader-error here */
               GETTEXT("~S from ~S: illegal character ~S"));
       } break;
@@ -1220,7 +1220,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
         if (scode==syntax_eof) {                  /* reached EOF? */
           pushSTACK(*stream_);  /* STREAM-ERROR slot STREAM */
           pushSTACK(*stream_);
-          pushSTACK(S(read));
+          pushSTACK(S(readL));
           error(end_of_file,GETTEXT("~S: input stream ~S ends within a token after single escape character"));
         }
         if (fasl_stream && multiple_escape_flag) {
@@ -1266,7 +1266,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
         if (multiple_escape_flag) { /* between multiple-escape-character? */
           pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
           pushSTACK(*stream_);
-          pushSTACK(S(read));
+          pushSTACK(S(readL));
           error(end_of_file,GETTEXT("~S: input stream ~S ends within a token after multiple escape character"));
         }
         /* no -> token is finished normally */
@@ -1782,7 +1782,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(ch);
     pushSTACK(*stream_);
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,
            GETTEXT("~S from ~S: ~S has no macro character definition"));
   }
@@ -1795,7 +1795,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
       pushSTACK(fixnum(mv_count)); /* value number as Fixnum */
       pushSTACK(ch);
       pushSTACK(*stream_);
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(error_condition,GETTEXT("~S from ~S: macro character definition for ~S may not return ~S values, only one value."));
     }
     /* at most one value. */
@@ -1816,7 +1816,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
           pushSTACK(*stream_);  /* STREAM-ERROR slot STREAM */
           pushSTACK(ch);        /* main char */
           pushSTACK(*stream_);  /* Stream */
-          pushSTACK(S(read));
+          pushSTACK(S(readL));
           error(end_of_file,GETTEXT("~S: input stream ~S ends within read macro beginning with ~S"));
         }
         /* otherwise check for character. */
@@ -1847,7 +1847,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
       pushSTACK(subch);         /* Subchar */
       pushSTACK(ch);            /* Mainchar */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error, /* ANSI CL spec of MAKE-DISPATCH-MACRO-CHARACTER wants a reader-error here */
              GETTEXT("~S from ~S: After ~S is ~S an undefined dispatch macro character"));
     }
@@ -1860,7 +1860,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
       pushSTACK(ch);               /* Mainchar */
       pushSTACK(subch);            /* Subchar */
       pushSTACK(*stream_);         /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(error_condition,GETTEXT("~S from ~S: dispatch macro character definition for ~S after ~S may not return ~S values, only one value."));
     }
     /* at most 1 value. */
@@ -1925,7 +1925,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     if (len > 1) {              /* Length>1 -> error */
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(*stream_);
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error, /* ANSI CL 2.4.9. wants a reader-error here */
             GETTEXT("~S from ~S: a token consisting only of dots cannot be meaningfully read in"));
     }
@@ -2037,14 +2037,14 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
       pushSTACK(copy_string(TLO(token_buff_1))); /* copy Character-Buffer */
       pushSTACK(*stream_);                     /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: too many colons in token ~S"));
     }
    found_illg: { /* error message */
       pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
       pushSTACK(copy_string(TLO(token_buff_1))); /* copy Character-Buffer */
       pushSTACK(*stream_);                     /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"));
     }
     /* search Symbol or create it: */
@@ -2092,7 +2092,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
         pushSTACK(copy_string(hstring)); /* copy Displaced-String, PACKAGE-ERROR slot PACKAGE */
         pushSTACK(STACK_0);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(package_error,
               GETTEXT("~S from ~S: there is no package with name ~S"));
       }
@@ -2118,9 +2118,9 @@ local maygc object read_internal (const gcv_object_t* stream_) {
           pushSTACK(copy_string(hstring)); /* copy Displaced-String */
           pushSTACK(STACK_1);              /* pack */
           pushSTACK(*stream_);             /* Stream */
-          pushSTACK(S(read));
+          pushSTACK(S(readL));
           error(package_error,
-                 GETTEXT("~S from ~S: ~S has no external symbol with name ~S"));
+                GETTEXT("~S from ~S: ~S has no external symbol with name ~S"));
         }
       }
     }
@@ -2157,7 +2157,7 @@ local maygc object read_recursive (const gcv_object_t* stream_) {
 local _Noreturn void error_dot (object stream) {
   pushSTACK(stream);            /* STREAM-ERROR slot STREAM */
   pushSTACK(stream);            /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,    /* ANSI CL 2.3.3. wants a reader-error here. */
         GETTEXT("~S from ~S: token \".\" not allowed here"));
 }
@@ -2191,7 +2191,7 @@ local _Noreturn void error_invalid_value (object symbol) {
 local object check_read_reference_table (void) {
   var object val = Symbol_value(S(read_reference_table));
   if (boundp(val)) return val;
-  pushSTACK(S(read)); pushSTACK(S(read_reference_table));
+  pushSTACK(S(readL)); pushSTACK(S(read_reference_table));
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: symbol ~S is not bound, it appears that top-level ~S was called with a non-NIL recursive-p argument"));
 }
@@ -2228,7 +2228,7 @@ local object make_references (object obj) {
       pushSTACK(S(read_reference_table));
       pushSTACK(obj);
       pushSTACK(bad_reference);
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S: no entry for ~S from ~S in ~S = ~S"));
     }
     return popSTACK();
@@ -2507,7 +2507,7 @@ LISPFUNN(rpar_reader,2) {       /* reads ) */
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(STACK_(0+1));       /* char */
   pushSTACK(*stream_);          /* stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,GETTEXT("~S from ~S: an object cannot start with ~S"));
 }
 
@@ -2624,7 +2624,7 @@ LISPFUNN(string_reader,2) {     /* reads " */
   }
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(end_of_file,GETTEXT("~S: input stream ~S ends within a string"));
 }
 
@@ -2686,7 +2686,7 @@ local _Noreturn void error_dispatch_number (void) {
   pushSTACK(STACK_1);           /* STREAM-ERROR slot STREAM */
   pushSTACK(STACK_(0+1));       /* sub-char */
   pushSTACK(STACK_(1+2));       /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,
          GETTEXT("~S from ~S: no number allowed between #"" and ~C"));
 }
@@ -2775,7 +2775,7 @@ LISPFUNN(comment_reader,3) {                   /* reads #| */
     pushSTACK(STACK_(0+1));     /* sub-char */
     pushSTACK(STACK_(0+2));     /* sub-char */
     pushSTACK(STACK_(1+3));     /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(end_of_file,
           GETTEXT("~S: input stream ~S ends within a comment #~C ... ~C#"));
   }
@@ -2844,7 +2844,7 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(STACK_(0+1));   /* n */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: font number ~S for character is too large, should be = 0"));
     }
   /* Font ready. */
@@ -2908,7 +2908,7 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
     pushSTACK(*stream_);              /* STREAM-ERROR slot STREAM */
     pushSTACK(copy_string(hstring));  /* copy Charactername */
     pushSTACK(*stream_);              /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,
           GETTEXT("~S from ~S: there is no character with name ~S"));
   }
@@ -2965,7 +2965,7 @@ local maygc Values radix_2 (uintWL base, bool *token_escape_flag) {
         pushSTACK(STACK_(1+2)); /* sub-char */
         pushSTACK(copy_string(TLO(token_buff_1))); /* Token */
         pushSTACK(STACK_(2+4));                  /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,GETTEXT("~S from ~S: token ~S after #~C is not a rational number in base ~S"));
       }
     default: NOTREACHED;
@@ -3031,7 +3031,7 @@ LISPFUNN(radix_reader,3) {                   /* reads #R */
   if (nullp(STACK_0)) {
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: the number base must be given between #"" and R"));
   }
   var uintV base;
@@ -3043,9 +3043,9 @@ LISPFUNN(radix_reader,3) {                   /* reads #R */
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(0+1));     /* n */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,
-           GETTEXT("~S from ~S: The base ~S given between #"" and R should lie between 2 and 36"));
+          GETTEXT("~S from ~S: The base ~S given between #"" and R should lie between 2 and 36"));
   }
 }
 
@@ -3088,7 +3088,7 @@ LISPFUNN(complex_reader,3) {                       /* reads #C */
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(obj);               /* Object */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,
         GETTEXT("~S from ~S: bad syntax for complex number: #C~S"));
 }
@@ -3119,7 +3119,7 @@ LISPFUNN(uninterned_reader,3) {     /* reads #: */
       /* no character, that is allowed at beginning of Token -> Error */
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: token expected after #:"));
     }
     /* read Token until the end: */
@@ -3146,7 +3146,7 @@ LISPFUNN(uninterned_reader,3) {     /* reads #: */
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(string);            /* Token */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,
         GETTEXT("~S from ~S: token ~S after #: should contain no colon"));
 }
@@ -3171,7 +3171,7 @@ local uintV read_vector_length_check (uintV token_length,object type,
       pushSTACK(STACK_(0+1));   /* n */
       pushSTACK(type);          /* VECTOR or BIT-VECTOR */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
             GETTEXT("~S from ~S: ~S is longer than the explicitly given length ~S"));
     }
@@ -3180,7 +3180,7 @@ local uintV read_vector_length_check (uintV token_length,object type,
       pushSTACK(STACK_(0+1));   /* n */
       pushSTACK(type);          /* VECTOR or BIT-VECTOR */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
             GETTEXT("~S from ~S: must specify elements of ~S of length ~S"));
     }
@@ -3191,7 +3191,7 @@ local uintV read_vector_length_check (uintV token_length,object type,
       pushSTACK(STACK_1);              /* n */
       pushSTACK(type);                 /* VECTOR or BIT-VECTOR */
       pushSTACK(*stream_);             /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(type_error,GETTEXT("~S from ~S: invalid ~S length ~S"));
     }
    #endif
@@ -3240,7 +3240,7 @@ LISPFUNN(bit_vector_reader,3) { /* reads #* */
   error_only01:
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
           GETTEXT("~S from ~S: only zeroes and ones are allowed after #*"));
   }
@@ -3388,7 +3388,7 @@ LISPFUNN(array_reader,3) {                             /* reads #A */
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(obj);             /* Object */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: bad syntax for array: #A~S"));
   }
   /* n specifies the Rank of the Arrays.
@@ -3451,7 +3451,7 @@ local _Noreturn void error_read_eval_forbidden (const gcv_object_t* stream_, obj
   pushSTACK(NIL);               /* NIL */
   pushSTACK(S(read_eval));      /* *READ-EVAL* */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,   /* ANSI CL 2.4.8.6. wants a reader-error here */
         GETTEXT("~S from ~S: ~S = ~S does not allow the evaluation of ~S"));
 }
@@ -3566,7 +3566,7 @@ local maygc object lookup_label (void) {
     pushSTACK(STACK_2);         /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(1+1));     /* sub-char */
     pushSTACK(STACK_(2+2));     /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,
           GETTEXT("~S from ~S: a number must be given between #"" and ~C"));
   }
@@ -3615,7 +3615,7 @@ LISPFUNN(label_definition_reader,3) { /* reads #= */
     pushSTACK(STACK_2);         /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(0+1));     /* n */
     pushSTACK(STACK_(2+2));     /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,
            GETTEXT("~S from ~S: label #~S= may not be defined twice"));
   } else {
@@ -3643,7 +3643,7 @@ LISPFUNN(label_definition_reader,3) { /* reads #= */
       pushSTACK(STACK_(2+1));   /* n */
       pushSTACK(STACK_(2+2));   /* n */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: #~S= #~S#"" is illegal"));
     }
     /* Insert read object as (cdr h): */
@@ -3667,7 +3667,7 @@ LISPFUNN(label_reference_reader,3) { /* reads ##*/
     pushSTACK(STACK_2);         /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(0+1));     /* n */
     pushSTACK(STACK_(2+2));     /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: undefined label #~S#"));
   }
 }
@@ -3680,7 +3680,7 @@ LISPFUNN(not_readable_reader,3) { /* reads #< */
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,  /* ANSI CL 2.4.8.20. wants a reader-error here */
         GETTEXT("~S from ~S: objects printed as #<...> cannot be read back in"));
 }
@@ -3695,7 +3695,7 @@ LISPFUNN(syntax_error_reader,3) { /* reads #) and #whitespace */
   pushSTACK(*stream_);          /* STREAM-ERROR slot STREAM */
   pushSTACK(S(print_level));
   pushSTACK(*stream_);          /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,     /* ANSI CL 2.4.9. wants a reader-error here */
         GETTEXT("~S from ~S: objects printed as #"" in view of ~S cannot be read back in"));
 }
@@ -3726,7 +3726,7 @@ local _Noreturn void error_feature (object expr) {
     pushSTACK(STACK_1);         /* STREAM-ERROR slot STREAM */
     pushSTACK(expr);            /* Feature-Expression */
     pushSTACK(STACK_(1+2));     /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: illegal feature ~S"));
   } else {                      /* Called from FEATUREP. */
     pushSTACK(expr);            /* Feature-Expression */
@@ -3898,7 +3898,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(args);            /* Arguments */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: #S must be followed by the type and the contents of the structure, not ~S"));
   }
   {
@@ -3909,7 +3909,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(name);
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: the type of a structure should be a symbol, not ~S"));
     }
     pushSTACK(name);
@@ -3920,7 +3920,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
        Remaining Argumentlist must be a Cons: */
       if (!consp(args)) {
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
-        pushSTACK(S(hash_table)); pushSTACK(*stream_); pushSTACK(S(read));
+        pushSTACK(S(hash_table)); pushSTACK(*stream_); pushSTACK(S(readL));
         error(reader_error,GETTEXT("~S from ~S: bad ~S"));
       }
       if (symbolp(Car(args)) && keywordp(Car(args))) {
@@ -3960,14 +3960,14 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
         pushSTACK(name);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,GETTEXT("~S from ~S: bad ~S (not enough fields)"));
       }
       if (!nullp(args)) {
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
         pushSTACK(args); pushSTACK(name);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,GETTEXT("~S from ~S: bad ~S (extra fields: ~S"));
       }
       VALUES1(closure); skipSTACK(3); return;
@@ -3984,7 +3984,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
         pushSTACK(name);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,GETTEXT("~S from ~S: bad ~S"));
       }
       STACK_0 = Car(args);      /* save Simple-Bit-Vector */
@@ -4033,7 +4033,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
             pushSTACK(name);
             pushSTACK(S(defstruct_description));
             pushSTACK(*stream_); /* Stream */
-            pushSTACK(S(read));
+            pushSTACK(S(readL));
             error(reader_error,GETTEXT("~S from ~S: bad ~S for ~S"));
           }
         }
@@ -4042,7 +4042,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
         pushSTACK(name);
         pushSTACK(*stream_);      /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,
               GETTEXT("~S from ~S: no structure of type ~S has been defined"));
       }
@@ -4051,7 +4051,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
         pushSTACK(name);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,
                GETTEXT("~S from ~S: structures of type ~S cannot be read in, missing constructor function"));
       }
@@ -4072,7 +4072,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
       pushSTACK(*stream_);              /* STREAM-ERROR slot STREAM */
       pushSTACK(*(stream_ STACKop -2)); /* name */
       pushSTACK(*stream_);              /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,
              GETTEXT("~S from ~S: a structure ~S may not contain a component \".\""));
     }
@@ -4083,7 +4083,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*(stream_ STACKop -2)); /* name */
         pushSTACK(slot);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,
                GETTEXT("~S from ~S: ~S is not a symbol, not a slot name of structure ~S"));
       }
@@ -4092,7 +4092,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(*(stream_ STACKop -2)); /* name */
         pushSTACK(slot);
         pushSTACK(*stream_);    /* Stream */
-        pushSTACK(S(read));
+        pushSTACK(S(readL));
         error(reader_error,
                GETTEXT("~S from ~S: missing value of slot ~S in structure ~S"));
       }
@@ -4112,7 +4112,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
       pushSTACK(*stream_);              /* STREAM-ERROR slot STREAM */
       pushSTACK(*(stream_ STACKop -2)); /* name */
       pushSTACK(*stream_);              /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,GETTEXT("~S from ~S: too many slots for structure ~S"));
     }
   }
@@ -4150,7 +4150,7 @@ local _Noreturn void error_closure_badchar (void) {
   pushSTACK(STACK_2);           /* STREAM-ERROR slot STREAM */
   pushSTACK(STACK_(0+1));       /* n */
   pushSTACK(STACK_(2+2));       /* Stream */
-  pushSTACK(S(read));
+  pushSTACK(S(readL));
   error(reader_error,GETTEXT("~S from ~S: illegal syntax of closure code vector after #~SY"));
 }
 
@@ -4207,7 +4207,7 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(obj);
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(reader_error,
              GETTEXT("~S from ~S: object #Y~S has not the syntax of a compiled closure"));
     }
@@ -4238,7 +4238,7 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
       pushSTACK(O(type_array_length)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(STACK_1); /* n */
       pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
+      pushSTACK(S(readL));
       error(type_error,GETTEXT("~S from ~S: invalid code vector length ~S"));
     }
    #endif
@@ -4356,7 +4356,7 @@ LISPFUNN(ansi_pathname_reader,3) {                 /* reads #P */
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(obj);             /* Object */
     pushSTACK(*stream_);        /* Stream */
-    pushSTACK(S(read));
+    pushSTACK(S(readL));
     error(reader_error,GETTEXT("~S from ~S: bad syntax for pathname: #P~S"));
   }
 }
@@ -4451,7 +4451,7 @@ local maygc Values read_w (object whitespace_p) {
 
 /* (READ [input-stream [eof-error-p [eof-value [recursive-p]]]]),
  CLTL p. 375 */
-LISPFUN(read,seclass_default,0,4,norest,nokey,0,NIL) {
+LISPFUN(readL,seclass_default,0,4,norest,nokey,0,NIL) {
   return_Values read_w(NIL);    /* whitespace-p := NIL */
 }
 
@@ -4585,7 +4585,7 @@ LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL) {
 }
 
 /* (LISTEN [input-stream]), CLTL p. 380 */
-LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
+LISPFUN(listenL,seclass_default,0,1,norest,nokey,0,NIL) {
   check_istream(&STACK_0);      /* check input-stream */
   if (builtin_stream_p(STACK_0))
     VALUES_IF(LISTEN_AVAIL == listen_char(popSTACK()));
@@ -10271,7 +10271,7 @@ local void write_up (void) {
                  [:readably] [:lines] [:miser-width] [:pprint-dispatch]
                  [:right-margin]),
  CLTL p. 382 */
-LISPFUN(write,seclass_default,1,0,norest,key,17,
+LISPFUN(writeL,seclass_default,1,0,norest,key,17,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
          kw(lines),kw(miser_width),kw(pprint_dispatch),

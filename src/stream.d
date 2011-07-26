@@ -1407,7 +1407,7 @@ local maygc void wr_ch_array_synonym (const gcv_object_t* stream_,
     var int argcount = 1;
     pushSTACK(get_synonym_stream(symbol));
     if (abort) { pushSTACK(S(Kabort)); pushSTACK(T); argcount=3; }
-    funcall(S(close),argcount);
+    funcall(S(closeL),argcount);
   }
 #endif
 
