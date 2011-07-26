@@ -1,3 +1,19 @@
+2011-07-26  Sam Steingold  <sds@gnu.org>
+
+	revert last patch; fix the gnulib defines in a more robust way:
+	change C names for Lisp symbols to avoid clashes with the C world
+	Suggested by Bruno
+	* undef-gnulib.h: remove
+	* Makefile.devel, makemake.in: remove undef-gnulib.h
+	* spvwtabf.d, spvwtabo.d, spvwtabs.d: do not include undef-gnulib.h
+	* constsym.d, eval.d, io.d, package.d, pathname.d, stream.d,
+	* subr.d, time.d (read): rename to readL
+	(listen): ... listenL
+	(write): ... writeL
+	(sleep): ... psleep
+	(time): ... pptime
+	(close): ... closeL
+
 2011-07-25  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (src/undef-gnulib.h): new target

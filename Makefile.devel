@@ -396,20 +396,8 @@ gnulib-imported : update-gnulib force
 	  fi; \
 	done
 	$(HG) revert src/gllib/Makefile.in src/gllib/README src/glm4/README
-	$(MAKE) -f Makefile.devel src/undef-gnulib.h
 	$(HG) st --unknown --deleted
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
-
-# gnulib defines some lisp names to foo_used_without_bar and rpl_foo
-# we include src/undef-gnulib.h in files which want these names to be lisp
-src/undef-gnulib.h : force
-	egrep '# *define *[^ )]* *(rpl_|.*_used_without_)' src/gllib/*.h | sed 's/.*define *\([^ ]*\) .*/\1/' | sort -u > $@-gnulib
-	grep '^ *LISPFUN' src/subr.d | sed 's/.*LISPFUN[_A-Z]*( *\([^ ,]*\)[ ,].*/\1/' >> $@-clisp
-	grep '^ *LISPSYM' src/constsym.d | sed 's/.*LISPSYM[_A-Z]*( *\([^ ,]*\)[ ,].*/\1/' >> $@-clisp
-	grep '^ *LISPOBJ' src/constobj*.d | sed 's/.*LISPOBJ[_A-Z]*( *\([^ ,]*\)[ ,].*/\1/' >> $@-clisp
-	sort -o $@-clisp -u $@-clisp
-	comm -12 $@-* | sed 's/^/#undef /' > $@
-	$(RM) $@-*
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
 

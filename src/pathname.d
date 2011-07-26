@@ -6453,7 +6453,7 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       pushSTACK(direction_symbol(direction)); /* 0: direction */
       STACK_4 = error_format_string;
       funcall(S(warn),5);
-    } else if (eq(Symbol_value(S(reopen_open_file)),S(close))) {
+    } else if (eq(Symbol_value(S(reopen_open_file)),S(closeL))) {
       pushSTACK(truename);      /* save */
       pushSTACK(bad_stream); builtin_stream_close(&STACK_0,1); skipSTACK(1);
       truename = popSTACK();    /* restore */
@@ -6464,7 +6464,7 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       pushSTACK(TheSubr(subr_self)->name);
       pushSTACK(S(reopen_open_file));
       pushSTACK(S(error)); pushSTACK(S(warn));
-      pushSTACK(S(close)); pushSTACK(NIL);
+      pushSTACK(S(closeL)); pushSTACK(NIL);
       pushSTACK(Symbol_value(S(reopen_open_file))); pushSTACK(S(error));
       funcall(S(warn),9);
       Symbol_value(S(reopen_open_file)) = S(error);

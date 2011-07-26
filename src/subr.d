@@ -543,14 +543,14 @@ LISPFUNN(ansi_pathname_reader,3)
 #if defined(UNIX) || defined(WIN32_NATIVE)
 LISPFUNN(unix_executable_reader,3)
 #endif
-LISPFUN(read,seclass_default,0,4,norest,nokey,0,NIL)
+LISPFUN(readL,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(read_preserving_whitespace,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(read_delimited_list,seclass_default,1,2,norest,nokey,0,NIL)
 LISPFUN(read_line,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(read_char,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(unread_char,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL)
-LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL)
+LISPFUN(listenL,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(read_char_will_hang_p,1)
 LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,seclass_default,0,1,norest,nokey,0,NIL)
@@ -559,7 +559,7 @@ LISPFUN(read_from_string,seclass_default,1,2,norest,key,3,
 LISPFUN(parse_integer,seclass_rd_sig,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 LISPFUNN(print_structure,2)
-LISPFUN(write,seclass_default,1,0,norest,key,17,
+LISPFUN(writeL,seclass_default,1,0,norest,key,17,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
          kw(lines),kw(miser_width),kw(pprint_dispatch),
@@ -738,8 +738,8 @@ LISPFUNNR(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
 LISPFUNNR(default_time_zone,2)
 #endif
-LISPFUNN(sleep,2)
-LISPFUN(time,seclass_read,0,1,norest,nokey,0,NIL)
+LISPFUNN(psleep,2)
+LISPFUN(pptime,seclass_read,0,1,norest,nokey,0,NIL)
 LISPFUNNF(delta4,5)
 /* ---------- PACKAGE ---------- */
 LISPFUNNR(make_symbol,1)

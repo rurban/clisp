@@ -103,7 +103,7 @@ EOP
 #   makemake i386 gcc > make.gcc/makefile
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
-#   makemake win32gcc gcc > make.win32gcc/makefile
+#   makemake --win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
 #   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
 #   makemake --with-dynamic-ffi win32msvc msvc6 > make.win32msvc/makefile.msvc6
@@ -588,6 +588,7 @@ fi
 # feature or bug than to look at various `uname ...` results and list
 # the buggy systems explicitly. ONLY in this case!
 
+UTILCOMPILE="\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 case $# in
   0 | 1)
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
@@ -612,6 +613,10 @@ case $# in
        HSYSOS=$HSYS
        HOS=win32
        COMPILER=gcc
+       # is this mingw on msys or on cygwin?
+       # this really is cross-compilation, so we must override the above
+       # which would make utils win32, not cygwin
+       UTILCOMPILE=gcc
      fi
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
@@ -2325,22 +2330,9 @@ for parf in ${PARAMS}; do
   fi
   echol
 done
-if [ ${HSYS} = "win32gcc" ]; then
-  echol "# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links"
-  echol "UTILCC=gcc"
-elif [ $CROSS = true ]; then
-  echol "# **HACK**: utilities must run locally"
-  echol "UTILCC=cc"
-else
-  echol "UTILCC=\$(CC)"
-fi
-# without GLLIB_A we get "undefined reference to `rpl_malloc'" on mingw.
-# with GLLIB_A we get "undefined reference to `__errno'" on mingw. go figure.
-EXTRAOBJ=${GLLIB_A}
-UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 for util in ${UTILS} ; do
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${EXTRAOBJ}"
-      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c ${EXTRAOBJ}" "${util}"
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
       echol
 done
 
@@ -2352,7 +2344,6 @@ if [ -n "${SRCDIR}" ] ; then
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     link_dep modules.h "${SRCDIR}modules.h"
-    link_dep undef-gnulib.h "${SRCDIR}undef-gnulib.h"
     echol
   fi
   if [ ${HSYS} = win32gcc ] ; then
@@ -2484,9 +2475,6 @@ echol
 for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   depends=$EVERY_INCLUDES
   dependsc=''
-  case $f in
-    spvwtab* ) dependsc=$dependsc' undef-gnulib.h' ;;
-  esac
   test $f = spvw -o $f = package && depends=$depends' constpack'
   test $f = spvw -o $f = predtype && depends=$depends' avl'
   test $f = spvw && depends=$depends''$SPVW_INCLUDES' sort spvw_calendar'
@@ -3431,7 +3419,7 @@ if [ $CROSS = false ] ; then
       ;;
   esac
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${EXTRAOBJ} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"

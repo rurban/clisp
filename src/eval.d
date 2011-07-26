@@ -1,7 +1,7 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2001-08-13
  */
 #include "lispbibl.c"
@@ -60,10 +60,10 @@ local const Subr FUNTAB[] = {
   _(copy_readtable), _(set_syntax_from_char), _(set_macro_character),
   _(get_macro_character), _(make_dispatch_macro_character),
   _(set_dispatch_macro_character), _(get_dispatch_macro_character),
-  _(read), _(read_preserving_whitespace), _(read_delimited_list),
-  _(read_line), _(read_char), _(unread_char), _(peek_char), _(listen),
+  _(readL), _(read_preserving_whitespace), _(read_delimited_list),
+  _(read_line), _(read_char), _(unread_char), _(peek_char), _(listenL),
   _(read_char_no_hang), _(clear_input), _(read_from_string), _(parse_integer),
-  _(whitespacep), _(write), _(prin1), _(print), _(pprint), _(princ),
+  _(whitespacep), _(writeL), _(prin1), _(print), _(pprint), _(princ),
   _(write_to_string), _(prin1_to_string), _(princ_to_string), _(write_char),
   _(write_string), _(write_line), _(terpri), _(fresh_line), _(elastic_newline),
   _(finish_output), _(force_output), _(clear_output), _(line_position),
@@ -85,7 +85,7 @@ local const Subr FUNTAB[] = {
   /* MISC : 10 SUBRs */
   _(lisp_implementation_type), _(lisp_implementation_version),
   _(software_type), _(software_version), _(identity), _(get_universal_time),
-  _(get_internal_run_time), _(get_internal_real_time), _(sleep), _(time),
+  _(get_internal_run_time), _(get_internal_real_time), _(psleep), _(pptime),
   /* PACKAGE : 32 SUBRs */
   _(make_symbol), _(find_package), _(package_name), _(package_nicknames),
   _(rename_package), _(package_use_list), _(package_used_by_list),

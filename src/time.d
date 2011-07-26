@@ -1,7 +1,7 @@
 /*
  * Time measuring functions for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2011
  * German comments and names translated into English: Reini Urban 2007-12
  */
 
@@ -579,7 +579,7 @@ LISPFUNNR(default_time_zone,2)
 }
 #endif  /* UNIX || WIN32 */
 
-LISPFUNN(sleep,2)
+LISPFUNN(psleep,2)
 #if defined(TIME_UNIX)
 { /* (SYSTEM::%SLEEP delay-seconds delay-useconds) waits
  delay-seconds and delay-useconds microseconds.
@@ -614,7 +614,7 @@ LISPFUNN(sleep,2)
     end_blocking_call();
     interruptp({
       end_system_call();
-      pushSTACK(S(sleep)); tast_break(); /* evtl. Break-Schleife aufrufen */
+      pushSTACK(S(psleep)); tast_break(); /* maybe call the break loop */
       begin_system_call();
     });
     if (!( gettimeofday(&end_time,NULL) ==0)) { OS_error(); }
@@ -653,7 +653,7 @@ LISPFUNN(sleep,2)
   begin_blocking_system_call();
   if (!msleep(1000*seconds+mseconds)) {
     end_blocking_system_call();
-    pushSTACK(S(sleep)); tast_break(); /* evtl. call the break loop */
+    pushSTACK(S(psleep)); tast_break(); /* maybe call the break loop */
   } else {
     end_blocking_system_call();
   }
@@ -661,7 +661,7 @@ LISPFUNN(sleep,2)
 }
 #endif
 
-LISPFUN(time,seclass_read,0,1,norest,nokey,0,NIL)
+LISPFUN(pptime,seclass_read,0,1,norest,nokey,0,NIL)
 { /* (SYSTEM::%%TIME thread) returns the time/space resource usage,
      without allocating space by itself and thereby causing a GC.
  9 values:

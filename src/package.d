@@ -1,7 +1,7 @@
 /*
  * Package Management for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1999-2010
+ * Sam Steingold 1999-2011
  * German comments translated into English: Stefan Kain 2002-02-20
  */
 
@@ -2505,7 +2505,7 @@ local maygc object correct_packname (object name, bool nickname_p) {
               : CLSTEXT("return the existing package"));
     var object tmp = listof(2);
     pushSTACK(tmp);
-    pushSTACK(S(read));         /* restart name */
+    pushSTACK(S(readL));        /* restart name */
     pushSTACK(nickname_p ? CLSTEXT("input another nickname")
               : CLSTEXT("input another name"));
     pushSTACK(S(prompt_for_new_value)); /* interactive function */
