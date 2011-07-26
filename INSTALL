@@ -77,7 +77,7 @@ Installation:
 
 For instruction on how to install CLISP
 * on Unix (including cygwin): see file unix/INSTALL.
-* on Win32 using mingw: see unix/INSTALL and pass --with-mingw to configure.
+* on Win32 using MinGW: see file unix/INSTALL.
 * on Win32 using MSVC++: see file win32msvc/INSTALL.
 
 

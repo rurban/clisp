@@ -9,25 +9,22 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
 
 1. (Optional)
    Choose which C compiler to use for building CLISP.
+
+   This is done by either
+    -- setting the environment variable CC before running configure
+       (setenv on csh derivatives or export on sh derivatives); or
+    -- passing CC=... as an argument to configure.
+
    This is normally not necessary; if GNU C is available under the
-   name "gcc", it will be used.
+   name "gcc", it will be used.  There are two exceptions:
 
-   For example, if you were wanting to use gcc with full warnings, then
-   type, if you are using csh:
+   A. Cygwin: using the default GCC means building Cygwin CLISP.
+      If you want to build native windows CLISP using Cygwin/MinGW, install
+      the native MinGW toolchain (e.g., mingw64-i686-gcc-core) in addition
+      to the Cygwin GCC and set CC to, e.g., i686-w64-mingw32-gcc.
 
-         setenv CC "gcc -Wall"
-
-   or if you are using bash or ksh:
-
-         export CC="gcc -Wall"
-
-   or if you are using sh:
-
-         CC="gcc -Wall"
-         export CC
-
-   On bi-arch systems, such as sparc, you *must* select word size explicitly,
-   by setting CC to "gcc -m64".
+   B. On bi-arch systems, such as sparc, you *must* select word size
+      explicitly, by setting CC to "gcc -m64".
 
 2. (Recommended)
    Install a few libraries on which CLISP relies:
