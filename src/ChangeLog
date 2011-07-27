@@ -1,5 +1,6 @@
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
+	fix mingw compilation
 	* modules/syscalls/calls.c: when the portability is ensured by
 	gnulib, use ANSIC_error; when we use WIN32_NATIVE functions
 	directly, use OS_error
@@ -7,6 +8,7 @@
 	return value of gnulib mkstemp() to a windows file handle
 	Include <shldisp.h> & <shlguid.h> for CLSID_ShellLink &
 	IID_IShellLink
+	* modules/regexp/Makefile.in (NO_CXX): removed unused variable
 
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
