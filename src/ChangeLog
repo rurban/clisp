@@ -1,5 +1,15 @@
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c: when the portability is ensured by
+	gnulib, use ANSIC_error; when we use WIN32_NATIVE functions
+	directly, use OS_error
+	(POSIX:MKSTEMP) [WIN32_NATIVE]: use _get_osfhandle to convert the
+	return value of gnulib mkstemp() to a windows file handle
+	Include <shldisp.h> & <shlguid.h> for CLSID_ShellLink &
+	IID_IShellLink
+
+2011-07-27  Sam Steingold  <sds@gnu.org>
+
 	* spvw_ctype.d (init_ctype): add "#ifdef LC_MESSAGES" for mingw
 
 2011-07-26  Sam Steingold  <sds@gnu.org>

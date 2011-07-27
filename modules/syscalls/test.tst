@@ -37,10 +37,11 @@ T
 
 ;; for this to work, datum must specify _all_ fields in struct tm
 (defun check-time-date (fmt datum)
-  (let ((gd (os:getdate datum)) (st (os:string-time fmt datum)))
-    (print (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
-    (unless (= gd st)
-      (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st))))))
+  (and (fboundp 'os:getdate)
+       (let ((gd (os:getdate datum)) (st (os:string-time fmt datum)))
+         (print (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
+         (unless (= gd st)
+           (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st)))))))
 CHECK-TIME-DATE
 
 (check-time-date "%m/%d/%y %I %p" "10/1/87 4 PM") NIL
@@ -49,7 +50,9 @@ CHECK-TIME-DATE
 
 (defun check-time-date (fmt datum)
   (declare (ignore fmt))
-  (null (show (os:string-time "%Y-%m-%d %a %H:%M:%S" (os:getdate datum)))))
+  (and (fboundp 'os:getdate)
+       (null (show (os:string-time "%Y-%m-%d %a %H:%M:%S"
+                                   (os:getdate datum))))))
 CHECK-TIME-DATE
 
 (check-time-date "%m/%d/%y" "11/27/86") NIL
@@ -304,14 +307,10 @@ T
 #-:win32 NIL
 
 (os:convert-mode #o0666)
-#+unix (:RUSR :WUSR :RGRP :WGRP :ROTH :WOTH)
-#+win32 (:RUSR :WUSR 54)
-#-(or unix win32) ERROR
+(:RUSR :WUSR :RGRP :WGRP :ROTH :WOTH)
 
-(os:convert-mode '(:RWXU #+unix :RWXG #+unix :RWXO))
-#+unix #o0777
-#+win32 #o0700
-#-(or unix win32) ERROR
+(os:convert-mode '(:RWXU :RWXG :RWXO))
+#o0777
 
 (and (fboundp 'os:stat-vfs)
      (not (os:stat-vfs-p (show (os:stat-vfs *tmp2*) :pretty t))))
@@ -565,8 +564,9 @@ T
 ;; cygwin: "error 47"
 ;; win32: some localized abomination
 (loop :with all = (os:errno t)
-  :for e :from 0 :to (loop :for p :in all :maximize (car p))
-  :do (show (list e (os:errno e) (os:strerror)))
+  :for e :from 0 :to (loop :for p :in all :for e = (car p)
+                       :when (< e #.(ash 1 16)) :maximize e)
+  :do (print (list e (os:errno e) (os:strerror)))
   :finally (os:errno nil))
 ()
 
@@ -659,8 +659,12 @@ RUN-SLEEP
     (assert (null status) () "status=~S is non-NIL" status)))
 #+(and :unix (not :cygwin)) NIL
 
-(every #'sys::double-float-p (show (multiple-value-list (os:loadavg)))) T
-(every #'sys::fixnump (show (multiple-value-list (os:loadavg t)))) T
+(every #'sys::double-float-p
+       (show (handler-case (multiple-value-list (os:loadavg))
+               (error (c) (princ-error c))))) T
+(every #'sys::fixnump
+       (show (handler-case (multiple-value-list (os:loadavg t))
+               (error (c) (princ-error c))))) T
 
 (os:version<= "a" "b") T
 (os:version< "1.10" "1.8") NIL
