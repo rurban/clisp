@@ -369,13 +369,13 @@ GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset stdlib \
 	unistd alloca-opt environ lstat stat readlink sys_uio sys_select \
 	mkfifo mknod mkstemp mkdtemp getloadavg bind accept listen recv send \
-	setsockopt shutdown connect socket setsockopt getsockname getpeername \
+	getsockopt shutdown connect socket setsockopt getsockname getpeername \
 	uniwidth/width streq uniname/uniname unitypes link-follow close select \
 	host-cpu-c-abi socklen sockets fd-hook setenv unsetenv errno ioctl \
 	arpa_inet netinet_in inet_ntop inet_pton socketlib strerror_r-posix \
 	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait
 GNULIB_SYSCALLS = mktime strftime strptime strverscmp uname fnmatch-gnu
-GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex
+GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex recvfrom sendto
 GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
 GNULIB_IMPORTED_LOG = /tmp/gnulib-imported.log
 gnulib-imported : update-gnulib force
