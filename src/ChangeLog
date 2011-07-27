@@ -1,5 +1,12 @@
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): fix a typo: setsockopt was
+	requested twice while getsockopt was not requested at all
+	(GNULIB_IMPORTS): add recvfrom & sendto for rawsock
+	* modules/rawsock/rawsock.c: use ANSIC_error instead of OS_error
+
+2011-07-27  Sam Steingold  <sds@gnu.org>
+
 	fix mingw compilation
 	* lispbibl.d (setjmp) [__MINGW32__]: do not define
 	Include <winsock2.h> before <windows.h> to avoid a warning

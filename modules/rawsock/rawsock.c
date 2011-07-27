@@ -287,7 +287,7 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 
 /* report error on the given socket or OS_error if socket<0 */
 static _Noreturn void rawsock_error (int socket) {
-  if (socket < 0) OS_error();
+  if (socket < 0) ANSIC_error();
   begin_system_call(); {
     int ecode = errno;
     char *msg = strerror(ecode);
@@ -521,7 +521,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 #  if defined(HAVE_IF_NAMEINDEX) && defined(HAVE_IF_FREENAMEINDEX)
     struct if_nameindex *ifni;
     begin_system_call();
-    if ((ifni = if_nameindex()) == NULL) OS_error();
+    if ((ifni = if_nameindex()) == NULL) ANSIC_error();
     end_system_call();
     for (; ifni[count].if_index; count++) {
       pushSTACK(allocate_cons());
@@ -535,7 +535,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 #  if defined(HAVE_IF_INDEXTONAME)
     char name[IF_NAMESIZE];
     begin_system_call();
-    if (NULL == if_indextoname(I_to_uint(STACK_0),name)) OS_error();
+    if (NULL == if_indextoname(I_to_uint(STACK_0),name)) ANSIC_error();
     end_system_call();
     VALUES1(asciz_to_string(name,GLO(misc_encoding)));
 #  else
@@ -547,7 +547,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
     unsigned int idx;
     with_string_0(STACK_0,GLO(misc_encoding),namez, {
         begin_system_call();
-        if (0 == (idx = if_nametoindex(namez))) OS_error();
+        if (0 == (idx = if_nametoindex(namez))) ANSIC_error();
         end_system_call();
       });
     VALUES1(uint_to_I(idx));
@@ -573,7 +573,9 @@ DEFUN(RAWSOCK:IFADDRS,&key FLAGS-AND FLAGS-OR) {
   unsigned int flags_or = check_iff_of_list(popSTACK());
   unsigned int flags_and = missingp(STACK_0) ? 0 : check_iff_of_list(STACK_0);
   skipSTACK(1);                 /* drop flags_and */
-  begin_system_call(); if(-1==getifaddrs(&ifap)) OS_error(); end_system_call();
+  begin_system_call();
+  if (-1==getifaddrs(&ifap)) ANSIC_error();
+  end_system_call();
   for (; ifap; ifap=ifap->ifa_next)
     if ((flags_or & ifap->ifa_flags)
         && ((flags_and & ifap->ifa_flags) == flags_and)) {
