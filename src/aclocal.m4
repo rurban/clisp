@@ -3225,6 +3225,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module getpagesize:
   # Code from module getpeername:
   # Code from module getsockname:
+  # Code from module getsockopt:
   # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettimeofday:
@@ -3264,9 +3265,11 @@ AC_DEFUN([gl_EARLY],
   # Code from module nocrash:
   # Code from module readlink:
   # Code from module recv:
+  # Code from module recvfrom:
   # Code from module regex:
   # Code from module select:
   # Code from module send:
+  # Code from module sendto:
   # Code from module setenv:
   # Code from module setsockopt:
   # Code from module shutdown:
@@ -3406,6 +3409,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([getsockname])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([getsockname])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([getsockopt])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([getsockopt])
 dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
 AM_GNU_GETTEXT_VERSION([0.18.1])
 AC_SUBST([LIBINTL])
@@ -3543,6 +3551,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([recv])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([recv])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([recvfrom])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([recvfrom])
 gl_REGEX
 if test $ac_use_included_regex = yes; then
   AC_LIBOBJ([regex])
@@ -3558,6 +3571,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([send])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([send])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([sendto])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([sendto])
 gl_FUNC_SETENV
 if test $HAVE_SETENV = 0 || test $REPLACE_SETENV = 1; then
   AC_LIBOBJ([setenv])
@@ -3848,6 +3866,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getpagesize.c
   lib/getpeername.c
   lib/getsockname.c
+  lib/getsockopt.c
   lib/gettext.h
   lib/gettimeofday.c
   lib/glthread/lock.c
@@ -3885,6 +3904,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/readlink.c
   lib/recv.c
+  lib/recvfrom.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -3895,6 +3915,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regexec.c
   lib/select.c
   lib/send.c
+  lib/sendto.c
   lib/setenv.c
   lib/setsockopt.c
   lib/shutdown.c
@@ -4552,7 +4573,7 @@ size_t iconv();
   fi
 ])
 
-# include_next.m4 serial 18
+# include_next.m4 serial 20
 dnl Copyright (C) 2006-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -4729,11 +4750,13 @@ AC_DEFUN([gl_NEXT_HEADERS_INTERNAL],
     [AC_CHECK_HEADERS_ONCE([$1])
     ])
 
+dnl FIXME: gl_next_header and gl_header_exists must be used unquoted
+dnl until we can assume autoconf 2.64 or newer.
   m4_foreach_w([gl_HEADER_NAME], [$1],
     [AS_VAR_PUSHDEF([gl_next_header],
                     [gl_cv_next_]m4_defn([gl_HEADER_NAME]))
      if test $gl_cv_have_include_next = yes; then
-       AS_VAR_SET([gl_next_header], ['<'gl_HEADER_NAME'>'])
+       AS_VAR_SET(gl_next_header, ['<'gl_HEADER_NAME'>'])
      else
        AC_CACHE_CHECK(
          [absolute name of <]m4_defn([gl_HEADER_NAME])[>],
@@ -4762,7 +4785,7 @@ AC_DEFUN([gl_NEXT_HEADERS_INTERNAL],
                dnl eval is necessary to expand gl_absname_cpp.
                dnl Ultrix and Pyramid sh refuse to redirect output of eval,
                dnl so use subshell.
-               AS_VAR_SET([gl_next_header],
+               AS_VAR_SET(gl_next_header,
                  ['"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD |
                   sed -n '\#/]m4_defn([gl_HEADER_NAME])[#{
                     s#.*"\(.*/]m4_defn([gl_HEADER_NAME])[\)".*#\1#
@@ -4772,20 +4795,20 @@ AC_DEFUN([gl_NEXT_HEADERS_INTERNAL],
                   }'`'"'])
           m4_if([$2], [check],
             [else
-               AS_VAR_SET([gl_next_header], ['<'gl_HEADER_NAME'>'])
+               AS_VAR_SET(gl_next_header, ['<'gl_HEADER_NAME'>'])
              fi
             ])
          ])
      fi
      AC_SUBST(
        AS_TR_CPP([NEXT_]m4_defn([gl_HEADER_NAME])),
-       [AS_VAR_GET([gl_next_header])])
+       [AS_VAR_GET(gl_next_header)])
      if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
        # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
        gl_next_as_first_directive='<'gl_HEADER_NAME'>'
      else
        # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
-       gl_next_as_first_directive=AS_VAR_GET([gl_next_header])
+       gl_next_as_first_directive=AS_VAR_GET(gl_next_header)
      fi
      AC_SUBST(
        AS_TR_CPP([NEXT_AS_FIRST_DIRECTIVE_]m4_defn([gl_HEADER_NAME])),
@@ -13121,7 +13144,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
                            AC_SUBST([UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS])
 ])
 
-# warn-on-use.m4 serial 2
+# warn-on-use.m4 serial 3
 dnl Copyright (C) 2010-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13150,6 +13173,8 @@ AC_DEFUN([gl_WARN_ON_USE_PREPARE],
     [AH_TEMPLATE([HAVE_RAW_DECL_]AS_TR_CPP(m4_defn([gl_decl])),
       [Define to 1 if ]m4_defn([gl_decl])[ is declared even after
        undefining macros.])])dnl
+dnl FIXME: gl_Symbol must be used unquoted until we can assume
+dnl autoconf 2.64 or newer.
   for gl_func in m4_flatten([$2]); do
     AS_VAR_PUSHDEF([gl_Symbol], [gl_cv_have_raw_decl_$gl_func])dnl
     AC_CACHE_CHECK([whether $gl_func is declared without a macro],

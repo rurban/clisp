@@ -51,6 +51,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module getpagesize:
   # Code from module getpeername:
   # Code from module getsockname:
+  # Code from module getsockopt:
   # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettimeofday:
@@ -90,9 +91,11 @@ AC_DEFUN([gl_EARLY],
   # Code from module nocrash:
   # Code from module readlink:
   # Code from module recv:
+  # Code from module recvfrom:
   # Code from module regex:
   # Code from module select:
   # Code from module send:
+  # Code from module sendto:
   # Code from module setenv:
   # Code from module setsockopt:
   # Code from module shutdown:
@@ -232,6 +235,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([getsockname])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([getsockname])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([getsockopt])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([getsockopt])
 dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
 AM_GNU_GETTEXT_VERSION([0.18.1])
 AC_SUBST([LIBINTL])
@@ -369,6 +377,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([recv])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([recv])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([recvfrom])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([recvfrom])
 gl_REGEX
 if test $ac_use_included_regex = yes; then
   AC_LIBOBJ([regex])
@@ -384,6 +397,11 @@ if test "$ac_cv_header_winsock2_h" = yes; then
   AC_LIBOBJ([send])
 fi
 gl_SYS_SOCKET_MODULE_INDICATOR([send])
+AC_REQUIRE([gl_HEADER_SYS_SOCKET])
+if test "$ac_cv_header_winsock2_h" = yes; then
+  AC_LIBOBJ([sendto])
+fi
+gl_SYS_SOCKET_MODULE_INDICATOR([sendto])
 gl_FUNC_SETENV
 if test $HAVE_SETENV = 0 || test $REPLACE_SETENV = 1; then
   AC_LIBOBJ([setenv])
@@ -674,6 +692,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getpagesize.c
   lib/getpeername.c
   lib/getsockname.c
+  lib/getsockopt.c
   lib/gettext.h
   lib/gettimeofday.c
   lib/glthread/lock.c
@@ -711,6 +730,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/nl_langinfo.c
   lib/readlink.c
   lib/recv.c
+  lib/recvfrom.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -721,6 +741,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regexec.c
   lib/select.c
   lib/send.c
+  lib/sendto.c
   lib/setenv.c
   lib/setsockopt.c
   lib/shutdown.c

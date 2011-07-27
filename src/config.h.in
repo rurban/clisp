@@ -176,6 +176,9 @@
 /* Define to 1 when the gnulib module getsockname should be tested. */
 #undef GNULIB_TEST_GETSOCKNAME
 
+/* Define to 1 when the gnulib module getsockopt should be tested. */
+#undef GNULIB_TEST_GETSOCKOPT
+
 /* Define to 1 when the gnulib module gettimeofday should be tested. */
 #undef GNULIB_TEST_GETTIMEOFDAY
 
@@ -230,11 +233,17 @@
 /* Define to 1 when the gnulib module recv should be tested. */
 #undef GNULIB_TEST_RECV
 
+/* Define to 1 when the gnulib module recvfrom should be tested. */
+#undef GNULIB_TEST_RECVFROM
+
 /* Define to 1 when the gnulib module select should be tested. */
 #undef GNULIB_TEST_SELECT
 
 /* Define to 1 when the gnulib module send should be tested. */
 #undef GNULIB_TEST_SEND
+
+/* Define to 1 when the gnulib module sendto should be tested. */
+#undef GNULIB_TEST_SENDTO
 
 /* Define to 1 when the gnulib module setenv should be tested. */
 #undef GNULIB_TEST_SETENV
