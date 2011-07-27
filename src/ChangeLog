@@ -1,3 +1,7 @@
+2011-07-27  Sam Steingold  <sds@gnu.org>
+
+	* spvw_ctype.d (init_ctype): add "#ifdef LC_MESSAGES" for mingw
+
 2011-07-26  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): use AC_MSG_ERROR instead of setting
