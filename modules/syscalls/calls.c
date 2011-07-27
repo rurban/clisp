@@ -687,7 +687,7 @@ DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
 #if defined(WIN32_NATIVE)
 # define allocate_lisp_handle(fd)  allocate_handle(_get_osfhandle(fd))
 #else
-# defene allocate_lisp_handle allocate_handle
+# define allocate_lisp_handle allocate_handle
 #endif
 DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
       :ELEMENT-TYPE) {
