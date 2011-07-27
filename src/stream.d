@@ -14914,7 +14914,6 @@ LISPFUNN(socket_stream_shutdown,2) {
 
 #if defined(WIN32_NATIVE)
 /* http://msdn.microsoft.com/en-us/library/ms804359.aspx */
-#include <ddk/ntifs.h>
 typedef NTSTATUS (__stdcall *QueryInformationFile_t)
 (IN HANDLE FileHandle, OUT PIO_STATUS_BLOCK IoStatusBlock,
  OUT PVOID FileInformation, IN ULONG Length,
