@@ -7,9 +7,6 @@ CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
 CLISP_LIBDIR = @CLISP_LIBDIR@
 CLISP_LINKKIT = @CLISP_LINKKIT@
-# cannot compile gnulib/regex with c++
-# http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
-NO_CXX = @NO_CXX@
 
 LN = @LN@
 LN_S = @LN_S@
