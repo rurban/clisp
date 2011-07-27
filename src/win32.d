@@ -36,6 +36,8 @@
 
 /* Table of system error messages */
 #include <winerror.h>
+#include <winternl.h>
+#include <ntstatus.h>
 /* extern DWORD GetLastError (void);
    extern void SetLastError (DWORD ErrCode);
    extern DWORD FormatMessage (DWORD Flags, LPCVOID Source, DWORD MessageId, DWORD LanguageId, LPTSTR Buffer, DWORD Size, va_list* Arguments);
@@ -51,10 +53,6 @@
 #include <malloc.h>
 extern void* malloc (size_t size);
 extern void free (void* memblock);
-/* used by spvw.d */
-
-/* Normal program exit */
-extern _Noreturn void _exit (int status);
 /* used by spvw.d */
 
 /* Abrupt program termination */
@@ -139,7 +137,7 @@ struct file_id {        /* Unique ID for an open file on this machine */
   DWORD nFileIndexHigh;
   DWORD nFileIndexLow;
 };
-typedef DWORD errno_t;
+/*typedef DWORD errno_t;*/
 /* fill FI for an exiting namestring */
 extern errno_t namestring_file_id (char *namestring, struct file_id *fi);
 /* fill FI for an existing file handle */
@@ -216,6 +214,7 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 #define SIZEOF_OFF_T  8
 #ifdef __MINGW32__
   #include <io.h>
+  #undef lseek
   #define lseek clisp_lseek /* avoid collision with prototype in <mingw/io.h> */
 #endif
 extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
@@ -336,17 +335,6 @@ extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
                              HANDLE StdOutput, HANDLE StdError,
                              LPPROCESS_INFORMATION ProcessInformation);
 /* used by pathname.d, stream.d */
-
-/* Getting "random" numbers */
-#if defined(__MINGW32__)
-/* Not defined in any header. */
-extern STDCALL DWORD CoGetCurrentProcess (void);
-#else
-  #include <objbase.h>
-/* extern DWORD CoGetCurrentProcess (void); */
-#endif
-/* used by lisparit.d
- requires linking with ole32.lib */
 
 /* Getting more information about the machine.
    extern LONG RegOpenKeyEx (HKEY Key, LPCTSTR SubKey, DWORD Options, REGSAM Desired, PHKEY Result);

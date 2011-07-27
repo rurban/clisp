@@ -1,6 +1,17 @@
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
 	fix mingw compilation
+	* lispbibl.d (setjmp) [__MINGW32__]: do not define
+	Include <winsock2.h> before <windows.h> to avoid a warning
+	* stream.d (QueryInformationFile) [WIN32_NATIVE]: do not include
+	<ddk/ntifs.h> here, instead ...
+	* win32.d: include <winternl.h> & <ntstatus.h>
+	(_exit): remove prototype (get it from gnulib)
+	(lseek): undef before redefining
+	(CoGetCurrentProcess): remove prototype, rely on above headers
+
+2011-07-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c: when the portability is ensured by
 	gnulib, use ANSIC_error; when we use WIN32_NATIVE functions
 	directly, use OS_error

@@ -1315,17 +1315,6 @@ typedef signed int  signean;
     #undef longjmp
     #define longjmp(x,y)  (_longjmp(x,y), NOTREACHED)
   #endif
-#elif defined(__MINGW32__)
-  /* on mingw:
-    _CRTIMP int __cdecl __MINGW_NOTHROW _setjmp (jmp_buf);
-    #define setjmp(x) _setjmp(x)
-    _CRTIMP void __cdecl __MINGW_NOTHROW longjmp (jmp_buf, int) __MINGW_ATTRIB_NORETURN;
-     so we only need to redefine setjmp, not longjmp.
-     this is actually only necessary for lightning, see
-     http://article.gmane.org/gmane.lisp.clisp.devel:18315
-     http://lists.gnu.org/archive/html/lightning/2008-05/msg00015.html */
-  #undef setjmp
-  #define setjmp  _setjmp
 #endif
 /* A longjmp() can only be called using an `int'.
  But if we want to use a `long' and if sizeof(int) < sizeof(long),
@@ -1926,9 +1915,9 @@ typedef enum {
 %%     exportF(void,time_t_to_filetime,(time_t time_in, FILETIME * out));
 %%   #endif
 %% #elif defined(WIN32_NATIVE)
+%%   puts("#include <winsock2.h>"); /* defines SOCKET */
 %%   puts("#include <windows.h>");
 %%   export_def(Handle);
-%%   puts("#include <winsock2.h>"); /* defines SOCKET */
 %% #else
 %%   puts("#error what is Handle on your platform?!");
 %% #endif
