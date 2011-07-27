@@ -1,5 +1,9 @@
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (ANSIC_error): export to clisp.h
+
+2011-07-27  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CORE): fix a typo: setsockopt was
 	requested twice while getsockopt was not requested at all
 	(GNULIB_IMPORTS): add recvfrom & sendto for rawsock

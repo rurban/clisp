@@ -2005,8 +2005,10 @@ typedef enum {
  > int errno: error code */
 #ifdef UNIX
   #define ANSIC_error OS_error
+%% export_def(ANSIC_error);
 #else
   _Noreturn extern void ANSIC_error (void);
+%% exportE(ANSIC_error,(void));
 #endif
 /* used by SPVW, STREAM */
 
