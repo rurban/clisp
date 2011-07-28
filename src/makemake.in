@@ -168,7 +168,7 @@ for arg do
 done
 hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
 
-srcdir=''
+srcdir='@srcdir@'
 prefix=''
 exec_prefix=''
 fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
@@ -510,15 +510,6 @@ EOF
     *) endofargs=1 ;;
   esac
 done
-
-if test -z "$srcdir" ; then
-  # srcdir defaults to the value given at `makemake' construction time.
-  if echol '@srcdir@' | grep '^@' > /dev/null ; then
-    srcdir=.
-  else
-    srcdir='@srcdir@'
-  fi
-fi
 
 # Remove trailing slash from hyperspec URL.
 case "$hyperspec" in
@@ -2219,10 +2210,10 @@ echol
 # in the toplevel Makefile.devel, makemake depends also on version.sh.
 # we do not need that here because makemake depends on config.status -
 # depends on src/configure - depends on version.sh in Makefile.devel
-echol "makemake : makemake.in config.status"
+echol "makemake : ${SRCDIR}makemake.in config.status"
 echotab "sh config.status --file=makemake"
 echol
-echol "config.h : config.h.in config.status"
+echol "config.h : ${SRCDIR}config.h.in config.status"
 echotab "sh config.status --header=config.h"
 # when config.status detects that it did not change config.h, it
 # will not touch it, and on the next make config.h will be remade
@@ -2235,7 +2226,7 @@ echotab "\$(MV) Makefile Makefile~"
 echotab "\$(MV) Makefile.tmp Makefile"
 OBSOLETE="$OBSOLETE Makefile~"
 echol
-echol "config.status : configure"
+echol "config.status : ${SRCDIR}configure"
 echotab "\$(RMRF) config.cache \$(SUBDIRS)"
 echotab "sh config.status --recheck"
 echol
@@ -2244,11 +2235,6 @@ echotab "sh config.status --recheck"
 echol
 echol "am--refresh : config.status Makefile config.h"
 echol
-if [ -n "${SRCDIR}" ] ; then
-  for f in makemake.in config.h.in configure ${SPVW_VERSION}; do
-    link_dep "${f}" "${SRCDIR}${f}"
-  done
-fi
 
 if [ $TSYS = win32msvc ] ; then
   # quote for command arguments when they are unnecessary on DOS
@@ -2343,7 +2329,9 @@ if [ -n "${SRCDIR}" ] ; then
     for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname modules ${with_jitc}; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
-    link_dep modules.h "${SRCDIR}modules.h"
+    for f in modules.h ${SPVW_VERSION}; do
+      link_dep ${f} "${SRCDIR}${f}"
+    done
     echol
   fi
   if [ ${HSYS} = win32gcc ] ; then
@@ -2620,29 +2608,28 @@ fi
 FILES="${FILES}${CLISP_DEF}"
 
 if [ -n "$USE_GETTEXT" ] ; then
-
+  echol "po : config.status ${SRCDIR}po/LINGUAS ${SRCDIR}po/Makefile.in.in"
+  echotab "mkdir -p po"
+  echotab "test -f po/Makefile.in || sh config.status po/Makefile.in po-directories"
+  echol
   echol "LN_HARD=${LN_HARD}"
-  echol "locale :"
+  echol "locale : po"
   if [ $HOS = unix ] ; then
-    echotab "if test -d locale; then \$(RMRF) locale; fi"
+    echotab "test -d locale && \$(RMRF) locale"
     echotab "mkdir locale"
     echotab "(cd po && \$(MAKE) && \$(MAKE) install datarootdir=.. localedir='\$\$(datarootdir)/locale' INSTALL_DATA='\$(LN_HARD)') || (\$(RMRF) locale ; exit 1)"
   else
     echotab "mkdir locale"
-    for d in src ${srcdir}; do
-      if test -f $d/po/LINGUAS; then
-        LINGUAS=`sed 's/#.*//' $d/po/LINGUAS`
-        break
-      fi
-    done
-    test -z "${LINGUAS}" && fail "missing ${srcdir}/po/LINGUAS"
+    if test -f ${SRCDIR}po/LINGUAS; then
+      LINGUAS=`sed 's/#.*//' ${SRCDIR}po/LINGUAS`
+    else fail "missing ${SRCDIR}po/LINGUAS"
+    fi
     for lang in ${LINGUAS}; do
       echotab "mkdir -p locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
-      echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
+      echotab "\$(LN_S) ${SRCDIR}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done
   fi
   echol
-
 fi
 
 # headers needed for modules
@@ -3951,17 +3938,12 @@ clean-modules :
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6 clean-modules
-	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake
+	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake ${SPVW_VERSION}
 !!
 test -n "$USE_GETTEXT" && \
   cat <<!!
 	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
-!!
-test -n "${SRCDIR}" && \
-  cat <<!!
-	-\$(RMRF) po
-	-\$(RM) configure config.h.in makemake.in ${SPVW_VERSION}
 !!
 cat <<!!
 
