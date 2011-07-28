@@ -1,5 +1,9 @@
 2011-07-28  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (CLOSE): do not redefine the unix.d definition
+
+2011-07-28  Sam Steingold  <sds@gnu.org>
+
 	* configure: do not link over anything
 	* makemake.in (po): new target
 	(makemake.in, config.h.in, configure): remove link_dep targets
