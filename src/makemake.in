@@ -2645,8 +2645,8 @@ if [ -n "$USE_GETTEXT" ] ; then
 
 fi
 
-# headers needed for modules/*/gllib
-GLLIB_MODULE_HEADERS="sockets.h close-hook.h"
+# headers needed for modules
+GLLIB_MODULE_HEADERS="regex.h"
 for f in localcharset.h ${GLLIB_MODULE_HEADERS} ${UNICODE_EXTRA}; do
   link_dep "${f}" `find ${SRCDIR}gllib/ -name ${f}`
 done
