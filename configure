@@ -536,7 +536,6 @@ else
   fi
 fi
 }
-maybe_link () { if [ -f "$1" ]; then link "$1" "$2"; fi; }
 
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
 # directories for equality. But here we only need to get _some_ absolute
@@ -608,28 +607,6 @@ if test -n "$do_config"; then
     CC="$COMPILER"
     export CC
   fi
-  if test -z "$INPLACE"; then
-    # Create the po subdirectory and fill it
-    for f in po; do
-      if [ -d src/$f ] ; then
-        mkdir -p "${ABS_DIRNAME}/${f}";
-        ( cd src
-          for g in $f/* ; do maybe_link $g "$ABS_DIRNAME/$g"; done; )
-      fi
-    done
-    for f in configure config.h.in makemake.in version.h ; do
-      maybe_link src/$f "$ABS_DIRNAME/$f";
-    done
-  fi
-  # no need to create subdirectories for the modules - makemake handles that
-  # Prepare the configure files.
-  chmod a+x "$ABS_DIRNAME/configure"
-  # Start the configurations.
-  if test -n "$INPLACE"; then
-    subdir_srcdir_args=''
-  else
-    subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
-  fi
   if test -n "$CC"; then
     # cygwin comes with a true cross-compiler, i.e. one does
     #   ./configure CC=i686-w64-mingw32-gcc ...
@@ -641,13 +618,11 @@ if test -n "$do_config"; then
         subdir_configure_args="${subdir_configure_args} --build=$CC_machine" ;;
     esac
   fi
-  cd "${ABS_DIRNAME}";
-  echo "executing `pwd`/configure $*"
-  ${CONFIG_SHELL} configure $subdir_srcdir_args \
+  cd "${ABS_DIRNAME}"
+  echo "executing $REL_SRCDIR/src/configure $*"
+  ${CONFIG_SHELL} $REL_SRCDIR/src/configure \
     $subdir_configure_args --cache-file=config.cache
 fi
-
-makemake_args="${makemake_args} ${subdir_srcdir_args}";
 
 . "${ABS_DIRNAME}/config.cache"
 

@@ -1,5 +1,13 @@
 2011-07-28  Sam Steingold  <sds@gnu.org>
 
+	* configure: do not link over anything
+	* makemake.in (po): new target
+	(makemake.in, config.h.in, configure): remove link_dep targets
+	(makemake, config.h, config.status): depend on files in SRCDIR
+	* po/Makefile.in.in (VPATH): add
+
+2011-07-28  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (GLLIB_MODULE_HEADERS): set to regex.h for regexp
 
 2011-07-27  Sam Steingold  <sds@gnu.org>
