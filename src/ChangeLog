@@ -1,3 +1,7 @@
+2011-07-28  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (GLLIB_MODULE_HEADERS): set to regex.h for regexp
+
 2011-07-27  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (ANSIC_error): export to clisp.h
