@@ -423,6 +423,7 @@ int main (int argc, char* argv[])
       fprintf(stderr,"%s:\n * %s\n * %s\n * [%s]\n%s: %s\n",program_name,
               executable,resolved,command_line,what,
               (status ? ret : "FormatMessage() failed"));
+      if (status) LocalFree(ret);
       return 1;
      }
     }
