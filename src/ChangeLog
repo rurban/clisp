@@ -1,5 +1,27 @@
 2011-07-29  Sam Steingold  <sds@gnu.org>
 
+	link over fewer files into the build directory
+	* makemake.in (CLISP_LIBDIR): do not set
+	(EVERY_INCLUDES_H): remove gllib files
+	(UNICODE_INCLUDES, NLS_INCLUDES, SPVW_VERSION, w32shell.c)
+	(execname.c, spvw_calendar.c, with_jitc): do not link over
+	(TXT2CINCL): use SRCDIR, not SRCTOPDIR
+	(gllib): pass top_srcdir, not CLISP_LIBDIR to make
+	(modules.h): create with touch
+	(LINKKIT): link files directly into linkkit/
+	* modules.h: remove
+	* Makefile.devel (src/gllib/Makefile.in): replace
+	$(top_srcdir)/src/build-aux with $(top_srcdir)/build-aux instead
+	of CLISP_LIBDIR
+	* _clisp.c: include w32shell & execname with <>, not ""
+	* encoding.d: include nls_* with <>, not ""
+	* eval.d: include lightning with <>, not ""
+	* lispbibl.d: include version.h with <>, not ""
+	* modules.c: include lispbibl & clisp with <>, not ""
+	* spvw.d: include spvw_calendar.c with <>, not ""
+
+2011-07-29  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (GNULIB_INCLUDE): -I$(builddir)/gllib -I$(srcdir)/gllib
 	(XCPPFLAGS): add GNULIB_INCLUDE
 	(UNICODE_EXTRA, GLLIB_MODULE_HEADERS): remove

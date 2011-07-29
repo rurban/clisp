@@ -52,7 +52,7 @@
 # include <windows.h>
 int shell_quote (char * dest, const char * source);
 BOOL real_path (LPCSTR namein, LPSTR nameout);
-# include "w32shell.c"
+# include <w32shell.c>
 #endif
 
 # include <stdlib.h>            /* getenv, abort */
@@ -65,7 +65,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout);
 # include <sys/param.h>         /* MAXPATHLEN */
 #endif
 int find_executable (const char * program_name);
-#include "execname.c"
+#include <execname.c>
 
 #if defined(UNIX_BINARY_DISTRIB)
 # if !ENABLE_RELOCATABLE
