@@ -1,3 +1,11 @@
+2011-07-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (GNULIB_INCLUDE): -I$(builddir)/gllib -I$(srcdir)/gllib
+	(XCPPFLAGS): add GNULIB_INCLUDE
+	(UNICODE_EXTRA, GLLIB_MODULE_HEADERS): remove
+	(anymodule): add GNULIB_INCLUDE to CPPFLAGS
+	* encoding.d: include localcharset as <>, not as ""
+
 2011-07-28  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (CLOSE): do not redefine the unix.d definition
