@@ -1,13 +1,13 @@
 /*
  * Encodings (character sets and conversions) for CLISP
  * Bruno Haible 1998-2008
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2009, 2011
  */
 
 #include "lispbibl.c"
 
 #ifdef ENABLE_UNICODE
-#include "localcharset.h"       /* from gnulib */
+#include <localcharset.h>       /* from gnulib */
 #endif
 
 /* =========================================================================

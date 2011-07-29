@@ -1078,6 +1078,7 @@ fi
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
 # SHREXT = extension for shared object files (a.k.a. shared libraries) on target
+PWD_POSTPROC=''
 if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
@@ -1085,23 +1086,28 @@ if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   # no path conversion on msys
   # http://thread.gmane.org/gmane.comp.gnu.mingw.msys/1707/
   if cygpath -v > /dev/null 2>&1; then
-    HEREP=`cygpath -m \`pwd\``
-  else
-    HEREP=`pwd`
+    PWD_POSTPROC='cygpath -m'
   fi
 else
   TEXE=''
   LEXE='.run'
   SHREXT='.so'
-  HEREP=`pwd`
 fi
+HEREP=`pwd`
+test -n "${PWD_POSTPROC}" && HEREP=`${PWD_POSTPROC} ${HEREP}`
 HERE_="${HEREP}${NEXT_}"
 
 # for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
 # gllib path must be absolute because CPPFLAGS is passed on to module subdirs
 # cf m4/clisp.m4: CLISP_LIBDIR must contain no colons
 x=${HEREP}; CLISP_LIBDIR="$(@CLISP_DECOLONIZE@)"
-XCPPFLAGS="${XCPPFLAGS} -I${CLISP_LIBDIR}/gllib"
+GNULIB_INCLUDE="-I${CLISP_LIBDIR}/gllib"
+if [ -n "${SRCDIR}" ] ; then
+  x=`cd ${SRCDIR} && pwd`;
+  test -n "${PWD_POSTPROC}" && x=`${PWD_POSTPROC} ${x}`
+  GNULIB_INCLUDE="${GNULIB_INCLUDE} -I$(@CLISP_DECOLONIZE@)/gllib"
+fi
+XCPPFLAGS="${XCPPFLAGS} ${GNULIB_INCLUDE}"
 
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
@@ -1568,19 +1574,14 @@ if [ ${TOS} = unix -o ${HSYS} = win32gcc ]; then
 else
   SPVW_VERSION=version.h
 fi
-# ./ contains localcharset.[ho] and other gnulib includes
-XCFLAGS=${XCFLAGS}' -I.'
-EVERY_INCLUDES_H=$EVERY_INCLUDES_H' localcharset.h'
 
 OTHER_INCLUDES=' constpack avl sort bytecode'
 
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigpipe spvw_sigint spvw_sigwinch spvw_sigterm spvw_garcol spvw_garcol_old spvw_genera1 spvw_gcmark spvw_genera2 spvw_weak spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile'
 
 UNICODE_INCLUDES=''
-UNICODE_EXTRA=''
 if [ "${with_unicode}" != no ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
-  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uninames.h'
 fi
 
 NLS_INCLUDES=''
@@ -2296,7 +2297,6 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line=$line" ${f}.c"
   done
-  line=$line${UNICODE_EXTRA}
 fi
 echol $line
 echodummyrule init
@@ -2471,7 +2471,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   test $f = spvw -o $f = hashtabl && depends=$depends' aridecl'
   if [ $f = charstrg -a "${with_unicode}" != no ] ; then
     depends=$depends${UNICODE_INCLUDES}
-    dependsc=${dependsc}${UNICODE_EXTRA}' '${GLLIB_A}
+    dependsc=${dependsc}' '${GLLIB_A}
   fi
   test $f = encoding && depends=$depends''$NLS_INCLUDES
   test $f = error && depends=$depends' '$ERROR_INCLUDES
@@ -2482,7 +2482,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   done
   dependsc=$dependsc''$EVERY_INCLUDES_H
   test $f = spvw -a -n "${SPVW_VERSION}" && dependsc=$dependsc' '${SPVW_VERSION}
-  test $f = encoding && dependsc=$dependsc' localcharset.h'
   if [ $f = pathname ] ; then
     dependsc=$dependsc' execname.c'
     test ${TOS} = win32 && dependsc=$dependsc' w32shell.c'
@@ -2631,12 +2630,6 @@ if [ -n "$USE_GETTEXT" ] ; then
   fi
   echol
 fi
-
-# headers needed for modules
-GLLIB_MODULE_HEADERS="regex.h"
-for f in localcharset.h ${GLLIB_MODULE_HEADERS} ${UNICODE_EXTRA}; do
-  link_dep "${f}" `find ${SRCDIR}gllib/ -name ${f}`
-done
 
 DATA_FILES="UnicodeDataFull.txt Symbol-Table.text"
 DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}UnicodeDataFull.txt doc${NEXT_}Symbol-Table.text"
@@ -3147,7 +3140,7 @@ done
 test "${verbose}" = true -o "${verbose}" = yes && \
   echo "BUILD_AUX =${BUILD_AUX}" >&2
 
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux ${GLLIB_MODULE_HEADERS}"
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux"
 echodummyrule modular
 echol
 # while the top-level makevars can contain arbitrary paths in LIBS and FILES,
@@ -3210,8 +3203,7 @@ echotab "fi; \\"
 # which cannot pass srcdir to make on the command line
 echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
 echotab "CLISP=\"${HEREP}/clisp -K boot ${someflags}\" ; \\"
-# need -I${CLISP_LIBDIR} in CPPFLAGS for localcharset.h et al
-echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR}) -I${CLISP_LIBDIR}\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR}) ${GNULIB_INCLUDE}\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
 echol
 
 cygwin_finish() {
@@ -3915,7 +3907,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ${with_jitc} ; do
     line="$line ${f}.c"
   done
-  line="$line NEWS clisp.png modules.h"${UNICODE_EXTRA}
+  line="$line NEWS clisp.png modules.h"
   test ${HOS} = win32 && line="$line clisp.ico"
   echotab "$line"
   test $HOS = unix -a $CROSS = false && echotab "-\$(RM) .gdbinit"
