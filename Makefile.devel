@@ -62,9 +62,8 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 src/gllib/Makefile.in : src/gllib/Makefile.am src/configure.in src/aclocal.m4
-	cd src && automake gllib/Makefile && \
-	sed -i -e 's,$$(top_srcdir)/src/build-aux,$$(CLISP_LIBDIR)/build-aux,' \
-	  -e 's,$$(top_srcdir)/$$cl_cv_clisp_libdir,$$(CLISP_LIBDIR),' \
+	cd src && automake --gnits gllib/Makefile && \
+	sed -i -e 's,$$(top_srcdir)/src/build-aux,$$(top_srcdir)/build-aux,' \
 		gllib/Makefile.in
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in

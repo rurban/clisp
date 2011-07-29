@@ -905,8 +905,8 @@ EXTRA_DIST = accept.c w32sock.h alignof.h alloca.c alloca.in.h \
 	fnmatch.in.h fnmatch_loop.c gethostname.c w32sock.h \
 	getloadavg.c getpagesize.c getpeername.c w32sock.h \
 	getsockname.c w32sock.h getsockopt.c w32sock.h \
-	$(CLISP_LIBDIR)/build-aux/config.rpath gettimeofday.c \
-	$(CLISP_LIBDIR)/build-aux/config.rpath inet_ntop.c \
+	$(top_srcdir)/build-aux/config.rpath gettimeofday.c \
+	$(top_srcdir)/build-aux/config.rpath inet_ntop.c \
 	inet_pton.c intprops.h ioctl.c w32sock.h langinfo.in.h \
 	listen.c w32sock.h config.charset ref-add.sin ref-del.sin \
 	lstat.c malloc.c malloc.c malloca.h malloca.valgrind mbrtowc.c \
@@ -918,17 +918,17 @@ EXTRA_DIST = accept.c w32sock.h alignof.h alloca.c alloca.in.h \
 	regex_internal.c regex_internal.h regexec.c select.c send.c \
 	w32sock.h sendto.c w32sock.h setenv.c setsockopt.c w32sock.h \
 	shutdown.c w32sock.h signal.in.h \
-	$(CLISP_LIBDIR)/build-aux/snippet/_Noreturn.h \
-	$(CLISP_LIBDIR)/build-aux/snippet/arg-nonnull.h \
-	$(CLISP_LIBDIR)/build-aux/snippet/c++defs.h \
-	$(CLISP_LIBDIR)/build-aux/snippet/warn-on-use.h socket.c \
+	$(top_srcdir)/build-aux/snippet/_Noreturn.h \
+	$(top_srcdir)/build-aux/snippet/arg-nonnull.h \
+	$(top_srcdir)/build-aux/snippet/c++defs.h \
+	$(top_srcdir)/build-aux/snippet/warn-on-use.h socket.c \
 	w32sock.h w32sock.h stat.c stdbool.in.h stddef.in.h \
 	stdint.in.h stdlib.in.h streq.h strerror-override.c \
 	strerror-override.h strerror_r.c strftime.h string.in.h \
 	strptime.c strverscmp.c sys_ioctl.in.h sys_select.in.h \
 	sys_socket.in.h sys_stat.in.h sys_time.in.h sys_uio.in.h \
 	sys_utsname.in.h sys_wait.in.h tempname.h \
-	$(CLISP_LIBDIR)/build-aux/config.rpath time.in.h time_r.c \
+	$(top_srcdir)/build-aux/config.rpath time.in.h time_r.c \
 	uname.c uniname.in.h uniname/gen-uninames.lisp \
 	uniname/uninames.h unistd.in.h unitypes.in.h localcharset.h \
 	uniwidth.in.h uniwidth/cjk.h unsetenv.c verify.h wchar.in.h \
@@ -1005,7 +1005,7 @@ charset_tmp = $(DESTDIR)$(libdir)/charset.tmp
 # Because this Makefile snippet defines a variable used by other
 # gnulib Makefile snippets, it must be present in all Makefile.am that
 # need it. This is ensured by the applicability 'all' defined above.
-_NORETURN_H = $(CLISP_LIBDIR)/build-aux/snippet/_Noreturn.h
+_NORETURN_H = $(top_srcdir)/build-aux/snippet/_Noreturn.h
 ARG_NONNULL_H = arg-nonnull.h
 CXXDEFS_H = c++defs.h
 WARN_ON_USE_H = warn-on-use.h
@@ -1768,27 +1768,27 @@ signal.h: signal.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H
 # The arg-nonnull.h that gets inserted into generated .h files is the same as
 # build-aux/snippet/arg-nonnull.h, except that it has the copyright header cut
 # off.
-arg-nonnull.h: $(CLISP_LIBDIR)/build-aux/snippet/arg-nonnull.h
+arg-nonnull.h: $(top_srcdir)/build-aux/snippet/arg-nonnull.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/GL_ARG_NONNULL/,$$p' \
-	  < $(CLISP_LIBDIR)/build-aux/snippet/arg-nonnull.h \
+	  < $(top_srcdir)/build-aux/snippet/arg-nonnull.h \
 	  > $@-t && \
 	mv $@-t $@
 # The c++defs.h that gets inserted into generated .h files is the same as
 # build-aux/snippet/c++defs.h, except that it has the copyright header cut off.
-c++defs.h: $(CLISP_LIBDIR)/build-aux/snippet/c++defs.h
+c++defs.h: $(top_srcdir)/build-aux/snippet/c++defs.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/_GL_CXXDEFS/,$$p' \
-	  < $(CLISP_LIBDIR)/build-aux/snippet/c++defs.h \
+	  < $(top_srcdir)/build-aux/snippet/c++defs.h \
 	  > $@-t && \
 	mv $@-t $@
 # The warn-on-use.h that gets inserted into generated .h files is the same as
 # build-aux/snippet/warn-on-use.h, except that it has the copyright header cut
 # off.
-warn-on-use.h: $(CLISP_LIBDIR)/build-aux/snippet/warn-on-use.h
+warn-on-use.h: $(top_srcdir)/build-aux/snippet/warn-on-use.h
 	$(AM_V_GEN)rm -f $@-t $@ && \
 	sed -n -e '/^.ifndef/,$$p' \
-	  < $(CLISP_LIBDIR)/build-aux/snippet/warn-on-use.h \
+	  < $(top_srcdir)/build-aux/snippet/warn-on-use.h \
 	  > $@-t && \
 	mv $@-t $@
 

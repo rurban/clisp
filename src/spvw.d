@@ -2080,7 +2080,7 @@ local _Noreturn void print_license (void) {
   quit_instantly(0);
 }
 
-#include "spvw_calendar.c"
+#include <spvw_calendar.c>
 
 /* print the banner */
 local void print_banner (void)
