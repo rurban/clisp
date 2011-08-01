@@ -7,9 +7,9 @@
 /* All dependencies on modules.h are collected here! */
 
 #ifdef NO_CLISP_H
- #include <lispbibl.c>
+ #include "lispbibl.c"
 #else
- #include <clisp.h>
+ #include "clisp.h"
 #endif
 
 /* the number of modules linked in */

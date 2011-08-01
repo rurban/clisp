@@ -1,5 +1,16 @@
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
+	revert the parts of the 2011-07-29 15496:d628d9ac3fce patch
+	which broke the in-place build (in the src directory)
+	* _clisp.c: include w32shell & execname with "", not <>
+	* encoding.d: include nls_* with "", not <>
+	* eval.d: include lightning with "", not <>
+	* lispbibl.d: include version.h with "", not <>
+	* modules.c: include lispbibl & clisp with "", not <>
+	* spvw.d: include spvw_calendar.c with "", not <>
+
+2011-08-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/configure.in, modules/clx/new-clx/configure.in:
 	* modules/syscalls/configure.in: call AC_SYS_LARGEFILE before the
 	first AC_CHECK_SIZEOF to ensure 64-bit size_t
