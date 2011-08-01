@@ -1487,7 +1487,7 @@ AC_DEFUN([gt_CHECK_VAR_DECL],
   undefine([gt_cv_var])
 ])
 
-# errno_h.m4 serial 9
+# errno_h.m4 serial 10
 dnl Copyright (C) 2004, 2006, 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1521,6 +1521,12 @@ booboo
 booboo
 #endif
 #if !defined ENOTSUP
+booboo
+#endif
+#if !defined ENETRESET
+booboo
+#endif
+#if !defined ECONNABORTED
 booboo
 #endif
 #if !defined ESTALE
@@ -2876,7 +2882,7 @@ AC_DEFUN([gl_GNU_MAKE],
     [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
 ])
 
-# gnulib-common.m4 serial 28
+# gnulib-common.m4 serial 29
 dnl Copyright (C) 2007-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -3089,6 +3095,35 @@ m4_ifndef([AS_VAR_IF],
 [m4_define([AS_VAR_IF],
 [AS_IF([test x"AS_VAR_GET([$1])" = x""$2], [$3], [$4])])])
 
+# gl_PROG_AR_RANLIB
+# Determines the values for AR, ARFLAGS, RANLIB that fit with the compiler.
+AC_DEFUN([gl_PROG_AR_RANLIB],
+[
+  dnl Minix 3 comes with two toolchains: The Amsterdam Compiler Kit compiler
+  dnl as "cc", and GCC as "gcc". They have different object file formats and
+  dnl library formats. In particular, the GNU binutils programs ar, ranlib
+  dnl produce libraries that work only with gcc, not with cc.
+  AC_REQUIRE([AC_PROG_CC])
+  AC_EGREP_CPP([Amsterdam],
+    [
+#ifdef __ACK__
+Amsterdam
+#endif
+    ],
+    [AR='cc -c.a'
+     ARFLAGS='-o'
+     RANLIB=':'
+    ],
+    [dnl Use the Automake-documented default values for AR and ARFLAGS.
+     AR='ar'
+     ARFLAGS='cru'
+     dnl Use the ranlib program if it is available.
+     AC_PROG_RANLIB
+    ])
+  AC_SUBST([AR])
+  AC_SUBST([ARFLAGS])
+])
+
 # AC_PROG_MKDIR_P
 # is a backport of autoconf-2.60's AC_PROG_MKDIR_P, with a fix
 # for interoperability with automake-1.9.6 from autoconf-2.62.
@@ -3199,7 +3234,7 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_ES$])dnl a valid locale name
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
-  AC_REQUIRE([AC_PROG_RANLIB])
+  AC_REQUIRE([gl_PROG_AR_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
   # Code from module accept:
   # Code from module alignof:
@@ -7434,7 +7469,7 @@ AC_DEFUN([gl_MALLOCA],
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
 ])
 
-# mbrtowc.m4 serial 24
+# mbrtowc.m4 serial 25
 dnl Copyright (C) 2001-2002, 2004-2005, 2008-2011 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -7451,6 +7486,22 @@ AC_DEFUN([gl_FUNC_MBRTOWC],
   AC_CHECK_FUNCS_ONCE([mbrtowc])
   if test $ac_cv_func_mbrtowc = no; then
     HAVE_MBRTOWC=0
+    AC_CHECK_DECLS([mbrtowc],,, [[
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+]])
+    if test $ac_cv_have_decl_mbrtowc = yes; then
+      dnl On Minix 3.1.8, the system's <wchar.h> declares mbrtowc() although
+      dnl it does not have the function. Avoid a collision with gnulib's
+      dnl replacement.
+      REPLACE_MBRTOWC=1
+    fi
   else
     if test $REPLACE_MBSTATE_T = 1; then
       REPLACE_MBRTOWC=1
@@ -7991,7 +8042,7 @@ AC_DEFUN([AC_FUNC_MBRTOWC],
   fi
 ])
 
-# mbsinit.m4 serial 7
+# mbsinit.m4 serial 8
 dnl Copyright (C) 2008, 2010-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8008,6 +8059,22 @@ AC_DEFUN([gl_FUNC_MBSINIT],
   AC_CHECK_FUNCS_ONCE([mbsinit])
   if test $ac_cv_func_mbsinit = no; then
     HAVE_MBSINIT=0
+    AC_CHECK_DECLS([mbsinit],,, [[
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+]])
+    if test $ac_cv_have_decl_mbsinit = yes; then
+      dnl On Minix 3.1.8, the system's <wchar.h> declares mbsinit() although
+      dnl it does not have the function. Avoid a collision with gnulib's
+      dnl replacement.
+      REPLACE_MBSINIT=1
+    fi
   else
     if test $REPLACE_MBSTATE_T = 1; then
       REPLACE_MBSINIT=1
@@ -8027,7 +8094,7 @@ AC_DEFUN([gl_PREREQ_MBSINIT], [
   :
 ])
 
-# mbsrtowcs.m4 serial 12
+# mbsrtowcs.m4 serial 13
 dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8043,6 +8110,22 @@ AC_DEFUN([gl_FUNC_MBSRTOWCS],
   AC_CHECK_FUNCS_ONCE([mbsrtowcs])
   if test $ac_cv_func_mbsrtowcs = no; then
     HAVE_MBSRTOWCS=0
+    AC_CHECK_DECLS([mbsrtowcs],,, [[
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+]])
+    if test $ac_cv_have_decl_mbsrtowcs = yes; then
+      dnl On Minix 3.1.8, the system's <wchar.h> declares mbsrtowcs() although
+      dnl it does not have the function. Avoid a collision with gnulib's
+      dnl replacement.
+      REPLACE_MBSRTOWCS=1
+    fi
   else
     if test $REPLACE_MBSTATE_T = 1; then
       REPLACE_MBSRTOWCS=1
@@ -12300,7 +12383,7 @@ AC_DEFUN([gl_SYS_UIO_H_DEFAULTS],
 [
 ])
 
-# sys_utsname_h.m4 serial 7
+# sys_utsname_h.m4 serial 8
 dnl Copyright (C) 2009-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -12322,6 +12405,9 @@ AC_DEFUN([gl_SYS_UTSNAME_H],
   else
     HAVE_SYS_UTSNAME_H=1
     AC_CHECK_TYPES([struct utsname], [], [HAVE_STRUCT_UTSNAME=0], [[
+/* Minix 3.1.8 has a bug: <stddef.h> must be included before
+   <sys/utsname.h>.  */
+#include <stddef.h>
 #include <sys/utsname.h>
       ]])
   fi
@@ -12329,7 +12415,11 @@ AC_DEFUN([gl_SYS_UTSNAME_H],
 
   dnl Check for declarations of anything we want to poison if the
   dnl corresponding gnulib module is not in use.
-  gl_WARN_ON_USE_PREPARE([[#include <sys/utsname.h>
+  gl_WARN_ON_USE_PREPARE([[
+    /* Minix 3.1.8 has a bug: <stddef.h> must be included before
+       <sys/utsname.h>.  */
+    #include <stddef.h>
+    #include <sys/utsname.h>
     ]], [uname])
 ])
 
@@ -13144,7 +13234,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
                            AC_SUBST([UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS])
 ])
 
-# warn-on-use.m4 serial 3
+# warn-on-use.m4 serial 4
 dnl Copyright (C) 2010-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13183,8 +13273,8 @@ dnl autoconf 2.64 or newer.
 [@%:@undef $gl_func
   (void) $gl_func;])],
         [AS_VAR_SET(gl_Symbol, [yes])], [AS_VAR_SET(gl_Symbol, [no])])])
-     AS_VAR_IF(gl_Symbol, [yes],
-       [AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_RAW_DECL_$gl_func]), [1])
+    AS_VAR_IF(gl_Symbol, [yes],
+      [AC_DEFINE_UNQUOTED(AS_TR_CPP([HAVE_RAW_DECL_$gl_func]), [1])
        dnl shortcut - if the raw declaration exists, then set a cache
        dnl variable to allow skipping any later AC_CHECK_DECL efforts
        eval ac_cv_have_decl_$gl_func=yes])
@@ -13443,7 +13533,7 @@ AC_DEFUN([gt_TYPE_WCHAR_T],
   fi
 ])
 
-# wcrtomb.m4 serial 10
+# wcrtomb.m4 serial 11
 dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13459,6 +13549,22 @@ AC_DEFUN([gl_FUNC_WCRTOMB],
   AC_CHECK_FUNCS_ONCE([wcrtomb])
   if test $ac_cv_func_wcrtomb = no; then
     HAVE_WCRTOMB=0
+    AC_CHECK_DECLS([wcrtomb],,, [[
+/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
+   <wchar.h>.
+   BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+   included before <wchar.h>.  */
+#include <stddef.h>
+#include <stdio.h>
+#include <time.h>
+#include <wchar.h>
+]])
+    if test $ac_cv_have_decl_wcrtomb = yes; then
+      dnl On Minix 3.1.8, the system's <wchar.h> declares wcrtomb() although
+      dnl it does not have the function. Avoid a collision with gnulib's
+      dnl replacement.
+      REPLACE_WCRTOMB=1
+    fi
   else
     if test $REPLACE_MBSTATE_T = 1; then
       REPLACE_WCRTOMB=1
@@ -13540,7 +13646,7 @@ AC_DEFUN([gl_PREREQ_WCRTOMB], [
   :
 ])
 
-# wctype_h.m4 serial 14
+# wctype_h.m4 serial 15
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -13617,7 +13723,39 @@ AC_DEFUN([gl_WCTYPE_H],
   AC_SUBST([REPLACE_ISWCNTRL])
 
   if test $HAVE_ISWCNTRL = 0 || test $REPLACE_ISWCNTRL = 1; then
-    dnl Redefine all of iswcntrl, ..., towupper in <wctype.h>.
+    dnl Redefine all of iswcntrl, ..., iswxdigit in <wctype.h>.
+    :
+  fi
+
+  if test $REPLACE_ISWCNTRL = 1; then
+    REPLACE_TOWLOWER=1
+  else
+    AC_CHECK_DECLS([towlower],,,
+      [[/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
+           included before <wchar.h>.
+           BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h>
+           must be included before <wchar.h>.  */
+        #include <stddef.h>
+        #include <stdio.h>
+        #include <time.h>
+        #include <wchar.h>
+        #if HAVE_WCTYPE_H
+        # include <wctype.h>
+        #endif
+      ]])
+    if test $ac_cv_have_decl_towlower = yes; then
+      dnl On Minix 3.1.8, the system's <wctype.h> declares towlower() and
+      dnl towupper() although it does not have the functions. Avoid a collision
+      dnl with gnulib's replacement.
+      REPLACE_TOWLOWER=1
+    else
+      REPLACE_TOWLOWER=0
+    fi
+  fi
+  AC_SUBST([REPLACE_TOWLOWER])
+
+  if test $HAVE_ISWCNTRL = 0 || test $REPLACE_TOWLOWER = 1; then
+    dnl Redefine towlower, towupper in <wctype.h>.
     :
   fi
 
