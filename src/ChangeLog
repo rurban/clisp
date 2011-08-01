@@ -1,5 +1,10 @@
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
+	* utils/txt2c.c (process_file): avoid a segfault by checking that
+	standard_include_path is not NULL before accessing it
+
+2011-08-01  Sam Steingold  <sds@gnu.org>
+
 	revert the parts of the 2011-07-29 15496:d628d9ac3fce patch
 	which broke the in-place build (in the src directory)
 	* _clisp.c: include w32shell & execname with "", not <>

@@ -1,7 +1,7 @@
 /*
  * text file with #if contructs --> C program that prints that file
  * Bruno Haible 21.2.1993, 3.1.1995, 15.6.1996
- * Sam Steingold 2002-07-31
+ * Sam Steingold 2002-07-31, 2011-08-01
  */
 
 #include <stdlib.h> /* malloc(), realloc(), exit() */
@@ -57,7 +57,7 @@ static void process_file (FILE * fp) {
           illegal_include:
             { fprintf(stderr,"Invalid #include syntax\n"); exit(1); }
           ptr[0] = '\0'; /* replace '"' by '\0' */
-          if (expect == '"') {
+          if (expect == '"' || standard_include_path == NULL) {
             /* Search for the file in the current directory. */
             strcpy(pathname, (const char *) &line[9]);
           } else {
