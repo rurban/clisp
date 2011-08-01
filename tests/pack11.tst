@@ -574,7 +574,10 @@ nil
 ; modules | provide | (require nicht getestet !)
 
 (and *modules* T)
-#+(or XCL ECL LISPWORKS) T #+CLISP NIL #-(or XCL CLISP ECL LISPWORKS) UNKNOWN
+#+(or XCL ECL LISPWORKS) T
+;; boot linking set contains only "clisp"; base and full - more
+#+CLISP #.(not (equal (ext:module-info) '("clisp")))
+#-(or XCL CLISP ECL LISPWORKS) UNKNOWN
 
 (let ((*modules* *modules*))
   (provide 'provide-test)
