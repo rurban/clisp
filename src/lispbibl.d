@@ -316,7 +316,7 @@
   #include "intparam.h"  /* integer-type characteristics created by the machine */
   #include "floatparam.h" /* floating-point type characteristics */
 #elif defined(WIN32) && !defined(__MINGW32__)
-  #include <version.h>          /* defines PACKAGE_* */
+  #include "version.h"          /* defines PACKAGE_* */
   #define char_bitsize 8
   #define short_bitsize 16
   #define int_bitsize 32
