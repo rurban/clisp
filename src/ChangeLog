@@ -1,5 +1,17 @@
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
+	fix "clean" targets
+	* makemake.in (anymodule): do not remove gllib; there is not such dir
+	(clean1): do not remove build-aux, but do remove dynmod
+	(clean5): remove modules.h and build-aux unless building in src
+	(clean6): do not remove Makefile
+	(clean7): depend on distclean-subdirs
+	(clean-subdirs, distclean-subdirs): new targets
+	(clean): depend on clean-subdirs
+	* po/Makefile.in.in (distclean): remove Makefile.in
+
+2011-08-01  Sam Steingold  <sds@gnu.org>
+
 	* utils/txt2c.c (process_file): avoid a segfault by checking that
 	standard_include_path is not NULL before accessing it
 

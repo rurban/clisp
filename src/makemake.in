@@ -3181,7 +3181,7 @@ fi
 # srcdir has to be passed to ./configure because it must be able to find
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
-echotab "if `newer configure config.status` ; then ( cd \$@ ; \$(RMRF) gllib;\\"
+echotab "if `newer configure config.status` ; then ( cd \$@ ;\\"
 echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
 echotab "    if test -f \$\${cache} ; then \\"
 echotab "      . \$\${cache}; \\"
@@ -3855,11 +3855,11 @@ clean0 : force
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log ${CLISP_DEF}
-	-\$(RMRF) ${RECOMPILEDIR} build-aux
+	-\$(RMRF) ${RECOMPILEDIR}
 	-\$(RMRF) ${TESTSDIR}
 	-\$(RMRF) ${ANSITESTSDIR}
 	-\$(RMRF) ${SACLATESTSDIR}
-	-\$(RMRF) boot base full linkkit
+	-\$(RMRF) boot base full linkkit dynmod
 	-\$(RM) ${TXT_FILES} ${manpages_less} ${manual_print} \$(IMPNOTES_FILES) \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
@@ -3890,19 +3890,16 @@ test -n "$USE_GETTEXT" && \
 	cd po && \$(MAKE) clean
 	-\$(RMRF) locale
 !!
-for dir in ${SUBDIRS}; do
-  echotab "test ! -d ${dir} || (cd ${dir} && \$(MAKE) clean CFLAGS=\"\$(SUBDIR_CFLAGS)\")"
-done
-echol
 
 echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
-echotab "-\$(RM) ${TOP_DOC}"
+echotab "-\$(RM) ${TOP_DOC} modules.h"
 if [ -n "${SRCDIR}" ] ; then
   line="-\$(RM) NEWS clisp.png modules.h"
   test ${HOS} = win32 && line="$line clisp.ico"
   echotab "$line"
   test $HOS = unix -a $CROSS = false && echotab "-\$(RM) .gdbinit"
+  echotab "-\$(RMRF) build-aux"
 fi
 test $TOS = unix && echotab "-\$(RM) MAGIC.add"
 echotab "-\$(RMRF) data"
@@ -3914,21 +3911,32 @@ cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
 	-\$(RM) config.lisp
-	-\$(RM) Makefile
 
 # clean-modules remove the copies of modules, do it if you change modprep and such
 clean-modules :
 	-\$(RMRF) \`ls -d ${MODULESDIR_}*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,'\`
 
 # clean7 lets us go back to the main "configure".
-clean7 : clean6 clean-modules
-	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake
+clean7 : clean6 clean-modules distclean-subdirs
+	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h stamp-h1 libtool makemake Makefile
 !!
 test -n "$USE_GETTEXT" && \
   cat <<!!
 	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
 !!
+echol
+echol "clean-subdirs :"
+for dir in ${SUBDIRS}; do
+  echotab "test -d ${dir} && \$(MAKE) -C ${dir} clean"
+done
+echol
+# this must be run before clean7 because it runs "cd ..; make am--refresh"
+echol "distclean-subdirs :"
+for dir in ${SUBDIRS}; do
+  echotab "test -d ${dir} && \$(MAKE) -C ${dir} distclean"
+done
+echol
 cat <<!!
 
 # clean8 moreover cleans up the SRCDIR.
@@ -3938,7 +3946,7 @@ clean8 : clean7
 mostlyclean : clean4
 
 # Clear all files that are built by "make ...":
-clean : clean5
+clean : clean5 clean-subdirs
 
 # Make "clear for distribution":
 distclean : clean7
