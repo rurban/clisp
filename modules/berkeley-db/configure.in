@@ -13,6 +13,7 @@ CL_MODULE_COMMON_CHECKS()
 
 dnl Search for libdb and define LIBDB, LTLIBDB and INCDB.
 AC_LIB_LINKFLAGS([db])
+AC_SYS_LARGEFILE    dnl ensure 64 bit size_t for AC_CHECK_SIZEOF below
 
 BOLD_MSG([Berkeley-DB (Headers)])
 AC_CHECK_HEADERS(db.h)

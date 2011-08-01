@@ -18,6 +18,7 @@ AC_PATH_XTRA
 if test "$have_x" != "yes"; then
   AC_MSG_FAILURE([cannot find X Window System])
 fi
+AC_SYS_LARGEFILE    dnl ensure 64 bit size_t for AC_CHECK_SIZEOF below
 
 AC_CHECK_SIZEOF(KeySym,,[#include <stdio.h>
 #include <X11/X.h>])
