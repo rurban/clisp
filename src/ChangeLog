@@ -1,3 +1,11 @@
+2011-08-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/configure.in, modules/clx/new-clx/configure.in:
+	* modules/syscalls/configure.in: call AC_SYS_LARGEFILE before the
+	first AC_CHECK_SIZEOF to ensure 64-bit size_t
+	Reported by Vladimir Tzankov <vtzankov@gmail.com> in
+	<http://article.gmane.org/gmane.lisp.clisp.devel:22642>
+
 2011-07-29  Sam Steingold  <sds@gnu.org>
 
 	link over fewer files into the build directory
