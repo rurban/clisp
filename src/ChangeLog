@@ -1,5 +1,11 @@
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
+	fix recent breakage
+	* socket.d (CLOSE) [win32]: define
+	* win32.d (ioctl): define to ioctlsocket
+
+2011-08-01  Sam Steingold  <sds@gnu.org>
+
 	fix "clean" targets
 	* makemake.in (anymodule): do not remove gllib; there is not such dir
 	(clean1): do not remove build-aux, but do remove dynmod

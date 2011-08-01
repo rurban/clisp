@@ -172,6 +172,12 @@ LISPFUNN(machine_instance,0)
 
 #if defined(UNIXCONN) || defined(TCPCONN)
 
+#ifndef CLOSE               /* win32 */
+/* A wrapper around the close() function. */
+#define CLOSE(fd)  \
+  do { while ((close(fd) < 0) && errno == EINTR) ; } while (0)
+#endif
+
 /* A wrapper around the connect() function.
  To be used inside begin/end_system_call() only. */
 global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
