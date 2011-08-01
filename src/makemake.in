@@ -2155,7 +2155,7 @@ if [ $XCC_NEED_DEEMA = true ] ; then
 fi
 
 if [ -n "${SRCDIR}" ] ; then
-  TXT2CINCL="-I${SRCDIR}/"
+  TXT2CINCL="-I${SRCDIR}"
 else
   TXT2CINCL=""
 fi
