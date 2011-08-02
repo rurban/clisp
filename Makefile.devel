@@ -70,13 +70,13 @@ configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CONFIGURES))
-	$(RM) configure.ac
-	$(CP) src/configure.in configure.ac
+	$(RM) src/configure.ac
+	$(CP) src/configure.in src/configure.ac
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
-		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
-	aclocal --output=src/aclocal.m4 -I $(CURDIR)/src/m4 -I $(CURDIR)/src/glm4
-	$(RM) configure.ac
+		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> src/configure.ac
+	cd src && aclocal --output=aclocal.m4 -I $(CURDIR)/src/m4 -I $(CURDIR)/src/glm4
+	$(RM) src/configure.ac
 
 AUTOCONF_FILES = src/aclocal.m4
 AUTOCONF_CACHE = autom4te.cache
