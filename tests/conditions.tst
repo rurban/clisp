@@ -538,6 +538,15 @@ T
       (push tp bad))))
 NIL
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3384825&group_id=1355&atid=101355
+(with-output-to-string (s)
+  (define-condition my-simple (simple-condition) ()
+    (:report (lambda (c s)
+               (format s "good: ~S overrides SIMPLE-CONDITION" (type-of c)))))
+  (princ (make-condition 'my-simple :format-control
+           "bad: SIMPLE-CONDITION overrides MY-SIMPLE") s))
+"good: MY-SIMPLE overrides SIMPLE-CONDITION"
+
 ;; bug#3147908: handler-bind should not cons at run time
 #+clisp
 (let ((closure (compile nil (lambda (x y) (ignore-errors (= x y))))))

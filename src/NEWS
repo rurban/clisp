@@ -83,6 +83,8 @@ User visible changes
   + Fix (SETF (VALUES (VALUES) ...) ...) (bug#3291585).
   + Fix handling properties with "format=32" in NEW-CLX on 64-bit
     machines (bug#3292605); handle more host families in XLIB:ACCESS-HOSTS.
+  + Do not ignore user-supplied print methods for user-defined
+    SIMPLE-CONDITIONs (bug#3384825).
 
 
 2.49 (2010-07-07)
