@@ -464,25 +464,13 @@
                     :reader simple-condition-format-control)
    ($format-arguments :initarg :format-arguments :initform nil
                       :reader simple-condition-format-arguments))
-  #|
   (:report
     (lambda (condition stream)
       (let ((fstring (simple-condition-format-control condition)))
-        (when fstring
+       (if fstring
           (apply #'format stream fstring
-                 (simple-condition-format-arguments condition))))))
-  |#
-)
-;; We don't use the :report option here. Instead we define a print-object
-;; method which will be executed regardless of the condition type's CPL.
-(clos:defmethod print-object :around ((condition simple-condition) stream)
-  (if (or *print-escape* *print-readably*)
-    (clos:call-next-method)
-    (let ((fstring (simple-condition-format-control condition)))
-      (if fstring
-        (apply #'format stream fstring (simple-condition-format-arguments condition))
-        (clos:call-next-method))))
-  condition)
+                (simple-condition-format-arguments condition))
+         (clos:call-next-method))))))
 
 ;; conditions usually created by ERROR or CERROR
 (define-condition simple-error (simple-condition error) ())

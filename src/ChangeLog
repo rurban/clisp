@@ -1,3 +1,9 @@
+2011-08-02  Sam Steingold  <sds@gnu.org>
+
+	fix bug#3384825: simple condition printing ignores user-supplied methods
+	* condition.lisp (simple-condition): use :REPORT option instead of
+	a PRINT-OBJECT :AROUND method
+
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
 	fix recent breakage
