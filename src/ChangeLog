@@ -1,5 +1,11 @@
 2011-08-03  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3384698: loop does not warn on REPEAT before FOR
+	* loop.lisp (expand-loop): REPEAT is a TERMINATION-TEST
+	which is a MAIN-CLAUSE, not a VARIABLE-CLAUSE
+
+2011-08-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_errno): add ERFKILL & EHWPOISON
 
 2011-08-02  Sam Steingold  <sds@gnu.org>

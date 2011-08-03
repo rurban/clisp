@@ -74,7 +74,8 @@ User visible changes
     :ALLOW-OTHER-KEYS T (bug#3198722).
   + Fix LOOP mixing WITH & Hash Table FOR (bug#3165405);
     avoid destructuring null patterns (bug#1731469);
-    detect incomplete FOR clauses (bug#3089988).
+    detect incomplete FOR clauses (bug#3089988);
+    warn on REPEAT before FOR (bug#3384698).
   + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
   + Reduce consing in HANDLER-BIND et al (bug#3147908).
   + Implement :NO-HANG and :INTERACTIVE in WRITE-BYTE-SEQUENCE for all

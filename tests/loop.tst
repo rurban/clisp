@@ -877,17 +877,17 @@ NIL
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
 (handler-case (macroexpand '(loop :for i :from 1 :to 20 :sum i :maximize i))
-  (program-error (c) (princ c) (values '(correct program-error))))
+  (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)
 
 (handler-case
     (macroexpand '(loop :for i :from 1 :to 20 :sum i :always (evenp i)))
-  (program-error (c) (princ c) (values '(correct program-error))))
+  (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3089988&group_id=1355
 (handler-case (macroexpand '(loop :for i :do (print i)))
-  (program-error (c) (princ c) (values '(correct program-error))))
+  (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1516684&group_id=1355
@@ -937,6 +937,11 @@ NIL
         (loop with ut = 3 for k being the hash-keys of ht
           using (hash-values v) count t)))
 (1 1 1)
+
+;; https://sourceforge.net/tracker/?func=detail&aid=3384698&group_id=1355&atid=101355
+(handler-case (macroexpand '(loop repeat 0 for E = 7 then A finally (return E)))
+  (warning (w) (princ-error w) 'warning))
+WARNING
 
 ;; bug#1731469: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2

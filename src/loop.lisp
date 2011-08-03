@@ -590,7 +590,7 @@
             (progn (setq already-within-main t) (push clause main-code))
             (let ((kw (loop-keywordp (first body-rest))))
               (case kw
-                ((WHILE UNTIL ALWAYS NEVER THEREIS)
+                ((WHILE UNTIL ALWAYS NEVER THEREIS REPEAT)
                  (pop body-rest)
                  (setq already-within-main t)
                  (let ((form (parse-form kw)))
@@ -608,7 +608,22 @@
                                (new-result 'NIL (list kw form))
                                `(BLOCK ,dummy
                                   (RETURN-FROM ,block-name
-                                    (OR ,form (RETURN-FROM ,dummy NIL)))))))
+                                    (OR ,form (RETURN-FROM ,dummy NIL))))))
+                           ((REPEAT)
+                            (let ((var (gensym "COUNT-")))
+                              (note-initialization
+                               (make-loop-init
+                                :specform 'LET
+                                :bindings `((,var ,form))
+                                :declspecs nil
+                                :everytime nil
+                                :requires-stepbefore seen-endtest
+                                :preamble (preamble :start)
+                                :depends-preceding t))
+                              (note-initialization
+                               (make-endtest `(UNLESS (PLUSP ,var)
+                                                (LOOP-FINISH))))
+                              `(SETQ ,var (1- ,var)))))
                          main-code)))
                 ((INITIALLY)
                  (pop body-rest)
@@ -623,7 +638,7 @@
                            (setq form `(PROGN ,@(parse-nonempty-progn kw))))
                           form)
                        finally-code))
-                ((WITH FOR AS REPEAT)
+                ((WITH FOR AS)
                  (pop body-rest)
                  (when already-within-main
                    (warn (TEXT "~S: ~A clauses should occur before the loop's main body")
@@ -1006,22 +1021,7 @@
                       (dolist (initialization (nreverse initializations))
                         (when (li-everytime initialization)
                           (setf (li-everytime initialization) stepafter-code))
-                        (note-initialization initialization))))
-                   ((REPEAT)
-                    (let ((form (parse-form kw))
-                          (var (gensym "COUNT-")))
-                      (note-initialization
-                        (make-loop-init
-                          :specform 'LET
-                          :bindings `((,var ,form))
-                          :declspecs nil
-                          :everytime nil
-                          :requires-stepbefore seen-endtest
-                          :preamble (preamble :start)
-                          :depends-preceding t))
-                      (push `(SETQ ,var (1- ,var)) stepafter-code)
-                      (note-initialization
-                       (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
+                        (note-initialization initialization))))))
                 (t (error-of-type 'source-program-error
                      :form *whole* :detail *whole*
                      (TEXT "~S: illegal syntax near ~S in ~S")
