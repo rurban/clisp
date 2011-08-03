@@ -3546,13 +3546,15 @@ for-value   NIL or T
                            (&rest-pos (position '&REST lambdalist))
                            (&aux-pos (or (position '&AUX lambdalist)
                                          (length lambdalist))))
-                       (if &rest-pos
-                         (or more (>= n (or &opt-pos &rest-pos)))
-                         (if more
-                           (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
-                           (if &opt-pos
-                             (<= &opt-pos n (- &aux-pos 1))
-                             (= n &aux-pos)))))))))))
+                       (or (if &rest-pos
+                             (or more (>= n (or &opt-pos &rest-pos)))
+                             (if more
+                               (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
+                               (if &opt-pos
+                                 (<= &opt-pos n (- &aux-pos 1))
+                                 (= n &aux-pos))))
+                           (c-warn (TEXT "Cannot call ~S on ~D~@[ or more~] argument~P")
+                                   form n more (if more 0 n))))))))))
 (defun inline-callable-lambdabody-p (inline-lambdabody n &optional (more nil))
   (and (consp inline-lambdabody)
        (inline-callable-function-lambda-p

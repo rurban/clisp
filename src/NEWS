@@ -85,6 +85,7 @@ User visible changes
     machines (bug#3292605); handle more host families in XLIB:ACCESS-HOSTS.
   + Do not ignore user-supplied print methods for user-defined
     SIMPLE-CONDITIONs (bug#3384825).
+  + Better argument checking of FUNCALL on LAMBDA (bug#3384693).
 
 
 2.49 (2010-07-07)
