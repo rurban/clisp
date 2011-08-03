@@ -1,3 +1,7 @@
+2011-08-03  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (check_errno): add ERFKILL & EHWPOISON
+
 2011-08-02  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3384693: no warning when lambda is incompatible with arglist
