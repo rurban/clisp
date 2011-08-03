@@ -1,7 +1,12 @@
 2011-08-02  Sam Steingold  <sds@gnu.org>
 
-	* conditions.tst: Do not ignore user-supplied print methods for
-	user-defined SIMPLE-CONDITIONs (bug#3384825).
+	* conditions.tst: better argument checking of FUNCALL on
+	LAMBDA (bug#3384693)
+
+2011-08-02  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst: do not ignore user-supplied print methods for
+	user-defined SIMPLE-CONDITIONs (bug#3384825)
 
 2011-08-01  Sam Steingold  <sds@gnu.org>
 

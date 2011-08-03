@@ -547,6 +547,16 @@ NIL
            "bad: SIMPLE-CONDITION overrides MY-SIMPLE") s))
 "good: MY-SIMPLE overrides SIMPLE-CONDITION"
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3384693&group_id=1355
+(handler-case (compile nil (lambda ()
+                             (define-condition c (condition) ()
+                               (:report (lambda (c) (princ c))))))
+  (warning (w) (princ-error w) 'warning))
+WARNING
+(handler-case (compile nil (lambda () (mapcar (lambda () 1) '(1 2 3))))
+  (warning (w) (princ-error w) 'warning))
+WARNING
+
 ;; bug#3147908: handler-bind should not cons at run time
 #+clisp
 (let ((closure (compile nil (lambda (x y) (ignore-errors (= x y))))))

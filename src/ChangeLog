@@ -1,5 +1,11 @@
 2011-08-02  Sam Steingold  <sds@gnu.org>
 
+	fix bug#3384693: no warning when lambda is incompatible with arglist
+	* compiler.lisp (inline-callable-function-lambda-p): call c-warn
+	when the lambdalist is incompatible with the argument count
+
+2011-08-02  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (src/aclocal.m4): run aclocal in src
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:27763>
 
