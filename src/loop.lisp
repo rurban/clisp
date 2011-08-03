@@ -120,9 +120,6 @@
 ;; bindings/assignments doesn't matter, i.e. both LET and LET*, or
 ;; both PSETQ and SETQ are possible.
 (defun destructure (pattern form)
-  (unless pattern
-    (warn (TEXT "CLISP ~S bug (user code will work fine, but please report!): ~S ~S: null pattern")
-          'LOOP 'destructure form))
   (labels ((destructure-tree (pattern form helpvar-count)
              ; helpvar-count = Anzahl der belegten Hilfsvariablen
              (cond ((empty-tree-p pattern) nil)
@@ -653,13 +650,11 @@
                             (if (parse-kw-p '=)
                               ; Initialisierungsform angegeben.
                               (let ((form (parse-form '=)))
-                                (when pattern
-                                  (setq new-bindings (destructure pattern form))))
+                                (setq new-bindings (destructure pattern form)))
                               ; keine Initialisierungsform angegeben.
                               (setq new-bindings (default-bindings (destructure-vars pattern) new-declspecs)))
-                            (when new-bindings
-                              (setq bindings (revappend new-bindings bindings)
-                                    declspecs (revappend new-declspecs declspecs)))))
+                            (setq bindings (revappend new-bindings bindings))
+                            (setq declspecs (revappend new-declspecs declspecs))))
                         (unless (parse-kw-p 'and) (return))
                         (setq kw 'and))
                       (note-initialization
@@ -729,7 +724,7 @@
                                                     'ENDP 'ATOM)
                                                 ,var)
                                           (LOOP-FINISH))))
-                                     (when (and pattern (not (eq var pattern)))
+                                     (unless (eq var pattern)
                                        (note-initialization
                                         (make-loop-init
                                          :specform 'LET
@@ -750,21 +745,22 @@
                                         (then-form first-form))
                                    (when (parse-kw-p 'then)
                                      (setq then-form (parse-form 'then)))
-                                   (when pattern
-                                     (setq bindings (revappend (destructure pattern first-form) bindings)
-                                           declspecs (revappend new-declspecs declspecs)
-                                           stepafter (revappend (destructure pattern then-form) stepafter))
-                                     (unless (and (constantp first-form)
-                                                  (constantp then-form))
-                                       (setq seen-for-as-= t)
-                                       ;; Even when `first-form' is constant but
-                                       ;; `then-form' is not, we must set
-                                       ;; `depends-preceding', because the
-                                       ;; `stepafter-code' depends on the order
-                                       ;; of the steppings, which forbids moving
-                                       ;; some code from `preamble' +
-                                       ;; `stepafter-code' to `stepbefore-code.'
-                                       (setq depends-preceding t)))))
+                                   (setq bindings
+                                     (revappend (destructure pattern first-form)
+                                                bindings))
+                                   (setq declspecs (revappend new-declspecs declspecs))
+                                   (unless (and (constantp first-form)
+                                                (constantp then-form))
+                                     (setq seen-for-as-= t)
+                                     ;; Even when `first-form' is constant but
+                                     ;; `then-form' is not, we must set
+                                     ;; `depends-preceding', because the
+                                     ;; `stepafter-code' depends on the order of
+                                     ;; the steppings, which forbids moving
+                                     ;; some code from `preamble' +
+                                     ;; `stepafter-code' to `stepbefore-code.'
+                                     (setq depends-preceding t))
+                                   (setq stepafter (revappend (destructure pattern then-form) stepafter))))
                                 (ACROSS
                                  (pop body-rest)
                                  (let ((vector-form (parse-form preposition))
@@ -773,16 +769,15 @@
                                    (push `(,vector-var ,vector-form) bindings)
                                    (push `(,index-var 0) bindings)
                                    (note-initialization
-                                     (make-endtest `(WHEN (>= ,index-var (LENGTH ,vector-var)) (LOOP-FINISH))))
-                                   (when pattern
-                                     (note-initialization
-                                      (make-loop-init
-                                       :specform 'LET
-                                       :bindings (destructure pattern `(AREF ,vector-var ,index-var))
-                                       :declspecs new-declspecs
-                                       :everytime t
-                                       :preamble (preamble :start)
-                                       :requires-stepbefore seen-endtest)))
+                                    (make-endtest `(WHEN (>= ,index-var (LENGTH ,vector-var)) (LOOP-FINISH))))
+                                   (note-initialization
+                                    (make-loop-init
+                                     :specform 'LET
+                                     :bindings (destructure pattern `(AREF ,vector-var ,index-var))
+                                     :declspecs new-declspecs
+                                     :everytime t
+                                     :preamble (preamble :start)
+                                     :requires-stepbefore seen-endtest))
                                    (push (list index-var `(1+ ,index-var)) stepafter)))
                                 (BEING
                                  (pop body-rest)
@@ -847,15 +842,14 @@
                                                 :everytime t
                                                 :preamble (preamble :start)
                                                 :requires-stepbefore seen-endtest))
-                                              (when pattern
-                                                (note-initialization
-                                                 (make-loop-init
-                                                  :specform 'LET
-                                                  :bindings (destructure pattern nextmain-var)
-                                                  :declspecs new-declspecs
-                                                  :everytime t
-                                                  :preamble (preamble :start)
-                                                  :requires-stepbefore seen-endtest)))
+                                              (note-initialization
+                                               (make-loop-init
+                                                :specform 'LET
+                                                :bindings (destructure pattern nextmain-var)
+                                                :declspecs new-declspecs
+                                                :everytime t
+                                                :preamble (preamble :start)
+                                                :requires-stepbefore seen-endtest))
                                               (when other-pattern
                                                 (note-initialization
                                                  (make-loop-init
@@ -892,15 +886,14 @@
                                             :everytime t
                                             :preamble (preamble :start)
                                             :requires-stepbefore seen-endtest))
-                                          (when pattern
-                                            (note-initialization
-                                             (make-loop-init
-                                              :specform 'LET
-                                              :bindings (destructure pattern nextsym-var)
-                                              :declspecs new-declspecs
-                                              :everytime t
-                                              :preamble (preamble :start)
-                                              :requires-stepbefore seen-endtest)))))))))
+                                          (note-initialization
+                                           (make-loop-init
+                                            :specform 'LET
+                                            :bindings (destructure pattern nextsym-var)
+                                            :declspecs new-declspecs
+                                            :everytime t
+                                            :preamble (preamble :start)
+                                            :requires-stepbefore seen-endtest))))))))
                                 (t
                                  (unless (symbolp pattern) (loop-syntax-error kw))
                                  (unless pattern (setq pattern (gensym "FOR-NUM-")))
