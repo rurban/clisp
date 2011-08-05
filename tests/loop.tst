@@ -1,8 +1,5 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
-;; bug#1731469: warning when fail to ignore a null pattern
-(setq *break-on-signals* 'warning) WARNING
-
 (loop for x from 1 to 9
       for y = nil then x
       collect (list x y))
@@ -945,7 +942,18 @@ WARNING
 
 ;; bug#1731469: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2
-(setq *break-on-signals* NIL) NIL ; revert to the default
+(loop with nil = (return t) return nil) T
+(loop with a = 42 with nil = (return a) return t) 42
+(loop with a = 1 with nil = (incf a) with nil = (return a) return nil) 2
+(loop
+  for (a1 b1 c1) (integer integer float) in '((1 2 3.4) (5 6 7.8) (9 10 1.1))
+  for (a2 b2 c2) float in '((1.2 1.3 1.4) (1.5 1.6 1.7) (1.8 1.9 2.0))
+  for ((a3 . b3) (c3 . d3)) of-type ((float . float) (integer . integer))
+  in '(((2.1 . 2.2) (23 . 24)) ((2.5 . 2.6) (27 . 28)) ((2.9 . 3.0) (31 . 32)))
+  collect (list a1 b1 c1 a2 b2 c2 a3 b3 c3 d3))
+((1 2 3.4 1.2 1.3 1.4 2.1 2.2 23 24)
+ (5 6 7.8 1.5 1.6 1.7 2.5 2.6 27 28)
+ (9 10 1.1 1.8 1.9 2.0 2.9 3.0 31 32))
 
 ;; local variables:
 ;; eval: (make-local-variable 'before-save-hook)
