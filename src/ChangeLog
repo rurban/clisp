@@ -1,3 +1,11 @@
+2011-08-05  Sam Steingold  <sds@gnu.org>
+
+	fix the 2011-03-31 fix for bug#1731469
+	* loop.lisp (*nullvar*): new unbound global
+	(destructure): use it instead of (helpvar 0) for null patters
+	(expand-loop): bind it; repeat count var does not depend on preceding
+	(expand-loop@note-initialization): do not barf on *nullvar* reuse
+
 2011-08-03  Sam Steingold  <sds@gnu.org>
 
 	fix bug#3384698: loop does not warn on REPEAT before FOR

@@ -105,6 +105,7 @@
          (simple-type-p (cdr type)))))
 
 (defvar *helpvars*) ;; vector of auxiliary variables for destructuring
+(defvar *nullvar*)
 
 ;; (helpvar n) returns the (n+1)-st auxiliary variable (n>=0).
 ;; At least n auxiliary variable must already have been used.
@@ -134,7 +135,7 @@
                               (destructure-tree (cdr pattern) `(CDR ,helpvar) helpvar-count)))))))
     (or (destructure-tree pattern form 0)
         ; no variables -> must nevertheless evaluate form!
-        (list (list (helpvar 0) form)))))
+        (list (list (or *nullvar* (setq *nullvar* (gensym "NULLVAR-"))) form)))))
 
 ;; (default-bindings vars declspecs).
 ;; vars = (var ...) is a list of variables without init forms.
@@ -233,6 +234,7 @@
         (block-name 'NIL) ; Name des umgebenden BLOCKs
         (already-within-main nil) ; im zweiten Teil von {variables}* {main}* ?
         (*helpvars* (make-array 1 :fill-pointer 0 :adjustable t))
+        (*nullvar* nil)
         (*last-it* nil)
         (var-list nil)          ; all variables seen so far
         (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
@@ -551,7 +553,7 @@
            (when (li-endtest-forms initialization)
              (setq seen-endtest t))
            (dolist (var (li-vars initialization))
-             (when (memq var var-list)
+             (when (and (not (eq var *nullvar*)) (memq var var-list))
                (error-of-type 'source-program-error
                  :form *whole* :detail var
                  (TEXT "~S: duplicate iteration variable ~S") *whole* var))
@@ -616,7 +618,7 @@
                                 :everytime nil
                                 :requires-stepbefore seen-endtest
                                 :preamble (preamble :start)
-                                :depends-preceding t))
+                                :depends-preceding nil))
                               (note-initialization
                                (make-endtest `(UNLESS (PLUSP ,var)
                                                 (LOOP-FINISH))))
