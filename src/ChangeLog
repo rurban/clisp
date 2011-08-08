@@ -1,5 +1,10 @@
 2011-08-08  Sam Steingold  <sds@gnu.org>
 
+	* spvw_mmap.d (munmap, mprotect) [HAVE_MACH_VM|HAVE_WIN32_VM]:
+	declare when defined to avoid a "warning: no previous declaration"
+
+2011-08-08  Sam Steingold  <sds@gnu.org>
+
 	Rename errno_t to os_error_code_t to avoid a conflict with mingw
 	* unix.d (os_error_code_t): typedef to int; replaces errno_t
 	* win32.d (os_error_code_t): typedef to DWORD; replaces errno_t

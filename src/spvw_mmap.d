@@ -37,12 +37,12 @@ local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset);
 #endif
 
 /* Unmaps a memory range. */
-#if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */
+#if defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
 global int munmap (void* addr, size_t len);
 #endif
 
 /* Changes the access protection for a memory range. */
-#if 0 /* Already declared in <sys/mman.h> on those platforms that have it. */
+#if defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
 global int mprotect ([const] void* addr, size_t len, int prot);
 #endif
 
