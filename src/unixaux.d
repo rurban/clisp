@@ -820,7 +820,8 @@ global void close_all_fd (void) {
 /* file identification for check_file_re_open() */
 /* if file NAMESTRING exists, fill file_id and call function on it,
    otherwise return NULL */
-global errno_t namestring_file_id (char * namestring, struct file_id *fi) {
+global os_error_code_t namestring_file_id (char * namestring,
+                                           struct file_id *fi) {
   var struct stat st;
   if (stat(namestring,&st)) return errno;
   fi->device = st.st_dev;
@@ -829,7 +830,7 @@ global errno_t namestring_file_id (char * namestring, struct file_id *fi) {
 }
 
 /* fill FI for an existing file handle */
-global errno_t handle_file_id (int fd, struct file_id *fi) {
+global os_error_code_t handle_file_id (int fd, struct file_id *fi) {
   var struct stat st;
   if (fstat(fd,&st)) return errno;
   fi->device = st.st_dev;

@@ -1149,17 +1149,18 @@ global void DumpProcessMemoryMap (void)
 
 /* file identification for check_file_re_open() */
 /* fill FI for an exiting namestring */
-global errno_t namestring_file_id (char * namestring, struct file_id *fi) {
+global os_error_code_t namestring_file_id (char * namestring,
+                                           struct file_id *fi) {
   var HANDLE fh = CreateFile(namestring,0,FILE_SHARE_READ | FILE_SHARE_WRITE,
                              NULL,OPEN_EXISTING,OPEN_EXISTING,NULL);
   if (fh == INVALID_HANDLE_VALUE) return GetLastError();
-  var errno_t status = handle_file_id(fh,fi);
+  var os_error_code_t status = handle_file_id(fh,fi);
   CloseHandle(fh);
   return status;
 }
 
 /* fill FI for an existing file handle */
-global errno_t handle_file_id (HANDLE fh, struct file_id *fi) {
+global os_error_code_t handle_file_id (HANDLE fh, struct file_id *fi) {
   var BY_HANDLE_FILE_INFORMATION info;
   if (!GetFileInformationByHandle(fh,&info)) return GetLastError();
   fi->nFileIndexLow = info.nFileIndexLow;
