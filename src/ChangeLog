@@ -1,5 +1,14 @@
 2011-08-08  Sam Steingold  <sds@gnu.org>
 
+	Rename errno_t to os_error_code_t to avoid a conflict with mingw
+	* unix.d (os_error_code_t): typedef to int; replaces errno_t
+	* win32.d (os_error_code_t): typedef to DWORD; replaces errno_t
+	* unixaux.d, win32aux.d (namestring_file_id, handle_file_id):
+	return os_error_code_t instead of errno_t
+	* pathname.d (check_file_reopen): update for the new type name
+
+2011-08-08  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: check for <winternl.h> and <ntstatus.h>
 	* win32.d: include them only when detected (yes on cygwin/mingw,
 	not on msys/mingw)

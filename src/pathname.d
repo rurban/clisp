@@ -6420,7 +6420,7 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
  check_file_reopen_restart_search:
   var object bad_stream = nullobj;
   var struct file_id fi;
-  var errno_t status;
+  var os_error_code_t status;
   pushSTACK(truename); /* save for find_open_file & namestring_file_id. */
   with_string_0(truename,O(pathname_encoding),namez, {
     GC_SAFE_SYSTEM_CALL(status=, namestring_file_id(namez,&fi));

@@ -142,11 +142,11 @@ struct file_id {        /* Unique ID for an open file on this machine */
   DWORD nFileIndexHigh;
   DWORD nFileIndexLow;
 };
-/*typedef DWORD errno_t;*/
+typedef DWORD os_error_code_t;
 /* fill FI for an exiting namestring */
-extern errno_t namestring_file_id (char *namestring, struct file_id *fi);
+extern os_error_code_t namestring_file_id(char *namestring,struct file_id *fi);
 /* fill FI for an existing file handle */
-extern errno_t handle_file_id (HANDLE fh, struct file_id *fi);
+extern os_error_code_t handle_file_id (HANDLE fh, struct file_id *fi);
 /* if the file IDs are identical, return 1, otherwise return 0 */
 extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 
