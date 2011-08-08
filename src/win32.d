@@ -34,10 +34,15 @@
 #include <shellapi.h>
 #define unused unused_void      /* restore the unused declaration */
 
+#if defined(HAVE_WINTERNL_H)
+#include <winternl.h>        /* NtQueryInformationFile for cygwin/mingw */
+#endif
+
 /* Table of system error messages */
 #include <winerror.h>
-#include <winternl.h>
-#include <ntstatus.h>
+#if defined(HAVE_NTSTATUS_H)
+#include <ntstatus.h>     /* Windows NT status codes for cygwin/mingw */
+#endif
 /* extern DWORD GetLastError (void);
    extern void SetLastError (DWORD ErrCode);
    extern DWORD FormatMessage (DWORD Flags, LPCVOID Source, DWORD MessageId, DWORD LanguageId, LPTSTR Buffer, DWORD Size, va_list* Arguments);
