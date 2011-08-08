@@ -43,7 +43,7 @@ global int munmap (void* addr, size_t len);
 
 /* Changes the access protection for a memory range. */
 #if defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
-global int mprotect ([const] void* addr, size_t len, int prot);
+global int mprotect (void* addr, size_t len, int prot);
 #endif
 
 /* -------------------------- Implementation --------------------------- */
