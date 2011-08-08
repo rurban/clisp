@@ -634,6 +634,9 @@
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
 
+/* Define to 1 if you have the <ntstatus.h> header file. */
+#undef HAVE_NTSTATUS_H
+
 /* Define to 1 if you have the <OS.h> header file. */
 #undef HAVE_OS_H
 
@@ -1450,6 +1453,9 @@
 
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
+
+/* Define to 1 if you have the <winternl.h> header file. */
+#undef HAVE_WINTERNL_H
 
 /* Define if you have the 'wint_t' type. */
 #undef HAVE_WINT_T
