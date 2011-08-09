@@ -14,9 +14,9 @@
 
 2011-08-08  Sam Steingold  <sds@gnu.org>
 
-	* configure.in: check for <winternl.h> and <ntstatus.h>
-	* win32.d: include them only when detected (yes on cygwin/mingw,
-	not on msys/mingw)
+	* configure.in: check for <winternl.h>, <ntstatus.h> and <ddk/winddk.h>
+	* win32.d: include them only when detected (the first two on
+	cygwin/mingw, the last one on msys/mingw)
 
 2011-08-05  Sam Steingold  <sds@gnu.org>
 

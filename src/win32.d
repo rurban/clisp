@@ -37,6 +37,9 @@
 #if defined(HAVE_WINTERNL_H)
 #include <winternl.h>        /* NtQueryInformationFile for cygwin/mingw */
 #endif
+#if defined(HAVE_DDK_WINDDK_H)
+#include <ddk/winddk.h>      /* NtQueryInformationFile for msys/mingw */
+#endif
 
 /* Table of system error messages */
 #include <winerror.h>
