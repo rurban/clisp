@@ -34,11 +34,25 @@
 #include <shellapi.h>
 #define unused unused_void      /* restore the unused declaration */
 
+/* http://msdn.microsoft.com/en-us/library/ff567052.aspx */
+/* NtQueryInformationFile for cygwin/mingw */
 #if defined(HAVE_WINTERNL_H)
-#include <winternl.h>        /* NtQueryInformationFile for cygwin/mingw */
-#endif
-#if defined(HAVE_DDK_WINDDK_H)
-#include <ddk/winddk.h>      /* NtQueryInformationFile for msys/mingw */
+#include <winternl.h>
+/* NtQueryInformationFile for msys/mingw */
+#elif defined(HAVE_WINDDK_H)
+#include <winddk.h>
+#elif defined(HAVE_DDK_WINDDK_H)
+#include <ddk/winddk.h>
+#elif defined(HAVE_NTDDK_H)
+#include <ntddk.h>
+#elif defined(HAVE_DDK_NTDDK_H)
+#include <ddk/ntddk.h>
+#elif defined(HAVE_NTIFS_H)
+#include <ntifs.h>
+#elif defined(HAVE_DDK_NTIFS_H)
+#include <ddk/ntifs.h>
+#else
+#error where is NtQueryInformationFile defined on your system
 #endif
 
 /* Table of system error messages */

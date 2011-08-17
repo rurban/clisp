@@ -1,3 +1,11 @@
+2011-08-17  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: check for many more windows headers which might
+	declare NtQueryInformationFile
+	* win32.d: try to include all those header one by one
+	Suggested by Michael Kappert & Yaroslav Kavenchuk
+	<http://article.gmane.org/gmane.lisp.clisp.devel:22684> &c
+
 2011-08-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw_mmap.d (munmap, mprotect) [HAVE_MACH_VM|HAVE_WIN32_VM]:

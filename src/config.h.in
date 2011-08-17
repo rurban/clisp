@@ -321,6 +321,15 @@
    */
 #undef HAVE_DCGETTEXT
 
+/* Define to 1 if you have the <ddk/ntddk.h> header file. */
+#undef HAVE_DDK_NTDDK_H
+
+/* Define to 1 if you have the <ddk/ntifs.h> header file. */
+#undef HAVE_DDK_NTIFS_H
+
+/* Define to 1 if you have the <ddk/wdm.h> header file. */
+#undef HAVE_DDK_WDM_H
+
 /* Define to 1 if you have the <ddk/winddk.h> header file. */
 #undef HAVE_DDK_WINDDK_H
 
@@ -636,6 +645,12 @@
 
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
+
+/* Define to 1 if you have the <ntddk.h> header file. */
+#undef HAVE_NTDDK_H
+
+/* Define to 1 if you have the <ntifs.h> header file. */
+#undef HAVE_NTIFS_H
 
 /* Define to 1 if you have the <ntstatus.h> header file. */
 #undef HAVE_NTSTATUS_H
@@ -1453,6 +1468,12 @@
 
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H
+
+/* Define to 1 if you have the <wdm.h> header file. */
+#undef HAVE_WDM_H
+
+/* Define to 1 if you have the <winddk.h> header file. */
+#undef HAVE_WINDDK_H
 
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
