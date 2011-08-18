@@ -1507,11 +1507,6 @@ test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
 
 test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 
-GLLIB_A=libgnu.a
-# libgnu.a must come _before_ -lws2_32
-LIBS="${LIBS} ${GLLIB_A} ${LIBSOCKET}"
-FILES="${GLLIB_A} "${FILES}
-
 if [ "${with_readline}" = no ]; then
   # --without-readline was supplied
   XCFLAGS=$XCFLAGS' -DNO_READLINE'
@@ -1536,6 +1531,11 @@ else
   LIBS='@LIBINTL@ '$LIBS
   XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
 fi
+
+GLLIB_A=libgnu.a
+# libgnu.a must come _before_ -lws2_32 -lintl &c
+LIBS="${GLLIB_A} ${LIBS} ${LIBSOCKET}"
+FILES="${GLLIB_A} "${FILES}
 
 FILES='lisp.a '$FILES
 
