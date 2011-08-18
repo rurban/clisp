@@ -48,6 +48,11 @@
 
 2011-08-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LIBS): prepend ${GLLIB_A} before -lws2_32 & -lintl
+	<http://article.gmane.org/gmane.lisp.clisp.devel:22701>
+
+2011-08-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_last_error) [WIN32|CYGWIN]:
 	renamed from check_errno
 	(OS::LAST-ERROR) [WIN32|CYGWIN]: extracted from OS:ERRNO
