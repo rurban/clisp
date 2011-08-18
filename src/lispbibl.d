@@ -14127,6 +14127,7 @@ extern maygc object hash_table_test (object ht);
 /* check a cint for being a whitespace */
 #define cint_white_p(c)   \
   ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
+%% export_def(cint_white_p(c));
 
 /* special Object, that indicates EOF */
 #define eof_value  make_system(0xE0FE0FUL)
