@@ -564,11 +564,18 @@ T
 ;; cygwin: "error 47"
 ;; win32: some localized abomination
 (loop :with all = (os:errno t)
-  :for e :from 0 :to (loop :for p :in all :for e = (car p)
-                       :when (< e #.(ash 1 16)) :maximize e)
+  :for e :from 0 :to (loop :for p :in all :for e = (car p) :maximize e)
   :do (print (list e (os:errno e) (os:strerror)))
   :finally (os:errno nil))
 ()
+
+#+(or :win32 :cygwin)
+(loop :with all = (os:last-error t)
+  :for e :from 0 :to (loop :for p :in all :for e = (car p)
+                       :when (< e #.(ash 1 16)) :maximize e)
+  :do (print (list e (os:last-error e) (os:format-message)))
+  :finally (os:last-error nil))
+#+(or :win32 :cygwin) ()
 
 (and (fboundp 'os:hostid) (not (integerp (show (os:hostid))))) NIL
 #+unix (and (fboundp 'os::%sethostid)

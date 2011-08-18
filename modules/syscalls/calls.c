@@ -685,7 +685,7 @@ DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
     strcat(c_template,"XXXXXX");                        \
   }
 #if defined(WIN32_NATIVE)
-# define allocate_lisp_handle(fd)  allocate_handle(_get_osfhandle(fd))
+# define allocate_lisp_handle(fd)  allocate_handle((HANDLE)_get_osfhandle(fd))
 #else
 # define allocate_lisp_handle allocate_handle
 #endif
@@ -4668,12 +4668,12 @@ DEFUN(POSIX::%STDIO, &optional which) {
   skipSTACK(1);
 }
 
-/* http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html */
-#if defined(WIN32_NATIVE)
+/* ========================= OS error printing ========================= */
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 # include <winerror.h>
 /* http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/w32api/include/winerror.h */
 /* http://msdn.microsoft.com/en-us/library/aa914935.aspx */
-DEFCHECKER(check_errno,type=DWORD,                                      \
+DEFCHECKER(check_last_error,type=DWORD,                                 \
            ERROR_INVALID_FUNCTION ERROR_FILE_NOT_FOUND ERROR_PATH_NOT_FOUND \
            ERROR_TOO_MANY_OPEN_FILES ERROR_ACCESS_DENIED \
            ERROR_INVALID_HANDLE ERROR_ARENA_TRASHED ERROR_NOT_ENOUGH_MEMORY \
@@ -5608,8 +5608,59 @@ DEFCHECKER(check_errno,type=DWORD,                                      \
            ERROR_SXS_MISSING_ASSEMBLY_IDENTITY_ATTRIBUTE \
            ERROR_SXS_INVALID_ASSEMBLY_IDENTITY_ATTRIBUTE_NAME \
            )
-# define errno_to_I uint32_to_I
-#else
+DEFUN(OS::LAST-ERROR, &optional newval) {
+  if (eq(T,STACK_0)) {          /* all known error codes */
+    int pos = 0;
+    for (; pos < check_last_error_map.size; pos++) {
+      pushSTACK(allocate_cons());
+      Car(STACK_0) = uint32_to_I(check_last_error_map.table[pos].c_const);
+      Cdr(STACK_0) = *check_last_error_map.table[pos].l_const;
+    }
+    VALUES1(listof(check_last_error_map.size));
+  } else {
+    DWORD error_code;
+    if (missingp(STACK_0)) {
+      begin_system_call();
+      error_code = GetLastError();
+      end_system_call();
+    } else {
+      error_code = check_last_error(STACK_0);
+      begin_system_call();
+      SetLastError(error_code);
+      end_system_call();
+    }
+    VALUES1(check_last_error_reverse(error_code));
+  }
+  skipSTACK(1);
+}
+DEFUN(OS::FORMAT-MESSAGE, &optional error_code) {
+  char *ret = NULL;
+  DWORD error_code = missingp(STACK_0) ? (DWORD)-1 : check_last_error(STACK_0);
+  int status;
+  begin_system_call();
+  status = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                         FORMAT_MESSAGE_FROM_SYSTEM |
+                         FORMAT_MESSAGE_IGNORE_INSERTS,
+                         NULL,
+                         error_code == (DWORD)-1 ? GetLastError() : error_code,
+                         0,
+                         (LPTSTR) &ret,
+                         0,
+                         NULL);
+  end_system_call();
+  if (status) {
+    /* strip terminating spaces, newlines and periods to conform to strerror */
+    while (cint_white_p(ret[status-1]) || ret[status-1] == '.')
+      status--;
+    ret[status] = 0;
+    VALUES1(safe_to_string(ret));
+  } else VALUES1(NIL);
+  begin_system_call(); LocalFree(ret); end_system_call();
+  skipSTACK(1);
+}
+#endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
+
+/* http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html */
 DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EAGAIN EALREADY EBADF EBADMSG EBUSY ECANCELED ECHILD ECONNABORTED \
            ECONNREFUSED ECONNRESET EDEADLK EDESTADDRREQ EDOM EDQUOT EEXIST \
@@ -5643,68 +5694,34 @@ DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EREMOTERELEASE EVERSION EAIO ECLONEME EFAIL EINPROG EMTIMERS \
            ERESTARTNOHAND ERESTARTNOINTR ERESTARTSYS                    \
            )
-# define errno_to_I  sint_to_I
-#endif
-DEFUN(OS::ERRNO, &optional newval) {
+DEFUN(POSIX::ERRNO, &optional newval) {
   if (eq(T,STACK_0)) {          /* all known error codes */
     int pos = 0;
     for (; pos < check_errno_map.size; pos++) {
       pushSTACK(allocate_cons());
-      Car(STACK_0) = errno_to_I(check_errno_map.table[pos].c_const);
+      Car(STACK_0) = sint_to_I(check_errno_map.table[pos].c_const);
       Cdr(STACK_0) = *check_errno_map.table[pos].l_const;
     }
     VALUES1(listof(check_errno_map.size));
   } else {
-#  if defined(WIN32_NATIVE)
-    DWORD error_code;
-    if (missingp(STACK_0)) {
-      begin_system_call();
-      error_code = GetLastError();
-      end_system_call();
-    } else {
-      error_code = check_errno(STACK_0);
-      begin_system_call();
-      SetLastError(error_code);
-      end_system_call();
-    }
-    VALUES1(check_errno_reverse(error_code));
-#  else
     if (!missingp(STACK_0))
       errno = check_errno(STACK_0);
     VALUES1(check_errno_reverse(errno));
-#  endif
   }
   skipSTACK(1);
 }
 DEFUN(POSIX::STRERROR, &optional error_code) {
   char *ret = NULL;
-# if defined(WIN32_NATIVE)
-  DWORD error_code = missingp(STACK_0) ? (DWORD)-1 : check_errno(STACK_0);
-  int status;
-  begin_system_call();
-  status = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                         FORMAT_MESSAGE_FROM_SYSTEM |
-                         FORMAT_MESSAGE_IGNORE_INSERTS,
-                         NULL,
-                         error_code == (DWORD)-1 ? GetLastError() : error_code,
-                         0,
-                         (LPTSTR) &ret,
-                         0,
-                         NULL);
-  end_system_call();
-  VALUES1(status == 0 ? NIL : safe_to_string(ret));
-  begin_system_call(); LocalFree(ret); end_system_call();
-# else
   /* errno access must be guarded with begin/end_system_call */
   int error_code = missingp(STACK_0) ? -1 : check_errno(STACK_0);
   begin_system_call();
   ret = strerror(error_code == -1 ? errno : error_code);
   end_system_call();
   VALUES1(safe_to_string(ret));
-# endif
   skipSTACK(1);
 }
 
+/* ========================= wildcard matching ========================= */
 DEFFLAGSET(fnm_flags, !FNM_CASEFOLD FNM_PATHNAME FNM_PERIOD FNM_NOESCAPE)
 DEFUN(POSIX:FNMATCH, pattern string &key \
       :CASE-SENSITIVE PATHNAME PERIOD NOESCAPE) {

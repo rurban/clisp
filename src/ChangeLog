@@ -1,3 +1,14 @@
+2011-08-18  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (check_last_error) [WIN32|CYGWIN]:
+	renamed from check_errno
+	(OS::LAST-ERROR) [WIN32|CYGWIN]: extracted from OS:ERRNO
+	(OS::FORMAT-MESSAGE) [WIN32|CYGWIN]: extracted from OS::STRERROR
+	(POSIX:ERRNO, POSIX:STRERROR): always define
+	* modules/syscalls/posix.lisp (last-error, format-message): export
+	* lispbibl.d (cint_white_p): export to clisp.h for FORMAT-MESSAGE
+	to strip terminating whitespace and periods to conform to strerror
+
 2011-08-17  Sam Steingold  <sds@gnu.org>
 
 	* configure.in: check for many more windows headers which might
@@ -70,7 +81,7 @@
 2011-08-01  Sam Steingold  <sds@gnu.org>
 
 	fix "clean" targets
-	* makemake.in (anymodule): do not remove gllib; there is not such dir
+	* makemake.in (anymodule): do not remove gllib; there is no such dir
 	(clean1): do not remove build-aux, but do remove dynmod
 	(clean5): remove modules.h and build-aux unless building in src
 	(clean6): do not remove Makefile

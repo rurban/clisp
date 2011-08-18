@@ -15,6 +15,7 @@
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:errno #:strerror #:hostid #:domainname #:file-size #:user-shells
+   #+(or :win32 :cygwin) #:last-error #+(or :win32 :cygwin) #:format-message
    #+unix #:chroot #:with-subprocesses #:fnmatch #:fnmatch-matcher
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
