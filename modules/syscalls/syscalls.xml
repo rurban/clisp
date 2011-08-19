@@ -976,25 +976,36 @@ Notation</quote> for the syntax description.</para>
 </section>
 
 <section id="errno"><title>Error handling</title>
-<para>To handle errors in foreign functions, the following two
+<para>To handle errors in foreign functions, the following four
  functions are provided: <variablelist>
-<varlistentry><term><code>(OS:ERRNO &optional-amp; &ecode-r;)</code></term>
- <listitem><simpara>When &ecode-r; (a number or a keyword) is supplied,
-   &errno; is set (useful before a system call which sets &errno; as the
-   only way to report an error).</simpara>
-  <simpara>The current &errno; is returned as a keyword if possible, a
-   number otherwise.  When &ecode-r; is &t;, all known error codes are
-   returned as an &alist;.</simpara>
-  <simpara>On &win32;, <function role="win32">GetLastError</function>
-   and <function role="win32">SetLastError</function> are used instead
-   of &errno;.</simpara></listitem></varlistentry>
-<varlistentry><term><code>(OS:STRERROR &optional-amp; &ecode-r;)</code></term>
+<varlistentry><term><code>(POSIX:ERRNO &optional-amp; &ecode-r;)</code></term>
+ <listitem><simpara>When &ecode-r; is supplied, &errno; is set (useful
+   before a system call which sets &errno; as the only way to report an
+   error).</simpara>
+  <simpara>If &ecode-r; is a &number-t;, the corresponding &keyword-t;
+   is returned and vice versa.</simpara>
+  <simpara>When &ecode-r; is not supplied, the current &errno; is
+   returned as a keyword if possible, a number otherwise.</simpara>
+  <simpara>When &ecode-r; is &t;, all known error codes are
+   returned as an &alist;.</simpara></listitem></varlistentry>
+  <varlistentry><term><code>(OS:LAST-ERROR &optional-amp;
+    &ecode-r;)</code></term>
+  <listitem><simpara>Just like <function>POSIX:ERRNO</function>,
+   but uses <function role="win32">GetLastError</function>
+   and <function role="win32">SetLastError</function> instead
+   of &errno;.</simpara>
+  <simpara>&win32-only;</simpara></listitem></varlistentry>
+<varlistentry><term><code>(POSIX:STRERROR &optional-amp;
+   &ecode-r;)</code></term>
  <listitem><simpara>Return a string description of &ecode-r;.
-   When &ecode-r; is not supplied, &errno;
-   (<function role="win32">GetLastError</function> on &win32;) is used.
-  </simpara><simpara>This calls &strerror; on &unix; and
-   <function role="win32">FormatMessage</function> on &win32;.</simpara>
-</listitem></varlistentry>
+   When &ecode-r; is not supplied, &errno; is used.</simpara>
+   <simpara>This calls &strerror;.</simpara></listitem></varlistentry>
+<varlistentry><term><code>(OS:FORMAT-MESSAGE &optional-amp;
+   &ecode-r;)</code></term>
+ <listitem><simpara>Just like <function>POSIX:STRERROR</function>,
+  but uses <function role="win32">FormatMessage</function>
+  and <function role="win32">GetLastError</function>.</simpara>
+ <simpara>&win32-only;</simpara></listitem></varlistentry>
 </variablelist></para>
 </section>
 

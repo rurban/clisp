@@ -567,6 +567,20 @@ T
       (socket:socket-server-close se))))
 (:OUTPUT "foo" :OUTPUT STREAM-ERROR NIL ERROR NIL END-OF-FILE)
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3384688&group_id=1355&atid=351355
+(handler-case (socket:socket-connect 0)
+  (os-error (e)
+    (princ-error e)
+    (or (eq (os-error-code e) :ECONNREFUSED) ; base image
+        (= (os-error-code e) 111))))         ; boot image
+T
+(handler-case (socket-server 1240 :interface "[/]=")
+  (os-error (e)
+    (princ-error e)
+    (or (eq (os-error-code e) :EINVAL) ; base image
+        (= (os-error-code e) 22))))    ; boot image
+T
+
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
        (delete-file *file*) (makunbound '*file*) (unintern '*file*)
@@ -576,6 +590,3 @@ T
        (makunbound '*socket-3*) (unintern '*socket-3*)
        (makunbound '*socket-4*) (unintern '*socket-4*))
 T
-
-(socket-server 1240 :interface "[/]=")
-ERROR

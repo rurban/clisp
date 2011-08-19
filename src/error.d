@@ -2,7 +2,7 @@
  * Error-Handling for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2010
+ * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -330,9 +330,33 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
         pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); /* :stream ... */
         argcount += 2;
       }
+      /* os-stream-error --> complete :stream & :code */
+      if (eq(type,S(os_stream_error))) {
+        STACK_3 = NIL;                                    /* reset errstring */
+        pushSTACK(S(Kcode)); pushSTACK(BEFORE(stackptr)); /* :code ... */
+        pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); /* :stream ... */
+        argcount += 4;
+      }
       /* file-error --> complete :pathname */
       if (eq(type,S(simple_file_error))) {
         pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); /* :pathname ... */
+        argcount += 2;
+      }
+      /* os-file-error --> complete :pathname & :code */
+      if (eq(type,S(os_file_error))) {
+        STACK_3 = NIL;                                    /* reset errstring */
+        pushSTACK(S(Kcode)); pushSTACK(BEFORE(stackptr)); /* :code ... */
+        pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); /* :pathname ... */
+        argcount += 4;
+      }
+      /* os-error --> complete :code */
+      if (eq(type,S(os_error))
+         #if defined(WIN32_NATIVE)
+          || eq(type,S(os_error_win32))
+         #endif
+          ) {
+        STACK_3 = NIL;                                    /* reset errstring */
+        pushSTACK(S(Kcode)); pushSTACK(BEFORE(stackptr)); /* :code ... */
         argcount += 2;
       }
       /* source-program-error --> complete :detail */
@@ -428,6 +452,28 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
   funcall(S(correctable_error),2);
 }
 
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+typedef object error_code_converter_t (long code);
+static error_code_converter_t *ecc_a = (error_code_converter_t*)1;
+local object convert_error_code (long code, error_code_converter_t **ecc,
+                                 const char* name) {
+  if (*ecc == (error_code_converter_t*)1)
+    *ecc = find_name(NULL,name);
+  if (*ecc)
+    return (*ecc)(code);
+  return L_to_I(code);
+}
+#define ANSIC_error_code_converter(e)                   \
+  convert_error_code(e,&ecc_a,"errno_to_symbol_a")
+#else
+#define ANSIC_error_code_converter(e) L_to_I(e)
+#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
+#if defined(WIN32_NATIVE)
+static error_code_converter_t *ecc_w = (error_code_converter_t*)1;
+#define WINDOWS_error_code_converter(e)         \
+  convert_error_code(e,&ecc_w,"errno_to_symbol_w")
+#endif
+
 #undef OS_error
 #undef OS_error_arg
 #undef OS_filestream_error
@@ -456,8 +502,8 @@ modexp _Noreturn void OS_filestream_error (object stream) {
   if (streamp(stream)) {
     if (TheStream(stream)->strmtype == strmtype_file
         && !nullp(TheStream(stream)->strm_file_truename))
-      OS_error_arg(S(simple_file_error),TheStream(stream)->strm_file_truename);
-    else OS_error_arg(S(simple_stream_error),stream);
+      OS_error_arg(S(os_file_error),TheStream(stream)->strm_file_truename);
+    else OS_error_arg(S(os_stream_error),stream);
   } else {
     OS_error();
   }

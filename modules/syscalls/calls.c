@@ -1597,7 +1597,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
     pushSTACK(arg); pushSTACK(arg);
     STACK_1 = ascii_to_string(H_ERRMSG);
     pushSTACK(`POSIX::RESOLVE-HOST-IPADDR`);
-    error(os_error,"~S (~S): ~S");
+    error(error_condition,"~S (~S): ~S");
   }
 
   hostent_to_lisp(he);
@@ -5608,6 +5608,8 @@ DEFCHECKER(check_last_error,type=DWORD,                                 \
            ERROR_SXS_MISSING_ASSEMBLY_IDENTITY_ATTRIBUTE \
            ERROR_SXS_INVALID_ASSEMBLY_IDENTITY_ATTRIBUTE_NAME \
            )
+object errno_to_symbol_w (long code);
+object errno_to_symbol_w (long code) {return check_errno_windows_reverse(code);}
 DEFUN(OS::LAST-ERROR, &optional newval) {
   if (eq(T,STACK_0)) {          /* all known error codes */
     int pos = 0;
@@ -5623,8 +5625,15 @@ DEFUN(OS::LAST-ERROR, &optional newval) {
       begin_system_call();
       error_code = GetLastError();
       end_system_call();
+      VALUES1(check_last_error_reverse(error_code));
     } else {
-      error_code = check_last_error(STACK_0);
+      if (uint32_p(STACK_0)) {
+        error_code = I_to_uint32(STACK_0);
+        VALUES1(check_last_error_reverse(error_code));
+      } else {
+        error_code = check_last_error(STACK_0);
+        VALUES1(uint32_to_I(error_code));
+      }
       begin_system_call();
       SetLastError(error_code);
       end_system_call();
@@ -5633,30 +5642,15 @@ DEFUN(OS::LAST-ERROR, &optional newval) {
   }
   skipSTACK(1);
 }
-DEFUN(OS::FORMAT-MESSAGE, &optional error_code) {
-  char *ret = NULL;
-  DWORD error_code = missingp(STACK_0) ? (DWORD)-1 : check_last_error(STACK_0);
-  int status;
-  begin_system_call();
-  status = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                         FORMAT_MESSAGE_FROM_SYSTEM |
-                         FORMAT_MESSAGE_IGNORE_INSERTS,
-                         NULL,
-                         error_code == (DWORD)-1 ? GetLastError() : error_code,
-                         0,
-                         (LPTSTR) &ret,
-                         0,
-                         NULL);
-  end_system_call();
-  if (status) {
-    /* strip terminating spaces, newlines and periods to conform to strerror */
-    while (cint_white_p(ret[status-1]) || ret[status-1] == '.')
-      status--;
-    ret[status] = 0;
-    VALUES1(safe_to_string(ret));
-  } else VALUES1(NIL);
-  begin_system_call(); LocalFree(ret); end_system_call();
-  skipSTACK(1);
+DEFUN(SYS::FORMAT-MESSAGE, &optional error_code) {
+  DWORD error_code;
+  if (missingp(STACK_0)) {
+    begin_system_call();
+    error_code = GetLastError();
+    end_system_call();
+  } else error_code = check_last_error(STACK_0);
+  STACK_0 = UL_to_I(error_code);
+  funcall(L(format_message),1);
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
@@ -5694,6 +5688,8 @@ DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EREMOTERELEASE EVERSION EAIO ECLONEME EFAIL EINPROG EMTIMERS \
            ERESTARTNOHAND ERESTARTNOINTR ERESTARTSYS                    \
            )
+object errno_to_symbol_a (long code);
+object errno_to_symbol_a (long code) { return check_errno_reverse(code); }
 DEFUN(POSIX::ERRNO, &optional newval) {
   if (eq(T,STACK_0)) {          /* all known error codes */
     int pos = 0;
@@ -5704,21 +5700,37 @@ DEFUN(POSIX::ERRNO, &optional newval) {
     }
     VALUES1(listof(check_errno_map.size));
   } else {
-    if (!missingp(STACK_0))
-      errno = check_errno(STACK_0);
-    VALUES1(check_errno_reverse(errno));
+    int error_code;
+    if (missingp(STACK_0)) {
+      begin_system_call();
+      error_code = errno;
+      end_system_call();
+      VALUES1(check_errno_reverse(error_code));
+    } else {
+      if (sint_p(STACK_0)) {
+        error_code = I_to_sint(STACK_0);
+        VALUES1(check_errno_reverse(error_code));
+      } else {
+        error_code = check_errno(STACK_0);
+        VALUES1(sint_to_I(error_code));
+      }
+      begin_system_call();
+      errno = error_code;
+      end_system_call();
+    }
   }
   skipSTACK(1);
 }
-DEFUN(POSIX::STRERROR, &optional error_code) {
-  char *ret = NULL;
-  /* errno access must be guarded with begin/end_system_call */
-  int error_code = missingp(STACK_0) ? -1 : check_errno(STACK_0);
-  begin_system_call();
-  ret = strerror(error_code == -1 ? errno : error_code);
-  end_system_call();
-  VALUES1(safe_to_string(ret));
-  skipSTACK(1);
+DEFUN(SYS::STRERROR, &optional error_code) {
+  int error_code;
+  if (missingp(STACK_0)) {
+    /* errno access must be guarded with begin/end_system_call */
+    begin_system_call();
+    error_code = errno;
+    end_system_call();
+  } else error_code = check_errno(STACK_0);
+  STACK_0 = L_to_I(error_code);
+  funcall(L(strerror),1);
 }
 
 /* ========================= wildcard matching ========================= */

@@ -14127,7 +14127,6 @@ extern maygc object hash_table_test (object ht);
 /* check a cint for being a whitespace */
 #define cint_white_p(c)   \
   ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
-%% export_def(cint_white_p(c));
 
 /* special Object, that indicates EOF */
 #define eof_value  make_system(0xE0FE0FUL)
@@ -14426,13 +14425,12 @@ typedef enum {
           end_of_file, /* unexpected end of stream */
           reader_error, /* parsing/tokenization error during READ */
         file_error, /* errors with pathnames, OS level errors with streams */
-        os_error, /* general OS errors */
       storage_condition, /* "Virtual memory exhausted" */
       interrupt_condition, /* "User break" */
     warning, /* conditions for which user notification is appropriate */
   number_of_conditions_defined_in_c
 } condition_t;
-%% printf("typedef enum { condition=%d, serious_condition=%d, error_condition=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d } condition_t;\n",condition, serious_condition, error_condition, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
+%% printf("typedef enum { condition=%d, serious_condition=%d, error_condition=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d } condition_t;\n",condition, serious_condition, error_condition, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning);
 
 /* Error with error-string. Does not return.
  error(errortype,errorstring);
@@ -14491,9 +14489,9 @@ extern _Noreturn void OS_error_arg (object etype, object arg);
 #define OS_error_arg(etype,arg)                                         \
   (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error_arg)(etype,arg))
 #endif
-#define OS_file_error(path)   OS_error_arg(S(simple_file_error),path)
+#define OS_file_error(path)   OS_error_arg(S(os_file_error),path)
 %% exportE(OS_error_arg,(object etype, object arg));
-%% puts("#define OS_file_error(path) OS_error_arg(S(simple_file_error),path)");
+%% puts("#define OS_file_error(path) OS_error_arg(S(os_file_error),path)");
 
 /* Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
  OS_filestream_error(stream);

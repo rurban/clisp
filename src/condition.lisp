@@ -35,6 +35,8 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
+   #+(or :win32 :cygwin) os-error-win32 os-error-code
+   os-stream-error os-file-error
    abort-on-error set-global-handler without-global-handlers
    source-program-error source-program-error-form source-program-error-detail
    simple-condition-format-string simple-charset-type-error retry)
@@ -199,9 +201,11 @@
             (TEXT "~S ~S: superfluous arguments ~S")
             caller-name datum arguments)))
       datum)
+    (null                       ; os-error and subclasses
+      (apply #'make-condition default-type more-initargs))
     (symbol
       (apply #'make-condition datum arguments))
-    ((or string function) ; only this case uses default-type and more-initargs
+    ((or string function)
       (apply #'make-condition default-type
              :format-control datum
              :format-arguments arguments
@@ -424,7 +428,21 @@
       (($pathname :initarg :pathname :reader file-error-pathname)))
 
     ; general OS errors [CLISP specific]
-    (define-condition os-error (error) ())
+    (define-condition os-error (error)
+      (($code :initarg :code :reader os-error-code))
+      (:report (lambda (condition stream)
+                 (let ((code (os-error-code condition)))
+                   (format stream "~S(~A) : ~A" (type-of condition) code
+                           (sys::strerror code))))))
+
+      #+(or :win32 :cygwin)
+      (define-condition os-error-win32 (os-error) ()
+        (:report (lambda (condition stream)
+                   (let ((code (os-error-code condition)))
+                     (format stream "~S(~A) : ~A" (type-of condition) code
+                             (sys::format-message code))))))
+      (define-condition os-stream-error (os-error stream-error) ())
+      (define-condition os-file-error (os-error file-error) ())
 
   ; "Virtual memory exhausted"
   (define-condition storage-condition (serious-condition) ())
@@ -515,7 +533,6 @@
 (define-condition simple-end-of-file (simple-error end-of-file) ())
 (define-condition simple-reader-error (simple-error reader-error) ())
 (define-condition simple-file-error (simple-error file-error) ())
-(define-condition simple-os-error (simple-error os-error) ())
 (define-condition simple-storage-condition (simple-condition storage-condition) ())
 (define-condition simple-interrupt-condition (simple-condition interrupt-condition) ())
 
@@ -555,7 +572,6 @@
     (end-of-file              . simple-end-of-file)
     (reader-error             . simple-reader-error)
     (file-error               . simple-file-error)
-    (os-error                 . simple-os-error)
     (storage-condition        . simple-storage-condition)
     (interrupt-condition      . simple-interrupt-condition)
     (warning                  . simple-warning)))

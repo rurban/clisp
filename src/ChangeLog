@@ -1,3 +1,51 @@
+2011-08-19  Sam Steingold  <sds@gnu.org>
+
+	Implement RFE#3384688: use OS facilities to print os-error
+	* condition.lisp (try-coerce-to-condition): special handling of
+	NIL datum for the sake of OS-ERROR & its subclasses
+	(os-error): add $CODE slot and :REPORT option
+	(os-error-win32, os-stream-error, os-file-error): new conditions,
+	subclasses of OS-ERROR
+	(simple-os-error): remove
+	(%defclcs): remove OS-ERROR -> SIMPLE-OS-ERROR map
+	* lispbibl.d (cint_white_p): do not export
+	(condition_t): remove os_error
+	(OS_file_error): signal OS-FILE-ERROR, not SIMPLE-FILE-ERROR
+	* constsym.d (simple_os_error): remove
+	(os_error, os_file_error, os_stream_error, strerror): add
+	(os_error_win32, format_message) [WIN32|CYGWIN]: add
+	* subr.d (strerror): add
+	(format_message) [WIN32|CYGWIN]: add
+	* error.d (end_error): for os_stream_error, os_file_error,
+	os_error, os_error_win32: reset errstring (known as datum to
+	COERCE-TO-CONDITION, see above) to NIL; complete :CODE
+	(error_code_converter_t, convert_error_code): add
+	(OS_filestream_error): signal OS-ERRORs, not SIMPLE-ERRORs
+	* errunix.d (os_error_t, get_errormsg): remove
+	(STRERROR): preliminary implementation: required numeric argument
+	(OS_error, OS_error_arg): push errcode on STACK for the :CODE argument
+	(errno_out_low): use ANSIC_error_code_converter & strerror_r
+	* errwin32.d (get_OS_error_info): remove
+	(OS_error_internal_body): remove
+	(format_message): add
+	(OS_error_internal): use it
+	(FORMAT-MESSAGE): preliminary implementation: required numeric argument
+	(OS_error, OS_error_arg): push errcode on STACK for the :CODE argument
+	* spvw.d (libopen, find_name): define when WIN32_NATIVE|HAVE_DLOPEN
+	for the sake of finding converters in error.d:convert_error_code
+	* modules/syscalls/calls.c (RESOLVE-HOST-IPADDR): signal
+	error_condition, not os_error because there is no errno
+	(errno_to_symbol_w, errno_to_symbol_a): add error_code_converter_t
+	objects for error.d:convert_error_code
+	(ERRNO, LAST-ERROR): convert from symbolic to numeric too
+	(STRERROR, FORMAT-MESSAGE): use and override the preliminary
+	definitions in errunix.d and errwin32.d
+	* modules/syscalls/preload.lisp: unlock the SYSTEM package and
+	remove it from *SYSTEM-PACKAGE-LIST* to enable overriding STRERROR
+	& FORMAT-MESSAGE in calls.c
+	* modules/syscalls/posix.lisp: import and export SYS::STRERROR &
+	SYS::FORMAT-MESSAGE; re-add SYSTEM to *SYSTEM-PACKAGE-LIST*
+
 2011-08-18  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (check_last_error) [WIN32|CYGWIN]:

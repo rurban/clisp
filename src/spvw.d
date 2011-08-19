@@ -3992,7 +3992,7 @@ global _Noreturn void quit (void) {
 #include "spvw_memfile.c"
 
 /* ------------------------ dll loading ----------------------------------- */
-#if defined(DYNAMIC_MODULES) || (defined(DYNAMIC_FFI) && (defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)))
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
@@ -4076,7 +4076,7 @@ global void* find_name (void *handle, const char *name)
   return ret;
 }
 
-#endif
+#endif  /* defined(WIN32_NATIVE) || defined(HAVE_DLOPEN) */
 
 /* --------------------------------------------------------------------------
                        Dynamic Loading of Modules */
