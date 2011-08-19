@@ -35,15 +35,15 @@ local void OS_error_internal (DWORD errcode) {
   var char* msg = format_message(errcode);
   if (msg) {
     write_errorasciz(": ");
-    write_errorasciz(ret);
+    write_errorasciz(msg);
     begin_system_call();
-    LocalFree(ret);
+    LocalFree(msg);
     end_system_call();
   }
 }
 LISPFUNNF(format_message,1) {
   DWORD error_code = I_to_uint32(check_uint32(popSTACK()));
-  char *msg = format_message(errcode);
+  char *msg = format_message(error_code);
   if (msg) {
     VALUES1(asciz_to_string(msg,O(misc_encoding)));
     begin_system_call();
@@ -96,6 +96,16 @@ local void errno_out_body (const char* name, const char* msg) {
 }
 global void errno_out_low (DWORD errorcode, const char* file, uintL line) {
   fprintf(stderr,"\n[%s:%d] GetLastError() = 0x%x",file,line,errorcode);
-  get_OS_error_info(errorcode,&errno_out_body);
+  var object code = WINDOWS_error_code_converter(errorcode);
+  if (symbolp(code)) { /* known name? */
+    fputs(" (",stderr);
+    nobject_out(stderr,code);
+    fputs(")",stderr);
+  }
+  var char* msg = format_message(errorcode);
+  if (msg)
+    fprintf(stderr,": %s.",msg);
+  else
+    fputc('.',stderr);
   fputc('\n',stderr);
 }

@@ -571,14 +571,20 @@ T
 (handler-case (socket:socket-connect 0)
   (os-error (e)
     (princ-error e)
-    (or (eq (os-error-code e) :ECONNREFUSED) ; base image
-        (= (os-error-code e) 111))))         ; boot image
+    (case (os-error-code e)
+      ((#+win32 :EADDRNOTAVAIL #-win32 :ECONNREFUSED ; base image
+        #+win32 10049 #-win32 111)                   ; boot image
+       T)
+      (t (os-error-code e)))))
 T
 (handler-case (socket-server 1240 :interface "[/]=")
   (os-error (e)
     (princ-error e)
-    (or (eq (os-error-code e) :EINVAL) ; base image
-        (= (os-error-code e) 22))))    ; boot image
+    (case (os-error-code e)
+      ((:EINVAL ; base image
+        22)     ; boot image
+       T)
+      (t (os-error-code e)))))
 T
 
 ;; clean-up
