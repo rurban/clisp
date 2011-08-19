@@ -5609,7 +5609,7 @@ DEFCHECKER(check_last_error,type=DWORD,                                 \
            ERROR_SXS_INVALID_ASSEMBLY_IDENTITY_ATTRIBUTE_NAME \
            )
 object errno_to_symbol_w (long code);
-object errno_to_symbol_w (long code) {return check_errno_windows_reverse(code);}
+object errno_to_symbol_w (long code) {return check_last_error_reverse(code);}
 DEFUN(OS::LAST-ERROR, &optional newval) {
   if (eq(T,STACK_0)) {          /* all known error codes */
     int pos = 0;
