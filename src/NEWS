@@ -148,6 +148,14 @@ User visible changes
 * New functions OS:VERSION-COMPARE et al call strverscmp.
   See <http://clisp.cons.org/impnotes/syscalls.html#strverscmp> for details.
 
+* Functions POSIX:ERRNO and POSIX:STRERROR use errno and strerror() on
+  all platforms; use OS:LAST-ERROR and OS:FORMAT-MESSAGE for
+  windows-specific functionality.
+  See <http://clisp.cons.org/impnotes/syscalls.html#errno> for details.
+
+* OS errors are now reported using strerror() or FormatMessage(), not
+  internal error tables (RFE#3384688).
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code (bug#2868166).

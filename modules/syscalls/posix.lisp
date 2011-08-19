@@ -4,7 +4,8 @@
 (defpackage #:posix
   (:use #:common-lisp #:ext)
   (:nicknames #:os)
-  (:import-from "SYS" sys::process-id)
+  (:import-from "SYS" sys::process-id sys::strerror
+                #+(or :win32 :cygwin) sys::format-message)
   (:shadowing-import-from "EXPORTING" #:defstruct)
   (:export
    #:resolve-host-ipaddr #:bogomips #:loadavg #:mkstemp #:mkdtemp #+unix #:wait
@@ -445,4 +446,5 @@
 (without-package-lock ("SYS") (shadow '("VERSION") "SYS"))
 (ext:re-export "POSIX" "EXT")
 (pushnew "POSIX" custom:*system-package-list* :test #'string=)
+(pushnew "SYSTEM" custom:*system-package-list* :test #'string=) ; see preload
 (setf (package-lock custom:*system-package-list*) t)

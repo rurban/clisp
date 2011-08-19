@@ -1483,10 +1483,17 @@ LISPSYM(simple_stream_error,"SIMPLE-STREAM-ERROR",system) /* type for ERROR     
 LISPSYM(simple_end_of_file,"SIMPLE-END-OF-FILE",system) /* type for ERROR                             | */
 LISPSYM(simple_reader_error,"SIMPLE-READER-ERROR",system) /* type for ERROR                           | */
 LISPSYM(simple_file_error,"SIMPLE-FILE-ERROR",system) /* type for ERROR                               | */
-LISPSYM(simple_os_error,"SIMPLE-OS-ERROR",system) /* type for ERROR                                   | */
 LISPSYM(simple_storage_condition,"SIMPLE-STORAGE-CONDITION",system) /* type for ERROR                 | */
 LISPSYM(simple_interrupt_condition,"SIMPLE-INTERRUPT-CONDITION",system) /* type for ERROR             | */
 LISPSYM(simple_warning,"SIMPLE-WARNING",lisp) /* type for ERROR                                     --+ */
+LISPSYM(os_error,"OS-ERROR",ext) /* type for ERROR */
+LISPSYM(os_file_error,"OS-FILE-ERROR",ext) /* type for ERROR */
+LISPSYM(os_stream_error,"OS-STREAM-ERROR",ext) /* type for ERROR */
+LISPSYM(strerror,"STRERROR",system)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+LISPSYM(os_error_win32,"OS-ERROR-WIN32",ext) /* type for ERROR */
+LISPSYM(format_message,"FORMAT-MESSAGE",system)
+#endif
 LISPSYM(Kinstance,"INSTANCE",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kdatum,"DATUM",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kexpected_type,"EXPECTED-TYPE",keyword) /* make-condition-argument for ERROR */

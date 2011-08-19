@@ -467,6 +467,10 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
 LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) )
 /* ---------- ERROR ---------- */
+LISPFUNNF(strerror,1)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+LISPFUNNF(format_message,1)
+#endif
 LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
 LISPFUN(cerror_of_type,seclass_default,3,0,rest,nokey,0,NIL)
