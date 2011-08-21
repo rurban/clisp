@@ -432,14 +432,14 @@
       (($code :initarg :code :reader os-error-code))
       (:report (lambda (condition stream)
                  (let ((code (os-error-code condition)))
-                   (format stream "~S(~A) : ~A" (type-of condition) code
+                   (format stream "~S(~A): ~A" (type-of condition) code
                            (sys::strerror code))))))
 
       #+(or :win32 :cygwin)
       (define-condition os-error-win32 (os-error) ()
         (:report (lambda (condition stream)
                    (let ((code (os-error-code condition)))
-                     (format stream "~S(~A) : ~A" (type-of condition) code
+                     (format stream "~S(~A): ~A" (type-of condition) code
                              (sys::format-message code))))))
       (define-condition os-stream-error (os-error stream-error) ())
       (define-condition os-file-error (os-error file-error) ())
