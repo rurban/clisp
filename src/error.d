@@ -458,7 +458,7 @@ static error_code_converter_t *ecc_a = (error_code_converter_t*)1;
 local object convert_error_code (long code, error_code_converter_t **ecc,
                                  const char* name) {
   if (*ecc == (error_code_converter_t*)1)
-    *ecc = find_name(NULL,name);
+    *ecc = (error_code_converter_t*)find_name(NULL,name);
   if (*ecc)
     return (*ecc)(code);
   return L_to_I(code);
