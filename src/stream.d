@@ -5015,10 +5015,8 @@ local bool error_eof_p (void) {
   return ret;
 }
 
-local maygc uintB* low_read_array_unbuffered_handle (object stream,
-                                                     uintB* byteptr, uintL len,
-                                                     perseverance_t persev)
-{
+local maygc uintB* low_read_array_unbuffered_handle
+(object stream, uintB* byteptr, uintL len, perseverance_t persev) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
@@ -5109,10 +5107,9 @@ local maygc object rd_by_iau8_unbuffered (object stream) {
 }
 
 /* READ-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 : */
-local maygc uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
-                                               const gcv_object_t* bytearray_,
-                                               uintL start, uintL len,
-                                               perseverance_t persev) {
+local maygc uintL rd_by_array_iau8_unbuffered
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   pin_unprotect_varobject(*bytearray_,PROT_READ_WRITE);
   var uintB* endptr =
@@ -5452,10 +5449,8 @@ local maygc void low_write_unbuffered_handle (object stream, uintB b) {
     error_unwritable(TheSubr(subr_self)->name,stream);
 }
 
-local maygc const uintB* low_write_array_unbuffered_handle (object stream,
-                                                      const uintB* byteptr,
-                                                      uintL len,
-                                                      perseverance_t persev) {
+local maygc const uintB* low_write_array_unbuffered_handle
+(object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   /* On regular file handles, persev_immediate and persev_bonus are effectively
    equivalent to persev_partial. Transforming persev_immediate, persev_bonus
@@ -5494,7 +5489,7 @@ local void low_clear_output_unbuffered_handle (object stream) {
  UP for WRITE-BYTE on File-Streams of Integers, Type a :
  Writes the Bitbuffer-Content to the File. */
 local maygc void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
-                                    uintL bytesize) {
+                                          uintL bytesize) {
   uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,
@@ -5521,10 +5516,9 @@ local maygc void wr_by_iau8_unbuffered (object stream, object obj) {
 }
 
 /* WRITE-BYTE-ARRAY - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 : */
-local maygc uintL wr_by_array_iau8_unbuffered (const gcv_object_t* stream_,
-                                               const gcv_object_t* bytearray_,
-                                               uintL start, uintL len,
-                                               perseverance_t persev) {
+local maygc uintL wr_by_array_iau8_unbuffered
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   object stream = *stream_;
   uintB* startp = &TheSbvector(*bytearray_)->data[start];
   pin_unprotect_varobject(*bytearray_,PROT_READ);
@@ -5977,10 +5971,9 @@ local void fill_pseudofuns_unbuffered (object stream,
  < result: File-Handle-Stream, Handle_{input,output}_init still needs to be called
  < STACK: cleaned up
  can trigger GC */
-local maygc object make_unbuffered_stream (uintB type, direction_t direction,
-                                           const decoded_el_t* eltype,
-                                           bool handle_regular, bool handle_tty)
-{
+local maygc object make_unbuffered_stream
+(uintB type, direction_t direction, const decoded_el_t* eltype,
+ bool handle_regular, bool handle_tty) {
   var uintB flags = DIRECTION_FLAGS(direction) & ELTYPE_FLAFS(eltype);
   /* allocate Stream: */
   var object stream = allocate_stream(flags,type,strm_channel_len,
@@ -6492,9 +6485,8 @@ local maygc void sync_file_buffered (object stream) {
  < byteptr[0..count-1] : read Bytes.
  < result: &byteptr[count] (with count = len, or count < len if EOF reached)
  changed in stream: index, endvalid, buffstart */
-local maygc uintB* read_byte_array_buffered (object stream, uintB* byteptr,
-                                             uintL len,
-                                             perseverance_t persev) {
+local maygc uintB* read_byte_array_buffered
+(object stream, uintB* byteptr, uintL len, perseverance_t persev) {
   pushSTACK(stream);
   for (;;) {
     var uintB* ptr = buffered_nextbyte(stream, persev == persev_full ? persev_partial : persev);
@@ -6542,10 +6534,8 @@ local maygc uintB* read_byte_array_buffered (object stream, uintB* byteptr,
  > persev: how to react on incomplete I/O
  < result: &byteptr[len]
  changed in stream: index, endvalid, buffstart */
-local maygc const uintB* write_byte_array_buffered (object stream,
-                                                    const uintB* byteptr,
-                                                    uintL len,
-                                                    perseverance_t persev) {
+local maygc const uintB* write_byte_array_buffered
+(object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
   var uintL remaining = len;
   var uintB* ptr;
   pushSTACK(stream);
@@ -7362,7 +7352,7 @@ local maygc object rd_by_aux_ibx_buffered(object stream, rd_by_ix_I* finisher) {
  > finisher : Routine for Finalization
  < result : read Integer or eof_value */
 local maygc object rd_by_aux_icx_buffered (object stream,
-                                            rd_by_ix_I* finisher) {
+                                           rd_by_ix_I* finisher) {
   var uintL bitsize = ChannelStream_bitsize(stream);
   var uintL bytesize = ceiling(bitsize,8);
   /* transfer sufficiently many bits into the bitbuffer */
@@ -7494,10 +7484,9 @@ local maygc object rd_by_iau8_buffered (object stream) {
 }
 
 /* READ-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 : */
-local maygc uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
-                                             const gcv_object_t* bytearray_,
-                                             uintL start, uintL len,
-                                             perseverance_t persev) {
+local maygc uintL rd_by_array_iau8_buffered
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   pin_unprotect_varobject(*bytearray_,PROT_READ_WRITE);
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len,persev);
@@ -7679,10 +7668,9 @@ local maygc void wr_by_iau8_buffered (object stream, object obj) {
 }
 
 /* WRITE-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 : */
-local maygc uintL wr_by_array_iau8_buffered (const gcv_object_t* stream_,
-                                             const gcv_object_t* bytearray_,
-                                             uintL start, uintL len,
-                                             perseverance_t persev) {
+local maygc uintL wr_by_array_iau8_buffered
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len,persev_full);
   /* increment position: */
   BufferedStream_position(*stream_) += len;
@@ -7913,10 +7901,9 @@ local void fill_pseudofuns_buffered (object stream,
            for eltype.size<8 also eofposition still to be to determined
  < STACK: cleaned up
  can trigger GC */
-local maygc object make_buffered_stream (uintB type, direction_t direction,
-                                         const decoded_el_t* eltype,
-                                         bool handle_regular,
-                                         bool handle_blockpositioning) {
+local maygc object make_buffered_stream
+(uintB type, direction_t direction, const decoded_el_t* eltype,
+ bool handle_regular, bool handle_blockpositioning) {
   var uintB flags = DIRECTION_FLAGS(direction) & ELTYPE_FLAFS(eltype);
   var uintC xlen = NON_WHOLE_BYTE_P(eltype)
     ? sizeof(strm_i_buffered_extrafields_t) /* integer file-streams */
@@ -13022,11 +13009,8 @@ local maygc void low_write_unbuffered_pipe (object stream, uintB b) {
     error_unwritable(TheSubr(subr_self)->name,stream);
 }
 
-local maygc const uintB* low_write_array_unbuffered_pipe (object stream,
-                                                          const uintB* byteptr,
-                                                          uintL len,
-                                                          perseverance_t persev)
-{
+local maygc const uintB* low_write_array_unbuffered_pipe
+(object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   pushSTACK(stream);
@@ -13543,11 +13527,8 @@ local bool low_clear_input_unbuffered_socket (object stream) {
   return false; /* Not sure whether this is the correct behaviour?? */
 }
 
-local maygc uintB* low_read_array_unbuffered_socket (object stream,
-                                                     uintB* byteptr,
-                                                     uintL len,
-                                                     perseverance_t persev)
-{
+local maygc uintB* low_read_array_unbuffered_socket
+(object stream, uintB* byteptr, uintL len, perseverance_t persev) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
     return byteptr;
   byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
@@ -13671,7 +13652,7 @@ LISPFUNN(make_x11socket_stream,2) {
     pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(0+2));
     error(type_error,
-           GETTEXT("display should be a small nonnegative integer, not ~S"));
+          GETTEXT("display should be a small nonnegative integer, not ~S"));
   }
   var int display = I_to_uint16(STACK_0);
   var SOCKET handle;
@@ -13994,7 +13975,7 @@ local object test_socket_stream (object obj, bool check_open) {
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
           error(type_error,
-                 GETTEXT("~S: argument ~S is not an open SOCKET-STREAM"));
+                GETTEXT("~S: argument ~S is not an open SOCKET-STREAM"));
         }
         return obj;
       default:
