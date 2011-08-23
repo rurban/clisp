@@ -1,5 +1,11 @@
 2011-08-23  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (WSAEAGAIN, WSAENOENT): remove unused defines
+	(ioctl): do not define to ioctlsocket because gnulib defines it to
+	rpl_ioctl which calls ioctlsocket
+
+2011-08-23  Sam Steingold  <sds@gnu.org>
+
 	revert most of the 2011-08-17 patch
 	* win32.d: include <ddk/ntifs.h> for NtQueryInformationFile
 	because that's what works with i686-pc-mingw32-gcc and is
