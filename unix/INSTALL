@@ -20,8 +20,11 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
 
    A. Cygwin: using the default GCC means building Cygwin CLISP.
       If you want to build native windows CLISP using Cygwin/MinGW, install
-      the native MinGW toolchain (e.g., mingw64-i686-gcc-core) in addition
-      to the Cygwin GCC and set CC to, e.g., i686-w64-mingw32-gcc.
+      the native MinGW toolchain (i.e., mingw32-i686-gcc-core) in addition
+      to the Cygwin GCC and set CC to i686-pc-mingw32-gcc.
+      See <http://tdm-gcc.tdragon.net/start> for more information.
+      See also <http://article.gmane.org/gmane.os.cygwin:128248>
+      or <http://cygwin.com/ml/cygwin/2011-08/msg00440.html>.
 
    B. On bi-arch systems, such as sparc, you *must* select word size
       explicitly, by setting CC to "gcc -m64".

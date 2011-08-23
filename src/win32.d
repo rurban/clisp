@@ -1,7 +1,7 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
  * Bruno Haible 1997-2008
- * Sam Steingold 1999-2010
+ * Sam Steingold 1999-2011
  */
 
 /* control characters constants */
@@ -34,32 +34,12 @@
 #include <shellapi.h>
 #define unused unused_void      /* restore the unused declaration */
 
-/* http://msdn.microsoft.com/en-us/library/ff567052.aspx */
-/* NtQueryInformationFile for cygwin/mingw */
-#if defined(HAVE_WINTERNL_H)
-#include <winternl.h>
-/* NtQueryInformationFile for msys/mingw */
-#elif defined(HAVE_WINDDK_H)
-#include <winddk.h>
-#elif defined(HAVE_DDK_WINDDK_H)
-#include <ddk/winddk.h>
-#elif defined(HAVE_NTDDK_H)
-#include <ntddk.h>
-#elif defined(HAVE_DDK_NTDDK_H)
-#include <ddk/ntddk.h>
-#elif defined(HAVE_NTIFS_H)
-#include <ntifs.h>
-#elif defined(HAVE_DDK_NTIFS_H)
+/* NtQueryInformationFile http://msdn.microsoft.com/en-us/library/ff567052.aspx
+   this also includes winddk/ntddk & ntstatus on i686-pc-mingw32-gcc */
 #include <ddk/ntifs.h>
-#else
-#error where is NtQueryInformationFile defined on your system
-#endif
 
 /* Table of system error messages */
 #include <winerror.h>
-#if defined(HAVE_NTSTATUS_H)
-#include <ntstatus.h>     /* Windows NT status codes for cygwin/mingw */
-#endif
 /* extern DWORD GetLastError (void);
    extern void SetLastError (DWORD ErrCode);
    extern DWORD FormatMessage (DWORD Flags, LPCVOID Source, DWORD MessageId, DWORD LanguageId, LPTSTR Buffer, DWORD Size, va_list* Arguments);

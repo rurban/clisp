@@ -1,3 +1,13 @@
+2011-08-23  Sam Steingold  <sds@gnu.org>
+
+	revert most of the 2011-08-17 patch
+	* win32.d: include <ddk/ntifs.h> for NtQueryInformationFile
+	because that's what works with i686-pc-mingw32-gcc and is
+	recommended by http://msdn.microsoft.com/en-us/library/ff567052.aspx;
+	do not include ntstatus.h because it is included by winddk/ntddk
+	which is included by ntifs
+	* configure.in: do not test for windows headers
+
 2011-08-19  Sam Steingold  <sds@gnu.org>
 
 	Implement RFE#3384688: use OS facilities to print os-error

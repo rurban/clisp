@@ -78,8 +78,6 @@ CL_TERM        dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
 AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS, X_EXTRA_LIBS, X_PRE_LIBS
 test "$ac_cv_lib_socket_connect" = yes && LIBS="$LIBS -lsocket"
 test "$ac_cv_lib_nsl_gethostbyname" = yes && LIBS="$LIBS -lnsl"
-AC_CHECK_HEADERS(winternl.h ntstatus.h winddk.h ddk/winddk.h ntddk.h dnl
-ddk/ntddk.h wdm.h ddk/wdm.h ntifs.h ddk/ntifs.h)
 dnl
 BOLD_MSG([checks for typedefs])
 CL_CADDR_T    dnl DEFS CADDR_T
