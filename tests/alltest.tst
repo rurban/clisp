@@ -605,9 +605,10 @@ NIL
 (KONS (1 . 2) 3)
 
 (let* ((n (min (1- lambda-parameters-limit)
-               (if (string= "g++" (software-type) :end2 3)
-                   256
-                   1024)))
+               (case (read-from-string (software-type))
+                 ((g++ i686-pc-mingw32-g++) 256)
+                 (i686-pc-mingw32-gcc 512)
+                 (t 1024))))
        (vars (loop repeat n collect (gensym))))
   (eval
    `(= ,n (flet ((%f ,vars (+ ,@vars)))
