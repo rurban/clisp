@@ -4,6 +4,14 @@
 (defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
 (defmacro handler-return (block value)
   `(lambda (c) (princ-error c) (return-from ,block ,value)))
+(defmacro check-os-error (form acceptable)
+  (let ((errvar (gensym "ERROR-")))
+    `(handler-case ,form
+       (os-error (,errvar)
+         (princ-error ,errvar)
+         (case (os-error-code ,errvar)
+           (,acceptable T)
+           (t (os-error-code ,errvar)))))))
 (defun show (object &key ((:pretty *print-pretty*) *print-pretty*))
   "Print the object on its own line and return it. Used in many tests!"
   (fresh-line) (prin1 object) (terpri) object)
@@ -50,7 +58,7 @@ This will not work right after (cd) if -M was a relative pathname."
 (defvar *run-test-truename*)
 ;; export symbols used by tests
 (export '(princ-error show show-file finish-file post-compile-file-cleanup
-          type-error-handler handler-return
+          type-error-handler handler-return check-os-error
           symbol-cleanup *run-test-truename* with-ignored-errors diff-seq))
 ;;; end helpers
 

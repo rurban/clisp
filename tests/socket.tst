@@ -514,10 +514,16 @@ T
 
 ;; no one should be listening on 12345 (bug#2007052)
 ;; <http://article.gmane.org/gmane.lisp.clisp.general/12286>
-(socket:socket-connect 12345 "localhost" :timeout 30) ERROR ; ECONNREFUSED
+(check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
+  #-win32 (:ECONNREFUSED 111)
+  #+win32 (:ETIMEDOUT 10060))
+T
 (open-stream-p (setq *socket-1* (socket:socket-connect
                                  12345 "localhost" :timeout 0))) T
-(read-line *socket-1*) ERROR ; ECONNREFUSED
+(check-os-error (read-line *socket-1*)
+  #-win32 (:ECONNREFUSED 111)
+  #+win32 (:EINPROGRESS 10036))
+T
 (close *socket-1*) T
 
 ;; bug#3182685: non-0 timeout
@@ -553,39 +559,22 @@ T
             (socket:socket-status so)
             (write-line "foo" so)
             (socket:socket-status so)
-            (handler-case (read-char so) ; ECONNRESET
-              (stream-error (c)
-                (princ 'read-char) (princ-error c) 'stream-error))
+            (check-os-error (read-char so) (:ECONNRESET 104))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
-            (handler-case (write-line "bar" so) ; EPIPE
-              (error (c)
-                (princ 'write-line) (princ-error c) 'error))
+            (check-os-error (write-line "bar" so) (:EPIPE 32))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (read-char so)
               (end-of-file (c)
                 (princ 'read-char) (princ-error c) 'end-of-file))))
       (socket:socket-server-close se))))
-(:OUTPUT "foo" :OUTPUT STREAM-ERROR NIL ERROR NIL END-OF-FILE)
+(:OUTPUT "foo" :OUTPUT T NIL T NIL END-OF-FILE)
 
 ;; https://sourceforge.net/tracker/?func=detail&aid=3384688&group_id=1355&atid=351355
-(handler-case (socket:socket-connect 0)
-  (os-error (e)
-    (princ-error e)
-    (case (os-error-code e)
-      ((#+win32 :EADDRNOTAVAIL #-win32 :ECONNREFUSED ; base image
-        #+win32 10049 #-win32 111)                   ; boot image
-       T)
-      (t (os-error-code e)))))
+(check-os-error (socket:socket-connect 0)
+  #-win32 (:ECONNREFUSED 111)
+  #+win32 (:EADDRNOTAVAIL 10049))
 T
-(handler-case (socket-server 1240 :interface "[/]=")
-  (os-error (e)
-    (princ-error e)
-    (case (os-error-code e)
-      ((:EINVAL ; base image
-        22)     ; boot image
-       T)
-      (t (os-error-code e)))))
-T
+(check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL 22)) T
 
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
