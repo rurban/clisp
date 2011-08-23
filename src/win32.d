@@ -255,17 +255,12 @@ extern off_t lseek (HANDLE fd, off_t offset, DWORD mode);
 #define socklen_t  int
 #endif
 
-/* Error values when sock_read, sock_write return 0: */
-#define WSAEAGAIN WSAEWOULDBLOCK
-#define WSAENOENT WSAESHUTDOWN
 /* Reading and writing from a socket */
 extern int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev);
 extern int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t persev);
 /* Interruptible wait for something on socket */
 typedef enum { socket_wait_read, socket_wait_write, socket_wait_except } socket_wait_event;
 extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event waitwhat, struct timeval * timeout_ptr);
-/* ioctl for sockets */
-#define ioctl ioctlsocket
 /* Wrapping and unwrapping of a socket in a Lisp object */
 #define allocate_socket(fd)  allocate_handle((Handle)(fd))
 #define TheSocket(obj)  (SOCKET)TheHandle(obj)
