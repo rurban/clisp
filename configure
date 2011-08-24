@@ -670,7 +670,7 @@ if [ "${gl_cv_lib_sigsegv}" != "yes" ]; then
     echo "As you requested, we will proceed without libsigsegv..."
   else
     if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
-    else host_arg=" --host=$ac_cv_host";
+    else host_arg=" --host=$ac_cv_host --build=$ac_cv_build";
     fi
     SIGSEGV=libsigsegv-2.10
     cat <<EOF 1>&2
