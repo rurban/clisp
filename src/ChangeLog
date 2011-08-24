@@ -1,5 +1,10 @@
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
+	* error.d (format_message, FORMAT-MESSAGE): move here from ...
+	* errwin32.d: here for the sake of cygwin
+
+2011-08-24  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: save & restore CC around setting it for XCC_CREATESHARED
 	Suggested by Eric Blake <eblake@redhat.com>
 	http://article.gmane.org/gmane.comp.shells.bash.bugs:17158

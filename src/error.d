@@ -478,6 +478,25 @@ static error_code_converter_t *ecc_w = (error_code_converter_t*)1;
 #undef OS_error_arg
 #undef OS_filestream_error
 
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+local char * format_message (DWORD errcode) {
+  char* ret;
+  begin_system_call();
+  var int status = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                 FORMAT_MESSAGE_FROM_SYSTEM |
+                                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL, errcode, 0, (LPTSTR)&ret, 0, NULL);
+  end_system_call();
+  if (status == 0)
+    return NULL;
+  /* strip terminating spaces, newlines and periods to conform to strerror */
+  while (cint_white_p(ret[status-1]) || ret[status-1] == '.')
+    status--;
+  ret[status] = 0;
+  return ret;
+}
+#endif
+
 #ifdef UNIX
   /* Define OS_error, OS_error_arg. */
   #include "errunix.c"
@@ -492,6 +511,19 @@ static error_code_converter_t *ecc_w = (error_code_converter_t*)1;
 
 #ifdef WIN32_NATIVE
   #include "errwin32.c"
+#endif
+
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+LISPFUNNF(format_message,1) {
+  DWORD error_code = I_to_uint32(check_uint32(popSTACK()));
+  char *msg = format_message(error_code);
+  if (msg) {
+    VALUES1(asciz_to_string(msg,O(misc_encoding)));
+    begin_system_call();
+    LocalFree(msg);
+    end_system_call();
+  } VALUES1(NIL);
+}
 #endif
 
 /* Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
