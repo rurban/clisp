@@ -629,7 +629,8 @@ fi
 test -n "${target}" && target="${target} ${ac_cv_host} ${ac_cv_prog_CC}"
 makemake_args="${makemake_args} ${target}";
 case ${ac_cv_host} in           # mingw/msys
-  *mingw32*)  makemake_args="${makemake_args} --win32gcc" ;;
+  *mingw32*)
+    makemake_args="${makemake_args} --with-dynamic-modules=no --win32gcc" ;;
 esac
 
 test -n "${cl_cv_have_ffcall}" || cl_cv_have_ffcall=notchecked

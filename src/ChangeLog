@@ -1,5 +1,10 @@
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
+	* configure (makemake_args) [win32gcc]: add --with-dynamic-modules=no
+	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:27739>
+
+2011-08-24  Sam Steingold  <sds@gnu.org>
+
 	* error.d (format_message, FORMAT-MESSAGE): move here from ...
 	* errwin32.d: here for the sake of cygwin
 
