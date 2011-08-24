@@ -1,5 +1,11 @@
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
+	* misc.d (LISP-IMPLEMENTATION-VERSION): add missing GETTEXT calls
+	(MACHINE-TYPE, MACHINE-VERSION): make return value immutable
+	* spvw.d (main): localize the name of the main thread
+
+2011-08-24  Sam Steingold  <sds@gnu.org>
+
 	* spvw_language.d (init_language): danish locale is "da_DK"
 	Reported by Bruno Haible
 

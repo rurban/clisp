@@ -72,24 +72,25 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
           O(lisp_implementation_version_built_string) =
             ascii_to_string(build_time);
         }
-        pushSTACK(ascii_to_string(" (built "));
+        pushSTACK(ascii_to_string(GETTEXT(" (built ")));
         pushSTACK(O(lisp_implementation_version_built_string));
         pushSTACK(ascii_to_string(")"));
         count += 3;
       }
       if (!nullp(O(memory_image_timestamp))) {
-        pushSTACK(ascii_to_string(" (memory "));
+        pushSTACK(ascii_to_string(GETTEXT(" (memory ")));
         pushSTACK(O(memory_image_timestamp));
         pushSTACK(ascii_to_string(")"));
         count += 3;
       }
     } else { /* this image was built on a different machine */
-      pushSTACK(ascii_to_string(" (built on "));
+      pushSTACK(ascii_to_string(GETTEXT(" (built on ")));
       pushSTACK(O(memory_image_host));
       pushSTACK(ascii_to_string(")"));
       count += 3;
     }
-    value1 = O(lisp_implementation_version_string) = string_concat(count);
+    value1 = O(lisp_implementation_version_string) =
+      coerce_imm_ss(string_concat(count));
   }
   mv_count=1;
 }
@@ -128,7 +129,7 @@ LISPFUNN(machinetype,0)
       GetSystemInfo(&info);
       end_system_call();
       if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL) {
-        ret = ascii_to_string("PC/386");
+        ret = coerce_imm_ss(ascii_to_string("PC/386"));
       }
     }
   #else
@@ -151,7 +152,7 @@ LISPFUNN(machine_version,0)
     end_system_call();
     pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
     funcall(L(nstring_upcase),1); /* convert to uppercase */
-    ret = value1;
+    ret = coerce_imm_ss(value1);
   #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
@@ -175,6 +176,7 @@ LISPFUNN(machine_version,0)
           else if (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
             TheS8string(ret)->data[3] = '5';
         }
+        ret = coerce_imm_ss(ret);
       }
     }
   #else
