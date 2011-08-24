@@ -129,7 +129,7 @@ global void init_language (const char* argv_language,
       case language_spanish:  locale = "es_ES"; break;
       case language_dutch:    locale = "nl_NL"; break;
       case language_russian:  locale = "ru_RU"; break;
-      case language_danish:   locale = "da_DA"; break;
+      case language_danish:   locale = "da_DK"; break;
       default:                locale = "";
     }
     if (getenv("LANGUAGE")) unsetenv("LANGUAGE");

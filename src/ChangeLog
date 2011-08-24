@@ -1,3 +1,8 @@
+2011-08-24  Sam Steingold  <sds@gnu.org>
+
+	* spvw_language.d (init_language): danish locale is "da_DK"
+	Reported by Bruno Haible
+
 2011-08-23  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (WSAEAGAIN, WSAENOENT): remove unused defines
