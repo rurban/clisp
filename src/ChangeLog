@@ -2,6 +2,9 @@
 
 	* configure (makemake_args) [win32gcc]: add --with-dynamic-modules=no
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:27739>
+	(host_arg): add both --host and --build argument
+	Suggested by Eric Blake <eblake@redhat.com>
+	https://lists.gnu.org/archive/html/bug-libsigsegv/2011-08/msg00006.html
 
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
