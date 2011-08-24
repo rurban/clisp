@@ -1372,9 +1372,16 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   eval "`./libtool --tag=CC --config | grep '^pic_flag='`"
   eval XCC_PICFLAG=\"${pic_flag}\"
   eval "`./libtool --tag=CC --config | grep '^archive_cmds='`"
+  # http://article.gmane.org/gmane.comp.shells.bash.bugs:17158
+  CC_set=${CC+set}
+  CC_save=$CC
   CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${CFLAGS}' \
     soname='$dll' lib='$lib' output_objdir='$dyndir' \
     eval XCC_CREATESHARED=\"${archive_cmds}\"
+  if test "$CC_set" = set
+  then CC=$CC_save
+  else unset CC
+  fi
   test "${verbose}" = true -o "${verbose}" = yes && \
     echo "XCC_CREATESHARED = ${XCC_CREATESHARED}" >&2
 fi
