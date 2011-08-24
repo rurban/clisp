@@ -3718,7 +3718,7 @@ global int main (argc_t argc, char* argv[]) {
      mem file!!! Threads do not survive mem file save/restore - just create
      garbage in it :( */
     /* TODO: give better name :)*/
-    var object thr_name = coerce_imm_ss(ascii_to_string("main thread"));
+    var object thr_name = coerce_imm_ss(ascii_to_string(GETTEXT("main thread")));
     pushSTACK(thr_name);
     pushSTACK(allocate_thread(&STACK_0));
     var object new_cons=allocate_cons();
