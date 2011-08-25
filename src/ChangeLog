@@ -1,3 +1,19 @@
+2011-08-25  Sam Steingold  <sds@gnu.org>
+
+	Report failures in init_language
+	* spvw_language.d (init_language): accept lisp_error_p and report
+	all failures using either fprintf() or error();
+	use classify_namestring on all platforms to check argv_localedir
+	(language_deutsch): rename to language_german for consistency
+	(language_francais): rename to language_french for consistency
+	* i18n.d (SET-CURRENT-LANGUAGE): pass lisp_error_p=true to init_language
+	* lispbibl.d (init_language): update the prototype
+	(file_kind_t): move here from pathname.d and rename from
+	namestring_kind_t
+	(classify_namestring): add the prototype
+	* pathname.d (classify_namestring): make global
+	* spvw.d (main): pass lisp_error_p=false to init_language
+
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
 	* configure (makemake_args) [win32gcc]: add --with-dynamic-modules=no

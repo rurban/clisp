@@ -3702,7 +3702,7 @@ global int main (argc_t argc, char* argv[]) {
   /* Deal with LC_MESSAGE.
    (This must come last, because it may unset environment variable LC_ALL) */
  #ifdef GNU_GETTEXT
-  init_language(argv0.argv_language,argv0.argv_localedir);
+  init_language(argv0.argv_language,argv0.argv_localedir,false);
  #endif
 
   /* Initialize memory and load a memory image (if specified). */

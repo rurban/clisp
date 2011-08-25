@@ -422,17 +422,35 @@ T
   (2) (3 2)
   3 2 NIL))
 
+;; check that setting *current-language* actually works
 #+:gettext
-(with-collect (c) ; check that setting *current-language* actually works
-  (dolist (l '(german french russian english))
-    (c (list (setq *current-language* l)
-             (getenv "LC_MESSAGES")
-             (sys::text "Bye.")))))
+(handler-case
+    (letf ((*current-language* 'german))
+      (list (string= "Bis bald!" (sys::text "Bye."))
+            (eq *current-language* 'DEUTSCH)))
+  (error (e) (princ-error e) '(T T)))
+#+:gettext (T T)
+
 #+:gettext
-((DEUTSCH "de_DE" "Bis bald!")
- (FRANÇAIS "fr_FR" "À bientôt!")
- (РУССКИЙ "ru_RU" "До свидания! Не поминайте лихом!")
- (ENGLISH "en_US" "Bye."))
+(handler-case
+    (letf ((*current-language* 'german))
+      (list (string= "À bientôt!" (sys::text "Bye."))
+            (eq *current-language* 'FRANÇAIS)))
+  (error (e) (princ-error e) '(T T)))
+#+:gettext (T T)
+
+#+:gettext
+(handler-case
+    (letf ((*current-language* 'german))
+      (list (string= "До свидания! Не поминайте лихом!" (sys::text "Bye."))
+            (eq *current-language* 'РУССКИЙ)))
+  (error (e) (princ-error e) '(T T)))
+#+:gettext (T T)
+
+(letf ((*current-language* 'english))
+  (list (string= "Bye." (sys::text "Bye."))
+        (eq *current-language* 'ENGLISH)))
+(T T)
 
 (progn (symbol-cleanup 'check-load) (symbol-cleanup 'test-dohash)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
