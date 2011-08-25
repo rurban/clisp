@@ -433,7 +433,7 @@ T
 
 #+:gettext
 (handler-case
-    (letf ((*current-language* 'german))
+    (letf ((*current-language* 'french))
       (list (string= "À bientôt!" (sys::text "Bye."))
             (eq *current-language* 'FRANÇAIS)))
   (error (e) (princ-error e) '(T T)))
@@ -441,7 +441,7 @@ T
 
 #+:gettext
 (handler-case
-    (letf ((*current-language* 'german))
+    (letf ((*current-language* 'russian))
       (list (string= "До свидания! Не поминайте лихом!" (sys::text "Bye."))
             (eq *current-language* 'РУССКИЙ)))
   (error (e) (princ-error e) '(T T)))
