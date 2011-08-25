@@ -9581,7 +9581,7 @@ extern _Noreturn void error_notreached (const char * file, uintL line);
   /* the value of *current-language* */
   extern object current_language_o (void);
   /* init the language and the locale */
-  extern void init_language (const char*, const char*);
+  extern void init_language (const char*, const char*, bool lisp_error_p);
 #else  /* static language */
   #define GETTEXT(english)   english
   #define GETTEXTL(english)  english
@@ -15238,6 +15238,22 @@ extern void init_packages (void);
  used by pr_orecord() in io.d
  can trigger GC */
 extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
+
+/* Check whether the file exists
+ > namestring : path
+ > STACK_0 = FILE-ERROR slot PATHNAME
+ < resolved : truename (if return is success, i.e., FILE or DIR)
+ < fwd: file write date (if return is success and address is supplied)
+ < fsize: file size (if return is success and address is supplied)
+ < return : */
+typedef enum {
+  FILE_KIND_FILE,               /* regular file */
+  FILE_KIND_DIR,                /* directory */
+  FILE_KIND_BAD, /* exists but cannot figure out what it is, check errno */
+  FILE_KIND_NONE /* namestring does not name an existing file or directory */
+} file_kind_t;
+extern /*maygc*/ file_kind_t classify_namestring (const char* namestring, char *resolved, gcv_object_t *fwd, gcv_object_t* fsize);
+/* used by spvw_language:init_language */
 
 /* Converts an object into an absolute physical pathname and returns its
    namestring.

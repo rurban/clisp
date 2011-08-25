@@ -1,3 +1,8 @@
+2011-08-25  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst (*current-language*): split the test and handle
+	possible errors in init_language()
+
 2011-08-23  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (check-os-error): add
