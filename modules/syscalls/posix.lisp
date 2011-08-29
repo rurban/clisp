@@ -269,6 +269,31 @@
   (total-virtual 0 :type (integer 0) :read-only t)
   (avail-virtual 0 :type (integer 0) :read-only t))
 
+(defstruct (file-version
+             (:constructor mkfilever
+                           (major minor build revision
+                            Comments Company-Name File-Description File-Version
+                            Internal-Name Legal-Copyright Legal-Trademarks
+                            Original-Filename Product-Name Product-Version
+                            Private-Build Special-Build)))
+  (major 0 :type (integer 0) :read-only t)
+  (minor 0 :type (integer 0) :read-only t)
+  (build 0 :type (integer 0) :read-only t)
+  (revision 0 :type (integer 0) :read-only t)
+  ;; http://msdn.microsoft.com/en-us/library/ms647464(v=vs.85).aspx
+  Comments
+  Company-Name
+  File-Description
+  File-Version
+  Internal-Name
+  Legal-Copyright
+  Legal-Trademarks
+  Original-Filename
+  Product-Name
+  Product-Version
+  Private-Build
+  Special-Build)
+
 )
 
 (defun physical-memory ()

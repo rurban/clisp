@@ -4546,6 +4546,73 @@ DEFUN(OS:CLIPBOARD,) {
   end_blocking_system_call();
 }
 
+/* http://gnuwin32.sourceforge.net/version.c.txt */
+static Values /*maygc*/ file_version (char *pathz) {
+  DWORD dwHandle, dwLen;
+  UINT BufLen;
+  LPTSTR lpData, lpBuffer;
+  VS_FIXEDFILEINFO *pFileInfo;
+  BOOL status;
+  begin_system_call();
+  dwLen = GetFileVersionInfoSize(pathz,&dwHandle);
+  if (dwLen == 0)
+    OS_error();
+  lpData = (LPTSTR)malloc(dwLen);
+  if (lpData == NULL)
+    OS_error();
+  if (!GetFileVersionInfo(pathz,dwHandle,dwLen,lpData)) {
+    free(lpData);
+    OS_error();
+  }
+  if (!VerQueryValue(lpData,"\\",(LPVOID*)&pFileInfo,(PUINT)&BufLen)) {
+    end_system_call();
+    pushSTACK(allocate_bit_vector(Atype_8Bit,dwLen));
+    begin_system_call();
+    memcpy(TheSbvector(STACK_0)->data,lpData,dwLen);
+    free(lpData);
+    end_system_call();
+    pushSTACK(asciz_to_string(pathz,GLO(pathname_encoding)));
+    pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,GETTEXT("~S(~S): No root block in ~S"));
+  }
+  pushSTACK(UL_to_I(HIWORD(pFileInfo->dwFileVersionMS)));
+  pushSTACK(UL_to_I(LOWORD(pFileInfo->dwFileVersionMS)));
+  pushSTACK(UL_to_I(HIWORD(pFileInfo->dwFileVersionLS)));
+  pushSTACK(UL_to_I(LOWORD(pFileInfo->dwFileVersionLS)));
+#if defined(ENABLE_UNICODE)
+# define SUBBLOCK  "\\StringFileInfo\\040904B0\\"
+#else
+# define SUBBLOCK  "\\StringFileInfo\\04090000\\"
+#endif
+#define TO_STACK(info)                                                  \
+  begin_system_call();                                                  \
+  status = VerQueryValue(lpData,SUBBLOCK info,(LPVOID*)&lpBuffer,       \
+                         (PUINT)&BufLen);                               \
+  end_system_call();                                                    \
+  while(lpBuffer[BufLen-1]==0) BufLen--;                                \
+  pushSTACK(status?n_char_to_string(lpBuffer,BufLen,GLO(misc_encoding)):NIL)
+  TO_STACK("Comments");
+  TO_STACK("CompanyName");
+  TO_STACK("FileDescription");
+  TO_STACK("FileVersion");
+  TO_STACK("InternalName");
+  TO_STACK("LegalCopyright");
+  TO_STACK("LegalTrademarks");
+  TO_STACK("OriginalFilename");
+  TO_STACK("ProductName");
+  TO_STACK("ProductVersion");
+  TO_STACK("PrivateBuild");
+  TO_STACK("SpecialBuild");
+  begin_system_call(); free(lpData); end_system_call();
+  funcall(`POSIX::MKFILEVER`,16);
+#undef TO_STACK
+#undef SUBBLOCK
+}
+DEFUN(OS:FILE-VERSION,filename) {
+  with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),pathz,{
+    file_version(pathz);
+  });
+}
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
 /* STDIO inteface for postgresql et al and to access wild files like 'foo*' */

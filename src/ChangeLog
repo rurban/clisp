@@ -1,5 +1,13 @@
 2011-08-29  Sam Steingold  <sds@gnu.org>
 
+	add interface to VerQueryValue, GetFileVersionInfo et al
+	http://msdn.microsoft.com/en-us/library/ms647464(v=vs.85).aspx
+	* modules/syscalls/calls.c (OS:FILE-VERSION): add function
+	* modules/syscalls/posix.lisp (OS:FILE-VERSION): add structure
+	* modules/syscalls/configure.in (LIBS): add -lversion
+
+2011-08-29  Sam Steingold  <sds@gnu.org>
+
 	* clisp.rc.in: extract from makemake.in
 	* makemake.in (clisp.rc): use it
 
