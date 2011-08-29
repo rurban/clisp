@@ -1920,22 +1920,17 @@ else
 fi
 echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
+echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'" ${GNULIB_INCLUDE}"
 if [ "${with_dynamic_modules}" != no ]; then
-  echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
-  MODULE_CPPFLAGS_VAR='MODULE_CPPFLAGS'
   MODULE_CFLAGS_VAR='MODULE_CFLAGS'
   MODULE_CLFLAGS_VAR='MODULE_CLFLAGS'
   XCLFLAGS="\$(MODULE_CLFLAGS)"
 else
-  MODULE_CPPFLAGS_VAR='CPPFLAGS'
   MODULE_CFLAGS_VAR='CFLAGS'
   MODULE_CLFLAGS_VAR='CLFLAGS'
 fi
-# if [ $TSYS = sun4 -a "$CC" = cc ] ; then
-#   echol "INLINE = /usr/lib/inline"
-# fi
 if [ $HSYS = win32msvc ] ; then
   echol "#MSVCDIR = d:/msdev"
   echol "#MSVCDIR = d:/devstudio/vc"
@@ -3151,7 +3146,7 @@ echol
 # makevars in each linking set (boot/base/full) must point to local files only
 echol "makevars : Makefile"
 echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ;\\"
-echotab " echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'CPPFLAGS='\"'\"'\$(MODULE_CPPFLAGS)'\"'\" ;\\"
 echotab " echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'LIBS='\"'\"'lisp.a${CLISP_DEF} \$(LIBS)'\"'\" ;\\"
@@ -3207,7 +3202,7 @@ echotab "fi; \\"
 # which cannot pass srcdir to make on the command line
 echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
 echotab "CLISP=\"${HEREP}/clisp -K boot ${someflags}\" ; \\"
-echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR}) ${GNULIB_INCLUDE}\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
 echol
 
 cygwin_finish() {
