@@ -1818,9 +1818,10 @@ if [ $TSYS = win32msvc ] ; then
 fi
 
 PACKAGE_VERSION="@PACKAGE_VERSION@"
+VERSION_NUMBER=`echo "${PACKAGE_VERSION}" | sed -e 's, .*,,'`
 echol "# The official version number"
 echol "PACKAGE_VERSION=${PACKAGE_VERSION}"
-echol "VERSION="`echo "${PACKAGE_VERSION}" | sed -e 's, .*,,'`
+echol "VERSION=${VERSION_NUMBER}"
 echol "# The official package name"
 echol "PACKAGE_NAME=@PACKAGE_NAME@"
 echol "# If you want to distribute a modified version of CLISP,"
@@ -3389,8 +3390,48 @@ if [ $CROSS = false ] ; then
       echotab "-\$(RM) clisp.res"
     fi
     echol
-    echol "clisp.rc :"
-    echotab 'echo "MAINICON ICON \"clisp.ico\"" > clisp.rc'
+    # NB: we link clisp.rc into the driver clisp.exe but _not_ into the
+    #     run-time lisp.exe because then the latter does not have an icon
+    #     and the users are less likely to run it without the memory image
+    echol "clisp.rc : Makefile"
+    echotab 'echo "#include <windows.h>" > clisp.rc'
+    echotab 'echo "MAINICON ICON \"clisp.ico\"" >> clisp.rc'
+    echotab 'echo "VS_VERSION_INFO VERSIONINFO" >> clisp.rc'
+    PRODUCTVERSION=`echo ${VERSION_NUMBER} | sed -e 's/\./,/' -e 's/\+/,1/g'`
+    if [ "${with_debug}" != no ]
+    then FILEFLAGS="VS_FF_DEBUG|"
+    else FILEFLAGS=""
+    fi
+    case "${PRODUCTVERSION}" in
+      *,1,1 ) FILEFLAGS=${FILEFLAGS}"VS_FF_PRERELEASE|VS_FF_PATCHED" ;;
+      *,1 ) PRODUCTVERSION=${PRODUCTVERSION}',0'
+        FILEFLAGS=${FILEFLAGS}"VS_FF_PATCHED" ;;
+      * ) PRODUCTVERSION=${PRODUCTVERSION}',0,0' ;;
+    esac
+    if [ "${with_unicode}" != no ];
+    then CHARSET=04B0           # Unicode
+    else CHARSET=0000           # 7-bit ASCII
+    fi
+    echotab 'echo "PRODUCTVERSION '${PRODUCTVERSION}'" >> clisp.rc'
+    echotab 'echo "FILEVERSION '${PRODUCTVERSION}'" >> clisp.rc'
+    echotab 'echo "FILEFLAGS ('${FILEFLAGS}')" >> clisp.rc'
+    echotab 'echo "BEGIN" >> clisp.rc'
+    echotab 'echo " BLOCK \"StringFileInfo\"" >> clisp.rc'
+    echotab 'echo " BEGIN" >> clisp.rc'
+    echotab 'echo "  BLOCK \"0409'${CHARSET}'\"" >> clisp.rc' # US english
+    echotab 'echo "  BEGIN" >> clisp.rc'
+    echotab 'echo "   VALUE \"CompanyName\", \"GNU\"" >> clisp.rc'
+    echotab 'echo "   VALUE \"ProductName\", \"$(PACKAGE_NAME)\"" >> clisp.rc'
+    echotab 'echo "   VALUE \"ProductVersion\", \"$(PACKAGE_VERSION)\"" >> clisp.rc'
+    echotab 'echo "   VALUE \"Version\", \"$(PACKAGE_VERSION)\"" >> clisp.rc'
+    echotab 'echo "   VALUE \"LegalCopyright\", \"GNU General Public License v2\"" >> clisp.rc'
+    echotab 'echo "  END" >> clisp.rc'
+    echotab 'echo " END" >> clisp.rc'
+    echotab 'echo " BLOCK \"VarFileInfo\"" >> clisp.rc'
+    echotab 'echo " BEGIN" >> clisp.rc'
+    echotab 'echo " VALUE \"Translation\", 0x409, 0x'${CHARSET}'" >> clisp.rc'
+    echotab 'echo " END" >> clisp.rc'
+    echotab 'echo "END" >> clisp.rc'
     echol
   fi
   DRIVERFLAGS=''
