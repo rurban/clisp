@@ -1,0 +1,28 @@
+/* http://msdn.microsoft.com/en-us/library/aa381058(v=VS.85).aspx */
+/* for the filever.exe utility */
+#include <windows.h>
+
+#define CLISP_PRODUCTVERSION  @CLISP_PRODUCTVERSION@
+
+MAINICON ICON "clisp.ico"
+VS_VERSION_INFO VERSIONINFO
+PRODUCTVERSION CLISP_PRODUCTVERSION
+FILEVERSION CLISP_PRODUCTVERSION
+FILEFLAGS (@CLISP_FILEFLAGS@)
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "0409@CLISP_CHARSET@" /* US english */
+    BEGIN
+      VALUE "CompanyName", "GNU"
+      VALUE "ProductName", "@CLISP_NAME@"
+      VALUE "ProductVersion", "@CLISP_VERSION@"
+      VALUE "Version", "@CLISP_VERSION@"
+     VALUE "LegalCopyright", "GNU General Public License v2"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 0x@CLISP_CHARSET@
+  END
+END
