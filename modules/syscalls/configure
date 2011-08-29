@@ -4788,7 +4788,7 @@ fi
 done
 
 if test "$ac_cv_header_shlobj_h" = yes ; then
-   LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
+   LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid -lversion';
 fi
 # Check whether --enable-largefile was given.
 if test "${enable_largefile+set}" = set; then :
