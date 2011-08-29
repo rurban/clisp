@@ -1,3 +1,9 @@
+2011-08-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (MODULE_CPPFLAGS_VAR): remove
+	(MODULE_CPPFLAGS): always define and use to avoid adding
+	${GNULIB_INCLUDE} to CPPFLAGS twice
+
 2011-08-26  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (clisp.rc) [win32]: add version information for filever
