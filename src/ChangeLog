@@ -1,3 +1,8 @@
+2011-08-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (clisp.rc) [win32]: add version information for filever
+	http://msdn.microsoft.com/en-us/library/aa381058(v=VS.85).aspx
+
 2011-08-25  Sam Steingold  <sds@gnu.org>
 
 	Report failures in init_language
