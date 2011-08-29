@@ -393,6 +393,23 @@ T
 #+(or win32 cygwin)
 (os:memory-status-p (show (os:memory-status)))
 T
+#+(or win32 cygwin)
+(let ((filever (os:file-version (make-pathname :name "clisp" :type "exe"
+                                               :defaults *lib-directory*)))
+      (liv (show (lisp-implementation-version))))
+  (show filever :pretty t)
+  (and (string= (format nil "~D.~D~[~;+~]~[~;+~]"
+                        (os:file-version-major filever)
+                        (os:file-version-minor filever)
+                        (os:file-version-build filever)
+                        (os:file-version-revision filever))
+                liv :end2 (position #\Space liv))
+       (string= (os:file-version-product-version filever)
+                liv :end2 (length (os:file-version-product-version filever)))))
+#+(or win32 cygwin) T
+
+#+(or win32 cygwin) (stringp (os:get-user-sid)) T
+#+(or win32 cygwin) (os:get-user-sid (ext:getenv "USERNAME")) T
 
 (let ((sysconf #+unix (os:sysconf) #-unix nil))
   ;; guard against broken unixes, like FreeBSD 4.10-BETA
