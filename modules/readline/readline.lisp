@@ -2,7 +2,7 @@
 ;;; http://tiswww.case.edu/php/chet/readline/readline.html
 ;;; http://tiswww.case.edu/php/chet/readline/history.html
 ;;;
-;;; Copyright (C) 2005-2010 by Sam Steingold
+;;; Copyright (C) 2005-2011 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
@@ -633,6 +633,8 @@ and the completion character will be inserted as any other."))
   (:documentation " Input error; can be returned by (*rl_getc_function)
 if readline is reading a top-level command (RL_ISSTATE (RL_STATE_READCMD))."))
 
+(c-lines "#include <readline/rlconf.h>~%")
+
 (def-c-const default-inputrc (:name "DEFAULT_INPUTRC")
   (:type c-string)              ; "~/.inputrc"
   (:documentation
@@ -708,8 +710,7 @@ if readline is reading a top-level command (RL_ISSTATE (RL_STATE_READCMD))."))
 (def-call-out history-truncate-file (:name "history_truncate_file")
   (:arguments (file c-string) (nlines int)) (:return-type int))
 
-;; tilde.h
-
+(c-lines "#include <readline/tilde.h>~%")
 (def-call-out tilde-expand (:name "tilde_expand")
   (:arguments (string c-string)) (:return-type c-string))
 
