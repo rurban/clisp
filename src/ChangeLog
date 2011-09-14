@@ -1,5 +1,10 @@
 2011-09-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/readline/readline.lisp: include rlconf.h for
+	DEFAULT_INPUTRC and SYS_INPUTRC and tilde.h for tilde_expand
+
+2011-09-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clean5): do not remove modules.h twice
 
 2011-08-29  Sam Steingold  <sds@gnu.org>
