@@ -3921,7 +3921,7 @@ echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
 echotab "-\$(RM) ${TOP_DOC} modules.h"
 if [ -n "${SRCDIR}" ] ; then
-  line="-\$(RM) NEWS clisp.png modules.h"
+  line="-\$(RM) NEWS clisp.png"
   test ${HOS} = win32 && line="$line clisp.ico"
   echotab "$line"
   test $HOS = unix -a $CROSS = false && echotab "-\$(RM) .gdbinit"
