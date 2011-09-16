@@ -1198,7 +1198,7 @@ NIL
 #+clisp (ext:delete-directory "path-tst-bar/")
 #-clisp (delete-file "path-tst-bar/") T
 (directory "path-tst-bar/" :full t) NIL
-(pathname-version (car (directory "./"))) NIL
+(pathname-version (car (directory "./"))) :NEWEST
 
 (let (lp) ; bug#3165355: bind *load-pathname* to the original arg
   (setf (logical-pathname-translations "FOO") '(("*" "./*")))
@@ -1383,6 +1383,35 @@ NIL
     (delete-file file)
     (ext:delete-directory dir)))
 #+clisp (NIL T 100 100 3 FILE-ERROR 100 100)
+
+#+clisp
+(let* ((files (directory #1=#P"../**/*" :if-does-not-exist :discard))
+       (1st (car files))
+       (copy (make-pathname :directory (pathname-directory 1st)
+                            :name (pathname-name 1st)
+                            :type (pathname-type 1st))))
+  (format t "~&~:D file~:P under ~S~%" (length files)
+          (ext:probe-pathname
+           (make-pathname :directory (butlast (pathname-directory #1#) 1))))
+  (list (delete-duplicates (mapcar #'pathname-version files))
+        (equalp (ext:probe-pathname copy) 1st)
+        (equalp (probe-file copy) 1st)
+        (equalp (truename copy) 1st)))
+#+clisp ((:NEWEST) T T T)
+
+#+clisp
+(let* ((dirs (directory #1=#P"../**/*/" :if-does-not-exist :discard))
+       (1st (car dirs))
+       (copy (make-pathname :directory (pathname-directory 1st)
+                            :name (pathname-name 1st)
+                            :type (pathname-type 1st))))
+  (format t "~&~:D director~:@P under ~S~%" (length dirs)
+          (ext:probe-pathname
+           (make-pathname :directory (butlast (pathname-directory #1#) 2))))
+  (list (delete-duplicates (mapcar #'pathname-version dirs))
+        (equalp (ext:probe-pathname copy) 1st)
+        (equalp (truename copy) 1st)))
+#+clisp ((:NEWEST) T T)
 
 (progn
   (symbol-cleanup '*dir*)
