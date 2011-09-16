@@ -13,8 +13,8 @@
 
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.65],,
-[m4_warning([this file was generated for autoconf 2.65.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.67],,
+[m4_warning([this file was generated for autoconf 2.67.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically `autoreconf'.])])
@@ -14311,8 +14311,8 @@ AC_DEFUN([CL_DECOLONIZE],
 [AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
 [case $ac_cv_build in
   *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* ) # cross-compiling on cygwin is not detected
-    if cygpath -v > /dev/null 2>&1; then
+  *-mingw* )
+    if test "$cross_compiling" = yes; then
       cl_cv_decolonize='cygpath --unix $x'
     else
       cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
