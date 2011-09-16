@@ -1,5 +1,11 @@
 2011-09-16  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (assure_dir_exists): call merge-pathnames on the
+	truename to ensure that all truenames have non-NIL version because
+	a NIL component means "unfilled" (19.2.2.2.1) [bug#3405120]
+
+2011-09-16  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (CL_DECOLONIZE): fix the 2011-07-25 15472 patch
 	which broke the native msys/mingw build
 	Reported by Dan Stanger <dan.stanger@ieee.org>

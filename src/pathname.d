@@ -5221,12 +5221,10 @@ local maygc void assure_dir_exists (struct file_status *fs,
       nnullp = namenullp(*(fs->fs_pathname));
     }
   });
-  if (!nnullp) {
-    /* merge in *DEFAULT-PATHNAME-DEFAULTS* & :VERSION :NEWEST:
-       for cross-platform consistency, either all or no versions of
-       assure_dir_exists() must call MERGE-PATHNAMES  */
-    funcall(L(merge_pathnames),1); pushSTACK(value1);
-  }
+  /* merge in *DEFAULT-PATHNAME-DEFAULTS* & :VERSION :NEWEST:
+     for cross-platform consistency, either all or no versions of
+     assure_dir_exists() must call MERGE-PATHNAMES  */
+  funcall(L(merge_pathnames),1); pushSTACK(value1);
   { var object dns = directory_namestring(*(fs->fs_pathname));
     fs->fs_namestring = nnullp ? dns : OSnamestring(dns); }
 }
@@ -5431,6 +5429,9 @@ local maygc void assure_dir_exists (struct file_status *fs,
         = ThePathname(new_pathname)->pathname_directory;
     }
   dir_exists:
+    pushSTACK(*(fs->fs_pathname));
+    funcall(L(merge_pathnames),1);
+    *(fs->fs_pathname) = value1;
     /* get information for the addressed file: */
     if (namenullp(*(fs->fs_pathname))) { /* no file addressed? */
       fs->fs_namestring = directory_namestring(*(fs->fs_pathname));
