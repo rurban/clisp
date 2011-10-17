@@ -1031,38 +1031,28 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
      #endif
       /* while we cannot get the real lock */
       while (r = xmutex_raw_trylock(&l->xl_mutex)) {
-        if (!l->xl_owned) {
-          /* not owned but still locked - i.e. xcodition_wait() caused it.
-             wait forever - really soon pthread_cond_wait() will release it.
-             there is no way to block forever since here we own the internal
-             mutex as well - e.g. just a single thread may wait xl_mutex and it
-             will grab it */
-          r = xmutex_raw_lock(&l->xl_mutex);
-          break;
-        } else {
-          /* check for interrupts before waiting */
-          if (thr && thr->_pending_interrupts) {
-            /* handle them */
-            xmutex_raw_unlock(&l->xl_internal_mutex);
-            thr->_wait_mutex=NULL;
-            GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
-            handle_pending_interrupts();
-            thr->_wait_mutex=l;
-            xmutex_raw_lock(&l->xl_internal_mutex);
-            GC_SAFE_REGION_BEGIN();
-            continue;
-          }
+	/* check for interrupts before waiting */
+	if (thr && thr->_pending_interrupts) {
+	  /* handle them */
+	  xmutex_raw_unlock(&l->xl_internal_mutex);
+	  thr->_wait_mutex=NULL;
+	  GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
+	  handle_pending_interrupts();
+	  thr->_wait_mutex=l;
+	  xmutex_raw_lock(&l->xl_internal_mutex);
+	  GC_SAFE_REGION_BEGIN();
+	  continue;
+	}
        #ifdef POSIX_THREADS
-          if (timeout != THREAD_WAIT_INFINITE) {
-            r = pthread_cond_timedwait(&l->xl_wait_cv,&l->xl_internal_mutex,&ww);
-          } else {
-            r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
-          }
+	if (timeout != THREAD_WAIT_INFINITE) {
+	  r = pthread_cond_timedwait(&l->xl_wait_cv,&l->xl_internal_mutex,&ww);
+	} else {
+	  r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
+	}
        #else /* WIN32 */
-          r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_internal_mutex,timeout);
+	r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_internal_mutex,timeout);
        #endif
-          if (r != 0) break;
-        }
+	if (r != 0) break;
       }
       if (r == 0) {
         ASSERT(!l->xl_owned); ASSERT(l->xl_recurse_count == 0);
