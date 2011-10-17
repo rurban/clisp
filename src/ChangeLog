@@ -1,3 +1,9 @@
+2011-10-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (xlock_lock_helper): remove wrong "shortcut" on 
+	acquiring a lock held by thread that exemption-wait-ed on it
+	[bug#3424574]
+
 2011-09-16  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (assure_dir_exists): call merge-pathnames on the
