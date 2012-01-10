@@ -1,5 +1,10 @@
 2012-01-10  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw.d (mt_main_actions): main thread should be the same as any
+	other - initialize time, reader and set normal exit flag
+
+2012-01-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* zthread.d (xlock_lock_helper): fix possible deadlock when acquiring
 	a lock released by xcondition_wait()
 	(THREAD-INTERRUPT): release thread's _signal_reenter_ok spinlock on
