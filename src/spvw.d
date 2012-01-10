@@ -3638,10 +3638,14 @@ local THREADPROC_SIGNATURE mt_main_actions (void *param)
   var sp_jmp_buf returner; /* return point */
   finish_entry_frame(CATCH,returner,,{
     skipSTACK(2); STACK_0=value1; goto thread_killed;});
+  init_time(); /* initialize thread time variables */
+  init_reader_low(me); /* initialize the low level i/o for this thread*/
   /* now we are ready to start main_actions()*/
   main_actions(args);
   skipSTACK(3); /* unwind CATCH-frame */
   mv_to_list(); /* store thread exit values on STACK */
+  /* mark that thread will exit normally */
+  TheThread(me->_lthread)->xth_flags |= thread_flag_normal_exit;
  thread_killed:
   thread_cleanup();
   delete_thread(me); /* just delete ourselves */
