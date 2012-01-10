@@ -540,6 +540,7 @@ LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
       if (!(interrupted = interrupt_thread(clt))) {
         /* for some reason we were unable to send the signal */
         clt->_STACK=saved_stack;
+        spinlock_release(&clt->_signal_reenter_ok);
       }
     }
     resume_thread(STACK_3, true);
@@ -1031,6 +1032,15 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
      #endif
       /* while we cannot get the real lock */
       while (r = xmutex_raw_trylock(&l->xl_mutex)) {
+        if (!l->xl_owned) {
+          /* not owned but still locked - i.e. xcodition_wait() caused it.
+             we have to spin here in order to avoid possible deadlock.
+             (rare case just few iterations are expected) */
+          xmutex_raw_unlock(&l->xl_internal_mutex);
+          xthread_yield();
+          xmutex_raw_lock(&l->xl_internal_mutex);
+          continue;
+        }
 	/* check for interrupts before waiting */
 	if (thr && thr->_pending_interrupts) {
 	  /* handle them */
