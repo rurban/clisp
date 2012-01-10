@@ -1,6 +1,10 @@
+2012-01-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* xthread.d (testandset) [ARM]: implement spinlocks for ARM
+
 2011-10-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* zthread.d (xlock_lock_helper): remove wrong "shortcut" on 
+	* zthread.d (xlock_lock_helper): remove wrong "shortcut" on
 	acquiring a lock held by thread that exemption-wait-ed on it
 	[bug#3424574]
 
