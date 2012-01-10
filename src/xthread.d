@@ -269,7 +269,7 @@ int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout);
    (InterlockedXXX).
 */
 
-#if defined(GNU) && (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC) || defined(AMD64))
+#if defined(GNU) && (defined(ARM) || defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC) || defined(AMD64))
 
   /* A value 0 means unlocked, != 0 means locked. */
   #define spinlock_t int
@@ -383,6 +383,21 @@ int xcondition_wait(xcondition_t *c,xlock_t *m, void *timeout);
       ret;})
     #define spinlock_release(spinlock) \
       do { __asm__ __volatile__("mb" : : : "memory"); *(spinlock) = 0; } while(0)
+  #endif
+  #ifdef ARM
+    #define testandset(spinlock)                                \
+      ({ int ret;                                               \
+        __asm__ __volatile__("swp %0,%1,[%2]\n"                 \
+                             : "=&r,&r" (ret)                   \
+                             : "r,0" (1), "r,r" (spinlock)      \
+                             : "memory");                       \
+        ret;})
+    #define testandset2(s) (*(s) = 1, 0)
+    #define spinlock_release(spinlock)                        \
+       do {                                                   \
+         __asm__ __volatile__("" : : : "memory");         \
+         *spinlock = 0;                                       \
+       } while (0)
   #endif
 
   #define spinlock_tryacquire(spinlock) (testandset(spinlock)==0)
