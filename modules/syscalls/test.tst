@@ -306,6 +306,12 @@ T
             (posix:file-stat-ino (os:file-stat *tmp2*)))
 #-:win32 NIL
 
+#+:unix
+(or (null (ext:probe-directory "/proc/"))
+    (null (probe-file "/proc/kcore"))
+    (plusp (posix:file-stat-size (show (posix:file-stat "/proc/kcore")))))
+#+:unix T
+
 (os:convert-mode #o0666)
 (:RUSR :WUSR :RGRP :WGRP :ROTH :WOTH)
 

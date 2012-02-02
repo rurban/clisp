@@ -88,6 +88,7 @@ User visible changes
     SIMPLE-CONDITIONs (bug#3384825).
   + Better argument checking of FUNCALL on LAMBDA (bug#3384693).
   + All truenames now have non-NIL version component (bug#3405120).
+  + Fix OS:FILE-STAT on very large files (bug#3483340).
 
 
 2.49 (2010-07-07)

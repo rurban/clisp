@@ -1,3 +1,8 @@
+2012-02-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (file_stat_to_STACK): use off_to_I
+	instead of L_to_I for st_size [bug#3483340]
+
 2012-01-10  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (mt_main_actions): main thread should be the same as any
