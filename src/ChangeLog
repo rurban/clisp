@@ -2,6 +2,7 @@
 
 	* modules/syscalls/calls.c (file_stat_to_STACK): use off_to_I
 	instead of L_to_I for st_size [bug#3483340]
+	[S_IFMT]: split st_mode into mknod_type_check and check_chmod_mode
 
 2012-01-10  Vladimir Tzankov  <vtzankov@gmail.com>
 

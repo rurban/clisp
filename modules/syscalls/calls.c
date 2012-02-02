@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2011 Sam Steingold
+ * Copyright (C) 2003-2012 Sam Steingold
  * Copyright (C) 2005,2008 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * GPL2
@@ -1959,7 +1959,18 @@ static void file_stat_to_STACK (object file, const struct stat *ps) {
 #else
   pushSTACK(uint32_to_I(ps->st_ino)); /* inode */
 #endif
+#ifdef S_IFMT
+  { /* protection & format */
+    unsigned int fmt = ps->st_mode & S_IFMT;
+    if (fmt) {
+      pushSTACK(allocate_cons());
+      Car(STACK_0) = mknod_type_check_reverse(fmt);
+      Cdr(STACK_0) = check_chmod_mode_to_list(ps->st_mode & ~S_IFMT);
+    } else pushSTACK(check_chmod_mode_to_list(ps->st_mode));
+  }
+#else
   pushSTACK(check_chmod_mode_to_list(ps->st_mode)); /* protection */
+#endif
   pushSTACK(UL_to_I(ps->st_nlink));   /* number of hard links */
   pushSTACK(UL_to_I(ps->st_uid));     /* user ID of owner */
   pushSTACK(UL_to_I(ps->st_gid));     /* group ID of owner */
