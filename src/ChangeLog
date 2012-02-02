@@ -1,5 +1,10 @@
 2012-02-02  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (get_hostname): turn into a function and allocate the
+	array in the caller to support gcc 4.7 [patch#3474660]
+
+2012-02-02  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (file_stat_to_STACK): use off_to_I
 	instead of L_to_I for st_size [bug#3483340]
 	[S_IFMT]: split st_mode into mknod_type_check and check_chmod_mode

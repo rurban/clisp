@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2012
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -48,9 +48,9 @@
 /* ============ hostnames and IP addresses only (no sockets) ============
 
  Fetches the machine's host name.
- get_hostname(host =);
- The name is allocated on the stack, with dynamic extent.
- < const char* host: The host name.
+ get_hostname(hostname);
+ where hostname is an array of MAXHOTNAMELEN+1 characters.
+ < const char host[]: The host name.
  (Note: In some cases we could get away with less system calls by simply
  setting
    host = "localhost";
@@ -58,14 +58,12 @@
  sds: never: you will always get localhost/127.0.0.1 - what's the point? */
 #if defined(HAVE_GETHOSTNAME)
 /* present on all supported unix systems and on woe32 */
-  #define get_hostname(host_assignment)                                 \
-    do {  var char hostname[MAXHOSTNAMELEN+1];                          \
-      begin_system_call();                                              \
-      if (gethostname(&hostname[0],MAXHOSTNAMELEN) <0) { ANSIC_error(); } \
-      end_system_call();                                                \
-      hostname[MAXHOSTNAMELEN] = '\0';                                  \
-      host_assignment &hostname[0];                                     \
-    } while(0)
+static void get_hostname (char *hostname) {
+  begin_system_call();
+  if (gethostname(hostname,MAXHOSTNAMELEN) < 0) { ANSIC_error(); }
+  end_system_call();
+  hostname[MAXHOSTNAMELEN] = '\0';
+}
 #else
   #error get_hostname is not defined
 #endif
@@ -130,8 +128,8 @@ LISPFUNN(machine_instance,0)
          (if (or (null address) (zerop (length address)))
            hostname
            (apply #'string-concat hostname " [" (inet-ntop address) "]"))) */
-    var const char* host;
-    get_hostname(host =);
+    var char host[MAXHOSTNAMELEN+1];
+    get_hostname(host);
     result = asciz_to_string(host,O(misc_encoding)); /* hostname as result */
    #ifdef HAVE_GETHOSTBYNAME
     pushSTACK(result); /* hostname as 1st string */
@@ -260,8 +258,8 @@ local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
 modexp struct hostent* resolve_host (object arg) {
   var struct hostent* he;
   if (eq(arg,S(Kdefault))) {
-    var char* host;
-    get_hostname(host =);
+    var char host[MAXHOSTNAMELEN+1];
+    get_hostname(host);
     begin_system_call();
     he = gethostbyname(host);
     end_system_call();
@@ -578,7 +576,8 @@ global SOCKET connect_to_x_server (const char* host, int display)
     if (conntype == conn_tcp) {
       var unsigned short port = X_TCP_PORT+display;
       if (host[0] == '\0') {
-        get_hostname(host =);
+        var char host[MAXHOSTNAMELEN+1];
+        get_hostname(host);
         fd = with_host_port(host,port,&connect_to_x_via_ip,NULL);
       } else {
         fd = with_host_port(host,port,&connect_to_x_via_ip,NULL);
@@ -654,8 +653,8 @@ global host_data_t * socket_getlocalname (SOCKET socket_handle,
   if (socket_getlocalname_aux(socket_handle,hd) == NULL)
     return NULL;
   if (resolve_p) { /* Fill in hd->truename. */
-    var const char* host;
-    get_hostname(host =); /* was: host = "localhost"; */
+    var char host[MAXHOSTNAMELEN+1];
+    get_hostname(host);
     ASSERT(strlen(host) <= MAXHOSTNAMELEN);
     strcpy(hd->truename,host);
   } else {
@@ -890,4 +889,3 @@ global SOCKET create_client_socket (const char* hostname, unsigned int port,
 #endif /* HAVE_GETHOSTBYNAME */
 
 #endif /* UNIX || WIN32_NATIVE */
-
