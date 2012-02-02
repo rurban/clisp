@@ -1968,7 +1968,7 @@ static void file_stat_to_STACK (object file, const struct stat *ps) {
 #else
   pushSTACK(NIL);
 #endif
-  pushSTACK(L_to_I(ps->st_size));     /* total size, in bytes */
+  pushSTACK(off_to_I(ps->st_size)); /* total size, in bytes */
 #if defined(HAVE_STAT_ST_BLKSIZE)
   pushSTACK(UL_to_I(ps->st_blksize)); /* blocksize for filesystem I/O */
 #else
