@@ -1,3 +1,9 @@
+2012-02-13  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2b.lisp (compute-dispatch): Don't blindly assume that
+	(bc-and-not class test-class) is non-nil; test it explicitly.
+	[bug#3487338]
+
 2012-02-02  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (get_hostname): turn into a function and allocate the

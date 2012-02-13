@@ -1,7 +1,7 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Generic Functions
 ;;;; Part 2: Generic function dispatch and execution
-;;;; Bruno Haible 21.8.1993 - 2004
+;;;; Bruno Haible 21.8.1993 - 2004, 2012
 ;;;; Sam Steingold 1998-2004, 2007-2008, 2010
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
@@ -371,33 +371,50 @@
                                            (the list remaining-classes))))
                                    (unless other-class (return))
                                    (setq test-class other-class)))
-                               `(IF (TYPEP ,arg-var ',(class-classname test-class))
-                                  ,(built-in-subtree
-                                     (bc-and class test-class) ; /= nil !
-                                     (remove 'nil
-                                       (mapcar
-                                         #'(lambda (x) (bc-and x test-class))
-                                         (remove test-class remaining-classes)))
-                                     (remove-if-not
-                                       #'(lambda (m)
-                                           (bc-and
-                                             (nth arg-index
-                                               (safe-method-specializers m gf))
-                                             test-class))
-                                       (the list remaining-methods)))
-                                  ,(built-in-subtree
-                                     (bc-and-not class test-class) ; /= nil !
-                                     (remove 'nil
-                                       (mapcar
-                                         #'(lambda (x) (bc-and-not x test-class))
-                                         remaining-classes))
-                                     (remove-if-not
-                                       #'(lambda (m)
-                                           (bc-and-not
-                                             (nth arg-index
-                                               (safe-method-specializers m gf))
-                                             test-class))
-                                       (the list remaining-methods))))))))
+                               (if (null (bc-and-not class test-class))
+                                 ;; class is a subclass of test-class,
+                                 ;; therefore the TYPEP test is redundant
+                                 (built-in-subtree
+                                   (bc-and class test-class) ; /= nil !
+                                   (remove 'nil
+                                     (mapcar
+                                       #'(lambda (x) (bc-and x test-class))
+                                       (remove test-class remaining-classes)))
+                                   (remove-if-not
+                                     #'(lambda (m)
+                                         (bc-and
+                                           (nth arg-index
+                                             (safe-method-specializers m gf))
+                                           test-class))
+                                     (the list remaining-methods)))
+                                 ;; general case
+                                 `(IF (TYPEP ,arg-var ',(class-classname test-class))
+                                    ,(built-in-subtree
+                                       (bc-and class test-class) ; /= nil !
+                                       (remove 'nil
+                                         (mapcar
+                                           #'(lambda (x) (bc-and x test-class))
+                                           (remove test-class remaining-classes)))
+                                       (remove-if-not
+                                         #'(lambda (m)
+                                             (bc-and
+                                               (nth arg-index
+                                                 (safe-method-specializers m gf))
+                                               test-class))
+                                         (the list remaining-methods)))
+                                    ,(built-in-subtree
+                                       (bc-and-not class test-class) ; /= nil !
+                                       (remove 'nil
+                                         (mapcar
+                                           #'(lambda (x) (bc-and-not x test-class))
+                                           remaining-classes))
+                                       (remove-if-not
+                                         #'(lambda (m)
+                                             (bc-and-not
+                                               (nth arg-index
+                                                 (safe-method-specializers m gf))
+                                               test-class))
+                                         (the list remaining-methods)))))))))
                        (built-in-subtree <t> classes remaining-methods))
                      (recursion
                        (cdr remaining-args)
