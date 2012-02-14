@@ -1,3 +1,7 @@
+2012-02-14  Sam Steingold  <sds@gnu.org>
+
+	* clos.tst (foo148): add a test for [bug#3487338]
+
 2011-09-16  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: make sure that truenames have version :newest [bug#3405120]

@@ -4229,6 +4229,15 @@ T
   t)
 T
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3487338&group_id=1355
+(progn
+  (defgeneric foo148 (object)
+    (:method ((x list)) (declare (ignore x)) 'list)
+    (:method ((x array)) (declare (ignore x)) 'array)
+    (:method ((x sequence)) (declare (ignore x)) 'sequence))
+  (foo148 '(1 2 3)))
+LIST
+
 ;; Check a particular use of Gray streams.
 (progn (load (make-pathname :name "listeners" :type nil
                             :defaults *run-test-truename*))
