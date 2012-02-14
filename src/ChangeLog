@@ -57188,6 +57188,7 @@
 	  cross-compiling.
 
 ;; Local Variables:
+;; mode: change-log
 ;; mode: bug-reference
 ;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; End:

@@ -3259,6 +3259,7 @@
 	* testsuite: Support ACL 4.3 for Linux (Allegro CL from Franz Inc).
 
 ;; Local Variables:
+;; mode: change-log
 ;; mode: bug-reference
 ;; bug-reference-url-format: clisp-bug-reference-url-format
 ;; End:
