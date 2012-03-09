@@ -4734,6 +4734,13 @@ local void *signal_handler_thread(void *arg)
     case SIGTTOU:
       break; /* just ignore it */
    #endif
+#ifdef UNIX_MACOSX
+    case SIGHUP:
+    case SIGCONT:
+      /* TODO: ignore these two - fix later.
+         we get them after fork-ed process exits. */
+      break;
+#endif
     default:
       /* just terminate all threads - the last one will
          kill the process from delete_thread */
