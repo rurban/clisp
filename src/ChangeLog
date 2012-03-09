@@ -1,5 +1,11 @@
 2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw.d (signal_handler_thread) [MULTITHREAD, MACOSX]: ignore
+	SIGHUP & SIGCONT until I know how to handle them (vfork()
+	causes SIGHUP - e.g. (DISASSEMBLE 'CAR))
+
+2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* foreign.d (FOREIGN-CALL-OUT): foreign call may block. use
 	begin/end_block_system_call()
 
