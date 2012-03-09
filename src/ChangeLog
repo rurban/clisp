@@ -1,5 +1,10 @@
 2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* hashtabl.d (prepare_resize): check kvtable size against
+	ARRAY-DIMENSION-LIMIT
+
+2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* lispbibl.d (arraysize_limit_1) [MACOSX, WIDE_HARD]: set to
 	2^24-2 since HEAPCODES memory model is used
 
