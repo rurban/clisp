@@ -1,3 +1,8 @@
+2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* foreign.d (FOREIGN-CALL-OUT): foreign call may block. use
+	begin/end_block_system_call()
+
 2012-02-13  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2b.lisp (compute-dispatch): Don't blindly assume that

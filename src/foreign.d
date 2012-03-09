@@ -3704,9 +3704,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
       error_too_many_args(S(foreign_call_out),Before(rest_args_pointer),
                           allargcount,__AV_ALIST_WORDS);
     /* Finally call the function. */
-    begin_call();
+    begin_blocking_system_call();
     av_call(alist);
-    end_call();
+    end_blocking_system_call();
     { /* Convert the result(s) back to Lisp. */
       var gcv_object_t* resptr = (&STACK_0 STACKop result_count) STACKop -1;
       var uintL i;
