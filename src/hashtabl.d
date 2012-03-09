@@ -1659,8 +1659,8 @@ local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
     var uintV maxcountV = posfixnum_to_V(maxcount);
     var uintV sizeV = 2*maxcountV+1;
     /* SIZE odd in order to improve the hash-function! */
-    if (!(sizeV <= (uintV)(vbitm(oint_data_len)-1)))
-      /* sizeV should fit into a fixnum */
+    if (!(4+3*maxcountV <= arraysize_limit_1+1))
+      /* kvtable size should fit into ARRAY-SIZE-LIMIT */
       goto check_maxcount;
     if (!(sizeV <= (uintL)(bitm(intLsize)-1)))
       /* sizeV should fit into an uintL */
