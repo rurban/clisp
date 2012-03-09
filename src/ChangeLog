@@ -1,5 +1,10 @@
 2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* lispbibl.d (arraysize_limit_1) [MACOSX, WIDE_HARD]: set to
+	2^24-2 since HEAPCODES memory model is used
+
+2012-03-10  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw.d (signal_handler_thread) [MULTITHREAD, MACOSX]: ignore
 	SIGHUP & SIGCONT until I know how to handle them (vfork()
 	causes SIGHUP - e.g. (DISASSEMBLE 'CAR))

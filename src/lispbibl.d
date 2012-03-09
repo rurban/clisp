@@ -13026,8 +13026,13 @@ extern _Noreturn void error_unencodable (object encoding, chart ch);
 #if (oint_data_len<=intLsize)
   #define arraysize_limit_1  ((uintV)(vbitm(oint_data_len)-2))
 #else
-  /* Respect the constraint that the total-size of any array is an uintL. */
-  #define arraysize_limit_1  ((uintV)(vbitm(intLsize)-1))
+  #if defined(UNIX_DARWIN) && defined(WIDE_HARD)
+    /* on 64 bit Darwin HEAPCODES are used - limit the size of arrays.*/
+    #define arraysize_limit_1  ((uintV)(vbitm(24)-2))
+  #else
+    /* Respect the constraint that the total-size of any array is an uintL. */
+    #define arraysize_limit_1  ((uintV)(vbitm(intLsize)-1))
+  #endif
 #endif
 
 /* ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint

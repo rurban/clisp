@@ -1,3 +1,8 @@
+2012-02-14  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* array.tst: ARRAY-DIMENSION-LIMIT & ARRAY-TOTAL-SIZE-LIMIT tests
+	specialization for 64 bit MACOSX
+
 2012-02-14  Sam Steingold  <sds@gnu.org>
 
 	* clos.tst (foo148): add a test for [bug#3487338]
