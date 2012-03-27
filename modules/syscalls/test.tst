@@ -772,7 +772,7 @@ RUN-SLEEP
         (T (delete-file f)))
       nil)
     :depth t)))
-#+unix ((T) NIL SYSTEM::SIMPLE-FILE-ERROR NIL NIL (T) NIL)
+#+unix ((T) NIL OS-FILE-ERROR NIL NIL (T) NIL)
 
 (fnmatch "foo" "bar") NIL
 
