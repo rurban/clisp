@@ -1,5 +1,10 @@
 2012-03-27  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c (pcre_config_option): check the return
+	value of pcre_config() and use a long for value storage
+
+2012-03-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/gettext.c (bool_char_lconv, int_char_lconv): treat
 	-1 like CHAR_MAX and use sfixnum instead of fixnum
 
