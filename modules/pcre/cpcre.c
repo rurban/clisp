@@ -42,12 +42,14 @@ DEFUN(PCRE::PCRE-CONFIG, &optional what)
   if (missingp(STACK_0)) {
     int pos = 0;
     for (; pos < pcre_config_option_map.size; pos++) {
-      int ret;
-      begin_system_call();
-      pcre_config(pcre_config_option_map.table[pos].c_const,&ret);
-      end_system_call();
+      long ret;
+      int status;
       pushSTACK(*pcre_config_option_map.table[pos].l_const);
-      pushSTACK(L_to_I(ret));
+      begin_system_call();
+      status = pcre_config(pcre_config_option_map.table[pos].c_const,&ret);
+      end_system_call();
+      if (status == 0) pushSTACK(L_to_I(ret));
+      else pushSTACK(`:BADOPTION`);
     }
     VALUES1(listof(2*pcre_config_option_map.size));
   } else {
@@ -457,4 +459,3 @@ void module__pcre__init_function_2 (module_t* module)
   pcre_malloc = malloc;
   pcre_free = free;
 }
-
