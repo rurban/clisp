@@ -276,20 +276,20 @@ static /*maygc*/ object bool_char_lconv(char val) {
   switch (val) {
     case 0: return NIL;
     case 1: return T;
-    case CHAR_MAX: return S(Kunspecific);
+    case CHAR_MAX: case -1: return S(Kunspecific);
     default:
       pushSTACK(CLSTEXT("~S: localeconv() returned an invalid value ~S (should be one of ~S, ~S, CHAR_MAX=~S)"));
       pushSTACK(TheSubr(subr_self)->name);
-      pushSTACK(fixnum(val));
+      pushSTACK(sfixnum(val));
       pushSTACK(Fixnum_0); pushSTACK(Fixnum_1); pushSTACK(fixnum(CHAR_MAX));
       funcall(S(warn),6);
-      return fixnum(val);
+      return sfixnum(val);
   }
 }
 static object int_char_lconv(char val) {
   switch (val) {
-    case CHAR_MAX: return S(Kunspecific);
-    default: return fixnum(val);
+    case CHAR_MAX: case -1: return S(Kunspecific);
+    default: return sfixnum(val);
   }
 }
 DEFUN(I18N:LOCALE-CONV,)
@@ -360,7 +360,7 @@ static void thousands_sep_to_STACK (int what, char** gres, int* res_size) {
   res = *gres; limit = *res_size;
   while (res[end] && (end < limit)) {
     while (res[end] && (res[end] != ';') && (end < limit)) end++;
-    pushSTACK(fixnum(my_atoi(res+start))); count++;
+    pushSTACK(sfixnum(my_atoi(res+start))); count++;
     if (!res[end]) break;
     start = ++end;
   }
@@ -372,7 +372,7 @@ static void locale_string_to_STACK (int what, char**res, int* res_size) {
 }
 static void locale_int_to_STACK (int what, char**res, int* res_size) {
   get_locale_info(what,res,res_size,1);
-  pushSTACK(fixnum(my_atoi(*res)));
+  pushSTACK(sfixnum(my_atoi(*res)));
 }
 static void locale_bool_to_STACK (int what, char**res, int* res_size) {
   get_locale_info(what,res,res_size,1);
