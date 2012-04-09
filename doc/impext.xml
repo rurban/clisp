@@ -2322,7 +2322,7 @@ additionally binds &cont-r; to the content length.</para>
 <screen>&sh-prompt; &clisp-cmd; &opt-c; /&path-r;/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
-<screen>&sh-prompt; &clisp-link; add linux base base+linux</screen></step>
+<screen>&sh-prompt; &clisp-link; add base base+linux linux</screen></step>
 
 <step><title>Run and try it</title>
 <screen>&sh-prompt; base+linux/lisp.run &opt-M; base+linux/lispinit.mem &opt-x; '(linux:stat "/tmp")'</screen></step>
