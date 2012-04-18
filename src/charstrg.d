@@ -1,7 +1,7 @@
 /*
  * Functions for characters and strings for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2009
+ * Sam Steingold 1998-2009, 2012
  * German comments translated into English: Stefan Kain 2002-09-20
  */
 
@@ -2127,20 +2127,6 @@ local _Noreturn void error_int_null (object kw, object obj) {
   }
 }
 
-/* error, if index-argument is negative. */
-local _Noreturn void error_posint (object kw, object obj) {
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj);
-  if (eq(kw,nullobj)) {
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: index should not be negative: ~S"));
-  } else {
-    pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: ~S-index should not be negative: ~S"));
-  }
-}
-
 /* error, if index-argument is not <= limit. */
 local _Noreturn void error_cmp_inclusive (object kw, object obj, uintL grenze) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -2202,7 +2188,7 @@ local _Noreturn void error_cmp_exclusive (object kw, object obj, uintL grenze) {
         { if (def==2) error_int_null(kw,index); else error_int(kw,index); } \
       /* index is an integer. */                                        \
       if (!(positivep(index)))                                          \
-        { error_posint(kw,index); }                                     \
+        { error_pos_integer(kw,index); }                                \
       /* index is >=0. */                                               \
       if (!((posfixnump(index)) &&                                      \
             ((to_setter posfixnum_to_V(index)) uplimit_cmp upper_limit))) { \

@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2005
- * Sam Steingold 1998-2009, 2011
+ * Sam Steingold 1998-2009, 2011-2012
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
@@ -361,15 +361,6 @@ local _Noreturn void error_seqtype_length (object seqtype_length, object compute
 #define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
   (eq(cl,Fixnum_minus1) ? !eq(Fixnum_0,stl) : eql(cl,stl))
 
-/* Error when the argument is not an integer >=0
- YES, we _CAN_ create lists longer than MOST-POSITIVE-FIXNUM! */
-local _Noreturn void error_posint (object kw, object obj) {
-  pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: ~S should be an integer >=0, not ~S"));
-}
-
 /* Macro: Puts NIL as default parameter value onto the stack:
  default_NIL(par); */
 #define default_NIL(par)                        \
@@ -400,11 +391,11 @@ local void test_start_end (const gcv_object_t* kwptr,
   /* START argument must be an integer >= 0: */
   var object start = *(argptr STACKop 1);
   if (!(integerp(start) && positivep(start)))
-    error_posint(kwptr[0],start);
+    error_pos_integer(kwptr[0],start);
   /* END argument must be an integer >= 0: */
   var object end = *(argptr STACKop 0);
   if (!(integerp(end) && positivep(end)))
-    error_posint(kwptr[1],end);
+    error_pos_integer(kwptr[1],end);
   /* compare arguments: */
   if (!(I_I_comp(end,start)>=0)) { /* end >= start ? */
     /* no -> error: */
@@ -425,13 +416,13 @@ local void test_start_end_1 (const gcv_object_t* kwptr,
   /* START argument must be an integer >= 0: */
   var object start = *(argptr STACKop 1);
   if (!(integerp(start) && positivep(start)))
-    error_posint(kwptr[0],start);
+    error_pos_integer(kwptr[0],start);
   /* END argument must be NIL or an integer >= 0: */
   var object end = *(argptr STACKop 0);
   if (nullp(end)) /* end=NIL -> OK, return */
     return;
   if (!(integerp(end) && positivep(end)))
-    error_posint(kwptr[1],end);
+    error_pos_integer(kwptr[1],end);
   /* compare arguments: */
   if (!(I_I_comp(end,start)>=0)) { /* end >= start ? */
     /* no -> error: */
@@ -1940,7 +1931,7 @@ local void test_count_arg (void) {
       STACK_1 = Fixnum_0; return; /* treat negative integers as 0 */
     }
   }
-  error_posint(S(Kcount),count);
+  error_pos_integer(S(Kcount),count);
 }
 
 /* UP: Prepares a sequence operation with test.

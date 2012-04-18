@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2011
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2012
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
@@ -14771,6 +14771,12 @@ MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj)))
 %% export_literal(MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj))));
 %% puts("#endif");
 
+/* Error when the argument is not a non-negative integer
+ > kw: keyword naming the argument
+ > object: bad index */
+extern _Noreturn void error_pos_integer (object kw, object obj);
+/* used by CHARSTRG, SEQUENCE */
+
 /* Error message, if an argument isn't a Character:
  error_char(obj);
  > obj: the faulty argument */
@@ -17691,4 +17697,3 @@ extern void gdb_show_stack (void);
 extern void gdb_disassemble_closure (object obj);
 
 /*************************************************************************/
-

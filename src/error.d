@@ -2,7 +2,7 @@
  * Error-Handling for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2012
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -1238,6 +1238,23 @@ modexp maygc object check_pos_integer_replacement (object obj) {
     obj = value1;
   } while (!(integerp(obj) && !R_minusp(obj)));
   return obj;
+}
+
+/* Error when the argument is not a non-negative integer
+ YES, we _CAN_ create lists longer than MOST-POSITIVE-FIXNUM!
+ > kw: keyword naming the argument
+ > object: bad index */
+global _Noreturn void error_pos_integer (object kw, object obj) {
+  pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);
+  if (eq(kw,nullobj)) {
+    pushSTACK(TheSubr(subr_self)->name);
+    error(type_error,GETTEXT("~S: index should not be negative: ~S"));
+  } else {
+    pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+    error(type_error,GETTEXT("~S: ~S-index should not be negative: ~S"));
+  }
 }
 
 /* error-message, if an argument is not a Character:
