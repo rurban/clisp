@@ -1,7 +1,7 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2012
  * German comments translated into English: Stefan Kain 2001-08-13
  */
 #include "lispbibl.c"
@@ -3853,7 +3853,7 @@ local maygc Values eval_closure (object closure)
           pushSTACK(unbound);
         goto apply_cclosure_key;
       } else
-          goto apply_cclosure_rest_nokey;
+        goto apply_cclosure_rest_nokey;
     }
    apply_cclosure_key_noargs:
     {
@@ -3891,7 +3891,7 @@ local maygc Values eval_closure (object closure)
     goto done;
    apply_cclosure_rest_nokey: {
       /* Closure with only REST, without KEY:
-         evaluate remaining arguments one by on, put into list
+         evaluate remaining arguments one by one, put into list
          args = remaining argument-list (not yet finished) */
       pushSTACK(NIL);           /* so far evaluated remaining arguments */
       pushSTACK(args);          /* remaining arguments, unevaluated */
@@ -4317,7 +4317,7 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
        optionals_from_list:
         { /* store optional Parameters on Stack: */
           var uintC count = opt_count;
-          while (!atomp(args)) { /* argument-list not finished? */
+          while (consp(args)) { /* argument-list not finished? */
             if (count==0) /* all optional Parameters supplied with? */
               goto optionals_ok;
             count--;
@@ -4421,15 +4421,13 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
   if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) /* too many arguments? */
     goto error_toomany;
  apply_subr_rest:
-  if (!nullp(args))
-    goto error_dotted;
+  if (!nullp(args)) goto error_dotted;
   with_saved_back_trace_subr(fun,STACK,
                              TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
     (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
   goto done;
  apply_subr_norest:
-  if (!nullp(args))
-    goto error_dotted;
+  if (!nullp(args)) goto error_dotted;
   with_saved_back_trace_subr(fun,STACK,-1,
     (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
  done:
@@ -4668,7 +4666,7 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
           optionals_from_list:
           { /* store optional parameters on Stack: */
             var uintC count = opt_count;
-            while (!atomp(args)) { /* argument-list not finished? */
+            while (consp(args)) { /* argument-list not finished? */
               if (count==0) /* all optional parameters supplied with? */
                 goto optionals_ok;
               count--;
@@ -8283,4 +8281,3 @@ global maygc void init_cclosures (void) {
  is nest_env supposed to receive its target-environment as parameter??
  register-allocation in eval_subr and eval_cclosure etc.??
  eliminate subr_self?? */
-
