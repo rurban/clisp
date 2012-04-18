@@ -1,3 +1,13 @@
+2012-04-18  Sam Steingold  <sds@gnu.org>
+
+	* error.d (error_pos_integer): add, based on charstrg.d:error_posint
+	* lispbibl.d (error_pos_integer): add the prototype
+	* charstrg.d (error_posint): remove
+	(test_index): use error_pos_integer instead
+	* sequence.d (error_posint): remove
+	(test_start_end, test_start_end_1, test_count_arg):
+	use error_pos_integer instead
+
 2012-03-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c (pcre_config_option): check the return
