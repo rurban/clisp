@@ -79,6 +79,11 @@
       (and (eq (rawsock:sockaddr-family sa) (rawsock:sockaddr-family sa-local))
            (equalp (subseq data 2)
                    (subseq (rawsock:sockaddr-data sa-local) 2)))))
+  (defun maybe-bind (sock sa-local)
+    ;; sometimes it is 127.0.0.1 and sometimes 127.0.1.1
+    (unless (equalp #(127 0) (subseq (rawsock:sockaddr-data sa-local) 2 4))
+      (rawsock:bind sock sa-local)
+      (not (local-sa-check sock sa-local))))
   (dolist (what '(nil :data :family))
     (show (cons (list 'rawsock::sockaddr-slot what)
                 (multiple-value-list (rawsock::sockaddr-slot what)))))
@@ -119,10 +124,7 @@ NIL
 
 (integerp (show (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
 
-(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
-  (rawsock:bind *sock* *sa-local*)
-  (not (local-sa-check *sock* *sa-local*)))
-NIL
+(maybe-bind *sock* *sa-local*) NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 ;; fails when proxied
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
@@ -175,10 +177,7 @@ T
   (= so *sock*))
 T
 
-(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
-  (rawsock:bind *sock* *sa-local*)
-  (not (local-sa-check *sock* *sa-local*)))
-NIL
+(maybe-bind *sock* *sa-local*) NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 ;; fails when proxied
 (equalp (rawsock:getpeername *sock* T) *sa-remote*) T
@@ -201,10 +200,7 @@ NIL
   (= so *sock*))
 T
 
-(unless (equalp #(127 0 0 1) (subseq (rawsock:sockaddr-data *sa-local*) 2 6))
-  (rawsock:bind *sock* *sa-local*)
-  (not (local-sa-check *sock* *sa-local*)))
-NIL
+(maybe-bind *sock* *sa-local*) NIL
 (rawsock:connect *sock* *sa-remote*) NIL
 
 (let ((size (my-recvfrom *sock* *buffer* *sa-remote*)))
