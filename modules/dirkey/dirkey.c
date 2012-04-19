@@ -1,6 +1,6 @@
 /*
  * CLISP: directory key: win32 registry, LDAP, Gnome-config
- * Copyright (C) 2000-2007 by Sam Steingold
+ * Copyright (C) 2000-2007, 2012 by Sam Steingold
  */
 
 #include "clisp.h"
@@ -136,15 +136,6 @@ static object test_dir_key (object obj, bool check_open) {
   return obj;
 }
 
-/* convert an array of char to a (VECTOR (UNSIGNED-BYTE 8))
- can trigger GC */
-static object reg_val_to_vector (uintL size, const char* buffer) {
-  object vec = allocate_bit_vector(Atype_8Bit,size);
-  uintB* dat = TheSbvector(vec)->data;
-  while(size--) *dat++ = *buffer++;
-  return vec;
-}
-
 #if defined(WIN32_REGISTRY)
 /* convert a registry value [type;size;buffer] to the appropriate Lisp object
  can trigger GC */
@@ -193,7 +184,7 @@ static object registry_value_to_object (DWORD type, DWORD size,
     /* case REG_LINK: */
     /* case REG_BINARY: */
     default:
-      return reg_val_to_vector(size,buffer);
+      return data_to_sb8vector(buffer,size);
   }
 }
 

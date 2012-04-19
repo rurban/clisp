@@ -4577,9 +4577,8 @@ static Values /*maygc*/ file_version (char *pathz) {
   }
   if (!VerQueryValue(lpData,"\\",(LPVOID*)&pFileInfo,(PUINT)&BufLen)) {
     end_system_call();
-    pushSTACK(allocate_bit_vector(Atype_8Bit,dwLen));
+    pushSTACK(data_to_sb8vector(lpData,dwLen));
     begin_system_call();
-    memcpy(TheSbvector(STACK_0)->data,lpData,dwLen);
     free(lpData);
     end_system_call();
     pushSTACK(asciz_to_string(pathz,GLO(pathname_encoding)));

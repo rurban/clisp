@@ -216,8 +216,19 @@ CHECK-QUERY-BEST
 (T NIL T)
 
 (multiple-value-list (xlib:keysym->keycodes *dpy* 65)) (38)
-(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52)) (98) ; Up
+
+(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF51)) (113 113)
+(xlib:keysym "Left") #xFF51
+(xlib:keysym-name #xFF51) "Left"
+(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF52)) (111 111)
 (xlib:keysym "Up") #xFF52
+(xlib:keysym-name #xFF52) "Up"
+(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF53)) (114 114)
+(xlib:keysym "Right") #xFF53
+(xlib:keysym-name #xFF53) "Right"
+(multiple-value-list (xlib:keysym->keycodes *dpy* #xFF54)) (116 116)
+(xlib:keysym "Down") #xFF54
+(xlib:keysym-name #xFF54) "Down"
 
 (xlib:keysym->character *dpy* 97)    #\a
 (xlib:keysym->character *dpy* 97 4)  #\a ; 4 is <ctrl>
@@ -248,8 +259,6 @@ C2S
     :unless (equal l-255 l)
     :do (show (list index (diff-seq l-255 l)) :pretty t)))
 NIL
-
-(xlib:keysym-name (show (xlib:keysym "Down"))) "Down"
 
 (let ((access (show (xlib:access-control *dpy*))))
   (assert (eq access (setf (xlib:access-control *dpy*) access)))

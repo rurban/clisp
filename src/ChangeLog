@@ -1,3 +1,14 @@
+2012-04-19  Sam Steingold  <sds@gnu.org>
+
+	* array.d (data_to_sbvector): addd a modexp function
+	(copy_sbvector): use it
+	* lispbibl.d (data_to_sbvector): add the prototype
+	(data_to_sb8vector): add a #define and export both to clisp.h
+	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
+	* modules/dirkey/dirkey.c, modules/gdbm/gdbm.c:
+	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
+	* modules/syscalls/calls.c: use them
+
 2012-04-18  Sam Steingold  <sds@gnu.org>
 
 	* error.d (error_pos_integer): add, based on charstrg.d:error_posint

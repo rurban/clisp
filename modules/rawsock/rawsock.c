@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2011
+ * Sam Steingold 2004-2012
  * Bruno Haible 2004-2008
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
@@ -236,10 +236,7 @@ static object make_sockaddr1 (uintL size) {
 
 /* can trigger GC */
 static object sockaddr_to_lisp (struct sockaddr *sa, uintL size) {
-  pushSTACK(allocate_bit_vector(Atype_8Bit,size));
-  begin_system_call();
-  memcpy(TheSbvector(STACK_0)->data,sa,size);
-  end_system_call();
+  pushSTACK(data_to_sb8vector(sa,size));
   funcall(`RAWSOCK::MAKE-SA`,1); return value1;
 }
 #define pushSTACK_sockaddr(sa)  pushSTACK(sa ? sockaddr_to_lisp(sa,sizeof(*sa)) : NIL)

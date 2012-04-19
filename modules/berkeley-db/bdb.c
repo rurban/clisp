@@ -1,6 +1,6 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
- * Copyright (C) 2003-2011 by Sam Steingold
+ * Copyright (C) 2003-2012 by Sam Steingold
  */
 
 #include "clisp.h"
@@ -1391,12 +1391,8 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
   if (p_dbt->data == NULL) return NIL;
   switch (type) {
     case DBT_RAW: {
-      object vec = allocate_bit_vector(Atype_8Bit,p_dbt->size);
-      void* data = TheSbvector(vec)->data;
-      /* no need to pin vec because memcpy does not block */
-      handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)data + p_dbt->size);
+      object vec = data_to_sb8vector(p_dbt->data,p_dbt->size);
       begin_system_call();
-      memcpy(data,p_dbt->data,p_dbt->size);
       free(p_dbt->data); p_dbt->data = NULL;
       end_system_call();
       return vec;
@@ -2718,13 +2714,7 @@ DEFUN(BDB:TXN-PREPARE, txn gid)
 
 /* allocate a (vector (unsigned-byte 8) DB_GID_SIZE) for this gid
  can trigger GC */
-static object gid_to_vector (u_int8_t gid[DB_GID_SIZE]) {
-  object vec = allocate_bit_vector(Atype_8Bit,DB_GID_SIZE);
-  begin_system_call();
-  memcpy(TheSbvector(vec)->data,gid,DB_GID_SIZE);
-  end_system_call();
-  return vec;
-}
+#define gid_to_vector(gid)  data_to_sb8vector(gid,DB_GID_SIZE)
 
 DEFFLAGSET(txn_recover_flags, DB_FIRST DB_NEXT)
 DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
