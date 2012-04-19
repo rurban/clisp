@@ -1,7 +1,7 @@
 /*
  * Array functions
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2010
+ * Sam Steingold 1998-2012
  * German comments translated into English: Stefan Kain 2002-09-23
  */
 
@@ -32,6 +32,21 @@ global maygc object copy_svector (object vector) {
   return newvector;
 }
 
+/* Function: allocate a simple-bit/byte-vector and copy data there
+ > atype: array type
+ > vec_len: the length of the new array
+ > data: pointer to the memory area to be copied
+ > byte_len: the memory size to be copied, in bytes
+ < returns a fresh simple-bit/byte-vector with the same contents
+ can trigger GC */
+modexp maygc object data_to_sbvector (uintB atype, uintL vec_len,
+                                      const void *data, uintL byte_len) {
+  var object newvector = allocate_bit_vector(atype,vec_len);
+  if (byte_len != 0)
+    copy_mem_b(TheSbvector(newvector)->data,data,byte_len);
+  return newvector;
+}
+
 /* Function: Copies a simple-bit/byte-vector.
  copy_sbvector(vector)
  > vector: simple-bit/byte-vector
@@ -41,15 +56,8 @@ global maygc object copy_sbvector (object vector) {
   var uintB atype = sbNvector_atype(vector);
   var uintL length = Sbvector_length(vector);
   pushSTACK(vector);
-  var object newvector = allocate_bit_vector(atype,length); /* vector of same length */
-  vector = popSTACK();
-  if (length != 0) {
-    var const uintB* ptr1 = &TheSbvector(vector)->data[0];
-    var uintB* ptr2 = &TheSbvector(newvector)->data[0];
-    dotimespL(length,ceiling(length<<atype,8), {
-      *ptr2++ = *ptr1++;
-    });
-  }
+  var object newvector = data_to_sbvector(atype,length,TheSbvector(vector)->data,ceiling(length<<atype,8)); /* vector of the same length */
+  skipSTACK(1);
   return newvector;
 }
 

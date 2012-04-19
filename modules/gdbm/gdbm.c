@@ -2,7 +2,7 @@
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
  * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
- * Copyright (C) 2007-2008, 2010-2011  Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2007-2008, 2010-2012  Sam Steingold <sds@gnu.org>
  * GPL2
  */
 
@@ -294,8 +294,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
       return o;
     }
     case GDBM_DATA_VECTOR: case GDBM_DATA_8BIT_VECTOR: {
-      object o = allocate_bit_vector(Atype_8Bit,d.dsize);
-      SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
+      object o = data_to_sb8vector(d.dptr,d.dsize);
       free(d.dptr);
       return o;
     }
@@ -311,8 +310,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
         funcall(L(error_of_type), 8);
         NOTREACHED;
       } else {
-        object o = allocate_bit_vector(Atype_32Bit,d.dsize/4);
-        SYSCALL(memcpy(TheSbvector(o)->data,d.dptr,d.dsize));
+        object o = data_to_sbvector(Atype_32Bit,d.dsize/4,d.dptr,d.dsize);
         free(d.dptr);
         return o;
       }

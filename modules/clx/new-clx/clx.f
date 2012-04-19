@@ -1,7 +1,7 @@
 /* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2011
+Sam Steingold 2001-2012
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -1488,12 +1488,7 @@ static sint32 get_angle (object ang)
   return get_sint32(funcall1(L(round),value1));
 }
 
-static object make_fill_bit_vector (char *data, int len)
-{
-  object ret = allocate_bit_vector (Atype_Bit, len * 8);
-  SYS_CALL(memcpy (TheSbvector(ret)->data, data, len));
-  return ret;
-}
+#define make_fill_bit_vector(data,len) data_to_sbvector(Atype_Bit,len*8,data,len)
 
 static object make_key_vector (char key_vector[32])
 { return make_fill_bit_vector(key_vector,32); }
@@ -7595,8 +7590,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
           default: bad_family:
           pushSTACK(check_family_reverse(ho->family));
           if (ho->length) {
-            pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
-            SYS_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
+            pushSTACK(data_to_sb8vector(ho->address,ho->length));
             { object tmp = listof(2); pushSTACK(tmp); }
         }
       }

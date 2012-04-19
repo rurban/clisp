@@ -13077,6 +13077,20 @@ extern _Noreturn void error_unencodable (object encoding, chart ch);
 extern maygc object copy_svector (object vector);
 /* used by IO */
 
+/* Function: allocate a simple-bit/byte-vector and copy data there
+ > atype: array type
+ > vec_len: the length of the new array
+ > data: pointer to the memory area to be copied
+ > byte_len: the memory size to be copied, in bytes
+ < returns a fresh simple-bit/byte-vector with the same contents
+ can trigger GC */
+extern maygc object data_to_sbvector (uintB atype, uintL vec_len,
+                                      const void *data, uintL byte_len);
+#define data_to_sb8vector(data,bytelen)  data_to_sbvector(Atype_8Bit,bytelen,data,bytelen)
+%% exportF(object,data_to_sbvector,(uintB atype, uintL vec_len, const void *data, uintL byte_len));
+%% export_def(data_to_sb8vector(data,bytelen));
+/* used by RAWSOCK, NEW-CLX, DIRKEY, GDBM, SYSCALLS, BERKELEY-DB, PCRE */
+
 /* Function: Copies a simple-bit/byte-vector.
  copy_sbvector(vector)
  > vector: simple-bit/byte-vector
