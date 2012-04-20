@@ -31,9 +31,6 @@
                                     (error (e) e)))))
                         (posix:hostent-addr-list he)))
           :pretty t))
-  (defun ip->ve (ip)
-    (read-from-string
-     (concatenate 'string "#(" (substitute #\Space #\. ip) ")")) )
   (defun host->ip (host)
     (let* ((he (os:resolve-host-ipaddr host)) all
            (host1 (os:hostent-name he)))
@@ -43,7 +40,9 @@
                 :for h1 = (os:resolve-host-ipaddr ip)
                 :do (show-he h1) (push h1 all)
                 :when (string-equal host1 (os:hostent-name h1))
-                :return (show (cons (ip->ve ip) (os:hostent-addrtype h1))))
+                :return (show (cons (rawsock:convert-address
+                                     (os:hostent-addrtype h1) ip)
+                                    (os:hostent-addrtype h1))))
             (error (e) (princ-error e) nil))
           (if (eq host :default)
               (let* ((l (rawsock:ifaddrs :flags-and '(:up :running :broadcast)))
@@ -81,6 +80,7 @@
                    (subseq (rawsock:sockaddr-data sa-local) 2)))))
   (defun maybe-bind (sock sa-local)
     ;; sometimes it is 127.0.0.1 and sometimes 127.0.1.1
+    (show (subseq (rawsock:sockaddr-data sa-local) 2 6))
     (unless (equalp #(127 0) (subseq (rawsock:sockaddr-data sa-local) 2 4))
       (rawsock:bind sock sa-local)
       (not (local-sa-check sock sa-local))))

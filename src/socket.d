@@ -219,7 +219,7 @@ local int with_host (const char* host, host_fn_t fn, void* opts) {
 local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
 {
   *(object*)ret = (addrlen
-                   ? LEbytes_to_UI(addrlen,(const uintB*)addr)
+                   ? data_to_sb8vector(addr,addrlen)
                    : asciz_to_string((const char*)addr,O(misc_encoding)));
   (void)family; /* ignore */
   return 0;
@@ -227,7 +227,7 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
 
 /* Convert the IP address from C format to Lisp
  > name: FQDN or dotted quad or IPv6 address
- < lisp string for FQDN or integer for IPv[46] numerics
+ < lisp string for FQDN or byte vector for IPv[46] numerics
  for syscalls & rawsock modules
  can trigger GC */
 modexp maygc object string_to_addr (const char* name) {

@@ -16100,7 +16100,7 @@ extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
 /* Convert the IP address from C format to Lisp
  > name: FQDN or dotted quad or IPv6 address
- < lisp string for FQDN or integer for IPv[46] numerics
+ < lisp string for FQDN or byte vector for IPv[46] numerics
  for syscalls & rawsock modules
  can trigger GC */
 extern maygc object string_to_addr (const char* name);
