@@ -267,13 +267,14 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    (See also &so-opt;.)</simpara></listitem></varlistentry>
 <varlistentry id="rawsock-convert-address"><term><code>(&convert-address;
    &family-r; &addr-r;)</code></term>
- <listitem><para>Convert between &string-t; and &integer-t; &ip;
+ <listitem><para>Convert between &string-t; and &ubyte-vec; &ip;
    &addr-r; representations using<simplelist columns="2">
     <member><function role="unix">inet_addr</function></member>
     <member><function role="unix">inet_ntoa</function></member>
     <member><function role="unix">inet_ntop</function></member>
     <member><function role="unix">inet_pton</function></member>
-</simplelist></para></listitem></varlistentry>
+</simplelist>(&integer-t;s are also accepted for backward
+ compatibility)</para></listitem></varlistentry>
 <varlistentry id="make-sockaddr"><term><code>(RAWSOCK:MAKE-SOCKADDR
    &family-r; &optional-amp; &data-r;)</code></term>
  <listitem><simpara>Create a <type>sockaddr</type> object.

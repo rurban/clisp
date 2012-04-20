@@ -59,6 +59,10 @@ User visible changes
   :RETURN-TYPE 'BOOLEAN instead.
   See <http://clisp.org/impnotes/regexp.html#re-regexp-exec> for details.
 
+* Function RAWSOCK:CONVERT-ADDRESS now returns byte vectors instead of integers.
+  See <http://clisp.org/impnotes/rawsock.html#rawsock-convert-address>
+  for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
   + Fix SCREEN behavior when the window is resized.

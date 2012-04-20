@@ -384,10 +384,14 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
     switch (family) {
      #if defined(AF_INET6)
       case AF_INET6: {
-        uint64 ip_address;
-        UI_to_LEbytes(check_uint64(STACK_0),8*sizeof(uint64),
-                      (uintB*)&ip_address);
-        value1 = addr_to_string(family,(char*)&ip_address);
+        if (!((fixnump(STACK_0) && positivep(STACK_0)) /*socket.d:resolve_host*/
+              || (bignump(STACK_0) && positivep(STACK_0)
+                  && Bignum_length(STACK_0)*sizeof(uintD)
+                     <= sizeof(struct in6_addr))))
+          goto bad_address;
+        struct in6_addr addr;
+        UI_to_LEbytes(STACK_0,8*sizeof(struct in6_addr),(uintB*)&addr);
+        value1 = addr_to_string(family,(char*)&addr);
       } break;
      #endif
       case AF_INET: {
@@ -398,7 +402,9 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
       } break;
       default: value1 = NIL;
     }
-  } else error_string_integer(STACK_0);
+  } else if (simple_bit_vector_p(Atype_8Bit,STACK_0)) {
+    value1 = addr_to_string(family,TheSbvector(STACK_0)->data);
+  } else bad_address: error_string_integer(STACK_0);
   if (nullp(value1)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1);         /* domain */
