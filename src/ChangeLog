@@ -1,6 +1,7 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (error_bad_type): fix declaration (for g++)
+	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): add a cast
 
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
