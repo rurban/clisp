@@ -1,3 +1,8 @@
+2012-04-23  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS): do not add -Wimplicit when compiling with C++:
+	"warning: command line option `-Wimplicit' is valid for C/ObjC but not for C++"
+
 2012-04-20  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#3517196: APPLY reacts differently to dotted list when compiled
