@@ -96,7 +96,7 @@ XMLCATALOG=xmlcatalog
 
 # chose one:
 #TEXI2HTML=texi2html -monolithic -verbose $< -out_file $@
-TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
+TEXI2HTML=makeinfo --verbose --no-split --no-headers --force --html $< -o $@
 
 # NB: keep in sync with src/makemake.in:MYIMPROOT
 DIST_PODVAL = podval:~/public_html/clisp
