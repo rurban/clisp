@@ -214,7 +214,7 @@ static object coerce_bitvector (object arg) {
   }
 }
 
-static _Noreturn error_bad_type (object lisp_obj) {
+static _Noreturn void error_bad_type (object lisp_obj) {
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
   pushSTACK(`"invalid lisp object type: "`);

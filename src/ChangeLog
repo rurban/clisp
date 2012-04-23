@@ -1,5 +1,9 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.c (error_bad_type): fix declaration (for g++)
+
+2012-04-23  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS): do not add -Wimplicit when compiling with C++:
 	"warning: command line option `-Wimplicit' is valid for C/ObjC but not for C++"
 
