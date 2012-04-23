@@ -497,8 +497,10 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
     (or (gethash host *logical-pathname-translations*) ; :test #'equal !
-        (error (TEXT "~S: ~S does not name a logical host")
-               'logical-pathname-translations host)))
+        (error-of-type 'type-error :datum host :expected-type
+          '(and string (satisfies logical-pathname-translations))
+          (TEXT "~S: ~S does not name a logical host")
+          'logical-pathname-translations host)))
   (defun set-logical-pathname-translations (host translations)
     (setq host (string-upcase host))
     (puthash host *logical-pathname-translations* ; :test #'equal !

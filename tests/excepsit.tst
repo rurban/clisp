@@ -675,6 +675,9 @@ type-error
 (logical-pathname-translations '#(#\A #\B))
 type-error
 
+(logical-pathname-translations "FOO41")
+type-error
+
 (lower-case-p 33)
 type-error
 
