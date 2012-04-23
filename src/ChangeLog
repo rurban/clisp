@@ -1,5 +1,15 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
+	Do not signal errors inside begin/end_blocking_system_call blocks
+	Reported by Don Cohen http://article.gmane.org/gmane.lisp.clisp.devel:22914
+	* modules/syscalls/calls.c (POSIX:OPENLOG): use clisp_realloc
+	instead of clisp_malloc/free
+	(my_chmod, my_chown, my_utime): return status instead of signaling
+	(SET-FILE-STAT): signal errors after end_blocking_system_call
+	(FILE-INFO): do not jump out of a begin/end_blocking_system_call block
+
+2012-04-23  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c (error_bad_type): fix declaration (for g++)
 	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): add a cast
 

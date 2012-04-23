@@ -493,9 +493,8 @@ DEFUN(POSIX:OPENLOG,ident &key PID CONS NDELAY ODELAY NOWAIT FACILITY) {
   int facility = check_syslog_facility(popSTACK());
   int logopt = syslog_opt_flags();
   with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
+      log_ident = (char*)clisp_realloc(log_ident,strlen(ident)+1);
       begin_blocking_system_call();
-      if (log_ident) { free(log_ident); }
-      log_ident = (char*)clisp_malloc(strlen(ident)+1);
       strcpy(log_ident,ident);
       openlog(log_ident,logopt,facility);
       end_blocking_system_call();
@@ -2065,12 +2064,13 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 #if defined(HAVE_STAT) && (defined(HAVE_CHMOD) || defined(HAVE_CHOWN) || defined(HAVE_UTIME))
 /* error-signalling replacement for chmod()
    STACK_O is the path - for error reporting
+ return -1 on error and 0 on success
  can trigger GC */
-static void my_chmod (char *path, mode_t mode) {
+static int my_chmod (char *path, mode_t mode) {
 #if defined(WIN32_NATIVE)
-  if (!SetFileAttributes(path,mode)) OS_file_error(STACK_0);
+  if (!SetFileAttributes(path,mode)) return -1;
 #elif defined(HAVE_CHMOD)
-  if (chmod(path,mode)) OS_file_error(STACK_0);
+  if (chmod(path,mode)) return -1;
 #else
   end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S): this platform lacks ~S"));
@@ -2080,13 +2080,15 @@ static void my_chmod (char *path, mode_t mode) {
   funcall(S(warn),5);
   begin_blocking_system_call();
 #endif
+  return 0;
 }
 /* error-signalling replacement for chown()
    STACK_O is the path - for error reporting
+ return -1 on error and 0 on success
  can trigger GC */
-static void my_chown (char *path, uid_t uid, gid_t gid) {
+static int my_chown (char *path, uid_t uid, gid_t gid) {
 #if defined(HAVE_CHOWN)
-  if (chown(path,uid,gid)) OS_file_error(STACK_0);
+  if (chown(path,uid,gid)) return -1;
 #else
   end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
@@ -2097,24 +2099,26 @@ static void my_chown (char *path, uid_t uid, gid_t gid) {
   funcall(S(warn),7);
   begin_blocking_system_call();
 #endif
+  return 0;
 }
 /* error-signalling replacement for utime()
    STACK_O is the path - for error reporting
+ return -1 on error and 0 on success
  can trigger GC */
 #if !defined(WIN32_NATIVE)
-static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
+static int my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   if (utb_a && !utb_m) {
     struct stat st;
-    if (stat(path,&st) < 0) OS_file_error(STACK_0);
+    if (stat(path,&st) < 0) return -1;
     utb->modtime = st.st_mtime;
   }
   if (utb_m && !utb_a) {
     struct stat st;
-    if (stat(path,&st) < 0) OS_file_error(STACK_0);
+    if (stat(path,&st) < 0) return -1;
     utb->actime = st.st_atime;
   }
 #if defined(HAVE_UTIME)
-  if (utime(path,utb)) OS_file_error(STACK_0);
+  if (utime(path,utb)) return -1;
 #else
   end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
@@ -2127,20 +2131,22 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   funcall(S(warn),7);
   begin_blocking_system_call();
 #endif
+  return 0;
 }
 #else  /* WIN32_NATIVE */
 /* win32 implementation of utime() is severely broken:
    http://www.codeproject.com/datetime/dstbugs.asp */
 struct a_m_time { FILETIME actime; FILETIME modtime; };
-static void my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
+static int my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
   HANDLE hfile = CreateFile(path, GENERIC_WRITE, 0 , NULL, OPEN_EXISTING,
                             FILE_ATTRIBUTE_NORMAL, NULL);
   BOOL success_p;
-  if (hfile == INVALID_HANDLE_VALUE) OS_file_error(STACK_0);
+  if (hfile == INVALID_HANDLE_VALUE) return -1;
   success_p = SetFileTime(hfile,NULL,utb_a ? &(tm->actime) : NULL,
                           utb_m ? &(tm->modtime) : NULL);
   CloseHandle(hfile);
-  if (!success_p) OS_file_error(STACK_0);
+  if (!success_p) return -1;
+  return 0;
 }
 #endif  /* WIN32_NATIVE */
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
@@ -2190,6 +2196,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
   struct utimbuf utb;
 # endif
   bool utb_a = false, utb_m = false;
+  int status = 0;
   if (!missingp(STACK_0)) {     /* mtime */
     if (integerp(STACK_0))
       convert_time_from_universal(STACK_0,&(utb.modtime));
@@ -2228,11 +2235,15 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
   STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {
       begin_blocking_system_call();
-      if (mode != (mode_t)-1) my_chmod(path,mode);
-      if ((uid != (uid_t)-1) || (gid != (gid_t)-1)) my_chown(path,uid,gid);
-      if (utb_a || utb_m) my_utime(path,utb_a,utb_m,&utb);
+      if (status == 0 && (mode != (mode_t)-1))
+        status = my_chmod(path,mode);
+      if (status == 0 && ((uid != (uid_t)-1) || (gid != (gid_t)-1)))
+        status = my_chown(path,uid,gid);
+      if (status == 0 && (utb_a || utb_m))
+        status = my_utime(path,utb_a,utb_m,&utb);
       end_blocking_system_call();
     });
+  if (status < 0) OS_file_error(STACK_0);
   VALUES0; skipSTACK(1);
 }
 #endif  /* chmod chown utime */
@@ -3374,8 +3385,8 @@ DEFUN(POSIX::FILE-INFO, file &optional all) {
     while (1) {
       begin_blocking_system_call();
       if (!FindNextFile(sh,&wfd)) {
-        if (GetLastError() == ERROR_NO_MORE_FILES) break;
         end_blocking_system_call();
+        if (GetLastError() == ERROR_NO_MORE_FILES) break;
         OS_file_error(*phys);
       }
       end_blocking_system_call();
