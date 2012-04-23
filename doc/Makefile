@@ -243,6 +243,7 @@ id-href.map : chunk.tdb
 	$(XSLTPROC) $(XMLS_COMMON) -o $@ id-href-map.xsl $<
 
 html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK) id-href.map
+	if [ ! -d ../../sf/www ]; then echo 'no sf/www dir'; false; fi
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd $@/ && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
 	cp -pv impnotes.css id-href.map $@/
