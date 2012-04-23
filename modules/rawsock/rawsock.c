@@ -403,7 +403,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
       default: value1 = NIL;
     }
   } else if (simple_bit_vector_p(Atype_8Bit,STACK_0)) {
-    value1 = addr_to_string(family,TheSbvector(STACK_0)->data);
+    value1 = addr_to_string(family,(char*)TheSbvector(STACK_0)->data);
   } else bad_address: error_string_integer(STACK_0);
   if (nullp(value1)) {
     pushSTACK(NIL);             /* no PLACE */
