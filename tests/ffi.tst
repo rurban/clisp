@@ -701,28 +701,25 @@ T
   *x*)
 0
 
-(def-c-type idfun
- (c-function (:arguments (x uint)) (:return-type uint)
-   (:language :stdc)))
-IDFUN
+(def-c-type uint->uint
+    (c-function (:arguments (x uint)) (:return-type uint)
+                (:language :stdc)))
+UINT->UINT
 
 ;; convert forth and back
-(type-of (setq callbackf (with-c-var (x 'idfun #'callback) x)))
-FOREIGN-FUNCTION
+(defparameter *callbackf* (with-c-var (x 'uint->uint #'callback) x)) *CALLBACKF*
 
-(list (funcall callbackf 32767) *x*)
-(65535 32767)
+(list (funcall *callbackf* 32767) *x*) (65535 32767)
 
-(with-foreign-object (x '(c-function
-    (:arguments (x uint)) (:return-type uint)(:language :stdc)) callbackf))
-NIL
+(with-foreign-object (x 'uint->uint *callbackf*)) NIL
 
-(with-foreign-object (x '(c-function
-    (:arguments (x int)) (:return-type uint)(:language :stdc)) callbackf))
+(with-foreign-object (x '(c-function (:arguments (x int))
+                          (:return-type uint) (:language :stdc))
+                        *callbackf*))
 ERROR
 
-(progn (foreign-free callbackf) (makunbound 'callbackf))
-CALLBACKF
+(progn (foreign-free *callbackf*) (makunbound '*callbackf*))
+*CALLBACKF*
 
 (progn
   (defparameter *x* 0)
@@ -734,21 +731,20 @@ CALLBACKF
 0
 
 (def-c-type idfpfun
- (c-function (:arguments (x double-float)) (:return-type single-float)
-   (:language :stdc)))
+    (c-function (:arguments (x double-float)) (:return-type single-float)
+                (:language :stdc)))
 IDFPFUN
 
-(type-of (setq fpcallback (with-c-var (x 'idfpfun #'pass-float) x)))
-FOREIGN-FUNCTION
+(defparameter *fpcallback* (with-c-var (x 'idfpfun #'pass-float) x))
+*FPCALLBACK*
 
-(list (funcall fpcallback 3.5d0) *x*)
-(3.5f0 3.5d0)
+(list (funcall *fpcallback* 3.5d0) *x*)  (3.5f0 3.5d0)
 
-(progn (foreign-free fpcallback) 4)
-4
+(foreign-free *fpcallback*) NIL
 
-(funcall fpcallback -7.5d0)
-ERROR
+(funcall *fpcallback* -7.5d0) ERROR
+
+(makunbound '*fpcallback*) *FPCALLBACK*
 
 ;; Some platforms might not define HAVE_LONG_LONG_INT (what are they?),
 ;; so the int64 tests will fail there.
