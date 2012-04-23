@@ -543,6 +543,8 @@ T
     (delete-file file)))
 (T T)
 
+(posix:set-file-stat "this file does not exist" :uid (1+ (posix:uid))) ERROR
+
 (let ((s (floor (os:file-size *tmp1*) 2)))
   (list (= s (setf (os:file-size *tmp1*) s))
         (= s (os:file-size *tmp1*))))
