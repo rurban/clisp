@@ -1,5 +1,9 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
+	* excepsit.tst: add tests for APPLY on dotted lists [bug#3517196]
+
+2012-04-23  Sam Steingold  <sds@gnu.org>
+
 	* excepsit.tst: check that LOGICAL-PATHNAME-TRANSLATIONS signals
 	a TYPE-ERROR on a STRING too [bug#3520570]
 

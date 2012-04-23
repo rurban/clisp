@@ -95,6 +95,7 @@ User visible changes
   + Fix OS:FILE-STAT on very large files (bug#3483340).
   + Fix error that occurred when constructing the dispatch code of generic
     functions with a method that specializes on SEQUENCE (bug#3487338).
+  + Improve dotted list detection in APPLY (bug#3517196).
   + Signal TYPE-ERROR in LOGICAL-PATHNAME-TRANSLATIONS on invalid
     logical host as per ANSI (bug#3520570).
 
