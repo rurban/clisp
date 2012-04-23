@@ -1,3 +1,9 @@
+2012-04-20  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#3517196: APPLY reacts differently to dotted list when compiled
+	* eval.d (error_apply_dotted): remove; use error_subr_toofew() instead
+	(apply_subr, apply_closure): more checks for dotted argument list
+
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (logical-pathname-translations): signal TYPE-ERROR on

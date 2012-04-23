@@ -4087,15 +4087,6 @@ modexp maygc Values apply (object fun, uintC args_on_stack, object other_args) {
   goto apply_restart;
 }
 
-/* Error because of dotted argument-list
- > name: name of function */
-local _Noreturn void error_apply_dotted (object name, object end) {
-  pushSTACK(end);
-  pushSTACK(name);
-  pushSTACK(S(apply));
-  error(program_error,GETTEXT("~S: argument list given to ~S is dotted (terminated by ~S)"));
-}
-
 /* Error because of too many arguments
  > name: name of function */
 local _Noreturn void error_apply_toomany (object name) {
@@ -4324,6 +4315,7 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
             pushSTACK(Car(args)); /* store next Argument */
             args = Cdr(args);
           }
+          if (!nullp(args)) goto error_dotted;
           /* Argument-list finished.
            All further count optional Parameters receive the "value"
            #<UNBOUND>, including the Keyword-Parameters: */
@@ -4397,6 +4389,7 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
       args = Cdr(args);
       argcount++;
     }
+    if (!nullp(args)) goto error_dotted;
     /* assign Keywords and poss. discard remaining arguments: */
     match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
     if (TheSubr(fun)->rest_flag != subr_norest)
@@ -4418,6 +4411,7 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
     args = Cdr(args);
     argcount++;
   }
+  if (!nullp(args)) goto error_dotted;
   if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) /* too many arguments? */
     goto error_toomany;
  apply_subr_rest:
@@ -4434,9 +4428,8 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
   CHECK_STACK_S(args_end_pointer,fun);
   return;                       /* finished */
   /* gathered error messages: */
- error_toofew: error_subr_toofew(fun,args);
+ error_dotted: error_toofew: error_subr_toofew(fun,args);
  error_toomany: error_subr_toomany(fun);
- error_dotted: error_apply_dotted(TheSubr(fun)->name,args);
 }
 
 /* Error because of too many arguments for a Closure
@@ -4794,6 +4787,9 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
       goto done;
     }
    apply_cclosure_rest_nokey:
+    /* we could use list_length() to catch (apply #'foo '(1 . 1))
+       too but the cost would be ridiculous */
+    if (!listp(args)) goto error_dotted;
     /* Closure with only REST, without KEY:
      still has to cons args_on_stack Arguments from Stack to args: */
     pushSTACK(args);
@@ -4825,15 +4821,15 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
       if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
         goto error_toomany;
     }
+    if (!nullp(args)) goto error_dotted;
     var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
     with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
       funcall_iclosure(closure,args_pointer,args_on_stack); );
     return;                     /* finished */
   }
   /* Gathered error-messages: */
- error_toofew: error_closure_toofew(closure,args);
+ error_dotted: error_toofew: error_closure_toofew(closure,args);
  error_toomany: error_closure_toomany(closure);
- error_dotted: error_apply_dotted(closure,args);
 }
 
 

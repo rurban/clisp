@@ -1308,5 +1308,11 @@ type-error
 
 (expt 10 10000000) arithmetic-error ; [ 2807311 ]
 
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=3517196&group_id=1355&atid=101355
+(apply #'car '(1 2)) program-error
+(apply #'car '(1 . 2)) program-error
+(apply #'list 1 2) program-error
+(apply #'warn 1 2 3) program-error
+
 #+(and clisp unicode) (ext:convert-string-from-bytes #(1) charset:ucs-4)
 #+(and clisp unicode) simple-charset-type-error
