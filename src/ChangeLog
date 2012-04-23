@@ -1,5 +1,11 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp (format-apply): do not bind *FORMAT-CS* here ...
+	(formatter): ... do it here instead for run-time error reporting
+	in compiled FORMAT calls [bug#3498026]
+
+2012-04-23  Sam Steingold  <sds@gnu.org>
+
 	Do not signal errors inside begin/end_blocking_system_call blocks
 	Reported by Don Cohen http://article.gmane.org/gmane.lisp.clisp.devel:22914
 	* modules/syscalls/calls.c (POSIX:OPENLOG): use clisp_realloc

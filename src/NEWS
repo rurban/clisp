@@ -83,7 +83,7 @@ User visible changes
   + Fix SOCKET-CONNECT with non-0 timeout (bug#3182685).
   + Reduce consing in HANDLER-BIND et al (bug#3147908).
   + Implement :NO-HANG and :INTERACTIVE in WRITE-BYTE-SEQUENCE for all
-    sequences, not just byte vectors (bug#3182597).
+    sequences, not just byte vectors (bug#3182 597).
   + Fix protocol argument handling in POSIX:SERVICE (bug#3280915).
   + Fix (SETF (VALUES (VALUES) ...) ...) (bug#3291585).
   + Fix handling properties with "format=32" in NEW-CLX on 64-bit
@@ -98,6 +98,7 @@ User visible changes
   + Improve dotted list detection in APPLY (bug#3517196).
   + Signal TYPE-ERROR in LOGICAL-PATHNAME-TRANSLATIONS on invalid
     logical host as per ANSI (bug#3520570).
+  + Fix run-time error reporting in compiled FORMAT calls (bug#3498026).
 
 
 2.49 (2010-07-07)

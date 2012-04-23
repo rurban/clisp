@@ -382,8 +382,7 @@
              (format-interpret stream)
              *FORMAT-NEXT-ARG*)))
         ((functionp control-string)
-         (let ((*FORMAT-CS* nil)) ; format-error cannot point to the position anymore
-           (apply control-string stream arguments)))
+         (apply control-string stream arguments))
         (t (format-cs-error control-string))))
 
 (defun format-cs-error (control-string)
@@ -2565,7 +2564,8 @@
             `(FUNCTION
                (LAMBDA (STREAM ,@lambdalist)
                  (DECLARE (IGNORABLE STREAM))
-                 ,@forms))))))
+                 (let ((*FORMAT-CS* nil)) ; format-error cannot point to the position anymore
+                   ,@forms)))))))
     `(FORMATTER-HAIRY ,(coerce control-string 'simple-string))))
 
 ;;; ---------------------------------------------------------------------------

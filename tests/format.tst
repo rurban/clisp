@@ -1272,6 +1272,20 @@ def"
 
 def")
 
+;; https://sourceforge.net/tracker/?func=detail&aid=3498026&group_id=1355&atid=101355
+(handler-case (format nil "~C" 0)
+  (type-error (e) (princ-error e) t))  T
+(handler-case (funcall (formatter "~C") *standard-output* 0)
+  (type-error (e) (princ-error e) t))  T
+(handler-case (funcall (compile nil (lambda () (format nil "~C" 0))))
+  (type-error (e) (princ-error e) t))  T
+(handler-case (format nil "~@R" 10000)
+  (type-error (e) (princ-error e) t))  T
+(handler-case (funcall (formatter "~@R") *standard-output* 10000)
+  (type-error (e) (princ-error e) t))  T
+(handler-case (funcall (compile nil (lambda () (format nil "~@R" 10000))))
+  (type-error (e) (princ-error e) t))  T
+
 
 (progn
   (symbol-cleanup 'format-blocksatz)
