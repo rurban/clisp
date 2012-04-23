@@ -224,13 +224,13 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   if (spinlock_tryacquire(&current_thread()->_gc_suspend_ack)) {
     /* this should never happen - we always hold this lock unless we are in
        blocking system call (or waiting for the GC) */
-    fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call();");
+    fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call()\n");
     abort();
   }
   if (current_thread()->_suspend_count) {
     /* hmm aren't we supposed to be suspended? if we are here - there
        is GC running NOW */
-    fprintf(stderr,"*** thread is going into lisp land while GC in progress.");
+    fprintf(stderr,"*** thread is going into lisp land while GC in progress.\n");
     abort();
   }
 #endif
