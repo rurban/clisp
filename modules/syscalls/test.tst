@@ -791,6 +791,13 @@ RUN-SLEEP
 (fnmatch "foo*bar" "fooABAR") NIL
 (fnmatch "foo*bar" "fooABAR" :case-sensitive nil) T
 
+(let ((dir "test-dir/") (link "test-symlink/"))
+  (ext:make-directory dir)
+  (os:copy-file dir link :method :symlink)
+  (ext:delete-directory dir)
+  (ext:delete-directory link))
+T
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)

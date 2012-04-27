@@ -1,3 +1,13 @@
+2012-04-27  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#3467762: symlink to directory handling
+	* modules/syscalls/calls.c (symlink_file): strip trailing "/" from
+	new_pathstring
+	(copy_one_file): use PROBE-PATHNAME instead of PROBE-FILE to
+	accommodate directories
+	* pathname.d (delete_directory): when rmdir() fails with ENOTDIR,
+	call unlink() because we are dealing with a symbolic link
+
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (format-apply): do not bind *FORMAT-CS* here ...
