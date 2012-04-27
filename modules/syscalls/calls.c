@@ -2896,6 +2896,9 @@ static bool hardlink_file (char* old_pathstring, char* new_pathstring,
 #if defined(HAVE_SYMLINK)
 static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
   gcv_object_t *failed = NULL;
+  int len = strlen(new_pathstring) - 1;
+  if ('/' == new_pathstring[len]) /* symlink to "foo/" => ENOENT */
+    new_pathstring[len] = 0;
   begin_blocking_system_call();
   if (symlink(old_pathstring,new_pathstring) < 0) /* symlink file */
     failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
@@ -3117,7 +3120,7 @@ static void copy_one_file (object source, object src_path,
     return;
   }
 
-  pushSTACK(STACK_0); funcall(L(probe_file),1);
+  pushSTACK(STACK_0); funcall(L(probe_pathname),1);
   if (!nullp(value1)) { /* destination exists; value1 == truename */
     pushSTACK(value1); STACK_2 = dest = value1;
     /* STACK: 0=dest_true; 1=dest_path; 2=dest; 3=src_path; 4=src */
@@ -3147,7 +3150,7 @@ static void copy_one_file (object source, object src_path,
     }
   } else pushSTACK(STACK_0); /* destination does not exist, use dest_path */
 
-  pushSTACK(STACK_3); funcall(L(probe_file),1);
+  pushSTACK(STACK_3); funcall(L(probe_pathname),1);
   if (nullp(value1)) { /* source does not exist */
     if (method == COPY_METHOD_RENAME || method == COPY_METHOD_HARDLINK
         || method == COPY_METHOD_HARDLINK_OR_COPY) {
@@ -3163,7 +3166,7 @@ static void copy_one_file (object source, object src_path,
       }
     }
   } else {
-    pushSTACK(value1); funcall(L(truename),1); pushSTACK(value1);
+    pushSTACK(value1);
   }
 
   /* stack layout: 0=src_true; 1=dest_true ... */
