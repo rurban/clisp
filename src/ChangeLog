@@ -1,3 +1,14 @@
+2012-05-03  Sam Steingold  <sds@gnu.org>
+
+	update berkeley-db to 5.1
+	* modules/berkeley-db/bdb.c (add_message): fix
+	(DB-VERSION): use db_full_version when available
+	(DBE-CREATE): remote is no longer supported by upstream
+	(dbt_to_object): also return nil when p_dbt->size==0
+	(DB-COMPACT): add
+	(DB-VERIFY): mark the db handle invalid because it "may not be accessed
+	again after DB->verify() is called, regardless of its return"
+
 2012-04-27  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#3467762: symlink to directory handling

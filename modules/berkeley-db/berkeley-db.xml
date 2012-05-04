@@ -2,17 +2,18 @@
 
 <section id="berkeley-db"><title>Berkeley DB access</title>
 
-<para>This interface to <ulink role="bdb" url="index.html">Berkeley DB</ulink>
+<para>This interface to <ulink url="http://www.oracle.com/technetwork/products/berkeleydb/overview/index.html">Berkeley DB</ulink>
  from <ulink url="http://en.wikipedia.org/wiki/Sleepycat_Software">Sleepycat
   Software</ulink>/&oracle-link; exports most functions in the official
  &c-lang; API.  Supported versions:<simplelist type="horiz" columns="1">
-  <member><ulink role="bdb" url="ref/upgrade.4.2/toc.html">4.2</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.3/toc.html">4.3</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.4/toc.html">4.4</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.5/toc.html">4.5</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.6/toc.html">4.6</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.7/toc.html">4.7</ulink></member>
-  <member><ulink role="bdb" url="ref/upgrade.4.8/toc.html">4.8</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_2.html">4.2</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_3.html">4.3</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_4.html">4.4</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_5.html">4.5</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_6.html">4.6</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_7.html">4.7</ulink></member>
+  <member><ulink role="bdb" url="changelog_4_8.html">4.8</ulink></member>
+  <member><ulink role="bdb" url="changelog_5_3.html">5.3</ulink></member>
 </simplelist></para>
 
 <simpara>When this module is present, &features-my; contains the
@@ -83,12 +84,10 @@
     &alist; of the subsystem versions as the 5th value.
  </para></listitem></varlistentry>
  <varlistentry id="dbe-create"><term><code>(BDB:DBE-CREATE &key-amp;
-    PASSWORD ENCRYPT HOST CLIENT-TIMEOUT SERVER-TIMEOUT)</code></term>
+    PASSWORD ENCRYPT)</code></term>
   <listitem><simpara>Create an environment handle
     (<function role="bdb">db_env_create</function>),
-    possibly connecting to a remote host
-    (<function role="bdb">DB_ENV-&gt;set_rpc_server</function>)
-    and possibly using encryption with password
+    possibly using encryption with password
     (<function role="bdb">DB_ENV-&gt;set_encrypt</function>).
  </simpara></listitem></varlistentry>
  <varlistentry><term><code>(BDB:DBE-CLOSE dbe)</code></term>
@@ -440,6 +439,16 @@
    &create-r; is a list of options to be passed to &db-create;,
    &options-r; is a list of options to be passed to &db-set-options;,
    &open-r; is a list of options to be passed to &db-open;.
+</simpara></listitem></varlistentry>
+<varlistentry id="db-compact"><term><code>(BDB:DB-COMPACT db &key-amp;
+   TRANSACTION START STOP FREE FILL TIMEOUT PAGES TYPE)</code></term>
+ <listitem><simpara>Call <function role="bdb">DB-&gt;compact</function>.
+   <constant>:FREE</constant> is either <constant>:LIST-ONLY</constant>
+   or <constant>:SPACE</constant>.
+   <constant>:FILL</constant>, <constant>:TIMEOUT</constant>,
+   <constant>:PAGES</constant> are passed in <type>DB_COMPACT</type>.
+   &type-k; is how the <varname>end</varname> is returned.
+   The second return value is a <type>BDB:DB-COMPACT</type>.
 </simpara></listitem></varlistentry>
 </variablelist></section>
 

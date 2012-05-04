@@ -63,6 +63,10 @@ User visible changes
   See <http://clisp.org/impnotes/rawsock.html#rawsock-convert-address>
   for details.
 
+* Module berkeley-db now supports Berkeley-DB 5.1.
+  (Older versions are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/berkeley-db.html> for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#3040648).
   + Fix SCREEN behavior when the window is resized.
@@ -147,7 +151,6 @@ User visible changes
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * Module berkeley-db now supports Berkeley-DB 4.8.
-  (Older versions are, of course, still supported).
   See <http://clisp.cons.org/impnotes/berkeley-db.html> for details.
 
 * Module postgresql now supports PostgreSQL 8.4.

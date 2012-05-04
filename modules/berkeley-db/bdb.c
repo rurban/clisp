@@ -82,7 +82,7 @@ DEFMODULE(bdb,"BDB")
 DEFUN(BDB:DB-VERSION,&optional subsystems-p)
 { /* Berkeley-DB version */
   int major, minor, patch;
-  char * version;
+  char *version;
   begin_system_call();
   version = db_version(&major,&minor,&patch);
   end_system_call();
@@ -105,11 +105,22 @@ DEFUN(BDB:DB-VERSION,&optional subsystems-p)
   } else {                      /* return subsystem versions too */
     int subsystem_count = 0;
     pushSTACK(value1);          /*  save */
+#  if defined(HAVE_DB_FULL_VERSION)
+    begin_system_call();
+    version = db_full_version(&major,&minor,NULL,NULL,NULL);
+    end_system_call();
+    pushSTACK(`:FAMILY`); pushSTACK(fixnum(major)); subsystem_count++;
+    pushSTACK(`:RELEASE`); pushSTACK(fixnum(minor)); subsystem_count++;
+    pushSTACK(S(Kfull)); pushSTACK(asciz_to_string(version,GLO(misc_encoding))); subsystem_count++;
+#  endif
 #  if defined(DB_LOCKVERSION)
     pushSTACK(`:LOCK`); pushSTACK(fixnum(DB_LOCKVERSION)); subsystem_count++;
 #  endif
 #  if defined(DB_LOGVERSION)
     pushSTACK(`:LOG`); pushSTACK(fixnum(DB_LOGVERSION)); subsystem_count++;
+#  endif
+#  if defined(DB_LOGVERSION_LATCHING)
+    pushSTACK(`:LOG-LATCHING`); pushSTACK(fixnum(DB_LOGVERSION_LATCHING)); subsystem_count++;
 #  endif
 #  if defined(DB_TXNVERSION)
     pushSTACK(`:TXN`); pushSTACK(fixnum(DB_TXNVERSION)); subsystem_count++;
@@ -234,7 +245,7 @@ static object extract_messages (struct messages* data) {
  since we may need to reallocate, DATA is passed by reference */
 static void add_message (struct messages* *data_, const char* msg) {
   if ((*data_) == NULL) (*data_) = make_messages(5);
-  if ((*data_)->max = (*data_)->len) {  /* double the space */
+  if ((*data_)->max == (*data_)->len) { /* double the space */
     int new_max = 2*(*data_)->max;
     (*data_) = (struct messages*)
       clisp_realloc((*data_), (sizeof(struct messages) +
@@ -243,8 +254,9 @@ static void add_message (struct messages* *data_, const char* msg) {
   }
   { /* now max>len */
     int len = strlen(msg);
-    (*data_)->msgs[++(*data_)->len] = (char*)clisp_malloc(len+1);
+    (*data_)->msgs[(*data_)->len] = (char*)clisp_malloc(len+1);
     strcpy((*data_)->msgs[(*data_)->len],msg);
+    (*data_)->len++;
   }
 }
 
@@ -344,46 +356,13 @@ static void dbe_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
                 { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
 }
 
-DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
+DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT)
 { /* Create an environment handle */
-  DB_ENV *dbe, *dbe_cl;
-  bool remote_p = boundp(STACK_2); /* host ==> remote */
-  int cl_timeout = 0, sv_timeout = 0;
-# if defined(DB_RPCCLIENT)      /* 4.2 and later */
-  SYSCALL(db_env_create,(&dbe,remote_p ? DB_RPCCLIENT : 0));
-# elif defined(DB_CLIENT)       /* 4.1 and before */
-  SYSCALL(db_env_create,(&dbe,remote_p ? DB_CLIENT : 0));
-# else
-#  error how does your Berkeley DB create a remote client?
-# endif
-  if (remote_p) {
-    if (uint_p(STACK_0)) sv_timeout = I_to_uint(STACK_0);
-    if (uint_p(STACK_1)) cl_timeout = I_to_uint(STACK_1);
-   host_restart:
-    if (stringp(STACK_2)) {     /* string host */
-      with_string_0(STACK_2,GLO(misc_encoding),hostz, {
-          SYSCALL(dbe->set_rpc_server,(dbe,NULL,hostz,cl_timeout,sv_timeout,0));
-        });
-    } else if ((dbe_cl = (DB_ENV*)bdb_handle(STACK_2,`BDB::DBE`,
-                                             BH_NIL_IS_NULL))) {
-      /* reuse client */
-      SYSCALL(dbe->set_rpc_server,(dbe,dbe_cl->cl_handle,NULL,
-                                   cl_timeout,sv_timeout,0));
-    } else {                    /* bad host */
-      pushSTACK(NIL);           /* no PLACE */
-      pushSTACK(STACK_(2+1));   /* TYPE-ERROR slot DATUM */
-      pushSTACK(`(OR STRING BDB::DBE)`); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_2);                /* host */
-      pushSTACK(`BDB::DBE`); pushSTACK(S(string)); pushSTACK(S(Khost));
-      pushSTACK(TheSubr(subr_self)->name);
-      check_value(type_error,GETTEXT("~S: ~S should be a ~S or a ~S, not ~S"));
-      STACK_2 = value1;
-      goto host_restart;
-    }
-  }
-  if (!missingp(STACK_4))       /* :PASSWD */
-    dbe_set_encryption(dbe,&STACK_3,&STACK_4);
-  skipSTACK(5);
+  DB_ENV *dbe;
+  SYSCALL(db_env_create,(&dbe,0));
+  if (!missingp(STACK_1))       /* :PASSWD */
+    dbe_set_encryption(dbe,&STACK_0,&STACK_1);
+  skipSTACK(2);
   /* set error & message callbacks */
   begin_system_call(); dbe->set_errcall(dbe,&error_callback);
 #if defined(HAVE_DB_ENV_SET_MSGCALL)
@@ -1388,13 +1367,11 @@ static void free_dbt(DBT* dbt) {
  p_dbt->data is free()d and set to NULL
  can trigger GC */
 static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
-  if (p_dbt->data == NULL) return NIL;
+  if (p_dbt->data == NULL || p_dbt->size == 0) return NIL;
   switch (type) {
     case DBT_RAW: {
       object vec = data_to_sb8vector(p_dbt->data,p_dbt->size);
-      begin_system_call();
-      free(p_dbt->data); p_dbt->data = NULL;
-      end_system_call();
+      free_dbt(p_dbt);
       return vec;
     }
     case DBT_STRING: {
@@ -1824,7 +1801,12 @@ DEFUN(BDB:DB-VERIFY, db file &key DATABASE SALVAGE AGGRESSIVE PRINTABLE \
         SYSCALL1(db->verify,(db,file,NULL,outfile,flags),
                  { if (outfile) fclose(outfile); });
     });
-  VALUES0; skipSTACK(3);
+  /* http://docs.oracle.com/cd/E17076_02/html/api_reference/C/dbverify.html
+   The DB->verify() method may not be called after the DB->open() method is called.
+   The DB handle may not be accessed again after DB->verify() is called,
+   regardless of its return. */
+  mark_fp_invalid(TheFpointer(TheStructure(STACK_3)->recdata[1]));
+  VALUES0; skipSTACK(4);
 }
 
 /* ===== Database Configuration ===== */
@@ -2198,6 +2180,53 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     goto restart_DB_GET_OPTIONS;
   }
 }
+
+#if defined(HAVE_DB_COMPACT)
+static u_int32_t db_compact_flags (object flags) {
+ restart_db_compact_flags:
+  if (missingp(flags))
+    return 0;
+  if (eq(flags,`:LIST-ONLY`))
+    return DB_FREELIST_ONLY;
+  if (eq(flags,`:SPACE`))
+    return DB_FREE_SPACE;
+  pushSTACK(NIL);               /* no PLACE */
+  pushSTACK(flags); pushSTACK(TheSubr(subr_self)->name);
+  check_value(error_condition,GETTEXT("~S: invalid :FREE argument ~S"));
+  flags = value1;
+  goto restart_db_compact_flags;
+}
+DEFUN(BDB:DB-COMPACT, db &key TRANSACTION :START STOP FREE FILL TIMEOUT \
+      PAGES :TYPE) {
+  dbt_o_t out_type = check_dbt_type(popSTACK());
+  u_int32_t pages = check_uint_default0(popSTACK());
+  db_timeout_t timeout = check_uint_default0(popSTACK());
+  u_int32_t fillpercent = check_uint_default0(popSTACK());
+  u_int32_t flags = db_compact_flags(popSTACK());
+  DB *db = (DB*)bdb_handle(STACK_3,`BDB::DB`,BH_VALID);
+  DB_TXN *txn = (DB_TXN*)bdb_handle(STACK_2,`BDB::TXN`,BH_NIL_IS_NULL);
+  DB_COMPACT c_data;
+  DBT *pstart, start, *pstop, stop, end;
+  int key_type = db_key_type(db,0);
+  if (missingp(STACK_0)) pstop = NULL;
+  else fill_dbt(STACK_0,pstop = &stop,key_type);
+  if (missingp(STACK_1)) pstart = NULL;
+  else fill_dbt(STACK_1,pstart = &start,key_type);
+  c_data.compact_fillpercent = fillpercent;
+  c_data.compact_timeout = timeout;
+  c_data.compact_pages = pages;
+  SYSCALL(db->compact,(db,txn,pstart,pstop,&c_data,flags,&end));
+  pushSTACK(uint32_to_I(c_data.compact_empty_buckets));
+  pushSTACK(uint32_to_I(c_data.compact_pages_free));
+  pushSTACK(uint32_to_I(c_data.compact_pages_examine));
+  pushSTACK(uint32_to_I(c_data.compact_levels));
+  pushSTACK(uint32_to_I(c_data.compact_deadlock));
+  pushSTACK(uint32_to_I(c_data.compact_pages_truncated));
+  funcall(`BDB::MKDBCOMPACT`,6); pushSTACK(value1);
+  VALUES2(dbt_to_object(&end,out_type,0),popSTACK());
+  skipSTACK(4);
+}
+#endif
 
 /* ===== cursors ===== */
 DEFFLAGSET(make_dbc_flags, DB_READ_COMMITTED DB_READ_UNCOMMITTED DB_WRITECURSOR)

@@ -75,10 +75,10 @@ NIL
 
 (null (probe-file "./bdb-data/bazonk.db")) NIL
 
-(bdb:db-put *db* "foo" "bar")
-NIL
-(bdb:db-put *db* "fep" "blicket")
-NIL
+(bdb:db-put *db* "foo" "bar")   NIL
+(bdb:db-put *db* "fep" "blicket")  NIL
+
+(car (show (multiple-value-list (bdb:db-compact *db*)))) NIL
 
 (bdb:db-sync *db*) NIL
 (show-db *db*) NIL
@@ -168,8 +168,8 @@ T
 
 (ext:dir "bdb-home/**") NIL
 (ext:dir "bdb-data/**") NIL
-(finish-file "bdb-errors") 2    ; just the two "start" and "stop" messages
-(finish-file "bdb-msg") 2
+(finish-file "bdb-errors") 2  ; just the two "start" and "stop" messages
+(finish-file "bdb-msg") 3     ; 5.1: "No log files found"
 
 ;;; access
 
@@ -198,6 +198,10 @@ T
 NIL
 
 (show-dbe *dbe*) NIL
+
+(let ((*print-pretty* t)) (setq *db* (show (bdb:db-create *dbe*))) nil) NIL
+
+(bdb:db-verify *db* "./bdb-data/bazonk.db") NIL
 
 (let ((*print-pretty* t)) (setq *db* (show (bdb:db-create *dbe*))) nil) NIL
 
@@ -296,8 +300,9 @@ NIL
     :do (setf (values key val) (bdb:db-get db n :action :SET-RECNO
                                            :type :INTEGER :key-type :INTEGER))
     (format t "~&=[~D]=> ~S -> ~S" n key val)
-    :unless (= (! key) val) :collect (list n key val (! key))))
-NIL
+    :unless (= (! key) val) :collect (list n key val (! key)))
+  (length (show (multiple-value-list (bdb:db-key-range db 7)))))
+3
 
 (bdb:with-db (db *dbe* (format nil "test-~A-~A.db" :BTREE :RECNUM)
                  :open (:rdonly t) :options (:recnum t))
@@ -309,8 +314,9 @@ NIL
       (format t "~&=[~D/count=~D]=> ~S -> ~S" n (bdb:dbc-count cu) key val)
       :unless (= (! key) val) :collect (list n key val (! key)) :end
       :do (setq key (bdb:dbc-get cu :INTEGER :INTEGER :GET-RECNO))
-      :unless (= key n) :collect (list n key) :end)))
-NIL
+      :unless (= key n) :collect (list n key) :end))
+  (length (show (multiple-value-list (bdb:db-key-range db 20)))))
+3
 
 ;; transactions - will be automatically closed (committed) by DBE-CLOSE
 (let ((txn (bdb:txn-begin *dbe*)) (*print-pretty* t))

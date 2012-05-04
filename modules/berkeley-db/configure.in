@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for Berkeley-DB
-dnl Copyright (C) 2003-2011 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2012 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -87,6 +87,10 @@ AC_CHECK_MEMBERS([DB_ENV.log_set_config, DB_ENV.get_intermediate_dir_mode],
 
 dnl undocumented - upgrade to 4.8
 AC_CHECK_MEMBERS([DB_TXN_ACTIVE.gid, DB_TXN_ACTIVE.status],,,[#include <db.h>])
+
+dnl undocumented
+AC_CHECK_FUNCS(db_full_version)
+AC_CHECK_MEMBERS([DB.compact],,,[#include <db.h>])
 
 BOLD_MSG([Berkeley-DB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
