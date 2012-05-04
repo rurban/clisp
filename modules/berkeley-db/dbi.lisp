@@ -1,4 +1,4 @@
-;;; Copyright (C) 2003-2008, 2010 by Sam Steingold
+;;; Copyright (C) 2003-2008, 2010, 2012 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -14,7 +14,7 @@
            #:db-create #:db-close #:db-del #:db-fd #:db-get #:db-stat
            #:db-open #:db-sync #:db-truncate #:db-upgrade #:db-remove
            #:db-rename #:db-put #:db-join #:db-key-range #:db-verify
-           #:db-set-options #:db-get-options
+           #:db-set-options #:db-get-options #:db-compact
            #:make-dbc #:dbc-close #:dbc-count #:dbc-del
            #:dbc-dup #:dbc-get #:dbc-put
            #:lock-detect #:lock-get #:lock-id #:lock-id-free #:lock-put
@@ -38,7 +38,7 @@
 ;;; objects
 (cl:defstruct (bdb-handle (:constructor nil) (:copier nil))
   (handle nil :read-only t)
-  (parents nil)       ; parents cannot be closed until this is closed
+  (parents nil)      ; parents cannot be closed until this is closed
   (dependents nil))  ; cannot close this until all dependents are closed
 (cl:defstruct (dbe (:include bdb-handle) (:copier nil)
                 (:constructor mkdbe (handle parents))))
@@ -69,6 +69,16 @@
   (dolist (p (bdb-handle-parents handle))
     (setf (bdb-handle-dependents p)
           (delete handle (bdb-handle-dependents p)))))
+
+(defstruct (db-compact (:constructor mkdbcompact
+                                     (empty_buckets pages_free pages_examine
+                                      levels deadlock pages_truncated)))
+  (empty_buckets 0 :read-only t) ; Empty hash buckets found.
+  (pages_free 0 :read-only t)    ; Number of pages freed.
+  (pages_examine 0 :read-only t) ; Number of pages examine.
+  (levels 0 :read-only t)        ; Number of levels removed.
+  (deadlock 0 :read-only t)      ; Number of deadlocks.
+  (pages_truncated 0 :read-only t) ); Pages truncated to OS.
 
 (defstruct (lsn (:constructor mklsn (file offset)))
   (file 0 :type (unsigned-byte 32) :read-only t)

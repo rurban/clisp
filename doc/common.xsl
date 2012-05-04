@@ -209,14 +209,16 @@
 
 <!-- =========================== Berkeley DB =========================== -->
 <!-- xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/ -->
-<xsl:param name="bdb.top" select="'http://www.oracle.com/technology/documentation/berkeley-db/db/'"/>
+<xsl:param name="bdb.api" select="'http://docs.oracle.com/cd/E17076_02/html/api_reference/C/'"/>
+<xsl:param name="bdb.doc" select="'http://download.oracle.com/otndocs/products/berkeleydb/html/'"/>
+
 <xsl:template match="ulink[@role='bdb']">
- <a class="{@role}" href="{$bdb.top}{@url}"><xsl:apply-templates/></a>
+ <a class="{@role}" href="{$bdb.doc}{@url}"><xsl:apply-templates/></a>
 </xsl:template>
 
 <xsl:template match="function[@role='bdb']">
  <a class="{@role}"><xsl:attribute name="href">
-   <xsl:value-of select="$bdb.top"/><xsl:text>api_c/</xsl:text>
+   <xsl:value-of select="$bdb.api"/>
    <xsl:choose>
     <xsl:when test=".='db_create'"><xsl:text>db_class</xsl:text></xsl:when>
     <xsl:when test=".='db_env_create'"><xsl:text>env_class</xsl:text></xsl:when>
@@ -227,19 +229,19 @@
     <xsl:when test=".='db_version'"><xsl:text>env_version</xsl:text></xsl:when>
     <xsl:when test=".='log_compare'"><xsl:text>log_compare</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB_LOGC-')">
-     <xsl:text>logc_</xsl:text></xsl:when>
+     <xsl:text>logc</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB_TXN-')">
-     <xsl:text>txn_</xsl:text></xsl:when>
+     <xsl:text>txn</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB_ENV-')">
-     <xsl:text>env_</xsl:text></xsl:when>
+     <xsl:text>env</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB_SEQUENCE-')">
-     <xsl:text>seq_</xsl:text></xsl:when>
+     <xsl:text>seq</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB_MPOOLFILE-')">
-     <xsl:text>memp_</xsl:text></xsl:when>
+     <xsl:text>memp</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DBCursor-')">
-     <xsl:text>dbc_</xsl:text></xsl:when>
+     <xsl:text>dbc</xsl:text></xsl:when>
     <xsl:when test="starts-with(.,'DB-')">
-     <xsl:text>db_</xsl:text></xsl:when>
+     <xsl:text>db</xsl:text></xsl:when>
     <xsl:otherwise><xsl:message>unknown function/db element <xsl:value-of select="."/></xsl:message></xsl:otherwise>
    </xsl:choose>
    <xsl:value-of select="substring-after(.,'>')"/>
