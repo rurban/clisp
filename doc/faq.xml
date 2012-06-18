@@ -6,9 +6,7 @@
 <abstract id="faq-abstract">
 <para>This is a list of frequently asked questions about &clisp; on the
 <link linkend="faq-mailing-lists">CLISP mailing lists</link>
-and the USENET newsgroup
-<ulink url="http://groups.google.com/groups?as_ugroup=comp.lang.lisp"
-       >comp.lang.lisp</ulink>.
+and <ulink url="usenet">comp.lang.lisp</ulink>.
 <emphasis>All</emphasis> the legitimate technical question are addressed
 in the &clisp; documentation (<olink targetdoc="impnotes"/>,
 <olink targetdoc="man"/>, <olink targetdoc="clink"/>), and for such
@@ -98,7 +96,7 @@ further explanations of the issues could be provided).</para>
  <para>Politely - please refer to &netiquette;.</para>
  <para>If you have a question about &clisp;, you have the following options
   (listed in the order of decreasing audience size):<variablelist>
-   <varlistentry><term>USENET group <ulink url="http://groups.google.com/groups?as_ugroup=comp.lang.lisp">comp.lang.lisp</ulink></term>
+   <varlistentry><term><ulink url="usenet">comp.lang.lisp</ulink></term>
     <listitem><simpara>This is the right place to ask all general Lisp
       questions, such as <ulink role="clhs" url="acc_charcm_schar">"how
        do I access a character in a string?"</ulink></simpara>
