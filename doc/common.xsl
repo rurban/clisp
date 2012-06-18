@@ -83,6 +83,11 @@
  <a class="{@role}" href="http://www.google.com/search?q={.}"
     ><xsl:apply-templates/></a></xsl:template>
 
+<xsl:template match="ulink[@url='usenet']">
+  <xsl:text>the USENET newsgroup </xsl:text>
+  <a class="{@role}" href="https://groups.google.com/group/{.}"
+     ><xsl:apply-templates/></a></xsl:template>
+
 <xsl:template match="ulink[@url='ml']">
  <a class="{@role}" href="https://lists.sourceforge.net/lists/listinfo/{.}"
     ><xsl:apply-templates/></a></xsl:template>

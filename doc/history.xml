@@ -9,8 +9,8 @@
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.0</revnumber><date>1992-10-09</date>&bruno-a;
- <revdescription><itemizedlist><listitem><simpara>comp.os.linux announcement
-   (&linux; binaries only)</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara><ulink url="usenet">comp.os.linux</ulink>
+ announcement (&linux; binaries only)</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.1</revnumber><date>1993-01-01</date>&bruno-a;
