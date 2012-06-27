@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2009 by Sam Steingold
+;;; Copyright (C) 2001-2009, 2012 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -274,7 +274,9 @@ Beware - this will modify the original C-mode too!"
        'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
-         d-mode-font-lock-defaults)))
+         d-mode-font-lock-defaults))
+  (set (make-local-variable 'compile-command)
+       (d-mode-compile-command)))
 
 (eval-after-load "add-log" '(add-to-list 'add-log-c-like-modes 'd-mode))
 
