@@ -1,3 +1,8 @@
+2012-08-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* stream.d (wr_by_array_iau8_buffered): pin the source buffer before
+	performing actual write
+
 2012-05-03  Sam Steingold  <sds@gnu.org>
 
 	update berkeley-db to 5.1
