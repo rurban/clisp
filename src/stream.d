@@ -7671,7 +7671,7 @@ local maygc void wr_by_iau8_buffered (object stream, object obj) {
 local maygc uintL wr_by_array_iau8_buffered
 (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
  uintL start, uintL len, perseverance_t persev) {
-  pin_unprotect_varobject(*bytearray_,PROT_READ_WRITE);
+  pin_unprotect_varobject(*bytearray_,PROT_READ);
   write_byte_array_buffered(*stream_,TheSbvector(*bytearray_)->data+start,len,persev_full);
   unpin_varobject(*bytearray_);
   /* increment position: */
