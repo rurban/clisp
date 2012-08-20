@@ -1,3 +1,8 @@
+2012-08-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (per_thread): TLS (i.e. __thread qualifier) is supported
+	by gcc 4.5+ on MacOSX and results in significant performance gain
+
 2012-08-03  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* stream.d (wr_by_array_iau8_buffered): pin the source buffer before
