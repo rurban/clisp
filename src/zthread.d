@@ -500,7 +500,7 @@ local void push_interrupt_arguments(clisp_thread_t *thr, object function,
     NC_pushSTACK(thr->_STACK,O(thread_exit_tag)); /* thread exit tag */
     NC_pushSTACK(thr->_STACK,args); /* thread return values */
     NC_pushSTACK(thr->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
-    NC_pushSTACK(thr->_STACK,posfixnum(2)); /* 1 argument */
+    NC_pushSTACK(thr->_STACK,posfixnum(2)); /* 2 arguments */
   } else { /* real function */
     var uintC argcnt=0;
     while (!endp(args)) {
