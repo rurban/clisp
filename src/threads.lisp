@@ -36,9 +36,19 @@
 (defvar *deferred-interrupts* '()) ; list of pending interrupts
 
 ;; TODO: add more variables (something should be done about the
-;; standartd input/output streams).
+;; standard input/output streams).
 (defvar *DEFAULT-SPECIAL-BINDINGS*
-  '((*random-state* . *random-state*)
+  `((sys::*active-restarts*
+     . '(,(sys::make-restart
+           :name 'abort
+           :invoke-function
+           (lambda ()
+             (thread-interrupt
+              (current-thread)
+              :function t
+              :arguments (list :abort
+                               (get-internal-real-time)))))))
+    (*random-state* . *random-state*)
     (ext::*command-index* . ext::*command-index*)
     (*print-base* . *print-base*)
     (*print-length* . *print-length*)
