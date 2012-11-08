@@ -443,7 +443,7 @@ The way to figure that out is to use <command>hg bisect</command>.
 
 <qandaentry id="faq-debugger"><question id="faq-debugger-q"><simpara>How
    do I get out of the debugger?</simpara></question>
-<answer><para>See <xref linkend="debugger"/>.</para></answer></qandaentry>
+<answer><para>See <xref linkend="repl"/>.</para></answer></qandaentry>
 
 
 <qandaentry id="faq-ext"><question id="faq-ext-q"><simpara>What &clisp;
