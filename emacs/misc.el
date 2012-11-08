@@ -7,7 +7,8 @@
 (defun clisp-repo-p (dir)
   (let ((root
          (with-temp-buffer
-           (and (zerop (call-process vc-hg-program nil t nil "paths" "default"))
+           (and (boundp 'vc-hg-program)
+                (zerop (call-process vc-hg-program nil t nil "paths" "default"))
                 (buffer-string)))))
     (and root (string-match "clisp\\.hg" root))))
 
