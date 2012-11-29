@@ -1,3 +1,12 @@
+2012-11-20  Sam Steingold  <sds@gnu.org>
+
+	PCRE-EXEC returns character positions instead of byte positions
+	* lispbibl.d (Encoding_mblen): export to clisp.h
+	* modules/pcre/cpcre.c (PCRE-EXEC): use it convert ovector (byte
+	positions) to MATCH (character positions)
+	Reported by Mike Palmer <michaeljohnpalmer@gmail.com> in
+	<http://article.gmane.org/gmane.lisp.clisp.general:13972>
+
 2012-11-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/oracle/oracle.lisp: code clean-up for better performance
