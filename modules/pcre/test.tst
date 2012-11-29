@@ -48,6 +48,10 @@
   (pcre:pcre-exec cp "ab"))
 #(#S(PCRE:MATCH :START 0 :END 2))
 
+;; http://article.gmane.org/gmane.lisp.clisp.general:13972
+(pcre:pcre-exec (pcre:pcre-compile "P") (map 'string #'code-char #(160 80)))
+#(#S(PCRE:MATCH :START 1 :END 2))
+
 ;; http://pcre.org/pcre.txt
 (let ((cp (pcre:pcre-compile "<.*>" :extended t)))
   (pcre:pcre-exec

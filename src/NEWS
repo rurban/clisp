@@ -104,6 +104,7 @@ User visible changes
     logical host as per ANSI (bug#3520570).
   + Fix run-time error reporting in compiled FORMAT calls (bug#3498026).
   + Fix symlink to directory handling (bug#3467762).
+  + PCRE-EXEC returns character positions instead of byte positions.
 
 
 2.49 (2010-07-07)

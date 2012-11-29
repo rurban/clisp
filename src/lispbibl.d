@@ -5994,6 +5994,7 @@ typedef struct {
 %% strcat(buf," } *");
 %% emit_typedef(buf,"Encoding");
 %% #ifdef ENABLE_UNICODE
+%%  export_def(Encoding_mblen(encoding));
 %%  export_def(Encoding_wcslen(encoding));
 %%  export_def(Encoding_wcstombs(encoding));
 %% #endif

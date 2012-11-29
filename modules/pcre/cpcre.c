@@ -398,6 +398,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
+  object encoding = Symbol_value(S(utf_8));
   skipSTACK(3); /* drop all options */
   check_pattern(&STACK_1,&c_pat,&study);
   begin_system_call();
@@ -406,14 +407,14 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
   if (ret < 0) error_pcre(ret);
   /* when DFA is enabled, the number of matches is not easily estimated */
   ovector_size = 3 * (capture_count + (dfa_p ? workspace_size : 1));
- pcre_exec_retry:
-  ovector = (int*)alloca(sizeof(int)*ovector_size);
 # if !defined(HAVE_PCRE_DFA_EXEC)
   /* use pcre_exec instead */
 #  define pcre_dfa_exec(re,st,su,sb,of,op,ov,os,ws,wz) \
               pcre_exec(re,st,su,sb,of,op,ov,os)
 # endif
-  with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),subject, {
+  with_string_0(check_string(STACK_0),encoding,subject, {
+     pcre_exec_retry:
+      ovector = (int*)alloca(sizeof(int)*ovector_size);
       begin_system_call();
       /* subject_bytelen is the length of subject in bytes,
          defined in with_string_0 */
@@ -424,27 +425,28 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
         : pcre_exec(c_pat,study,subject,subject_bytelen,offset,options,
                     ovector,ovector_size);
       end_system_call();
-    });
-  if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
-  else if (ret == 0) {          /* not enough space in ovector */
-    ovector_size <<= 1;
-    goto pcre_exec_retry;
-  } else if (ret > 0) {
-    if (bool_p) VALUES1(T); /* success indicator */
-    else { /* return a vector */
-      int pos, ov_pos;
-      ASSERT(ret <= ovector_size);
-      pushSTACK(allocate_vector(ret)); /* return value */
-      for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
-        if (ovector[ov_pos] >= 0) {
-          pushSTACK(L_to_I(ovector[ov_pos]));
-          pushSTACK(L_to_I(ovector[ov_pos+1]));
-          funcall(`PCRE::MAKE-MATCH-BOA`,2);
-          TheSvector(STACK_0)->data[pos] = value1;
+      if (ret == PCRE_ERROR_NOMATCH) VALUES1(NIL);
+      else if (ret == 0) {          /* not enough space in ovector */
+        ovector_size <<= 1;
+        goto pcre_exec_retry;
+      } else if (ret > 0) {
+        if (bool_p) VALUES1(T); /* success indicator */
+        else { /* return a vector */
+          int pos; int ov_pos;  /* pacify the CPP parsing of macro with_string_0 */
+          ASSERT(ret <= ovector_size);
+          pushSTACK(allocate_vector(ret)); /* return value */
+          for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
+            if (ovector[ov_pos] >= 0) {
+              const uintB* sub = (const uintB*)subject;
+              pushSTACK(L_to_I(Encoding_mblen(encoding)(encoding,sub,sub+ovector[ov_pos])));
+              pushSTACK(L_to_I(Encoding_mblen(encoding)(encoding,sub,sub+ovector[ov_pos+1])));
+              funcall(`PCRE::MAKE-MATCH-BOA`,2);
+              TheSvector(STACK_0)->data[pos] = value1;
+            }
+          VALUES1(popSTACK());
         }
-      VALUES1(popSTACK());
-    }
-  } else error_pcre(ret);
+      } else error_pcre(ret);
+    });
   skipSTACK(2);                 /* drop pattern & subject */
 }
 
