@@ -1,21 +1,21 @@
-;
-; CLISP Oracle interface
-;
-; Copyright (C) 2002 Alma Mater Software, Inc., Tarrytown, NY, USA
-;
-; This program is free software; you can redistribute it and/or modify
-; it under the terms of the GNU General Public License version 2 as
-; published by the Free Software Foundation; see file GNU-GPL.
-;
-; This program is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-;
-; You should have received a copy of the GNU General Public License
-; along with this program; if not, write to the Free Software Foundation,
-; Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-;
+;;;
+;;; CLISP Oracle interface
+;;;
+;;; Copyright (C) 2002 Alma Mater Software, Inc., Tarrytown, NY, USA
+;;;
+;;; This program is free software; you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License version 2 as
+;;; published by the Free Software Foundation; see file GNU-GPL.
+;;;
+;;; This program is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with this program; if not, write to the Free Software Foundation,
+;;; Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+;;;
 
 (defpackage "ORACLE"
   (:documentation
@@ -25,7 +25,8 @@
            "DO-ROWS" "FETCH" "FETCH-ALL" "PEEK" "COLUMNS" "EOF"
            "INSERT-ROW" "UPDATE-ROW" "ROW-COUNT"
            "WITH-TRANSACTION" "COMMIT" "ROLLBACK" "AUTO-COMMIT"
-     "SQLCOL-NAME" "SQLCOL-TYPE" "SQLCOL-SIZE" "SQLCOL-SCALE" "SQLCOL-PRECISION" "SQLCOL-NULL_OK" ))
+           "SQLCOL-NAME" "SQLCOL-TYPE" "SQLCOL-SIZE" "SQLCOL-SCALE"
+           "SQLCOL-PRECISION" "SQLCOL-NULL_OK"))
 
 (in-package "ORACLE")
 (pushnew :oracle *features*)
@@ -33,49 +34,47 @@
 
 (setf (documentation (find-package "ORACLE") 'sys::impnotes) "oracle")
 
-; Use "C" as foreign language
+;;; Use "C" as foreign language
 (default-foreign-language :stdc)
 
-; Inline everything for speed
+;;; Inline everything for speed
 (proclaim '(inline
-aref-null array-to-hash auto-commit auto-commit-nocheck cat
-check-connection check-pairs check-success check-unique-elements
-column-names columns comma-list-of-keys commit commit-nocheck connect
-connection-key convert-type c-truth curconn disconnect do-rows-col
-do-rows-index-of do-rows-var eof fetch flatten from-sqlval
-gethash-required hash-combine hash-to-sqlparam-array
-insert-row is-select-query join lisp-truth pairs-to-hash
-peek rollback rollback-nocheck row-count row-to-result rowval run-sql
-to-sqlval to-string update-row valid-symbol
-))
+            aref-null array-to-hash auto-commit auto-commit-nocheck cat
+            check-connection check-pairs check-success check-unique-elements
+            column-names columns comma-list-of-keys commit commit-nocheck connect
+            connection-key convert-type c-truth curconn disconnect do-rows-col
+            do-rows-index-of do-rows-var eof fetch flatten from-sqlval
+            gethash-required hash-combine hash-to-sqlparam-array
+            insert-row is-select-query join lisp-truth pairs-to-hash
+            peek rollback rollback-nocheck row-count row-to-result rowval run-sql
+            to-sqlval to-string update-row valid-symbol))
 
 ;; GLOBALS
 
-; Cached connections
+;;; Cached connections
 (defvar *oracle-connection-cache* nil)  ; Table of established connections.  Maps keys constructed by
-                                        ; CONNECTION-KEY to a "db" struct
+;;; CONNECTION-KEY to a "db" struct
 (defvar *oracle-connection*       nil)  ; The current connection, a "db" struct, or NIL if none
 (defvar *oracle-in-transaction*   nil)  ; Nesting guard for WITH-TRANSACTION macro
 
 ;; Lisp data types
 
-; Cached per database connection
+;;; Cached per database connection
 (defstruct db
   connection     ; "C" library handle for Oracle operations
   fetch-called   ; Flag: has fetch been called yet
   pending-row    ; Look-ahead row (for PEEK)
   colinfo        ; Cache the column info for speed
-  hkey           ; Key in global hash (useful for removal)
-)
+  hkey)          ; Key in global hash (useful for removal)
 
-; Shorthand for current library handle
+;;; Shorthand for current library handle
 (defun curconn ()
   (and *oracle-connection*
        (db-connection *oracle-connection*)))
 
-;  "C" DATA TYPES (oiface.h)
+;;;  "C" DATA TYPES (oiface.h)
 
-; Column info element
+;;; Column info element
 (def-c-struct sqlcol (name      c-string)
                      (type      c-string)
                      (size      int)
@@ -83,21 +82,21 @@ to-sqlval to-string update-row valid-symbol
                      (precision int)
                      (null_ok   int))
 
-; Row data element
+;;; Row data element
 (def-c-struct sqlval (data      c-string)
                      (is_null   int))
 
-; Bind parameter (name, value) pair
+;;; Bind parameter (name, value) pair
 (def-c-struct sqlparam (name    c-string)
                        (value   sqlval))
 
-;---------------------------------------------------------------------------------------
+;;;---------------------------------------------------------------------------------------
 
-; EXPORTED LISP FUNCTIONS
+;;; EXPORTED LISP FUNCTIONS
 
-;----------------------------------------------
+;;;----------------------------------------------
 
-; CONNECT
+;;; CONNECT
 
 (defun connect (user password server &optional schema (auto-commit t) (prefetch-buffer-bytes 0) (long-len -1) truncate-ok connid)
   "(ORACLE::CONNECT user password server &optional schema auto-commit prefetch-buffer-bytes long-len truncate-ok connid)
@@ -143,22 +142,22 @@ Returns: T if a cached connection was re-used (NIL if a new connection
   (when *oracle-in-transaction*
     (error "~S is not allowed inside 'S" 'connect 'with-transaction))
 
-  ; Default current schema
+  ;; Default current schema
   (unless schema (setf schema user))
   (unless long-len (setf long-len -1))
   (unless prefetch-buffer-bytes (setf prefetch-buffer-bytes 0))
 
-  ; Set up global connection cache
+  ;; Set up global connection cache
   (unless *oracle-connection-cache*
     (setf *oracle-connection-cache* (make-hash-table :test #'equal)))
 
-  ; Construct key for connection cache
+  ;; Construct key for connection cache
   (let* ((hkey (connection-key user schema server connid))
          (conn (gethash hkey *oracle-connection-cache*))
          (result t))
 
-    ; If using cached connection, "ping" it with a query to make sure it's still alive
-    ; If there's an error, disconnect and invalidate; fall through and retry
+    ;; If using cached connection, "ping" it with a query to make sure it's still alive
+    ;; If there's an error, disconnect and invalidate; fall through and retry
     (when conn
       (let ((conn-handle (db-connection conn)))
         (oracle_exec_sql conn-handle "SELECT 'x' FROM dual" (make-array 0) (c-truth nil))
@@ -169,24 +168,24 @@ Returns: T if a cached connection was re-used (NIL if a new connection
                 *oracle-connection* nil))))
 
     (when (null conn)
-          ; Connect to database
-          (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
-            (unless (lisp-truth (oracle_success handle))
-                   ; Retry connection
-                   ; ... TODO: implement retry logic here
-                   ; Failed all attempts; give up
-              (error "Oracle error: ~A" (oracle_last_error handle)))
-            ; OK: cache the connection
-            (setf conn (make-db :connection handle :hkey hkey)
-          (gethash hkey *oracle-connection-cache*) conn
-          result nil)))
-    ; Set current connection
+      ;; Connect to database
+      (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
+        (unless (lisp-truth (oracle_success handle))
+          ;; Retry connection
+          ;; ... TODO: implement retry logic here
+          ;; Failed all attempts; give up
+          (error "Oracle error: ~A" (oracle_last_error handle)))
+        ;; OK: cache the connection
+        (setf conn (make-db :connection handle :hkey hkey)
+              (gethash hkey *oracle-connection-cache*) conn
+              result nil)))
+    ;; Set current connection
     (setf *oracle-connection* conn)
     result))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; DISCONNECT
+;; DISCONNECT
 (defun disconnect ()
   "(ORACLE:DISCONNECT)
 
@@ -201,15 +200,15 @@ Returns: NIL
   (when *oracle-in-transaction*
     (error "~S is not allowed inside ~S" 'disconnect 'with-transaction))
   (when (curconn)
-        (oracle_disconnect (curconn))
-        (check-success)
-        ; Remove connection from the hash table
-        (remhash (db-hkey *oracle-connection*) *oracle-connection-cache*)
-        (setf *oracle-connection* nil)))
+    (oracle_disconnect (curconn))
+    (check-success)
+    ;; Remove connection from the hash table
+    (remhash (db-hkey *oracle-connection*) *oracle-connection-cache*)
+    (setf *oracle-connection* nil)))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; RUN-SQL
+;; RUN-SQL
 (defun run-sql (sql &optional params (is-select t is-select-given))
   "(ORACLE::RUN-SQL sql &optional params is-select)
 
@@ -239,30 +238,30 @@ for SELECT statements.
 
 "
   (check-connection "run a SQL statement")
-  ; Default statement type: query vs. command
+  ;; Default statement type: query vs. command
   (unless is-select-given
     (setf is-select (is-select-query sql)))
-  ; If pairs given, convert them to hash
+  ;; If pairs given, convert them to hash
   (setf params (check-pairs params))
   (oracle_exec_sql (curconn)
                    sql
                    (hash-to-sqlparam-array params)
                    (c-truth (not is-select)))
   (setf (db-fetch-called *oracle-connection*) nil
-    (db-pending-row *oracle-connection*) nil
-    (db-colinfo *oracle-connection*) nil)
+        (db-pending-row *oracle-connection*) nil
+        (db-colinfo *oracle-connection*) nil)
   (check-success)
 
-  ; Get the row count for the result
+  ;; Get the row count for the result
   (let ((result (row-count)))
     (check-success)
     result))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; DO-ROWS
+;; DO-ROWS
 (defmacro do-rows (vars &body body)
-"(ORACLE:DO-ROWS (vars &body body)
+  "(ORACLE:DO-ROWS (vars &body body)
 
 Macro that extends Lisp's DO loop construct, binding database column
 values to the symbols given in the first argument, which must be a
@@ -279,50 +278,47 @@ will cause values from the given column name to be bound to the given
 variable.  This is for unusual cases where a Lisp symbol cannot be
 created with the same for the column (e.g., a column names "T") and
 when it is inconvenient of impossible to alias the column with
-\"SELECT ... AS\"
-
-"
-  ; COMPILE TIME CHECKS
-  ; Validate both variable list and column aliases are unique (at
-  ; compile time)
+\"SELECT ... AS\""
+  ;; COMPILE TIME CHECKS
+  ;; Validate both variable list and column aliases are unique (at compile time)
   (check-unique-elements (map 'list #'do-rows-var vars))
 
-  ; Conceivably the caller MIGHT want to bind two different loop
-  ; variables to the same SELECTed column, but more likely that is a bug
-  ; on his part, so don't allow it.
+  ;; Conceivably the caller MIGHT want to bind two different loop
+  ;; variables to the same SELECTed column, but more likely that is a bug
+  ;; on his part, so don't allow it.
   (check-unique-elements (map 'list #'do-rows-col vars))
 
-  ; Declare variables and bind to fetch from appropriate array index.
-  ; Generate a map of the bound vars to gensyms which contain the index of that
-  ; var into the fetched array.
+  ;; Declare variables and bind to fetch from appropriate array index.
+  ;; Generate a map of the bound vars to gensyms which contain the index of that
+  ;; var into the fetched array.
   (let ((fetch-result (gensym))
         (saved-oracle-connection (gensym))
         (index-vars (make-hash-table)))
     (dolist (v vars)
-            (setf (gethash (to-string (do-rows-var v)) index-vars) (gensym)))
+      (setf (gethash (to-string (do-rows-var v)) index-vars) (gensym)))
     (list 'let
-          ; Declare saved Oracle connection and calculated array indices OUTSIDE fetch loop
+          ;; Declare saved Oracle connection and calculated array indices OUTSIDE fetch loop
           (append `((,saved-oracle-connection *oracle-connection*))
-                        (map 'list
-                             #'(lambda (v) (list (gethash (to-string (do-rows-var v)) index-vars)
-                                                 (list 'do-rows-index-of (list 'quote v))))
-                             vars))
-          ; Emit the DO loop itself
+                  (map 'list
+                       (lambda (v) (list (gethash (to-string (do-rows-var v)) index-vars)
+                                         (list 'do-rows-index-of (list 'quote v))))
+                       vars))
+          ;; Emit the DO loop itself
           (append (list
                    'do*
                    (append (list `(,fetch-result (fetch 'array) (fetch 'array)))
-                             (map 'list
-                                  #'(lambda (k)
-                                      (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
-                                        (list (do-rows-var k) iter iter)))
-                                  vars))
+                           (map 'list
+                                #'(lambda (k)
+                                    (let ((iter (list 'aref-null fetch-result (gethash (to-string (do-rows-var k)) index-vars))))
+                                      (list (do-rows-var k) iter iter)))
+                                vars))
                    (list `(null ,fetch-result) '(row-count)))
                   (if (atom body) (list body) body)
                   (list `(setf *oracle-connection* ,saved-oracle-connection))))))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; FETCH
+;; FETCH
 (defun fetch (&optional (result-type 'ARRAY))
   "(ORACLE:FETCH (&optional (result-type 'ARRAY))))
 
@@ -360,48 +356,48 @@ Arguments: none
   (check-connection "fetch a row of data")
 
   (let (result)
-    ; Three cases: (1) have lookahead - use it (2) at EOF (3) Do a real fetch
+    ;; Three cases: (1) have lookahead - use it (2) at EOF (3) Do a real fetch
     (cond
-     ; Use pending look-ahead row and reset, else do a "real" fetch
-     ((db-pending-row *oracle-connection*)
-      (setf result (row-to-result (db-pending-row *oracle-connection*) result-type)
-      (db-pending-row *oracle-connection*) nil))
+      ;; Use pending look-ahead row and reset, else do a "real" fetch
+      ((db-pending-row *oracle-connection*)
+       (setf result (row-to-result (db-pending-row *oracle-connection*) result-type)
+             (db-pending-row *oracle-connection*) nil))
 
-     ; Check if already at EOF from previous fetches
-     ((and (db-fetch-called *oracle-connection*)
-           (let ((oracle-eof (lisp-truth (oracle_eof (curconn)))))
-             (check-success)
-             oracle-eof))
-      ; Do nothing
-      )
+      ;; Check if already at EOF from previous fetches
+      ((and (db-fetch-called *oracle-connection*)
+            (let ((oracle-eof (lisp-truth (oracle_eof (curconn)))))
+              (check-success)
+              oracle-eof))
+       ;; Do nothing
+       )
 
-     ; Do a real fetch from Oracle
-     (t (let ((fetch_status (oracle_fetch_row (curconn))))
-          (cond ((not (lisp-truth fetch_status))
-                 (error "Oracle error: ~A" (oracle_last_error (curconn))))
-                ((= fetch_status 2)
-                 ; Newly arrived at EOF - do nothing
-                 )
-                (t ; Good fetch - get and convert row data
-                 (setf result (oracle_row_values (curconn)))
-                 (check-success)
+      ;; Do a real fetch from Oracle
+      (t (let ((fetch_status (oracle_fetch_row (curconn))))
+           (cond ((not (lisp-truth fetch_status))
+                  (error "Oracle error: ~A" (oracle_last_error (curconn))))
+                 ((= fetch_status 2)
+                  ;; Newly arrived at EOF - do nothing
+                  )
+                 (t ; Good fetch - get and convert row data
+                  (setf result (oracle_row_values (curconn)))
+                  (check-success)
 
-                 ; Convert NULL values to NIL
-                 (map-into result #'from-sqlval result)
+                  ;; Convert NULL values to NIL
+                  (map-into result #'from-sqlval result)
 
-                 ; Convert number and string types to Lisp based on Oracle type
-                 (let ((colinfo (oracle_column_info (curconn))))
-                   (check-success)
-                   (map-into result #'convert-type result colinfo)
-                   result))))))
-    ; Set the flag that fetch was called at least once.
-    ; This is to avoid further fetch calls to underlying Oracle library
-    ; when we are already at EOF.
+                  ;; Convert number and string types to Lisp based on Oracle type
+                  (let ((colinfo (oracle_column_info (curconn))))
+                    (check-success)
+                    (map-into result #'convert-type result colinfo)
+                    result))))))
+    ;; Set the flag that fetch was called at least once.
+    ;; This is to avoid further fetch calls to underlying Oracle library
+    ;; when we are already at EOF.
     (setf (db-fetch-called *oracle-connection*) t)
     (row-to-result result result-type)))
 
 
-;----------------------------------------------
+;;----------------------------------------------
 
 (defun check-seq-type (caller object name)
   (unless (sys::memq object '(array list))
@@ -409,7 +405,7 @@ Arguments: none
       :datum object :expected-type '(member array list)
       "~S: ~A type ~S should be ~S or ~S" caller name object 'array 'list)))
 
-; FETCH-ALL
+;; FETCH-ALL
 (defun fetch-all (&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
   "(ORACLE:FETCH-ALL(&optional max-rows (result-type 'ARRAY) (item-type 'ARRAY))
 
@@ -444,9 +440,9 @@ sequences.  Arguments (all optional) are:
            (when (or (not row) (and max-rows (>= count max-rows)))
              (setf at-eof t))))))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; PEEK
+;; PEEK
 (defun peek (&optional (result-type 'ARRAY))
   "(ORACLE:PEEK (&optional (result-type 'ARRAY)))
 
@@ -466,9 +462,9 @@ Arguments: none
   (row-to-result (db-pending-row *oracle-connection*) result-type))
 
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; COLUMNS - Return column info for most recent SELECT
+;; COLUMNS - Return column info for most recent SELECT
 (defun columns ()
   "(ORACLE:COLUMNS)
 
@@ -491,28 +487,28 @@ Arguments: none
   (let ((cached-info (db-colinfo *oracle-connection*)))
     (if cached-info
         cached-info
-      (let ((result (oracle_column_info (curconn))))
-        (check-success)
-        ; Convert C truth to Lisp for export
-        (map-into result
-                  (lambda (col)
-                    ;; Oracle identifies FLOAT using special value -127 for scale,
-                    ;; (which is irrelevant for floats).  In this case, map to "FLOAT"
-                    ;; for type name and NIL for scale.  Precision will be given in bits
+        (let ((result (oracle_column_info (curconn))))
+          (check-success)
+          ;; Convert C truth to Lisp for export
+          (map-into result
+                    (lambda (col)
+                      ;; Oracle identifies FLOAT using special value -127 for scale,
+                      ;; (which is irrelevant for floats).  In this case, map to "FLOAT"
+                      ;; for type name and NIL for scale.  Precision will be given in bits
                       ;; as ANSI specifies
-                    (when (and (equal (sqlcol-type col) "NUMBER")
-                               (= (sqlcol-scale col) -127)
-                               (not (= 0 (sqlcol-precision col))))
-                      (setf (sqlcol-type col) "FLOAT"))
-                    (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
-                    col)
-                  result)
-        (setf (db-colinfo *oracle-connection*) result)
-        result))))
+                      (when (and (equal (sqlcol-type col) "NUMBER")
+                                 (= (sqlcol-scale col) -127)
+                                 (not (= 0 (sqlcol-precision col))))
+                        (setf (sqlcol-type col) "FLOAT"))
+                      (setf (sqlcol-null_ok col) (lisp-truth (sqlcol-null_ok col)))
+                      col)
+                    result)
+          (setf (db-colinfo *oracle-connection*) result)
+          result))))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; EOF
+;; EOF
 (defun eof ()
   "(ORACLE:EOF)
 
@@ -524,19 +520,19 @@ Arguments: none
 "
   (check-connection "determine if at fetch EOF")
   (cond
-   ((not (db-fetch-called *oracle-connection*))
-    (null (peek)))
-   ((db-pending-row *oracle-connection*)
-    nil)
-   (t (let ((oracle-eof (lisp-truth (oracle_eof (curconn)))))
-        (check-success)
-        (unless oracle-eof
-          (setf (db-pending-row *oracle-connection*) (fetch)))
-        (null (db-pending-row *oracle-connection*))))))
+    ((not (db-fetch-called *oracle-connection*))
+     (null (peek)))
+    ((db-pending-row *oracle-connection*)
+     nil)
+    (t (let ((oracle-eof (lisp-truth (oracle_eof (curconn)))))
+         (check-success)
+         (unless oracle-eof
+           (setf (db-pending-row *oracle-connection*) (fetch)))
+         (null (db-pending-row *oracle-connection*))))))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; INSERT-ROW
+;; INSERT-ROW
 (defun insert-row (table vals)
   "(ORACLE:INSERT-ROW table values)
 
@@ -550,7 +546,7 @@ Returns: the number of rows inserted (i.e., 1).
   (when (null vals) (error "NULL name -> value map given"))
   (setf vals (check-pairs vals))
   (when (= 0 (hash-table-count vals)) (error "Empty column map given"))
-  ; Build the INSERT statement
+  ;; Build the INSERT statement
   (let ((sql (cat "INSERT INTO " table " ("
                   (comma-list-of-keys vals)
                   ") VALUES ("
@@ -558,9 +554,9 @@ Returns: the number of rows inserted (i.e., 1).
                   ")")))
     (run-sql sql vals)))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; UPDATE-ROW
+;; UPDATE-ROW
 (defun update-row (table condition vals &optional params)
   "(ORACLE:UPDATE-ROW table condition values &optional params)
 
@@ -598,9 +594,9 @@ Returns: the number of rows updated.
    ;; Note we need to convert params to hash to combine it
    (hash-combine (check-pairs params) vals)))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; ROW-COUNT
+;; ROW-COUNT
 (defun row-count ()
   "(ORACLE:ROW-COUNT)
 
@@ -614,14 +610,14 @@ Arguments: none
   (check-connection "get number of rows fetched or modified")
   (let ((rowcount (oracle_rows_affected (curconn))))
     (check-success)
-    ; Maybe adjust downward to account for lookahead row
+    ;; Maybe adjust downward to account for lookahead row
     (if (db-pending-row *oracle-connection*)
         (- rowcount 1)
-      rowcount)))
+        rowcount)))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; AUTO-COMMIT
+;; AUTO-COMMIT
 (defun auto-commit (enable)
   "(ORACLE:AUTO-COMMIT)
 
@@ -640,16 +636,16 @@ Arguments: (Boolean) Whether to enable auto-commit.
     (error "~S is not allowed inside ~S" 'auto-commit 'with-transaction))
   (auto-commit-nocheck enable))
 
-; Private version that does not check if in transaction
+;; Private version that does not check if in transaction
 (defun auto-commit-nocheck (enable)
   (check-connection "enable/disable auto-commit")
   (let ((old-value (lisp-truth (oracle_set_auto_commit (curconn) (c-truth enable)))))
     (check-success)
     old-value))
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; WITH-TRANSACTION
+;; WITH-TRANSACTION
 (defmacro with-transaction (&body body)
   "(ORACLE:WITH-TRANSACTION (&body body))
 
@@ -690,9 +686,9 @@ body.
            (setf *oracle-in-transaction* nil))))))
 
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; COMMIT
+;; COMMIT
 (defun commit ()
   "(ORACLE:COMMIT)
 
@@ -712,9 +708,9 @@ Argument: none
   (check-success)
   nil)
 
-;----------------------------------------------
+;;----------------------------------------------
 
-; ROLLBACK
+;; ROLLBACK
 (defun rollback ()
   "(ORACLE:ROLLBACK)
 
@@ -735,9 +731,9 @@ Argument: none
   nil)
 
 
-; =-=-=-=-=-=-=-   INTERNAL FUNCTIONS BELOW     =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+;; =-=-=-=-=-=-=-   INTERNAL FUNCTIONS BELOW     =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-; Helper functions for DO-ROWS
+;; Helper functions for DO-ROWS
 (defun do-rows-var (v) (if (atom v) v (car v)))
 (defun do-rows-col (v) (if (atom v) v (cadr v)))
 (defun do-rows-index-of (v)
@@ -750,14 +746,14 @@ Argument: none
       (error "~S: Column '~A' does not occur in query.  Allowed columns are: ~A"
              'do-rows (do-rows-col v) (column-names)))
     i))
-; COLUMN-NAMES
-; Get list of column names, one per line.
+;; COLUMN-NAMES
+;; Get list of column names, one per line.
 (defun column-names ()
   (join (map 'list #'sqlcol-name (columns))))
 
 
-; GETHASH-REQUIRED
-; Get the value of a column - must exist if the hash table is non-empty
+;; GETHASH-REQUIRED
+;; Get the value of a column - must exist if the hash table is non-empty
 (defun gethash-required (key hash)
   (unless (zerop (hash-table-count hash))
     (multiple-value-bind (val exists) (gethash (to-string key) hash)
@@ -766,8 +762,8 @@ Argument: none
                'do-rows key (column-names)))
       val)))
 
-; ROW-TO-RESULT
-; Convert fetched row array data to result type
+;; ROW-TO-RESULT
+;; Convert fetched row array data to result type
 (defun row-to-result (row result-type)
   (cond ((null row) nil)
         ((eq result-type 'ARRAY) row)
@@ -776,27 +772,27 @@ Argument: none
          (let ((colinfo (oracle_column_info (curconn))))
            (check-success)
            (cond
-            ((null row) nil)
-            (t (map 'list
-                    #'(lambda (col rowval)
-                        (list (sqlcol-name col) rowval))
-                    colinfo row)))))
+             ((null row) nil)
+             (t (map 'list
+                     #'(lambda (col rowval)
+                         (list (sqlcol-name col) rowval))
+                     colinfo row)))))
         (t (sys::error-of-type 'type-error
              :datum result-type :expected-type '(member array pairs hash)
              "Result type '~S' should be ~S, ~S or ~S"
              result-type 'array 'pairs 'hash))))
 
-; CHECK-SUCCESS
-; Check Oracle success code after calling a function.  Assumes (check-connection) was called!
+;; CHECK-SUCCESS
+;; Check Oracle success code after calling a function.  Assumes (check-connection) was called!
 (defun check-success ()
   (unless (lisp-truth (oracle_success (curconn)))
     (error "Oracle error: ~A" (oracle_last_error (curconn))))
   t)
 
-; Convert Oracle type based on sqlcol data type.  Oracle numerics are converted
-; to the appropriate internal Lisp type using READ-FROM-STRING.  NULL is retained
-; as Lisp NIL, BLOB and BFILE are converted to array of bytes,
-; and strings and dates are left as Lisp string.
+;; Convert Oracle type based on sqlcol data type.  Oracle numerics are converted
+;; to the appropriate internal Lisp type using READ-FROM-STRING.  NULL is retained
+;; as Lisp NIL, BLOB and BFILE are converted to array of bytes,
+;; and strings and dates are left as Lisp string.
 (defun convert-type (val sc)
   (let ((dtype (sqlcol-type sc)))
     (cond ((null val) nil)
@@ -817,91 +813,91 @@ Argument: none
            val)
           (t (error "Unsupported data type ~S" dtype)))))
 
-; TO-SQLVAL
-; Return a SQL val for LISP object, handling null case
+;; TO-SQLVAL
+;; Return a SQL val for LISP object, handling null case
 (defun to-sqlval (x)
   (if x
       (make-sqlval :data (to-string x) :is_null 0)
       (make-sqlval :data "" :is_null 1)))
 
-; FROM-SQLVAL
-; Return Lisp Object (string or NIL) for SQL val, handling null case
+;; FROM-SQLVAL
+;; Return Lisp Object (string or NIL) for SQL val, handling null case
 (defun from-sqlval (x)
   (if (lisp-truth (sqlval-is_null x))
       nil
-    (sqlval-data x)))
+      (sqlval-data x)))
 
-; ROWVAL
-; Return string value of an SQLVAL (row value), or "" if null
+;; ROWVAL
+;; Return string value of an SQLVAL (row value), or "" if null
 (defun rowval (row) (if (= 0 (sqlval-is_null row))
                         (sqlval-data row)
-                      nil))
+                        nil))
 
-; HASH-TO-SQLPARAM-ARRAY
-; Convert a hash table map of name->value strings to an array of SQL
-; bind params suitable for passing to ORACLE_EXEC_SQL
+;; HASH-TO-SQLPARAM-ARRAY
+;; Convert a hash table map of name->value strings to an array of SQL
+;; bind params suitable for passing to ORACLE_EXEC_SQL
 (defun hash-to-sqlparam-array (h)
   (unless h (setf h (make-hash-table :test #'equal)))
   (let* ((count (hash-table-count h))
          (result (make-array count))
          (i 0))
     (loop for key being the hash-keys of h do
-          (let ((val (gethash key h)))
-            (unless (atom key)
-              (error "Non-atom parameter name ~S in bind-parameter hash" key))
-            (unless (atom val)
-              (error "Non-atom parameter value ~S in bind-parameter hash" val))
-            (setf (aref result i) (make-sqlparam :name (to-string key) :value (to-sqlval val)))
-            (incf i)))
+        (let ((val (gethash key h)))
+          (unless (atom key)
+            (error "Non-atom parameter name ~S in bind-parameter hash" key))
+          (unless (atom val)
+            (error "Non-atom parameter value ~S in bind-parameter hash" val))
+          (setf (aref result i) (make-sqlparam :name (to-string key) :value (to-sqlval val)))
+          (incf i)))
     result))
 
-; CHECK-CONNECTION
-; Check we are connected before doing an operation that requires a connection
+;; CHECK-CONNECTION
+;; Check we are connected before doing an operation that requires a connection
 (defun check-connection (&optional action)
   (unless (curconn)
     (error "Attempt to ~A when not connected to any database"
            (or action "perform database operation"))))
 
-; CONNECTION-KEY
-; Construct key suitable for use in hash table keyed on
-; unique triple of (user, schema, server) and optional connection ID
+;; CONNECTION-KEY
+;; Construct key suitable for use in hash table keyed on
+;; unique triple of (user, schema, server) and optional connection ID
 (defun connection-key (user schema server &optional connid)
-  ; Use ~-delimited string - pretty disgusting, eh?
+  ;; Use ~-delimited string - pretty disgusting, eh?
   (let ((result (cat (string-upcase user) "~" (string-upcase schema) "~" (string-upcase server))))
-  (when connid
-    (setf result (cat result "~" connid)))
-  result))
+    (when connid
+      (setf result (cat result "~" connid)))
+    result))
 
-; PAIRS-TO-HASH
-; Convert a list of pairs ((key1 val1) (key2 val2) ...) to hash, enforcing key uniqueness
+;; PAIRS-TO-HASH
+;; Convert a list of pairs ((key1 val1) (key2 val2) ...) to hash, enforcing key uniqueness
 (defun pairs-to-hash (plist)
   (and plist
-    (let ((result (make-hash-table :test #'equal)))
-      (loop for p in plist do
-            (let ((key (string-upcase (to-string (first p))))
-                  (value (second p)))
-              (unless (valid-symbol key)
-                (error "Column or parameter ~S is not a valid Lisp symbol name.~%Consider using SELECT ... ~S AS <column alias>"
-                       key key))
-              ; Check uniqueness
-              (multiple-value-bind (curval already-there) (gethash key result)
-                (when already-there
-                  (error "Column or parameter ~A appears twice in list of (name, value) pairs,~%first with value ~S and again with value ~S.~%Columns/parameters given were:~%~A"
-                         key curval value (join (map 'list #'car plist)))))
-              (setf (gethash key result) value)))
-      result)))
+       (let ((result (make-hash-table :test #'equal)))
+         (loop for p in plist do
+             (let ((key (string-upcase (to-string (first p))))
+                   (value (second p)))
+               (unless (valid-symbol key)
+                 (error "Column or parameter ~S is not a valid Lisp symbol name.~%Consider using SELECT ... ~S AS <column alias>"
+                        key key))
+               ;; Check uniqueness
+               (multiple-value-bind (curval already-there) (gethash key result)
+                 (when already-there
+                   (error "Column or parameter ~A appears twice in list of (name, value) pairs,~%first with value ~S and again with value ~S.~%Columns/parameters given were:~%~A"
+                          key curval value (join (map 'list #'car plist)))))
+               (setf (gethash key result) value)))
+         result)))
 
-; CHECK-PAIRS
-; Convert pairs to hash if needed
+;; CHECK-PAIRS
+;; Convert pairs to hash if needed
 (defun check-pairs (p)
   (etypecase p
     ((NULL) (make-hash-table :test #'equal))
     ((HASH-TABLE) p)
     ((CONS) (pairs-to-hash p))))
 
-; COMMA-LIST-OF-KEYS
-; Return keys of hash table as comma-separated list.  If flag given,
-; also pre-pend a colon to the name
+;; COMMA-LIST-OF-KEYS
+;; Return keys of hash table as comma-separated list.  If flag given,
+;; also pre-pend a colon to the name
 (defun comma-list-of-keys (h &optional (colon nil))
   (with-output-to-string (out)
     (loop with plural = nil
@@ -911,19 +907,19 @@ Argument: none
         (when colon (write-string ":" out))
         (princ hkey out))))
 
-; IS-SELECT-QUERY
-; Examine string to see if it begins with "SELECT".  Useful to auto-detect
-; the mode (SELECT vs. non-SELECT for executing statements.
+;; IS-SELECT-QUERY
+;; Examine string to see if it begins with "SELECT".  Useful to auto-detect
+;; the mode (SELECT vs. non-SELECT for executing statements.
 (defun is-select-query (s)
   (let ((start (string-trim '(#\Space #\Tab #\Newline) (string-upcase s))))
     (equal "SELECT" (subseq start 0 6))))
 
-; =-=-=-=-=-=-=-   C WRAPPER FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+;; =-=-=-=-=-=-=-   C WRAPPER FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 (c-lines "#include <oci.h>~%")
 (c-lines "#include \"oiface.h\"~%")
 
-; CONNECT
+;; CONNECT
 (def-call-out oracle_connect (:arguments (user           c-string)
                                          (schema         c-string)
                                          (password       c-string)
@@ -932,100 +928,100 @@ Argument: none
                                          (auto_commit    int)
                                          (long_len       int)
                                          (truncate_ok    int))
-                             (:return-type c-pointer))
+  (:return-type c-pointer))
 
-; DISCONNECT
+;; DISCONNECT
 (def-call-out oracle_disconnect (:arguments (db c-pointer))
-                                (:return-type int  ))
+  (:return-type int))
 
-; RUN SQL
+;; RUN SQL
 (def-call-out oracle_exec_sql (:arguments (db         c-pointer)
                                           (sql        c-string)
                                           (params     (c-array-ptr (c-ptr sqlparam)))
                                           (is_command int))
-                              (:return-type int))
+  (:return-type int))
 
-; NO. OF COLUMNS
+;; NO. OF COLUMNS
 (def-call-out oracle_ncol (:arguments (db c-pointer))
-                          (:return-type int))
+  (:return-type int))
 
-; COLUMN INFO
+;; COLUMN INFO
 (def-call-out oracle_column_info (:arguments (db c-pointer))
-                                 (:return-type (c-array-ptr (c-ptr sqlcol))))
+  (:return-type (c-array-ptr (c-ptr sqlcol))))
 
-; FETCH
+;; FETCH
 (def-call-out oracle_fetch_row (:arguments (db c-pointer))
-                               (:return-type int))
+  (:return-type int))
 
-; EOF
+;; EOF
 (def-call-out oracle_eof (:arguments (db c-pointer))
-                         (:return-type int))
+  (:return-type int))
 
-; SUCCESS
+;; SUCCESS
 (def-call-out oracle_success (:arguments (db c-pointer))
-                             (:return-type int))
+  (:return-type int))
 
-; ROW VALUES
+;; ROW VALUES
 (def-call-out oracle_row_values (:arguments (db c-pointer))
-                                (:return-type (c-array-ptr (c-ptr sqlval))))
+  (:return-type (c-array-ptr (c-ptr sqlval))))
 
-; NO. ROWS AFFECTED
+;; NO. ROWS AFFECTED
 (def-call-out oracle_rows_affected (:arguments (db c-pointer))
-                                   (:return-type int))
+  (:return-type int))
 
-; COMMIT
+;; COMMIT
 (def-call-out oracle_commit (:arguments (db c-pointer))
-                            (:return-type int))
+  (:return-type int))
 
 (def-call-out oracle_rollback (:arguments (db c-pointer))
-                              (:return-type int))
+  (:return-type int))
 
-(def-call-out oracle_set_auto_commit (:arguments (db c-pointer)
-                                                 (auto_commit int))
-                                     (:return-type int))
+(def-call-out oracle_set_auto_commit (:return-type int)
+  (:arguments (db c-pointer)
+              (auto_commit int)))
 
-; ERROR
+;; ERROR
 (def-call-out oracle_last_error (:arguments (db c-pointer))
-                                (:return-type c-string))
+  (:return-type c-string))
 
 
-; =-=-=-=-=-=-=-   LOW LEVEL UTILITY FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+;; =-=-=-=-=-=-=-   LOW LEVEL UTILITY FUNCTIONS  =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-; AREF-NULL
-; Do an AREF, but allow array to be null, in which case return NIL
+;; AREF-NULL
+;; Do an AREF, but allow array to be null, in which case return NIL
 (defun aref-null (a i) (and a (aref a i)))
 
-; HASH-COMBINE
-; Combine two hash table.  Keys of the second hash will overwrite.
+;; HASH-COMBINE
+;; Combine two hash table.  Keys of the second hash will overwrite.
 (defun hash-combine (h1 h2)
   (cond ((null h1) h2)
         ((null h2) h1)
         (t (loop for hkey being each hash-key of h2 do
-                 (setf (gethash hkey h1)
-                       (gethash hkey h2)))
+               (setf (gethash hkey h1)
+                     (gethash hkey h2)))
            h1)))
 
-; VALID-SYMBOL
-; Test whether string is a valid Lisp symbol name
+;; VALID-SYMBOL
+;; Test whether string is a valid Lisp symbol name
 (defun valid-symbol (x)
   (equal (string-upcase (to-string x))
          (to-string (read-from-string x))))
 
-; TO-STRING
-; Convert object to a string; NIL -> ""
+;; TO-STRING
+;; Convert object to a string; NIL -> ""
 (defun to-string (s)
   (cond ((null s) "")
         ((stringp s) s)
         ((symbolp s) (symbol-name s))
         (t (princ-to-string s))))
 
-; CAT
-; Concatenate strings
+;; CAT
+;; Concatenate strings
 (defun cat (&rest args)
   (apply #'ext:string-concat (mapcar #'to-string (flatten args))))
 
-; ARRAY-TO-HASH
-; Convert array of row values to hash using column info
+;; ARRAY-TO-HASH
+;; Convert array of row values to hash using column info
 (defun array-to-hash (row)
   (and row
        (let* ((cols (columns))
@@ -1036,8 +1032,8 @@ Argument: none
                    (aref row i)))
          result)))
 
-; CHECK-UNIQUE-ELEMENTS
-; Does list consist of unqiue, non-null elements
+;; CHECK-UNIQUE-ELEMENTS
+;; Does list consist of unqiue, non-null elements
 (defun check-unique-elements (l)
   (let ((h (make-hash-table :test #'equal)))
     (dolist (elt l)
@@ -1048,8 +1044,8 @@ Argument: none
       (setf (gethash (to-string elt) h) t))
     t))
 
-; JOIN
-; Join a sequence of strings into one, separating with delimeter
+;; JOIN
+;; Join a sequence of strings into one, separating with delimeter
 (defun join (seq &optional (delimiter #.(format nil "~%")))
   (let ((firstp t))
     (with-output-to-string (out)
@@ -1059,14 +1055,14 @@ Argument: none
                  (setq firstp nil))
            seq))))
 
-; LISP-TRUTH
-; Get Lisp truth of object, considering "C" 0/1 also.  Useful for
-; taking booleans returned from "C"
+;; LISP-TRUTH
+;; Get Lisp truth of object, considering "C" 0/1 also.  Useful for
+;; taking booleans returned from "C"
 (defun lisp-truth (x)
   (if (eq x 0) nil (not (null x))))
 
-; C-TRUTH
-; Get "C" truth of object (0 or 1).  Useful for passing args to "C"
+;; C-TRUTH
+;; Get "C" truth of object (0 or 1).  Useful for passing args to "C"
 (defun c-truth (x)
   (if (lisp-truth x) 1 0))
 
@@ -1094,8 +1090,8 @@ Argument: none
             (hex-byte-value (char h string-pos) (char h (1+ string-pos)))))
     result))
 
-; FLATTEN
-; Flatten list (lifted from Paul Graham)
+;; FLATTEN
+;; Flatten list (lifted from Paul Graham)
 (defun flatten (x)
   (labels ((rec (x acc)
              (cond ((null x) acc)
@@ -1103,4 +1099,4 @@ Argument: none
                    (t (rec (car x) (rec (cdr x) acc))))))
     (rec x nil)))
 
-; End of oracle.lisp
+;; End of oracle.lisp
