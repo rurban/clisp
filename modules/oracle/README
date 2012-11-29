@@ -5,8 +5,6 @@
         John Hinsdale, Alma Mater Software, Inc.
         hin@alma.com
 
-        $Id$
-
 This is the README for a low-level, but complete and functional module
 for CLISP that allows one to use CLISP to program Oracle database
 applications. The interface is built on top of the Oracle Call
