@@ -162,7 +162,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
     (when conn
       (let ((conn-handle (db-connection conn)))
         (oracle_exec_sql conn-handle "SELECT 'x' FROM dual" (make-array 0) (c-truth nil))
-        (when (not (lisp-truth (oracle_success conn-handle)))
+        (unless (lisp-truth (oracle_success conn-handle))
           (oracle_disconnect conn-handle) ; Don't check for error here
           (remhash hkey *oracle-connection-cache*)
           (setf conn nil
@@ -171,7 +171,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
     (when (null conn)
           ; Connect to database
           (let ((handle (oracle_connect user schema password server prefetch-buffer-bytes (c-truth auto-commit) long-len (c-truth truncate-ok))))
-            (when (not (lisp-truth (oracle_success handle)))
+            (unless (lisp-truth (oracle_success handle))
                    ; Retry connection
                    ; ... TODO: implement retry logic here
                    ; Failed all attempts; give up
@@ -240,7 +240,7 @@ for SELECT statements.
 "
   (check-connection "run a SQL statement")
   ; Default statement type: query vs. command
-  (when (not is-select-given)
+  (unless is-select-given
     (setf is-select (is-select-query sql)))
   ; If pairs given, convert them to hash
   (setf params (check-pairs params))
@@ -530,8 +530,8 @@ Arguments: none
     nil)
    (t (let ((oracle-eof (lisp-truth (oracle_eof (curconn)))))
         (check-success)
-        (when (not oracle-eof)
-              (setf (db-pending-row *oracle-connection*) (fetch)))
+        (unless oracle-eof
+          (setf (db-pending-row *oracle-connection*) (fetch)))
         (null (db-pending-row *oracle-connection*))))))
 
 ;----------------------------------------------
@@ -668,27 +668,26 @@ body.
         (commit-ok (gensym))
         (result (gensym)))
     `(progn
-       ; Check nesting
        (when *oracle-in-transaction*
          (error "Nesting of ~S is not allowed." 'with-transaction))
        (let ((,prev-auto-commit t)
              (,commit-ok nil))
          (unwind-protect
-             (progn ; Mark us as inside the macro
-                    (setf *oracle-in-transaction* t)
-                    ; Turn off auto-commit and save for later restore
-                    (setf ,prev-auto-commit (auto-commit-nocheck nil))
-                    ; Roll back any pending operation so that the database sees
-                    ; only the effects of what's inside this macro
-                    (if (not ,prev-auto-commit) (rollback-nocheck))
-                    (setf ,result (progn ,@body))
-                    (commit-nocheck)
-                    (setf ,commit-ok t)
-                    ,result)
-           ; Cleanup
-           (progn (when (not ,commit-ok) (rollback-nocheck)) ; Only roll back if need to
-                  (auto-commit-nocheck ,prev-auto-commit)
-                  (setf *oracle-in-transaction* nil)))))))
+              (progn ; Mark us as inside the macro
+                (setf *oracle-in-transaction* t)
+                ;; Turn off auto-commit and save for later restore
+                (setf ,prev-auto-commit (auto-commit-nocheck nil))
+                ;; Roll back any pending operation so that the database sees
+                ;; only the effects of what's inside this macro
+                (if (not ,prev-auto-commit) (rollback-nocheck))
+                (setf ,result (progn ,@body))
+                (commit-nocheck)
+                (setf ,commit-ok t)
+                ,result)
+           ;; Cleanup
+           (unless ,commit-ok (rollback-nocheck)) ; Only roll back if need to
+           (auto-commit-nocheck ,prev-auto-commit)
+           (setf *oracle-in-transaction* nil))))))
 
 
 ;----------------------------------------------
