@@ -1,6 +1,18 @@
+2012-11-29  Sam Steingold  <sds@gnu.org>
+
+	* modules/oracle/oracle.lisp: code clean-up for better performance
+	and error reporting
+	(db-error, nl, out, out-nl): remove
+	(check-seq-type): add
+	(fetch-all): use it
+	(update-row, comma-list-of-keys, join): use WITH-OUTPUT-TO-STRING
+	instead of CAT so that the algorithm is linear instead of quadratic
+	(check-pairs): use ETYPECASE
+	(to-string): use PRINC-TO-STRING instead of FORMAT
+
 2012-09-14  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	implement feature request #3545986
+	implement RFE#3545986
 	* threads.lisp (*DEFAULT-SPECIAL-BINDINGS*): add abort restart that
 	kills current thread - exits with two values: :ABORT and current
 	internal real time
