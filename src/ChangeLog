@@ -1,3 +1,9 @@
+2012-11-23  Sam Steingold  <sds@gnu.org>
+
+	* modules/oracle/Makefile.in (ALL_CFLAGS): new variable,
+	accumulate all C flags here, move -I$(srcdir) here from CPPFLAGS
+	which is overridden by clisp-link invocation from Makefile
+
 2012-11-20  Sam Steingold  <sds@gnu.org>
 
 	PCRE-EXEC returns character positions instead of byte positions
