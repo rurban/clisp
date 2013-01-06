@@ -1,3 +1,9 @@
+2013-01-06  Bruno Haible  <bruno@clisp.org>
+
+	* pathname.d (unix_user_pwd): Don't use getlogin().
+	Reported by Alberto Riva <alb@chip.org> in
+	<http://article.gmane.org/gmane.lisp.clisp.general:13995>
+
 2012-11-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/oracle/Makefile.in (ALL_CFLAGS): new variable,
