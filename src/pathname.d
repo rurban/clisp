@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2013
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -7826,8 +7826,11 @@ LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
 local struct passwd * unix_user_pwd (void) {
   var const char* username;
   var struct passwd * userpasswd = NULL;
-  /* The manpage for GETLOGIN(3V) recommends
-   first getpwnam(getlogin()), then getpwuid(getuid()). */
+  /* The Solaris manpage for GETLOGIN(3V) recommended
+   first getpwnam(getlogin()), then getpwuid(getuid()).
+   But getlogin() is too unreliable in general: it is sensitive to the
+   controlling tty, stdin redirection, and has bugs with user names longer
+   than 8 characters. */
   begin_system_call();
   /* 1. attempt: getpwnam(getenv("USER")) */
   username = getenv("USER");
@@ -7836,13 +7839,7 @@ local struct passwd * unix_user_pwd (void) {
     if (userpasswd != NULL) goto ok;
     if (errno != 0) { OS_error(); }
   }
-  /* 2. attempt: getpwnam(getlogin()) */
-  username = getlogin();
-  if (username != NULL) {
-    errno = 0; userpasswd = getpwnam(username);
-    if (userpasswd != NULL) goto ok;
-    if (errno != 0) { OS_error(); }
-  }
+  /* 2. don't attempt: getpwnam(getlogin()) */
   /* 3. attempt: getpwuid(getuid()) */
   errno = 0; userpasswd = getpwuid(getuid());
   if (userpasswd != NULL) goto ok;
