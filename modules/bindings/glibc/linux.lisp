@@ -69,7 +69,6 @@
 (def-c-type __daddr_t)          ; int
 (def-c-type __caddr_t)          ; c-pointer
 (def-c-type __time_t)           ; long
-(def-c-type __swblk_t)          ; long
 
 (def-c-type __fd_mask ulong)
 (eval-when (load compile eval)
