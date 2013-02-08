@@ -7,4 +7,4 @@ $ clisp -i clx-demos
 and read the instructions.
 
 To try them all, one by one, do
-$ clisp -i -x '(run-all-demos)'
+$ clisp -i clx-demos -x '(clx-demos:run-all-demos)'

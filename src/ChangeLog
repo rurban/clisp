@@ -1,3 +1,7 @@
+2013-02-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/demos/clx-demos.lisp: require CLX
+
 2013-02-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/glibc/linux.lisp (__swblk_t): remove the unused
