@@ -1,6 +1,8 @@
 ;;; Common stuff for the demos
-;;; Copyright (C) 1999-2008 by Sam Steingold (sds@gnu.org)
+;;; Copyright (C) 1999-2008, 2013 by Sam Steingold (sds@gnu.org)
 ;;; GPL2 is applicable
+
+(require "clx")
 
 (defpackage "CLX-DEMOS"
   (:use "COMMON-LISP" "XLIB" "EXT")
