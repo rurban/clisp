@@ -5753,13 +5753,15 @@ global /*maygc*/ file_kind_t classify_namestring
 #endif
 }
 
-LISPFUNNS(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
-{ /* a safe way to distinguish between files and dirs:
+LISPFUN(probe_pathname,seclass_rd_sig,1,0,norest,key,1,(kw(error)))
+{ /* (PROBE-PATHNAME pathname &key (error t))
+     a safe way to distinguish between files and dirs:
      "dir", "dir/" ==> #p"dir/"
      "file", "file/" ==> #p"file"
      "none", "none/" ==> NIL
   the first value is the truename,
   the second is the "correct" absolute pathname */
+  bool errorp = !nullp(popSTACK());
   if (builtin_stream_p(STACK_0)) { /* stream -> path */
     probe_path_from_stream(&STACK_0); /* STACK_0 is now an absolute truename */
   } else { /* turn into a pathname */
@@ -5784,6 +5786,10 @@ LISPFUNNS(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
     }
   });
   switch (classification) {
+    case FILE_KIND_BAD:
+      if (errorp)
+        OS_file_error(STACK_0);
+      /*FALLTHROUGH*/
     case FILE_KIND_NONE:        /* does not exist */
       VALUES1(NIL); skipSTACK(3); return;
     case FILE_KIND_DIR: {       /* directory */
@@ -5828,7 +5834,6 @@ LISPFUNNS(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         skipSTACK(2);
       }
       break;
-    case FILE_KIND_BAD: OS_file_error(STACK_0);
   }
   pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
   funcall(L(truename),1);
