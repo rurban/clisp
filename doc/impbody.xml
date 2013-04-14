@@ -3637,8 +3637,9 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  given namestring refers to a file or a directory.</para>
 
 <section id="probe-path"><title>Function &probe-path;</title>
-<para>Function &probe-path; figures out whether the argument refers to
- an existing directory or an existing regular file, and returns 4 values
+<para>Function <code>(&probe-path; &path-r; &key-amp; (&error-k; &t;))</code>
+ figures out whether the argument refers to an existing directory or an
+ existing regular file, and returns 4 values
  if the filesystem object exists: <orderedlist>
   <listitem><simpara>&truename;</simpara></listitem>
   <listitem><simpara>&absolute-pathname;</simpara></listitem>
@@ -3691,7 +3692,8 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <computeroutput>1024</computeroutput>
 </programlisting></para>
 <para>This function may also &sig-err; if, e.g., its argument resides
-under a tree for which you do not have sufficient access privileges.</para>
+under a tree for which you do not have sufficient access privileges;
+unless &error-k; is &nil;, in which case &nil; is returned instead.</para>
 </section></section>
 
 <section id="file-func"><title>File functions</title>

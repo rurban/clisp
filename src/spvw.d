@@ -3412,7 +3412,8 @@ local inline void main_actions (struct argv_actions *p) {
   /* set *user-lib-directory* */
   pushSTACK(ascii_to_string(".clisp/")); pushSTACK(O(user_homedir));
   funcall(L(merge_pathnames),2); pushSTACK(value1); /* ~/.clisp/ */
-  funcall(L(probe_pathname),1);
+  pushSTACK(S(Kerror)); pushSTACK(NIL);             /* ignore errors */
+  funcall(L(probe_pathname),3);
   if (pathnamep(value1)
       && nullp(ThePathname(value1)->pathname_name)
       && nullp(ThePathname(value1)->pathname_type))
