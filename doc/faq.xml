@@ -139,7 +139,11 @@ further explanations of the issues could be provided).</para>
   If you read a list on <ulink url="http://gmane.org">Gmane</ulink>
   and do not want to receive it also by e-mail, you can subscribe to
   it using the aforementioned web interface and then disable mail
-  delivery.</simpara></note></answer></qandaentry>
+  delivery.</simpara>
+<simpara>Alternatively, you can ask on
+  <ulink url="http://stackoverflow.com/questions/tagged/clisp">StackOverflow</ulink>
+  with tags <literal>clisp</literal> and/or <literal>common-lisp</literal>.
+</simpara></note></answer></qandaentry>
 
 
 <qandaentry id="faq-mailing-lists"><question id="faq-mailing-lists-q">
