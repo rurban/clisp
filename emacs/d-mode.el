@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2009, 2012 by Sam Steingold
+;;; Copyright (C) 2001-2009, 2012, 2014 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -278,8 +278,6 @@ Beware - this will modify the original C-mode too!"
   (set (make-local-variable 'compile-command)
        (d-mode-compile-command)))
 
-(eval-after-load "add-log" '(add-to-list 'add-log-c-like-modes 'd-mode))
-
 (when window-system
   ;; enable font locking
   (if (boundp 'running-xemacs)
@@ -302,10 +300,6 @@ Beware - this will modify the original C-mode too!"
 (when (boundp 'mouse-buffer-menu-mode-groups)
   (push '("\\<D\\>" . "C") mouse-buffer-menu-mode-groups))
 
-;; treat D files like C files for add-log
-(eval-after-load "add-log"
-  '(add-to-list 'add-log-c-like-modes 'd-mode))
-
 ;; some keybindings
 (define-key d-mode-map (kbd "<f5>") 'd-mode-convert-next-comment)
 
@@ -317,8 +311,8 @@ Beware - this will modify the original C-mode too!"
 ;; update the dates in headers
 (defvar clisp-home-dir
   (eval-when-compile
-    (flet ((clisp-p (dir)
-             (clisp-existing-file (concat dir "/src/makemake.in") dir)))
+    (cl-flet ((clisp-p (dir)
+               (clisp-existing-file (concat dir "/src/makemake.in") dir)))
       (or (clisp-p "~/clisp") (clisp-p "~/src/clisp")
           (clisp-p "~/src/clisp/current")
           (clisp-p "d:/gnu/clisp/current"))))
