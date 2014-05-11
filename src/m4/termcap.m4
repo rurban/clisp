@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2005, 2010 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2005, 2010, 2014 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -30,7 +30,7 @@ if test x$termcap_prefix != x; then
 fi
 LIBTERMCAP="broken"
 INCTERMCAP=""
-AC_SEARCH_LIBS(tgetent, ncurses termcap, LIBTERMCAP="")
+AC_SEARCH_LIBS(tgetent, ncurses termcap tinfo, LIBTERMCAP="")
 if test x$termcap_prefix != x; then
   LDFLAGS=$LDFLAGS_save
   if test x$LIBTERMCAP != xbroken; then
