@@ -1,3 +1,8 @@
+2014-10-22  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#668 posix:file-state always return NIL for :rdev
+	* modules/syscalls/configure.in: check for struct stat members
+
 2014-05-11  Sam Steingold  <sds@gnu.org>
 
 	* m4/termcap.m4 (CL_TERMCAP): also look for tgetent in tinfo;
