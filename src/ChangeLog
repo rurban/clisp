@@ -50,6 +50,13 @@
 	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
 	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
+2015-03-04  Ken Brown  <kbrown@cornell.edu>
+
+	"Handle" is used in a w32 prototype, interfering with our
+	definition of it as a macro (patch#36).
+	* src/unix.d [UNIX_CYGWIN32]: Work around namespace pollution in
+	w32 headers
+
 2014-10-22  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#668 posix:file-state always return NIL for :rdev

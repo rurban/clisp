@@ -623,7 +623,10 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 /* Interpretation of FILETIME structure: */
 #ifdef UNIX_CYGWIN32
   #define WIN32_LEAN_AND_MEAN
+  #pragma push_macro ("Handle")
+  #undef Handle
   #include <windows.h>
+  #pragma pop_macro ("Handle")
   #undef WIN32
   extern long time_t_from_filetime (const FILETIME * ptr);
   extern void time_t_to_filetime (time_t time_in, FILETIME * out);
