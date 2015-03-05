@@ -84,11 +84,11 @@
  IBM-PC/386   any                NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
  IBM-PC/386   any                FreeBSD 4.0 (UNIX BSD 4.4)    GNU           unix, __FreeBSD__, i386, __GNUC__
  IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
- IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
+ IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN__, __POSIX__, _X86_, i386, __GNUC__
  IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
  IBM-PC/386   any                WinNT/Win95                   MSVC          _WIN32, _M_IX86, _MSC_VER
  IBM-PC/386   any                WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
- IBM-PC/386   any                WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
+ IBM-PC/386   any                WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN__, __POSIX__, __i386__, _X86_, __GNUC__
  IBM-PC/586   any                BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
  IBM-PC/586   any                HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
  RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
@@ -121,7 +121,7 @@
   #define PC386 /* IBMPC-compatible with 80386/80486-processor */
 #endif
 #ifdef GENERIC_UNIX
-  #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
+  #if (defined(unix) && (defined(linux) || defined(__CYGWIN__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
     #define PC386
   #endif
   #if (defined(sun) && defined(unix) && defined(sparc))
@@ -295,7 +295,7 @@
   #ifdef AMIX
     #define UNIX_AMIX  /* Amiga UNIX */
   #endif
-  #ifdef __CYGWIN32__
+  #ifdef __CYGWIN__
     #define UNIX_CYGWIN32  /* Cygwin32 (UNIXlike on WinNT/Win95) */
   #endif
   #ifdef __BEOS__

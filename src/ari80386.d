@@ -52,7 +52,7 @@
     #endif
     # Alignment. Note that some assemblers need ".align 3,0x90" whereas other
     # assemblers don't like this syntax. So we put in the "nop"s by hand.
-    #if defined(ASM_UNDERSCORE) && !(defined(__CYGWIN32__) || defined(__MINGW32__))
+    #if defined(ASM_UNDERSCORE) && !(defined(__CYGWIN__) || defined(__MINGW32__))
       # BSD syntax assembler
       #define ALIGN  .align 3
     #else
