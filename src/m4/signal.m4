@@ -20,11 +20,6 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 #include <signal.h>
-#ifdef __CYGWIN32__
-/* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
- * Let it fail instead. */
-#error "better fail than hang"
-#endif
 volatile int gotsig=0;
 void sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
@@ -55,11 +50,6 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 #include <signal.h>
-#ifdef __CYGWIN32__
-/* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
- * Let it fail instead. */
-#error "better fail than hang"
-#endif
 volatile int gotsig=0;
 volatile int wasblocked=0;
 typedef void (*signal_handler_t) (int);
@@ -101,11 +91,6 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 #include <signal.h>
-#ifdef __CYGWIN32__
-/* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
- * Let it fail instead. */
-#error "better fail than hang"
-#endif
 volatile int gotsig=0;
 volatile int somewereblocked=0;
 typedef void (*signal_handler_t) (int);
@@ -156,11 +141,6 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 #include <signal.h>
-#ifdef __CYGWIN32__
-/* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
- * Let it fail instead. */
-#error "better fail than hang"
-#endif
 typedef void (*signal_handler_t) (int);
 signal_handler_t mysignal (int sig, signal_handler_t handler)
 { struct sigaction old_sa;
@@ -202,11 +182,6 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 #include <signal.h>
-#ifdef __CYGWIN32__
-/* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
- * Let it fail instead. */
-#error "better fail than hang"
-#endif
 typedef void (*signal_handler_t) (int);
 signal_handler_t mysignal (int sig, signal_handler_t handler)
 { struct sigaction old_sa;
