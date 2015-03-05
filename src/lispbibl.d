@@ -2506,7 +2506,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      malloc results (and hence also of shared libraries) are randomized;
      only the code address is fixed around 0x1C000000 and the stack address
      is around 0xCF000000. In this case, we also use LINUX_NOEXEC_HEAPCODES. */
-    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED))
+    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
       #define LINUX_NOEXEC_HEAPCODES
     #else
       #define STANDARD_HEAPCODES

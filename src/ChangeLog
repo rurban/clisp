@@ -52,6 +52,12 @@
 
 2015-03-04  Ken Brown  <kbrown@cornell.edu>
 
+	The Cygwin heap is now in high memory, so STANDARD_HEAPCODES
+	no longer work (patch#38).
+	* src/lispbibl.d (LINUX_NOEXEC_HEAPCODES) [UNIX_CYGWIN32]: Define
+
+2015-03-04  Ken Brown  <kbrown@cornell.edu>
+
 	"Handle" is used in a w32 prototype, interfering with our
 	definition of it as a macro (patch#36).
 	* src/unix.d [UNIX_CYGWIN32]: Work around namespace pollution in
