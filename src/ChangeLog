@@ -70,6 +70,13 @@
 
 2015-03-05  Ken Brown  <kbrown@cornell.edu>
 
+	* lispbibl.d, ari80386.d, ari80386.msvc.c, asmi386.h, asmi386.hh:
+	* sp80386.d, sp80386.msvc.c: Use __CYGWIN__ instead of __CYGWIN32__
+	to detect Cygwin: __CYGWIN32__ is deprecated and, more
+	importantly, is not defined on 64-bit Cygwin (patch#42)
+
+2015-03-05  Ken Brown  <kbrown@cornell.edu>
+
 	* src/m4/signal.m4: Remove obsolete Cygwin-specific code (patch#41)
 
 2015-03-04  Ken Brown  <kbrown@cornell.edu>

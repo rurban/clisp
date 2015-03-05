@@ -12,7 +12,7 @@
     #endif
 
 
-    #if defined(ASM_UNDERSCORE) && !(defined(__CYGWIN32__) || defined(__MINGW32__))
+    #if defined(ASM_UNDERSCORE) && !(defined(__CYGWIN__) || defined(__MINGW32__))
 
       #define ALIGN  .align 3
     #else
