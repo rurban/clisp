@@ -52,7 +52,12 @@
 
 2015-03-05  Ken Brown  <kbrown@cornell.edu>
 
-	* src/m4/signal.m4: Remove obsolete Cygwin-specific code
+	* src/lispbibl.d (ULONGLONG): Avoid conflict with w32 typedef on
+	64-bit Cygwin (patch#43)
+
+2015-03-05  Ken Brown  <kbrown@cornell.edu>
+
+	* src/m4/signal.m4: Remove obsolete Cygwin-specific code (patch#41)
 
 2015-03-04  Ken Brown  <kbrown@cornell.edu>
 

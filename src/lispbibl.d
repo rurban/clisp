@@ -1096,7 +1096,7 @@
 #else
   #error No 32 bit integer type? -- Which Integer-type has 32 Bit?
 #endif
-#if (long_bitsize==64)
+#if (long_bitsize==64) && !defined(UNIX_CYGWIN32)
   typedef long           SLONGLONG;
   typedef unsigned long  ULONGLONG;
   #ifndef HAVE_LONG_LONG_INT
@@ -1132,7 +1132,7 @@
 %%   emit_typedef("int","SLONG");
 %%   emit_typedef("unsigned int","ULONG");
 %% #endif
-%% #if (long_bitsize==64)
+%% #if (long_bitsize==64) && !defined(UNIX_CYGWIN32)
 %%   emit_typedef("long","SLONGLONG");
 %%   emit_typedef("unsigned long","ULONGLONG");
 %% #elif defined(MICROSOFT)
