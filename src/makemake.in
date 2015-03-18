@@ -1371,7 +1371,11 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   # Support for dynamic loading.
   eval "`./libtool --tag=CC --config | grep '^pic_flag='`"
   eval XCC_PICFLAG=\"${pic_flag}\"
-  eval "`./libtool --tag=CC --config | grep '^archive_cmds='`"
+  if [ "$HSYSOS" != cygwin ]; then
+    eval "`./libtool --tag=CC --config | grep '^archive_cmds='`"
+  else
+    archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -o $output_objdir/$soname'
+  fi
   # http://article.gmane.org/gmane.comp.shells.bash.bugs:17158
   CC_set=${CC+set}
   CC_save=$CC
@@ -3080,14 +3084,20 @@ if [ $XCC_GCC = true ] ; then
   echol
 fi
 
-
 echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* ==== config.h ==== */' ; cat config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
-echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+# clx depends on the symbol "hostent_to_lisp", which is defined in the
+# syscalls module and therefore doesn't get put into lisp.def on
+# Cygwin.  So we just force it.
+if [ "${HSYSOS}" != cygwin ]; then
+  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+else
+    echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+fi
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-clisp"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
@@ -3159,8 +3169,12 @@ for f in clisp-link ; do
   echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' \\"
   echotab "    -e 's%@createsharedlib@%$XCC_CREATESHARED_%' \\"
   echotab "    -e 's%@LEXE@%${LEXE}%' -e 's%@SHREXT@%${SHREXT}%' \\"
+  # On Cygwin, "-L$sourcedir$" is not enough for the linker to find
+  # lisp.def.  So just give the absolute path to lisp.def.
   if test -z "${CLISP_DEF}"; then
     echotab "    -e 's%@CLISP_DEF@%%' \\"
+  elif [ "${HSYSOS}" = cygwin ]; then
+    echotab "    -e 's%@CLISP_DEF@%\$\$absolute_sourcedir/lisp.def%' \\"
   else
     echotab "    -e 's%@CLISP_DEF@%-L\$\$sourcedir${CLISP_DEF}%' \\"
   fi
