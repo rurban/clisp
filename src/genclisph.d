@@ -333,7 +333,13 @@ int main(int argc, char* argv[])
     def_f = fopen(argv[2],"w");
     if (def_f == NULL) { perror(argv[2]); exit(1); }
     fprintf(stderr,"writing DLL export file %s\n",argv[2]);
+    /* Having both EXPORTS and IMPORTS generates a syntax error on
+       Cygwin.  All we need is imports, for building dynamic modules. */
+   #ifdef UNIX_CYGWIN32
+    fprintf(def_f,"IMPORTS\n");
+   #else
     fprintf(def_f,"EXPORTS\nIMPORTS\n");
+   #endif
   }
  #endif
 

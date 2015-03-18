@@ -50,6 +50,14 @@
 	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
 	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
+2015-03-18  Ken Brown  <kbrown@cornell.edu>
+
+	Fix dynamic loading on Cygwin (patch#44)
+	* src/genclisph.d [UNIX_CYGWIN32]: Fix syntax error in lisp.def
+	* src/makemake.in (archive_cmds): Fix definition on Cygwin
+	(lisp.def): Add "hostent_to_lisp" to lisp.def on Cygwin
+	(clisp-link): Use absolute path to lisp.def
+
 2015-03-05  Ken Brown  <kbrown@cornell.edu>
 
 	* src/lispbibl.d (ULONGLONG): Avoid conflict with w32 typedef on
