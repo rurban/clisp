@@ -4081,8 +4081,8 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 (&def-call-out; sort10
   (&name-k; "lispsort_double")
   (&lang-k; :stdc)
-  (&arguments-k; (n int)
-              (array (c-ptr (c-array double-float 10)) :in-out)))
+  (&arguments-k; (n ffi:int)
+              (array (&c-ptr; (&c-array; ffi:double-float 10)) :in-out)))
 </programlisting>
 
 Now try
@@ -4101,7 +4101,7 @@ and add <filename>package.lisp</filename> to &mod-preload; in &link-sh;.
 Proceed:
 
 <screen>&sh-prompt; cd ..
-&sh-prompt; base/lisp.run &opt-M; base/lispinit.mem &opt-c; sort2.lisp sorttest.lisp
+&sh-prompt; base/lisp.run &opt-M; base/lispinit.mem &opt-c; sort2.lisp &opt-c; sorttest.lisp
 &sh-prompt; &clisp-link; add base base+sort sort
 &sh-prompt; base+sort/lisp.run &opt-M; base+sort/lispinit.mem &opt-i; sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
