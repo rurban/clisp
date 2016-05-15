@@ -37,6 +37,12 @@
 	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
 	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
+2016-05-16  Daniel Jour  <daniel.oertwig@gmail.com>
+
+	Update asdf to version 3.1.7
+	* modules/asdf/asdf.lisp: Update to asdf 3.1.7
+	* modules/asdf/asdf.xml: Update asdf module description
+
 2014-10-22  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#668 posix:file-state always return NIL for :rdev
