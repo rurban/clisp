@@ -35,13 +35,26 @@ T
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
 T
 
+(defmacro with-C-time (&body body)
+  "Set LC_TIME to \"C\" during body, restoring the previously set value
+afterwards."
+  (let ((original-locale-name (gensym)))
+    `(let ((,original-locale-name (i18n:set-locale :TIME)))
+       (unwind-protect
+            (progn (i18n:set-locale :TIME "C")
+                   ,@body)
+         (i18n:set-locale :TIME ,original-locale-name)))))
+WITH-C-TIME
+
 ;; for this to work, datum must specify _all_ fields in struct tm
 (defun check-time-date (fmt datum)
   (and (fboundp 'os:getdate)
-       (let ((gd (os:getdate datum)) (st (os:string-time fmt datum)))
+       (with-C-time
+           (let ((gd (os:getdate datum))
+                 (st (os:string-time fmt datum)))
          (print (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
          (unless (= gd st)
-           (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st)))))))
+               (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st))))))))
 CHECK-TIME-DATE
 
 (check-time-date "%m/%d/%y %I %p" "10/1/87 4 PM") NIL
@@ -51,8 +64,9 @@ CHECK-TIME-DATE
 (defun check-time-date (fmt datum)
   (declare (ignore fmt))
   (and (fboundp 'os:getdate)
-       (null (show (os:string-time "%Y-%m-%d %a %H:%M:%S"
-                                   (os:getdate datum))))))
+       (null (show (with-C-time
+                       (os:string-time "%Y-%m-%d %a %H:%M:%S"
+                                       (os:getdate datum)))))))
 CHECK-TIME-DATE
 
 (check-time-date "%m/%d/%y" "11/27/86") NIL
