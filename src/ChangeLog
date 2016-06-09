@@ -37,6 +37,12 @@
 	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
 	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
+2016-06-09  Daniel Jour  <daniel.oertwig@gmail.com>
+
+	Disable TRIVIALMAP_MEMORY and SINGLEMAP_MEMORY on NetBSD due to mmap
+	and MAP_FIXED issues
+	* lispbibl.d: No TRIVIALMAP_MEMORY or SINGLEMAP_MEMORY on NetBSD
+
 2016-05-16  Daniel Jour  <daniel.oertwig@gmail.com>
 
 	Update asdf to version 3.1.7
