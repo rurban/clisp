@@ -2861,10 +2861,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* If the address bits are the lower ones and not WIDE_SOFT,
  memory mapping may be possible. */
 
-  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
+     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
+    && !(defined(UNIX_SINIX) || defined(UNIX_AIX) || defined(UNIX_NETBSD))     \
+    && !defined(NO_SINGLEMAP)
     /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information.
-     But this does not work on SINIX and AIX. */
+     But this does not work on SINIX and AIX.
+     On NetBSD it fails because the resulting addresses are outside of any
+     mappable address range. */
       #define SINGLEMAP_MEMORY
   #endif
 
@@ -2874,7 +2879,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define MAP_MEMORY
 #endif
 
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX) || defined(ADDRESS_RANGE_RANDOMIZED)) && !defined(NO_TRIVIALMAP)
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
+     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
+    && !defined(MAP_MEMORY)                                                    \
+    && !(defined(UNIX_HPUX) || defined(UNIX_AIX) || defined(UNIX_NETBSD)       \
+         || defined(ADDRESS_RANGE_RANDOMIZED))                                 \
+    && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
    It's not really memory-mapping, but a more comfortable way to
    manage two large memory blocks.
@@ -2882,7 +2892,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    Also it does not work reliably when address space layout randomization
    is in effect: TRIVIALMAP_MEMORY assumes that one can increase existing a
    memory region by mmapping the pages after it; but this might overwrite
-   some small malloc regions that have been put there by the system. */
+   some small malloc regions that have been put there by the system.
+   It's not working on NetBSD due to restrictions of the mappable address
+   range.*/
   #define TRIVIALMAP_MEMORY
 #endif
 
