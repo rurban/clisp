@@ -28,7 +28,7 @@
 <xsl:param name="variablelist.term.separator" select="''"/>
 <xsl:param name="generate.meta.abstract" select="1"/>
 
-<!-- https://sourceforge.net/tracker2/?func=detail&atid=373747&aid=1986587&group_id=21935 -->
+<!-- https://sourceforge.net/p/docbook/bugs/990/ -->
 <xsl:param name="index.links.to.section" select="0"/>
 
 <!-- http://thread.gmane.org/gmane.text.docbook.apps/15071/ -->
@@ -453,7 +453,7 @@ set       toc,title
     <td align="center"><a href="https://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
     <td align="right"><a href="https://sourceforge.net/projects/clisp"><img width="120" height="30" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
  </tr></table></div><hr />
- <!-- https://sourceforge.net/tracker/?func=detail&atid=200001&aid=1878997&group_id=1 -->
+ <!-- https://sourceforge.net/p/alexandria/support-requests/122850/ -->
  <form method="get" action="http://www.google.com/custom" target="_top">
   <table width="100%" border="0"><tr>
     <td nowrap="nowrap" align="center">
