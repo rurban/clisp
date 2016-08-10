@@ -104,7 +104,7 @@ static void get_hostname (char *hostname) {
      http://www.opengroup.org/onlinepubs/009695399/
    It is _NOT_ necessary on Linux, Cygwin, Win32, Solaris, NetBSD, FreeBSD &c.
    It might be a good idea to add an autoconf test for this ...
-   see bug 1399376 http://sourceforge.net/tracker/index.php?func=detail&aid=1399376&group_id=1355&atid=101355 */
+   see https://sourceforge.net/p/clisp/bugs/304/ */
 #define FILL0(s)  memset((void*)&s,0,sizeof(s))
 
 /* Convert the IP address from C format to Lisp

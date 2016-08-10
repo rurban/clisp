@@ -115,7 +115,7 @@ further explanations of the issues could be provided).</para>
     <listitem><simpara>This is the right place to discuss &clisp; internals,
       problems with the current development sources, submit patches,
       offer help.</simpara></listitem></varlistentry>
-   <varlistentry><term><ulink url="http://sourceforge.net/project/memberlist.php?group_id=1355">Individual &clisp; developers</ulink></term>
+   <varlistentry><term><ulink url="https://sourceforge.net/p/clisp/_members/">Individual &clisp; developers</ulink></term>
     <listitem><simpara>This is <emphasis>never</emphasis> the right thing to
       do, unless you want to <emphasis>hire</emphasis> this developer to do
       &clisp; consulting (commercial support, custom enhancements etc).
@@ -149,7 +149,7 @@ further explanations of the issues could be provided).</para>
 <qandaentry id="faq-mailing-lists"><question id="faq-mailing-lists-q">
   <simpara>Which mailing lists should I subscribe to?</simpara></question>
 <answer><para>Cross-posting in the &clisp;
-  <ulink url="http://sourceforge.net/mail/?group_id=1355">mailing lists</ulink>
+  <ulink url="https://sourceforge.net/p/clisp/mailman/">mailing lists</ulink>
   is very actively discouraged and is virtually non-existent,
   thus you can subscribe to all mailing lists that are relevant to you
   without getting duplicate messages:<variablelist>
@@ -219,7 +219,7 @@ further explanations of the issues could be provided).</para>
   together with a <filename role="clisp-cvs">src/ChangeLog</filename>
   entry (see other entries there for inspiration),
   to <ulink url="ml">clisp-devel</ulink> (if it is small) or
-  <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=301355">SourceForge patch tracker</ulink>.</para>
+  <ulink url="https://sourceforge.net/p/clisp/patches/">SourceForge patch tracker</ulink>.</para>
  <para>See <filename role="clisp-cvs">src/CodingStyle</filename> for the
   style one should follow.</para>
  <para>The patch should be created using &hg;.</para></answer></qandaentry>
@@ -602,7 +602,7 @@ The way to figure that out is to use <command>hg bisect</command>.
   packager: <emphasis>usually</emphasis>, after each &clisp; release,
   a &clisp; user <emphasis>volunteers</emphasis> to build a &win32;
   binary package, which we then distribute at
-  <ulink url="http://sourceforge.net/project/showfiles.php?group_id=1355"/>.
+  <ulink url="https://sourceforge.net/projects/clisp/files/"/>.
 </para></answer></qandaentry>
 
 
@@ -613,7 +613,7 @@ The way to figure that out is to use <command>hg bisect</command>.
   contribute a binary distribution for the current release. You can
   find out who contributed a specific binary distribution by looking at
   the release notes in the &sf;
-  <ulink url="http://sourceforge.net/project/showfiles.php?group_id=1355"
+  <ulink url="https://sourceforge.net/projects/clisp/files/"
          >Files</ulink> section.</para></answer></qandaentry>
 
 

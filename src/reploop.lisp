@@ -83,8 +83,7 @@
   "The final part of the prompt")
 (defun prompt-finish () (prompt-to-string *prompt-finish*))
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1865636&group_id=1355&atid=101355
-;; [ 1865636 ] infinite recursive error reporting
+;; https://sourceforge.net/p/clisp/bugs/438/ infinite recursive error reporting
 (defun safe-wr-st (string &optional (stream *standard-output*))
   (handler-case (write-string string stream)
     (system::charset-type-error ()
@@ -716,4 +715,3 @@ Continue       :c       switch off single step mode, continue evaluation
 ;; Now that condition.lisp is loaded and *break-driver* has a value:
 ;; Activate the Condition System.
 (setq *use-clcs* t)
-

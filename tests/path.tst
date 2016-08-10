@@ -1129,18 +1129,18 @@ T
 #+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
 #+clisp #P"/foo/bar/baz/zot.txt"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1550803&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/363/
 (dolist (dflt (list #P"/home/" (logical-pathname "CLOCC:SRC;PORT;")))
   (dolist (dir '(NIL (:absolute "foo")))
     (assert (equal dir (pathname-directory (make-pathname :directory dir
                                                           :defaults dflt))))))
 NIL
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1555096&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/364/
 (make-pathname :directory '(:absolute :wild-inferiors "subdir"))
 #P"/**/subdir/"
 
-;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2198109&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/504/
 ;; wild subdirectory
 #+clisp
 (let* ((lpd (pathname "path-tst-load-path-dir/"))
@@ -1200,7 +1200,7 @@ NIL
 (directory "path-tst-bar/" :full t) NIL
 (pathname-version (car (directory "./"))) :NEWEST
 
-(let (lp) ; bug#3165355: bind *load-pathname* to the original arg
+(let (lp) ; https://sourceforge.net/p/clisp/bugs/584/: bind *load-pathname* to the original arg
   (setf (logical-pathname-translations "FOO") '(("*" "./*")))
   (setq lp (logical-pathname "FOO:load-test"))
   (with-open-file (o lp :direction :output)
@@ -1358,7 +1358,7 @@ NIL
     (rmrf dir)))
 #+(and clisp unicode (not macos)) (1234 T)
 
-#+clisp ;; bug#3124200
+#+clisp ;; https://sourceforge.net/p/clisp/bugs/579/
 (let* ((dir "tmp-dir/")
        (file (ext:string-concat dir "foo.lisp")))
   (ext:make-directory dir)

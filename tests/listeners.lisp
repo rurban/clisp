@@ -1,4 +1,4 @@
-;;; https://sourceforge.net/tracker/index.php?func=detail&aid=1310753&group_id=1355&atid=101355
+;;; https://sourceforge.net/p/clisp/bugs/276/
 ;;; fixed on 2005-10-14:
 ;;; * stream.d (read_char): fixed recursion: cannot assume that the
 ;;; constituent streams of constructed streams are built-in

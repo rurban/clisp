@@ -493,17 +493,17 @@ TEST-FLOAT-IO-CONSISTENCY
 (test-float-io-consistency :from 1d-300 :by 100 :to 1d300 :repeat 10) NIL
 (test-float-io-consistency :from 1L-3000 :by 1000 :to 1L3000 :repeat 10) NIL
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/376/
 (loop :repeat 6400 :for x = -1L2 :then (+ x 0.03125l0)
   :for (x1 x2) = (multiple-value-list (round x))
   :for (x3 x4) = (multiple-value-list (round (float x 1s0)))
   :unless (and (= x1 x3) (= x2 x4)) :collect (list x x1 x2 x3 x4))
 NIL
 
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=1246248&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/264/
 (numberp (log internal-time-units-per-second)) T
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1436987&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/324/
 (loop :for x :in '(2s0 2f0 2d0 2l0 -2s0 -2f0 -2d0 -2l0)
   :always (plusp (imagpart (atanh (complex x (float 0 x))))))
 T
@@ -511,14 +511,14 @@ T
   :always (plusp (imagpart (atanh x))))
 T
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1208124&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/255/
 (loop :with min = (ash 1 64) :with max = (- (ash 1 200) min) :repeat 100
   :for b = (+ min (random max)) :for s = (sxhash b)
   :for b1 = (logxor b (ash 1 (floor (integer-length b) 2))) :for s1 = (sxhash b1)
   :when (= s s1) :collect (list b s b1 s1))
 NIL
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1683394&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/407/
 (tanh 1s13)    1s0
 (tanh 1s3)     1s0
 (tanh 1s2)     1s0
@@ -539,14 +539,14 @@ NIL
 (tanh 1L-17)   1L-17
 (tanh 1L-47)   1L-47
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1934968&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/463/
 (= (float (realpart (log (coerce #c(1d0 1d-8) '(complex long-float)))) 0d0)
    (realpart (log #c(1d0 1d-8))))  T
 (= (float (realpart (log (coerce #c(1.000000001d0 1d-5) '(complex long-float))))
           0d0)
    (realpart (log #c(1.000000001d0 1d-5))))  T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1942246&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/467/
 (coerce 1 'double-float) 1d0
 (coerce 1 '(double-float 0d0)) 1d0
 (coerce 1 '(double-float * *)) 1d0

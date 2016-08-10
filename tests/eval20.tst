@@ -291,7 +291,7 @@ NIL
            '((1) (2) (3) (4 2) (5) (6 3 2))))
 ((1) (2) (3) (4 2) (5) (6 3 2) (A APPLE APRICOT) (B BANANA) (C CHERRY))
 
-;; https://sourceforge.net/tracker/?func=detail&aid=2868147&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/532/
 (with-output-to-string (*error-output*) (declaim (optimize zot)))
 "WARNING: ZOT is not a valid OPTIMIZE quality.
 "

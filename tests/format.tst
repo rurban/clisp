@@ -318,14 +318,14 @@ FOO
 (format nil "~9,2,1E" 0.0314159)
 "  3.14E-2"
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1790496&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/419/
 (format nil "~ve" 21 46d7)
 "               4.6d+8"
 (format nil "~21e" 466d17)
 "             4.66d+19"
 
 ;; this code generates the following 12 tests
-;; not long, see http://clisp.podval.org/impnotes/num-concepts.html#long-float-wider-than-bignum
+;; not long, see http://clisp.org/impnotes/num-concepts.html#long-float-wider-than-bignum
 (dolist (lm '("LEAST" "MOST"))
   (dolist (pn '("POSITIVE" "NEGATIVE"))
     (dolist (ty '("DOUBLE" "SINGLE" "SHORT")) ; "LONG"
@@ -400,7 +400,7 @@ Scale factor -5: | 0.000003E+06|")
   :collect x)
 ()
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1928759&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/456/
 (format nil "~8e" .8999999d0)  "  9.0d-1"
 (format nil "~8e" .999999d0)   "  1.0d+0"
 (format nil "~8e" .999999d9)   "  1.0d+9"
@@ -1272,7 +1272,7 @@ def"
 
 def")
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3498026&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/631/
 (handler-case (format nil "~C" 0)
   (type-error (e) (princ-error e) t))  T
 (handler-case (funcall (formatter "~C") *standard-output* 0)

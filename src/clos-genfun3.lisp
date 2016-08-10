@@ -575,7 +575,7 @@
              ;; argument list, where user-defined and default initargs can
              ;; override it. The MOP doesn't mandate this, but it allows users
              ;; to specify a default method-combination for a generic-function
-             ;; class; see clisp tracker item #[ 1415783 ].
+             ;; class; see https://sourceforge.net/p/clisp/bugs/316/
              ,@(if method-combination-p `(:METHOD-COMBINATION ,method-combination-form))
              ,@(if docstring-p `(:DOCUMENTATION ',docstring))
              ,@(if declspecs-p `(:DECLARATIONS ',declspecs))

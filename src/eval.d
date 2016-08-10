@@ -567,7 +567,7 @@ global _Noreturn void reset (uintL count) {
       }
       /* we used to start a new driver() here, but this is wrong because it
          does not clean up SP & back_trace, just STACK, see
-         https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1448744&group_id=1355
+         https://sourceforge.net/p/clisp/bugs/327/
          we probably cannot even do NOTREACHED - the STACK is bad. */
       fprintf(stderr,"\n[%s:%d] reset() found no driver frame (sp=0x%lx-0x%lx)\n",
               __FILE__,__LINE__,(unsigned long)SP_anchor,(unsigned long)SP());

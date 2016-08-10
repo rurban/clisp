@@ -368,7 +368,7 @@ x
 (list y z w v u)
 (2 nil nil 8 9)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3291585&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/597/
 (multiple-value-list (setf (values (values) y z) (values 1 2 3))) (NIL 2 3)
 Y 2 Z 3
 (multiple-value-list (setf (values x (values) z) (values 'x 'y 'z))) (X NIL Z)
@@ -497,7 +497,7 @@ pl
   (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
 (10 100 110)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3040648&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/561/
 (defstruct documented-struct "Doc String" a b) DOCUMENTED-STRUCT
 (documentation 'documented-struct 'structure) "Doc String"
 (setf (documentation 'documented-struct 'structure) "New Doc") "New Doc"
@@ -682,7 +682,7 @@ T
 (length (multiple-value-list (get-setf-expansion '(x) nil)))
 5
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1604579&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/384/
 (defun foo (z) "some doc" z) FOO
 (documentation 'foo 'function) "some doc"
 (setf (documentation 'foo 'function) nil) NIL

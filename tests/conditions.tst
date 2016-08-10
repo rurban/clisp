@@ -538,7 +538,7 @@ T
       (push tp bad))))
 NIL
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3384825&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/605/
 (with-output-to-string (s)
   (define-condition my-simple (simple-condition) ()
     (:report (lambda (c s)
@@ -547,7 +547,7 @@ NIL
            "bad: SIMPLE-CONDITION overrides MY-SIMPLE") s))
 "good: MY-SIMPLE overrides SIMPLE-CONDITION"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3384693&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/603/
 (handler-case (compile nil (lambda ()
                              (define-condition c (condition) ()
                                (:report (lambda (c) (princ c))))))
@@ -557,7 +557,7 @@ WARNING
   (warning (w) (princ-error w) 'warning))
 WARNING
 
-;; bug#3147908: handler-bind should not cons at run time
+;; https://sourceforge.net/p/clisp/bugs/582/: handler-bind should not cons at run time
 #+clisp
 (let ((closure (compile nil (lambda (x y) (ignore-errors (= x y))))))
   (find-if #'sys::closurep (sys::closure-consts closure)))
@@ -567,7 +567,7 @@ WARNING
                           #'clos::any-method-combination-check-options))
 #+clisp NIL
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3258485&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/594/
 #+clisp
 (find-if #'sys::closurep
          (sys::closure-consts

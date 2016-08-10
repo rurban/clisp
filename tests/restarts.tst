@@ -229,7 +229,7 @@ T
   (symbol-value 'foo))
 1
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2941408&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/539/
 (let ((count 5))
   (flet ((handler (c)
            (princ-error c)

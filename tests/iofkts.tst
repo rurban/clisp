@@ -747,7 +747,7 @@ MY-PPRINT-REVERSE
   (write-to-string '(foo bar :boo 1) :pretty t :escape t))
 "(1 :BOO BAR FOO)"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=873204&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/196/
 (defun my-pprint-logical (out list)
   (pprint-logical-block (out list :prefix "(" :suffix ")")
     (when list
@@ -763,7 +763,7 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1482533&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/337/
 ;; http://www.lisp.org/HyperSpec/Body/fun_pprint-dispatch.html
 (with-output-to-string (s) (print-object 42 s)) "42"
 (string= (with-output-to-string (s)
@@ -773,8 +773,8 @@ MY-PPRINT-LOGICAL
            (funcall (pprint-dispatch 42) s 42)))
 T
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1598053&group_id=1355&atid=101355
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=1483768&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/382/
+;; https://sourceforge.net/p/clisp/bugs/339/
 (let ((*print-pprint-dispatch* (copy-pprint-dispatch nil))
       (*print-pretty* t))
   (flet ((my-symbol-pprint (stream obj)
@@ -784,7 +784,7 @@ T
     (princ-to-string '(a (b (c (d) e) f) g))))
 "(++A++ (++B++ (++C++ (++D++) ++E++) ++F++) ++G++)"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1835520&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/427/
 (let ((*print-pprint-dispatch* (copy-pprint-dispatch nil))
       (*print-pretty* t)
       (l '(:bracket 1 2 (:bracket 3 4))))
@@ -853,7 +853,7 @@ T
              #2=(\"null\" #1# \"zero\") #2#))"))
 T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1890854&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/445/
 (with-input-from-string (s "'a #'b c d")
   (list (read-preserving-whitespace s) (read-char s)
         (read-preserving-whitespace s) (read-char s)
@@ -861,7 +861,7 @@ T
         (read-char s)))
 ((QUOTE A) #\Space (FUNCTION B) #\Space C #\Space #\d)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1412454&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/314/
 (let (#+clisp (*pprint-first-newline* nil))
   (format nil "~{~a~}" (list "string1" "string2"
                              (concatenate 'string "string3"
@@ -869,11 +869,11 @@ T
 "string1string2string3
 "
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1613300&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/392/
 #+clisp (princ-to-string (fdefinition 'defun)) #+clisp
 "#<MACRO #<COMPILED-FUNCTION DEFUN> (FUNCTION-NAME LAMBDA-LIST &BODY FORMS)>"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1831367&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/425/
 (flet ((foo-printer (stream foo)
          (let ((*print-pretty* nil))
            (princ "FOO:" stream) (prin1 (cdr foo) stream))))
@@ -886,7 +886,7 @@ T
 ;; required by ANSI, tested by COPY-PPRINT-DISPATCH.[145]
 (eq *print-pprint-dispatch* (copy-pprint-dispatch)) NIL
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1834193&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/426/
 (with-output-to-string (s)
   (princ "xxx" s)
   (terpri s)

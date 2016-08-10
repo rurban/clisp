@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2012 Sam Steingold
+ * Copyright (C) 2003-2012,2016 Sam Steingold
  * Copyright (C) 2005,2008 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * GPL2
@@ -1382,7 +1382,7 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
 }
 
 /* http://article.gmane.org/gmane.lisp.clisp.devel/20422
- https://sourceforge.net/tracker/?func=detail&aid=3243683&group_id=1355&atid=101355 */
+   https://sourceforge.net/p/clisp/bugs/593/ */
 DEFUN(POSIX::BEGIN-SUBPROCESSES,) {
     begin_system_call();
     begin_want_sigcld();

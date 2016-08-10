@@ -512,8 +512,8 @@ T
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 (socket-server-close *server*) NIL
 
-;; no one should be listening on 12345 (bug#2007052)
-;; <http://article.gmane.org/gmane.lisp.clisp.general/12286>
+;; no one should be listening on 12345 https://sourceforge.net/p/clisp/bugs/482/
+;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
   #-win32 (:ECONNREFUSED 111)
   #+win32 (:ETIMEDOUT 10060))
@@ -526,7 +526,7 @@ T
 T
 (close *socket-1*) T
 
-;; bug#3182685: non-0 timeout
+;; https://sourceforge.net/p/clisp/bugs/587/: non-0 timeout
 (multiple-value-bind (run args) (cmd-args)
   (let ((is (ext:run-program run :arguments (append args '("-q" "-q" "-x" "
             (let ((se (socket:socket-server)))
@@ -569,7 +569,7 @@ T
       (socket:socket-server-close se))))
 (:OUTPUT "foo" :OUTPUT T NIL T NIL END-OF-FILE)
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3384688&group_id=1355&atid=351355
+;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
   #-win32 (:ECONNREFUSED 111)
   #+win32 (:EADDRNOTAVAIL 10049))

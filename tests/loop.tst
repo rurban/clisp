@@ -811,7 +811,7 @@ T
   (delete-package "LOOP-TEST-PACKAGE-1"))
 nil
 
-;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=618428&group_id=1355>
+;; https://sourceforge.net/p/clisp/bugs/132/
 (let ((alist '(1 2 3 4 5 6)))
   (loop for value in alist
     if (oddp value) collect value into alist
@@ -882,12 +882,12 @@ NIL
   (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3089988&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/572/
 (handler-case (macroexpand '(loop :for i :do (print i)))
   (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1516684&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/351/
 (with-output-to-string (*standard-output*)
   (loop :initially (write-char #\a)
     :for char :across "" :for code = (char-code char)
@@ -913,7 +913,7 @@ NIL
     :finally (write-char #\b)))
 "a1b"
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3165405&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/585/
 (let ((ht (make-hash-table)))
   (setf (gethash 1 ht) 2)
   (list (loop for k being the hash-keys of ht as v being the
@@ -935,12 +935,12 @@ NIL
           using (hash-values v) count t)))
 (1 1 1)
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3384698&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/604/
 (handler-case (macroexpand '(loop repeat 0 for E = 7 then A finally (return E)))
   (warning (w) (princ-error w) 'warning))
 WARNING
 
-;; bug#1731469: unnecessary bindings
+;; https://sourceforge.net/p/clisp/bugs/414/: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2
 (loop with nil = (return t) return nil) T
 (loop with a = 42 with nil = (return a) return t) 42

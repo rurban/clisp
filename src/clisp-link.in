@@ -529,7 +529,7 @@ case "$1" in
       destinationdir="$tmp"
       # What to do if we abort.
       trap 'rm -rf "$tmp"' 0 1 2 15
-      rm -rf $destinationdir # must not exist for make_dest; bug #[ 1469663 ]
+      rm -rf $destinationdir # must not exist for make_dest; https://sourceforge.net/p/clisp/bugs/332/
       "$0" add "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
       rm -rf "$tmp"
       trap '' 0 1 2 15
@@ -589,4 +589,3 @@ case "$1" in
     ;;
   *) usage;;
 esac
-

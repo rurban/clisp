@@ -795,7 +795,7 @@ NIL
                        (subtypep charset:utf-8 charset:ucs-4))
 #+(and clisp unicode) (T T)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1854698&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/433/
 (type-of (byte 1 2)) BYTE
 (typep (byte 1 2) 'BYTE) T
 (etypecase (byte 1 2) (integer 'integer) (byte t) (list 'list)) t

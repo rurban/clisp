@@ -784,7 +784,7 @@ T
 (progn (setq *package* cl-user::*saved-package*) (delete-package "PACK11"))
 T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1612313&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/389/
 (let ((f "pack11-tst.lisp"))
   (unwind-protect
        (progn
