@@ -1,7 +1,7 @@
 /* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2012
+Sam Steingold 2001-2012, 2016
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -8107,7 +8107,7 @@ DEFUN(XLIB:MAPPING-NOTIFY, display request start count)
 
 /* WM-HINTS & SET-WM-HINTS have to be in C because sizeof(XWMHints)
    is arch-dependent (36 on i386 and 56 on amd64), see bug
-   https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2002470&group_id=1355 */
+   https://sourceforge.net/p/clisp/bugs/481/ */
 DEFCHECKER(check_wmh_initial_state,default=,WITHDRAWN=WithdrawnState    \
            NORMAL=NormalState ICONIC=IconicState                        \
            /* Obsolete states no longer defined by ICCCM */             \

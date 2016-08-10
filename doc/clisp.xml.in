@@ -739,7 +739,7 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
 <para>When you encounter a bug in &clisp; or in its documentation (this
  manual page or <olink targetdoc="impnotes" targetptr="impnotes-top"/>),
  please report it to the &clisp;
- <ulink url="http://sourceforge.net/tracker/?func=add&amp;group_id=1355&amp;atid=101355">SourceForge bug tracker</ulink>.
+ <ulink url="https://sourceforge.net/p/clisp/bugs/">SourceForge bug tracker</ulink>.
 To ensure that we can get back to you, you will have to login either to
 your &sf; account, or to your <ulink url="http://openid.net/">OpenID</ulink>
 account.</para>

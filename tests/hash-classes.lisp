@@ -1,4 +1,4 @@
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1359066&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/286/
 ;; user-defined :allocation :hash
 
 (defpackage #:hash-classes

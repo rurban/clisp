@@ -257,7 +257,7 @@
         (set-difference known-extra extra)))
 (nil nil nil nil)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1713130&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/410/
 #+clisp
 (with-collect (c)
   (dolist (p custom:*system-package-list*)

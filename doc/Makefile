@@ -153,7 +153,7 @@ GOOGLEADS=0
 # target.database.document in this command is a workaround for bug
 #   warning: failed to load external entity \"olinkdb.xml\"
 #   Olink error: could not open target database \'olinkdb.xml\'.
-# https://sourceforge.net/tracker/?func=detail&atid=373747&aid=3026590&group_id=21935
+# https://sourceforge.net/p/docbook/bugs/1111/
 MAKE_TDB=$(XSLTPROC) $(XMLS_COMMON) --stringparam collect.xref.targets "only" \
   --stringparam target.database.document "olink-pile.xml" \
 	--stringparam targets.filename

@@ -128,7 +128,7 @@ T
 (let ((x (list 1))) (list (ext:letf (((car x) 3)) (list x (copy-list x))) x))
 (((1) (3)) (1))
 
-(let ((x (list 1))) ; Bug #[ 1731462 ]
+(let ((x (list 1))) ; https://sourceforge.net/p/clisp/bugs/413/
   (list (ext:letf (((car x) 3)
                    ((cdr x) (copy-list x)))
           (list x (copy-list x))) x))

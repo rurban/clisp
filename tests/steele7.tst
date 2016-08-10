@@ -403,7 +403,7 @@ b
 
 ;;catch/throw/unwind-protect
 
-;;; <https://sourceforge.net/tracker/?func=detail&aid=858011&group_id=1355&atid=101355>
+;;; https://sourceforge.net/p/clisp/bugs/186/
 
 (funcall (compile nil (lambda (x) (flet ((z (x) (return-from z x))) (z x)))) 7)
 7

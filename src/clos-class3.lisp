@@ -750,7 +750,7 @@
           ;; and <inheritable-slot-definition-doc>.
           ;; No need to call (install-class-direct-accessors class) here.
       ) )
-      ;; Try to finalize it (mop-cl-reinit-mo, bug [ 1526448 ])
+      ;; Try to finalize it (mop-cl-reinit-mo, https://sourceforge.net/p/clisp/bugs/353/)
       (unless *allow-mixing-metaclasses* ; for gray.lisp
         (when (finalizable-p class)
           (finalize-inheritance class)))

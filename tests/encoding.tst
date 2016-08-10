@@ -3,7 +3,7 @@
 ;;(with-open-file (f "ucs" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede :element-type '(unsigned-byte 8))
 ;;  (write-byte-sequence #(0 65 0) f))
 
-;; <http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/101/
 (string=
  (ext:convert-string-from-bytes '#(0 65 0 13) charset:ucs-2)
  (map 'string #'code-char '(65 13)))
@@ -60,7 +60,7 @@ ERROR
      (ext:make-encoding :charset "utf-16" :input-error-action #\Z)))
 "AZ"
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=527380&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/93/
 (if *no-iconv-p* #(65)
     (ext:convert-string-to-bytes
      (map 'string #'code-char '(129 65))
@@ -201,7 +201,7 @@ T
     (delete-file file)))
 ("foo" "bar" :EOF)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1564818&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/366/
 (let* ((f "encoding-tst-crlf-test-file")
        (l1 "line1") (l2 "line2") (all (list f l1 l2)))
   (unwind-protect
@@ -232,5 +232,5 @@ T
     (delete-file f)))
 ()
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1632718&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/400/
 (convert-string-from-bytes #(195) charset:utf-8) ERROR

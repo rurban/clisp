@@ -428,7 +428,7 @@ pre-release : gnulib-imported build-aux-update update-asdf update-gmalloc tp-mai
 # news:comp.lang.lisp
 # news:comp.os.linux.announce (linux-announce@news.ornl.gov)
 # http://freshmeat.net/projects/clisp/
-# https://sourceforge.net/news/submit.php?group_id=1355
+# https://sourceforge.net/p/clisp/news/new
 # WIKIs to be updated: http://en.wikipedia.org/wiki/CLISP
 
 VER=$(shell . ./version.sh ; echo $$VERSION_NUMBER)

@@ -1300,15 +1300,15 @@ undefined-function
 (proclaim '(integer . foo))
 type-error
 
-(ash 1 66610000) arithmetic-error ; [ 2015118 ]
+(ash 1 66610000) arithmetic-error ; https://sourceforge.net/p/clisp/bugs/486/
 (rational most-positive-long-float) arithmetic-error
 (rational least-positive-long-float) arithmetic-error
 (rational most-negative-long-float) arithmetic-error
 (rational least-negative-long-float) arithmetic-error
 
-(expt 10 10000000) arithmetic-error ; [ 2807311 ]
+(expt 10 10000000) arithmetic-error ; https://sourceforge.net/p/clisp/bugs/525/
 
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=3517196&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/636/
 (apply #'car '(1 2)) program-error
 (apply #'car '(1 . 2)) program-error
 (apply #'list 1 2) program-error

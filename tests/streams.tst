@@ -960,7 +960,7 @@ WARNING: This form contains an error, a mistake, a bug, a
          month nor next year
 "
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1482465&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/336/
 #+clisp
 (let ((c (nth-value 1 (ignore-errors (format t " ~a ~a,~a~ ~a~%" 1 2 3 4)))))
   (string= (princ-to-string c)
@@ -1005,7 +1005,7 @@ WARNING: This form contains an error, a mistake, a bug, a
     (delete-file f)))
 #+clisp (T T)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1399709&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/305/
 ;; test :if-exists :append
 (let ((f "streams-tst-foo.bar") pos)
   (unwind-protect
@@ -1039,7 +1039,7 @@ T
 (stringp (with-output-to-string (s) (describe nil s)))
 T
 
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=1622642&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/396/
 (let ((s "a   b"))
   (search s (with-output-to-string (*standard-output*) (describe s))))
 2
@@ -1099,8 +1099,7 @@ T
 (stream-element-type (make-concatenated-stream)) NIL
 (stream-element-type (make-broadcast-stream)) T
 
-;; [ 1412268 ] Buffer overflow in stream handling code
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1412268&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/313/ Buffer overflow in stream handling code
 (open (make-string 5000 :initial-element #\x)) ERROR
 
 ;; composite streams operate on their constituent streams, not themselves
@@ -1160,8 +1159,8 @@ T
 (clear-output *standard-output*) nil
 (clear-output *terminal-io*) nil
 
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=1623179&group_id=1355&atid=101355
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1483762&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/397/
+;; https://sourceforge.net/p/clisp/bugs/338/
 #+clisp
 (let ((if "streams-tst-tmp-input-file") (of "streams-tst-tmp-output-file"))
   (open if :direction :probe :if-does-not-exist :create)
@@ -1246,7 +1245,7 @@ T
     (assert (load s :verbose nil))))
 "1234"
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3122505&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/578/
 (let* ((lisp "tmp.lisp") (fas (compile-file-pathname lisp)))
   (unwind-protect
        (progn
@@ -1294,4 +1293,3 @@ T
   (symbol-cleanup '*my-indent-level*)
   (setq *print-length* nil))
 NIL
-

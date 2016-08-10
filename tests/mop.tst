@@ -1036,7 +1036,7 @@ T
  ((0 :name testgf08-renamed) (3 add-method (method (integer))))
  ((1 :name testgf08-renamed) (4 add-method (method (integer))) (6 add-method (method (real))) (8 remove-method (method (integer)))))
 
-;; check that reinitialize-instance calls finalize-inheritance [ 1526448 ]
+;; check that reinitialize-instance calls finalize-inheritance https://sourceforge.net/p/clisp/bugs/353/
 (progn
   (defclass reinit-instance-class (standard-class) ())
   (defmethod validate-superclass ((class reinit-instance-class)
@@ -3227,7 +3227,7 @@ t
 
 
 ;;; user-defined :allocation :hash
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1359066&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/286/
 (progn
   (defclass person ()
     ((name :initarg :name :allocation :hash :accessor person-name)
@@ -3246,7 +3246,7 @@ t
             (slot-boundp dilbert 'name)))))
 (T T NIL NIL T NIL)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1369668&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/288/
 ;; but the allocation must be defined!
 (progn
   (defclass class-bad-slot () ((bad-slot :allocation :bad-allocation)))
@@ -3274,7 +3274,7 @@ ERROR
 (T #(POSITION NIL NIL))
 
 ;; Ability to specify a default method-combination on the generic-function
-;; class. See #[ 1415783 ].
+;; class. https://sourceforge.net/p/clisp/bugs/316/
 (progn
   (defclass testgf38class (standard-generic-function)
     ()

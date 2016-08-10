@@ -220,7 +220,7 @@ test11
 (test11)
 2
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1420585&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/318/
 (progn
   (defmacro test12 ()
     `(let () (eval-when (compile) (print "compiling"))))
@@ -243,7 +243,7 @@ test11
     (list (equal ret-i ret-c) ret-i ret-c)))
 TEST-COMPILER
 
-;; http://sf.net/tracker/index.php?func=detail&aid=550864&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/109/
 (test-compiler (lambda ()
                  (block test12
                    (flet ((test12-o ()
@@ -293,7 +293,7 @@ x
   (list a b three two one))
 (ALPHA BEE 3 2 1)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.general:7897>
+;; http://article.gmane.org/gmane.lisp.clisp.general:7897
 (defmacro foo (&key ((key var))) `(list ',var))  FOO
 (foo key 42)  (42)
 
@@ -521,7 +521,7 @@ T
   (eval s))
 T
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/144/
 (defparameter *my-typeof-counter* 0)
 *my-typeof-counter*
 (defmacro my-typeof (place &environment env)
@@ -597,7 +597,7 @@ dm2b
  5 (((SEGUNDO X2) X3 X4)) (CADR X2) (X3 X4) 5 (X5 X6))
 
 ;; -C test
-;; <http://article.gmane.org/gmane.lisp.clisp.general/7393>
+;; http://article.gmane.org/gmane.lisp.clisp.general/7393
 #+CLISP
 (loop :for a :in
   (funcall
@@ -660,7 +660,7 @@ dm2b
 
 ;; the following 3 tests are generated
 ;; by the random tester in the GCL ANSI CL testsuite
-;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=813119&group_id=1355>
+;; https://sourceforge.net/p/clisp/bugs/175/
 (test-compiler (lambda (a)
                  (if (and (if a t nil) nil) a (min (block b5 -1) a)))
                123)
@@ -682,7 +682,7 @@ dm2b
                125)
 (T 513972305 513972305)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/10566
 (let ((file "macro8-tst-tmp.lisp"))
   (with-open-file (out file :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
@@ -755,7 +755,7 @@ NIL
     (post-compile-file-cleanup file)))
 (2 1)                         ; 2 warnings, 1 of them serious
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=860052&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/189/
 (test-compiler
  (lambda ()
    (labels ((%f17 (f17-1 f17-2)
@@ -774,7 +774,7 @@ NIL
                                      (return-from b3 100))))))
 (T 100 100)
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=842912&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/182/
 (test-compiler
  (LAMBDA (A B)
    (UNWIND-PROTECT
@@ -792,7 +792,7 @@ NIL
  777595384624 -1510893868)
 (T 777595384624 777595384624)
 
-;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842913&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/183/
 (test-compiler
  (LAMBDA (A C)
    (FLET ((%F10 () 10))
@@ -805,7 +805,7 @@ NIL
  13 17)
 (T 123 123)
 
-;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842910&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/181/
 (test-compiler
  (LAMBDA (A C)
    (IF (OR (LDB-TEST (BYTE 12 18) A)
@@ -815,11 +815,11 @@ NIL
  123 456)
 (T -110730 -110730)
 
-;;<https://sourceforge.net/tracker/?func=detail&aid=864220&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/190/
 (test-compiler (lambda () (tagbody (flet ((f6 () (go 18))) (f6)) 18)))
 (T NIL NIL)
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=864479&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/191/
 (test-compiler
  (lambda ()
    (tagbody (flet ((%f1 (f1-1)
@@ -846,7 +846,7 @@ NIL
  12)
 (T 13 13)
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=866282&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/193/
 (test-compiler (lambda ()
                  (let ((*s4* :right))
                    (declare (special *s4*))
@@ -864,7 +864,7 @@ NIL
   (setq *print-level* nil))     ; restore the value
 (T (30 40 40) (30 40 40))
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=874859&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/197/
 (test-compiler
  (lambda (d)
    (gcd 39 (catch 'ct2
@@ -884,7 +884,7 @@ NIL
  65)
 (T 65 65)
 
-;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=889037&group_id=1355>
+;; https://sourceforge.net/p/clisp/bugs/199/
 (test-compiler
  (lambda (b)
    (labels ((%f2 ()
@@ -908,7 +908,7 @@ NIL
  :good)
 (T :GOOD :GOOD)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1167991&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/250/
 (test-compiler
  (lambda (a b)
    (declare (ignorable a b))
@@ -922,18 +922,18 @@ NIL
  2212755 3154856)
 (T 0 0)
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1575946&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/372/
 (test-compiler
  (lambda () (labels ((foo () (apply #'bar nil)) (bar ())))))
 (T NIL NIL)
 
-;; <https://sourceforge.net/tracker/index.php?func=detail&aid=890138&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/200/
 (progn (load (merge-pathnames "bug001.lisp" *run-test-truename*)) t)
 T
 (progn (load (merge-pathnames "bug002.lisp" *run-test-truename*)) t)
 T
 
-;; <http://clisp.org/impnotes.html#defun-accept-spelalist>
+;; http://clisp.org/impnotes/evaluation.html#defun-accept-spelalist
 #+CLISP
 (let ((f (lambda ((x1 fixnum) (x2 integer) (x3 number) y z)
            (list x1 x2 x3 y z))))
@@ -945,7 +945,7 @@ T
 #+CLISP
 ((0 1 2 3 4) (5 6 7 8 9) (e d c b a))
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/10566
 (let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
@@ -967,7 +967,7 @@ T
   (nreverse results))
 (5 5 5)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/13127>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/13127
 (let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
@@ -1001,7 +1001,7 @@ T
     (post-compile-file-cleanup f)))
 T
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
+;; http://article.gmane.org/gmane.lisp.clisp.devel:13153
 (defun test-constant-folding (x) (* 1d200 x 1d200))
 TEST-CONSTANT-FOLDING
 (multiple-value-list (compile 'test-constant-folding))
@@ -1010,7 +1010,7 @@ TEST-CONSTANT-FOLDING
 (test-constant-folding 12)
 ERROR
 
-;; <http://article.gmane.org/gmane.lisp.clisp.general:9093>
+;; http://article.gmane.org/gmane.lisp.clisp.general:9093
 (multiple-value-list (compile nil #'test-constant-folding))
 (#.#'test-constant-folding nil nil)
 
@@ -1058,7 +1058,7 @@ NIL
     (post-compile-file-cleanup f)))
 #+clisp ((0 NIL) (1 NIL) (1 TEST-COMPILE-TIME-VALUE))
 
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/373/
 (let* ((f "macro8-tst-test-crlf-print-read.lisp")
        (v #(#\a #\return #\newline #\null #\b))
        (s (coerce v 'string)))
@@ -1121,11 +1121,11 @@ NIL
     (delete-package "M")))
 #.(make-pathname :type "mem")
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/394/
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
 
-;; https://sourceforge.net/tracker/?func=detail&aid=3198722&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/588/
 (multiple-value-list
  (compile 'x (lambda () (directory "/" 'a t 'b 1 'c 0 :allow-other-keys t))))
 (X 3 NIL)

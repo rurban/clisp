@@ -6071,7 +6071,8 @@ for-value   NIL or T
     (c-form body-form)))
 
 ;; Making HANDLER-BIND a special form is a preformance optimization to avoid
-;; consing at run time in IGNORE-ERRORS, see bug#3147908 & conditions.tst.
+;; consing at run time in IGNORE-ERRORS,
+;; see https://sourceforge.net/p/clisp/bugs/582/ & conditions.tst.
 ;; %HANDLER-BIND + macro in condition.lisp work correctly.
 ;; NB: even though HANDLER-BIND is a special form, it does not need a special
 ;;  treatment in init.lisp:EXPAND-FORM because it expands to %HANDLER-BIND

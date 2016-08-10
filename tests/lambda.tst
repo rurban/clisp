@@ -263,7 +263,7 @@ UNKNOWN
 #-(or CLISP CMU SBCL OpenMCL LISPWORKS)
 UNKNOWN
 
-;;; http://sourceforge.net/tracker/index.php?func=detail&aid=1603260&group_id=1355&atid=101355
+;;; https://sourceforge.net/p/clisp/bugs/383/
 (let ((file "lambda-tst-function-lambda-expression-test.lisp")
       (fle (function-lambda-expression #'foo))
       (res ()))

@@ -5120,7 +5120,7 @@ local maygc uintL rd_by_array_iau8_unbuffered
       && ChannelStream_ignore_next_LF(stream)) {
     /* if we switch from character to byte input after a NL,
        we need to drop the next CR
-       https://sourceforge.net/tracker/index.php?func=detail&aid=2022362&group_id=1355&atid=101355 */
+       https://sourceforge.net/p/clisp/bugs/490/ */
     var uintL len = endptr-startptr-1;
     /* shift the whole array down by one, dropping CR */
     var uintL count = len;

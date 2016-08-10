@@ -6236,7 +6236,7 @@ local maygc inline Handle open_output_file (char* pathstring, bool wronly,
   /* regular file or !wronly => O_RDWR
    i.e., for the handle to be O_WRONLY, it must be opened :DIRECTION :OUTPUT
    AND the underlying file must be special (pipe &c)
-   see bug #[ 1379620 ]: open FIFOs with write-only access for IPC
+   https://sourceforge.net/p/clisp/bugs/291/
    see Stevens, UNIX Network Programming, vol 2 (IPC), ch 4 (pipes & FIFOs)*/
   if (wronly) { /* regular (regular_handle_p) => ignore wronly for buffering */
     var struct stat statbuf;

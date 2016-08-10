@@ -276,7 +276,7 @@ nil
      (foreign-value ref))))
 (T -112)
 
-;; <http://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/145/
 (def-c-struct triv (i int))
 TRIV
 
@@ -751,7 +751,7 @@ IDFPFUN
 ;; We might conditionalize such tests on #+word-size=64...
 ;; [actually, word-size=64 (== WIDE_HARD) is a _stronger_ condition than
 ;; HAVE_LONG_LONG_INT which is required for 64-bit integers to work]
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=2874184&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/535/
 (with-c-var (x 'sint64) x)
 0
 

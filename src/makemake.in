@@ -2899,7 +2899,7 @@ if [ $CROSS = false ] ; then
 
   # check that the scripting works
   echol "check-script : lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null" # bug #[ 2805778 ]
+  echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null" # https://sourceforge.net/p/clisp/bugs/523/
   TRCR="| tr -d '\r'"; TRLF="| tr '\n' '_'"
   echotab "test \`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 110 || exit 1"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl ${TRCR}${TRLF}\`\" = '99_[1]> _110_' || exit 1"
@@ -2948,7 +2948,7 @@ if [ $CROSS = false ] ; then
   echotab "${HERE}${EXEIMG}${HEXE}"' -x "(setq zz 10) (saveinitmem \"'"${EXEIMG}"'\")"'
   # check that the executable image still honors -M
   echotab "${HERE}${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x zz"
-  # check that *ARGS* do not seep from image to image (bug #[ 2788209 ])
+  # check that *ARGS* do not seep from image to image (https://sourceforge.net/p/clisp/bugs/519/)
   echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (lambda () (prin1 *args*) (exit)))" -- a 1'
   echotab "test \"\`${HERE}${EXEIMG}${HEXE} b ${TRCR}\`\" = '(\"b\")' || exit 1"
   echotab "test \"\`${HERE}${EXEIMG}${HEXE} b 2 ${TRCR}\`\" = '(\"b\" \"2\")' || exit 1"

@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2011
+;;; Sam Steingold 1999-2011,2016
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -446,7 +446,7 @@
 ;;   (:return-type ffi:int) (:language :stdc) (:library :default))
 ;; and it also supports bignums.
 (unless (fboundp 'os:tgamma)
-  ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1966375&group_id=1355
+  ;; https://sourceforge.net/p/clisp/bugs/473/
   (defun os:tgamma (x)
     (multiple-value-bind (lg sg) (os:lgamma x)
       (* (or sg 1) (exp lg)))))

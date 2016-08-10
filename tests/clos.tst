@@ -723,7 +723,7 @@ FOO
   (list (slot-value i 'a) (slot-value i 'b) (slot-value i 'c)))
 (1 2 3)
 
-;; <https://sourceforge.net/tracker/?func=detail&aid=869187&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/195/
 (progn
   (defclass c1 () ())
   (defclass c2 () ())
@@ -4148,7 +4148,7 @@ ERROR
 
 ;; Check that undefined classes yield an error in TYPEP and SUBTYPEP, but
 ;; that incomplete classes do not.
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1591671&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/377/
 (progn
   (defclass incomplete147 (undefined147) ())
   t)
@@ -4229,7 +4229,7 @@ T
   t)
 T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3487338&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/628/
 (progn
   (defgeneric foo148 (object)
     (:method ((x list)) (declare (ignore x)) 'list)
@@ -4249,7 +4249,7 @@ LIST
                (read c))))))
 (NIL)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1528201&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/354/
 (make-instance (make-instance 'standard-class :name 3))
 ERROR
 

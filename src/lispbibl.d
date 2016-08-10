@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2011
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2012
+ * Sam Steingold 1998-2012, 2016
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
@@ -3981,8 +3981,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* Whether we try to initialize subr_tab statically.
- (g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
- g++ 3.4 similarly: PR#15180.) */
+ (g++ 3.3 doesn't accept compound expressions as initializers:
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
 #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
   #define INIT_SUBR_TAB
 #endif
@@ -3993,16 +3994,18 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  (Make initialization easier, but there is not enough space for the
  compilation of SPVWTABS on some systems.
  EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".
- g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
- g++ 3.4 similarly: PR#15180.) */
+ g++ 3.3 doesn't accept compound expressions as initializers:
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
 #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
   #define INIT_SYMBOL_TAB
 #endif
 /* When changed: nothing to do */
 
 /* Whether we try to initialize object_tab statically.
- (g++ 3.3 doesn't accept compound expressions as initializers: PR#12615.
- g++ 3.4 similarly: PR#15180.) */
+ (g++ 3.3 doesn't accept compound expressions as initializers:
+ http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
 #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
   #define INIT_OBJECT_TAB
 #endif

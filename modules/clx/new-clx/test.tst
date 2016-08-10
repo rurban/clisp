@@ -333,7 +333,7 @@ CHECK-WM-CLASS
 ;; (string= (show (xlib::display-resource-manager-string *dpy*))
 ;;          (show (xlib:resource-database-to-string *rdb-dpy*))) T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=351355&aid=2202304&group_id=1355
+;; https://sourceforge.net/p/clisp/feature-requests/39/
 (defparameter *white-color* (show (xlib:make-color :red 1 :green 1 :blue 1)))
 *WHITE-COLOR*
 (defparameter *black-color* (show (xlib:make-color :red 0 :green 0 :blue 0)))
@@ -387,7 +387,7 @@ NIL
          (funcall f window))))))
 MAP-WINDOWS
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3292605&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/598/
 (xlib:with-open-display (dpy)
   (let ((window (xlib:create-window
                  :parent (xlib:screen-root (first (xlib:display-roots dpy)))
@@ -533,7 +533,7 @@ T
        (second-pass dpy)))))
 NIL
 
-;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2164603&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/500/
 (xlib:with-open-display (dpy)
   (let* ((top-win (xlib:create-window
                    :parent (xlib:screen-root (first (xlib:display-roots dpy)))
@@ -557,7 +557,7 @@ NIL
                         :timeout 1 :discard-p t))
   t) T
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2188102&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/503/
 (defun check-timeout (timeout)
   (xlib:with-open-display (dpy)
     (let* ((itups (float internal-time-units-per-second 0d0))
@@ -577,7 +577,7 @@ CHECK-TIMEOUT
 (check-timeout 0.1) T
 (check-timeout 1) T
 
-;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2159172&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/499/
 (xlib:with-open-display (dpy)
   (let* ((top-win (xlib:create-window
                    :parent (xlib:screen-root (first (xlib:display-roots dpy)))

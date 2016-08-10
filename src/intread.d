@@ -60,7 +60,7 @@
     need += 1;
     /* there is another check below, so be VERY lenient here.
        the test here is to avoid doing the unnecessary work if we KNOW
-       that the number is too big. see bug [ 1928735 ] */
+       that the number is too big. see https://sourceforge.net/p/clisp/bugs/455/ */
     if ((intWCsize < 32) && (need > (uintL)(bitc(intWCsize+1))))
       BN_ueberlauf();
     num_stack_need(need,_EMA_,erg_LSDptr=);
@@ -96,4 +96,3 @@
     RESTORE_NUM_STACK # num_stack zurück
     return result;
   }
-

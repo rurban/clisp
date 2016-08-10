@@ -90,7 +90,7 @@
           *condition-restarts* nil)
     ;; we used to set *ACTIVE-RESTARTS* & *CONDITION-RESTARTS* above in the
     ;; *DRIVER* binding, but that caused mutiple ABORT restarts, bug
-    ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1877497&group_id=1355&atid=101355
+    ;; https://sourceforge.net/p/clisp/bugs/443/
     (setq file-size (savemem fn executable))
     ;; restore old driver
     (setq *driver* old-driver)

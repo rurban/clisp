@@ -120,7 +120,7 @@ nil
  3 "plonk" (8 . "zotplonk")
  "zotplonk")
 
-;; <https://sourceforge.net/tracker/?func=detail&aid=959549&group_id=1355&atid=101355>
+;; https://sourceforge.net/p/clisp/bugs/212/
 #+CLISP
 (let ((f "streamslong-tst-foo") (s "12345") l)
   (with-open-file (o f :direction :output) (write-string s o))
@@ -175,7 +175,7 @@ nil
 #+CLISP ("a" "abc" gray:stream-write-char-sequence
          "abc" gray:stream-write-sequence "abc" NIL WITH-G-O)
 
-;; https://sourceforge.net/tracker/index.php?func=detail&aid=2022362&group_id=1355&atid=101355
+;; https://sourceforge.net/p/clisp/bugs/490/
 (let ((fname "streamslong-tst-foo")
       (vec (make-array 5 :element-type '(unsigned-byte 8))))
   (flet ((foo (l)
@@ -312,7 +312,7 @@ nil
     (delete-file file)))
 #+CLISP #(#\Return #\Newline #\Newline)
 
-;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=3024887&group_id=1355
+;; https://sourceforge.net/p/clisp/bugs/556/
 #+(and CLISP UNIX)
 (let ((file "test-pipe"))
   (unwind-protect

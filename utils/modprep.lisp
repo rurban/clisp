@@ -326,7 +326,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
 This works around the failure on i18n on Alpha Linux:
 /tmp/ccYZBYCX.s: Assembler messages:
 /tmp/ccYZBYCX.s:401: Fatal error: string too big (8281 bytes)
-See bug #[ 1491252 ]: i18n does not build on cf:alpha")
+See https://sourceforge.net/p/clisp/bugs/343/: i18n does not build on cf:alpha")
 (defun init-to-tag (init already-present-p &optional (prefix "object_"))
   (let ((base
          (with-output-to-string (s)
