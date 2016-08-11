@@ -1,5 +1,11 @@
 2016-08-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (make_modules): create separate targets for base and
+	full modules because the former are compiled using the boot
+	linking set, while the latter (e.g., asdf) require the base linking set
+
+2016-08-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/glibc/linux.lisp: avoid
 	error: "Never use <bits/ipctypes.h> directly; include <sys/ipc.h> instead."
 	by including <sys/ipc.h> instead of <bits/ipctypes.h>
