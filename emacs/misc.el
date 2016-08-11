@@ -10,7 +10,7 @@
            (and (boundp 'vc-hg-program)
                 (zerop (call-process vc-hg-program nil t nil "paths" "default"))
                 (buffer-string)))))
-    (and root (string-match "clisp\\.hg" root))))
+    (and root (string-match "/clisp\n$" root))))
 
 (eval-after-load "grep"         ; for rgrep
   '(progn
