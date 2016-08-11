@@ -1,5 +1,9 @@
 2016-08-11  Sam Steingold  <sds@gnu.org>
 
+	* package.d (intern): cerror_package_locked can trigger GC
+
+2016-08-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (make_modules): create separate targets for base and
 	full modules because the former are compiled using the boot
 	linking set, while the latter (e.g., asdf) require the base linking set

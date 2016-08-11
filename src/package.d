@@ -829,7 +829,7 @@ modexp maygc uintBWL intern
     *string_ = popSTACK();
     /* CERROR may do interesting things: it goes through CLCS, i.e., CLOS,
        and can compute effective methods and thus create symbols, so... */
-    result = find_symbol(string,invert,pack,sym_);
+    result = find_symbol(*string_,invert,*pack_,sym_);
     if (!(result==0)) {
       skipSTACK(3);
       return result & 3; /* found -> finished */

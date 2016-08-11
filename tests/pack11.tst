@@ -423,6 +423,13 @@ t
 
 (unintern sym ph)             t
 
+#+CLISP (setf (ext:package-lock ph) t) #+CLISP t
+
+#+CLISP (symbol-name (ext:muffle-cerrors (read-from-string "PACK11-H::QUUX")))
+#+CLISP "QUUX"
+
+#+CLISP (setf (ext:package-lock ph) nil) #+CLISP nil
+
 (delete-package ph)           t
 (delete-package pg1)          t
 (delete-package pg2)          t
