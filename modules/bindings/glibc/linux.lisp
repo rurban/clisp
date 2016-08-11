@@ -87,7 +87,7 @@
 
 (def-c-type __key_t)            ; int
 
-(c-lines "#include <bits/ipctypes.h>~%")
+(c-lines "#include <sys/ipc.h>~%")
 (def-c-type __ipc_pid_t)        ; ushort
 
 ; --------------------------- <sys/types.h> -----------------------------------
