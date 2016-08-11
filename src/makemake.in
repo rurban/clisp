@@ -3172,38 +3172,44 @@ done
 echol "boot : modular lispinit.mem"
 echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f .; done && (\$(GREP) -v '^FILES=' ${PARENT_}makevars; fl=''; for f in ${FILES}; do fl=\$\$fl' '\`basename \$\$f\`; done; echo 'FILES='\"'\"\$\$fl\"'\") > makevars) || (\$(RMRF) boot ; exit 1)"
 echol
-# Some "make"s don't support empty target lists. Hence the "anymodule".
-echol "anymodule \$(BASE_MODULES) \$(MODULES) : boot clisp${TEXE} linkkit force"
-echotab 'mkdir -p $@'
-echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
-if [ "@TEST_NT@" = no ]; then # re-making a module requires rm -rf module
-  newer(){ echo 'test -f $$m/'$1' -a '"'!'"' -f $@/'$2; }
-else # re-making a module just works
-  newer(){ echo 'test -f $$m/'$1' -a $$m/'$1' -nt $@/'$2; }
-fi
-# srcdir has to be passed to ./configure because it must be able to find
-# src/build-aux/install-sh _AND_ also its own sources, thus we must
-# point it to modules/... in the original source tree
-echotab "if `newer configure config.status` ; then ( cd \$@ ;\\"
-echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
-echotab "    if test -f \$\${cache} ; then \\"
-echotab "      . \$\${cache}; \\"
-for var in ${PRECIOUS_VARS}; do
-  echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
-done
-# we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
-# is bash, config.cache may be unparsable with sh on Solaris
-echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K boot ${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
-echotab "    else \\"
-echotab "      \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
-echotab "    fi ) ;\\"
-echotab "fi; \\"
-# srcdir must be correct in Makefile because clisp-link calls link.sh
-# which cannot pass srcdir to make on the command line
-echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
-echotab "CLISP=\"${HEREP}/clisp -K boot ${someflags}\" ; \\"
-echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
-echol
+make_modules() {
+  MODULES_VAR=$1
+  LINKING_SET=$2
+  MODULE_NAME=$3         # Some "make"s don't support empty target lists
+  echol "${MODULE_NAME} \$(${MODULES_VAR}) : ${LINKING_SET} clisp${TEXE} linkkit force"
+  echotab 'mkdir -p $@'
+  echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
+  if [ "@TEST_NT@" = no ]; then # re-making a module requires rm -rf module
+    newer(){ echo 'test -f $$m/'$1' -a '"'!'"' -f $@/'$2; }
+  else # re-making a module just works
+    newer(){ echo 'test -f $$m/'$1' -a $$m/'$1' -nt $@/'$2; }
+  fi
+  # srcdir has to be passed to ./configure because it must be able to find
+  # src/build-aux/install-sh _AND_ also its own sources, thus we must
+  # point it to modules/... in the original source tree
+  echotab "if `newer configure config.status` ; then ( cd \$@ ;\\"
+  echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
+  echotab "    if test -f \$\${cache} ; then \\"
+  echotab "      . \$\${cache}; \\"
+  for var in ${PRECIOUS_VARS}; do
+    echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
+  done
+  # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
+  # is bash, config.cache may be unparsable with sh on Solaris
+  echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
+  echotab "    else \\"
+  echotab "      \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
+  echotab "    fi ) ;\\"
+  echotab "fi; \\"
+  # srcdir must be correct in Makefile because clisp-link calls link.sh
+  # which cannot pass srcdir to make on the command line
+  echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
+  echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
+  echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+  echol
+}
+make_modules BASE_MODULES boot basemodule
+make_modules MODULES base fullmodule
 
 cygwin_finish() {
   # make sure no cygwin libraries crept into the mingw distribution
