@@ -21,7 +21,7 @@ T
         (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
         (os:setkey v) (show (os:encrypt v nil)) (show (os:encrypt v t))
         :never (if (equalp v u) nil (list v u))))
-  (system::simple-os-error (err)
+  (ext:os-error (err)
     ;; Solaris (sf cf x86-solaris1 & sparc-solaris1) encrypt fails with
     ;;  "UNIX error 89 (ENOSYS): Function not implemented"
     (format t "~S: ~A" 'os:encrypt err)
