@@ -536,7 +536,7 @@ tp-mail : force
 	  f=`make -f Makefile.devel src-distrib SUFFIX=$(TP_SUFFIX) | tail -n 2 | head -n 1`; \
 	  for h in $(SSHUP) ; do scp $$f $${h}; done \
 	else f=$(SRC_DIST); fi; f=`basename $$f`; \
-	echo "Location: http://clisp.podval.org/$$f" >> $(MESSAGE_FILE); \
+	echo "Location: http://clisp.org/beta/$$f" >> $(MESSAGE_FILE); \
 	cat $(MESSAGE_FILE); \
 	mail -s "CLISP pre-release $$f is available" \
 		-c clisp-devel@lists.sf.net $(TP_EMAIL) < $(MESSAGE_FILE)

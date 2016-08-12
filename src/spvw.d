@@ -3833,7 +3833,7 @@ global int main (argc_t argc, char* argv[]) {
   }
   /* do this before O(argv) is ready so that applications cannot
      detect and thus disable "--clisp-" superarg
-     http://clisp.podval.org/impnotes/image.html#image-exec */
+     http://clisp.org/impnotes/image.html#image-exec */
   run_hooks(Symbol_value(S(init_hooks)));
   { /* Init O(argv). */
     O(argv) = allocate_vector(argc);
