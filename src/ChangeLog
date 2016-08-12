@@ -1,3 +1,7 @@
+2016-08-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (check_copy_method): fix STACK depth handling
+
 2016-08-11  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (delete_directory): fix rmdir() failure handling
