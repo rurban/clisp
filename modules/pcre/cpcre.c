@@ -398,9 +398,9 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
-  object encoding = Symbol_value(S(utf_8));
   skipSTACK(3); /* drop all options */
   check_pattern(&STACK_1,&c_pat,&study);
+  STACK_0 = check_string(STACK_0)
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
   end_system_call();
@@ -412,7 +412,7 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
 #  define pcre_dfa_exec(re,st,su,sb,of,op,ov,os,ws,wz) \
               pcre_exec(re,st,su,sb,of,op,ov,os)
 # endif
-  with_string_0(check_string(STACK_0),encoding,subject, {
+  with_string_0(STACK_0,Symbol_value(S(utf_8)),subject, {
      pcre_exec_retry:
       ovector = (int*)alloca(sizeof(int)*ovector_size);
       begin_system_call();
@@ -438,8 +438,8 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
           for (pos = ov_pos = 0; pos < ret; pos++, ov_pos+=2)
             if (ovector[ov_pos] >= 0) {
               const uintB* sub = (const uintB*)subject;
-              pushSTACK(L_to_I(Encoding_mblen(encoding)(encoding,sub,sub+ovector[ov_pos])));
-              pushSTACK(L_to_I(Encoding_mblen(encoding)(encoding,sub,sub+ovector[ov_pos+1])));
+              pushSTACK(L_to_I(Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),sub,sub+ovector[ov_pos])));
+              pushSTACK(L_to_I(Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),sub,sub+ovector[ov_pos+1])));
               funcall(`PCRE::MAKE-MATCH-BOA`,2);
               TheSvector(STACK_0)->data[pos] = value1;
             }

@@ -1,6 +1,10 @@
 2016-08-12  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/calls.c (check_copy_method): fix STACK depth handling
+	* modules/pcre/cpcre.c (PCRE:PCRE-EXEC): fix a GC-safety bug
+
+2016-08-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (copy_one_file): fix STACK depth handling
 
 2016-08-11  Sam Steingold  <sds@gnu.org>
 
