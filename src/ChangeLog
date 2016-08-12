@@ -1,5 +1,9 @@
 2016-08-11  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (delete_directory): fix rmdir() failure handling
+
+2016-08-11  Sam Steingold  <sds@gnu.org>
+
 	* package.d (intern): cerror_package_locked can trigger GC
 
 2016-08-11  Sam Steingold  <sds@gnu.org>

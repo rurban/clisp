@@ -251,7 +251,7 @@ local maygc inline void delete_directory (char* pathstring) {
  #if defined(UNIX)
   begin_blocking_system_call();
   /* delete sub-directory - which might be a symlink! */
-  if (rmdir(pathstring) && errno == ENOTDIR && unlink(pathstring)) {
+  if (rmdir(pathstring) && (errno == ENOTDIR ? unlink(pathstring) : 1)) {
     end_blocking_system_call(); OS_file_error(STACK_0);
   }
   end_blocking_system_call();
