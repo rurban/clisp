@@ -49,7 +49,7 @@ further explanations of the issues could be provided).</para>
       Thoughtfully Considered</alt></acronym></ulink>.</para>
   <para>Additionally, the nightly builds of the &clisp; implementation
    notes documenting the current &hg; <literal>default</literal> branch
-   are available at <ulink url="http://clisp.podval.org/impnotes/"/>.
+   are available at <ulink url="http://clisp.org/beta/impnotes/"/>.
    It contains both the documentation for the new features and the
    general improvements in the documentation.</para>
 </answer></qandaentry>

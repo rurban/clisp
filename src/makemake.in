@@ -3044,8 +3044,7 @@ if [ $CROSS = false ] ; then
   # Try wget, lynx, curl in order. wget is common, but MacOS X only has curl.
   # use beta pages for the latest id-href.map
   # NB: keep in sync with doc/Makefile:DIST
-  MYIMPROOT=http://clisp.podval.org/impnotes/
-  # MYIMPROOT=http://clisp.org/beta/impnotes/
+  MYIMPROOT=http://clisp.org/beta/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}.hg" \
      && { if wget --version >/dev/null 2>/dev/null ; then \
