@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for SYSCALLS
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "syscalls/test")'
+;; ./clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/syscalls/test" :logname "syscalls/test")'
 
 (null (require "syscalls")) T
 (listp (show (multiple-value-list (ext:module-info "syscalls" t)) :pretty t)) T
@@ -791,11 +791,40 @@ RUN-SLEEP
 (fnmatch "foo*bar" "fooABAR") NIL
 (fnmatch "foo*bar" "fooABAR" :case-sensitive nil) T
 
+;; FIXME: ELOOP in DELETE-FILE when dest has no slash
+(let ((dir "test-dir/") (dest "qwer/adsf") copy)
+  (unless (nth-value 1 (ensure-directories-exist dir :verbose t))
+    ;; the directory is already there -- clean it up
+    (mapc #'delete-file (directory (concatenate 'string dir "**")
+                                   :if-does-not-exist :keep)))
+  (setq copy (copy-file dest dir :method :symlink))
+  (list (string= dest (caar copy))
+        (string= (pathname-name dest)
+                 (pathname-name (delete-file (cadar copy))))
+        (ext:delete-directory dir)
+        (ext:probe-pathname dir)))
+(T T T NIL)
+
 (let ((dir "test-dir/") (link "test-symlink/"))
+  (list (ext:make-directory dir)
+        (string= dir (caar (os:copy-file dir link :method :symlink)))
+        (ext:delete-directory dir)
+        (ext:delete-directory link)))
+(T T T T)
+
+(let ((dir "test-dir/") (dest "foo/bar"))
   (ext:make-directory dir)
-  (os:copy-file dir link :method :symlink)
-  (ext:delete-directory dir)
-  (ext:delete-directory link))
+  (os:copy-file dest dir :method :symlink)
+  (handler-case (or (ext:delete-directory dir)
+                    (error "deleted non-empty directory"))
+    (ext:os-error (e)
+      (or (eq (ext:os-error-code e)
+              #+UNIX :ENOTEMPTY
+              #+WIN32 :ERROR_DIR_NOT_EMPTY)
+          (error "wrong error code: ~s" (ext:os-error-code e)))))
+  (mapc #'delete-file (directory (concatenate 'string dir "**")
+                                 :if-does-not-exist :keep))
+  (ext:delete-directory dir))
 T
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)

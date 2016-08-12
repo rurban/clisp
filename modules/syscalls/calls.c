@@ -3123,7 +3123,7 @@ static void copy_one_file (object source, object src_path,
   pushSTACK(STACK_0); funcall(L(probe_pathname),1);
   if (!nullp(value1)) { /* destination exists; value1 == truename */
     pushSTACK(value1); STACK_2 = dest = value1;
-    /* STACK: 0=dest_true; 1=dest_path; 2=dest; 3=src_path; 4=src */
+    /* 5 STACK: 0=dest_true; 1=dest_path; 2=dest; 3=src_path; 4=src */
     switch (if_exists) {
       case IF_EXISTS_NIL: skipSTACK(5); return;
       case IF_EXISTS_APPEND:
@@ -3155,7 +3155,7 @@ static void copy_one_file (object source, object src_path,
     if (method == COPY_METHOD_RENAME || method == COPY_METHOD_HARDLINK
         || method == COPY_METHOD_HARDLINK_OR_COPY) {
       if (if_not_exists == IF_DOES_NOT_EXIST_NIL) {
-        skipSTACK(6); return;
+        skipSTACK(5); return;
       } else { /* delegate error to OPEN */
         pushSTACK(STACK_3);     /* source */
         pushSTACK(S(Kif_does_not_exist));
@@ -3165,11 +3165,10 @@ static void copy_one_file (object source, object src_path,
         NOTREACHED;
       }
     }
-  } else {
-    pushSTACK(value1);
   }
+  pushSTACK(value1);
 
-  /* stack layout: 0=src_true; 1=dest_true ... */
+  /* 6 STACK: 0=src_true; 1=dest_true ... */
   switch (method) {
     case COPY_METHOD_RENAME:
       pushSTACK(STACK_0); pushSTACK(STACK_2);
