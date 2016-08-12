@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for PCRE
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "pcre/test")'
+;; ./clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/pcre/test" :logname "pcre/test")'
 
 (list (null (require "pcre"))) (#-PCRE NIL #+PCRE T)
 (listp (show (multiple-value-list (ext:module-info "pcre" t)) :pretty t)) T
