@@ -826,6 +826,7 @@ RUN-SLEEP
       (or (eq (ext:os-error-code e)
               #+UNIX :ENOTEMPTY
               #+WIN32 :ERROR_DIR_NOT_EMPTY)
+          (integerp (ext:os-error-code e)) ; for g++
           (error "wrong error code: ~s" (ext:os-error-code e)))))
   (mapc #'delete-file (directory (concatenate 'string dir "**")
                                  :if-does-not-exist :keep))
