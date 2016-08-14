@@ -556,6 +556,9 @@ T
           (= l (file-length s)))))
 (T T)
 
+(listp (show (os:copy-file *tmp1* *tmp2* :method :hardlink))) T
+(listp (show (os:copy-file *tmp2* *tmp1* :method :hardlink-or-copy))) T
+
 (let ((file "foo.bar") s)
   (unwind-protect
        (progn (setq s (open file :direction :probe :if-does-not-exist :create))
@@ -750,7 +753,9 @@ RUN-SLEEP
 ("file3" NIL NIL NIL)
 
 #+unix                          ; no file-tree-walk on windows
-(let* ((d1 "test-dir-1") (d2 "test-dir-2") (f1 "test-file-1")
+(let* ((d1 "syscalls-tests-dir-1")
+       (d2 "syscalls-tests-dir-2")
+       (f1 "syscalls-tests-file-1")
        (d (make-pathname :directory (list :relative d1 d2)))
        (f (make-pathname :name f1 :defaults d))
        (l (lambda (p) (string= f1 (pathname-name p))))
@@ -792,8 +797,8 @@ RUN-SLEEP
 (fnmatch "foo*bar" "fooABAR" :case-sensitive nil) T
 
 ;; FIXME: ELOOP in DELETE-FILE when dest has no slash
-(let ((dir "test-dir/") (dest "qwer/adsf") copy)
-  (unless (nth-value 1 (ensure-directories-exist dir :verbose t))
+(let ((dir "syscalls-tests-dir/") (dest "qwer/adsf") copy)
+  (when (nth-value 1 (ensure-directories-exist dir :verbose t))
     ;; the directory is already there -- clean it up
     (mapc #'delete-file (directory (concatenate 'string dir "**")
                                    :if-does-not-exist :keep)))
@@ -805,14 +810,14 @@ RUN-SLEEP
         (ext:probe-pathname dir)))
 (T T T NIL)
 
-(let ((dir "test-dir/") (link "test-symlink/"))
+(let ((dir "syscalls-tests-dir/") (link #P"syscalls-tests-symlink/"))
   (list (ext:make-directory dir)
         (string= dir (caar (os:copy-file dir link :method :symlink)))
         (ext:delete-directory dir)
         (ext:delete-directory link)))
 (T T T T)
 
-(let ((dir "test-dir/") (dest "foo/bar"))
+(let ((dir "syscalls-tests-dir/") (dest "foo/bar"))
   (ext:make-directory dir)
   (os:copy-file dest dir :method :symlink)
   (handler-case (or (ext:delete-directory dir)
