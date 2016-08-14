@@ -2892,6 +2892,19 @@ static bool hardlink_file (char* old_pathstring, char* new_pathstring,
   if (failed && error_p) OS_file_error(*failed);
   return failed != NULL;
 }
+static /*maygc*/ bool hardlink_file_o (gcv_object_t *old_pathstring,
+                                       gcv_object_t *new_pathstring,
+                                       bool error_p) {
+  bool status;
+  *old_pathstring = physical_namestring(*old_pathstring);
+  *new_pathstring = physical_namestring(*new_pathstring);
+  with_string_0(*old_pathstring, GLO(pathname_encoding), source_asciz, {
+    with_string_0(*new_pathstring, GLO(pathname_encoding), dest_asciz, {
+      status = hardlink_file(source_asciz,dest_asciz,error_p);
+    });
+  });
+  return status;
+}
 #endif
 #if defined(HAVE_SYMLINK)
 static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
@@ -3178,40 +3191,31 @@ static void copy_one_file (object source, object src_path,
       break;
     case COPY_METHOD_HARDLINK_OR_COPY: {
 #    if defined(HAVE_LINK)
-      bool status;
-      dest = physical_namestring(STACK_1);
-      source = physical_namestring(STACK_0);
-      with_string_0(source, GLO(pathname_encoding), source_asciz, {
-        with_string_0(dest, GLO(pathname_encoding), dest_asciz, {
-          status = hardlink_file(source_asciz,dest_asciz,false);
-        });
-      });
-      if (status) goto copy_one_file_copy;
+      if (hardlink_file_o(&STACK_0/*source*/,&STACK_1/*dest*/,false))
+        goto copy_one_file_copy;
+      source = STACK_0; dest = STACK_1;
       break;
 #    endif
     } /* FALLTHROUGH if no hardlinks */
     case COPY_METHOD_SYMLINK:
 #    if defined(HAVE_SYMLINK)
-      dest = physical_namestring(STACK_1);
+      STACK_1 = physical_namestring(STACK_1); /* dest */
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
-      source = (stringp(STACK_5) ? (object)STACK_5
-                : physical_namestring(STACK_4));
-      with_string_0(source, GLO(pathname_encoding), source_asciz, {
-        with_string_0(dest, GLO(pathname_encoding), dest_asciz,
+      STACK_0 = (stringp(STACK_5) ? (object)STACK_5 /* source */
+                 : physical_namestring(STACK_4));
+      with_string_0(STACK_0, GLO(pathname_encoding), source_asciz, {
+        with_string_0(STACK_1, GLO(pathname_encoding), dest_asciz,
                       { symlink_file(source_asciz,dest_asciz); });
       });
+      source = STACK_0; dest = STACK_1;
       break;
 #    endif
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
 #    if defined(HAVE_LINK)
-      dest = physical_namestring(STACK_1);
-      source = physical_namestring(STACK_0);
-      with_string_0(source, GLO(pathname_encoding), source_asciz, {
-        with_string_0(dest, GLO(pathname_encoding), dest_asciz,
-                      { hardlink_file(source_asciz,dest_asciz,true); });
-      });
+      hardlink_file_o(&STACK_0/*source*/,&STACK_1/*dest*/,true);
+      source = STACK_0; dest = STACK_1;
       break;
 #    endif
       /* FALLTHROUGH if no hardlinks */

@@ -1,3 +1,8 @@
+2016-08-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (hardlink_file_o): add
+	(copy_one_file): fix GC-safety bugs
+
 2016-08-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/pcre/cpcre.c (PCRE:PCRE-EXEC): fix a GC-safety bug
