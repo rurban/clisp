@@ -1176,7 +1176,7 @@ DEFUN(POSIX::SYSCONF, &optional what)
     begin_system_call(); res = sysconf(cmd); end_system_call();
     VALUES1(L_to_I(res));
   } else { /* all possible values */
-    int pos = 0;
+    unsigned int pos = 0;
     for (; pos < sysconf_arg_map.size; pos++) {
       int res;
       begin_system_call();
@@ -5786,7 +5786,7 @@ object errno_to_symbol_a (long code);
 object errno_to_symbol_a (long code) { return check_errno_reverse(code); }
 DEFUN(POSIX::ERRNO, &optional newval) {
   if (eq(T,STACK_0)) {          /* all known error codes */
-    int pos = 0;
+    unsigned int pos = 0;
     for (; pos < check_errno_map.size; pos++) {
       pushSTACK(allocate_cons());
       Car(STACK_0) = sint_to_I(check_errno_map.table[pos].c_const);
