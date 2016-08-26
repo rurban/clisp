@@ -11589,8 +11589,7 @@ re-enters the corresponding top-level loop.
 #endif
 /* Synonyms: */
 #if !defined(value1_register)
-    #define value1  mv_space[0]
-  #define VALUE1_EXTRA /* and thus has to be treated extra every time... */
+  #define value1  mv_space[0]
 #else
   /* The first value mv_space[0] is stored permanently in a register: */
   register object value1 __asm__(value1_register);
