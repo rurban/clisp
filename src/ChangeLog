@@ -31,23 +31,24 @@
 	error: "Never use <bits/ipctypes.h> directly; include <sys/ipc.h> instead."
 	by including <sys/ipc.h> instead of <bits/ipctypes.h>
 
-2016-05-01  Daniel Jour  <daniel.oertwig@gmail.com>
-
-	* lispbibl.d (VALUE1_EXTRA) [!value1_register]: do not define
-	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
-	https://sourceforge.net/p/clisp/mailman/message/35061096/
-
 2016-06-09  Daniel Jour  <daniel.oertwig@gmail.com>
 
-	Disable TRIVIALMAP_MEMORY and SINGLEMAP_MEMORY on NetBSD due to mmap
-	and MAP_FIXED issues
-	* lispbibl.d: No TRIVIALMAP_MEMORY or SINGLEMAP_MEMORY on NetBSD
+	Disable TRIVIALMAP_MEMORY and SINGLEMAP_MEMORY on NetBSD due to
+	mmap and MAP_FIXED issues
+	* lispbibl.d (TRIVIALMAP_MEMORY, SINGLEMAP_MEMORY) [UNIX_NETBSD]:
+	disable
 
 2016-05-16  Daniel Jour  <daniel.oertwig@gmail.com>
 
 	Update asdf to version 3.1.7
 	* modules/asdf/asdf.lisp: Update to asdf 3.1.7
 	* modules/asdf/asdf.xml: Update asdf module description
+
+2016-05-01  Daniel Jour  <daniel.oertwig@gmail.com>
+
+	* lispbibl.d (VALUE1_EXTRA) [!value1_register]: do not define
+	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
+	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
 2014-10-22  Sam Steingold  <sds@gnu.org>
 
