@@ -1,3 +1,8 @@
+2016-08-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [XCC_GCC]: treat gcc 5 & 6 like 3 & 4
+	Fixes bug#686
+
 2016-08-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (hardlink_file_o): add
