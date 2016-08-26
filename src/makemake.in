@@ -3,7 +3,7 @@
 CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2010
-# Sam Steingold 1999-2011
+# Sam Steingold 1999-2012, 2016
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] > Makefile
@@ -1217,7 +1217,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
-      2.[8-9]* | 3.* | 4.* | egcs-2.*)
+      2.[8-9]* | 3.* | 4.* | 5.* | 6.* | egcs-2.*)
         XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
         ;;
       * ) ;;
@@ -1226,7 +1226,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false -a $CC_CPLUSPLUS = true ] ; then
     case "$XCC_GCC_VERSION" in
       # g++ 3.4 introduced an annoying warning, but has a workaround:
-      3.[4-9]* | 4.*)
+      3.[4-9]* | 4.* | 5.* | 6.*)
         XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
         ;;
       * ) ;;
@@ -1241,7 +1241,7 @@ if [ $XCC_GCC = true ] ; then
             # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
             # also fixed through the specs file of some Linux distributions).
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations -fno-strength-reduce' ;;
-          2.3.[2-9]* | 2.[4-9]* | 3.* | 4.* | egcs-2.*)
+          2.3.[2-9]* | 2.[4-9]* | 3.* | 4.* | 5.* | 6.* | egcs-2.*)
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations' ;;
           * )
             XCFLAGS=$XCFLAGS' -O' ;;
@@ -1260,7 +1260,7 @@ if [ $XCC_GCC = true ] ; then
             # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
             # lisparit (function UDS_divide_).
             XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns' ;;
-          2.9* | 3.* | 4.*)
+          2.9* | 3.* | 4.* | 5.* | 6.*)
             # gcc-2.95 produces incorrect code when compiling predtype
             # (function C_coerce).
             XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns -fno-gcse' ;;
@@ -1295,7 +1295,7 @@ if [ $XCC_GCC = true ] ; then
     esac
   fi # with_debug
   case "$XCC_GCC_VERSION" in
-    3* | 4*)
+    3.* | 4.* | 5.* | 6.*)
       # When not optimizing on linux, or with Apple's gcc 4 on MacOS X,
       # or with GCC 4 when "gcc -Os" is used:
       #   C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
