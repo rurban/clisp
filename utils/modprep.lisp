@@ -1272,4 +1272,8 @@ commas and parentheses."
 
 (modprep (first *args*) (apply #'mod-file *args*))
 
+;; for testing:
+;; (modprep "modpreptest.c")
+;; hg diff modpreptest.m.c
+
 ;;; file modprep.lisp ends here
