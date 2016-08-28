@@ -4106,7 +4106,7 @@ extern bool inside_gc;
 %%   #endif
 %%   export_def(nonimmprobe(obj_o));
 %%   puts("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ .one_o=one_o, .allocstamp=alloccount }; }");
-%%   puts("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); .one_o = as_oint(obj); nonimmprobe(one_o); }");
+%%   puts("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }");
 %%   puts("inline gcv_object_t::gcv_object_t () {}");
 %% #endif
 
