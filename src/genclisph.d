@@ -220,14 +220,14 @@ static void emit_dll_def(char *varname) {
 #define exportF(p,o,s)  emit_export_declaration(STRINGIFY(modimp) " " STRING(p),STRING(o),STRING(s))
 #define exportE(o,a)  emit_export_declaration("_Noreturn " STRINGIFY(modimp) " void ",STRING(o),STRING(a))
 
-static void emit_export_declaration (char *prefix, char *o, char *suffix) {
+static void emit_export_declaration (const char *prefix, const char *o, const char *suffix) {
   emit_dll_def(o);
   printf("%s %s%s;\n",prefix,o,suffix);
 }
 
 #if defined(TYPECODES)
 struct typecode_entry {
-  char* name;
+  const char* name;
   int code;
   int vectorP;
   int simpleP;

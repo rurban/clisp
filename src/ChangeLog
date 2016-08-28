@@ -1,5 +1,11 @@
 2016-08-28  Sam Steingold  <sds@gnu.org>
 
+	* genclisph.d (emit_export_declaration, struct typecode_entry):
+	use `const' to avoid the warning:
+	deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+
+2016-08-28  Sam Steingold  <sds@gnu.org>
+
 	avoid the clang -Wgnu-designator warning
 	* lispbibl.d (as_object, as_chart): use the new {.one_o=???}
 	syntax instead of GNU old-style field designator extension {one_o:???}
