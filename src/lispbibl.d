@@ -2467,9 +2467,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define as_oint(expr)  ((expr).one_o)
   #if defined(WIDE_STRUCT)
-    #define as_object(o)  ((object){u:{one_u:(o)}INIT_ALLOCSTAMP})
+    #define as_object(o)  ((object){u={.one_u=(o)}INIT_ALLOCSTAMP})
   #elif defined(OBJECT_STRUCT)
-    #define as_object(o)  ((object){one_o:(o)INIT_ALLOCSTAMP})
+    #define as_object(o)  ((object){.one_o=(o)INIT_ALLOCSTAMP})
   #else
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
@@ -2477,8 +2477,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #elif defined(WIDE_AUXI)
   #define as_oint(expr)  ((expr).u.align_o)
   /* These could store arbitrary information in auxi_o. */
-  #define as_object_with_auxi(o)  ((object){u:{both:{ one_ob: (o), auxi_ob: 0 }} INIT_ALLOCSTAMP })
-  #define as_object(o)  ((object){u:{align_o:(o)}INIT_ALLOCSTAMP})
+  #define as_object_with_auxi(o)  ((object){.u={.both={ .one_ob=(o), .auxi_ob=0 }} INIT_ALLOCSTAMP })
+  #define as_object(o)  ((object){.u={.align_o=(o)}INIT_ALLOCSTAMP})
 #else
   #define as_oint(expr)  (oint)(expr)
   #define as_object(o)  (gcv_object_t)(o)
@@ -3057,7 +3057,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define objectplus(obj,offset)  ((object)pointerplus(obj,offset))
 #elif defined(WIDE_AUXI)
   static inline object objectplus (object obj, saint offset) {
-    return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}};
+    return (object){.u={.both={ .one_ob=obj.one_o+offset, .auxi_ob=obj.auxi_o }}};
   }
 #else /* defined(WIDE_SOFT) || defined(OBJECT_STRUCT) */
   #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
@@ -3065,7 +3065,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %% #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
 %%   emit_define("objectplus(obj,offset)","((object)pointerplus(obj,offset))");
 %% #elif defined(WIDE_AUXI)
-%%   puts("static inline object objectplus (object obj, saint offset) { return (object){u:{both:{ one_ob: obj.one_o+offset, auxi_ob: obj.auxi_o }}}; }");
+%%   puts("static inline object objectplus (object obj, saint offset) { return (object){.u={.both={ .one_ob=obj.one_o+offset, .auxi_ob=obj.auxi_o }}}; }");
 %% #else
 %%   emit_define("objectplus(obj,offset)","as_object(as_oint(obj)+(soint)(offset))");
 %% #endif
@@ -4063,7 +4063,7 @@ extern bool inside_gc;
    on the STACK) we can assume that GC has updated it. */
   inline gcv_object_t::operator object () const {
     nonimmprobe(one_o);
-    return (object){ one_o: one_o INIT_ALLOCSTAMP };
+    return (object){ .one_o=one_o INIT_ALLOCSTAMP };
   }
 
   /* When an object is put into a GC visible location (in the heap or
@@ -4105,8 +4105,8 @@ extern bool inside_gc;
 %%     emit_define("nonimmsubrp(obj)","false");
 %%   #endif
 %%   export_def(nonimmprobe(obj_o));
-%%   puts("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ one_o: one_o, allocstamp: alloccount }; }");
-%%   puts("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); one_o = as_oint(obj); nonimmprobe(one_o); }");
+%%   puts("inline gcv_object_t::operator object () const { nonimmprobe(one_o); return (object){ .one_o=one_o, .allocstamp=alloccount }; }");
+%%   puts("inline gcv_object_t::gcv_object_t (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); .one_o = as_oint(obj); nonimmprobe(one_o); }");
 %%   puts("inline gcv_object_t::gcv_object_t () {}");
 %% #endif
 
@@ -5071,7 +5071,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
     #ifdef __cplusplus
       inline chart as_chart(int c) { return chart(c); }
     #else
-      #define as_chart(c)  ((chart){one_c:(c)})
+      #define as_chart(c)  ((chart){.one_c=(c)})
     #endif
   #else
     extern __inline__ chart as_chart (register cint c)
