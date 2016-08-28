@@ -1,3 +1,10 @@
+2016-08-28  Sam Steingold  <sds@gnu.org>
+
+	avoid the clang -Wgnu-designator warning
+	* lispbibl.d (as_object, as_chart): use the new {.one_o=???}
+	syntax instead of GNU old-style field designator extension {one_o:???}
+	https://gcc.gnu.org/onlinedocs/gcc-6.2.0/gcc/Designated-Inits.html
+
 2016-08-26  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [XCC_GCC]: treat gcc 5 & 6 like 3 & 4
