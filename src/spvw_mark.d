@@ -28,13 +28,13 @@
 
 /* -------------------------- Implementation ---------------------------- */
 
-#if defined(WIDE_STRUCT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT)
+#if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define mark(addr)  (((gcv_object_t*)(addr))->one_o |= wbit(garcol_bit_o))
 #else
   #define mark(addr)  (*(gcv_object_t*)(addr) = as_object(as_oint(*(gcv_object_t*)(addr)) | wbit(garcol_bit_o)))
 #endif
 
-#if defined(WIDE_STRUCT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT)
+#if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define unmark(addr)  (((gcv_object_t*)(addr))->one_o &= ~wbit(garcol_bit_o))
 #else
   #define unmark(addr)  (*(gcv_object_t*)(addr) = as_object(as_oint(*(gcv_object_t*)(addr)) & ~wbit(garcol_bit_o)))
@@ -43,7 +43,7 @@
 #ifdef fast_mtypecode
   #define marked(addr)  (mtypecode(*(gcv_object_t*)(addr)) & bit(garcol_bit_t))
 #else
-  #if defined(WIDE_STRUCT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT)
+  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     #define marked(addr)  (((gcv_object_t*)(addr))->one_o & wbit(garcol_bit_o))
   #else
     #define marked(addr)  (as_oint(*(gcv_object_t*)(addr)) & wbit(garcol_bit_o))

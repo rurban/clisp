@@ -1,5 +1,10 @@
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, built.d, spvw.d, spvw_garcol.d, spvw_garcol_old.d:
+	* spvw_mark.d: remove the obsolete object representation WIDE_AUXI
+
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (modprep): bind *module-name*, *module-line*,
 	*module-package*, *package-properties* here ...
 	(parse): ... not here
