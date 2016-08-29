@@ -1,15 +1,27 @@
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test (compile-file-pathname LOGICAL PHYSICAL) (bug#677)
+
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
+	* socket.tst: adapted for MacOSX idiosyncrasies
+
+2016-08-11  Sam Steingold  <sds@gnu.org>
+
+	* pack11.tst: cerror_package_locked can trigger GC
+
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
-	* format.tst: add tests for binding of *FORMAT-CS* [bug#3498026]
+	* format.tst: add tests for binding of *FORMAT-CS* [bug#631]
 
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
-	* excepsit.tst: add tests for APPLY on dotted lists [bug#3517196]
+	* excepsit.tst: add tests for APPLY on dotted lists [bug#636]
 
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: check that LOGICAL-PATHNAME-TRANSLATIONS signals
-	a TYPE-ERROR on a STRING too [bug#3520570]
+	a TYPE-ERROR on a STRING too [bug#638]
 
 2012-02-14  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -18,11 +30,11 @@
 
 2012-02-14  Sam Steingold  <sds@gnu.org>
 
-	* clos.tst (foo148): add a test for [bug#3487338]
+	* clos.tst (foo148): add a test for [bug#628]
 
 2011-09-16  Sam Steingold  <sds@gnu.org>
 
-	* path.tst: make sure that truenames have version :newest [bug#3405120]
+	* path.tst: make sure that truenames have version :newest [bug#606]
 
 2011-08-25  Sam Steingold  <sds@gnu.org>
 
