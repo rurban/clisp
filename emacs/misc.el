@@ -55,13 +55,14 @@
 (put 'clisp-bug-reference-url-format 'bug-reference-url-format t)
 
 (defun clisp-bug-reference-url-format () ; NEW
-  (format "http://sourceforge.net/p/clisp/%s/%s/"
-          (let ((kind (match-string-no-properties 1)))
+  (let ((kind (match-string-no-properties 1))
+        (bug (match-string-no-properties 2)))
+    (format "http://sourceforge.net/p/clisp/%s/%s/"
             (cond ((string-match "[Bb]ug" kind) "bugs")
                   ((string-match "[Pp]atch" kind) "patches")
                   ((string-match "RFE" kind) "feature-requests")
-                  (t (error "unknown bug kind [%s]" kind))))
-          (match-string-no-properties 2)))
+                  (t (error "unknown bug kind [%s]" kind)))
+            bug)))
 
 ;; see url.el:url-retrieve-synchronously
 (defun clisp-sf-transition-url (url)
