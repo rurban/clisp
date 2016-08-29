@@ -1289,10 +1289,10 @@ commas and parentheses."
     (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-;; (modprep (first *args*) (apply #'mod-file *args*))
+(modprep (first *args*) (apply #'mod-file *args*))
 
 ;; for testing:
-(modprep (merge-pathnames "modpreptest.c" *load-pathname*))
+;; (modprep (merge-pathnames "modpreptest.c" *load-pathname*))
 ;; hg diff modpreptest.m.c
 
 ;;; file modprep.lisp ends here
