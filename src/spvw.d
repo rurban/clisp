@@ -1,7 +1,7 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
  * Bruno Haible 1990-2011
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2013, 2016
  * German comments translated into English: Stefan Kain 2002-03-24
 
  Content:
