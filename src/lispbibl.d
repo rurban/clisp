@@ -535,9 +535,7 @@
 /* Width of object representation:
    WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
  WIDE_HARD means on a 64-bit platform.
- WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words.
- WIDE_AUXI means on a 32-bit platform, each object occupies 2 words, the
-           pointer and some auxiliary word. */
+ WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words. */
 
 #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
   #define WIDE_HARD
@@ -547,13 +545,13 @@
   #define WIDE_SOFT
 #endif
 
-#if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI))
+#if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT))
   #define WIDE_SOFT
 #endif
-#if (defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI)) && !defined(WIDE)
+#if (defined(WIDE_HARD) || defined(WIDE_SOFT)) && !defined(WIDE)
   #define WIDE
 #endif
-/* Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI) */
+/* Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT) */
 
 /* this is necessary to avoid messages like
    Info: resolving _mv_space by linking to __imp__mv_space (auto-import)
@@ -1812,9 +1810,6 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 %% #ifdef WIDE_SOFT
 %%   puts("#define WIDE_SOFT");
 %% #endif
-%% #ifdef WIDE_AUXI
-%%   puts("#define WIDE_AUXI");
-%% #endif
 %% #ifdef WIDE
 %%   puts("#define WIDE");
 %% #endif
@@ -2311,8 +2306,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #ifndef __cplusplus
     #error DEBUG_GCSAFETY works only with a C++ compiler! Reconfigure with CC=g++.
   #endif
-  #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
-    #error DEBUG_GCSAFETY cannot be used together with WIDE_SOFT or WIDE_AUXI (not yet implemented)!
+  #if defined(WIDE_SOFT)
+    #error DEBUG_GCSAFETY cannot be used together with WIDE_SOFT (not yet implemented)!
   #endif
   /* The 'gcv_object_t' and 'object' types share the major part of their innards. */
   #ifndef OBJECT_STRUCT
@@ -2330,7 +2325,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
  You can write "var gcunsafe_object_t foo;" instead - but then you must not
  trigger GC during the entire lifetime of the variable 'foo'! */
 
-%% #if (defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)) && defined(WIDE) && !defined(WIDE_HARD) && defined(GENERATIONAL_GC)
+%% #if (defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)) && defined(WIDE) && !defined(WIDE_HARD) && defined(GENERATIONAL_GC)
 %%   #define attribute_aligned_object " __attribute__ ((aligned(8)))"
 %% #else
 %%   #define attribute_aligned_object ""
@@ -2338,42 +2333,16 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 #if !defined(WIDE_SOFT)
 
-  /* An object pointer is an empty pointer to begin with (so you cannot do
-   anything unwanted with it in C): */
-  #if defined(WIDE_AUXI)
-    /* Make room for an auxiliary word in every object.
-     The struct around the union is needed to work around a gcc-2.95 bug. */
-    #if BIG_ENDIAN_P
-      #define INNARDS_OF_GCV_OBJECT  \
-        union {                                         \
-          struct { uintP auxi_ob; uintP one_ob; } both; \
-          oint align_o _attribute_aligned_object_;      \
-        } u _attribute_aligned_object_;
-    #else
-      #define INNARDS_OF_GCV_OBJECT  \
-        union {                                         \
-          struct { uintP one_ob; uintP auxi_ob; } both; \
-          oint align_o _attribute_aligned_object_;      \
-        } u _attribute_aligned_object_;
-    #endif
-    #define one_o  u.both.one_ob
-    #define auxi_o  u.both.auxi_ob
-  #elif defined(OBJECT_STRUCT)
+  #if defined(OBJECT_STRUCT)
     #define INNARDS_OF_GCV_OBJECT  \
       uintP one_o;
   #else
     typedef  void *  gcv_object_t;
   #endif
-  /* But there is an address and type bits in the representation. */
+  /* There is an address and type bits in the representation. */
 
-  /* An (unsigned) Integer of the object's size: */
-  #ifdef WIDE_AUXI
-    typedef  uint64  oint;
-    typedef  sint64  soint;
-  #else
-    typedef  uintP  oint;
-    typedef  sintP  soint;
-  #endif
+  typedef  uintP  oint;
+  typedef  sintP  soint;
 
 #else /* defined(WIDE_SOFT) */
 
@@ -2405,22 +2374,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 /* sizeof(gcv_object_t) = sizeof(oint) must hold true! */
 
 %% #if !defined(WIDE_SOFT)
-%%   #if defined(WIDE_AUXI)
-%%     strcpy(buf,"struct { union { struct { ");
-%%     #if BIG_ENDIAN_P
-%%       strcat(buf,"uintP auxi_ob; uintP one_ob;");
-%%     #else
-%%       strcat(buf,"uintP one_ob; uintP auxi_ob;");
-%%     #endif
-%%     strcat(buf," } both; oint align_o");
-%%     strcat(buf,attribute_aligned_object);
-%%     strcat(buf,"; } u");
-%%     strcat(buf,attribute_aligned_object);
-%%     strcat(buf,"; }");
-%%     emit_typedef(buf,"gcv_object_t");
-%%     emit_define("one_o","u.both.one_ob");
-%%     emit_define("auxi_o","u.both.auxi_ob");
-%%   #elif defined(OBJECT_STRUCT)
+%%   #if defined(OBJECT_STRUCT)
 %%     #ifdef DEBUG_GCSAFETY
 %%       puts("struct object { uintP one_o; uintL allocstamp; };");
 %%       puts("struct gcv_object_t { uintP one_o; operator object () const; gcv_object_t (object obj); gcv_object_t (struct fake_gcv_object obj); gcv_object_t (); };");
@@ -2430,13 +2384,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %%   #else
 %%     emit_typedef("void *","gcv_object_t");
 %%   #endif
-%%   #ifdef WIDE_AUXI
-%%     emit_typedef("uint64","oint");
-%%     emit_typedef("sint64","soint");
-%%   #else
-%%     emit_typedef("uintP","oint");
-%%     emit_typedef("sintP","soint");
-%%   #endif
+%%   emit_typedef("uintP","oint");
+%%   emit_typedef("sintP","soint");
 %% #else
 %%   emit_typedef("uint64","oint");
 %%   emit_typedef("sint64","soint");
@@ -2474,11 +2423,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
   #endif
-#elif defined(WIDE_AUXI)
-  #define as_oint(expr)  ((expr).u.align_o)
-  /* These could store arbitrary information in auxi_o. */
-  #define as_object_with_auxi(o)  ((object){.u={.both={ .one_ob=(o), .auxi_ob=0 }} INIT_ALLOCSTAMP })
-  #define as_object(o)  ((object){.u={.align_o=(o)}INIT_ALLOCSTAMP})
 #else
   #define as_oint(expr)  (oint)(expr)
   #define as_object(o)  (gcv_object_t)(o)
@@ -2936,7 +2880,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* Complete the definition of the type 'gcv_object_t'. */
-#if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
+#if defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
   #if defined(WIDE) && !defined(WIDE_HARD)
     #ifdef GENERATIONAL_GC
       /* The generational GC can't deal with an object-pointer that points
@@ -3053,19 +2997,13 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 /* To add something to an object/oint:
  objectplus(obj,offset) */
-#if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
+#if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
   #define objectplus(obj,offset)  ((object)pointerplus(obj,offset))
-#elif defined(WIDE_AUXI)
-  static inline object objectplus (object obj, saint offset) {
-    return (object){.u={.both={ .one_ob=obj.one_o+offset, .auxi_ob=obj.auxi_o }}};
-  }
 #else /* defined(WIDE_SOFT) || defined(OBJECT_STRUCT) */
   #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
 #endif
-%% #if !(defined(WIDE_SOFT) || defined(WIDE_AUXI) || defined(OBJECT_STRUCT))
+%% #if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
 %%   emit_define("objectplus(obj,offset)","((object)pointerplus(obj,offset))");
-%% #elif defined(WIDE_AUXI)
-%%   puts("static inline object objectplus (object obj, saint offset) { return (object){.u={.both={ .one_ob=obj.one_o+offset, .auxi_ob=obj.auxi_o }}}; }");
 %% #else
 %%   emit_define("objectplus(obj,offset)","as_object(as_oint(obj)+(soint)(offset))");
 %% #endif
@@ -3092,7 +3030,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 /* Bit operations on entities of type oint:
  ...wbit... instead of ...bit..., "w" = "wide". */
-#if defined(WIDE_SOFT) || defined(WIDE_AUXI)
+#if defined(WIDE_SOFT)
   #define wbit(n)  (LL(1)<<(n))
   #define wbitm(n)  (LL(2)<<((n)-1))
   #define wbit_test(x,n)  ((x) & wbit(n))
@@ -3202,9 +3140,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       /* Beware: Conversion of  address  to oint by Zero-Extend! */
       #define type_untype_object(type,address)              \
         objectplus((oint)(aint)(address),(oint)(tint)(type)<<oint_type_shift)
-    #elif defined(WIDE_AUXI)
-      #define type_untype_object(type,address)              \
-        as_object_with_auxi((aint)pointerplus((address),(aint)(tint)(type)<<oint_type_shift))
     #elif defined(OBJECT_STRUCT)
       #define type_untype_object(type,address)              \
         as_object((oint)pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
@@ -6802,11 +6737,7 @@ typedef enum {
 #ifdef TYPECODES
   #define make_machine(ptr)  type_pointer_object(machine_type,ptr)
 #else
-  #if defined(WIDE_AUXI)
-    #define make_machine(ptr)  as_object_with_auxi((aint)(ptr)+machine_bias)
-  #else
-    #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
-  #endif
+  #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
 #endif
 %% export_def(make_machine(ptr));
 
@@ -6937,10 +6868,6 @@ typedef struct {
     nonimmprobe(pointable_address_unchecked(obj.one_o));
     return obj.one_o;
   }
-#elif defined(WIDE_AUXI)
-  #define cgci_pointable(obj)  (obj).one_o
-  #define pgci_pointable(obj)  (obj).one_o
-  #define ngci_pointable(obj)  (obj).one_o
 #else
   #define cgci_pointable(obj)  as_oint(obj)
   #define pgci_pointable(obj)  as_oint(obj)
@@ -7297,8 +7224,6 @@ typedef struct {
   #define eq(obj1,obj2)  (pgci_pointable(obj1) == pgci_pointable(obj2))
 #elif defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
-#elif defined(WIDE_AUXI)
-  #define eq(obj1,obj2)  ((obj1).one_o == (obj2).one_o)
 #else
   #define eq(obj1,obj2)  ((obj1) == (obj2))
 #endif
@@ -9654,11 +9579,7 @@ extern maygc object nobject_out (FILE* out, object obj);
 #ifdef TYPECODES
   #define bias_type_pointer_object(bias,type,ptr) type_pointer_object(type,ptr)
 #else
-  #ifdef WIDE_AUXI
-    #define bias_type_pointer_object(bias,type,ptr) as_object_with_auxi((aint)(ptr)+(bias))
-  #else
-    #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
-  #endif
+  #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
 #endif
 /* used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string */
 
@@ -10694,9 +10615,7 @@ extern struct subr_tab_ {
   #ifdef TYPECODES
     #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
   #else
-    #if defined(WIDE_AUXI)
-      #define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+subr_bias)
-    #elif defined(OBJECT_STRUCT)
+    #if defined(OBJECT_STRUCT)
       #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
     #else
       #define subr_tab_ptr_as_object(subr_addr)  objectplus(subr_addr,subr_bias)
@@ -10782,9 +10701,7 @@ extern struct symbol_tab_ {
   #ifdef TYPECODES
     #define S_help_(name)  (type_constpointer_object(symbol_type,&symbol_tab.name))
   #else
-    #if defined(WIDE_AUXI)
-      #define S_help_(name)  as_object_with_auxi((aint)&symbol_tab.name+varobject_bias)
-    #elif defined(OBJECT_STRUCT)
+    #if defined(OBJECT_STRUCT)
       #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
     #else
       #define S_help_(name)  objectplus(&symbol_tab.name,varobject_bias)

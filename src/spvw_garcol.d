@@ -57,7 +57,7 @@ typedef struct varobj_mem_region {
 
 #if DEBUG_GC_MARK
   #define IF_DEBUG_GC_MARK(statement)  statement
-  #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
+  #if defined(WIDE_SOFT)
     /* oint is defined as uint64. */
     #define PRIoint "ll"
   #else
@@ -75,18 +75,13 @@ typedef struct varobj_mem_region {
 /* pack a pointer into an object, without  typeinfo.
  pointer_as_object(ptr): void* --> object
  pointer_was_object(obj): object --> void* */
-  #ifdef TYPECODES
-    #define pointer_as_object(ptr)  type_pointer_object(0,ptr)
-    #define pointer_was_object(obj)  type_pointable(0,obj)
-  #else
-    #if defined(WIDE_AUXI)
-      #define pointer_as_object(ptr)  as_object_with_auxi((aint)(ptr))
-      #define pointer_was_object(obj)  ((void*)((obj).one_o))
-    #else
-      #define pointer_as_object(ptr)  as_object((oint)(ptr))
-      #define pointer_was_object(obj)  ((void*)as_oint(obj))
-    #endif
-  #endif
+#ifdef TYPECODES
+  #define pointer_as_object(ptr)  type_pointer_object(0,ptr)
+  #define pointer_was_object(obj)  type_pointable(0,obj)
+#else
+  #define pointer_as_object(ptr)  as_object((oint)(ptr))
+  #define pointer_was_object(obj)  ((void*)as_oint(obj))
+#endif
 
 /*  marking phase:
  All "active" structures are marked.

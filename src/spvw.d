@@ -102,11 +102,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_count]; } pseudofun_tab;
   #ifdef TYPECODES
     #define symbol_tab_ptr_as_object(ptr) type_pointer_object(symbol_type,ptr)
   #else
-    #ifdef WIDE_AUXI
-      #define symbol_tab_ptr_as_object(ptr) as_object_with_auxi((aint)(ptr)+varobject_bias)
-    #else
-      #define symbol_tab_ptr_as_object(ptr) as_object((oint)(ptr)+varobject_bias)
-    #endif
+    #define symbol_tab_ptr_as_object(ptr) as_object((oint)(ptr)+varobject_bias)
   #endif
 #endif
 /* traversal of symbol_tab: */

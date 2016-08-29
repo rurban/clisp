@@ -44,8 +44,6 @@ global object built_flags (void) {
     " WIDE_HARD"
    #elif defined(WIDE_SOFT)
     " WIDE_SOFT"
-   #elif defined(WIDE_AUXI)
-    " WIDE_AUXI"
    #else
     " WIDE"
    #endif
