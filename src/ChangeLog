@@ -1,7 +1,9 @@
 2016-08-28  Sam Steingold  <sds@gnu.org>
 
-	* utils/modprep.lisp (output-all): Bind all global variables in
+	* utils/modprep.lisp (output-all): bind all global variables in
 	appropriate functions to allow loading into the same lisp session
+	(output-all): make sure that the file name is printed on #line 1
+	without #P
 
 2016-08-28  Sam Steingold  <sds@gnu.org>
 

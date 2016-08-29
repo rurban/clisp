@@ -1210,7 +1210,7 @@ commas and parentheses."
       (formatln out "}"))))
 
 (defun output-all (out input-file &optional *lines* &aux (*lineno* 1))
-  (format out "#line 1 ~S~%" input-file)
+  (format out "#line 1 ~S~%" (string input-file))
   (loop :for ln :in *lines* :and idx :upfrom 0 :do
     (when (/= *lineno* (line-number ln))
       (format out "#line ~D~%" (setq *lineno* (line-number ln))))
