@@ -2,6 +2,8 @@
 /* Sample module "FOO" */
 // that's right!
 // just a `modprep' test!
+#line 4
+DEFMODULE(sample,"USER")
 
 #define O(varname) module__sample__object_tab._##varname
 #define F(varname) subr_tab_ptr_as_object(&(module__sample__subr_tab._##varname))
@@ -114,9 +116,6 @@ extern struct module__sample__subr_tab_t module__sample__subr_tab;
 
 
 
-#line 4
-#line 4
-DEFMODULE(sample,"USER")
 #line 10
 #line 10
  DEFVAR (var1)

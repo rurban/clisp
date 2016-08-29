@@ -939,8 +939,6 @@ commas and parentheses."
   "Parse the entire input"
   (loop :with in-comment :and condition :and status
     :and *if-stack* = (make-array 10 :adjustable t :fill-pointer 0)
-    :and *module-name* :and *module-line* :and *module-package*
-    :and *package-properties* = (make-hash-table :test 'equal)
     :and *must-close-next-defun* :and *in-defun* :and *brace-depth* = 0
     :for ln :in lines :and idx :upfrom 0 :and end = -1
     :for line = (line-contents ln) :for *lineno* = (line-number ln) :do
@@ -1261,6 +1259,8 @@ commas and parentheses."
 
 (defun modprep (*input-file* &optional (output (mod-file-1 *input-file*))
                 &aux *lines* *module-all-packages*
+                  *module-line* *module-name* *module-package*
+                  (*package-properties* (make-hash-table :test 'equal))
                   (*objdefs* (make-array 10 :adjustable t :fill-pointer 0))
                   (*fundefs* (make-array 10 :adjustable t :fill-pointer 0))
                   (*emulation-count* 0)

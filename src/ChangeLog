@@ -1,5 +1,11 @@
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (modprep): bind *module-name*, *module-line*,
+	*module-package*, *package-properties* here ...
+	(parse): ... not here
+
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-script) [darwin]: disable nohup
 	http://stackoverflow.com/questions/29112446/nohup-doesnt-work-with-os-x-yosmite-get-error-cant-detach-from-console-no-s
 	http://stackoverflow.com/questions/23898623/nohup-cant-detach-from-console
