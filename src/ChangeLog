@@ -3,6 +3,7 @@
 	* utils/modprep.lisp (modprep): bind *module-name*, *module-line*,
 	*module-package*, *package-properties* here ...
 	(parse): ... not here
+	(lexical-analysis): ignore //-comments inside /*-comments
 
 2016-08-29  Sam Steingold  <sds@gnu.org>
 

@@ -836,7 +836,7 @@ Also return status: NIL for parsing until the end and
            (if (plusp paren-depth)
                (decf paren-depth)
                (setq done #\))))
-          ((and (not in-char) (not in-string) (not in-subst)
+          ((and (not in-comment) (not in-char) (not in-string) (not in-subst)
                 (< (1+ ii) end) (char= cc #\/)
                 (char= (aref line (1+ ii)) #\/))
            (setq ii end))       ; ignore to the end of line
@@ -1289,10 +1289,10 @@ commas and parentheses."
     (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-(modprep (first *args*) (apply #'mod-file *args*))
+;; (modprep (first *args*) (apply #'mod-file *args*))
 
 ;; for testing:
-;; (modprep (merge-pathnames "modpreptest.c" *load-pathname*))
+(modprep (merge-pathnames "modpreptest.c" *load-pathname*))
 ;; hg diff modpreptest.m.c
 
 ;;; file modprep.lisp ends here
