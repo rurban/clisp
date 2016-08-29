@@ -1213,7 +1213,7 @@ commas and parentheses."
       (formatln out "}"))))
 
 (defun output-all (out input-file &optional *lines* &aux (*lineno* 1))
-  (format out "#line 1 ~S~%" (string input-file))
+  (format out "#line 1 ~S~%" (namestring input-file))
   (loop :for ln :in *lines* :and idx :upfrom 0 :do
     (when (/= *lineno* (line-number ln))
       (format out "#line ~D~%" (setq *lineno* (line-number ln))))
@@ -1285,10 +1285,10 @@ commas and parentheses."
     (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-;; (modprep (first *args*) (apply #'mod-file *args*))
+(modprep (first *args*) (apply #'mod-file *args*))
 
 ;; for testing:
-(modprep (merge-pathnames "modpreptest.c" *load-pathname*))
+;; (modprep (merge-pathnames "modpreptest.c" *load-pathname*))
 ;; hg diff modpreptest.m.c
 
 ;;; file modprep.lisp ends here
