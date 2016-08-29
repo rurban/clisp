@@ -1,7 +1,7 @@
 ;;; MODPREP - CLISP module preprocessor
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
-;;; Copyright (C) 2003-2010 by Sam Steingold [lisp]
+;;; Copyright (C) 2003-2011, 2016 by Sam Steingold [lisp]
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.
@@ -150,7 +150,7 @@ return the line number, else NIL."
 ;; we see the corresponding #endif. This is a stack of vector of string,
 ;; not a stack of string, because when a #elif is seen, we add an
 ;; element to the stack without popping the previous one.
-(defvar *if-stack* (make-array 10 :adjustable t :fill-pointer 0))
+(defvar *if-stack*)
 
 (defun sharp-if (condition)
   (let ((vec (make-array 5 :adjustable t :fill-pointer 0)))
@@ -203,11 +203,11 @@ The vector is freshly constructed, but the strings are shared"
 (defvar *module-name*)
 (defvar *module-line*)
 (defvar *module-package*)
-(defparameter *package-properties* (make-hash-table :test 'equal))
+(defvar *package-properties*)
 (defvar *module-all-packages*)
-(defvar *init-1-name* nil "Did the module define its own init1?")
-(defvar *init-2-name* nil "Did the module define its own init2?")
-(defvar *fini-name* nil "Did the module define its own fini?")
+(defvar *init-1-name*) ; Did the module define its own init1?
+(defvar *init-2-name*) ; Did the module define its own init2?
+(defvar *fini-name*)   ; Did the module define its own fini?
 
 (defconstant *commands*
   '("DEFMODULE" "DEFUN" "DEFVAR" "DEFCHECKER" "DEFFLAGSET"))
@@ -308,7 +308,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
   ;; (condition-string . text-string)
   init tag
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
-(defvar *objdefs* (make-array 10 :adjustable t :fill-pointer 0))
+(defvar *objdefs*)
 (defun tag-to-objdef (tag)
   (find tag *objdefs* :test #'string= :key #'objdef-tag))
 (defun write-string-c-style (string out)
@@ -457,10 +457,9 @@ The last feature is disabled because &S() does not work in non-debug builds."
    (make-signature :req 1 :opt 2 :rest '&key))
   "must be in sync with src/lispbibl.d:subr_argtype_t")
 
-(defvar *must-close-next-defun* nil
-  "set to T when emulating the signature")
-(defvar *in-defun* nil "set to T when entering a defun")
-(defvar *emulation-count* 0)
+(defvar *must-close-next-defun*) ; set to T when emulating the signature
+(defvar *in-defun*)              ; set to T when entering a defun
+(defvar *emulation-count*)
 
 (defun parse-signature (fname line &key (start 0) (end (length line)) seclass)
   (unless end
@@ -573,7 +572,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
   signatures;; The function's possible signatures,
   ;; together with their individual #if conditions.
 )
-(defvar *fundefs* (make-array 10 :adjustable t :fill-pointer 0))
+(defvar *fundefs*)
 (defun tag-to-fundef (tag)
   (find tag *fundefs* :test #'string= :key #'fundef-tag))
 
@@ -633,7 +632,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
           (or (eq '&rest rest) (eq '&allow-other-keys rest)) (eq '&key rest)
           (length (signature-keywords sig))))
 
-(defvar *brace-depth* 0)
+(defvar *brace-depth*)
 (defun parse-name (line end form &aux pos comma)
   "parse the LINE DEF...(name,...), END is the end of DEF...
 Return the position of the first comma, position of the closing paren,
@@ -681,7 +680,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
 
 (defstruct (flag-set (:include cpp-helper)))
-(defvar *flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
+(defvar *flag-sets*)
 (defun new-flag-set (name cpp-names &key (condition (current-condition)))
   ;; must nreverse cpp-names to match the order of keywords
   (let ((fs (make-flag-set :name name :cpp-names (nreverse cpp-names))))
@@ -693,7 +692,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
   enum-p type prefix suffix delim bitmasks default cpp-odefs type-odef)
-(defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
+(defvar *checkers*)
 (defun to-C-name (name prefix suffix delim)
   (etypecase name
     (string
@@ -779,7 +778,7 @@ CPP-NAMES is the list of possible values, either strings or
 
 (defstruct vardef
   tag (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
-(defvar *vardefs* (make-array 10 :adjustable t :fill-pointer 0))
+(defvar *vardefs*)
 (defun tag-to-vardef (tag)
   (find tag *vardefs* :test #'string= :key #'vardef-tag))
 (defun varname-to-vardef (varname &optional (condition (current-condition)))
@@ -793,7 +792,7 @@ CPP-NAMES is the list of possible values, either strings or
 ;; Variable initializers. (We treat them separately from the variables
 ;; themselves, so that they are executed in order.)
 (defstruct varinit tag init condition)
-(defvar *varinits* (make-array 10 :adjustable t :fill-pointer 0))
+(defvar *varinits*)
 
 (defun lexical-analysis (line &key (start 0) (end (length line)) in-comment)
   "Return the new line (with substitutions expanded) and the end position.
@@ -929,11 +928,15 @@ commas and parentheses."
       ;; return value from defvar-p: DEFVAR(varname)
       (ext:string-concat (subseq line 0 comma) (subseq line end)))))
 
-(defun parse (&optional *lines*)
+(defun parse (lines)
   "Parse the entire input"
   (loop :with in-comment :and condition :and status
-    :for ln :in *lines* :and idx :upfrom 0 :and end = -1
-    :for line = (line-contents ln) :do (setq *lineno* (line-number ln))
+    :and *if-stack* = (make-array 10 :adjustable t :fill-pointer 0)
+    :and *module-name* :and *module-line* :and *module-package*
+    :and *package-properties* = (make-hash-table :test 'equal)
+    :and *must-close-next-defun* :and *in-defun* :and *brace-depth* = 0
+    :for ln :in lines :and idx :upfrom 0 :and end = -1
+    :for line = (line-contents ln) :for *lineno* = (line-number ln) :do
     (unless in-comment
       (when (defmodule-p line) (setq *module-line* idx))
       (when (setq condition (if-p line)) (sharp-if condition))
@@ -1249,7 +1252,16 @@ commas and parentheses."
              a actual expected (equal expected (namestring actual)))))
 |#
 
-(defun modprep (*input-file* &optional (output (mod-file-1 *input-file*)))
+(defun modprep (*input-file* &optional (output (mod-file-1 *input-file*))
+                &aux *lines* *module-all-packages*
+                  (*objdefs* (make-array 10 :adjustable t :fill-pointer 0))
+                  (*fundefs* (make-array 10 :adjustable t :fill-pointer 0))
+                  (*emulation-count* 0)
+                  (*flag-sets* (make-array 5 :adjustable t :fill-pointer 0))
+                  (*checkers* (make-array 5 :adjustable t :fill-pointer 0))
+                  (*vardefs* (make-array 10 :adjustable t :fill-pointer 0))
+                  (*varinits* (make-array 10 :adjustable t :fill-pointer 0))
+                  *init-1-name* *init-2-name* *fini-name*)
   (format t "~&;; ~S: ~S --> ~S~%" 'modprep *input-file* output)
   (with-open-file (in *input-file* :direction :input
                       #+UNICODE :external-format #+UNICODE charset:utf-8)
@@ -1270,10 +1282,10 @@ commas and parentheses."
     (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-(modprep (first *args*) (apply #'mod-file *args*))
+;; (modprep (first *args*) (apply #'mod-file *args*))
 
 ;; for testing:
-;; (modprep "modpreptest.c")
+(modprep (merge-pathnames "modpreptest.c" *load-pathname*))
 ;; hg diff modpreptest.m.c
 
 ;;; file modprep.lisp ends here
