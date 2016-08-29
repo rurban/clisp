@@ -13,7 +13,7 @@
 
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
-	Fix bug#677 logical pathnames and letter case gone wrong
+	Fix bug#677: logical pathnames and letter case gone wrong
 	* compiler.lisp (compile-file-pathname-helper): when output is
 	supplied and is physical, translate input from logical before merge
 
@@ -46,8 +46,8 @@
 
 2016-08-26  Sam Steingold  <sds@gnu.org>
 
+	Fix bug#686: missing CFLAG -falign-functions=4 in Makefile
 	* makemake.in (XCFLAGS) [XCC_GCC]: treat gcc 5 & 6 like 3 & 4
-	Fixes bug#686
 
 2016-08-14  Sam Steingold  <sds@gnu.org>
 
@@ -98,7 +98,7 @@
 2016-05-01  Daniel Jour  <daniel.oertwig@gmail.com>
 
 	* lispbibl.d (VALUE1_EXTRA) [!value1_register]: do not define
-	This fixes patch#93dee6a014b2 (2008-01-13) as discussed in
+	This fixes patch 93dee6a014b2 (2008-01-13) as discussed in
 	https://sourceforge.net/p/clisp/mailman/message/35061096/
 
 2015-03-18  Ken Brown  <kbrown@cornell.edu>
