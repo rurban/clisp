@@ -4,6 +4,7 @@
 #line 4
 DEFMODULE(sample,"USER")
 #line 10
+/* comments can contain URLs: http://www.memri.org/ */
  DEFVAR (var1, NIL)
 #ifdef cond0
  DEFUN (mypack:fun1, x)

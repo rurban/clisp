@@ -118,6 +118,7 @@ extern struct module__sample__subr_tab_t module__sample__subr_tab;
 
 #line 10
 #line 10
+/* comments can contain URLs: http://www.memri.org/ */
  DEFVAR (var1)
 #ifdef cond0
  DEFUN (mypack:fun1, x,(subr_mypack_fun1,seclass_default,1,0,norest,nokey,0,NIL))
