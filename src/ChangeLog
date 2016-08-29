@@ -4,6 +4,8 @@
 	appropriate functions to allow loading into the same lisp session
 	(output-all): make sure that the file name is printed on #line 1
 	without #P
+	(custom:*suppress-similar-constant-redefinition-warning*)
+	[:compile-toplevel]: set to T to avoid the warnings on reload
 
 2016-08-28  Sam Steingold  <sds@gnu.org>
 
