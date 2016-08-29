@@ -660,6 +660,15 @@ UNKNOWN
 #-CLISP
 UNKNOWN
 
+;; https://sourceforge.net/p/clisp/bugs/677/
+(compile-file-pathname (logical-pathname "clocc:clocc.lisp")
+                       :output-file "/tmp/Bug677/file-TEMP01.fas")
+#+CLISP
+#S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY (:ABSOLUTE "tmp" "Bug677")
+            :NAME "file-TEMP01" :TYPE "fas" :VERSION :NEWEST)
+#-CLISP
+UNKNOWN
+
 (parse-namestring "foo;bar;baz.fas.3" "clocc")
 #+CLISP
 #S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL

@@ -41,7 +41,7 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2011
+;; Sam Steingold 1999-2011, 2016
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
@@ -11256,6 +11256,9 @@ The function make-closure is required.
             ;; and either *merge-pathnames-ansi* is true or input-file is
             ;; absolute.
             (let ((output-file (merge-pathnames output-file)))
+              (when (and (not (logical-pathname-p output-file))
+                         (logical-pathname-p tmp))
+                (setq tmp (translate-logical-pathname tmp)))
               (make-pathname
                :host (or (pathname-host output-file)
                          (pathname-host tmp))
