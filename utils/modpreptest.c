@@ -1,4 +1,6 @@
-/* Sample module */
+/* Sample module "FOO" */
+// that's right!
+// just a `modprep' test!
 #line 4
 DEFMODULE(sample,"USER")
 #line 10
@@ -18,12 +20,19 @@ DEFMODULE(sample,"USER")
  DEFVAR (var3, `(foo3)`)
  DEFVAR (var2, O(var3))
 #endif
+/* some test
+   // `nested' *
+   comments */
+// with /* nesting
+// at different " levels */
 #endif
 DEFUN (mypack:fun3, x y &optional z)
 DEFUN (mypack:fun4, x y &key test test-not)
 DEFUN (fun5, x y &rest r)
+{
 #if cond2a ? cond2b : cond2c
    push(`:GOTO`);
 #elif cond3
    push(`#\space`);
 #endif
+}

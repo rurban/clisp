@@ -1,3 +1,8 @@
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#684: modprep handling of quotation mark in single line comment
+	* utils/modprep.lisp (lexical-analysis): handle // comments
+
 2016-08-28  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (output-all): bind all global variables in

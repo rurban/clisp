@@ -1,8 +1,7 @@
-#line 1 "/home/sds/src/clisp/current/utils/modpreptest.c"
-/* Sample module */
-#line 4
-#line 4
-DEFMODULE(sample,"USER")
+#line 1 "/Users/sds/src/clisp/current/utils/modpreptest.c"
+/* Sample module "FOO" */
+// that's right!
+// just a `modprep' test!
 
 #define O(varname) module__sample__object_tab._##varname
 #define F(varname) subr_tab_ptr_as_object(&(module__sample__subr_tab._##varname))
@@ -115,6 +114,9 @@ extern struct module__sample__subr_tab_t module__sample__subr_tab;
 
 
 
+#line 4
+#line 4
+DEFMODULE(sample,"USER")
 #line 10
 #line 10
  DEFVAR (var1)
@@ -133,15 +135,22 @@ extern struct module__sample__subr_tab_t module__sample__subr_tab;
  DEFVAR (var3)
  DEFVAR (var2)
 #endif
+/* some test
+   // `nested' *
+   comments */
+// with /* nesting
+// at different " levels */
 #endif
 DEFUN (mypack:fun3, x y &optional z,(subr_mypack_fun3,seclass_default,2,1,norest,nokey,0,NIL))
 DEFUN (mypack:fun4, x y &key test test-not,(subr_mypack_fun4,seclass_default,2,0,norest,key,2,NIL))
 DEFUN (fun5, x y &rest r,(subr_user_fun5,seclass_default,2,0,rest,nokey,0,NIL))
+{
 #if cond2a ? cond2b : cond2c
    push(O(object_Kgoto));
 #elif cond3
    push(O(object__23_5Cspace));
 #endif
+}
 
 
 struct module__sample__subr_tab_t module__sample__subr_tab
