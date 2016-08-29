@@ -838,6 +838,10 @@ Also return status: NIL for parsing until the end and
                (setq done #\))))
           ((and (not in-char) (not in-string) (not in-subst)
                 (< (1+ ii) end) (char= cc #\/)
+                (char= (aref line (1+ ii)) #\/))
+           (setq ii end))       ; ignore to the end of line
+          ((and (not in-char) (not in-string) (not in-subst)
+                (< (1+ ii) end) (char= cc #\/)
                 (char= (aref line (1+ ii)) #\*))
            (when in-comment
              (error "~S:~D: nested comments in ~S at ~D"
