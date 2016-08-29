@@ -86,7 +86,7 @@ Restrictions and caveats:
 
 (in-package "CL-USER")
 
-(eval-when (:compile-toplevel)
+(eval-when (:compile-toplevel :load-toplevel :execute)
   (setq custom:*suppress-similar-constant-redefinition-warning* t))
 
 (defvar *input-file*)
