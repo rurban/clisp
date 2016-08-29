@@ -1,5 +1,11 @@
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script) [darwin]: disable nohup
+	http://stackoverflow.com/questions/29112446/nohup-doesnt-work-with-os-x-yosmite-get-error-cant-detach-from-console-no-s
+	http://stackoverflow.com/questions/23898623/nohup-cant-detach-from-console
+
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#677 logical pathnames and letter case gone wrong
 	* compiler.lisp (compile-file-pathname-helper): when output is
 	supplied and is physical, translate input from logical before merge

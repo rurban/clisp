@@ -2940,7 +2940,15 @@ if [ $CROSS = false ] ; then
   echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence ${seq42} s) (values))' > script.lisp"
   echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
   echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
-  echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; test \`tail -n 1 script.lisp ${TRCR}\` = 42 || exit 1 "
+  case "$host_os"  in
+    darwin* )
+      # http://stackoverflow.com/questions/29112446/nohup-doesnt-work-with-os-x-yosmite-get-error-cant-detach-from-console-no-s
+      # http://stackoverflow.com/questions/23898623/nohup-cant-detach-from-console
+    ;;
+    * )
+      echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; test \`tail -n 1 script.lisp ${TRCR}\` = 42 || exit 1 "
+      ;;
+  esac
   echotab "\$(RM) script.lisp"
   echol
 
