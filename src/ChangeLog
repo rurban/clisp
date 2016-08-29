@@ -1,5 +1,11 @@
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
+	Fix bug#677 logical pathnames and letter case gone wrong
+	* compiler.lisp (compile-file-pathname-helper): when output is
+	supplied and is physical, translate input from logical before merge
+
+2016-08-29  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#684: modprep handling of quotation mark in single line comment
 	* utils/modprep.lisp (lexical-analysis): handle // comments
 
