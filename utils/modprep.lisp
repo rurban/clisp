@@ -86,6 +86,9 @@ Restrictions and caveats:
 
 (in-package "CL-USER")
 
+(eval-when (:compile-toplevel)
+  (setq custom:*suppress-similar-constant-redefinition-warning* t))
+
 (defvar *input-file*)
 (defvar *lineno*)               ; current line position in file
 (defvar *lines*)                ; list of all lines
