@@ -1,5 +1,10 @@
 2016-08-28  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (output-all): Bind all global variables in
+	appropriate functions to allow loading into the same lisp session
+
+2016-08-28  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (emit_export_declaration, struct typecode_entry):
 	use `const' to avoid the warning:
 	deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
