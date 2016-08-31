@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for Berkeley-DB
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "berkeley-db/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/berkeley-db/test" :logname "berkeley-db/test")'
 
 (list (null (require "bdb"))) (#-Berkeley-DB NIL #+Berkeley-DB T)
 (listp (show (multiple-value-list (ext:module-info "bdb" t)) :pretty t)) T
