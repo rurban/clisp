@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for WIN32
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/win32/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/bindings/win32/test" :logname "bindings/win32/test")'
 
 (progn (require "win32") T) T
 (listp (show (multiple-value-list (ext:module-info "win32" t)) :pretty t)) T

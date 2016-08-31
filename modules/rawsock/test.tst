@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for RAWSOCK
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "rawsock/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/rawsock/test" :logname "rawsock/test")'
 ;; relies on some functions in the syscalls module
 
 (list (null (require "rawsock"))) (#-RAWSOCK NIL #+RAWSOCK T)

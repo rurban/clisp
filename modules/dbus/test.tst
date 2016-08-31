@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; tests for D-Bus
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "dbus/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/dbus/test" :logname "dbus/test")'
 
 (list (null (require "dbus"))) (#-DBUS NIL #+DBUS T)
 (listp (show (multiple-value-list (ext:module-info "dbus" t)) :pretty t)) T

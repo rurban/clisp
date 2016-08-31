@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for clx/new-clx
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "clx/new-clx/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/clx/new-clx/test" :logname "clx/new-clx/test")'
 
 (list (null (require "clx"))) (#-CLX NIL #+CLX T)
 (listp (show (multiple-value-list (ext:module-info "clx" t)) :pretty t)) T

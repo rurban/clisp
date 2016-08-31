@@ -1,5 +1,5 @@
 ;; -*- Lisp -*- vim:filetype=lisp
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/regexp/test" :logname "regexp/test")'
 
 (null (require "regexp")) T
 (listp (show (multiple-value-list (ext:module-info "regexp" t)) :pretty t)) T

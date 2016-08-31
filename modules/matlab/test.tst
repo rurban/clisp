@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for Matlab
-;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "matlab/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "../modules/matlab/test" :logname "matlab/test")'
 
 (list (null (require "matlab"))) (#-MATLAB NIL #+MATLAB T)
 (listp (show (multiple-value-list (ext:module-info "matlab" t)) :pretty t)) T

@@ -1,6 +1,6 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for READLINE
-;; clisp -q -norc -i ../tests/tests -x '(run-test "readline/test")'
+;; clisp -q -norc -i ../tests/tests -x '(run-test "../modules/readline/test" :logname "readline/test")'
 
 (null (require "readline")) T
 (listp (show (multiple-value-list (ext:module-info "readline" t)) :pretty t)) T
