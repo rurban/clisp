@@ -81,6 +81,9 @@ Restrictions and caveats:
              zot quux)
      DEFUN (FOO:BAR,             \
              zot quux)             ; GOOD
+- modprep processes the file _before_ cpp, so no cpp macro can expand to a
+  modprep form (DEFUN, DEFCHECKER, DEFFLAGSET, DEFVAR &c) - this is why
+  clisp/modules/clx/new-clx/clx.f is processed with ccmp2c.
 
 |#
 
