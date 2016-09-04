@@ -99,9 +99,8 @@ XMLCATALOG=xmlcatalog
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --force --html $< -o $@
 
 # NB: keep in sync with src/makemake.in:MYIMPROOT
-DIST_PODVAL = podval:~/public_html/clisp
 DIST_SFBETA = sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
-DIST = ${DIST_PODVAL}
+DIST = ${DIST_SFBETA}
 RSYNC = rsync -avC --copy-unsafe-links
 CHMOD = chmod -R a+rX
 
@@ -243,8 +242,10 @@ id-href.map : chunk.tdb
 	$(XSLTPROC) $(XMLS_COMMON) -o $@ id-href-map.xsl $<
 
 html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK) id-href.map
-	if [ ! -d ../../sf/www ]; then echo 'no sf/www dir'; false; fi
-	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
+	if [ ! -h $@ ]; then $(RM) -r $@; \
+	  if [ -d ../../sf/www/impnotes ]; then ln -s ../../sf/www/impnotes $@; \
+	  elif [ -d ../../www/impnotes ]; then ln -s ../../www/impnotes $@; \
+	  else echo 'no sf/www dir'; false; fi; fi
 	cd $@/ && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
 	cp -pv impnotes.css id-href.map $@/
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
