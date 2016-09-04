@@ -10,8 +10,7 @@
 <!ENTITY bruno-a '<authorinitials>bruno</authorinitials>'>
 <!ENTITY gilbert-baumann '<author><firstname>Gilbert</firstname><surname>Baumann</surname>
   <contrib>The NEW-CLX module.</contrib>
-  <address><otheraddr><ulink url="http://www.uni-karlsruhe.de/~unk6/"/>
-   </otheraddr></address><email>unk6@rz.uni-karlsruhe.de</email></author>'>
+  <email>unk6@stud.uni-karlsruhe.de</email></author>'>
 <!ENTITY hin '<author><firstname>John</firstname><surname>Hinsdale</surname>
   <contrib>The ORACLE and FastCGI modules.</contrib>
   <address><otheraddr><ulink url="http://www.alma.com/staff/hin"/></otheraddr>
@@ -23,7 +22,7 @@
 <!ENTITY sds-a '<authorinitials>sds</authorinitials>'>
 <!ENTITY stoll '<author><firstname>Michael</firstname><surname>Stoll</surname>
   <contrib>The original author.</contrib>
-  <address><otheraddr><ulink url="http://www.faculty.iu-bremen.de/mstoll/"/>
+  <address><otheraddr><ulink url="http://www.mathe2.uni-bayreuth.de/stoll/"/>
   </otheraddr></address></author>'>
 <!ENTITY clisp-authors '<authorgroup id="authors">&bruno; &stoll; &sds;
  <othercredit><othername>Others</othername><contrib>See

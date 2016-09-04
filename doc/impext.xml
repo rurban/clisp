@@ -252,8 +252,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <code>(&deflang; &lang-r;)</code>.
  For such an additional language to take effect, you must install the
  corresponding message catalog, or translate the messages yourself,
- using &ggettext; and &emacs; (or &xemacs;)
- <ulink url="google">po-mode</ulink>.</para>
+ using &ggettext; and &emacs; <ulink url="google">po-mode</ulink>.</para>
 
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro
@@ -2636,7 +2635,7 @@ to the 3 (or 4) &base; modules.</para>
     <screen>&sh-prompt; &clisp-cmd; &opt-K; &full; &opt-i; <filename role="clisp-cvs">modules/clx/new-clx/demos/clx-demos.lisp</filename> &opt-x; '(clx-demos:run-all-demos)'</screen>
      and follow the intructions.</para></listitem></varlistentry>
  </variablelist>This functionality is documented in the manual
-  <ulink url="http://www.stud.uni-karlsruhe.de/~unk6/clxman/"/>, also
+  <ulink url="https://common-lisp.net/project/cmucl/doc/clx/"/>, also
   available in the &clisp; source distribution as
   <filename role="clisp-cvs">modules/clx/clx-manual.tar.gz</filename>.
  </para></listitem></varlistentry>

@@ -1378,7 +1378,7 @@ the iteration variable and assign it on each iteration.</para></section>
 </section>
 
 <section id="assertions"><title>Assertions
-  <ulink role="clhs" url="sec-9-1-5"/></title>
+  <ulink role="clhs" url="sec_9-1-5"/></title>
 
 <para>The prompt for replacement values (&restart-t;s &store-value-s;,
 &use-value-s; et al) is terminated with &prompt-finish; to indicate that
@@ -1545,7 +1545,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 </para></formalpara>
 
 <formalpara><title>Discussion - see also
-  <ulink url="http://groups.google.com/group/comp.lang.lisp/msg/d87844da9f4d35aa">the USENET posting</ulink> by
+  <ulink url="https://groups.google.com/forum/#!msg/comp.lang.lisp/L1xRYHBY2Gs/qjVNn9pEeNgJ">the USENET posting</ulink> by
   <author><firstname>Steven M.</firstname> <surname>Haflich</surname>
    <email>haflich@pacbell.net</email></author></title>
 <para>This should prevent you from accidentally hosing yourself with
@@ -4533,7 +4533,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
  Since &standard-input-var; normally is a &synonym-stream-t; pointing
  to &terminal-io-var;, you cannot use &read-byte; on it.</para>
 
-<para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
+<para>Since <ulink url="https://en.wikipedia.org/wiki/Common_Gateway_Interface">CGI</ulink>
  (Common Gateway Interface) provides the form data for
  <command>METHOD="POST"</command> on the &stdin;,
  and the server will &not-e; send you an &eos; on the end of the data,

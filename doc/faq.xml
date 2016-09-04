@@ -346,7 +346,7 @@ The way to figure that out is to use <command>hg bisect</command>.
   the looming disaster du jour is).</para>
  <para>Moreover, today, when Jews are being pushed out of the American
   and European academic institutions with various obscene
-  <ulink url="http://how_to_help_israel.tripod.com/Petition.htm">boycott</ulink>
+  <ulink url="http://www.adl.org/israel-international/m/bds/">boycott</ulink>
   and <ulink url="http://www.divestmentwatch.com/">divestment</ulink>
   campaigns, it is crucial for all of us to stand together against
   the resurgence of Nazism.</para>
@@ -384,7 +384,7 @@ The way to figure that out is to use <command>hg bisect</command>.
   <simpara>Aren't you afraid of losing some users who are offended by
    the logo?</simpara></question>
 <answer><para>Do you have in mind people like
-  <ulink url="http://groups.google.com/groups?selm=989898671967295%40amnet.net.ae">this</ulink> one?
+  <ulink url="https://groups.google.com/d/msg/gnu.emacs.help/R7wEPCJXuaI/r-5lmxlY9vQJ">this</ulink> one?
   Good riddance!</para></answer></qandaentry>
 
 <qandaentry id="faq-menorah-unprofessional">
@@ -472,10 +472,9 @@ The way to figure that out is to use <command>hg bisect</command>.
   <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
   <listitem><simpara><ulink url="http://www.cliki.net/mod_lisp">mod_lisp</ulink>
     hooks lisp into &apache;</simpara></listitem>
-  <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP">Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
  </itemizedlist>
  <para>Both <ulink url="http://allegroserve.sourceforge.net/">AllegroServe</ulink>
-  and <ulink url="http://www.cl-http.org:8001/cl-http/">CL-HTTP</ulink>
+  and <ulink url="https://en.wikipedia.org/wiki/CL-HTTP">CL-HTTP</ulink>
   require <link linkend="mt">multithreading</link> and do not work
   with &clisp; yet.</para></answer></qandaentry>
 
@@ -791,8 +790,9 @@ interpreted ones.</para>
   at least not a bug in &clisp;.
   You may argue that this is a bug in &ieee-bfp;,
   but, before you do, please make sure that you do know
-  <ulink url="http://download.oracle.com/docs/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point
-  Arithmetic</ulink> (or are at least familiar with the
+  <ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What
+  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>
+  (or are at least familiar with the
   <ulink url="http://floating-point-gui.de/">light version</ulink> thereof).
  </para><para>See also <ulink url="ml">clisp-list</ulink>
   (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para></answer>
