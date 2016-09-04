@@ -89,8 +89,8 @@
      ><xsl:apply-templates/></a></xsl:template>
 
 <xsl:template match="ulink[@url='ml']">
- <a class="{@role}" href="https://lists.sourceforge.net/lists/listinfo/{.}"
-    ><xsl:apply-templates/></a></xsl:template>
+  <a class="{@role}" href="https://sourceforge.net/p/clisp/mailman/{.}/"
+     ><xsl:apply-templates/></a></xsl:template>
 
 <!-- =============================== RFC =============================== -->
 <xsl:param name="rfc.top" select="'http://www.ietf.org/rfc/rfc'"/>
@@ -127,8 +127,8 @@
 <!-- ============================== / SF mail ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
-<xsl:param name="clisp.cvs.file" select="'http://clisp.hg.sourceforge.net/hgweb/clisp/clisp/raw-file/default/'"/>
-<xsl:param name="clisp.cvs.dir" select="'http://clisp.hg.sourceforge.net/hgweb/clisp/clisp/file/default/'"/>
+<xsl:param name="clisp.cvs.file" select="'https://sourceforge.net/p/clisp/clisp/ci/tip/tree/'"/>
+<xsl:param name="clisp.cvs.dir" select="'https://sourceforge.net/p/clisp/clisp/ci/tip/tree/'"/>
 <xsl:template name="clisp.cvs"> <!-- prepend the correct clisp hg url -->
  <xsl:param name="path"/>
  <!-- xsltproc does not support ends-with - see http://www.w3.org/TR/xpath -->
@@ -450,7 +450,7 @@ set       toc,title
  <div class="custom-footer"><hr /><table width="100%">
    <tr><td align="left"><a href="http://clisp.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
-    <td align="center"><a href="https://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
+    <td align="center"><a href="https://sourceforge.net/p/clisp/donate/?source={@id}"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
     <td align="right"><a href="https://sourceforge.net/projects/clisp"><img width="120" height="30" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
  </tr></table></div><hr />
  <!-- https://sourceforge.net/p/alexandria/support-requests/122850/ -->
