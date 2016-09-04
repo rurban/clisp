@@ -1,3 +1,8 @@
+2016-09-04  Sam Steingold  <sds@gnu.org>
+
+	* utils/fix-perms.sh (root): replace obsolete "-perm +111" with
+	"-perm /111" and .cvsignore with .hgignore
+
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, built.d, spvw.d, spvw_garcol.d, spvw_garcol_old.d:
