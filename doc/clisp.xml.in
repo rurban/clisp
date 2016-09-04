@@ -729,8 +729,9 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
   <member><olink targetdoc="impnotes"/></member>
   <member><olink targetdoc="clink"/></member>
   <member>&cmucl; - <command>cmucl</command>(1)</member>
+  <member>&sbcl; - <command>sbcl</command>(1)</member>
   <member>&emacs; - <command>emacs</command>(1)</member>
-  <member>&xemacs; - <command>xemacs</command>(1)</member></simplelist></para>
+</simplelist></para>
 
 </refsection>
 

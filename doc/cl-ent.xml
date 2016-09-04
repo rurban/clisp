@@ -11,8 +11,8 @@
 <!-- http://www.lisp.org/HyperSpec is dead -->
 <!ENTITY clhs 'http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec'>
 <!ENTITY clrfi 'http://clrfi.alu.org/clrfi'>
-<!ENTITY mop-home 'http://www.lisp.org/mop/'>
-<!ENTITY cl '<ulink url="http://www.lisp.org"><command>Common Lisp</command></ulink>'>
+<!ENTITY mop-home 'http://mop.lisp.se/'>
+<!ENTITY cl '<ulink url="https://common-lisp.net"><command>Common Lisp</command></ulink>'>
 <!ENTITY clos '<ulink role="clhs" url="chap-7"><command>CLOS</command></ulink>'>
 <!ENTITY clcs '<ulink role="clhs" url="chap-9"><command>CLCS</command></ulink>'>
 <!ENTITY clx '<ulink url="http://www.cliki.net/CLX"><command>CLX</command></ulink>'>
@@ -79,7 +79,7 @@
      Protocol</ulink></title>
    <pubdate>1991</pubdate> <pagenums>335 pages</pagenums>
    <isbn>0-262-61074-4</isbn>
-   <publisher><publishername><ulink url="http://www-mitpress.mit.edu">MIT
+   <publisher><publishername><ulink url="http://mitpress.mit.edu">MIT
       Press</ulink></publishername></publisher>
   </biblioentry>'>
 
@@ -102,9 +102,9 @@
 
 <!-- *** links related to open-source software *** -->
 <!ENTITY fsf '<ulink url="http://www.fsf.org">Free Software Foundation (FSF)</ulink>'>
-<!ENTITY eff '<ulink url="http://www.eff.org">Electronic Frontier Foundation</ulink>'>
-<!ENTITY gnu '<ulink url="http://www.gnu.org">GNU</ulink>'>
-<!ENTITY sf '<ulink url="http://sourceforge.net">SourceForge</ulink>'>
+<!ENTITY eff '<ulink url="https://www.eff.org">Electronic Frontier Foundation</ulink>'>
+<!ENTITY gnu '<ulink url="https://www.gnu.org">GNU</ulink>'>
+<!ENTITY sf '<ulink url="https://sourceforge.net">SourceForge</ulink>'>
 <!ENTITY ggettext '&gnu; <ulink url="http://www.gnu.org/software/gettext/">gettext</ulink>'>
 <!ENTITY glibc '&gnu; <ulink url="http://www.gnu.org/software/libc/">libc</ulink>'>
 <!ENTITY libiconv '&gnu; <ulink url="http://www.gnu.org/software/libiconv/">libiconv</ulink>'>
@@ -119,9 +119,9 @@
 <!ENTITY configure '<ulink url="http://www.gnu.org/software/autoconf/"><command>configure</command></ulink>'>
 <!ENTITY bash '&gnu; <ulink url="http://www.gnu.org/software/bash/">bash</ulink>'>
 <!ENTITY cvs '<ulink url="http://www.cvshome.org">CVS</ulink>'>
-<!ENTITY hg '<ulink url="http://mercurial.selenic.com/">Mercurial</ulink>'>
+<!ENTITY hg '<ulink url="https://www.mercurial-scm.org/">Mercurial</ulink>'>
 <!ENTITY asdf '<ulink url="http://common-lisp.net/project/asdf/"><function>asdf</function></ulink>'>
-<!ENTITY defsystem '<ulink url="http://www.cliki.net/defsystem"><function>defsystem</function></ulink>'>
+<!ENTITY defsystem '<ulink url="http://www.cliki.net/mk-defsystem"><function>defsystem</function></ulink>'>
 <!ENTITY gpl '<ulink url="http://www.gnu.org/copyleft/gpl.html">GPL</ulink>'>
 <!ENTITY lgpl '<ulink url="http://www.gnu.org/copyleft/lgpl.html">LGPL</ulink>'>
 <!ENTITY fdl '<ulink url="http://www.gnu.org/copyleft/fdl.html">FDL</ulink>'>
@@ -139,7 +139,6 @@
 
 <!-- *** Editors *** -->
 <!ENTITY emacs '<ulink url="http://www.gnu.org/software/emacs/">Emacs</ulink>'>
-<!ENTITY xemacs '<ulink url="http://www.xemacs.org">XEmacs</ulink>'>
 <!ENTITY ilisp '<ulink url="http://sourceforge.net/projects/ilisp/">ILISP</ulink>'>
 <!ENTITY slime '<ulink url="http://common-lisp.net/project/slime/">SLIME</ulink>'>
 <!ENTITY phemlock '<ulink url="http://common-lisp.net/project/phemlock/">Portable Hemlock</ulink>'>
@@ -150,14 +149,14 @@
 <!ENTITY amiga '<ulink url="http://www.amiga.org/"><emphasis role="platform">Amiga</emphasis></ulink>'>
 <!ENTITY ascii '<ulink url="http://en.wikipedia.org/wiki/ASCII"><emphasis role="platform">ASCII</emphasis></ulink>'>
 <!ENTITY atari '<ulink url="http://www.atari.org/"><emphasis role="platform">Atari</emphasis></ulink>'>
-<!ENTITY beos '<ulink url="http://www.bebits.com/app/2680"><emphasis role="platform">BeOS</emphasis></ulink>'>
+<!ENTITY beos '<ulink url="https://www.haiku-os.org/"><emphasis role="platform">BeOS</emphasis></ulink>'>
 <!ENTITY bsd '<ulink url="http://www.bsd.org/"><emphasis role="platform">*BSD</emphasis></ulink>'>
 <!ENTITY cygwin '<ulink url="http://cygwin.com/"><emphasis role="platform">Cygwin</emphasis></ulink>'>
 <!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="platform">DOS</emphasis></ulink>'>
 <!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
 <!ENTITY hurd '<ulink url="http://www.gnu.org/software/hurd/"><emphasis role="platform">Hurd</emphasis></ulink>'>
 <!ENTITY kde '<ulink url="http://www.kde.org/"><emphasis role="platform">KDE</emphasis></ulink>'>
-<!ENTITY linux '<ulink url="http://www.linux.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
+<!ENTITY linux '<ulink url="https://www.linuxfoundation.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
 <!ENTITY macosx '<ulink url="http://www.apple.com/macosx/"><emphasis role="platform">Mac OS X</emphasis></ulink>'>
 <!ENTITY mingw '<ulink url="http://www.mingw.org/"><emphasis role="platform">MinGW</emphasis></ulink>'>
 <!ENTITY nextstep '<ulink url="http://www.next.com/"><emphasis role="platform">NeXTstep</emphasis></ulink>'>

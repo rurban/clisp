@@ -201,14 +201,14 @@
 
 <!-- =========== PostGreSQL functions ============ -->
 <xsl:template match="function[@role='pq'] | varname[@role='pq']">
- <a class="{@role}" href="http://search.postgresql.org/search?q={.}">
+ <a class="{@role}" href="http://www.postgresql.org/search/?q={.}">
   <xsl:apply-imports/></a>
 </xsl:template>
 <!-- =========== / PostGreSQL functions ============ -->
 
 <!-- =========== Win32 functions ============ -->
 <xsl:template match="function[@role='win32'] | varname[@role='win32']">
- <a class="{@role}" href="http://search.msdn.microsoft.com/Default.aspx?query={.}"><xsl:apply-imports/></a>
+ <a class="{@role}" href="https://social.msdn.microsoft.com/search/en-US/windows?query={.}"><xsl:apply-imports/></a>
 </xsl:template>
 <!-- =========== / Win32 functions ============ -->
 
@@ -457,8 +457,7 @@ set       toc,title
  <form method="get" action="http://www.google.com/custom" target="_top">
   <table width="100%" border="0"><tr>
     <td nowrap="nowrap" align="center">
-     <input type="hidden" name="domains"
-            value="clisp.org;clisp.podval.org;www.lisp.org"/>
+     <input type="hidden" name="domains" value="clisp.org"/>
      <label for="sbi" style="display: none">Enter your search terms</label>
      <input type="text" name="q" size="50" maxlength="255" id="sbi">
       <xsl:attribute name="value">
@@ -470,14 +469,7 @@ set       toc,title
      <input type="radio" name="sitesearch" value="" checked="1" id="ss0"/>
      <label for="ss0" title="Search the Web"><small>Web</small></label>
      <input type="radio" name="sitesearch" value="clisp.org" id="ss1"/>
-     <label for="ss1" title="Search clisp.org">
-      <small>clisp.org</small></label>
-     <input type="radio" name="sitesearch" value="clisp.podval.org" id="ss2"/>
-     <label for="ss2" title="Search clisp.podval.org">
-      <small>clisp.podval.org</small></label>
-     <input type="radio" name="sitesearch" value="www.lisp.org" id="ss3"/>
-     <label for="ss3" title="Search www.lisp.org">
-      <small>www.lisp.org</small></label>
+     <label for="ss1" title="Search clisp.org"><small>clisp.org</small></label>
      <input type="hidden" name="client" value="pub-4445255502750357"/>
      <input type="hidden" name="forid" value="1"/>
      <input type="hidden" name="ie" value="UTF-8"/>
