@@ -1,5 +1,13 @@
 2016-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation error of OBJECT_STRUCT mode with g++ versions < 4.7.
+	Fixes a regression introduced on 2016-08-28.
+	* lispbibl.d (designated_init): New macro.
+	(as_object, INIT_ALLOCSTAMP, gcv_object_t::operator object(), as_chart):
+	Use it.
+
+2016-11-09  Bruno Haible  <bruno@clisp.org>
+
 	Fix g++ warnings of type -Wc++0x-compat.
 	* eval.d (augment_decl_env): Rename local variable 'decltype'.
 	* control.d (PROCLAIM): Likewise.
@@ -7299,7 +7307,7 @@
 	* constobj_tl.d (dynamic_8bit_vector, dynamic_c_string): define as
 	per thread objects
 	* constobj.d (dynamic_8bit_vector, dynamic_c_string): remove from here
-	* lispbibi.d (DYNAMICIC_8BIT_VECTOR, FREE_DYNAMIC_8BIT_VECTOR): use
+	* lispbibl.d (DYNAMICIC_8BIT_VECTOR, FREE_DYNAMIC_8BIT_VECTOR): use
 	TLO() instead of O()
 	(DYNAMIC_STRING, FREE_DYNAMIC_STRING): use TLO() instead of O()
 	(LISPOBJ_TL): takes initstring parameter
