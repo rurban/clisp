@@ -1,5 +1,10 @@
 2016-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix gcc warning of type -Wformat.
+	* spvw.d (init_subr_tab_1): Cast fprintf argument to 'int'.
+
+2016-11-09  Bruno Haible  <bruno@clisp.org>
+
 	Fix gcc warnings of type -Wparentheses.
 	* spvw_language.d (init_language): Put braces.
 	* charstrg.d (nstring_invertcase, nstring_upcase, nstring_downcase):

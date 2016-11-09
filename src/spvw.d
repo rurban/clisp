@@ -1264,7 +1264,7 @@ local void init_subr_tab_1 (void) {
    But __attribute__((aligned(4))) is ignored for some GCC targets,
    so we check it here for safety. */
   if (alignof(subr_t) < 4) {
-    fprintf(stderr,"Alignment of SUBRs is %d. HEAPCODES requires it to be at least 4.\nRecompile CLISP with -DTYPECODES.\n",alignof(subr_t));
+    fprintf(stderr,"Alignment of SUBRs is %d. HEAPCODES requires it to be at least 4.\nRecompile CLISP with -DTYPECODES.\n",(int)alignof(subr_t));
     abort();
   }
  #endif
