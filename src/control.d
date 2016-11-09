@@ -2117,8 +2117,8 @@ LISPFUNN(proclaim,1)
     pushSTACK(S(proclaim));
     error(error_condition,GETTEXT("~S: bad declaration ~S"));
   }
-  var object decltype = Car(STACK_0/*declspec*/); /* declaration type */
-  if (eq(decltype,S(special))) { /* SPECIAL */
+  var object decltyp = Car(STACK_0/*declspec*/); /* declaration type */
+  if (eq(decltyp,S(special))) { /* SPECIAL */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol =
         check_symbol_not_symbol_macro(Car(STACK_0/*declspec*/));
@@ -2131,13 +2131,13 @@ LISPFUNN(proclaim,1)
          add_per_thread_special_var(symbol);
       #endif
     }
-  } else if (eq(decltype,S(notspecial))) { /* NOTSPECIAL */
+  } else if (eq(decltyp,S(notspecial))) { /* NOTSPECIAL */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_0/*declspec*/));
       if (!keywordp(symbol)) clear_const_flag(TheSymbol(symbol));
       clear_special_flag(TheSymbol(symbol));
     }
-  } else if (eq(decltype,S(declaration))) { /* DECLARATION */
+  } else if (eq(decltyp,S(declaration))) { /* DECLARATION */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
       pushSTACK(Car(STACK_0/*declspec*/)); pushSTACK(TheSubr(subr_self)->name);
       funcall(S(check_not_type),2);
@@ -2153,28 +2153,28 @@ LISPFUNN(proclaim,1)
         }
       }
     }
-  } else if (eq(decltype,S(inline)) || eq(decltype,S(notinline))) {
-    pushSTACK(decltype); /* INLINE, NOTINLINE */
+  } else if (eq(decltyp,S(inline)) || eq(decltyp,S(notinline))) {
+    pushSTACK(decltyp); /* INLINE, NOTINLINE */
     while (!endp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
       var object symbol = check_funname(source_program_error,S(proclaim),
                                         Car(STACK_1/*declspec*/));
-      /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltype)*/
+      /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltyp)*/
       pushSTACK(symbol); funcall(S(get_funname_symbol),1); pushSTACK(value1);
-      pushSTACK(S(inlinable)); pushSTACK(STACK_2)/*decltype*/;
+      pushSTACK(S(inlinable)); pushSTACK(STACK_2)/*decltyp*/;
       funcall(L(put),3);
     }
-    skipSTACK(1); /*decltype*/
-  } else if (eq(decltype,S(constant_inline))
-             || eq(decltype,S(constant_notinline))) {
-    pushSTACK(decltype); /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
+    skipSTACK(1); /*decltyp*/
+  } else if (eq(decltyp,S(constant_inline))
+             || eq(decltyp,S(constant_notinline))) {
+    pushSTACK(decltyp); /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
     while (!endp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
       var object symbol = check_symbol(Car(STACK_1/*declspec*/));
-      /* (SYS::%PUT symbol 'SYS::CONSTANT-INLINABLE decltype) : */
+      /* (SYS::%PUT symbol 'SYS::CONSTANT-INLINABLE decltyp) : */
       pushSTACK(symbol); pushSTACK(S(constant_inlinable));
-      pushSTACK(STACK_2)/*decltype*/; funcall(L(put),3);
+      pushSTACK(STACK_2)/*decltyp*/; funcall(L(put),3);
     }
-    skipSTACK(1); /*decltype*/
-  } else if (eq(decltype,S(optimize))) {
+    skipSTACK(1); /*decltyp*/
+  } else if (eq(decltyp,S(optimize))) {
     pushSTACK(Cdr(STACK_0)); funcall(S(note_optimize),1);
   } else {                /* check that the declspec is a proper list */
     pushSTACK(STACK_0/*declspec*/); funcall(L(list_length_proper),1);
