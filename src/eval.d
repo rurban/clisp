@@ -1375,17 +1375,17 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
  can trigger GC */
 global maygc object augment_decl_env (object new_declspec, object env)
 {
-  var object decltype = Car(new_declspec); /* Declaration-Type */
+  var object decltyp = Car(new_declspec); /* Declaration-Type */
   /* Is this a declaration type to be payed attention to?
-   Is there a Decl-Spec of the form (DECLARATION ... decltype ...) in env?
+   Is there a Decl-Spec of the form (DECLARATION ... decltyp ...) in env?
    Aside: The List O(declaration_types) is the last Decl-Spec in env. */
-  if (symbolp(decltype)) {
+  if (symbolp(decltyp)) {
     /* loop over all local to be respected Declaration-Types: */
     var object declspecs = env;
     while (consp(declspecs)) {  /* loop over all declspecs from env */
       var object declspec = Car(declspecs);
       if (eq(Car(declspec),S(declaration)) /* (DECLARATION ...) ? */
-          && !nullp(memq(decltype,Cdr(declspec))))
+          && !nullp(memq(decltyp,Cdr(declspec))))
         goto note_declspec;
       declspecs = Cdr(declspecs);
     }
