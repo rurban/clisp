@@ -203,15 +203,19 @@ modexp uint32 I_to_UL (object obj)
    case_posbignum: { /* bignum >0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-   #define IF_LENGTH(i)  \
-    if (bn_minlength <= i) /* exactly i digits possible at all? */      \
-      if (len == i) /* exactly i digits? */                             \
-        /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */            \
-        if ( (i*intDsize-1 > 32)                                        \
-             && ( ((i-1)*intDsize-1 >= 32)                              \
-                  || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize))))  \
-          goto bad;                                                     \
-        else
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wparentheses"
+    #endif
+    #define IF_LENGTH(i)                                                 \
+      if (bn_minlength <= i) /* exactly i digits possible at all? */     \
+        if (len == i) /* exactly i digits? */                            \
+          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */           \
+          if ( (i*intDsize-1 > 32)                                       \
+               && ( ((i-1)*intDsize-1 >= 32)                             \
+                    || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize)))) \
+            goto bad;                                                    \
+          else
     IF_LENGTH(1)
       return get_uint1D_Dptr(bn->data);
     IF_LENGTH(2)
@@ -222,8 +226,11 @@ modexp uint32 I_to_UL (object obj)
       return get_uint4D_Dptr(bn->data);
     IF_LENGTH(5)
       return get_uint4D_Dptr(&bn->data[1]);
-   #undef IF_LENGTH
-    }
+    #undef IF_LENGTH
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic pop
+    #endif
+   }
    default:
    bad: /* unsuitable object */
      pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -268,14 +275,18 @@ modexp sint32 I_to_L (object obj)
    case_posbignum: { /* bignum >0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-    #define IF_LENGTH(i)                                                  \
-      if (bn_minlength <= i) /* exactly i digits possible at all? */      \
-        if (len == i) /* exactly i digits? */                             \
-          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */            \
-          if ( (i*intDsize > 32)                                          \
-               && ( ((i-1)*intDsize >= 32)                                \
-                    || (bn->data[0] >= (uintD)bitc(31-(i-1)*intDsize))))  \
-            goto bad;                                                     \
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wparentheses"
+    #endif
+    #define IF_LENGTH(i)                                                 \
+      if (bn_minlength <= i) /* exactly i digits possible at all? */     \
+        if (len == i) /* exactly i digits? */                            \
+          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */           \
+          if ( (i*intDsize > 32)                                         \
+               && ( ((i-1)*intDsize >= 32)                               \
+                    || (bn->data[0] >= (uintD)bitc(31-(i-1)*intDsize)))) \
+            goto bad;                                                    \
           else
     IF_LENGTH(1)
       return get_uint1D_Dptr(bn->data);
@@ -286,6 +297,9 @@ modexp sint32 I_to_L (object obj)
     IF_LENGTH(4)
       return get_uint4D_Dptr(bn->data);
     #undef IF_LENGTH
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic pop
+    #endif
     goto bad;
    }
    case_negfixnum: { /* fixnum <0 */
@@ -300,14 +314,18 @@ modexp sint32 I_to_L (object obj)
    case_negbignum: { /* bignum <0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-    #define IF_LENGTH(i)                                                  \
-      if (bn_minlength <= i) /* exactly i digits possible at all? */      \
-        if (len == i) /* exactly i digits? */                             \
-          /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */        \
-          if ( (i*intDsize > 32)                                          \
-               && ( ((i-1)*intDsize >= 32)                                \
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wparentheses"
+    #endif
+    #define IF_LENGTH(i)                                                   \
+      if (bn_minlength <= i) /* exactly i digits possible at all? */       \
+        if (len == i) /* exactly i digits? */                              \
+          /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */         \
+          if ( (i*intDsize > 32)                                           \
+               && ( ((i-1)*intDsize >= 32)                                 \
                     || (bn->data[0] < (uintD)(-bitc(31-(i-1)*intDsize))))) \
-            goto bad;                                                     \
+            goto bad;                                                      \
           else
     IF_LENGTH(1)
       return get_sint1D_Dptr(bn->data);
@@ -318,6 +336,9 @@ modexp sint32 I_to_L (object obj)
     IF_LENGTH(4)
       return get_sint4D_Dptr(bn->data);
     #undef IF_LENGTH
+    #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+    #pragma GCC diagnostic pop
+    #endif
     goto bad;
    }
    default:
@@ -353,14 +374,18 @@ modexp uint64 I_to_UQ (object obj)
    case_posbignum: { /* bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
-      #define IF_LENGTH(i)                                                \
-        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-          if (len == i) /* exactly i digits? */                           \
-            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
-            if ( (i*intDsize-1 > 64)                                      \
-                 && ( ((i-1)*intDsize-1 >= 64)                            \
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wparentheses"
+      #endif
+      #define IF_LENGTH(i)                                                 \
+       if (bn_minlength <= i) /* exactly i digits possible at all? */      \
+          if (len == i) /* exactly i digits? */                            \
+            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */           \
+            if ( (i*intDsize-1 > 64)                                       \
+                 && ( ((i-1)*intDsize-1 >= 64)                             \
                       || (bn->data[0] >= (uintD)bitc(64-(i-1)*intDsize)))) \
-              goto bad;                                                   \
+              goto bad;                                                    \
             else
      #if (intDsize==32)
       IF_LENGTH(1)
@@ -403,6 +428,9 @@ modexp uint64 I_to_UQ (object obj)
         return ((uint64)get_uint4D_Dptr(&bn->data[1]) << 32) | (uint64)get_uint4D_Dptr(&bn->data[5]);
      #endif
       #undef IF_LENGTH
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic pop
+      #endif
     }
     default:
     bad: /* unsuitable object */
@@ -445,14 +473,18 @@ modexp sint64 I_to_Q (object obj)
    case_posbignum: { /* Bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wparentheses"
+      #endif
       #define IF_LENGTH(i)  \
-        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-          if (len == i) /* exaclty i digits? */                           \
-            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
-            if ( (i*intDsize > 64)                                        \
-                 && ( ((i-1)*intDsize >= 64)                              \
+        if (bn_minlength <= i) /* exactly i digits possible at all? */     \
+          if (len == i) /* exaclty i digits? */                            \
+            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */           \
+            if ( (i*intDsize > 64)                                         \
+                 && ( ((i-1)*intDsize >= 64)                               \
                       || (bn->data[0] >= (uintD)bitc(63-(i-1)*intDsize)))) \
-              goto bad;                                                   \
+              goto bad;                                                    \
             else
      #if (intDsize==32)
       IF_LENGTH(1)
@@ -489,6 +521,9 @@ modexp sint64 I_to_Q (object obj)
         return ((uint64)get_uint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
      #endif
       #undef IF_LENGTH
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic pop
+      #endif
       goto bad;
     }
    case_negfixnum: /* Fixnum <0 */
@@ -496,14 +531,18 @@ modexp sint64 I_to_Q (object obj)
    case_negbignum: { /* Bignum <0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wparentheses"
+      #endif
       #define IF_LENGTH(i)  \
-        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-          if (len == i) /* exactly i digits? */                           \
-            /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */      \
-            if ( (i*intDsize > 64)                                        \
-                 && ( ((i-1)*intDsize >= 64)                              \
+        if (bn_minlength <= i) /* exactly i digits possible at all? */       \
+          if (len == i) /* exactly i digits? */                              \
+            /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */         \
+            if ( (i*intDsize > 64)                                           \
+                 && ( ((i-1)*intDsize >= 64)                                 \
                       || (bn->data[0] < (uintD)(-bitc(63-(i-1)*intDsize))))) \
-              goto bad;                                                   \
+              goto bad;                                                      \
             else
      #if (intDsize==32)
       IF_LENGTH(1)
@@ -540,6 +579,9 @@ modexp sint64 I_to_Q (object obj)
         return ((sint64)get_sint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
      #endif
       #undef IF_LENGTH
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic pop
+      #endif
       goto bad;
     }
     default:

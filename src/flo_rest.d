@@ -1138,42 +1138,56 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
     udelta = posfixnum_to_V(delta); goto pos;
     case_posbignum: { /* Bignum >0 */
       var Bignum bn = TheBignum(delta);
-     #define IF_LENGTH(i)                                               \
-      if (bn_minlength <= i) /* are exactly i digits possible at all? */ \
-        if (bignum_length(bn) == i) /* exactly i digits? */             \
-          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
-          if ( (i*intDsize-1 > 32)                                      \
-               && ( ((i-1)*intDsize-1 >= 32)                            \
-                    || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize)))) \
-            goto overflow;                                              \
-          else
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wparentheses"
+      #endif
+      #define IF_LENGTH(i)                                                 \
+        if (bn_minlength <= i) /* are exactly i digits possible at all? */ \
+          if (bignum_length(bn) == i) /* exactly i digits? */              \
+            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */           \
+            if ( (i*intDsize-1 > 32)                                       \
+                 && ( ((i-1)*intDsize-1 >= 32)                             \
+                      || (bn->data[0] >= (uintD)bitc(32-(i-1)*intDsize)))) \
+              goto overflow;                                               \
+            else
       IF_LENGTH(1) { udelta = get_uint1D_Dptr(bn->data); goto pos; }
       IF_LENGTH(2) { udelta = get_uint2D_Dptr(bn->data); goto pos; }
       IF_LENGTH(3) { udelta = get_uint3D_Dptr(bn->data); goto pos; }
       IF_LENGTH(4) { udelta = get_uint4D_Dptr(bn->data); goto pos; }
       IF_LENGTH(5) { udelta = get_uint4D_Dptr(&bn->data[1]); goto pos; }
-     #undef IF_LENGTH
+      #undef IF_LENGTH
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic pop
+      #endif
     }
     goto overflow; /* delta too large */
     case_negfixnum: /* Fixnum <0 */
     udelta = negfixnum_to_V(delta); goto neg;
     case_negbignum: { /* Bignum <0 */
       var Bignum bn = TheBignum(delta);
-     #define IF_LENGTH(i)                                               \
-      if (bn_minlength <= i) /* are exactly i digits possible at all? */ \
-        if (bignum_length(bn) == i) /* exactly i digits? */             \
-          /* - 2^((i-1)*intDsize-1) > obj >= - 2^(i*intDsize-1) */      \
-          if ( (i*intDsize-1 > 32)                                      \
-               && ( ((i-1)*intDsize-1 >= 32)                            \
-                    || (bn->data[0] < (uintD)(-bitc(32-(i-1)*intDsize))))) \
-            goto underflow;                                             \
-          else
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wparentheses"
+      #endif
+      #define IF_LENGTH(i)                                                   \
+        if (bn_minlength <= i) /* are exactly i digits possible at all? */   \
+          if (bignum_length(bn) == i) /* exactly i digits? */                \
+            /* - 2^((i-1)*intDsize-1) > obj >= - 2^(i*intDsize-1) */         \
+            if ( (i*intDsize-1 > 32)                                         \
+                 && ( ((i-1)*intDsize-1 >= 32)                               \
+                      || (bn->data[0] < (uintD)(-bitc(32-(i-1)*intDsize))))) \
+              goto underflow;                                                \
+            else
       IF_LENGTH(1) { udelta = get_sint1D_Dptr(bn->data); goto neg; }
       IF_LENGTH(2) { udelta = get_sint2D_Dptr(bn->data); goto neg; }
       IF_LENGTH(3) { udelta = get_sint3D_Dptr(bn->data); goto neg; }
       IF_LENGTH(4) { udelta = get_sint4D_Dptr(bn->data); goto neg; }
       IF_LENGTH(5) { udelta = get_sint4D_Dptr(&bn->data[1]); goto neg; }
-     #undef IF_LENGTH
+      #undef IF_LENGTH
+      #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
+      #pragma GCC diagnostic pop
+      #endif
     }
     goto underflow; /* delta too small */
     pos: /* udelta = delta >=0 */

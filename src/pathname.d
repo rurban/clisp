@@ -7124,7 +7124,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
              since it is an expensive operation (it calls stat()). */
           if (TASK_DIR_P(next_task)) {
             /* match (car subdir-list) with direntry: */
-            if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+            if (wildcard_match(Car(STACK_(1+4+3)),STACK_0)) {
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (S_ISDIR(status.st_mode))
                   goto push_matching_subdir;
@@ -7137,8 +7137,9 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
+            }
           } else if (TASK_FILE_P(next_task)) { /* match name&type with direntry: */
-            if (wildcard_match(STACK_(2+4+3),STACK_0))
+            if (wildcard_match(STACK_(2+4+3),STACK_0)) {
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (!S_ISDIR(status.st_mode))
                   goto push_matching_file;
@@ -7151,6 +7152,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
+            }
           }
           goto done_direntry;
         }
@@ -8466,8 +8468,7 @@ local maygc bool init_launch_streamarg
   var int handletype = 0;
   *h = INVALID_HANDLE;
   *ph = INVALID_HANDLE;
-  if (boundp(*streamarg) && eq(*streamarg,S(Kterminal))
-      || !boundp(*streamarg))
+  if (!boundp(*streamarg) || eq(*streamarg,S(Kterminal)))
     *h = handle_dup(stdhandle);
   else if (nullp(*streamarg)) {
     if (*hnull == INVALID_HANDLE)

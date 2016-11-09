@@ -2041,7 +2041,7 @@ global bool string_eq_inverted (object string1, object string2) {
  can trigger GC */
 local maygc void nstring_invertcase (object dv, uintL offset, uintL len) {
   restart_it:
-  if (len > 0)
+  if (len > 0) {
     SstringCase(dv,{
       do {
         var chart ch = invert_case(as_chart(TheS8string(dv)->data[offset]));
@@ -2083,6 +2083,7 @@ local maygc void nstring_invertcase (object dv, uintL offset, uintL len) {
     },{
       error_nilarray_retrieve();
     });
+  }
 }
 
 /* UP: converts a string to opposite case
@@ -3269,7 +3270,7 @@ LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
  can trigger GC */
 global maygc void nstring_upcase (object dv, uintL offset, uintL len) {
  restart_it:
-  if (len > 0)
+  if (len > 0) {
     SstringCase(dv,{
       do {
         dv = sstring_store(dv,offset,up_case(as_chart(TheS8string(dv)->data[offset])));
@@ -3297,6 +3298,7 @@ global maygc void nstring_upcase (object dv, uintL offset, uintL len) {
     },{
       error_nilarray_retrieve();
     });
+  }
 }
 
 /* UP: converts a string into uppercase letters
@@ -3343,7 +3345,7 @@ LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
  can trigger GC */
 global maygc void nstring_downcase (object dv, uintL offset, uintL len) {
  restart_it:
-  if (len > 0)
+  if (len > 0) {
     SstringCase(dv,{
       do {
         dv = sstring_store(dv,offset,down_case(as_chart(TheS8string(dv)->data[offset])));
@@ -3371,6 +3373,7 @@ global maygc void nstring_downcase (object dv, uintL offset, uintL len) {
     },{
       error_nilarray_retrieve();
     });
+  }
 }
 
 /* UP: converts a string into lowercase letters
