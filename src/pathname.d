@@ -6945,7 +6945,7 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
   value1 = condition;
   unwind_upto(frame);
 }
-local maygc object direntry_to_string (char* string, int len) {
+local maygc object direntry_to_string (char* string, volatile int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
   if (len == -1) len = asciz_length(string);
 #ifdef ENABLE_UNICODE
