@@ -139,10 +139,12 @@ global void init_language
       case language_danish:  locale1 = "da_DK"; locale2 = "da_DK.utf8"; break;
       default:               MY_NOTREACHED;
     }
-    if (getenv("LANGUAGE") && unsetenv("LANGUAGE"))
+    if (getenv("LANGUAGE") && unsetenv("LANGUAGE")) {
       ANSIC_ERROR("unsetenv","LANGUAGE");
-    if (getenv("LC_ALL") && unsetenv("LC_ALL"))
+    }
+    if (getenv("LC_ALL") && unsetenv("LC_ALL")) {
       ANSIC_ERROR("unsetenv","LC_ALL");
+    }
     if (NULL == setlocale(LC_MESSAGES,locale2)) {
       if (NULL == setlocale(LC_MESSAGES,locale1)) {
         if (lisp_error_p) {
@@ -154,14 +156,20 @@ global void init_language
           fprintf(stderr,GETTEXT("locales %s and %s are not installed on this system\n"),locale1,locale2);
           goto init_language_failure;
         }
-      } else if (setenv("LC_MESSAGES",locale1,1))
+      } else if (setenv("LC_MESSAGES",locale1,1)) {
         ANSIC_ERROR("setenv/LC_MESSAGES",locale1);
-    } else if (setenv("LC_MESSAGES",locale2,1))
+      }
+    } else if (setenv("LC_MESSAGES",locale2,1)) {
       ANSIC_ERROR("setenv/LC_MESSAGES",locale2);
+    }
     { /* Invalidate the gettext internal caches. */
       char *td = textdomain(NULL);
-      if (NULL == td) ANSIC_ERROR("textdomain",NULL);
-      if (NULL == textdomain(td)) ANSIC_ERROR("textdomain",td);
+      if (NULL == td) {
+        ANSIC_ERROR("textdomain",NULL);
+      }
+      if (NULL == textdomain(td)) {
+        ANSIC_ERROR("textdomain",td);
+      }
     }
   } else if (lisp_error_p) {
     pushSTACK(ascii_to_string(argv_language));
@@ -201,15 +209,18 @@ global void init_language
         }
         MY_NOTREACHED;
       case FILE_KIND_DIR:
-        if (NULL == bindtextdomain("clisp",truename))
+        if (NULL == bindtextdomain("clisp",truename)) {
           ANSIC_ERROR("bindtextdomain/clisp",truename);
-        if (NULL == bindtextdomain("clisplow",truename))
+        }
+        if (NULL == bindtextdomain("clisplow",truename)) {
           ANSIC_ERROR("bindtextdomain/clisplow",truename);
+        }
     }
   }
  #ifdef ENABLE_UNICODE
-  if (NULL == bind_textdomain_codeset("clisp","UTF-8"))
+  if (NULL == bind_textdomain_codeset("clisp","UTF-8")) {
     ANSIC_ERROR("bind_textdomain_codeset","UTF-8");
+  }
  #endif
   return;
  init_language_failure:

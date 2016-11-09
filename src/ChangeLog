@@ -1,5 +1,15 @@
 2016-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix gcc warnings of type -Wparentheses.
+	* spvw_language.d (init_language): Put braces.
+	* charstrg.d (nstring_invertcase, nstring_upcase, nstring_downcase):
+	Likewise.
+	* pathname.d (directory_search_scandir): Likewise.
+	(init_launch_streamarg): Simplify boolean expression.
+	* intelem.d, flo_rest.d: Use #pragma GCC diagnostic.
+
+2016-11-09  Bruno Haible  <bruno@clisp.org>
+
 	Fix a relevant gcc warning of type -Wclobbered.
 	* pathname.d (direntry_to_string): Use 'volatile' to disallow a
 	dangerous compiler optimization.
