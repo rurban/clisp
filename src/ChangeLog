@@ -1,3 +1,9 @@
+2016-11-09  Bruno Haible  <bruno@clisp.org>
+
+	Fix compilation error introduced on 2007-11-26.
+	* spvw_allocate.d (error_speicher_voll): Rename to
+	error_memory_exhausted and handle_memory_exhausted, respectively.
+
 2016-09-04  Sam Steingold  <sds@gnu.org>
 
 	* utils/fix-perms.sh (root): replace obsolete "-perm +111" with
@@ -13064,7 +13070,7 @@
 	* io.d: rename fehler_dispatch_zahl to error_dispatch_number,
 	fehler_eof_aussen to error_eof_outside,
 	fehler_eof_innen to error_eof_inside
-	* spvw_allocate.d: fehler_speicher_voll to error_memory_full
+	* spvw_allocate.d: fehler_speicher_voll to error_speicher_voll
 	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
 	* modules/syscalls/calls.c, utils/modprep.lisp:
 	* affi.d, aridecl.d, array.d, charstrg.d, control.d, debug.d:

@@ -77,7 +77,7 @@ local void* mymalloc (uintM need);
 /* -------------------------- Implementation --------------------------- */
 
 /* error-message because of full memory */
-local _Noreturn void error_speicher_voll (void) {
+local _Noreturn void error_memory_exhausted (void) {
   dynamic_bind(S(use_clcs),NIL); /* bind SYS::*USE-CLCS* to NIL */
   if (posfixnump(Symbol_value(S(gc_statistics_star)))) {
     /* bind SYS::*GC-STATISTICS* to 0 */
@@ -89,7 +89,7 @@ local _Noreturn void error_speicher_voll (void) {
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 
 /* emergency measure, when memory is full: tap the reserve and error-message. */
-local _Noreturn void error_speicher_voll (void) {
+local _Noreturn void handle_memory_exhausted (void) {
   /* Abhilfe: Reservespeicher wird halbiert. */
   var uintL reserve = mem.MEMTOP - mem.MEMRES; /* noch freie Reserve */
   if (reserve>=8) { /* reserve memory also full? */
@@ -97,7 +97,7 @@ local _Noreturn void error_speicher_voll (void) {
        half reserve */
     move_conses(round_down(floor(reserve,2),varobject_alignment));
     /* halved reserve, aligned: shift up the conses by that amount */
-    error_speicher_voll();
+    error_memory_exhausted();
   } else { /* yes -> hard error-message */
     fputc('\n',stderr);
     fputs(GETTEXTL("*** - " "No more room for LISP objects: RESET"),stderr);
@@ -129,7 +129,7 @@ local void relax_reserve (uintM need)
 
 #else
 
-#define error_speicher_voll()  error_speicher_voll()
+#define handle_memory_exhausted()  error_memory_exhausted()
 #define relax_reserve(need)
 
 #endif
@@ -234,7 +234,7 @@ local void make_space_gc (uintM need)
       PERFORM_GC(gar_col(0),false); goto doing_gc;
     } else
     #endif
-      { error_speicher_voll(); }
+      { handle_memory_exhausted(); }
   } else {
     /* Now, there is enough room. Maybe even enough, to enlarge
        the reserve memory to normal size? */
@@ -322,7 +322,7 @@ local void make_space_gc_true (uintM need, Heap* heapptr)
       PERFORM_GC(gar_col(0),false); goto doing_gc;
     }
    #endif
-    error_speicher_voll();
+    handle_memory_exhausted();
    sufficient:
     heapptr->heap_limit = needed_limit;
   }
@@ -382,7 +382,7 @@ local void make_space_gc_false (uintM need, Heap* heapptr)
       PERFORM_GC(gar_col(0),false); goto doing_gc;
     }
    #endif
-    error_speicher_voll();
+    handle_memory_exhausted();
    sufficient:
     heapptr->heap_limit = needed_limit;
   }
@@ -464,7 +464,7 @@ local void make_space_gc (uintM need, Heap* heapptr)
       PERFORM_GC(gar_col(0),false); goto doing_gc;
     }
    #endif
-    error_speicher_voll();
+    error_memory_exhausted();
    sufficient:
     heapptr->heap_limit = needed_limit;
   }
@@ -595,7 +595,7 @@ local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_
     if (page==EMPTY) {
       /* now try it at the operating system, after all: */
       make_space_using_malloc();
-      error_speicher_voll();
+      error_memory_exhausted();
     }
   }
   /* treat .reserve?? */
