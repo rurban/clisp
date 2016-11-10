@@ -1535,12 +1535,17 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   /* execute division zaehler/nenner : */
   I_I_divide_I_I(zaehler,nenner);
   /* stack layout: q, r. */
+ #ifdef intQsize
+  #if (oint_data_len >= DF_mant_len+3)
+  var uint64 mant = posfixnum_to_V(STACK_1);
+  #endif
+  #if (oint_data_len <= DF_mant_len+1)
   /* 2^53 <= q < 2^55, hence q is bignum with ceiling(55/intDsize) digits. */
   var uintD* ptr = &TheBignum(STACK_1)->data[0];
- #ifdef intQsize
   var uint64 mant =
     ((uint64)get_max32_Dptr(23,ptr) << 32)
     | (uint64)get_32_Dptr(&ptr[ceiling(23,intDsize)]);
+  #endif
   if (mant >= bit(DF_mant_len+2)) {
     /* 2^54 <= q < 2^55, shift by 2 bits to the right */
     var uint64 rounding_bits = mant & (bit(2)-1);
@@ -1575,8 +1580,16 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   /* done. */
   encode_DF(sign,lendiff,mant, return);
  #else
+  #if (oint_data_len >= DF_mant_len+3)
+  var uint32 manthi = posfixnum_to_V(STACK_1) >> 32;
+  var uint32 mantlo = (uint32)posfixnum_to_V(STACK_1);
+  #endif
+  #if (oint_data_len <= DF_mant_len+1)
+  /* 2^53 <= q < 2^55, hence q is bignum with ceiling(55/intDsize) digits. */
+  var uintD* ptr = &TheBignum(STACK_1)->data[0];
   var uint32 manthi = get_max32_Dptr(23,ptr);
   var uint32 mantlo = get_32_Dptr(&ptr[ceiling(23,intDsize)]);
+  #endif
   if (manthi >= bit(DF_mant_len-32+2)) {
     /* 2^54 <= q < 2^55, shift by 2 bits to the right */
     var uintL rounding_bits = mantlo & (bit(2)-1);
