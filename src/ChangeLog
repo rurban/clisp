@@ -1,5 +1,13 @@
 2016-11-10  Bruno Haible  <bruno@clisp.org>
 
+	Prepare for GENERIC64_HEAPCODES object model.
+	* lispbibl.d (immediate_number_p, charp, small_read_label_p, systemp,
+	if_realp, if_rationalp, integerp, fixnump, posfixnump, floatp,
+	short_float_p) [!TYPECODES]: Include nonimmediate_bias_mask in the
+	bit mask.
+
+2016-11-10  Bruno Haible  <bruno@clisp.org>
+
 	Support for memory models with oint_data_len >= 55.
 	* dfloat.d (RA_to_DF): Add code for oint_data_len >= 55.
 

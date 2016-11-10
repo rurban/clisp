@@ -7390,7 +7390,7 @@ typedef struct {
   #endif
 #else
   #define immediate_number_p(obj)  \
-    ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == (fixnum_type&sfloat_type))
+    ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == (fixnum_type&sfloat_type))
   #define numberp(obj)  \
     (immediate_number_p(obj) \
      || (varobjectp(obj)     \
@@ -7847,7 +7847,7 @@ typedef struct {
 #ifdef TYPECODES
   #define charp(obj)  (typecode(obj)==char_type)
 #else
-  #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
+  #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == char_type)
 #endif
 %% export_def(charp(obj));
 
@@ -7906,10 +7906,10 @@ typedef struct {
   #endif
 
   /* Test for Small-Read-Label */
-  #define small_read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == small_read_label_type)
+  #define small_read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == small_read_label_type)
 
   /* Test for System-Pointer */
-  #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == system_type)
+  #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == system_type)
 
 #endif
 
@@ -7925,7 +7925,7 @@ typedef struct {
     } while(0)
 #else
   #define if_realp(obj,statement1,statement2)                           \
-    do { if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) \
+    do { if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) \
               == fixnum_type)                                           \
              || (varobjectp(obj)                                        \
                  && ((uintB)(Record_type(obj)-Rectype_Bignum) <=        \
@@ -7949,7 +7949,7 @@ typedef struct {
     } while(0)
 #else
   #define if_rationalp(obj,statement1,statement2)                        \
-    do { if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias))  \
+    do { if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask))  \
               == fixnum_type)                                            \
              || (varobjectp(obj)                                         \
                  && ((Record_type(obj) == Rectype_Bignum)                \
@@ -7967,7 +7967,7 @@ typedef struct {
      ) == (fixnum_type&bignum_type))
 #else
   #define integerp(obj)  \
-   (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
+   (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type) \
     || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)))
 #endif
 %% export_def(integerp(obj));
@@ -7976,7 +7976,7 @@ typedef struct {
 #ifdef TYPECODES
   #define fixnump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == fixnum_type)
 #else
-  #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type)
+  #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type)
 #endif
 %% export_def(fixnump(obj));
 
@@ -7984,7 +7984,7 @@ typedef struct {
 #ifdef TYPECODES
   #define posfixnump(obj)  (typecode(obj) == fixnum_type)
 #else
-  #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == fixnum_type)
+  #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type)
 #endif
 %% export_def(posfixnump(obj));
 
@@ -8026,7 +8026,7 @@ typedef struct {
      ) == (sfloat_type&ffloat_type&dfloat_type&lfloat_type))
 #else
   #define floatp(obj)  \
-    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type) \
+    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == sfloat_type) \
      || (varobjectp(obj)                    \
          && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat)))
 #endif
@@ -8038,7 +8038,7 @@ typedef struct {
 #ifdef TYPECODES
   #define short_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == sfloat_type)
 #else
-  #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type)
+  #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == sfloat_type)
 #endif
 %% #if notused
 %%   export_def(short_float_p(obj));
