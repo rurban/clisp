@@ -1,3 +1,8 @@
+2016-11-10  Bruno Haible  <bruno@clisp.org>
+
+	Support for memory models with oint_data_len >= 55.
+	* dfloat.d (RA_to_DF): Add code for oint_data_len >= 55.
+
 2016-11-09  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation error of OBJECT_STRUCT mode with g++ versions < 4.7.
