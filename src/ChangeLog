@@ -1,5 +1,16 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Make GENERIC64A_HEAPCODES work again after the type predicates change
+	from 2016-11-10.
+	* lispbibl.d (immediate_bias_mask) [HEAPCODES]: Define.
+	(immediate_object_p) [HEAPCODES]: Define using immediate_bias_mask.
+	(immediate_number_p, charp, small_read_label_p, systemp, if_realp,
+	if_rationalp, integerp, fixnump, posfixnump, floatp, short_float_p)
+	[HEAPCODES]: Use immediate_bias_mask instead of
+	immediate_bias | nonimmediate_bias_mask.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error of DEBUG_BACKTRACE feature with C++ compiler.
 	Fixes a regression introduced on 2008-01-09.
 	* debug.d (print_bt_to_frame): Change type of bt_ parameter.
