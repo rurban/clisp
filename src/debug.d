@@ -1170,7 +1170,7 @@ local maygc void print_back_trace (const gcv_object_t* stream_,
  can trigger GC */
 local maygc void print_bt_to_frame (const gcv_object_t* stream_,
                                     const gcv_object_t* FRAME,
-                                    const struct backtrace_t* *bt_,
+                                    p_backtrace_t *bt_,
                                     uintL *index) {
   while (bt_beyond_stack_p(*bt_,FRAME)) {
     print_back_trace(stream_,*bt_,++(*index));
