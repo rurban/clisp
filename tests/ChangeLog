@@ -1,3 +1,9 @@
+2016-11-10  Bruno Haible  <bruno@clisp.org>
+
+	Update expected test results for memory model GENERIC64_HEAPCODES.
+	* alltest.tst: Update tests of most-positive-fixnum and
+	most-negative-fixnum.
+
 2016-08-29  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: test (compile-file-pathname LOGICAL PHYSICAL) (bug#677)
