@@ -1,5 +1,16 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Make GENERIC64{A,B}_HEAPCODES work with -falign-functions=4.
+	* lispbibl.d (machinep) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]:
+	Define in such a way that machine pointers only need to be aligned
+	mod 4.
+	(C_CODE_ALIGNMENT) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]: Don't
+	redefine to 8.
+	(LINUX_NOEXEC_HEAPCODES, GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES):
+	Update comments.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix weird errors when rebuilding 'base' after having changed CFLAGS.
 	* makemake.in (clean1): Remove also the .o files in the BASE_MODULES.
 
