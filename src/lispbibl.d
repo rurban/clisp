@@ -3588,6 +3588,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
     #endif /* GENERIC64C_HEAPCODES */
 
+    /* An alignment of 8 bytes is also necessary for the C functions.
+     When using gcc, this may require adding -falign-functions=8 to the CFLAGS. */
+      #if C_CODE_ALIGNMENT < 8
+        #undef C_CODE_ALIGNMENT
+        #undef log2_C_CODE_ALIGNMENT
+        #define C_CODE_ALIGNMENT  8
+        #define log2_C_CODE_ALIGNMENT  3
+      #endif
+
     /* The types of immediate objects. */
       #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
       #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
