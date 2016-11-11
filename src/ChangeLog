@@ -1,5 +1,11 @@
 2016-11-10  Bruno Haible  <bruno@clisp.org>
 
+	Remind user to use -falign-functions=8 with GENERIC64_HEAPCODES.
+	* lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT):
+	For GENERIC64_HEAPCODES, require that the alignment is at least 8.
+
+2016-11-10  Bruno Haible  <bruno@clisp.org>
+
 	New memory model GENERIC64_HEAPCODES, for 64-bit machines.
 	* lispbibl.d (GENERIC64_HEAPCODES): Define if GENERIC64A_HEAPCODES or
 	GENERIC64B_HEAPCODES or GENERIC64C_HEAPCODES is defined.
