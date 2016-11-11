@@ -234,7 +234,7 @@ jit_bnei_p(ref66,reg,0);\
     #define jitc_get_framecoder()\
         jit_andi_ui(JIT_R0,JIT_R2,minus_wbit(FB1));
 #endif
-#ifdef LINUX_NOEXEC_HEAPCODES
+#if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
     /* jitc_getsize_framer(): */
     /* > &bottomword: Address of bottomword */
     #define jitc_getsize_framer()\
