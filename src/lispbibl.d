@@ -2557,8 +2557,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        Assumes 1. that the virtual memory addresses end at 0xC000000000000000,
        or at least that we can put a black hole on the range
        0xC000000000000000..0xDFFFFFFFFFFFFFFF,
-       2. an 8-byte alignment for symbol_tab, subr_tab, and more generally
-       any pointer in memory.
+       2. an 8-byte alignment for symbol_tab, subr_tab,
+       3. a 4-byte alignment for any pointer in memory.
        Only bit 0 or 1 or 2 can be used as GC-bit. */
       #define oint_type_shift 0
       #define oint_type_len 64
@@ -2570,9 +2570,11 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #endif /* GENERIC64A_HEAPCODES */
     #ifdef GENERIC64B_HEAPCODES
       /* The generic 64-bit case, variant B.
-       Assumes nothing about the virtual memory addresses.
-       But assumes an 8-byte alignment for symbol_tab, subr_tab, and more
-       generally any pointer in memory.
+       Assumes 1. that the virtual memory addresses end at 0xC000000000000000,
+       or at least that we can put a black hole on the range
+       0xC000000000000000..0xDFFFFFFFFFFFFFFF,
+       2. an 8-byte alignment for symbol_tab, subr_tab,
+       3. a 4-byte alignment for any pointer in memory.
        Only bit 0 or 1 or 2 can be used as GC-bit. */
       #define oint_type_shift 0
       #define oint_type_len 64
@@ -3376,8 +3378,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* We must assume a general alignment of 4 bytes and an enforced alignment
      of 8 bytes for Lisp objects, and thus have the low 2 to 3 bits for
      encoding heap and the garcol_bit. Here's how we divide the address space:
-       machine, frame_pointer  1/4 * 3/4
-       immediate               1/4 * 1/4
+       machine, frame_pointer  1/4 * 7/8
+       immediate               1/4 * 1/8
        cons                    1/8
        varobject               1/8
      Note that cons and varobject cannot have the same encoding mod 8
@@ -3385,15 +3387,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      Immediates look like pointers in the range 0xC0000000..0xFFFFFFFF.
      We know that the Linux kernel never assigns virtual memory in this area.
      So, here are the encodings. Bit 0 is used as the garcol_bit.
-       machine                ... ... .00   encodes pointers, offset 0
-       cons                   ... ... 010   offset 2, the pointers are == 0 mod 8
-       varobject              ... ... 110   offset 6, the pointers are == 4 mod 8
-       immediate           11 ... ...  00
-         fixnum            11 ... 00s  00   s = sign bit
-         sfloat            11 ... 01s  00   s = sign bit
-         char              11 ... 100  00
-         small-read-label  11 ... 110  00
-         system            11 ... 111  00
+       machine                 ... ... .00   encodes pointers, offset 0
+       cons                    ... ... 010   offset 2, the pointers are == 0 mod 8
+       varobject               ... ... 110   offset 6, the pointers are == 4 mod 8
+       immediate           110 ... ...  00
+         fixnum            110 ... 00s  00   s = sign bit
+         sfloat            110 ... 01s  00   s = sign bit
+         char              110 ... 100  00
+         small-read-label  110 ... 110  00
+         system            110 ... 111  00
      Varobjects all start with a word containing the type (1 byte) and a
      length field (up to 24 bits). */
 
@@ -3465,8 +3467,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       /* We must assume a general alignment of 8 bytes for Lisp objects, and thus
        have the low 3 bits for encoding heap and the garcol_bit. Here's how we
        divide the address space:
-         machine, frame_pointer  1/4 * 3/4
-         immediate               1/4 * 1/4
+         machine, frame_pointer  1/4 * 7/8
+         immediate               1/4 * 1/8
          cons                    1/8
          varobject               1/8
        Note that cons and varobject cannot have the same encoding mod 8
@@ -3475,15 +3477,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
        0xC000000000000000..0xFFFFFFFFFFFFFFFF.
        We know that the Linux kernel never assigns virtual memory in this area.
        So, here are the encodings. Bit 0 is used as the garcol_bit.
-         machine                ... ... 000   encodes pointers, offset 0
-         cons                   ... ... 010   offset 2, the pointers are == 0 mod 8
-         varobject              ... ... 110   offset 6, the pointers are == 0 mod 8
-         immediate           11 ... ...  00
-           fixnum            11 ... 00s  00   s = sign bit
-           sfloat            11 ... 01s  00   s = sign bit
-           char              11 ... 100  00
-           small-read-label  11 ... 110  00
-           system            11 ... 111  00
+         machine                 ... ...  00   encodes pointers, offset 0
+         cons                    ... ... 010   offset 2, the pointers are == 0 mod 8
+         varobject               ... ... 110   offset 6, the pointers are == 0 mod 8
+         immediate           110 ... ...  00
+           fixnum            110 ... 00s  00   s = sign bit
+           sfloat            110 ... 01s  00   s = sign bit
+           char              110 ... 100  00
+           small-read-label  110 ... 110  00
+           system            110 ... 111  00
        Varobjects all start with a word containing the type (1 byte) and a
        length field (up to 24 bits). */
 
@@ -3504,22 +3506,22 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       /* We must assume a general alignment of 8 bytes for Lisp objects, and thus
        have the low 3 bits for encoding heap and the garcol_bit. Here's how we
        divide the address space:
-         machine, frame_pointer  1/8
-         immediate               1/8
+         machine, frame_pointer  1/4 * 7/8
+         immediate               1/8 * 1/8
          cons                    1/8
          varobject               1/8
        Note that cons and varobject cannot have the same encoding mod 8
        (otherwise gc_mark:up wouldn't work).
        So, here are the encodings. Bit 0 is used as the garcol_bit.
-         machine                ... ... 000   encodes pointers, offset 0
-         cons                   ... ... 010   offset 2, the pointers are == 0 mod 8
-         varobject              ... ... 110   offset 6, the pointers are == 0 mod 8
-         immediate              ... ... 100
-           fixnum               ... 00s 100   s = sign bit
-           sfloat               ... 01s 100   s = sign bit
-           char                 ... 100 100
-           small-read-label     ... 110 100
-           system               ... 111 100
+         machine                 ... ...  00   encodes pointers, offset 0
+         cons                    ... ... 010   offset 2, the pointers are == 0 mod 8
+         varobject               ... ... 110   offset 6, the pointers are == 0 mod 8
+         immediate           110 ... ... 100
+           fixnum            110 ... 00s 100   s = sign bit
+           sfloat            110 ... 01s 100   s = sign bit
+           char              110 ... 100 100
+           small-read-label  110 ... 110 100
+           system            110 ... 111 100
        Varobjects all start with a word containing the type (1 byte) and a
        length field (up to 24 bits). */
 
@@ -3571,14 +3573,16 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
     #endif /* GENERIC64C_HEAPCODES */
 
-    /* An alignment of 8 bytes is also necessary for the C functions.
-     When using gcc, this may require adding -falign-functions=8 to the CFLAGS. */
-      #if C_CODE_ALIGNMENT < 8
-        #undef C_CODE_ALIGNMENT
-        #undef log2_C_CODE_ALIGNMENT
-        #define C_CODE_ALIGNMENT  8
-        #define log2_C_CODE_ALIGNMENT  3
-      #endif
+    #ifdef GENERIC64C_HEAPCODES
+      /* An alignment of 8 bytes is also necessary for the C functions.
+       When using gcc, this may require adding -falign-functions=8 to the CFLAGS. */
+        #if C_CODE_ALIGNMENT < 8
+          #undef C_CODE_ALIGNMENT
+          #undef log2_C_CODE_ALIGNMENT
+          #define C_CODE_ALIGNMENT  8
+          #define log2_C_CODE_ALIGNMENT  3
+        #endif
+    #endif
 
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
@@ -8150,13 +8154,10 @@ typedef struct {
       ((as_oint(obj) & 3) == machine_bias            \
        && (as_oint(obj) & 0xE0000000) != 0xC0000000)
   #endif
-  #ifdef GENERIC64A_HEAPCODES
+  #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
     #define machinep(obj)  \
-      ((as_oint(obj) & 7) == machine_bias                                \
+      ((as_oint(obj) & 3) == machine_bias                                \
        && (as_oint(obj) & 0xE000000000000000UL) != 0xC000000000000000UL)
-  #endif
-  #ifdef GENERIC64B_HEAPCODES
-    #define machinep(obj)  ((as_oint(obj) & 7) == machine_bias)
   #endif
   #ifdef GENERIC64C_HEAPCODES
     #define machinep(obj)  ((as_oint(obj) & 7) == machine_bias)
