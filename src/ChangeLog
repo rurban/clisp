@@ -1,5 +1,11 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Fix a "No more room for LISP objects" error when building syscalls.
+	The clisp modprep call now needs at least -m 1180KW.
+	* modules/syscalls/Makefile.in (calls.m.c): Add option -m 2MW.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Make GENERIC64A_HEAPCODES work again after the type predicates change
 	from 2016-11-10.
 	* lispbibl.d (immediate_bias_mask) [HEAPCODES]: Define.
