@@ -2867,6 +2867,12 @@ local inline int init_memory (struct argv_initparams *p) {
      so that we can use it for immediate objects. */
   mmap((void*)0xC0000000,0x20000000,PROT_NONE,MAP_ANON|MAP_PRIVATE|MAP_FIXED,-1,0);
  #endif
+ #if (defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)) && defined(HAVE_MMAP_ANON)
+  /* On machines on which the address space extends up to 0xFFFFFFFFFFFFFFFF,
+     disable the address range 0xC000000000000000..0xDFFFFFFFFFFFFFFF,
+     so that we can use it for immediate objects. */
+  mmap((void*)0xC000000000000000UL,0x2000000000000000UL,PROT_NONE,MAP_ANON|MAP_PRIVATE|MAP_FIXED,-1,0);
+ #endif
  #ifdef SPVW_PURE
   init_mem_heaptypes();
   init_objsize_table();
@@ -3052,6 +3058,12 @@ local inline int init_memory (struct argv_initparams *p) {
         #endif
         #ifdef LINUX_NOEXEC_HEAPCODES
       var aint end = 0xBF000000; /* virtual addresses end at 0xC0000000. */
+        #endif
+        #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
+      var aint end = 0xBF000000UL; /* just a wild guess */
+        #endif
+        #ifdef GENERIC64C_HEAPCODES
+      var aint end = start + 0x100000000UL; /* just a wild guess */
         #endif
        #endif
       var aint part = floor(end - (start & (end-1)),5);

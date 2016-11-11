@@ -38,6 +38,9 @@ global object built_flags (void) {
    #ifdef LINUX_NOEXEC_HEAPCODES
     " LINUX_NOEXEC_HEAPCODES"
    #endif
+   #ifdef GENERIC64_HEAPCODES
+    " GENERIC64_HEAPCODES"
+   #endif
   #endif
   #ifdef WIDE
    #if defined(WIDE_HARD)

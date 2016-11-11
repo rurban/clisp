@@ -1,5 +1,35 @@
 2016-11-10  Bruno Haible  <bruno@clisp.org>
 
+	New memory model GENERIC64_HEAPCODES, for 64-bit machines.
+	* lispbibl.d (GENERIC64_HEAPCODES): Define if GENERIC64A_HEAPCODES or
+	GENERIC64B_HEAPCODES or GENERIC64C_HEAPCODES is defined.
+	(oint_type_shift, oint_type_len, oint_type_mask, oint_data_shift,
+	oint_data_len, oint_data_mask, garcol_bit_o, machine_bias,
+	varobject_bias, cons_bias, immediate_bias, subr_bias, imm_type_shift,
+	immediate_object_p, machinep): Define for each of GENERIC64A_HEAPCODES,
+	GENERIC64B_HEAPCODES, GENERIC64C_HEAPCODES.
+	(fixnum_type, sfloat_type, char_type, small_read_label_type,
+	system_type, sign_bit_t, sign_bit_o, bignum_bit_o, number_immediatep,
+	nonimmediate_bias_mask, nonimmediate_heapcode_mask, type_data_object,
+	type_zero_oint, gcinvariant_object_p, gcinvariant_oint_p,
+	gcinvariant_bias_p, nonimmediate_heapnr) [GENERIC64_HEAPCODES]: Define.
+	(varobject_alignment) [GENERIC64_HEAPCODES]: Require to be at least 8.
+	(subr_t) [GENERIC64_HEAPCODES]: Force alignment of 8.
+	Otherwise treat GENERIC64_HEAPCODES like LINUX_NOEXEC_HEAPCODES.
+	* spvw.d (init_memory) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]:
+	mmap a hole.
+	(init_memory) [GENERIC64_HEAPCODES]: Guess where the heap may end.
+	* spvw_gcmark.d (gc_mark) [GENERIC64_HEAPCODES]: Recognize immediate
+	values.
+	* spvw_memfile.d (loadmem_update): Treat GENERIC64_HEAPCODES like
+	LINUX_NOEXEC_HEAPCODES.
+	* io.d (pr_orecord): Likewise.
+	* lightning.c (jitc_getsize_framer, jitc_get_framecoder): Likewise.
+	* built.d (built_flags): Consider GENERIC64_HEAPCODES.
+	Suggested by Florian Weimer.
+
+2016-11-10  Bruno Haible  <bruno@clisp.org>
+
 	Prepare for GENERIC64_HEAPCODES object model.
 	* lispbibl.d (immediate_number_p, charp, small_read_label_p, systemp,
 	if_realp, if_rationalp, integerp, fixnump, posfixnump, floatp,
