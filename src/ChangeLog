@@ -1,5 +1,10 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Fix weird errors when rebuilding 'base' after having changed CFLAGS.
+	* makemake.in (clean1): Remove also the .o files in the BASE_MODULES.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix a "No more room for LISP objects" error when building syscalls.
 	The clisp modprep call now needs at least -m 1180KW.
 	* modules/syscalls/Makefile.in (calls.m.c): Add option -m 2MW.

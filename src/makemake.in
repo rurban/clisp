@@ -3908,6 +3908,7 @@ clean0 : force
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log ${CLISP_DEF}
+	for m in "" \$(BASE_MODULES) \$(MODULES); do test -n "\$\$m" && \$(RM) \$\$m/*${TOBJ}; done
 	-\$(RMRF) ${RECOMPILEDIR}
 	-\$(RMRF) ${TESTSDIR}
 	-\$(RMRF) ${ANSITESTSDIR}
