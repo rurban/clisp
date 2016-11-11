@@ -24,7 +24,7 @@
      DEBUG_GCSAFETY (requires G++)
      DEBUG_OS_ERROR
      DEBUG_SPVW
-     DEBUG_BYTECODE
+     DEBUG_BYTECODE (slows down the interpreter a lot)
      DEBUG_BACKTRACE
      DEBUG_COMPILER
  Flags that may be set through CFLAGS, in order to override the defaults:
