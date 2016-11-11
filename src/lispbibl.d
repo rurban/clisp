@@ -3323,16 +3323,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
         #define imm_type_shift  3
       #endif
 
-    /* The types of immediate objects. */
-      #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
-      #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
-      #define char_type              ((4 << imm_type_shift) + immediate_bias)
-      #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
-      #define system_type            ((7 << imm_type_shift) + immediate_bias)
-
-    /* The sign bit, for immediate numbers only. */
-      #define sign_bit_t  (0 + imm_type_shift)
-      #define sign_bit_o  (sign_bit_t+oint_type_shift)
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
       #define NUMBER_BITS_INVERTED
@@ -3358,9 +3348,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* The GC bit. Addresses may not have this bit set. */
       /* define garcol_bit_o  (already defined above)  # only set during garbage collection */
 
-    /* Test for immediate object.
-     immediate_object_p(obj) */
-      #define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)
+    /* A bit mask used for testing for immediate objects types:
+       #define immediate_object_p(obj)  \
+         ((as_oint(obj) & immediate_bias_mask) == immediate_bias)
+       It must contain all the bits of immediate_bias. */
+      #define immediate_bias_mask  7
 
     /* Test for gc-invariant object. (This includes immediate, machine, subr.)
      gcinvariant_object_p(obj) */
@@ -3415,16 +3407,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* Immediate objects have a second type field. */
       #define imm_type_shift  2  /* could also be 3, if oint_data_shift == 6 */
 
-    /* The types of immediate objects. */
-      #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
-      #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
-      #define char_type              ((4 << imm_type_shift) + immediate_bias)
-      #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
-      #define system_type            ((7 << imm_type_shift) + immediate_bias)
-
-    /* The sign bit, for immediate numbers only. */
-      #define sign_bit_t  (0 + imm_type_shift)
-      #define sign_bit_o  (sign_bit_t+oint_type_shift)
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
     /* Distinction between fixnums, short-floats and other kinds of numbers.
@@ -3451,10 +3433,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* The GC bit. Addresses may not have this bit set. */
       /* define garcol_bit_o  (already defined above)  # only set during garbage collection */
 
-    /* Test for immediate object.
-     immediate_object_p(obj) */
-      #define immediate_object_p(obj)  \
-        ((as_oint(obj) & 0xE0000003) == (immediate_bias & 0xE0000003))
+    /* A bit mask used for testing for immediate objects types:
+       #define immediate_object_p(obj)  \
+         ((as_oint(obj) & immediate_bias_mask) == immediate_bias)
+       It must contain all the bits of immediate_bias. */
+      #define immediate_bias_mask  0xE0000003
 
     /* Test for gc-invariant object. (This includes immediate, machine.)
      gcinvariant_object_p(obj) */
@@ -3597,16 +3580,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
         #define log2_C_CODE_ALIGNMENT  3
       #endif
 
-    /* The types of immediate objects. */
-      #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
-      #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
-      #define char_type              ((4 << imm_type_shift) + immediate_bias)
-      #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
-      #define system_type            ((7 << imm_type_shift) + immediate_bias)
-
-    /* The sign bit, for immediate numbers only. */
-      #define sign_bit_t  (0 + imm_type_shift)
-      #define sign_bit_o  (sign_bit_t+oint_type_shift)
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
     /* Distinction between fixnums, short-floats and other kinds of numbers.
@@ -3630,24 +3603,18 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* The GC bit. Addresses may not have this bit set. */
       /* define garcol_bit_o  (already defined above)  # only set during garbage collection */
 
-    /* Test for immediate object.
-     immediate_object_p(obj) */
+    /* A bit mask used for testing for immediate objects types:
+       #define immediate_object_p(obj)  \
+         ((as_oint(obj) & immediate_bias_mask) == immediate_bias)
+       It must contain all the bits of immediate_bias. */
     #ifdef GENERIC64A_HEAPCODES
-      #define immediate_object_p(obj)  \
-        ((as_oint(obj) & 0xE000000000000003UL) == (immediate_bias & 0xE000000000000003UL))
+      #define immediate_bias_mask  0xE000000000000003UL
     #endif
     #ifdef GENERIC64B_HEAPCODES
-      #if 1 /* both work equally well */
-        #define immediate_object_p(obj)  \
-          ((as_oint(obj) & 0xE000000000000007UL) == (immediate_bias & 0xE000000000000007UL))
-      #else
-        #define immediate_object_p(obj)  \
-          ((as_oint(obj) & 7) == (immediate_bias & 7))
-      #endif
+      #define immediate_bias_mask  0xE000000000000007UL
     #endif
     #ifdef GENERIC64C_HEAPCODES
-      #define immediate_object_p(obj)  \
-        ((as_oint(obj) & 7) == (immediate_bias & 7))
+      #define immediate_bias_mask  7
     #endif
 
     /* Test for gc-invariant object. (This includes immediate, machine.)
@@ -3668,6 +3635,28 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
         (1 & ~(as_oint(obj) >> 2))
 
   #endif /* GENERIC64_HEAPCODES */
+
+  /* The types of immediate objects. */
+    #define fixnum_type            ((0 << imm_type_shift) + immediate_bias)
+    #define sfloat_type            ((2 << imm_type_shift) + immediate_bias)
+    #define char_type              ((4 << imm_type_shift) + immediate_bias)
+    #define small_read_label_type  ((6 << imm_type_shift) + immediate_bias)
+    #define system_type            ((7 << imm_type_shift) + immediate_bias)
+
+  /* The sign bit, for immediate numbers only. */
+    #define sign_bit_t  (0 + imm_type_shift)
+    #define sign_bit_o  (sign_bit_t+oint_type_shift)
+
+  /* Test for immediate object.
+   immediate_object_p(obj) */
+    #if (immediate_bias_mask == immediate_bias)
+      /* Small optimization */
+      #define immediate_object_p(obj)  \
+        ((immediate_bias_mask & ~as_oint(obj)) == 0)
+    #else
+      #define immediate_object_p(obj)  \
+        ((as_oint(obj) & immediate_bias_mask) == immediate_bias)
+    #endif
 
 #endif /* TYPECODES */
 %% #ifdef TYPECODES
@@ -7647,7 +7636,7 @@ typedef struct {
   #endif
 #else
   #define immediate_number_p(obj)  \
-    ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == (fixnum_type&sfloat_type))
+    ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias_mask)) == (fixnum_type&sfloat_type))
   #define numberp(obj)  \
     (immediate_number_p(obj) \
      || (varobjectp(obj)     \
@@ -8104,7 +8093,7 @@ typedef struct {
 #ifdef TYPECODES
   #define charp(obj)  (typecode(obj)==char_type)
 #else
-  #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == char_type)
+  #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias_mask)) == char_type)
 #endif
 %% export_def(charp(obj));
 
@@ -8174,10 +8163,10 @@ typedef struct {
   #endif
 
   /* Test for Small-Read-Label */
-  #define small_read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == small_read_label_type)
+  #define small_read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias_mask)) == small_read_label_type)
 
   /* Test for System-Pointer */
-  #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == system_type)
+  #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias_mask)) == system_type)
 
 #endif
 
@@ -8193,7 +8182,7 @@ typedef struct {
     } while(0)
 #else
   #define if_realp(obj,statement1,statement2)                           \
-    do { if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) \
+    do { if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias_mask)) \
               == fixnum_type)                                           \
              || (varobjectp(obj)                                        \
                  && ((uintB)(Record_type(obj)-Rectype_Bignum) <=        \
@@ -8217,7 +8206,7 @@ typedef struct {
     } while(0)
 #else
   #define if_rationalp(obj,statement1,statement2)                        \
-    do { if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask))  \
+    do { if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias_mask))  \
               == fixnum_type)                                            \
              || (varobjectp(obj)                                         \
                  && ((Record_type(obj) == Rectype_Bignum)                \
@@ -8235,7 +8224,7 @@ typedef struct {
      ) == (fixnum_type&bignum_type))
 #else
   #define integerp(obj)  \
-   (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type) \
+   (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias_mask)) == fixnum_type) \
     || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)))
 #endif
 %% export_def(integerp(obj));
@@ -8244,7 +8233,7 @@ typedef struct {
 #ifdef TYPECODES
   #define fixnump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == fixnum_type)
 #else
-  #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type)
+  #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias_mask)) == fixnum_type)
 #endif
 %% export_def(fixnump(obj));
 
@@ -8252,7 +8241,7 @@ typedef struct {
 #ifdef TYPECODES
   #define posfixnump(obj)  (typecode(obj) == fixnum_type)
 #else
-  #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == fixnum_type)
+  #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias_mask)) == fixnum_type)
 #endif
 %% export_def(posfixnump(obj));
 
@@ -8294,7 +8283,7 @@ typedef struct {
      ) == (sfloat_type&ffloat_type&dfloat_type&lfloat_type))
 #else
   #define floatp(obj)  \
-    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == sfloat_type) \
+    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias_mask)) == sfloat_type) \
      || (varobjectp(obj)                    \
          && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat)))
 #endif
@@ -8306,7 +8295,7 @@ typedef struct {
 #ifdef TYPECODES
   #define short_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == sfloat_type)
 #else
-  #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias | nonimmediate_bias_mask)) == sfloat_type)
+  #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias_mask)) == sfloat_type)
 #endif
 %% #if notused
 %%   export_def(short_float_p(obj));
