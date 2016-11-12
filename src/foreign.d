@@ -747,7 +747,7 @@ struct foreign_layout {
  < data: foreign layout */
 local void foreign_layout (object fvd, struct foreign_layout *data);
 /* `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
- It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM. */
+ It is = 1 on most machines, but = 2 on M68K and = 4 on ARM. */
 #ifdef __cplusplus
 struct trivial_struct { char slot1; };
 static const uintL struct_alignment = sizeof(struct trivial_struct);

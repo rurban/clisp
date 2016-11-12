@@ -5674,7 +5674,7 @@ local maygc Values funcall_closure (object closure, uintC args_on_stack)
 #endif
 /* Persuade GNU-C, to keep closure and byteptr in registers: */
 #ifdef GNU
-  #ifdef MC680X0
+  #ifdef M68K
     #define closure_register  "a2"
     #define byteptr_register  "a3"
   #endif
@@ -5875,7 +5875,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
               where = where << 8;                            \
               where |= *byteptr++;          /* and read next Byte */ \
         }   }
-    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+    #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
       #undef U_operand
       #define U_operand(where)  \
         __asm__(                 \
@@ -5998,7 +5998,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
               where = (sintL)((sintL)(sintBWL)((sintBWL)where << (intBWLsize-7)) >> (intBWLsize-7)); \
             }                                                           \
         }
-    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+    #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
       #undef S_operand
       #define S_operand(where)  \
         __asm__(                   \
@@ -6127,7 +6127,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
                 /* special case: 2-Byte-Operand = 0 -> 6-Byte-Operand */ \
                 { byteptr += 4; }                                       \
         }   }
-    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+    #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
       #undef S_operand_ignore
       #define S_operand_ignore()  \
         { var uintB where;           \

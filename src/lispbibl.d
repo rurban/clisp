@@ -81,8 +81,7 @@
 #endif
 
 /* Determine the processor:
- MC680X0 == all processors of the Motorola 68000 series
- MC680Y0 == all processors of the Motorola 68000 series, starting at MC68020
+ M68K == all processors of the Motorola 68000 series, starting at MC68020
  SPARC == the Sun SPARC processor
  HPPA == all processors of the HP Precision Architecture
  MIPS == all processors of the MIPS series
@@ -108,12 +107,8 @@
   #endif
 #endif
 #ifdef GENERIC_UNIX
-  #if defined(m68k) || defined(__m68k__) || defined(mc68000)
-    #define MC680X0
-  #endif
-  #if defined(mc68020) || defined(__mc68020__) || (defined(m68k) && defined(NeXT))
-    #define MC680X0
-    #define MC680Y0
+  #if defined(m68k) || defined(__m68k__)
+    #define M68K
   #endif
   #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)
     #define I80386
@@ -398,7 +393,7 @@
   #define BIG_ENDIAN_P  0
 #endif
 #if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
-  /* MC680X0, SPARC, HPPA, MIPSEB, M88000, POWERPC, S390, ...:
+  /* M68K, SPARC, HPPA, MIPSEB, M88000, POWERPC, S390, ...:
    High Byte is the lowest, Low Byte is a higher adress (easier to read) */
   #if defined(BIG_ENDIAN_P)
     #error Bogus BIG_ENDIAN_P!
@@ -437,7 +432,7 @@
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
-#if defined(MC680X0)
+#if defined(M68K)
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
@@ -519,7 +514,7 @@
  save:  otherwise (i.e. call-preserved, callee-saved)
 
                STACK    mv_count  value1   back_trace
- MC680X0       used
+ M68K          used
  I80386        save
  SPARC (gcc2)  fixed    fixed     fixed    used
  MIPS
@@ -545,7 +540,7 @@
    dependent and is indicated by the NEED_temp_xxxx macros.
 
    * Register for STACK. */
-  #if defined(MC680X0)
+  #if defined(M68K)
     #define STACK_register "a4" /* highest address register after sp=A7,fp=A6/A5 */
   #endif
   #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
@@ -1448,13 +1443,13 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
 
 /* From here on 'uintXY' and 'sintXY' mean unsigned or signed integer types,
  with word sizes X or Y (X,Y=B,W,L). */
-#if (defined(MC680X0) && !defined(HPUX_ASSEMBLER)) || defined(VAX)
+#if (defined(M68K) && !defined(HPUX_ASSEMBLER)) || defined(VAX)
   /* The 68000 offers good processing of uintB and uintW, especially
    DBRA-commands for uintW. */
   #define intBWsize intBsize
   #define intWLsize intWsize
   #define intBWLsize intBsize
-#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
+#elif (defined(M68K) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
   /* The Sparc-processor computes rather badly with uintB and uintW.
    Other 32-Bit-processoren have similar weaknesses. */
   #define intBWsize intWsize
@@ -1510,7 +1505,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
  and will be changed by this expression.
  It must not be used in the statement itself!
  The expression count will only be evaluated once (at the beginning). */
-#if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
+#if defined(GNU) && defined(M68K) && !defined(HPUX_ASSEMBLER)
   /* GNU-C on a 680X0 can be persuaded to use the DBRA-instruction: */
   #define fast_dotimesW
   /* To find out, what the best was to 'persuade' GNU-C is, check the
@@ -1554,7 +1549,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
       do {statement_from_dotimespW} while (--countvar_from_dotimespW != 0); \
     }
 #endif
-#if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
+#if defined(GNU) && defined(M68K) && !defined(HPUX_ASSEMBLER)
   /* GNU-C on a 680X0 can be 'persuaded' to use the DBRA-instruction
    in an intelligent manner: */
   #define fast_dotimesL
@@ -1667,11 +1662,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if defined(MC680X0) && !defined(MC680Y0)
-  #define intDsize 16
-  #define intDDsize 32  /* = 2*intDsize */
-  #define log2_intDsize  4  /* = log2(intDsize) */
-#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
+#if defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -1751,10 +1742,10 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   /* Choose TYPECODES on 64-bit machines (because there's enough room for type
    bits), except on Darwin which has a restricted range of mmapable addresses.
    Choose HEAPCODES on 32-bit machines (because a 16 MB limit is ridiculous
-   today), except if the CPU cannot address more than 16 MB anyway.
+   today).
    HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
    but with egcs-1.1 or newer we can force alignof(subr_t) = 4. */
-  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
+  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
     #define HEAPCODES
@@ -1778,7 +1769,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
     #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) /* circumvent gcc-2.6.3 bug */
       /* Typechecking by the C-compiler */
       #define OBJECT_STRUCT
-      #if !(defined(MC680X0) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
+      #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
         #define CHART_STRUCT
       #endif
     #endif
@@ -2391,7 +2382,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 48
       #define oint_data_mask 0x007FFFFFFFFFFF80UL
       #define garcol_bit_o 63
-    #elif !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
+    #elif !((defined(M68K) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000007FUL
@@ -2409,7 +2400,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x3FFFFFC0UL
       #define garcol_bit_o 30
-    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
+    #elif (defined(M68K) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
       /* On Sparc-Linux with glibc 2.1 and older:
        malloc()ed addresses are of the form 0x0....... or 0xe........
        Bits 31..29 are therefore part of an address and cannot
@@ -2650,9 +2641,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_mask ULL(0xFFFFFFFF00000000)
   #endif
 /* Now come the 32-bit platforms with TYPECODES. We need to support it only on
- MC680X0 platforms without new gcc.
+ M68K platforms without new gcc.
  It worked on the following platforms in the past, and may still work on:
-   (defined(MC680X0) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
+   (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
    (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
    defined(MIPS)
@@ -3037,15 +3028,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      On the other hand on a 68000 a ROL.L #8 is faster,
      as is a shift on a SPARC. */
     #define typecode(expr)  ((tint)(as_oint(expr) >> oint_type_shift))
-    #if defined(MC68000) && defined(GNU) && !defined(NO_ASM) && (oint_type_shift==24) && (oint_type_len==8)
-      /* GNU C on a 68000, replace LSR.L #24 with ROL.L #8 : */
-      #undef typecode
-      #define typecode(expr)  \
-        ({var tint __typecode;                                               \
-          __asm__ ("roll #8,%0" : "=d" (__typecode) : "0" (as_oint(expr)) ); \
-          __typecode;                                                        \
-         })
-      #elif defined(SPARC) && !defined(WIDE)
+    #if defined(SPARC) && !defined(WIDE)
       #undef typecode
       #define typecode(expr)  \
         ((as_oint(expr) << (32-oint_type_len-oint_type_shift)) >> (32-oint_type_len))
@@ -3600,7 +3583,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if defined(VAX) /* ?? gcc/config/vax/vax.h sagt: Alignment = 4 */
   #define varobject_alignment  1
 #endif
-#if defined(MC680X0)
+#if defined(M68K)
   #if addr_shift!=0
     #define varobject_alignment  bit(addr_shift)  /* because of the condensed distribution of typecodes */
   #else
@@ -3774,7 +3757,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    Therefore avoid allocating typecode 0x08 for the moment. */
 #endif
 
-#if (defined(MC680X0) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
+#if (defined(M68K) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
   /* At 0x50000000 there are shared libraries located.
    But this doesn't mean we have to change the type code distribution. */
 #endif
@@ -3946,11 +3929,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* What's really being sent from an address to the address-bus */
-#if defined(MC68000)
-  #define hardware_  0x00FFFFFFUL  /* 68000 drops 8 */
-#else
-  #define hardware_addressbus_mask  ~0UL  /* Default: nothing is dropped */
-#endif
+#define hardware_addressbus_mask  ~0UL  /* Default: nothing is dropped */
 /* Clever memory-mapping spares us from masking out of certain
  bits before one accesses the address */
 #define addressbus_mask  hardware_addressbus_mask
@@ -4269,9 +4248,8 @@ extern bool inside_gc;
   /* SINGLEMAP_MEMORY -> Ony pure pages/blocks make sense, since
    the address of a page determines the type of the objects it contains. */
   #define SPVW_PURE
-#elif !defined(TYPECODES) || defined(MC68000) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
+#elif !defined(TYPECODES) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
   /* !TYPECODES -> there aren't real typecodes, only Cons and Varobject.
-   MC68000 -> type_pointable(...) costs little or nothing.
    SPVW_BLOCKS -> SPVW_PURE_BLOCKS is only implemented for SINGLEMAP_MEMORY.
    TRIVIALMAP_MEMORY -> not many blocks available, small adress space. */
   #define SPVW_MIXED
@@ -8960,7 +8938,7 @@ All other long words on the LISP-Stack are LISP-objects.
  FAST_SP defined, if SP-accesses are fast. */
 #if defined(GNU) && !(__APPLE_CC__ > 1)
   /* definition of the register, in which the SP resides. */
-  #ifdef MC680X0
+  #ifdef M68K
     #define SP_register "sp"  /* %sp = %a7 */
   #endif
   #ifdef SPARC
@@ -9002,7 +8980,7 @@ All other long words on the LISP-Stack are LISP-objects.
 #endif
 #if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
   /* Assembler-instruction that copies the SP-register into a variable. */
-  #ifdef MC680X0
+  #ifdef M68K
     #ifdef __REGISTER_PREFIX__ /* GNU C Version >= 2.4 has %/ and __REGISTER_PREFIX__ */
       /* But the value of __REGISTER_PREFIX__ is useless, because we might be
        cross-compiling. */
@@ -9050,7 +9028,7 @@ All other long words on the LISP-Stack are LISP-objects.
     #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
   #endif
 #endif
-#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   /* Access to a global register-"variable" SP */
   #define SP()  \
     ({var aint __SP;                                                          \
@@ -9092,7 +9070,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #define SP  getSP
   static __inline aint getSP () { __asm mov eax,esp }
   static __inline aint setSP (aint address) { __asm mov esp,address }
-#elif defined(MC680X0) || defined(SPARC) || defined(MIPS) || (defined(I80386) && !defined(UNIX_MACOSX))
+#elif defined(M68K) || defined(SPARC) || defined(MIPS) || (defined(I80386) && !defined(UNIX_MACOSX))
   /* access functions extern, in assembler */
   #define SP  getSP
   extern_C void* SP (void);
@@ -9103,7 +9081,7 @@ All other long words on the LISP-Stack are LISP-objects.
   extern void* getSP (void);
   #define NEED_OWN_GETSP
 #endif
-#if defined(stack_grows_down) /* defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
   #define SP_DOWN /* SP grows downward */
   #define SPoffset 0 /* top-of-SP ist *(SP+SPoffset) */
 #endif
@@ -9143,7 +9121,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #define SPop      -
 #endif
 #define _SP_(n)  (((SPint*)SP()) + SPoffset SPop (uintP)(n))
-#if !(defined(GNU) && (defined(MC680X0)) && !defined(NO_ASM)) /* generally */
+#if !(defined(GNU) && defined(M68K) && !defined(NO_ASM)) /* generally */
   #define SP_(n)  (((SPint*)SP())[SPoffset SPop (uintP)(n)])
   #define skipSP(n)                             \
     do { var register SPint* sp = (SPint*)SP(); \
@@ -9163,7 +9141,7 @@ All other long words on the LISP-Stack are LISP-objects.
          setSP(sp); /* then (danger of interrupt!) increase SP            */\
     } while(0)
 #endif
-#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   /* With GNU on as 680X0 SP is in a register. Thus access and
    modification of SP are a unit that cannot be interrupted.
    And SP_DOWN as well as SPoffset=0 hold. */
@@ -11603,8 +11581,8 @@ re-enters the corresponding top-level loop.
 #define popSTACK()  (STACK skipSTACKop 1, STACK_(-1))
 #define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))
 
-#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
-  /* With GNU and a 680X0 STACK is in a register. Access and
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
+  /* With GNU and a M68K, STACK is in a register. Access and
    modification of the STACK are an atomic unit that cannot be interrupted. */
   #undef pushSTACK
   #undef popSTACK

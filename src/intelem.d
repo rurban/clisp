@@ -103,12 +103,6 @@
 #define get_sint2D_Dptr(ptr)  (((sint32)(sintD)((ptr)[0]) << intDsize) | (uint32)((ptr)[1]))
 #define get_sint3D_Dptr(ptr)  (((((sint32)(sintD)((ptr)[0]) << intDsize) | (uint32)((ptr)[1])) << intDsize) | (uint32)((ptr)[2]))
 #define get_sint4D_Dptr(ptr)  (((((((sint32)(sintD)((ptr)[0]) << intDsize) | (uint32)((ptr)[1])) << intDsize) | (uint32)((ptr)[2])) << intDsize) | (uint32)((ptr)[3]))
-#if (intDsize==16) && (defined(MC680X0) && !defined(MC680Y0)) /* improvement: */
-  #undef get_uint2D_Dptr
-  #undef get_sint2D_Dptr
-  #define get_uint2D_Dptr(ptr)  highlow32_at(ptr)
-  #define get_sint2D_Dptr(ptr)  (sint32)highlow32_at(ptr)
-#endif
 #if (intDsize==16)
   #undef get_uint3D_Dptr
   #undef get_uint4D_Dptr

@@ -1582,12 +1582,8 @@ ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
 if [ "$cpu" = m68k ] ; then
-  ARI_ASMD=$ARI_ASMD' ari68000 ari68020'
-  if [ $TSYS = m68k -o $TSYS = mc68040 -a "$TSYSOS" = netbsd ] ; then
-    ARI_ASMS=$ARI_ASMS' ari68020'
-  else
-    ARI_ASMS=$ARI_ASMS' ari68000'
-  fi
+  ARI_ASMD=$ARI_ASMD' ari68020'
+  ARI_ASMS=$ARI_ASMS' ari68020'
   ARI_ASMC=$ARI_ASMS
 fi
 if [ "$cpu" = sparc ] ; then
