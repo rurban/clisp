@@ -1,5 +1,19 @@
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume intDsize >= 16.
+	* arilev1.d (sign_of_sintD, muluD, muluD_unchecked, divuD, floorD, D):
+	Simplify accordingly.
+	* intelem.d (get_32_Dptr, set_32_Dptr, get_max32_Dptr, set_max32_Dptr,
+	I_to_UQ, I_to_Q, L_to_I, UL_to_I, L2_to_I, UL2_to_I, UQ_to_I): Simplify
+	accordingly.
+	* intlog.d (logcount_8, integerlength8): Remove macros.
+	(I_logcount_I, integerlengthD): Simplify accordingly.
+	* intprint.d (table): Likewise.
+	* dfloat.d (DF_DF_mult_DF, DF_DF_div_DF, DF_sqrt_DF): Likewise.
+	* hashtabl.d (hashcode_bignum): Likewise.
+
+2016-11-12  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove support for mc680x0 CPUs on HP-UX.
 	* lispbibl.d: Assume HPUX_ASSEMBLER is not defined.
 

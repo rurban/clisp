@@ -34,32 +34,6 @@
       else set_highlow32_at(ptr,value);                 \
     }} while(0)
 #endif
-#if (intDsize==8)
-  #define get_32_Dptr(ptr)  (((((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) <<8) | (uint32)((ptr)[3]))
-  #define set_32_Dptr(ptr,value)  ((ptr)[0] = (uintD)((value)>>24), (ptr)[1] = (uintD)((value)>>16), (ptr)[2] = (uintD)((value)>>8), (ptr)[3] = (uintD)(value))
-  #define get_max32_Dptr(count,ptr)  \
-    ((count)==0 ? 0 : \
-     (count)<=8 ? (uint32)((ptr)[0]) : \
-     (count)<=16 ? (( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) : \
-     (count)<=24 ? (((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) : \
-                   (((((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) <<8) | (uint32)((ptr)[3])))
-  #define set_max32_Dptr(count,ptr,value)               \
-    do { if ((count) != 0) {                            \
-      if ((count)<=8) (ptr)[0] = (uintD)(value);        \
-      else if ((count)<=16) {                           \
-        (ptr)[0] = (uintD)((value)>>8);                 \
-        (ptr)[1] = (uintD)(value);                      \
-      } else if ((count)<=24) {                         \
-        (ptr)[0] = (uintD)((value)>>16);                \
-        (ptr)[1] = (uintD)((value)>>8);                 \
-        (ptr)[2] = (uintD)(value);                      \
-      } else {                                          \
-        (ptr)[0] = (uintD)((value)>>24);                \
-        (ptr)[1] = (uintD)((value)>>16);                \
-        (ptr)[2] = (uintD)((value)>>8);                 \
-        (ptr)[3] = (uintD)(value);                      \
-      }}} while(0)
-#endif
 
 /* conversion routines digit-sequence-part <--> longword:
  get_maxV_Dptr(count,ptr)
@@ -401,26 +375,6 @@ modexp uint64 I_to_UQ (object obj)
       IF_LENGTH(5)
         return ((uint64)get_uint2D_Dptr(&bn->data[1]) << 32) | (uint64)get_uint2D_Dptr(&bn->data[3]);
      #endif
-     #if (intDsize==8)
-      IF_LENGTH(1)
-        return (uint64)get_uint1D_Dptr(bn->data);
-      IF_LENGTH(2)
-        return (uint64)get_uint2D_Dptr(bn->data);
-      IF_LENGTH(3)
-        return (uint64)get_uint3D_Dptr(bn->data);
-      IF_LENGTH(4)
-        return (uint64)get_uint4D_Dptr(bn->data);
-      IF_LENGTH(5)
-        return ((uint64)get_uint1D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[1]);
-      IF_LENGTH(6)
-        return ((uint64)get_uint2D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[2]);
-      IF_LENGTH(7)
-        return ((uint64)get_uint3D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[3]);
-      IF_LENGTH(8)
-        return ((uint64)get_uint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
-      IF_LENGTH(9)
-        return ((uint64)get_uint4D_Dptr(&bn->data[1]) << 32) | (uint64)get_uint4D_Dptr(&bn->data[5]);
-     #endif
       #undef IF_LENGTH
       #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
       #pragma GCC diagnostic pop
@@ -496,24 +450,6 @@ modexp sint64 I_to_Q (object obj)
       IF_LENGTH(4)
         return ((uint64)get_uint2D_Dptr(bn->data) << 32) | (uint64)get_uint2D_Dptr(&bn->data[2]);
      #endif
-     #if (intDsize==8)
-      IF_LENGTH(1)
-        return (uint64)get_uint1D_Dptr(bn->data);
-      IF_LENGTH(2)
-        return (uint64)get_uint2D_Dptr(bn->data);
-      IF_LENGTH(3)
-        return (uint64)get_uint3D_Dptr(bn->data);
-      IF_LENGTH(4)
-        return (uint64)get_uint4D_Dptr(bn->data);
-      IF_LENGTH(5)
-        return ((uint64)get_uint1D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[1]);
-      IF_LENGTH(6)
-        return ((uint64)get_uint2D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[2]);
-      IF_LENGTH(7)
-        return ((uint64)get_uint3D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[3]);
-      IF_LENGTH(8)
-        return ((uint64)get_uint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
-     #endif
       #undef IF_LENGTH
       #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
       #pragma GCC diagnostic pop
@@ -553,24 +489,6 @@ modexp sint64 I_to_Q (object obj)
         return ((sint64)get_sint1D_Dptr(bn->data) << 32) | (uint64)get_uint2D_Dptr(&bn->data[1]);
       IF_LENGTH(4)
         return ((sint64)get_sint2D_Dptr(bn->data) << 32) | (uint64)get_uint2D_Dptr(&bn->data[2]);
-     #endif
-     #if (intDsize==8)
-      IF_LENGTH(1)
-        return (sint64)get_sint1D_Dptr(bn->data);
-      IF_LENGTH(2)
-        return (sint64)get_sint2D_Dptr(bn->data);
-      IF_LENGTH(3)
-        return (sint64)get_sint3D_Dptr(bn->data);
-      IF_LENGTH(4)
-        return (sint64)get_sint4D_Dptr(bn->data);
-      IF_LENGTH(5)
-        return ((sint64)get_sint1D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[1]);
-      IF_LENGTH(6)
-        return ((sint64)get_sint2D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[2]);
-      IF_LENGTH(7)
-        return ((sint64)get_sint3D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[3]);
-      IF_LENGTH(8)
-        return ((sint64)get_sint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
      #endif
       #undef IF_LENGTH
       #if __GNUC__ + (__GNUC_MINOR__ >= 6) > 4
@@ -634,9 +552,6 @@ modexp maygc object L_to_I (sint32 value)
   /* create bignum:
      (its length  bn_minlength <= n <= ceiling(32/intDsize)  ) */
   if (bn_minlength == ceiling(32,intDsize)) {
-   #if (intDsize==8)
-    if (value >= 0) goto pos4; else goto neg4; /* bignum with 32/intDsize = 4 digits */
-   #endif
    #if (intDsize==16)
     if (value >= 0) goto pos2; else goto neg2; /* bignum with 32/intDsize = 2 digits */
    #endif
@@ -649,19 +564,8 @@ modexp maygc object L_to_I (sint32 value)
     #define FILL_2_DIGITS(from)  \
       *ptr-- = (uintD)from; from = from >> intDsize; \
       *ptr-- = (uintD)from;
-    #define FILL_3_DIGITS(from)  \
-      *ptr-- = (uintD)from; from = from >> intDsize; \
-      *ptr-- = (uintD)from; from = from >> intDsize; \
-      *ptr-- = (uintD)from;
-    #define FILL_4_DIGITS(from)  \
-      *ptr-- = (uintD)from; from = from >> intDsize; \
-      *ptr-- = (uintD)from; from = from >> intDsize; \
-      *ptr-- = (uintD)from; from = from >> intDsize; \
-      *ptr-- = (uintD)from;
     #define FILL_1  FILL_1_DIGIT(value);
     #define FILL_2  FILL_2_DIGITS(value);
-    #define FILL_3  FILL_3_DIGITS(value);
-    #define FILL_4  FILL_4_DIGITS(value);
     #define OK  return newnum;
     if (value >= 0) {
       #define ALLOC(i)  \
@@ -677,12 +581,6 @@ modexp maygc object L_to_I (sint32 value)
      #if (intDsize <= 16)
       IF_LENGTH(2)
         pos2: { ALLOC(2); FILL_2; OK; } /* bignum with 2 digits */
-     #if (intDsize <= 8)
-      IF_LENGTH(3)
-      { ALLOC(3); FILL_3; OK; } /* bignum with 3 digits */
-      IF_LENGTH(4)
-        pos4: { ALLOC(4); FILL_4; OK; } /* bignum with 4 digits */
-     #endif
      #endif
      #endif
       #undef IF_LENGTH
@@ -702,24 +600,14 @@ modexp maygc object L_to_I (sint32 value)
      #if (intDsize <= 16)
       IF_LENGTH(2)
         neg2: { ALLOC(2); FILL_2; OK; } /* bignum with 2 digits */
-     #if (intDsize <= 8)
-      IF_LENGTH(3)
-      { ALLOC(3); FILL_3; OK; } /* bignum with 3 digits */
-      IF_LENGTH(4)
-        neg4: { ALLOC(4); FILL_4; OK; } /* bignum with 4 digits */
-     #endif
      #endif
      #endif
       #undef IF_LENGTH
       #undef ALLOC
     }
     #undef OK
-    #undef FILL_4
-    #undef FILL_3
     #undef FILL_2
     #undef FILL_1
-    #undef FILL_4_DIGITS
-    #undef FILL_3_DIGITS
     #undef FILL_2_DIGITS
     #undef FILL_1_DIGIT
   }
@@ -765,47 +653,12 @@ modexp maygc object UL_to_I (uint32 value)
   }
  #endif
  #if (bn_minlength <= 3) && (UL_maxlength >= 3)
-  if ((3*intDsize-1 < 32)
-      ? (value <= (uint32)(bitc(3*intDsize-1)-1))
-      : true) { /* bignum with 3 digits */
+  if (true) { /* bignum with 3 digits */
     var object newnum = allocate_bignum(3,0);
     var uintD* ptr = &TheBignum(newnum)->data[2];
     *ptr-- = (uintD)value; value = value >> intDsize;
     *ptr-- = (uintD)value;
    #if (2*intDsize>=32)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 4) && (UL_maxlength >= 4)
-  if ((4*intDsize-1 < 32)
-      ? (value <= (uint32)(bitc(4*intDsize-1)-1))
-      : true) { /* bignum with 4 digits */
-    var object newnum = allocate_bignum(4,0);
-    var uintD* ptr = &TheBignum(newnum)->data[3];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (3*intDsize>=32)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 5) && (UL_maxlength >= 5)
-  if (true) { /* bignum with 5 digits */
-    var object newnum = allocate_bignum(5,0);
-    var uintD* ptr = &TheBignum(newnum)->data[4];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (4*intDsize>=32)
     *ptr = 0;
    #else
     value = value >> intDsize; *ptr = (uintD)value;
@@ -859,30 +712,12 @@ modexp maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
     #define FILL_2  FILL_1_DIGIT(value_lo); FILL_1_DIGIT(value_hi);
     #define FILL_3
     #define FILL_4
-    #define FILL_5
-    #define FILL_6
-    #define FILL_7
-    #define FILL_8
   #endif
   #if (32/intDsize==2)
     #define FILL_1  FILL_1_DIGIT(value_lo);
     #define FILL_2  FILL_2_DIGITS(value_lo);
     #define FILL_3  FILL_2_DIGITS(value_lo); FILL_1_DIGIT(value_hi);
     #define FILL_4  FILL_2_DIGITS(value_lo); FILL_2_DIGITS(value_hi);
-    #define FILL_5
-    #define FILL_6
-    #define FILL_7
-    #define FILL_8
-  #endif
-  #if (32/intDsize==4)
-    #define FILL_1  FILL_1_DIGIT(value_lo);
-    #define FILL_2  FILL_2_DIGITS(value_lo);
-    #define FILL_3  FILL_3_DIGITS(value_lo);
-    #define FILL_4  FILL_4_DIGITS(value_lo);
-    #define FILL_5  FILL_4_DIGITS(value_lo); FILL_1_DIGIT(value_hi);
-    #define FILL_6  FILL_4_DIGITS(value_lo); FILL_2_DIGITS(value_hi);
-    #define FILL_7  FILL_4_DIGITS(value_lo); FILL_3_DIGITS(value_hi);
-    #define FILL_8  FILL_4_DIGITS(value_lo); FILL_4_DIGITS(value_hi);
   #endif
   #define OK  return newnum;
   if (value_hi >= 0) {
@@ -903,14 +738,6 @@ modexp maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
       { ALLOC(3); FILL_3; OK; } /* bignum with 3 digits */
     IF_LENGTH(4)
       { ALLOC(4); FILL_4; OK; } /* bignum with 4 digits */
-    IF_LENGTH(5)
-      { ALLOC(5); FILL_5; OK; } /* bignum with 5 digits */
-    IF_LENGTH(6)
-      { ALLOC(6); FILL_6; OK; } /* bignum with 6 digits */
-    IF_LENGTH(7)
-      { ALLOC(7); FILL_7; OK; } /* bignum with 7 digits */
-    IF_LENGTH(8)
-      { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
     #undef IF_LENGTH
     #undef ALLOC
   } else {
@@ -931,22 +758,10 @@ modexp maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
       { ALLOC(3); FILL_3; OK; } /* bignum with 3 digits */
     IF_LENGTH(4)
       { ALLOC(4); FILL_4; OK; } /* bignum with 4 digits */
-    IF_LENGTH(5)
-      { ALLOC(5); FILL_5; OK; } /* bignum with 5 digits */
-    IF_LENGTH(6)
-      { ALLOC(6); FILL_6; OK; } /* bignum with 6 digits */
-    IF_LENGTH(7)
-      { ALLOC(7); FILL_7; OK; } /* bignum with 7 digits */
-    IF_LENGTH(8)
-      { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
     #undef IF_LENGTH
     #undef ALLOC
   }
   #undef OK
-  #undef FILL_8
-  #undef FILL_7
-  #undef FILL_6
-  #undef FILL_5
   #undef FILL_4
   #undef FILL_3
   #undef FILL_2
@@ -993,10 +808,6 @@ modexp maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
     #define FILL_3  FILL_2 *ptr-- = 0;
     #define FILL_4
     #define FILL_5
-    #define FILL_6
-    #define FILL_7
-    #define FILL_8
-    #define FILL_9
   #endif
   #if (32/intDsize==2)
     #define FILL_1  FILL_1_DIGIT(value_lo);
@@ -1004,21 +815,6 @@ modexp maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
     #define FILL_3  FILL_2_DIGITS(value_lo); FILL_1_DIGIT(value_hi);
     #define FILL_4  FILL_2_DIGITS(value_lo); FILL_2_DIGITS(value_hi);
     #define FILL_5  FILL_4 *ptr-- = 0;
-    #define FILL_6
-    #define FILL_7
-    #define FILL_8
-    #define FILL_9
-  #endif
-  #if (32/intDsize==4)
-    #define FILL_1  FILL_1_DIGIT(value_lo);
-    #define FILL_2  FILL_2_DIGITS(value_lo);
-    #define FILL_3  FILL_3_DIGITS(value_lo);
-    #define FILL_4  FILL_4_DIGITS(value_lo);
-    #define FILL_5  FILL_4_DIGITS(value_lo); FILL_1_DIGIT(value_hi);
-    #define FILL_6  FILL_4_DIGITS(value_lo); FILL_2_DIGITS(value_hi);
-    #define FILL_7  FILL_4_DIGITS(value_lo); FILL_3_DIGITS(value_hi);
-    #define FILL_8  FILL_4_DIGITS(value_lo); FILL_4_DIGITS(value_hi);
-    #define FILL_9  FILL_8 *ptr-- = 0;
   #endif
   #define OK  return newnum;
   #define ALLOC(i)  \
@@ -1040,21 +836,9 @@ modexp maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
     { ALLOC(4); FILL_4; OK; } /* bignum with 4 digits */
   IF_LENGTH(5)
     { ALLOC(5); FILL_5; OK; } /* bignum with 5 digits */
-  IF_LENGTH(6)
-    { ALLOC(6); FILL_6; OK; } /* bignum with 6 digits */
-  IF_LENGTH(7)
-    { ALLOC(7); FILL_7; OK; } /* bignum with 7 digits */
-  IF_LENGTH(8)
-    { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
-  IF_LENGTH(8)
-    { ALLOC(9); FILL_9; OK; } /* bignum with 9 digits */
   #undef IF_LENGTH
   #undef ALLOC
   #undef OK
-  #undef FILL_9
-  #undef FILL_8
-  #undef FILL_7
-  #undef FILL_6
   #undef FILL_5
   #undef FILL_4
   #undef FILL_3
@@ -1205,9 +989,7 @@ modexp maygc object UQ_to_I (uint64 value)
   }
  #endif
  #if (bn_minlength <= 5) && (UQ_maxlength >= 5)
-  if ((5*intDsize-1 < 64)
-      ? (value <= (uint64)(wbitc(5*intDsize-1)-1))
-      : true) { /* bignum with 5 digits */
+  if (true) { /* bignum with 5 digits */
     var object newnum = allocate_bignum(5,0);
     var uintD* ptr = &TheBignum(newnum)->data[4];
     *ptr-- = (uintD)value; value = value >> intDsize;
@@ -1215,86 +997,6 @@ modexp maygc object UQ_to_I (uint64 value)
     *ptr-- = (uintD)value; value = value >> intDsize;
     *ptr-- = (uintD)value;
    #if (4*intDsize>=64)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 6) && (UQ_maxlength >= 6)
-  if ((6*intDsize-1 < 64)
-      ? (value <= (uint64)(wbitc(6*intDsize-1)-1))
-      : true) { /* bignum with 6 digits */
-    var object newnum = allocate_bignum(6,0);
-    var uintD* ptr = &TheBignum(newnum)->data[5];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (5*intDsize>=64)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 7) && (UQ_maxlength >= 7)
-  if ((7*intDsize-1 < 64)
-      ? (value <= (uint64)(wbitc(7*intDsize-1)-1))
-      : true) { /* bignum with 7 digits */
-    var object newnum = allocate_bignum(7,0);
-    var uintD* ptr = &TheBignum(newnum)->data[6];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (6*intDsize>=64)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 8) && (UQ_maxlength >= 8)
-  if ((8*intDsize-1 < 64)
-      ? (value <= (uint64)(wbitc(8*intDsize-1)-1))
-      : true) { /* bignum with 8 digits */
-    var object newnum = allocate_bignum(8,0);
-    var uintD* ptr = &TheBignum(newnum)->data[7];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (7*intDsize>=64)
-    *ptr = 0;
-   #else
-    value = value >> intDsize; *ptr = (uintD)value;
-   #endif
-    return newnum;
-  }
- #endif
- #if (bn_minlength <= 9) && (UQ_maxlength >= 9)
-  if (true) { /* bignum with 9 digits */
-    var object newnum = allocate_bignum(9,0);
-    var uintD* ptr = &TheBignum(newnum)->data[8];
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value; value = value >> intDsize;
-    *ptr-- = (uintD)value;
-   #if (8*intDsize>=64)
     *ptr = 0;
    #else
     value = value >> intDsize; *ptr = (uintD)value;

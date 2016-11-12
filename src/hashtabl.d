@@ -218,20 +218,6 @@ local uint32 hashcode_bignum (object obj) {
     code = misch(code,highlow32(TheBignum(obj)->data[pos],
                                 TheBignum(obj)->data[pos+1]));
   if (len1 != 0) code = misch(code,TheBignum(obj)->data[len2]); /* LSD */
- #else  /* (intDsize==8) */
-  var uintL len1 = len & 3;     /* len mod 4 */
-  var uintL len2 = len - len1;  /* len div 4 */
-  for (pos=0; pos<len2; pos+=4)
-    code = misch(code,( (((uint32)TheBignum(obj)->data[pos])   << 24)
-                       |(((uint32)TheBignum(obj)->data[pos+1]) << 16)
-                       |(((uint32)TheBignum(obj)->data[pos+2]) << 8)
-                       |(((uint32)TheBignum(obj)->data[pos+3]))));
-  if (len1 != 0) {
-    var uint32 lsd=0;
-    for (pos=0; pos<len1; pos++)
-      lsd |= ((uint32)TheBignum(obj)->data[len2+pos]) << (pos<<3);
-    code = misch(code,lsd);
-  }
  #endif
   return code;
 }

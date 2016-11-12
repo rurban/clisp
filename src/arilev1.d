@@ -21,9 +21,6 @@
 # > value: a digit
 # < sintD result: 0 if value>=0, -1 if value<0.
   global sint32 sign_of_sintD (sintD value);
-#if (intDsize==8)
-  #define sign_of_sintD(x)  (sintD)(sign_of_sint16((sint16)(sint8)(x)))
-#endif
 #if (intDsize==16)
   #define sign_of_sintD(x)  (sintD)(sign_of_sint16(x))
 #endif
@@ -72,13 +69,6 @@
 # bzw.
 # muluD(uintD arg1, uintD arg2, uintD hi =, uintD lo =);
 #if HAVE_DD
-  #if (intDsize==8)
-    #ifdef GNU
-      #define muluD(arg1,arg2)  ((uintDD)((uintD)(arg1)*(uintD)(arg2)))
-    #else
-      #define muluD(arg1,arg2)  ((uintDD)(uintD)(arg1)*(uintDD)(uintD)(arg2))
-    #endif
-  #endif
   #if (intDsize==16)
     #define muluD  mulu16
   #endif
@@ -94,7 +84,7 @@
 # Multiply two digits, when the result is a single digit.
 # (uintD)lo = muluD_unchecked(uintD arg1, uintD arg2)
 # The caller guarantees that arg1*arg2 < 2^intDsize.
-  #if (intDsize==8) || (intDsize==16)
+  #if (intDsize==16)
     #define muluD_unchecked(arg1,arg2)  ((uintD)((uintD)(arg1)*(uintD)(arg2)))
   #endif
   #if (intDsize==32)
@@ -108,9 +98,6 @@
 # divides x/y and returns q = floor(x/y) and r = (x mod y). x = q*y+r.
 # The caller guarantees that 0 <= x < 2^intDsize*y.
 #if HAVE_DD
-  #if (intDsize==8)
-    #define divuD  divu_1616_1616
-  #endif
   #if (intDsize==16)
     #define divuD  divu_3216_1616
   #endif
@@ -132,7 +119,7 @@
 # floorD(uintD x, uintD y)
 # divides x/y and returns q = floor(x/y).
 # The caller guarantees that y > 0.
-  #if (intDsize==8) || (intDsize==16)
+  #if (intDsize==16)
     #define floorD(arg1,arg2)  (floor((uintD)(arg1),(uintD)(arg2)))
   #endif
   #if (intDsize==32)
@@ -177,9 +164,6 @@
 # For constructing compile-time constant DS:
 # D(byte0,byte1,byte2,byte3,) returns the 32 bits of {byte0,byte1,byte2,byte3}
 # as 32/intDsize digits.
-  #if (intDsize==8)
-    #define D(byte0,byte1,byte2,byte3,dummy)  byte0,byte1,byte2,byte3,
-  #endif
   #if (intDsize==16)
     #define D(byte0,byte1,byte2,byte3,dummy)  ((byte0<<8)|byte1),((byte2<<8)|byte3),
   #endif
