@@ -9,6 +9,13 @@
 	Update relative paths of files from libtool tarball.
 	Fetch both gtk-2.0.m4 and gtk-3.0.m4.
 
+	* m4/libtool.m4: Update from libtool-2.4.6.
+	* m4/ltoptions.m4: Likewise.
+	* m4/ltsugar.m4: Likewise.
+	* m4/ltversion.m4: Likewise.
+	* m4/lt~obsolete.m4: Likewise.
+	* build-aux/ltmain.sh: Likewise.
+
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix Makefile.devel syntax error introduced on 2011-04-21.
