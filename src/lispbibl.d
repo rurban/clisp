@@ -191,21 +191,6 @@
       #define UNIX_IRIX5  /* Irix 5 */
     #endif
   #endif
-  #if defined(USL) || (defined(__svr4__) && defined(I80386) && !defined(__sun))
-    /* A couple of Unices for 386s (all running under different names)
-     derive from USL SysV R 4:
-       386 UHC UNIX System V release 4
-       Consensys System V 4.2
-       Onsite System V 4.2
-       SINIX-Z
-       DYNIX/ptx V4.1.3
-       SunOS 5 */
-    #define UNIX_SYSV_USL  /* Unix System V R 4 by AT&T's subsidiary USL */
-    #define UNIX_SYSV_UHC_1 /* treat like HPPA && UNIX_HPUX */
-  #endif
-  #if defined(_SEQUENT_) && !defined(__svr4__)
-    #define UNIX_SYSV_PTX  /* Dynix/ptx v. 2 or 3 */
-  #endif
   #ifdef _AIX
     #define UNIX_AIX  /* IBM AIX */
   #endif
@@ -2683,7 +2668,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
  MC680X0 platforms without new gcc.
  It worked on the following platforms in the past, and may still work on:
    (defined(MC680X0) && !defined(UNIX_AMIX) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
+   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
    (defined(MIPS) && !defined(UNIX_IRIX))
    defined(M88000)
