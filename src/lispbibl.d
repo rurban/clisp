@@ -43,63 +43,6 @@
      USE_CUSTOM_TLS={1,2,3}  - see comments for the options
 
 
- Implementation is prepared for the following computers,
- operating systems and c-compilers
- (Only a rough listing, check the file PLATFORMS for further details.)
- Machine      Producer           Operating system              C-Compiler    recognized through
- AMIGA        Commodore          AMIGA-OS (AMIGADOS)           GNU           amiga or AMIGA, __GNUC__, maybe MC68000 or AMIGA3000
- any          any                UNIX                          GNU           unix, __GNUC__, ...
- any          any                UNIX                          CC            unix, ...
- Amiga 3000   Commodore          Amiga UNIX 2.1 SVR4.0         GNU           unix, __unix__, AMIX, __AMIX__, __svr4__, m68k, __m68k__, __motorola__, __GNUC__
- SUN-3        Sun                SUN-OS3 (UNIX BSD 4.2)        GNU           sun, unix, mc68020, __GNUC__
- SUN-3        Sun                SUN-OS4 (UNIX SUNOS 4.1)      GNU           sun, unix, mc68020, __GNUC__
- SUN-386      Sun                SUN-OS4 (UNIX SUNOS 4.0)      GNU           sun, unix, sun386, i386, __GNUC__
- SUN-386      Sun                SUN-OS4 (UNIX SUNOS 4.0)      CC            sun, unix, sun386, i386
- SUN-4        Sun                SUN-OS4 (UNIX SUNOS 4.1)      GNU           sun, unix, sparc, __GNUC__
- SUN-4        Sun                SUN-OS4 (UNIX SUNOS 4.1)      CC            sun, unix, sparc
- SUN-4        Sun                SUN-OS5 (UNIX Solaris)        GCC           sun, unix, sparc, __GNUC__
- UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    CC            sun, unix, __sparc, __sparcv9
- UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    GCC           sun, unix, __sparc, __arch64__, __GNUC__
- IBM-PC/386   any                SUN-OS5 (UNIX Solaris)        GCC           sun, unix, __svr4__, i386, __GNUC__
- HP9000-300   Hewlett-Packard    NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, mc68000, __GNUC__
- HP9000-300   Hewlett-Packard    HP-UX 8.0 (UNIX SYS V)        GNU           [__]hpux, [__]unix, [__]hp9000s300, mc68000, __GNUC__
- HP9000-800   Hewlett-Packard    HP-UX 8.0 (UNIX SYS V)        GNU           [__]hpux, [__]unix, [__]hp9000s800
- IRIS         Silicon Graphics   IRIX (UNIX SYS V 3.2)         GNU           unix, SVR3, mips, sgi, __GNUC__
- IRIS         Silicon Graphics   IRIX (UNIX SYS V)             cc -ansi      [__]unix, [__]SVR3, [__]mips, [__]sgi
- IRIS         Silicon Graphics   IRIX 5 (UNIX SYS V 4)         GNU           [__]unix, [__]SYSTYPE_SVR4, [__]mips, [__]host_mips, [__]MIPSEB, [__]sgi, __DSO__, [__]_MODERN_C, __GNUC__
- DECstation 5000                 RISC/OS (Ultrix V4.2A)        GNU           unix, [__]mips, [__]ultrix
- DG-UX 88k    Data General       DG/UX                         GNU           unix, m88000, DGUX
- DEC Alpha    DEC                OSF/1 1.3                     cc            [unix,] __unix__, __osf__, __alpha
- DEC Alpha    DEC                OSF/1 1.3                     GNU           unix, __unix__, __osf__, __alpha, __alpha__, _LONGLONG
- Apple MacII  Apple              A/UX (UNIX SYS V 2)           GNU           [__]unix, [__]AUX, [__]macII, [__]m68k, mc68020, mc68881, __GNUC__
- NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k
- PowerPC      Apple              Mach 3.0 + MkLinux            GNU           unix, __powerpc__, __PPC__, _ARCH_PPC, _CALL_SYSV, __ELF__, __linux__
- PowerPC      Apple              Mach + Rhapsody               cc            __MACH__, __APPLE__, __ppc[__], __GNUC__, __APPLE_CC__
- PowerPC      Apple              Mach + MacOS X                cc            __MACH__, __APPLE__, __ppc__, __GNUC__, __APPLE_CC__
- Sequent      Sequent            PTX 3.2.0 V2.1.0 i386 (SYS V) GNU           unix, i386, _SEQUENT_, __GNUC__
- Sequent      Sequent            PTX V4.1.3                    GNU           unix, i386, _SEQUENT_, __svr4__, __GNUC__
- Convex C2    Convex             ConvexOS 10.1                 GNU           __convex__, __GNUC__
- IBM RS/6000  IBM                AIX 3.2                       GNU           _AIX, _AIX32, _IBMR2, __CHAR_UNSIGNED__, __GNUC__
- IBM-PC/386   any                LINUX (free UNIX)             GNU           unix, linux, i386, __GNUC__
- IBM-PC/386   any                LINUX (free UNIX)             Intel 5.0     __unix__, __linux__, __INTEL_COMPILER, __ICC, __USLC__
- IBM-PC/386   any                386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
- IBM-PC/386   any                NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
- IBM-PC/386   any                FreeBSD 4.0 (UNIX BSD 4.4)    GNU           unix, __FreeBSD__, i386, __GNUC__
- IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
- IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN__, __POSIX__, _X86_, i386, __GNUC__
- IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
- IBM-PC/386   any                WinNT/Win95                   MSVC          _WIN32, _M_IX86, _MSC_VER
- IBM-PC/386   any                WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
- IBM-PC/386   any                WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN__, __POSIX__, __i386__, _X86_, __GNUC__
- IBM-PC/586   any                BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
- IBM-PC/586   any                HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
- RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
- Acorn        Risc PC            RISC OS 3.x                   GNU           [__]arm, [__]riscos, __GNUC__
- Acorn        Risc PC            RISC OS 3.x                   Norcroft      [__]arm, [__]riscos
- APPLE IIGS   Apple              ??                            ??
- For ANSI-C-Compiler: use pre-processors comment5, varbrace
-   (and maybe gcc-cpp, ccpaux).
-
  this machine: WIN32 or GENERIC_UNIX */
 #if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
