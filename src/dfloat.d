@@ -893,7 +893,7 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
   var uintD mant1 [64/intDsize];
   var uintD mant2 [64/intDsize];
   var uintD mant [128/intDsize];
- #if (intDsize==32) || (intDsize==16) || (intDsize==8)
+ #if (intDsize==32) || (intDsize==16)
   set_32_Dptr(mant1,manthi1); set_32_Dptr(&mant1[32/intDsize],mantlo1);
   set_32_Dptr(mant2,manthi2); set_32_Dptr(&mant2[32/intDsize],mantlo2);
  #else
@@ -939,10 +939,6 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
     mantlo = /* ((uint32)mant[2] << 27) | ((uint32)mant[3] << 11) | ((uint32)mant[4] >> 5); // bits 84..53 */
       (highlow32_at(&mant[2])<<11) | ((uint32)mant[4] >> 5); /* bits 84..53 */
     #define mantrest() ((mant[4] & (bit(5)-1)) || mant[5] || mant[6] || mant[7])
-   #elif (intDsize==8)
-    manthi = ((uint32)mant[1] << 27) | ((uint32)mant[2] << 19) | ((uint32)mant[3] << 11) | ((uint32)mant[4] << 3) | ((uint32)mant[5] >> 5); /* bits 116..85 */
-    mantlo = ((uint32)mant[5] << 27) | ((uint32)mant[6] << 19) | ((uint32)mant[7] << 11) | ((uint32)mant[8] << 3) | ((uint32)mant[9] >> 5); /* bits 84..53 */
-    #define mantrest() ((mant[9] & (bit(5)-1)) || mant[10] || mant[11] || mant[12] || mant[13] || mant[14] || mant[15])
    #endif
     if ( (mant_bit(DF_mant_len) ==0) /* bit DF_mant_len =0 -> round off */
          || ( !mantrest() /* bit DF_mant_len =1 and bits DF_mant_len-1..0 >0 -> round up */
@@ -969,10 +965,6 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
     mantlo = /* ((uint32)mant[2] << 28) | ((uint32)mant[3] << 12) | ((uint32)mant[4] >> 4); // bits 83..52 */
       (highlow32_at(&mant[2])<<12) | ((uint32)mant[4] >> 4); /* bits 83..52 */
     #define mantrest() ((mant[4] & (bit(4)-1)) || mant[5] || mant[6] || mant[7])
-   #elif (intDsize==8)
-    manthi = ((uint32)mant[1] << 28) | ((uint32)mant[2] << 20) | ((uint32)mant[3] << 12) | ((uint32)mant[4] << 4) | ((uint32)mant[5] >> 4); /* bits 115..84 */
-    mantlo = ((uint32)mant[5] << 28) | ((uint32)mant[6] << 20) | ((uint32)mant[7] << 12) | ((uint32)mant[8] << 4) | ((uint32)mant[9] >> 4); /* bits 83..52 */
-    #define mantrest() ((mant[9] & (bit(4)-1)) || mant[10] || mant[11] || mant[12] || mant[13] || mant[14] || mant[15])
    #endif
     if ( (mant_bit(DF_mant_len-1) ==0) /* bit DF_mant_len-1 =0 -> round off */
          || ( !mantrest() /* bit DF_mant_len-1 =1 and bits DF_mant_len-2..0 >0 -> round up */
@@ -1078,7 +1070,7 @@ local maygc object DF_DF_div_DF (object x1, object x2) {
  #endif
   var uintD mant1 [128/intDsize];
   var uintD mant2 [64/intDsize];
- #if (intDsize==32) || (intDsize==16) || (intDsize==8)
+ #if (intDsize==32) || (intDsize==16)
   set_32_Dptr(mant1,manthi1); set_32_Dptr(&mant1[32/intDsize],mantlo1);
   set_32_Dptr(&mant1[2*32/intDsize],0); set_32_Dptr(&mant1[3*32/intDsize],0);
   set_32_Dptr(mant2,manthi2); set_32_Dptr(&mant2[32/intDsize],mantlo2);
@@ -1279,7 +1271,7 @@ local maygc object DF_sqrt_DF (object x) {
   exp = exp >> 1; /* exp := exp/2 */
   {
     var uintD mant [128/intDsize];
-   #if (intDsize==32) || (intDsize==16) || (intDsize==8)
+   #if (intDsize==32) || (intDsize==16)
     set_32_Dptr(mant,manthi); set_32_Dptr(&mant[32/intDsize],mantlo);
     set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
    #else

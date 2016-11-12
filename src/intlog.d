@@ -670,17 +670,6 @@ global maygc object I_I_ash_I (object x, object y)
  I_logcount_I(x)
  can trigger GC */
 local maygc object I_logcount_I (object x);
-/* count bits of x8: (input x8, output x8) */
-#define logcount_8()                                            \
-    (                                                           \
-      /* x8 consists of 8 1-bit-counters (0,1). */              \
-      x8 = (x8 & 0x55U) + ((x8 & 0xAAU) >> 1),                  \
-      /* x8 consists of 4 2-bit-counters (0,1,2). */            \
-      x8 = (x8 & 0x33U) + ((x8 & 0xCCU) >> 2),                  \
-      /* x8 consists of 2 4-bit-counters (0,1,2,3,4). */        \
-      x8 = (x8 & 0x0FU) + (x8 >> 4)                             \
-      /* x8 consists of 1 8-bit-counter (0,...,8). */           \
-    )
 /* count bits of x16: (input x16, output x16) */
 #define logcount_16()                                           \
     (                                                           \
@@ -749,14 +738,6 @@ local maygc object I_logcount_I (object x)
     var uintL bitcount = 0; /* bitcounter */
     var uintD* ptr = MSDptr; /* traverses the digits */
     var uintD sign = sign_of_sintD(ptr[0]); /* sign */
-   #if (intDsize==8)
-    dotimespC(len,len, {
-      var uintD x8 = (*ptr++) ^ sign; /* next intDsize-bit-package, */
-      /* negative numbers are complemented */
-      /* count bits of x8, increase total counter: */
-      bitcount += (uintL)(logcount_8(), x8);
-    });
-   #endif
    #if (intDsize==16)
     dotimespC(len,len, {
       var uintD x16 = (*ptr++) ^ sign; /* next intDsize-bit-package, */
@@ -784,41 +765,12 @@ local maygc object I_logcount_I (object x)
 #undef x16
 #undef logcount_32
 #undef logcount_16
-#undef logcount_8
 
 /* count bits of a digit:
  integerlengthD(digit,size=);
  sets size to the highest bit number occurring in digit.
  > digit: a uintD >0
  < size: >0, <=intDsize, with 2^(size-1) <= digit < 2^size */
-#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
-  #define integerlength8(digit,size_assignment)                         \
-    {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */\
-      __asm__("bfffo %1{#0:#8},%0" : "=d" (zero_counter) : "dm" ((uint8)(digit)) ); \
-      size_assignment (8-zero_counter);                                 \
-    }
-#elif defined(SPARC) && !defined(SPARC64)
-  #define integerlength8(digit,size_assignment)  \
-    integerlength32((uint32)(digit),size_assignment) /* see below */
-#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
-  #define integerlength8(digit,size_assignment)  \
-    integerlength16((uint16)(digit),size_assignment)
-#else
-  #define integerlength8(digit,size_assignment)                 \
-    {                                                           \
-      var uintC bitsize = 1;                                    \
-      var uintBWL x8 = (uint8)(digit);                          \
-      /* x8 has at most 8 bits. */                              \
-      if (x8 >= bit(4)) { x8 = x8>>4; bitsize += 4; }           \
-      /* x8 has at most 4 bits. */                              \
-      if (x8 >= bit(2)) { x8 = x8>>2; bitsize += 2; }           \
-      /* x8 has at most 2 bits. */                              \
-      if (x8 >= bit(1)) { /* x8 = x8>>1; */ bitsize += 1; }     \
-      /* x8 has at most 1 bit. This bit must be set. */         \
-      size_assignment bitsize;                                  \
-    }
-#endif
 #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   #define integerlength16(digit,size_assignment)                         \
     {                                                                    \
@@ -993,9 +945,6 @@ local maygc object I_logcount_I (object x)
     }                                                                       \
     integerlength32(x32_from_integerlength64, size_assignment bitsize64 + ); \
   }
-#if (intDsize==8)
-  #define integerlengthD  integerlength8
-#endif
 #if (intDsize==16)
   #define integerlengthD  integerlength16
 #endif
