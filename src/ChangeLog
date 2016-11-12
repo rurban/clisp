@@ -1,3 +1,13 @@
+2016-11-12  Bruno Haible  <bruno@clisp.org>
+
+	Modernize: Remove support for long dead platforms.
+	* makemake.in: Remove most special values of TARGET argument.
+	Drop support for GCC versions older than 2.95.
+	Make GCC version handling future-proof.
+	Drop support for Ultrix, IRIX 4, old SVR4, HP300.
+	For debugging, use -ggdb instead of -g.
+	* utils/txt2c.c: Remove support for QUOTE_QUOTES.
+
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Modernize: Remove support for IRIX.
