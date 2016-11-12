@@ -1,5 +1,15 @@
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove support for mc680x0 CPUs before mc68020.
+	* lispbibl.d (M68K): Define instead of MC680X0 or MC680Y0.
+	Adjust all code accordingly. Remove code conditional for MC68000 only.
+	* eval.d, arilev0.d, arilev1.d, intelem.d, intlog.d, foreign.d: Adjust
+	accordingly.
+	* ari68000.d: Remove file.
+	* makemake.in, utils/d2c/Makefile.in: Remove handling of ari68000.d.
+
+2016-11-12  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove support for long dead platforms.
 	* makemake.in: Remove most special values of TARGET argument.
 	Drop support for GCC versions older than 2.95.

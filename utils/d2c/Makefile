@@ -108,7 +108,6 @@ ansidecl.c: ../ansidecl.d
 # We don't want to run the .c files that are really assembly code
 # through indent because nothing good happens to 'em.
 
-assembly := ari68000.c
 assembly += ari68020.c
 assembly += ari80386.c
 assembly += ariarm.c

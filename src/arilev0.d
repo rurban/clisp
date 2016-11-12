@@ -10,7 +10,7 @@
 #   SWAP D0  # Vorzeichen nach Bit 15 schieben
 #   EXT.L D0 # nach Bit 31..16 kopieren
 #   SWAP D0  # nach Bit 15..0 schieben
-  #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+  #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
     #define sign_of_sint32(value)  \
       ({var sint32 __value = (value);  \
         var sint16 __result;        \
@@ -37,7 +37,7 @@
 # im 68000-Assembler (Input D0.W, Output D0.W):
 #   EXT.L D0 # Vorzeichen nach Bit 31..16 kopieren
 #   SWAP D0  # nach Bit 15..0 schieben
-  #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+  #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
     #define sign_of_sint16(value)  \
       ({var sint16 __value = (value);  \
         var sint16 __result;        \
@@ -61,7 +61,7 @@
 # im 68000-Assembler (Input D0.L, Output D0.W):
 #   SWAP D0
   #ifdef GNU
-    #if defined(MC680X0) && !defined(NO_ASM)
+    #if defined(M68K) && !defined(NO_ASM)
       #define high16(value)  \
         ({var uint32 __value = (value);  \
           var uint16 __result;        \
@@ -88,7 +88,7 @@
 #   SWAP D0
 #   MOVE.W D1,D0
   #ifdef GNU
-    #if defined(MC680X0) && !defined(NO_ASM)
+    #if defined(M68K) && !defined(NO_ASM)
       #define highlow32(high,low)  \
         ({var uint16 __high = (high);  \
           var uint16 __low = (low);    \
@@ -114,7 +114,7 @@
 #   SWAP D0
 #   CLR.W D0
   #ifdef GNU
-    #if defined(MC680X0) && !defined(NO_ASM)
+    #if defined(M68K) && !defined(NO_ASM)
       #define highlow32_0(high)  \
         ({var uint16 __high = (high);  \
           var uint32 __result;       \
@@ -214,32 +214,6 @@
         hi_assignment __fi.s[1]; # mittlere 16 Bit herausholen, (benutzt BIG_ENDIAN_P !) \
         lo_assignment __fi.i[1]; # untere 32 Bit herausholen (benutzt BIG_ENDIAN_P !)    \
       }
-  #elif defined(MC680X0) && !defined(MC680Y0)
-    # Methode:
-    # Sei x = x1*2^16+x0, y = y1*2^16+y0  mit
-    # 0 <= x0,y0 < 2^16, 0 <= x1,y1 < 2^8 . Dann ist das Produkt x*y
-    # >=0 und < 2^48. Es belegt also 3 16-Bit-Worte.
-    # In  x * y = x1*y1*2^32 + (x1*y0+x0*y1)*2^16 + x0*y0
-    # bestimmen die ersten beiden Summanden und das High-Word des dritten
-    # Summanden die beiden höherwertigen Words des Ergebnisses (und
-    # hierbei gibt es keinen Überlauf, da das Produkt in 3 Words passt!),
-    # das Low-Word des dritten Summanden ist auch das des Ergebnisses.
-    #define mulu24(x,y,hi_assignment,lo_assignment)  \
-      { var uint32 _x = (x);                                       \
-        var uint32 _y = (y);                                       \
-        var uint32 _erg21; # Teilresultat für Words 2 und 1 des Ergebnisses \
-        var uint32 _erg10; # Teilresultat für Words 1 und 0 des Ergebnisses \
-        { var uint16 _x1 = high16(_x);                             \
-          var uint16 _y1 = high16(_y);                             \
-          _erg21 = highlow32_0(mulu16(_x1,_y1))                    \
-                  + mulu16(_x1,low16(_y)) + mulu16(low16(_x),_y1); \
-        }                                                          \
-        _erg10 = mulu16(low16(_x),low16(_y));                      \
-        # Teilresultate kombinieren:                               \
-        _erg21 += high16(_erg10);                                  \
-        hi_assignment high16(_erg21);                               \
-        lo_assignment highlow32(low16(_erg21),low16(_erg10));       \
-      }
   #else
     #define mulu24  mulu32
   #endif
@@ -268,8 +242,8 @@
 # in 68020-Assembler (Input D0.L,D1.L, Output D0.L,D1.L):
 #   MULU.L D1,D1:D0
   #if defined(GNU) || defined(INTEL)
-    #ifdef MC680X0
-      #if !(defined(MC680Y0) && !defined(NO_ASM))
+    #ifdef M68K
+      #if defined(NO_ASM)
         #define mulu32(x,y,hi_assignment,lo_assignment)  \
           ({ var uint32 _x = (x);                                          \
              var uint32 _y = (y);                                          \
@@ -354,7 +328,7 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if defined(MC680X0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)
+    #if defined(M68K) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -392,29 +366,7 @@
 # > arg1, arg2 : zwei 32-Bit-Zahlen
 # < result : eine 32-Bit-Zahl
 # Es wird vorausgesetzt, dass arg1*arg2 < 2^32.
-  #if (defined(GNU) && defined(MC680X0) && !defined(MC680Y0))
-    extern uint32 mulu32_unchecked (uint32 x, uint32 y);
-    #ifdef LISPARIT
-    global uint32 mulu32_unchecked (uint32 x, uint32 y) {
-      # Methode:
-      # Falls x>=2^16 und y>=2^16 wäre, wäre das Produkt zu groß.
-      # Falls x<2^16 : y = y1*2^16+y0 schreiben, (x*y1)*2^16 + (x*y0) bilden.
-      # Falls y<2^16 : x = x1*2^16+x0 schreiben, (x1*y)*2^16 + (x0*y) bilden.
-      # Falls sogar x<2^16 und y<2^16: nur x*y bilden.
-      var uint16 x1 = high16(x);
-      var uint16 y1 = high16(y);
-      if (x1==0)
-        if (y1==0)
-          return mulu16((uint16)(x),(uint16)(y));
-        else
-          return highlow32_0(mulu16((uint16)(x),y1))
-                 + mulu16((uint16)(x),low16(y));
-      else
-        return highlow32_0(mulu16(x1,(uint16)(y)))
-               + mulu16(low16(x),(uint16)(y));
-    }
-    #endif
-  #elif defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
+  #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define mulu32_unchecked(arg1,arg2)  \
       ({ var register uint64 _result;                         \
          __asm__("umul %1,%2,%0"                              \
@@ -540,7 +492,7 @@
            q_assignment low16(__qr);  \
            r_assignment high16(__qr); \
          })
-    #elif defined(MC680X0) && !defined(NO_ASM)
+    #elif defined(M68K) && !defined(NO_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         ({var uint32 __x = (x);      \
           var uint16 __y = (y);      \
@@ -855,7 +807,7 @@
   extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                                         # -> Rest r
   #if defined(GNU) || defined(INTEL)
-    #if defined(MC680Y0) && !defined(NO_ASM)
+    #if defined(M68K) && !defined(NO_ASM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({var uint32 __xhi = (xhi);  \
           var uint32 __xlo = (xlo);  \
@@ -932,7 +884,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if defined(MC680Y0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)
+    #if defined(M68K) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -1248,7 +1200,7 @@
 # > uint32 xhi,xlo: Radikand x = 2^32*xhi+xlo, >= 2^62, < 2^64
 # < uint32 y: floor(sqrt(x)), >= 2^31, < 2^32
 # < bool sqrtp: /=0, falls x=y^2
-  #if (defined(SPARC) || defined(SPARC64) || defined(MC680Y0) || defined(HPPA))
+  #if (defined(SPARC) || defined(SPARC64) || defined(M68K) || defined(HPPA))
     # Methode:
     # y := 2^32 als Anfangswert,
     # y := floor((y + floor(x/y))/2) als nächster Wert,
@@ -1346,7 +1298,7 @@
 
 # Eine 32-Bit-Zahl aus zwei aufeinanderfolgenden 16-Bit-Digits einer UDS
 # zusammensetzen: highlow32_at(ptr)
-  #if BIG_ENDIAN_P && defined(MC680X0)
+  #if BIG_ENDIAN_P && defined(M68K)
     # ptr als 32-Bit-Pointer auffassen und darauf zugreifen
     #define highlow32_at(ptr)  (*(uint32*)(ptr))
   #else
@@ -1355,7 +1307,7 @@
 
 # Eine 32-Bit-Zahl in zwei aufeinanderfolgende 16-Bit-Digits einer UDS abspeichern:
 # set_highlow32_at(ptr,value32); wobei ptr und value32 Variablen.
-  #if BIG_ENDIAN_P && defined(MC680X0)
+  #if BIG_ENDIAN_P && defined(M68K)
     # ptr als 32-Bit-Pointer auffassen und darauf zugreifen
     #define set_highlow32_at(ptr,value32)  (*(uint32*)(ptr)=(value32))
   #else

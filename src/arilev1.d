@@ -203,7 +203,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #                   as macroexpanded inline assembler routines.
 #                   Very efficient.
 
-#if (defined(MC680X0) || defined(SPARC) || defined(I80386) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM)
+#if (defined(M68K) || defined(SPARC) || defined(I80386) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM)
   # diese Assembler beherrsche ich
   #if (defined(GNU) && defined(WANT_LOOP_INLINE))
     # der GNU-Compiler kann Inline-Assembler
@@ -237,14 +237,10 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #ifdef LOOP_EXTERN_ASM
   # Die Assembler-Definitionen:
     #define INCLUDED_FROM_C
-    #if defined(MC680X0) && !defined(UNIX_LINUX)
+    #if defined(M68K) && !defined(UNIX_LINUX)
       # Scott Kolodzieski <scott@dmi.stevens-tech.edu> says this doesn't work
       # on Linux/68k.
-      #if !defined(MC680Y0)
-        #include "ari68000.c"
-      #else
-        #include "ari68020.c"
-      #endif
+      #include "ari68020.c"
     #endif
     #if defined(SPARC)
       #if defined(SPARC64)

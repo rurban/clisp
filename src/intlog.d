@@ -791,7 +791,7 @@ local maygc object I_logcount_I (object x)
  sets size to the highest bit number occurring in digit.
  > digit: a uintD >0
  < size: >0, <=intDsize, with 2^(size-1) <= digit < 2^size */
-#if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   #define integerlength8(digit,size_assignment)                         \
     {                                                                   \
       var uintL zero_counter; /* counts the leading nullbits in digit */\
@@ -819,7 +819,7 @@ local maygc object I_logcount_I (object x)
       size_assignment bitsize;                                  \
     }
 #endif
-#if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   #define integerlength16(digit,size_assignment)                         \
     {                                                                    \
       var uintL zero_counter; /* counts the leading nullbits in digit */ \
@@ -861,7 +861,7 @@ local maygc object I_logcount_I (object x)
       size_assignment bitsize;                                  \
     }
 #endif
-#if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
+#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
   #define integerlength32(digit,size_assignment)  \
     {                                                                   \
       var uintL zero_counter; /* counts the leading nullbits in digit */\
