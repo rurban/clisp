@@ -1,5 +1,15 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove support for IRIX.
+	* lispbibl.d (UNIX_IRIX, UNIX_IRIX5): Remove macros.
+	(GENERATIONAL_GC): Update.
+	* spvw_mmap.d (mmap_init_pagesize): Remove IRIX workaround.
+	* spvw_sigsegv.d (stackoverflow_handler_continuation): Likewise.
+	* pathname.d (realpath): Likewise.
+	* stream.d (IS_EINVAL_EXTRA): Likewise.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove support for Data General DG/UX.
 	* lispbibl.d (UNIX_DGUX): Remove macro.
 

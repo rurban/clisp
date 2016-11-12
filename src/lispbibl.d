@@ -185,12 +185,6 @@
   #if defined(SVR3) || defined(__SVR3) || defined(SVR4) || defined(__SVR4) || defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4) || defined(__svr4__) || defined(USG) || defined(UNIX_HPUX) /* ?? */
     #define UNIX_SYSV  /* UNIX System V */
   #endif
-  #if defined(UNIX_SYSV) && (defined(sgi) || defined(__sgi))
-    #define UNIX_IRIX  /* Irix */
-    #if defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4)
-      #define UNIX_IRIX5  /* Irix 5 */
-    #endif
-  #endif
   #ifdef _AIX
     #define UNIX_AIX  /* IBM AIX */
   #endif
@@ -2661,7 +2655,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    (defined(MC680X0) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
    (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
-   (defined(MIPS) && !defined(UNIX_IRIX))
+   defined(MIPS)
    defined(M88000)
    (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
    defined(VAX) */
@@ -2839,9 +2833,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
           not the precise address of the fault, we can use it only if every   \
           page contains only a single type of Lisp objects. */                \
        (defined(SINGLEMAP_MEMORY) || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL)  \
-    && /* On IRIX 6, it worked in the past, but leads to core dumps now.      \
-          Reason unknown. FIXME! */                                           \
-       !defined(UNIX_IRIX)                                                    \
     && /* Not worth spending effort on making it work with                    \
           WIDE_SOFT_LARGEFIXNUM. */                                           \
        !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
