@@ -20,6 +20,12 @@
 	* build-aux/missing: Likewise.
 	* build-aux/ylwrap: Likewise.
 
+	* build-aux/config.guess: Update from gnulib git.
+	* build-aux/config.rpath: Likewise.
+	* build-aux/config.sub: Likewise.
+	* build-aux/depcomp: Likewise.
+	* build-aux/install-sh: Likewise.
+
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix Makefile.devel syntax error introduced on 2011-04-21.
