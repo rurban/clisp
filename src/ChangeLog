@@ -1,5 +1,14 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Modernize blurbs and comments.
+	* COPYRIGHT: Update year.
+	* SUMMARY: Remove outdated infos. Use https URLs where available.
+	* unix/PLATFORMS: Trim list of platforms and hints. Mention
+	GENERIC64_HEAPCODES.
+	* lispbibl.d: Remove comment about old (now all museum) platforms.
+	
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Make GENERIC64{A,B}_HEAPCODES work with -falign-functions=4.
 	* lispbibl.d (machinep) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]:
 	Define in such a way that machine pointers only need to be aligned
