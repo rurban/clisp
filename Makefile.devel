@@ -335,21 +335,21 @@ update-gmalloc : force
 
 # it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
-LIBTOOL_VERSION = 2.4
+LIBTOOL_VERSION = 2.4.6
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 # an alternative way to update libtool files is "cd src; libtoolize --copy"
-AUTOMAKE_VERSION = 1.11.1
+AUTOMAKE_VERSION = 1.15
 AUTOMAKE_GIT = http://git.savannah.gnu.org/cgit/automake.git/plain/lib/
-GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros
-GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
+GTK_GIT_ROOT = https://git.gnome.org/browse/gtk+/plain
+GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh
 # it is important not to have "*.m4" targets with ": force" dependencies
 # because otherwise every make will rebuild all configures
 build-aux-update : update-gnulib force
 	for f in $(GNULIB_AUX); do \
 	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; \
 	done
-	for f in compile ylwrap; do \
+	for f in compile missing ylwrap; do \
 	  $(WGET) -O src/build-aux/$$f $(AUTOMAKE_GIT)$$f?v$(AUTOMAKE_VERSION); \
 	done
 	chmod +x src/build-aux/compile src/build-aux/ylwrap
@@ -357,12 +357,14 @@ build-aux-update : update-gnulib force
 	test -f $(LIBTOOL_SOURCE_FILE) || $(WGET) $(LIBTOOL_SOURCE_URL)
 	$(RMRF) libtool-$(LIBTOOL_VERSION)
 	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
-	$(CP) libtool-$(LIBTOOL_VERSION)/libltdl/config/ltmain.sh src/build-aux/ltmain.sh
+	$(CP) libtool-$(LIBTOOL_VERSION)/build-aux/ltmain.sh src/build-aux/ltmain.sh
 	chmod +x src/build-aux/ltmain.sh
 	for f in libtool ltoptions ltsugar ltversion lt~obsolete; do \
-	  $(CP) libtool-$(LIBTOOL_VERSION)/libltdl/m4/$$f.m4 src/m4/; done
+	  $(CP) libtool-$(LIBTOOL_VERSION)/m4/$$f.m4 src/m4/; \
+	done
 	$(RMRF) libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
-	cd src/m4; $(RM) gtk-2.0.m4; $(WGET) $(GTK2_SVN_ROOT)/gtk-2.0.m4
+	cd src/m4; $(RM) gtk-2.0.m4; $(WGET) -O gtk-2.0.m4 '$(GTK_GIT_ROOT)/m4macros/gtk-2.0.m4?h=gtk-2-24'
+	cd src/m4; $(RM) gtk-3.0.m4; $(WGET) -O gtk-3.0.m4 '$(GTK_GIT_ROOT)/m4macros/gtk-3.0.m4?h=gtk-3-22'
 
 GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
 	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
