@@ -1268,11 +1268,6 @@ typedef signed int  signean;
   #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
     arrayeltype arrayvar[arraysize]
   #define FREE_DYNAMIC_ARRAY(arrayvar)
-  #ifdef DECALPHA /* GCC 2.5.5 Bug umgehen */
-    #undef DYNAMIC_ARRAY
-    #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
-      arrayeltype arrayvar[(arraysize)+1]
-  #endif
 #elif (defined(UNIX) && (defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT)
   /* Allocate space in machine stack.
    { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... } */
