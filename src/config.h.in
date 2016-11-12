@@ -1523,8 +1523,7 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* If malloc(0) is != NULL, define this to 1. Otherwise define this to 0. */
@@ -1559,9 +1558,6 @@
 
 /* need <sys/ioctl.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_IOCTL_H
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* Define to 1 if the nlist n_name member is a pointer */
 #undef N_NAME_POINTER
@@ -1694,9 +1690,9 @@
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at runtime.
-        STACK_DIRECTION > 0 => grows toward higher addresses
-        STACK_DIRECTION < 0 => grows toward lower addresses
-        STACK_DIRECTION = 0 => direction of growth unknown */
+	STACK_DIRECTION > 0 => grows toward higher addresses
+	STACK_DIRECTION < 0 => grows toward lower addresses
+	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
 /* Define to 1 if the `S_IS*' macros in <sys/stat.h> do not work properly. */
@@ -1783,7 +1779,7 @@
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING
 
-/* Enable large inode numbers on Mac OS X.  */
+/* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
 # define _DARWIN_USE_64_BIT_INODE 1
 #endif
@@ -1956,6 +1952,9 @@
 # define _Restrict
 # define __restrict__
 #endif
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
 
 /* type to use in place of socklen_t if not defined */
 #undef socklen_t

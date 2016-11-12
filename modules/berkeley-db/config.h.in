@@ -3,6 +3,9 @@
 /* Define to 1 if DB_ENV->set_errcall() accepts DBE */
 #undef HAVE_DBE_SET_ERRCALL_ACCEPT_DBE
 
+/* Define to 1 if `compact' is a member of `DB'. */
+#undef HAVE_DB_COMPACT
+
 /* Define to 1 if `get_home' is a member of `DB_ENV'. */
 #undef HAVE_DB_ENV_GET_HOME
 
@@ -26,6 +29,9 @@
 
 /* Define to 1 if `set_msgcall' is a member of `DB_ENV'. */
 #undef HAVE_DB_ENV_SET_MSGCALL
+
+/* Define to 1 if you have the `db_full_version' function. */
+#undef HAVE_DB_FULL_VERSION
 
 /* Define to 1 if DB->get_transactional() accepts just 1 argument */
 #undef HAVE_DB_GET_TRANSACTIONAL_1ARG
@@ -109,7 +115,7 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Enable large inode numbers on Mac OS X.  */
+/* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
 # define _DARWIN_USE_64_BIT_INODE 1
 #endif
