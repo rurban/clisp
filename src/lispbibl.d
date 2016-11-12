@@ -191,9 +191,6 @@
       #define UNIX_IRIX5  /* Irix 5 */
     #endif
   #endif
-  #if defined(MIPS) && defined(sinix) /* && defined(SNI) */
-    #define UNIX_SINIX /* Siemens is nix */
-  #endif
   #if defined(USL) || (defined(__svr4__) && defined(I80386) && !defined(__sun))
     /* A couple of Unices for 386s (all running under different names)
      derive from USL SysV R 4:
@@ -205,9 +202,6 @@
        SunOS 5 */
     #define UNIX_SYSV_USL  /* Unix System V R 4 by AT&T's subsidiary USL */
     #define UNIX_SYSV_UHC_1 /* treat like HPPA && UNIX_HPUX */
-    #ifdef SNI
-      #define UNIX_SINIX /* Siemens is nix */
-    #endif
   #endif
   #if defined(_SEQUENT_) && !defined(__svr4__)
     #define UNIX_SYSV_PTX  /* Dynix/ptx v. 2 or 3 */
@@ -2819,11 +2813,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
-    && !(defined(UNIX_SINIX) || defined(UNIX_AIX) || defined(UNIX_NETBSD))     \
+    && !(defined(UNIX_AIX) || defined(UNIX_NETBSD))     \
     && !defined(NO_SINGLEMAP)
     /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information.
-     But this does not work on SINIX and AIX.
+     But this does not work on AIX.
      On NetBSD it fails because the resulting addresses are outside of any
      mappable address range. */
       #define SINGLEMAP_MEMORY
