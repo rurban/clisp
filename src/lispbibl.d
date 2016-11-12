@@ -207,9 +207,6 @@
        http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html */
     #define CONSTANT_PATHNAME_ENCODING  Symbol_value(S(utf_8))
   #endif
-  #ifdef AMIX
-    #define UNIX_AMIX  /* Amiga UNIX */
-  #endif
   #ifdef __CYGWIN__
     #define UNIX_CYGWIN32  /* Cygwin32 (UNIXlike on WinNT/Win95) */
   #endif
@@ -2664,7 +2661,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 /* Now come the 32-bit platforms with TYPECODES. We need to support it only on
  MC680X0 platforms without new gcc.
  It worked on the following platforms in the past, and may still work on:
-   (defined(MC680X0) && !defined(UNIX_AMIX) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
+   (defined(MC680X0) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
    (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
    (defined(MIPS) && !defined(UNIX_IRIX))
