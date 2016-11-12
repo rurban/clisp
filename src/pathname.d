@@ -189,9 +189,7 @@ local char* realpath (const char* path, char* resolved_path) {
                   }
                   to_ptr = from_ptr;
                 } else {
-                  #if defined(UNIX_IRIX)
-                  if ((errno == EINVAL) || (errno == ENXIO))
-                  #elif defined(UNIX_CYGWIN32)
+                  #if defined(UNIX_CYGWIN32)
                   if ((errno == EINVAL) || (errno == EACCES))
                   #else
                   if (errno == EINVAL)
