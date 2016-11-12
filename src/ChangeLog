@@ -26,6 +26,9 @@
 	* build-aux/depcomp: Likewise.
 	* build-aux/install-sh: Likewise.
 
+	* m4/gtk-2.0.m4: Update from GNOME git.
+	* m4/gtk-3.0.m4: New file, from GNOME git.
+
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix Makefile.devel syntax error introduced on 2011-04-21.
