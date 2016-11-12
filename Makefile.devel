@@ -347,7 +347,8 @@ GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 # because otherwise every make will rebuild all configures
 build-aux-update : update-gnulib force
 	for f in $(GNULIB_AUX); do \
-	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; done \
+	  $(CP) $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; \
+	done
 	for f in compile ylwrap; do \
 	  $(WGET) -O src/build-aux/$$f $(AUTOMAKE_GIT)$$f?v$(AUTOMAKE_VERSION); \
 	done
