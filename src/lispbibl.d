@@ -200,9 +200,6 @@
   #ifdef __osf__
     #define UNIX_OSF  /* OSF/1 */
   #endif
-  #ifdef AUX
-    #define UNIX_AUX  /* Apple A/UX, a spiced-up SVR2 */
-  #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  /* MacOS X */
     /* MacOSX pathnames are UTF-8 strings, not byte sequences

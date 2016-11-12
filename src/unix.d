@@ -114,9 +114,6 @@
   #ifdef UNIX_HPUX
     #include <sys/vmmac.h> /* for SHMLBA */
   #endif
-  #ifdef UNIX_AUX
-    #include <sys/mmu.h> /* for SHMLBA */
-  #endif
   #if defined(UNIX_LINUX) && !defined(UNIX_GNU)
     #include <asm/page.h> /* for SHMLBA on Linux 2.0 */
   #endif
