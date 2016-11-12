@@ -1,5 +1,10 @@
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove support for mc680x0 CPUs on HP-UX.
+	* lispbibl.d: Assume HPUX_ASSEMBLER is not defined.
+
+2016-11-12  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove support for mc680x0 CPUs before mc68020.
 	* lispbibl.d (M68K): Define instead of MC680X0 or MC680Y0.
 	Adjust all code accordingly. Remove code conditional for MC68000 only.

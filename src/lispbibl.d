@@ -1443,13 +1443,13 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
 
 /* From here on 'uintXY' and 'sintXY' mean unsigned or signed integer types,
  with word sizes X or Y (X,Y=B,W,L). */
-#if (defined(M68K) && !defined(HPUX_ASSEMBLER)) || defined(VAX)
+#if defined(M68K) || defined(VAX)
   /* The 68000 offers good processing of uintB and uintW, especially
    DBRA-commands for uintW. */
   #define intBWsize intBsize
   #define intWLsize intWsize
   #define intBWLsize intBsize
-#elif (defined(M68K) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
+#elif defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
   /* The Sparc-processor computes rather badly with uintB and uintW.
    Other 32-Bit-processoren have similar weaknesses. */
   #define intBWsize intWsize
@@ -1505,7 +1505,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
  and will be changed by this expression.
  It must not be used in the statement itself!
  The expression count will only be evaluated once (at the beginning). */
-#if defined(GNU) && defined(M68K) && !defined(HPUX_ASSEMBLER)
+#if defined(GNU) && defined(M68K)
   /* GNU-C on a 680X0 can be persuaded to use the DBRA-instruction: */
   #define fast_dotimesW
   /* To find out, what the best was to 'persuade' GNU-C is, check the
@@ -1549,7 +1549,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
       do {statement_from_dotimespW} while (--countvar_from_dotimespW != 0); \
     }
 #endif
-#if defined(GNU) && defined(M68K) && !defined(HPUX_ASSEMBLER)
+#if defined(GNU) && defined(M68K)
   /* GNU-C on a 680X0 can be 'persuaded' to use the DBRA-instruction
    in an intelligent manner: */
   #define fast_dotimesL
