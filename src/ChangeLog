@@ -1,5 +1,10 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove support for Data General DG/UX.
+	* lispbibl.d (UNIX_DGUX): Remove macro.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove support for Amiga UNIX.
 	* lispbibl.d (UNIX_AMIX): Remove macro.
 

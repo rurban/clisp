@@ -194,9 +194,6 @@
   #ifdef _AIX
     #define UNIX_AIX  /* IBM AIX */
   #endif
-  #ifdef DGUX
-    #define UNIX_DGUX  /* Data General DG/UX */
-  #endif
   #ifdef __osf__
     #define UNIX_OSF  /* OSF/1 */
   #endif
@@ -506,7 +503,7 @@
    around 1992. Now, with an AMD Athlon CPU from 2000, with good caches, it
    still brings 4%.
    The declarations must occur before any system include files define any
-   inline function, which is the case on UNIX_DGUX and UNIX_GNU.
+   inline function, which is the case on UNIX_GNU.
    Only GCC supports global register variables. Not Apple's variant of GCC.
    And only the C frontend, not the C++ frontend, understands the syntax.
    And gcc-3.0 to 3.3.3 has severe bugs with global register variables, see
