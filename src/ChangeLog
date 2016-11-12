@@ -1,5 +1,10 @@
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove old Linux workaround.
+	* makemake.in (XCFLAGS): Remove workaround for Linux < 1.1.52.
+
+2016-11-12  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove old GCC bug workaround.
 	* lispbibl.d (DYNAMIC_ARRAY): Remove old GCC 2.5.5 workaround.
 

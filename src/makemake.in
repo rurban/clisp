@@ -1363,14 +1363,6 @@ fi
 # uname -r may contain arbitrary junk not suitable for pathnames:
 # cygwin: 1.5.18(0.132/4/2)
 UNAME_R=`uname -r | $tolower | sed 's/[^A-Za-z0-9.].*//'`
-if [ "$cpu" = i386 -a "$TSYSOS" = linux -a $CROSS = false ] ; then # Linux
-  # Generational GC requires Linux 1.1.52 or newer
-  case "$UNAME_R" in
-    0.* | 1.0.* | 1.1.[0-9] | 1.1.[1-4][0-9] | 1.1.5[0-1] )
-      XCFLAGS=$XCFLAGS' -DNO_GENERATIONAL_GC' ;;
-    *) ;;
-  esac
-fi
 
 if [ "${enable_mmap}" = no ]; then
   XCFLAGS=${XCFLAGS}" -DNO_SINGLEMAP -DNO_TRIVIALMAP"
