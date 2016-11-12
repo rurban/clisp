@@ -1192,10 +1192,7 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
     goto underflow; /* delta too small */
     pos: /* udelta = delta >=0 */
     if (   ((uexp = uexp+udelta) < udelta) /* exponent-overflow? */
-       #ifndef UNIX_DEC_ULTRIX_GCCBUG
-         || (uexp > LF_exp_high) /* or exponent too large? */
-       #endif
-        )
+         || (uexp > LF_exp_high)) /* or exponent too large? */
       error_overflow(); /* yes -> overflow */
     break; /* else OK */
     neg: /* delta <0, udelta = 2^32+delta */

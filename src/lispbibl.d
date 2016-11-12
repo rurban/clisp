@@ -191,12 +191,6 @@
       #define UNIX_IRIX5  /* Irix 5 */
     #endif
   #endif
-  #if defined(MIPS) && (defined(ultrix) || defined(__ultrix))
-    #define UNIX_DEC_ULTRIX  /* DEC's (or IBM's ?) RISC/OS Ultrix on DEC MIPS */
-    #ifdef __GNUC__
-      #define UNIX_DEC_ULTRIX_GCCBUG  /* work around a bug in GCC 2.3.3 */
-    #endif
-  #endif
   #if defined(MIPS) && defined(sinix) /* && defined(SNI) */
     #define UNIX_SINIX /* Siemens is nix */
   #endif
@@ -2697,7 +2691,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    (defined(MC680X0) && !defined(UNIX_AMIX) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
    (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
-   (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
+   (defined(MIPS) && !defined(UNIX_IRIX))
    defined(M88000)
    (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
    defined(VAX) */
