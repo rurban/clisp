@@ -3845,10 +3845,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       /* extension should be a fixnum >0, <arraysize_limit : */
       if ( !posfixnump(extension)
            || ((inc = posfixnum_to_V(extension)) == 0)
-          #ifndef UNIX_DEC_ULTRIX_GCCBUG
-           || (inc > arraysize_limit_1)
-          #endif
-           ) {
+           || (inc > arraysize_limit_1)) {
         pushSTACK(extension); /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
@@ -3873,10 +3870,8 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       extension = UV_to_I(inc);
     }
     var uintV newlen = len + inc; /* new length */
-   #ifndef UNIX_DEC_ULTRIX_GCCBUG
     if (newlen > arraysize_limit_1)
       error_extension(extension);
-   #endif
     /* fetch new data vector. Distinguish cases according to type: */
     var object neuer_datenvektor;
     switch (atype) {
@@ -4264,17 +4259,13 @@ local uintL test_dims (uintL* totalsize_) {
      #else
       mulu32(totalsize,posfixnum_to_V(dim), produkt_hi=,produkt_lo=);
      #endif
-     #ifndef UNIX_DEC_ULTRIX_GCCBUG
-      if (!((produkt_hi==0) && (produkt_lo<=arraysize_limit_1))) /* product < 2^24 ? */
-     #else
-      if (produkt_hi != 0)
-     #endif
-        { /* no -> (provided that there is not a dimension=0 )
-             total-size too large */
-          pushSTACK(STACK_7); /* dims */
-          pushSTACK(TheSubr(subr_self)->name);
-          error(error_condition,GETTEXT("~S: dimensions ~S produce too large total-size"));
-        }
+      if (!((produkt_hi==0) && (produkt_lo<=arraysize_limit_1))) { /* product < 2^24 ? */
+        /* no -> (provided that there is not a dimension=0 )
+           total-size too large */
+        pushSTACK(STACK_7); /* dims */
+        pushSTACK(TheSubr(subr_self)->name);
+        error(error_condition,GETTEXT("~S: dimensions ~S produce too large total-size"));
+      }
       totalsize = produkt_lo;
       rank++;
       dims = Cdr(dims);
@@ -4633,7 +4624,6 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
   }
   /* create a general array.
      check rank: */
- #ifndef UNIX_DEC_ULTRIX_GCCBUG
   if (rank > arrayrank_limit_1) {
     pushSTACK(fixnum(rank)); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_array_rank)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -4641,7 +4631,6 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
     pushSTACK(TheSubr(subr_self)->name);
     error(type_error,GETTEXT("~S: attempted rank ~S is too large"));
   }
- #endif
   /* assemble flags for allocate_iarray: */
   /* "flags" already contains eltype and poss. displacement-bit. */
   if (!nullp(STACK_6)) /* adjustable supplied? */

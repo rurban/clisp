@@ -1,5 +1,13 @@
 2016-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove support for Ultrix.
+	* lispbibl.d (UNIX_DEC_ULTRIX, UNIX_DEC_ULTRIX_GCCBUG): Remove macros.
+	* control.d: Remove Ultrix GCC workarounds.
+	* array.d: Likewise.
+	* flo_rest.d: Likewise.
+
+2016-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Modernize blurbs and comments.
 	* COPYRIGHT: Update year.
 	* SUMMARY: Remove outdated infos. Use https URLs where available.

@@ -587,14 +587,12 @@ local /*maygc*/ void make_variable_frame
       }
       *bind_count_ = var_count;
       var_count += spec_count; /* total number of symbol/value pairs */
-     #ifndef UNIX_DEC_ULTRIX_GCCBUG
       if (var_count > (uintC)(~(uintC)0)) { /* does it fit into a uintC ? */
         pushSTACK(unbound);     /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(caller);
         error(source_program_error,
               GETTEXT("~S: too many variables and/or declarations"));
       }
-     #endif
       pushSTACK(aktenv.var_env); /* current VAR_ENV as NEXT_ENV */
       pushSTACK(fake_gcv_object(var_count)); /* number of bindings */
       finish_frame(VAR);
