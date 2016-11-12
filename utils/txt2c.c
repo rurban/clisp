@@ -91,14 +91,6 @@ static void process_file (FILE * fp) {
       else if (c==0377)
         { putchar('\\'); putchar(c); }
 #endif
-#ifdef QUOTE_QUOTES
-      else if (c=='\'') { /* instead of "'" output "\047": */
-        putchar('\\');
-        putchar('0'+((((unsigned char)'\'')/64)%8));
-        putchar('0'+((((unsigned char)'\'')/8)%8));
-        putchar('0'+(((unsigned char)'\'')%8));
-      }
-#endif
       else if (c=='%')
         { putchar(c); putchar(c); }
       else if (c!='\n')

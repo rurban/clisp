@@ -77,7 +77,7 @@ EOP
 }
 
 # Advanced usage:
-#        ./makemake [--with-PACKAGE] TARGET COMPILER > Makefile
+#        ./makemake [--with-PACKAGE] [cross] TARGET COMPILER > Makefile
 #  where PACKAGE is one of
 #        noreadline       no readline library
 #        gettext          internationalization, needs GNU gettext
@@ -87,11 +87,8 @@ EOP
 #        dynamic-modules  dynamic loading of foreign language modules
 #        module=MODULE    an add-on module
 #  where TARGET is one of
-#        sun3
-#        sun4
-#        i386      (any other 386 machine, e.g. Linux boxes or Sun386i)
-#        i486      (any other 486 machine)
-#        mips
+#        master
+#        win32msvc
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
 #        cc        (any other ANSI C compliant cc)
@@ -100,9 +97,7 @@ EOP
 #   makemake > Makefile
 #   makemake --with-debug > Makefile
 #   makemake --with-noreadline --with-debug > Makefile
-#   makemake i386 gcc > make.gcc/makefile
-#   makemake i486 gcc > make.gcc/makefile
-#   makemake sun4 gcc > make.gcc/makefile
+#   makemake master gcc > make.gcc/makefile
 #   makemake --win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
 #   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
@@ -622,7 +617,7 @@ case $# in
      TSYS=$1
      COMPILER=$2
      module_configure_flags=${module_configure_flags}" --build=${TSYS}"
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|win32msvc).
+     # TSYS should be (master|win32msvc).
      # COMPILER should be <host...>-gcc or cc
      case ${TSYS} in
        win32msvc ) TOS='win32' ;;
@@ -1212,64 +1207,27 @@ EOF
 
 if [ $XCC_GCC = true ] ; then
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
+  # Assume gcc 2.95 or newer.
   XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
   test ${CC_CPLUSPLUS} = false && XCFLAGS=${XCFLAGS}' -Wmissing-declarations -Wimplicit'
   if [ $CROSS = false ] ; then
-    case "$XCC_GCC_VERSION" in
-      # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
-      2.[8-9]* | 3.* | 4.* | 5.* | 6.* | egcs-2.*)
-        XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
-        ;;
-      * ) ;;
-    esac
+    # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
+    XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
   fi
   if [ $CROSS = false -a $CC_CPLUSPLUS = true ] ; then
+    # g++ 3.4 introduced an annoying warning, but has a workaround:
     case "$XCC_GCC_VERSION" in
-      # g++ 3.4 introduced an annoying warning, but has a workaround:
-      3.[4-9]* | 4.* | 5.* | 6.*)
+      2.* | 3.[1-3]*) ;;
+      *)
         XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
         ;;
-      * ) ;;
     esac
   fi
   if [ "${with_debug}" = no ] ; then # select optimizations
     if [ "$cpu" = i386 ] ; then
-      # gcc <= 2.3.2 may crash when compiling lisparit with -O2
-      if [ $CROSS = false ] ; then
-        case "$XCC_GCC_VERSION" in
-          2.7.[0-2] )
-            # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
-            # also fixed through the specs file of some Linux distributions).
-            XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations -fno-strength-reduce' ;;
-          2.3.[2-9]* | 2.[4-9]* | 3.* | 4.* | 5.* | 6.* | egcs-2.*)
-            XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations' ;;
-          * )
-            XCFLAGS=$XCFLAGS' -O' ;;
-        esac
-      else
-        XCFLAGS=$XCFLAGS' -O'
-      fi
-    elif [ "$cpu" = hppa ] ; then
-      # gcc-2.7.2 produces incorrect code when compiling spvw
-      # (loadmem routine).
-      XCFLAGS=$XCFLAGS' -O2 -fno-strength-reduce'
+      XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations'
     elif [ "$cpu" = sparc ] ; then
-      if [ $CROSS = false ] ; then
-        case "$XCC_GCC_VERSION" in
-          egcs-2.*)
-            # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
-            # lisparit (function UDS_divide_).
-            XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns' ;;
-          2.9* | 3.* | 4.* | 5.* | 6.*)
-            # gcc-2.95 produces incorrect code when compiling predtype
-            # (function C_coerce).
-            XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns -fno-gcse' ;;
-          * )
-            XCFLAGS=$XCFLAGS' -O2' ;;
-        esac
-      else
-        XCFLAGS=$XCFLAGS' -O2'
-      fi
+      XCFLAGS=$XCFLAGS' -O2'
     elif [ "$cpu" = sparc64 ] ; then
       # gcc-3.3.1 produces incorrect code when -O2 is used, even with
       # -fno-schedule-insns and -fno-gcse.
@@ -1294,13 +1252,10 @@ if [ $XCC_GCC = true ] ; then
         ;;
     esac
   fi # with_debug
-  case "$XCC_GCC_VERSION" in
-    3.* | 4.* | 5.* | 6.*)
-      # When not optimizing on linux, or with Apple's gcc 4 on MacOS X,
-      # or with GCC 4 when "gcc -Os" is used:
-      #   C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
-      XCFLAGS=$XCFLAGS' -falign-functions=4'
-  esac
+  # When not optimizing on linux, or with Apple's gcc 4 on MacOS X,
+  # or with GCC 4 when "gcc -Os" is used:
+  #   C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
+  XCFLAGS=$XCFLAGS' -falign-functions=4'
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
   fi
@@ -1340,22 +1295,13 @@ else
   elif [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
     # HP's HPPA compilers crash when optimizing.
     # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
-    # we do not reset XCFLAGS so that the user can pass -xarch=v8 et ak
+    # we do not reset XCFLAGS so that the user can pass -xarch=v8 et al
     # XCFLAGS=''
     :
   else
     XCFLAGS=${XCFLAGS}' -O'
   fi
-  if [ "$TSYSOS" = ultrix ] ; then
-    # Ultrix cc needs this for compiling spvw.d.
-    XCFLAGS="$XCFLAGS -Olimit 1000"
-  fi
   XCLFLAGS=''
-  case $TSYS in mips | ip*)
-    # IRIX 4 "cc -ansi" sometimes barfs when a string constant contains one
-    # or more quotes('). They must be written as \047.
-    TXT2CFLAGS="${TXT2CFLAGS} -DQUOTE_QUOTES"
-  esac
   if [ $TSYS = sun4 ] ; then
     XCFLAGS=$XCFLAGS' -dalign'
     if [ $CC_CPLUSPLUS = false ] ; then
@@ -1394,7 +1340,7 @@ if [ "${with_debug}" != no ] ; then
   if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS' -gstabs'
   elif [ ${HSYS} != "win32msvc" ]; then
-    XCFLAGS=$XCFLAGS' -g -O0'
+    XCFLAGS=$XCFLAGS' -ggdb -O0'
   fi
   XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3'
   case "$CC" in
@@ -1410,15 +1356,6 @@ then # This is necessary for g++ to handle w32shell.c:
   XCFLAGS=$XCFLAGS' -DCINTERFACE'
 fi
 
-if [ "$cpu" = i386 -a "$TSYSOS" = "sinix-z" ] ; then # SINIX-Z V5.41
-  XCFLAGS=$XCFLAGS' -DSNI -DSVR4' # maybe add -DUSL
-fi
-if [ "$cpu" = mips -a "$TSYSOS" = "sysv4" ] ; then # mips-sni-sysv4
-  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
-fi
-if [ "$cpu" = i386 -a "$TSYSOS" = "unix_sv" ] ; then # Onsite SVR4.2
-  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
-fi
 if [ "$cpu" = i386 -a "$TSYSOS" = "sunos" ] ; then # Solaris 2
   XCFLAGS=$XCFLAGS'' # maybe add -DUSL
 fi
@@ -1646,7 +1583,7 @@ ARI_ASMC=''
 ARI_ASMS=''
 if [ "$cpu" = m68k ] ; then
   ARI_ASMD=$ARI_ASMD' ari68000 ari68020'
-  if [ $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -a "$TSYSOS" = netbsd ] ; then
+  if [ $TSYS = m68k -o $TSYS = mc68040 -a "$TSYSOS" = netbsd ] ; then
     ARI_ASMS=$ARI_ASMS' ari68020'
   else
     ARI_ASMS=$ARI_ASMS' ari68000'
