@@ -29,6 +29,12 @@
 	* m4/gtk-2.0.m4: Update from GNOME git.
 	* m4/gtk-3.0.m4: New file, from GNOME git.
 
+	* gllib/Makefile.in: Regenerated with Automake 1.15.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated with
+	Autoconf 2.69.
+	* modules/*/configure, modules/*/config.h.in: Likewise.
+	* modules/*/*/config.h.in, modules/*/*/configure: Likewise.
+
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix Makefile.devel syntax error introduced on 2011-04-21.
