@@ -306,8 +306,6 @@ local void mmap_init_pagesize (void)
    #elif defined(UNIX_SUNOS5)
     /* UNIX_SUNOS5 (Solaris < 2.5) has mmap(), but no getpagesize() ! */
     PAGESIZE                    /* see <sys/param.h> */
-   #elif defined(UNIX_SINIX) && defined(MIPS)
-    16384
    #elif defined(HAVE_SHM)
     SHMLBA                      /* just a wild guess */
    #else
