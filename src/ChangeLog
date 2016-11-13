@@ -1,5 +1,13 @@
 2016-11-13  Bruno Haible  <bruno@clisp.org>
 
+	Reduce portability effort for yet unknown 64-bit platforms.
+	* lispbibl.d (intQsize, HAVE_DD): Define also when long_bitsize==64 but
+	the CPU is unknown.
+	(intBWsize, intWLsize, intBWLsize): Define always.
+	(intDsize, intDDsize, log2_intDsize): Likewise.
+
+2016-11-13  Bruno Haible  <bruno@clisp.org>
+
 	Add support for Linux/x32 ABI on x86_64.
 	* lispbibl.d (WIDE_HARD): Define depending on long_bitsize and
 	pointer_bitsize, not on preprocessor defines like __x86_64__.

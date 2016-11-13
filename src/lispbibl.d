@@ -1408,7 +1408,7 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
 #define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
+#if (long_bitsize==64) || defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
   /* Machine has real 64-bit integers in hardware. */
   #define intQsize 64
   typedef signed_int_with_n_bits(intQsize)    sintQ;
@@ -1487,6 +1487,11 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intBWLsize intLsize
 #elif defined(DECALPHA) || defined(IA64)
   /* 64-bit processors also compute badly with uintB and uintW. */
+  #define intBWsize intWsize
+  #define intWLsize intLsize
+  #define intBWLsize intLsize
+#elif 1
+  /* For unknown CPUs, we prefer slightly suboptimal code to a compilation failure. */
   #define intBWsize intWsize
   #define intWLsize intLsize
   #define intBWLsize intLsize
@@ -1680,7 +1685,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
+#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -1689,7 +1694,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 #endif
 typedef unsigned_int_with_n_bits(intDsize)  uintD;
 typedef signed_int_with_n_bits(intDsize)    sintD;
-#if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)))
+#if (intDDsize<=32) || ((intDDsize<=64) && ((long_bitsize==64) || defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)))
   #define HAVE_DD 1
   typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
   typedef signed_int_with_n_bits(intDDsize)    sintDD;
