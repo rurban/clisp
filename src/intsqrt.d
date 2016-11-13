@@ -285,7 +285,7 @@
           # dann durch b_msd = b[n-1] dividieren:
           #if HAVE_DD
             var uintDD a_123dd = highlowDD(a_2d,a_3d);
-            a_123dd = a_123dd>>1; if (!(a_1d==0)) { a_123dd |= bit(2*intDsize-1); }
+            a_123dd = a_123dd>>1; if (!(a_1d==0)) { a_123dd |= bitQ(2*intDsize-1); }
             if (highD(a_123dd) >= b_msd)
               b_star = bitm(intDsize)-1; # bei Überlauf: beta-1
             else

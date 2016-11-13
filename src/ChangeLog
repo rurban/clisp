@@ -1,3 +1,19 @@
+2016-11-13  Bruno Haible  <bruno@clisp.org>
+
+	Prepare for ILP32 ABIs on 64-bit CPUs (x32 on x86_64, n32 on MIPS64).
+	* lispbibl.d (bitQ, bitQm, bitQ_test, minus_bitQ, minus_bitQm): New
+	macros, available when intQsize is defined.
+	* intsqrt.d (UDS_sqrt_) [ifdef intQsize]: Use bitQ(..) instead of
+	bit(..).
+	* dfloat.d (dfloat_decode, encode_DF, double_to_DF, DF_ftruncate_DF,
+	DF_futruncate_DF, DF_fround_DF, DF_minus_DF, DF_DF_plus_DF,
+	DF_DF_minus_DF, DF_DF_mult_DF, DF_DF_div_DF, DF_sqrt_DF, I_to_DF,
+	RA_to_DF) [ifdef intQsize]: Likewise.
+	* flo_konv.d (DF_to_SF, DF_to_FF, LF_to_DF) [ifdef intQsize]: Likewise.
+	* flo_rest.d (F_decode_float_F_I_F, F_float_sign_F) [ifdef intQsize]:
+	Likewise.
+	* lisparit.d (init_arith): Likewise.
+
 2016-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Modernize: Remove old Linux workaround.

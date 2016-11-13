@@ -2015,7 +2015,7 @@ global maygc void init_arith (void)
   { /* MOST/LEAST-POSITIVE/NEGATIVE-DOUBLE-FLOAT: */
     var object obj;
    #ifdef intQsize
-    encode_DF(0,DF_exp_high-DF_exp_mid,bit(DF_mant_len+1)-1, obj=);
+    encode_DF(0,DF_exp_high-DF_exp_mid,bitQ(DF_mant_len+1)-1, obj=);
    #else
     encode2_DF(0,DF_exp_high-DF_exp_mid,bit(DF_mant_len-32+1)-1,bitm(32)-1, obj=);
    #endif
@@ -2024,7 +2024,7 @@ global maygc void init_arith (void)
   {
     var object obj;
    #ifdef intQsize
-    encode_DF(0,DF_exp_low-DF_exp_mid,bit(DF_mant_len), obj=);
+    encode_DF(0,DF_exp_low-DF_exp_mid,bitQ(DF_mant_len), obj=);
    #else
     encode2_DF(0,DF_exp_low-DF_exp_mid,bit(DF_mant_len-32),0, obj=);
    #endif
@@ -2033,7 +2033,7 @@ global maygc void init_arith (void)
   {
     var object obj;
    #ifdef intQsize
-    encode_DF(-1,DF_exp_low-DF_exp_mid,bit(DF_mant_len), obj=);
+    encode_DF(-1,DF_exp_low-DF_exp_mid,bitQ(DF_mant_len), obj=);
    #else
     encode2_DF(-1,DF_exp_low-DF_exp_mid,bit(DF_mant_len-32),0, obj=);
    #endif
@@ -2042,7 +2042,7 @@ global maygc void init_arith (void)
   {
     var object obj;
    #ifdef intQsize
-    encode_DF(-1,DF_exp_high-DF_exp_mid,bit(DF_mant_len+1)-1, obj=);
+    encode_DF(-1,DF_exp_high-DF_exp_mid,bitQ(DF_mant_len+1)-1, obj=);
    #else
     encode2_DF(-1,DF_exp_high-DF_exp_mid,bit(DF_mant_len-32+1)-1,bitm(32)-1, obj=);
    #endif
@@ -2066,7 +2066,7 @@ global maygc void init_arith (void)
   {
     var object obj;
    #ifdef intQsize
-    encode_DF(0,-DF_mant_len,bit(DF_mant_len)+1, obj=);
+    encode_DF(0,-DF_mant_len,bitQ(DF_mant_len)+1, obj=);
    #else
     encode2_DF(0,-DF_mant_len,bit(DF_mant_len-32),1, obj=);
    #endif
@@ -2075,7 +2075,7 @@ global maygc void init_arith (void)
   {
     var object obj;
    #ifdef intQsize
-    encode_DF(0,-DF_mant_len-1,bit(DF_mant_len)+1, obj=);
+    encode_DF(0,-DF_mant_len-1,bitQ(DF_mant_len)+1, obj=);
    #else
     encode2_DF(0,-DF_mant_len-1,bit(DF_mant_len-32),1, obj=);
    #endif

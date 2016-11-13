@@ -11,14 +11,14 @@
   #define float_value_semhi  float_value
   #define DF_uexp(x)  (((x) >> DF_mant_len) & (bit(DF_exp_len)-1))
   #define dfloat_decode(val, zero_statement, sign_assignment,exp_assignment,mant_assignment) do { \
-    var uintWL uexp = DF_uexp(val);                                      \
-    if (uexp==0) {                                                       \
-      zero_statement; /* e=0 -> number 0.0 */                            \
-    } else {                                                             \
-      exp_assignment (sintWL)(uexp - DF_exp_mid); /* exponent */         \
-      unused (sign_assignment ((sint64)val >> 63));  /* sign */          \
-      mant_assignment (bit(DF_mant_len) | (val & (bit(DF_mant_len)-1))); \
-    }                                                                    \
+    var uintWL uexp = DF_uexp(val);                                        \
+    if (uexp==0) {                                                         \
+      zero_statement; /* e=0 -> number 0.0 */                              \
+    } else {                                                               \
+      exp_assignment (sintWL)(uexp - DF_exp_mid); /* exponent */           \
+      unused (sign_assignment ((sint64)val >> 63));  /* sign */            \
+      mant_assignment (bitQ(DF_mant_len) | (val & (bitQ(DF_mant_len)-1))); \
+    }                                                                      \
   } while(0)
   #define DF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment) do { \
     var dfloat _x = TheDfloat(obj)->float_value;                                     \
@@ -61,21 +61,21 @@
  < object result: a Double-Float
  the Exponent is tested for Overflow/Underflow.
  can trigger GC */
- #define encode_DF(sign,exp,mant, res_assignment) do {                   \
-   if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
-     if (underflow_allowed()) {                                         \
+ #define encode_DF(sign,exp,mant, res_assignment) do {                 \
+   if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                      \
+     if (underflow_allowed()) {                                        \
        error_underflow();                                              \
-     } else {                                                           \
-       res_assignment DF_0;                                              \
-     }                                                                  \
-   } else                                                               \
-     if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
+     } else {                                                          \
+       res_assignment DF_0;                                            \
+     }                                                                 \
+   } else                                                              \
+     if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                   \
        error_overflow();                                               \
-     } else                                                             \
-       res_assignment allocate_dfloat                                    \
-         (  ((sint64)(sign) & bit(63))                  /* Sign */      \
-          | ((uint64)((exp)+DF_exp_mid) << DF_mant_len) /* Exponent */  \
-          | ((uint64)(mant) & (bit(DF_mant_len)-1)));     /* Mantissa */ \
+     } else                                                            \
+       res_assignment allocate_dfloat                                  \
+         (  ((sint64)(sign) & bitQ(63))                 /* Sign */     \
+          | ((uint64)((exp)+DF_exp_mid) << DF_mant_len) /* Exponent */ \
+          | ((uint64)(mant) & (bitQ(DF_mant_len)-1)));  /* Mantissa */ \
  } while(0)
 #else
 /* encode2_DF(sign,exp,manthi,mantlo, ergebnis=);
@@ -87,22 +87,22 @@
  < object result: a Double-Float
  the Exponent is tested for Overflow/Underflow.
  can trigger GC */
- #define encode2_DF(sign,exp,manthi,mantlo, res_assignment)  do {         \
-   if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
-     if (underflow_allowed()) {                                         \
-       error_underflow();                                              \
-     } else {                                                           \
-       res_assignment DF_0;                                              \
-     }                                                                  \
-   } else                                                               \
-     if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
-       error_overflow();                                               \
-     } else                                                             \
-       res_assignment allocate_dfloat                                    \
-         (  ((sint32)(sign) & bit(31))                       /* Sign */ \
+ #define encode2_DF(sign,exp,manthi,mantlo, res_assignment)  do {           \
+   if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                           \
+     if (underflow_allowed()) {                                             \
+       error_underflow();                                                   \
+     } else {                                                               \
+       res_assignment DF_0;                                                 \
+     }                                                                      \
+   } else                                                                   \
+     if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                        \
+       error_overflow();                                                    \
+     } else                                                                 \
+       res_assignment allocate_dfloat                                       \
+         (  ((sint32)(sign) & bit(31))                       /* Sign */     \
           | ((uint32)((exp)+DF_exp_mid) << (DF_mant_len-32)) /* Exponent */ \
           | ((uint32)(manthi) & (bit(DF_mant_len-32)-1))     /* Mantissa */ \
-            , mantlo);                                                  \
+            , mantlo);                                                      \
  } while(0)
 #endif
 
@@ -126,16 +126,16 @@
 #ifdef intQsize
  #define double_to_DF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  do { \
    var dfloatjanus _erg; _erg.machine_double = (expr);                  \
-   if ((_erg.eksplicit & ((uint64)bit(DF_exp_len+DF_mant_len)-bit(DF_mant_len))) == 0) { /* e=0 ? */ \
+   if ((_erg.eksplicit & (bitQ(DF_exp_len+DF_mant_len)-bitQ(DF_mant_len))) == 0) { /* e=0 ? */ \
      if ((maybe_underflow                                               \
           || (maybe_subnormal && ((_erg.eksplicit << 1) != 0)))         \
          && underflow_allowed()) {                                      \
-       error_underflow(); /* subnormal or even smaller -> Underflow */ \
+       error_underflow(); /* subnormal or even smaller -> Underflow */  \
      } else {                                                           \
-       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                    \
+       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
-              && (((~_erg.eksplicit) & ((uint64)bit(DF_exp_len+DF_mant_len)-bit(DF_mant_len))) == 0)) { /* e=2047 ? */ \
+              && (((~_erg.eksplicit) & (bitQ(DF_exp_len+DF_mant_len)-bitQ(DF_mant_len))) == 0)) { /* e=2047 ? */ \
      if (maybe_nan && ((_erg.eksplicit<<(64-DF_mant_len)) != 0)) {      \
        /* NaN, singularity -> "Division by 0" */                        \
        divide_0();                                                      \
@@ -143,10 +143,10 @@
        if (!maybe_overflow || maybe_divide_0)                           \
          divide_0(); /* Infinity, Division by 0 */                      \
        else                                                             \
-         error_overflow(); /* Infinity, Overflow */                    \
+         error_overflow(); /* Infinity, Overflow */                     \
      }                                                                  \
    } else {                                                             \
-     ergebnis_assignment allocate_dfloat(_erg.eksplicit);                \
+     ergebnis_assignment allocate_dfloat(_erg.eksplicit);               \
    }                                                                    \
  } while(0)
 #else
@@ -157,9 +157,9 @@
           || (maybe_subnormal                                           \
               && !(((_erg.eksplicit.semhi << 1) == 0) && (_erg.eksplicit.mlo == 0)))) \
          && underflow_allowed()) {                                      \
-       error_underflow(); /* subnormal or even smaller -> Underflow */ \
+       error_underflow(); /* subnormal or even smaller -> Underflow */  \
      } else {                                                           \
-       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                    \
+       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
               && (((~_erg.eksplicit.semhi) & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0)) { /* e=2047 ? */ \
@@ -170,7 +170,7 @@
        if (!maybe_overflow || maybe_divide_0)                           \
          divide_0(); /* Infinity, Division by 0 */                      \
        else                                                             \
-         error_overflow(); /* Infinity, Overflow */                    \
+         error_overflow(); /* Infinity, Overflow */                     \
      }                                                                  \
    } else {                                                             \
      ergebnis_assignment allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
@@ -205,7 +205,7 @@ local maygc object DF_ftruncate_DF (object x) {
     else /* 1<=e<=52 */
       return allocate_dfloat
         ( x_ & /* bitmask: bits 52-e..0 deleted, all others set */
-          ~(bit(DF_mant_len+1+DF_exp_mid-uexp)-1));
+          ~(bitQ(DF_mant_len+1+DF_exp_mid-uexp)-1));
   }
 }
 #else
@@ -257,13 +257,13 @@ local maygc object DF_futruncate_DF (object x) {
     return x;
   if (uexp <= DF_exp_mid) { /* e<=0 ? */
     /* set exponent to 1, mantissa to .1000...000 . */
-    return ((x_ & bit(63))==0 ? DF_1 : DF_minus1);
+    return ((x_ & bitQ(63))==0 ? DF_1 : DF_minus1);
   } else {
     if (uexp > DF_exp_mid+DF_mant_len) { /* e > 52 ? */
       return x;
     } else {
       var uint64 mask = /* bitmask: bits 52-e..0 set, all others deleted */
-        bit(DF_mant_len+1+DF_exp_mid-uexp)-1;
+        bitQ(DF_mant_len+1+DF_exp_mid-uexp)-1;
       if ((x_ & mask)==0) /* all these bits =0 ? */
         return x;
       return allocate_dfloat
@@ -333,7 +333,7 @@ local maygc object DF_fround_DF (object x) {
     } else {
       if (uexp > DF_exp_mid+1) { /* e>1 ? */
         var uint64 bitmask = /* bitmask: bit 52-e set, all others deleted */
-          bit(DF_mant_len+DF_exp_mid-uexp);
+          bitQ(DF_mant_len+DF_exp_mid-uexp);
         var uint64 mask = /* bitmask: bits 51-e..0 set, all others deleted */
           bitmask-1;
         if (((x_ & bitmask) ==0) /* bit 52-e =0 -> round off */
@@ -350,21 +350,21 @@ local maygc object DF_fround_DF (object x) {
         }
       } else if (uexp == DF_exp_mid+1) { /* e=1 ? */
         /* like with 1 < e <= 52, only that bit 53-e is always set. */
-        if ((x_ & bit(DF_mant_len-1)) ==0) /* bit 52-e =0 -> round off */
+        if ((x_ & bitQ(DF_mant_len-1)) ==0) /* bit 52-e =0 -> round off */
           /* round off */
-          return allocate_dfloat( x_ & ~(bit(DF_mant_len)-1) );
+          return allocate_dfloat( x_ & ~(bitQ(DF_mant_len)-1) );
         else /* round up */
           return allocate_dfloat
-            ((x_ | (bit(DF_mant_len)-1)) /* set all these bits 52-e..0 */
+            ((x_ | (bitQ(DF_mant_len)-1)) /* set all these bits 52-e..0 */
              + 1); /* increase last digit, thereby poss. increment exponent */
       } else { /* e=0 ? */
         /* like with 1 < e <= 52, only that bit 52-e is always set
            and bit 53-e is always deleted. */
-        if ((x_ & (bit(DF_mant_len)-1)) ==0) /* round off from +-0.5 zu 0.0 */
+        if ((x_ & (bitQ(DF_mant_len)-1)) ==0) /* round off from +-0.5 zu 0.0 */
           return DF_0;
         else /* round up */
           return allocate_dfloat
-            ((x_ | (bit(DF_mant_len)-1)) /* set all bits 51-e..0 */
+            ((x_ | (bitQ(DF_mant_len)-1)) /* set all bits 51-e..0 */
              + 1); /* increase last digit, thereby increment exponent */
       }
     }
@@ -458,7 +458,7 @@ local maygc object DF_minus_DF (object x) {
   var dfloat x_ = TheDfloat(x)->float_value;
   return (DF_uexp(x_) == 0
           ? x
-          : allocate_dfloat( x_ ^ bit(63) ));
+          : allocate_dfloat( x_ ^ bitQ(63) ));
 }
 #else
 local maygc object DF_minus_DF (object x) {
@@ -598,8 +598,8 @@ local maygc object DF_DF_plus_DF (object x1, object x2) {
   mant1 = mant1 << 3; mant2 = mant2 << 3;
   /* Now, 2^(DF_mant_len+3) <= mant1,mant2 < 2^(DF_mant_len+4). */
   {
-    var uint64 mant2_last = mant2 & (bit(expdiff)-1); /* last expdiff bits of mant2 */
-    mant2 = mant2 >> expdiff; if (mant2_last!=0) { mant2 |= bit(0); }
+    var uint64 mant2_last = mant2 & (bitQ(expdiff)-1); /* last expdiff bits of mant2 */
+    mant2 = mant2 >> expdiff; if (mant2_last!=0) { mant2 |= bitQ(0); }
   }
   /* mant2 = mantissa of x2 shifted to the right by expdiff bits and rounded */
   if (sign1!=sign2) { /* different signs -> subtract mantissas */
@@ -631,10 +631,10 @@ local maygc object DF_DF_plus_DF (object x1, object x2) {
    m=mant1/2^(DF_mant_len+4),
    at step N5: m=mant1/2^(DF_mant_len+1). */
  norm_1: /* [Knuth, p.201, step N1] */
-  if (mant1 >= bit(DF_mant_len+4))
+  if (mant1 >= bitQ(DF_mant_len+4))
     goto norm_4;
  norm_2: /* [Knuth, p.201, step N2] here is mant1 < 2^(DF_mant_len+4) */
-  if (mant1 >= bit(DF_mant_len+3))
+  if (mant1 >= bitQ(DF_mant_len+3))
     goto norm_5;
   /* [Knuth, p.201, step N3] */
   mant1 = mant1 << 1; exp1 = exp1-1; /* shift mantissa left */
@@ -642,21 +642,21 @@ local maygc object DF_DF_plus_DF (object x1, object x2) {
  norm_4: /* [Knuth, p.201, step N4] */
   /* here is 2^(DF_mant_len+4) <= mant1 < 2^(DF_mant_len+5) */
   exp1 = exp1+1;
-  mant1 = (mant1>>1) | (mant1 & bit(0)); /* shift mantissa right */
+  mant1 = (mant1>>1) | (mant1 & bitQ(0)); /* shift mantissa right */
  norm_5: /* [Knuth, p.201, step N5]
             here is 2^(DF_mant_len+3) <= mant1 < 2^(DF_mant_len+4)
             round to DF_mant_len real mantissa bits, i.e. round away the
             right 3 bits, and thereby shift mant1 by 3 bits to the right: */
   {
-    var uint64 rounding_bits = mant1 & (bit(3)-1);
+    var uint64 rounding_bits = mant1 & (bitQ(3)-1);
     mant1 = mant1 >> 3;
-    if ( (rounding_bits < bit(2)) /* 000,001,010,011 are rounded off */
-         || ( (rounding_bits == bit(2)) /* 100 (exactly half-numbered) */
-              && ((mant1 & bit(0)) ==0))) { /* -> round-to-even */
+    if ( (rounding_bits < bitQ(2)) /* 000,001,010,011 are rounded off */
+         || ( (rounding_bits == bitQ(2)) /* 100 (exactly half-numbered) */
+              && ((mant1 & bitQ(0)) ==0))) { /* -> round-to-even */
       /* round off */
     } else { /* round up */
       mant1 = mant1+1;
-      if (mant1 >= bit(DF_mant_len+1)) {
+      if (mant1 >= bitQ(DF_mant_len+1)) {
         /* On overflow during the rounding, shift again to the right
            (rounding is here superfluous): */
         mant1 = mant1>>1; exp1 = exp1+1; /* shift mantissa right */
@@ -816,7 +816,7 @@ local maygc object DF_DF_minus_DF (object x1, object x2) {
     return x1;
   } else {
     pushSTACK(x1);
-    x2 = allocate_dfloat(x2_ ^ bit(63));
+    x2 = allocate_dfloat(x2_ ^ bitQ(63));
     return DF_DF_plus_DF(popSTACK(),x2);
   }
 }
@@ -922,7 +922,7 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
   var uintL mantlo;
  #endif
   /* product mant = mant1 * mant2 is >= 2^104, < 2^106. check bit 105: */
-#define mant_bit(k)  (mant[128/intDsize - 1 - floor(k,intDsize)] & bit((k)%intDsize))
+  #define mant_bit(k)  (mant[128/intDsize - 1 - floor(k,intDsize)] & bitQ((k)%intDsize))
   if (mant_bit(2*DF_mant_len+1)) {
     /* mant>=2^(2*DF_mant_len+1), shift by DF_mant_len+1 bits to the right:
        fetch bits 105..53: */
@@ -980,7 +980,7 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
  #ifdef intQsize
   manterg = manterg+1;
   /* here, 2^DF_mant_len <= manterg <= 2^(DF_mant_len+1) */
-  if (manterg >= bit(DF_mant_len+1)) { /* rounding overflow? */
+  if (manterg >= bitQ(DF_mant_len+1)) { /* rounding overflow? */
     manterg = manterg>>1; exp1 = exp1+1; /* shift right */
   }
  #else
@@ -1116,30 +1116,30 @@ local maygc object DF_DF_div_DF (object x1, object x2) {
       /* q = 2^32*manthi+mantlo. */
      #ifdef intQsize
       manthi = (manthi<<32) | (uint64)mantlo;
-      if (manthi >= bit(DF_mant_len+2)) {
+      if (manthi >= bitQ(DF_mant_len+2)) {
         /* quotient >=2^54 -> round away 2 bits */
-        var uint64 rounding_bits = manthi & (bit(2)-1);
+        var uint64 rounding_bits = manthi & (bitQ(2)-1);
         exp1 += 1; /* increment exponent */
         manthi = manthi >> 2;
-        if ( (rounding_bits < bit(1)) /* 00,01 are rounded off */
-             || ( (rounding_bits == bit(1)) /* 10 */
+        if ( (rounding_bits < bitQ(1)) /* 00,01 are rounded off */
+             || ( (rounding_bits == bitQ(1)) /* 10 */
                   && (r.len == 0) /* and exactly half-numbered */
-                  && ((manthi & bit(0)) ==0))) { /* -> round-to-even */
+                  && ((manthi & bitQ(0)) ==0))) { /* -> round-to-even */
           /* round off */
         } else {
           /* round up */
           manthi += 1;
         }
       } else { /* quotient <2^54 -> round away 1 bit */
-        var uint64 rounding_bit = manthi & bit(0);
+        var uint64 rounding_bit = manthi & bitQ(0);
         manthi = manthi >> 1;
         if ( (rounding_bit == 0) /* 0 is rounded off */
              || ( (r.len == 0) /* exactly half-numbered */
-                  && ((manthi & bit(0)) ==0))) { /* -> round-to-even */
+                  && ((manthi & bitQ(0)) ==0))) { /* -> round-to-even */
           /* round off */
         } else { /* round up */
           manthi += 1;
-          if (manthi >= bit(DF_mant_len+1)) { /* rounding overflow? */
+          if (manthi >= bitQ(DF_mant_len+1)) { /* rounding overflow? */
             manthi = manthi>>1; exp1 = exp1+1;
           }
         }
@@ -1234,16 +1234,16 @@ local maygc object DF_sqrt_DF (object x) {
         mantx = ((uint64)get_32_Dptr(ptr) << 32) | (uint64)get_32_Dptr(&ptr[32/intDsize]);
       }
       /* round away the 63-DF_mant_len bits behind: */
-      if (((mantx & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
-          || (((mantx & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 >0 -> round up */
+      if (((mantx & bitQ(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
+          || (((mantx & (bitQ(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 >0 -> round up */
               && exactp /* bit 10 =1 and bits 9..0 =0, but rest -> round up */
               /* round-to-even, according to bit 11 : */
-              && ((mantx & bit(63-DF_mant_len)) ==0))) { /* round off */
+              && ((mantx & bitQ(63-DF_mant_len)) ==0))) { /* round off */
         mantx = mantx >> (63-DF_mant_len);
       } else { /* round up */
         mantx = mantx >> (63-DF_mant_len);
         mantx += 1;
-        if (mantx >= bit(DF_mant_len+1)) { /* rounding overflow? */
+        if (mantx >= bitQ(DF_mant_len+1)) { /* rounding overflow? */
           mantx = mantx>>1; exp = exp+1;
         }
       }
@@ -1312,7 +1312,7 @@ local maygc object DF_sqrt_DF (object x) {
         }
       }
       RESTORE_NUM_STACK /* restore num_stack */
-        }
+    }
   }
   encode2_DF(0,exp,manthi,mantlo, return);
 }
@@ -1421,17 +1421,17 @@ local maygc object I_to_DF (object x, bool signal_overflow) {
        : (((uint64)msd << (64-shiftcount)) | ((uint64)msdd << (32-shiftcount))
           | ((uint64)msddf >> shiftcount)));
     /* the highest set bit in mant is bit number 63. */
-    if (((mant & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
-        || (((mant & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
+    if (((mant & bitQ(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
+        || (((mant & (bitQ(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
             && ((msddf & (bit(shiftcount)-1)) ==0) /* and further bits from msddf =0 */
             && (!test_loop_up(MSDptr,len)) /* and all further digits =0 */
             /* round-to-even, according to bit 11 : */
-            && ((mant & bit(63-DF_mant_len)) ==0))) { /* round off */
+            && ((mant & bitQ(63-DF_mant_len)) ==0))) { /* round off */
       mant = mant >> (63-DF_mant_len);
     } else { /* round up */
       mant = mant >> (63-DF_mant_len);
       mant += 1;
-      if (mant >= bit(DF_mant_len+1)) { /* rounding overflow? */
+      if (mant >= bitQ(DF_mant_len+1)) { /* rounding overflow? */
         mant = mant>>1; exp = exp+1;
       }
     }
@@ -1538,25 +1538,25 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
     ((uint64)get_max32_Dptr(23,ptr) << 32)
     | (uint64)get_32_Dptr(&ptr[ceiling(23,intDsize)]);
   #endif
-  if (mant >= bit(DF_mant_len+2)) {
+  if (mant >= bitQ(DF_mant_len+2)) {
     /* 2^54 <= q < 2^55, shift by 2 bits to the right */
-    var uint64 rounding_bits = mant & (bit(2)-1);
+    var uint64 rounding_bits = mant & (bitQ(2)-1);
     lendiff = lendiff+1; /* exponent := n-m+1 */
     mant = mant >> 2;
-    if ( (rounding_bits < bit(1)) /* 00,01 are rounded off */
-         || ( (rounding_bits == bit(1)) /* 10 */
+    if ( (rounding_bits < bitQ(1)) /* 00,01 are rounded off */
+         || ( (rounding_bits == bitQ(1)) /* 10 */
               && (eq(STACK_0,Fixnum_0)) /* and exactly half-numbered (r=0) */
-              && ((mant & bit(0)) ==0))) /* -> round-to-even */
+              && ((mant & bitQ(0)) ==0))) /* -> round-to-even */
       /* round off */
       goto ab;
     else /* round up */
       goto auf;
   } else {
-    var uint64 rounding_bit = mant & bit(0);
+    var uint64 rounding_bit = mant & bitQ(0);
     mant = mant >> 1;
     if ((rounding_bit == 0) /* 0 is rounded off */
         || ((eq(STACK_0,Fixnum_0)) /* exactly half-numbered (r=0) */
-            && ((mant & bit(0)) ==0))) /* -> round-to-even */
+            && ((mant & bitQ(0)) ==0))) /* -> round-to-even */
       /* round off */
       goto ab;
     else /* round up */
@@ -1564,7 +1564,7 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   }
  auf:
   mant += 1;
-  if (mant >= bit(DF_mant_len+1)) { /* rounding overflow? */
+  if (mant >= bitQ(DF_mant_len+1)) { /* rounding overflow? */
     mant = mant>>1; lendiff = lendiff+1;
   }
  ab:

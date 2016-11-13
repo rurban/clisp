@@ -921,7 +921,7 @@ local maygc void F_decode_float_F_I_F (object x)
                 sign=,exp=,mant= );
       encode_DF(0,0,mant, x=); pushSTACK(x); /* create (-1)^0 * 2^0 * m */
       pushSTACK(L_to_FN((sintL)exp)); /* e as Fixnum */
-      encode_DF(sign,1,bit(DF_mant_len), x=); pushSTACK(x); /* create (-1)^s */
+      encode_DF(sign,1,bitQ(DF_mant_len), x=); pushSTACK(x); /* create (-1)^s */
     },{
       var uint32 manthi;
       var uint32 mantlo;
@@ -1250,7 +1250,7 @@ local maygc object F_float_sign_F (object x)
     return (!R_minusp(x) ? FF_1 : FF_minus1); /* better! */
   }, { /* x DF */
     /* ifdef_intQsize(
-           encode_DF(DF_sign(x),1,bit(DF_mant_len), return); ,
+           encode_DF(DF_sign(x),1,bitQ(DF_mant_len), return); ,
            encode2_DF(DF_sign(x),1,bit(DF_mant_len-32),0, return); ) */
     return (!R_minusp(x) ? DF_1 : DF_minus1); /* better! */
   }, { /* x LF */
