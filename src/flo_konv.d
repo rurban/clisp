@@ -184,17 +184,17 @@ local object DF_to_SF (object x)
   DF_decode(x, { return SF_0; }, sign=,exp=,mant=);
   /* round away 52-16=36 Bits: */
   #define shiftcount  (DF_mant_len-SF_mant_len)
-  if ( ((mant & bit(shiftcount-1)) ==0) /* Bit 35 was 0 -> round downwards */
-       || ( ((mant & (bit(shiftcount-1)-1)) ==0) /* was 1, Bits 34..0 >0 -> round upwards */
+  if ( ((mant & bitQ(shiftcount-1)) ==0) /* Bit 35 was 0 -> round downwards */
+       || ( ((mant & (bitQ(shiftcount-1)-1)) ==0) /* was 1, Bits 34..0 >0 -> round upwards */
             /* round-to-even */
-            && ((mant & bit(shiftcount)) ==0))) {
+            && ((mant & bitQ(shiftcount)) ==0))) {
     /* round downwards */
     mant = mant >> shiftcount;
   } else {
     /* round upwards */
     mant = mant >> shiftcount;
     mant = mant+1;
-    if (mant >= bit(SF_mant_len+1)) {
+    if (mant >= bitQ(SF_mant_len+1)) {
       /* rounding overflow */
       mant = mant>>1; exp = exp+1; /* shift mantissa right */
     }
@@ -275,17 +275,17 @@ local maygc object DF_to_FF (object x)
   DF_decode(x, { return FF_0; }, sign=,exp=,mant=);
   /* Round away 52-23=29 bits: */
   #define shiftcount  (DF_mant_len-FF_mant_len)
-  if ( ((mant & bit(shiftcount-1)) ==0) /* Bit 28 was 0 -> round downwards */
-       || ( ((mant & (bit(shiftcount-1)-1)) ==0) /* was 1, Bits 27..0 >0 -> round upwards */
+  if ( ((mant & bitQ(shiftcount-1)) ==0) /* Bit 28 was 0 -> round downwards */
+       || ( ((mant & (bitQ(shiftcount-1)-1)) ==0) /* was 1, Bits 27..0 >0 -> round upwards */
             /* round-to-even */
-            && ((mant & bit(shiftcount)) ==0))) {
+            && ((mant & bitQ(shiftcount)) ==0))) {
     /* round downwards */
     mant = mant >> shiftcount;
   } else {
     /* round upwards */
     mant = mant >> shiftcount;
     mant = mant+1;
-    if (mant >= bit(FF_mant_len+1)) {
+    if (mant >= bitQ(FF_mant_len+1)) {
       /* rounding overflow */
       mant = mant>>1; exp = exp+1; /* shift mantissa right */
     }
@@ -373,18 +373,18 @@ local maygc object LF_to_DF (object x)
   #define shiftcount  (ceiling(DF_mant_len+2,intDsize)*intDsize-(DF_mant_len+1))
   #ifdef intQsize
   var uint64 mant = ((uint64)manthi << 32) | (uint64)mantlo;
-  if ( ((mant & bit(shiftcount-1)) ==0) /* Bit 10 was 0 -> round downwards */
-       || ( ((mant & (bit(shiftcount-1)-1)) ==0) /* was 1, Bits 9..0 >0 -> round upwards */
+  if ( ((mant & bitQ(shiftcount-1)) ==0) /* Bit 10 was 0 -> round downwards */
+       || ( ((mant & (bitQ(shiftcount-1)-1)) ==0) /* was 1, Bits 9..0 >0 -> round upwards */
             && !test_loop_up(ptr,len-ceiling(DF_mant_len+2,intDsize)) /* more Bits /=0 -> round upwards */
             /* round-to-even */
-            && ((mant & bit(shiftcount)) ==0))) {
+            && ((mant & bitQ(shiftcount)) ==0))) {
     /* round to lower */
     mant = mant >> shiftcount;
   } else {
     /* round to upper */
     mant = mant >> shiftcount;
     mant = mant+1;
-    if (mant >= bit(DF_mant_len+1)) {
+    if (mant >= bitQ(DF_mant_len+1)) {
       /* rounding overflow */
       mant = mant>>1; exp = exp+1; /* shift mantissa right */
     }

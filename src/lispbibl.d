@@ -24,8 +24,8 @@
      DEBUG_GCSAFETY (requires G++)
      DEBUG_OS_ERROR
      DEBUG_SPVW
-     DEBUG_BYTECODE (slows down the interpreter a lot)
-     DEBUG_BACKTRACE
+     DEBUG_BYTECODE
+     DEBUG_BACKTRACE (slows down the interpreter a lot)
      DEBUG_COMPILER
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
@@ -1402,6 +1402,18 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
   #define intQsize 64
   typedef signed_int_with_n_bits(intQsize)    sintQ;
   typedef unsigned_int_with_n_bits(intQsize)  uintQ;
+  /* Bit number n (0<=n<64)
+   This is an uintQ expression, in order to avoid signed integer overflow
+   in expressions like bitQ(63) or bitQ(63)-1. */
+  #define bitQ(n)  ((uintQ)1<<(n))
+  /* Bit number n (0<n<=64) mod 2^64 */
+  #define bitQm(n)  ((uintQ)2<<((n)-1))
+  /* Bit-test of bit n in x, n constant, x an uintQ or sintQ: */
+  #define bitQ_test(x,n)  ((x) & bitQ(n))
+  /* Minus bit number n (0<=n<64) */
+  #define minus_bitQ(n)  (-(sintQ)1<<(n))
+  /* Minus bit number n (0<n<=64) mod 2^64 */
+  #define minus_bitQm(n)  (-(sintQ)2<<((n)-1))
   typedef sintQ  sintL2;
   typedef uintQ  uintL2;
 #else
