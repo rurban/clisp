@@ -1,5 +1,13 @@
 2016-11-13  Bruno Haible  <bruno@clisp.org>
 
+	Add support for Linux/x32 ABI on x86_64.
+	* lispbibl.d (WIDE_HARD): Define depending on long_bitsize and
+	pointer_bitsize, not on preprocessor defines like __x86_64__.
+	(LINUX_NOEXEC_HEAPCODES): Pick as default memory model on Linux/x32.
+	Don't forbid SINGLEMAP_MEMORY on Linux/x32.
+
+2016-11-13  Bruno Haible  <bruno@clisp.org>
+
 	Prepare for ILP32 ABIs on 64-bit CPUs (x32 on x86_64, n32 on MIPS64).
 	* lispbibl.d (bitQ, bitQm, bitQ_test, minus_bitQ, minus_bitQm): New
 	macros, available when intQsize is defined.
