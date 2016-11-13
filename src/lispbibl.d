@@ -243,6 +243,17 @@
   #error where is the configuration for your platform?
 #endif
 
+/* These properties of compiler and environment match the CPU.
+   For example, on DECALPHA we have long_bitsize = pointer_bitsize = 64.
+   But there are special ABIs:
+     * On AMD64, you can have long_bitsize = pointer_bitsize = 32.
+       This is the so-called x32 ABI. It is advertised through the _ILP32
+       predefined macro.
+     * On MIPS64, you can have long_bitsize = pointer_bitsize = 32.
+       This is the so-called n32 ABI. It is advertised through the _ABIN32
+       predefined macro.
+ */
+
 
 /* A more precise classification of the operating system: */
 #if defined(UNIX) && defined(SIGNALBLOCK_BSD) && !defined(SIGNALBLOCK_SYSV)
@@ -448,7 +459,7 @@
  WIDE_HARD means on a 64-bit platform.
  WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words. */
 
-#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
+#if (long_bitsize==64) && (pointer_bitsize==64)
   #define WIDE_HARD
 #endif
 
@@ -2370,7 +2381,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      is around 0xCF000000. In this case, we also use LINUX_NOEXEC_HEAPCODES.
      On some 64-bit systems, we cannot make assumptions about the virtual
      addresses. But we know that pointers have alignment 8. */
-    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
+    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
       #define LINUX_NOEXEC_HEAPCODES
     #else
       #define STANDARD_HEAPCODES
@@ -2775,14 +2786,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
-#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(AMD64) && defined(UNIX_LINUX))
+#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(AMD64) && defined(UNIX_LINUX) && defined(WIDE_HARD))
 /* If the address bits are the lower ones and not WIDE_SOFT,
  memory mapping may be possible. */
 
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
-     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
-    && !(defined(UNIX_AIX) || defined(UNIX_NETBSD))     \
-    && !defined(NO_SINGLEMAP)
+  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
+       || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
+      && !(defined(UNIX_AIX) || defined(UNIX_NETBSD))     \
+      && !defined(NO_SINGLEMAP)
     /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information.
      But this does not work on AIX.
