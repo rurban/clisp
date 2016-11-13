@@ -1,5 +1,13 @@
 2016-11-13  Bruno Haible  <bruno@clisp.org>
 
+	Define known facts for more CPUs.
+	* lispbibl.d (ARM64, POWERPC64, S390_64): New macros.
+	(MIPS64): Define more reliably.
+	(C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): Define for many CPUs, based
+	on GCC. For DECALPHA, set C_CODE_ALIGNMENT to 4 instead of 8.
+
+2016-11-13  Bruno Haible  <bruno@clisp.org>
+
 	Reduce portability effort for yet unknown 64-bit platforms.
 	* lispbibl.d (intQsize, HAVE_DD): Define also when long_bitsize==64 but
 	the CPU is unknown.

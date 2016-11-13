@@ -41,9 +41,9 @@
    Thread local storage storage when no compiler support is available (32 bit
    platforms only). The SP is mapped to clisp_thread_t pointer:
      USE_CUSTOM_TLS={1,2,3}  - see comments for the options
+ */
 
-
- this machine: WIN32 or GENERIC_UNIX */
+/* this machine: WIN32 or GENERIC_UNIX */
 #if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
@@ -95,23 +95,29 @@
  IA64 == the Intel IA-64 latecomer chip
  AMD64 == the AMD hammer chip
  S390 == the IBM S/390 processor */
-#if defined(__vax__)
-  #define VAX
-#endif
-#if defined(arm) || defined(__arm) || defined(__arm__)
-  #define ARM
-#endif
-#ifdef WIN32
-  #if defined(_M_IX86) || defined(_X86_)
-    #define I80386
+  /* 32-bit processors: */
+  #if defined(__vax__)
+    #define VAX
   #endif
-#endif
-#ifdef GENERIC_UNIX
   #if defined(m68k) || defined(__m68k__)
     #define M68K
   #endif
-  #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)
+  #if defined(m88000) || defined(__m88k__)
+    #define M88000
+  #endif
+  /* Processors with 32-bit and 64-bit instruction sets: */
+  #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386) \
+      || defined(_M_IX86) || defined(_X86_) /* native Windows */
     #define I80386
+  #endif
+  #if defined(__x86_64__) || defined(__amd64__)
+    #define AMD64
+  #endif
+  #if defined(arm) || defined(__arm) || defined(__arm__)
+    #define ARM
+  #endif
+  #ifdef __aarch64__
+    #define ARM64
   #endif
   #if defined(sparc) || defined(__sparc__)
     #define SPARC
@@ -121,7 +127,9 @@
   #endif
   #if defined(mips) || defined(__mips) || defined(__mips__)
     #define MIPS
-    #if defined(_MIPS_SZLONG)
+    #ifdef __mips64
+      #define MIPS64
+    #elif defined(_MIPS_SZLONG)
       #if (_MIPS_SZLONG == 64)
         /* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
         #define MIPS64
@@ -130,26 +138,27 @@
   #endif
   #if defined(HP8XX) || defined(hppa) || defined(__hppa) || defined(__hppa__)
     #define HPPA
+    /* Don't know how to reliably detect 64-bit mode through predefined macros. */
   #endif
-  #if defined(m88000) || defined(__m88k__)
-    #define M88000
-  #endif
-  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
+  #if defined(_IBMR2) || defined(__powerpc) || defined(__powerpc__) || defined(__ppc) || defined(__ppc__)
     #define POWERPC
+    #if defined(__powerpc64__) || defined(__ppc64__)
+      #define POWERPC64
+    #endif
   #endif
+  #if defined(__s390__)
+    #define S390
+    #if defined(__s390x__)
+      #define S390_64
+    #endif
+  #endif
+  /* 64-bit processors: */
   #ifdef __alpha
     #define DECALPHA
   #endif
   #ifdef __ia64__
     #define IA64
   #endif
-  #if defined(__x86_64__) || defined(__amd64__)
-    #define AMD64
-  #endif
-  #ifdef __s390__
-    #define S390
-  #endif
-#endif
 
 /* Selection of the operating system */
 #ifdef WIN32
@@ -418,15 +427,15 @@
 
 /* A property of the processor (and C compiler): The alignment of C functions.
  (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.) */
-#if defined(IA64)
+#if defined(IA64) || defined(__frv__)
   #define C_CODE_ALIGNMENT  16
   #define log2_C_CODE_ALIGNMENT  4
 #endif
-#if defined(DECALPHA)
+#if defined(S390) || defined(__SPU__) || defined(__tilegx__) || defined(__tilepro__)
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(AMD64) || defined(S390)
+#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
   /* When using gcc on i386, this assumes that -malign-functions has not been
    used to specify an alignment smaller than 4 bytes. */
   #define C_CODE_ALIGNMENT  4
@@ -443,9 +452,13 @@
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
-#if defined(M68K)
+#if defined(M68K) || defined(__CR16__) || defined(__cris__) || defined(__H8300__) || defined(__mcore__) || defined(__mep__) || defined(__moxie__) || defined(__MSP430__) || defined(__pdp11__) || defined(__sh__) || defined(__xstormy16__) || defined(__v850__) || defined(__vax__)
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
+#endif
+#if defined(__AVR__) || defined(__m32c__) || defined(__mn10300__) || defined(__RL78__)
+  #define C_CODE_ALIGNMENT  1
+  #define log2_C_CODE_ALIGNMENT  0
 #endif
 #if !defined(C_CODE_ALIGNMENT) /* e.g. (defined(I80386) && defined(MICROSOFT)) */
   #define C_CODE_ALIGNMENT  1
