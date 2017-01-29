@@ -11,7 +11,7 @@
                 exclude-result-prefixes="date"
                 version="1.0">
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps/21355 -->
+<!-- http://article.gmane.org/gmane.text.docbook.apps/21355 https://lists.oasis-open.org/archives/docbook-apps/200903/msg00123.html -->
 <!-- side effect of this empty param is to output a message -->
 <xsl:param name="__output.version__"><xsl:message>
  <xsl:text>DocBook XSL stylesheet VERSION is: </xsl:text>
@@ -31,7 +31,6 @@
 <!-- https://sourceforge.net/p/docbook/bugs/990/ -->
 <xsl:param name="index.links.to.section" select="0"/>
 
-<!-- http://thread.gmane.org/gmane.text.docbook.apps/15071/ -->
 <!-- http://www.sagehill.net/docbookxsl/HtmlHead.html -->
 <xsl:variable name="processing.time">
  <xsl:call-template name="datetime.format">
@@ -72,11 +71,9 @@
  <link rel="index" href="idx.html"/>
 </xsl:template>
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps:9779 -->
 <xsl:preserve-space elements="entry"/>
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps:11014
-     apply-templates is mapc on children
+<!-- apply-templates is mapc on children
      apply-imports is call-next-method -->
 
 <xsl:template match="ulink[@url='google']">
@@ -114,17 +111,6 @@
  </code></a>
 </xsl:template>
 <!-- ============================== / Gmane ============================== -->
-
-<!-- =============================== SF mail =============================== -->
-<xsl:param name="sfmail.top" select="'https://sourceforge.net/mailarchive/message.php?msg_name='"/>
-<xsl:template match="ulink[@role='sfmail']">
- <a class="{@role}" href="{$sfmail.top}{@url}"><code>
-   <xsl:choose><xsl:when test=".=''"><xsl:text>SFmail/</xsl:text>
-     <xsl:value-of select="@url"/></xsl:when>
-    <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
- </code></a>
-</xsl:template>
-<!-- ============================== / SF mail ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.file" select="'https://sourceforge.net/p/clisp/clisp/ci/tip/tree/'"/>
@@ -316,7 +302,7 @@
 </xsl:template>
 <!-- ========================== /CLHS ========================== -->
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps/21851
+<!-- http://article.gmane.org/gmane.text.docbook.apps/21851 https://lists.oasis-open.org/archives/docbook-apps/200906/msg00074.html
      avoid line breaks in lineannotation from xref titles -->
 <xsl:template match="title/text()" mode="no.anchor.mode">
  <xsl:value-of select="translate(., '&#10;', '&#32;')"/>
@@ -378,8 +364,8 @@
 <xsl:template match="screen/prompt">
  <strong><xsl:apply-imports/></strong></xsl:template>
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps:19941
-     http://article.gmane.org/gmane.text.docbook.apps:19957
+<!-- http://article.gmane.org/gmane.text.docbook.apps:19941 https://lists.oasis-open.org/archives/docbook-apps/200806/msg00000.html
+     http://article.gmane.org/gmane.text.docbook.apps:19957 https://lists.oasis-open.org/archives/docbook-apps/200806/msg00016.html
      list examples in the section toc -->
 <xsl:param name="generate.toc">
 appendix  toc,title

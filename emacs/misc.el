@@ -120,6 +120,31 @@
         (insert (car (last (split-string new "/" t))))))
     (message "Converted %d references" count)))
 
+(defun clisp-goto-gmane-url ()
+  "Visit the article using Gnus - from Lars."
+  (interactive)
+  (when (re-search-forward "\\(gmane[^/\n ]+\\)[/:]\\([0-9]+\\)" nil t)
+    (let ((group (match-string 1))
+	  (article (match-string 2)))
+      (message "group=[%s] article=[%s]" group article)
+      (gnus-fetch-group
+       group ; (format "nntp+news.gmane.org:%s" group)
+       (and article
+	    (list (string-to-number article)))))))
+
+(defun clisp-get-gmane-article ()
+  "Low level: get the article using raw NNTP."
+  (interactive)
+  (when (re-search-forward "\\(gmane[^/\n ]+\\)[/:]\\([0-9]+\\)" nil t)
+    (let* ((group (match-string 1))
+           (article (match-string 2))
+           (buffer (concat "*" group "-" article "*"))
+           (proc (open-network-stream "nntp" buffer "news.gmane.org" 119)))
+      (message "group=[%s] article=[%s]" group article)
+      (set-process-coding-system proc 'utf-8-dos 'utf-8-dos)
+      (process-send-string proc (concat "GROUP " group "\nARTICLE " article "\n"))
+      (display-buffer buffer))))
+
 (autoload 'rng-dtd-trivial-p "rng-valid")
 (autoload 'nxml-parent-document-set "nxml-mode")
 (defun clisp-nxml-mode-hook ()

@@ -103,15 +103,13 @@ further explanations of the issues could be provided).</para>
    </listitem></varlistentry>
    <varlistentry><term>&clisp; User Mailing
      List <ulink url="ml">clisp-list</ulink></term>
-    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.general"/>
-    </term><listitem><simpara>This is the right place to ask user-level
+    <listitem><simpara>This is the right place to ask user-level
       &clisp;-specific questions, such as <quote>"how do I save my &clisp;
       &mem-image;?"</quote>.</simpara>
       <simpara>See also <xref linkend="faq-bugs"/>.</simpara>
    </listitem></varlistentry>
    <varlistentry><term>&clisp; Developer Mailing
      List <ulink url="ml">clisp-devel</ulink></term>
-    <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel"/></term>
     <listitem><simpara>This is the right place to discuss &clisp; internals,
       problems with the current development sources, submit patches,
       offer help.</simpara></listitem></varlistentry>
@@ -513,7 +511,7 @@ The way to figure that out is to use <command>hg bisect</command>.
       packager, while &base; is the same on all platforms.
  </simpara></listitem></varlistentry></variablelist></para>
  <para>See <ulink url="ml">clisp-list</ulink> for more information
-  (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>/<ulink role="gmane" url="general/8691"/>).</para>
+  (<ulink role="gmane" url="general/8691"/>/<ulink msgid="200407212204.44395.bruno@clisp.org" url="https://sourceforge.net/p/clisp/mailman/message/11678654/"/>).</para>
 </answer></qandaentry>
 
 
@@ -633,8 +631,8 @@ The way to figure that out is to use <command>hg bisect</command>.
   (for the impatient: pass <option>--libdir=='${exec_prefix}/lib64'</option>
     to the &libsigsegv; &configure;).</para>
  <para>See these threads which discuss the situation in depth:<simplelist>
-   <member><ulink url="http://thread.gmane.org/gmane.comp.lib.gnulib.bugs/14565"/></member>
-   <member><ulink url="http://thread.gmane.org/gmane.comp.sysutils.autoconf.general/10827"/></member>
+   <member><ulink url="http://thread.gmane.org/gmane.comp.lib.gnulib.bugs/14565"/>/<ulink msgid="48C6C6BA.5010109@gnu.org" url="https://lists.gnu.org/archive/html/bug-gnulib/2008-09/msg00070.html"/></member>
+   <member><ulink url="http://thread.gmane.org/gmane.comp.sysutils.autoconf.general/10827"/>/<ulink msgid="200809100100.16122.bruno@clisp.org" url="http://lists.gnu.org/archive/html/autoconf/2008-09/msg00059.html"/></member>
 </simplelist></para></answer></qandaentry>
 
 
@@ -724,12 +722,12 @@ The way to figure that out is to use <command>hg bisect</command>.
        global <filename>SYSTEM.INI</filename></simpara></listitem>
      <listitem><simpara>modify the <filename>PIF</filename>
        that you use to invoke &clisp;
-       (<ulink role="sfmail" url="3D2600BB.1CDBE9D0%40freenet.de"/>/<ulink role="gmane" url="general/4656"/>)</simpara></listitem>
+       (<ulink role="gmane" url="general/4656"/>/<ulink msgid="3D2600BB.1CDBE9D0@freenet.de" url="https://sourceforge.net/p/clisp/mailman/message/9033347/"/>)</simpara></listitem>
      <listitem><simpara>or set the program stack (of the run
        times <command>base/lisp.exe</command> or
        <command>full/lisp.exe</command>, &not-e; the driver
        <command>clisp.exe</command>) using <command>editbin</command>
-       (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>/<ulink role="gmane" url="general/5523"/>); you can find the
+       (<ulink role="gmane" url="general/5523"/>/<ulink msgid="sa0ptz4o4e3.fsf@glip.premonitia.com" url="https://sourceforge.net/p/clisp/mailman/message/9033144/"/>); you can find the
        current stack size using <command>dumpbin</command>.
  </simpara></listitem></itemizedlist></para></listitem></varlistentry>
  <varlistentry><term>&unix-only;</term>
@@ -795,7 +793,7 @@ interpreted ones.</para>
   (or are at least familiar with the
   <ulink url="http://floating-point-gui.de/">light version</ulink> thereof).
  </para><para>See also <ulink url="ml">clisp-list</ulink>
-  (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para></answer>
+  (<ulink role="gmane" url="general/9850"/>/<ulink msgid="17121.26476.75643.47774@thalassa.informatimago.com" url="https://sourceforge.net/p/clisp/mailman/message/12275968/"/>/<ulink url="https://sourceforge.net/p/clisp/mailman/message/12275958/"/>).</para></answer>
 
 <answer><label>exact</label><para>If you want <emphasis>exact</emphasis>
  calculations, use &rational-t;s:<programlisting language="lisp">
@@ -867,8 +865,8 @@ interpreted ones.</para>
   defined by &defvar; and &defparameter; (e.g., <varname>*FOO*</varname>)
   and &defconstant; (e.g., <varname>+BAR+</varname>).</para></answer>
 <answer><label>More</label>
- <simplelist><member><ulink role="sfmail" url="470A4B2A.30306%40gnu.org"/>/<ulink role="gmane" url="general/11945"/></member>
-  <member><ulink role="sfmail" url="200710090043.01871.bruno%40clisp.org"/>/<ulink role="gmane" url="general/11949"/></member>
+ <simplelist><member><ulink role="gmane" url="general/11945"/>/<ulink msgid="470A4B2A.30306@gnu.org" url="https://sourceforge.net/p/clisp/mailman/message/13174197/"/></member>
+  <member><ulink role="gmane" url="general/11949"/>/<ulink msgid="200710090043.01871.bruno@clisp.org" role="https://sourceforge.net/p/clisp/mailman/message/13174204/"/></member>
 </simplelist></answer>
 </qandaentry>
 

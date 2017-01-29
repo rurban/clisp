@@ -3,8 +3,7 @@
   href="http://docbook.sf.net/release/xsl/current/manpages/docbook.xsl"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V@DTDVER@//EN"
           "@DTD@" [
-  <!-- http://article.gmane.org/gmane.text.docbook.misc:5091
-       allow alt in acronym -->
+  <!-- allow alt in acronym -->
   <!ENTITY % local.word.char.mix "|alt">
   <!ENTITY % cl-entities SYSTEM "cl-ent.xml">
   %cl-entities;
