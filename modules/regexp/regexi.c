@@ -87,6 +87,7 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
   rettype_t rettype = CHECK_RETTYPE(STACK_2);
   regex_t *re;
   regmatch_t *ret;
+  size_t ret_buffer_size;
   skipSTACK(3);                 /* drop all options */
   for (;;) {
     STACK_1 = check_fpointer(STACK_1,true);
@@ -106,10 +107,16 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     funcall(L(make_array),7);
     string = value1;
   }
-  begin_system_call();
-  ret = (regmatch_t*)alloca((re->re_nsub+1)*sizeof(regmatch_t));
-  end_system_call();
-  if (ret == NULL) OS_error();
+  ret_buffer_size = (re->re_nsub+1)*sizeof(regmatch_t);
+  if (ret_buffer_size <= BUFSIZ) {
+    begin_system_call();
+    ret = (regmatch_t*)alloca(ret_buffer_size);
+    end_system_call();
+    if (ret == NULL) OS_error();
+  } else {
+    /* Don't use alloca for sizes > BUFSIZ, it's not safe! */
+    ret = (regmatch_t*)clisp_malloc(ret_buffer_size);
+  }
   with_string_0(string,GLO(misc_encoding),stringz, {
     begin_system_call();
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
@@ -141,6 +148,12 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
       case ret_vector: VALUES1(vectorof(re_count)); break;
       case ret_bool:   VALUES1(T); break;
     }
+  }
+  if (ret_buffer_size > BUFSIZ) {
+    /* buffer allocated using malloc, needs to be free'd */
+    begin_system_call();
+    free(ret);
+    end_system_call();
   }
   skipSTACK(2);                 /* drop pattern & string */
 }
