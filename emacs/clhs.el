@@ -33,8 +33,8 @@
 (require 'thingatpt)
 (require 'url)
 
-(defcustom common-lisp-hyperspec-root
-  "http://www.lispworks.com/documentation/HyperSpec/"
+(defcustom common-lisp-hyperspec-root "http://clhs.lisp.se/"
+  ;; "http://www.lispworks.com/documentation/HyperSpec/"
   ;; "http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/html/hyperspec/HyperSpec/"
   ;; "http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/"
   "*The root of the Common Lisp HyperSpec URL.
