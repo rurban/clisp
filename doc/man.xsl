@@ -30,8 +30,6 @@
 <!-- the following tries to preserve the comments
   it does not work because para|simpara|remark in list mode
   calls normalize-space() and removes the whitespace around comments
-  <http://article.gmane.org/gmane.text.docbook.apps/6461> -->
-<!--
 <xsl:template match="comment()">
  <xsl:text>&#10;.&#92;&#34;</xsl:text> <!- - #\Newline . \ " - ->
  <xsl:variable name="content">

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V@DTDVER@//EN"
           "@DTD@" [
-  <!-- http://article.gmane.org/gmane.text.docbook.misc:5091
-       allow alt in acronym -->
+  <!-- allow alt in acronym -->
   <!ENTITY % local.word.char.mix "|alt">
   <!ENTITY % cl-entities-file SYSTEM "cl-ent.xml">
   %cl-entities-file;
