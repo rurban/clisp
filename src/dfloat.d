@@ -922,7 +922,7 @@ local maygc object DF_DF_mult_DF (object x1, object x2) {
   var uintL mantlo;
  #endif
   /* product mant = mant1 * mant2 is >= 2^104, < 2^106. check bit 105: */
-  #define mant_bit(k)  (mant[128/intDsize - 1 - floor(k,intDsize)] & bitQ((k)%intDsize))
+  #define mant_bit(k)  (mant[128/intDsize - 1 - floor(k,intDsize)] & bit((k)%intDsize))
   if (mant_bit(2*DF_mant_len+1)) {
     /* mant>=2^(2*DF_mant_len+1), shift by DF_mant_len+1 bits to the right:
        fetch bits 105..53: */
