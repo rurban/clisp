@@ -1,3 +1,10 @@
+2017-01-29  Bruno Haible  <bruno@clisp.org>
+
+	Fix build problem on 32-bit platforms, introduced on 2016-11-13.
+	* dfloat.d (DF_DF_mult_DF): Don't use bitQ() to test a bit of an uintD.
+	Reported by Jerry James <loganjerry@gmail.com> in
+	<https://sourceforge.net/p/clisp/mailman/message/35632512/>.
+
 2016-11-13  Bruno Haible  <bruno@clisp.org>
 
 	Define known facts for more CPUs.
