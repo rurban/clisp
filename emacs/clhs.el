@@ -118,10 +118,11 @@ Actually, `completing-read' in Emacs 22 accepts hash-tables natively."
                 (car res))))))
 
 ;;;###autoload
-(defun common-lisp-hyperspec (symbol-name &optional insert)
+(defun common-lisp-hyperspec (symbol-name &optional kill)
   "Browse the Common Lisp HyperSpec documentation for SYMBOL-NAME.
-Finds the HyperSpec at `common-lisp-hyperspec-root'."
-  (interactive (list (let ((sym (thing-at-point 'symbol))
+Finds the HyperSpec at `common-lisp-hyperspec-root'.
+With prefix arg, save the URL in the `kill-ring' instead."
+  (interactive (list (let ((sym (thing-at-point 'symbol t))
                            (completion-ignore-case t))
                        (completing-read
                         "Look-up symbol in the Common Lisp HyperSpec: "
@@ -134,8 +135,8 @@ Finds the HyperSpec at `common-lisp-hyperspec-root'."
           (concat common-lisp-hyperspec-root "/")))
   (let ((url (concat common-lisp-hyperspec-root
                      (gethash (upcase symbol-name) (clhs-symbols)))))
-    (if insert
-        (insert url)
+    (if kill
+        (kill-new url)
       (browse-url url))))
 
 (provide 'clhs)
