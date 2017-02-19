@@ -461,7 +461,7 @@ EXCLUDE=--exclude .hg --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
          --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 T = $(TOPDIR)
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure $T/Makefile.in
 SOURCES2 = $T/src
 SOURCES4 = $T/utils
 SOURCES5 = $T/unix $T/win32msvc

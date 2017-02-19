@@ -1,3 +1,11 @@
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
+	Support the standard way of building GNU packages.
+	* Makefile.in: New file.
+	* Makefile.devel (SOURCES1): Add it.
+	* configure.in: Invoke AC_PROG_MAKE_SET. Create Makefile from
+	Makefile.in if building in the source directory.
+
 2017-02-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_symbol_values) [UNIX_MACOSX]: Set

@@ -1,0 +1,44 @@
+# -*- Makefile -*- for the CLISP top-level directory
+# This Makefile exists in order to support the standard GNU way of building:
+#   ./configure && make && make check
+
+# -------------- Start of configurable section --------------------
+
+# Programs used by "make":
+RM = rm -f
+@SET_MAKE@
+
+# -------------- End of configurable section --------------------
+
+SHELL = /bin/sh
+
+all : force
+	cd src && $(MAKE) all
+
+install : force
+	cd src && $(MAKE) install
+
+installdirs : force
+	cd src && $(MAKE) installdirs
+
+uninstall : force
+	cd src && $(MAKE) uninstall
+
+check : force
+	cd src && $(MAKE) check
+
+mostlyclean : force
+	cd src && $(MAKE) mostlyclean
+
+clean : force
+	cd src && $(MAKE) clean
+
+distclean : force
+	cd src && if test -f Makefile; then $(MAKE) distclean; fi
+	$(RM) Makefile
+
+maintainer-clean : force
+	cd src && if test -f Makefile; then $(MAKE) maintainer-clean; fi
+	$(RM) Makefile
+
+force :
