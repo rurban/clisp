@@ -1,6 +1,6 @@
 /* bind.c --- wrappers for Windows bind function
 
-   Copyright (C) 2008-2011 Free Software Foundation, Inc.
+   Copyright (C) 2008-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,9 +32,18 @@ int
 rpl_bind (int fd, const struct sockaddr *sockaddr, socklen_t len)
 {
   SOCKET sock = FD_TO_SOCKET (fd);
-  int r = bind (sock, sockaddr, len);
-  if (r < 0)
-    set_winsock_errno ();
 
-  return r;
+  if (sock == INVALID_SOCKET)
+    {
+      errno = EBADF;
+      return -1;
+    }
+  else
+    {
+      int r = bind (sock, sockaddr, len);
+      if (r < 0)
+        set_winsock_errno ();
+
+      return r;
+    }
 }

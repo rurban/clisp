@@ -1,5 +1,5 @@
 /* Substitute for <sys/select.h>.
-   Copyright (C) 2007-2011 Free Software Foundation, Inc.
+   Copyright (C) 2007-2017 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,24 +12,58 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 # if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
 # endif
 @PRAGMA_COLUMNS@
 
-/* On OSF/1, <sys/types.h> and <sys/time.h> include <sys/select.h>.
+/* On OSF/1 and Solaris 2.6, <sys/types.h> and <sys/time.h>
+   both include <sys/select.h>.
+   On Cygwin, <sys/time.h> includes <sys/select.h>.
    Simply delegate to the system's header in this case.  */
-#if @HAVE_SYS_SELECT_H@ && defined __osf__ && (defined _SYS_TYPES_H_ && !defined _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TYPES_H) && defined _OSF_SOURCE
+#if (@HAVE_SYS_SELECT_H@                                                \
+     && !defined _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TYPES_H             \
+     && ((defined __osf__ && defined _SYS_TYPES_H_                      \
+          && defined _OSF_SOURCE)                                       \
+         || (defined __sun && defined _SYS_TYPES_H                      \
+             && (! (defined _XOPEN_SOURCE || defined _POSIX_C_SOURCE)   \
+                 || defined __EXTENSIONS__))))
 
 # define _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TYPES_H
 # @INCLUDE_NEXT@ @NEXT_SYS_SELECT_H@
 
-#elif @HAVE_SYS_SELECT_H@ && defined __osf__ && (defined _SYS_TIME_H_ && !defined _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TIME_H) && defined _OSF_SOURCE
+#elif (@HAVE_SYS_SELECT_H@                                              \
+       && (defined _CYGWIN_SYS_TIME_H                                   \
+           || (!defined _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TIME_H       \
+               && ((defined __osf__ && defined _SYS_TIME_H_             \
+                    && defined _OSF_SOURCE)                             \
+                   || (defined __sun && defined _SYS_TIME_H             \
+                       && (! (defined _XOPEN_SOURCE                     \
+                              || defined _POSIX_C_SOURCE)               \
+                           || defined __EXTENSIONS__))))))
 
 # define _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_TIME_H
+# @INCLUDE_NEXT@ @NEXT_SYS_SELECT_H@
+
+/* On IRIX 6.5, <sys/timespec.h> includes <sys/types.h>, which includes
+   <sys/bsd_types.h>, which includes <sys/select.h>.  At this point we cannot
+   include <signal.h>, because that includes <internal/signal_core.h>, which
+   gives a syntax error because <sys/timespec.h> has not been completely
+   processed.  Simply delegate to the system's header in this case.  */
+#elif @HAVE_SYS_SELECT_H@ && defined __sgi && (defined _SYS_BSD_TYPES_H && !defined _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_BSD_TYPES_H)
+
+# define _GL_SYS_SELECT_H_REDIRECT_FROM_SYS_BSD_TYPES_H
+# @INCLUDE_NEXT@ @NEXT_SYS_SELECT_H@
+
+/* On OpenBSD 5.0, <pthread.h> includes <sys/types.h>, which includes
+   <sys/select.h>.  At this point we cannot include <signal.h>, because that
+   includes gnulib's pthread.h override, which gives a syntax error because
+   /usr/include/pthread.h has not been completely processed.  Simply delegate
+   to the system's header in this case.  */
+#elif @HAVE_SYS_SELECT_H@ && defined __OpenBSD__ && (defined _PTHREAD_H_ && !defined PTHREAD_MUTEX_INITIALIZER)
+
 # @INCLUDE_NEXT@ @NEXT_SYS_SELECT_H@
 
 #else
@@ -41,20 +75,15 @@
    in <signal.h> where it belongs.  */
 #include <sys/types.h>
 
-/* Get definition of 'sigset_t'.
-   But avoid namespace pollution on glibc systems.  */
-#if !(defined __GLIBC__ && !defined __UCLIBC__)
-# include <signal.h>
-#endif
-
 #if @HAVE_SYS_SELECT_H@
 
 /* On OSF/1 4.0, <sys/select.h> provides only a forward declaration
    of 'struct timeval', and no definition of this type.
-   Also, MacOS X, AIX, HP-UX, IRIX, Solaris, Interix declare select()
+   Also, Mac OS X, AIX, HP-UX, IRIX, Solaris, Interix declare select()
    in <sys/time.h>.
-   But avoid namespace pollution on glibc systems.  */
-# ifndef __GLIBC__
+   But avoid namespace pollution on glibc systems and "unknown type
+   name" problems on Cygwin.  */
+# if !(defined __GLIBC__ || defined __CYGWIN__)
 #  include <sys/time.h>
 # endif
 
@@ -71,6 +100,15 @@
 
 #endif
 
+/* Get definition of 'sigset_t'.
+   But avoid namespace pollution on glibc systems and "unknown type
+   name" problems on Cygwin.
+   Do this after the include_next (for the sake of OpenBSD 5.0) but before
+   the split double-inclusion guard (for the sake of Solaris).  */
+#if !((defined __GLIBC__ || defined __CYGWIN__) && !defined __UCLIBC__)
+# include <signal.h>
+#endif
+
 #ifndef _@GUARD_PREFIX@_SYS_SELECT_H
 #define _@GUARD_PREFIX@_SYS_SELECT_H
 
@@ -85,11 +123,15 @@
 #  include <string.h>
 # endif
 /* On native Windows platforms:
-   Get the 'fd_set' type.  */
-# if @HAVE_WINSOCK2_H@ && !defined _GL_INCLUDING_WINSOCK2_H
-#  define _GL_INCLUDING_WINSOCK2_H
-#  include <winsock2.h>
-#  undef _GL_INCLUDING_WINSOCK2_H
+   Get the 'fd_set' type.
+   Get the close() declaration before we override it.  */
+# if @HAVE_WINSOCK2_H@
+#  if !defined _GL_INCLUDING_WINSOCK2_H
+#   define _GL_INCLUDING_WINSOCK2_H
+#   include <winsock2.h>
+#   undef _GL_INCLUDING_WINSOCK2_H
+#  endif
+#  include <io.h>
 # endif
 #endif
 
@@ -106,7 +148,7 @@
 
 /* Re-define FD_ISSET to avoid a WSA call while we are not using
    network sockets.  */
-static inline int
+static int
 rpl_fd_isset (SOCKET fd, fd_set * set)
 {
   u_int i;
@@ -249,12 +291,15 @@ _GL_WARN_ON_USE (pselect, "pselect is not portable - "
 #   define select rpl_select
 #  endif
 _GL_FUNCDECL_RPL (select, int,
-                  (int, fd_set *, fd_set *, fd_set *, struct timeval *));
+                  (int, fd_set *restrict, fd_set *restrict, fd_set *restrict,
+                   struct timeval *restrict));
 _GL_CXXALIAS_RPL (select, int,
-                  (int, fd_set *, fd_set *, fd_set *, struct timeval *));
+                  (int, fd_set *restrict, fd_set *restrict, fd_set *restrict,
+                   struct timeval *restrict));
 # else
 _GL_CXXALIAS_SYS (select, int,
-                  (int, fd_set *, fd_set *, fd_set *, struct timeval *));
+                  (int, fd_set *restrict, fd_set *restrict, fd_set *restrict,
+                   struct timeval *restrict));
 # endif
 _GL_CXXALIASWARN (select);
 #elif @HAVE_WINSOCK2_H@

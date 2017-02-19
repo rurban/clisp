@@ -1,6 +1,6 @@
 /* A substitute for ISO C99 <wctype.h>, for platforms that lack it.
 
-   Copyright (C) 2006-2011 Free Software Foundation, Inc.
+   Copyright (C) 2006-2017 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -13,8 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 /* Written by Bruno Haible and Paul Eggert.  */
 
@@ -26,12 +25,24 @@
  * wctrans_t, and wctype_t are not yet implemented.
  */
 
-#ifndef _@GUARD_PREFIX@_WCTYPE_H
-
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
 #endif
 @PRAGMA_COLUMNS@
+
+#if (defined __MINGW32__ && defined __CTYPE_H_SOURCED__)
+
+/* Special invocation convention:
+   - With MinGW 3.22, when <ctype.h> includes <wctype.h>, only some part of
+     <wctype.h> is being processed, which doesn't include the idempotency
+     guard.   */
+
+#@INCLUDE_NEXT@ @NEXT_WCTYPE_H@
+
+#else
+/* Normal invocation convention.  */
+
+#ifndef _@GUARD_PREFIX@_WCTYPE_H
 
 #if @HAVE_WINT_T@
 /* Solaris 2.5 has a bug: <wchar.h> must be included before <wctype.h>.
@@ -45,6 +56,13 @@
 # include <wchar.h>
 #endif
 
+/* mingw has declarations of towupper and towlower in <ctype.h> as
+   well <wctype.h>.  Include <ctype.h> in advance to avoid rpl_ prefix
+   being added to the declarations.  */
+#ifdef __MINGW32__
+# include <ctype.h>
+#endif
+
 /* Include the original <wctype.h> if it exists.
    BeOS 5 has the functions but no <wctype.h>.  */
 /* The include_next requires a split double-inclusion guard.  */
@@ -54,6 +72,14 @@
 
 #ifndef _@GUARD_PREFIX@_WCTYPE_H
 #define _@GUARD_PREFIX@_WCTYPE_H
+
+#ifndef _GL_INLINE_HEADER_BEGIN
+ #error "Please include config.h first."
+#endif
+_GL_INLINE_HEADER_BEGIN
+#ifndef _GL_WCTYPE_INLINE
+# define _GL_WCTYPE_INLINE _GL_INLINE
+#endif
 
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
@@ -79,6 +105,18 @@
 #  define WEOF -1
 # endif
 #else
+/* mingw and MSVC define wint_t as 'unsigned short' in <crtdefs.h>.
+   This is too small: ISO C 99 section 7.24.1.(2) says that wint_t must be
+   "unchanged by default argument promotions".  Override it.  */
+# if @GNULIB_OVERRIDES_WINT_T@
+#  if !GNULIB_defined_wint_t
+#   include <crtdefs.h>
+typedef unsigned int rpl_wint_t;
+#   undef wint_t
+#   define wint_t rpl_wint_t
+#   define GNULIB_defined_wint_t 1
+#  endif
+# endif
 # ifndef WEOF
 #  define WEOF ((wint_t) -1)
 # endif
@@ -137,7 +175,7 @@
 #   endif
 #  endif
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswalnum
 #  else
@@ -149,7 +187,7 @@ iswalnum
           || ((wc & ~0x20) >= 'A' && (wc & ~0x20) <= 'Z'));
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswalpha
 #  else
@@ -160,7 +198,7 @@ iswalpha
   return (wc & ~0x20) >= 'A' && (wc & ~0x20) <= 'Z';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswblank
 #  else
@@ -171,7 +209,7 @@ iswblank
   return wc == ' ' || wc == '\t';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswcntrl
 #  else
@@ -182,7 +220,7 @@ iswcntrl
   return (wc & ~0x1f) == 0 || wc == 0x7f;
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswdigit
 #  else
@@ -193,7 +231,7 @@ iswdigit
   return wc >= '0' && wc <= '9';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswgraph
 #  else
@@ -204,7 +242,7 @@ iswgraph
   return wc >= '!' && wc <= '~';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswlower
 #  else
@@ -215,7 +253,7 @@ iswlower
   return wc >= 'a' && wc <= 'z';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswprint
 #  else
@@ -226,7 +264,7 @@ iswprint
   return wc >= ' ' && wc <= '~';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswpunct
 #  else
@@ -239,7 +277,7 @@ iswpunct
                || ((wc & ~0x20) >= 'A' && (wc & ~0x20) <= 'Z')));
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswspace
 #  else
@@ -251,7 +289,7 @@ iswspace
           || wc == '\n' || wc == '\v' || wc == '\f' || wc == '\r');
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswupper
 #  else
@@ -262,7 +300,7 @@ iswupper
   return wc >= 'A' && wc <= 'Z';
 }
 
-static inline int
+_GL_WCTYPE_INLINE int
 #  if @REPLACE_ISWCNTRL@
 rpl_iswxdigit
 #  else
@@ -274,7 +312,7 @@ iswxdigit
           || ((wc & ~0x20) >= 'A' && (wc & ~0x20) <= 'F'));
 }
 
-static inline wint_t
+_GL_WCTYPE_INLINE wint_t
 #  if @REPLACE_TOWLOWER@
 rpl_towlower
 #  else
@@ -285,7 +323,7 @@ towlower
   return (wc >= 'A' && wc <= 'Z' ? wc - 'A' + 'a' : wc);
 }
 
-static inline wint_t
+_GL_WCTYPE_INLINE wint_t
 #  if @REPLACE_TOWLOWER@
 rpl_towupper
 #  else
@@ -325,7 +363,7 @@ _GL_FUNCDECL_SYS (iswblank, int, (wint_t wc));
       result register.  We need to fix this by adding a zero-extend from
       wchar_t to wint_t after the call.  */
 
-static inline wint_t
+_GL_WCTYPE_INLINE wint_t
 rpl_towlower (wint_t wc)
 {
   return (wint_t) (wchar_t) towlower (wc);
@@ -334,7 +372,7 @@ rpl_towlower (wint_t wc)
 #   define towlower rpl_towlower
 #  endif
 
-static inline wint_t
+_GL_WCTYPE_INLINE wint_t
 rpl_towupper (wint_t wc)
 {
   return (wint_t) (wchar_t) towupper (wc);
@@ -482,6 +520,8 @@ _GL_WARN_ON_USE (towctrans, "towctrans is unportable - "
 # endif
 #endif
 
+_GL_INLINE_HEADER_END
 
 #endif /* _@GUARD_PREFIX@_WCTYPE_H */
 #endif /* _@GUARD_PREFIX@_WCTYPE_H */
+#endif

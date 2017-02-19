@@ -75,8 +75,18 @@ static void process_file (FILE * fp) {
           }
         } else {                /* pass unchanged */
           unsigned char * ptr = line;
+          int prev; /* previous char before c */
           putchar('#');
-          do { c = *ptr++; putchar(c); } while (!(c=='\n'));
+          do { prev = c; c = *ptr++; putchar(c); } while (!(c=='\n'));
+          /* recognize continuation lines */
+          if (prev=='\\') {
+            do {
+              prev = c;
+              c = getc(fp);
+              if (c==EOF) goto eof;
+              putchar(c);
+            } while (!(c=='\n' && prev!='\\'));
+          }
         }
         put_line(line);
         goto line_ok;

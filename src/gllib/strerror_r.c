@@ -1,6 +1,6 @@
 /* strerror_r.c --- POSIX compatible system error routine
 
-   Copyright (C) 2010-2011 Free Software Foundation, Inc.
+   Copyright (C) 2010-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -34,8 +34,13 @@
 #if (__GLIBC__ >= 2 || defined __UCLIBC__ || defined __CYGWIN__) && HAVE___XPG_STRERROR_R /* glibc >= 2.3.4, cygwin >= 1.7.9 */
 
 # define USE_XPG_STRERROR_R 1
+extern
+#ifdef __cplusplus
+"C"
+#endif
+int __xpg_strerror_r (int errnum, char *buf, size_t buflen);
 
-#elif HAVE_DECL_STRERROR_R && !(__GLIBC__ >= 2 || defined __UCLIBC__ || defined __CYGWIN__)
+#elif HAVE_DECL_STRERROR_R_ORIG && !(__GLIBC__ >= 2 || defined __UCLIBC__ || defined __CYGWIN__)
 
 /* The system's strerror_r function is OK, except that its third argument
    is 'int', not 'size_t', or its return type is wrong.  */
@@ -62,6 +67,10 @@
 #   include <nl_types.h>
 #  endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Get sys_nerr, sys_errlist on HP-UX (otherwise only declared in C++ mode).
    Get sys_nerr, sys_errlist on IRIX (otherwise only declared with _SGIAPI).  */
 #  if defined __hpux || defined __sgi
@@ -74,6 +83,10 @@ extern char *sys_errlist[];
 extern int sys_nerr;
 #  endif
 
+#ifdef __cplusplus
+}
+#endif
+
 # else
 
 #  include "glthread/lock.h"
@@ -84,6 +97,27 @@ gl_lock_define_initialized(static, strerror_lock)
 
 # endif
 
+#endif
+
+/* On MSVC, there is no snprintf() function, just a _snprintf().
+   It is of lower quality, but sufficient for the simple use here.
+   We only have to make sure to NUL terminate the result (_snprintf
+   does not NUL terminate, like strncpy).  */
+#if !HAVE_SNPRINTF
+static int
+local_snprintf (char *buf, size_t buflen, const char *format, ...)
+{
+  va_list args;
+  int result;
+
+  va_start (args, format);
+  result = _vsnprintf (buf, buflen, format, args);
+  va_end (args);
+  if (buflen > 0 && (result < 0 || result >= buflen))
+    buf[buflen - 1] = '\0';
+  return result;
+}
+# define snprintf local_snprintf
 #endif
 
 /* Copy as much of MSG into BUF as possible, without corrupting errno.
@@ -140,8 +174,6 @@ strerror_r (int errnum, char *buf, size_t buflen)
 #if USE_XPG_STRERROR_R
 
     {
-      extern int __xpg_strerror_r (int errnum, char *buf, size_t buflen);
-
       ret = __xpg_strerror_r (errnum, buf, buflen);
       if (ret < 0)
         ret = errno;
@@ -220,13 +252,13 @@ strerror_r (int errnum, char *buf, size_t buflen)
     /* Try to do what strerror (errnum) does, but without clobbering the
        buffer used by strerror().  */
 
-# if defined __NetBSD__ || defined __hpux || ((defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__) || defined __CYGWIN__ /* NetBSD, HP-UX, native Win32, Cygwin */
+# if defined __NetBSD__ || defined __hpux || ((defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__) || defined __CYGWIN__ /* NetBSD, HP-UX, native Windows, Cygwin */
 
-    /* NetBSD:        sys_nerr, sys_errlist are declared through _NETBSD_SOURCE
-                      and <errno.h> above.
-       HP-UX:         sys_nerr, sys_errlist are declared explicitly above.
-       native Win32:  sys_nerr, sys_errlist are declared in <stdlib.h>.
-       Cygwin:        sys_nerr, sys_errlist are declared in <errno.h>.  */
+    /* NetBSD:         sys_nerr, sys_errlist are declared through _NETBSD_SOURCE
+                       and <errno.h> above.
+       HP-UX:          sys_nerr, sys_errlist are declared explicitly above.
+       native Windows: sys_nerr, sys_errlist are declared in <stdlib.h>.
+       Cygwin:         sys_nerr, sys_errlist are declared in <errno.h>.  */
     if (errnum >= 0 && errnum < sys_nerr)
       {
 #  if HAVE_CATGETS && (defined __NetBSD__ || defined __hpux)

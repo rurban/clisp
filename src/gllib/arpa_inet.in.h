@@ -1,6 +1,6 @@
 /* A GNU-like <arpa/inet.h>.
 
-   Copyright (C) 2005-2006, 2008-2011 Free Software Foundation, Inc.
+   Copyright (C) 2005-2006, 2008-2017 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -13,8 +13,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
+   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef _@GUARD_PREFIX@_ARPA_INET_H
 
@@ -58,7 +57,6 @@
 
 
 #if @GNULIB_INET_NTOP@
-# if !@HAVE_DECL_INET_NTOP@
 /* Converts an internet address from internal format to a printable,
    presentable format.
    AF is an internet address family, such as AF_INET or AF_INET6.
@@ -74,16 +72,31 @@
 
    For more details, see the POSIX:2001 specification
    <http://www.opengroup.org/susv3xsh/inet_ntop.html>.  */
+# if @REPLACE_INET_NTOP@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef inet_ntop
+#   define inet_ntop rpl_inet_ntop
+#  endif
+_GL_FUNCDECL_RPL (inet_ntop, const char *,
+                  (int af, const void *restrict src,
+                   char *restrict dst, socklen_t cnt)
+                  _GL_ARG_NONNULL ((2, 3)));
+_GL_CXXALIAS_RPL (inet_ntop, const char *,
+                  (int af, const void *restrict src,
+                   char *restrict dst, socklen_t cnt));
+# else
+#  if !@HAVE_DECL_INET_NTOP@
 _GL_FUNCDECL_SYS (inet_ntop, const char *,
                   (int af, const void *restrict src,
                    char *restrict dst, socklen_t cnt)
                   _GL_ARG_NONNULL ((2, 3)));
-# endif
+#  endif
 /* Need to cast, because on NonStop Kernel, the fourth parameter is
                                             size_t cnt.  */
 _GL_CXXALIAS_SYS_CAST (inet_ntop, const char *,
                        (int af, const void *restrict src,
                         char *restrict dst, socklen_t cnt));
+# endif
 _GL_CXXALIASWARN (inet_ntop);
 #elif defined GNULIB_POSIXCHECK
 # undef inet_ntop
@@ -94,13 +107,25 @@ _GL_WARN_ON_USE (inet_ntop, "inet_ntop is unportable - "
 #endif
 
 #if @GNULIB_INET_PTON@
-# if !@HAVE_DECL_INET_PTON@
+# if @REPLACE_INET_PTON@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef inet_pton
+#   define inet_pton rpl_inet_pton
+#  endif
+_GL_FUNCDECL_RPL (inet_pton, int,
+                  (int af, const char *restrict src, void *restrict dst)
+                  _GL_ARG_NONNULL ((2, 3)));
+_GL_CXXALIAS_RPL (inet_pton, int,
+                  (int af, const char *restrict src, void *restrict dst));
+# else
+#  if !@HAVE_DECL_INET_PTON@
 _GL_FUNCDECL_SYS (inet_pton, int,
                   (int af, const char *restrict src, void *restrict dst)
                   _GL_ARG_NONNULL ((2, 3)));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (inet_pton, int,
                   (int af, const char *restrict src, void *restrict dst));
+# endif
 _GL_CXXALIASWARN (inet_pton);
 #elif defined GNULIB_POSIXCHECK
 # undef inet_pton
