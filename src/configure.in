@@ -34,6 +34,7 @@ BOLD_MSG([checks for programs])
 dnl
 AC_PROG_CC  dnl sets variable CC
 AC_PROG_CPP dnl sets variable CPP
+AC_PROG_MAKE_SET dnl sets variable SET_MAKE
 gl_EARLY
 AC_PROG_INSTALL dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
 CL_PROG_LN_S    dnl sets variable LN_S
@@ -175,4 +176,7 @@ dnl
 AC_SUBST([SHELL])
 AC_SUBST([module_configure_flags], ["$ac_configure_args"])
 AC_CONFIG_FILES([makemake], [chmod a+x makemake])
+if test "${srcdir}" = .; then
+  AC_CONFIG_FILES([../Makefile])
+fi
 AC_OUTPUT
