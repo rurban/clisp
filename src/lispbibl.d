@@ -518,6 +518,7 @@
    The declarations must occur before any system include files define any
    inline function, which is the case on UNIX_GNU.
    Only GCC supports global register variables. Not Apple's variant of GCC.
+   Not clang, which disguises as GCC.
    And only the C frontend, not the C++ frontend, understands the syntax.
    And gcc-3.0 to 3.3.3 has severe bugs with global register variables, see
    CLISP bugs 710737 and 723097 and
@@ -530,7 +531,7 @@
    Likewise for gcc-4.3-20080215 and probably future versions of GCC as well.
    Therefore for these versions of gcc enable the global register variables
    only when USE_GCC_REGISTER_VARIABLES is explicitly defined.  */
-#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && (__GNUC_MINOR__ < 3 || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 4))) && !(((__GNUC__ == 4 && __GNUC_MINOR__ >= 2) || __GNUC__ > 4) && !defined(USE_GCC_REGISTER_VARIABLES)) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
+#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__clang__) && !defined(__cplusplus) && !(__GNUC__ == 3 && (__GNUC_MINOR__ < 3 || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 4))) && !(((__GNUC__ == 4 && __GNUC_MINOR__ >= 2) || __GNUC__ > 4) && !defined(USE_GCC_REGISTER_VARIABLES)) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
@@ -8972,7 +8973,7 @@ All other long words on the LISP-Stack are LISP-objects.
  SP() returns the current value of the  SP.
  setSP(adresse); sets the SP to a given value. Extremely dangerous!
  FAST_SP defined, if SP-accesses are fast. */
-#if defined(GNU) && !(__APPLE_CC__ > 1)
+#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__clang__)
   /* definition of the register, in which the SP resides. */
   #ifdef M68K
     #define SP_register "sp"  /* %sp = %a7 */
@@ -12562,8 +12563,8 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
    and then jumps to unwind_protect_to_save.fun.
  modifies STACK
  can trigger GC */
-#ifdef __cplusplus
-  /* g++-3.4 doesn't like nonreturning in a typedef */
+#if defined(__cplusplus) || !defined(GNU) || defined(__clang__)
+  /* g++-3.4 and strict ISO C 11 compilers don't like _Noreturn in a typedef. */
   typedef /* _Noreturn */ /*maygc*/ void (*restartf_t)(gcv_object_t* upto_frame);
 #else
   typedef _Noreturn /*maygc*/ void (*restartf_t) (gcv_object_t* upto_frame);
