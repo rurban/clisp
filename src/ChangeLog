@@ -1,5 +1,11 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Make --with-{libsigsegv,libffcall}-prefix with clang on 64-bit Ubuntu.
+	* glm4/lib-prefix.m4: Update from gnulib.
+	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Really update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported
 	build-prerequisites".
