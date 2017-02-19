@@ -1,5 +1,10 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Disable the 'ulimit -s 16384' recommendation, except on PowerPC.
+	* configure (STACK_LIMIT): Set to 8192 on all CPUs except PowerPC.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Recommend libsigsegv 2.11.
 	* configure (libsigsegv_url): Update to 2.11.
 
