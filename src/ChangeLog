@@ -1,5 +1,11 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Define a single place to set the libsigsegv download URL.
+	* configure (libsigsegv_url): New variable.
+	(SIGSEGV): Remove variable.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when --with-libsigsegv-prefix option is used.
 	* makemake.in (LIBSIGSEGV): Use @LIBSIGSEGV@, not @LTLIBSIGSEGV@.
 	Rationale: While @LIBSIGSEGV@ contains -Wl,-rpath options,

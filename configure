@@ -21,6 +21,9 @@ if test -n "${CONFIG_SHELL}"; then
 else CONFIG_SHELL=/bin/sh
 fi
 
+# Download location of the newest libsigsegv release.
+libsigsegv_url='http://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.10.tar.gz'
+
 fail () { echo "$*" >&2; exit 1; }
 
 info_help () {
@@ -672,7 +675,6 @@ if [ "${gl_cv_lib_sigsegv}" != "yes" ]; then
     if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
     else host_arg=" --host=$ac_cv_host --build=$ac_cv_build";
     fi
-    SIGSEGV=libsigsegv-2.10
     cat <<EOF 1>&2
 $0: libsigsegv was not detected, thus some features, such as
   generational garbage collection and
@@ -683,11 +685,13 @@ EOF
     if [ "${CC+set}" = "set" ]; then
       echo "  CC='$CC'; export CC" 1>&2
     fi
+    libsigsegv_targz=`echo "$libsigsegv_url" | sed -e 's|^.*/||'`
+    libsigsegv_dirname=`echo "$libsigsegv_targz" | sed -e 's|\.tar\.gz$||'`
     cat <<EOF 1>&2
   mkdir tools; cd tools; prefix=\`pwd\`/${ac_cv_host}
-  wget http://ftp.gnu.org/gnu/libsigsegv/${SIGSEGV}.tar.gz
-  tar xfz ${SIGSEGV}.tar.gz
-  cd ${SIGSEGV}
+  wget ${libsigsegv_url}
+  tar xfz ${libsigsegv_targz}
+  cd ${libsigsegv_dirname}
   ./configure${host_arg} --prefix=\${prefix} && make && make check && make install
   cd ../..
   rm -f ${DIRNAME}/config.cache
