@@ -1,5 +1,13 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure when --with-libsigsegv-prefix option is used.
+	* makemake.in (LIBSIGSEGV): Use @LIBSIGSEGV@, not @LTLIBSIGSEGV@.
+	Rationale: While @LIBSIGSEGV@ contains -Wl,-rpath options,
+	@LTLIBSIGSEGV@ contains -R options, which are meant for the libtool
+	script. But we don't invoke the libtool script for linking.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Support the standard way of building GNU packages.
 	* Makefile.in: New file.
 	* Makefile.devel (SOURCES1): Add it.
