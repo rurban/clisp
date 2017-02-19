@@ -114,9 +114,6 @@
   #ifdef UNIX_HPUX
     #include <sys/vmmac.h> /* for SHMLBA */
   #endif
-  #if defined(UNIX_LINUX) && !defined(UNIX_GNU)
-    #include <asm/page.h> /* for SHMLBA on Linux 2.0 */
-  #endif
 /* <sys/shm.h> declares shmget(), shmat(), shmdt(), shmctl() */
 #endif
 /* used by SPVW, STREAM */
