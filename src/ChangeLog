@@ -1,5 +1,10 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Recommend libsigsegv 2.11.
+	* configure (libsigsegv_url): Update to 2.11.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Define a single place to set the libsigsegv download URL.
 	* configure (libsigsegv_url): New variable.
 	(SIGSEGV): Remove variable.
