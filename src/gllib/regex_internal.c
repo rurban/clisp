@@ -1,21 +1,21 @@
 /* Extended regular expression matching and search library.
-   Copyright (C) 2002-2011 Free Software Foundation, Inc.
+   Copyright (C) 2002-2017 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Isamu Hasegawa <isamu@yamato.ibm.com>.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 3 of the License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
 
-   You should have received a copy of the GNU General Public License along
-   with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
+   You should have received a copy of the GNU General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 static void re_string_construct_common (const char *str, Idx len,
 					re_string_t *pstr,
@@ -134,9 +134,9 @@ re_string_realloc_buffers (re_string_t *pstr, Idx new_buf_len)
     {
       wint_t *new_wcs;
 
-      /* Avoid overflow.  */
-      size_t max_object_size = MAX (sizeof (wint_t), sizeof (Idx));
-      if (BE (SIZE_MAX / max_object_size < new_buf_len, 0))
+      /* Avoid overflow in realloc.  */
+      const size_t max_object_size = MAX (sizeof (wint_t), sizeof (Idx));
+      if (BE (MIN (IDX_MAX, SIZE_MAX / max_object_size) < new_buf_len, 0))
 	return REG_ESPACE;
 
       new_wcs = re_realloc (pstr->wcs, wint_t, new_buf_len);
@@ -236,13 +236,8 @@ build_wcs_buffer (re_string_t *pstr)
       else
 	p = (const char *) pstr->raw_mbs + pstr->raw_mbs_idx + byte_idx;
       mbclen = __mbrtowc (&wc, p, remain_len, &pstr->cur_state);
-      if (BE (mbclen == (size_t) -2, 0))
-	{
-	  /* The buffer doesn't have enough space, finish to build.  */
-	  pstr->cur_state = prev_st;
-	  break;
-	}
-      else if (BE (mbclen == (size_t) -1 || mbclen == 0, 0))
+      if (BE (mbclen == (size_t) -1 || mbclen == 0
+	      || (mbclen == (size_t) -2 && pstr->bufs_len >= pstr->len), 0))
 	{
 	  /* We treat these cases as a singlebyte character.  */
 	  mbclen = 1;
@@ -250,6 +245,12 @@ build_wcs_buffer (re_string_t *pstr)
 	  if (BE (pstr->trans != NULL, 0))
 	    wc = pstr->trans[wc];
 	  pstr->cur_state = prev_st;
+	}
+      else if (BE (mbclen == (size_t) -2, 0))
+	{
+	  /* The buffer doesn't have enough space, finish to build.  */
+	  pstr->cur_state = prev_st;
+	  break;
 	}
 
       /* Write wide character and padding.  */
@@ -310,13 +311,12 @@ build_wcs_upper_buffer (re_string_t *pstr)
 			       + byte_idx), remain_len, &pstr->cur_state);
 	  if (BE (mbclen < (size_t) -2, 1))
 	    {
-	      wchar_t wcu = wc;
-	      if (iswlower (wc))
+	      wchar_t wcu = __towupper (wc);
+	      if (wcu != wc)
 		{
 		  size_t mbcdlen;
 
-		  wcu = towupper (wc);
-		  mbcdlen = wcrtomb (buf, wcu, &prev_st);
+		  mbcdlen = __wcrtomb (buf, wcu, &prev_st);
 		  if (BE (mbclen == mbcdlen, 1))
 		    memcpy (pstr->mbs + byte_idx, buf, mbclen);
 		  else
@@ -333,9 +333,11 @@ build_wcs_upper_buffer (re_string_t *pstr)
 	      for (remain_len = byte_idx + mbclen - 1; byte_idx < remain_len ;)
 		pstr->wcs[byte_idx++] = WEOF;
 	    }
-	  else if (mbclen == (size_t) -1 || mbclen == 0)
+	  else if (mbclen == (size_t) -1 || mbclen == 0
+		   || (mbclen == (size_t) -2 && pstr->bufs_len >= pstr->len))
 	    {
-	      /* It is an invalid character or '\0'.  Just use the byte.  */
+	      /* It is an invalid character, an incomplete character
+		 at the end of the string, or '\0'.  Just use the byte.  */
 	      int ch = pstr->raw_mbs[pstr->raw_mbs_idx + byte_idx];
 	      pstr->mbs[byte_idx] = ch;
 	      /* And also cast it to wide char.  */
@@ -378,12 +380,11 @@ build_wcs_upper_buffer (re_string_t *pstr)
 	mbclen = __mbrtowc (&wc, p, remain_len, &pstr->cur_state);
 	if (BE (mbclen < (size_t) -2, 1))
 	  {
-	    wchar_t wcu = wc;
-	    if (iswlower (wc))
+	    wchar_t wcu = __towupper (wc);
+	    if (wcu != wc)
 	      {
 		size_t mbcdlen;
 
-		wcu = towupper (wc);
 		mbcdlen = wcrtomb ((char *) buf, wcu, &prev_st);
 		if (BE (mbclen == mbcdlen, 1))
 		  memcpy (pstr->mbs + byte_idx, buf, mbclen);
@@ -448,7 +449,8 @@ build_wcs_upper_buffer (re_string_t *pstr)
 	    for (remain_len = byte_idx + mbclen - 1; byte_idx < remain_len ;)
 	      pstr->wcs[byte_idx++] = WEOF;
 	  }
-	else if (mbclen == (size_t) -1 || mbclen == 0)
+	else if (mbclen == (size_t) -1 || mbclen == 0
+		 || (mbclen == (size_t) -2 && pstr->bufs_len >= pstr->len))
 	  {
 	    /* It is an invalid character or '\0'.  Just use the byte.  */
 	    int ch = pstr->raw_mbs[pstr->raw_mbs_idx + src_idx];
@@ -495,8 +497,7 @@ re_string_skip_chars (re_string_t *pstr, Idx new_raw_idx, wint_t *last_wc)
        rawbuf_idx < new_raw_idx;)
     {
       wchar_t wc2;
-      Idx remain_len;
-      remain_len = pstr->len - rawbuf_idx;
+      Idx remain_len = pstr->raw_len - rawbuf_idx;
       prev_st = pstr->cur_state;
       mbclen = __mbrtowc (&wc2, (const char *) pstr->raw_mbs + rawbuf_idx,
 			  remain_len, &pstr->cur_state);
@@ -535,10 +536,7 @@ build_upper_buffer (re_string_t *pstr)
       int ch = pstr->raw_mbs[pstr->raw_mbs_idx + char_idx];
       if (BE (pstr->trans != NULL, 0))
 	ch = pstr->trans[ch];
-      if (islower (ch))
-	pstr->mbs[char_idx] = toupper (ch);
-      else
-	pstr->mbs[char_idx] = ch;
+      pstr->mbs[char_idx] = toupper (ch);
     }
   pstr->valid_len = char_idx;
   pstr->valid_raw_len = char_idx;
@@ -679,7 +677,7 @@ re_string_reconstruct (re_string_t *pstr, Idx idx, int eflags)
 			 pstr->valid_len - offset);
 	      pstr->valid_len -= offset;
 	      pstr->valid_raw_len -= offset;
-#if DEBUG
+#if defined DEBUG && DEBUG
 	      assert (pstr->valid_len > 0);
 #endif
 	    }
@@ -732,21 +730,21 @@ re_string_reconstruct (re_string_t *pstr, Idx idx, int eflags)
 			  mbstate_t cur_state;
 			  wchar_t wc2;
 			  Idx mlen = raw + pstr->len - p;
+			  unsigned char buf[6];
 			  size_t mbclen;
 
-#if 0 /* dead code: buf is set but never used */
-			  unsigned char buf[6];
+			  const unsigned char *pp = p;
 			  if (BE (pstr->trans != NULL, 0))
 			    {
 			      int i = mlen < 6 ? mlen : 6;
 			      while (--i >= 0)
 				buf[i] = pstr->trans[p[i]];
+			      pp = buf;
 			    }
-#endif
 			  /* XXX Don't use mbrtowc, we know which conversion
 			     to use (UTF-8 -> UCS4).  */
 			  memset (&cur_state, 0, sizeof (cur_state));
-			  mbclen = __mbrtowc (&wc2, (const char *) p, mlen,
+			  mbclen = __mbrtowc (&wc2, (const char *) pp, mlen,
 					      &cur_state);
 			  if (raw + offset - p <= mbclen
 			      && mbclen < (size_t) -2)
@@ -831,7 +829,7 @@ re_string_reconstruct (re_string_t *pstr, Idx idx, int eflags)
 }
 
 static unsigned char
-internal_function __attribute ((pure))
+internal_function __attribute__ ((pure))
 re_string_peek_byte_case (const re_string_t *pstr, Idx idx)
 {
   int ch;
@@ -868,7 +866,7 @@ re_string_peek_byte_case (const re_string_t *pstr, Idx idx)
 }
 
 static unsigned char
-internal_function __attribute ((pure))
+internal_function
 re_string_fetch_byte_case (re_string_t *pstr)
 {
   if (BE (!pstr->mbs_allocated, 1))
@@ -924,7 +922,7 @@ internal_function
 re_string_context_at (const re_string_t *input, Idx idx, int eflags)
 {
   int c;
-  if (BE (! REG_VALID_INDEX (idx), 0))
+  if (BE (idx < 0, 0))
     /* In this case, we use the value stored in input->tip_context,
        since we can't know the character in input->mbs[-1] here.  */
     return input->tip_context;
@@ -938,12 +936,12 @@ re_string_context_at (const re_string_t *input, Idx idx, int eflags)
       Idx wc_idx = idx;
       while(input->wcs[wc_idx] == WEOF)
 	{
-#ifdef DEBUG
+#if defined DEBUG && DEBUG
 	  /* It must not happen.  */
-	  assert (REG_VALID_INDEX (wc_idx));
+	  assert (wc_idx >= 0);
 #endif
 	  --wc_idx;
-	  if (! REG_VALID_INDEX (wc_idx))
+	  if (wc_idx < 0)
 	    return input->tip_context;
 	}
       wc = input->wcs[wc_idx];
@@ -971,7 +969,7 @@ re_node_set_alloc (re_node_set *set, Idx size)
   set->alloc = size;
   set->nelem = 0;
   set->elems = re_malloc (Idx, size);
-  if (BE (set->elems == NULL, 0))
+  if (BE (set->elems == NULL, 0) && (MALLOC_0_IS_NONNULL || size != 0))
     return REG_ESPACE;
   return REG_NOERROR;
 }
@@ -1079,25 +1077,25 @@ re_node_set_add_intersect (re_node_set *dest, const re_node_set *src1,
       if (src1->elems[i1] == src2->elems[i2])
 	{
 	  /* Try to find the item in DEST.  Maybe we could binary search?  */
-	  while (REG_VALID_INDEX (id) && dest->elems[id] > src1->elems[i1])
+	  while (id >= 0 && dest->elems[id] > src1->elems[i1])
 	    --id;
 
-          if (! REG_VALID_INDEX (id) || dest->elems[id] != src1->elems[i1])
+	  if (id < 0 || dest->elems[id] != src1->elems[i1])
             dest->elems[--sbase] = src1->elems[i1];
 
-	  if (! REG_VALID_INDEX (--i1) || ! REG_VALID_INDEX (--i2))
+	  if (--i1 < 0 || --i2 < 0)
 	    break;
 	}
 
       /* Lower the highest of the two items.  */
       else if (src1->elems[i1] < src2->elems[i2])
 	{
-	  if (! REG_VALID_INDEX (--i2))
+	  if (--i2 < 0)
 	    break;
 	}
       else
 	{
-	  if (! REG_VALID_INDEX (--i1))
+	  if (--i1 < 0)
 	    break;
 	}
     }
@@ -1110,7 +1108,7 @@ re_node_set_add_intersect (re_node_set *dest, const re_node_set *src1,
      DEST elements are already in place; this is more or
      less the same loop that is in re_node_set_merge.  */
   dest->nelem += delta;
-  if (delta > 0 && REG_VALID_INDEX (id))
+  if (delta > 0 && id >= 0)
     for (;;)
       {
 	if (dest->elems[is] > dest->elems[id])
@@ -1124,7 +1122,7 @@ re_node_set_add_intersect (re_node_set *dest, const re_node_set *src1,
 	  {
 	    /* Slide from the bottom.  */
 	    dest->elems[id + delta] = dest->elems[id];
-	    if (! REG_VALID_INDEX (--id))
+	    if (--id < 0)
 	      break;
 	  }
       }
@@ -1218,8 +1216,7 @@ re_node_set_merge (re_node_set *dest, const re_node_set *src)
   /* Copy into the top of DEST the items of SRC that are not
      found in DEST.  Maybe we could binary search in DEST?  */
   for (sbase = dest->nelem + 2 * src->nelem,
-       is = src->nelem - 1, id = dest->nelem - 1;
-       REG_VALID_INDEX (is) && REG_VALID_INDEX (id); )
+       is = src->nelem - 1, id = dest->nelem - 1; is >= 0 && id >= 0; )
     {
       if (dest->elems[id] == src->elems[is])
 	is--, id--;
@@ -1229,7 +1226,7 @@ re_node_set_merge (re_node_set *dest, const re_node_set *src)
 	--id;
     }
 
-  if (REG_VALID_INDEX (is))
+  if (is >= 0)
     {
       /* If DEST is exhausted, the remaining items of SRC must be unique.  */
       sbase -= is + 1;
@@ -1258,7 +1255,7 @@ re_node_set_merge (re_node_set *dest, const re_node_set *src)
 	{
 	  /* Slide from the bottom.  */
 	  dest->elems[id + delta] = dest->elems[id];
-	  if (! REG_VALID_INDEX (--id))
+	  if (--id < 0)
 	    {
 	      /* Copy remaining SRC elements.  */
 	      memcpy (dest->elems, dest->elems + sbase,
@@ -1351,13 +1348,13 @@ re_node_set_insert_last (re_node_set *set, Idx elem)
    Return true if SET1 and SET2 are equivalent.  */
 
 static bool
-internal_function __attribute ((pure))
+internal_function __attribute__ ((pure))
 re_node_set_compare (const re_node_set *set1, const re_node_set *set2)
 {
   Idx i;
   if (set1 == NULL || set2 == NULL || set1->nelem != set2->nelem)
     return false;
-  for (i = set1->nelem ; REG_VALID_INDEX (--i) ; )
+  for (i = set1->nelem ; --i >= 0 ; )
     if (set1->elems[i] != set2->elems[i])
       return false;
   return true;
@@ -1366,11 +1363,11 @@ re_node_set_compare (const re_node_set *set1, const re_node_set *set2)
 /* Return (idx + 1) if SET contains the element ELEM, return 0 otherwise.  */
 
 static Idx
-internal_function __attribute ((pure))
+internal_function __attribute__ ((pure))
 re_node_set_contains (const re_node_set *set, Idx elem)
 {
   __re_size_t idx, right, mid;
-  if (! REG_VALID_NONZERO_INDEX (set->nelem))
+  if (set->nelem <= 0)
     return 0;
 
   /* Binary search the element.  */
@@ -1400,7 +1397,7 @@ re_node_set_remove_at (re_node_set *set, Idx idx)
 
 
 /* Add the token TOKEN to dfa->nodes, and return the index of the token.
-   Or return REG_MISSING if an error occurred.  */
+   Or return -1 if an error occurred.  */
 
 static Idx
 internal_function
@@ -1412,18 +1409,17 @@ re_dfa_add_node (re_dfa_t *dfa, re_token_t token)
       Idx *new_nexts, *new_indices;
       re_node_set *new_edests, *new_eclosures;
       re_token_t *new_nodes;
-      size_t max_object_size =
-	MAX (sizeof (re_token_t),
-	     MAX (sizeof (re_node_set),
-		  sizeof (Idx)));
 
-      /* Avoid overflows.  */
-      if (BE (SIZE_MAX / 2 / max_object_size < dfa->nodes_alloc, 0))
-	return REG_MISSING;
+      /* Avoid overflows in realloc.  */
+      const size_t max_object_size = MAX (sizeof (re_token_t),
+					  MAX (sizeof (re_node_set),
+					       sizeof (Idx)));
+      if (BE (MIN (IDX_MAX, SIZE_MAX / max_object_size) < new_nodes_alloc, 0))
+	return -1;
 
       new_nodes = re_realloc (dfa->nodes, re_token_t, new_nodes_alloc);
       if (BE (new_nodes == NULL, 0))
-	return REG_MISSING;
+	return -1;
       dfa->nodes = new_nodes;
       new_nexts = re_realloc (dfa->nexts, Idx, new_nodes_alloc);
       new_indices = re_realloc (dfa->org_indices, Idx, new_nodes_alloc);
@@ -1431,7 +1427,13 @@ re_dfa_add_node (re_dfa_t *dfa, re_token_t token)
       new_eclosures = re_realloc (dfa->eclosures, re_node_set, new_nodes_alloc);
       if (BE (new_nexts == NULL || new_indices == NULL
 	      || new_edests == NULL || new_eclosures == NULL, 0))
-	return REG_MISSING;
+	{
+	   re_free (new_nexts);
+	   re_free (new_indices);
+	   re_free (new_edests);
+	   re_free (new_eclosures);
+	   return -1;
+	}
       dfa->nexts = new_nexts;
       dfa->org_indices = new_indices;
       dfa->edests = new_edests;
@@ -1441,19 +1443,17 @@ re_dfa_add_node (re_dfa_t *dfa, re_token_t token)
   dfa->nodes[dfa->nodes_len] = token;
   dfa->nodes[dfa->nodes_len].constraint = 0;
 #ifdef RE_ENABLE_I18N
-  {
-  int type = token.type;
   dfa->nodes[dfa->nodes_len].accept_mb =
-    (type == OP_PERIOD && dfa->mb_cur_max > 1) || type == COMPLEX_BRACKET;
-  }
+    ((token.type == OP_PERIOD && dfa->mb_cur_max > 1)
+     || token.type == COMPLEX_BRACKET);
 #endif
-  dfa->nexts[dfa->nodes_len] = REG_MISSING;
+  dfa->nexts[dfa->nodes_len] = -1;
   re_node_set_init_empty (dfa->edests + dfa->nodes_len);
   re_node_set_init_empty (dfa->eclosures + dfa->nodes_len);
   return dfa->nodes_len++;
 }
 
-static inline re_hashval_t
+static re_hashval_t
 internal_function
 calc_state_hash (const re_node_set *nodes, unsigned int context)
 {
@@ -1482,7 +1482,7 @@ re_acquire_state (reg_errcode_t *err, const re_dfa_t *dfa,
   re_dfastate_t *new_state;
   struct re_state_table_entry *spot;
   Idx i;
-#ifdef lint
+#if defined GCC_LINT || defined lint
   /* Suppress bogus uninitialized-variable warnings.  */
   *err = REG_NOERROR;
 #endif
@@ -1530,7 +1530,7 @@ re_acquire_state_context (reg_errcode_t *err, const re_dfa_t *dfa,
   re_dfastate_t *new_state;
   struct re_state_table_entry *spot;
   Idx i;
-#ifdef lint
+#if defined GCC_LINT || defined lint
   /* Suppress bogus uninitialized-variable warnings.  */
   *err = REG_NOERROR;
 #endif
@@ -1550,7 +1550,7 @@ re_acquire_state_context (reg_errcode_t *err, const re_dfa_t *dfa,
 	  && re_node_set_compare (state->entrance_nodes, nodes))
 	return state;
     }
-  /* There are no appropriate state in `dfa', create the new one.  */
+  /* There are no appropriate state in 'dfa', create the new one.  */
   new_state = create_cd_newstate (dfa, nodes, context, hash);
   if (BE (new_state == NULL, 0))
     *err = REG_ESPACE;
@@ -1579,7 +1579,7 @@ register_state (const re_dfa_t *dfa, re_dfastate_t *newstate,
     {
       Idx elem = newstate->nodes.elems[i];
       if (!IS_EPSILON_NODE (dfa->nodes[elem].type))
-	if (BE (! re_node_set_insert_last (&newstate->non_eps_nodes, elem), 0))
+	if (! re_node_set_insert_last (&newstate->non_eps_nodes, elem))
 	  return REG_ESPACE;
     }
 
@@ -1614,7 +1614,7 @@ free_state (re_dfastate_t *state)
   re_free (state);
 }
 
-/* Create the new state which is independ of contexts.
+/* Create the new state which is independent of contexts.
    Return the new state if succeeded, otherwise return NULL.  */
 
 static re_dfastate_t *

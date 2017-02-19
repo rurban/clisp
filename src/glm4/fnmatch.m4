@@ -1,6 +1,6 @@
-# Check for fnmatch - serial 7.
+# Check for fnmatch - serial 9.  -*- coding: utf-8 -*-
 
-# Copyright (C) 2000-2007, 2009-2011 Free Software Foundation, Inc.
+# Copyright (C) 2000-2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -21,7 +21,7 @@ AC_DEFUN([gl_FUNC_FNMATCH_POSIX],
 
   FNMATCH_H=
   gl_fnmatch_required_lowercase=`
-    echo $gl_fnmatch_required | tr '[[A-Z]]' '[[a-z]]'
+    echo $gl_fnmatch_required | LC_ALL=C tr '[[A-Z]]' '[[a-z]]'
   `
   gl_fnmatch_cache_var="gl_cv_func_fnmatch_${gl_fnmatch_required_lowercase}"
   AC_CACHE_CHECK([for working $gl_fnmatch_required fnmatch],
@@ -150,7 +150,7 @@ AC_DEFUN([gl_PREREQ_FNMATCH],
     [Define to a replacement function name for fnmatch().])
   dnl Prerequisites of lib/fnmatch.c.
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
-  AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
+  AC_CHECK_DECLS([isblank], [], [], [[#include <ctype.h>]])
   AC_CHECK_FUNCS_ONCE([btowc isblank iswctype mbsrtowcs mempcpy wmemchr wmemcpy wmempcpy])
   AC_CHECK_HEADERS_ONCE([wctype.h])
 ])

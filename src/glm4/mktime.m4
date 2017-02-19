@@ -1,5 +1,5 @@
-# serial 21
-dnl Copyright (C) 2002-2003, 2005-2007, 2009-2011 Free Software Foundation,
+# serial 27
+dnl Copyright (C) 2002-2003, 2005-2007, 2009-2017 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -7,17 +7,33 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Jim Meyering.
 
+AC_DEFUN([gl_TIME_T_IS_SIGNED],
+[
+  AC_CACHE_CHECK([whether time_t is signed],
+    [gl_cv_time_t_is_signed],
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM([[#include <time.h>
+                          char time_t_signed[(time_t) -1 < 0 ? 1 : -1];]])],
+       [gl_cv_time_t_is_signed=yes],
+       [gl_cv_time_t_is_signed=no])])
+  if test $gl_cv_time_t_is_signed = yes; then
+    AC_DEFINE([TIME_T_IS_SIGNED], [1], [Define to 1 if time_t is signed.])
+  fi
+])
+
 AC_DEFUN([gl_FUNC_MKTIME],
 [
   AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([gl_TIME_T_IS_SIGNED])
 
   dnl We don't use AC_FUNC_MKTIME any more, because it is no longer maintained
   dnl in Autoconf and because it invokes AC_LIBOBJ.
   AC_CHECK_HEADERS_ONCE([unistd.h])
-  AC_CHECK_FUNCS_ONCE([alarm])
+  AC_CHECK_DECLS_ONCE([alarm])
+  AC_CHECK_FUNCS_ONCE([tzset])
   AC_REQUIRE([gl_MULTIARCH])
   if test $APPLE_UNIVERSAL_BUILD = 1; then
-    # A universal build on Apple MacOS X platforms.
+    # A universal build on Apple Mac OS X platforms.
     # The test result would be 'yes' in 32-bit mode and 'no' in 64-bit mode.
     # But we need a configuration result that is valid in both modes.
     gl_cv_func_working_mktime=no
@@ -34,8 +50,8 @@ AC_DEFUN([gl_FUNC_MKTIME],
 # include <unistd.h>
 #endif
 
-#ifndef HAVE_ALARM
-# define alarm(X) /* empty */
+#if HAVE_DECL_ALARM
+# include <signal.h>
 #endif
 
 /* Work around redefinition to rpl_putenv by other config tests.  */
@@ -169,18 +185,20 @@ main ()
   time_t t, delta;
   int i, j;
   int time_t_signed_magnitude = (time_t) ~ (time_t) 0 < (time_t) -1;
-  int time_t_signed = ! ((time_t) 0 < (time_t) -1);
 
+#if HAVE_DECL_ALARM
   /* This test makes some buggy mktime implementations loop.
      Give up after 60 seconds; a mktime slower than that
      isn't worth using anyway.  */
+  signal (SIGALRM, SIG_DFL);
   alarm (60);
+#endif
 
-  time_t_max = (! time_t_signed
+  time_t_max = (! TIME_T_IS_SIGNED
                 ? (time_t) -1
                 : ((((time_t) 1 << (sizeof (time_t) * CHAR_BIT - 2)) - 1)
                    * 2 + 1));
-  time_t_min = (! time_t_signed
+  time_t_min = (! TIME_T_IS_SIGNED
                 ? (time_t) 0
                 : time_t_signed_magnitude
                 ? ~ (time_t) 0
@@ -192,20 +210,23 @@ main ()
       if (tz_strings[i])
         putenv (tz_strings[i]);
 
-      for (t = 0; t <= time_t_max - delta; t += delta)
+      for (t = 0; t <= time_t_max - delta && (result & 1) == 0; t += delta)
         if (! mktime_test (t))
           result |= 1;
-      if (! (mktime_test ((time_t) 1)
-             && mktime_test ((time_t) (60 * 60))
-             && mktime_test ((time_t) (60 * 60 * 24))))
+      if ((result & 2) == 0
+          && ! (mktime_test ((time_t) 1)
+                && mktime_test ((time_t) (60 * 60))
+                && mktime_test ((time_t) (60 * 60 * 24))))
         result |= 2;
 
-      for (j = 1; ; j <<= 1)
-        if (! bigtime_test (j))
-          result |= 4;
-        else if (INT_MAX / 2 < j)
-          break;
-      if (! bigtime_test (INT_MAX))
+      for (j = 1; (result & 4) == 0; j <<= 1)
+        {
+          if (! bigtime_test (j))
+            result |= 4;
+          if (INT_MAX / 2 < j)
+            break;
+        }
+      if ((result & 8) == 0 && ! bigtime_test (INT_MAX))
         result |= 8;
     }
   if (! irix_6_4_bug ())
@@ -244,7 +265,4 @@ AC_DEFUN([gl_FUNC_MKTIME_INTERNAL], [
 ])
 
 # Prerequisites of lib/mktime.c.
-AC_DEFUN([gl_PREREQ_MKTIME],
-[
-  AC_REQUIRE([AC_C_INLINE])
-])
+AC_DEFUN([gl_PREREQ_MKTIME], [:])

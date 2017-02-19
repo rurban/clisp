@@ -1,6 +1,6 @@
 /* shutdown.c --- wrappers for Windows shutdown function
 
-   Copyright (C) 2008-2011 Free Software Foundation, Inc.
+   Copyright (C) 2008-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,9 +32,18 @@ int
 rpl_shutdown (int fd, int how)
 {
   SOCKET sock = FD_TO_SOCKET (fd);
-  int r = shutdown (sock, how);
-  if (r < 0)
-    set_winsock_errno ();
 
-  return r;
+  if (sock == INVALID_SOCKET)
+    {
+      errno = EBADF;
+      return -1;
+    }
+  else
+    {
+      int r = shutdown (sock, how);
+      if (r < 0)
+        set_winsock_errno ();
+
+      return r;
+    }
 }

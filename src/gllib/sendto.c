@@ -1,6 +1,6 @@
 /* sendto.c --- wrappers for Windows sendto function
 
-   Copyright (C) 2008-2011 Free Software Foundation, Inc.
+   Copyright (C) 2008-2017 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,9 +33,18 @@ rpl_sendto (int fd, const void *buf, size_t len, int flags,
             const struct sockaddr *to, socklen_t tolen)
 {
   SOCKET sock = FD_TO_SOCKET (fd);
-  int r = sendto (sock, buf, len, flags, to, tolen);
-  if (r < 0)
-    set_winsock_errno ();
 
-  return r;
+  if (sock == INVALID_SOCKET)
+    {
+      errno = EBADF;
+      return -1;
+    }
+  else
+    {
+      int r = sendto (sock, buf, len, flags, to, tolen);
+      if (r < 0)
+        set_winsock_errno ();
+
+      return r;
+    }
 }
