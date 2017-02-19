@@ -20,7 +20,7 @@ find ${root} -type f -follow -perm /111 '(' \
   -o -name '*.h' \
   -o -name '*.c' \
   -o -name '*.d' \
-  -o -name '*.lisp' \
+  -o '(' -name '*.lisp' -a '!' -name 'gen-uninames.lisp' ')' \
   -o -name '*.tst' \
   -o -name '*.bat' \
   -o -name 'link.sh' \

@@ -1,5 +1,11 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	maint: Fix conflict between fix-perms.sh and gnulib import.
+	* utils/fix-perms.sh: Don't clobber the permissions of
+	gllib/uniname/gen-uninames.lisp.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux with musl libc.
 	* unix.d: Don't include <asm/page.h>. Instead, assume SHMLBA is defined
 	in <sys/shm.h>.
