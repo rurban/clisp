@@ -1,5 +1,11 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix clang warning "flag '-falign-functions=4' is not supported".
+	* makemake.in (XCC_BRAND): New variable.
+	(XCFLAGS): Don't use -falign-functions=4 with clang.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with clang.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register,
 	SP_register): Don't define for clang.

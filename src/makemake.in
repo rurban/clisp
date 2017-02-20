@@ -1206,6 +1206,8 @@ EOF
 # Main compiler dependencies:
 
 if [ $XCC_GCC = true ] ; then
+  # Recognize clang. It disguises as GCC.
+  XCC_BRAND=`LC_ALL=C $XCC --version | sed -e '2,$d' -e 's/ .*//'` # either gcc or clang
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
   # Assume gcc 2.95 or newer.
   XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
@@ -1252,10 +1254,16 @@ if [ $XCC_GCC = true ] ; then
         ;;
     esac
   fi # with_debug
-  # When not optimizing on linux, or with Apple's gcc 4 on MacOS X,
-  # or with GCC 4 when "gcc -Os" is used:
+  # We can run into
   #   C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
-  XCFLAGS=$XCFLAGS' -falign-functions=4'
+  # - with gcc on Linux, when not optimizing,
+  # - with Apple's gcc 4 on MacOS X,
+  # - with gcc >= 4 when "gcc -Os" is used,
+  # - with clang when "clang -Os" is used.
+  # gcc has an option to fix this. clang 3.9 doesn't.
+  if [ "$XCC_BRAND" != clang ] ; then
+    XCFLAGS=$XCFLAGS' -falign-functions=4'
+  fi
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
   fi
