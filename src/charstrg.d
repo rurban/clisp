@@ -1299,16 +1299,23 @@ global maygc object char_name (chart code) {
   #else
   /* Here is a much faster implementation. */
   {
-    var char buf[UNINAME_MAX];
-    if (unicode_character_name(c,buf)) {
-      var char* ptr = buf;
+    var char buf[8+UNINAME_MAX];
+    if (unicode_character_name(c,buf+8)) {
+      var char* name = buf+8;
+      /* Fix collision between #\Bell = #\Code7 and #\U0001F514
+         and between #\Page = #\Code12 and #\U0001F5CF. */
+      if (c == 0x1F514 || c == 0x1F5CF) {
+        copy_mem_b(buf,"UNICODE_",8);
+        name = buf;
+      }
       /* Turn the word separators into underscores. */
+      var char* ptr = name;
       while (*ptr != '\0') {
         if (*ptr == ' ')
           *ptr = '_';
         ptr++;
       }
-      return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
+      return n_char_to_string(name,ptr-name,Symbol_value(S(ascii)));
     }
   }
   #endif /* AWFULLY_SLOW */
@@ -1407,13 +1414,16 @@ global object name_char (object string) {
           }
         }
       }
-      { /* Test for word1_word2_... syntax. */
+      { /* Test for word1_word2_... syntax.
+           Also convert to upper case on the fly. */
         var char buf[UNINAME_MAX];
         var char* ptr = buf;
         while (1) {
           var cint c = as_cint(*charptr++);
           if (!(c >= ' ' && c <= '~'))
             break;
+          if (c >= 'a' && c <= 'z')
+            c = c - 'a' + 'A';
           *ptr++ = (char)(c == '_' ? ' ' : c);
           if (--len == 0)
             goto filled_buf;
@@ -1421,7 +1431,15 @@ global object name_char (object string) {
         if (false) {
         filled_buf:
           *ptr = '\0';
-          var cint32 code = unicode_name_character(buf);
+          var cint32 code;
+          /* Fix collision between #\Bell = #\Code7 and #\U0001F514
+             and between #\Page = #\Code12 and #\U0001F5CF. */
+          if (asciz_equal(buf,"UNICODE BELL"))
+            code = 0x1F514;
+          else if (asciz_equal(buf,"UNICODE PAGE"))
+            code = 0x1F5CF;
+          else
+            code = unicode_name_character(buf);
           if (code != UNINAME_INVALID)
             return code_char(as_chart(code));
         }
