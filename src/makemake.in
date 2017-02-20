@@ -1122,7 +1122,7 @@ if test -z "$cpu"; then
     hppa*) cpu=hppa ;;
     arm*)  cpu=arm  ;;
     mips64*) cpu=mips64 ;;
-    * ) cpu=${host_cpu}
+    * ) cpu=${host_cpu} ;;
   esac
 fi
 
@@ -2043,7 +2043,7 @@ if [ $HOS = unix ] ; then
   # this is important because if configure uses bash and detects TEST_NT=yes,
   # but make uses sh that does not support "test -nt", modules will not build
   case "$host_os" in
-    *bsd*) echol '.SHELL: name=sh path=$(SHELL)'
+    *bsd*) echol '.SHELL: name=sh path=$(SHELL)' ;;
   esac
   echol
 fi
