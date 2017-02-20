@@ -2578,6 +2578,21 @@ etc.</para>
 
 </section>
 
+<section id="char-names"><title>Character Names
+  <ulink role="clhs" url="sec_13-1-7"/></title>
+
+<para>Character names of non-&ascii; characters are the names defined by
+ &unicode;, with spaces replaced by underscores, and converted to upper case.
+ There are two exceptions, though:
+ <listitem><simpara><keysym>#\U0001F514</keysym> has the name
+  <literal>UNICODE_BELL</literal>, because the name <literal>BELL</literal> is
+  already taken by the &ascii; control character with code 7 (the audible bell
+  character).</simpara>
+ <simpara><keysym>#\U0001F5CF</keysym> has the name
+  <literal>UNICODE_PAGE</literal>, because the name <literal>PAGE</literal> is
+  already taken by the &ascii; control character with code 12 (the form feed
+  or page separator character).</simpara></listitem></para>
+
 <section id="clhs-newline"><title>Treatment of Newline during Input and Output
   <ulink role="clhs" url="sec_13-1-8"/></title>
 
