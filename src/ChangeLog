@@ -20,7 +20,7 @@
 
 	Fix collision between ASCII character names and Unicode character names.
 	* charstrg.d (char_name): Special case for #\U0001F514 and #\U0001F5CF.
-	(name_char): Special case for "UNICODE_BELL" and "UNICODE PAGE".
+	(name_char): Special case for "UNICODE_BELL" and "UNICODE_PAGE".
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
@@ -37,7 +37,7 @@
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
-	Make --with-{libsigsegv,libffcall}-prefix with clang on 64-bit Ubuntu.
+	Make --with-lib{sigsegv,ffcall}-prefix work with clang on 64-bit Ubuntu.
 	* glm4/lib-prefix.m4: Update from gnulib.
 	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
 
