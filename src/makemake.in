@@ -1605,7 +1605,7 @@ if [ "$cpu" = hppa ] ; then
   ARI_ASMD=$ARI_ASMD' arihppa'
   ARI_ASMS=$ARI_ASMS' arihppa'
 fi
-if [ "$cpu" = arm ] ; then
+if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
   ARI_ASMD=$ARI_ASMD' ariarm'
   ARI_ASMS=$ARI_ASMS' ariarm'
 fi
