@@ -771,14 +771,7 @@ local maygc object I_logcount_I (object x)
  sets size to the highest bit number occurring in digit.
  > digit: a uintD >0
  < size: >0, <=intDsize, with 2^(size-1) <= digit < 2^size */
-#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
-  #define integerlength16(digit,size_assignment)                         \
-    {                                                                    \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
-      __asm__("bfffo %1{#0:#16},%0" : "=d" (zero_counter) : "dm" ((uint16)(digit)) ); \
-      size_assignment (16-zero_counter);                                 \
-    }
-#elif defined(SPARC) && !defined(SPARC64)
+#if defined(SPARC) && !defined(SPARC64)
   #define integerlength16(digit,size_assignment)  \
     integerlength32((uint32)(digit),size_assignment) /* see below */
 #elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
@@ -813,14 +806,7 @@ local maygc object I_logcount_I (object x)
       size_assignment bitsize;                                  \
     }
 #endif
-#if defined(GNU) && defined(M68K) && !defined(NO_ASM)
-  #define integerlength32(digit,size_assignment)  \
-    {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */\
-      __asm__("bfffo %1{#0:#32},%0" : "=d" (zero_counter) : "dm" ((uint32)(digit)) ); \
-      size_assignment (32-zero_counter);                                \
-    }
-#elif defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
+#if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
   #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
       var union { double f; uint32 i[2]; } __fi;                        \
