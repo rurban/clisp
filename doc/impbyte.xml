@@ -342,9 +342,6 @@
 <section id="src-ari-asm"><title>External routines for the arithmetic
   system, written in assembly language</title>
 <variablelist>
-<varlistentry><term><filename role="clisp-cvs">src/ari68020.d</filename></term>
- <listitem><simpara>written in 68020 assembler, MIT syntax
-</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/arisparc.d</filename></term>
  <listitem><simpara>written in SPARC assembler
 </simpara></listitem></varlistentry>

@@ -1581,11 +1581,6 @@ DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $
 ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
-if [ "$cpu" = m68k ] ; then
-  ARI_ASMD=$ARI_ASMD' ari68020'
-  ARI_ASMS=$ARI_ASMS' ari68020'
-  ARI_ASMC=$ARI_ASMS
-fi
 if [ "$cpu" = sparc ] ; then
   ARI_ASMD=$ARI_ASMD' arisparc'
   ARI_ASMS=$ARI_ASMS' arisparc'
@@ -2352,19 +2347,8 @@ if [ $TSYS != win32msvc ] ; then
       *hppa) g='-' ;;
       *)     g='' ;;
     esac
-    # In ari68020.d the dollars must be replaced, and \# replaced with # :
-    case $f in
-      ari68020*)
-        if [ $AS_UNDERSCORE = false ] ; then
-          h=' | sed -e '"'"'s/\\#/#/g'"'"' -e '"'"'s/\$$/%/g'"'"
-        else
-          h=' | sed -e '"'"'s/\\#/#/g'"'"' -e '"'"'s/\$$//g'"'"
-        fi
-        ;;
-      *) h='' ;;
-    esac
     echol "${f}.s : ${f}.c"
-    echotabpipe "${g}${XCPP}${ASMFLAGS} ${f}.c${h}${ASM_FILTER} > ${f}.s"
+    echotabpipe "${g}${XCPP}${ASMFLAGS} ${f}.c${ASM_FILTER} > ${f}.s"
     echol
   done
 fi

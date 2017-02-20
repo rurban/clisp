@@ -1,5 +1,18 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
+	Remove the assembly-language optimizations for m68k.
+	They are bitrotten, since Linux/m68k is dead. Modern m68k variants
+	probably have different performance characteristics than the 68020.
+	* ari68020.d: Remove file.
+	* makemake.in (ARI_ASMD, ARI_ASMS, ARI_ASMC): Simplify accordingly.
+	* arilev1.d: Likewise.
+	* arilev0.d (sign_of_sint32, sign_of_sint16, high16, highlow32,
+	highlow32_0, mulu32, divu_3216_1616, divu_6432_3232): Remove __asm__
+	code for m68k.
+	* intlog.d (integerlength16, integerlength32: Likewise.
+
+2017-02-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix collision between ASCII character names and Unicode character names.
 	* charstrg.d (char_name): Special case for #\U0001F514 and #\U0001F5CF.
 	(name_char): Special case for "UNICODE_BELL" and "UNICODE PAGE".

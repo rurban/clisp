@@ -6,22 +6,7 @@
 # > value: eine 32-Bit-Zahl
 # < sint16 result: 0 falls value>=0, -1 falls value<0.
   extern sint16 sign_of_sint32 (sint32 value);
-# im 68000-Assembler (Input D0.L, Output D0.W):
-#   SWAP D0  # Vorzeichen nach Bit 15 schieben
-#   EXT.L D0 # nach Bit 31..16 kopieren
-#   SWAP D0  # nach Bit 15..0 schieben
-  #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
-    #define sign_of_sint32(value)  \
-      ({var sint32 __value = (value);  \
-        var sint16 __result;        \
-        __asm__ ("\
-          swap %0;  \
-          extl %0;  \
-          swap %0   \
-          " : "=d" (__result) : "0" (__value));  \
-        __result;                               \
-       })
-  #elif defined(SPARC64)
+  #if defined(SPARC64)
     #define sign_of_sint32(value)  (((sint64)(sint32)(value)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint32(value)  (((sint32)(value)) >> 31)
@@ -34,20 +19,7 @@
 # > value: eine 16-Bit-Zahl
 # < sint16 result: 0 falls value>=0, -1 falls value<0.
   extern sint16 sign_of_sint16 (sint16 value);
-# im 68000-Assembler (Input D0.W, Output D0.W):
-#   EXT.L D0 # Vorzeichen nach Bit 31..16 kopieren
-#   SWAP D0  # nach Bit 15..0 schieben
-  #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
-    #define sign_of_sint16(value)  \
-      ({var sint16 __value = (value);  \
-        var sint16 __result;        \
-        __asm__ ("\
-          extl %0;  \
-          swap %0   \
-          " : "=d" (__result) : "0" (__value));  \
-        __result;                               \
-       })
-  #elif defined(SPARC64)
+  #if defined(SPARC64)
     #define sign_of_sint16(value)  (((sint64)(sint16)(value)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint16(value)  (((sint32)(sint16)(value)) >> 31)
@@ -58,23 +30,7 @@
 # High-Word einer 32-Bit-Zahl bestimmen
 # high16(value)
   extern uint16 high16 (uint32 value);
-# im 68000-Assembler (Input D0.L, Output D0.W):
-#   SWAP D0
-  #ifdef GNU
-    #if defined(M68K) && !defined(NO_ASM)
-      #define high16(value)  \
-        ({var uint32 __value = (value);  \
-          var uint16 __result;        \
-          __asm__ ("\
-            swap %0   \
-            " : "=d" (__result) : "0" (__value));  \
-          __result;                               \
-         })
-    #endif
-  #endif
-  #ifndef high16
-    #define high16(value)  ((uint16)((uint32)(value)>>16))
-  #endif
+  #define high16(value)  ((uint16)((uint32)(value)>>16))
 
 # Low-Word einer 32-Bit-Zahl bestimmen
 # low16(value)
@@ -84,51 +40,14 @@
 # Eine 32-Bit-Zahl aus ihrem High-Word und ihrem Low-Word bestimmen:
 # highlow32(uint16 high, uint16 low)
   extern uint32 highlow32 (uint16 high, uint16 low);
-# im 68000-Assembler (Input D0.W,D1.W, Output D0.L):
-#   SWAP D0
-#   MOVE.W D1,D0
-  #ifdef GNU
-    #if defined(M68K) && !defined(NO_ASM)
-      #define highlow32(high,low)  \
-        ({var uint16 __high = (high);  \
-          var uint16 __low = (low);    \
-          var uint32 __result;       \
-          __asm__ __volatile__ ("\
-            swap %0;     \
-            movew %2,%0  \
-            " : "=&d" (__result) : "0" (__high), "g" (__low));  \
-          __result;                                             \
-         })
-    #endif
-  #endif
-  #ifndef highlow32
-    #define highlow32(high,low)  \
-      (((uint32)(uint16)(high) << 16) | (uint32)(uint16)(low))
-  #endif
+  #define highlow32(high,low)  \
+    (((uint32)(uint16)(high) << 16) | (uint32)(uint16)(low))
 
 # Eine 32-Bit-Zahl aus ihrem High-Word und ihrem Low-Word 0 bestimmen:
 # highlow32_0(uint16 high)
   extern uint32 highlow32_0 (uint16 high);
   # define highlow32_0(high)  highlow32(high,0)
-# im 68000-Assembler (Input D0.W,D1.W, Output D0.L):
-#   SWAP D0
-#   CLR.W D0
-  #ifdef GNU
-    #if defined(M68K) && !defined(NO_ASM)
-      #define highlow32_0(high)  \
-        ({var uint16 __high = (high);  \
-          var uint32 __result;       \
-          __asm__ __volatile__ ("\
-            swap %0;     \
-            clrw %0      \
-            " : "=d" (__result) : "0" (__high));  \
-          __result;                               \
-         })
-    #endif
-  #endif
-  #ifndef highlow32_0
-    #define highlow32_0(high)  ((uint32)(uint16)(high) << 16)
-  #endif
+  #define highlow32_0(high)  ((uint32)(uint16)(high) << 16)
 
 #if (intVsize>32)
 
@@ -243,38 +162,26 @@
 #   MULU.L D1,D1:D0
   #if defined(GNU) || defined(INTEL)
     #ifdef M68K
-      #if defined(NO_ASM)
-        #define mulu32(x,y,hi_assignment,lo_assignment)  \
-          ({ var uint32 _x = (x);                                          \
-             var uint32 _y = (y);                                          \
-             var uint16 _x1 = high16(_x);                                  \
-             var uint16 _x0 = low16(_x);                                   \
-             var uint16 _y1 = high16(_y);                                  \
-             var uint16 _y0 = low16(_y);                                   \
-             var uint32 _hi = mulu16(_x1,_y1); # obere Portion             \
-             var uint32 _lo = mulu16(_x0,_y0); # untere Portion            \
-             {var uint32 _mid = mulu16(_x0,_y1); # 1. mittlere Portion     \
-              _hi += high16(_mid); _mid = highlow32_0(low16(_mid));        \
-              _lo += _mid; if (_lo < _mid) { _hi += 1; } # 64-Bit-Addition \
-             }                                                             \
-             {var uint32 _mid = mulu16(_x1,_y0); # 2. mittlere Portion     \
-              _hi += high16(_mid); _mid = highlow32_0(low16(_mid));        \
-              _lo += _mid; if (_lo < _mid) { _hi += 1; } # 64-Bit-Addition \
-             }                                                             \
-             hi_assignment _hi;                                             \
-             lo_assignment _lo;                                             \
-           })
-      #else
-        #define mulu32(x,y,hi_assignment,lo_assignment)  \
-          ({ var uint32 _x = (x); \
-             var uint32 _y = (y); \
-             var uint32 _hi;      \
-             var uint32 _lo;      \
-             __asm__("mulul %3,%0:%1" : "=d" (_hi), "=d"(_lo) : "1" (_x), "dm" (_y) ); \
-             hi_assignment _hi;    \
-             lo_assignment _lo;    \
-           })
-      #endif
+      #define mulu32(x,y,hi_assignment,lo_assignment)  \
+        ({ var uint32 _x = (x);                                          \
+           var uint32 _y = (y);                                          \
+           var uint16 _x1 = high16(_x);                                  \
+           var uint16 _x0 = low16(_x);                                   \
+           var uint16 _y1 = high16(_y);                                  \
+           var uint16 _y0 = low16(_y);                                   \
+           var uint32 _hi = mulu16(_x1,_y1); # obere Portion             \
+           var uint32 _lo = mulu16(_x0,_y0); # untere Portion            \
+           {var uint32 _mid = mulu16(_x0,_y1); # 1. mittlere Portion     \
+            _hi += high16(_mid); _mid = highlow32_0(low16(_mid));        \
+            _lo += _mid; if (_lo < _mid) { _hi += 1; } # 64-Bit-Addition \
+           }                                                             \
+           {var uint32 _mid = mulu16(_x1,_y0); # 2. mittlere Portion     \
+            _hi += high16(_mid); _mid = highlow32_0(low16(_mid));        \
+            _lo += _mid; if (_lo < _mid) { _hi += 1; } # 64-Bit-Addition \
+           }                                                             \
+           hi_assignment _hi;                                            \
+           lo_assignment _lo;                                            \
+         })
     #elif defined(ARM) && 0 # see comment ariarm.d
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ lo_assignment mulu32_(x,y); # extern in Assembler \
@@ -328,7 +235,7 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if defined(M68K) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)
+    #if defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -491,17 +398,6 @@
         ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
            q_assignment low16(__qr);  \
            r_assignment high16(__qr); \
-         })
-    #elif defined(M68K) && !defined(NO_ASM)
-      #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        ({var uint32 __x = (x);      \
-          var uint16 __y = (y);      \
-          var uint32 __qr;           \
-          __asm__ __volatile__ ("\
-            divu %2,%0   \
-            " : "=d" (__qr) : "0" (__x), "dm" (__y));  \
-          q_assignment low16(__qr);   \
-          r_assignment high16(__qr);  \
          })
     #elif defined(I80386) && !defined(NO_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
@@ -807,22 +703,7 @@
   extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                                         # -> Rest r
   #if defined(GNU) || defined(INTEL)
-    #if defined(M68K) && !defined(NO_ASM)
-      #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
-        ({var uint32 __xhi = (xhi);  \
-          var uint32 __xlo = (xlo);  \
-          var uint32 __y = (y);      \
-          var uint32 __q;            \
-          var uint32 __r;            \
-          __asm__ __volatile__ ("\
-            divul %4,%1:%0   \
-            " : "=d" (__q), "=d" (__r) : "1" (__xhi), "0" (__xlo), "dm" (__y));  \
-          q_assignment __q;           \
-          r_assignment __r;           \
-         })
-      #define divu_6432_3232_(xhi,xlo,y) \
-        ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
-    #elif defined(SPARC64) && !defined(NO_ASM)
+    #if defined(SPARC64) && !defined(NO_ASM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({var uint32 __xhi = (xhi);    \
           var uint32 __xlo = (xlo);    \
@@ -884,7 +765,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if defined(M68K) || defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)
+    #if defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
