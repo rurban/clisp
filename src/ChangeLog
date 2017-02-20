@@ -1,5 +1,10 @@
 2017-02-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix syntax errors in makemake.in (regression from 2010-07-13).
+	* makemake.in: Add ';;' before 'esac'.
+
+2017-02-20  Bruno Haible  <bruno@clisp.org>
+
 	Remove obsolete file.
 	* unix/sigsegv.c: Remove file. Obsoleted by the libsigsegv package.
 
