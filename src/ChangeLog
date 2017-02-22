@@ -1,3 +1,8 @@
+2017-02-22  Bruno Haible  <bruno@clisp.org>
+
+	maint: Structure Makefile.devel.
+	* Makefile.devel: Reorganize in sections and subsections.
+
 2017-02-21  Bruno Haible  <bruno@clisp.org>
 
 	Update libsigsegv download location.
