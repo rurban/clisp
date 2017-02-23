@@ -21,6 +21,8 @@
 
 */
 
+#include <config.h>
+
 #include <unistd.h>
 
 #ifdef _WIN32
@@ -30,7 +32,6 @@ extern char **environ;
 #endif
 
 /* For strchr(), strncmp() and friends */
-#define _GNU_SOURCE
 #include <string.h>
 
 #include "fcgi_stdio.h"
