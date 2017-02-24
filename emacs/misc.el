@@ -145,6 +145,23 @@
       (process-send-string proc (concat "GROUP " group "\nARTICLE " article "\n"))
       (display-buffer buffer))))
 
+(defun clisp-check-all-links ()
+  "Check all links in the buffer.
+Does _NOT_ check anchors!"
+  (interactive)
+  ;; don't use `save-excursion' because we want to stop at the offending URL
+  (let ((start (point)) url (checked ()))
+    (while (re-search-forward "https?://" nil t)
+      (message "found <%s>" (setq url (thing-at-point 'url)))
+      (setq url (first (split-string url "#")))
+      (unless (member url checked)
+        (push url checked)
+        (unless (file-readable-p url)
+          (error "%s does not exist" url))))
+    (goto-char start)
+    (message "Checked %d URLs: %s" (length checked) checked)))
+
+
 (autoload 'rng-dtd-trivial-p "rng-valid")
 (autoload 'nxml-parent-document-set "nxml-mode")
 (defun clisp-nxml-mode-hook ()
