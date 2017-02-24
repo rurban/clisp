@@ -1,3 +1,10 @@
+2017-02-24  Bruno Haible  <bruno@clisp.org>
+
+	maint: Update download of ansi-tests.
+	* Makefile.devel (ANSITESTS_REPO): New variable.
+	(ANSITESTS_SVN): Remove variable.
+	(update-ansi-tests): Use git instead of svn.
+
 2017-02-22  Bruno Haible  <bruno@clisp.org>
 
 	maint: Structure Makefile.devel.
