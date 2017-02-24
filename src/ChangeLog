@@ -1,5 +1,10 @@
 2017-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Remove leftover of obsolete Atari ST charset conversion.
+	* makemake.in (CHSCONVERT, CHSCONVERT_FILTER): Remove variables.
+
+2017-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix clang warning "'-falign-functions=4' is not supported" on Mac OS X.
 	* makemake.in (XCC_BRAND): Set to 'clang' also for the system compiler
 	on Mac OS X 10.11.
