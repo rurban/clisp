@@ -281,14 +281,14 @@ update-asdf : force
 
 all : update-ansi-tests
 
-ANSITESTS_SVN = svn://common-lisp.net/project/ansi-test/svn/trunk/ansi-tests
+ANSITESTS_REPO = https://gitlab.common-lisp.net/ansi-test/ansi-test.git
 
 update-ansi-tests:
 	if test -d ansi-tests; then \
 	  cd ansi-tests && \
-	  svn update; \
+	  git pull; \
 	else \
-	  svn co $(ANSITESTS_SVN); \
+	  git clone $(ANSITESTS_REPO) ansi-tests; \
 	fi
 
 # ------------------------------------------------------------------------------
