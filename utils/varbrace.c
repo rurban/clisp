@@ -31,6 +31,7 @@
    the closing brace.
 */
 
+#include <config.h>
 
 typedef unsigned char  uintB;
 typedef unsigned short  uintW;

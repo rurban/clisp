@@ -2255,7 +2255,7 @@ for parf in ${PARAMS}; do
 done
 for util in ${UTILS} ; do
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
+      echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c" "${util}"
       echol
 done
 
@@ -3733,7 +3733,7 @@ if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c ${SRCDIR}execname.c \$(TOPDIR)/src/"
 else
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"
 fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"

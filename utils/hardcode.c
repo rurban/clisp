@@ -10,6 +10,8 @@
  * Bruno Haible 17.5.1999
  */
 
+/* gnulib requires <config.h> to be included before any system header file. */
+#include <config.h>
 
 /* Declare strchr(), strcmp(), strcpy(). */
 #include <string.h>
