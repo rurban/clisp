@@ -3,6 +3,8 @@
    Bruno Haible 17.1.1991
 */
 
+#include <config.h>
+
 #include <stdio.h>
 
 #ifdef __cplusplus

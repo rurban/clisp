@@ -24,6 +24,8 @@
  The GCTRIGGER statement is inserted. At the corresponding closing brace '}'
  an additional brace is inserted. */
 
+#include <config.h>
+
 typedef unsigned char  uintB;
 typedef unsigned short  uintW;
 typedef unsigned long  uintL;

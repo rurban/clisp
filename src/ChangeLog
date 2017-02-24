@@ -1,5 +1,12 @@
 2017-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on non-glibc platforms.
+	* utils/*.c: Include <config.h>.
+	* src/makemake.in (UTILS, hardcode): Compile with option "-I.".
+	Reported by Sam Steingold.
+
+2017-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Remove leftover of obsolete Atari ST charset conversion.
 	* makemake.in (CHSCONVERT, CHSCONVERT_FILTER): Remove variables.
 

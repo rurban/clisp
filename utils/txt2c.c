@@ -4,6 +4,8 @@
  * Sam Steingold 2002-07-31, 2011-08-01
  */
 
+#include <config.h> /* gnulib requirement */
+
 #include <stdlib.h> /* malloc(), realloc(), exit() */
 #include <string.h> /* strcpy(), strcat() */
 

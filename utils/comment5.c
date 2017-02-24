@@ -26,6 +26,8 @@ Syntax eines Inputfile:
     -------------------<-----------------------------------------
 */
 
+#include <config.h>
+
 #include <stdlib.h>
 
 #include <stdio.h>

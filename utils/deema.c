@@ -4,6 +4,8 @@
    Sam Steingold 2007-10-29
 */
 
+#include <config.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
