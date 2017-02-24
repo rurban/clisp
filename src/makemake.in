@@ -1886,12 +1886,6 @@ else
     echotab "$1 $2 /Fe$3${HEXE}"
   }
 fi
-if [ -n "$CHSCONVERT" ] ; then
-  echol "CHARSETCONVERT = ${CHSCONVERT}"
-  CHSCONVERT_FILTER=" | \$(CHARSETCONVERT)"
-else
-  CHSCONVERT_FILTER=''
-fi
 echol
 if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
   if [ $HSYS = win32msvc ] ; then
@@ -2229,7 +2223,6 @@ UTILS=$UTILS' varbrace'
 test $XCC_NEED_DEEMA = true -a $HOS != unix && UTILS=$UTILS' deema'
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
-test "$CHSCONVERT" = "./cv_lt_at" && UTILS=$UTILS' cv_lt_at'
 LUTILS='modprep'
 
 PARAMS="intparam floatparam"
@@ -2307,7 +2300,7 @@ for f in $DFILES ; do
   case "${f}" in
     lispbibl) gen_filter=" | sed -e 's/^\\(%% .*\\)//'" ;;
   esac
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${CHSCONVERT_FILTER}${gen_filter} ${XDECL_FILTER} > ${f}.c"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${gen_filter} ${XDECL_FILTER} > ${f}.c"
   echol
 done
 
@@ -2359,7 +2352,7 @@ fi
 
 for f in lispbibl; do
   echol "gen.${f}.c : ${SRCDIR}${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${CHSCONVERT_FILTER} | sed -e '/^%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
   echol
 done
 
