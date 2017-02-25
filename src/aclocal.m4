@@ -17463,6 +17463,10 @@ fi
 
 AC_PREREQ(2.61)
 
+dnl Download location of the newest libffcall release.
+AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
+  [https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz])
+
 AC_DEFUN([CL_FFCALL],[dnl
 AC_ARG_WITH([ffcall],
 [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
@@ -17498,14 +17502,18 @@ if test $cl_use_ffcall = yes -a "$cl_cv_have_ffcall" != yes; then
   if test "$ac_cv_build" = "$ac_cv_host"; then host_arg="";
   else host_arg=" --host=$ac_cv_host";
   fi
+  libffcall_url='CL_LIBFFCALL_DOWNLOAD_URL'
+  libffcall_targz=`echo "$libffcall_url" | sed -e 's|^.*/||'`
+  libffcall_dirname=`echo "$libffcall_targz" | sed -e 's|\.tar\.gz$||'`
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
-  mkdir tools; cd tools; prefix=`pwd`/${ac_cv_host}
-  cvs -z3 -d:pserver:anonymous@cvs.savannah.gnu.org:/sources/libffcall co ffcall
-  cd ffcall
+  mkdir prerequisites; cd prerequisites; prefix=`pwd`/${ac_cv_host}
+  wget ${libffcall_url}
+  tar xfz ${libffcall_targz}
+  cd ${libffcall_dirname}
   ./configure$host_arg --prefix=\${prefix} && make && make check && make install
   cd ../..
-  ./configure --with-libffcall-prefix=\${prefix} [$]*])
+  ./configure --with-libffcall-prefix=\${prefix} ${ac_configure_args}])
 fi
 fi;])])
 
