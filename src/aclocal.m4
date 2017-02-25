@@ -28310,7 +28310,7 @@ m4_define([CONST_VARIANTS],['' 'const' '__const'])
 m4_define([SIZE_VARIANTS],['unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2008, 2010 Sam Steingold, Bruno Haible
+dnl Copyright (C) 2002-2008, 2010, 2017 Sam Steingold, Bruno Haible
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28331,6 +28331,9 @@ AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent = no ; then
  ac_cv_have_readline='no, consider installing GNU ncurses'
 else
+ dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
+ AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
+ AC_REQUIRE([AC_LIB_RPATH])
  AC_LIB_LINKFLAGS_BODY(readline)
  ac_save_CPPFLAGS="$CPPFLAGS"
  CPPFLAGS="$CPPFLAGS $INCREADLINE"
