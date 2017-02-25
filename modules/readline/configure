@@ -4064,12 +4064,14 @@ else
   ac_cv_use_readline=default
 fi
 
-ac_cv_have_readline=no
 if test "$ac_cv_use_readline" = "no" ; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: not checking for readline" >&5
 $as_echo "$as_me: not checking for readline" >&6;}
+ac_cv_have_readline='no, per user request'
 else
-if test $ac_cv_search_tgetent != no ; then
+if test $ac_cv_search_tgetent = no ; then
+ ac_cv_have_readline='no, consider installing GNU ncurses'
+else
 
 
 
@@ -4547,6 +4549,7 @@ done
 
  if test "$ac_cv_header_readline_readline_h" != yes; then
   CPPFLAGS="$ac_save_CPPFLAGS"
+  ac_cv_have_readline='no, consider installing GNU readline and its header files'
  else # have <readline/readline.h> => check library
   ac_save_LIBS="$LIBS"
   LIBS="$LIBREADLINE $LIBS"
@@ -4568,6 +4571,7 @@ done
   if test "$ac_cv_func_readline" != yes ; then
     LIBS="$ac_save_LIBS"
     CPPFLAGS="$ac_save_CPPFLAGS"
+    ac_cv_have_readline='no, consider installing GNU readline and its header files'
   else # have readline => check modern features
     if test $ac_cv_func_rl_filename_completion_function = no ;
     then RL_FCF=filename_completion_function
@@ -4664,18 +4668,19 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_RL_DEPREP_TERM_FUNCTION $ac_have_decl
 _ACEOF
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a modern readline" >&5
-$as_echo_n "checking for a modern readline... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for readline 4.1 or newer" >&5
+$as_echo_n "checking for readline 4.1 or newer... " >&6; }
     if test "$ac_cv_have_decl_rl_already_prompted" = yes \
          -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
-            { $as_echo "$as_me:${as_lineno-$LINENO}: result: found a modern GNU readline" >&5
-$as_echo "found a modern GNU readline" >&6; }
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: found GNU readline 4.1 or newer" >&5
+$as_echo "found GNU readline 4.1 or newer" >&6; }
       ac_cv_have_readline=yes
     else
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: readline is too old and will not be used" >&5
 $as_echo "readline is too old and will not be used" >&6; }
       LIBS="$ac_save_LIBS"
       CPPFLAGS="$ac_save_CPPFLAGS"
+      ac_cv_have_readline='no, consider installing GNU readline 4.1 or newer'
     fi
   fi
  fi
