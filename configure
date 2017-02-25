@@ -661,10 +661,10 @@ done
 if test -n "${ffi_modules}"; then
   test ${do_ffi} = no && \
     fail "$0: --without-ffcall is incompatible with requested module(s):${ffi_modules}"
-  test ${cl_cv_have_ffcall} = no && \
+  test "${cl_cv_have_ffcall}" = yes || \
     fail "$0: modules${ffi_modules} require FFI"
 fi
-if [ ${do_ffi} != no -a ${cl_cv_have_ffcall} = yes ]; then
+if [ ${do_ffi} != no -a "${cl_cv_have_ffcall}" = yes ]; then
   makemake_args="--with-dynamic-ffi ${makemake_args}"
 fi
 
