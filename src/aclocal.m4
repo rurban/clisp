@@ -17492,9 +17492,9 @@ AC_CACHE_CHECK([whether libffcall is installed],[cl_cv_have_ffcall],
       -a "$ac_cv_search___builtin_avcall" != no \
       -a "$ac_cv_search_trampoline_r_data0" != no
 then cl_cv_have_ffcall=yes
-else cl_cv_have_ffcall=no
+else cl_cv_have_ffcall='no, consider installing GNU libffcall'
 fi])
-if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
+if test $cl_use_ffcall = yes -a "$cl_cv_have_ffcall" != yes; then
   if test "$ac_cv_build" = "$ac_cv_host"; then host_arg="";
   else host_arg=" --host=$ac_cv_host";
   fi
