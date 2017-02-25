@@ -12,18 +12,21 @@ AC_DEFUN([CL_READLINE],[dnl
 AC_ARG_WITH([readline],
 AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
 [ac_cv_use_readline=$withval], [ac_cv_use_readline=default])
-ac_cv_have_readline=no
 if test "$ac_cv_use_readline" = "no" ; then
 AC_MSG_NOTICE([not checking for readline])
+ac_cv_have_readline='no, per user request'
 else
 AC_REQUIRE([CL_TERMCAP])dnl
-if test $ac_cv_search_tgetent != no ; then
+if test $ac_cv_search_tgetent = no ; then
+ ac_cv_have_readline='no, consider installing GNU ncurses'
+else
  AC_LIB_LINKFLAGS_BODY(readline)
  ac_save_CPPFLAGS="$CPPFLAGS"
  CPPFLAGS="$CPPFLAGS $INCREADLINE"
  AC_CHECK_HEADERS(readline/readline.h)
  if test "$ac_cv_header_readline_readline_h" != yes; then
   CPPFLAGS="$ac_save_CPPFLAGS"
+  ac_cv_have_readline='no, consider installing GNU readline and its header files'
  else # have <readline/readline.h> => check library
   ac_save_LIBS="$LIBS"
   LIBS="$LIBREADLINE $LIBS"
@@ -32,6 +35,7 @@ if test $ac_cv_search_tgetent != no ; then
   if test "$ac_cv_func_readline" != yes ; then
     LIBS="$ac_save_LIBS"
     CPPFLAGS="$ac_save_CPPFLAGS"
+    ac_cv_have_readline='no, consider installing GNU readline and its header files'
   else # have readline => check modern features
     if test $ac_cv_func_rl_filename_completion_function = no ;
     then RL_FCF=filename_completion_function
@@ -49,16 +53,17 @@ if test $ac_cv_search_tgetent != no ; then
 rl_gnu_readline_p, rl_deprep_term_function],,,
 [#include <stdio.h>
 #include <readline/readline.h>])
-    AC_MSG_CHECKING(for a modern readline)
+    AC_MSG_CHECKING(for readline 4.1 or newer)
     if test "$ac_cv_have_decl_rl_already_prompted" = yes \
          -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
       dnl LIBREADLINE has been added to LIBS.
-      AC_MSG_RESULT([found a modern GNU readline])
+      AC_MSG_RESULT([found GNU readline 4.1 or newer])
       ac_cv_have_readline=yes
     else
       AC_MSG_RESULT([readline is too old and will not be used])
       LIBS="$ac_save_LIBS"
       CPPFLAGS="$ac_save_CPPFLAGS"
+      ac_cv_have_readline='no, consider installing GNU readline 4.1 or newer'
     fi
   fi
  fi
