@@ -11,6 +11,15 @@
 # same shell as executes sub-configures.
 # this is a real problem on such systems as Solaris if CONFIG_SHELL is
 # bash whose config.cache cannot be loaded by /bin/sh
+if test -z "${CONFIG_SHELL}" && test "`uname -s`" = SunOS; then
+  # On Solaris, /bin/sh is broken. We need bash.
+  if test -f /bin/bash; then
+    CONFIG_SHELL=/bin/bash
+  else
+    CONFIG_SHELL=`which bash`
+  fi
+  export CONFIG_SHELL
+fi
 if test -n "${CONFIG_SHELL}"; then
   # ensure that CONFIG_SHELL is compatible with /bin/sh:
   # if CONFIG_SHELL is bash, but /bin/sh is not, restart with bash
@@ -18,7 +27,8 @@ if test -n "${CONFIG_SHELL}"; then
   then # CONFIG_SHELL is bash
     test -n "${BASH_VERSION}" || exec ${CONFIG_SHELL} $0 $*
   fi
-else CONFIG_SHELL=/bin/sh
+else
+  CONFIG_SHELL=/bin/sh
 fi
 
 # Download location of the newest libsigsegv release.
