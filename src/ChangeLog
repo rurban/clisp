@@ -1,5 +1,10 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	Make it possible to use Makefile.devel from a source distribution.
+	* Makefile.devel (SOURCES7): Add version.sh.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	maint: Add facility for testing builds in different configurations.
 	* lispbibl.d: Reorganize comments about flags that can be set in CFLAGS.
 	* configure: Write log files cbcstep1.log, cbcstep2.log, cbcstep3.log.
