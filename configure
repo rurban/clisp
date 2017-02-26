@@ -631,8 +631,11 @@ if test -n "$do_config"; then
   fi
   cd "${ABS_DIRNAME}"
   echo "executing $REL_SRCDIR/src/configure $*"
-  ${CONFIG_SHELL} $REL_SRCDIR/src/configure \
-    $subdir_configure_args --cache-file=config.cache
+  if test -n "$do_cbc"; then
+    ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache 2>&1 | tee cbcstep1.log
+  else
+    ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache
+  fi
 fi
 
 . "${ABS_DIRNAME}/config.cache"
@@ -768,6 +771,6 @@ else
   if [ "${STACK_TOO_SMALL}" = 0 ]; then
     set +e; ulimit -s ${STACK_LIMIT} 2>/dev/null; set -e;
   fi
-  make
-  make check
+  make 2>&1 | tee cbcstep2.log
+  make check 2>&1 | tee cbcstep3.log
 fi

@@ -314,8 +314,540 @@ view-html :
 # ------------------------------------------------------------------------------
 # Build and test all essential memory models.
 
+# Options to pass to configure.
 MULTIBUILD_OPTIONS =
+# Compiler options to pass as part of CFLAGS.
 MULTIBUILD_CFLAGS = -g
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Build and test various configurations, in order to fix bootstrapping problems
+# when porting to a 32-bit machine.
+#
+# Prerequisite: Set the environment variable MULTIBUILD_32_OPTIONS, e.g.
+# MULTIBUILD_32_OPTIONS="--with-libsigsegv-prefix=/arch/x86-linux/gnu-inst-libsigsegv/2.11 --with-libffcall-prefix=/arch/x86-linux/gnu-inst-libffcall/1.13pre"
+#
+# Use with "make -k", then collects the build-porting32-*/cbcstep*.log.
+
+# Build various configurations. Assumes $CC is GCC.
+multibuild-porting32-gcc: \
+  build-porting32-gcc-safety3 \
+  build-porting32-gcc-heapcodes \
+  build-porting32-gcc-standard_heapcodes \
+  build-porting32-gcc-linux_noexec_heapcodes \
+  build-porting32-gcc-try1_typecodes \
+  build-porting32-gcc-try2_typecodes \
+  build-porting32-gcc-heapcodes-spvw_pages \
+  build-porting32-gcc-typecodes-spvw_pages \
+  build-porting32-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting32-gcc-typecodes-spvw_mixed_blocks \
+  build-porting32-gcc-spvw_pure_blocks \
+  build-porting32-gcc-wide \
+  build-porting32-gcc-old_gc \
+  build-porting32-gcc-multithread_gc \
+  build-porting32-gcc-generational_gc-old_gc \
+  build-porting32-gcc-generational_gc-multithread_gc \
+  build-porting32-gcc-safety0 \
+  build-porting32-gcc-safety0-optimized
+
+# Nearly the default. Just with some low-cost safety.
+build-porting32-gcc-safety3:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES.
+build-porting32-gcc-heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force STANDARD_HEAPCODES.
+build-porting32-gcc-standard_heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force LINUX_NOEXEC_HEAPCODES.
+build-porting32-gcc-linux_noexec_heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DLINUX_NOEXEC_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TRY_TYPECODES_1.
+build-porting32-gcc-try1_typecodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTRY_TYPECODES_1" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TRY_TYPECODES_2.
+build-porting32-gcc-try2_typecodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTRY_TYPECODES_2" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_PAGES (no use of mmap).
+build-porting32-gcc-heapcodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_PAGES (no use of mmap).
+build-porting32-gcc-typecodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-gcc-heapcodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-gcc-typecodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+build-porting32-gcc-spvw_pure_blocks:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force WIDE_SOFT.
+build-porting32-gcc-wide:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DWIDE" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-old_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-generational_gc-old_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-generational_gc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-safety0:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-safety0-optimized:
+	$(RMRF) $@
+	CFLAGS="-O2 -fexpensive-optimizations -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Build various configurations. Assumes $CC is not GCC.
+# Put the optimization options into $CC.
+multibuild-porting32-cc: \
+  build-porting32-cc-safety3 \
+  build-porting32-cc-heapcodes \
+  build-porting32-cc-standard_heapcodes \
+  build-porting32-cc-linux_noexec_heapcodes \
+  build-porting32-cc-try1_typecodes \
+  build-porting32-cc-try2_typecodes \
+  build-porting32-cc-heapcodes-spvw_pages \
+  build-porting32-cc-typecodes-spvw_pages \
+  build-porting32-cc-heapcodes-spvw_mixed_blocks \
+  build-porting32-cc-typecodes-spvw_mixed_blocks \
+  build-porting32-cc-spvw_pure_blocks \
+  build-porting32-cc-wide \
+  build-porting32-cc-old_gc \
+  build-porting32-cc-multithread_gc \
+  build-porting32-cc-generational_gc-old_gc \
+  build-porting32-cc-generational_gc-multithread_gc \
+  build-porting32-cc-safety0 \
+
+# Nearly the default. Just with some low-cost safety.
+build-porting32-cc-safety3:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES.
+build-porting32-cc-heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force STANDARD_HEAPCODES.
+build-porting32-cc-standard_heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force LINUX_NOEXEC_HEAPCODES.
+build-porting32-cc-linux_noexec_heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DLINUX_NOEXEC_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TRY_TYPECODES_1.
+build-porting32-cc-try1_typecodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTRY_TYPECODES_1" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TRY_TYPECODES_2.
+build-porting32-cc-try2_typecodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTRY_TYPECODES_2" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_PAGES (no use of mmap).
+build-porting32-cc-heapcodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_PAGES (no use of mmap).
+build-porting32-cc-typecodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-cc-heapcodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-cc-typecodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+build-porting32-cc-spvw_pure_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force WIDE_SOFT.
+build-porting32-cc-wide:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DWIDE" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-cc-old_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-cc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-cc-generational_gc-old_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-cc-generational_gc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-cc-safety0:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Build and test various configurations, in order to fix bootstrapping problems
+# when porting to a 64-bit machine.
+#
+# Prerequisite: Set the environment variable MULTIBUILD_64_OPTIONS, e.g.
+# MULTIBUILD_64_OPTIONS="--with-libsigsegv-prefix=/arch/x86_64-linux-gnu/gnu-inst-libsigsegv/2.11 --with-libffcall-prefix=/arch/x86_64-linux-gnu/gnu-inst-libffcall/1.13pre"
+#
+# Use with "make -k", then collects the build-porting64-*/cbcstep*.log.
+
+# Build various configurations. Assumes $CC is GCC.
+multibuild-porting64-gcc: \
+  build-porting64-gcc-safety3 \
+  build-porting64-gcc-heapcodes \
+  build-porting64-gcc-standard_heapcodes \
+  build-porting64-gcc-generic64_heapcodes \
+  build-porting64-gcc-heapcodes-spvw_pages \
+  build-porting64-gcc-typecodes-spvw_pages \
+  build-porting64-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting64-gcc-typecodes-spvw_mixed_blocks \
+  build-porting64-gcc-spvw_pure_blocks \
+  build-porting64-gcc-old_gc \
+  build-porting64-gcc-multithread_gc \
+  build-porting64-gcc-generational_gc-old_gc \
+  build-porting64-gcc-generational_gc-multithread_gc \
+  build-porting64-gcc-safety0 \
+  build-porting64-gcc-safety0-optimized
+
+# Nearly the default. Just with some low-cost safety.
+build-porting64-gcc-safety3:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES.
+build-porting64-gcc-heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force STANDARD_HEAPCODES.
+build-porting64-gcc-standard_heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force GENERIC64_HEAPCODES.
+build-porting64-gcc-generic64_heapcodes:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERIC64_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_PAGES (no use of mmap).
+build-porting64-gcc-heapcodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_PAGES (no use of mmap).
+build-porting64-gcc-typecodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-gcc-heapcodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-gcc-typecodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+build-porting64-gcc-spvw_pure_blocks:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-old_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-generational_gc-old_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-generational_gc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-safety0:
+	$(RMRF) $@
+	CFLAGS="-O -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-safety0-optimized:
+	$(RMRF) $@
+	CFLAGS="-O2 -fexpensive-optimizations -falign-functions=8 $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Build various configurations. Assumes $CC is not GCC.
+# Put the optimization options into $CC.
+multibuild-porting64-cc: \
+  build-porting64-cc-safety3 \
+  build-porting64-cc-heapcodes \
+  build-porting64-cc-standard_heapcodes \
+  build-porting64-cc-generic64_heapcodes \
+  build-porting64-cc-heapcodes-spvw_pages \
+  build-porting64-cc-typecodes-spvw_pages \
+  build-porting64-cc-heapcodes-spvw_mixed_blocks \
+  build-porting64-cc-typecodes-spvw_mixed_blocks \
+  build-porting64-cc-spvw_pure_blocks \
+  build-porting64-cc-old_gc \
+  build-porting64-cc-multithread_gc \
+  build-porting64-cc-generational_gc-old_gc \
+  build-porting64-cc-generational_gc-multithread_gc \
+  build-porting64-cc-safety0
+
+# Nearly the default. Just with some low-cost safety.
+build-porting64-cc-safety3:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES.
+build-porting64-cc-heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force STANDARD_HEAPCODES.
+build-porting64-cc-standard_heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force GENERIC64_HEAPCODES.
+build-porting64-cc-generic64_heapcodes:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERIC64_HEAPCODES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_PAGES (no use of mmap).
+build-porting64-cc-heapcodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_PAGES (no use of mmap).
+build-porting64-cc-typecodes-spvw_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force HEAPCODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-cc-heapcodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-cc-typecodes-spvw_mixed_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+build-porting64-cc-spvw_pure_blocks:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-cc-old_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-cc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-cc-generational_gc-old_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-cc-generational_gc-multithread_gc:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-cc-safety0:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Build and test all essential memory models on a Linux/x86 machine.
