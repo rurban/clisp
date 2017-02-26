@@ -385,14 +385,12 @@ do
         passnext=both ;;
 
       --elispdir=* | --elispdi=* | --elispd=* | --elisp=* | --elis=* | --eli=* | --el=*)
-        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --elispdir="`getarg "$arg"` ;;
 
       --elispdir | --elispdi | --elispd | --elisp | --elis | --eli | --el)
-        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --elispdir="
         prev=elispdir
-        passnext=both ;;
+        passnext=makemake ;;
 
       --vimdir=* | --vimdi=* | --vimd=* | --vim=* | --vi=*)
         subdir_configure_args="$subdir_configure_args $arg"
