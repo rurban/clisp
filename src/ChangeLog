@@ -1,5 +1,11 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	configure: Fix build failure when CC is set and not GCC
+	(regression from 2011-05-17).
+	* configure: Ignore exit code of CC_machine assigment statement.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix bug#680: build failure when using --elispdir option.
 	* configure: Pass --elispdir option and argument only to makemake.
 	Reported by Alex D in <https://sourceforge.net/p/clisp/bugs/680/>.
