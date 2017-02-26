@@ -297,6 +297,9 @@
 /* Define to 1 if you have the `rl_clear_pending_input' function. */
 #undef HAVE_RL_CLEAR_PENDING_INPUT
 
+/* Define to 1 if you have the `rl_clear_visible_line' function. */
+#undef HAVE_RL_CLEAR_VISIBLE_LINE
+
 /* Define to 1 if you have the `rl_copy_keymap' function. */
 #undef HAVE_RL_COPY_KEYMAP
 
