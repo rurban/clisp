@@ -1113,7 +1113,7 @@ SOURCES4 = $T/utils
 SOURCES5 = $T/unix $T/win32msvc
 SOURCES6 = $T/modules
 # for developers only: $T/benchmarks $T/sacla-tests $T/ansi-tests
-SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
+SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel $T/version.sh
 
 SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7)
 
