@@ -1,5 +1,11 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failures on Solaris 10 with gcc.
+	* configure: On Solaris, force CONFIG_SHELL to bash.
+	* intparam.c: Don't define _POSIX_SOURCE.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	configure: Fix build failure when CC is set and not GCC
 	(regression from 2011-05-17).
 	* configure: Ignore exit code of CC_machine assigment statement.

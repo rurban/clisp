@@ -3,12 +3,14 @@
  * und Ausgabe in ein Include-File
  * Bruno Haible 10.9.1991, 12.10.1992, 6.12.1992, 24.10.1993
  *
- * Auf einigen Systemen werden in <sys/types.h> die Typen uchar, ushort,
- * uint, ulong definiert. Normalerweise reicht _POSIX_SOURCE aus, dies
- * zu verhindern, bei AIX 3.2.5 (rs6000-ibm-aix3.2.5) jedoch nicht. Wir
- * müssen Gewalt anwenden.
+ * On some systems, <sys/types.h> defines the types uchar, ushort, uint, ulong.
+ * In order to avoid this, there are two approaches:
+ * - Define _POSIX_SOURCE. But this is not sufficient on AIX 3.2.5, and - even
+ *   worse - on Solaris 10, defining _POSIX_SOURCE with gcc 5.2 leads to a
+ *   compilatione error.
+ * - Play games with #define and #undef.
  */
-#define _POSIX_SOURCE
+
 #define uchar  os_uchar
 #define ushort os_ushort
 #define uint   os_uint
