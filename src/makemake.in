@@ -1286,7 +1286,7 @@ if [ $XCC_GCC = true ] ; then
 
 else
 
-  if [ $TSYS = sun4 -a $CROSS = false ] ; then
+  if [ $CROSS = false ] ; then
     # Detect SUNWspro C compiler - defines __SUNPRO_C
     XCC_SUNPRO=${CC_SUNPRO}
   fi
@@ -1301,7 +1301,7 @@ else
         ;;
     esac
     XCFLAGS="$CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
-  elif [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
+  elif [ -n "$XCC_SUNPRO" ] ; then
     # SUNWspro cc flags:
     XCFLAGS=${XCFLAGS}' -xO3 -xstrconst'
   elif [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then

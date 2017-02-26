@@ -1,5 +1,10 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	Recognize the Sun compiler also on Solaris/x86.
+	* makemake.in (XCC_SUNPRO): Use without testing whether TSYS is 'sun4'.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failures on Solaris 10 with gcc.
 	* configure: On Solaris, force CONFIG_SHELL to bash.
 	* intparam.c: Don't define _POSIX_SOURCE.
