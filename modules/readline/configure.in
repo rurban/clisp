@@ -1,5 +1,6 @@
 dnl AUTOCONF configuration for readline
 dnl Sam Steingold 2005-2009
+dnl Bruno Haible 2017
 
 AC_PREREQ(2.57)
 AC_INIT(readline, 1.0, clisp-list)
@@ -15,7 +16,9 @@ CL_READLINE
 if test "$ac_cv_have_decl_rl_already_prompted" = "no"; then
   AC_MSG_ERROR([cannot find a modern gnu readline])
 fi
-AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
+AC_CHECK_DECLS([ dnl
+dnl Variables
+rl_library_version, rl_readline_version, rl_editing_mode, dnl
 rl_insert_mode, rl_readline_state, rl_line_buffer, rl_point, rl_end, dnl
 rl_mark, rl_done, rl_num_chars_to_read, rl_pending_input, rl_dispatching, dnl
 rl_erase_empty_line, rl_prompt, rl_terminal_name, rl_display_prompt, dnl
@@ -29,7 +32,10 @@ rl_completion_quote_character, rl_completion_found_quote, dnl
 rl_completion_suppress_quote, rl_sort_completion_matches, dnl
 rl_completion_mark_symlink_dirs, rl_ignore_completion_duplicates, dnl
 rl_inhibit_completion, dnl
-rl_event_hook, rl_getc_function],,,[#include <stdio.h>
+rl_event_hook, rl_getc_function, rl_input_available_hook, dnl
+dnl Functions that, in some versions, are defined but not declared.
+rl_free_keymap],,,
+[#include <stdio.h>
  #include <readline/readline.h>])
 AC_CHECK_FUNCS(dnl do not check readline() - redefines global HAVE_READLINE
 dnl Basic behavior
@@ -43,6 +49,7 @@ rl_make_bare_keymap dnl
 rl_copy_keymap dnl
 rl_make_keymap dnl
 rl_discard_keymap dnl
+dnl rl_free_keymap dnl See below
 rl_get_keymap dnl
 rl_set_keymap dnl
 rl_get_keymap_by_name dnl
@@ -122,6 +129,7 @@ rl_macro_dumper dnl
 rl_variable_dumper dnl
 rl_echo_signal_char dnl
 rl_set_paren_blink_timeout dnl
+rl_clear_history dnl
 rl_get_termcap dnl
 dnl Signal Handling
 rl_resize_terminal dnl
@@ -157,6 +165,10 @@ history_truncate_file dnl
 dnl tilde expansion
 tilde_expand dnl
 )
+dnl Functions that, in some versions, are defined but not declared.
+if test $ac_cv_have_decl_rl_free_keymap = yes; then
+  AC_CHECK_FUNCS([rl_free_keymap])
+fi
 
 BOLD_MSG([Readline (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

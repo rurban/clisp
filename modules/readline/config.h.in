@@ -97,6 +97,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_RL_FILENAME_QUOTING_DESIRED
 
+/* Define to 1 if you have the declaration of `rl_free_keymap', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_FREE_KEYMAP
+
 /* Define to 1 if you have the declaration of `rl_getc_function', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_GETC_FUNCTION
@@ -112,6 +116,10 @@
 /* Define to 1 if you have the declaration of `rl_inhibit_completion', and to
    0 if you don't. */
 #undef HAVE_DECL_RL_INHIBIT_COMPLETION
+
+/* Define to 1 if you have the declaration of `rl_input_available_hook', and
+   to 0 if you don't. */
+#undef HAVE_DECL_RL_INPUT_AVAILABLE_HOOK
 
 /* Define to 1 if you have the declaration of `rl_insert_mode', and to 0 if
    you don't. */
@@ -280,6 +288,9 @@
 /* Define to 1 if you have the `rl_callback_read_char' function. */
 #undef HAVE_RL_CALLBACK_READ_CHAR
 
+/* Define to 1 if you have the `rl_clear_history' function. */
+#undef HAVE_RL_CLEAR_HISTORY
+
 /* Define to 1 if you have the `rl_clear_message' function. */
 #undef HAVE_RL_CLEAR_MESSAGE
 
@@ -336,6 +347,9 @@
 
 /* Define to 1 if you have the `rl_free' function. */
 #undef HAVE_RL_FREE
+
+/* Define to 1 if you have the `rl_free_keymap' function. */
+#undef HAVE_RL_FREE_KEYMAP
 
 /* Define to 1 if you have the `rl_free_undo_list' function. */
 #undef HAVE_RL_FREE_UNDO_LIST
