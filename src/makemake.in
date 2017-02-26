@@ -2940,7 +2940,7 @@ if [ $CROSS = false ] ; then
   # ansi-tests are not included in the source distribution
   if test -d "${SRCTOPDIR_}ansi-tests"; then
     CHECK_DEPS=${CHECK_DEPS}" check-ansi-tests check-ansi-tests-compiled"
-    ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lsp -p CL-TEST"
+    ANSI_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale ${someflags} -m 30000KW -ansi -i clispload.lisp -p CL-TEST"
     echol "check-ansi-tests : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
     echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
     echol
@@ -2967,7 +2967,7 @@ if [ $CROSS = false ] ; then
     for f in Makefile '*.lsp'; do
       echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}ansi-tests${NEXT_}${f} ."
     done
-    echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}utils${NEXT_}clispload.lsp ."
+    echotab "cd ${ANSITESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}utils${NEXT_}clispload.lisp ."
     echol
   fi
 

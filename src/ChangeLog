@@ -1,5 +1,10 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix error when running the ansi-tests (regression from 2016-08-26).
+	* makemake.in: Use clispload.lisp instead of clispload.lsp.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to use Makefile.devel from a source distribution.
 	* Makefile.devel (SOURCES7): Add version.sh.
 
