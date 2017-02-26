@@ -4141,6 +4141,7 @@ int CallInFunc(LispFunc f) {
 
 <para>The standard &unix; function
  <funcsynopsis id="gethostname-synopsis"><funcprototype>
+   <?dbhtml funcsynopsis-style='ansi'?>
    <funcdef>&int-t; <function>gethostname</function></funcdef>
    <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
    <paramdef><type>size_t</type> <parameter>length</parameter></paramdef>
