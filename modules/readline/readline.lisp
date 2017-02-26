@@ -3,10 +3,11 @@
 ;;; http://tiswww.case.edu/php/chet/readline/history.html
 ;;;
 ;;; Copyright (C) 2005-2011 by Sam Steingold
+;;; Copyright (C) 2017 Bruno Haible
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
-;;; based on readline 6.1
+;;; based on readline 6.3
 ;;; to upgrade: download readline source distributions and diff headers
 
 (defpackage "READLINE"
@@ -98,7 +99,11 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:arguments) (:return-type keymap))
 
 (def-call-out discard-keymap (:name "rl_discard_keymap") ; untested
-  (:documentation "Discard allocated keymap.")
+  (:documentation "Free the storage associated with the data in a keymap.")
+  (:arguments (map keymap)) (:return-type nil))
+
+(def-call-out free-keymap (:name "rl_free_keymap") ; untested
+  (:documentation "Free all storage associated with a keymap.")
   (:arguments (map keymap)) (:return-type nil))
 
 (def-call-out get-keymap (:name "rl_get_keymap") ; untested
@@ -387,6 +392,9 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:arguments (u int))
   (:return-type int))
 
+(def-call-out clear-history (:name "rl_clear_history") ; untested
+  (:arguments) (:return-type int))
+
 (def-call-out get-termcap (:name "rl_get_termcap") ; untested
   (:arguments (cap c-string))
   (:return-type c-string))
@@ -495,6 +503,10 @@ Readline is awaiting character input, or NULL, for no event handling."))
   (:type (c-function (:arguments (instream c-pointer)) (:return-type int)))
   (:documentation "The address of the function to call to fetch a character
 from the current Readline input stream."))
+(def-c-var input-available-hook (:name "rl_input_available_hook")
+  (:type (c-function (:arguments) (:return-type int)))
+  (:documentation "The address of a function to call if Readline needs to know
+whether or not there is data available from the current input source."))
 
 ;; Display variables.
 (def-c-var erase-empty-line (:name "rl_erase_empty_line") (:type int)
@@ -657,8 +669,10 @@ if readline is reading a top-level command (RL_ISSTATE (RL_STATE_READCMD))."))
 (def-call-out add-history (:name "add_history")
   (:arguments (line c-string)) (:return-type nil))
 
+#| ;; Use rl_clear_history, declared above.
 (def-call-out clear-history (:name "clear_history")
   (:arguments) (:return-type nil))
+|#
 
 (def-call-out stifle-history (:name "stifle_history")
   (:arguments (count int)) (:return-type nil))
