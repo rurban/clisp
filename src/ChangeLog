@@ -1,5 +1,15 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	Use CFLAGS that avoid strict type-based aliasing.
+	Without it, at least some version of gcc miscompiles 'update_instance'
+	in record.d.
+	* makemake.in (XCFLAGS): Add -fno-strict-aliasing or the equivalent
+	option for other compilers.
+	Reported by Jerry James <loganjerry@gmail.com> in
+	<https://sourceforge.net/p/clisp/mailman/message/35687181/>.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	Recognize the Sun compiler also on Solaris/x86.
 	* makemake.in (XCC_SUNPRO): Use without testing whether TSYS is 'sun4'.
 

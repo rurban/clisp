@@ -1214,6 +1214,7 @@ if [ $XCC_GCC = true ] ; then
   fi
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
   # Assume gcc 2.95 or newer.
+  # Warnings flags:
   XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
   test ${CC_CPLUSPLUS} = false && XCFLAGS=${XCFLAGS}' -Wmissing-declarations -Wimplicit'
   if [ $CROSS = false ] ; then
@@ -1229,6 +1230,7 @@ if [ $XCC_GCC = true ] ; then
         ;;
     esac
   fi
+  # Code generation flags:
   if [ "${with_debug}" = no ] ; then # select optimizations
     if [ "$cpu" = i386 ] ; then
       XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations'
@@ -1323,6 +1325,23 @@ else
   fi
   XCC_NOOPTFLAGS=''
 
+fi
+
+# We access the same memory through pointers of different types, for example
+# as TheVarobject(obj)->..., TheRecord(obj)->..., TheInstance(obj)->... .
+# This violates the strict type-based aliasing rules of C. In other words, we
+# still use C as a portable assembler, but now the compilers want to outsmart
+# us. There are two ways to tell them not to do this: to use union types, or
+# specific compiler options. I prefer to do it through compiler options.
+if [ $XCC_GCC = true ] ; then
+  XCFLAGS=$XCFLAGS' -fno-strict-aliasing'
+else
+  if [ "$HSYSOS" = aix ] ; then # for xlc
+    XCFLAGS=$XCFLAGS' -qalias=noansi'
+  fi
+  if [ -n "$XCC_SUNPRO" ] ; then # for SUNWspro cc
+    XCFLAGS=$XCFLAGS' -xalias_level=weak'
+  fi
 fi
 
 if [ "${with_dynamic_modules}" != no ]; then # not on msvc
