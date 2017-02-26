@@ -1,5 +1,16 @@
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
+	maint: Add facility for testing builds in different configurations.
+	* lispbibl.d: Reorganize comments about flags that can be set in CFLAGS.
+	* configure: Write log files cbcstep1.log, cbcstep2.log, cbcstep3.log.
+	* Makefile.devel (multibuild-porting32-gcc, build-porting32-gcc-*): New
+	targets.
+	(multibuild-porting32-cc, build-porting32-cc-*): New targets.
+	(multibuild-porting64-gcc, build-porting64-gcc-*): New targets.
+	(multibuild-porting64-cc, build-porting64-cc-*): New targets.
+
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
 	Use CFLAGS that avoid strict type-based aliasing.
 	Without it, at least some version of gcc miscompiles 'update_instance'
 	in record.d.

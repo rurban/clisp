@@ -5,42 +5,139 @@
  * Sam Steingold 1998-2012, 2016
  * German comments translated into English: Stefan Kain 2001-09-24
 
- Flags intended to be set through CFLAGS:
-   Readline library:
-     NO_READLINE
-   Termcap/ncurses library:
-     NO_TERMCAP_NCURSES
-   Internationalization:
-     NO_GETTEXT, ENABLE_UNICODE
-   Foreign function interface:
-     DYNAMIC_FFI
-   Dynamic loading of modules:
-     DYNAMIC_MODULES
-   Safety level:
-     SAFETY={0,1,2,3}
-   Exploit GCC global register variables:
-     USE_GCC_REGISTER_VARIABLES
-   Debugging (turned on by the --with-debug configure option):
-     DEBUG_GCSAFETY (requires G++)
-     DEBUG_OS_ERROR
-     DEBUG_SPVW
-     DEBUG_BYTECODE
-     DEBUG_BACKTRACE (slows down the interpreter a lot)
-     DEBUG_COMPILER
- Flags that may be set through CFLAGS, in order to override the defaults:
-   Object representation (on 32-bit platforms only):
-     TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
-   Object representation (on 64-bit platforms only):
-     TYPECODES, HEAPCODES, STANDARD_HEAPCODES, GENERIC64_HEAPCODES
-   Advanced memory management:
-     NO_SINGLEMAP, NO_TRIVIALMAP, NO_VIRTUAL_MEMORY, CONS_HEAP_GROWS_DOWN,
-     CONS_HEAP_GROWS_UP, NO_MORRIS_GC, NO_GENERATIONAL_GC,
-     NO_MULTITHREAD_GC (only when MULTITHREAD is defined)
-   String representation:
-     NO_SMALL_SSTRING
-   Thread local storage storage when no compiler support is available (32 bit
-   platforms only). The SP is mapped to clisp_thread_t pointer:
-     USE_CUSTOM_TLS={1,2,3}  - see comments for the options
+ Flags that may be set through CFLAGS:
+
+   Flags that enable/disable features:
+
+     Flags that enable features:
+       Unicode characters (prerequisite for internationalization):
+         ENABLE_UNICODE
+       Foreign function interface (based on the GNU libffcall library):
+         DYNAMIC_FFI
+       Dynamic loading of modules:
+         DYNAMIC_MODULES
+       Just-in-time compiler (experimental):
+         USE_JITC
+       Multithreading (experimental):
+         MULTITHREAD
+       Create binary package on Unix (use this if you want to install
+       binaries created on one machine on other machines):
+         UNIX_BINARY_DISTRIB
+
+     Flags that disable features (enabled by default):
+       Advanced line editing in terminal emulators
+       (based on the GNU readline library):
+         NO_READLINE
+       Advanced user interface in terminal emulators
+       (based on the termcap or GNU ncurses library):
+         NO_TERMCAP_NCURSES
+       Internationalization
+       (based on the libintl library from GNU gettext):
+         NO_GETTEXT
+
+   Flags that determine how clisp features are implemented:
+     Multithreading:
+       Flavor of thread implementation:
+         POSIX_THREADS
+       Thread local storage storage when no compiler support is available
+       (32 bit platforms only). The SP is mapped to clisp_thread_t pointer:
+         USE_CUSTOM_TLS={1,2,3}  - see comments for the options
+
+   Flags that determine the object representation:
+     Store only minimal type information in a pointer:
+       HEAPCODES
+     Store a good amount of type information in a pointer:
+       TYPECODES
+     More detailed object representation schemes:
+       Object representation schemes on 32-bit platforms:
+         STANDARD_HEAPCODES
+         LINUX_NOEXEC_HEAPCODES
+         TRY_TYPECODES_1  (try to avoid it: limits heap size to 16 MB)
+         TRY_TYPECODES_2  (try to avoid it: limits heap size to 16 MB)
+       Object representation schemes on 64-bit platforms:
+         STANDARD_HEAPCODES
+         GENERIC64_HEAPCODES
+       Specific variants of GENERIC64_HEAPCODES on 64-bit platforms:
+         GENERIC64A_HEAPCODES
+         GENERIC64B_HEAPCODES
+         GENERIC64C_HEAPCODES
+     Use 64-bit pointers on 32-bit platforms
+     (try to avoid it: wastes a lot of memory):
+       WIDE_SOFT, WIDE_SOFT_LARGEFIXNUM
+
+   Flags that determine how the memory management is implemented:
+
+     Flags that determine how to get memory from the OS:
+       Whether to use a fixed heap size and allocate all the heap at the start
+       (try to avoid it):
+         NO_VIRTUAL_MEMORY
+       Assuming an object representation with TYPECODES, put objects
+       at their address by using mmap with MAP_FIXED; every such memory
+       range is mapped exactly once: SINGLEMAP_MEMORY
+         NO_SINGLEMAP
+       Put objects at their address by using mmap with MAP_FIXED:
+       TRIVIALMAP_MEMORY
+         NO_TRIVIALMAP
+       Depending on these, there is an automatic determination of
+       - SPVW_BLOCKS vs. SPVW_PAGES,
+       - SPVW_MIXED vs. SPVW_PURE,
+       - MAP_MEMORY_TABLES.
+       - SINGLEMAP_MEMORY_STACK.
+
+     Flags that determine the GC algorithm:
+       Whether to use generational GC (quite advanced fiddling with memory page
+       permissions and page faults): GENERATIONAL_GC
+         NO_GENERATIONAL_GC
+       Whether to use the GC code in its state before MULTITHREAD support
+       was added:
+         NO_MULTITHREAD_GC
+       Whether conses are garbage-collected through an algorithm that preserves
+       locality (but makes debugging of GC crashes very hard): MORRIS_GC
+         NO_MORRIS_GC
+       Whether conses are allocated in their block or page in ascending or
+       descending order:
+         CONS_HEAP_GROWS_DOWN
+         CONS_HEAP_GROWS_UP
+
+   Flags that enable/disable optimizations (no features, just speed):
+
+     Flags that enable optimizations:
+       Exploit GCC global register variables (risky):
+         USE_GCC_REGISTER_VARIABLES
+
+     Flags that disable optimizations:
+       Safety level:
+         SAFETY={0,1,2,3}
+       Low-cost memory allocation on the C stack:
+         NO_ALLOCA
+       Hand-written assembler code for multi-precision arithmetic:
+         NO_ARI_ASM
+       Make use of assembler code (.s files and and inline assembler):
+         NO_ASM
+       Memory saving representation of strings with only 8-bit characters
+       or only 16-bit characters:
+         NO_SMALL_SSTRING
+
+    Flags for debugging of clisp internals (for the clisp developers only):
+    Some of these are turned on by the configure option '--with-debug'.
+      DEBUG_GCSAFETY (requires the configure option or env variable CC="g++")
+      DEBUG_OS_ERROR
+      DEBUG_SPVW
+      DEBUG_BYTECODE
+      DEBUG_BACKTRACE (slows down the interpreter a lot)
+      DEBUG_COMPILER
+
+ Flags that you cannot set from CFLAGS (they are automatically determined)
+ and that enable/disable optimizations:
+   Access the machine stack pointer directly:
+     SP_register
+   Use a register instead of a global variable for the Lisp stack pointer:
+     STACK_register
+   Clumsy saving/restoring of STACK when invoking system code:
+     HAVE_SAVED_STACK
+   Represent single-floats as immediate objects:
+     IMMEDIATE_FFLOAT
+
  */
 
 /* this machine: WIN32 or GENERIC_UNIX */
@@ -2838,11 +2935,11 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    manage two large memory blocks.
    But it doesn't work on HP-UX 9 and AIX.
    Also it does not work reliably when address space layout randomization
-   is in effect: TRIVIALMAP_MEMORY assumes that one can increase existing a
+   is in effect: TRIVIALMAP_MEMORY assumes that one can extend an existing
    memory region by mmapping the pages after it; but this might overwrite
    some small malloc regions that have been put there by the system.
    It's not working on NetBSD due to restrictions of the mappable address
-   range.*/
+   range. */
   #define TRIVIALMAP_MEMORY
 #endif
 
