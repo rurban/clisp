@@ -89,6 +89,7 @@ rl_redisplay dnl
 rl_forced_update_display dnl
 rl_on_new_line dnl
 rl_on_new_line_with_prompt dnl
+rl_clear_visible_line dnl
 rl_reset_line_state dnl
 rl_crlf dnl
 rl_show_char dnl

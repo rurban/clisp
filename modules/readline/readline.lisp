@@ -59,6 +59,14 @@ Interface to the GNU readline and history library. It allows you to
 (def-c-type readline-vcpfunc (c-function (:arguments (text c-string))))
 (def-c-type keymap c-pointer)
 
+(c-lines "#if RL_VERSION_MAJOR >= 7
+typedef unsigned long rl_readline_state_t;
+#else
+typedef int rl_readline_state_t;
+#endif~%")
+(c-lines "#define HAVE_RL_READLINE_STATE_T 1~%")
+(def-c-type rl_readline_state_t)
+
 ;;; Basic behavior
 (def-call-out readline (:name "readline")
   (:documentation
@@ -256,7 +264,10 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:arguments) (:return-type int))
 
 (def-call-out on-new-line-with-prompt (:name "rl_on_new_line_with_prompt") ; untested
-  (:arguments ) (:return-type int))
+  (:arguments) (:return-type int))
+
+(def-call-out clear-visible-line (:name "rl_clear_visible_line") ; untested
+  (:arguments) (:return-type int))
 
 (def-call-out reset-line-state (:name "rl_reset_line_state") ; untested
   (:arguments) (:return-type int))
@@ -432,7 +443,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
    "The version of this incarnation of the readline library, e.g., 0x0402."))
 (def-c-var gnu-readline-p (:name "rl_gnu_readline_p") (:type int)
   (:documentation "True if this is real GNU readline."))
-(def-c-var readline-state (:name "rl_readline_state") (:type int)
+(def-c-var readline-state (:name "rl_readline_state") (:type rl_readline_state_t)
   (:documentation "Flags word encapsulating the current readline state."))
 (def-c-var editing-mode (:name "rl_editing_mode") (:type int)
   (:documentation "Says which editing mode readline is currently using.
