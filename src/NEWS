@@ -19,8 +19,8 @@ User visible changes
   influence behavior of REQUIRE.
   See <http://clisp.org/impnotes/require.html#module-providers> for details.
 
-* New module ASDF provides a system definition facility.
-  See <http://clisp.org/impnotes/asdf.html> for details.
+* New module ASDF (based on the upstream version 3.2.0) provides a system
+  definition facility. See <http://clisp.org/impnotes/asdf.html> for details.
 
 * New function POSIX:FILE-TREE-WALK calls nftw().
   See <http://clisp.org/impnotes/syscalls.html#file-tree-walk> for details.
