@@ -265,7 +265,7 @@ update-gmalloc : force
 
 # ------------------------------------------------------------------------------
 
-ASDF_URL = http://common-lisp.net/project/asdf/asdf.lisp
+ASDF_URL = https://common-lisp.net/project/asdf/asdf.lisp
 
 update-asdf : force
 	$(WGET) -O modules/asdf/asdf.lisp $(ASDF_URL)
