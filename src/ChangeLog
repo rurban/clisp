@@ -1,3 +1,8 @@
+2017-02-26  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with NO_MULTITHREAD_GC (leftover from 2008-10-29).
+	* spvw_garcol_old.d (gar_col): Add 'level' argument.
+
 2017-02-26  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#679: when a stream returned by MAKE-STREAM has a path,
