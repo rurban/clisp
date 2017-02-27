@@ -106,6 +106,7 @@ User visible changes
   + Fix symlink to directory handling (bug#625).
   + PCRE-EXEC returns character positions instead of byte positions.
   + Fix COMPILE-FILE-PATHNAME logical pathname handling (bug#677).
+  + Streams returned by MAKE-STREAM may be passed to TRUENAME (bug#679).
 
 
 2.49 (2010-07-07)
