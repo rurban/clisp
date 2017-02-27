@@ -8,7 +8,7 @@ local maygc void gar_col_simple (void);
 
 /* Execute a full garbage collection.
  can trigger GC */
-global maygc void gar_col (void);
+global maygc void gar_col (int level);
 
 #ifdef SPVW_PAGES
 /* Supplement a simple garbage collection with a compacting.
@@ -2380,7 +2380,7 @@ local maygc void gar_col_simple()
 }
 
 /* perform full Garbage Collection: */
-global maygc void gar_col (void);
+global maygc void gar_col (int level);
 local void do_gar_col (void)
 {
   #ifdef NOCOST_SP_CHECK
@@ -2398,10 +2398,16 @@ local void do_gar_col (void)
   #endif
   gar_col_done();
 }
-global maygc void gar_col()
+global maygc void gar_col(int level)
 {
   var uintC saved_mv_count = mv_count; /* save mv_count */
+ #if defined(USE_JITC)
+  gc_drop_jitc = (level==1);
+ #endif
   with_gc_statistics(&do_gar_col);     /* GC and statistics */
+ #if defined(USE_JITC)
+  gc_drop_jitc = false;
+ #endif
   mv_count = saved_mv_count;           /* restore mv_count */
 }
 
