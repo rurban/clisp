@@ -1260,6 +1260,17 @@ T
     (post-compile-file-cleanup lisp)))
 T
 
+;; https://sourceforge.net/p/clisp/bugs/679/
+(streamp (setq s (make-stream :input))) T
+(or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
+(handler-case (write-line "foo" s) (stream-error (c) (princ-error c) t)) T
+(streamp (setq s (make-stream :output))) T
+(or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
+(write-line "foo" s) "foo"
+(streamp (setq s (make-stream :error))) T
+(or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
+(write-line "foo" s) "foo"
+
 (progn
   (symbol-cleanup 's)
   (symbol-cleanup 's1)
