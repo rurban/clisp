@@ -1729,6 +1729,10 @@
 /* Define to 1 if mknod cannot create a fifo without super-user privileges */
 #undef MKNOD_FIFO_BUG
 
+/* Define to the highest bit number that can be included in mmaped addresses.
+   */
+#undef MMAP_FIXED_ADDRESS_HIGHEST_BIT
+
 /* need <sys/filio.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_FILIO_H
 
