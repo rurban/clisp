@@ -41,7 +41,7 @@ local void xmprotect (aint addr, uintM len, int prot);
     if (!((1UL << i) == physpagesize)) abort();   \
     physpageshift = i;                            \
   }
-#ifdef MAP_MEMORY
+#ifdef SINGLEMAP_MEMORY
   #define init_physpagesize()                   \
     physpagesize = map_pagesize;                \
     init_physpageshift();
