@@ -1799,7 +1799,7 @@ local void gar_col_normal (void)
            #endif
             heap->heap_gen1_start = heap->heap_end = end;
           }
-          build_old_generation_cache(heapnr);
+          build_old_generation_cache(heapnr,NULL);
         } else
           rebuild_old_generation_cache(heapnr);
       }

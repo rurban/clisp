@@ -22,16 +22,6 @@ local maygc void gar_col_compact (void);
 local void move_conses (sintM delta);
 #endif
 
-/* defines memory region in the varobject heap page.
- used during sweep phase and holes filling. */
-typedef struct varobj_mem_region {
-#if defined(SPVW_PURE)
-  uintL heapnr; /* heap where region is located - for faster checking */
-#endif
-  aint start; /* start address */
-  aint size; /* region size */
-} varobj_mem_region;
-
 /* --------------------------- Implementation -------------------------- */
 
 /* overall strategy:
