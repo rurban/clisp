@@ -27662,7 +27662,7 @@ AC_DEFINE(HAVE_MACH_VM,,[have vm_allocate() and task_self() functions])dnl
 )])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2010 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -27808,6 +27808,76 @@ fi
 if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
 AC_DEFINE(HAVE_MMAP_DEVZERO_SUN4_29,,[mmaping of the special device /dev/zero works, but only on addresses < 2^29])
 fi
+dnl For SINGLEMAP_MEMORY and the TYPECODES object representation:
+dnl Test which is the highest bit number < 63 (or < 31) at which the kernel
+dnl allows us to mmap memory with MAP_FIXED. That is, try
+dnl   0x4000000000000000 -> 62
+dnl   0x2000000000000000 -> 61
+dnl   0x1000000000000000 -> 60
+dnl   ...
+dnl and return the highest bit number for which mmap succeeds.
+dnl Don't need to test bit 63 (or 31) because we use it as garcol_bit in TYPECODES.
+AC_CACHE_CHECK([for highest bit number which can be included in mmaped addresses],
+  [cl_cv_func_mmap_highest_bit],
+  [AC_TRY_RUN([
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/mman.h>
+#ifndef MAP_FILE
+#define MAP_FILE 0
+#endif
+#ifndef MAP_VARIABLE
+#define MAP_VARIABLE 0
+#endif
+int
+main ()
+{
+  unsigned int my_size = 32768; /* hope that 32768 is a multiple of the page size */
+  int pos;
+  for (pos = 8*sizeof(void*)-2; pos > 0; pos--) {
+    unsigned long address = (unsigned long)1 << pos;
+    if (address < 4096)
+      break;
+    {
+      char *p;
+      int ret;
+#if defined HAVE_MMAP_ANON
+      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
+#elif defined HAVE_MMAP_ANONYMOUS
+      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
+#elif defined HAVE_MMAP_DEVZERO
+      int zero_fd = open("/dev/zero", O_RDONLY, 0666);
+      if (zero_fd < 0)
+        return 1;
+      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
+#else
+      ??
+#endif
+      if (p != (char*) -1)
+        /* mmap succeeded. */
+        return pos;
+    }
+  }
+  return 0;
+}],
+     [cl_cv_func_mmap_highest_bit=none],
+     [cl_cv_func_mmap_highest_bit=$?
+      case "$cl_cv_func_mmap_highest_bit" in
+        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ) dnl Most likely a compiler error code.
+          cl_cv_func_mmap_highest_bit=none ;;
+      esac],
+     [cl_cv_func_mmap_highest_bit="guessing none"])
+  ])
+case "$cl_cv_func_mmap_highest_bit" in
+  *none) value='-1' ;;
+  *) value="$cl_cv_func_mmap_highest_bit" ;;
+esac
+AC_DEFINE_UNQUOTED([MMAP_FIXED_ADDRESS_HIGHEST_BIT], [$value],
+  [Define to the highest bit number that can be included in mmaped addresses.])
 fi
 fi
 ])

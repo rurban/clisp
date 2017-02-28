@@ -1,5 +1,18 @@
 2017-02-28  Bruno Haible  <bruno@clisp.org>
 
+	Make SINGLEMAP_MEMORY / SPVW_PURE_BLOCKS work on 64-bit platforms.
+	* m4/mmap.m4 (CL_MMAP): Add a test that determines
+	MMAP_FIXED_ADDRESS_HIGHEST_BIT.
+	* lispbibl.d (oint_type_len, oint_addr_len, etc.): If SINGLEMAP_MEMORY
+	is defined, define them according to MMAP_FIXED_ADDRESS_HIGHEST_BIT.
+	(tint, aint, saint): Don't require oint_type_len, oint_addr_len to be
+	literal constants.
+	(SINGLEMAP_MEMORY): Define according to MMAP_FIXED_ADDRESS_HIGHEST_BIT
+	and some address ranges.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-02-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with NO_MULTITHREAD_GC and GENERATIONAL_GC.
 	* spvw.d (varobj_mem_region): Moved here ...
 	* spvw_garcol.d (varobj_mem_region): ... from here.
