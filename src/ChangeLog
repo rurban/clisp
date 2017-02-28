@@ -1,5 +1,15 @@
 2017-02-28  Bruno Haible  <bruno@clisp.org>
 
+	Simplify macrology: Remove MAP_MEMORY macro.
+	Earlier MAP_MEMORY was SINGLEMAP_MEMORY || MULTIMAP_MEMORY, but since
+	2008-07-06 we don't have MULTIMAP_MEMORY any more. It is confusing that
+	MAP_MEMORY is not implied by TRIVIALMAP_MEMORY.
+	* lispbibl.d (MAP_MEMORY): Remove macro. Use SINGLEMAP_MEMORY instead.
+	* spvw_fault.d, spvw_garcol.d, spvw_garcol_old.d: Use SINGLEMAP_MEMORY
+	instead.
+
+2017-02-28  Bruno Haible  <bruno@clisp.org>
+
 	Make SINGLEMAP_MEMORY / SPVW_PURE_BLOCKS work on 64-bit platforms.
 	* m4/mmap.m4 (CL_MMAP): Add a test that determines
 	MMAP_FIXED_ADDRESS_HIGHEST_BIT.

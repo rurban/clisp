@@ -846,7 +846,7 @@ local void gc_morris3 (Page* page)
  sets p->GCself to type_pointer_object(type,addr). */
 #ifdef TYPECODES
   #if !(exact_uint_size_p(oint_type_len) && ((oint_type_shift%hfintsize)==0) && (tint_type_mask == bit(oint_type_len)-1))
-    #ifdef MAP_MEMORY
+    #ifdef SINGLEMAP_MEMORY
       /* addr contains typeinfo */
       #define make_GCself(type,addr)  \
         type_pointer_object((type)&(tint_type_mask),(addr)&(oint_addr_mask))

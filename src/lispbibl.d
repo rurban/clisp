@@ -2996,13 +2996,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #endif
 
-#if defined(SINGLEMAP_MEMORY)
-  #define MAP_MEMORY
-#endif
-
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
-    && !defined(MAP_MEMORY)                                                    \
+    && !defined(SINGLEMAP_MEMORY)                                              \
     && !(defined(UNIX_HPUX) || defined(UNIX_AIX) || defined(UNIX_NETBSD)       \
          || defined(ADDRESS_RANGE_RANDOMIZED))                                 \
     && !defined(NO_TRIVIALMAP)
@@ -3045,7 +3041,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
-#ifdef MAP_MEMORY
+#ifdef SINGLEMAP_MEMORY
   /* Some type-bit combinations might not be allowed */
   #ifdef vm_addr_mask
     #define tint_allowed_type_mask  ((oint_type_mask & vm_addr_mask) >> oint_type_shift)
@@ -4143,7 +4139,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* Clever memory-mapping spares us from masking out of certain
  bits before one accesses the address */
 #define addressbus_mask  hardware_addressbus_mask
-#ifdef MAP_MEMORY
+#ifdef SINGLEMAP_MEMORY
   #if defined(SUN4_29)
     /* Memory-mapping makes the bits 28..24 of an address redundant now. */
     #undef addressbus_mask
@@ -4442,7 +4438,7 @@ extern bool inside_gc;
  SPVW_MIXED  : Objects of mixed types are possible on the same page or block
  SPVW_PURE   : Every memory block/every memory page contains only objects
                of exactly one type */
-#if defined(MAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
+#if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   /* Multimapping of single pages isn't implemented yet.??
    Singlemapping of single pages isn't implemented yet.??
    If you use mmap() as malloc()-replacement, single pages aren't needed. */
@@ -4492,7 +4488,7 @@ extern bool inside_gc;
 #endif
 
 /* Put subr_tab and symbol_tab to given addresses through memory-mapping. */
-#if defined(MAP_MEMORY) && !defined(WIDE_SOFT)
+#if defined(SINGLEMAP_MEMORY) && !defined(WIDE_SOFT)
   #define MAP_MEMORY_TABLES
 #endif
 
