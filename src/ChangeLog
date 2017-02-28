@@ -1,3 +1,11 @@
+2017-02-28  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with NO_MULTITHREAD_GC and GENERATIONAL_GC.
+	* spvw.d (varobj_mem_region): Moved here ...
+	* spvw_garcol.d (varobj_mem_region): ... from here.
+	* spvw_garcol_old.d (gar_col_normal): Pass NULL to
+	build_old_generation_cache.
+
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure with NO_MULTITHREAD_GC (leftover from 2008-10-29).

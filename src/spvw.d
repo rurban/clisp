@@ -934,6 +934,16 @@ modexp _Noreturn void STACK_ueber (void) {
 /* --------------------------------------------------------------------------
                        Garbage-Collector */
 
+/* defines memory region in the varobject heap page.
+ used during sweep phase and holes filling. */
+typedef struct varobj_mem_region {
+#if defined(SPVW_PURE)
+  uintL heapnr; /* heap where region is located - for faster checking */
+#endif
+  aint start; /* start address */
+  aint size; /* region size */
+} varobj_mem_region;
+
 #if defined(MULTITHREAD) || !defined(NO_MULTITHREAD_GC)
   #include "spvw_garcol.c"
 #else
