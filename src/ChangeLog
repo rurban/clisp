@@ -1,3 +1,10 @@
+2017-03-01  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with GENERIC64_HEAPCODES and -falign-functions=8.
+	* makemake.in (WIDE_HARD): New variable.
+	(XCFLAGS): If WIDE_HARD is true, add -falign-functions=8, not
+	-falign-functions=4.
+
 2017-02-28  Bruno Haible  <bruno@clisp.org>
 
 	Simplify macrology: Remove MAP_MEMORY macro.

@@ -653,6 +653,17 @@ case $# in
      ;;
 esac
 
+# Like WIDE_HARD in lispbibl.d
+if [ $CROSS = false ] ; then
+  if grep 'define long_bitsize 64' intparam.h > /dev/null && grep 'define long_long_bitsize 64' intparam.h > /dev/null; then
+    WIDE_HARD='true'
+  else
+    WIDE_HARD='false'
+  fi
+else
+  WIDE_HARD='false' # just a guess
+fi
+
 if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
@@ -1268,7 +1279,13 @@ if [ $XCC_GCC = true ] ; then
   # - with clang when "clang -Os" is used.
   # gcc has an option to fix this. clang 3.9 doesn't.
   if [ "$XCC_BRAND" != clang ] ; then
-    XCFLAGS=$XCFLAGS' -falign-functions=4'
+    if $WIDE_HARD; then
+      # GENERIC64C_HEAPCODES requires an 8-byte alignment of all C functions
+      # that define subrs.
+      XCFLAGS=$XCFLAGS' -falign-functions=8'
+    else
+      XCFLAGS=$XCFLAGS' -falign-functions=4'
+    fi
   fi
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
