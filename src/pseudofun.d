@@ -1,6 +1,6 @@
 /*
  * List of all relocatable machine pointers
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2008, 2017
  * Sam Steingold 2005, 2007
  */
 
@@ -15,7 +15,12 @@
    #define PSEUDO PSEUDO_B   for the declaration of the data table
    #define PSEUDO PSEUDO_C   for the declaration of both tables' elements
    #define PSEUDO PSEUDO_D   for the initialization of the code table
-   #define PSEUDO PSEUDO_E   for the initialization of the data table */
+   #define PSEUDO PSEUDO_E   for the initialization of the data table
+   #define PSEUDO PSEUDO_F   for the initialization of the code name table
+   #define PSEUDO PSEUDO_G   for the initialization of the data name table
+
+ When a source file defines symbols used in this file, it must be compiled
+ with FALIGNFLAGS. When you add a new file, update makemake.in accordingly. */
 
 #define LPSEUDOCODE CONCAT(LCODE_,PSEUDO)
 #define XPSEUDOCODE CONCAT(XCODE_,PSEUDO)
@@ -26,22 +31,29 @@
 #define LCODE_PSEUDO_C(fun)
 #define LCODE_PSEUDO_D(fun)  (Pseudofun)(&fun),
 #define LCODE_PSEUDO_E(fun)
+#define LCODE_PSEUDO_F(fun)  STRING(fun),
+#define LCODE_PSEUDO_G(fun)
 #define XCODE_PSEUDO_A(rettype,name,arglist)  Pseudofun pseudo_##name;
 #define XCODE_PSEUDO_B(rettype,name,arglist)
 #define XCODE_PSEUDO_C(rettype,name,arglist)  extern rettype name arglist;
 #define XCODE_PSEUDO_D(rettype,name,arglist)  (Pseudofun)(&name),
 #define XCODE_PSEUDO_E(rettype,name,arglist)
+#define XCODE_PSEUDO_F(rettype,name,arglist)  STRING(name),
+#define XCODE_PSEUDO_G(rettype,name,arglist)
 #define XDATA_PSEUDO_A(type,name)
 #define XDATA_PSEUDO_B(type,name)  Pseudofun pseudo_##name;
 #define XDATA_PSEUDO_C(type,name)  extern type name;
 #define XDATA_PSEUDO_D(type,name)
 #define XDATA_PSEUDO_E(type,name)  (Pseudofun)(&name),
+#define XDATA_PSEUDO_F(type,name)
+#define XDATA_PSEUDO_G(type,name)  STRING(name),
 
 
-/* For hashtabl.d. */
+/* Defined in predtype.d, for hashtabl.d. */
 XPSEUDOCODE(bool, eql, (object obj1, object obj2))
 XPSEUDOCODE(bool, equal, (object obj1, object obj2))
 XPSEUDOCODE(bool, equalp, (object obj1, object obj2))
+/* Defined in hashtabl.d. */
 XPSEUDOCODE(uint32, hashcode1stable, (object obj))
 XPSEUDOCODE(uint32, hashcode2, (object obj))
 XPSEUDOCODE(uint32, hashcode2stable, (object obj))
@@ -60,6 +72,8 @@ XPSEUDOCODE(bool, hash_lookup_builtin, (object ht, object obj, bool allowgc, gcv
 XPSEUDOCODE(bool, hash_lookup_builtin_with_rehash, (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_))
 #endif
 XPSEUDOCODE(bool, hash_lookup_user, (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_))
+
+/* Defined in stream.d. */
 
 LPSEUDOCODE(rd_by_error) LPSEUDOCODE(rd_by_array_error) LPSEUDOCODE(rd_by_array_dummy)
 LPSEUDOCODE(wr_by_error) LPSEUDOCODE(wr_by_array_error) LPSEUDOCODE(wr_by_array_dummy)
@@ -114,6 +128,7 @@ LPSEUDOCODE(wr_ch_printer)
 #endif
 
 /* External definitions from ENCODING.D: */
+
 #ifdef ENABLE_UNICODE
 XPSEUDOCODE(object, base64_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(uintL, base64_mblen, (object encoding, const uintB* src, const uintB* srcend))

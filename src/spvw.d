@@ -1245,20 +1245,17 @@ local inline void module_set_argtypes (module_t *module)
 }
 
 /* Verify that a code address has the C_CODE_ALIGNMENT.
- This is important for calling make_machine_code, but it's easiest verified
- on Fsubrs and Subrs. */
+ This is important for calling make_machine_code. */
 #ifdef TYPECODES
-  #define verify_code_alignment(ptr,symbol) /* not needed */
+  #define verify_code_alignment(ptr,name) /* not needed */
 #else
-  #define verify_code_alignment(ptr,symbol)  \
+  #define verify_code_alignment(ptr,name)  \
     if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
-      error_code_alignment((uintP)(void*)(ptr),symbol)
-local _Noreturn void error_code_alignment (uintP address, object symbol) {
-  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n",
-          TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))),
-          address);
+      error_code_alignment((uintP)(void*)(ptr),name)
+local _Noreturn void error_code_alignment (uintP address, const char* name) {
+  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n", name, address);
  #if (__GNUC__ >= 3)
-  fprintf(stderr,"Add -falign-functions=%d to CFLAGS in the Makefile.\n",
+  fprintf(stderr,"Add -falign-functions=%d to FALIGNFLAGS in the Makefile.\n",
           C_CODE_ALIGNMENT);
  #endif
   abort();
@@ -1516,7 +1513,6 @@ local void init_symbol_functions (void) {
                                     (fsubr_body_t)(ptr2->body_flag)));
       TheFsubr(obj)->function = (void*)(*ptr1);
       Symbol_function(sym) = obj;
-      verify_code_alignment(*ptr1,sym);
       ptr1++; ptr2++;
     }
   }
@@ -1525,7 +1521,6 @@ local void init_symbol_functions (void) {
     var uintC count = subr_count;
     while (count--) {
       Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
-      verify_code_alignment(ptr->function,ptr->name);
       ptr++;
     }
   }
@@ -2852,15 +2847,34 @@ local inline void free_argv_actions (struct argv_actions *p) {
 #endif
 extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
-  {                  /* Initialize the table of relocatable pointers: */
+  /* Initialize the table of relocatable pointers: */
+  {
     var object* ptr2 = &pseudofun_tab.pointer[0];
-    { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
+    { local const char* pseudocode_name_tab[] = {
+        #define PSEUDO  PSEUDO_F
+        #include "pseudofun.c"
+        #undef PSEUDO
+      };
+      var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
+      var const char* const* nameptr = &pseudocode_name_tab[0];
       var uintC count = pseudocode_count;
-      while (count--) { *ptr2++ = make_machine_code(*ptr1); ptr1++; }
+      while (count--) {
+        verify_code_alignment(*ptr1,*nameptr);
+        *ptr2++ = make_machine_code(*ptr1); ptr1++; nameptr++;
+      }
     }
-    { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
+    { local const char* pseudodata_name_tab[] = {
+        #define PSEUDO  PSEUDO_G
+        #include "pseudofun.c"
+        #undef PSEUDO
+      };
+      var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
+      var const char* const* nameptr = &pseudodata_name_tab[0];
       var uintC count = pseudodata_count;
-      while(count--) { *ptr2++ = make_machine(*ptr1); ptr1++; }
+      while(count--) {
+        verify_code_alignment(*ptr1,*nameptr);
+        *ptr2++ = make_machine(*ptr1); ptr1++; nameptr++;
+      }
     }
   }
   /* fetch memory: */
