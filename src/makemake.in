@@ -1271,22 +1271,6 @@ if [ $XCC_GCC = true ] ; then
         ;;
     esac
   fi # with_debug
-  # We can run into
-  #   C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
-  # - with gcc on Linux, when not optimizing,
-  # - with Apple's gcc 4 on MacOS X,
-  # - with gcc >= 4 when "gcc -Os" is used,
-  # - with clang when "clang -Os" is used.
-  # gcc has an option to fix this. clang 3.9 doesn't.
-  if [ "$XCC_BRAND" != clang ] ; then
-    if $WIDE_HARD; then
-      # GENERIC64C_HEAPCODES requires an 8-byte alignment of all C functions
-      # that define subrs.
-      XCFLAGS=$XCFLAGS' -falign-functions=8'
-    else
-      XCFLAGS=$XCFLAGS' -falign-functions=4'
-    fi
-  fi
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
   fi
@@ -1342,6 +1326,28 @@ else
   fi
   XCC_NOOPTFLAGS=''
 
+fi
+
+# Relocatable machine pointers are machine pointers that are visible to the GC.
+# In the HEAPCODES object representation, they must satisfy alignment
+# constraints. When these constraints are not defined, we run into
+#   C_CODE_ALIGNMENT is wrong. &equal = 0x4c8de7.
+# This can happen
+# - with gcc on Linux, when not optimizing,
+# - with Apple's gcc 4 on MacOS X,
+# - with gcc >= 4 when "gcc -Os" is used,
+# - with clang when "clang -Os" is used.
+# gcc has an option to fix this. clang 3.9 doesn't.
+if [ $XCC_GCC = true ] && [ "$XCC_BRAND" != clang ] ; then
+  if $WIDE_HARD; then
+    # GENERIC64C_HEAPCODES requires an 8-byte alignment of all C functions
+    # that are used as relocatable machine pointers.
+    FALIGNFLAGS='-falign-functions=8'
+  else
+    FALIGNFLAGS='-falign-functions=4'
+  fi
+else
+  FALIGNFLAGS=''
 fi
 
 # We access the same memory through pointers of different types, for example
@@ -1892,6 +1898,8 @@ else
 fi
 echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
+echol "FALIGNFLAGS = ${FALIGNFLAGS}"
+FALIGNFLAGS="\$(FALIGNFLAGS)"
 echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'" ${GNULIB_INCLUDE}"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
@@ -2465,6 +2473,15 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = eval -a "${with_jitc}" = lightning ]; then
     flags2=$flags2' -Wno-unused' # should be gone - eventually...
+  fi
+  # Files that define C functions that are used as argument of make_machine_code
+  # (such as the PSEUDOFUNs) need to make sure to align them properly for the
+  # HEAPCODES object representation. Fortunately, modules cannot define
+  # PSEUDOFUNs, therefore we don't need to apply this to the MODULE_CFLAGS.
+  # encoding.d, stream.d, hashtabl.d, predtype.d define PSEUDOFUNs.
+  # funarg.d defines test functions for list.d.
+  if [ $f = encoding -o $f = stream -o $f = hashtabl -o $f = predtype -o $f = funarg ] ; then
+    flags2=$flags2" ${FALIGNFLAGS}"
   fi
   test $f = genclisph -a $XCC_GCC = true && \
     flags2=$flags2' -O0' # no need to optimize this

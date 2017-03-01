@@ -1,5 +1,18 @@
 2017-03-01  Bruno Haible  <bruno@clisp.org>
 
+	Check the right set of C symbols against C_CODE_ALIGNMENT.
+	* pseudofun.d (*PSEUDO_F, *PSEUDO_G): New macros.
+	* spvw.d (verify_code_alignment, error_code_alignment): Take a C string
+	as second argument instead of a symbol.
+	(init_symbol_functions): Don't invoke verify_code_alignment here.
+	(init_memory): Invoke verify_code_alignment here.
+	* makemake.in (FALIGNFLAGS): New variable. Use it in the compilation of
+	specific files.
+	* Makefile.devel (build-*): Remove -falign-functions options, now
+	handled through makemake.in.
+
+2017-03-01  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with GENERIC64_HEAPCODES and -falign-functions=8.
 	* makemake.in (WIDE_HARD): New variable.
 	(XCFLAGS): If WIDE_HARD is true, add -falign-functions=8, not
