@@ -79,8 +79,6 @@
 # > arg1, arg2 : zwei 16-Bit-Zahlen
 # < result: eine 32-Bit-Zahl
   extern uint32 mulu16 (uint16 arg1, uint16 arg2);
-# in 68000-Assembler (Input D0.W, D1.W, Output D0.L):
-#   MULU D1,D0
   #if defined(GNU) || defined(INTEL)
     #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
       #define mulu16(arg1,arg2)  \
@@ -143,23 +141,6 @@
 # < 2^32*hi+lo : eine 64-Bit-Zahl
   extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
   extern uint32 mulu32_high;                          # -> High-Teil
-# in 68000-Assembler (Input D0.L,D1.L, Output D0.L,D1.L, verändert D2-D4):
-#   ; D0.L = 2^16*a+b, D1.L = 2^16*c+d -> Produkt
-#   ; (2^16*a+b)*(2^16*c+d) = 2^32*a*c + 2^16*(a*d+b*c) + b*d
-#   MOVE.L D0,D2 ! SWAP D2
-#   MOVE.L D1,D3 ! SWAP D1
-#   MOVE.L D1,D4 ! MULU D2,D1 ; a*c
-#   MULU D3,D2 ; a*d
-#   MULU D0,D4 ; b*c
-#   MULU D3,D0 ; b*d
-#   CLR.L D3 ; Hilfsregister für Zero-Extend
-#   SWAP D2 ! MOVE.W D2,D3 ! ADD.L D3,D1 ; high16(a*d) zu D1.L addieren
-#   SWAP D4 ! MOVE.W D4,D3 ! ADD.L D3,D1 ; high16(b*c) zu D1.L addieren
-#   CLR.W D2 ! ADD.L D2,D0 ! BCC.S \1 ! ADDQ.L #1,D1 ! \1: ; 2^16*low16(a*d) zu D0.L addieren
-#   CLR.W D4 ! ADD.L D4,D0 ! BCC.S \2 ! ADDQ.L #1,D1 ! \2: ; 2^16*low16(b*c) zu D0.L addieren
-#   ; D0.L = lo, D1.L = hi fertig.
-# in 68020-Assembler (Input D0.L,D1.L, Output D0.L,D1.L):
-#   MULU.L D1,D1:D0
   #if defined(GNU) || defined(INTEL)
     #ifdef M68K
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
@@ -372,10 +353,6 @@
     extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q
     extern uint16 divu_16_rest;                           # -> Rest r
   #endif
-# im 68000-Assembler (Input D0.L,D1.W, Output D0.W,D1.W):
-#   DIVU D1,D0    ; D0.L=x / D1.W=y -> q=D0.W, r=D0.H.W
-#   MOVE.L D0,D1
-#   SWAP D1
   #if defined(GNU) || defined(INTEL)
     #if defined(SPARC64) && !defined(NO_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
@@ -468,31 +445,6 @@
 # < x = q*y+r
   extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y); # -> Quotient q
   extern uint16 divu_16_rest;                           # -> Rest r
-# im 68000-Assembler (Input D0.L,D1.W, Output D0.L,D1.W, verändert D2,D3):
-#   MOVE.L D0,D2
-#   CLR.W D2
-#   SWAP D2        ; D2.L = D2.W := D0.H.W = high16(x)
-#   DIVU D1,D2     ; durch y dividieren
-#   MOVE.W D2,D3   ; Quotient nach D3.W
-#   MOVE.W D0,D2   ; Rest (in D2.H.W) mit D0.W = low16(x) kombinieren
-#   DIVU D1,D2     ; und wieder durch y dividieren
-#   MOVE.W D3,D0   ; ersten Quotiententeil
-#   SWAP D0        ; mal 2^16
-#   MOVE.W D2,D0   ; plus zweiten Quotiententeil, liefert q
-#   SWAP D2
-#   MOVE.W D2,D1   ; r = Rest der zweiten Division
-# oder (Input D0.L,D1.W, Output D0.L,D1.W, verändert D2,D3):
-#   MOVE.L D0,D2   ; x retten
-#   CLR.W D0
-#   SWAP D0        ; D0.L = D0.W := high16(x)
-#   DIVU D1,D0     ; durch y dividieren
-#   MOVE.W D0,D3   ; Quotient nach D3.W
-#   MOVE.W D2,D0   ; Rest (in D0.H.W) mit D2.W = low16(x) kombinieren
-#   DIVU D1,D0     ; und wieder durch y dividieren
-#   SWAP D0
-#   MOVE.W D0,D1   ; r = Rest der zweiten Division
-#   MOVE.W D3,D0
-#   SWAP D0        ; beide Quotienten kombinieren, liefert q
   #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define divu_3216_3216(x,y,q_assignment,r_assignment)  \
       ({var uint32 __x = (x);        \
