@@ -1,3 +1,8 @@
+2017-03-02  Bruno Haible  <bruno@clisp.org>
+
+	Check the right set of C symbols against C_CODE_ALIGNMENT, part 2.
+	* makemake.in (FALIGNFLAGS): Use it also when compiling socket.d.
+
 2017-03-01  Bruno Haible  <bruno@clisp.org>
 
 	Check the right set of C symbols against C_CODE_ALIGNMENT.
