@@ -38,7 +38,7 @@
 
         .seg "text"
 
-        .global C(mulu16_),C(mulu32_),C(mulu32_unchecked)
+        .global C(mulu16_),C(mulu32_),C(_get_g1),C(mulu32_unchecked)
         .global C(divu_6432_3232_),C(divu_3216_1616_)
         .global C(copy_loop_up),C(copy_loop_down),C(fill_loop_up),C(fill_loop_down)
         .global C(clear_loop_up),C(clear_loop_down)
@@ -147,6 +147,12 @@ C(mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
         retl
        _ rd      %y,%o0         # lo
 #endif
+
+# extern long _get_g1 (void);
+# Returns %g1.
+C(_get_g1:)
+        retl
+       _ mov %g1,%o0
 
 # extern uint32 mulu32_unchecked (uint32 x, uint32 y);
 # result := arg1*arg2 < 2^32.

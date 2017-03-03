@@ -108,7 +108,7 @@
          })
     #endif
   #else
-    #if defined(SPARC) || defined(SPARC64)
+    #if (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       extern_C uint32 mulu16_ (uint16 arg1, uint16 arg2); # extern in Assembler
       #define mulu16  mulu16_
     #endif
@@ -163,7 +163,7 @@
            hi_assignment _hi;                                            \
            lo_assignment _lo;                                            \
          })
-    #elif defined(ARM) && 0 # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ lo_assignment mulu32_(x,y); # extern in Assembler \
           {var register uint32 _hi __asm__("%r1"/*"%a2"*/); \
@@ -199,7 +199,7 @@
                   );                                      \
            hi_assignment _hi; lo_assignment _lo;            \
          })
-    #elif defined(SPARC)
+    #elif defined(SPARC) && !defined(NO_ARI_ASM)
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ lo_assignment mulu32_(x,y); # extern in Assembler \
           {var register uint32 _hi __asm__("%g1");          \
@@ -216,7 +216,7 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)) && !defined(NO_ARI_ASM)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -263,7 +263,7 @@
                 );                                            \
          (uint32)_result;                                     \
        })
-  #elif defined(SPARC)
+  #elif defined(SPARC) && !defined(NO_ARI_ASM)
     extern_C uint32 mulu32_unchecked (uint32 x, uint32 y); # extern in Assembler
   #else
     # Wir können dafür auch die Bibliotheksroutine des C-Compilers nehmen:
@@ -308,7 +308,7 @@
                   );                                      \
            highlow64(_hi,_lo);                            \
          })
-    #elif defined(SPARC)
+    #elif defined(SPARC) && !defined(NO_ARI_ASM)
       #define mulu32_64(x,y)  \
         ({ var register uint32 _lo = mulu32_(x,y); # extern in Assembler \
            var register uint32 _hi __asm__("%g1");                       \
@@ -347,7 +347,7 @@
 # < uint16 q: floor(x/y)
 # < uint16 r: x mod y
 # < x = q*y+r
-  #if defined(SPARC)
+  #if defined(SPARC) && !defined(NO_ARI_ASM)
     extern_C uint32 divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q, Rest r
   #else
     extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q
@@ -370,7 +370,7 @@
           q_assignment (uint16)__q;     \
           r_assignment (uint16)__r;     \
          })
-    #elif defined(SPARC) || defined(SPARC64)
+    #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
            q_assignment low16(__qr);  \
@@ -389,7 +389,7 @@
           q_assignment __q;       \
           r_assignment __r;       \
          })
-    #elif defined(ARM) && 0 # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         { var uint32 _q = divu_3216_1616_(x,y); # extern in Assembler \
           var register uint32 _r __asm__("%r1"/*"%a2"*/);             \
@@ -406,13 +406,13 @@
     #endif
   #endif
   #ifndef divu_3216_1616
-    #if defined(SPARC) || defined(SPARC64)
+    #if (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         { var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
           q_assignment low16(__qr);  \
           r_assignment high16(__qr); \
         }
-    #elif defined(ARM)
+    #elif defined(ARM) && !defined(NO_ARI_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         { q_assignment divu_3216_1616_(x,y); # extern in Assembler \
           r_assignment divu_16_rest;                               \
@@ -498,7 +498,7 @@
   #else
     #define divu_3216_3216(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_3216_3216_(x,y); r_assignment divu_16_rest; }
-    #if 0
+    #if 0 && !defined(NO_ARI_ASM)
       # divu_3216_3216_ extern in Assembler
     #else
       #ifdef LISPARIT
@@ -630,7 +630,7 @@
   #else
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_3232_3232_(x,y); r_assignment divu_32_rest; }
-    #if 0
+    #if 0 && !defined(NO_ARI_ASM)
       # divu_3232_3232_ extern in Assembler
     #else
       #ifdef LISPARIT
@@ -672,13 +672,13 @@
           q_assignment (uint32)__q;     \
           r_assignment (uint32)__r;     \
          })
-    #elif defined(SPARC) || defined(SPARC64)
+    #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%g1");                            \
            q_assignment _q; r_assignment _r;                                   \
          })
-    #elif defined(ARM) && 0 # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%r1"/*"%a2"*/);                   \
@@ -717,7 +717,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)) && !defined(NO_ARI_ASM)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -885,7 +885,7 @@
   #else
     #define divu_6432_6432(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_6432_(x,y); r_assignment divu_32_rest; }
-    #if 0
+    #if 0 && !defined(NO_ARI_ASM)
       # divu_6432_6432_ extern in Assembler
     #else
       #ifdef LISPARIT
@@ -977,7 +977,7 @@
   #else
     #define divu_6464_6464(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_6464_6464_(x,y); r_assignment divu_64_rest; }
-    #if 0
+    #if 0 && !defined(NO_ARI_ASM)
       # divu_6464_6464_ extern in Assembler
     #else
       #ifdef LISPARIT
