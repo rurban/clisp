@@ -34,6 +34,7 @@ BOLD_MSG([checks for programs])
 dnl
 AC_PROG_CC  dnl sets variable CC
 AC_PROG_CPP dnl sets variable CPP
+AC_LIB_PROG_LD  dnl sets variable LD
 AC_PROG_MAKE_SET dnl sets variable SET_MAKE
 gl_EARLY
 AC_PROG_INSTALL dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
