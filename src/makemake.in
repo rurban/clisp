@@ -534,6 +534,7 @@ CC_SUNPRO='@CC_SUNPRO@'             # either true or false
 CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
+LD='@LD@'                           # the linker used by $CC, such as 'ld' or '/usr/bin/ld -m elf_i386'
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
 INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
@@ -637,8 +638,9 @@ case $# in
        CC='cl'
        CC_GCC=false
        CFLAGS='$(MFLAGS)'
-       AS_UNDERSCORE=false
        CC_NEED_DEEMA=true
+       AS_UNDERSCORE=false
+       LD='link'
        FFCALL_LIBS='avcall.lib callback.lib'
      else
        CC=${COMPILER}
@@ -648,6 +650,7 @@ case $# in
        esac
        CFLAGS='-O'
        CPP="${CC} -E"
+       LD='ld'
      fi
      shift 2
      ;;
@@ -1900,6 +1903,8 @@ echol "X_LIBS = ${X_LIBS}"
 X_LIBS="\$(X_LIBS)"
 echol "FALIGNFLAGS = ${FALIGNFLAGS}"
 FALIGNFLAGS="\$(FALIGNFLAGS)"
+echol "LD = ${LD}"
+LD="\$(LD)"
 echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'" ${GNULIB_INCLUDE}"
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
@@ -2547,7 +2552,7 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   test $HSYSOS = win32gcc -o $HSYSOS = cygwin; no_lisp_o=$?
   echol "lisp.a : \$(OBJECTS)"
   if [ $no_lisp_o = 1 ]; then
-    echotab "ld -r -o lisp.o \$(OBJECTS)"
+    echotab "\$(LD) -r -o lisp.o \$(OBJECTS)"
     echotab "chmod a-x lisp.o"
   fi
   if test -z "$LIBGCC"; then

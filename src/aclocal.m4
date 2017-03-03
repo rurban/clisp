@@ -27808,6 +27808,10 @@ fi
 if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
 AC_DEFINE(HAVE_MMAP_DEVZERO_SUN4_29,,[mmaping of the special device /dev/zero works, but only on addresses < 2^29])
 fi
+fi
+fi
+
+if test "$cl_cv_func_mmap_works" = yes; then
 dnl For SINGLEMAP_MEMORY and the TYPECODES object representation:
 dnl Test which is the highest bit number < 63 (or < 31) at which the kernel
 dnl allows us to mmap memory with MAP_FIXED. That is, try
@@ -27876,10 +27880,11 @@ case "$cl_cv_func_mmap_highest_bit" in
   *none) value='-1' ;;
   *) value="$cl_cv_func_mmap_highest_bit" ;;
 esac
+else
+value='-1'
+fi
 AC_DEFINE_UNQUOTED([MMAP_FIXED_ADDRESS_HIGHEST_BIT], [$value],
   [Define to the highest bit number that can be included in mmaped addresses.])
-fi
-fi
 ])
 
 dnl -*- Autoconf -*-
