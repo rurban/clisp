@@ -11,16 +11,9 @@
 
         .global getSP
         .global _getSP
-        .global _get_g1
-        .global __get_g1
 
 #    extern void* getSP (void);
 getSP:
 _getSP: retl
        _ mov %sp,%o0
-
-#    extern uint32 _get_g1 (void);
-_get_g1:
-__get_g1: retl
-       _ srl %g1,0,%o0
 

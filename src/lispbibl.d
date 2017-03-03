@@ -110,9 +110,12 @@
          SAFETY={0,1,2,3}
        Low-cost memory allocation on the C stack:
          NO_ALLOCA
-       Hand-written assembler code for multi-precision arithmetic:
+       Hand-written assembler code for arithmetic, especially multi-precision
+       arithmetic:
          NO_ARI_ASM
-       Make use of assembler code (.s files and and inline assembler):
+       Hand-written assembler code for stack pointer access:
+         NO_SP_ASM
+       Use of inline assembler code (__asm__):
          NO_ASM
        Memory saving representation of strings with only 8-bit characters
        or only 16-bit characters:
@@ -9276,7 +9279,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #define SP  getSP
   static __inline aint getSP () { __asm mov eax,esp }
   static __inline aint setSP (aint address) { __asm mov esp,address }
-#elif defined(M68K) || defined(SPARC) || defined(MIPS) || (defined(I80386) && !defined(UNIX_MACOSX))
+#elif (defined(M68K) || defined(SPARC) || defined(MIPS) || (defined(I80386) && !defined(UNIX_MACOSX))) && !defined(NO_SP_ASM)
   /* access functions extern, in assembler */
   #define SP  getSP
   extern_C void* SP (void);

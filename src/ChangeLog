@@ -1,3 +1,13 @@
+2017-03-03  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to avoid any hand-maintained assembler code.
+	* spsparc.d, spsparc64.d (_get_g1): Move from here ...
+	* arisparc.d, arisparc64.d: ... to here.
+	* arilev0.d: If NO_ARI_ASM is defined, don't reference symbols in the
+	assembly-language ari*.d.
+	* lispbibl.d: If NO_SP_ASM is defined, don't reference symbols in the
+	assembly-language sp*.d.
+
 2017-03-02  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on 64-bit platforms with CC="gcc -m32".
