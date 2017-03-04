@@ -4084,12 +4084,14 @@ global void* find_name (void *handle, const char *name)
     if (NULL != fEnumProcessModules) {
       cur_proc = GetCurrentProcess();
       if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
-      modules = (HMODULE*)alloca(needed);
+      var DYNAMIC_ARRAY(modules_mem,char,needed);
+      modules = (HMODULE*)modules_mem;
       if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
       for (i=0; i < needed/sizeof(HMODULE); i++)
         if ((ret = (void*)GetProcAddress(modules[i],name)))
           break;
-    } else ret = NULL;
+      FREE_DYNAMIC_ARRAY(modules_mem);
+    }
   } else ret = (void*)GetProcAddress((HMODULE)handle,name);
  #elif !defined(RTLD_DEFAULT)
   /* FreeBSD 4.0 and AIX 5.1 do not support RTLD_DEFAULT, so we emulate it by
@@ -4162,10 +4164,11 @@ local object dlerror_message (void) {
  returns: non-NULL pointer to the symbol in the library */
 local void* get_module_symbol (const char* format, const char* modname,
                                void* libhandle) {
-  var char * symbolbuf = (char *)alloca(strlen(format)+strlen(modname));
+  var DYNAMIC_ARRAY(symbolbuf,char,strlen(format)+strlen(modname));
   sprintf(symbolbuf,format,modname);
   var void * ret = find_name(libhandle,symbolbuf);
   if (ret == NULL) error_dlerror("dlsym",symbolbuf,dlerror_message());
+  FREE_DYNAMIC_ARRAY(symbolbuf);
   return ret;
 }
 
@@ -4222,7 +4225,6 @@ global maygc void dynload_modules (const char * library, uintC modcount,
           module->next = NULL;
           modnameptr++; module++;
         } while (--count);
-        FREE_DYNAMIC_ARRAY(symbolbuf);
       }
       end_system_call();
       { /* We found all the necessary symbols. Now register the modules. */

@@ -291,7 +291,7 @@ LISPFUNN(registry,2)
       }
       switch (type) {
         case REG_SZ: {
-          var char* buf = (char*)alloca(size);
+          var DYNAMIC_ARRAY(buf,char,size);
           err = RegQueryValueEx(key,namez,NULL,&type, (BYTE*)buf,&size);
           if (!(err == ERROR_SUCCESS))
             { SetLastError(err); end_system_call(); OS_error(); }
@@ -300,6 +300,7 @@ LISPFUNN(registry,2)
             { SetLastError(err); end_system_call(); OS_error(); }
           end_system_call();
           VALUES1(asciz_to_string(buf,O(misc_encoding)));
+          FREE_DYNAMIC_ARRAY(buf);
         }
           break;
         default: {

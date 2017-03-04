@@ -263,7 +263,8 @@ global maygc void print_integer (object z, uintWL base, const gcv_object_t* stre
     /* print digits: */
     write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSnstring(digits)->data[0],
                      erg.len);
-    FREE_DYNAMIC_STRING(STACK_0);
+    digits = STACK_0;
+    FREE_DYNAMIC_STRING(digits);
     skipSTACK(1);
     RESTORE_NUM_STACK
   }

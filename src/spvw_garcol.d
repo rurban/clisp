@@ -2416,8 +2416,8 @@ local void gar_col_normal (void)
   for_each_cons_heap(heap, { heap->lastused = dummy_lastused; } );
   /* treat .reserve?? */
  #endif
-  FREE_DYNAMIC_ARRAY(regions);
   FREE_DYNAMIC_ARRAY(holes_to_fill);
+  FREE_DYNAMIC_ARRAY(regions);
   CHECK_AVL_CONSISTENCY();
   CHECK_GC_CONSISTENCY();
   CHECK_GC_UNMARKED();
