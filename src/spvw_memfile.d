@@ -922,6 +922,16 @@ local void loadmem_update_fsubr (Fsubr fsubrptr)
     }
   }
 }
+#if defined(WIN32_NATIVE)
+local Handle open_native_filename (const char* filename)
+{
+  var char resolved[MAX_PATH];
+  return /* try to resolve shell shortcuts in the filename */
+    CreateFile((real_path(filename,resolved) ? resolved : filename),
+               GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+#endif
 local Handle open_filename (const char* filename)
 { /* open file for reading: */
  #if defined(UNIX)
@@ -936,19 +946,18 @@ local Handle open_filename (const char* filename)
   #endif
     {
       var uintL len = asciz_length(filename);
-      var char* newfilename = (char*)alloca(len);
+      var DYNAMIC_ARRAY(newfilename,char,len);
       newfilename[0] = filename[CYGDRIVE_LEN];
       newfilename[1] = ':';
       memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
-      filename = newfilename;
+      var Handle result = open_native_filename(newfilename);
+      FREE_DYNAMIC_ARRAY(newfilename);
+      return result;
     }
   #undef CYGDRIVE
   #undef CYGDRIVE_LEN
-  var char resolved[MAX_PATH];
-  return /* try to resolve shell shortcuts in the filename */
-    CreateFile((real_path(filename,resolved) ? resolved : filename),
-               GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  else
+    return open_native_filename(filename);
  #else
   #error missing open_filename()
  #endif
@@ -966,10 +975,11 @@ local void loadmem (const char* filename)
   begin_system_call();
   handle = open_filename(filename);
   if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
-    var char* filename_mem = (char*)alloca(strlen(filename)+4);
+    var DYNAMIC_ARRAY(filename_mem,char,strlen(filename)+4);
     strcpy(filename_mem,filename);
     strcat(filename_mem,".mem");
     handle = open_filename(filename_mem);
+    FREE_DYNAMIC_ARRAY(filename_mem);
     if (INVALID_HANDLE_P(handle)) goto abort1;
   }
   end_system_call();

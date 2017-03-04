@@ -207,10 +207,17 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
 /* Must allocate room for a substitute stack for the stack overflow
  handler itself. This cannot be somewhere in the regular stack,
  because we want to unwind the stack in case of stack overflow. */
+#if defined(NO_ALLOCA)
+#define install_stackoverflow_handler(size)                                   \
+  do { var void* room = malloc(size);                                         \
+       stackoverflow_install_handler(&stackoverflow_handler,(void*)room,size);\
+  } while(0)
+#else
 #define install_stackoverflow_handler(size)                                   \
   do { var void* room = alloca(size);                                         \
        stackoverflow_install_handler(&stackoverflow_handler,(void*)room,size);\
   } while(0)
+#endif
 
 #else
 

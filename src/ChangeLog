@@ -1,5 +1,31 @@
 2017-03-03  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure with NO_ALLOCA (regression from 2005 or earlier).
+	* spvw.d (find_name): Use a DYNAMIC_ARRAY instead of alloca.
+	(get_module_symbol): Likewise.
+	(dynload_modules): Remove a misplaced FREE_DYNAMIC_ARRAY.
+	* spvw_garcol.d (gar_col_normal): Invoke FREE_DYNAMIC_ARRAY in the
+	right order.
+	* spvw_memfile.d (open_native_filename): New function, extracted from
+	open_filename.
+	(open_filename): Use a DYNAMIC_ARRAY instead of alloca.
+	(loadmem): Likewise.
+	* spvw_sigsegv.d (install_stackoverflow_handler): If NO_ALLOCA,
+	allocate the fallback stack through malloc instead of alloca.
+	* pathname.d (get_path_info): Remove FREE_DYNAMIC_ARRAY of a variable
+	allocated in the caller.
+	(init_pathnames): Use a DYNAMIC_ARRAY instead of alloca.
+	(LAUNCH): Invoke FREE_DYNAMIC_ARRAY in the right order.
+	* stream.d (listen_char_keyboard): Use a DYNAMIC_ARRAY instead of
+	alloca.
+	(rd_ch_terminal3): Likewise.
+	(READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT): Fix misuse of
+	FREE_DYNAMIC_8BIT_VECTOR.
+	* misc.d (REGISTRY): Use a DYNAMIC_ARRAY instead of alloca.
+	* lisparit.d (print_integer): Fix misuse of FREE_DYNAMIC_STRING.
+
+2017-03-03  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to avoid any hand-maintained assembler code.
 	* spsparc.d, spsparc64.d (_get_g1): Move from here ...
 	* arisparc.d, arisparc64.d: ... to here.

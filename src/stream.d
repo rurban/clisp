@@ -8446,12 +8446,13 @@ local listen_t listen_char_keyboard (object stream) {
   if (nevents==0) { /* no character available */
     end_system_call(); return LISTEN_WAIT;
   }
-  var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
+  var DYNAMIC_ARRAY(events,INPUT_RECORD,nevents);
   var DWORD nevents_read;
   if (!PeekConsoleInput(handle,events,nevents,&nevents_read)) {
     OS_error();
   }
   if (nevents_read==0) { /* no character available */
+    FREE_DYNAMIC_ARRAY(events);
     end_system_call(); return LISTEN_WAIT;
   }
   { /* Look out for any Key-Down event. */
@@ -8461,11 +8462,13 @@ local listen_t listen_char_keyboard (object stream) {
           && events[i].Event.KeyEvent.bKeyDown
           && events[i].Event.KeyEvent.uAsciiChar != 0) {
         /* character available */
+        FREE_DYNAMIC_ARRAY(events);
         end_system_call(); return LISTEN_AVAIL;
       }
     }
   }
   /* no character available */
+  FREE_DYNAMIC_ARRAY(events);
   end_system_call(); return LISTEN_WAIT;
 }
 #endif
@@ -9691,15 +9694,12 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       begin_system_call(); rl_stuff_char(b); end_system_call();
     }
     {
-      var char* prompt; /* Prompt: last output line */
-      {
-        var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
-        prompt = (char*)alloca(Sbvector_length(lastline)+1);
-        if (prompt!=NULL) {
-          begin_system_call();
-          strcpy(prompt,TheAsciz(lastline));
-          end_system_call();
-        }
+      var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
+      var DYNAMIC_ARRAY(prompt,char,Sbvector_length(lastline)+1); /* Prompt: last output line */
+      if (prompt!=NULL) {
+        begin_system_call();
+        strcpy(prompt,TheAsciz(lastline));
+        end_system_call();
       }
       /* lexema-separating characters: with syntax code whsp,tmac,nmac
        (see IO.D, actually depends on the current *READTABLE*): */
@@ -9710,6 +9710,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       rl_already_prompted = true;
       var char* line = strip_white(readline(prompt==NULL ? "" : prompt));
       end_blocking_system_call();
+      FREE_DYNAMIC_ARRAY(prompt);
       if (line==NULL)
         /* detect EOF (at the start of line) */
         return eof_value;
@@ -17256,7 +17257,8 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
         break;
       default: NOTREACHED;
     }
-    FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
+    bitbuffer = STACK_0;
+    FREE_DYNAMIC_8BIT_VECTOR(bitbuffer);
     VALUES1(result);
     skipSTACK(6);
     return;
@@ -17304,7 +17306,8 @@ LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
       break;
     default: NOTREACHED;
   }
-  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
+  bitbuffer = STACK_0;
+  FREE_DYNAMIC_8BIT_VECTOR(bitbuffer);
   mv_count=1;
   skipSTACK(6);
   return;
@@ -17353,7 +17356,8 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
     elt_nreverse(STACK_0,0,bytesize);
   /* Write the data. */
   write_byte_array(&STACK_3,&STACK_0,0,bytesize,persev_full);
-  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
+  bitbuffer = STACK_0;
+  FREE_DYNAMIC_8BIT_VECTOR(bitbuffer);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }
@@ -17422,7 +17426,8 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
     elt_nreverse(bitbuffer,0,bytesize);
   /* Write the data. */
   write_byte_array(&STACK_3,&STACK_0,0,bytesize,persev_full);
-  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
+  bitbuffer = STACK_0;
+  FREE_DYNAMIC_8BIT_VECTOR(bitbuffer);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }

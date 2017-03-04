@@ -5338,7 +5338,6 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
       { end_blocking_system_call(); OS_file_error(*(fs->fs_pathname)); }
     /* file does not exist. */
     end_blocking_system_call();
-    FREE_DYNAMIC_ARRAY(namestring_asciz);
     fs->fs_stat_validp = false; return true;
   }
   end_blocking_system_call();
@@ -7912,12 +7911,13 @@ global maygc void init_pathnames (void) {
       var const char * homepath = getenv("HOMEPATH");
       end_system_call();
       if (homedrive!=NULL && homepath!=NULL) {
-        var char* homeall = (char*)alloca(asciz_length(homedrive)+asciz_length(homepath)+1);
+        var DYNAMIC_ARRAY(homeall,char,asciz_length(homedrive)+asciz_length(homepath)+1);
         var char* ptr = homeall;
         while ((*ptr = *homedrive) != '\0') { homedrive++; ptr++; }
         while ((*ptr = *homepath) != '\0') { homepath++; ptr++; }
         *ptr = '\0';
         O(user_homedir) = asciz_dir_to_pathname(homeall,O(misc_encoding));
+        FREE_DYNAMIC_ARRAY(homeall);
       } else {
         O(user_homedir) = use_default_dir(asciz_dir_to_pathname(".",Symbol_value(S(ascii))));
       }
@@ -8689,8 +8689,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   if (houtput!=stdout_handle) ParaClose(houtput);
   if (herror!=stderr_handle) ParaClose(herror);
   end_system_call();
-  FREE_DYNAMIC_ARRAY(argv);
   FREE_DYNAMIC_ARRAY(argvdata);
+  FREE_DYNAMIC_ARRAY(argv);
  #elif defined(WIN32_NATIVE)
   var DYNAMIC_ARRAY(command_data,char,argbuf_len*2);
   /* argbuf_len is multiplied by 2 for quoting sake */
