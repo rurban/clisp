@@ -64,9 +64,11 @@ options:
        --with-jitc=FLAVOR      use a given Just-In-Time Compiler.
                 The only flavor at this time is lightning
                   (GNU lightning must be installed in the standard place).
+       --enable-portability    favour portability over optimization: disable
+                               optimizations that could lead to build failures
        --with-gmalloc          use the GNU malloc instead of the libc one
                                (needed on HP-UX and OpenBSD)
-       --with-debug            will need to debug the C sources.
+       --with-debug            if you will need to debug the C sources.
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
        --with-module=bindings/glibc
@@ -226,7 +228,7 @@ my_eval(){
   test "${verbose}" = true -o "${verbose}" = yes && echo "$*" >&2
 }
 
-# Set the defaults for the --with options.
+# Set the defaults for the --with and --enable options.
 with_termcap_ncurses=yes # no effect if missing termcap/ncurses
 with_readline=ifpossible # no effect if no libreadline found
 with_gettext=yes         # no effect if no glibc/libintl found
@@ -234,6 +236,7 @@ with_unicode=yes
 with_dynamic_ffi=no      # often set to yes by the toplevel configure
 with_dynamic_modules=default
 with_threads=no
+enable_portability=no
 with_gmalloc=no
 with_debug=no
 # i18n: essential for internationalized programs
@@ -1481,6 +1484,16 @@ test -n "$BINARY_DISTRIB" && XCFLAGS=$XCFLAGS' -DUNIX_BINARY_DISTRIB'
 
 FILES=''
 
+if [ "${enable_portability}" != no ]; then
+  # Do NOT enable -DSAFETY=3 here, because -DSAFETY=3 no only disables some
+  # optimizations but also enables some debugging features (STACKCHECKs), which
+  # is not in the scope of --enable-portability.
+  XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+  XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
+  XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+  XCFLAGS="$XCFLAGS -DNO_ALLOCA"
+  XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
+fi
 if [ "${with_unicode}" != no ]; then
   XCFLAGS="$XCFLAGS -DENABLE_UNICODE"
 fi
@@ -1630,38 +1643,40 @@ DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $
 ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
-if [ "$cpu" = sparc ] ; then
-  ARI_ASMD=$ARI_ASMD' arisparc'
-  ARI_ASMS=$ARI_ASMS' arisparc'
-fi
-if [ "$cpu" = sparc64 ] ; then
-  ARI_ASMD=$ARI_ASMD' arisparc64'
-  ARI_ASMS=$ARI_ASMS' arisparc64'
-fi
-if [ "$cpu" = mips ] ; then
-  ARI_ASMD=$ARI_ASMD' arimips'
-  ARI_ASMS=$ARI_ASMS' arimips'
-fi
-if [ "$cpu" = mips64 ] ; then
-  ARI_ASMD=$ARI_ASMD' arimips64'
-  ARI_ASMS=$ARI_ASMS' arimips64'
-fi
-if [ "$cpu" = i386 ] ; then
-  ARI_ASMD=$ARI_ASMD' ari80386'
-  ARI_ASMS=$ARI_ASMS' ari80386'
-fi
-if [ "$cpu" = hppa ] ; then
-  ARI_ASMD=$ARI_ASMD' arihppa'
-  ARI_ASMS=$ARI_ASMS' arihppa'
-fi
-if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
-  ARI_ASMD=$ARI_ASMD' ariarm'
-  ARI_ASMS=$ARI_ASMS' ariarm'
+if [ "${enable_portability}" = no ] ; then
+  if [ "$cpu" = sparc ] ; then
+    ARI_ASMD=$ARI_ASMD' arisparc'
+    ARI_ASMS=$ARI_ASMS' arisparc'
+  fi
+  if [ "$cpu" = sparc64 ] ; then
+    ARI_ASMD=$ARI_ASMD' arisparc64'
+    ARI_ASMS=$ARI_ASMS' arisparc64'
+  fi
+  if [ "$cpu" = mips ] ; then
+    ARI_ASMD=$ARI_ASMD' arimips'
+    ARI_ASMS=$ARI_ASMS' arimips'
+  fi
+  if [ "$cpu" = mips64 ] ; then
+    ARI_ASMD=$ARI_ASMD' arimips64'
+    ARI_ASMS=$ARI_ASMS' arimips64'
+  fi
+  if [ "$cpu" = i386 ] ; then
+    ARI_ASMD=$ARI_ASMD' ari80386'
+    ARI_ASMS=$ARI_ASMS' ari80386'
+  fi
+  if [ "$cpu" = hppa ] ; then
+    ARI_ASMD=$ARI_ASMD' arihppa'
+    ARI_ASMS=$ARI_ASMS' arihppa'
+  fi
+  if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
+    ARI_ASMD=$ARI_ASMD' ariarm'
+    ARI_ASMS=$ARI_ASMS' ariarm'
+  fi
 fi
 
 SP_ASMD=''
 SP_ASMS=''
-if [ $XCC_GCC = false ] ; then
+if [ "${enable_portability}" = no -a $XCC_GCC = false ] ; then
   if [ "$cpu" = m68k ] ; then
     SP_ASMD=$SP_ASMD' sp68000'
     SP_ASMS=$SP_ASMS' sp68000'

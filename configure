@@ -95,9 +95,11 @@ options: The following options are recognized:
   --hyperspec=URL       the path to the Common Lisp HyperSpec (the default is
          http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/
          or the value of the environment variable CLHSROOT, if set)
-  --with-debug          passed to makemake (CFLAGS+=g &c)
+  --enable-portability  favour portability over optimization: disable
+                        optimizations that could lead to build failures
   --with-gmalloc        use the GNU malloc instead of of the libc one
                         (needed on HP-UX and OpenBSD)
+  --with-debug          if you will need to debug the C sources
   --edit-config         edit config.lisp with ${EDITOR:-vi} before make
                         (useful with --cbc)
 System types:

@@ -1,3 +1,16 @@
+2017-03-04  Bruno Haible  <bruno@clisp.org>
+
+	New configure option --enable-portability.
+	It favours portability over optimizations.
+	* makemake.in (info_help): Document option --enable-portability.
+	(enable_portability): New variable. When set, keep ARI_ASMD and SP_ASMD
+	empty and add the following options to the CFLAGS:
+	-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH
+	-DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DNO_GENERATIONAL_GC.
+	* configure (info_help): Document option --enable-portability.
+	* Makefile.devel (build-porting*-portability): New targets.
+	* unix/PLATFORMS: Recommend --enable-portability instead of -DSAFETY=3.
+
 2017-03-03  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure with NO_ALLOCA (regression from 2005 or earlier).
