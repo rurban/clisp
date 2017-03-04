@@ -330,6 +330,7 @@ MULTIBUILD_CFLAGS = -g
 
 # Build various configurations. Assumes $CC is GCC.
 multibuild-porting32-gcc: \
+  build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
   build-porting32-gcc-standard_heapcodes \
@@ -348,6 +349,13 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-generational_gc-multithread_gc \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized
+
+# A build that favours portability over optimization.
+build-porting32-gcc-portability:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting32-gcc-safety3:
@@ -474,6 +482,7 @@ build-porting32-gcc-safety0-optimized:
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
 multibuild-porting32-cc: \
+  build-porting32-cc-portability \
   build-porting32-cc-safety3 \
   build-porting32-cc-heapcodes \
   build-porting32-cc-standard_heapcodes \
@@ -491,6 +500,13 @@ multibuild-porting32-cc: \
   build-porting32-cc-generational_gc-old_gc \
   build-porting32-cc-generational_gc-multithread_gc \
   build-porting32-cc-safety0 \
+
+# A build that favours portability over optimization.
+build-porting32-cc-portability:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting32-cc-safety3:
@@ -619,6 +635,7 @@ build-porting32-cc-safety0:
 
 # Build various configurations. Assumes $CC is GCC.
 multibuild-porting64-gcc: \
+  build-porting64-gcc-portability \
   build-porting64-gcc-safety3 \
   build-porting64-gcc-heapcodes \
   build-porting64-gcc-standard_heapcodes \
@@ -634,6 +651,13 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-generational_gc-multithread_gc \
   build-porting64-gcc-safety0 \
   build-porting64-gcc-safety0-optimized
+
+# A build that favours portability over optimization.
+build-porting64-gcc-portability:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting64-gcc-safety3:
@@ -739,6 +763,7 @@ build-porting64-gcc-safety0-optimized:
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
 multibuild-porting64-cc: \
+  build-porting64-cc-portability \
   build-porting64-cc-safety3 \
   build-porting64-cc-heapcodes \
   build-porting64-cc-standard_heapcodes \
@@ -753,6 +778,13 @@ multibuild-porting64-cc: \
   build-porting64-cc-generational_gc-old_gc \
   build-porting64-cc-generational_gc-multithread_gc \
   build-porting64-cc-safety0
+
+# A build that favours portability over optimization.
+build-porting64-cc-portability:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting64-cc-safety3:

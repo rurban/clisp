@@ -30,13 +30,23 @@ If you get a crash during loading of the first few lisp file (first GC),
 add "-DNO_GENERATIONAL_GC" to CFLAGS.
 
 
+* On Solaris 10 (both SPARC and x86):
+
+You cannot use Sun cc as compiler. Even with --enable-portability and
+no optimization options, it miscompiles something. The symptom is:
+  - On SPARC: *** - Hash table size 12582912 too large
+  - On x86: SIGSEGV in pr_orecord
+Seen with cc for which 'cc -V' reports "cc: Sun C 5.8 ...".
+Use gcc instead.
+
+
 Hints for porting to new platforms:
 -----------------------------------
 
 Choose a reliable C compiler. GNU gcc is a good bet. Generally, start the
 port with the least optimization settings regarding the compiler (-O0 in
 the CFLAGS) and the safest optimization settings regarding the CLISP source
-(-DSAFETY=3 in the CFLAGS).
+(configure with --enable-portability).
 
 Some options or optimizations are enabled through macros, conditionally
 defined in lispbibl.d. You can check which macros get defined in lispbibl.d
