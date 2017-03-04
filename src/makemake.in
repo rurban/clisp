@@ -2893,7 +2893,7 @@ if [ $CROSS = false ] ; then
   echol "check-script : lisp${LEXE} lispinit.mem"
   echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null" # https://sourceforge.net/p/clisp/bugs/523/
   TRCR="| tr -d '\r'"; TRLF="| tr '\n' '_'"
-  echotab "test \`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 110 || exit 1"
+  echotab "output=\`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\`; test \"\$\$output\" = 110 || exit 1"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl ${TRCR}${TRLF}\`\" = '99_[1]> _110_' || exit 1"
   echotab "\$(RM) script.lisp; echo '(error \"loading script.lisp\")' > script.lisp"
   echotab "if \$(RUN) -q -M lispinit.mem -x '(load \"script.lisp\")' -repl < /dev/null; then exit 1; else :; fi"
@@ -2906,16 +2906,16 @@ if [ $CROSS = false ] ; then
   else
     seq42='(convert-string-to-bytes "42" charset:ascii)'
   fi
-  echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 42 || exit 1"
+  echotab "output=\`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - ${TRCR}\`; test \"\$\$output\" = 42 || exit 1"
   echotab "\$(RM) script.lisp; echo '(+ 11 99)' > script.lisp"
-  echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 110 || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\`; test \"\$\$output\" = 110 || exit 1"
   echotab "\$(RM) script.lisp; echo '(princ (+ 11 99))' > script.lisp"
-  echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 110 || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\`; test \"\$\$output\" = 110 || exit 1"
   echotab "\$(RM) script.lisp; echo '(+ foo bar)' > script.lisp"
-  echotab "test \`\$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl < script.lisp ${TRCR}${TRLF}\` = 99_110_ || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl < script.lisp ${TRCR}${TRLF}\`; test \"\$\$output\" = 99_110_ || exit 1"
   # "-x with lisp-file is invalid"
   # echotab "\$(RM) script.lisp; echo '(princ (+ foo bar))' > script.lisp"
-  # echotab "test \`\$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl script.lisp ${TRCR}${TRLF}\` = 99_110_ || exit 1"
+  # echotab "output=\`\$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl script.lisp ${TRCR}${TRLF}\`; test \"\$\$output\" = 99_110_ || exit 1"
   if [ "$HOS" != win32 ]; then # woe32 has unpredictable exit codes
     # http://article.gmane.org/gmane.lisp.clisp.devel/18967
     echotab "\$(RM) script.lisp; echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' > script.lisp"
@@ -2923,18 +2923,18 @@ if [ $CROSS = false ] ; then
     echotab "(\$(RUN) -q -M lispinit.mem script.lisp; test \$\$? = 42) || exit 1"
   fi
   echotab "\$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp"
-  # ??? echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
-  echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
+  # ??? echotab "output=\`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\`; test \"\$\$output\" = 42 || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\`; test \"\$\$output\" = 42 || exit 1"
   echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence ${seq42} s) (values))' > script.lisp"
-  echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
-  echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\`; test \"\$\$output\" = 42 || exit 1"
+  echotab "output=\`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\`; test \"\$\$output\" = 42 || exit 1"
   case "$host_os"  in
     darwin* )
       # http://stackoverflow.com/questions/29112446/nohup-doesnt-work-with-os-x-yosmite-get-error-cant-detach-from-console-no-s
       # http://stackoverflow.com/questions/23898623/nohup-cant-detach-from-console
       ;;
     * )
-      echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; test \`sed -n -e '$$p' script.lisp ${TRCR}\` = 42 || exit 1 "
+      echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; output_last_line=\`sed -n -e '\$\$p' script.lisp ${TRCR}\`; test \"\$\$output_last_line\" = 42 || exit 1 "
       ;;
   esac
   echotab "\$(RM) script.lisp"
