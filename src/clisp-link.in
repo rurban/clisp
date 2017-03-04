@@ -137,7 +137,7 @@ func_tmpdir ()
 
 # evaluate in clisp and strip quotes
 clisp_eval() {
-  ${CLISP} -q -x "$*" 2>/dev/null | tail -n 1 | sed -e 's/^"//' -e 's/"$//'
+  ${CLISP} -q -x "$*" 2>/dev/null | sed -n -e '$p' | sed -e 's/^"//' -e 's/"$//'
 }
 
 # Where do we install?

@@ -2932,9 +2932,9 @@ if [ $CROSS = false ] ; then
     darwin* )
       # http://stackoverflow.com/questions/29112446/nohup-doesnt-work-with-os-x-yosmite-get-error-cant-detach-from-console-no-s
       # http://stackoverflow.com/questions/23898623/nohup-cant-detach-from-console
-    ;;
+      ;;
     * )
-      echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; test \`tail -n 1 script.lisp ${TRCR}\` = 42 || exit 1 "
+      echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; test \`sed -n -e '$$p' script.lisp ${TRCR}\` = 42 || exit 1 "
       ;;
   esac
   echotab "\$(RM) script.lisp"
