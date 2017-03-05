@@ -1,8 +1,8 @@
 2017-03-04  Bruno Haible  <bruno@clisp.org>
 
 	Make "make check" more robust.
-	The shell command 'test `command` = ...' fails provokes a syntax error
-	when the command produces not exactly one word. To avoid this, use an
+	The shell command 'test `command` = ...' provokes a syntax error when
+	the command produces not exactly one word. To avoid this, use an
 	intermediate shell variable and double-quote its access.
 	* makemake.in (check-script): Use intermediate variables for output to
 	be tested.
@@ -10,7 +10,7 @@
 2017-03-04  Bruno Haible  <bruno@clisp.org>
 
 	Fix "make check" error on Solaris 10.
-	Solaris 10 'tail' does understand the '-n' option.
+	Solaris 10 'tail' does not understand the '-n' option.
 	* makemake.in (check-script): Use "sed -n -e '$p'" instead of
 	'tail -n 1'.
 	* clisp-link.in (clisp_eval): Likewise.
