@@ -1,3 +1,16 @@
+2017-03-05  Bruno Haible  <bruno@clisp.org>
+
+	Don't choose SINGLEMAP_MEMORY with wrong oint_type_len, oint_addr_len.
+	(Regression from 2017-02-28.)
+	* lispbibl.d: Move definitions of HEAPCODES, TYPECODES, WIDE_STRUCT,
+	WIDE_ENDIANNESS, OBJECT_STRUCT, CHART_STRUCT down. Move definition of
+	SINGLEMAP_MEMORY up, so that it occurs before the definition of
+	oint_type_len, oint_addr_len.
+	(SINGLEMAP_MEMORY): Remove special-casing of UNIX_AIX and UNIX_NETBSD,
+	because redundant: On AIX, MMAP_FIXED_ADDRESS_HIGHEST_BIT comes out as
+	-1. On NetBSD/x86_64, MALLOC_ADDRESS_RANGE has some bits >=
+	MMAP_FIXED_ADDRESS_HIGHEST_BIT-6 set.
+
 2017-03-04  Bruno Haible  <bruno@clisp.org>
 
 	Make "make check" more robust.
