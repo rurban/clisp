@@ -1,5 +1,12 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
+	New heuristic for choosing between TYPECODES and HEAPCODES.
+	* lispbibl.d (TYPECODES): Don't define on 64-bit platforms for which
+	the address ranges don't fit. Don't defined on 32-bit platforms at all.
+	Specific platforms might need specific adjustment.
+
+2017-03-05  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on AIX in 64-bit mode.
 	* makemake.in (AR): Use value determined by autoconf.
 
