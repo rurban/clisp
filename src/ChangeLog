@@ -1,5 +1,11 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
+	Avoid miscompiled code by gcc-5.2 on Solaris/SPARC.
+	* eval.d (interpret_bytecode_): Disable U_operand assembler code for
+	SPARC with gcc 5.
+
+2017-03-05  Bruno Haible  <bruno@clisp.org>
+
 	Don't choose SINGLEMAP_MEMORY with wrong oint_type_len, oint_addr_len.
 	(Regression from 2017-02-28.)
 	* lispbibl.d: Move definitions of HEAPCODES, TYPECODES, WIDE_STRUCT,
