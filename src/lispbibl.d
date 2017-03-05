@@ -1820,99 +1820,6 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 %% #endif
 %% sprintf(buf,"uint%d",intDsize); emit_typedef(buf,"uintD");
 
-/* Other acronyms like 'oint', 'tint', 'aint', 'cint' will be used
-   for the corresponding integer types:
-   Integer type      contains information equivalent to
-      oint           LISP object
-      tint           type code of a LISP object
-      aint           address of a LISP object
-      cint           LISP character
-
- Usually sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
- Under the model WIDE sizeof(oint) is > sizeof(uintL).
- Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
-   This model is to be chosen if the following holds true:
-   sizeof(void*) > sizeof(uintL) = 32 bit. It also requires that
-   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
-   appear as pre-processor constants.
- Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
-   This model can be chosen on any 32-Bit-Machine, if the
-   compiler has 64-bit numbers (in software or hardware).
-   You will also need to choose it, if there would not be enough space
-   for the type-bits in a 32-bit pointer.
- Model HEAPCODES stands for sizeof(oint) = sizeof(aint), and only minimal
-   type information is stored in a pointer. All heap allocated objects
-   (except conses) must contain the complete type and a length field in the
-   first word. The heap gets somewhat bigger by this, and type tests require
-   more memory accesses on average, but this model is portable even to
-   systems whose memory map looks like Swiss Cheese. */
-
-%% #if notused
-%% #ifdef WIDE_HARD
-%%   puts("#define WIDE_HARD");
-%% #endif
-%% #ifdef WIDE_SOFT
-%%   puts("#define WIDE_SOFT");
-%% #endif
-%% #ifdef WIDE
-%%   puts("#define WIDE");
-%% #endif
-%% #endif
-
-#if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES)
-  #define GENERIC64_HEAPCODES
-#endif
-
-#if defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
-  #define HEAPCODES
-#endif
-
-#if defined(WIDE_SOFT) && defined(HEAPCODES)
-  #error WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT
-#endif
-
-#if defined(TYPECODES) && defined(HEAPCODES)
-  #error TYPECODES and HEAPCODES make no sense together
-#endif
-
-#if !(defined(TYPECODES) || defined(HEAPCODES))
-  /* Choose TYPECODES on 64-bit machines (because there's enough room for type
-   bits), except on Darwin which has a restricted range of mmapable addresses.
-   Choose HEAPCODES on 32-bit machines (because a 16 MB limit is ridiculous
-   today).
-   HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
-   but with egcs-1.1 or newer we can force alignof(subr_t) = 4. */
-  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || ((alignment_long < 4) && !defined(GNU))
-    #define TYPECODES
-  #else
-    #define HEAPCODES
-  #endif
-#endif
-%% #ifdef HEAPCODES
-%%   puts("#define HEAPCODES");
-%% #endif
-
-#ifdef WIDE_SOFT
-  #if defined(GNU) && !defined(WIDE_SOFT_LARGEFIXNUM)
-    /* Use the GNU-C extensions, to regard the wide oints as structs. */
-    #define WIDE_STRUCT
-  #endif
-  /* defines the arrangement of an oint's elements: */
-  #define WIDE_ENDIANNESS true  /* more efficient this way */
-#endif
-
-#if defined(GNU) && (SAFETY >= 3)
-  #if (__GNUC__ >= 2)
-    #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) /* circumvent gcc-2.6.3 bug */
-      /* Typechecking by the C-compiler */
-      #define OBJECT_STRUCT
-      #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
-        #define CHART_STRUCT
-      #endif
-    #endif
-  #endif
-#endif
-
 
 /* ###################### OS-related routines  #################### */
 
@@ -2349,6 +2256,131 @@ FSUBR, Bignum, Single-Float (unless IMMEDIATE_FFLOAT), Double-Float,
 Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
  ######################## LISP-objects in general ######################## */
+
+/* Other acronyms like 'oint', 'tint', 'aint', 'cint' will be used
+   for the corresponding integer types:
+   Integer type      contains information equivalent to
+      oint           LISP object
+      tint           type code of a LISP object
+      aint           address of a LISP object
+      cint           LISP character
+
+ Usually sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
+ Under the model WIDE sizeof(oint) is > sizeof(uintL).
+ Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
+   This model is to be chosen if the following holds true:
+   sizeof(void*) > sizeof(uintL) = 32 bit. It also requires that
+   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
+   appear as pre-processor constants.
+ Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
+   This model can be chosen on any 32-Bit-Machine, if the
+   compiler has 64-bit numbers (in software or hardware).
+   You will also need to choose it, if there would not be enough space
+   for the type-bits in a 32-bit pointer.
+ Model HEAPCODES stands for sizeof(oint) = sizeof(aint), and only minimal
+   type information is stored in a pointer. All heap allocated objects
+   (except conses) must contain the complete type and a length field in the
+   first word. The heap gets somewhat bigger by this, and type tests require
+   more memory accesses on average, but this model is portable even to
+   systems whose memory map looks like Swiss Cheese. */
+
+%% #if notused
+%% #ifdef WIDE_HARD
+%%   puts("#define WIDE_HARD");
+%% #endif
+%% #ifdef WIDE_SOFT
+%%   puts("#define WIDE_SOFT");
+%% #endif
+%% #ifdef WIDE
+%%   puts("#define WIDE");
+%% #endif
+%% #endif
+
+#if defined(SINGLEMAP_MEMORY)
+  /* SINGLEMAP_MEMORY implies TYPECODES. */
+  #define TYPECODES
+#endif
+
+#if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES)
+  #define GENERIC64_HEAPCODES
+#endif
+
+#if defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+  #define HEAPCODES
+#endif
+
+#if defined(WIDE_SOFT) && defined(HEAPCODES)
+  #error WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT
+#endif
+
+#if defined(TYPECODES) && defined(HEAPCODES)
+  #error TYPECODES and HEAPCODES make no sense together
+#endif
+
+/* Determine early whether to use SINGLEMAP_MEMORY, because the OS has
+   restrictions on the mmapable addresses, and these restrictions have
+   an influence on oint_type_shift and oint_type_len.  */
+#if !defined(HEAPCODES)                                                        \
+    && !defined(WIDE_SOFT)                                                     \
+    && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                  \
+        || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                    \
+    && (MMAP_FIXED_ADDRESS_HIGHEST_BIT > 0)                                    \
+    && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
+    && ((MALLOC_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)     \
+    && defined(WIDE_HARD)                                                      \
+    && !defined(NO_SINGLEMAP)
+/* If we have not already excluded TYPECODES, and not WIDE_SOFT,
+   and the OS has support for mmap or equivalent,
+   and the 8 bits required by STANDARD_8BIT_TYPECODES are higher than
+   CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE (maybe also need to check
+   SHLIB_ADDRESS_RANGE and STACK_ADDRESS_RANGE?),
+   and we are on a 64-bit platform (on 32-bit platforms the resulting limit of
+   16 MB objects for each type is ridiculous today),
+   then pick SINGLEMAP_MEMORY. */
+  /* Access to LISP-objects is made easier by putting each LISP-object
+     to an address that already contains its type information. */
+  #define SINGLEMAP_MEMORY
+  /* SINGLEMAP_MEMORY implies TYPECODES. */
+  #define TYPECODES
+#endif
+
+#if !(defined(TYPECODES) || defined(HEAPCODES))
+  /* Choose TYPECODES on 64-bit machines (because there's enough room for type
+   bits), except on Darwin which has a restricted range of mmapable addresses.
+   Choose HEAPCODES on 32-bit machines (because a 16 MB limit is ridiculous
+   today).
+   HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
+   but with egcs-1.1 or newer we can force alignof(subr_t) = 4. */
+  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || ((alignment_long < 4) && !defined(GNU))
+    #define TYPECODES
+  #else
+    #define HEAPCODES
+  #endif
+#endif
+%% #ifdef HEAPCODES
+%%   puts("#define HEAPCODES");
+%% #endif
+
+#ifdef WIDE_SOFT
+  #if defined(GNU) && !defined(WIDE_SOFT_LARGEFIXNUM)
+    /* Use the GNU-C extensions, to regard the wide oints as structs. */
+    #define WIDE_STRUCT
+  #endif
+  /* defines the arrangement of an oint's elements: */
+  #define WIDE_ENDIANNESS true  /* more efficient this way */
+#endif
+
+#if defined(GNU) && (SAFETY >= 3)
+  #if (__GNUC__ >= 2)
+    #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) /* circumvent gcc-2.6.3 bug */
+      /* Typechecking by the C-compiler */
+      #define OBJECT_STRUCT
+      #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
+        #define CHART_STRUCT
+      #endif
+    #endif
+  #endif
+#endif
 
 #if defined(DEBUG_GCSAFETY)
   #ifndef __cplusplus
@@ -2973,31 +3005,16 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #endif
 #endif
 
-
-#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES)          \
-    && !defined(WIDE_SOFT)                                                     \
-    && (MMAP_FIXED_ADDRESS_HIGHEST_BIT > 0)                                    \
-    && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
-    && ((MALLOC_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)
-/* If the address bits are the lower ones and not WIDE_SOFT,
-   and the 8 bits required by STANDARD_8BIT_TYPECODES are higher than
-   CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE (maybe also need to check
-   SHLIB_ADDRESS_RANGE and STACK_ADDRESS_RANGE?),
-   memory mapping may be possible. */
-
-  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                   \
-       || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                     \
-      && !(defined(UNIX_AIX) || defined(UNIX_NETBSD))                          \
-      && !defined(NO_SINGLEMAP)
-    /* Access to LISP-objects is made easier by putting each LISP-object
-     to an address that already contains its type information.
-     But this does not work on AIX.
-     On NetBSD it fails because the resulting addresses are outside of any
-     mappable address range. */
-      #define SINGLEMAP_MEMORY
+/* Verify the values w.r.t. the earlier configured SINGLEMAP_MEMORY. */
+#if defined(SINGLEMAP_MEMORY)
+  #if oint_addr_shift != 0
+    #error oint_addr_shift must be 0 with SINGLEMAP_MEMORY !!
   #endif
-
+  #if addr_shift != 0
+    #error addr_shift must be 0 with SINGLEMAP_MEMORY !!
+  #endif
 #endif
+
 
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
