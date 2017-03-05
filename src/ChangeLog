@@ -1,6 +1,11 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on AIX in 64-bit mode.
+	* makemake.in (AR): Use value determined by autoconf.
+
+2017-03-05  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure on AIX in 64-bit mode.
 	* glm4/lib-ld.m4: Update from gnulib.
 	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
 

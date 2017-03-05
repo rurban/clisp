@@ -538,6 +538,7 @@ CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
 LD='@LD@'                           # the linker used by $CC, such as 'ld' or '/usr/bin/ld -m elf_i386'
+AR='@AR@'                           # usually 'ar'
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
 INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
@@ -1972,7 +1973,7 @@ echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 echol "GREP = ${GREP}"
-echol "AR = ar"
+echol "AR = ${AR}"
 echol "RANLIB = ${RANLIB}"
 echol
 echol '# Programs used by "make install":'
