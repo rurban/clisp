@@ -5888,7 +5888,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
           "1:"                   \
           : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
     #endif
-    #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
+    #if defined(GNU) && defined(SPARC) && !(__GNUC__ == 5) && !defined(NO_ASM) /* this gets miscompiled by gcc-5.2 */
       #undef U_operand
       #define U_operand(where)  \
         { var uintL dummy;              \
