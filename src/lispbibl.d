@@ -2345,15 +2345,40 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 #if !(defined(TYPECODES) || defined(HEAPCODES))
-  /* Choose TYPECODES on 64-bit machines (because there's enough room for type
-   bits), except on Darwin which has a restricted range of mmapable addresses.
-   Choose HEAPCODES on 32-bit machines (because a 16 MB limit is ridiculous
-   today).
-   HEAPCODES will normally not work if alignof(subr_t) = alignof(long) < 4,
-   but with egcs-1.1 or newer we can force alignof(subr_t) = 4. */
-  #if (defined(WIDE_HARD) && !defined(UNIX_DARWIN)) || defined(WIDE_SOFT) || ((alignment_long < 4) && !defined(GNU))
+  /* Heuristic for choosing TYPECODES or HEAPCODES.
+     The SINGLEMAP_MEMORY case is already handled above. */
+  #if defined(WIDE_HARD)
+    /* On 64-bit machines:
+       - TYPECODES: There's enough room for type bits, unless the OS allocates
+         memory at addresses >= 0x0100000000000000.
+       - HEAPCODES: Both STANDARD_HEAPCODES and GENERIC64_HEAPCODES have
+         alignment restrictions:
+         STANDARD_HEAPCODES will normally not work if
+         alignof(subr_t) = alignof(long) < 4, but with GCC we can force
+         alignof(subr_t) = 4.
+         GENERIC64_HEAPCODES likewise with alignment 8.
+         Additionally some C functions must be aligned as well, see
+         C_CODE_ALIGNMENT; this can be harder to achieve.
+       TYPECODES is typically a few percent slower than HEAPCODES.
+       For portability, choose TYPECODES if possible, and HEAPCODES otherwise.
+     */
+    #if ((CODE_ADDRESS_RANGE >> 56) == 0)      \
+        && ((MALLOC_ADDRESS_RANGE >> 56) == 0) \
+        && ((SHLIB_ADDRESS_RANGE >> 56) == 0)  \
+        && ((STACK_ADDRESS_RANGE >> 56) == 0)
+      #define TYPECODES
+    #else
+      #define HEAPCODES
+    #endif
+  #elif defined(WIDE_SOFT)
     #define TYPECODES
   #else
+    /* On 32-bit machines:
+       - TYPECODES: the resulting limit of 16 MB objects for each type is
+         ridiculous today.
+       - HEAPCODES: needs a per-platform decision whether to use STANDARD_HEAPCODES
+         or LINUX_NOEXEC_HEAPCODES.
+       Choose HEAPCODES always. */
     #define HEAPCODES
   #endif
 #endif
