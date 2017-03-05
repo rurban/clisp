@@ -16589,7 +16589,7 @@ AC_DEFUN([gt_TYPE_WINT_T],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -16645,19 +16645,11 @@ dnl
 AC_CACHE_CHECK(for the shared library address range, cl_cv_address_shlib, [dnl
 AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
 $address_range_prog
-/* Declare printf(). */
-#if defined(sun) /* for SunOS 4, but not for IRIX 6 */
-#ifdef __cplusplus
-extern "C" int printf (const char *, ...);
-#else
-extern int printf ();
-#endif
-#endif
 /* Declare tmpnam(). */
 #ifdef __cplusplus
 extern "C" char* tmpnam (char*);
 #else
-extern char* tmpnam ();
+extern char* tmpnam (char*);
 #endif
 ],[
 /* With normal simple DLLs, &printf is in the shared library. Fine.
