@@ -1,5 +1,12 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
+	Fix autoconf test failure on Solaris.
+	* m4/address.m4 (CL_ADDRESS_RANGE): Don't redeclare printf. Assume
+	ANSI C when redeclaring tmpnam.
+	* aclocal.m4, src/configure: Regenerated.
+
+2017-03-05  Bruno Haible  <bruno@clisp.org>
+
 	Avoid miscompiled code by gcc-5.2 on Solaris/SPARC.
 	* eval.d (interpret_bytecode_): Disable U_operand assembler code for
 	SPARC with gcc 5.
