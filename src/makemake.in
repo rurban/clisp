@@ -2188,7 +2188,7 @@ echol
 echol
 
 SUBDIRS=gllib
-needs="${SUBDIRS} init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
+needs="gllib/libgnu.a init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) '"clisp${TEXE} boot base full"
 fi
@@ -2199,19 +2199,19 @@ echol "all : $needs"
 echodummyrule all
 echol
 echol "SUBDIRS = ${SUBDIRS}"
-echol '.PHONY: subdirs $(SUBDIRS) clean0 clean1 clean2 clean3 clean4 clean5 clean6 clean7 clean8 mostlyclean distclean clean maintainer-clean clean-modules am--refresh'
+echol '.PHONY: subdirs clean0 clean1 clean2 clean3 clean4 clean5 clean6 clean7 clean8 mostlyclean distclean clean maintainer-clean clean-modules am--refresh'
 echol
-echol 'subdirs: $(SUBDIRS)'
+echol 'subdirs: gllib/libgnu.a'
 echol
 # gnulib cannot be compiled with C++, thus NO_CXX
 echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG} @NO_CXX@"
-echol '$(SUBDIRS): config.status'
-echotab 'mkdir -p $@'
-echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
+echol 'gllib/libgnu.a: config.status'
+echotab 'mkdir -p gllib'
+echotab 'test -f gllib/Makefile || sh config.status gllib/Makefile depfiles'
 top_srcdir=`cd "${SRCDIR}"; pwd`
-echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" top_srcdir="'"${top_srcdir}"'"'
+echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)" top_srcdir="'"${top_srcdir}"'"'
 echol
-echol "${GLLIB_A}: gllib"
+echol "${GLLIB_A}: gllib/libgnu.a"
 echotab "test -r ${GLLIB_A} || \$(LN_S) gllib/${GLLIB_A} ${GLLIB_A}"
 echol
 
@@ -3970,13 +3970,13 @@ test -n "$USE_GETTEXT" && \
 echol
 echol "clean-subdirs :"
 for dir in ${SUBDIRS}; do
-  echotab "test -d ${dir} && \$(MAKE) -C ${dir} clean"
+  echotab "if test -d ${dir}; then cd ${dir} && \$(MAKE) clean; fi"
 done
 echol
 # this must be run before clean7 because it runs "cd ..; make am--refresh"
 echol "distclean-subdirs :"
 for dir in ${SUBDIRS}; do
-  echotab "test -d ${dir} && \$(MAKE) -C ${dir} distclean"
+  echotab "if test -d ${dir}; then cd ${dir} && \$(MAKE) distclean; fi"
 done
 echol
 cat <<!!
