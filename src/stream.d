@@ -6114,14 +6114,7 @@ typedef struct strm_i_buffered_extrafields_t {
             : ChannelStream_ochannel(obj))
 
 /* File-Stream in general
-   ======================
-
- return the file stream truename
- > s: file stream (open or closed) - no type check is done!
- < truename of the file associated with the stream
- for syscall module */
-modexp object file_stream_truename (object s)
-{ return FileStream_truename(s); }
+   ====================== */
 
 #ifdef UNIX
 /* Assumption: All File-Descriptors delivered by OPEN(2)  (called Handles
@@ -14987,7 +14980,7 @@ local maygc object handle_pathname (Handle fd) {
   begin_system_call();
   sprintf(buf,"/dev/fd/%d",fd);
   end_system_call();
-  pushSTACK(ascii_to_string(buf)); funcall(L(truename),1);
+  pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
   return value1;
  #elif defined(WIN32_NATIVE)
   var NTSTATUS s = ~STATUS_SUCCESS;
@@ -15012,7 +15005,7 @@ local maygc object handle_pathname (Handle fd) {
                                     fni->FileNameLength/sizeof(WCHAR),
                                     abuf,2 * MAXPATHLEN,NULL,NULL);
     pushSTACK(n_char_to_string(abuf,n,O(pathname_encoding)));
-    funcall(L(truename),1);
+    funcall(L(pathname),1);
     return value1;
   } else return NIL;
  #else
@@ -15032,7 +15025,7 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
   pushSTACK(eltype);
   pushSTACK(allocate_handle(handle_dup(fd)));
   dir = check_direction(direction);
-  STACK_4 = STACK_5 = handle_pathname(fd); /* set both pathname and truename */
+  STACK_5 = handle_pathname(fd);
   if (!handle_direction_compatible(fd,dir)) {
     var condition_t errortype = nullp(STACK_5)
       ? (pushSTACK(STACK_0), error_condition)

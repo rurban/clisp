@@ -870,13 +870,25 @@ local object as_file_stream (object stream) {
  test_file_stream_named(stream)
  > stream: File-Stream */
 #define test_file_stream_named(stream)  \
-  do { if (nullp(TheStream(stream)->strm_file_truename)) \
+  do { if (nullp(TheStream(stream)->strm_file_name)) \
          error_file_stream_unnamed(stream);             \
   } while(0)
 local _Noreturn void error_file_stream_unnamed (object stream) {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
   error(file_error,GETTEXT("~S: Filename for ~S is unknown"));
+}
+/* Ensure that IF the file stream has a name, THEN it also has truename
+ > file-stream (open or closed) - no type check is done!
+ < truename of the file associated with the stream
+ for syscall module */
+modexp maygc object file_stream_truename (object stream) {
+  test_file_stream_named(stream);
+  if (nullp(TheStream(stream)->strm_file_truename)) {
+    pushSTACK(TheStream(stream)->strm_file_name); funcall(L(truename),1);
+    TheStream(stream)->strm_file_truename = value1;
+  }
+  return TheStream(stream)->strm_file_truename;
 }
 
 #if defined(UNIX)
@@ -5362,9 +5374,17 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
 	GC_SAFE_SYSTEM_CALL(result=, readlink(namestring_asciz,linkbuf,linklen));
         if (result<0)
           OS_file_error(*(fs->fs_pathname));
-        if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
+        if (result > (int)linklen) { /* sometimes (AIX, NFS) status.st_size is incorrect */
           FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
         }
+        linklen = result;
+      }
+      /* when piping, /dev/fd/1 -> /proc/<pid>/fd/1 -> pipe:[<inode>]
+         on a terminal, /dev/fd/1 -> /proc/<pid>/fd/1 -> /dev/pts/<terminal> */
+      if (strncmp(namestring_asciz,"/proc/",6) == 0 && linkbuf[0] != '/') {
+        /* ignore local links in /proc */
+        FREE_DYNAMIC_ARRAY(linkbuf);
+        return ((fs->fs_stat_validp = true)); /* done */
       }
       /* turn it into a pathname:
          (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
@@ -5606,9 +5626,9 @@ LISPFUNNS(truename,1)
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
     /* must be file-stream: */
     pathname = as_file_stream(pathname);
-    test_file_stream_named(pathname);
     /* Streamtype File-Stream */
-    VALUES1(TheStream(pathname)->strm_file_truename);
+    pathname = file_stream_truename(pathname);
+    VALUES1(pathname);
   } else {
     var struct file_status fs; file_status_init(&fs,&STACK_0);
     *(fs.fs_pathname) = merge_defaults(coerce_pathname(pathname));
@@ -5639,10 +5659,9 @@ LISPFUNNS(truename,1)
 local bool probe_path_from_stream (gcv_object_t *stream) {
   /* must be file-stream: */
   *stream = as_file_stream(*stream);
-  test_file_stream_named(*stream);
   /* streamtype file-stream -> take truename: */
   var uintB flags = TheStream(*stream)->strmflags;
-  *stream = TheStream(*stream)->strm_file_truename;
+  *stream = file_stream_truename(*stream);
   return flags & strmflags_open_B;
 }
 
@@ -6000,7 +6019,7 @@ LISPFUNN(delete_file,1) {
       pushSTACK(stream); builtin_stream_close(&STACK_0,0); stream = popSTACK();
     }
     /* then take the truename as file to be deleted: */
-    pathname = TheStream(stream)->strm_file_truename;
+    pathname = file_stream_truename(stream);
   } else /* turn into a pathname */
     pathname = merge_defaults(coerce_pathname(pathname));
   /* pathname is now a pathname. */
@@ -6093,9 +6112,8 @@ LISPFUN(rename_file,seclass_default,2,0,norest,key,1,(kw(if_exists))) {
   if (builtin_stream_p(filename)) { /* stream -> treat extra: */
     /* must be file-stream: */
     filename = as_file_stream(filename);
-    test_file_stream_named(filename);
     /* streamtype file-stream -> use truename: */
-    filename = TheStream(filename)->strm_file_truename;
+    filename = file_stream_truename(filename);
     pushSTACK(filename);
     /* rename: */
     rename_file(if_exists);
@@ -6629,8 +6647,8 @@ LISPFUN(open,seclass_default,1,0,norest,key,6,
     /* must be file-stream: */
     filename = as_file_stream(filename);
     test_file_stream_named(filename);
-    /* streamtype file-stream -> use truename: */
-    filename = TheStream(filename)->strm_file_truename;
+    /* streamtype file-stream -> use pathname, not truename */
+    filename = TheStream(filename)->strm_file_name;
     pushSTACK(filename);
   } else {
     filename = coerce_xpathname(filename); /* turn into a pathname */
@@ -8000,8 +8018,7 @@ LISPFUNNS(file_write_date,1)
         filedata.ftLastAccessTime = fileinfo.ftLastAccessTime;
         filedata.ftLastWriteTime  = fileinfo.ftLastWriteTime;
       } else { /* If that failed, try the full pathname. */
-        test_file_stream_named(*pathname);
-        *pathname = TheStream(*pathname)->strm_file_truename;
+        *pathname = file_stream_truename(*pathname);
         goto is_pathname;
       }
      #else
@@ -8009,8 +8026,7 @@ LISPFUNNS(file_write_date,1)
      #endif
     } else {
       /* closed file-stream -> use truename as pathname */
-      test_file_stream_named(*pathname);
-      *pathname = TheStream(*pathname)->strm_file_truename;
+      *pathname = file_stream_truename(*pathname);
       goto is_pathname;
     }
   } else { /* turn into a pathname */
@@ -8053,8 +8069,7 @@ LISPFUNNS(file_author,1)
     if (TheStream(pathname)->strmflags & strmflags_open_B) {
       /* open file-stream -> OK */
     } else { /* closed file-stream -> use truename as pathname */
-      test_file_stream_named(pathname);
-      pathname = TheStream(pathname)->strm_file_truename;
+      pathname = file_stream_truename(pathname);
       goto is_pathname;
     }
   } else {
