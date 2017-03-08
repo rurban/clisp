@@ -1264,12 +1264,14 @@ T
 (streamp (setq s (make-stream :input))) T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (handler-case (write-line "foo" s) (stream-error (c) (princ-error c) t)) T
+(with-open-file (copy s) (streamp copy)) T
 (streamp (setq s (make-stream :output))) T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (write-line "foo" s) "foo"
 (streamp (setq s (make-stream :error))) T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (write-line "foo" s) "foo"
+(with-open-file (copy s :direction :output) (streamp copy)) T
 
 (progn
   (symbol-cleanup 's)

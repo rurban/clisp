@@ -1,3 +1,17 @@
+2017-03-08  Sam Steingold  <sds@gnu.org>
+
+	Modify the bug#679 fix: defer getting the TRUENAME of stdio and
+	avoid resolving /proc symlinks to non-existing local files
+	* lispbibl.d (file_stream_truename): Resolve the deferred TRUENAME.
+	* makemake.in (check-script): Add 2 tests.
+	* pathname.d (test_file_stream_named): Check name, not truename.
+	(file_stream_truename): Move here from stream.d
+	(get_path_info): Do not use local symlinks from "/proc".
+	(TRUENAME, probe_path_from_stream, DELETE-FILE, RENAME-FILE, OPEN)
+	(FILE-WRITE-DATE, FILE-AUTHOR): Use file_stream_truename.
+	* stream.d (handle_pathname): Call PATHNAME instead of TRUENAME.
+	(handle_to_stream): Do not set strm_file_truename.
+
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
 	New heuristic for choosing between TYPECODES and HEAPCODES.

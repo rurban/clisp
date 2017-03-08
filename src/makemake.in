@@ -2938,6 +2938,8 @@ if [ $CROSS = false ] ; then
       echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; output_last_line=\`sed -n -e '\$\$p' script.lisp ${TRCR}\`; test \"\$\$output_last_line\" = 42 || exit 1 "
       ;;
   esac
+  echotab "\$(RUN) -q -M lispinit.mem -x '(truename (make-stream :output))'"
+  echotab "\$(RUN) -q -M lispinit.mem -x '(truename (make-stream :output))'|cat"
   echotab "\$(RM) script.lisp"
   echol
 

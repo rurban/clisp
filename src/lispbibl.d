@@ -15589,6 +15589,14 @@ extern void init_packages (void);
 
 /* ##################### PATHBIBL for PATHNAME.D ########################### */
 
+/* return the file stream truename
+ > s: file stream (open or closed) - no type check is done!
+ < truename of the file associated with the stream
+ can trigger GC
+ for syscall module */
+extern maygc object file_stream_truename (object s);
+%% exportF(object,file_stream_truename,(object s));
+
 /* Check that the namestring for path will be parsed into a similar object
  used by pr_orecord() in io.d
  can trigger GC */
@@ -16255,13 +16263,6 @@ extern maygc void write_char_array (const gcv_object_t* stream_, const gcv_objec
  < result: Stream */
 extern object var_stream (object sym, uintB strmflags);
 /* is used by IO, PACKAGE, ERROR, DEBUG, SPVW */
-
-/* return the file stream truename
- > s: file stream (open or closed) - no type check is done!
- < truename of the file associated with the stream
- for syscall module */
-extern object file_stream_truename (object s);
-%% exportF(object,file_stream_truename,(object s));
 
 /* UP: makes a file-stream
  make_file_stream(direction,append_flag,handle_fresh)
