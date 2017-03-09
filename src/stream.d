@@ -1,7 +1,7 @@
 /*
  * Streams for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2011, 2016-2017
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
  * German comments translated into English: Stefan Kain 2001-11-02
