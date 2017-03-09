@@ -1,3 +1,9 @@
+2017-03-09  Bruno Haible  <bruno@clisp.org>
+
+	configure: Fail right away if configure could not create intparam.h.
+	* configure: Fail immediately if configure could not create intparam.h
+	or floatparam.h.
+
 2017-03-08  Bruno Haible  <bruno@clisp.org>
 
 	maint: Add facility for testing builds with DEBUG_GCSAFETY.
