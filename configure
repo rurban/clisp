@@ -638,6 +638,8 @@ if test -n "$do_config"; then
   else
     ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache
   fi
+  test -f "${ABS_DIRNAME}/intparam.h" || fail "error: configure could not generate intparam.h. Take a look at ${ABS_DIRNAME}/config.log."
+  test -f "${ABS_DIRNAME}/floatparam.h" || fail "error: configure could not generate floatparam.h. Take a look at ${ABS_DIRNAME}/config.log."
 fi
 
 . "${ABS_DIRNAME}/config.cache"
