@@ -3277,8 +3277,8 @@ local inline int init_memory (struct argv_initparams *p) {
     }
    #endif
     if (stack_size < ca_limit_1) {
-      fprintf(stderr,"STACK size is less than CALL-ARGUMENTS-LIMIT (%d)\n",
-              ca_limit_1);
+      fprintf(stderr,"STACK size is less than CALL-ARGUMENTS-LIMIT (%lu)\n",
+              (unsigned long)ca_limit_1);
       abort();
     }
     fflush(stderr); /* make sure the debug output comes out first thing */

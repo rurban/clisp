@@ -1,5 +1,22 @@
 2017-03-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix some gcc warnings about use of fprintf.
+	* spvw.d (init_memory): Cast specific fprintf arguments to
+	'unsigned long'.
+	* spvw_debug.d (nobject_out1): Cast specific fprintf arguments to 'int'
+	or 'unsigned long'.
+	(back_trace_depth): Cast specific fprintf arguments to 'unsigned long'.
+	* spvw_memfile.d (loadmem_from_handle): Cast specific sprintf arguments
+	to 'unsigned long'.
+	* spvw_sigsegv.d (print_mem_stats): Cast specific fprintf arguments to
+	'unsigned long long'.
+	* eval.d (check_funtab, CHECK_STACK): Cast specific fprintf arguments to
+	'unsigned long'.
+	* predtype.d (with_gc_statistics): Likewise.
+	* errunix.d (OS_error_arg): Likewise.
+
+2017-03-09  Bruno Haible  <bruno@clisp.org>
+
 	configure: Fail right away if configure could not create intparam.h.
 	* configure: Fail immediately if configure could not create intparam.h
 	or floatparam.h.

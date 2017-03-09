@@ -1827,7 +1827,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               (uintL)posfixnum_to_V(header._dumptime.seconds));
     #endif
     char memdumptime[10+1];
-    sprintf(memdumptime,"%u",header._dumptime);
+    sprintf(memdumptime,"%lu",(unsigned long)header._dumptime);
     O(memory_image_timestamp) = ascii_to_string(memdumptime);
     O(memory_image_host) = asciz_to_string(header._dumphost,
                                            Symbol_value(S(utf_8)));
