@@ -1,5 +1,11 @@
 2017-03-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure with DEBUG_GCSAFETY.
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Don't
+	define if DEBUG_GCSAFETY && SINGLEMAP_MEMORY.
+
+2017-03-09  Bruno Haible  <bruno@clisp.org>
+
 	Fix some gcc warnings about use of fprintf.
 	* spvw.d (init_memory): Cast specific fprintf arguments to
 	'unsigned long'.
