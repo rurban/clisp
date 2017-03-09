@@ -885,7 +885,9 @@ local _Noreturn void error_file_stream_unnamed (object stream) {
 modexp maygc object file_stream_truename (object stream) {
   test_file_stream_named(stream);
   if (nullp(TheStream(stream)->strm_file_truename)) {
+    pushSTACK(stream);
     pushSTACK(TheStream(stream)->strm_file_name); funcall(L(truename),1);
+    stream = popSTACK();
     TheStream(stream)->strm_file_truename = value1;
   }
   return TheStream(stream)->strm_file_truename;
