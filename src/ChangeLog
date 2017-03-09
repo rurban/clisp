@@ -1,3 +1,9 @@
+2017-03-08  Bruno Haible  <bruno@clisp.org>
+
+	maint: Add facility for testing builds with DEBUG_GCSAFETY.
+	* Makefile.devel (build-porting32-gcc-debug_gcsafety,
+	build-porting64-gcc-debug_gcsafety): New targets.
+
 2017-03-08  Sam Steingold  <sds@gnu.org>
 
 	Modify the bug#679 fix: defer getting the TRUENAME of stdio and

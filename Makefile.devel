@@ -325,10 +325,13 @@ MULTIBUILD_CFLAGS = -g
 #
 # Prerequisite: Set the environment variable MULTIBUILD_32_OPTIONS, e.g.
 # MULTIBUILD_32_OPTIONS="--with-libsigsegv-prefix=/arch/x86-linux/gnu-inst-libsigsegv/2.11 --with-libffcall-prefix=/arch/x86-linux/gnu-inst-libffcall/1.13pre"
+# To build on a 64-bit machine where 64-bit compilation is the default,
+# also set the environment variables CC and CXX, for example
+# CC="gcc -m32" CXX="g++ -m32"
 #
 # Use with "make -k", then collects the build-porting32-*/cbcstep*.log.
 
-# Build various configurations. Assumes $CC is GCC.
+# Build various configurations. Assumes $CC is GCC and $CXX is GNU g++.
 multibuild-porting32-gcc: \
   build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
@@ -348,7 +351,8 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-generational_gc-old_gc \
   build-porting32-gcc-generational_gc-multithread_gc \
   build-porting32-gcc-safety0 \
-  build-porting32-gcc-safety0-optimized
+  build-porting32-gcc-safety0-optimized \
+  build-porting32-gcc-debug_gcsafety
 
 # A build that favours portability over optimization.
 build-porting32-gcc-portability:
@@ -478,6 +482,14 @@ build-porting32-gcc-safety0-optimized:
 	CFLAGS="-O2 -fexpensive-optimizations $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+build-porting32-gcc-debug_gcsafety:
+	$(RMRF) $@
+	ulimit -c unlimited; \
+	CC="$${CXX-g++}" \
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --with-debug $@
 
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
@@ -630,10 +642,13 @@ build-porting32-cc-safety0:
 #
 # Prerequisite: Set the environment variable MULTIBUILD_64_OPTIONS, e.g.
 # MULTIBUILD_64_OPTIONS="--with-libsigsegv-prefix=/arch/x86_64-linux-gnu/gnu-inst-libsigsegv/2.11 --with-libffcall-prefix=/arch/x86_64-linux-gnu/gnu-inst-libffcall/1.13pre"
+# To build on a 64-bit machine where 32-bit compilation is the default,
+# also set the environment variables CC and CXX, for example
+# CC="gcc -m64" CXX="g++ -m64"
 #
 # Use with "make -k", then collects the build-porting64-*/cbcstep*.log.
 
-# Build various configurations. Assumes $CC is GCC.
+# Build various configurations. Assumes $CC is GCC and $CXX is GNU g++.
 multibuild-porting64-gcc: \
   build-porting64-gcc-portability \
   build-porting64-gcc-safety3 \
@@ -650,7 +665,8 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-generational_gc-old_gc \
   build-porting64-gcc-generational_gc-multithread_gc \
   build-porting64-gcc-safety0 \
-  build-porting64-gcc-safety0-optimized
+  build-porting64-gcc-safety0-optimized \
+  build-porting64-gcc-debug_gcsafety
 
 # A build that favours portability over optimization.
 build-porting64-gcc-portability:
@@ -759,6 +775,14 @@ build-porting64-gcc-safety0-optimized:
 	CFLAGS="-O2 -fexpensive-optimizations $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+build-porting64-gcc-debug_gcsafety:
+	$(RMRF) $@
+	ulimit -c unlimited; \
+	CC="$${CXX-g++}" \
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --with-debug $@
 
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
