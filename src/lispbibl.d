@@ -4318,8 +4318,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* Whether we try to initialize subr_tab statically.
  (g++ 3.3 doesn't accept compound expressions as initializers:
  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
- g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180)
+ With DEBUG_GCSAFETY, the initialization of subr_tab_data crashes in
+ nonimmprobe. */
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT)) && !(defined(DEBUG_GCSAFETY) && defined(SINGLEMAP_MEMORY))
   #define INIT_SUBR_TAB
 #endif
 /* NB: This has to be defined so external modules can work.
@@ -4331,8 +4333,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".
  g++ 3.3 doesn't accept compound expressions as initializers:
  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
- g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180)
+ With DEBUG_GCSAFETY, the initialization of symbol_tab_data crashes in
+ nonimmprobe. */
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT)) && !(defined(DEBUG_GCSAFETY) && defined(SINGLEMAP_MEMORY))
   #define INIT_SYMBOL_TAB
 #endif
 /* When changed: nothing to do */
@@ -4340,8 +4344,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* Whether we try to initialize object_tab statically.
  (g++ 3.3 doesn't accept compound expressions as initializers:
  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
- g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180) */
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT))
+ g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180)
+ With DEBUG_GCSAFETY, the initialization of object_tab crashes in
+ nonimmprobe. */
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT)) && !(defined(DEBUG_GCSAFETY) && defined(SINGLEMAP_MEMORY))
   #define INIT_OBJECT_TAB
 #endif
 /* When changed: do nothing */
