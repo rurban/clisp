@@ -94,7 +94,7 @@ global _Noreturn void OS_error_arg (object etype, object arg) {
  > FILE: Filename (with quotation marks) as constant ASCIZ-String
  > LINE: line number */
 global void errno_out_low (int errorcode, const char* file, uintL line) {
-  fprintf(stderr,"\n[%s:%d] errno = %d", file, line, errorcode);
+  fprintf(stderr,"\n[%s:%lu] errno = %d", file, (unsigned long)line, errorcode);
   var object code = ANSIC_error_code_converter(errorcode);
   if (symbolp(code)) { /* known name? */
     fputs(" (",stderr);

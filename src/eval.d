@@ -226,12 +226,12 @@ local void check_funtab (void) {
   for (i=0; i < FUNTAB_length; i++)
     if (FUNTAB[i]->rest_flag != subr_norest) {
       nobject_out(stdout,FUNTAB[i]->name);
-      printf("=FUNTAB[%d] accepts &rest\n",i);
+      printf("=FUNTAB[%lu] accepts &rest\n",(unsigned long)i);
     }
   for (i=0; i < FUNTABR_length; i++)
     if (FUNTABR[i]->rest_flag != subr_rest) {
       nobject_out(stdout,FUNTABR[i]->name);
-      printf("=FUNTABR[%d] does NOT accept &rest\n",i);
+      printf("=FUNTABR[%lu] does NOT accept &rest\n",(unsigned long)i);
     }
   printf("FUNTAB_length=%ld\n",(long)FUNTAB_length);
   if (FUNTAB_length > 512) printf(" *** - > 512!\n");
@@ -3143,8 +3143,9 @@ local maygc Values eval1 (object form)
 
 #define CHECK_STACK(stack_before,fun) do {                              \
   if (STACK != stack_before) { /* STACK as before? */                   \
-    fprintf(stderr,"\n[%s:%d] STACK is not restored: %d in ",           \
-            __FILE__,__LINE__,STACK_item_count(STACK,stack_before));    \
+    fprintf(stderr,"\n[%s:%d] STACK is not restored: %lu in ",          \
+            __FILE__,__LINE__,                                          \
+            (unsigned long)STACK_item_count(STACK,stack_before));       \
     nobject_out(stderr,fun); fprintf(stderr,"\n");                      \
     abort();                   /* no -> go to Debugger */               \
   }} while(0)

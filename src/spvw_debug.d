@@ -81,7 +81,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputc('"',out);
   } else if (charp(obj)) {
     object name = char_name(char_code(obj));
-    fprintf(out,"[%c]",as_cint(char_code(obj)));
+    fprintf(out,"[%c]",(int)as_cint(char_code(obj)));
     if (!nullp(name)) {
       fputs("=#\\",out);
       string_out(out,name);
@@ -119,9 +119,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     }
     fputc(')',out);
   } else if (arrayp(obj)) {
-    fprintf(out,"#<array %d",Array_type(obj));
-    if (mdarrayp(obj)) fprintf(out," rank=%d",Iarray_rank(obj));
-    else fprintf(out," len=%d",vector_length(obj));
+    fprintf(out,"#<array %lu",(unsigned long)Array_type(obj));
+    if (mdarrayp(obj))
+      fprintf(out," rank=%lu",(unsigned long)Iarray_rank(obj));
+    else
+      fprintf(out," len=%lu",(unsigned long)vector_length(obj));
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (functionp(obj)) {
     fputs("#<",out);
@@ -182,10 +184,10 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputc(')',out);
   } else if (hash_table_p(obj)) {
     fputs("#(",out); XOUT(S(hash_table));
-    fprintf(out," size=%u maxcount=%u mincount=%u\n",
-            TheHashtable(obj)->ht_size,
-            (uintL)posfixnum_to_V(TheHashtable(obj)->ht_maxcount),
-            (uintL)posfixnum_to_V(TheHashtable(obj)->ht_mincount));
+    fprintf(out," size=%lu maxcount=%lu mincount=%lu\n",
+            (unsigned long)TheHashtable(obj)->ht_size,
+            (unsigned long)posfixnum_to_V(TheHashtable(obj)->ht_maxcount),
+            (unsigned long)posfixnum_to_V(TheHashtable(obj)->ht_mincount));
     fputs("  test=",out);
     if (ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(obj))))) {
       XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
@@ -281,12 +283,14 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       case DRIVER_frame_info: fputs("DRIVER",out); break;
       default: fputs("**UNKNOWN**",out);
     }
-    fprintf(out," %d>",STACK_item_count(uTheFramepointer(obj),
-                                        (gcv_object_t*)STACK_start));
+    fprintf(out," %lu>",
+            (unsigned long)STACK_item_count(uTheFramepointer(obj),(gcv_object_t*)STACK_start));
   } else if (builtin_stream_p(obj)) {
-    fprintf(out,"#<built-in-stream type=%d flags=%d len=%d xlen=%d slen=%ld",
+    fprintf(out,"#<built-in-stream type=%d flags=%d len=%lu xlen=%lu slen=%lu",
             TheStream(obj)->strmtype,TheStream(obj)->strmflags,
-            Stream_length(obj),Stream_xlength(obj),strm_len);
+            (unsigned long)Stream_length(obj),
+            (unsigned long)Stream_xlength(obj),
+            (unsigned long)strm_len);
     switch (TheStream(obj)->strmtype) {
       case strmtype_pphelp: fputs(" pretty-print-help",out);
         fputs(" modus=",out); XOUT(TheStream(obj)->strm_pphelp_modus);
@@ -358,15 +362,15 @@ local int back_trace_depth (const struct backtrace_t *bt) {
 /* print a single struct backtrace_t object
  the caller must do begin_system_call()/end_system_call() ! */
 local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
-  fprintf(out,"[%d/0x%lx]%s ",bt_index,(uintP)bt,
+  fprintf(out,"[%lu/0x%lx]%s ",(unsigned long)bt_index,(uintP)bt,
           bt_beyond_stack_p(bt,STACK)?"<":">");
   nobject_out(out,bt->bt_function);
   if (bt->bt_num_arg >= 0)
     fprintf(out," %d args",bt->bt_num_arg);
   if (bt->bt_next)
-    fprintf(out," delta: STACK=%ud; SP=%ld",
-            STACK_item_count(top_of_back_trace_frame(bt),
-                             top_of_back_trace_frame(bt->bt_next)),
+    fprintf(out," delta: STACK=%lud; SP=%ld",
+            (unsigned long)STACK_item_count(top_of_back_trace_frame(bt),
+                                            top_of_back_trace_frame(bt->bt_next)),
             (((long)((char*)(bt->bt_next) - (char*)bt) ^ SPoffset) - SPoffset)
             / sizeof(SPint));
   fputc('\n',out); fflush(out);
@@ -488,7 +492,7 @@ local void venv_out (FILE *out, object venv) { /* cf eval.d:symbol_env_search */
   if (framepointerp(venv)) {
      var gcv_object_t* FRAME = TheFramepointer(venv);
      var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
-     fprintf(out,"* count=%d\n",count);
+     fprintf(out,"* count=%lu\n",(unsigned long)count);
      if (count > 0) {
       var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
       do {

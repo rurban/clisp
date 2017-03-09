@@ -26,7 +26,7 @@ local void print_mem_stats (void) {
   fputc('\n',stderr);
   fputs(GETTEXTL("Space collected by GC:"),stderr);
  #if defined(intQsize)
-  fprintf(stderr," %lu",tm.gcfreed);
+  fprintf(stderr," %llu",(unsigned long long)tm.gcfreed);
  #else
   fprintf(stderr," %lu %lu",tm.gcfreed.hi,tm.gcfreed.lo);
  #endif

@@ -3131,7 +3131,7 @@ global void with_gc_statistics (gc_function_t* fun) {
     /* Walk through memory. */
     map_heap_objects(&heap_statistics_mapper,&locals);
    #ifdef DEBUG_SPVW
-    fprintf(stderr,"[%d] with_gc_statistics: starting a GC...",gc_count);
+    fprintf(stderr,"[%lu] with_gc_statistics: starting a GC...",(unsigned long)gc_count);
    #endif
     /* Now do the GC. */
     fun();
