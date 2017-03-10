@@ -214,7 +214,7 @@
         (when name (setf (gethash name *c-type-table*) c-type))
         c-type)
       (if (stringp typespec)
-        (let ((c-type (parse-foreign-inttype typespec)))
+        (let ((c-type (parse-foreign-inttype typespec t)))
           (when name (setf (gethash name *c-type-table*) c-type))
           c-type)
         (error (TEXT "FFI type should be a symbol, not ~S")
@@ -782,7 +782,8 @@
     (let ((done (make-hash-table :test 'equal)))
       (maphash (lambda (type spec)
                  (declare (ignore type))
-                 (when (and (stringp spec) (not (gethash spec done)))
+                 (when (and (stringp spec) (not (gethash spec done))
+                            (eq 0 (parse-foreign-inttype spec nil)))
                    (setf (gethash spec done) spec)
                    (when *foreign-guard*
                      (format *coutput-stream* "# if HAVE_~A~%"
