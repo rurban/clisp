@@ -1,10 +1,16 @@
+2017-03-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [GCC & !CROSS]: Add -Wno-shift-negative-value.
+	Note that gcc accepts -Wno-<whatever>, so no version check is needed.
+
 2017-03-10  Bruno Haible  <bruno@clisp.org>
 
-	Warn before reserving an address range that might crash clisp.
+	Warn before reserving an address range that might crash CLISP.
 	* Makefile.devel (GNULIB_CORE): Add vma-iter.
 	* spvw_mmap.d: Include vma-iter.h.
 	(is_large_range_unmapped_locals): New type.
-	(is_large_range_unmapped_callback, is_large_range_unmapped, warn_before_reserving_range): New functions.
+	(is_large_range_unmapped_callback, is_large_range_unmapped)
+	(warn_before_reserving_range): New functions.
 	(mmap_prepare): Invoke warn_before_reserving_range.
 	* gllib/*: Update from gnulib.
 	* glm4/*: Likewise.
