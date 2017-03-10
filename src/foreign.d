@@ -281,12 +281,16 @@ modexp maygc void register_foreign_inttype
   } else shifthash(O(foreign_inttype_table),name,inttype,true);
 }
 
-LISPFUNNF(parse_foreign_inttype,1) { /* "size_t" --> FFI:UINT64 */
-  object inttype = gethash(STACK_0,O(foreign_inttype_table),false);
+LISPFUNNF(parse_foreign_inttype,2) { /* "size_t" --> FFI:UINT64 */
+  bool errorp = !nullp(STACK_0);
+  object inttype = gethash(STACK_1,O(foreign_inttype_table),false);
   if (eq(inttype,nullobj))
-    error(error_condition,GETTEXT("No foreign int type named ~S"));
+    if (errorp)
+      error(error_condition,GETTEXT("No foreign int type named ~S"));
+    else
+      inttype = Fixnum_0;       /* no such type */
   VALUES1(inttype);
-  skipSTACK(1);
+  skipSTACK(2);
 }
 
 /* A foreign value descriptor describes an item of foreign data.

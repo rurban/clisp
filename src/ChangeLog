@@ -1,5 +1,14 @@
 2017-03-09  Sam Steingold  <sds@gnu.org>
 
+	Fix module build failure with inttypes defined in base modules.
+	* foreign.d, subr.d (PARSE-FOREIGN-INTTYPE): Accept second ERRORP
+	argument; return 0 when the type is not found and ERRORP is NIL.
+	* foreign1.lisp (parse-c-type): Pass ERRORP=T to PARSE-FOREIGN-INTTYPE.
+	(finalize-coutput-file): Do not write register_foreign_inttype()
+	for types already accepted by PARSE-FOREIGN-INTTYPE.
+
+2017-03-09  Sam Steingold  <sds@gnu.org>
+
 	Add asciz_startswith - a replacement for strncmp not requiring
 	begin_system_call/end_system_call.
 	* spvw.d (asciz_startswith): Implement.
