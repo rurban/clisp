@@ -48,6 +48,71 @@ global int mprotect (void* addr, size_t len, int prot);
 
 /* -------------------------- Implementation --------------------------- */
 
+#if HAVE_MINCORE
+/* mincore() is a system call that allows to inquire the status of a
+   range of pages of virtual memory.  In particular, it allows to inquire
+   whether a page is mapped at all.
+   As of 2006, mincore() is supported by:        possible bits:
+     - Linux,   since Linux 2.4 and glibc 2.2,   1
+     - Solaris, since Solaris 9,                 1
+     - MacOS X, since MacOS X 10.3 (at least),   1
+     - FreeBSD, since FreeBSD 6.0,               MINCORE_{INCORE,REFERENCED,MODIFIED}
+     - NetBSD,  since NetBSD 3.0 (at least),     1
+     - OpenBSD, since OpenBSD 2.6 (at least),    1
+   However, while the API allows to easily determine the bounds of mapped
+   virtual memory, it does not make it easy the bounds of _unmapped_ virtual
+   memory ranges. */
+
+/* The glibc declaration of mincore() uses 'unsigned char *', whereas the BSD
+   declaration uses 'char *'. */
+#if __GLIBC__ >= 2
+typedef unsigned char mincore_pageinfo_t;
+#else
+typedef char mincore_pageinfo_t;
+#endif
+
+/* The page size used by mincore(), that is, the physical page size. */
+local uintP mincore_pagesize;
+
+#define mincore_init() \
+  /* Note: HAVE_MINCORE implies HAVE_GETPAGESIZE. */ \
+  mincore_pagesize = getpagesize();
+
+/* Determines whether the memory range [map_addr,map_endaddr) is entirely
+   unmapped.
+   map_endaddr must be >= map_addr or == 0. */
+local bool is_small_range_unmapped (uintP map_addr, uintP map_endaddr)
+{
+  mincore_pageinfo_t vec[1];
+  map_addr = map_addr & ~(mincore_pagesize-1); /* round down */
+  map_endaddr = ((map_endaddr-1) | (mincore_pagesize-1)) + 1; /* round up */
+  for (; map_addr != map_endaddr; map_addr += mincore_pagesize) {
+    if (mincore ((void *) map_addr, mincore_pagesize, vec) >= 0)
+      /* The page [map_addr,map_addr+mincore_pagesize) is mapped. */
+      return false;
+  }
+  return true;
+}
+
+/* Warn before invoking mmap on an address range [map_addr,map_endaddr).
+   If this call will overwrite existing memory mappings, clisp is likely to
+   crash afterwards. This is a debugging tool for systems with address space
+   randomization. */
+local void warn_before_mmap (uintP map_addr, uintP map_endaddr)
+{
+  if (!is_small_range_unmapped(map_addr,map_endaddr)) {
+    fprintf(stderr,GETTEXTL("Warning: overwriting existing memory mappings in the address range 0x%lx...0x%lx. clisp will likely crash soon!!\n"),
+            (unsigned long)map_addr,(unsigned long)(map_endaddr-1));
+  }
+}
+
+#else
+#define mincore_init()
+#define warn_before_mmap(map_addr,map_endaddr)
+#endif
+
+/* -------------------- Implementation for Mac OS X -------------------- */
+
 #if defined(HAVE_MACH_VM)
 
 local void mmap_init_pagesize (void)
@@ -113,6 +178,8 @@ global int mprotect (void* addr, size_t len, int prot)
 }
 
 #endif
+
+/* -------------------- Implementation for Windows --------------------- */
 
 #if defined(HAVE_WIN32_VM)
 
@@ -261,6 +328,8 @@ global int mprotect (void* addr, size_t len, int prot)
 
 #endif
 
+/* -------------- Implementation for Unix except Mac OS X -------------- */
+
 #if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)
 
 /* We don't need both mmap() methods. One is sufficient. */
@@ -322,6 +391,7 @@ local int mmap_init (void)
     mmap_zero_fd = fd;
   }
  #endif
+  mincore_init();
   return 0;
 }
 
@@ -329,6 +399,7 @@ local int mmap_init (void)
 
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {
+  warn_before_mmap((uintP)map_addr,(uintP)map_addr+map_len);
   if ( (void*) mmap((void*)map_addr, /* desired address */
                     map_len, /* length */
                     PROT_READ_WRITE, /* access rights */
@@ -346,6 +417,7 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
 #ifdef HAVE_MMAP
 local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
 {
+  warn_before_mmap((uintP)map_addr,(uintP)map_addr+map_len);
   return (void*) mmap((void*)map_addr,
                       map_len,
                       PROT_READ_WRITE,
