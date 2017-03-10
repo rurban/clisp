@@ -10740,13 +10740,9 @@ extern uintL asciz_length (const char * asciz);
  > char* asciz2: second ASCIZ-String
  < result: true if the number-sequences are equal */
 extern bool asciz_equal (const char * asciz1, const char * asciz2);
-/* is used by STREAM */
+/* is used by STREAM, ENCODING, SPVW, CHARSTRG */
 %% #if notused
-%% #ifdef asciz_length
-%%   export_def(asciz_equal(a1,a2));
-%% #else
 %%   exportF(bool,asciz_equal,(const char * asciz1, const char * asciz2));
-%% #endif
 %% #endif
 
 /* allocate memory and check for success */
