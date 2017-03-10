@@ -1,3 +1,9 @@
+2017-03-10  Bruno Haible  <bruno@clisp.org>
+
+	Disable address range warning on Mac OS X.
+	* spvw_mmap.d: Treat Mac OS X like a platform without 'mincore'.
+	Reported by Sam Steingold.
+
 2017-03-10  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [GCC & !CROSS]: Add -Wno-shift-negative-value.
@@ -9,8 +15,8 @@
 	* Makefile.devel (GNULIB_CORE): Add vma-iter.
 	* spvw_mmap.d: Include vma-iter.h.
 	(is_large_range_unmapped_locals): New type.
-	(is_large_range_unmapped_callback, is_large_range_unmapped)
-	(warn_before_reserving_range): New functions.
+	(is_large_range_unmapped_callback, is_large_range_unmapped,
+	warn_before_reserving_range): New functions.
 	(mmap_prepare): Invoke warn_before_reserving_range.
 	* gllib/*: Update from gnulib.
 	* glm4/*: Likewise.
