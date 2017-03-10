@@ -1,5 +1,13 @@
 2017-03-09  Sam Steingold  <sds@gnu.org>
 
+	Add asciz_startswith - a replacement for strncmp not requiring
+	begin_system_call/end_system_call.
+	* spvw.d (asciz_startswith): Implement.
+	* lispbibl.d (asciz_startswith): Declare.
+	* pathname.d (get_path_info): Use it instead of strncmp().
+
+2017-03-09  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (LISP-IMPLEMENTATION-VERSION): Wrap atol() and strncmp()
 	in begin_system_call/end_system_call.
 

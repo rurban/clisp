@@ -1000,6 +1000,22 @@ modexp bool asciz_equal (const char * asciz1, const char * asciz2) {
  no: return false;
 }
 
+/* UP: check that the first ASCIZ-string starts with the second one.
+ asciz_startswith(asciz,prefix) === (strncmp(asciz,prefix,strlen(prefix))==0)
+ > char* asciz: first ASCIZ-string
+ > char* prefix: second ASCIZ-string
+ < result: true if both sequences are equal up to the length of the second */
+modexp bool asciz_startswith (const char *asciz, const char *prefix) {
+  /* compare bytes until the first nullbyte: */
+  while (1) {
+    var char ch = *prefix++;
+    if (ch == '\0') return true;
+    if (ch != *asciz++) return false;
+  }
+}
+
+
+
 /* --------------------------------------------------------------------------
                   Other Global Helper Functions */
 

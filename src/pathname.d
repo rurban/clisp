@@ -5383,7 +5383,7 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
       }
       /* when piping, /dev/fd/1 -> /proc/<pid>/fd/1 -> pipe:[<inode>]
          on a terminal, /dev/fd/1 -> /proc/<pid>/fd/1 -> /dev/pts/<terminal> */
-      if (strncmp(namestring_asciz,"/proc/",6) == 0 && linkbuf[0] != '/') {
+      if (asciz_startswith(namestring_asciz,"/proc/") && linkbuf[0] != '/') {
         /* ignore local links in /proc */
         FREE_DYNAMIC_ARRAY(linkbuf);
         return ((fs->fs_stat_validp = true)); /* done */
