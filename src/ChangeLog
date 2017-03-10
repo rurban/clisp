@@ -1,3 +1,8 @@
+2017-03-09  Sam Steingold  <sds@gnu.org>
+
+	* misc.d (LISP-IMPLEMENTATION-VERSION): Wrap atol() and strncmp()
+	in begin_system_call/end_system_call.
+
 2017-03-09  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure with DEBUG_GCSAFETY.

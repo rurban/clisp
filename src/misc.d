@@ -30,6 +30,7 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
         var uintL se,mi,ho,da,mo,ye;
         with_string_0(O(lisp_implementation_version_built_string),
                       O(misc_encoding),ztime,{
+          begin_system_call();
           /* Mmm dd yyyyhh:mm:ss
              0   4  7   11 14 17 */
           ztime[13] = ztime[16] = 0;
@@ -51,6 +52,7 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
                 strncmp("Dec",ztime,3) == 0 ? 12 : 0);
           ztime[11]=0;
           ye = atol(ztime+7);
+          end_system_call();
         });
         /* no month ==> l_i_v_b_s must have been converted already */
         if (mo != 0) { /* YYYY-MM-DD HH:MM:SS */
