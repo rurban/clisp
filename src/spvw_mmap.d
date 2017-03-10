@@ -111,6 +111,62 @@ local void warn_before_mmap (uintP map_addr, uintP map_endaddr)
 #define warn_before_mmap(map_addr,map_endaddr)
 #endif
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#include "vma-iter.h"
+
+#if VMA_ITERATE_SUPPORTED
+
+struct is_large_range_unmapped_locals {
+  uintptr_t map_start;
+  uintptr_t map_end;
+  int intersect;
+};
+
+local int is_large_range_unmapped_callback (void *data,
+                                            uintptr_t start, uintptr_t end,
+                                            unsigned int flags)
+{
+  struct is_large_range_unmapped_locals* locals =
+    (struct is_large_range_unmapped_locals*) data;
+  if (!(start > locals->map_end-1 || locals->map_start > end-1)) {
+    locals->intersect = 1;
+    return 1; /* terminate loop */
+  } else
+    return 0; /* continue */
+}
+
+/* Determines whether the memory range [map_addr,map_endaddr) is entirely
+   unmapped.
+   map_endaddr must be >= map_addr or == 0.
+   This function is suitable for large ranges (unlike is_small_range_unmapped),
+   but is significantly slower than is_small_range_unmapped for small ranges. */
+local bool is_large_range_unmapped (uintP map_addr, uintP map_endaddr)
+{
+  /* Use the gnulib module 'vma-iter' to look for an intersection between
+     the specified interval and the existing VMAs. */
+  struct is_large_range_unmapped_locals locals;
+  locals.map_start = map_addr;
+  locals.map_end = map_endaddr;
+  locals.intersect = 0;
+  return !(vma_iterate (&is_large_range_unmapped_callback, &locals) == 0
+           && locals.intersect);
+}
+
+/* Warn before reserving an address range that contains existing memory
+   mappings. */
+local void warn_before_reserving_range (uintP map_addr, uintP map_endaddr)
+{
+  if (!is_large_range_unmapped(map_addr,map_endaddr)) {
+    fprintf(stderr,GETTEXTL("Warning: reserving address range 0x%lx...0x%lx that contains memory mappings. clisp might crash later!\n"),
+            (unsigned long)map_addr,(unsigned long)(map_endaddr-1));
+  }
+}
+
+#else
+#define warn_before_reserving_range(map_addr,map_endaddr)
+#endif
+
 /* -------------------- Implementation for Mac OS X -------------------- */
 
 #if defined(HAVE_MACH_VM)
@@ -120,7 +176,14 @@ local void mmap_init_pagesize (void)
 
 #define mmap_init()  0
 
-#define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
+local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
+{
+  /* Warn before reserving an address range that contains existing memory
+     mappings. We don't actually shrink the range [*map_addr,*map_endaddr)
+     here. */
+  warn_before_reserving_range(*map_addr,*map_endaddr);
+  return 0;
+}
 
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {
@@ -395,7 +458,14 @@ local int mmap_init (void)
   return 0;
 }
 
-#define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
+local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
+{
+  /* Warn before reserving an address range that contains existing memory
+     mappings. We don't actually shrink the range [*map_addr,*map_endaddr)
+     here. */
+  warn_before_reserving_range(*map_addr,*map_endaddr);
+  return 0;
+}
 
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {

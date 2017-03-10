@@ -190,7 +190,8 @@ GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset stdlib \
 	uniwidth/width streq uniname/uniname unitypes link-follow close select \
 	host-cpu-c-abi socklen sockets fd-hook setenv unsetenv errno ioctl \
 	arpa_inet netinet_in inet_ntop inet_pton socketlib strerror_r-posix \
-	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait
+	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time sys_wait \
+	vma-iter
 GNULIB_SYSCALLS = mktime strftime strptime strverscmp uname fnmatch-gnu
 GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex recvfrom sendto
 GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
