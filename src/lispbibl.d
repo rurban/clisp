@@ -10745,6 +10745,17 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 %%   exportF(bool,asciz_equal,(const char * asciz1, const char * asciz2));
 %% #endif
 
+/* UP: check that the first ASCIZ-string starts with the second one.
+ asciz_startswith(asciz,prefix) === (strncmp(asciz,prefix,strlen(prefix))==0)
+ > char* asciz: first ASCIZ-string
+ > char* prefix: second ASCIZ-string
+ < result: true if both sequences are equal up to the length of the second */
+extern bool asciz_startswith (const char *asciz, const char *prefix);
+/* used by PATHNAME */
+%% #if notused
+%%   exportF(bool,asciz_startswith,(const char *asciz, const char *prefix));
+%% #endif
+
 /* allocate memory and check for success */
 extern void* clisp_malloc (size_t size);
 /* used by FOREIGN and modules */
