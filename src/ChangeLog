@@ -1,3 +1,14 @@
+2017-03-10  Bruno Haible  <bruno@clisp.org>
+
+	Warn before doing mmap calls that might crash clisp.
+	* configure.in: Test for mincore.
+	* spvw_mmap.d (mincore_pageinfo_t): New type.
+	(mincore_init, is_small_range_unmapped, warn_before_mmap): New
+	functions.
+	(mmap_init): Invoke mincore_init.
+	(mmap_zeromap, mmap_filemap): Invoke warn_before_mmap.
+	* src/configure, src/config.h.in: Regenerated.
+
 2017-03-09  Sam Steingold  <sds@gnu.org>
 
 	Fix module build failure with inttypes defined in base modules.
