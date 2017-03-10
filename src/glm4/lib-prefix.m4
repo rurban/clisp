@@ -204,7 +204,7 @@ sixtyfour bits
        *)
          dnl The result is a property of the system. However, non-system
          dnl compilers sometimes have odd library search paths. Therefore
-         dnl prefer asking /usr/bin/gcc, if available, rather than $CC. 
+         dnl prefer asking /usr/bin/gcc, if available, rather than $CC.
          searchpath=`(if test -f /usr/bin/gcc \
                          && LC_ALL=C /usr/bin/gcc -print-search-dirs >/dev/null 2>/dev/null; then \
                         LC_ALL=C /usr/bin/gcc -print-search-dirs; \

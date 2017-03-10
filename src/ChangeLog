@@ -1,5 +1,18 @@
 2017-03-10  Bruno Haible  <bruno@clisp.org>
 
+	Warn before reserving an address range that might crash clisp.
+	* Makefile.devel (GNULIB_CORE): Add vma-iter.
+	* spvw_mmap.d: Include vma-iter.h.
+	(is_large_range_unmapped_locals): New type.
+	(is_large_range_unmapped_callback, is_large_range_unmapped, warn_before_reserving_range): New functions.
+	(mmap_prepare): Invoke warn_before_reserving_range.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* gllib/Makefile.am, gllib/Makefile.in: Regenerated.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-03-10  Bruno Haible  <bruno@clisp.org>
+
 	Warn before doing mmap calls that might crash clisp.
 	* configure.in: Test for mincore.
 	* spvw_mmap.d (mincore_pageinfo_t): New type.

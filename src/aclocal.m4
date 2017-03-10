@@ -3807,7 +3807,7 @@ AC_DEFUN([gl_GNU_MAKE],
     [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
 ])
 
-# gnulib-common.m4 serial 36
+# gnulib-common.m4 serial 37
 dnl Copyright (C) 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -4265,10 +4265,12 @@ m4_ifndef([AC_PROG_SED],
      else
        ac_cv_path_SED=$SED
      fi
+    ])
  SED="$ac_cv_path_SED"
  AC_SUBST([SED])dnl
  rm -f conftest.sed
-])])])
+])
+])
 
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # Copyright (C) 2002-2017 Free Software Foundation, Inc.
@@ -4450,6 +4452,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module uniwidth/width:
   # Code from module unsetenv:
   # Code from module verify:
+  # Code from module vma-iter:
   # Code from module wchar:
   # Code from module wcrtomb:
   # Code from module wctype-h:
@@ -4877,6 +4880,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_UNSETENV
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
+  gl_FUNC_MMAP_ANON
+  AC_CHECK_FUNCS_ONCE([mquery])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -5173,6 +5178,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/width.c
   lib/unsetenv.c
   lib/verify.h
+  lib/vma-iter.c
+  lib/vma-iter.h
   lib/w32sock.h
   lib/wchar.in.h
   lib/wcrtomb.c
@@ -7754,7 +7761,7 @@ sixtyfour bits
        *)
          dnl The result is a property of the system. However, non-system
          dnl compilers sometimes have odd library search paths. Therefore
-         dnl prefer asking /usr/bin/gcc, if available, rather than $CC. 
+         dnl prefer asking /usr/bin/gcc, if available, rather than $CC.
          searchpath=`(if test -f /usr/bin/gcc \
                          && LC_ALL=C /usr/bin/gcc -print-search-dirs >/dev/null 2>/dev/null; then \
                         LC_ALL=C /usr/bin/gcc -print-search-dirs; \

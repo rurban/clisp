@@ -178,6 +178,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module uniwidth/width:
   # Code from module unsetenv:
   # Code from module verify:
+  # Code from module vma-iter:
   # Code from module wchar:
   # Code from module wcrtomb:
   # Code from module wctype-h:
@@ -605,6 +606,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_UNSETENV
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
+  gl_FUNC_MMAP_ANON
+  AC_CHECK_FUNCS_ONCE([mquery])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -901,6 +904,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/width.c
   lib/unsetenv.c
   lib/verify.h
+  lib/vma-iter.c
+  lib/vma-iter.h
   lib/w32sock.h
   lib/wchar.in.h
   lib/wcrtomb.c
