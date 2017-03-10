@@ -1238,15 +1238,12 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false ] ; then
     # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
     XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
-  fi
-  if [ $CROSS = false -a $CC_CPLUSPLUS = true ] ; then
-    # g++ 3.4 introduced an annoying warning, but has a workaround:
-    case "$XCC_GCC_VERSION" in
-      2.* | 3.[1-3]*) ;;
-      *)
-        XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
-        ;;
-    esac
+    # https://gcc.gnu.org/ml/gcc-patches/2015-04/msg01353.html
+    XCFLAGS=$XCFLAGS' -Wno-shift-negative-value'
+    if [ $CC_CPLUSPLUS = true ] ; then
+      # g++ 3.4 introduced an annoying warning, but has a workaround:
+      XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
+    fi
   fi
   # Code generation flags:
   if [ "${with_debug}" = no ] ; then # select optimizations
