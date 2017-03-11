@@ -1,5 +1,10 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	Avoid unwanted optimizations on signed integer types by gcc.
+	* makemake.in (XCFLAGS): Add '-fwrapv' option.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on OpenBSD 6 (regression from 2017-03-10).
 	* makemake.in (XCFLAGS): Test gcc version before adding -Wno-* options.
 
