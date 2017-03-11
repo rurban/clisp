@@ -8969,7 +8969,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       pr_record_descr(stream_,obj,S(byte),true,O(byte_slotlist));
      #endif
     } break;
-    #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+    #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
     case Rectype_Subr:          /* Subr */
       pr_subr(stream_,obj);
       break;

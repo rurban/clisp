@@ -1,5 +1,20 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	Rename LINUX_NOEXEC_HEAPCODES to KERNELVOID32_HEAPCODES.
+	* lispbibl.d: Define/expect KERNELVOID32_HEAPCODES and
+	KERNELVOID32A_HEAPCODES instead of LINUX_NOEXEC_HEAPCODES.
+	* constsym.d (LISPSYM_B): Update.
+	* spvw.d (init_memory): Update.
+	* spvw_gcmark.d (gc_mark): Update.
+	* spvw_memfile.d (loadmem_update): Update.
+	* lightning.c: Update.
+	* io.d (pr_orecord): Update.
+	* built.d (built_flags): Update.
+	* Makefile.devel (build-porting*, build-darwin-*): Rename and update
+	accordingly.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	Rename STANDARD_HEAPCODES to ONE_FREE_BIT_HEAPCODES.
 	* lispbibl.d: Define/expect ONE_FREE_BIT_HEAPCODES instead of
 	STANDARD_HEAPCODES.

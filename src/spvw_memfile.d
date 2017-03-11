@@ -787,7 +787,7 @@ local void loadmem_update (gcv_object_t* objptr)
         *objptr = as_object(as_oint(*objptr) + offset_symbols_o); break;
       }
      #endif
-     #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+     #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
       { /* Test for a SUBR in one of the modules. */
         var oint addr = as_oint(*objptr);
         var offset_subrs_t* ptr = offset_subrs;
@@ -848,7 +848,7 @@ local void loadmem_update (gcv_object_t* objptr)
       #endif
      #endif
     /*---NOTREACHED---*/
-   #if !(defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES))
+   #if !(defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES))
     case_subr: { /* SUBR */
         var oint addr = as_oint(*objptr);
         var offset_subrs_t* ptr = offset_subrs;
@@ -903,7 +903,7 @@ local void loadmem_update (gcv_object_t* objptr)
    #endif
       break;
     /*---NOTREACHED---*/
-   #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+   #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
     case_subr: /* immediate Subrs don't exist in this case */
    #endif
     default: /*NOTREACHED*/ abort();

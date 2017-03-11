@@ -33,7 +33,7 @@
       { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
   #endif
 #else
-  #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
+  #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
     #define LISPSYM_B(name,printname,package)  \
       { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
         unbound, unbound, unbound, NIL, NIL, NIL, unbound, SYM_TLS_INDEX_INIT},

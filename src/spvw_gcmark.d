@@ -324,7 +324,7 @@ local void gc_mark (object obj)
       down_subr();
     #endif
     case machine_bias:
-    #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
+    #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
     case machine_bias+4:
     #endif
     #ifdef GENERIC64C_HEAPCODES
