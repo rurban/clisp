@@ -1,3 +1,10 @@
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
+	maint: Modernize multibuild-linux-x86 target.
+	* Makefile.devel (build-linux-x86-*): Remove targets.
+	(multibuild-linux-x86): Use the build-porting32-gcc-* targets.
+	(multibuild-linux-x86_64): New target.
+
 2017-03-10  Bruno Haible  <bruno@clisp.org>
 
 	Disable address range warning on Mac OS X.

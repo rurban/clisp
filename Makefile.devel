@@ -907,69 +907,32 @@ build-porting64-cc-safety0:
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Build and test all essential memory models on a Linux/x86 machine.
+# Build and test various configurations that are supposed to work on a
+# Linux/x86 machine.
 
-multibuild-linux-x86:  build-linux-x86-standard-spvw_mixed_blocks-staggered \
-	build-linux-x86-standard-spvw_mixed_blocks-opposite	\
-	build-linux-x86-standard-spvw_mixed_blocks-opposite-fixedmemsize \
-	build-linux-x86-standard-spvw_mixed_pages		\
-	build-linux-x86-noexec-spvw_mixed_blocks-staggered	\
-	build-linux-x86-noexec-spvw_mixed_blocks-opposite	\
-	build-linux-x86-noexec-spvw_mixed_blocks-opposite-fixedmemsize \
-	build-linux-x86-noexec-spvw_mixed_pages			\
-	build-linux-x86-spvw_pure_blocks			\
-	build-linux-x86-wide
+multibuild-linux-x86: \
+  build-porting32-gcc-portability \
+  build-porting32-gcc-safety3 \
+  build-porting32-gcc-heapcodes \
+  build-porting32-gcc-linux_noexec_heapcodes \
+  build-porting32-gcc-try1_typecodes \
+  build-porting32-gcc-try2_typecodes \
+  build-porting32-gcc-heapcodes-spvw_pages \
+  build-porting32-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting32-gcc-wide \
+  build-porting32-gcc-old_gc \
+  build-porting32-gcc-multithread_gc \
+  build-porting32-gcc-generational_gc-old_gc \
+  build-porting32-gcc-generational_gc-multithread_gc \
+  build-porting32-gcc-safety0 \
+  build-porting32-gcc-safety0-optimized \
+  build-porting32-gcc-debug_gcsafety
 
-build-linux-x86-standard-spvw_mixed_blocks-staggered:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-standard-spvw_mixed_blocks-opposite:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-standard-spvw_mixed_blocks-opposite-fixedmemsize:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-standard-spvw_mixed_pages:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-noexec-spvw_mixed_blocks-staggered:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-noexec-spvw_mixed_blocks-opposite:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-noexec-spvw_mixed_pages:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-spvw_pure_blocks:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DTYPECODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-linux-x86-wide:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DWIDE" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Build and test various configurations that are supposed to work on a
+# Linux/x86_64 machine.
+
+multibuild-linux-x86_64: multibuild-porting64-gcc
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Build and test all essential memory models on a Mac OS X/PowerPC machine.
