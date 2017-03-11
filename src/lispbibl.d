@@ -56,6 +56,7 @@
          TRY_TYPECODES_2  (try to avoid it: limits heap size to 16 MB)
        Specific variants of KERNELVOID32_HEAPCODES on 32-bit platforms:
          KERNELVOID32A_HEAPCODES
+         KERNELVOID32B_HEAPCODES
        Object representation schemes on 64-bit platforms:
          ONE_FREE_BIT_HEAPCODES
          GENERIC64_HEAPCODES
@@ -2303,7 +2304,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define TYPECODES
 #endif
 
-#if defined(KERNELVOID32A_HEAPCODES)
+#if defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES)
   #define KERNELVOID32_HEAPCODES
 #endif
 
@@ -2624,15 +2625,28 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #endif
   #endif /* ONE_FREE_BIT_HEAPCODES */
   #ifdef KERNELVOID32_HEAPCODES
-    #if !defined(KERNELVOID32A_HEAPCODES)
-      #define KERNELVOID32A_HEAPCODES
+    #if !(defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES))
+      #if STACK_ADDRESS_RANGE >= 0xC0000000UL
+        #define KERNELVOID32B_HEAPCODES
+      #else
+        #define KERNELVOID32A_HEAPCODES
+      #endif
     #endif
-    #ifdef KERNELVOID32A_HEAPCODES
-      /* The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
-       at 0xC0000000, or at least that we can put a black hole on the range
-       0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
-       8-byte alignment of symbol_tab and subr_tab.
-       Only bit 0 or 1 can be used as GC-bit. */
+    #if defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES)
+      /* KERNELVOID32A_HEAPCODES:
+           The Linux/32-bit case. Assumes
+           1. that the virtual memory addresses end at 0xC0000000, or at least
+              that we can put a black hole on the range 0xC0000000..0xDFFFFFFF,
+           2. that the compiler and linker can enforce an 8-byte alignment of
+              symbol_tab and subr_tab.
+           Only bit 0 or 1 can be used as GC-bit.
+         KERNELVOID32B_HEAPCODES:
+           The OpenBSD/i386 case. Assumes
+           1. that the virtual memory addresses end at 0xE0000000, or at least
+              that we can put a black hole on the range 0xE0000000..0xFFFFFFFF,
+           2. that the compiler and linker can enforce an 8-byte alignment of
+              symbol_tab and subr_tab.
+           Only bit 0 or 1 can be used as GC-bit. */
       #define oint_type_shift 0
       #define oint_type_len 32
       #define oint_type_mask 0xE000001FUL
@@ -3530,6 +3544,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      Immediates look like pointers in the range 0xC0000000..0xFFFFFFFF.
      We know that the Linux kernel never assigns virtual memory in this area.
      So, here are the encodings. Bit 0 is used as the garcol_bit.
+     With KERNELVOID32A_HEAPCODES:
        machine                 ... ... .00   encodes pointers, offset 0
        cons                    ... ... 010   offset 2, the pointers are == 0 mod 8
        varobject               ... ... 110   offset 6, the pointers are == 4 mod 8
@@ -3539,6 +3554,16 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
          char              110 ... 100  00
          small-read-label  110 ... 110  00
          system            110 ... 111  00
+     With KERNELVOID32B_HEAPCODES:
+       machine                 ... ... .00   encodes pointers, offset 0
+       cons                    ... ... 010   offset 2, the pointers are == 0 mod 8
+       varobject               ... ... 110   offset 6, the pointers are == 4 mod 8
+       immediate           111 ... ...  00
+         fixnum            111 ... 00s  00   s = sign bit
+         sfloat            111 ... 01s  00   s = sign bit
+         char              111 ... 100  00
+         small-read-label  111 ... 110  00
+         system            111 ... 111  00
      Varobjects all start with a word containing the type (1 byte) and a
      length field (up to 24 bits). */
 
@@ -3546,7 +3571,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       #define machine_bias    0  /* + 0 mod 4 */
       #define varobject_bias  2  /* + 4 mod 8 */
       #define cons_bias       2  /* + 0 mod 8 */
-      #define immediate_bias  0xC0000000  /* + 0 mod 4 */
+      #ifdef KERNELVOID32A_HEAPCODES
+        #define immediate_bias  0xC0000000  /* + 0 mod 4 */
+      #endif
+      #ifdef KERNELVOID32B_HEAPCODES
+        #define immediate_bias  0xE0000000  /* + 0 mod 4 */
+      #endif
       #define subr_bias       varobject_bias
 
     /* Immediate objects have a second type field. */
@@ -8293,10 +8323,15 @@ typedef struct {
   #ifdef ONE_FREE_BIT_HEAPCODES
     #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
   #endif
-  #ifdef KERNELVOID32_HEAPCODES
+  #ifdef KERNELVOID32A_HEAPCODES
     #define machinep(obj)  \
       ((as_oint(obj) & 3) == machine_bias            \
        && (as_oint(obj) & 0xE0000000) != 0xC0000000)
+  #endif
+  #ifdef KERNELVOID32B_HEAPCODES
+    #define machinep(obj)  \
+      ((as_oint(obj) & 3) == machine_bias    \
+       && (0xE0000000 & ~as_oint(obj)) != 0)
   #endif
   #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
     #define machinep(obj)  \

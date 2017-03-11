@@ -1,5 +1,13 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	New heapcodes scheme KERNELVOID32B_HEAPCODES.
+	Needed to get generational GC working on OpenBSD/x86.
+	* lispbibl.d: Define/expect KERNELVOID32B_HEAPCODES as an alternative
+	to KERNELVOID32A_HEAPCODES.
+	* spvw.d (init_memory): Update accordingly.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	Rename LINUX_NOEXEC_HEAPCODES to KERNELVOID32_HEAPCODES.
 	* lispbibl.d: Define/expect KERNELVOID32_HEAPCODES and
 	KERNELVOID32A_HEAPCODES instead of LINUX_NOEXEC_HEAPCODES.
