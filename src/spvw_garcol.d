@@ -188,13 +188,13 @@ local bool alive (object obj)
       if (in_old_generation(obj,,0)) return true;
       if (marked(ThePointer(obj))) return true; else return false;
     case cons_bias+conses_misaligned:
-      #ifdef STANDARD_HEAPCODES
+      #ifdef ONE_FREE_BIT_HEAPCODES
       /* NB: (immediate_bias & nonimmediate_heapcode_mask) == cons_bias. */
       if (immediate_object_p(obj)) return true;
       #endif
       if (in_old_generation(obj,,1)) return true;
       if (marked(ThePointer(obj))) return true; else return false;
-    #ifdef STANDARD_HEAPCODES
+    #ifdef ONE_FREE_BIT_HEAPCODES
     case subr_bias:
       if (marked(TheSubr(obj))) return true; else return false;
     #endif

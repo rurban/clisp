@@ -1,5 +1,20 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	Rename STANDARD_HEAPCODES to ONE_FREE_BIT_HEAPCODES.
+	* lispbibl.d: Define/expect ONE_FREE_BIT_HEAPCODES instead of
+	STANDARD_HEAPCODES.
+	* spvw.d (init_memory): Update.
+	* spvw_garcol.d (alive): Update.
+	* spvw_garcol_old.d (alive): Update.
+	* spvw_gcmark.d (gc_mark): Update.
+	* lightning.c: Update.
+	* built.d (built_flags): Update.
+	* makemake.in: Update.
+	* Makefile.devel (build-porting*, build-darwin-*): Rename and update
+	accordingly.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	maint: Modernize multibuild-linux-x86 target.
 	* Makefile.devel (build-linux-x86-*): Remove targets.
 	(multibuild-linux-x86): Use the build-porting32-gcc-* targets.

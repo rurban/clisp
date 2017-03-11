@@ -50,12 +50,12 @@
        TYPECODES
      More detailed object representation schemes:
        Object representation schemes on 32-bit platforms:
-         STANDARD_HEAPCODES
+         ONE_FREE_BIT_HEAPCODES
          LINUX_NOEXEC_HEAPCODES
          TRY_TYPECODES_1  (try to avoid it: limits heap size to 16 MB)
          TRY_TYPECODES_2  (try to avoid it: limits heap size to 16 MB)
        Object representation schemes on 64-bit platforms:
-         STANDARD_HEAPCODES
+         ONE_FREE_BIT_HEAPCODES
          GENERIC64_HEAPCODES
        Specific variants of GENERIC64_HEAPCODES on 64-bit platforms:
          GENERIC64A_HEAPCODES
@@ -2305,7 +2305,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define GENERIC64_HEAPCODES
 #endif
 
-#if defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+#if defined(ONE_FREE_BIT_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
   #define HEAPCODES
 #endif
 
@@ -2351,9 +2351,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* On 64-bit machines:
        - TYPECODES: There's enough room for type bits, unless the OS allocates
          memory at addresses >= 0x0100000000000000.
-       - HEAPCODES: Both STANDARD_HEAPCODES and GENERIC64_HEAPCODES have
+       - HEAPCODES: Both ONE_FREE_BIT_HEAPCODES and GENERIC64_HEAPCODES have
          alignment restrictions:
-         STANDARD_HEAPCODES will normally not work if
+         ONE_FREE_BIT_HEAPCODES will normally not work if
          alignof(subr_t) = alignof(long) < 4, but with GCC we can force
          alignof(subr_t) = 4.
          GENERIC64_HEAPCODES likewise with alignment 8.
@@ -2376,8 +2376,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* On 32-bit machines:
        - TYPECODES: the resulting limit of 16 MB objects for each type is
          ridiculous today.
-       - HEAPCODES: needs a per-platform decision whether to use STANDARD_HEAPCODES
-         or LINUX_NOEXEC_HEAPCODES.
+       - HEAPCODES: needs a per-platform decision whether to use
+         ONE_FREE_BIT_HEAPCODES or LINUX_NOEXEC_HEAPCODES.
        Choose HEAPCODES always. */
     #define HEAPCODES
   #endif
@@ -2543,10 +2543,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    For pointers, the address takes the full word (with type info in the
    lowest two bits). For immediate objects, we use 24 bits for the data
    (but exclude the highest available bit, which is the garcol_bit). */
-  #if !(defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES))
+  #if !(defined(ONE_FREE_BIT_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES))
     /* Choose the appropriate HEAPCODES variant for the machine.
      On most systems, one of the high bits is suitable as GC bit; here we
-     choose STANDARD_HEAPCODES.
+     choose ONE_FREE_BIT_HEAPCODES.
      On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
      is used that distributes virtual addresses over the entire address
      space from 0x00000000 to 0xBFFFFFFF (as a function of its access
@@ -2560,10 +2560,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
       #define LINUX_NOEXEC_HEAPCODES
     #else
-      #define STANDARD_HEAPCODES
+      #define ONE_FREE_BIT_HEAPCODES
     #endif
   #endif
-  #ifdef STANDARD_HEAPCODES
+  #ifdef ONE_FREE_BIT_HEAPCODES
     /* The portable case. Assumes only that the GC bit can be chosen. */
     #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
       #define LINUX_SPARC_OLD_GLIBC
@@ -2616,7 +2616,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_mask 0x0FFFFFF0UL
       #define garcol_bit_o 28
     #endif
-  #endif /* STANDARD_HEAPCODES */
+  #endif /* ONE_FREE_BIT_HEAPCODES */
   #ifdef LINUX_NOEXEC_HEAPCODES
     /* The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
      at 0xC0000000, or at least that we can put a black hole on the range
@@ -3418,7 +3418,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 #else /* HEAPCODES */
 
-  #ifdef STANDARD_HEAPCODES
+  #ifdef ONE_FREE_BIT_HEAPCODES
 
     /* We can assume a general alignment of 4 bytes, and thus have the low 2
      bits for encoding type. Here's how we divide the address space:
@@ -3503,7 +3503,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       #define nonimmediate_heapnr(obj)  \
         ((as_oint(obj) >> 1) & 1)
 
-  #endif /* STANDARD_HEAPCODES */
+  #endif /* ONE_FREE_BIT_HEAPCODES */
 
   #ifdef LINUX_NOEXEC_HEAPCODES
 
@@ -8244,7 +8244,7 @@ typedef struct {
 #ifdef TYPECODES
   #define subrp(obj)  (typecode(obj)==subr_type)
 #else
-  #ifdef STANDARD_HEAPCODES
+  #ifdef ONE_FREE_BIT_HEAPCODES
     #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
     #define immsubrp(obj)  subrp(obj)
   #endif
@@ -8279,7 +8279,7 @@ typedef struct {
 #ifndef TYPECODES
 
   /* Test for Machine-Pointer */
-  #ifdef STANDARD_HEAPCODES
+  #ifdef ONE_FREE_BIT_HEAPCODES
     #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
   #endif
   #ifdef LINUX_NOEXEC_HEAPCODES
@@ -8649,7 +8649,7 @@ typedef struct {
     case Rectype_Bignum: goto case_integer;
 #endif
 
-#if defined(TYPECODES) || defined(STANDARD_HEAPCODES)
+#if defined(TYPECODES) || defined(ONE_FREE_BIT_HEAPCODES)
   #define case_Rectype_Subr_above
 #else /* LINUX_NOEXEC_HEAPCODES || GENERIC64_HEAPCODES */
   #define case_Rectype_Subr_above  \
@@ -12343,7 +12343,7 @@ extern  gcv_environment_t aktenv;
     #define FB1  (garcol_bit_t>TB0 ? TB0 : TB1)
   #else /* HEAPCODES */
     #define FB6  garcol_bit_o
-    #ifdef STANDARD_HEAPCODES
+    #ifdef ONE_FREE_BIT_HEAPCODES
       #define FB5  (garcol_bit_o-1)
       #define FB4  (garcol_bit_o-2)
       #define FB3  (garcol_bit_o-3)
@@ -12541,7 +12541,7 @@ extern  gcv_environment_t aktenv;
   /* Here the bottomword consists of the frame size, not the top of frame itself.
    This leaves room for the frame info byte. */
   #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
-  #ifdef STANDARD_HEAPCODES
+  #ifdef ONE_FREE_BIT_HEAPCODES
     #define makebottomword(type,size)  as_object((oint)(type)+(oint)(size))
     #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
     #define framesize(bottomword)  (as_oint(bottomword)&(wbit(FB1)-1))

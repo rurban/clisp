@@ -180,7 +180,7 @@ local void gc_mark (object obj)
   { curr = objectplus(pred,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     pred = prepred; goto up; /* go further up */  \
   }
-#ifdef STANDARD_HEAPCODES
+#ifdef ONE_FREE_BIT_HEAPCODES
 #define down_subr()                                                     \
   if (in_old_generation(curr,typecode(curr),0))                         \
     goto up; /* do not mark older generation */                         \
@@ -264,7 +264,7 @@ local void gc_mark (object obj)
  #else
   switch (as_oint(curr) & nonimmediate_heapcode_mask) {
     case cons_bias+conses_misaligned: /* cons */
-      #ifdef STANDARD_HEAPCODES
+      #ifdef ONE_FREE_BIT_HEAPCODES
       /* NB: (immediate_bias & nonimmediate_heapcode_mask) == cons_bias. */
       if (immediate_object_p(curr)) goto up;
       #endif
@@ -319,7 +319,7 @@ local void gc_mark (object obj)
           down_cclosure();
           down_sxrecord();
       }
-    #ifdef STANDARD_HEAPCODES
+    #ifdef ONE_FREE_BIT_HEAPCODES
     case subr_bias: /* SUBR */
       down_subr();
     #endif
@@ -421,7 +421,7 @@ local void gc_mark (object obj)
         /* This works only because all varobjects have the same
            objects_offset! */
         up_sxrecord();
-      #ifdef STANDARD_HEAPCODES
+      #ifdef ONE_FREE_BIT_HEAPCODES
       case subr_bias: /* SUBR */
         up_subr();
       #endif
