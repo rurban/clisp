@@ -3093,7 +3093,7 @@ local inline int init_memory (struct argv_initparams *p) {
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
        #else
-        #ifdef STANDARD_HEAPCODES
+        #ifdef ONE_FREE_BIT_HEAPCODES
       var aint end = (start | (bit(garcol_bit_o)-1)) + 1; /* keep garcol_bit zero */
         #endif
         #ifdef LINUX_NOEXEC_HEAPCODES

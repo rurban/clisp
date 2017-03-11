@@ -2498,7 +2498,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   # PSEUDOFUNs, therefore we don't need to apply this to the MODULE_CFLAGS.
   # encoding.d, stream.d, hashtabl.d, predtype.d define PSEUDOFUNs.
   # funarg.d defines test functions for list.d.
-  # socket.d needs this flag, too, for STANDARD_HEAPCODES on Linux/x86_64. Very bizarre.
+  # socket.d needs this flag, too, for ONE_FREE_BIT_HEAPCODES on Linux/x86_64. Very bizarre.
   if [ $f = encoding -o $f = stream -o $f = hashtabl -o $f = predtype -o $f = funarg -o $f = socket ] ; then
     flags2=$flags2" ${FALIGNFLAGS}"
   fi

@@ -337,7 +337,7 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
-  build-porting32-gcc-standard_heapcodes \
+  build-porting32-gcc-one_free_bit_heapcodes \
   build-porting32-gcc-linux_noexec_heapcodes \
   build-porting32-gcc-try1_typecodes \
   build-porting32-gcc-try2_typecodes \
@@ -376,11 +376,11 @@ build-porting32-gcc-heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force STANDARD_HEAPCODES.
-build-porting32-gcc-standard_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES.
+build-porting32-gcc-one_free_bit_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force LINUX_NOEXEC_HEAPCODES.
@@ -498,7 +498,7 @@ multibuild-porting32-cc: \
   build-porting32-cc-portability \
   build-porting32-cc-safety3 \
   build-porting32-cc-heapcodes \
-  build-porting32-cc-standard_heapcodes \
+  build-porting32-cc-one_free_bit_heapcodes \
   build-porting32-cc-linux_noexec_heapcodes \
   build-porting32-cc-try1_typecodes \
   build-porting32-cc-try2_typecodes \
@@ -535,11 +535,11 @@ build-porting32-cc-heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force STANDARD_HEAPCODES.
-build-porting32-cc-standard_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES.
+build-porting32-cc-one_free_bit_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force LINUX_NOEXEC_HEAPCODES.
@@ -654,7 +654,7 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-portability \
   build-porting64-gcc-safety3 \
   build-porting64-gcc-heapcodes \
-  build-porting64-gcc-standard_heapcodes \
+  build-porting64-gcc-one_free_bit_heapcodes \
   build-porting64-gcc-generic64_heapcodes \
   build-porting64-gcc-heapcodes-spvw_pages \
   build-porting64-gcc-typecodes-spvw_pages \
@@ -690,11 +690,11 @@ build-porting64-gcc-heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force STANDARD_HEAPCODES.
-build-porting64-gcc-standard_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES.
+build-porting64-gcc-one_free_bit_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force GENERIC64_HEAPCODES.
@@ -791,7 +791,7 @@ multibuild-porting64-cc: \
   build-porting64-cc-portability \
   build-porting64-cc-safety3 \
   build-porting64-cc-heapcodes \
-  build-porting64-cc-standard_heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes \
   build-porting64-cc-generic64_heapcodes \
   build-porting64-cc-heapcodes-spvw_pages \
   build-porting64-cc-typecodes-spvw_pages \
@@ -825,11 +825,11 @@ build-porting64-cc-heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force STANDARD_HEAPCODES.
-build-porting64-cc-standard_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES.
+build-porting64-cc-one_free_bit_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DSTANDARD_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force GENERIC64_HEAPCODES.
@@ -938,35 +938,35 @@ multibuild-linux-x86_64: multibuild-porting64-gcc
 # Build and test all essential memory models on a Mac OS X/PowerPC machine.
 
 multibuild-darwin-powerpc: \
-	build-darwin-powerpc-standard-spvw_mixed_blocks-staggered	\
-	build-darwin-powerpc-standard-spvw_mixed_blocks-opposite	\
-	build-darwin-powerpc-standard-spvw_mixed_blocks-opposite-fixedmemsize \
-	build-darwin-powerpc-standard-spvw_mixed_pages		\
+	build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-staggered	\
+	build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite	\
+	build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite-fixedmemsize \
+	build-darwin-powerpc-one_free_bit-spvw_mixed_pages		\
 	build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered	\
 	build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite	\
 	build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite-fixedmemsize \
 	build-darwin-powerpc-noexec-spvw_mixed_pages		\
 	build-darwin-powerpc-spvw_pure_blocks			\
 	build-darwin-powerpc-wide
-build-darwin-powerpc-standard-spvw_mixed_blocks-staggered:
+build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-staggered:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-standard-spvw_mixed_blocks-opposite:
+build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-standard-spvw_mixed_blocks-opposite-fixedmemsize:
+build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite-fixedmemsize:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-standard-spvw_mixed_pages:
+build-darwin-powerpc-one_free_bit-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered:
 	$(RMRF) $@

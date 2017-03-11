@@ -225,7 +225,7 @@ ref66 = jit_get_label();\
 jit_bnei_p(ref66,reg,0);\
     }
 /* ------------------- (1) Stack operations ----------------------- */
-#ifdef STANDARD_HEAPCODES
+#ifdef ONE_FREE_BIT_HEAPCODES
     /* jitc_getsize_framer(): */
     /* > &bottomword: Address of bottomword */
     #define jitc_getsize_framer()\
