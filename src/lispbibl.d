@@ -2065,8 +2065,22 @@ typedef enum {
 /* When changed: do nothing */
 
 /* Whether the operating system allocates memory (via mmap or malloc) at
- randomized locations. */
-#if defined(UNIX_OPENBSD)
+   randomized locations.
+   On OpenBSD/x86:
+     CODE_ADDRESS_RANGE   varies from 0x14000000 to 0x1B000000
+     MALLOC_ADDRESS_RANGE varies from 0x74000000..0x84000000 to 0x7A000000..0x8A000000
+     SHLIB_ADDRESS_RANGE  varies from 0x21000000 to 0x2F000000
+     STACK_ADDRESS_RANGE  0xCF000000
+     There is free room from 0x90000000 to 0C8000000.
+     This arrangement is good enough that TRIVIALMAP_MEMORY is possible.
+   On OpenBSD/x86_64:
+     CODE_ADDRESS_RANGE   varies from 0x000001xxxx000000 to 0x00001Fxxxx000000
+     MALLOC_ADDRESS_RANGE varies from 0x000000xxxx000000 to 0x00001Fxxxx000000
+     SHLIB_ADDRESS_RANGE  varies from 0x000001xxxx000000 to 0x00001Exxxx000000
+     STACK_ADDRESS_RANGE  0x00007F7FFF000000
+     This varies so wildly that it makes TRIVIALMAP_MEMORY impossible.
+ */
+#if defined(UNIX_OPENBSD) && defined(WIDE_HARD)
   #define ADDRESS_RANGE_RANDOMIZED
 #endif
 /* When changed: do nothing */
@@ -2564,7 +2578,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      is around 0xCF000000. In this case, we also use KERNELVOID32_HEAPCODES.
      On some 64-bit systems, we cannot make assumptions about the virtual
      addresses. But we know that pointers have alignment 8. */
-    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
+    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD)) || (defined(I80386) && defined(UNIX_CYGWIN32))
       #define KERNELVOID32_HEAPCODES
     #else
       #define ONE_FREE_BIT_HEAPCODES
