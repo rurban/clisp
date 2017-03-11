@@ -2901,7 +2901,7 @@ local inline int init_memory (struct argv_initparams *p) {
  #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   init_map_pagesize();
  #endif
- #if defined(LINUX_NOEXEC_HEAPCODES) && defined(HAVE_MMAP_ANON)
+ #if defined(KERNELVOID32_HEAPCODES) && defined(HAVE_MMAP_ANON)
   /* On machines on which the address space extends up to 0xFFFFFFFF,
      disable the address range 0xC0000000..0xDFFFFFFF,
      so that we can use it for immediate objects. */
@@ -3096,7 +3096,7 @@ local inline int init_memory (struct argv_initparams *p) {
         #ifdef ONE_FREE_BIT_HEAPCODES
       var aint end = (start | (bit(garcol_bit_o)-1)) + 1; /* keep garcol_bit zero */
         #endif
-        #ifdef LINUX_NOEXEC_HEAPCODES
+        #ifdef KERNELVOID32_HEAPCODES
       var aint end = 0xBF000000; /* virtual addresses end at 0xC0000000. */
         #endif
         #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)

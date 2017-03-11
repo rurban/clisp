@@ -51,9 +51,11 @@
      More detailed object representation schemes:
        Object representation schemes on 32-bit platforms:
          ONE_FREE_BIT_HEAPCODES
-         LINUX_NOEXEC_HEAPCODES
+         KERNELVOID32_HEAPCODES
          TRY_TYPECODES_1  (try to avoid it: limits heap size to 16 MB)
          TRY_TYPECODES_2  (try to avoid it: limits heap size to 16 MB)
+       Specific variants of KERNELVOID32_HEAPCODES on 32-bit platforms:
+         KERNELVOID32A_HEAPCODES
        Object representation schemes on 64-bit platforms:
          ONE_FREE_BIT_HEAPCODES
          GENERIC64_HEAPCODES
@@ -2301,11 +2303,15 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define TYPECODES
 #endif
 
+#if defined(KERNELVOID32A_HEAPCODES)
+  #define KERNELVOID32_HEAPCODES
+#endif
+
 #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES)
   #define GENERIC64_HEAPCODES
 #endif
 
-#if defined(ONE_FREE_BIT_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+#if defined(ONE_FREE_BIT_HEAPCODES) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
   #define HEAPCODES
 #endif
 
@@ -2377,7 +2383,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        - TYPECODES: the resulting limit of 16 MB objects for each type is
          ridiculous today.
        - HEAPCODES: needs a per-platform decision whether to use
-         ONE_FREE_BIT_HEAPCODES or LINUX_NOEXEC_HEAPCODES.
+         ONE_FREE_BIT_HEAPCODES or KERNELVOID32_HEAPCODES.
        Choose HEAPCODES always. */
     #define HEAPCODES
   #endif
@@ -2543,22 +2549,22 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    For pointers, the address takes the full word (with type info in the
    lowest two bits). For immediate objects, we use 24 bits for the data
    (but exclude the highest available bit, which is the garcol_bit). */
-  #if !(defined(ONE_FREE_BIT_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES))
+  #if !(defined(ONE_FREE_BIT_HEAPCODES) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES))
     /* Choose the appropriate HEAPCODES variant for the machine.
      On most systems, one of the high bits is suitable as GC bit; here we
      choose ONE_FREE_BIT_HEAPCODES.
      On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
      is used that distributes virtual addresses over the entire address
      space from 0x00000000 to 0xBFFFFFFF (as a function of its access
-     permissions); here we use LINUX_NOEXEC_HEAPCODES.
+     permissions); here we use KERNELVOID32_HEAPCODES.
      On OpenBSD 3.8 or newer, starting in 2005, the addresses of mmap and
      malloc results (and hence also of shared libraries) are randomized;
      only the code address is fixed around 0x1C000000 and the stack address
-     is around 0xCF000000. In this case, we also use LINUX_NOEXEC_HEAPCODES.
+     is around 0xCF000000. In this case, we also use KERNELVOID32_HEAPCODES.
      On some 64-bit systems, we cannot make assumptions about the virtual
      addresses. But we know that pointers have alignment 8. */
     #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED)) || (defined(I80386) && defined(UNIX_CYGWIN32))
-      #define LINUX_NOEXEC_HEAPCODES
+      #define KERNELVOID32_HEAPCODES
     #else
       #define ONE_FREE_BIT_HEAPCODES
     #endif
@@ -2617,22 +2623,27 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define garcol_bit_o 28
     #endif
   #endif /* ONE_FREE_BIT_HEAPCODES */
-  #ifdef LINUX_NOEXEC_HEAPCODES
-    /* The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
-     at 0xC0000000, or at least that we can put a black hole on the range
-     0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
-     8-byte alignment of symbol_tab and subr_tab.
-     Only bit 0 or 1 can be used as GC-bit. */
-    #define oint_type_shift 0
-    #define oint_type_len 32
-    #define oint_type_mask 0xE000001FUL
-    #define oint_data_shift 5
-    #define oint_data_len 24
-    #define oint_data_mask 0x1FFFFFE0UL
-    #define garcol_bit_o 0
-  #endif /* LINUX_NOEXEC_HEAPCODES */
+  #ifdef KERNELVOID32_HEAPCODES
+    #if !defined(KERNELVOID32A_HEAPCODES)
+      #define KERNELVOID32A_HEAPCODES
+    #endif
+    #ifdef KERNELVOID32A_HEAPCODES
+      /* The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
+       at 0xC0000000, or at least that we can put a black hole on the range
+       0xC0000000..0xDFFFFFFF, 2. that the compiler and linker can enforce an
+       8-byte alignment of symbol_tab and subr_tab.
+       Only bit 0 or 1 can be used as GC-bit. */
+      #define oint_type_shift 0
+      #define oint_type_len 32
+      #define oint_type_mask 0xE000001FUL
+      #define oint_data_shift 5
+      #define oint_data_len 24
+      #define oint_data_mask 0x1FFFFFE0UL
+      #define garcol_bit_o 0
+    #endif
+  #endif /* KERNELVOID32_HEAPCODES */
   #ifdef GENERIC64_HEAPCODES
-    /* GENERIC64A_HEAPCODES is closely modeled on LINUX_NOEXEC_HEAPCODES.
+    /* GENERIC64A_HEAPCODES is closely modeled on KERNELVOID32A_HEAPCODES.
        GENERIC64B_HEAPCODES shifts the immediate values by one more bit.
        GENERIC64C_HEAPCODES drops the necessity of an address range hole. */
     #if !(defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES))
@@ -3505,7 +3516,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
   #endif /* ONE_FREE_BIT_HEAPCODES */
 
-  #ifdef LINUX_NOEXEC_HEAPCODES
+  #ifdef KERNELVOID32_HEAPCODES
 
     /* We must assume a general alignment of 4 bytes and an enforced alignment
      of 8 bytes for Lisp objects, and thus have the low 2 to 3 bits for
@@ -3590,7 +3601,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       #define nonimmediate_heapnr(obj)  \
         (1 & ~(as_oint(obj) >> 2))
 
-  #endif /* LINUX_NOEXEC_HEAPCODES */
+  #endif /* KERNELVOID32_HEAPCODES */
 
   #ifdef GENERIC64_HEAPCODES
 
@@ -3851,7 +3862,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #undef varobject_alignment
   #define varobject_alignment  4
 #endif
-#if ((defined(GENERATIONAL_GC) && defined(WIDE)) || defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)) && (varobject_alignment < 8)
+#if ((defined(GENERATIONAL_GC) && defined(WIDE)) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)) && (varobject_alignment < 8)
   #undef varobject_alignment
   #define varobject_alignment  8
 #endif
@@ -4367,7 +4378,7 @@ extern bool inside_gc;
 
   /* Forward declarations. */
   static inline bool gcinvariant_symbol_p (object obj);
-  #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+  #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
   static inline bool nonimmsubrp (object obj);
   #else
   #define nonimmsubrp(obj)  false
@@ -4428,7 +4439,7 @@ extern bool inside_gc;
 #endif
 %% #ifdef DEBUG_GCSAFETY
 %%   puts("static inline bool gcinvariant_symbol_p (object obj);");
-%%   #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+%%   #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
 %%     puts("static inline bool nonimmsubrp (object obj);");
 %%   #else
 %%     emit_define("nonimmsubrp(obj)","false");
@@ -5227,7 +5238,7 @@ typedef struct {
   gcv_object_t homepackage _attribute_aligned_object_; /* Home-Package or NIL */
   /* If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
    varobject_alignment. */
-  #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
+  #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
   /* filler is put here is it is gcv_object_t - so may be easily included in
      symbol_length if needed. */
   gcv_object_t filler      _attribute_aligned_object_;
@@ -5240,14 +5251,14 @@ typedef struct {
   #endif
 } symbol_;
 typedef symbol_ *  Symbol;
-#if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+#if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
   /* Compile-time check: sizeof(symbol_) is a multiple of varobject_alignment. */
   typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
 #endif
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 #define symbol_length  6
 #define symbol_xlength (sizeof(*(Symbol)0)-symbol_objects_offset-symbol_length*sizeof(gcv_object_t))
-%% #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
+%% #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
 %%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; gcv_object_t filler%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
 %% #else
 %%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
@@ -8248,7 +8259,7 @@ typedef struct {
     #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
     #define immsubrp(obj)  subrp(obj)
   #endif
-  #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+  #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
     #define subrp(obj)  (orecordp(obj) && (Record_type(obj) == Rectype_Subr))
     #define immsubrp(obj)  false
     #ifdef DEBUG_GCSAFETY
@@ -8262,7 +8273,7 @@ typedef struct {
   #endif
 #endif
 %% #ifndef TYPECODES
-%%   #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+%%   #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
 %%     #ifdef DEBUG_GCSAFETY
 %%       printf2("static inline bool nonimmsubrp (object obj) { return (varobjectp(obj) && (varobject_type((Record)(cgci_pointable(obj)-%d)) == %d)); }\n",varobject_bias,Rectype_Subr);
 %%     #endif
@@ -8282,7 +8293,7 @@ typedef struct {
   #ifdef ONE_FREE_BIT_HEAPCODES
     #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
   #endif
-  #ifdef LINUX_NOEXEC_HEAPCODES
+  #ifdef KERNELVOID32_HEAPCODES
     #define machinep(obj)  \
       ((as_oint(obj) & 3) == machine_bias            \
        && (as_oint(obj) & 0xE0000000) != 0xC0000000)
@@ -8651,7 +8662,7 @@ typedef struct {
 
 #if defined(TYPECODES) || defined(ONE_FREE_BIT_HEAPCODES)
   #define case_Rectype_Subr_above
-#else /* LINUX_NOEXEC_HEAPCODES || GENERIC64_HEAPCODES */
+#else /* KERNELVOID32_HEAPCODES || GENERIC64_HEAPCODES */
   #define case_Rectype_Subr_above  \
     case Rectype_Subr: goto case_subr;
 #endif
@@ -12350,7 +12361,7 @@ extern  gcv_environment_t aktenv;
       #define FB2  (garcol_bit_o-4)
       #define FB1  (garcol_bit_o-5)
     #endif
-    #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+    #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
       #define FB5  5
       #define FB4  4
       #define FB3  3
@@ -12546,7 +12557,7 @@ extern  gcv_environment_t aktenv;
     #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
     #define framesize(bottomword)  (as_oint(bottomword)&(wbit(FB1)-1))
   #endif
-  #if defined(LINUX_NOEXEC_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+  #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
     #define makebottomword(type,size)  as_object((oint)(type)+((oint)(size)<<6))
     #define framecode(bottomword)  (as_oint(bottomword) & 0x3F)
     #define framesize(bottomword)  (as_oint(bottomword) >> 6)

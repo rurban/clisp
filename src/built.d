@@ -35,8 +35,8 @@ global object built_flags (void) {
    #ifdef ONE_FREE_BIT_HEAPCODES
     " ONE_FREE_BIT_HEAPCODES"
    #endif
-   #ifdef LINUX_NOEXEC_HEAPCODES
-    " LINUX_NOEXEC_HEAPCODES"
+   #ifdef KERNELVOID32_HEAPCODES
+    " KERNELVOID32_HEAPCODES"
    #endif
    #ifdef GENERIC64_HEAPCODES
     " GENERIC64_HEAPCODES"

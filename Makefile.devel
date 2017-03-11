@@ -338,7 +338,7 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
   build-porting32-gcc-one_free_bit_heapcodes \
-  build-porting32-gcc-linux_noexec_heapcodes \
+  build-porting32-gcc-kernelvoid32_heapcodes \
   build-porting32-gcc-try1_typecodes \
   build-porting32-gcc-try2_typecodes \
   build-porting32-gcc-heapcodes-spvw_pages \
@@ -383,11 +383,11 @@ build-porting32-gcc-one_free_bit_heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force LINUX_NOEXEC_HEAPCODES.
-build-porting32-gcc-linux_noexec_heapcodes:
+# Force KERNELVOID32_HEAPCODES.
+build-porting32-gcc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DLINUX_NOEXEC_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DKERNELVOID32_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force TRY_TYPECODES_1.
@@ -499,7 +499,7 @@ multibuild-porting32-cc: \
   build-porting32-cc-safety3 \
   build-porting32-cc-heapcodes \
   build-porting32-cc-one_free_bit_heapcodes \
-  build-porting32-cc-linux_noexec_heapcodes \
+  build-porting32-cc-kernelvoid32_heapcodes \
   build-porting32-cc-try1_typecodes \
   build-porting32-cc-try2_typecodes \
   build-porting32-cc-heapcodes-spvw_pages \
@@ -542,11 +542,11 @@ build-porting32-cc-one_free_bit_heapcodes:
 	CPPFLAGS="-DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force LINUX_NOEXEC_HEAPCODES.
-build-porting32-cc-linux_noexec_heapcodes:
+# Force KERNELVOID32_HEAPCODES.
+build-porting32-cc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DLINUX_NOEXEC_HEAPCODES" \
+	CPPFLAGS="-DSAFETY=3 -DKERNELVOID32_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force TRY_TYPECODES_1.
@@ -914,7 +914,7 @@ multibuild-linux-x86: \
   build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
-  build-porting32-gcc-linux_noexec_heapcodes \
+  build-porting32-gcc-kernelvoid32_heapcodes \
   build-porting32-gcc-try1_typecodes \
   build-porting32-gcc-try2_typecodes \
   build-porting32-gcc-heapcodes-spvw_pages \
@@ -942,10 +942,10 @@ multibuild-darwin-powerpc: \
 	build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite	\
 	build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite-fixedmemsize \
 	build-darwin-powerpc-one_free_bit-spvw_mixed_pages		\
-	build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered	\
-	build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite	\
-	build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite-fixedmemsize \
-	build-darwin-powerpc-noexec-spvw_mixed_pages		\
+	build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-staggered	\
+	build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite	\
+	build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite-fixedmemsize \
+	build-darwin-powerpc-kernelvoid32-spvw_mixed_pages		\
 	build-darwin-powerpc-spvw_pure_blocks			\
 	build-darwin-powerpc-wide
 build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-staggered:
@@ -968,25 +968,25 @@ build-darwin-powerpc-one_free_bit-spvw_mixed_pages:
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered:
+build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-staggered:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_UP" \
+	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DCONS_HEAP_GROWS_UP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite:
+build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
+	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
+build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite-fixedmemsize:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
+	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
-build-darwin-powerpc-noexec-spvw_mixed_pages:
+build-darwin-powerpc-kernelvoid32-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
+	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-spvw_pure_blocks:
 	$(RMRF) $@
