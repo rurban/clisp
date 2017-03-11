@@ -1,5 +1,11 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	Don't attempt to use SINGLEMAP_MEMORY on OpenBSD/x86_64.
+	* lispbibl.d (SINGLEMAP_MEMORY): Don't define if
+	ADDRESS_RANGE_RANDOMIZED is defined.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	Add support for generational GC on OpenBSD/x86.
 	* lispbibl.d (ADDRESS_RANGE_RANDOMIZED): Don't define for 32-bit
 	OpenBSD.
