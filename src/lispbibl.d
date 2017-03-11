@@ -2345,6 +2345,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && !defined(WIDE_SOFT)                                                     \
     && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                  \
         || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                    \
+    && !defined(ADDRESS_RANGE_RANDOMIZED)                                      \
     && (MMAP_FIXED_ADDRESS_HIGHEST_BIT > 0)                                    \
     && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
     && ((MALLOC_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)     \
@@ -2352,12 +2353,18 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && !defined(NO_SINGLEMAP)
 /* If we have not already excluded TYPECODES, and not WIDE_SOFT,
    and the OS has support for mmap or equivalent,
+   and the OS does not use address space layout randomization [1]
    and the 8 bits required by STANDARD_8BIT_TYPECODES are higher than
    CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE (maybe also need to check
    SHLIB_ADDRESS_RANGE and STACK_ADDRESS_RANGE?),
-   and we are on a 64-bit platform (on 32-bit platforms the resulting limit of
-   16 MB objects for each type is ridiculous today),
-   then pick SINGLEMAP_MEMORY. */
+   and we are on a 64-bit platform [2],
+   then pick SINGLEMAP_MEMORY.
+   [1] It does not work reliably when address space layout randomization
+   is in effect: SINGLEMAP_MEMORY assumes that one can extend an existing
+   memory region by mmapping the pages after it; but this might overwrite
+   some small malloc regions that have been put there by the system.
+   [2] On 32-bit platforms the resulting limit of 16 MB objects for each type
+   is ridiculous today. */
   /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information. */
   #define SINGLEMAP_MEMORY
