@@ -1,5 +1,12 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	When warning about the address range, dump the process memory map.
+	* spvw_mmap.d (dump_process_memory_map_callback,
+	dump_process_memory_map): New functions.
+	(warn_before_reserving_range): Invoke dump_process_memory_map.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	Avoid unwanted optimizations on signed integer types by gcc.
 	* makemake.in (XCFLAGS): Add '-fwrapv' option.
 
