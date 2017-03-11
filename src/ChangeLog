@@ -1,5 +1,13 @@
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
+	Add support for generational GC on OpenBSD/x86.
+	* lispbibl.d (ADDRESS_RANGE_RANDOMIZED): Don't define for 32-bit
+	OpenBSD.
+	* spvw.d (init_memory): For 32-bit OpenBSD, use the address range
+	0x90000000..0xC8000000.
+
+2017-03-11  Bruno Haible  <bruno@clisp.org>
+
 	When warning about the address range, dump the process memory map.
 	* spvw_mmap.d (dump_process_memory_map_callback,
 	dump_process_memory_map): New functions.

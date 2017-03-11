@@ -3046,6 +3046,9 @@ local inline int init_memory (struct argv_initparams *p) {
       #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
       mem.heaps[0].heap_limit = 0x2E000000; /* room until at least 0x40000000 */
       mem.heaps[1].heap_limit = 0x7F000000; /* room until at least 0x64000000 */
+      #elif defined(UNIX_OPENBSD) && !defined(WIDE_SOFT) && !defined(WIDE_HARD)
+      mem.heaps[0].heap_limit = 0x40000000;
+      mem.heaps[1].heap_limit = 0x70000000;
       #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
       /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
          mach_vm_allocate are in the range 2^33...2^47. */
