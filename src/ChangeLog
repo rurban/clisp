@@ -1,5 +1,14 @@
 2017-03-12  Bruno Haible  <bruno@clisp.org>
 
+	Fix wrong uses of errno.
+	* spvw_garcol.d (gar_col_normal): Save OS_errno around fputs call.
+	* spvw_garcol_old.d (gar_col_normal): Likewise.
+	* spvw_memfile.d (loadmem_from_handle): Save errno around fprintf call.
+	* spvw_mmap.d (mmap_init, mmap_zeromap): Likewise.
+	* pathname.d (stat_obj): Save errno before exiting with_sstring_0.
+
+2017-03-12  Bruno Haible  <bruno@clisp.org>
+
 	Simplify GC_SAFE_CALL, GC_SAFE_SYSTEM_CALL.
 	* lispbibl.d (GC_SAFE_CALL, GC_SAFE_SYSTEM_CALL): Take only 1 argument.
 	* pathname.d, stream.d: All callers updated.
