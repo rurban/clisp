@@ -1701,7 +1701,7 @@ fi
 
 SP_ASMD=''
 SP_ASMS=''
-if [ "${enable_portability}" = no -a $XCC_GCC = false ] ; then
+if [ "${enable_portability}" = no ] ; then
   if [ "$cpu" = m68k ] ; then
     SP_ASMD=$SP_ASMD' sp68000'
     SP_ASMS=$SP_ASMS' sp68000'
