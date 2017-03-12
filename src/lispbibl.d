@@ -2604,7 +2604,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 48
       #define oint_data_mask 0x007FFFFFFFFFFF80UL
       #define garcol_bit_o 63
-    #elif !((defined(M68K) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
+    #elif !((defined(M68K) && defined(UNIX_LINUX)) || (defined(I80386) && (defined(UNIX_BEOS) || defined(UNIX_NETBSD))) || defined(LINUX_SPARC_OLD_GLIBC))
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000007FUL
@@ -2612,9 +2612,11 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 24
       #define oint_data_mask 0x7FFFFF80UL
       #define garcol_bit_o 31
-    #elif defined(I80386) && defined(UNIX_BEOS)
+    #elif defined(I80386) && (defined(UNIX_BEOS) || defined(UNIX_NETBSD))
       /* On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
-       is therefore part of an address and cannot be used as garcol_bit. */
+         is therefore part of an address and cannot be used as garcol_bit.
+         On NetBSD 7, malloc()ed addresses are of the form 0xBB...... Bit 31
+         is therefore part of an address and cannot be used as garcol_bit. */
       #define oint_type_shift 0
       #define oint_type_len 8
       #define oint_type_mask 0x0000003FUL
@@ -3090,7 +3092,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
     && !defined(SINGLEMAP_MEMORY)                                              \
-    && !(defined(UNIX_HPUX) || defined(UNIX_AIX) || defined(UNIX_NETBSD)       \
+    && !(defined(UNIX_HPUX) || defined(UNIX_AIX)                               \
          || defined(ADDRESS_RANGE_RANDOMIZED))                                 \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
@@ -3100,9 +3102,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    Also it does not work reliably when address space layout randomization
    is in effect: TRIVIALMAP_MEMORY assumes that one can extend an existing
    memory region by mmapping the pages after it; but this might overwrite
-   some small malloc regions that have been put there by the system.
-   It's not working on NetBSD due to restrictions of the mappable address
-   range. */
+   some small malloc regions that have been put there by the system. */
   #define TRIVIALMAP_MEMORY
 #endif
 

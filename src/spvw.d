@@ -3046,6 +3046,16 @@ local inline int init_memory (struct argv_initparams *p) {
       #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
       mem.heaps[0].heap_limit = 0x2E000000; /* room until at least 0x40000000 */
       mem.heaps[1].heap_limit = 0x7F000000; /* room until at least 0x64000000 */
+      #elif defined(UNIX_NETBSD) && !defined(WIDE_HARD)
+       #ifdef ONE_FREE_BIT_HEAPCODES
+      /* To avoid garcol_bit_o = bit 30, either of
+         0x10000000..0x40000000 and 0x80000000..0xB0000000 works. */
+      mem.heaps[0].heap_limit = 0x10000000;
+      mem.heaps[1].heap_limit = 0x40000000;
+       #else
+      mem.heaps[0].heap_limit = 0x10000000;
+      mem.heaps[1].heap_limit = 0xB0000000;
+       #endif
       #elif defined(UNIX_OPENBSD) && !defined(WIDE_SOFT) && !defined(WIDE_HARD)
       mem.heaps[0].heap_limit = 0x40000000;
       mem.heaps[1].heap_limit = 0x70000000;
@@ -3056,6 +3066,9 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[1].heap_limit = 0x400000000000UL;
       #elif defined(UNIX_FREEBSD) && defined(AMD64)
       mem.heaps[0].heap_limit = 0x001000000000UL;
+      mem.heaps[1].heap_limit = 0x700000000000UL;
+      #elif defined(UNIX_NETBSD) && defined(AMD64)
+      mem.heaps[0].heap_limit = 0x000100000000UL;
       mem.heaps[1].heap_limit = 0x700000000000UL;
       #else
        #ifdef TYPECODES
@@ -3084,6 +3097,11 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[0].heap_hardlimit = 0x40000000;
       mem.heaps[1].heap_limit = 0x64000000; /* room until at least 0x7F000000 */
       mem.heaps[1].heap_hardlimit = 0x7F000000;
+      #elif defined(UNIX_NETBSD) && !defined(WIDE_HARD)
+      mem.heaps[0].heap_limit = 0x10000000;
+      mem.heaps[0].heap_hardlimit = 0x80000000;
+      mem.heaps[1].heap_limit = 0x80000000;
+      mem.heaps[1].heap_hardlimit = 0xB0000000;
       #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
       /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
          mach_vm_allocate are in the range 2^33...2^47. */

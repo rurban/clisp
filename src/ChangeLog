@@ -1,5 +1,13 @@
 2017-03-12  Bruno Haible  <bruno@clisp.org>
 
+	Add support for generational GC on NetBSD/x86 and NetBSD/x86_64.
+	* lispbibl.d: On NetBSD/x86, choose the same ONE_FREE_BIT_HEAPCODES
+	representation as on BeOS/x86. Enable TRIVIALMAP_MEMORY on NetBSD.
+	* spvw.d (init_memory): Specify usable address range for NetBSD/x86
+	and NetBSD/x86_64.
+
+2017-03-12  Bruno Haible  <bruno@clisp.org>
+
 	Terminate endless loop of mmap_zeromap failures after 10 failures.
 	This is useful for NetBSD.
 	* spvw_mmap.d (spvw_mmap.d): Abort if it fails 10 times in a row with
