@@ -496,6 +496,11 @@ local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
 
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {
+  static void* last_addr;
+  static uintM last_len;
+  static int last_errcode;
+  static int repeated;
+
   warn_before_mmap((uintP)map_addr,(uintP)map_addr+map_len);
   if ( (void*) mmap((void*)map_addr, /* desired address */
                     map_len, /* length */
@@ -507,8 +512,21 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
     fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
             map_addr);
     errno_out(errcode);
+    /* This error tends to repeat, leading to an endless loop.
+       It's better to abort than to loop endlessly. */
+    {
+      if (map_addr==last_addr && map_len==last_len && errcode==last_errcode) {
+        repeated++;
+        if (repeated >= 10)
+          abort();
+      } else {
+        last_addr = map_addr; last_len = map_len; last_errcode = errcode;
+        repeated = 1;
+      }
+    }
     return -1; /* error */
   }
+  last_addr = NULL; last_len = 0; last_errcode = 0; repeated = 0;
   return 0;
 }
 

@@ -1,5 +1,12 @@
 2017-03-12  Bruno Haible  <bruno@clisp.org>
 
+	Terminate endless loop of mmap_zeromap failures after 10 failures.
+	This is useful for NetBSD.
+	* spvw_mmap.d (spvw_mmap.d): Abort if it fails 10 times in a row with
+	identical arguments and error code.
+
+2017-03-12  Bruno Haible  <bruno@clisp.org>
+
 	Fix wrong uses of errno.
 	* spvw_garcol.d (gar_col_normal): Save OS_errno around fputs call.
 	* spvw_garcol_old.d (gar_col_normal): Likewise.
