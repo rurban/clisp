@@ -3054,6 +3054,9 @@ local inline int init_memory (struct argv_initparams *p) {
          mach_vm_allocate are in the range 2^33...2^47. */
       mem.heaps[0].heap_limit = 0x000200000000UL;
       mem.heaps[1].heap_limit = 0x400000000000UL;
+      #elif defined(UNIX_FREEBSD) && defined(AMD64)
+      mem.heaps[0].heap_limit = 0x001000000000UL;
+      mem.heaps[1].heap_limit = 0x700000000000UL;
       #else
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
