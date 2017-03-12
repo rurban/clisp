@@ -5867,10 +5867,12 @@ LISPFUN(probe_pathname,seclass_rd_sig,1,0,norest,key,1,(kw(error)))
  > status: pointer to a stat
  < status */
 local maygc int stat_obj (object namestring, struct stat *status) {
-  int ret;
+  var int ret;
+  var int saved_errno;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    GC_SAFE_SYSTEM_CALL(ret = stat(namestring_asciz,status));
+    GC_SAFE_SYSTEM_CALL((ret = stat(namestring_asciz,status), saved_errno = errno));
   });
+  errno = saved_errno;
   return ret;
 }
 #endif

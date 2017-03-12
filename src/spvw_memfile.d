@@ -1508,8 +1508,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                 inc_file_offset(map_len);
                 goto block_done;
               } else {
+                var int errcode = errno;
                 fprintf(stderr,GETTEXTL("%s: Cannot map the initialization file `%s' into memory."),program_name,filename);
-                errno_out(errno);
+                errno_out(errcode);
                 use_mmap = false;
                 /* before continuing with READ(handle),
                    an lseek() is poss. necessary. */

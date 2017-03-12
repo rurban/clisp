@@ -205,13 +205,21 @@ local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
 
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {
-  if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
-      != KERN_SUCCESS) {
-    fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),map_addr);
-    errno_out();
-    return -1;                  /* error */
+  var int errcode;
+  switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)) {
+    case KERN_SUCCESS:
+      return 0;
+    case KERN_NO_SPACE:
+      errcode = ENOMEM;
+      break;
+    case KERN_INVALID_ADDRESS:
+    default:
+      errcode = EINVAL;
+      break;
   }
-  return 0;
+  fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),map_addr);
+  errno_out(errcode);
+  return -1;                  /* error */
 }
 
 local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
@@ -465,8 +473,9 @@ local int mmap_init (void)
   {
     var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
     if (fd<0) {
+      var int errcode = errno;
       fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
-      errno_out(errno);
+      errno_out(errcode);
       return -1; /* error */
     }
     mmap_zero_fd = fd;
@@ -494,9 +503,10 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
                     map_flags | MAP_FIXED, /* exactly at this address! */
                     mmap_zero_fd, 0) /* put empty pages */
        == (void*)(-1)) {
+    var int errcode = errno;
     fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
             map_addr);
-    errno_out(errno);
+    errno_out(errcode);
     return -1; /* error */
   }
   return 0;
