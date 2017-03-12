@@ -5774,6 +5774,7 @@ local maygc void oconv_unshift_output_unbuffered_ (object stream) {
   var size_t res =
     iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
   if (res == (size_t)(-1)) {
+    /* BUG: On Windows, after iconv(), we must use errno, not GetLastError(). */
     if (OS_errno == E2BIG) {    /* output buffer too small? */
       NOTREACHED;
     } else {
@@ -7165,6 +7166,7 @@ local maygc uintB oconv_unshift_output_buffered_ (object stream, uintB abort) {
     iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
   if (res == (size_t)(-1)) {
     if (abort) return 1;
+    /* BUG: On Windows, after iconv(), we must use errno, not GetLastError(). */
     if (OS_errno == E2BIG) {    /* output buffer too small? */
       NOTREACHED;
     } else {
