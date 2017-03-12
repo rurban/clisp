@@ -1,3 +1,9 @@
+2017-03-12  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure on x86 platforms with clang, e.g. FreeBSD/x86.
+	* makemake.in (SP_ASMD, SP_ASMS): Set to non-empty also when using
+	GCC or a GCC compatible compiler.
+
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
 	Don't attempt to use SINGLEMAP_MEMORY on OpenBSD/x86_64.
