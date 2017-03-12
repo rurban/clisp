@@ -1,5 +1,11 @@
 2017-03-12  Bruno Haible  <bruno@clisp.org>
 
+	Simplify GC_SAFE_CALL, GC_SAFE_SYSTEM_CALL.
+	* lispbibl.d (GC_SAFE_CALL, GC_SAFE_SYSTEM_CALL): Take only 1 argument.
+	* pathname.d, stream.d: All callers updated.
+
+2017-03-12  Bruno Haible  <bruno@clisp.org>
+
 	Add support for TRIVIALMAP_MEMORY configuration on FreeBSD/x86_64.
 	* spvw.d (init_memory): Specify usable address range for FreeBSD/x86_64.
 

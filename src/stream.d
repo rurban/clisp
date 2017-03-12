@@ -4756,7 +4756,7 @@ local maygc sintL low_read_unbuffered_handle (object stream) {
   /*restart_it:*/
   /* try to read a byte */
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, full_read(handle,&b,1));
+  GC_SAFE_SYSTEM_CALL(result = full_read(handle,&b,1));
   stream=popSTACK();
   if (result<0) {
     #ifdef WIN32_NATIVE
@@ -5029,7 +5029,7 @@ local maygc uintB* low_read_array_unbuffered_handle
     persev = persev_partial;
   pushSTACK(stream);
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, fd_read(handle,byteptr,len,persev));
+  GC_SAFE_SYSTEM_CALL(result = fd_read(handle,byteptr,len,persev));
   stream = popSTACK();
   if (result<0) {
    #if !defined(WIN32_NATIVE)
@@ -5440,7 +5440,7 @@ local maygc void low_write_unbuffered_handle (object stream, uintB b) {
   /* Try to output the byte. */
   pushSTACK(stream);
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, full_write(handle,&b,1));
+  GC_SAFE_SYSTEM_CALL(result = full_write(handle,&b,1));
   stream = popSTACK();
   if (result<0) { OS_error(); }
   if (result==0) /* not successful? */
@@ -5459,7 +5459,7 @@ local maygc const uintB* low_write_array_unbuffered_handle
     persev = persev_partial;
   pushSTACK(stream);
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, fd_write(handle,byteptr,len,persev));
+  GC_SAFE_SYSTEM_CALL(result = fd_write(handle,byteptr,len,persev));
   stream = popSTACK();
   if (result<0) { OS_error(); }
   /* Safety check whether persev argument was respected or EOWF was reached: */
@@ -6172,7 +6172,7 @@ local maygc uintL low_fill_buffered_handle (object stream, perseverance_t persev
   pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ_WRITE);
   pushSTACK(stream);
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, fd_read(handle,buff,strm_buffered_bufflen,persev));
+  GC_SAFE_SYSTEM_CALL(result = fd_read(handle,buff,strm_buffered_bufflen,persev));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
   if (result<0)               /* error occurred? */
@@ -6201,7 +6201,7 @@ local maygc void low_flush_buffered_handle (object stream, uintL bufflen) {
   pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ);
   pushSTACK(stream);
   var ssize_t result;
-  GC_SAFE_SYSTEM_CALL(result=, full_write(handle,buff,bufflen));
+  GC_SAFE_SYSTEM_CALL(result = full_write(handle,buff,bufflen));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
   if (result==bufflen) { /* everything written correctly */
@@ -12798,7 +12798,7 @@ local maygc void low_flush_buffered_pipe (object stream, uintL bufflen) {
   pushSTACK(stream);
   START_WRITING_TO_SUBPROCESS;
   var ssize_t result;
-  GC_SAFE_CALL(result=, full_write(fd,buff,bufflen));
+  GC_SAFE_CALL(result = full_write(fd,buff,bufflen));
   STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
@@ -12989,7 +12989,7 @@ local maygc void low_write_unbuffered_pipe (object stream, uintB b) {
   pushSTACK(stream);
   START_WRITING_TO_SUBPROCESS;
   var int result;
-  GC_SAFE_CALL(result=, write(handle,&b,1));
+  GC_SAFE_CALL(result = write(handle,&b,1));
   STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   if (result<0) {
@@ -13012,7 +13012,7 @@ local maygc const uintB* low_write_array_unbuffered_pipe
   pushSTACK(stream);
   START_WRITING_TO_SUBPROCESS;
   var ssize_t result;
-  GC_SAFE_CALL(result=, fd_write(handle,byteptr,len,persev));
+  GC_SAFE_CALL(result = fd_write(handle,byteptr,len,persev));
   STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   if (result<0) { OS_error(); }
@@ -13416,7 +13416,7 @@ local void low_close_socket (object stream, object handle, uintB abort) {
   begin_system_call();
   var int closed;
   var SOCKET socket = TheSocket(handle);
-  GC_SAFE_CALL(closed=, close(socket));
+  GC_SAFE_CALL(closed = close(socket));
   if (!(closed == 0) && !abort)
     { ANSIC_error(); }
   end_system_call();
@@ -13653,7 +13653,7 @@ LISPFUNN(make_x11socket_stream,2) {
   var int display = I_to_uint16(STACK_0);
   var SOCKET handle;
   with_string_0(STACK_1,O(misc_encoding),host, {
-    GC_SAFE_SYSTEM_CALL(handle=, connect_to_x_server(host,display));
+    GC_SAFE_SYSTEM_CALL(handle = connect_to_x_server(host,display));
   });
   if (handle == INVALID_SOCKET) { ANSIC_error(); }
   /* build list: */
@@ -13805,7 +13805,7 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
   pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ);
   pushSTACK(stream);
   var ssize_t result;        /* flush Buffer */
-  GC_SAFE_CALL(result=, sock_write(handle,buff,bufflen,persev_full));
+  GC_SAFE_CALL(result = sock_write(handle,buff,bufflen,persev_full));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
   STOP_WRITING_TO_SUBPROCESS;
@@ -13940,7 +13940,7 @@ LISPFUNN(socket_server_close,1) {
     begin_system_call();
     while (1) {
       var int closed;
-      GC_SAFE_CALL(closed=, close(s));
+      GC_SAFE_CALL(closed = close(s));
       if (closed >= 0) break;
       if (errno != EINTR) { ANSIC_error(); }
     }
@@ -14122,7 +14122,7 @@ local maygc bool socket_server_wait (gcv_object_t *sose_, struct timeval *tvp) {
   var int ret;
   var fd_set handle_set;
   FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
-  GC_SAFE_CALL(ret=, select(FD_SETSIZE,&handle_set,NULL,NULL,tvp));
+  GC_SAFE_CALL(ret = select(FD_SETSIZE,&handle_set,NULL,NULL,tvp));
   if (ret < 0) {
     if (errno == EINTR) {
       end_system_call(); goto restart_select;
@@ -14493,7 +14493,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
       timeout.tv_sec = timeout.tv_usec = 0;
     }
     var int selectret;
-    GC_SAFE_CALL(selectret=, select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr));
+    GC_SAFE_CALL(selectret = select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr));
     if (selectret < 0) {
       if (errno == EINTR) { end_system_call(); goto restart_select; }
       if (errno != EBADF) { ANSIC_error(); }
