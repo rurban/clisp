@@ -9860,26 +9860,26 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 #define begin_blocking_call() GC_SAFE_REGION_BEGIN()
 #define end_blocking_call() GC_SAFE_REGION_END()
 
-#define GC_SAFE_CALL(var_assignment,statement) \
-  do {                                         \
-    begin_blocking_call();                     \
-    var_assignment statement;                  \
-    end_blocking_call();                       \
+#define GC_SAFE_CALL(statement) \
+  do {                          \
+    begin_blocking_call();      \
+    statement;                  \
+    end_blocking_call();        \
   } while(0)
 
-#define GC_SAFE_SYSTEM_CALL(var_assignment,statement) \
-  do {                                                \
-    begin_blocking_system_call();                     \
-    var_assignment statement;                         \
-    end_blocking_system_call();                       \
+#define GC_SAFE_SYSTEM_CALL(statement) \
+  do {                                 \
+    begin_blocking_system_call();      \
+    statement;                         \
+    end_blocking_system_call();        \
   } while(0)
 
 %% export_def(begin_blocking_system_call());
 %% export_def(end_blocking_system_call());
 %% export_def(begin_blocking_call());
 %% export_def(end_blocking_call());
-%% export_def(GC_SAFE_CALL(type,statement));
-%% export_def(GC_SAFE_SYSTEM_CALL(type,statement));
+%% export_def(GC_SAFE_CALL(statement));
+%% export_def(GC_SAFE_SYSTEM_CALL(statement));
 
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
   /* Detection of SP-overflow through a Guard-Page or other mechanisms. */
