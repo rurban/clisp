@@ -1,3 +1,12 @@
+2017-03-13  Bruno Haible  <bruno@clisp.org>
+
+	Fix result of two autoconf tests in C++ mode.
+	The test programs need to either use exit() and include <stdlib.h>, or
+	use 'return'.
+	* m4/poll.m4 (CL_POLL): Use 'return' instead of 'exit'.
+	* m4/shm.m4 (CL_SHM): Likewise.
+	* aclocal.m4, src/configure: Regenerated.
+
 2017-03-12  Bruno Haible  <bruno@clisp.org>
 
 	Add support for generational GC on NetBSD/x86 and NetBSD/x86_64.
