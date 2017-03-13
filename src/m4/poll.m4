@@ -15,8 +15,10 @@ AC_DEFUN([CL_POLL],
   [# Check whether poll() works on special files (like /dev/null)
    # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
    AC_TRY_RUN([
-#include <fcntl.h>
+/* Declare poll(). */
 #include <poll.h>
+/* Declare open(). */
+#include <fcntl.h>
      int main()
      {
        struct pollfd ufd;
@@ -99,8 +101,8 @@ int main ()
     correct_writability_empty =
       (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
   }
-  exit(!(correct_readability_nonempty && correct_readability_empty
-         && correct_writability_nonempty && correct_writability_empty));
+  return !(correct_readability_nonempty && correct_readability_empty
+           && correct_writability_nonempty && correct_writability_empty);
 }],
 cl_cv_func_poll_reliable=yes, cl_cv_func_poll_reliable=no,
 dnl When cross-compiling, don't assume anything.

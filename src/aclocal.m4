@@ -28264,8 +28264,10 @@ AC_DEFUN([CL_POLL],
   [# Check whether poll() works on special files (like /dev/null)
    # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
    AC_TRY_RUN([
-#include <fcntl.h>
+/* Declare poll(). */
 #include <poll.h>
+/* Declare open(). */
+#include <fcntl.h>
      int main()
      {
        struct pollfd ufd;
@@ -28348,8 +28350,8 @@ int main ()
     correct_writability_empty =
       (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
   }
-  exit(!(correct_readability_nonempty && correct_readability_empty
-         && correct_writability_nonempty && correct_writability_empty));
+  return !(correct_readability_nonempty && correct_readability_empty
+           && correct_writability_nonempty && correct_writability_empty);
 }],
 cl_cv_func_poll_reliable=yes, cl_cv_func_poll_reliable=no,
 dnl When cross-compiling, don't assume anything.
@@ -28870,13 +28872,14 @@ AC_TRY_RUN([#include <sys/types.h>
 #define base_addr 0x01000000
 int main ()
 { int shmid, i; char* addr; char* result;
-  if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0) exit(1);
+  if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0)
+    return 1;
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
     if ((result = (char*)shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break;
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
     shmdt(addr);
   shmctl(shmid,IPC_RMID,0);
-  exit(result == (char*)(-1));
+  return (result == (char*)(-1));
 }], cl_cv_sys_shm_works=yes, cl_cv_sys_shm_works=no,
 dnl When cross-compiling, don't assume anything.
 cl_cv_sys_shm_works="guessing no")
