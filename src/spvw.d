@@ -2525,10 +2525,14 @@ local inline int parse_options (int argc, const char* const* argv,
                 else INVALID_ARG(arg);          \
               } else arg += 2
           case 'm':             /* memory size  */
-           #ifdef WIN32_NATIVE
-            if (arg[2]=='m' && arg[3]=='\0') /* "-mm" -> print a memory map */
-              { DumpProcessMemoryMap(); return 1; }
-           #endif
+            if (arg[2]=='m' && arg[3]=='\0') { /* "-mm" -> print a memory map */
+              #if defined(WIN32_NATIVE)
+                DumpProcessMemoryMap();
+              #elif VMA_ITERATE_SUPPORTED
+                dump_process_memory_map();
+              #endif
+              return 1;
+            }
             if (asciz_equal(arg,"-modern"))
               p2->argv_modern = true;
             else {
