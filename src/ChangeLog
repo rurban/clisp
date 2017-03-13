@@ -1,5 +1,13 @@
 2017-03-13  Bruno Haible  <bruno@clisp.org>
 
+	Implement the undocumented option -mm on many more platforms.
+	* spvw.d (parse_options): Accept option '-mm' on all platforms.
+	Implement it also on all other platforms where gnulib's vma-iter module
+	works, namely on Linux, FreeBSD, NetBSD, OpenBSD, IRIX, OSF/1, Mac OS X,
+	Cygwin, BeOS, Haiku.
+
+2017-03-13  Bruno Haible  <bruno@clisp.org>
+
 	Fix result of two autoconf tests in C++ mode.
 	The test programs need to either use exit() and include <stdlib.h>, or
 	use 'return'.
