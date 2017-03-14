@@ -350,7 +350,9 @@ local maygc bool delete_file_if_exists_obj (object namestring) {
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
 local maygc inline void delete_file_before_rename (char* pathstring) {
- #if !defined(UNIX) /* rename() on Unix does it automatically */
+ #if defined(UNIX)          /* rename() on Unix does it automatically */
+  (void)pathstring;
+ #else
   delete_file_if_exists(pathstring);
  #endif
 }
@@ -2047,6 +2049,7 @@ local maygc object parse_as_logical (object obj) {
 local void signal_type_error (void* sp, gcv_object_t* frame, object label,
                               object condition) {
   var gcv_object_t* thing_ = (gcv_object_t*)sp;
+  (void)label; (void)frame;
   /* (SYS::ERROR-OF-TYPE 'TYPE-ERROR
         :DATUM thing
         :EXPECTED-TYPE '(AND STRING (SATISFIES SYSTEM::VALID-LOGICAL-PATHNAME-STRING-P))
@@ -2242,8 +2245,9 @@ local maygc object coerce_pathname (object obj) {
        else NOTREACHED;                                                  \
   } while(0)
 
-local uintC subdir_namestring_parts (object path,bool logp) {
+local uintC subdir_namestring_parts (object path,bool logicalp) {
   var object subdir = Car(path);
+  (void)logicalp;
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   SUBDIR_PUSHSTACK(subdir); return 1;
  #endif
@@ -3584,6 +3588,7 @@ local bool has_device_wildcards (object pathname) {
   /* check device: = :WILD ? */
   return eq(ThePathname(pathname)->pathname_device,S(Kwild));
  #else
+  (void)pathname;
   return false;
  #endif
 }
@@ -3789,7 +3794,7 @@ local bool directory_match (object pattern, object sample, bool logical);
 local bool nametype_match (object pattern, object sample, bool logical);
 local bool version_match (object pattern, object sample, bool logical);
 local bool host_match (object pattern, object sample, bool logical)
-{/* logical is ignored */
+{ (void)logical;
   if (nullp(pattern)) return true;
   return equal(pattern,sample);
 }
@@ -3809,11 +3814,12 @@ local bool device_match (object pattern, object sample, bool logical) {
   return equal(pattern,sample);
   #endif
  #else
+  (void)pattern; (void)sample; (void)logical;
   return true;
  #endif
 }
 local bool nametype_match_aux (object pattern, object sample, bool logical)
-{ /* logical is ignored */
+{ (void)logical;
   if (eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   if (nullp(pattern)) {
@@ -3827,7 +3833,7 @@ local bool nametype_match_aux (object pattern, object sample, bool logical)
   return wildcard_match(pattern,sample);
 }
 local bool subdir_match (object pattern, object sample, bool logical)
-{ /* logical is ignored */
+{ (void)logical;
   if (eq(pattern,sample)) return true;
   if (eq(pattern,S(Kwild))) return true;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
@@ -3881,7 +3887,7 @@ local bool nametype_match (object pattern, object sample, bool logical) {
   return nametype_match_aux(pattern,sample,logical);
 }
 local bool version_match (object pattern, object sample, bool logical)
-{ /* logical is ignored */
+{ (void)logical;
   SDOUT("version_match:",pattern);
   SDOUT("version_match:",sample);
   if (!boundp(sample)) return true;
@@ -4117,8 +4123,6 @@ local maygc void device_diff (object pattern, object sample, bool logical,
     return;
   }
   if (eq(sample,S(Kwild))) return;
-  #endif
-  #ifdef PATHNAME_WIN32
   if (nullp(pattern)) {
     var object string = wild2string(sample);
     push_solution_with(string);
@@ -4130,6 +4134,7 @@ local maygc void device_diff (object pattern, object sample, bool logical,
   #endif
   push_solution_with(S(Kdevice));
  #else /* HAS_DEVICE */
+  (void)pattern; (void)sample;
   push_solution();
  #endif
 }
@@ -4263,7 +4268,7 @@ local maygc void nametype_diff (object pattern, object sample, bool logical,
 }
 local maygc void version_diff (object pattern, object sample, bool logical,
                                const gcv_object_t* previous, gcv_object_t* solutions)
-{ /* logical is ignored */
+{ (void)logical;
   DEBUG_DIFF(version_diff);
   if (!boundp(sample)) { push_solution_with(pattern); return; }
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
@@ -4407,6 +4412,8 @@ local maygc object translate_device (gcv_object_t* subst, object pattern,
     }
   if (eq(Car(*subst),S(Kdevice)))
     *subst = Cdr(*subst);
+ #else  /* HAS_DEVICE */
+  (void)subst; (void)logical;
  #endif
   return pattern;
 }
@@ -4523,7 +4530,7 @@ local maygc object translate_nametype (gcv_object_t* subst, object pattern,
 }
 local object translate_version (gcv_object_t* subst, object pattern,
                                 bool logical)
-{ /* logical is ignored */
+{ (void)logical;
   DEBUG_TRAN(translate_version);
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
     var object erg = Car(*subst);
@@ -6958,6 +6965,7 @@ local bool running_handle_directory_encoding_error = false;
 #endif
 local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 (void *sp, gcv_object_t* frame, object label, object condition) {
+  (void)sp; (void)label;
   /* avoid nested handle_directory_encoding_error calls */
   if (running_handle_directory_encoding_error) return;
   else running_handle_directory_encoding_error = true;
@@ -8436,6 +8444,7 @@ local Handle nullfile (void) {
 /* obtaining a pipe handle */
 local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
   var int handles[2];
+  (void)dummy1; (void)dummy2;
   begin_system_call();
   if (pipe(handles)) OS_error();
   end_system_call();

@@ -122,6 +122,7 @@ local int dump_process_memory_map_callback (void *data,
                                             uintptr_t start, uintptr_t end,
                                             unsigned int flags)
 {
+  (void)data; (void)flags;
   fprintf(stderr,"  0x%lx - 0x%lx\n",
           (unsigned long)start, (unsigned long)(end-1));
   return 0; /* continue */
@@ -144,6 +145,7 @@ local int is_large_range_unmapped_callback (void *data,
                                             uintptr_t start, uintptr_t end,
                                             unsigned int flags)
 {
+  (void)flags;
   struct is_large_range_unmapped_locals* locals =
     (struct is_large_range_unmapped_locals*) data;
   if (!(start > locals->map_end-1 || locals->map_start > end-1)) {
@@ -487,6 +489,7 @@ local int mmap_init (void)
 
 local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
 {
+  (void)shrinkp;
   /* Warn before reserving an address range that contains existing memory
      mappings. We don't actually shrink the range [*map_addr,*map_endaddr)
      here. */
@@ -510,7 +513,7 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
        == (void*)(-1)) {
     var int errcode = errno;
     fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
-            map_addr);
+            (uintP)map_addr);
     errno_out(errcode);
     /* This error tends to repeat, leading to an endless loop.
        It's better to abort than to loop endlessly. */

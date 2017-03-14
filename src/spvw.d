@@ -2851,6 +2851,7 @@ local inline int parse_options (int argc, const char* const* argv,
 
 /* Delete command-line options. */
 local inline void free_argv_initparams (struct argv_initparams *p) {
+  (void)p;
 }
 local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_init_files);
