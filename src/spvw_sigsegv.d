@@ -96,6 +96,7 @@ local void install_segv_handler (void) {
 
 local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg3) {
   stackoverflow_context_t scp = (stackoverflow_context_t) arg1;
+  (void)arg2; (void)arg3;
  #ifdef HAVE_SAVED_STACK
   /* Assign a reasonable value to STACK: */
   if (saved_STACK != NULL) {
