@@ -1,3 +1,9 @@
+2017-03-14  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#687: executable images are broken when configured --with-debug.
+	* spvw_memfile.d (find_memdump): Reduce header_size: exclude
+	_subr_tab_addr and _symbol_tab_addr from header comparison.
+
 2017-03-13  Bruno Haible  <bruno@clisp.org>
 
 	Implement the undocumented option -mm on many more platforms.

@@ -1874,8 +1874,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
  < set mem_start and mem_searched */
 local void find_memdump (Handle fd) {
   var memdump_header_t header;
-  var size_t header_size = offsetof(memdump_header_t,_symbol_tab_addr)
-    + sizeof(header._symbol_tab_addr);
+  var size_t header_size = offsetof(memdump_header_t,_subr_tab_addr);
   fill_memdump_header(&header);
   /* "sizeof(size_t)" is unsigned, so "-sizeof(size_t)" is also unsigned,
      so we need the "(off_t)" cast to pass a negative number to lseek() */
@@ -1890,7 +1889,7 @@ local void find_memdump (Handle fd) {
     header._per_thread_symvalues_count = header1._per_thread_symvalues_count;
    #endif
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
-      mem_start = (size_t)-1;   /* bad header => no image */
+      mem_start = (size_t)-1; /* bad header => no image */
     }
   } else {
    #if defined(LOADMEM_TRY_SEARCH)
