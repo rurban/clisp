@@ -1271,7 +1271,8 @@ T
 (streamp (setq s (make-stream :error))) T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (write-line "foo" s) "foo"
-(with-open-file (copy s :direction :output) (streamp copy)) T
+(let ((*reopen-open-file* nil)) ; stdout can be a file, it will be detected!
+  (with-open-file (copy s :direction :output) (streamp copy))) T
 
 (progn
   (symbol-cleanup 's)
