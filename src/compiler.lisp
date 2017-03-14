@@ -5834,19 +5834,18 @@ for-value   NIL or T
 (defun c-EVAL-WHEN (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (let ((load-p nil) (compile-p nil) (eval-p nil) (execute-p nil)
+  (let ((load-p nil) (compile-p nil) (execute-p nil) ; (eval-p nil)
         (top-level-p (eq c #'compile-toplevel-form)))
-    ;; FIXME: eval-p is set but never used! remove?
     (dolist (situation (second *form*))
       (fcase equal situation
         ((LOAD) (setq load-p t))
         ((:LOAD-TOPLEVEL) (when top-level-p (setq load-p t)))
         ((COMPILE) (setq compile-p t))
         ((:COMPILE-TOPLEVEL) (when top-level-p (setq compile-p t)))
-        ((EVAL) (setq eval-p t))
+        ((EVAL)  ) ; (setq eval-p t)
         ((:EXECUTE) (setq execute-p t))
         (((NOT EVAL) (NOT :EXECUTE)) (setq load-p t compile-p t))
-        (((NOT COMPILE)) (setq load-p t eval-p t))
+        (((NOT COMPILE)) (setq load-p t)) ; eval-p t
         (((NOT :COMPILE-TOPLEVEL)) (setq load-p t execute-p t))
         (t (c-error 'situation
                     (TEXT "~S situation must be ~S, ~S or ~S, but not ~S")
