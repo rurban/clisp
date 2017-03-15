@@ -1,3 +1,9 @@
+2017-03-14  Sam Steingold  <sds@gnu.org>
+
+	Fix TRUENAME on /proc symlinks to very long paths.
+	* pathname.d (get_path_info): When result==linklen, retry
+	readlink() because this means that linkbuf was too small.
+
 2017-03-14  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on AIX in 64-bit mode with gcc.

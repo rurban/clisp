@@ -847,6 +847,34 @@ RUN-SLEEP
   (ext:delete-directory dir))
 T
 
+(let* ((l "my-symlink")
+       (n (make-string 64 :initial-element #\a))
+       (f (truename (open n :direction :probe :if-does-not-exist :create)))
+       (cp (os:copy-file n l :method :symlink)))
+  (list
+   (list (string= n (caar cp))
+         (string= l (pathname-name (cadar cp)))
+         (null (cdr cp)))
+   (list (equal f (truename l))
+         (equal f (truename n)))
+   (list (equal f (delete-file n))
+         (string= l (pathname-name (delete-file l))))))
+((T T T) (T T) (T T))
+
+(let* ((l "my-symlink")
+       (d (make-string 64 :initial-element #\a))
+       (p (make-pathname :directory (list :relative d) :name "my-file"))
+       (dp (make-pathname :name nil :defaults p)))
+  (ensure-directories-exist dp)
+  (open p :direction :probe :if-does-not-exist :create)
+  (os:copy-file p (ext:absolute-pathname l) :method :symlink)
+  (list
+   (equal (truename l) (delete-file p))
+   (ext:delete-directory dp)
+   (string= l (pathname-name (delete-file l)))))
+(T T T)
+
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)
