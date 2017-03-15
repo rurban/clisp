@@ -56,66 +56,6 @@ m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
 _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
 
-# Copyright (C) 2011-2014 Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-# AM_PROG_AR([ACT-IF-FAIL])
-# -------------------------
-# Try to determine the archiver interface, and trigger the ar-lib wrapper
-# if it is needed.  If the detection of archiver interface fails, run
-# ACT-IF-FAIL (default is to abort configure with a proper error message).
-AC_DEFUN([AM_PROG_AR],
-[AC_BEFORE([$0], [LT_INIT])dnl
-AC_BEFORE([$0], [AC_PROG_LIBTOOL])dnl
-AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
-AC_REQUIRE_AUX_FILE([ar-lib])dnl
-AC_CHECK_TOOLS([AR], [ar lib "link -lib"], [false])
-: ${AR=ar}
-
-AC_CACHE_CHECK([the archiver ($AR) interface], [am_cv_ar_interface],
-  [AC_LANG_PUSH([C])
-   am_cv_ar_interface=ar
-   AC_COMPILE_IFELSE([AC_LANG_SOURCE([[int some_variable = 0;]])],
-     [am_ar_try='$AR cru libconftest.a conftest.$ac_objext >&AS_MESSAGE_LOG_FD'
-      AC_TRY_EVAL([am_ar_try])
-      if test "$ac_status" -eq 0; then
-        am_cv_ar_interface=ar
-      else
-        am_ar_try='$AR -NOLOGO -OUT:conftest.lib conftest.$ac_objext >&AS_MESSAGE_LOG_FD'
-        AC_TRY_EVAL([am_ar_try])
-        if test "$ac_status" -eq 0; then
-          am_cv_ar_interface=lib
-        else
-          am_cv_ar_interface=unknown
-        fi
-      fi
-      rm -f conftest.lib libconftest.a
-     ])
-   AC_LANG_POP([C])])
-
-case $am_cv_ar_interface in
-ar)
-  ;;
-lib)
-  # Microsoft lib, so override with the ar-lib wrapper script.
-  # FIXME: It is wrong to rewrite AR.
-  # But if we don't then we get into trouble of one sort or another.
-  # A longer-term fix would be to have automake use am__AR in this case,
-  # and then we could set am__AR="$am_aux_dir/ar-lib \$(AR)" or something
-  # similar.
-  AR="$am_aux_dir/ar-lib $AR"
-  ;;
-unknown)
-  m4_default([$1],
-             [AC_MSG_ERROR([could not determine $AR interface])])
-  ;;
-esac
-AC_SUBST([AR])dnl
-])
-
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
 # Copyright (C) 2001-2014 Free Software Foundation, Inc.
@@ -3807,7 +3747,7 @@ AC_DEFUN([gl_GNU_MAKE],
     [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
 ])
 
-# gnulib-common.m4 serial 37
+# gnulib-common.m4 serial 38
 dnl Copyright (C) 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -4065,7 +4005,8 @@ AC_DEFUN([gl_PROG_AR_RANLIB],
   dnl library formats. In particular, the GNU binutils programs ar and ranlib
   dnl produce libraries that work only with gcc, not with cc.
   AC_REQUIRE([AC_PROG_CC])
-  AC_BEFORE([$0], [AM_PROG_AR])
+  dnl The '][' hides this use from 'aclocal'.
+  AC_BEFORE([$0], [A][M_PROG_AR])
   AC_CACHE_CHECK([for Minix Amsterdam compiler], [gl_cv_c_amsterdam_compiler],
     [
       AC_EGREP_CPP([Amsterdam],
@@ -4097,7 +4038,9 @@ Amsterdam
     dnl __ACK__.  It may seem like its easier to avoid calling the macro here,
     dnl but we need to AC_SUBST both AR/ARFLAGS (thus those must have some good
     dnl default value and automake should usually know them).
-    m4_ifdef([AM_PROG_AR], [AM_PROG_AR], [:])
+    dnl
+    dnl The '][' hides this use from 'aclocal'.
+    m4_ifdef([A][M_PROG_AR], [A][M_PROG_AR], [:])
   fi
 
   dnl In case the code above has not helped with setting AR/ARFLAGS, use
@@ -4881,7 +4824,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
-  AC_CHECK_FUNCS_ONCE([mquery])
+  AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -5031,16 +4974,15 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
   build-aux/config.rpath
-  build-aux/snippet/_Noreturn.h
-  build-aux/snippet/arg-nonnull.h
-  build-aux/snippet/c++defs.h
-  build-aux/snippet/warn-on-use.h
+  lib/_Noreturn.h
   lib/accept.c
   lib/alloca.c
   lib/alloca.in.h
+  lib/arg-nonnull.h
   lib/arpa_inet.in.h
   lib/bind.c
   lib/btowc.c
+  lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
   lib/close.c
@@ -5181,6 +5123,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/vma-iter.c
   lib/vma-iter.h
   lib/w32sock.h
+  lib/warn-on-use.h
   lib/wchar.in.h
   lib/wcrtomb.c
   lib/wctype-h.c

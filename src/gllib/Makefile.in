@@ -1138,11 +1138,8 @@ EXTRA_DIST = accept.c w32sock.h alloca.c alloca.in.h arpa_inet.in.h \
 	regex.c regex.h regex_internal.c regex_internal.h regexec.c \
 	secure_getenv.c select.c send.c w32sock.h sendto.c w32sock.h \
 	setenv.c setsockopt.c w32sock.h shutdown.c w32sock.h \
-	signal.in.h $(top_srcdir)/build-aux/snippet/_Noreturn.h \
-	$(top_srcdir)/build-aux/snippet/arg-nonnull.h \
-	$(top_srcdir)/build-aux/snippet/c++defs.h \
-	$(top_srcdir)/build-aux/snippet/warn-on-use.h socket.c \
-	w32sock.h w32sock.h stat.c stdalign.in.h stdbool.in.h \
+	signal.in.h _Noreturn.h arg-nonnull.h c++defs.h warn-on-use.h \
+	socket.c w32sock.h w32sock.h stat.c stdalign.in.h stdbool.in.h \
 	stddef.in.h stdint.in.h stdlib.in.h strcasecmp.c strncasecmp.c \
 	streq.h strerror-override.c strerror-override.h strerror_r.c \
 	strftime.h string.in.h strings.in.h strptime.c strverscmp.c \
@@ -1155,39 +1152,27 @@ EXTRA_DIST = accept.c w32sock.h alloca.c alloca.in.h arpa_inet.in.h \
 	unistd.in.h unitypes.in.h localcharset.h uniwidth.in.h \
 	uniwidth/cjk.h unsetenv.c verify.h vma-iter.h wchar.in.h \
 	wcrtomb.c wctype.in.h xalloc-oversized.h
-
-# The BUILT_SOURCES created by this Makefile snippet are not used via #include
-# statements but through direct file reference. Therefore this snippet must be
-# present in all Makefile.am that need it. This is ensured by the applicability
-# 'all' defined above.
-
-# The BUILT_SOURCES created by this Makefile snippet are not used via #include
-# statements but through direct file reference. Therefore this snippet must be
-# present in all Makefile.am that need it. This is ensured by the applicability
-# 'all' defined above.
 BUILT_SOURCES = $(ALLOCA_H) arpa/inet.h configmake.h $(ERRNO_H) \
 	fcntl.h $(FNMATCH_H) langinfo.h $(LIMITS_H) locale.h \
-	$(NETINET_IN_H) signal.h arg-nonnull.h c++defs.h warn-on-use.h \
-	$(STDALIGN_H) $(STDBOOL_H) $(STDDEF_H) $(STDINT_H) stdlib.h \
-	string.h strings.h sys/ioctl.h sys/select.h sys/socket.h \
-	sys/stat.h sys/time.h sys/types.h sys/uio.h sys/utsname.h \
-	sys/wait.h time.h $(LIBUNISTRING_UNINAME_H) unistd.h \
-	$(LIBUNISTRING_UNITYPES_H) $(LIBUNISTRING_UNIWIDTH_H) wchar.h \
-	wctype.h
+	$(NETINET_IN_H) signal.h $(STDALIGN_H) $(STDBOOL_H) \
+	$(STDDEF_H) $(STDINT_H) stdlib.h string.h strings.h \
+	sys/ioctl.h sys/select.h sys/socket.h sys/stat.h sys/time.h \
+	sys/types.h sys/uio.h sys/utsname.h sys/wait.h time.h \
+	$(LIBUNISTRING_UNINAME_H) unistd.h $(LIBUNISTRING_UNITYPES_H) \
+	$(LIBUNISTRING_UNIWIDTH_H) wchar.h wctype.h
 SUFFIXES = .sed .sin
 MOSTLYCLEANFILES = core *.stackdump alloca.h alloca.h-t arpa/inet.h \
 	arpa/inet.h-t errno.h errno.h-t fcntl.h fcntl.h-t fnmatch.h \
 	fnmatch.h-t langinfo.h langinfo.h-t limits.h limits.h-t \
 	locale.h locale.h-t netinet/in.h netinet/in.h-t signal.h \
-	signal.h-t arg-nonnull.h arg-nonnull.h-t c++defs.h c++defs.h-t \
-	warn-on-use.h warn-on-use.h-t stdalign.h stdalign.h-t \
-	stdbool.h stdbool.h-t stddef.h stddef.h-t stdint.h stdint.h-t \
-	stdlib.h stdlib.h-t string.h string.h-t strings.h strings.h-t \
-	sys/ioctl.h sys/ioctl.h-t sys/select.h sys/select.h-t \
-	sys/socket.h sys/socket.h-t sys/stat.h sys/stat.h-t sys/time.h \
-	sys/time.h-t sys/types.h sys/types.h-t sys/uio.h sys/uio.h-t \
-	sys/utsname.h sys/utsname.h-t sys/wait.h sys/wait.h-t time.h \
-	time.h-t uniname.h uniname.h-t unistd.h unistd.h-t unitypes.h \
+	signal.h-t stdalign.h stdalign.h-t stdbool.h stdbool.h-t \
+	stddef.h stddef.h-t stdint.h stdint.h-t stdlib.h stdlib.h-t \
+	string.h string.h-t strings.h strings.h-t sys/ioctl.h \
+	sys/ioctl.h-t sys/select.h sys/select.h-t sys/socket.h \
+	sys/socket.h-t sys/stat.h sys/stat.h-t sys/time.h sys/time.h-t \
+	sys/types.h sys/types.h-t sys/uio.h sys/uio.h-t sys/utsname.h \
+	sys/utsname.h-t sys/wait.h sys/wait.h-t time.h time.h-t \
+	uniname.h uniname.h-t unistd.h unistd.h-t unitypes.h \
 	unitypes.h-t uniwidth.h uniwidth.h-t wchar.h wchar.h-t \
 	wctype.h wctype.h-t
 MOSTLYCLEANDIRS = arpa netinet sys sys sys sys sys sys sys
@@ -1195,6 +1180,7 @@ CLEANFILES = configmake.h configmake.h-t charset.alias ref-add.sed \
 	ref-del.sed
 DISTCLEANFILES = 
 MAINTAINERCLEANFILES = 
+# No GNU Make output.
 AM_CPPFLAGS = 
 AM_CFLAGS = 
 
@@ -1235,12 +1221,24 @@ charset_alias = $(DESTDIR)$(libdir)/charset.alias
 charset_tmp = $(DESTDIR)$(libdir)/charset.tmp
 
 # Because this Makefile snippet defines a variable used by other
-# gnulib Makefile snippets, it must be present in all Makefile.am that
+# gnulib Makefile snippets, it must be present in all makefiles that
 # need it. This is ensured by the applicability 'all' defined above.
-_NORETURN_H = $(top_srcdir)/build-aux/snippet/_Noreturn.h
-ARG_NONNULL_H = arg-nonnull.h
-CXXDEFS_H = c++defs.h
-WARN_ON_USE_H = warn-on-use.h
+_NORETURN_H = $(srcdir)/_Noreturn.h
+
+# Because this Makefile snippet defines a variable used by other
+# gnulib Makefile snippets, it must be present in all makefiles that
+# need it. This is ensured by the applicability 'all' defined above.
+ARG_NONNULL_H = $(srcdir)/arg-nonnull.h
+
+# Because this Makefile snippet defines a variable used by other
+# gnulib Makefile snippets, it must be present in all makefiles that
+# need it. This is ensured by the applicability 'all' defined above.
+CXXDEFS_H = $(srcdir)/c++defs.h
+
+# Because this Makefile snippet defines a variable used by other
+# gnulib Makefile snippets, it must be present in all makefiles that
+# need it. This is ensured by the applicability 'all' defined above.
+WARN_ON_USE_H = $(srcdir)/warn-on-use.h
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -2047,32 +2045,6 @@ signal.h: signal.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H
 	      -e '/definition of _GL_WARN_ON_USE/r $(WARN_ON_USE_H)' \
 	      < $(srcdir)/signal.in.h; \
 	} > $@-t && \
-	mv $@-t $@
-# The arg-nonnull.h that gets inserted into generated .h files is the same as
-# build-aux/snippet/arg-nonnull.h, except that it has the copyright header cut
-# off.
-arg-nonnull.h: $(top_srcdir)/build-aux/snippet/arg-nonnull.h
-	$(AM_V_GEN)rm -f $@-t $@ && \
-	sed -n -e '/GL_ARG_NONNULL/,$$p' \
-	  < $(top_srcdir)/build-aux/snippet/arg-nonnull.h \
-	  > $@-t && \
-	mv $@-t $@
-# The c++defs.h that gets inserted into generated .h files is the same as
-# build-aux/snippet/c++defs.h, except that it has the copyright header cut off.
-c++defs.h: $(top_srcdir)/build-aux/snippet/c++defs.h
-	$(AM_V_GEN)rm -f $@-t $@ && \
-	sed -n -e '/_GL_CXXDEFS/,$$p' \
-	  < $(top_srcdir)/build-aux/snippet/c++defs.h \
-	  > $@-t && \
-	mv $@-t $@
-# The warn-on-use.h that gets inserted into generated .h files is the same as
-# build-aux/snippet/warn-on-use.h, except that it has the copyright header cut
-# off.
-warn-on-use.h: $(top_srcdir)/build-aux/snippet/warn-on-use.h
-	$(AM_V_GEN)rm -f $@-t $@ && \
-	sed -n -e '/^.ifndef/,$$p' \
-	  < $(top_srcdir)/build-aux/snippet/warn-on-use.h \
-	  > $@-t && \
 	mv $@-t $@
 
 # We need the following in order to create <stdalign.h> when the system

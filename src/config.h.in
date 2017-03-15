@@ -711,6 +711,9 @@
 /* Define to 1 if you have the `pstat_getdynamic' function. */
 #undef HAVE_PSTAT_GETDYNAMIC
 
+/* Define to 1 if you have the `pstat_getprocvm' function. */
+#undef HAVE_PSTAT_GETPROCVM
+
 /* Define if the <pthread.h> defines PTHREAD_MUTEX_RECURSIVE. */
 #undef HAVE_PTHREAD_MUTEX_RECURSIVE
 
