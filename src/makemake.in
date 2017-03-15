@@ -2529,8 +2529,13 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = encoding -o $f = stream -o $f = hashtabl -o $f = predtype -o $f = funarg -o $f = socket ] ; then
     flags2=$flags2" ${FALIGNFLAGS}"
   fi
-  test $f = genclisph -a $XCC_GCC = true && \
-    flags2=$flags2' -O0' # no need to optimize this
+  if [ $f = genclisph -a $XCC_GCC = true ] ; then
+    # When using -O2 or higher, the compilation of genclisph.c takes several
+    # minutes, which is unnecessary since it gets run only once.
+    # When using -O0, the compilation of genclisph.c fails on AIX:
+    # "1252-171 The displacement must be greater than or equal to -32768 and less than or equal to 32767."
+    flags2=$flags2' -O1'
+  fi
   echol "${f}.i : ${c}${dependsc}"
   echotab "${XCPP} ${flags} ${c} > ${f}.i"
   echol

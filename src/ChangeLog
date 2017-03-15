@@ -1,3 +1,8 @@
+2017-03-14  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure on AIX in 64-bit mode with gcc.
+	* makemake.in: Compile genclisph.c with option -O1, not -O0.
+
 2017-03-14  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-EVAL-WHEN): Remove the set-but-not-used
