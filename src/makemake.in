@@ -1224,6 +1224,7 @@ EOF
 # Main compiler dependencies:
 
 if [ $XCC_GCC = true ] ; then
+  XCC_SUNPRO=false
   # Recognize clang. It disguises as GCC.
   if LC_ALL=C $XCC --version | grep 'Apple LLVM' > /dev/null; then
     XCC_BRAND=clang
@@ -1323,6 +1324,8 @@ else
   if [ $CROSS = false ] ; then
     # Detect SUNWspro C compiler - defines __SUNPRO_C
     XCC_SUNPRO=${CC_SUNPRO}
+  else
+    XCC_SUNPRO=false
   fi
   if [ $TSYS = win32msvc ] ; then
     XCPP="cl -E"
@@ -1335,7 +1338,7 @@ else
         ;;
     esac
     XCFLAGS="$CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
-  elif [ -n "$XCC_SUNPRO" ] ; then
+  elif "$XCC_SUNPRO" ; then
     # SUNWspro cc flags:
     XCFLAGS=${XCFLAGS}' -xO3 -xstrconst'
   elif [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
@@ -1393,7 +1396,7 @@ else
   if [ "$HSYSOS" = aix ] ; then # for xlc
     XCFLAGS=$XCFLAGS' -qalias=noansi'
   fi
-  if [ -n "$XCC_SUNPRO" ] ; then # for SUNWspro cc
+  if "$XCC_SUNPRO" ; then # for SUNWspro cc
     XCFLAGS=$XCFLAGS' -xalias_level=weak'
   fi
 fi
@@ -2143,7 +2146,7 @@ echol "BASE_MODULES = ${BASE_MODULES}"
 echol
 echol "COMMENT5 = ${HERE}comment5"
 
-if [ -n "$XCC_SUNPRO" ] ; then
+if "$XCC_SUNPRO" ; then
   XASM_NEED_CCPAUX=true
 else
   XASM_NEED_CCPAUX=false
@@ -2405,7 +2408,7 @@ if [ $TSYS != win32msvc ] ; then
   else
     ASMFLAGS=''
   fi
-  if [ -n "$XCC_SUNPRO" ] ; then
+  if "$XCC_SUNPRO" ; then
     # SUNPRO cc preprocessor does too much checking in ANSI C mode, choose K&R mode
     ASMFLAGS="$ASMFLAGS"' -Xs'
   fi
