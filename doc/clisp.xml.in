@@ -746,7 +746,13 @@ account.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
  the following basic steps to make the report more useful:<orderedlist>
- <listitem><simpara>Please do a clean build (remove your build directory
+ <listitem><simpara>Unless your bug is locale-specific, please set your
+   locale to <literal>en</literal>.  You <emphasis>cannot</emphasis>
+   assume that &clisp; maintainers understand a language other than
+   <ulink url="http://www.catb.org/esr/faqs/hacker-howto.html#skills4">English</ulink>,
+   even though, historically, few &clisp; maintainers spoke English natively.
+ </simpara></listitem>
+ <listitem><simpara>Do a clean build (remove your build directory
    and build &clisp; with <command>./configure --cbc build</command>
    or at least do a <command role="unix">make distclean</command>
    before &make;).</simpara></listitem>
