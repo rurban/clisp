@@ -2444,7 +2444,7 @@ fi
 
 for f in lispbibl; do
   echol "gen.${f}.c : ${SRCDIR}${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///;p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
   echol
 done
 

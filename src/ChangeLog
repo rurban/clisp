@@ -1,5 +1,11 @@
 2017-03-15  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on HP-UX (regression from 2005-07-29).
+	* makemake.in (gen.lispbibl.c): Fix the sed expression to also work
+	with HP-UX sed.
+
+2017-03-15  Bruno Haible  <bruno@clisp.org>
+
 	Don't treat all non-GCC compilers like SUNWspro cc.
 	* makemake.in: Fix the test of the CC_SUNPRO variable.
 
