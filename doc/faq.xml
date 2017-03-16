@@ -866,7 +866,7 @@ interpreted ones.</para>
   and &defconstant; (e.g., <varname>+BAR+</varname>).</para></answer>
 <answer><label>More</label>
  <simplelist><member><ulink role="gmane" url="general/11945"/>/<ulink msgid="470A4B2A.30306@gnu.org" url="https://sourceforge.net/p/clisp/mailman/message/13174197/"/></member>
-  <member><ulink role="gmane" url="general/11949"/>/<ulink msgid="200710090043.01871.bruno@clisp.org" role="https://sourceforge.net/p/clisp/mailman/message/13174204/"/></member>
+  <member><ulink role="gmane" url="general/11949"/>/<ulink msgid="200710090043.01871.bruno@clisp.org" url="https://sourceforge.net/p/clisp/mailman/message/13174204/"/></member>
 </simplelist></answer>
 </qandaentry>
 
