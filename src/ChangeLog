@@ -1,3 +1,8 @@
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
+	maint: Add a convenience target for checking the documentation.
+	* Makefile.devel (check-doc): New target.
+
 2017-03-15  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on HP-UX (regression from 2005-07-29).
