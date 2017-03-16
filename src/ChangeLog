@@ -1,5 +1,12 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure with HP-UX make.
+	Apparently HP-UX make expects an absolute filename for SHELL.
+	* makemake.in: For HP-UX, set SHELL to the absolute filename of bash,
+	not just "bash".
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	Don't rely on unportable 'test file1 -nt file2' primitive.
 	Fixes a build failure on OpenBSD.
 	* Makefile.devel (GNULIB_CORE): Add stat-time, timespec.
