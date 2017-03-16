@@ -1,5 +1,10 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on HP-UX.
+	* makemake.in (with_dynamic_modules): Default to 'no' on HP-UX.
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with HP-UX cc and Sun cc.
 	* makemake.in: Compile the CPARTS and clisp-test.c with option "-I.".
 
