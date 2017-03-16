@@ -705,7 +705,16 @@ if [ "${with_dynamic_modules}" = default ]; then
   if [ "${CC_CPLUSPLUS}" = true ]; then
     with_dynamic_modules=no
   else
-    with_dynamic_modules=yes
+    # Don't enable dynamic modules by default on HP-UX.
+    # See the comment regarding HAVE_DYNLOAD in unix.d.
+    if [ $CROSS = false ] ; then
+      case "$host_os" in
+        hpux*) with_dynamic_modules=no ;;
+        *)     with_dynamic_modules=yes ;;
+      esac
+    else
+      with_dynamic_modules=yes
+    fi
   fi
 elif [ "${with_dynamic_modules}" = yes -a "${CC_CPLUSPLUS}" = true ]; then
   fail "dynamic modules do not work with C++ because of symbol mangling"
