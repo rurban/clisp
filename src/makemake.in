@@ -2125,7 +2125,7 @@ if [ $HOS = unix ] ; then
   #   2. A command such as  'grep -v "^ *$$"'  to be executed incorrectly.
   # As a workaround, we use GNU bash instead.
   case "$host_os" in
-    hpux*) echol "SHELL = bash" ;;
+    hpux*) echol "SHELL = "`which bash` ;;
     *)     echol "SHELL = ${CONFIG_SHELL-/bin/sh}" ;;
   esac
   echol
