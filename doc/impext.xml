@@ -179,7 +179,7 @@ space.</para>
 &sh-prompt; &clisp-cmd; &opt-K; full &opt-x; '(&savemem;)'
 &sh-prompt; &clisp-cmd; &opt-K; base &opt-M; lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
-See also <ulink role="gmane" url="devel/17757"/>/<ulink msgid="BF6EFF38DF3FA647BBD932720D8BED650BAA11@parmbx02.ilog.biz" url="https://sourceforge.net/p/clisp/mailman/message/18854510/"/>.</para></section>
+See also <ulink role="gmane" url="devel/17757"/>/<ulink role="msgid=BF6EFF38DF3FA647BBD932720D8BED650BAA11@parmbx02.ilog.biz" url="https://sourceforge.net/p/clisp/mailman/message/18854510/"/>.</para></section>
 
 </section>
 
@@ -3778,7 +3778,7 @@ and possibly the calling convention.</para>
   have problems with this.
   The recommended workaround is to pass pointers; this is fully supported.
   See also <ulink url="ml">clisp-devel</ulink>
-  (<ulink role="gmane" url="devel/10089"/>/<ulink msgid="200307141526.26925.bruno@clisp.org" url="https://sourceforge.net/p/clisp/mailman/message/12562038/"/>).</simpara></warning>
+  (<ulink role="gmane" url="devel/10089"/>/<ulink role="msgid=200307141526.26925.bruno@clisp.org" url="https://sourceforge.net/p/clisp/mailman/message/12562038/"/>).</simpara></warning>
 
 </section>
 
@@ -4350,11 +4350,11 @@ Now you can sum doubles:
 <para>You can find more information and examples of the &clisp;
  &ffi-pac; in the following <ulink url="ml">clisp-list</ulink> messages:
  <variablelist><varlistentry><term>variable size values</term>
-   <listitem><simpara><ulink role="gmane" url="general/7278"/>/<ulink msgid="9F8582E37B2EE5498E76392AEDDCD3FE05F4B8F7@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10143425/"/>
+   <listitem><simpara><ulink role="gmane" url="general/7278"/>/<ulink role="msgid=9F8582E37B2EE5498E76392AEDDCD3FE05F4B8F7@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10143425/"/>
   </simpara></listitem></varlistentry>
   <varlistentry><term>variable length arrays</term>
-   <listitem><simpara><ulink role="gmane" url="general/6626"/>/<ulink msgid="9F8582E37B2EE5498E76392AEDDCD3FE0287A252@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10142276/"/>
-     <ulink role="gmane" url="general/6628"/>/<ulink msgid="9F8582E37B2EE5498E76392AEDDCD3FE0287A3B1@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10142279/"/>
+   <listitem><simpara><ulink role="gmane" url="general/6626"/>/<ulink role="msgid=9F8582E37B2EE5498E76392AEDDCD3FE0287A252@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10142276/"/>
+     <ulink role="gmane" url="general/6628"/>/<ulink role="msgid=9F8582E37B2EE5498E76392AEDDCD3FE0287A3B1@G8PQD.blf01.telekom.de" url="https://sourceforge.net/p/clisp/mailman/message/10142279/"/>
 </simpara></listitem></varlistentry></variablelist></para>
 <para>Even more examples can be found in the file
  <filename role="clisp-cvs">tests/ffi.tst</filename>
