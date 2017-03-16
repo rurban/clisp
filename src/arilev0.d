@@ -717,7 +717,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA_DIV_WORKS)) && !defined(NO_ARI_ASM)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1

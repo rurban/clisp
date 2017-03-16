@@ -1,5 +1,10 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on HP-UX/hppa.
+	* arilev0.d (divu_6432_3232_): Test HPPA_DIV_WORKS, not HPPA.
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with HP-UX make.
 	Apparently HP-UX make expects an absolute filename for SHELL.
 	* makemake.in: For HP-UX, set SHELL to the absolute filename of bash,
