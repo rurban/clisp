@@ -1022,6 +1022,13 @@ check-sbcl:
 # Targets for miscelleanous tasks for developers.
 
 # ------------------------------------------------------------------------------
+# Check syntactic well-formed-ness of XML (DocBook) format documentation files.
+# Run after every change of doc/*.xml.
+
+check-doc :
+	cd doc && make check
+
+# ------------------------------------------------------------------------------
 # Download prerequisites of 'htmldoc' target.
 
 # This must not be in "all" because this downloads 23MB XSL + 500kB DTD.
