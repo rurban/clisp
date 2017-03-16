@@ -607,7 +607,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
-  AC_CHECK_FUNCS_ONCE([mquery])
+  AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -757,16 +757,15 @@ AC_DEFUN([gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([gl_FILE_LIST], [
   build-aux/config.rpath
-  build-aux/snippet/_Noreturn.h
-  build-aux/snippet/arg-nonnull.h
-  build-aux/snippet/c++defs.h
-  build-aux/snippet/warn-on-use.h
+  lib/_Noreturn.h
   lib/accept.c
   lib/alloca.c
   lib/alloca.in.h
+  lib/arg-nonnull.h
   lib/arpa_inet.in.h
   lib/bind.c
   lib/btowc.c
+  lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
   lib/close.c
@@ -907,6 +906,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/vma-iter.c
   lib/vma-iter.h
   lib/w32sock.h
+  lib/warn-on-use.h
   lib/wchar.in.h
   lib/wcrtomb.c
   lib/wctype-h.c
