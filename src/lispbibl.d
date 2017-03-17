@@ -1727,6 +1727,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define dotimes_check_sizeof(countvar,type)  \
     if (!(sizeof(countvar)==sizeof(type))) { dotimes_called_with_count_of_wrong_size(); }
   extern void dotimes_called_with_count_of_wrong_size (void); /* non-existing function */
+%% exportF(void,dotimes_called_with_count_of_wrong_size,(void));
 #else
   #define dotimes_check_sizeof(countvar,type)
 #endif

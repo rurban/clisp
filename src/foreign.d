@@ -4660,7 +4660,7 @@ LISPFUNN(foreign_pointer_info,1) {
     pushSTACK(safe_to_string(dli.dli_fname));
     pushSTACK(allocate_fpointer(dli.dli_fbase));
     pushSTACK(safe_to_string(dli.dli_sname));
-    pushSTACK(allocate_fpointer(dli.dli_saddr));
+    pushSTACK(allocate_fpointer((void*)dli.dli_saddr));
     STACK_to_mv(4);
   }
 }
