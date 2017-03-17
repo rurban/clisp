@@ -241,7 +241,9 @@
   #endif
   #if defined(HP8XX) || defined(hppa) || defined(__hppa) || defined(__hppa__)
     #define HPPA
-    /* Don't know how to reliably detect 64-bit mode through predefined macros. */
+    #if defined(__LP64__)
+      #define HPPA64
+    #endif
   #endif
   #if defined(_IBMR2) || defined(__powerpc) || defined(__powerpc__) || defined(__ppc) || defined(__ppc__)
     #define POWERPC

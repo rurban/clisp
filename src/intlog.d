@@ -825,7 +825,7 @@ local maygc object I_logcount_I (object x)
       __asm__("bsrl %1,%0" : "=r" (one_position) : "rm" ((uint32)(digit)) ); \
       size_assignment (1+one_position);                                 \
     }
-#elif defined(HPPA) && !defined(NO_ARI_ASM)
+#elif (defined(HPPA) && !defined(HPPA64)) && !defined(NO_ARI_ASM)
   #define integerlength32(digit,size_assignment)  \
     size_assignment length32(digit);
   extern_C uintL length32 (uintL digit); /* extern in assembler */

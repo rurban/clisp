@@ -216,11 +216,11 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || defined(HPPA) || defined(VAX)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64)) || defined(VAX)) && !defined(NO_ARI_ASM)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
-      #elif defined(LISPARIT) && !defined(HPPA) # In arihppa.d ist mulu32_high bereits definiert.
+      #elif defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In arihppa.d ist mulu32_high bereits definiert.
         global uint32 mulu32_high;
       #endif
     #else
@@ -552,7 +552,7 @@
           : "r" (__x), "r" (__y));   \
         (uint32)__q;                 \
        })
-  #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || defined(HPPA_DIV_WORKS)
+  #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || (defined(HPPA_DIV_WORKS) && !defined(HPPA64))
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
       divu_6432_3232(0,x,y,_EMA_ q_assignment,_EMA_ r_assignment)
     #define divu_3232_3232_(x,y) divu_6432_3232_(0,x,y)
@@ -701,7 +701,7 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
-    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM) && !defined(HPPA_DIV_WORKS)
+    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM) && !(defined(HPPA_DIV_WORKS) && !defined(HPPA64))
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment) \
         ({var uint32 __xhi = (xhi);                           \
           var uint32 __xlo = (xlo);                           \
@@ -717,7 +717,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(HPPA_DIV_WORKS)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || (defined(HPPA_DIV_WORKS) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
@@ -1033,7 +1033,7 @@
 # > uint32 xhi,xlo: Radikand x = 2^32*xhi+xlo, >= 2^62, < 2^64
 # < uint32 y: floor(sqrt(x)), >= 2^31, < 2^32
 # < bool sqrtp: /=0, falls x=y^2
-  #if (defined(SPARC) || defined(SPARC64) || defined(M68K) || defined(HPPA))
+  #if (defined(SPARC) || defined(SPARC64) || defined(M68K) || defined(HPPA) || defined(HPPA64))
     # Methode:
     # y := 2^32 als Anfangswert,
     # y := floor((y + floor(x/y))/2) als nächster Wert,
