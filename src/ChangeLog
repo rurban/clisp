@@ -1,5 +1,11 @@
 2017-03-17  Bruno Haible  <bruno@clisp.org>
 
+	Don't test unportable features in "make check".
+	* makemake.in: Generate a new target 'extracheck'. Let 'extracheck', not
+	'check', depend on 'check-exec-image'.
+
+2017-03-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux/arm.
 	* arilev0.d (mulu32_, divu_3216_1616_, divu_3216_3216_, divu_3232_3232_,
 	divu_6432_3232_, divu_6432_6432_, divu_6464_6464_): When defined in
