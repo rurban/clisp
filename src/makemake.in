@@ -2500,6 +2500,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   test $f = built && dependsc=${dependsc}' cflags.h'
   flags="$XCPPFLAGS $XCFLAGS"
+  # HP-UX cc and Sun cc don't look for include files in the current directory
+  # any more after a preprocessor directive '#line 1 "../src/file.d"'.
+  flags=$flags" -I."
   test $f = foreign -a $HOS = win32 && flags=$flags" -I${SRCTOPDIR}ffcall"
   test $f = genclisph && flags=$flags" -DCOMPILE_STANDALONE"
   if [ $f = modules ] ; then
@@ -3127,8 +3130,8 @@ if [ "${HSYSOS}" != cygwin ]; then
 else
     echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 fi
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-clisp"
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-lispbibl"
+echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-clisp"
+echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
 echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
 if [ $HOS = unix -o $HSYS = win32gcc ]; then
