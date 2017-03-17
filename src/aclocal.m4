@@ -4355,6 +4355,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module socklen:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdalign:
   # Code from module stdbool:
   # Code from module stddef:
@@ -4386,6 +4387,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module time_r:
   # Code from module time_rz:
   # Code from module timegm:
+  # Code from module timespec:
   # Code from module uname:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -4726,6 +4728,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   gl_STDALIGN_H
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -4805,6 +4809,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_TIMEGM
   fi
   gl_TIME_MODULE_INDICATOR([timegm])
+  gl_TIMESPEC
   gl_FUNC_UNAME
   if test $HAVE_UNAME = 0; then
     AC_LIBOBJ([uname])
@@ -5070,6 +5075,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-time.c
+  lib/stat-time.h
   lib/stat.c
   lib/stdalign.in.h
   lib/stdbool.in.h
@@ -5107,6 +5114,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/time_r.c
   lib/time_rz.c
   lib/timegm.c
+  lib/timespec.c
+  lib/timespec.h
   lib/uname.c
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -5230,6 +5239,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/socklen.m4
   m4/sockpfaf.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdalign.m4
   m4/stdbool.m4
@@ -5260,6 +5270,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/time_r.m4
   m4/time_rz.m4
   m4/timegm.m4
+  m4/timespec.m4
   m4/tm_gmtoff.m4
   m4/uintmax_t.m4
   m4/uname.m4
@@ -12737,6 +12748,90 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
+# Checks for stat-related time functions.
+
+# Copyright (C) 1998-1999, 2001, 2003, 2005-2007, 2009-2017 Free Software
+# Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+dnl From Paul Eggert.
+
+# st_atim.tv_nsec - Linux, Solaris, Cygwin
+# st_atimespec.tv_nsec - FreeBSD, NetBSD, if ! defined _POSIX_SOURCE
+# st_atimensec - FreeBSD, NetBSD, if defined _POSIX_SOURCE
+# st_atim.st__tim.tv_nsec - UnixWare (at least 2.1.2 through 7.1)
+
+# st_birthtimespec - FreeBSD, NetBSD (hidden on OpenBSD 3.9, anyway)
+# st_birthtim - Cygwin 1.7.0+
+
+AC_DEFUN([gl_STAT_TIME],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_HEADERS_ONCE([sys/time.h])
+
+  AC_CHECK_MEMBERS([struct stat.st_atim.tv_nsec],
+    [AC_CACHE_CHECK([whether struct stat.st_atim is of type struct timespec],
+       [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec],
+       [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+          [[
+            #include <sys/types.h>
+            #include <sys/stat.h>
+            #if HAVE_SYS_TIME_H
+            # include <sys/time.h>
+            #endif
+            #include <time.h>
+            struct timespec ts;
+            struct stat st;
+          ]],
+          [[
+            st.st_atim = ts;
+          ]])],
+          [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec=yes],
+          [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec=no])])
+     if test $ac_cv_typeof_struct_stat_st_atim_is_struct_timespec = yes; then
+       AC_DEFINE([TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC], [1],
+         [Define to 1 if the type of the st_atim member of a struct stat is
+          struct timespec.])
+     fi],
+    [AC_CHECK_MEMBERS([struct stat.st_atimespec.tv_nsec], [],
+       [AC_CHECK_MEMBERS([struct stat.st_atimensec], [],
+          [AC_CHECK_MEMBERS([struct stat.st_atim.st__tim.tv_nsec], [], [],
+             [#include <sys/types.h>
+              #include <sys/stat.h>])],
+          [#include <sys/types.h>
+           #include <sys/stat.h>])],
+       [#include <sys/types.h>
+        #include <sys/stat.h>])],
+    [#include <sys/types.h>
+     #include <sys/stat.h>])
+])
+
+# Check for st_birthtime, a feature from UFS2 (FreeBSD, NetBSD, OpenBSD, etc.)
+# and NTFS (Cygwin).
+# There was a time when this field was named st_createtime (21 June
+# 2002 to 16 July 2002) But that window is very small and applied only
+# to development code, so systems still using that configuration are
+# not supported.  See revisions 1.10 and 1.11 of FreeBSD's
+# src/sys/ufs/ufs/dinode.h.
+#
+AC_DEFUN([gl_STAT_BIRTHTIME],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_HEADERS_ONCE([sys/time.h])
+  AC_CHECK_MEMBERS([struct stat.st_birthtimespec.tv_nsec], [],
+    [AC_CHECK_MEMBERS([struct stat.st_birthtimensec], [],
+      [AC_CHECK_MEMBERS([struct stat.st_birthtim.tv_nsec], [], [],
+         [#include <sys/types.h>
+          #include <sys/stat.h>])],
+       [#include <sys/types.h>
+        #include <sys/stat.h>])],
+    [#include <sys/types.h>
+     #include <sys/stat.h>])
+])
+
 # serial 11
 
 # Copyright (C) 2009-2017 Free Software Foundation, Inc.
@@ -15646,6 +15741,18 @@ AC_DEFUN([gl_FUNC_TIMEGM],
 AC_DEFUN([gl_PREREQ_TIMEGM], [
   :
 ])
+
+#serial 15
+
+# Copyright (C) 2000-2001, 2003-2007, 2009-2017 Free Software Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+dnl From Jim Meyering
+
+AC_DEFUN([gl_TIMESPEC], [:])
 
 # tm_gmtoff.m4 serial 3
 dnl Copyright (C) 2002, 2009-2017 Free Software Foundation, Inc.
@@ -29235,33 +29342,6 @@ CL_COMPILE_CHECK([struct winsize in sys/ptem.h], cl_cv_struct_winsize_ptem,
 fi
 fi
 fi
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 2005-2006 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Sam Steingold.
-
-AC_PREREQ(2.13)
-
-AC_DEFUN([CL_TEST_NT],[dnl check that test(1) can serve as make(1)
-AC_CACHE_CHECK(whether test -nt works, cl_cv_test_nt, [
-rm -f conftestfile1 conftestfile2
-touch conftestfile1
-# see makemake.in, rule "anymodule":
-if (test -f conftestfile1 -a conftestfile1 -nt conftestfile2) 1>&5 2>&5
-then cl_cv_test_nt=yes
-else cl_cv_test_nt=no
-fi
-rm -f conftestfile1
-])
-TEST_NT=${cl_cv_test_nt-no}
-AC_SUBST(TEST_NT)dnl
 ])
 
 dnl -*- Autoconf -*-

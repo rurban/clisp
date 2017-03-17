@@ -1,5 +1,21 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Don't rely on unportable 'test file1 -nt file2' primitive.
+	Fixes a build failure on OpenBSD.
+	* Makefile.devel (GNULIB_CORE): Add stat-time, timespec.
+	* utils/newer.c: New file.
+	* makemake.in: Don't emit a '.SHELL' line.
+	(UTILS): Add 'newer'.
+	Use the 'newer' program instead of a 'newer()' shell function.
+	* configure.in: Don't invoke CL_TEST_NT.
+	* m4/test.m4: Remove file.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* gllib/Makefile.am, gllib/Makefile.in: Regenerated.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	maint: Add a convenience target for checking the documentation.
 	* Makefile.devel (check-doc): New target.
 

@@ -47,7 +47,6 @@ AC_PROG_MKDIR_P
 AC_CHECK_PROG(GROFF,groff,groff)
 AC_CHECK_PROG(PS2PDF,ps2pdf,ps2pdf)
 AC_CHECK_PROGS(COMPRESS,gzip zip compress)
-CL_TEST_NT dnl sets variable TEST_NT
 dnl
 BOLD_MSG([checks for system features])
 AC_SYS_LARGEFILE    dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
