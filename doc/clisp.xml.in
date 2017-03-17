@@ -775,7 +775,9 @@ account.</para>
    &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
  <listitem><simpara>Where did you get the sources or binaries?  When?
    (Absolute dates, e.g., <quote>2006-01-17</quote>, are preferred over
-   the relative ones, e.g., <quote>2 days ago</quote>).</simpara></listitem>
+   the relative ones, e.g., <quote>2 days ago</quote>. If you are using
+   &hg;, please supply the output of <command role="unix">hg
+   id</command>).</simpara></listitem>
  <listitem><simpara>How did you build &clisp;?
    (What command, options &amp;c.)</simpara></listitem>
  <listitem><simpara>What is the output of
