@@ -224,6 +224,8 @@
         global uint32 mulu32_high;
       #endif
     #else
+      #define mulu32_ mulu32_generic # generic fallback code in C
+      extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2);
       #ifdef LISPARIT
       global uint32 mulu32_high;
       global uint32 mulu32_ (uint32 x, uint32 y) {
@@ -423,6 +425,8 @@
     #else
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         { q_assignment divu_3216_1616_(x,y); r_assignment divu_16_rest; }
+      #define divu_3216_1616_ divu_3216_1616_generic # generic fallback code in C
+      extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y);
       #ifdef LISPARIT
       global uint16 divu_16_rest;
       global uint16 divu_3216_1616_ (uint32 x, uint16 y) {
@@ -501,6 +505,8 @@
     #if 0 && !defined(NO_ARI_ASM)
       # divu_3216_3216_ extern in Assembler
     #else
+      #define divu_3216_3216_ divu_3216_3216_generic # generic fallback code in C
+      extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y);
       #ifdef LISPARIT
       global uint32 divu_3216_3216_ (uint32 x, uint16 y) {
         var uint16 q1;
@@ -618,6 +624,8 @@
             r_assignment _x;                                            \
             q_assignment (uint32)(_q);                                  \
       }   }
+    #define divu_3232_3232_ divu_3232_3232_stub
+    extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y);
     #ifdef LISPARIT
     # Dies dient nur noch als Hilfsfunktion für arilev1.d.
     # Die Rückgabe des Restes in divu_32_rest ist also hier nicht nötig.
@@ -633,6 +641,8 @@
     #if 0 && !defined(NO_ARI_ASM)
       # divu_3232_3232_ extern in Assembler
     #else
+      #define divu_3232_3232_ divu_3232_3232_generic # generic fallback code in C
+      extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y);
       #ifdef LISPARIT
       global uint32 divu_3232_3232_ (uint32 x, uint32 y) {
         var uint32 q = floor(x,y);
@@ -725,6 +735,8 @@
         global uint32 divu_32_rest;
       #endif
     #else
+      #define divu_6432_3232_ divu_6432_3232_generic # generic fallback code in C
+      extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #ifdef LISPARIT
       # Methode:
       # Wie UDS_divide mit intDsize=16, a_len=4, b_len=2.
@@ -888,6 +900,8 @@
     #if 0 && !defined(NO_ARI_ASM)
       # divu_6432_6432_ extern in Assembler
     #else
+      #define divu_6432_6432_ divu_6432_6432_generic # generic fallback code in C
+      extern_C uint64 divu_6432_6432_ (uint64 x, uint32 y);
       #ifdef LISPARIT
       global uint64 divu_6432_6432_ (uint64 x, uint32 y) {
         var uint32 q1;
@@ -980,6 +994,8 @@
     #if 0 && !defined(NO_ARI_ASM)
       # divu_6464_6464_ extern in Assembler
     #else
+      #define divu_6464_6464_ divu_6464_6464_generic # generic fallback code in C
+      extern_C uint64 divu_6464_6464_ (uint64 x, uint64 y);
       #ifdef LISPARIT
       global uint64 divu_6464_6464_ (uint64 x, uint64 y) {
         var uint64 q = floor(x,y);
