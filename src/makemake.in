@@ -2128,13 +2128,6 @@ if [ $HOS = unix ] ; then
     hpux*) echol "SHELL = bash" ;;
     *)     echol "SHELL = ${CONFIG_SHELL-/bin/sh}" ;;
   esac
-  # netbsd make ignores the SHELL macro, so we need to use a special
-  # target to tell it to respect our shell setting
-  # this is important because if configure uses bash and detects TEST_NT=yes,
-  # but make uses sh that does not support "test -nt", modules will not build
-  case "$host_os" in
-    *bsd*) echol '.SHELL: name=sh path=$(SHELL)' ;;
-  esac
   echol
 fi
 echol "# Add-on modules that are present in all linking sets (including base)"
@@ -2315,6 +2308,7 @@ UTILS=$UTILS' varbrace'
 test $XCC_NEED_DEEMA = true -a $HOS != unix && UTILS=$UTILS' deema'
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
+UTILS=$UTILS' newer'
 LUTILS='modprep'
 
 PARAMS="intparam floatparam"
@@ -2346,9 +2340,13 @@ for parf in ${PARAMS}; do
   echol
 done
 for util in ${UTILS} ; do
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c" "${util}"
-      echol
+  dependsc=
+  if [ ${util} = newer ] ; then
+    dependsc="${dependsc} ${GLLIB_A}"
+  fi
+  echol "${util}${HEXE} : ${UTILDIR_M}${util}.c${dependsc}"
+  echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c${dependsc}" "${util}"
+  echol
 done
 
 echol
@@ -3223,15 +3221,10 @@ make_modules() {
   echol "${MODULE_NAME} \$(${MODULES_VAR}) : ${LINKING_SET} clisp${TEXE} linkkit force"
   echotab 'mkdir -p $@'
   echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
-  if [ "@TEST_NT@" = no ]; then # re-making a module requires rm -rf module
-    newer(){ echo 'test -f $$m/'$1' -a '"'!'"' -f $@/'$2; }
-  else # re-making a module just works
-    newer(){ echo 'test -f $$m/'$1' -a $$m/'$1' -nt $@/'$2; }
-  fi
   # srcdir has to be passed to ./configure because it must be able to find
   # src/build-aux/install-sh _AND_ also its own sources, thus we must
   # point it to modules/... in the original source tree
-  echotab "if `newer configure config.status` ; then ( cd \$@ ;\\"
+  echotab "if ./newer \$\$m/configure \$@/config.status ; then ( cd \$@ ;\\"
   echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
   echotab "    if test -f \$\${cache} ; then \\"
   echotab "      . \$\${cache}; \\"
@@ -3247,7 +3240,7 @@ make_modules() {
   echotab "fi; \\"
   # srcdir must be correct in Makefile because clisp-link calls link.sh
   # which cannot pass srcdir to make on the command line
-  echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
+  echotab "./newer \$\$m/Makefile \$@/Makefile && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
   echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
   echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
   echol

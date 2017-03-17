@@ -138,6 +138,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module socklen:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdalign:
   # Code from module stdbool:
   # Code from module stddef:
@@ -169,6 +170,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module time_r:
   # Code from module time_rz:
   # Code from module timegm:
+  # Code from module timespec:
   # Code from module uname:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -509,6 +511,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   gl_STDALIGN_H
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -588,6 +592,7 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_TIMEGM
   fi
   gl_TIME_MODULE_INDICATOR([timegm])
+  gl_TIMESPEC
   gl_FUNC_UNAME
   if test $HAVE_UNAME = 0; then
     AC_LIBOBJ([uname])
@@ -853,6 +858,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-time.c
+  lib/stat-time.h
   lib/stat.c
   lib/stdalign.in.h
   lib/stdbool.in.h
@@ -890,6 +897,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/time_r.c
   lib/time_rz.c
   lib/timegm.c
+  lib/timespec.c
+  lib/timespec.h
   lib/uname.c
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -1013,6 +1022,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/socklen.m4
   m4/sockpfaf.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdalign.m4
   m4/stdbool.m4
@@ -1043,6 +1053,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/time_r.m4
   m4/time_rz.m4
   m4/timegm.m4
+  m4/timespec.m4
   m4/tm_gmtoff.m4
   m4/uintmax_t.m4
   m4/uname.m4
