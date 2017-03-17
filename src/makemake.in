@@ -2851,7 +2851,7 @@ fi
 CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
 if [ $CROSS = false ] ; then
-  CHECK_DEPS="check-recompile check-fresh-line check-script check-exec-image check-tests"
+  CHECK_DEPS="check-recompile check-fresh-line check-script check-tests"
 
   echol "# check the sources:"
   echol "# 1. subr.d, fsubr.d and all the LISPFUNs must add up"
@@ -2985,22 +2985,6 @@ if [ $CROSS = false ] ; then
   echotab "\$(RM) script.lisp"
   echol
 
-  # check that the executable images work
-  EXEIMG=foo
-  OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE} ${EXEIMG}.mem"
-  echol "check-exec-image: lisp${LEXE} lispinit.mem"
-  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t)"'
-  echotab "${HERE}${EXEIMG}${HEXE}"' -x "(setq zz 10) (saveinitmem \"'"${EXEIMG}"'\")"'
-  # check that the executable image still honors -M
-  echotab "${HERE}${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x zz"
-  # check that *ARGS* do not seep from image to image (https://sourceforge.net/p/clisp/bugs/519/)
-  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (lambda () (prin1 *args*) (exit)))" -- a 1'
-  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b ${TRCR}\`\" = '(\"b\")' || exit 1"
-  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b 2 ${TRCR}\`\" = '(\"b\" \"2\")' || exit 1"
-  echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
-  echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
-  echol
-
   echol "check-tests : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE}"
   echol
@@ -3111,6 +3095,34 @@ if [ $CROSS = false ] ; then
   echol "# Perform self-tests."
   echol "check : ${CHECK_DEPS}"
   echodummyrule check
+  echol
+
+  EXTRACHECK_DEPS=
+  # TODO: Enable this check only on those platforms where it is supported (Linux, FreeBSD, etc.),
+  # or disable it on those platforms where it is known to be not supported (OpenBSD, etc.).
+  EXTRACHECK_DEPS="${EXTRACHECK_DEPS} check-exec-image"
+
+  # check that the executable images work
+  EXEIMG=foo
+  OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE} ${EXEIMG}.mem"
+  echol "check-exec-image: lisp${LEXE} lispinit.mem"
+  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t)"'
+  echotab "${HERE}${EXEIMG}${HEXE}"' -x "(setq zz 10) (saveinitmem \"'"${EXEIMG}"'\")"'
+  # check that the executable image still honors -M
+  echotab "${HERE}${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x zz"
+  # check that *ARGS* do not seep from image to image (https://sourceforge.net/p/clisp/bugs/519/)
+  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (lambda () (prin1 *args*) (exit)))" -- a 1'
+  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b ${TRCR}\`\" = '(\"b\")' || exit 1"
+  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b 2 ${TRCR}\`\" = '(\"b\" \"2\")' || exit 1"
+  echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
+  echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
+  echol
+
+  echol "# Perform extra tests."
+  echol "# Failure of these does not indicate that the built clisp is unusable,"
+  echol "# but rather than some not vital features are not supported."
+  echol "extracheck : ${EXTRACHECK_DEPS}"
+  echodummyrule extracheck
   echol
   echol
 fi
