@@ -1,5 +1,13 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Enable the '-mm' option also on HP-UX.
+	* spvw_mmap.d (dump_process_memory_map_callback,
+	dump_process_memory_map): Move from here...
+	* spvw.d (dump_process_memory_map_callback, dump_process_memory_map):
+	... to here.
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on HP-UX.
 	* makemake.in (with_dynamic_modules): Default to 'no' on HP-UX.
 

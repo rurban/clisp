@@ -195,6 +195,32 @@ local _Noreturn void quit_instantly (int);
 #endif
 
 /* --------------------------------------------------------------------------
+                          Memory map facility */
+
+#include "vma-iter.h"
+
+#if VMA_ITERATE_SUPPORTED
+
+local int dump_process_memory_map_callback (void *data,
+                                            uintptr_t start, uintptr_t end,
+                                            unsigned int flags)
+{
+  (void)data; (void)flags;
+  fprintf(stderr,"  0x%lx - 0x%lx\n",
+          (unsigned long)start, (unsigned long)(end-1));
+  return 0; /* continue */
+}
+
+/* Print out the memory map of the process. */
+local void dump_process_memory_map (void)
+{
+  fputs("Memory dump:\n",stderr);
+  vma_iterate (&dump_process_memory_map_callback, NULL);
+}
+
+#endif
+
+/* --------------------------------------------------------------------------
                           Page-Allocation */
 
 #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)
