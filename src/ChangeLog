@@ -1,5 +1,10 @@
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on 64-bit HP-UX with -DNO_ARI_ASM.
+	* intlog.d (integerlength32) [HPPA]: Test NO_ARI_ASM, not NO_ASM.
+
+2017-03-16  Bruno Haible  <bruno@clisp.org>
+
 	Enable the '-mm' option also on HP-UX.
 	* spvw_mmap.d (dump_process_memory_map_callback,
 	dump_process_memory_map): Move from here...
