@@ -385,6 +385,7 @@ extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t p
 /* used by STREAM, PATHNAME, SPVW, MISC, UNIXAUX */
 
 /* inquire the terminal, window size: */
+#include <sys/ioctl.h> /* declares ioctl() */
 extern_C int isatty (int fd); /* TTYNAME(3V) */
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR) && defined(HAVE_TCSAFLUSH)
   #define UNIX_TERM_TERMIOS
@@ -401,7 +402,7 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
     #define NCCS  sizeof(((struct termios *)0)->c_cc)
   #endif
   #if defined(WINSIZE_NEED_SYS_IOCTL_H) /* glibc2 needs this for "struct winsize" */
-    #include <sys/ioctl.h>
+    /* #include <sys/ioctl.h> - already included above */
   #elif defined(WINSIZE_NEED_SYS_PTEM_H) /* SCO needs this for "struct winsize" */
     #include <sys/stream.h>
     #include <sys/ptem.h>
@@ -420,12 +421,12 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   /* compatible with V7 or 4BSD, TIOC form ioctls.... */
   #define UNIX_TERM_SGTTY
   #include <sgtty.h>
-  #include <sys/ioctl.h> /* TTY(4) */
+  /* #include <sys/ioctl.h> - already included above */ /* TTY(4) */
 #endif
 #if defined(NEED_SYS_FILIO_H)
   #include <sys/filio.h>
 #elif defined(NEED_SYS_IOCTL_H)
-  #include <sys/ioctl.h>
+  /* #include <sys/ioctl.h> - already included above */
 #endif
 /* START_NO_BLOCK() & END_NO_BLOCK() should appear in pairs
    inside { NO_BLOCK_DECL(); ... };

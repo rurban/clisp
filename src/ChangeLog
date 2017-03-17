@@ -1,5 +1,14 @@
 2017-03-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failures with --with-debug on NetBSD.
+	* unix.d: Include <sys/ioctl.h> always. Needed to get ioctl() declared.
+	* foreign.d (FOREIGN-POINTER-INFO): Cast dli.dli_saddr, possibly a
+	'const void *', to 'void *'.
+	* lispbibl.d (dotimes_called_with_count_of_wrong_size): Export to
+	clisp.h.
+
+2017-03-17  Bruno Haible  <bruno@clisp.org>
+
 	Don't test unportable features in "make check".
 	* makemake.in: Generate a new target 'extracheck'. Let 'extracheck', not
 	'check', depend on 'check-exec-image'.
