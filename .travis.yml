@@ -1,0 +1,149 @@
+language: c
+
+#branches:
+#  only:
+#    - master
+#    - release
+
+dist: trusty
+sudo: required
+
+addons:
+  apt:
+    packages:
+      - libsigsegv-dev
+      - libffcall1-dev
+      - libreadline-dev
+      - libpcre3-dev
+    sources:
+      - ubuntu-toolchain-r-test
+
+# no debug builds yet
+matrix:
+  include:
+    - os: linux
+      env: CONF="" CC=gcc
+    - os: linux
+      env: CONF=--with-threads=POSIX_THREADS
+    - os: linux
+      env: CONF=--enable-portability
+    - os: linux
+      env: CONF=--with-debug CC=g++
+    - os: osx
+      env: CONF="" CC=cc
+  allow_failures:
+    - env: CONF=--with-threads=POSIX_THREADS
+
+rvm:
+  - 2.2.3
+
+install:
+  # For a master or release release build with the latest stable LLVM,
+  # prepare to deploy artifacts.
+  - if [[
+        "$TRAVIS_REPO_SLUG" == "rurban/clisp" &&
+        "$CONF" == "" &&
+        "$TRAVIS_OS_NAME" == "linux" &&
+        "$TRAVIS_PULL_REQUEST" == "false"
+    ]];
+    then
+        if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "release" ]];
+        then
+            export CREATE_PACKAGES=yes;
+            sudo apt-get install -y rpm;
+            rvm use 2.2.3 --default;
+            gem install fpm;
+        fi;
+    fi
+  
+  # macports ffcall is 32bit only, broken
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ];
+    then
+      brew update;
+      brew install pcre2 libsigsegv readline;
+      wget -q https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz;
+      tar xfz libffcall-1.13-20170225.tar.gz;
+      patch -p0 -i utils/libffcall-1.13-20170225-funbegin.patch;
+      cd libffcall-1.13-20170225;
+      ./configure; make; sudo make install; cd ..;
+    fi
+
+script:
+  - ./configure $CONF && cd src && make -s -j4 all && make -s check
+
+#notifications:
+#  email:
+#    on_success: always
+#    on_failure: always
+#    recipients:
+#    - buildbot@lists.clisp.org
+
+# If successful, set $UPLOAD to "yes".
+#
+# The PACKAGE_ITERATION will be fed to the DEB and RPM systems by FPM
+# as a suffix to the base version (DEB:debian_revision or RPM:release,
+# used to disambiguate packages with the same version).
+
+#after_success:
+#
+#  # PACKAGE_NAME and PACKAGE_CONFLICTS are used (by FPM) to create mutually exclusive packages
+#  # like "clisp-master" and "clisp-release".
+#  - if [[ "$CREATE_PACKAGES" == "yes" ]];
+#    then
+#      if [[ "$TRAVIS_BRANCH" == "release" ]];
+#      then
+#          PACKAGE_NAME="clisp-release";
+#          PACKAGE_CONFLICTS="clisp-master";
+#      else
+#          PACKAGE_NAME="clisp-$TRAVIS_BRANCH";
+#          PACKAGE_CONFLICTS="clisp-release";
+#      fi;
+#      PACKAGE_ITERATION="${PACKAGE_ITERATION}${TRAVIS_BUILD_NUMBER}.`git rev-parse --short --verify HEAD^{commit}`";
+#      . version.sh;
+#      make -C src package_name="$PACKAGE_NAME" package_conflicts="$PACKAGE_CONFLICTS" package_iteration="$PACKAGE_ITERATION" distrib && export UPLOAD=yes;
+#    fi
+#  
+#  # For a release release build with the latest stable LLVM, upload docs.
+#  - if [[
+#        "$TRAVIS_REPO_SLUG" == "rurban/clisp" &&
+#        "$LLVM_VERSION" == "3.9.1" &&
+#        "$config" == "release" &&
+#        "$TRAVIS_OS_NAME" == "linux" &&
+#        "$TRAVIS_PULL_REQUEST" == "false" &&
+#        "$TRAVIS_BRANCH" == "release"
+#    ]];
+#    then
+#      git remote add gh-token "https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}";
+#      git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
+#      make docs; #...
+#    fi
+
+deploy:
+
+  - provider: bintray
+    user: clisp-buildbot-1
+    file: /home/travis/build/rurban/clisp/bintray_debian.yml
+    on:
+      branch: release
+      condition: "$UPLOAD = yes"
+    key:
+      secure: "todo"
+
+  - provider: bintray
+    user: clisp-buildbot-1
+    file: /home/travis/build/rurban/clisp/bintray_rpm.yml
+    on:
+      branch: release
+      condition: "$UPLOAD = yes"
+    key:
+      secure: "todo"
+
+  - provider: bintray
+    user: clisp-buildbot-1
+    file: /home/travis/build/rurban/clisp/bintray_source.yml
+    on:
+      branch: release
+      condition: "$UPLOAD = yes"
+    key:
+      secure: "todo"
+

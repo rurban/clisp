@@ -1,0 +1,12 @@
+diff -bu libffcall-1.13-20170225/common/asm-x86_64.h~ libffcall-1.13-20170225/common/asm-x86_64.h
+--- libffcall-1.13-20170225/common/asm-x86_64.h~	2017-02-11 15:31:24.000000000 +0100
++++ libffcall-1.13-20170225/common/asm-x86_64.h	2017-03-21 12:25:14.000000000 +0100
+@@ -61,7 +61,7 @@
+ #define FUNEND(name,size_expression) .size C(name),size_expression
+ #endif
+ #endif
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(fun##name##:)
+ 
+ // Section of frame info for exception handlers
+ #if defined __APPLE__ && defined __MACH__
