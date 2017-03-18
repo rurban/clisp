@@ -2633,7 +2633,7 @@ AC_DEFUN([gl_FCNTL_H_DEFAULTS],
   REPLACE_OPENAT=0;      AC_SUBST([REPLACE_OPENAT])
 ])
 
-# serial 4
+# serial 5
 # Check for flexible array member support.
 
 # Copyright (C) 2006, 2009-2017 Free Software Foundation, Inc.
@@ -2652,12 +2652,15 @@ AC_DEFUN([AC_C_FLEXIBLE_ARRAY_MEMBER],
           [[#include <stdlib.h>
             #include <stdio.h>
             #include <stddef.h>
-            struct s { int n; double d[]; };]],
+            struct m { struct m *next, **list; char name[]; };
+            struct s { struct s *p; struct m *m; int n; double d[]; };]],
           [[int m = getchar ();
             size_t nbytes = offsetof (struct s, d) + m * sizeof (double);
             nbytes += sizeof (struct s) - 1;
             nbytes -= nbytes % sizeof (struct s);
             struct s *p = malloc (nbytes);
+            p->p = p;
+            p->m = NULL;
             p->d[0] = 0.0;
             return p->d != (double *) NULL;]])],
        [ac_cv_c_flexmember=yes],
@@ -12941,7 +12944,7 @@ AC_DEFUN([gl_STDALIGN_H],
                  || (defined __APPLE__ && defined __MACH__ \
                      ? 4 < __GNUC__ + (1 <= __GNUC_MINOR__) \
                      : __GNUC__) \
-                 || __HP_cc || __HP_aCC || __IBMC__ || __IBMCPP__ \
+                 || __HP_aCC || __IBMC__ || __IBMCPP__ \
                  || __ICC || 0x5110 <= __SUNPRO_C \
                  || 1300 <= _MSC_VER)
               struct alignas_test { char c; char alignas (8) alignas_8; };
