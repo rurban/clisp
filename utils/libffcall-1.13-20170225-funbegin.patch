@@ -1,0 +1,89 @@
+From 04e0f09a58a5949912a06607b6815100f67b1ebc Mon Sep 17 00:00:00 2001
+From: Reini Urban <rurban@cpan.org>
+Date: Sat, 25 Mar 2017 08:54:52 +0100
+Subject: [PATCH] fix cpp pasting with : does not give a valid preprocessing
+ token
+
+msvc and other compilers happily paste a name to a :, but gcc errors.
+reported as https://savannah.gnu.org/support/index.php?109280
+---
+ common/asm-arm.h    | 2 +-
+ common/asm-i386.h   | 2 +-
+ common/asm-i386.hh  | 2 +-
+ common/asm-m68k.h   | 2 +-
+ common/asm-sparc.h  | 2 +-
+ common/asm-x86_64.h | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git common/asm-arm.h common/asm-arm.h
+index 652a277..a3db895 100644
+--- common/asm-arm.h
++++ common/asm-arm.h
+@@ -41,4 +41,4 @@
+ #define DECLARE_FUNCTION(name)
+ #define FUNEND(name)
+ #endif
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+diff --git common/asm-i386.h common/asm-i386.h
+index 509faf4..6217f49 100644
+--- common/asm-i386.h
++++ common/asm-i386.h
+@@ -255,7 +255,7 @@
+ #define FUNBEGIN(name) __declspec(naked) void name () { __asm {
+ #define FUNEND(name,size_expression)                  }       }
+ #else
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+ #if defined(BSD_SYNTAX)
+ #define FUNEND(name,size_expression)
+ #else
+diff --git common/asm-i386.hh common/asm-i386.hh
+index bacee38..d3ef94a 100644
+--- common/asm-i386.hh
++++ common/asm-i386.hh
+@@ -255,7 +255,7 @@
+ #define FUNBEGIN(name) __declspec(naked) void name () { __asm {
+ #define FUNEND(name,size_expression)                  }       }
+ #else
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+ #if defined(BSD_SYNTAX)
+ #define FUNEND(name,size_expression)
+ #else
+diff --git common/asm-m68k.h common/asm-m68k.h
+index 008ff22..a1e69c5 100644
+--- common/asm-m68k.h
++++ common/asm-m68k.h
+@@ -43,4 +43,4 @@
+ #define DECLARE_FUNCTION(name)
+ #define FUNEND(name)
+ #endif
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+diff --git common/asm-sparc.h common/asm-sparc.h
+index 4c33082..87874a4 100644
+--- common/asm-sparc.h
++++ common/asm-sparc.h
+@@ -51,4 +51,4 @@
+ #define DECLARE_FUNCTION(name)
+ #define FUNEND(name)
+ #endif
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+diff --git common/asm-x86_64.h common/asm-x86_64.h
+index 3d89c7a..5225ce9 100644
+--- common/asm-x86_64.h
++++ common/asm-x86_64.h
+@@ -61,7 +61,7 @@
+ #define FUNEND(name,size_expression) .size C(name),size_expression
+ #endif
+ #endif
+-#define FUNBEGIN(name) C(name##:)
++#define FUNBEGIN(name) C(name):
+ 
+ // Section of frame info for exception handlers
+ #if defined __APPLE__ && defined __MACH__
+-- 
+2.12.0
+
