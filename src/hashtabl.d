@@ -10,7 +10,13 @@
 #include "aridecl.c"            /* for Short-Floats */
 
 
-/* Structure of a Hash-Table:
+/*
+This hash table is not MULTITHREAD safe yet.
+ Todo: preshing's concurrent leapfrog map
+   http://preshing.com/20160314/leapfrog-probing/
+ or a concurrent hopscotch.
+
+Structure of a Hash-Table:
  Pairs (Key . Value) are stored in a vector,
  which is indexed by (hashcode Key).
  For a running MAPHASH to be uninfluenced by a GC, this
@@ -26,14 +32,16 @@
  the set of collisions, we need an additional index-vector,
  called the next-vector, which is interlaced with the key-value-vector
  and which contains a "list"-structure.
- sketch:
+ Translation: leer means empty, the #<UNBOUND> symbol.
+              nix means nothing, null. Has the same #<UNBOUND> value as leer.
+ Sketch:
    key --> (hashcode key) as index in index-vector.
    Key1 --> 3, Key2 --> 1, Key4 --> 3.
    index-vector      #( nix {indexkey2} nix {indexkey1,indexkey4} nix ... )
                    = #( nix 1 nix 0 nix ... )
    next-vector       #(           3           nix           leer           nix           leer)
    key-value-vector  #( key1 val1 3 key2 val2 nix leer leer leer key4 val4 nix leer leer leer)
- access to a (Key . Value) - pair works as follows:
+ Access to a (Key . Value) - pair works as follows:
    index := (aref Index-Vektor (hashcode Key))
    until index = nix
      if (eql Key (aref KVVektor 3*index)) return (aref KVVektor 3*index+1)
@@ -43,7 +51,7 @@
  If the index-vector is enlarged, all hashcodes and the content of
  index-vector and the content of next-vector have to be recalculated.
  If the next-vector and key-value-vector are enlarged, the remaining
- elements can be filled with "leer" , without having to calculate
+ elements can be filled with "leer", without having to calculate
  a new hashcode.
  In order to have a fast MAPHASH following a CLRHASH or multiple REMHASH,
  when the table contains much fewer elements than its capacity,
@@ -2960,7 +2968,7 @@ LISPFUNN(sxhash,1)
    This might be interpreted - assuming that CLISP on Tru64 and CLISP on Win32
    are the same implementations - that (SXHASH (1- (ASH 1 32))) should return
    the same value both on 32-bit platforms (where 4294967295 is a bignum)
-   and on 64-bit platforms (where is is a fixnum).
+   and on 64-bit platforms (where it is a fixnum).
    On 32-bit platforms, hashcode_bignum() is used (returns 3 ==> 3).
    On 64-bit platforms, hashcode_fixnum() is used (returns 4294967175 ==> 135).
    Therefore, limiting ourselves to 24 bits on all platforms
