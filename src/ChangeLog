@@ -1,5 +1,15 @@
 2017-03-18  Bruno Haible  <bruno@clisp.org>
 
+	Make --enable-portability enable support for any kind of address space.
+	* lispbibl.d: Obey flag NO_ADDRESS_SPACE_ASSUMPTIONS. It has the effect
+	to enable WIDE_SOFT on 32-bit platforms and disable SINGLEMAP_MEMORY,
+	TYPECODES, TRIVIALMAP_MEMORY, CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK,
+	CAN_ALLOCATE_STRINGS_ON_C_STACK.
+	* makemake.in (XCFLAGS): Add -DNO_ADDRESS_SPACE_ASSUMPTIONS if
+	--enable-portability is specified.
+
+2017-03-18  Bruno Haible  <bruno@clisp.org>
+
 	Avoid code duplication of a condition.
 	* lispbibl.d (CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK,
 	CAN_ALLOCATE_STRINGS_ON_C_STACK): New macros.
