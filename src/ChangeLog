@@ -1,3 +1,12 @@
+2017-03-18  Bruno Haible  <bruno@clisp.org>
+
+	Avoid code duplication of a condition.
+	* lispbibl.d (CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK,
+	CAN_ALLOCATE_STRINGS_ON_C_STACK): New macros.
+	(_SP_before_suspend, SET_SP_BEFORE_SUSPEND): Use them.
+	* spvw_global.d (is_valid_stack_address): Likewise.
+	* constobj_tl.d: Likewise.
+
 2017-03-17  Bruno Haible  <bruno@clisp.org>
 
 	Update to the newest gnulib.

@@ -341,7 +341,7 @@ local inline void init_mem_heapnr_from_type (void);
     #define is_valid_heap_object_address(address)  \
       (is_valid_varobject_address(address) || is_valid_cons_address(address))
   #endif
-  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+  #if !(defined(CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK) || defined(CAN_ALLOCATE_STRINGS_ON_C_STACK))
    /* In case we do not have C stack allocated lisp objects we do not need
       is_valid_stack_address(). Define to false in order to GC to assert
       in case of bad object pointer. */

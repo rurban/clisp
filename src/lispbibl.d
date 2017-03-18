@@ -10130,6 +10130,7 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     TLO(dynamic_8bit_vector) = objvar
 #else
+  #define CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK
   /* Careful: Fill GCself with pointers to itself, so that GC will leave
    pointers to this object untouched. */
   #ifdef TYPECODES
@@ -10272,6 +10273,7 @@ extern maygc object allocate_imm_s32string (uintL len);
   #define FREE_DYNAMIC_STRING(objvar)  \
     TLO(dynamic_string) = objvar;
 #else
+  #define CAN_ALLOCATE_STRINGS_ON_C_STACK
   /* Careful: Fill GCself with pointers to itself, so that GC will leave
    pointers to this object untouched. */
   #ifdef ENABLE_UNICODE
@@ -17340,7 +17342,7 @@ struct object_tab_tl_ {
    #ifdef DEBUG_GCSAFETY
     uintL _alloccount; /* alloccount for this thread */
    #endif
-   #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+   #if defined(DEBUG_SPVW) && (defined(CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK) || defined(CAN_ALLOCATE_STRINGS_ON_C_STACK))
     /* in debug builds that allocate lisp objects on C stack we want to assert
        from GC if there is something wrong. So before going in suspend
        state for GC - the thread will save here the current stack pointer.*/
@@ -17404,7 +17406,7 @@ struct object_tab_tl_ {
 
   /* following macro is "called" before thread can be suspended in debug
      builds with possible object allocated on C stack */
-  #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+  #if defined(DEBUG_SPVW) && (defined(CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK) || defined(CAN_ALLOCATE_STRINGS_ON_C_STACK))
     #define SET_SP_BEFORE_SUSPEND(thr)                 \
       do {                                             \
         var int dummy;                                 \
@@ -17625,7 +17627,7 @@ struct object_tab_tl_ {
 %% #ifdef DEBUG_GCSAFETY
 %%  puts(" uintL _alloccount;");
 %% #endif
-%% #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+%% #if defined(DEBUG_SPVW) && (defined(CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK) || defined(CAN_ALLOCATE_STRINGS_ON_C_STACK))
 %%  puts(" void *_SP_before_suspend;");
 %% #endif
 %% puts("  spinlock_t _gc_suspend_request;");
