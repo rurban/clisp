@@ -53,7 +53,7 @@
 
 /* Encoding a Double-Float: */
 #ifdef intQsize
-/* encode_DF(sign,exp,mant, ergebnis=);
+/* encode_DF(sign,exp,mant, result=);
  returns a Double-Float.
  > signean sign: Sign, 0 for +, -1 for negative.
  > sintWL exp: Exponent
@@ -78,7 +78,7 @@
           | ((uint64)(mant) & (bitQ(DF_mant_len)-1)));  /* Mantissa */ \
  } while(0)
 #else
-/* encode2_DF(sign,exp,manthi,mantlo, ergebnis=);
+/* encode2_DF(sign,exp,manthi,mantlo, result=);
  returns a Double-Float.
  > signean sign: sign, 0 for +, -1 for negative.
  > sintWL exp: Exponent
@@ -133,7 +133,7 @@
    maybe_divide_0: result undetermined, returns IEEE-Infinity
    maybe_nan: result undetermined, returns IEEE-NaN */
 #ifdef intQsize
- #define double_to_DF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  do { \
+ #define double_to_DF(expr,result_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  do { \
    var dfloatjanus _erg; _erg.machine_double = (expr);                  \
    if ((_erg.eksplicit & (bitQ(DF_exp_len+DF_mant_len)-bitQ(DF_mant_len))) == 0) { /* e=0 ? */ \
      if ((maybe_underflow                                               \
@@ -141,7 +141,7 @@
          && underflow_allowed()) {                                      \
        error_underflow(); /* subnormal or even smaller -> Underflow */  \
      } else {                                                           \
-       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
+       result_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
               && (((~_erg.eksplicit) & (bitQ(DF_exp_len+DF_mant_len)-bitQ(DF_mant_len))) == 0)) { /* e=2047 ? */ \
@@ -155,11 +155,11 @@
          error_overflow(); /* Infinity, Overflow */                     \
      }                                                                  \
    } else {                                                             \
-     ergebnis_assignment allocate_dfloat(_erg.eksplicit);               \
+     result_assignment allocate_dfloat(_erg.eksplicit);               \
    }                                                                    \
  } while(0)
 #else
- #define double_to_DF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan) do { \
+ #define double_to_DF(expr,result_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan) do { \
    var dfloatjanus _erg; _erg.machine_double = (expr);                  \
    if ((_erg.eksplicit.semhi & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0) { /* e=0 ? */ \
      if ((maybe_underflow                                               \
@@ -168,7 +168,7 @@
          && underflow_allowed()) {                                      \
        error_underflow(); /* subnormal or even smaller -> Underflow */  \
      } else {                                                           \
-       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
+       result_assignment DF_0; /* +/- 0.0 -> 0.0 */                   \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
               && (((~_erg.eksplicit.semhi) & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0)) { /* e=2047 ? */ \
@@ -182,7 +182,7 @@
          error_overflow(); /* Infinity, Overflow */                     \
      }                                                                  \
    } else {                                                             \
-     ergebnis_assignment allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
+     result_assignment allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
    }                                                                    \
  } while(0)
 #endif
@@ -1040,7 +1040,7 @@ local maygc object DF_DF_div_DF (object x1, object x2) {
                true, true, /* catch Overflow and subnormal number */
                !DF_zerop(x1), /* a result +/- 0.0 */
                /* is exactly then really an Underflow */
-               DF_zerop(x2), /* catch Division by Null */
+               DF_zerop(x2), /* catch Division by Zero */
                false); /* no NaN possible as result */
 }
 #else
