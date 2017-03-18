@@ -10,7 +10,7 @@ LISPOBJ_TL(token_buff_2,".")
 LISPOBJ_TL(displaced_string,".")
 
 /* for STREAM.D */
-#if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+#if !(defined(CAN_ALLOCATE_8BIT_VECTORS_ON_C_STACK) || defined(CAN_ALLOCATE_STRINGS_ON_C_STACK))
 LISPOBJ_TL(dynamic_8bit_vector,"NIL") /* cache for macro DYNAMIC_8BIT_VECTOR */
 LISPOBJ_TL(dynamic_string,"NIL") /* cache for macro DYNAMIC_STRING */
 #endif
