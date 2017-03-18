@@ -1,0 +1,101 @@
+version: "{build}"
+
+skip_tags: true
+
+cache:
+  - c:\i686-w64-mingw32 -> .appveyor.yml
+
+#environment:
+#  matrix:
+#  - win: 32
+#  - win: 64
+
+# TODO: cygwin, 32+64bit
+#configuration:
+#  - release
+#  - debug
+
+clone_depth: 1
+
+clone_folder: C:\projects\%APPVEYOR_PROJECT_NAME%
+
+# see https://www.appveyor.com/docs/build-environment/#mingw-msys-cygwin
+install:
+  - cinst wget -y
+  - set PATH=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;%PATH%;C:\MinGW\msys\1.0\bin
+  # git bash conflicts with MinGW makefiles, esp. the space in 'Program Files'
+  - set "PATH=%PATH:C:\Program Files\Git\usr\bin;=%"
+  - cd C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32
+  # some tools just call make
+  - copy bin\mingw32-make.exe bin\make.exe
+  # XXX hack, otherwise fails on -lc
+  #- dir
+  - copy i686-w64-mingw32\lib\libntdll.a i686-w64-mingw32\lib\libc.a
+  # reactos bug, we want no -Iddk
+  - wget -q https://gist.github.com/rurban/37c190d3c2789d64ca1924d22ee40d17/raw/3fff50aa947ddd2ebcb753ac34ad5875b6954cfd/i686-w64-mingw32-ddk.patch
+  - patch -p1 -i i686-w64-mingw32-ddk.patch
+  #- dir C:\MinGW\bin
+  #- dir C:\MinGW\msys\1.0\bin
+  #- cd C:\projects\%APPVEYOR_PROJECT_NAME%
+  - cd C:\projects\clisp
+  - ps: |
+      $package_commit = git rev-parse --short --verify "HEAD^{commit}"
+      $package_version = (Get-Content "version.sh")
+      $package_version = "2.49.50+"
+      $package_iteration = "$package_iteration${env:appveyor_build_number}.$package_commit"
+      Update-AppveyorBuild -Version "clisp-${env:appveyor_repo_branch}-$package_version-$package_iteration"
+
+  - if exist c:\i686-w64-mingw32\lib\libsigsegv.a goto ffcall
+  - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.12.tar.gz
+  - tar xfz libsigsegv-2.12.tar.gz
+  - cd libsigsegv-2.12
+  - patch -p0 -i ../utils/libsigsegv-win64.patch
+  - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make; make check install" || true
+  - cd ..
+
+  - ffcall: if exist c:\i686-w64-mingw32\lib\libavcall.a goto cont
+  - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libffcall/libffcall-2.2.tar.gz
+  - tar xfz libffcall-2.2.tar.gz
+  - cd libffcall-2.2
+  #- patch -p0 -i ../utils/libffcall-1.13-20170225-funbegin.patch
+  - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make && make check install" || true
+  - cd ..
+  - cont:
+
+  #- ps: |
+  #    $clispdir = "${env:appveyor_build_version}-win64"
+  #    cd C:\projects\clisp\src
+  #    md "$clispdir"
+  #    md "${clispdir}\clisp"
+  #    md "${clispdir}\clisp\bin"
+  #    $builddir = "C:\projects\clisp\build\${env:configuration}-llvm-${env:llvm}"
+  #    Write-Output "Build dir is ${builddir}"
+  #    copy $builddir\clisp.* "${clispdir}\clisp\bin"
+  #    copy -recurse packages "${clispdir}\packages"
+  #    7z a -tzip "C:\projects\clisp\${clispdir}.zip" "${clispdir}"
+
+build: off
+
+test_script:
+  - set PATH=C:\MinGW\msys\1.0\bin;%PATH%;
+  - bash -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --ignore-absence-of-libsigsegv --with-libsigsegv-prefix=/c/i686-w64-mingw32 && cd src && make -j4 -s all && make -s check"
+
+artifacts:
+  - path: 'clisp-*.zip'
+
+deploy:
+  # On branche `release`, deploy (and publish) artifacts
+  # to the clisp-win projects on Bintray.
+  - provider: BinTray
+    username: clisp-buildbot-1
+    api_key:
+        secure: ""
+    subject: clisp
+    repo: clisp-win
+    package: clisp-release
+    version: $(appveyor_build_version)
+    on:
+        branch: release
+        configuration: release
+    publish: true
+  
