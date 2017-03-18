@@ -74,6 +74,10 @@
        Whether to use a fixed heap size and allocate all the heap at the start
        (try to avoid it):
          NO_VIRTUAL_MEMORY
+       Don't make assumptions about the address space layout. In particular,
+       ignore the values of CODE_ADDRESS_RANGE, MALLOC_ADDRESS_RANGE,
+       SHLIB_ADDRESS_RANGE, STACK_ADDRESS_RANGE determined by an autoconf test.
+         NO_ADDRESS_SPACE_ASSUMPTIONS
        Assuming an object representation with TYPECODES, put objects
        at their address by using mmap with MAP_FIXED; every such memory
        range is mapped exactly once: SINGLEMAP_MEMORY
@@ -581,6 +585,13 @@
   #define WIDE_HARD
 #endif
 
+/* On 32-bit platforms, the only object representation choice that does not
+   make assumptions about the address space layout is WIDE_SOFT. */
+#if defined(NO_ADDRESS_SPACE_ASSUMPTIONS) && !defined(WIDE_HARD) && !defined(WIDE_SOFT)
+  #define WIDE_SOFT
+#endif
+
+/* WIDE_SOFT_LARGEFIXNUM is a special case of WIDE_SOFT. */
 #if defined(WIDE_SOFT_LARGEFIXNUM) && !defined(WIDE_SOFT)
   #define WIDE_SOFT
 #endif
@@ -2348,6 +2359,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && !defined(WIDE_SOFT)                                                     \
     && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                  \
         || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                    \
+    && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
     && !defined(ADDRESS_RANGE_RANDOMIZED)                                      \
     && (MMAP_FIXED_ADDRESS_HIGHEST_BIT > 0)                                    \
     && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
@@ -2393,7 +2405,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        TYPECODES is typically a few percent slower than HEAPCODES.
        For portability, choose TYPECODES if possible, and HEAPCODES otherwise.
      */
-    #if ((CODE_ADDRESS_RANGE >> 56) == 0)      \
+    #if !defined(NO_ADDRESS_SPACE_ASSUMPTIONS) \
+        && ((CODE_ADDRESS_RANGE >> 56) == 0)   \
         && ((MALLOC_ADDRESS_RANGE >> 56) == 0) \
         && ((SHLIB_ADDRESS_RANGE >> 56) == 0)  \
         && ((STACK_ADDRESS_RANGE >> 56) == 0)
@@ -3096,6 +3109,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
     && !defined(SINGLEMAP_MEMORY)                                              \
     && !(defined(UNIX_HPUX) || defined(UNIX_AIX)                               \
+         || defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                              \
          || defined(ADDRESS_RANGE_RANDOMIZED))                                 \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
@@ -10118,7 +10132,7 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
  < object obj: simple-8bit-vector with dynamic extent
    (may or may not be heap-allocated, therefore not GC-invariant)
  can trigger GC */
-#if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+#if defined(SPVW_PURE) || defined(NO_ADDRESS_SPACE_ASSUMPTIONS) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
   /* No way to allocate a Lisp object on the stack. */
   #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
     var uintL objvar##_len = (len);               \
@@ -10258,7 +10272,7 @@ extern maygc object allocate_imm_s32string (uintL len);
  < object obj: normal-simple-string with dynamic extent
    (may or may not be heap-allocated, therefore not GC-invariant)
  can trigger GC */
-#if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+#if defined(SPVW_PURE) || defined(NO_ADDRESS_SPACE_ASSUMPTIONS) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
   /* No way to allocate a Lisp object on the stack. */
   #define DYNAMIC_STRING(objvar,len)  \
     var uintL objvar##_len = (len);           \
