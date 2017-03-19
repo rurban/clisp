@@ -2401,7 +2401,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          alignof(subr_t) = 4.
          GENERIC64_HEAPCODES likewise with alignment 8.
          Additionally some C functions must be aligned as well, see
-         C_CODE_ALIGNMENT; this can be harder to achieve.
+         PSEUDOCODE_ALIGNMENT; this can be harder to achieve.
        TYPECODES is typically a few percent slower than HEAPCODES.
        For portability, choose TYPECODES if possible, and HEAPCODES otherwise.
      */
@@ -3784,17 +3784,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
     #endif /* GENERIC64C_HEAPCODES */
 
-    #ifdef GENERIC64C_HEAPCODES
-      /* An alignment of 8 bytes is also necessary for the C functions.
-       When using gcc, this may require adding -falign-functions=8 to the CFLAGS. */
-        #if C_CODE_ALIGNMENT < 8
-          #undef C_CODE_ALIGNMENT
-          #undef log2_C_CODE_ALIGNMENT
-          #define C_CODE_ALIGNMENT  8
-          #define log2_C_CODE_ALIGNMENT  3
-        #endif
-    #endif
-
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
     /* Distinction between fixnums, short-floats and other kinds of numbers.
@@ -3906,6 +3895,24 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* The misalignment of conses, modulo 2*sizeof(gcv_object_t). */
 #ifndef conses_misaligned
   #define conses_misaligned  0
+#endif
+
+
+/* Pointers that are arguments of make_machine() must have a certain
+   alignment. */
+#ifdef TYPECODES
+  #define PSEUDODATA_ALIGNMENT 1
+  #define log2_PSEUDODATA_ALIGNMENT 0
+#else /* HEAPCODES */
+  #ifdef GENERIC64C_HEAPCODES
+    /* See above:  machine                 ... ... 000 */
+    #define PSEUDODATA_ALIGNMENT 8
+    #define log2_PSEUDODATA_ALIGNMENT 3
+  #else
+    /* See above:  machine                 ... ...  00 */
+    #define PSEUDODATA_ALIGNMENT 4
+    #define log2_PSEUDODATA_ALIGNMENT 2
+  #endif
 #endif
 
 
@@ -7208,7 +7215,8 @@ typedef enum {
 #endif
 
 /* Machine pointers:
- make_machine(ptr) */
+ make_machine(ptr)
+ ptr must be a multiple of PSEUDODATA_ALIGNMENT. */
 #ifdef TYPECODES
   #define make_machine(ptr)  type_pointer_object(machine_type,ptr)
 #else
@@ -7281,13 +7289,35 @@ typedef struct {
 #endif
 
 /* Pointer to machine code
- make_machine_code(ptr) */
-#if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
+ make_machine_code(ptr)
+ ptr must be a multiple of PSEUDOCODE_ALIGNMENT. */
+#if PSEUDODATA_ALIGNMENT <= C_CODE_ALIGNMENT
+  #define PSEUDOCODE_ALIGNMENT  C_CODE_ALIGNMENT
+  #define log2_PSEUDOCODE_ALIGNMENT  log2_C_CODE_ALIGNMENT
+  /* The C_CODE_ALIGNMENT implies the PSEUDODATA_ALIGNMENT. */
   #define make_machine_code(ptr)  make_machine(ptr)
-#elif defined(HPPA)
+#elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
+  /* Assume that all function pointers are == 2 mod 4. */
+  #define PSEUDOCODE_ALIGNMENT  4
+  #define log2_PSEUDOCODE_ALIGNMENT  2
   #define make_machine_code(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
+#elif !defined(NO_ADDRESS_SPACE_ASSUMPTIONS) \
+      && (CODE_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))) \
+      && (MALLOC_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))) \
+      && (SHLIB_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))) \
+      && (STACK_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT)))
+  /* We can shift addresses left by log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT
+     bits, and they will still fit into the data part of an oint. */
+  #define PSEUDOCODE_ALIGNMENT  C_CODE_ALIGNMENT
+  #define log2_PSEUDOCODE_ALIGNMENT  log2_C_CODE_ALIGNMENT
+  #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))
 #else
-  #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(2-log2_C_CODE_ALIGNMENT))
+  /* An alignment of PSEUDODATA_ALIGNMENT is also necessary for the C functions.
+     When using gcc, this may require adding -falign-functions=4 or
+     -falign-functions=8, respectively, to the FALIGNFLAGS in the Makefile. */
+  #define PSEUDOCODE_ALIGNMENT  PSEUDODATA_ALIGNMENT
+  #define log2_PSEUDOCODE_ALIGNMENT  log2_PSEUDODATA_ALIGNMENT
+  #define make_machine_code(ptr)  make_machine(ptr)
 #endif
 
 /* System-Pointer */
@@ -7454,8 +7484,6 @@ typedef struct {
   #define TheSubr(obj)  ((Subr)(cgci_types_pointable(subr_type,obj)))
   #define TheFramepointer(obj)  ((gcv_object_t*)(cgci_types_pointable(system_type,obj)))
   #define TheMachine(obj)  ((void*)(cgci_types_pointable(machine_type,obj)))
-  #define TheMachineCode(obj)  TheMachine(obj)
-  #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
   /* pack Handle in Sbvector */
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
@@ -7576,14 +7604,6 @@ typedef struct {
   #define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-subr_bias))
   #define TheFramepointer(obj)  ((gcv_object_t*)(cgci_pointable(obj)-machine_bias))
   #define TheMachine(obj)  ((void*)(cgci_pointable(obj)-machine_bias))
-  #if (log2_C_CODE_ALIGNMENT >= 2)
-    #define TheMachineCode(obj)  TheMachine(obj)
-  #elif defined(HPPA)
-    #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))
-  #else
-    #define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>(2-log2_C_CODE_ALIGNMENT))|(CODE_ADDRESS_RANGE&~((~(uintP)0)>>(2-log2_C_CODE_ALIGNMENT)))))
-  #endif
-  #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
   /* pack Handle in Sbvector */
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
@@ -7601,6 +7621,17 @@ typedef struct {
   #define TheExemption(obj) ((Exemption)(ngci_pointable(obj)-varobject_bias))
  #endif
 #endif
+/* TheMachineCode is the opposite of make_machine_code. */
+#if PSEUDODATA_ALIGNMENT <= C_CODE_ALIGNMENT
+  #define TheMachineCode(obj)  TheMachine(obj)
+#elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
+  #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))
+#elif PSEUDOCODE_ALIGNMENT == C_CODE_ALIGNMENT
+  #define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))|(CODE_ADDRESS_RANGE&~((~(uintP)0)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT)))))
+#elif PSEUDOCODE_ALIGNMENT == PSEUDODATA_ALIGNMENT
+  #define TheMachineCode(obj)  TheMachine(obj)
+#endif
+#define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
 #define TheClassVersion(obj)  ((ClassVersion)TheSvector(obj))
 #define TheSlotDefinition(obj)  ((SlotDefinition)TheInstance(obj))
 #define TheClass(obj)  ((Class)TheInstance(obj))
