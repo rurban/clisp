@@ -1130,6 +1130,7 @@ if [ -n "${SRCDIR}" ] ; then
   XCPPFLAGS="${XCPPFLAGS} -I$x"
   GNULIB_INCLUDE="${GNULIB_INCLUDE} -I$x/gllib"
 fi
+CPPFLAGS="${CPPFLAGS} ${GNULIB_INCLUDE}"
 XCPPFLAGS="${XCPPFLAGS} ${GNULIB_INCLUDE}"
 
 # TOBJ = extension for compiled modules on target
@@ -1958,7 +1959,7 @@ echol "FALIGNFLAGS = ${FALIGNFLAGS}"
 FALIGNFLAGS="\$(FALIGNFLAGS)"
 echol "LD = ${LD}"
 LD="\$(LD)"
-echol 'MODULE_CPPFLAGS = $(CPPFLAGS)'" ${GNULIB_INCLUDE}"
+echol 'MODULE_CPPFLAGS = $(CPPFLAGS)' # this includes ${GNULIB_INCLUDE}
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
@@ -2350,12 +2351,8 @@ for parf in ${PARAMS}; do
   echol
 done
 for util in ${UTILS} ; do
-  dependsc=
-  if [ ${util} = newer ] ; then
-    dependsc="${dependsc} ${GLLIB_A}"
-  fi
-  echol "${util}${HEXE} : ${UTILDIR_M}${util}.c${dependsc}"
-  echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c${dependsc}" "${util}"
+  echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${GLLIB_A}"
+  echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c ${GLLIB_A}" "${util}"
   echol
 done
 
@@ -3138,7 +3135,7 @@ if [ $XCC_GCC = true ] ; then
   echol
 fi
 
-echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H}"
+echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H} ${GLLIB_A}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* ==== config.h ==== */' ; cat config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
@@ -3150,10 +3147,10 @@ done
 if [ "${HSYSOS}" != cygwin ]; then
   echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 else
-    echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 fi
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-clisp"
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-lispbibl"
+echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
+echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
 echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
 if [ $HOS = unix -o $HSYS = win32gcc ]; then
@@ -3404,9 +3401,9 @@ for f in $TXT_FILES ; do
       sourcedir=${SRCDOCDIR} ;;
     *) sourcedir=${SRCDIR} ;;
   esac
-  echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
+  echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE} ${GLLIB_A}"
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c ${GLLIB_A}" "txt"
   line="${HERE}txt"
   test $f = clisp.1 -o $f = clisp-link.1 && \
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
@@ -3568,7 +3565,7 @@ if [ $CROSS = false ] ; then
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     test -n "$USE_GETTEXT" && \
       echotab "cd po && \$(MAKE) install DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
-    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
@@ -3859,8 +3856,8 @@ echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c ${SRCDIR}execname.c \$(TOPDIR)/src/"
 else
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" "clisp.c ${GLLIB_A}" "\$(TOPDIR)/clisp"
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c ${GLLIB_A}" "\$(TOPDIR)/hardcode"
 fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
