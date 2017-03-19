@@ -1,5 +1,10 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix recognition of native Windows as target platform.
+	* makemake.in (TOS): Set based on $host_os from autoconf.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Don't generate a broken Makefile when using the option --host/--build.
 	Rationale:
 	- clisp cannot be cross-built anyway (because of the memory image).
