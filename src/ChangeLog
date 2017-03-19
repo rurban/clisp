@@ -1,5 +1,18 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Don't generate a broken Makefile when using the option --host/--build.
+	Rationale:
+	- clisp cannot be cross-built anyway (because of the memory image).
+	  The earlier use-case of "makemake cross ..." of ca. 1993 was when
+	  compiling for a slow machine. Nowadays machines are much faster.
+	- The main use of --host is to indicate which toolchain to use
+	  (${host}-gcc, ${host}-ld, ${host}-ar, etc.)
+	- --host is frequently used in builds on Windows (e.g.
+	  --build=i686-pc-cygwin --host=i686-w64-mingw32).
+	* configure: Don't pass 'cross' to makemake.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix error message when configure fails due to a missing argument.
 	* configure: Set prev to 'build', not 'host'. In the error message,
 	add '--' before prev.
