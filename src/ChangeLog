@@ -1,5 +1,10 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix the recognition of Solaris.
+	* lispbibl.d (UNIX_SUNOS5): Include also Solaris/x86_64.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix recognition of native Windows as target platform.
 	* makemake.in (TOS): Set based on $host_os from autoconf.
 
