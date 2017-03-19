@@ -1,5 +1,12 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure when compiling 'newer' on Cygwin.
+	* makemake.in (CPPFLAGS): Add the ${GNULIB_INCLUDE} options here too.
+	Link all programs that are compiled with $(CPPFLAGS) with ${GLLIB_A}.
+	(MODULE_CPPFLAGS): No need to add ${GNULIB_INCLUDE} a second time.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix alignment issues on IA64 and with GENERIC64C_HEAPCODES.
 	* lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): Don't redefine.
 	(PSEUDODATA_ALIGNMENT, log2_PSEUDODATA_ALIGNMENT): New macros.
