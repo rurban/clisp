@@ -611,7 +611,10 @@ case $# in
      fi
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
-     TOS="$HOS"
+     case "$host_os" in
+       mingw*) TOS=win32 ;;
+       *)      TOS="$HOS" ;;
+     esac
      ;;
   *) if [ "$1" = cross ] ; then
        CROSS=true
