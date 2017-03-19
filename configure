@@ -448,7 +448,7 @@ do
       --build | --buil | --bui | --bu)
         target=cross
         subdir_configure_args="$subdir_configure_args $arg"
-        prev=host
+        prev=build
         passnext=configure ;;
 
       --with-debug)
@@ -505,7 +505,7 @@ $0: Try \`$0 --help'" ;;
 
   fi
 done
-test -n "$prev" && fail "$0: missing argument to $prev
+test -n "$prev" && fail "$0: missing argument to --$prev
 $0: Try \`$0 --help'"
 
 DIRNAME=$POSARG1
