@@ -432,21 +432,17 @@ do
         subdir_configure_args="$subdir_configure_args $arg" ;;
 
       --host=* | --hos=* | --ho=*)
-        target=cross
         subdir_configure_args="$subdir_configure_args $arg" ;;
 
       --host | --hos | --ho)
-        target=cross
         subdir_configure_args="$subdir_configure_args $arg"
         prev=host
         passnext=configure ;;
 
       --build=* | --buil=* | --bui=* | --bu=*)
-        target=cross
         subdir_configure_args="$subdir_configure_args $arg" ;;
 
       --build | --buil | --bui | --bu)
-        target=cross
         subdir_configure_args="$subdir_configure_args $arg"
         prev=build
         passnext=configure ;;
@@ -644,8 +640,6 @@ fi
 
 . "${ABS_DIRNAME}/config.cache"
 
-test -n "${target}" && target="${target} ${ac_cv_host} ${ac_cv_prog_CC}"
-makemake_args="${makemake_args} ${target}";
 case ${ac_cv_host} in           # mingw/msys
   *mingw32*)
     makemake_args="${makemake_args} --with-dynamic-modules=no --win32gcc" ;;
