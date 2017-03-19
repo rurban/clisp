@@ -183,6 +183,13 @@ main ()
     unsigned long address = (unsigned long)1 << pos;
     if (address < 4096)
       break;
+#ifdef __ia64__
+    /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
+       An mmap call to this address would either crash the program (on Linux)
+       or fail (on HP-UX). */
+    if (pos == 62)
+      continue;
+#endif
     {
       char *p;
       int ret;
