@@ -1,5 +1,22 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix alignment issues on IA64 and with GENERIC64C_HEAPCODES.
+	* lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): Don't redefine.
+	(PSEUDODATA_ALIGNMENT, log2_PSEUDODATA_ALIGNMENT): New macros.
+	(PSEUDOCODE_ALIGNMENT, log2_PSEUDOCODE_ALIGNMENT): New macros.
+	(make_machine_code): Adjust for GENERIC64C_HEAPCODES.
+	(TheMachineCode): Adjust accordingly.
+	* spvw.d (verify_pseudodata_alignment): New macro.
+	(error_pseudodata_alignment): New function.
+	(verify_pseudocode_alignment): Renamed from verify_code_alignment.
+	(error_pseudocode_alignment): Renamed from error_code_alignment. Change
+	error message.
+	(init_memory): Invoke verify_code_alignment, verify_pseudodata_alignment
+	respectively.
+	* encoding.d (nls_table_t): Align to PSEUDODATA_ALIGNMENT, not 4.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix an autoconf test crash on IA64.
 	* m4/mmap.m4: On IA64, don't try to mmap at the address where the
 	executable sits.

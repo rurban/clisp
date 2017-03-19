@@ -1418,10 +1418,10 @@ typedef struct nls_table_t {
   const unsigned short* charset2uni;             /* 8-bit to UCS-2 table */
   int is_ascii_extension;
 }
-#if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
-/* Force all XPSEUDODATAs to be allocated with a 4-byte alignment.
+#if (alignment_long < PSEUDODATA_ALIGNMENT) && defined(GNU)
+/* Force all XPSEUDODATAs to be allocated with a PSEUDODATA_ALIGNMENT.
    GC needs this. */
-  __attribute__ ((aligned (4)))
+  __attribute__ ((aligned (PSEUDODATA_ALIGNMENT)))
 #endif
        nls_table_t;
 

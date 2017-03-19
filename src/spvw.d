@@ -1286,19 +1286,37 @@ local inline void module_set_argtypes (module_t *module)
   } while (--count);
 }
 
-/* Verify that a code address has the C_CODE_ALIGNMENT.
- This is important for calling make_machine_code. */
-#ifdef TYPECODES
-  #define verify_code_alignment(ptr,name) /* not needed */
+/* Verify that an address has the PSEUDODATA_ALIGNMENT.
+ This is important for calling make_machine. */
+#if PSEUDODATA_ALIGNMENT==1
+  #define verify_pseudodata_alignment(ptr,name) /* not needed */
 #else
-  #define verify_code_alignment(ptr,name)  \
-    if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
-      error_code_alignment((uintP)(void*)(ptr),name)
-local _Noreturn void error_code_alignment (uintP address, const char* name) {
-  fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n", name, address);
+  #define verify_pseudodata_alignment(ptr,name)  \
+    if ((uintP)(void*)(ptr) & (PSEUDODATA_ALIGNMENT-1))     \
+      error_pseudodata_alignment((uintP)(void*)(ptr),name)
+local _Noreturn void error_pseudodata_alignment (uintP address, const char* name) {
+  fprintf(stderr,"PSEUDODATA_ALIGNMENT is not fulfilled. &%s = 0x%lx.\n",
+          name, (unsigned long)address);
+  fprintf(stderr,"Use <stdalign.h> and alignas(%d) to its declaration.\n",
+          PSEUDODATA_ALIGNMENT);
+  abort();
+}
+#endif
+
+/* Verify that a code address has the PSEUDOCODE_ALIGNMENT.
+ This is important for calling make_machine_code. */
+#if PSEUDOCODE_ALIGNMENT==1
+  #define verify_pseudocode_alignment(ptr,name) /* not needed */
+#else
+  #define verify_pseudocode_alignment(ptr,name)  \
+    if ((uintP)(void*)(ptr) & (PSEUDOCODE_ALIGNMENT-1))     \
+      error_pseudocode_alignment((uintP)(void*)(ptr),name)
+local _Noreturn void error_pseudocode_alignment (uintP address, const char* name) {
+  fprintf(stderr,"PSEUDOCODE_ALIGNMENT is not fulfilled. &%s = 0x%lx.\n",
+          name, (unsigned long)address);
  #if (__GNUC__ >= 3)
   fprintf(stderr,"Add -falign-functions=%d to FALIGNFLAGS in the Makefile.\n",
-          C_CODE_ALIGNMENT);
+          PSEUDOCODE_ALIGNMENT);
  #endif
   abort();
 }
@@ -2906,7 +2924,7 @@ local inline int init_memory (struct argv_initparams *p) {
       var const char* const* nameptr = &pseudocode_name_tab[0];
       var uintC count = pseudocode_count;
       while (count--) {
-        verify_code_alignment(*ptr1,*nameptr);
+        verify_pseudocode_alignment(*ptr1,*nameptr);
         *ptr2++ = make_machine_code(*ptr1); ptr1++; nameptr++;
       }
     }
@@ -2919,7 +2937,7 @@ local inline int init_memory (struct argv_initparams *p) {
       var const char* const* nameptr = &pseudodata_name_tab[0];
       var uintC count = pseudodata_count;
       while(count--) {
-        verify_code_alignment(*ptr1,*nameptr);
+        verify_pseudodata_alignment(*ptr1,*nameptr);
         *ptr2++ = make_machine(*ptr1); ptr1++; nameptr++;
       }
     }
