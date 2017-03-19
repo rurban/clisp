@@ -377,8 +377,8 @@
 #if defined(UNIX) && defined(SIGNALBLOCK_BSD) && !defined(SIGNALBLOCK_SYSV)
   #define UNIX_BSD  /* BSD Unix */
 #endif
-#if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) /* && !defined(HAVE_GETPAGESIZE) */
-  #define UNIX_SUNOS5  /* Sun OS Version 5.[1-5] (Solaris 2) */
+#if defined(__sun)
+  #define UNIX_SUNOS5  /* Sun OS Version 5.x (Solaris 2) */
 #endif
 #if defined(UNIX_MACOSX) && !defined(HAVE_MSYNC)
   #define UNIX_RHAPSODY  /* MacOS X Server, a.k.a. Rhapsody */
