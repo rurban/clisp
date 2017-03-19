@@ -1,5 +1,11 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix error message when configure fails due to a missing argument.
+	* configure: Set prev to 'build', not 'host'. In the error message,
+	add '--' before prev.
+
+2017-03-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when compiling 'newer' on Cygwin.
 	* makemake.in (CPPFLAGS): Add the ${GNULIB_INCLUDE} options here too.
 	Link all programs that are compiled with $(CPPFLAGS) with ${GLLIB_A}.
