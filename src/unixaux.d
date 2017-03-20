@@ -281,8 +281,8 @@ modexp ssize_t fd_read
         }
         /* As a last resort, use non-blocking I/O. */
         var ssize_t done = 0;
-        NO_BLOCK_DECL(fd);
-        START_NO_BLOCK(fd);
+        NO_BLOCK_DECL();
+        START_NO_BLOCK(fd, OS_error());
         do {
           var ssize_t retval = read(fd,buf,nbyte);
           if (retval == 0) {
@@ -306,7 +306,7 @@ modexp ssize_t fd_read
           }
         } while (nbyte != 0);
         var int saved_errno = errno;
-        END_NO_BLOCK(fd);
+        END_NO_BLOCK(fd, OS_error());
         errno = saved_errno;
         return done;
       #endif
@@ -422,8 +422,8 @@ modexp ssize_t fd_write
         }
         /* As a last resort, use non-blocking I/O. */
         var ssize_t done = 0;
-        NO_BLOCK_DECL(fd);
-        START_NO_BLOCK(fd);
+        NO_BLOCK_DECL();
+        START_NO_BLOCK(fd, OS_error());
         do {
           var ssize_t retval = write(fd,buf,nbyte);
           if (retval == 0) {
@@ -447,7 +447,7 @@ modexp ssize_t fd_write
           }
         } while (nbyte != 0);
         var int saved_errno = errno;
-        END_NO_BLOCK(fd);
+        END_NO_BLOCK(fd, OS_error());
         errno = saved_errno;
         return done;
       #endif
@@ -614,8 +614,8 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
       }
       /* As a last resort, use non-blocking I/O. */
       var ssize_t done = 0;
-      NO_BLOCK_DECL(fd);
-      START_NO_BLOCK(fd);
+      NO_BLOCK_DECL();
+      START_NO_BLOCK(fd, OS_error());
       do {
         var ssize_t retval = send(fd,buf,nbyte,0);
         if (retval == 0) {
@@ -639,7 +639,7 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
         }
       } while (nbyte != 0);
       var int saved_errno = errno;
-      END_NO_BLOCK(fd);
+      END_NO_BLOCK(fd, OS_error());
       errno = saved_errno;
       return done;
     }

@@ -822,17 +822,17 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   /* <http://cr.yp.to/docs/connect.html>:
      - make a non-blocking socket, connect(), select() for WR */
   var SOCKET fd;
+  NO_BLOCK_DECL();
   if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
- #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
+ #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   if (timeout) {
-    var unsigned long non_blocking_io = 1;
-    if (ioctl(fd,FIONBIO,&non_blocking_io) != 0) { return INVALID_SOCKET; }
+    START_NO_BLOCK(fd, goto fail);
   }
  #endif
   if (connect(fd, addr, addrlen) >= 0)
     return fd;
- #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
+ #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
     var struct timeval *tvp = (struct timeval*)timeout;
     if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
@@ -846,34 +846,33 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
         if (ret < 0) {
           if (errno == EINTR) goto restart_select;
-          saving_errno(CLOSE(fd)); return INVALID_SOCKET;
+          goto fail;
         }
        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
         var int errorp;
         var socklen_t len = sizeof(errorp);
         if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
-          CLOSE(fd);
-          return INVALID_SOCKET;
+          goto fail;
         }
         if (errorp) {
-          CLOSE(fd); errno = errorp;
-          return INVALID_SOCKET;
+          errno = errorp;
+          goto fail;
         }
        #endif
       }
      #endif
       if (ret == 0) {
-        CLOSE(fd); errno = ETIMEDOUT;
-        return INVALID_SOCKET;
+        errno = ETIMEDOUT;
+        goto fail;
       }
     }
-    { /* connected - restore blocking IO */
-      var unsigned long non_blocking_io = 0;
-      if (ioctl(fd,FIONBIO,&non_blocking_io) == 0)
-        return fd;
+    if (timeout) { /* connected - restore blocking IO */
+      END_NO_BLOCK(fd, goto fail);
+      return fd;
     }
   }
  #endif
+ fail:
   saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
 }
