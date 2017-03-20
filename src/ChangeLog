@@ -1,6 +1,13 @@
 2017-03-20  Reini Urban  <reini.urban@gmail.com>
             Bruno Haible  <bruno@clisp.org>
 
+	Fix text file processing Makefile rules for parallel make.
+	* makemake.in (TXT_FILES): Use a different temporary file for each
+	target file.
+
+2017-03-20  Reini Urban  <reini.urban@gmail.com>
+            Bruno Haible  <bruno@clisp.org>
+
 	Fix intparam.h/floatparam.h Makefile rule for parallel make.
 	* makemake.in (PARAMS): Use a different temporary file for each target
 	file.
