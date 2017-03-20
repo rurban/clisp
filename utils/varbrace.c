@@ -593,6 +593,91 @@ static const VectorString* modulo_current_condition (const VectorString* conditi
 }
 
 
+/* Parsing of preprocessor lines. */
+
+/* This is required, in order to recognize that in
+     #define hello "hello world" ／＊ some nice
+                                    greeting ＊／
+   the seconds line belongs to the preprocessor command, even though
+   the first line does not end in a backslash. */
+
+/* C lexical parsing states */
+enum parsing_state {
+  STATE_INITIAL,
+  STATE_IN_CHARACTER_LITERAL,
+  STATE_IN_STRING_LITERAL,
+  STATE_IN_C_COMMENT,
+  STATE_IN_CXX_COMMENT
+};
+
+static enum parsing_state parsing_state_at_end_of_line (const char *line)
+{
+  uintL n = strlen(line);
+  uintL i = 0;
+  for (;;) {
+    /* Here we're in the initial state: not inside character literals,
+       not inside strings, not inside comments. */
+    if (i == n) return STATE_INITIAL;
+    if (line[i] == '\'') {
+      i++;
+      for (;;) {
+        /* Here we're in a character literal. */
+        if (i == n) return STATE_IN_CHARACTER_LITERAL;
+        if (line[i] == '\'') {
+          i++;
+          break;
+        }
+        if (line[i] == '\\') {
+          i++;
+          if (i == n) return STATE_IN_CHARACTER_LITERAL;
+        }
+        i++;
+      }
+    } else if (line[i] == '"') {
+      i++;
+      for (;;) {
+        /* Here we're in a string literal. */
+        if (i == n) return STATE_IN_STRING_LITERAL;
+        if (line[i] == '"') {
+          i++;
+          break;
+        }
+        if (line[i] == '\\') {
+          i++;
+          if (i == n) return STATE_IN_STRING_LITERAL;
+        }
+        i++;
+      }
+    } else if (line[i] == '/') {
+      i++;
+      if (i == n) return STATE_INITIAL;
+      if (line[i] == '*') {
+        i++;
+        for (;;) {
+          /* Here we're in a C style comment. */
+          if (i == n) return STATE_IN_C_COMMENT;
+          if (line[i] == '*') {
+            i++;
+            if (i == n) return STATE_IN_C_COMMENT;
+            if (line[i] == '/') {
+              i++;
+              break;
+            }
+          } else {
+            i++;
+          }
+        }
+      } else if (line[i] == '/') {
+        /* A C++ comment extends until the end of line. */
+        return STATE_IN_CXX_COMMENT;
+      }
+    } else {
+      i++;
+    }
+  }
+}
+
+
 /* Parsing of #if/#else/#elif/#endif lines. */
 
 static const char* is_if (const char* line)
@@ -1131,17 +1216,41 @@ static Token next_token (void)
             char* old_line = line;
             line = concat2("#",line);
             xfree(old_line);
-          } else
+          } else {
             line = concat1("#");
-          while (line[strlen(line)-1] == '\\') {
-            char* continuation_line = next_line();
-            line[strlen(line)-1] = '\0';
-            if (continuation_line) {
-              char* old_line = line;
-              line = concat2(line,continuation_line);
-              xfree(old_line);
-              xfree(continuation_line);
+          }
+          for (;;) {
+            boolean need_another_line = FALSE;
+            if (line[strlen(line)-1] == '\\') {
+              need_another_line = TRUE;
+            } else {
+              switch (parsing_state_at_end_of_line (line)) {
+                case STATE_INITIAL:
+                  break;
+                case STATE_IN_CHARACTER_LITERAL:
+                  fprintf(stderr,"End of preprocessor line within character literal in line %lu\n",input_line);
+                  break;
+                case STATE_IN_STRING_LITERAL:
+                  fprintf(stderr,"End of preprocessor line within string literal in line %lu\n",input_line);
+                  break;
+                case STATE_IN_C_COMMENT:
+                  need_another_line = TRUE;
+                  break;
+                case STATE_IN_CXX_COMMENT:
+                  break;
+              }
             }
+            if (need_another_line) {
+              char* continuation_line = next_line();
+              line[strlen(line)-1] = '\0';
+              if (continuation_line) {
+                char* old_line = line;
+                line = concat2(line,continuation_line);
+                xfree(old_line);
+                xfree(continuation_line);
+              }
+            } else
+              break;
           }
           {
             const char* condition;
