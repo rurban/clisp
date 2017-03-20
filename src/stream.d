@@ -4871,11 +4871,11 @@ local listen_t listen_handle (Handle handle, bool tty_p, int *byte) {
     var uintB b;
     var int result;
    restart_read_tty:
-    { NO_BLOCK_DECL(handle);
-      START_NO_BLOCK(handle);
+    { NO_BLOCK_DECL();
+      START_NO_BLOCK(handle, OS_error());
       result = read(handle,&b,1);
       var int saved_errno = errno;
-      END_NO_BLOCK(handle);
+      END_NO_BLOCK(handle, OS_error());
       errno = saved_errno;
     }
     if (result < 0) {

@@ -1,3 +1,18 @@
+2017-03-20  Sam Steingold  <sds@gnu.org>
+
+	Fix non-blocking sockets on Mac OS X.
+	* unix.d (NO_BLOCK_DECL): Do not accept handle.
+	(START_NO_BLOCK): Accept on_fail, move function call from
+	NO_BLOCK_DECL here.
+	(END_NO_BLOCK): Accept on_fail.
+	* win32.d (NO_BLOCK_DECL, START_NO_BLOCK, END_NO_BLOCK): Add.
+	* socket.d (connect_via_ip): Use
+	NO_BLOCK_DECL/START_NO_BLOCK/END_NO_BLOCK.
+	* stream.d (listen_handle): Update the use of
+	NO_BLOCK_DECL/START_NO_BLOCK/END_NO_BLOCK.
+	* unixaux.d (fd_read, fd_write, sock_write): Ditto.
+	Reported by Karsten Poeck <Karsten.Poeck@gmail.com>.
+
 2017-03-20  Reini Urban  <reini.urban@gmail.com>
             Bruno Haible  <bruno@clisp.org>
 
@@ -9,8 +24,8 @@
             Bruno Haible  <bruno@clisp.org>
 
 	Fix intparam.h/floatparam.h Makefile rule for parallel make.
-	* makemake.in (PARAMS): Use a different temporary file for each target
-	file.
+	* makemake.in (PARAMS): Use a different temporary file for each
+	target file.
 
 2017-03-20  Bruno Haible  <bruno@clisp.org>
 
