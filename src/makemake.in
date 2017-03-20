@@ -2345,11 +2345,10 @@ for parf in ${PARAMS}; do
     echotab '$(TOUCH) '"${parf}.h"
   else
     echol "${parf}.h : ${SRCDIR}${parf}.c config.h"
-    echotab "echo '#include \"config.h\"' > tmp.c"
-    echotab "cat '${SRCDIR}${parf}.c' >> tmp.c"
-    echotab_to_HEXE "\$(CC)" "tmp.c" "${parf}"
+    echotab "{ echo '#include \"config.h\"' && cat '${SRCDIR}${parf}.c'; } > gen-${parf}.c"
+    echotab_to_HEXE "\$(CC)" "gen-${parf}.c" "${parf}"
     echotab "${HERE}${parf}${HEXE} ${parf}.h"
-    echotab "\$(RM) ${parf}${HEXE} tmp.c"
+    echotab "\$(RM) ${parf}${HEXE} gen-${parf}.c"
   fi
   echol
 done
