@@ -1,3 +1,19 @@
+2017-03-21  Bruno Haible  <bruno@clisp.org>
+
+	Replace the 'newer' utility with a portable shell alternative.
+	Jörg Höhle found that "newer $file1 $file2" is equivalent to
+	test -f $file1 && \
+	  { test ! -f $file2 || test -n "`find $file1 -prune -newer $file2`"; }
+	* src/makemake.in (UTILS): Remove 'newer'.
+	Use a 'find' based shell command instead of the 'newer' program.
+	* utils/newer.c: Remove file.
+	* Makefile.devel (GNULIB_CORE): Remove stat-time, timespec.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* gllib/Makefile.am, gllib/Makefile.in: Regenerated.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* build-aux/config.sub: Update from gnulib git.
+
 2017-03-20  Bruno Haible  <bruno@clisp.org>
 
 	Fix "End of comment outside comment" warnings from varbrace.
