@@ -14,7 +14,7 @@ global xmutex_t all_mutexes_lock;
 /* mutex for guarding access to O(all_exemptions) */
 global xmutex_t all_exemptions_lock;
 
-/* signals an error of obj is not thread. returns the thread*/
+/* signals an error if obj is not thread. returns the thread */
 global maygc object check_thread(object obj)
 {
   while (!threadp(obj)) {
@@ -28,7 +28,7 @@ global maygc object check_thread(object obj)
   return obj;
 }
 
-/* signals an error of obj is not mutex. returns the mutex*/
+/* signals an error if obj is not mutex. returns the mutex */
 local maygc object check_mutex(object obj)
 {
   while (!mutexp(obj)) {
@@ -42,7 +42,7 @@ local maygc object check_mutex(object obj)
   return obj;
 }
 
-/* signals an error of obj is not exemption (POSIX condition).*/
+/* signals an error if obj is not exemption (POSIX condition). */
 local maygc object check_exemption(object obj)
 {
   while (!exemptionp(obj)) {
