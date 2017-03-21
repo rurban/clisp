@@ -519,7 +519,7 @@ jit_patch(rf1);\
     jit_addi_p(JIT_R0,JIT_R1, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
 #define jitc_getptr_symvalr()\
     jit_addi_p(JIT_R0,JIT_R2, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
-#define jitc_sym_constpr(sym)\
+#define jitc_sym_constpr()\
     jit_ldxi_p(JIT_R0, JIT_R2, TheSymbol(as_object(jit_ptr_field(Symbol, header_flags))));\
     jit_notr_ul(JIT_R0,JIT_R0);\
     jit_andi_ul(JIT_R1,JIT_R0,bit(var_bit0_hf)|bit(var_bit1_hf));\
