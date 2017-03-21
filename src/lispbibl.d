@@ -17839,7 +17839,7 @@ global void release_mutexes(object list);
 global void release_exemptions(object list);
 /* called at thread exiting. performs cleanup/checks. */
 global maygc void thread_cleanup(void);
-/* signals an error of obj is not thread. returns the thread*/
+/* signals an error if obj is not thread. returns the thread */
 global maygc object check_thread(object obj);
 /* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
  symbol: the symbol
