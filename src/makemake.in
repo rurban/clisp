@@ -2322,7 +2322,6 @@ UTILS=$UTILS' varbrace'
 test $XCC_NEED_DEEMA = true -a $HOS != unix && UTILS=$UTILS' deema'
 UTILS=$UTILS' txt2c'
 UTILS=$UTILS' ccmp2c' # needed by clx module
-UTILS=$UTILS' newer'
 LUTILS='modprep'
 
 PARAMS="intparam floatparam"
@@ -3247,8 +3246,9 @@ make_modules() {
   echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
   # srcdir has to be passed to ./configure because it must be able to find
   # src/build-aux/install-sh _AND_ also its own sources, thus we must
-  # point it to modules/... in the original source tree
-  echotab "if ./newer \$\$m/configure \$@/config.status ; then ( cd \$@ ;\\"
+  # point it to modules/... in the original source tree.
+  # The 'if' condition here tests whether $$m/configure is newer than $@/config.status.
+  echotab "if test ! -f \$@/config.status || test -n \"\`find \$\$m/configure -prune -newer \$@/config.status\`\" ; then ( cd \$@ ;\\"
   echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
   echotab "    if test -f \$\${cache} ; then \\"
   echotab "      . \$\${cache}; \\"
@@ -3263,8 +3263,11 @@ make_modules() {
   echotab "    fi ) ;\\"
   echotab "fi; \\"
   # srcdir must be correct in Makefile because clisp-link calls link.sh
-  # which cannot pass srcdir to make on the command line
-  echotab "./newer \$\$m/Makefile \$@/Makefile && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
+  # which cannot pass srcdir to make on the command line.
+  # The 'if' condition here tests whether $$m/Makefile is newer than $@/Makefile.
+  echotab "if test ! -f \$@/Makefile || test -n \"\`find \$\$m/Makefile -prune -newer \$@/Makefile\`\" ; then \\"
+  echotab "  sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
+  echotab "fi ; \\"
   echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
   echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
   echol
