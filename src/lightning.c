@@ -10,6 +10,7 @@
  *
  * To understand GNU Lightning, have a quick look at the examples in:
  * http://www.gnu.org/software/lightning/manual/html_node/GNU-lightning-macros.html
+ * Only tested with 1.2.1, does not work anymore with latest 2.1.0
  *
  * - The macros behave like functions; they may modify JIT_R0 and
  *   JIT_R1 only (exceptions are identified by the 'x' postfix)
@@ -54,6 +55,13 @@
  */
 
 #include <lightning.h>
+
+#ifndef jit_allocai
+#error Too old lightning library. Need version 1.2c or 1.2.1
+#endif
+#ifndef jit_get_ip
+#error Too new lightning library. Need version 1.2c or 1.2.1
+#endif
 
 /* Pointer to a JIT-Compiled function */
 /* Takes the closure and the distance to the starting bytecode as arguments */
