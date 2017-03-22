@@ -578,6 +578,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0))
   signatures;; The function's possible signatures,
   ;; together with their individual #if conditions.
+  doc
 )
 (defvar *fundefs*)
 (defun tag-to-fundef (tag)
