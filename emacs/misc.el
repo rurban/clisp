@@ -145,6 +145,27 @@
       (process-send-string proc (concat "GROUP " group "\nARTICLE " article "\n"))
       (display-buffer buffer))))
 
+(defun clisp-google-message ()
+  "Search for the message in the current buffer
+ - created by `clisp-get-gmane-article'."
+  (interactive)
+  (goto-char (point-min))
+  (cl-flet ((get-field (f)
+              (save-excursion
+                (and (goto-char (point-min))
+                     (re-search-forward (concat "^" f ":") nil t)
+                     (cl-substitute
+                      ?+ ?\s (buffer-substring-no-properties
+                              (point) (line-end-position)))))))
+    (if (re-search-forward "^Newsgroups: gmane.lisp.clisp" nil t)
+        (browse-url (concat "https://sourceforge.net/p/clisp/mailman/search/?q="
+                            (get-field "Subject")))
+      (browse-url (concat "https://google.com/?q="
+                          (get-field "Subject")
+                          (or (get-field "List-Id")
+                              (get-field "Sender")
+                              ""))))))
+
 (defun clisp-check-all-links ()
   "Check all links in the buffer.
 Does _NOT_ check anchors!"
