@@ -3153,11 +3153,11 @@ echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* ===
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
-# clx depends on the symbol "hostent_to_lisp", which is defined in the
-# syscalls module and therefore doesn't get put into lisp.def on
-# Cygwin.  So we just force it.
-if [ "${HSYSOS}" != cygwin ]; then
-  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+# new-clx depends on the symbol "hostent_to_lisp", which is defined in the
+# syscalls module and therefore doesn't get put into lisp.def on Cygwin.
+# So we just force it.
+if test -z "${CLISP_DEF}"; then
+  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 else
   echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 fi

@@ -1,3 +1,9 @@
+2017-03-22  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#694: Cygwin+no-dynamic-modules fails with a shell syntax error
+	* makemake.in (CLISP_DEF): Check CLISP_DEF instead of HSYSOS when
+	deciding whether to modify CLISP_DEF or not.
+
 2017-03-21  Bruno Haible  <bruno@clisp.org>
 
 	Replace the 'newer' utility with a portable shell alternative.
