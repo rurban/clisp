@@ -155,11 +155,13 @@
   (loop :for i :from 0 :to 500 :do
       (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
-  (gdbm:gdbm-reorganize *db*)
+  #-:CYGWIN (gdbm:gdbm-reorganize *db*)
   (setf asize (gdbm:gdbm-file-size *db*)
         anum (and (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*)))
   (format t "~&File size: ~:DB/~:D --> ~:DB/~:D~%" bsize bnum asize anum)
   (< asize bsize)) T
+#-:CYGWIN T
+#+:CYGWIN NIL
 
 (gdbm:gdbm-close *db*) T
 
