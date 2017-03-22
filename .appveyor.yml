@@ -3,7 +3,7 @@ version: "{build}"
 skip_tags: true
 
 cache:
-  - c:\x86_64-pc-msys -> .appveyor.yml
+  - c:\i686-w64-mingw32 -> .appveyor.yml
 
 #environment:
 #  matrix:
@@ -22,14 +22,18 @@ clone_folder: C:\projects\%APPVEYOR_PROJECT_NAME%
 # see https://www.appveyor.com/docs/build-environment/#mingw-msys-cygwin
 install:
   - cinst wget -y
-  - set PATH=C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%;C:\MinGW\msys\1.0\bin
+  - set PATH=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;%PATH%;C:\MinGW\msys\1.0\bin
   # git bash conflicts with MinGW makefiles, esp. the space in 'Program Files'
   - set "PATH=%PATH:C:\Program Files\Git\usr\bin;=%"
-  - cd C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64
+  - cd C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32
   # some tools just call make
   - copy bin\mingw32-make.exe bin\make.exe
   # XXX hack, otherwise fails on -lc
-  - copy x86_64-w64-mingw32\lib\libntdll.a x86_64-w64-mingw32\lib\libc.a
+  #- dir
+  - copy i686-w64-mingw32\lib\libntdll.a i686-w64-mingw32\lib\libc.a
+  # reactos bug, we want no -Iddk
+  - wget -q https://gist.github.com/rurban/37c190d3c2789d64ca1924d22ee40d17/raw/3fff50aa947ddd2ebcb753ac34ad5875b6954cfd/i686-w64-mingw32-ddk.patch
+  - patch -p1 -i i686-w64-mingw32-ddk.patch
   #- dir C:\MinGW\bin
   #- dir C:\MinGW\msys\1.0\bin
   #- cd C:\projects\%APPVEYOR_PROJECT_NAME%
@@ -41,21 +45,23 @@ install:
       $package_iteration = "$package_iteration${env:appveyor_build_number}.$package_commit"
       Update-AppveyorBuild -Version "clisp-${env:appveyor_repo_branch}-$package_version-$package_iteration"
 
-  # fails with libtool
+  - if exist c:\i686-w64-mingw32\lib\libsigsegv.a goto ffcall
   - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.11.tar.gz
   - tar xfz libsigsegv-2.11.tar.gz
   - cd libsigsegv-2.11
   - patch -p1 -i ../utils/libsigsegv-win64.patch
-  - sh -c "CC=x86_64-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/x86_64-pc-msys && make all install" || true
+  - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make; make check install" || true
   - cd ..
 
   # libffcall still todo on windows
+  - ffcall: if exist c:\i686-w64-mingw32\lib\libavcall.a goto cont
   - wget -q --no-check-certificate https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz
   - tar xfz libffcall-1.13-20170225.tar.gz
   - patch -p0 -i utils/libffcall-1.13-20170225-funbegin.patch
   - cd libffcall-1.13-20170225
-  - sh -c "CC=x86_64-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/x86_64-pc-msys && make all install" || true
+  - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make && make check install" || true
   - cd ..
+  - cont:
 
   #- ps: |
   #    $clispdir = "${env:appveyor_build_version}-win64"
@@ -73,7 +79,7 @@ build: off
 
 test_script:
   - set PATH=C:\MinGW\msys\1.0\bin;%PATH%;
-  - bash -c "CC=x86_64-w64-mingw32-gcc-6.3.0 ./configure --ignore-absence-of-libsigsegv --with-libsigsegv-prefix=/c/x86_64-pc-msys && cd src && make -j4 all && make check" || type src\clisp.rc
+  - bash -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --ignore-absence-of-libsigsegv --with-libsigsegv-prefix=/c/i686-w64-mingw32 && cd src && make -j4 all && make check"
 
 artifacts:
   - path: 'clisp-*.zip'
