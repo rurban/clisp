@@ -2158,8 +2158,10 @@
       (cons phys-name fwd))))
 (defun search-file (filename &optional extensions (keep-dirs t))
   ;; <http://article.gmane.org/gmane.lisp.clisp.general:9893>
+  ;; <https://sourceforge.net/p/clisp/mailman/message/12276025/>
   ;; <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>
   ;; <http://article.gmane.org/gmane.lisp.clisp.devel/18532>
+  ;; <https://sourceforge.net/p/clisp/mailman/message/19813221/>
   ;; we use DIRECTORY only for *LOAD-PATHS* elements with wild components
   ;; to avoid the denial-of-service attack whereas a file in $HOME
   ;; with a name incompatible with *PATHNAME-ENCODING* prevents CLISP from
