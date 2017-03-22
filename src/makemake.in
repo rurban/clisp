@@ -191,6 +191,7 @@ LN_S='ln -s'
 HLN='ln'
 
 # <http://thread.gmane.org/gmane.comp.sysutils.autoconf.general/13368>
+# <https://lists.gnu.org/archive/html/autoconf/2010-09/msg00089.html>
 # strip out -srcdir* & -cache-file*
 keep_next=maybe
 module_configure_flags=''
@@ -1110,6 +1111,8 @@ if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   SHREXT='.dll'
   # no path conversion on msys
   # http://thread.gmane.org/gmane.comp.gnu.mingw.msys/1707/
+  # https://sourceforge.net/p/mingw/mailman/mingw-msys/thread/4B9FD2A4.2050805@gnu.org/
+  # http://stackoverflow.com/questions/12015348/msys-path-conversion-or-cygpath-for-msys
   if cygpath -v > /dev/null 2>&1; then
     PWD_POSTPROC='cygpath -m'
   fi
@@ -1424,6 +1427,7 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
     archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -o $output_objdir/$soname'
   fi
   # http://article.gmane.org/gmane.comp.shells.bash.bugs:17158
+  # http://lists.gnu.org/archive/html/bug-bash/2011-08/msg00280.html
   CC_set=${CC+set}
   CC_save=$CC
   CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${CFLAGS}' \
@@ -1454,6 +1458,7 @@ then # This is necessary for g++ to handle w32shell.c:
   # The member lpVtbl is not defined by the w32api include files if
   #   defined(__cplusplus) && !defined(CINTERFACE)
   # cf <http://article.gmane.org/gmane.comp.gnu.mingw.user/8213>
+  #    <https://sourceforge.net/p/mingw/mailman/message/14900754/>
   XCFLAGS=$XCFLAGS' -DCINTERFACE'
 fi
 
@@ -1498,6 +1503,7 @@ fi
 #         THEN use static library distribution
 #         ELSE use BINARY_DISTRIB
 # cf <http://article.gmane.org/gmane.lisp.clisp.devel:10411>
+#    <https://sourceforge.net/p/clisp/mailman/message/12562837/>
 if [ $CROSS = false ] ; then
   case "$host_os" in
     solaris*)
@@ -2735,6 +2741,7 @@ if [ $TOS = unix ] ; then
   if [ ${TSYSOS} = cygwin ]; then
     # maybe convert the cygwin cygdrive pathnames
     # http://article.gmane.org/gmane.os.cygwin:67868
+    # https://cygwin.com/ml/cygwin/2005-08/msg00460.html
     DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
     echotab "echo '(setq *device-prefix* \"${DEVPREFIX}\")' >> config.lisp"
   fi
@@ -2779,8 +2786,11 @@ if [ $CROSS = false ] ; then
   if [ "$HSYS" = win32gcc ]; then
     # work around an msys "feature": ":" after "/" is converted to a ";"
     # <http://article.gmane.org/gmane.comp.gnu.mingw.msys/4281>
+    # <https://sourceforge.net/p/mingw/mailman/message/18351247/>
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17589>
+    # <https://sourceforge.net/p/clisp/mailman/message/18541077/>
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17895>
+    # <https://sourceforge.net/p/clisp/mailman/message/18996399/>
     SAFE_SRCDIR=`echo ${SRCDIR} | sed 's,/,\\\\\\\\,g'`
   else
     SAFE_SRCDIR=${SRCDIR}
@@ -2941,6 +2951,7 @@ if [ $CROSS = false ] ; then
   echotab "if \$(RUN) -q -M lispinit.mem -x '(load \"script.lisp\")' -repl < /dev/null; then exit 1; else :; fi"
   if [ "$HOS" != win32 ]; then # woe32 has unpredictable exit codes
     # http://article.gmane.org/gmane.lisp.clisp.devel/18967
+    # https://sourceforge.net/p/clisp/mailman/message/20318073/
     echotab "(echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' | \$(RUN) -q -M lispinit.mem -; test \$\$? = 42) || exit 1"
   fi
   if [ "${with_unicode}" = no ]; then
@@ -2958,8 +2969,7 @@ if [ $CROSS = false ] ; then
   # "-x with lisp-file is invalid"
   # echotab "\$(RM) script.lisp; echo '(princ (+ foo bar))' > script.lisp"
   # echotab "output=\`\$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl script.lisp ${TRCR}${TRLF}\`; test \"\$\$output\" = 99_110_ || exit 1"
-  if [ "$HOS" != win32 ]; then # woe32 has unpredictable exit codes
-    # http://article.gmane.org/gmane.lisp.clisp.devel/18967
+  if [ "$HOS" != win32 ]; then # woe32 has unpredictable exit codes (see above)
     echotab "\$(RM) script.lisp; echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' > script.lisp"
     echotab "(\$(RUN) -q -M lispinit.mem < script.lisp; test \$\$? = 42) || exit 1"
     echotab "(\$(RUN) -q -M lispinit.mem script.lisp; test \$\$? = 42) || exit 1"
@@ -3097,8 +3107,9 @@ if [ $CROSS = false ] ; then
   echol
 
   EXTRACHECK_DEPS=
-  # TODO: Enable this check only on those platforms where it is supported (Linux, FreeBSD, etc.),
-  # or disable it on those platforms where it is known to be not supported (OpenBSD, etc.).
+  # TODO: Enable this check only on those platforms where it is
+  # supported (Linux, FreeBSD, etc.), or disable it on those platforms
+  # where it is known to be not supported (OpenBSD, etc.).
   EXTRACHECK_DEPS="${EXTRACHECK_DEPS} check-exec-image"
 
   # check that the executable images work
@@ -3119,7 +3130,7 @@ if [ $CROSS = false ] ; then
 
   echol "# Perform extra tests."
   echol "# Failure of these does not indicate that the built clisp is unusable,"
-  echol "# but rather than some not vital features are not supported."
+  echol "# but rather than some non-vital features are not supported."
   echol "extracheck : ${EXTRACHECK_DEPS}"
   echodummyrule extracheck
   echol

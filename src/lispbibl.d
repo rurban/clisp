@@ -308,6 +308,7 @@
     #define UNIX_MACOSX  /* MacOS X */
     /* MacOSX pathnames are UTF-8 strings, not byte sequences
        http://thread.gmane.org/gmane.lisp.clisp.general/13725
+       https://sourceforge.net/p/clisp/mailman/message/27345286/
        http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html */
     #define CONSTANT_PATHNAME_ENCODING  Symbol_value(S(utf_8))
   #endif
@@ -1353,9 +1354,9 @@ typedef signed int  signean;
 %%   puts("#include <setjmp.h>");
 %% #endif
 #if defined(UNIX) && defined(HAVE__JMP)
-  /* The "_" routines are more efficient (do not save/restore signal masks,
-   see http://article.gmane.org/gmane.lisp.clisp.devel/18227 or
-   http://sourceforge.net/mailarchive/message.php?msg_id=200805251238.10097.bruno%40clisp.org): */
+  /* The "_" routines are more efficient - do not save/restore signal masks,
+   see http://article.gmane.org/gmane.lisp.clisp.devel/18227
+   https://sourceforge.net/p/clisp/mailman/message/19448465/ */
   #undef setjmp
   #undef longjmp
   #define setjmp  _setjmp

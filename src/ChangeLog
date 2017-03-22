@@ -1478,13 +1478,15 @@
 
 	* modules/bindings/glibc/linux.lisp (__swblk_t): remove the unused
 	`def-c-type' (removed from glibc too); fixes bug#656;
-	see also http://article.gmane.org/gmane.comp.lib.glibc.alpha/25618
+	see also <http://article.gmane.org/gmane.comp.lib.glibc.alpha/25618>
+	aka <https://sourceware.org/ml/libc-alpha/2012-10/msg00035.html>
 
 2013-01-06  Bruno Haible  <bruno@clisp.org>
 
 	* pathname.d (unix_user_pwd): Don't use getlogin().
 	Reported by Alberto Riva <alb@chip.org> in
 	<http://article.gmane.org/gmane.lisp.clisp.general:13995>
+	<https://sourceforge.net/p/clisp/mailman/message/30303970/>
 
 2012-11-23  Sam Steingold  <sds@gnu.org>
 
@@ -1500,6 +1502,7 @@
 	positions) to MATCH (character positions)
 	Reported by Mike Palmer <michaeljohnpalmer@gmail.com> in
 	<http://article.gmane.org/gmane.lisp.clisp.general:13972>
+	<https://sourceforge.net/p/clisp/mailman/message/30115294/>
 
 2012-11-29  Sam Steingold  <sds@gnu.org>
 
@@ -1560,7 +1563,8 @@
 2012-04-23  Sam Steingold  <sds@gnu.org>
 
 	Do not signal errors inside begin/end_blocking_system_call blocks
-	Reported by Don Cohen http://article.gmane.org/gmane.lisp.clisp.devel:22914
+	Reported by Don Cohen <http://article.gmane.org/gmane.lisp.clisp.devel:22914>
+	<https://sourceforge.net/p/clisp/mailman/message/29165154/>
 	* modules/syscalls/calls.c (POSIX:OPENLOG): use clisp_realloc
 	instead of clisp_malloc/free
 	(my_chmod, my_chown, my_utime): return status instead of signaling
@@ -1701,6 +1705,7 @@
 	which broke the native msys/mingw build
 	Reported by Dan Stanger <dan.stanger@ieee.org>
 	<http://article.gmane.org/gmane.lisp.clisp.devel:22759>
+	<https://sourceforge.net/p/clisp/mailman/message/28097114/>
 
 2011-09-14  Sam Steingold  <sds@gnu.org>
 
@@ -1755,6 +1760,7 @@
 
 	* configure (makemake_args) [win32gcc]: add --with-dynamic-modules=no
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:27739>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2011-07/msg00425.html>
 	(host_arg): add both --host and --build argument
 	Suggested by Eric Blake <eblake@redhat.com>
 	https://lists.gnu.org/archive/html/bug-libsigsegv/2011-08/msg00006.html
@@ -1768,7 +1774,8 @@
 
 	* makemake.in: save & restore CC around setting it for XCC_CREATESHARED
 	Suggested by Eric Blake <eblake@redhat.com>
-	http://article.gmane.org/gmane.comp.shells.bash.bugs:17158
+	<http://article.gmane.org/gmane.comp.shells.bash.bugs:17158>
+	<http://lists.gnu.org/archive/html/bug-bash/2011-08/msg00280.html>
 
 2011-08-24  Sam Steingold  <sds@gnu.org>
 
@@ -1849,6 +1856,7 @@
 
 	* makemake.in (LIBS): prepend ${GLLIB_A} before -lws2_32 & -lintl
 	<http://article.gmane.org/gmane.lisp.clisp.devel:22701>
+	<https://sourceforge.net/p/clisp/mailman/message/27966160/>
 
 2011-08-18  Sam Steingold  <sds@gnu.org>
 
@@ -1868,6 +1876,7 @@
 	* win32.d: try to include all those header one by one
 	Suggested by Michael Kappert & Yaroslav Kavenchuk
 	<http://article.gmane.org/gmane.lisp.clisp.devel:22684> &c
+	<https://sourceforge.net/p/clisp/mailman/message/27960367/>
 
 2011-08-08  Sam Steingold  <sds@gnu.org>
 
@@ -1917,6 +1926,7 @@
 
 	* Makefile.devel (src/aclocal.m4): run aclocal in src
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:27763>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2011-07/msg00449.html>
 
 2011-08-02  Sam Steingold  <sds@gnu.org>
 
@@ -1965,6 +1975,7 @@
 	first AC_CHECK_SIZEOF to ensure 64-bit size_t
 	Reported by Vladimir Tzankov <vtzankov@gmail.com> in
 	<http://article.gmane.org/gmane.lisp.clisp.devel:22642>
+	<https://sourceforge.net/p/clisp/mailman/message/27868080/>
 
 2011-07-29  Sam Steingold  <sds@gnu.org>
 
@@ -2191,6 +2202,7 @@
 	"undefined reference to `rpl_malloc'" on mingw;
 	but put it after the C file in the compilation command
 	<http://article.gmane.org/gmane.lisp.clisp.devel:22573>
+	<https://sourceforge.net/p/clisp/mailman/message/27774032/>
 
 2011-07-08  Sam Steingold  <sds@gnu.org>
 
@@ -2259,7 +2271,8 @@
 	(directory_search_scandir): call OS_file_error instead of
 	error_file_not_exists after a failed directory_search_direntry_ok
 	when if_none=DIR_IF_NONE_ERROR
-	Reported by Don Cohen http://article.gmane.org/gmane.lisp.clisp.general:13778
+	Reported by Don Cohen <http://article.gmane.org/gmane.lisp.clisp.general:13778>
+	<https://sourceforge.net/p/clisp/mailman/message/27584189/>
 
 2011-05-24  Sam Steingold  <sds@gnu.org>
 
@@ -2603,8 +2616,9 @@
 
 	On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
 	be changed because MacOSX pathnames are UTF-8 strings, not byte
-	sequences (http://thread.gmane.org/gmane.lisp.clisp.general/13725
-	and http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html)
+	sequences (<http://thread.gmane.org/gmane.lisp.clisp.general/13725>
+	<https://sourceforge.net/p/clisp/mailman/message/27345286/>
+	and <http://developer.apple.com/library/mac/#qa/qa2001/qa1173.html>)
 	* lispbibl.d (CONSTANT_PATHNAME_ENCODING) [UNIX_MACOSX]: define to UTF-8
 	* encoding.d (init_dependent_encodings) [CONSTANT_PATHNAME_ENCODING]:
 	set O(pathname_encoding) to CONSTANT_PATHNAME_ENCODING
@@ -3015,11 +3029,13 @@
 	* glm4/stdlib_h.m4, glm4/threadlib.m4: update from gnulib to fix
 	error: redefinition of `struct random_data'
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23606>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2010-10/msg00264.html>
 
 2010-10-12  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (module_configure_flags): fix according to
 	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13381>
+	<https://lists.gnu.org/archive/html/autoconf/2010-10/msg00007.html>
 
 2010-10-12  Sam Steingold  <sds@gnu.org>
 
@@ -3076,6 +3092,7 @@
 
 	do not use gnulib module getdate which should have been called get_date
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23310>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2010-09/msg00500.html>
 	* modules/syscalls/calls.c (xalloc_die): remove
 	(GETDATE): condition on HAVE_GETDATE & HAVE_DECL_GETDATE_ERR
 	* modules/syscalls/configure.in: do not call AC_PROG_YACC;
@@ -3171,6 +3188,7 @@
 	* Makefile.devel ($(MAKEMAKE_TMP)): substitute @SHELL@
 	Suggested by Ralf Wildenhues <Ralf.Wildenhues@gmx.de>
 	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13369>
+	<https://lists.gnu.org/archive/html/autoconf/2010-09/msg00090.html>
 
 2010-09-28  Sam Steingold  <sds@gnu.org>
 
@@ -3227,6 +3245,7 @@
 
 	* m4/proto.m4 (CL_PROTO): remove $ac_t (obsolete for 10 years!)
 	<http://article.gmane.org/gmane.comp.sysutils.autoconf.general/13335>
+	<https://lists.gnu.org/archive/html/autoconf/2010-09/msg00056.html>
 
 2010-09-17  Sam Steingold  <sds@gnu.org>
 
@@ -3260,6 +3279,7 @@
 	* win32.d (gethostname): #undef after including <unistd.h> and
 	before including winsock headers, as per
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/23076>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2010-09/msg00265.html>
 
 2010-09-15  Sam Steingold  <sds@gnu.org>
 
@@ -4831,8 +4851,9 @@
 	/bin/sh is a symlink to busybox, so RUN-PROGRAM which calls SHELL
 	which calls EXECUTE fails because EXECUTE calls "busybox -c"
 	instead of "/bin/sh -c".
-	Reported by Ivan Shvedunov <ivan4th@gmail.com>
-	in <http://article.gmane.org/gmane.lisp.clisp.devel/21219>
+	Reported by Ivan Shvedunov <ivan4th@gmail.com> in
+	<http://article.gmane.org/gmane.lisp.clisp.devel/21219>
+	<https://sourceforge.net/p/clisp/mailman/message/24434416/>
 
 2010-01-06  Sam Steingold  <sds@gnu.org>
 
@@ -5852,8 +5873,9 @@
 
 	* makemake.in (PATH) [mingw]: do not set; there appears to be no good
 	reason to set it, and the present setting reverses the normal order
-	Reported by Cesar Romani <cesar.romani@gmail.com>
-	in <http://article.gmane.org/gmane.lisp.clisp.general/13055>
+	Reported by Cesar Romani <cesar.romani@gmail.com> in
+	<http://article.gmane.org/gmane.lisp.clisp.general/13055>
+	<https://sourceforge.net/p/clisp/mailman/message/23374349/>
 
 2009-08-24  Sam Steingold  <sds@gnu.org>
 
@@ -6840,6 +6862,7 @@
 	* configure.in: do not invoke macros which come from explicitly
 	requested packages because they are already called by gl_INIT
 	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/17941>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2009-06/msg00168.html>
 	(gl_GNU_MAKE, gl_LIBSIGSEGV, gl_FUNC_GETTIMEOFDAY)
 	(gl_HEADER_SYS_TIME_H, gl_FUNC_GETPAGESIZE): explicitly requested
 	(gt_LC_MESSAGES): called by AM_INTL_SUBDIR which is called by
@@ -7736,7 +7759,8 @@
 	AC_CONFIG_AUX_DIR instead of calling it explicitly because other
 	REQUIREd macros need AC_CONFIG_AUX_DIR's result and REQUIREd
 	macros are called before everyting in the macro is executed.
-	See <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>.
+	See <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2009-01/msg00134.html>
 
 2009-01-15  Sam Steingold  <sds@gnu.org>
 
@@ -8335,6 +8359,7 @@
 
 	* makemake.in (XCLFLAGS): remove "-x none" which is no longer necessary
 	<http://article.gmane.org/gmane.lisp.clisp.devel:19684>
+	<https://sourceforge.net/p/clisp/mailman/message/21004401/>
 
 2008-12-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -9201,6 +9226,7 @@
 	use "config.status $@/Makefile depfiles"
 	instead of "config.status --file=$@/Makefile depfiles" as suggested
 	in <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/15449>
+	<https://lists.gnu.org/archive/html/bug-gnulib/2008-10/msg00500.html>
 	to work around an autoconf bug
 
 2008-10-26  Sam Steingold  <sds@gnu.org>
@@ -9336,8 +9362,9 @@
 	* makemake.in (docdir): defaults in configure to
 	${datarootdir}/doc/${PACKAGE_TARNAME},
 	not ${datarootdir}/doc/${PACKAGE}
-	Reported by "Jose A. Ortega Ruiz" <jao@gnu.org>
-	in <http://article.gmane.org/gmane.lisp.clisp.general/12471>
+	Reported by "Jose A. Ortega Ruiz" <jao@gnu.org> in
+	<http://article.gmane.org/gmane.lisp.clisp.general/12471>
+	<https://sourceforge.net/p/clisp/mailman/message/20576516/>
 
 2008-10-17  Sam Steingold  <sds@gnu.org>
 
@@ -9548,8 +9575,9 @@
 
 	* makemake.in (check-script) [win32]: disable $? tests because
 	%ERRORLEVEL% on woe32 can be reset to 0 all of a sudden
-	http://article.gmane.org/gmane.lisp.clisp.devel/18967
-	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by>
+	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by> in
+	<http://article.gmane.org/gmane.lisp.clisp.devel/18967>
+	<https://sourceforge.net/p/clisp/mailman/message/20318073/>
 
 2008-09-13  Sam Steingold  <sds@gnu.org>
 
@@ -9726,8 +9754,9 @@
 2008-08-06  Sam Steingold  <sds@gnu.org>
 
 	* fill-out.lisp (fill-stream-flush-buffer):
-	remove the "one-line sexp on its own line" special case,
-	see <http://article.gmane.org/gmane.lisp.clisp.devel/18759>
+	remove the "one-line sexp on its own line" special case, see
+	<http://article.gmane.org/gmane.lisp.clisp.devel/18759>
+	<https://sourceforge.net/p/clisp/mailman/message/20036814/>
 
 2008-08-07  Sam Steingold  <sds@gnu.org>
 
@@ -10182,7 +10211,8 @@
 	added SYMBOL-VALUE-THREAD and SET-SYMBOL-VALUE-THREAD.
 	* zthread.d (SYMBOL-VALUE-THREAD): returns two values - global/per
 	thread symbol binding and BOUND-P boolean (as of -
-	http://article.gmane.org/gmane.lisp.clisp.devel/19153)
+	<http://article.gmane.org/gmane.lisp.clisp.devel/19153>
+	<https://sourceforge.net/p/clisp/mailman/message/20484424/>)
 	(SET-SYMBOL-VALUE-THREAD): used for SETF of the SYMBOL-THREAD-VALUE.
 	(thread_symbol_place): helper function returning pointer to symbol
 	binding (in thread or global).
@@ -10670,7 +10700,8 @@
 	DEBUG_GCSSAFETY implementation + REPL GC safe point.
 	Builds with GENERATIONAL_GC will experience segfaults.
 	* lispbibl.d: added GCSAFETY for MT as discussed in
-	http://article.gmane.org/gmane.lisp.clisp.devel/18750
+	<http://article.gmane.org/gmane.lisp.clisp.devel/18750>
+	<https://sourceforge.net/p/clisp/mailman/message/20025039/>
 	(GC_STOP_WORLD): macro for stopping all threads for GC
 	(GC_RESUME_WORLD): macro for resuming all suspended during GC
 	threads.
@@ -12342,7 +12373,8 @@
 
 	* condition.lisp (coerce-to-condition): use ERROR instead of
 	SIGNAL to report TYPE-ERROR so that COERCE-TO-CONDITION never
-	returns NIL (http://article.gmane.org/gmane.lisp.clisp.general/12208)
+	returns NIL <http://article.gmane.org/gmane.lisp.clisp.general/12208>
+	<https://sourceforge.net/p/clisp/mailman/message/19306529/>
 
 2008-05-09  Sam Steingold  <sds@gnu.org>
 
@@ -13351,8 +13383,10 @@
 
 	accept "-lp" to add to *LOAD-PATHS*
 	(and fix mingw separate directory build, see
-	http://article.gmane.org/gmane.lisp.clisp.devel/17375
-	http://article.gmane.org/gmane.lisp.clisp.devel/17388)
+	<http://article.gmane.org/gmane.lisp.clisp.devel/17375>
+	<https://sourceforge.net/p/clisp/mailman/message/15562991/>
+	<http://article.gmane.org/gmane.lisp.clisp.devel/17388>
+	<https://sourceforge.net/p/clisp/mailman/message/18310315/>)
 	* init.lisp (*load-paths*): do not reset
 	* constsym.d (*load-paths*): add
 	* spvw.d (init_symbol_values): init *LOAD-PATHS*
@@ -14712,7 +14746,9 @@
 
 	Work around the wildcard build error reported in
 	<http://article.gmane.org/gmane.lisp.clisp.devel/16815>
-	and <http://article.gmane.org/gmane.lisp.clisp.devel/16824>.
+	<https://sourceforge.net/p/clisp/mailman/message/14629031/> and
+	<http://article.gmane.org/gmane.lisp.clisp.devel/16824>
+	<https://sourceforge.net/p/clisp/mailman/message/14629048/>
 	The problem is that all gnulib autoconf macros are called from
 	src/glm4/gnulib-comp.m4:gl_INIT, so they should not be called from
 	module configures; we can rely on sourcing config.cache.
@@ -16716,6 +16752,7 @@
 	* makemake.in (XCFLAGS) [ia64]: no special treatment is necessary
 	anymore, according to Dr. Werner Fink <werner@suse.de> in
 	<http://article.gmane.org/gmane.lisp.clisp.general:11358>
+	<https://sourceforge.net/p/clisp/mailman/message/13173105/>
 
 2006-08-01  Sam Steingold  <sds@podval.org>
 
@@ -16845,7 +16882,8 @@
 
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL):
 	re-enable FFI for mips/mipsel
-	http://article.gmane.org/gmane.lisp.cl-debian/1493
+	<http://article.gmane.org/gmane.lisp.cl-debian/1493>
+	<https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=377722>
 
 2006-07-14  Peter Van Eynde  <pvaneynd@debian.org>
 	Sam Steingold  <sds@podval.org>
@@ -17109,8 +17147,9 @@
 	* modules/berkeley-db/configure.in, modules/pari/configure.in:
 	* modules/pcre/configure.in, modules/postgresql/configure.in:
 	* modules/zlib/configure.in: add $LIB<mod> to $LIB (not $LTLIB<mod>)
-	Reported by Albert Chin <clisp-devel@mlists.thewrittenword.com>
-	in message <http://article.gmane.org/gmane.lisp.clisp.devel:15576>
+	Reported by Albert Chin <clisp-devel@mlists.thewrittenword.com> in
+	<http://article.gmane.org/gmane.lisp.clisp.devel:15576>
+	<https://sourceforge.net/p/clisp/mailman/message/14252030/>
 
 2006-04-26  Jörg Höhle  <hoehle@users.sourceforge.net>
 
@@ -19677,7 +19716,8 @@
 	* Makefile.devel (src/autoconf/aclocal.m4): prepend AC_GNU_SOURCE
 	to configure.ac and strip it from configures
 	Suggested by Stepan Kasal <kasal@ucw.cz> in
-	http://article.gmane.org/gmane.comp.lib.gnulib.bugs:4165
+	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs:4165>
+	<http://lists.gnu.org/archive/html/bug-gnulib/2005-08/msg00176.html>
 
 2005-08-24  Sam Steingold  <sds@gnu.org>
 
@@ -26314,6 +26354,7 @@
 	* reploop.lisp (break-loop): ditto
 	Suggested by Don Cohen in
 	<http://article.gmane.org/gmane.lisp.clisp.devel/13127>
+	<https://sourceforge.net/p/clisp/mailman/message/13749992/>
 
 2004-11-23  Bruno Haible  <bruno@clisp.org>
 
@@ -38084,8 +38125,9 @@
 	* stream.d (UnbufferedStream_pop_all): new function
 	(low_read_array_unbuffered_handle): use it after
 	low_listen_unbuffered_handle() which can add to bytebuf
-	Reported by Basim Al-Shaikhli <bacilo@gmx.net>
+	Reported by Basim Al-Shaikhli <bacilo@gmx.net> in
 	<http://article.gmane.org/gmane.lisp.clisp.general/7619>
+	<https://sourceforge.net/p/clisp/mailman/message/11011083/>
 
 2003-10-11  Sam Steingold  <sds@gnu.org>
 
@@ -38103,7 +38145,8 @@
 	or from the EVAL-WHEN/COMPILE, it does not assume that a LOAD
 	will happen before the code it generates is executed.
 	Reported by Don Cohen <don-sourceforge@isis.cs3-inc.com>
-	<http://article.gmane.org/gmane.lisp.clisp.devel/10566>
+	<http://article.gmane.org/gmane.lisp.clisp.devel/10566o>
+	<https://sourceforge.net/p/clisp/mailman/message/12563174/>
 
 2003-10-09  Sam Steingold  <sds@gnu.org>
 
@@ -38600,8 +38643,9 @@
 	*fasoutput-stream* instead of *compiling-from-file* to check
 	whether the constant will be read before being evaluated
 	- necessary for the recent COMPILE-FORM-IN-TOPLEVEL-ENVIRONMENT change
-	Reported by Douglas Philips <dgou@mac.com>
+	Reported by Douglas Philips <dgou@mac.com> in
 	<http://article.gmane.org/gmane.lisp.clisp.general/7393>
+	<https://sourceforge.net/p/clisp/mailman/message/11010681/>
 
 2003-08-18  Sam Steingold  <sds@gnu.org>
 
@@ -38616,8 +38660,9 @@
 2003-08-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [darwin]: remove `--traditional-cpp'
-	Reported by Douglas Philips <dgou@mac.com>
+	Reported by Douglas Philips <dgou@mac.com> in
 	<http://article.gmane.org/gmane.lisp.clisp.devel/10282>
+	<https://sourceforge.net/p/clisp/mailman/message/12562528/>
 
 2003-08-15  Sam Steingold  <sds@gnu.org>
 

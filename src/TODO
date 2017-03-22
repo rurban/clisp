@@ -55,7 +55,8 @@ Embeddability: additional API in spvw.d; example. RFE#4
 
 
 nested REQUIRE is broken
-<http://article.gmane.org/gmane.lisp.clisp.devel:13691>:
+<http://article.gmane.org/gmane.lisp.clisp.devel:13691>
+<https://sourceforge.net/p/clisp/mailman/message/14013213/>
 suppose I have a library which consists of 10 files - which create
 packages, define macros &c.
 I create a special file foo.lisp:
@@ -86,8 +87,8 @@ Review all macros and tighten the runtime interface of the macros.
 
 
 contagion warnings: engineering vs portability
-<http://sourceforge.net/mailarchive/message.php?msg_id=10935288>
 <http://article.gmane.org/gmane.lisp.clisp.devel:13758>
+<https://sourceforge.net/p/clisp/mailman/message/14013280/>
 *warn-on-floating-point-contagion*              engineering warning
       the user is doing something mathematically unsound
 *warn-on-floating-point-rational-contagion*     "portability" warning
@@ -111,11 +112,12 @@ Better error checking in get-setf-expansion for long defsetf
 
 
 FFI: passing structs by value:
-http://clisp.cons.org/impnotes/dffi.html#ffi-struct-arg
+http://clisp.org/impnotes/dffi.html#ffi-struct-arg
 foreign.d should signal an error when a struct is passed by value
 foreign1.lisp should emit C code for a wrapper function
  that passes the struct by pointer
-http://article.gmane.org/gmane.lisp.clisp.general:11075
+<http://article.gmane.org/gmane.lisp.clisp.general:11075>
+<https://sourceforge.net/p/clisp/mailman/message/12748866/>
 RFE#26
 
 
@@ -152,6 +154,7 @@ A documented API should be provided for the trace wrapper, so that profilers
 etc. can do the same as TRACE without needing to hack clisp's TRACE, COMPILE,
 DISASSEMBLE, DEFUN, DEFGENERIC.
 <http://article.gmane.org/gmane.lisp.clisp.devel:12837>
+<https://sourceforge.net/p/clisp/mailman/message/13749303/>
 Such a def-fwrapper is what we need, so that profilers
 etc. that are ported to ACL can be ported to clisp with minimal effort.
 <http://www.franz.com/support/documentation/6.2/doc/fwrappers-and-advice.htm>
@@ -186,6 +189,7 @@ values from the given function on the stack. we
 already have that in interpreted functions, but we must
 also have it in compiled functions.
 <http://thread.gmane.org/gmane.lisp.clisp.devel/11448>
+<https://sourceforge.net/p/clisp/mailman/message/13045168/>
 
 
 GENERATIONAL_GC on Cygwin bug#238
@@ -195,11 +199,15 @@ the mmap() autoconf test fails but maybe one can work around it?
 GC/Memory Management:
 1. Better post-mortem on segfault RFE#27
    <http://article.gmane.org/gmane.lisp.clisp.devel:13211>
+   <https://sourceforge.net/p/clisp/mailman/message/13750185/>
 2. More GC generations as a build-time option RFE#28
 3. Better TIME/ROOM GC statistics reporting (per generation stats) RFE#29
    <http://article.gmane.org/gmane.lisp.clisp.devel:13207>
+   <https://sourceforge.net/p/clisp/mailman/message/13750176/>
    <http://article.gmane.org/gmane.lisp.clisp.devel:13209>
+   <https://sourceforge.net/p/clisp/mailman/message/13750180/>
    <http://article.gmane.org/gmane.lisp.clisp.devel:13212>
+   <https://sourceforge.net/p/clisp/mailman/message/13750187/>
 4. Ability to "tenure" a specific object (with all its references!) RFE#30
    or the whole current heap (also untenure the object).
 
