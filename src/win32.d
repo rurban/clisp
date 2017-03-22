@@ -35,8 +35,7 @@
 #define unused unused_void      /* restore the unused declaration */
 
 /* NtQueryInformationFile http://msdn.microsoft.com/en-us/library/ff567052.aspx
-   It uses IO_STATUS_BLOCK http://msdn.microsoft.com/en-us/library/ff567052.aspx
-   which uses NTSTATUS https://msdn.microsoft.com/en-us/library/ff565436.aspx */
+   Avoid winddk/ntddk on i686-pc-mingw32-gcc */
 #include <winternl.h>
 #include <ntstatus.h>
 
