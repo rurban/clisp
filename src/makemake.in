@@ -1503,6 +1503,11 @@ if [ "${with_debug}" != no ] ; then
   esac
 fi
 
+if [ ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin ]
+then
+  # include <w32shell.c>
+  XCFLAGS=$XCFLAGS' -I.'
+fi
 if [ $CC_CPLUSPLUS = true -a \( ${HSYSOS} = win32gcc -o ${HSYSOS} = cygwin \) ]
 then # This is necessary for g++ to handle w32shell.c:
   # The member lpVtbl is not defined by the w32api include files if
