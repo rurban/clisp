@@ -3490,6 +3490,13 @@ if [ $CROSS = false ] ; then
         FILEFLAGS=${FILEFLAGS}"VS_FF_PATCHED" ;;
       * ) PRODUCTVERSION=${PRODUCTVERSION}',0,0' ;;
     esac
+    # odd pre-releases: 2,49.50,1,0 -> 2,49,50,0
+    case "${PRODUCTVERSION}" in
+        2,49.50,1,0 ) PRODUCTVERSION=2,49,50,0 ;;
+        *[0-9]+\.[0-9]+,1,* )
+            PRODUCTVERSION=`echo ${PRODUCTVERSION} | sed -E 's/\.(.*),1,/,\1,/'`
+            FILEFLAGS=${FILEFLAGS}"VS_FF_PRERELEASE" ;;
+    esac
     if [ "${with_unicode}" != no ];
     then CHARSET=04B0           # Unicode
     else CHARSET=0000           # 7-bit ASCII
