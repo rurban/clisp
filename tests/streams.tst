@@ -1043,8 +1043,8 @@ T
            (describe (make-array nil :element-type nil) s)))
 T
 
-(stringp (with-output-to-string (s) (describe nil s)))
-T
+#-cygwin (stringp (with-output-to-string (s) (describe nil s)))
+#-cygwin T
 
 ;; https://sourceforge.net/p/clisp/bugs/396/
 (let ((s "a   b"))
