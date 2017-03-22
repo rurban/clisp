@@ -2989,6 +2989,9 @@ if [ $CROSS = false ] ; then
       echotab "\$(RM) script.lisp; nohup \$(RUN) -q -M lispinit.mem -x 42 2>&1 > script.lisp; output_last_line=\`sed -n -e '\$\$p' script.lisp ${TRCR}\`; test \"\$\$output_last_line\" = 42 || exit 1 "
       ;;
   esac
+  RAISE='(setq *error-output* *standard-output*) (error "myerror")'
+  echotab "output=\"\`\$(RUN) -q -M lispinit.mem -x '(progn ${RAISE})' ${TRCR}\`\"; test \"\$\$output\" = '*** - myerror' || exit 1"
+  echotab "if \$(RUN) -q -M lispinit.mem -x '(progn ${RAISE})'; then exit 1; fi"
   echotab "\$(RUN) -q -M lispinit.mem -x '(truename (make-stream :output))'"
   echotab "\$(RUN) -q -M lispinit.mem -x '(truename (make-stream :output))'|cat"
   echotab "\$(RM) script.lisp"
@@ -3113,7 +3116,7 @@ if [ $CROSS = false ] ; then
   EXTRACHECK_DEPS="${EXTRACHECK_DEPS} check-exec-image"
 
   # check that the executable images work
-  EXEIMG=foo
+  EXEIMG=image
   OBSOLETE="$OBSOLETE ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol "check-exec-image: lisp${LEXE} lispinit.mem"
   echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t)"'
@@ -3124,6 +3127,12 @@ if [ $CROSS = false ] ; then
   echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (lambda () (prin1 *args*) (exit)))" -- a 1'
   echotab "test \"\`${HERE}${EXEIMG}${HEXE} b ${TRCR}\`\" = '(\"b\")' || exit 1"
   echotab "test \"\`${HERE}${EXEIMG}${HEXE} b 2 ${TRCR}\`\" = '(\"b\" \"2\")' || exit 1"
+  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (function exit))"'
+  echotab ${HERE}${EXEIMG}${HEXE}
+  echotab "test -z \"\`${HERE}${EXEIMG}${HEXE}\`\" || exit 1"
+  echotab '$(RUN) -M lispinit.mem -x '"'"'(saveinitmem "'"${EXEIMG}"'" :executable t :norc t :quiet t :init-function (lambda () '"${RAISE}))'"
+  echotab "output=\"\`${HERE}${EXEIMG}${HEXE} -on-error exit ${TRCR}\`\"; test \"\$\$output\" = '*** - myerror' || exit 1"
+  echotab "if ${HERE}${EXEIMG}${HEXE} -on-error exit; then exit 1; fi"
   echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol

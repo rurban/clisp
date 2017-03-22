@@ -1,5 +1,10 @@
 2017-03-22  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script): Add a test for -x raising an error.
+	(check-exec-image): Add tests for init-function raising an error.
+
+2017-03-22  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#694: Cygwin+no-dynamic-modules fails with a shell syntax error
 	* makemake.in (CLISP_DEF): Check CLISP_DEF instead of HSYSOS when
 	deciding whether to modify CLISP_DEF or not.
