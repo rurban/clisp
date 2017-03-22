@@ -19,20 +19,13 @@ AC_CHECK_HEADERS(fcntl.h netdb.h utime.h dnl
 pwd.h sys/unistd.h syslog.h signal.h grp.h utmpx.h shlobj.h dnl
 sys/statvfs.h sys/statfs.h sys/param.h ftw.h)
 AC_CANONICAL_HOST
+dnl cygwin default libuuid clashes with w32api
 if test "$ac_cv_header_shlobj_h" = yes ; then
-  LIBS=${LIBS}' -luser32 -lole32 -loleaut32'
-  case "$host_os" in
-    cygwin*)
-      dnl On Cygwin, there are /usr/lib/libuuid.a and /usr/lib/w32api/libuuid.a,
-      dnl and only the latter defines the symbols IID_IPersistFile and
-      dnl IID_IPropertySetStorage.
-      LIBS=${LIBS}' /usr/lib/w32api/libuuid.a'
-      ;;
-    *)
-      LIBS=${LIBS}' -luuid'
-      ;;
-  esac
-  LIBS=${LIBS}' -lversion'
+   if test "$host_os" = cygwin ; then
+     LIBS=${LIBS}' -luser32 -lole32 -loleaut32 /usr/lib/w32api/libuuid.a -lversion';
+   else
+     LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid -lversion';
+   fi
 fi
 AC_SYS_LARGEFILE    dnl ensure 64 bit size_t for AC_CHECK_SIZEOF below
 AC_CHECK_SIZEOF(off_t)
