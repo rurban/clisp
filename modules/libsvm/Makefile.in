@@ -7,7 +7,12 @@ CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
 
+# on windows be sure not to symlink the dll, copy it
+ifeq ($(SHREXT), .dll)
+LN = cp
+else
 LN = @LN@
+endif
 LN_S = @LN_S@
 
 MAKE = make
