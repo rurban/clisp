@@ -26,9 +26,14 @@ normalize(){                    # dir rel -> abs path for rel
 lncp () {
   # Make a link from $1 to $2. Try symbolic link, hard link, file copying.
   rm -f "$2"
-  ln -s "`normalize . $1`" "$2" 2>/dev/null || \
-    ln "$1" "$2" 2>/dev/null || \
-    cp -p "$1" "$2"
+  case "$1" in
+      *.dll )
+          cp -p "$1" "$2" ;;
+      * )
+          ln -s "`normalize . $1`" "$2" 2>/dev/null || \
+              ln "$1" "$2" 2>/dev/null || \
+              cp -p "$1" "$2" ;;
+  esac
 }
 
 lncp_some () {
