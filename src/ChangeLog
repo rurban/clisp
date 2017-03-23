@@ -1,3 +1,8 @@
+2017-03-23  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (wr_by_array_iau8_buffered): Pass persev to
+	write_byte_array_buffered() instead of persev_full.
+
 2017-03-23  Reini Urban <reini.urban@gmail.com>
 	    Sam Steingold  <sds@gnu.org>
 
