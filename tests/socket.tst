@@ -512,8 +512,10 @@ T
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 (socket-server-close *server*) NIL
 
-;; no one should be listening on 12345 https://sourceforge.net/p/clisp/bugs/482/
+;; no one should be listening on 12345
+;; https://sourceforge.net/p/clisp/bugs/482/
 ;; http://article.gmane.org/gmane.lisp.clisp.general/12286
+;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
   #-win32 (:ECONNREFUSED #+macos 61 #-macos 111)
   #+win32 (:ETIMEDOUT 10060))

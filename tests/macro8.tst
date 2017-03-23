@@ -294,6 +294,7 @@ x
 (ALPHA BEE 3 2 1)
 
 ;; http://article.gmane.org/gmane.lisp.clisp.general:7897
+;; https://sourceforge.net/p/clisp/mailman/message/11011537/
 (defmacro foo (&key ((key var))) `(list ',var))  FOO
 (foo key 42)  (42)
 
@@ -598,6 +599,7 @@ dm2b
 
 ;; -C test
 ;; http://article.gmane.org/gmane.lisp.clisp.general/7393
+;; https://sourceforge.net/p/clisp/mailman/message/11010681/
 #+CLISP
 (loop :for a :in
   (funcall
@@ -683,6 +685,7 @@ dm2b
 (T 513972305 513972305)
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel/10566
+;; https://sourceforge.net/p/clisp/mailman/message/12563174/
 (let ((file "macro8-tst-tmp.lisp"))
   (with-open-file (out file :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
@@ -946,6 +949,7 @@ T
 ((0 1 2 3 4) (5 6 7 8 9) (e d c b a))
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel/10566
+;; https://sourceforge.net/p/clisp/mailman/message/12563174/
 (let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
@@ -968,6 +972,7 @@ T
 (5 5 5)
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel/13127
+;; https://sourceforge.net/p/clisp/mailman/message/13749992/
 (let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
                        #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
@@ -1002,6 +1007,7 @@ T
 T
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel:13153
+;; https://sourceforge.net/p/clisp/mailman/message/13750057/
 (defun test-constant-folding (x) (* 1d200 x 1d200))
 TEST-CONSTANT-FOLDING
 (multiple-value-list (compile 'test-constant-folding))
@@ -1011,6 +1017,7 @@ TEST-CONSTANT-FOLDING
 ERROR
 
 ;; http://article.gmane.org/gmane.lisp.clisp.general:9093
+;; https://sourceforge.net/p/clisp/mailman/message/11679435/
 (multiple-value-list (compile nil #'test-constant-folding))
 (#.#'test-constant-folding nil nil)
 

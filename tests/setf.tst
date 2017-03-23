@@ -465,7 +465,8 @@ t
 pl
 (a 10 b 11 a 14 b 15)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.general:7646>
+;; http://article.gmane.org/gmane.lisp.clisp.general:7646
+;; https://sourceforge.net/p/clisp/mailman/message/11011112/
 (unintern 'foo) t
 #+SBCL (unintern 'copy-foo) #+SBCL t
 #+SBCL (unintern 'make-foo) #+SBCL t
@@ -517,7 +518,8 @@ pl
   (bar21 1 2))
 3
 
-;; <http://article.gmane.org/gmane.lisp.clisp.general:9034>
+;; http://article.gmane.org/gmane.lisp.clisp.general:9034
+;; https://sourceforge.net/p/clisp/mailman/message/11679331/
 (defsetf foo22 () () '(values))
 FOO22
 

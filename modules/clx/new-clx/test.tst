@@ -281,7 +281,8 @@ NIL
   (show (cons ext (multiple-value-list (xlib:query-extension *dpy* ext)))))
 NIL
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/19241>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/19241
+;; https://sourceforge.net/p/clisp/mailman/message/20582191/
 (defparameter *window*
   (xlib:create-window :parent (xlib:screen-root *screen*)
                       :x 0 :y 0 :width 100 :height 100
@@ -429,7 +430,8 @@ ITER-WINDOWS
                                (setf (xlib:wm-hints window) hints)))
 4
 
-;; <http://thread.gmane.org/gmane.lisp.clisp.devel/20745>
+;; http://thread.gmane.org/gmane.lisp.clisp.devel/20745
+;; https://sourceforge.net/p/clisp/mailman/message/23382719/
 (iter-windows 'xlib:wm-normal-hints
               (lambda (window hints)
                 (setf (xlib:wm-normal-hints window) hints)))
@@ -475,7 +477,8 @@ T
           (xlib::x-type-error-type-string c))))
 (XLIB:CREATE-WINDOW XLIB:SCREEN XLIB:WINDOW NIL)
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/18431>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/18431
+;; https://sourceforge.net/p/clisp/mailman/message/19690155/
 ;; From: "Shawn Betts" <sabetts@vcn.bc.ca>
 (labels ((parent (dpy) (xlib:screen-root (first (xlib:display-roots dpy))))
          (make-win (dpy)
@@ -634,7 +637,8 @@ CHECK-TIMEOUT
 
 (xlib:display-p (xlib:close-display (xlib:open-display nil))) T
 
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/19459>
+;; http://article.gmane.org/gmane.lisp.clisp.devel/19459
+;; https://sourceforge.net/p/clisp/mailman/message/20750676/
 (xlib:with-open-display (dpy)
   (let* ((screen (first (xlib:display-roots dpy)))
          (root (xlib:screen-root screen))
@@ -705,6 +709,7 @@ T
 ((-66 T) (-77 T) (-88 T) (-99 T))
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel:19745
+;; https://sourceforge.net/p/clisp/mailman/message/21138456/
 (xlib:with-open-display (dpy)
   (let* ((screen (first (xlib:display-roots dpy)))
          (root (xlib:screen-root screen))

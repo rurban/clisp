@@ -1767,8 +1767,9 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 ;; canonicalize encodings supplied by X, see clx.f:get_font_info_and_display()
 (defvar *canonicalize-encoding*
   ;; this encoding canonicalization was requested by
-  ;; Pascal J.Bourguignon <pjb@informatimago.com>
-  ;; in <http://article.gmane.org/gmane.lisp.clisp.general:7794>
+  ;; Pascal J.Bourguignon <pjb@informatimago.com> in
+  ;; http://article.gmane.org/gmane.lisp.clisp.general:7794
+  ;; https://sourceforge.net/p/clisp/mailman/message/11011372/
   `(,(lambda (s)
        (if (and (<= 4 (length s))
                 (string-equal s "iso" :end1 3)

@@ -49,6 +49,7 @@
 #(#S(PCRE:MATCH :START 0 :END 2))
 
 ;; http://article.gmane.org/gmane.lisp.clisp.general:13972
+;; https://sourceforge.net/p/clisp/mailman/message/30115294/
 (pcre:pcre-exec (pcre:pcre-compile "P") (map 'string #'code-char #(160 80)))
 #(#S(PCRE:MATCH :START 1 :END 2))
 
