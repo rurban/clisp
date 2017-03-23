@@ -57,10 +57,10 @@ LISPSPECFORM(function, 1,1,nobody)
   if (!boundp(STACK_0)) { /* 1 argument */
     var object name = STACK_1;
     if (consp(name) && eq(Car(name),S(lambda))) {
-      VALUES1(get_closure(Cdr(name),S(Klambda),false,&aktenv));
+      VALUES1(get_closure(Cdr(name),S(Klambda),false,&actenv));
     } else {
       STACK_1 = check_funname(source_program_error,S(function),STACK_1);
-      var object fun = sym_function(STACK_1,aktenv.fun_env);
+      var object fun = sym_function(STACK_1,actenv.fun_env);
       if (!functionp(fun)) {
         if (functionmacrop(fun))
           fun = TheFunctionMacro(fun)->functionmacro_function;
@@ -79,7 +79,7 @@ LISPSPECFORM(function, 1,1,nobody)
                   GETTEXT("~S: ~S should be a lambda expression"));
       STACK_0 = value1;
     }
-    VALUES1(get_closure(Cdr(STACK_0),STACK_1,false,&aktenv));
+    VALUES1(get_closure(Cdr(STACK_0),STACK_1,false,&actenv));
   }
   skipSTACK(2);
 }
@@ -348,9 +348,9 @@ local maygc object parse_doc_decl (object body, bool permit_doc_string) {
 /* get the 5 environment objects to the stack
  adds 5 elements to the STACK
  can trigger GC */
-local maygc inline void aktenv_to_stack (void) {
+local maygc inline void actenv_to_stack (void) {
   /* nest current environment, push on STACK */
-  var gcv_environment_t* stack_env = nest_aktenv();
+  var gcv_environment_t* stack_env = nest_actenv();
  #if !defined(STACK_UP)
   /* and transfer here */
   var object my_var_env = stack_env->var_env;
@@ -381,7 +381,7 @@ local maygc Values compile_eval_form (object closure_name)
   var gcv_object_t *closure_name_ = /* save closure_name */
     boundp(closure_name) ? (pushSTACK(closure_name),&STACK_0) : NULL;
   pushSTACK(form); /* as first argument */
-  aktenv_to_stack();
+  actenv_to_stack();
   var uintC argcount = 6;
   if (NULL != closure_name_) {
     pushSTACK(*closure_name_);
@@ -604,7 +604,7 @@ local /*maygc*/ void make_variable_frame
         error(source_program_error,
               GETTEXT("~S: too many variables and/or declarations"));
       }
-      pushSTACK(aktenv.var_env); /* current VAR_ENV as NEXT_ENV */
+      pushSTACK(actenv.var_env); /* current VAR_ENV as NEXT_ENV */
       pushSTACK(fake_gcv_object(var_count)); /* number of bindings */
       finish_frame(VAR);
     }
@@ -614,7 +614,7 @@ local /*maygc*/ void make_variable_frame
   { /* build up VENV binding frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     /* first extend DENV by the necessary declspecs: */
-    var object denv = aktenv.decl_env;
+    var object denv = actenv.decl_env;
     pushSTACK(value1); /* save ({form}) */
     pushSTACK(declarations);
     while (mconsp(STACK_0)) {
@@ -629,17 +629,17 @@ local /*maygc*/ void make_variable_frame
     skipSTACK(1);
     var object forms = popSTACK();
     /* now build the frame: */
-    if (eq(denv,aktenv.decl_env)) {
-      pushSTACK(aktenv.var_env);
+    if (eq(denv,actenv.decl_env)) {
+      pushSTACK(actenv.var_env);
       finish_frame(ENV1V);
     } else {
-      pushSTACK(aktenv.decl_env);
-      pushSTACK(aktenv.var_env);
+      pushSTACK(actenv.decl_env);
+      pushSTACK(actenv.var_env);
       finish_frame(ENV2VD);
-      aktenv.decl_env = denv;
+      actenv.decl_env = denv;
     }
     /* VENV-binding frame is finished. */
-    aktenv.var_env = make_framepointer(var_frame_ptr); /* pointer to variable binding frame */
+    actenv.var_env = make_framepointer(var_frame_ptr); /* pointer to variable binding frame */
     pushSTACK(forms);
   }
 }
@@ -896,7 +896,7 @@ local maygc Values finish_flet (gcv_object_t* top_of_frame, object body,
   {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
-    pushSTACK(aktenv.fun_env); /* current FUN_ENV as NEXT_ENV */
+    pushSTACK(actenv.fun_env); /* current FUN_ENV as NEXT_ENV */
     pushSTACK(fake_gcv_object(bindcount));
     finish_frame(FUN);
   }
@@ -904,12 +904,12 @@ local maygc Values finish_flet (gcv_object_t* top_of_frame, object body,
      build FENV-binding frame: */
   {
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
-    pushSTACK(aktenv.fun_env);
+    pushSTACK(actenv.fun_env);
     finish_frame(ENV1F);
     /* FENV-binding frame is finished.
        extend FUN_ENV:
        top_of_frame = pointer to the function binding frame */
-    aktenv.fun_env = make_framepointer(top_of_frame);
+    actenv.fun_env = make_framepointer(top_of_frame);
   }
   /* allow declarations, as per ANSI CL */
   if (accept_declarations) {
@@ -953,7 +953,7 @@ LISPSPECFORM(flet, 1,0,body)
       goto error_spec;
     pushSTACK(name); /* save name */
     /* turn lambdabody into a closure: */
-    var object fun = get_closure(lambdabody,name,true,&aktenv);
+    var object fun = get_closure(lambdabody,name,true,&actenv);
     name = popSTACK();
     funspecs = popSTACK(); /* remaining funspecs */
     body = popSTACK();
@@ -970,7 +970,7 @@ LISPSPECFORM(labels, 1,0,body)
      because when creating the first closure, the environment is nested anyway
      and thereby this function binding frame would be written into a vector.
      nest the current FUN_ENV: */
-  pushSTACK(nest_fun(aktenv.fun_env));
+  pushSTACK(nest_fun(actenv.fun_env));
   /* determine the number of funspecs and test the syntax: */
   var uintL veclength = 1; /* = 2 * (number of funspecs) + 1 */
   {
@@ -1012,11 +1012,11 @@ LISPSPECFORM(labels, 1,0,body)
   var object funspecs = popSTACK();
   { /* build FENV binding frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
-    pushSTACK(aktenv.fun_env);
+    pushSTACK(actenv.fun_env);
     finish_frame(ENV1F);
   }
   /* extend FUN_ENV: */
-  aktenv.fun_env = vec;
+  actenv.fun_env = vec;
   /* create closures and put into the vector: */
   pushSTACK(body);
   pushSTACK(vec);
@@ -1026,7 +1026,7 @@ LISPSPECFORM(labels, 1,0,body)
       pushSTACK(Cdr(funspecs)); /* remaining funspecs */
       var object funspec = Car(funspecs);
       /* create closure: */
-      var object fun = get_closure(Cdr(funspec),Car(funspec),true,&aktenv);
+      var object fun = get_closure(Cdr(funspec),Car(funspec),true,&actenv);
       funspecs = popSTACK();
       TheSvector(STACK_0)->data[index] = fun; /* put into the vector */
       index += 2;
@@ -1075,7 +1075,7 @@ LISPSPECFORM(macrolet, 1,0,body)
     pushSTACK(macrodefs);
     pushSTACK(NIL);
     {
-      aktenv_to_stack();
+      actenv_to_stack();
       { /* Add a MACROLET cons to the venv part of env: */
         var object new_cons = allocate_cons();
         Car(new_cons) = S(macrolet); Cdr(new_cons) = STACK_4;
@@ -1139,7 +1139,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
     pushSTACK(Car(Cdr(funmacspecs))); /* fun-lambdabody */
     pushSTACK(Car(Cdr(Cdr(funmacspecs)))); /* macro-full-lambdabody */
     /* turn fun-lambdabody into a closure: */
-    STACK_1 = get_closure(STACK_1,name,false,&aktenv);
+    STACK_1 = get_closure(STACK_1,name,false,&actenv);
     { /* build macro-expander:
          (SYSTEM::MAKE-FUNMACRO-EXPANDER name macro-full-lambdabody) */
       pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); funcall(S(make_funmacro_expander),2);
@@ -1313,15 +1313,15 @@ LISPSPECFORM(block, 1,0,body)
   { /* build block-frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(name); /* block-name */
-    pushSTACK(aktenv.block_env); /* current BLOCK_ENV as NEXT_ENV */
+    pushSTACK(actenv.block_env); /* current BLOCK_ENV as NEXT_ENV */
     finish_entry_frame(IBLOCK,returner,, goto block_return; );
   }
   { /* build BENV-frame: */
     var gcv_object_t* top_of_frame = STACK;
-    pushSTACK(aktenv.block_env);
+    pushSTACK(actenv.block_env);
     finish_frame(ENV1B);
     /* extend BLOCK_ENV (top_of_frame = pointer to the block-frame) */
-    aktenv.block_env = make_framepointer(top_of_frame);
+    actenv.block_env = make_framepointer(top_of_frame);
   }
   /* execute body: */
   implicit_progn(body,NIL);
@@ -1344,7 +1344,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 { /* (RETURN-FROM name [result]), CLTL p. 120 */
   var object name = check_symbol(STACK_1);
   /* traverse BLOCK_ENV: */
-  var object env = aktenv.block_env; /* current BLOCK_ENV */
+  var object env = actenv.block_env; /* current BLOCK_ENV */
   var gcv_object_t* FRAME;
   while (framepointerp(env)) {
     /* env is a frame-pointer to a IBLOCK-frame in the stack. */
@@ -1605,7 +1605,7 @@ LISPSPECFORM(tagbody, 0,0,body)
   var object body = popSTACK();
   { /* build GENV-frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
-    pushSTACK(aktenv.go_env);
+    pushSTACK(actenv.go_env);
     finish_frame(ENV1G);
   }
   /* build TAGBODY-frame: */
@@ -1636,10 +1636,10 @@ LISPSPECFORM(tagbody, 0,0,body)
   }
   if (tagcount>0) {
     var sp_jmp_buf returner; /* return point */
-    pushSTACK(aktenv.go_env); /* current GO_ENV as NEXT_ENV */
+    pushSTACK(actenv.go_env); /* current GO_ENV as NEXT_ENV */
     finish_entry_frame(ITAGBODY,returner,, goto go_entry; );
     /* extend GO_ENV: */
-    { aktenv.go_env = make_framepointer(STACK); }
+    { actenv.go_env = make_framepointer(STACK); }
     if (false) {
      go_entry: /* we jump to this label, if this frame has caught a GO. */
       body = value1; /* the formlist is passed as value1. */
@@ -1675,7 +1675,7 @@ LISPSPECFORM(go, 1,0,nobody)
     error(source_program_error,GETTEXT("~S: illegal tag ~S"));
   }
   /* peruse GO_ENV: */
-  var object env = aktenv.go_env; /* current GO_ENV */
+  var object env = actenv.go_env; /* current GO_ENV */
   var gcv_object_t* FRAME;
   while (framepointerp(env)) {
     /* env is a frame-pointer to a ITAGBODY-frame in the stack. */
@@ -2238,11 +2238,11 @@ LISPFUN(evalhook,seclass_default,3,1,norest,nokey,0,NIL)
   /* build environment-frame: */
   make_ENV5_frame();
   /* set current environments: */
-  aktenv.var_env   = env5.var_env  ;
-  aktenv.fun_env   = env5.fun_env  ;
-  aktenv.block_env = env5.block_env;
-  aktenv.go_env    = env5.go_env   ;
-  aktenv.decl_env  = env5.decl_env ;
+  actenv.var_env   = env5.var_env  ;
+  actenv.fun_env   = env5.fun_env  ;
+  actenv.block_env = env5.block_env;
+  actenv.go_env    = env5.go_env   ;
+  actenv.decl_env  = env5.decl_env ;
   /* evaluate form bypassing *EVALHOOK* and *APPLYHOOK* : */
   eval_no_hooks(form);
   unwind(); /* unwind environment-frame */
@@ -2261,11 +2261,11 @@ LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
   /* build environment-frame: */
   make_ENV5_frame();
   /* set current environments: */
-  aktenv.var_env   = env5.var_env  ;
-  aktenv.fun_env   = env5.fun_env  ;
-  aktenv.block_env = env5.block_env;
-  aktenv.go_env    = env5.go_env   ;
-  aktenv.decl_env  = env5.decl_env ;
+  actenv.var_env   = env5.var_env  ;
+  actenv.fun_env   = env5.fun_env  ;
+  actenv.block_env = env5.block_env;
+  actenv.go_env    = env5.go_env   ;
+  actenv.decl_env  = env5.decl_env ;
   { /* save fun & args: */
     pushSTACK(fun); pushSTACK(args);
     var gcv_object_t* fun_ = &STACK_1;

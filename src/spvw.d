@@ -364,7 +364,7 @@ modexp void* STACK_bound;       /* STACK-growth-limit */
 global void* STACK_start;       /* STACK initial value */
 
 /* the lexical environment: */
-global gcv_environment_t aktenv;
+global gcv_environment_t actenv;
 
 global unwind_protect_caller_t unwind_protect_to_save;
 
@@ -387,7 +387,7 @@ global stack_range_t* inactive_handlers = NULL;
 #ifndef MULTITHREAD
 
 #define for_all_threadobjs(statement)                                   \
-  do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;               \
+  do { var gcv_object_t* objptr = (gcv_object_t*)&actenv;               \
     var uintC count;                                                    \
     dotimespC(count,sizeof(gcv_environment_t)/sizeof(gcv_object_t),     \
               { statement; objptr++; });                                \
@@ -776,11 +776,11 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   xmutex_raw_init(&thread->_gc_suspend_lock);
   spinlock_init(&thread->_signal_reenter_ok);
   /* initialize the environment*/
-  thread->_aktenv.var_env   = NIL;
-  thread->_aktenv.fun_env   = NIL;
-  thread->_aktenv.block_env = NIL;
-  thread->_aktenv.go_env    = NIL;
-  thread->_aktenv.decl_env  = O(top_decl_env);
+  thread->_actenv.var_env   = NIL;
+  thread->_actenv.fun_env   = NIL;
+  thread->_actenv.block_env = NIL;
+  thread->_actenv.go_env    = NIL;
+  thread->_actenv.decl_env  = O(top_decl_env);
   /* VTZ:TODO. get the right SP_bound (pthreads and win32 can provide it ??).
    in USE_CUSTOM_TLS we have the functions. */
 #ifndef NO_SP_CHECK
@@ -909,9 +909,9 @@ local bool realloc_threads_symvalues(uintL nsyms)
 
 #define for_all_threadobjs(statement)                                   \
   for_all_threads({                                                     \
-    var gcv_object_t* objptr = (gcv_object_t*)(&thread->_aktenv);       \
+    var gcv_object_t* objptr = (gcv_object_t*)(&thread->_actenv);       \
     var uintC count;                                                    \
-    dotimespC(count,sizeof(thread->_aktenv)/sizeof(gcv_object_t),       \
+    dotimespC(count,sizeof(thread->_actenv)/sizeof(gcv_object_t),       \
               { statement; objptr++; });                                \
     objptr=thread->_ptr_symvalues;                                      \
     dotimespC(count,num_symvalues,{ statement; objptr++; });            \
@@ -2033,8 +2033,8 @@ local void initmem (void) {
   init_object_tab_1();          /* initialize object_tab */
   init_other_modules_1();       /* initialize other modules coarsely */
   {
-    aktenv.var_env = NIL; aktenv.fun_env = NIL; aktenv.block_env = NIL;
-    aktenv.go_env = NIL; aktenv.decl_env = NIL;
+    actenv.var_env = NIL; actenv.fun_env = NIL; actenv.block_env = NIL;
+    actenv.go_env = NIL; actenv.decl_env = NIL;
   }
   /* Now the tables are coarsely initialized,
    nothing can happen at GC.
@@ -3656,11 +3656,11 @@ local inline int init_memory (struct argv_initparams *p) {
   /* init O(current_language) */
   O(current_language) = current_language_o();
   /* set current evaluator-environments to the toplevel-value: */
-  aktenv.var_env   = NIL;
-  aktenv.fun_env   = NIL;
-  aktenv.block_env = NIL;
-  aktenv.go_env    = NIL;
-  aktenv.decl_env  = O(top_decl_env);
+  actenv.var_env   = NIL;
+  actenv.fun_env   = NIL;
+  actenv.block_env = NIL;
+  actenv.go_env    = NIL;
+  actenv.decl_env  = O(top_decl_env);
   /* That's it. */
   return 0;
 }
