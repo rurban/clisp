@@ -1768,8 +1768,8 @@ local bool memfile_handle_do_operation (Handle handle, const char* filename, mem
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
     /* update program constants:
-       we should not update aktenv - it is not initialized.
-       in MT the current thread's _object_tab and _aktenv - they are
+       we should not update actenv - it is not initialized.
+       in MT the current thread's _object_tab and _actenv - they are
        already initialized */
     /* update_tables(); */
     update_subr_tab();
