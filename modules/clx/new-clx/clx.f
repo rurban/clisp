@@ -4264,6 +4264,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
 #if DEBUG_CLX
 /* from Barry Fishman <barry_fishman@att.net>
    http://article.gmane.org/gmane.lisp.clisp.general/7587
+   https://sourceforge.net/p/clisp/mailman/message/11011031/
  This presumes little-endian bitmaps */
 void dump_image (XImage *image)
 { /* test function to print the contents of the bitmap */

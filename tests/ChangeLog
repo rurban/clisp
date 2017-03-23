@@ -1551,6 +1551,7 @@
 
 	* clos.tst: added a test from
 	<http://article.gmane.org/gmane.lisp.clisp.general:9582>
+	<https://sourceforge.net/p/clisp/mailman/message/12275493/>
 
 2005-05-11  Bruno Haible  <bruno@clisp.org>
 

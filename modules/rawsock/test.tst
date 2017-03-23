@@ -393,7 +393,9 @@ NIL
   nil)
 #+unix NIL
 
-#+unix           ; http://article.gmane.org/gmane.lisp.clisp.devel:14852
+;; http://article.gmane.org/gmane.lisp.clisp.devel:14852
+;; https://sourceforge.net/p/clisp/mailman/message/14250678/
+#+unix
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
            (zerop (posix:uid))) ; root?
   (show (setq *sock* (rawsock:socket :INET :RAW :IPPROTO-ICMP)))
@@ -404,6 +406,7 @@ NIL
 #+unix NIL
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel:14865
+;; https://sourceforge.net/p/clisp/mailman/message/14250705/
 (progn
   (show (list '*sa-local* (setq *sa-local* (host->sa :default 7777))) :pretty t)
   (show (list '*sock* (setq *sock* (rawsock:socket :INET :DGRAM nil))))
