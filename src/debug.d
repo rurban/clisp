@@ -1003,20 +1003,20 @@ local void same_env_as (void)
   }
  end:                         /* end of stack is reached. */
   /* fetch the remaining environment-components from the current environment: */
-  if (eq(found_var_env,nullobj)) { found_var_env = aktenv.var_env; }
-  if (eq(found_fun_env,nullobj)) { found_fun_env = aktenv.fun_env; }
-  if (eq(found_block_env,nullobj)) { found_block_env = aktenv.block_env; }
-  if (eq(found_go_env,nullobj)) { found_go_env = aktenv.go_env; }
-  if (eq(found_decl_env,nullobj)) { found_decl_env = aktenv.decl_env; }
+  if (eq(found_var_env,nullobj)) { found_var_env = actenv.var_env; }
+  if (eq(found_fun_env,nullobj)) { found_fun_env = actenv.fun_env; }
+  if (eq(found_block_env,nullobj)) { found_block_env = actenv.block_env; }
+  if (eq(found_go_env,nullobj)) { found_go_env = actenv.go_env; }
+  if (eq(found_decl_env,nullobj)) { found_decl_env = actenv.decl_env; }
  done:
   /* construct environment-frame: */
   make_ENV5_frame();
   /* set current environments: */
-  aktenv.var_env   = found_var_env  ;
-  aktenv.fun_env   = found_fun_env  ;
-  aktenv.block_env = found_block_env;
-  aktenv.go_env    = found_go_env   ;
-  aktenv.decl_env  = found_decl_env ;
+  actenv.var_env   = found_var_env  ;
+  actenv.fun_env   = found_fun_env  ;
+  actenv.block_env = found_block_env;
+  actenv.go_env    = found_go_env   ;
+  actenv.decl_env  = found_decl_env ;
 }
 
 LISPFUNN(same_env_as,2)

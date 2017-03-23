@@ -14549,7 +14549,7 @@ typedef struct {
 } gcv_environment_t;
 
 /* The current Environment: */
-extern  gcv_environment_t aktenv;
+extern  gcv_environment_t actenv;
 
 /* /usr/include/architecture/i386/fpu.h is not included with C++ */
 #if defined(__cplusplus) && defined(UNIX_MACOSX) && !defined(environ)
@@ -14973,11 +14973,11 @@ extern  gcv_environment_t aktenv;
  decreases STACK by 5 */
 #define make_ENV5_frame()                       \
   do { var gcv_object_t* top_of_frame = STACK;  \
-       pushSTACK(aktenv.decl_env);              \
-       pushSTACK(aktenv.go_env);                \
-       pushSTACK(aktenv.block_env);             \
-       pushSTACK(aktenv.fun_env);               \
-       pushSTACK(aktenv.var_env);               \
+       pushSTACK(actenv.decl_env);              \
+       pushSTACK(actenv.go_env);                \
+       pushSTACK(actenv.block_env);             \
+       pushSTACK(actenv.fun_env);               \
+       pushSTACK(actenv.var_env);               \
        finish_frame(ENV5);                      \
   } while(0)
 /* is used by EVAL, CONTROL, DEBUG */
@@ -15265,18 +15265,18 @@ extern maygc object nest_fun (object env);
  < gcv_environment* result: Pointer to the Environments on the STACK
  modifies STACK, can trigger GC */
 extern maygc gcv_environment_t* nest_env (gcv_environment_t* env);
-/* is used by Macro nest_aktenv */
+/* is used by Macro nest_actenv */
 
 /* UP: Nests the current environments (ie. writes all information
  to Stack-independent structures) and pushes them onto the STACK.
  (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV aren't
  modified, since there might be inactive bindings in frames that cannot
  be activated without modifying VAR_ENV .)
- nest_aktenv()
+ nest_actenv()
  < gcv_environment* result: Pointer to the Environments on the STACK
  modifies STACK, can trigger GC
- extern gcv_environment* nest_aktenv (void); */
-#define nest_aktenv()  nest_env(&aktenv)
+ extern gcv_environment* nest_actenv (void); */
+#define nest_actenv()  nest_env(&actenv)
 /* is used by CONTROL */
 
 /* UP: Augments a Declarations-Environment with one decl-spec.
@@ -19659,7 +19659,7 @@ struct object_tab_tl_ {
     object _mv_space [mv_limit-1];
     /* everything till here is exported to modules */
     /* The lexical environment: */
-    gcv_environment_t _aktenv;
+    gcv_environment_t _actenv;
     /* Used for exception handling only: */
     handler_args_t _handler_args;
     stack_range_t* _inactive_handlers;
@@ -19977,7 +19977,7 @@ struct object_tab_tl_ {
   #define inactive_handlers current_thread()->_inactive_handlers
   #define handler_args current_thread()->_handler_args
   #define unwind_protect_to_save current_thread()->_unwind_protect_to_save
-  #define aktenv current_thread()->_aktenv
+  #define actenv current_thread()->_actenv
   #define STACK_bound current_thread()->_STACK_bound
   #define STACK_start current_thread()->_STACK_start
   #define mv_space current_thread()->_mv_space

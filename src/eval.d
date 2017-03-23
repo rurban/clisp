@@ -503,25 +503,25 @@ global /*maygc*/ void unwind (void)
           var gcv_object_t* ptr = &STACK_1;
           switch (frame_info & envbind_case_mask_t) {
             case (ENV1V_frame_info & envbind_case_mask_t): /* 1 VAR_ENV */
-              aktenv.var_env = *ptr; ptr skipSTACKop 1; break;
+              actenv.var_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV1F_frame_info & envbind_case_mask_t): /* 1 FUN_ENV */
-              aktenv.fun_env = *ptr; ptr skipSTACKop 1; break;
+              actenv.fun_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV1B_frame_info & envbind_case_mask_t): /* 1 BLOCK_ENV */
-              aktenv.block_env = *ptr; ptr skipSTACKop 1; break;
+              actenv.block_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV1G_frame_info & envbind_case_mask_t): /* 1 GO_ENV */
-              aktenv.go_env = *ptr; ptr skipSTACKop 1; break;
+              actenv.go_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV1D_frame_info & envbind_case_mask_t): /* 1 DECL_ENV */
-              aktenv.decl_env = *ptr; ptr skipSTACKop 1; break;
+              actenv.decl_env = *ptr; ptr skipSTACKop 1; break;
             case (ENV2VD_frame_info & envbind_case_mask_t): /* 1 VAR_ENV and 1 DECL_ENV */
-              aktenv.var_env = *ptr; ptr skipSTACKop 1;
-              aktenv.decl_env = *ptr; ptr skipSTACKop 1;
+              actenv.var_env = *ptr; ptr skipSTACKop 1;
+              actenv.decl_env = *ptr; ptr skipSTACKop 1;
               break;
             case (ENV5_frame_info & envbind_case_mask_t): /* all 5 Environments */
-              aktenv.var_env = *ptr; ptr skipSTACKop 1;
-              aktenv.fun_env = *ptr; ptr skipSTACKop 1;
-              aktenv.block_env = *ptr; ptr skipSTACKop 1;
-              aktenv.go_env = *ptr; ptr skipSTACKop 1;
-              aktenv.decl_env = *ptr; ptr skipSTACKop 1;
+              actenv.var_env = *ptr; ptr skipSTACKop 1;
+              actenv.fun_env = *ptr; ptr skipSTACKop 1;
+              actenv.block_env = *ptr; ptr skipSTACKop 1;
+              actenv.go_env = *ptr; ptr skipSTACKop 1;
+              actenv.decl_env = *ptr; ptr skipSTACKop 1;
               break;
             default: NOTREACHED;
           }
@@ -980,7 +980,7 @@ local maygc gcv_object_t sym_value (object sym, object env, object* symbolmacro_
  can trigger GC */
 global maygc bool sym_macrop (object sym) {
   var object symbolmacro;
-  sym_value(sym,aktenv.var_env,&symbolmacro);
+  sym_value(sym,actenv.var_env,&symbolmacro);
   return !eq(symbolmacro,nullobj);
 }
 
@@ -997,7 +997,7 @@ global maygc object setq (object sym, object value)
     /* Constants and symbols declared special have only global values. */
     goto global_value;
   } else {
-    var gcv_object_t* binding = symbol_env_search(sym,aktenv.var_env);
+    var gcv_object_t* binding = symbol_env_search(sym,actenv.var_env);
     if (binding != NULL) {
       var object val = *binding;
       if (eq(val,specdecl))
@@ -1109,11 +1109,11 @@ global maygc Values eval_5env (object form, object var_env, object fun_env,
   /* bind Environments: */
   make_ENV5_frame();
   /* set current Environments: */
-  aktenv.var_env = var_env;
-  aktenv.fun_env = fun_env;
-  aktenv.block_env = block_env;
-  aktenv.go_env = go_env;
-  aktenv.decl_env = decl_env;
+  actenv.var_env = var_env;
+  actenv.fun_env = fun_env;
+  actenv.block_env = block_env;
+  actenv.go_env = go_env;
+  actenv.decl_env = decl_env;
   /* evaluate Form: */
   eval(form);
   /* unwind Environment-Frame: */
@@ -1393,10 +1393,10 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
  (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV are not
  modified, because inactive bindings might poss. still sit in the Frames.
  It has to be feasible, to activate these bindings without change of VAR_ENV.)
- nest_aktenv()
+ nest_actenv()
  < gcv_environment* result: Pointer to the Environments in the STACK
  changes STACK, can trigger GC */
-#define nest_aktenv()  nest_env(&aktenv)
+#define nest_actenv()  nest_env(&actenv)
 
 /* UP: augments a Declaration-Environment with a decl-spec.
  augment_decl_env(declspec,env)
@@ -2558,11 +2558,11 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     /* this frame will become the new VAR_ENV later. */
     make_ENV5_frame();
     /* activate the closure-environment: */
-    aktenv.var_env   = new_var_env; /* variable-binding-frame */
-    aktenv.fun_env   = TheIclosure(closure)->clos_fun_env;
-    aktenv.block_env = TheIclosure(closure)->clos_block_env;
-    aktenv.go_env    = TheIclosure(closure)->clos_go_env;
-    aktenv.decl_env  = TheIclosure(closure)->clos_decl_env;
+    actenv.var_env   = new_var_env; /* variable-binding-frame */
+    actenv.fun_env   = TheIclosure(closure)->clos_fun_env;
+    actenv.block_env = TheIclosure(closure)->clos_block_env;
+    actenv.go_env    = TheIclosure(closure)->clos_go_env;
+    actenv.decl_env  = TheIclosure(closure)->clos_decl_env;
   }
   /* stack layout: APPLY-frame, variable-binding-frame, ENV-frame */
   { /* 4th step: process parameters: */
@@ -3004,7 +3004,7 @@ modexp maygc Values eval (object form)
       /* execute (FUNCALL *EVALHOOK* form env) : */
       pushSTACK(form);           /* Form as 1st Argument */
       pushSTACK(evalhook_value); /* save Function */
-      var gcv_environment_t* stack_env = nest_aktenv(); /* Environments in the Stack, */
+      var gcv_environment_t* stack_env = nest_actenv(); /* Environments in the Stack, */
       var object env = allocate_vector(5); /* in newly allocated Vector */
       *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; /* push in */
       skipSTACK(5);
@@ -3061,7 +3061,7 @@ local maygc Values eval1 (object form)
     if (symbolp(form)) { /* Form is a Symbol */
       /* value1 = value in the current Environment - not unbound! */
       var object symbolmacro;
-      value1 = sym_value(form,aktenv.var_env,&symbolmacro);
+      value1 = sym_value(form,actenv.var_env,&symbolmacro);
       if (!eq(symbolmacro,nullobj)) { /* Symbol-Macro? */
         /* yes -> expand and evaluate again: */
         skipSTACK(1); /* forget value of *APPLYHOOK* */
@@ -3085,7 +3085,7 @@ local maygc Values eval1 (object form)
   } else { /* Form is a Cons */
    eval_cons:
     /* determine, if Macro-call, poss. expand: */
-    macroexp(form,aktenv.var_env,aktenv.fun_env); form = value1;
+    macroexp(form,actenv.var_env,actenv.fun_env); form = value1;
     if (!nullp(value2)) { /* expanded ? */
       /* now really evaluate: */
       skipSTACK(1); /* forget value of *APPLYHOOK* */
@@ -3096,7 +3096,7 @@ local maygc Values eval1 (object form)
       var object fun = Car(form); /* function designation */
       if (funnamep(fun)) {
         /* fetch function-definition in the environment: */
-        fun = sym_function(fun,aktenv.fun_env);
+        fun = sym_function(fun,actenv.fun_env);
        fun_dispatch:
         /* branch according to type of function:
            unbound / SUBR/FSUBR/Closure / FunctionMacro / Macro */
@@ -3160,7 +3160,7 @@ local maygc Values eval1 (object form)
       } else if (consp(fun) && eq(Car(fun),S(lambda))) {
         /* lambda-expression? */
         pushSTACK(Cdr(form)); /* Argument list */
-        fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); /* create closure in current environment */
+        fun = get_closure(Cdr(fun),S(Klambda),false,&actenv); /* create closure in current environment */
         goto closure; /* und apply it to the arguments, as above */
       } else {
         pushSTACK(Cdr(form));
@@ -3322,7 +3322,7 @@ local maygc Values eval_applyhook(object fun) {
   pushSTACK(args);              /* argument-list as 2nd Argument */
   pushSTACK(applyhook_value);   /* save function */
   {
-    var gcv_environment_t* stack_env = nest_aktenv(); /* Environments into Stack, */
+    var gcv_environment_t* stack_env = nest_actenv(); /* Environments into Stack, */
     var object env = allocate_vector(5); /* in newly allocated Vector */
     *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; /* push in */
     skipSTACK(5);
