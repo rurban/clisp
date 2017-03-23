@@ -31,7 +31,7 @@
 (c-lines "
 #if !defined(HAVE_SVM_DESTROY_MODEL)
 # if defined(HAVE_SVM_FREE_AND_DESTROY_MODEL)
-void svm_destroy_model (svm_model *model){ svm_free_and_destroy_model(&model); }
+void svm_destroy_model (struct svm_model *model){ svm_free_and_destroy_model(&model); }
 # else
 #  error No svm_destroy_model and no svm_free_and_destroy_model!
 # endif
