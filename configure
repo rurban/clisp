@@ -657,7 +657,7 @@ EOF
 ffi_modules=''
 for module in ${all_modules}; do
   mdir=${ABS_SRCDIR}/modules/${module}
-  test -d ${mdir} || fail "$0: ${mdir} is not an exisiting directory"
+  test -d ${mdir} || fail "$0: ${mdir} is not an existing directory"
   if test -r ${mdir}/configure.in; then
     grep 'CL_MODULE_COMMON_CHECKS.*ffi' ${mdir}/configure.in > /dev/null 2>&1 && \
       ffi_modules=${ffi_modules}" ${module}"
