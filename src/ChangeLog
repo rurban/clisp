@@ -1,3 +1,9 @@
+2017-03-23  Jerry James <loganjerry@gmail.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/libsvm.lisp (svm_destroy_model): Use C-style
+	declaration - fix a compilation error (patch#34).
+
 2017-03-22  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-script): Add a test for -x raising an error.
