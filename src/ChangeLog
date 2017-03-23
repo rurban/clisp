@@ -1,3 +1,9 @@
+2017-03-23  Reini Urban <reini.urban@gmail.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* stream.d (iconv): Condition "undef iconv" on whether it is
+	defined, not on platform.
+
 2017-03-23  Jerry James <loganjerry@gmail.com>
 	    Sam Steingold  <sds@gnu.org>
 

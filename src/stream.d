@@ -3993,7 +3993,7 @@ global object iconv_range (object encoding, uintL start, uintL end, uintL maxint
 extern _Noreturn void error_unencodable (object encoding, chart ch);
 
 /* Avoid annoying warning caused by a wrongly standardized iconv() prototype. */
-#if defined(GNU_LIBICONV) && !defined(UNIX_MACOSX)
+#if defined(GNU_LIBICONV) && defined(iconv)
   #undef iconv
   #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
     libiconv(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
