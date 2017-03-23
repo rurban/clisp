@@ -14547,6 +14547,11 @@ typedef struct {
 /* The current Environment: */
 extern  gcv_environment_t aktenv;
 
+/* /usr/include/architecture/i386/fpu.h is not included with C++ */
+#if defined(__cplusplus) && defined(UNIX_MACOSX) && !defined(environ)
+#define environ (*_NSGetEnviron())
+#endif
+
 /* Macro: Puts five single Environments on the STACK
  and makes a single Environment out of them.
  make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
