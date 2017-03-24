@@ -49,7 +49,7 @@ install:
   - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.11.tar.gz
   - tar xfz libsigsegv-2.11.tar.gz
   - cd libsigsegv-2.11
-  - patch -p1 -i ../utils/libsigsegv-win64.patch
+  - patch -p0 -i ../utils/libsigsegv-win64.patch
   - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make; make check install" || true
   - cd ..
 
@@ -57,8 +57,8 @@ install:
   - ffcall: if exist c:\i686-w64-mingw32\lib\libavcall.a goto cont
   - wget -q --no-check-certificate https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz
   - tar xfz libffcall-1.13-20170225.tar.gz
-  - patch -p0 -i utils/libffcall-1.13-20170225-funbegin.patch
   - cd libffcall-1.13-20170225
+  - patch -p0 -i ../utils/libffcall-1.13-20170225-funbegin.patch
   - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make && make check install" || true
   - cd ..
   - cont:
@@ -79,7 +79,7 @@ build: off
 
 test_script:
   - set PATH=C:\MinGW\msys\1.0\bin;%PATH%;
-  - bash -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --ignore-absence-of-libsigsegv --with-libsigsegv-prefix=/c/i686-w64-mingw32 && cd src && make -j4 all && make check"
+  - bash -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --ignore-absence-of-libsigsegv --with-libsigsegv-prefix=/c/i686-w64-mingw32 && cd src && make -j4 -s all && make -s check"
 
 artifacts:
   - path: 'clisp-*.zip'
