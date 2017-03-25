@@ -527,26 +527,26 @@ global _Noreturn void error_nilarray_access (void) {
  > index: (already checked) index into the storage vector
  < result: (AREF storagevector index)
  can trigger GC - if the element type is (UNSIGNED-BYTE 32) */
-global /*maygc*/ object storagevector_aref (object datenvektor, uintL index) {
-  GCTRIGGER_IF(Array_type(datenvektor) == Array_type_sb32vector,
-               GCTRIGGER1(datenvektor));
-  switch (Array_type(datenvektor)) {
+global /*maygc*/ object storagevector_aref (object datavector, uintL index) {
+  GCTRIGGER_IF(Array_type(datavector) == Array_type_sb32vector,
+               GCTRIGGER1(datavector));
+  switch (Array_type(datavector)) {
     case Array_type_svector: /* Simple-Vector */
-      { return TheSvector(datenvektor)->data[index]; }
+      { return TheSvector(datavector)->data[index]; }
     case Array_type_sbvector: /* Simple-Bit-Vector */
-      { return ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); }
+      { return ( sbvector_btst(datavector,index) ? Fixnum_1 : Fixnum_0 ); }
     case Array_type_sb2vector:
-      { return fixnum((TheSbvector(datenvektor)->data[index/4]>>(2*((~index)%4)))&(bit(2)-1)); }
+      { return fixnum((TheSbvector(datavector)->data[index/4]>>(2*((~index)%4)))&(bit(2)-1)); }
     case Array_type_sb4vector:
-      { return fixnum((TheSbvector(datenvektor)->data[index/2]>>(4*((~index)%2)))&(bit(4)-1)); }
+      { return fixnum((TheSbvector(datavector)->data[index/2]>>(4*((~index)%2)))&(bit(4)-1)); }
     case Array_type_sb8vector:
-      { return fixnum(TheSbvector(datenvektor)->data[index]); }
+      { return fixnum(TheSbvector(datavector)->data[index]); }
     case Array_type_sb16vector:
-      { return fixnum(((uint16*)&TheSbvector(datenvektor)->data[0])[index]); }
+      { return fixnum(((uint16*)&TheSbvector(datavector)->data[0])[index]); }
     case Array_type_sb32vector:
-      { return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]); }
+      { return UL_to_I(((uint32*)&TheSbvector(datavector)->data[0])[index]); }
     case Array_type_sstring: /* Simple-String */
-      { return code_char(schar(datenvektor,index)); }
+      { return code_char(schar(datavector,index)); }
     case Array_type_snilvector:  /* (VECTOR NIL) */
       error_nilarray_retrieve();
     default: NOTREACHED;
@@ -572,76 +572,76 @@ global _Noreturn void error_store (object array, object value) {
 }
 
 /* performs a STORE-access.
- storagevector_store(datenvektor,index,element,allowgc)
- > datenvektor : a data vector (simple vector or semi-simple byte-vector)
+ storagevector_store(datavector,index,element,allowgc)
+ > datavector : a data vector (simple vector or semi-simple byte-vector)
  > index : (checked) index into the data vector
  > element : (unchecked) object to be written
- > allowgc : whether GC is allowed, if datenvektor is a string and element is a character
+ > allowgc : whether GC is allowed, if datavector is a string and element is a character
  > STACK_0 : array (for error-message)
- < datenvektor: possibly reallocated storage vector
- can trigger GC, if datenvektor is a string and element is a character */
-local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
+ < datavector: possibly reallocated storage vector
+ can trigger GC, if datavector is a string and element is a character */
+local /*maygc*/ object storagevector_store (object datavector, uintL index,
                                             object element, bool allowgc) {
-  GCTRIGGER_IF(allowgc, GCTRIGGER2(datenvektor,element));
-  switch (Array_type(datenvektor)) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER2(datavector,element));
+  switch (Array_type(datavector)) {
     case Array_type_svector: /* Simple-Vector */
-      TheSvector(datenvektor)->data[index] = element;
-      return datenvektor;
+      TheSvector(datavector)->data[index] = element;
+      return datavector;
     case Array_type_sbvector: { /* Simple-Bit-Vector */
-      var uintB* addr = &TheSbvector(datenvektor)->data[index/8];
+      var uintB* addr = &TheSbvector(datavector)->data[index/8];
       var uintL bitnummer = (~index)%8; /* 7 - (index mod 8) */
       if (eq(element,Fixnum_0)) {
         *addr &= ~bit(bitnummer);
-        return datenvektor;
+        return datavector;
       } else if (eq(element,Fixnum_1)) {
         *addr |= bit(bitnummer);
-        return datenvektor;
+        return datavector;
       }
     }
       break;
     case Array_type_sb2vector: {
       var uintV value;
       if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(2))) {
-        var uintB* ptr = &TheSbvector(datenvektor)->data[index/4];
+        var uintB* ptr = &TheSbvector(datavector)->data[index/4];
         *ptr ^= (*ptr ^ (value<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
-        return datenvektor;
+        return datavector;
       }
     }
       break;
     case Array_type_sb4vector: {
       var uintV value;
       if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(4))) {
-        var uintB* ptr = &TheSbvector(datenvektor)->data[index/2];
+        var uintB* ptr = &TheSbvector(datavector)->data[index/2];
         *ptr ^= (*ptr ^ (value<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
-        return datenvektor;
+        return datavector;
       }
     }
       break;
     case Array_type_sb8vector: {
       var uintV value;
       if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(8))) {
-        TheSbvector(datenvektor)->data[index] = value;
-        return datenvektor;
+        TheSbvector(datavector)->data[index] = value;
+        return datavector;
       }
     }
       break;
     case Array_type_sb16vector: {
       var uintV value;
       if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(16))) {
-        ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = value;
-        return datenvektor;
+        ((uint16*)&TheSbvector(datavector)->data[0])[index] = value;
+        return datavector;
       }
     }
       break;
     case Array_type_sb32vector:
-      ((uint32*)&TheSbvector(datenvektor)->data[0])[index] = I_to_UL(element); /* poss. error-message does I_to_UL */
-      return datenvektor;
+      ((uint32*)&TheSbvector(datavector)->data[0])[index] = I_to_UL(element); /* poss. error-message does I_to_UL */
+      return datavector;
     #ifdef TYPECODES
     case_sstring:
-      if (sstring_immutable(TheSstring(datenvektor)))
-        error_sstring_immutable(datenvektor);
+      if (sstring_immutable(TheSstring(datavector)))
+        error_sstring_immutable(datavector);
       #ifdef HAVE_SMALL_SSTRING
-      switch (sstring_eltype(TheSstring(datenvektor))) {
+      switch (sstring_eltype(TheSstring(datavector))) {
         case Sstringtype_8Bit: goto case_s8string;
         case Sstringtype_16Bit: goto case_s16string;
         case Sstringtype_32Bit: goto case_s32string;
@@ -654,7 +654,7 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     case Rectype_Imm_S8string:
     case Rectype_Imm_S16string:
     case Rectype_Imm_S32string: /* immutable Simple-String */
-      error_sstring_immutable(datenvektor);
+      error_sstring_immutable(datavector);
     #ifdef HAVE_SMALL_SSTRING
     case Rectype_S8string: /* mutable Simple-String */
       goto case_s8string;
@@ -671,37 +671,37 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     case_s8string:
       if (charp(element)) {
         if (char_int(element) < cint8_limit)
-          TheS8string(datenvektor)->data[index] = char_int(element);
+          TheS8string(datavector)->data[index] = char_int(element);
         else if (allowgc) {
           if (char_int(element) < cint16_limit) {
-            datenvektor = reallocate_small_string(datenvektor,Sstringtype_16Bit);
-            TheS16string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
+            datavector = reallocate_small_string(datavector,Sstringtype_16Bit);
+            TheS16string(TheSistring(datavector)->data)->data[index] = char_int(element);
           } else {
-            datenvektor = reallocate_small_string(datenvektor,Sstringtype_32Bit);
-            TheS32string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
+            datavector = reallocate_small_string(datavector,Sstringtype_32Bit);
+            TheS32string(TheSistring(datavector)->data)->data[index] = char_int(element);
           }
         } else
           NOTREACHED;
-        return datenvektor;
+        return datavector;
       }
       break;
     case_s16string: /* mutable Simple-String */
       if (charp(element)) {
         if (char_int(element) < cint16_limit)
-          TheS16string(datenvektor)->data[index] = char_int(element);
+          TheS16string(datavector)->data[index] = char_int(element);
         else if (allowgc) {
-          datenvektor = reallocate_small_string(datenvektor,Sstringtype_32Bit);
-          TheS32string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
+          datavector = reallocate_small_string(datavector,Sstringtype_32Bit);
+          TheS32string(TheSistring(datavector)->data)->data[index] = char_int(element);
         } else
           NOTREACHED;
-        return datenvektor;
+        return datavector;
       }
       break;
     #endif
     case_s32string: /* mutable Simple-String */
       if (charp(element)) {
-        TheS32string(datenvektor)->data[index] = char_int(element);
-        return datenvektor;
+        TheS32string(datavector)->data[index] = char_int(element);
+        return datavector;
       }
       break;
     case Array_type_snilvector: /* (VECTOR NIL) */
@@ -717,10 +717,10 @@ LISPFUN(aref,seclass_read,1,0,rest,nokey,0,NIL)
   var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
-  var object datenvektor =
+  var object datavector =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
   /* fetch element of the data vector: */
-  VALUES1(storagevector_aref(datenvektor,index));
+  VALUES1(storagevector_aref(datavector,index));
   skipSTACK(1);
 }
 
@@ -732,12 +732,12 @@ LISPFUN(store,seclass_default,2,0,rest,nokey,0,NIL)
   var object element = popSTACK();
   /* process subscripts and fetch data vector and index: */
   var uintL index;
-  var object datenvektor =
+  var object datavector =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
   /* store element in the data vector: */
   pushSTACK(STACK_0); STACK_1 = element;
   /* Stack layout: element, array. */
-  storagevector_store(datenvektor,index,element,true);
+  storagevector_store(datavector,index,element,true);
   VALUES1(STACK_1);
   skipSTACK(2);
 }
@@ -1173,12 +1173,12 @@ LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
   var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
-  var object datenvektor =
+  var object datavector =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
-  if (!simple_bit_vector_p(Atype_Bit,datenvektor))
+  if (!simple_bit_vector_p(Atype_Bit,datavector))
     error_bit_array(array);
   /* data vector is a simple-bit-vector. Fetch element of the data vector: */
-  VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
+  VALUES1(( sbvector_btst(datavector,index) ? Fixnum_1 : Fixnum_0 ));
   skipSTACK(1);
 }
 
@@ -1187,12 +1187,12 @@ LISPFUN(sbit,seclass_read,1,0,rest,nokey,0,NIL)
   var object array = check_array(Before(rest_args_pointer)); /* fetch array */
   /* process subscripts and fetch data vector and index: */
   var uintL index;
-  var object datenvektor =
+  var object datavector =
     subscripts_to_index(array,rest_args_pointer,argcount, &index);
-  if (!simple_bit_vector_p(Atype_Bit,datenvektor))
+  if (!simple_bit_vector_p(Atype_Bit,datavector))
     error_bit_array(array);
   /* data vector is a simple-bit-vector. Fetch element of the data vector: */
-  VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
+  VALUES1(( sbvector_btst(datavector,index) ? Fixnum_1 : Fixnum_0 ));
   skipSTACK(1);
 }
 
@@ -3786,8 +3786,8 @@ LISPFUNN(vector_push,2) /* (VECTOR-PUSH new-element vector), CLTL p. 296 */
     VALUES1(NIL); /* return NIL */
   } else {
     var uintL index = oldfillp;
-    var object datenvektor = iarray_displace(STACK_0,&index);
-    storagevector_store(datenvektor,index,STACK_1,true); /* store new-element */
+    var object datavector = iarray_displace(STACK_0,&index);
+    storagevector_store(datavector,index,STACK_1,true); /* store new-element */
     fillp = get_fill_pointer(STACK_0); /* fill pointer address, again */
     (*fillp)++; /* increase fill-pointer */
     VALUES1(fixnum(oldfillp));
@@ -3806,8 +3806,8 @@ LISPFUNN(vector_pop,1) /* (VECTOR-POP vector), CLTL p. 296 */
     error(error_condition,GETTEXT("~S: ~S has length zero"));
   } else {
     var uintL index = --(*fillp); /* decrease fill-pointer */
-    var object datenvektor = iarray_displace(array,&index);
-    VALUES1(storagevector_aref(datenvektor,index)); /* return element */
+    var object datavector = iarray_displace(array,&index);
+    VALUES1(storagevector_aref(datavector,index)); /* return element */
   }
 }
 
@@ -3825,8 +3825,8 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
   if (oldfillp < fillp[-1]) { /* fill-pointer not yet at the end? */
     skipSTACK(1);
     var uintL index = oldfillp;
-    var object datenvektor = iarray_displace(STACK_0,&index);
-    storagevector_store(datenvektor,index,STACK_1,true); /* store new-element */
+    var object datavector = iarray_displace(STACK_0,&index);
+    storagevector_store(datavector,index,STACK_1,true); /* store new-element */
     fillp = get_fill_pointer(STACK_0); /* fill pointer address, again */
     (*fillp)++; /* increase fill-pointer */
   } else { /* fill-pointer at the end -> try to extend the vector: */
@@ -3873,65 +3873,65 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
     if (newlen > arraysize_limit_1)
       error_extension(extension);
     /* fetch new data vector. Distinguish cases according to type: */
-    var object neuer_datenvektor;
+    var object new_datavector;
     switch (atype) {
       case Atype_T: /* array is a general-vector */
-        neuer_datenvektor = allocate_vector(newlen);
+        new_datavector = allocate_vector(newlen);
         array = STACK_0; /* fetch array again */
         /* copy old into the new data vector: */
         if (len>0) {
           var uintL index = 0;
-          var object datenvektor = iarray_displace_check(array,len,&index);
-          elt_copy_T_T(datenvektor,index,neuer_datenvektor,0,len);
+          var object datavector = iarray_displace_check(array,len,&index);
+          elt_copy_T_T(datavector,index,new_datavector,0,len);
         }
         /* then append new_element: */
-        TheSvector(neuer_datenvektor)->data[len] = STACK_1;
+        TheSvector(new_datavector)->data[len] = STACK_1;
         break;
       case Atype_Char: /* array is a string */
         if (newlen > stringsize_limit_1)
           error_extension(extension);
-        neuer_datenvektor = allocate_string(newlen);
+        new_datavector = allocate_string(newlen);
         array = STACK_0; /* fetch array again */
         /* copy old into the new data vector: */
         if (len>0) {
           var uintL index = 0;
-          var object datenvektor = iarray_displace_check(array,len,&index);
-          elt_copy_Char_Char(datenvektor,index,neuer_datenvektor,0,len);
+          var object datavector = iarray_displace_check(array,len,&index);
+          elt_copy_Char_Char(datavector,index,new_datavector,0,len);
         }
         /* then append new_element: */
         if (!charp(STACK_1))
           goto error_type;
-        TheSnstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
+        TheSnstring(new_datavector)->data[len] = char_code(STACK_1);
         break;
       case Atype_Bit: /* array is a bit-vector */
       case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
       case Atype_16Bit: case Atype_32Bit: /* array is a byte-vector */
-        neuer_datenvektor = allocate_bit_vector(atype,newlen);
+        new_datavector = allocate_bit_vector(atype,newlen);
         array = STACK_0; /* fetch array */
         /* copy old into the new data vector: */
         if (len>0) {
           var uintL index = 0;
-          var object datenvektor = iarray_displace_check(array,len,&index);
+          var object datavector = iarray_displace_check(array,len,&index);
           switch (atype) {
             case Atype_Bit:
             case Atype_2Bit:
             case Atype_4Bit:
-              bit_copy(datenvektor,index<<atype,neuer_datenvektor,0<<atype,len<<atype);
+              bit_copy(datavector,index<<atype,new_datavector,0<<atype,len<<atype);
               break;
             case Atype_8Bit:
-              elt_copy_8Bit_8Bit(datenvektor,index,neuer_datenvektor,0,len);
+              elt_copy_8Bit_8Bit(datavector,index,new_datavector,0,len);
               break;
             case Atype_16Bit:
-              elt_copy_16Bit_16Bit(datenvektor,index,neuer_datenvektor,0,len);
+              elt_copy_16Bit_16Bit(datavector,index,new_datavector,0,len);
               break;
             case Atype_32Bit:
-              elt_copy_32Bit_32Bit(datenvektor,index,neuer_datenvektor,0,len);
+              elt_copy_32Bit_32Bit(datavector,index,new_datavector,0,len);
               break;
             default: NOTREACHED;
           }
         }
         /* store new-element: */
-        storagevector_store(neuer_datenvektor,len,STACK_1,false);
+        storagevector_store(new_datavector,len,STACK_1,false);
         break;
       case Atype_NIL: goto error_type;
       default: NOTREACHED;
@@ -3945,7 +3945,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
       }
     }
     set_break_sem_1(); /* forbid interrupts */
-    TheIarray(array)->data = neuer_datenvektor; /* store new vector as data vector */
+    TheIarray(array)->data = new_datavector; /* store new vector as data vector */
     iarray_flags_clr(TheIarray(array),bit(arrayflags_displaced_bit)); /* delete displaced-bit */
     TheIarray(array)->dims[2] += 1; /* increase fillpointer by 1 */
     TheIarray(array)->dims[1] = newlen; /* store new length */
@@ -4398,10 +4398,10 @@ local maygc object make_storagevector (uintL len, uintB eltype) {
  Fills a vector lexicographically with the content of a nested
  sequence-structure, which is supplied as argument for
  keyword :initial-contents with MAKE-ARRAY and ADJUST-ARRAY.
- initial_contents(datenvektor,dims,rank,contents)
- > datenvektor: a simple vector
+ initial_contents(datavector,dims,rank,contents)
+ > datavector: a simple vector
  > dims: dimension or dimension list, all dimensions Fixnums,
-         Length(datenvektor) = product of the dimensions
+         Length(datavector) = product of the dimensions
  > rank: number of dimensions
  > contents: nested sequence-structure
  < result: the same data vector
@@ -4413,7 +4413,7 @@ typedef struct {
   uintL depth; /* recursion depth */
 } initial_contents_locals_t;
 local map_sequence_function_t initial_contents_aux;
-local maygc object initial_contents (object datenvektor, object dims,
+local maygc object initial_contents (object datavector, object dims,
                                      uintL rank, object contents) {
   /* put all dimensions on the stack: */
   get_space_on_STACK(rank*sizeof(gcv_object_t));
@@ -4428,11 +4428,11 @@ local maygc object initial_contents (object datenvektor, object dims,
   locals.localptr = &STACK_0; /* memorize current STACK-value */
   locals.index = 0; /* index := 0 */
   locals.depth = rank; /* depth := rank */
-  pushSTACK(datenvektor); /* push data vector on Stack */
+  pushSTACK(datavector); /* push data vector on Stack */
   initial_contents_aux(&locals,contents); /* call initial_contents_aux */
-  datenvektor = popSTACK(); /* pop data vector */
+  datavector = popSTACK(); /* pop data vector */
   skipSTACK(rank); /* clean up STACK */
-  return datenvektor;
+  return datavector;
 }
 
 /* auxiliary routine for initial_contents:
@@ -4449,13 +4449,13 @@ local maygc void initial_contents_aux (void* arg, object obj) {
   var gcv_object_t* localptr = locals->localptr;
   if (locals->depth==0) {
     /* depth 0 -> store element obj in the data vector: */
-    var object datenvektor = *(localptr STACKop -1);
+    var object datavector = *(localptr STACKop -1);
     pushSTACK(obj);
-    pushSTACK(datenvektor);
-    datenvektor = storagevector_store(datenvektor,locals->index,STACK_1,true);
+    pushSTACK(datavector);
+    datavector = storagevector_store(datavector,locals->index,STACK_1,true);
    #ifdef HAVE_SMALL_SSTRING
-    if (sarray_reallocstringp(datenvektor)) /* has it been reallocated? */
-      *(localptr STACKop -1) = datenvektor = TheSistring(datenvektor)->data;
+    if (sarray_reallocstringp(datavector)) /* has it been reallocated? */
+      *(localptr STACKop -1) = datavector = TheSistring(datavector)->data;
    #endif
     locals->index++;
     skipSTACK(2); /* clean up stack */
@@ -4599,21 +4599,21 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
   /* if not displaced, create data vector and poss. fill: */
   if (nullp(STACK_1)) { /* displaced-to not supplied? */
     /* create data vector: */
-    var object datenvektor = make_storagevector(totalsize,eltype);
+    var object datavector = make_storagevector(totalsize,eltype);
     if (boundp(STACK_3)) /* and if initial-contents supplied: */
-      datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3); /* fill */
+      datavector = initial_contents(datavector,STACK_7,rank,STACK_3); /* fill */
     /* if displaced-to is not supplied
        and fill-pointer is not supplied
        and adjustable is not supplied
        and rank=1 ,
        then return a (semi-)simple vector: */
-    if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !simple_nilarray_p(datenvektor)) {
-      DBGREALLOC(datenvektor);
-      VALUES1(datenvektor); /* return datenvektor */
+    if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !simple_nilarray_p(datavector)) {
+      DBGREALLOC(datavector);
+      VALUES1(datavector); /* return datavector */
       skipSTACK(8); return;
     }
     /* return a general array. */
-    STACK_1 = datenvektor; /* store datenvektor as "displaced-to" */
+    STACK_1 = datavector; /* store datavector as "displaced-to" */
     displaced_index_offset = 0; /* with displacement 0 */
     /* and without displacement-bit in the flags */
   } else {
@@ -4918,28 +4918,28 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
   var uintL fillpointer = 0;
   /* if not displaced, create data vector and poss. fill: */
   if (nullp(STACK_1)) { /* displaced-to not supplied? */
-    var object datenvektor;
+    var object datavector;
     if (boundp(STACK_3)) { /* and if initial-contents supplied: */
       /* create data vector: */
-      datenvektor = make_storagevector(totalsize,eltype);
+      datavector = make_storagevector(totalsize,eltype);
       /* fill with the initial-contents argument: */
-      datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
+      datavector = initial_contents(datavector,STACK_7,rank,STACK_3);
     } else { /* create data vector: */
      #ifdef HAVE_SMALL_SSTRING
       /* a special case to preserve Sstringtype_8/16/32bit */
       if (eltype == Atype_Char) {
         check_stringsize(totalsize);
         var uintL oldoffset = 0;
-        var object olddatenvektor = iarray_displace_check(STACK_6,0,&oldoffset);
-        SstringCase(olddatenvektor,
-          { datenvektor = allocate_s8string(totalsize); },
-          { datenvektor = allocate_s16string(totalsize); },
-          { datenvektor = allocate_s32string(totalsize); },
+        var object olddatavector = iarray_displace_check(STACK_6,0,&oldoffset);
+        SstringCase(olddatavector,
+          { datavector = allocate_s8string(totalsize); },
+          { datavector = allocate_s16string(totalsize); },
+          { datavector = allocate_s32string(totalsize); },
           { NOTREACHED; });
-        datenvektor = fill_initial_element(totalsize,datenvektor);
+        datavector = fill_initial_element(totalsize,datavector);
       } else
      #endif
-        datenvektor = make_storagevector(totalsize,eltype);
+        datavector = make_storagevector(totalsize,eltype);
       /* fill with the original content of array: */
       var object oldarray = STACK_6; /* array */
       var uintL oldoffset = 0;
@@ -4952,9 +4952,9 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
          (notice: As arrayflags_adjustable_bit is set, also
          arrayflags_dispoffset_bit is set, thus
          TheIarray(array)->data[0] is reserved for the displaced-offset.) */
-      reshape(datenvektor,STACK_7,oldvec,olddimptr,oldoffset,rank,eltype);
+      reshape(datavector,STACK_7,oldvec,olddimptr,oldoffset,rank,eltype);
     }
-    STACK_1 = datenvektor; /* store data vector as "displaced-to" */
+    STACK_1 = datavector; /* store data vector as "displaced-to" */
     displaced_index_offset = 0; /* with displacement 0 */
     flags &= ~bit(arrayflags_displaced_bit); /* and without displacement-bit in the flags */
   } else {
