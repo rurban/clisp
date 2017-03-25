@@ -4595,7 +4595,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
   test_otherkeys(); /* do some other checks */
   var uintB flags = eltype;
   var uintL displaced_index_offset;
-  var uintL fillpointer;
+  var uintL fillpointer = 0;
   /* if not displaced, create data vector and poss. fill: */
   if (nullp(STACK_1)) { /* displaced-to not supplied? */
     /* create data vector: */
@@ -4915,7 +4915,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
      (these will not be modified) and maybe also
      arrayflags_displaced_bit (this can be modified). */
   var uintL displaced_index_offset;
-  var uintL fillpointer;
+  var uintL fillpointer = 0;
   /* if not displaced, create data vector and poss. fill: */
   if (nullp(STACK_1)) { /* displaced-to not supplied? */
     var object datenvektor;
