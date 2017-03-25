@@ -423,6 +423,10 @@
 /* Choose the compiler: */
 #if defined(__GNUC__)
   #define GNU
+  #if (__GNUC__ >= 3)
+    #undef _Noreturn
+    #define _Noreturn __attribute__((noreturn))
+  #endif
   /* known bugs */
   #if (__GNUC__ < 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ < 95))
     #error "The minimum supported GCC version is GCC 2.95.3"
