@@ -1,3 +1,10 @@
+2017-03-26  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (MULTIBUILD_OPTIONS): Split into ...
+	(MULTIBUILD_MODULES): Default to asdf (platform-independent) and
+	rawsock (well-ported).
+	(MULTIBUILD_EXTRAS): Empty by default.
+
 2017-03-23  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (wr_by_array_iau8_buffered): Pass persev to
