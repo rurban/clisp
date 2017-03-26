@@ -1338,6 +1338,9 @@ if [ $XCC_GCC = true ] ; then
     elif [ "$cpu" = x86_64 ] ; then
       # gcc-3.2.2 produces incorrect code when -O2 is used.
       Z_XCFLAGS=$Z_XCFLAGS' -O'
+      case "$XCC_GCC_VERSION" in
+          3.2.2*) XCFLAGS=$XCFLAGS' -O' ;;
+          *)      XCFLAGS=$XCFLAGS' -O2' ;;
     else
       Z_XCFLAGS=$Z_XCFLAGS' -O2'
     fi
