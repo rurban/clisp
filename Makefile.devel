@@ -316,7 +316,9 @@ view-html :
 # Build and test all essential memory models.
 
 # Options to pass to configure.
-MULTIBUILD_OPTIONS =
+MULTIBUILD_MODULES = --with-module=asdf --with-module=rawsock
+MULTIBUILD_EXTRAS =
+MULTIBUILD_OPTIONS = $(MULTIBUILD_EXTRAS) $(MULTIBUILD_MODULES)
 # Compiler options to pass as part of CFLAGS.
 MULTIBUILD_CFLAGS = -g
 
