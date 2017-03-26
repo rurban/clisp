@@ -759,8 +759,13 @@ if test -z "$do_cbc"; then
 # or 'limit stacksize ${STACK_LIMIT}' (for C shell derivarives, e.g., tcsh)
 EOF
   fi
-  echo "    make"
-  echo "    make check"
+  cat <<EOF
+    make
+# CLISP self-test:
+    make check
+# Test non-portable features and modules
+    make extracheck mod-check
+EOF
 else
   if [ -n "${edit_config}" ]; then
     make config.lisp;
@@ -771,4 +776,8 @@ else
   fi
   make 2>&1 | tee cbcstep2.log
   make check 2>&1 | tee cbcstep3.log
+  cat <<EOF
+# Now you can test non-portable features and modules:
+    make extracheck mod-check
+EOF
 fi
