@@ -1309,6 +1309,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       2.* | 3.* | 4.* | 5.*) ;;
+      *MacPorts\ gcc5*) ;;
       *)
         Z_XCFLAGS=$Z_XCFLAGS' -Wno-shift-negative-value'
         ;;
