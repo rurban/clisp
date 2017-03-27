@@ -3133,6 +3133,9 @@ if [ $CROSS = false ] ; then
   echotab '$(RUN) -M lispinit.mem -x '"'"'(saveinitmem "'"${EXEIMG}"'" :executable t :norc t :quiet t :init-function (lambda () '"${RAISE}))'"
   echotab "output=\"\`${HERE}${EXEIMG}${HEXE} -on-error exit ${TRCR}\`\"; test \"\$\$output\" = '*** - myerror' || exit 1"
   echotab "if ${HERE}${EXEIMG}${HEXE} -on-error exit; then exit 1; fi"
+  echotab '$(RUN) -M lispinit.mem -x '"'"'(saveinitmem "'"${EXEIMG}"'" :executable t :norc t :quiet t :init-function (lambda () (exit-on-error '"${RAISE})))'"
+  echotab "output=\"\`${HERE}${EXEIMG}${HEXE} ${TRCR}\`\"; test \"\$\$output\" = '*** - myerror' || exit 1"
+  echotab "if ${HERE}${EXEIMG}${HEXE}; then exit 1; fi"
   echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol
