@@ -340,6 +340,10 @@
     &source-r; and &dest-r; are on different devices), fall back to &copy-k;.
    </simpara><simpara>Both &source-r; and &dest-r; may be wild, in which
     case &translate-pathname; is used.</simpara>
+   <simpara>When <replaceable>preserve</replaceable> is non-&nil;, try
+    to duplicate the time, owner, and permission characteristics of each
+    source file in the corresponding destination file,
+    similar to <command role="unix">cp -p</command>.</simpara>
    <simpara>The meaning and defaults of &if-exists; and
     &if-does-not-exist; are the same as in &open;.</simpara>
  </listitem></varlistentry>
