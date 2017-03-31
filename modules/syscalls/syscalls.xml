@@ -282,8 +282,8 @@
    <warning><simpara>&unix; and &win32; differ on locking 0-length files: on
      &win32;, two processes can have exclusive locks on it!</simpara></warning>
    <warning><simpara>&win32; locks are <emphasis>mandatory</emphasis>:
-     if you lock a file, others will not be able to open it!
-     &unix; locks are usually <emphasis>advisory</emphasis>: a process
+     if you lock a file, others will not be able to open it!</simpara>
+    <simpara>&unix; locks are usually <emphasis>advisory</emphasis>: a process
      is free to ignore it, but on some &unix; systems one can mount some
      file system with <emphasis>mandatory</emphasis> locks.</simpara></warning>
  </listitem></varlistentry>
