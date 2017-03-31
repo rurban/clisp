@@ -28,7 +28,7 @@
                        Low level functions */
 
 /* we need realpath() (declared in <stdlib.h>)
-   http://www.opengroup.org/onlinepubs/009695399/functions/realpath.html
+   http://opengroup.org/onlinepubs/9699919799/functions/realpath.html
    which is alleged to be broken on some systems
    OTOH, on some other systems, notably on cygwin,
    we _do_ need the system implementation of realpath

@@ -78,6 +78,7 @@ local void install_sigterm_handler (void) {
      then CLISP will be stopped instead of being terminated
      when it will try to write the "exiting..." message:
   <http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap11.html>
+  <http://opengroup.org/onlinepubs/9699919799/basedefs/V1_chap11.html>
          Attempts by a process in a background process group to write to
          its controlling terminal shall cause the process group to be
          sent a SIGTTOU signal */

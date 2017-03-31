@@ -102,6 +102,8 @@ static void get_hostname (char *hostname) {
    - the 2nd ed of Rochkind "Advanced UNIX Programming"
    - the Open Group Base Specifications Issue 6 IEEE Std 1003.1, 2004 Edition
      http://www.opengroup.org/onlinepubs/009695399/
+   - The Open Group Base Specifications Issue 7 IEEE Std 1003.1, 2008, 2016 Edition
+     http://pubs.opengroup.org/onlinepubs/9699919799/
    It is _NOT_ necessary on Linux, Cygwin, Win32, Solaris, NetBSD, FreeBSD &c.
    It might be a good idea to add an autoconf test for this ...
    see https://sourceforge.net/p/clisp/bugs/304/ */
