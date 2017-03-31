@@ -93,7 +93,7 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-/* http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/types.h.html
+/* http://opengroup.org/onlinepubs/9699919799/basedefs/sys/types.h.html
    specifies tha pid_t is signed, assume that uid_t & gid_t are signed too */
 #if SIZEOF_PID_T == 8
 # define pid_to_I(g)  sint64_to_I(g)
@@ -305,7 +305,7 @@ DEFCHECKER(check_fl_flags, prefix=O, default=,bitmasks=both,          \
            BINARY TEXT NOINHERIT DIRECT LARGEFILE :DIRECTORY NOFOLLOW)
 DEFCHECKER(check_fd_flags, prefix=FD,bitmasks=both,CLOEXEC)
 DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html */
+{ /* http://opengroup.org/onlinepubs/9699919799/functions/fcntl.html */
   int cmd = check_fcntl_cmd(STACK_1);
   Handle fd = stream_get_handle(&STACK_2);
   int value;
@@ -427,8 +427,8 @@ static void stream_truncate (Handle fd, file_offset_t *length) {
 /* separate from SET-FILE-STAT because it works only on paths
    while (setf file-size) supports streams as well */
 DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
-  /* http://www.opengroup.org/onlinepubs/009695399/functions/truncate.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/ftruncate.html
+  /* http://opengroup.org/onlinepubs/9699919799/functions/truncate.html
+     http://opengroup.org/onlinepubs/9699919799/functions/ftruncate.html
      http://msdn.microsoft.com/en-us/library/aa365542(VS.85).aspx
      http://msdn.microsoft.com/en-us/library/aa365531(VS.85).aspx */
   file_offset_t length;
@@ -520,7 +520,7 @@ DEFUN(POSIX::%SYSLOG, severity facility message) {
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
       begin_blocking_system_call();
       /* disable %m but avoid surprises with % special handling
-         http://www.opengroup.org/onlinepubs/009695399/functions/syslog.html */
+         http://opengroup.org/onlinepubs/9699919799/functions/syslog.html */
       syslog(priority,"%s",mesg);
       end_blocking_system_call();
     });
@@ -552,8 +552,8 @@ static Values tm_to_lisp (struct tm *tm, object timezone) {
   funcall(S(encode_universal_time),7);
 }
 DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/strptime.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/strftime.html */
+{ /* http://opengroup.org/onlinepubs/9699919799/functions/strptime.html
+     http://opengroup.org/onlinepubs/9699919799/functions/strftime.html */
   STACK_2 = check_string(STACK_2); /* format */
   if (missingp(STACK_1)) { /* datum defaults to the current time */
     funcall(L(get_universal_time),0);
@@ -622,7 +622,7 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
 
 #if defined(HAVE_GETDATE) && defined(HAVE_DECL_GETDATE_ERR)
 DEFUN(POSIX:GETDATE, timespec &optional timezone)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/getdate.html */
+{ /* http://opengroup.org/onlinepubs/9699919799/functions/getdate.html */
   struct tm *tm;
  getdate_restart:
   STACK_1 = check_string(STACK_1);
@@ -691,7 +691,7 @@ DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
 #endif
 DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
       :ELEMENT-TYPE) {
-  /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
+  /* http://opengroup.org/onlinepubs/9699919799/functions/mkstemp.html */
   object fname = physical_namestring(STACK_4);
   direction_t dir = (boundp(STACK_3) ? check_direction(STACK_3)
                      : DIRECTION_OUTPUT);
@@ -849,7 +849,7 @@ DEFUN(POSIX:SETREUID, ruid euid) { SETTER2(uid,setreuid); }
 #if defined(HAVE_SETREGID)
 DEFUN(POSIX:SETREGID, rgid egid) { SETTER2(gid,setregid); }
 #endif
-/* http://www.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html */
+/* http://opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 DEFCHECKER(check_signal,SIGABRT SIGALRM SIGBUS SIGCHLD SIGCONT SIGFPE SIGHUP \
            SIGILL SIGINT SIGKILL SIGPIPE SIGQUIT SIGSEGV SIGSTOP SIGTERM \
            SIGTSTP SIGTTIN SIGTTOU SIGUSR1 SIGUSR2 SIGPOLL SIGPROF SIGSYS \
@@ -983,12 +983,12 @@ DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
 DEFUNF(POSIX::YN,i y) { VAL_ID(yn); mv_count=1; }
 #if defined(HAVE_TGAMMA)
-/* http://www.opengroup.org/onlinepubs/009695399/functions/tgamma.html */
+/* http://opengroup.org/onlinepubs/9699919799/functions/tgamma.html */
 DEFUNF(POSIX::TGAMMA,x) { VAL_D(tgamma); mv_count=1; }
 #endif
 
 #if defined(HAVE_LGAMMA) || HAVE_DECL_LGAMMA_R
-/* http://www.opengroup.org/onlinepubs/009695399/functions/lgamma.html */
+/* http://opengroup.org/onlinepubs/9699919799/functions/lgamma.html */
 DEFUNF(POSIX::LGAMMA,x) {
 # if HAVE_DECL_LGAMMA_R
   int sign;
@@ -1279,7 +1279,7 @@ DEFCHECKER(pathconf_arg,prefix=_PC,default=,FILESIZEBITS LINK-MAX MAX-CANON \
     VALUES1(L_to_I(res));                                       \
   }
 DEFUN(POSIX::PATHCONF, pathspec &optional what)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/pathconf.html */
+{ /* http://opengroup.org/onlinepubs/9699919799/functions/pathconf.html */
   Handle fd;
   if (integerp(STACK_1)) {
     fd = I_to_UL(STACK_1);
@@ -1904,7 +1904,7 @@ DEFUN(POSIX::%SETGROUPS, groups) {
 }
 #endif
 #if defined(HAVE_GETHOSTID)
-/* http://www.opengroup.org/onlinepubs/009695399/functions/gethostid.html */
+/* http://opengroup.org/onlinepubs/9699919799/functions/gethostid.html */
 /* this is returned as an integer, not as a string,
    because this is NOT the IP address:
    (posix:gethostid) ==> 430729603
@@ -2178,9 +2178,9 @@ static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
 #endif  /* WIN32_NATIVE | UNIX_CYGWIN32*/
 DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
 { /* interface to chmod(2), chown(2), utime(2)
-     http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/chown.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/chmod.html */
+     http://opengroup.org/onlinepubs/9699919799/functions/utime.html
+     http://opengroup.org/onlinepubs/9699919799/functions/chown.html
+     http://opengroup.org/onlinepubs/9699919799/functions/chmod.html */
   gid_t gid = (missingp(STACK_0) ? skipSTACK(1), (gid_t)-1
                : I_to_uint32(check_uint32(popSTACK())));
   uid_t uid = (missingp(STACK_0) ? skipSTACK(1), (uid_t)-1
@@ -2275,7 +2275,7 @@ static int nftw_fn (const char *path, const struct stat *ps, int kind,
   }
 }
 DEFUN(POSIX:FILE-TREE-WALK, path func &key FD-LIMIT CHDIR DEPTH MOUNT PHYS)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/nftw.html */
+{ /* http://opengroup.org/onlinepubs/9699919799/functions/nftw.html */
   int flags = ftw_flags(), ret;
   int fd_limit = check_uint_defaulted(popSTACK(),5);
   STACK_1 = physical_namestring(STACK_1);
@@ -2288,7 +2288,7 @@ DEFUN(POSIX:FILE-TREE-WALK, path func &key FD-LIMIT CHDIR DEPTH MOUNT PHYS)
 }
 #endif  /* HAVE_NFTW */
 
-/* <http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/stat.h.html> */
+/* <http://opengroup.org/onlinepubs/9699919799/basedefs/sys/stat.h.html> */
 DEFCHECKER(check_chmod_mode, type=mode_t,                       \
            prefix=S_I, delim=, default=, bitmasks=both,         \
            SUID SGID SVTX RWXU RUSR WUSR XUSR RWXG RGRP         \
@@ -2303,7 +2303,7 @@ DEFUN(POSIX::CONVERT-MODE, mode)
 #if defined(HAVE_UMASK)
 DEFUN(POSIX::UMASK, cmask)
 { /* lisp interface to umask(2)
-     http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
+     http://opengroup.org/onlinepubs/9699919799/functions/umask.html */
   mode_t cmask = check_chmod_mode_of_list(popSTACK());
   begin_system_call();
   cmask = umask(cmask);
@@ -2316,7 +2316,7 @@ DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
            FIFO FSOCK FCHR FDIR FBLK FREG)
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
-     http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
+     http://opengroup.org/onlinepubs/9699919799/functions/mknod.html */
   mode_t mode = check_chmod_mode_of_list(popSTACK())
       | mknod_type_check(popSTACK());
   int ret;
@@ -5750,7 +5750,7 @@ DEFUN(SYS::FORMAT-MESSAGE, &optional error_code) {
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
-/* http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html */
+/* http://opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html */
 DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EAGAIN EALREADY EBADF EBADMSG EBUSY ECANCELED ECHILD ECONNABORTED \
            ECONNREFUSED ECONNRESET EDEADLK EDESTADDRREQ EDOM EDQUOT EEXIST \
