@@ -47,12 +47,12 @@
 
 ;;; note also that some original tests had empty alternatives in grouping
 ;;; which is forbidden by POSIX
-;;; <http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap09.html>:
-;;; "A vertical-line appearing first or last in an ERE, or immediately
-;;;  following a vertical-line or a left-parenthesis, or immediately
-;;;  preceding a right-parenthesis, produces undefined results."
-;;; "Outside a bracket expression, a left-parenthesis immediately
-;;;  followed by a right-parenthesis produces undefined results."
+;;; http://opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html:
+;;; "A <vertical-line> appearing first or last in an ERE, or immediately
+;;;  following a <vertical-line> or a <left-parenthesis>, or immediately
+;;;  preceding a <right-parenthesis>, produces undefined results."
+;;; "Outside a bracket expression, a <left-parenthesis> immediately
+;;;  followed by a <right-parenthesis> produces undefined results."
 
 ;; The following list of tests is taken from regexp-test-suite.lisp in
 ;; Kenneth Parker's regex package
