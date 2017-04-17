@@ -1,5 +1,11 @@
 2017-04-04  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on Windows when the version number is "2.49.50".
+	* makemake.in (clisp.rc): Support major.minor.micro version syntax in
+	determination of PRODUCTVERSION and FILEFLAGS.
+
+2017-04-04  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when compiling for mingw.
 	* win32.d: Include <winternl.h> and <ntstatus.h>, not <ddk/ntifs.h>.
 	Fix provided by Akira Kakuto <kakuto@fuk.kindai.ac.jp>.
