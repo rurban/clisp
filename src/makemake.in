@@ -3480,16 +3480,19 @@ if [ $CROSS = false ] ; then
     #     run-time lisp.exe because then the latter does not have an icon
     #     and the users are less likely to run it without the memory image
     echol "clisp.rc : ${SRCDIR}clisp.rc.in Makefile"
-    PRODUCTVERSION=`echo ${VERSION_NUMBER} | sed -e 's/\./,/' -e 's/\+/,1/g'`
-    if [ "${with_debug}" != no ]
-    then FILEFLAGS="VS_FF_DEBUG|"
-    else FILEFLAGS=""
-    fi
+    PRODUCTVERSION=`echo ${VERSION_NUMBER} | sed -e 's/\./,/g' -e 's/\+//g'`
     case "${PRODUCTVERSION}" in
-      *,1,1 ) FILEFLAGS=${FILEFLAGS}"VS_FF_PRERELEASE|VS_FF_PATCHED" ;;
-      *,1 ) PRODUCTVERSION=${PRODUCTVERSION}',0'
-        FILEFLAGS=${FILEFLAGS}"VS_FF_PATCHED" ;;
-      * ) PRODUCTVERSION=${PRODUCTVERSION}',0,0' ;;
+      *,*,*,* ) ;;
+      *,*,* ) PRODUCTVERSION="${PRODUCTVERSION},0" ;;
+      *,* ) PRODUCTVERSION="${PRODUCTVERSION},0,0" ;;
+    esac
+    FILEFLAGS="0"
+    if [ "${with_debug}" != no ] ; then
+      FILEFLAGS="${FILEFLAGS}|VS_FF_DEBUG"
+    fi
+    case "${VERSION_NUMBER}" in
+      *++) FILEFLAGS="${FILEFLAGS}|VS_FF_PRERELEASE|VS_FF_PATCHED" ;;
+      *+)  FILEFLAGS="${FILEFLAGS}|VS_FF_PATCHED" ;;
     esac
     if [ "${with_unicode}" != no ];
     then CHARSET=04B0           # Unicode
