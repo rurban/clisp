@@ -605,10 +605,8 @@ case $# in
        HSYSOS=$HSYS
        HOS=win32
        COMPILER=gcc
-       # is this mingw on msys or on cygwin?
-       # this really is cross-compilation, so we must override the above
-       # which would make utils win32, not cygwin
-       UTILCOMPILE=gcc
+       # Compile the utils as native Windows binaries, even on Cygwin.
+       UTILCOMPILE="\$(CC) \$(CPPFLAGS)"
      fi
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
