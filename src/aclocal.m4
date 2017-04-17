@@ -16962,6 +16962,7 @@ AC_DEFUN([CLISP_SET],[$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/
 
 dnl for use with autoconf 2.64 which supports m4_map_args_w
 dnl <http://article.gmane.org/gmane.comp.sysutils.autoconf.general/12077>
+dnl <https://lists.gnu.org/archive/html/autoconf/2009-09/msg00082.html>
 m4_define([_CL_CLISP_REQUIRE_FEATURE_1],
 [_CL_CLISP_REQUIRE_FEATURE_2([$1], m4_toupper([$1]))])
 m4_define([_CL_CLISP_REQUIRE_FEATURE_2],
@@ -17790,6 +17791,7 @@ dnl note that this macro cannot call AC_CONFIG_AUX_DIR directly because
 dnl the required macros are evaluated BEFORE the macro itself
 dnl and some of them require AC_CONFIG_AUX_DIR.
 dnl <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
+dnl <https://lists.gnu.org/archive/html/bug-gnulib/2009-01/msg00134.html>
 AC_DEFUN([CL_MODULE_COMMON_CHECKS],[dnl
 AC_REQUIRE([CL_CLISP],[CL_CLISP($1)])dnl
 AC_REQUIRE([AC_CONFIG_AUX_DIR],

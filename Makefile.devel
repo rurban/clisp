@@ -66,7 +66,9 @@ AUTOCONF_FILES = src/aclocal.m4
 AUTOCONF_CACHE = autom4te.cache
 
 $(CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
-	cd $* && autoconf --include=$(CURDIR)/src
+# Need to remove $(AUTOCONF_CACHE) before running autotonf, otherwise
+# changes to version.sh are not taken into account.
+	cd $* && $(RMRF) $(AUTOCONF_CACHE) && autoconf --include=$(CURDIR)/src
 
 $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
 	cd $* && autoheader --include=$(CURDIR)/src
