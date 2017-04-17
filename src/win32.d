@@ -35,8 +35,10 @@
 #define unused unused_void      /* restore the unused declaration */
 
 /* NtQueryInformationFile http://msdn.microsoft.com/en-us/library/ff567052.aspx
-   this also includes winddk/ntddk & ntstatus on i686-pc-mingw32-gcc */
-#include <ddk/ntifs.h>
+   It uses IO_STATUS_BLOCK http://msdn.microsoft.com/en-us/library/ff567052.aspx
+   which uses NTSTATUS https://msdn.microsoft.com/en-us/library/ff565436.aspx */
+#include <winternl.h>
+#include <ntstatus.h>
 
 /* Table of system error messages */
 #include <winerror.h>

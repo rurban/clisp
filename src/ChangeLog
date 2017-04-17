@@ -1,5 +1,11 @@
 2017-04-04  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure when compiling for mingw.
+	* win32.d: Include <winternl.h> and <ntstatus.h>, not <ddk/ntifs.h>.
+	Fix provided by Akira Kakuto <kakuto@fuk.kindai.ac.jp>.
+
+2017-04-04  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when compiling for mingw on Cygwin.
 	* makemake.in (UTILCOMPILE): Use $(CC), not just 'gcc'. This is needed
 	because the utils/* programs include <config.h>, and config.h was
