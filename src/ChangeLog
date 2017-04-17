@@ -1,3 +1,10 @@
+2017-04-04  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure when compiling for mingw on Cygwin.
+	* makemake.in (UTILCOMPILE): Use $(CC), not just 'gcc'. This is needed
+	because the utils/* programs include <config.h>, and config.h was
+	generated for $(CC).
+
 2017-03-27  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-exec-image): Add the `exit-on-error`
