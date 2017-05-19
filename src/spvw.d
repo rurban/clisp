@@ -612,6 +612,9 @@ local void init_multithread_special_symbols()
       ptr->tls_index=num_symvalues++;
     }
   });
+  /* symbol_tab is initialized. it's safe to enable interrupts in main thread */
+  thr->_ptr_symvalues[TheSymbol(S(defer_interrupts))->tls_index] = NIL;
+  thr->_ptr_symvalues[TheSymbol(S(deferred_interrupts))->tls_index] = NIL;
 }
 
 /* UP: allocates a LISP stack for new thread (except for the main one)
@@ -673,9 +676,13 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
     objptr=(gcv_object_t*)&(thread->_object_tab);
     dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),
               { *objptr++=NIL; });
-    /* allow interrupts in new (not yet spawned) thread */
-    thread->_ptr_symvalues[TheSymbol(S(defer_interrupts))->tls_index] = NIL;
-    thread->_ptr_symvalues[TheSymbol(S(deferred_interrupts))->tls_index] = NIL;
+    /* allow interrupts in the new, not yet spawned thread, unless this is the
+       main one which will be handled in init_multithread_special_symbols() */
+    var gcv_object_t *symvals = thread->_ptr_symvalues;
+    if (num_symvalues != FIRST_SYMVALUE_INDEX) {
+      symvals[TheSymbol(S(defer_interrupts))->tls_index] = NIL;
+      symvals[TheSymbol(S(deferred_interrupts))->tls_index] = NIL;
+    }
   }
   if (lisp_stack_size) {
     /* allocate the LISP stack */
