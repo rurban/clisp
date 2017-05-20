@@ -1,5 +1,10 @@
 2017-05-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* lispbibl.d: (MULTITHREAD): Don't use SINGLEMAP_MEMORY model. Fixed
+	lisp stack address is the issue.
+
+2017-05-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	Fix MT builds with MAP_MEMORY_TABLES model
 	* spvw.d (create_thread, init_multithread_special_symbols): Initialize
 	thread special variables bindings once the symbol_tab has been setup.

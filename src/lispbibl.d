@@ -2366,7 +2366,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
     && ((MALLOC_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)     \
     && defined(WIDE_HARD)                                                      \
-    && !defined(NO_SINGLEMAP)
+    && !defined(NO_SINGLEMAP)                                                  \
+    && !defined(MULTITHREAD)
 /* If we have not already excluded TYPECODES, and not WIDE_SOFT,
    and the OS has support for mmap or equivalent,
    and the OS does not use address space layout randomization [1]
