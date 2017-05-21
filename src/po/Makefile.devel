@@ -14,8 +14,8 @@ all : tmp pot gmo
 # This is hardwired. (See clisp-xgettext.)
 PREDEF_LINGUAS = en
 # Other languages must be translated by hand. They must also be added
-# to the variable ALL_LINGUAS in ../configure.in.
-OTHER_LINGUAS = da de fr es nl ru
+# to the file LINGUAS.
+OTHER_LINGUAS = da de fr es nl ru sv
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
