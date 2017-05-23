@@ -1,3 +1,11 @@
+2017-05-22  Bruno Haible  <bruno@clisp.org>
+
+	Update some URLs.
+	Reported by Don Cohen
+	<https://sourceforge.net/p/clisp/mailman/message/35853807/>.
+	* unix/INSTALL: Update outdated URLs. Prefer https over http or ftp
+	URLs.
+
 2017-05-21  Bruno Haible  <bruno@clisp.org>
 
 	Add Swedish translation (work in progress).

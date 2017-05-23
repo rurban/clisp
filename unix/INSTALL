@@ -22,9 +22,8 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
       If you want to build native windows CLISP using Cygwin/MinGW, install
       the native MinGW toolchain (i.e., mingw32-i686-gcc-core) in addition
       to the Cygwin GCC and set CC to i686-pc-mingw32-gcc.
-      See <http://tdm-gcc.tdragon.net/start> for more information.
-      See also <http://article.gmane.org/gmane.os.cygwin:128248>
-      or <http://cygwin.com/ml/cygwin/2011-08/msg00440.html>.
+      See <http://tdm-gcc.tdragon.net/about> for more information.
+      See also <https://cygwin.com/ml/cygwin/2011-08/msg00440.html>.
 
    B. On bi-arch systems, such as sparc, you *must* select word size
       explicitly, by setting CC to "gcc -m64".
@@ -34,26 +33,26 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    * GNU libsigsegv
       + Highly recommended: needed for generational garbage collection
         and for stack overflow detection in interpreted Lisp code.
-      <ftp://ftp.gnu.org/pub/gnu/libsigsegv/>
-      <http://sourceforge.net/projects/libsigsegv/>
+      <https://ftp.gnu.org/gnu/libsigsegv/>
+      <https://www.gnu.org/software/libsigsegv/>
    * GNU libffcall
       + Highly recommended: needed for the foreign function interface.
-      <ftp://ftp.gnu.org/pub/gnu/libffcall/>
-      <http://www.gnu.org/software/libffcall/>
+      <https://ftp.gnu.org/gnu/libffcall/>
+      <https://www.gnu.org/software/libffcall/>
    * GNU libiconv
       + Not needed on systems with glibc 2.2 or newer, or MacOS X 10.3 or
         newer, but recommended on all other systems for additional encodings.
-      <ftp://ftp.gnu.org/pub/gnu/libiconv/>
-      <http://sourceforge.net/projects/libiconv/>
+      <https://ftp.gnu.org/gnu/libiconv/>
+      <https://www.gnu.org/software/libiconv/>
    * GNU readline
       + Recommended: needed if you want terminal command line editing.
-      <ftp://ftp.gnu.org/pub/gnu/readline/>
-      <http://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
+      <https://ftp.gnu.org/gnu/readline/>
+      <https://cnswww.cns.cwru.edu/~chet/readline/rltop.html>
    * GNU gettext
       + Not needed on systems with glibc 2.2 or newer, but recommended on all
         other systems: needed if you want CLISP with native language support.
-      <ftp://ftp.gnu.org/pub/gnu/gettext/>
-      <http://www.gnu.org/software/gettext/>
+      <https://ftp.gnu.org/gnu/gettext/>
+      <https://www.gnu.org/software/gettext/>
 
    When you install your libraries in a non-standard location, you will
    need to tell the location to the top-level configure, e.g.:
@@ -206,9 +205,9 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    public directories.
    If you built with static modules (./configure --without-dynamic-modules)
    there will be two "linking sets" in /usr/local/lib/clisp/ - "base"
-   and "full" (see <http://clisp.cons.org/impnotes.html#modules>).
+   and "full" (see <http://clisp.org/impnotes/modules.html>).
    You can chose which linking set to run by using "-K" option of clisp
-   (see <http://clisp.cons.org/clisp.html#opt-link-set>)
+   (see <http://clisp.org/clisp.html#opt-link-set>)
    Note that some modules (i18n, regexp, syscalls and readline at this time)
    are included in the "base" linking set by default,
    see BASE_MODULES in build-dir/Makefile.
@@ -245,7 +244,7 @@ Additional Information for Maintainers of Binary Packages:
 
 1. CLISP build process respects the CFLAGS environment variable,
    and, when GCC is used and CFLAGS is unset, "-g -O2" is used, see
-   <http://www.gnu.org/software/autoconf/manual/html_node/C-Compiler.html>.
+   <https://www.gnu.org/software/autoconf/manual/html_node/C-Compiler.html>.
    This means that if your distribution's policy is to minimize executables'
    size at the expense of debuggability you should configure CLISP like this:
         ./configure CFLAGS='' ...
@@ -288,7 +287,7 @@ Additional Information for Maintainers of Binary Packages:
       which have no external dependencies, i.e., modules "clisp-asdf" and
       "clisp-rawsock" depend only on "clisp".
       Moreover, they can be bundled with "clisp" into a single package.
-   See also <http://clisp.cons.org/impnotes/modules.html#base-modules>
+   See also <http://clisp.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 
 Authors:
