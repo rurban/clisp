@@ -3269,7 +3269,7 @@ make_modules() {
   # src/build-aux/install-sh _AND_ also its own sources, thus we must
   # point it to modules/... in the original source tree.
   # The 'if' condition here tests whether $$m/configure is newer than $@/config.status.
-  echotab "if test ! -f \$@/config.status || test -n \"\`find \$\$m/configure -prune -newer \$@/config.status\`\" ; then ( cd \$@ ;\\"
+  echotab "if test -f \$\$m/configure && { test ! -f \$@/config.status || test -n \"\`find \$\$m/configure -prune -newer \$@/config.status\`\"; } ; then ( cd \$@ ;\\"
   echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
   echotab "    if test -f \$\${cache} ; then \\"
   echotab "      . \$\${cache}; \\"
