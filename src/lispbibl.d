@@ -1906,6 +1906,8 @@ typedef enum {
    program will be interrupted and cannot be continued. */
   #if !defined(MULTITHREAD)
    #define PENDING_INTERRUPTS
+   /* Flag telling whether a Ctrl-C has been seen and is waiting to be
+      handled. */
    extern uintB interrupt_pending;
    #define interruptp(statement)  if (interrupt_pending) { statement; }
   #else
