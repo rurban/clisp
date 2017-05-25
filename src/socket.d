@@ -45,11 +45,25 @@
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
 
+/* In this file we use the gnulib modules for socket headers:
+     arpa_inet netinet_in
+   socket types:
+     socklen
+   and socket functions:
+     accept bind close connect getpeername getsockname getsockopt inet_ntop
+     inet_pton ioctl listen recv select send setsockopt socket shutdown
+   Thus, no direct use of the winsock functions (closesocket, ioctlsocket,
+   WSAGetLastError, etc.), except: gethostbyaddr, gethostbyname.
+   gethostbyname's 1st argument is 'const char *', not 'const void *', on some
+   platforms: Mac OS X 10.3, FreeBSD 6.0, NetBSD 5.0, Minix, Cygwin, Windows,
+   BeOS.
+ */
+
 /* ============ hostnames and IP addresses only (no sockets) ============
 
  Fetches the machine's host name.
  get_hostname(hostname);
- where hostname is an array of MAXHOTNAMELEN+1 characters.
+ where hostname is an array of MAXHOSTNAMELEN+1 characters.
  < const char host[]: The host name.
  (Note: In some cases we could get away with less system calls by simply
  setting
@@ -110,14 +124,14 @@ static void get_hostname (char *hostname) {
 #define FILL0(s)  memset((void*)&s,0,sizeof(s))
 
 /* Convert the IP address from C format to Lisp
- > type: address type (AF_INET..)
- > addr: whatever the address is for this type
+ > af: address family (AF_INET..)
+ > addr: whatever the address is for this address family
  < lisp string representing the address in a human-readable format
  for syscalls & rawsock modules
  can trigger GC */
-modexp maygc object addr_to_string (short type, char *addr) {
+modexp maygc object addr_to_string (int af, const void *addr) {
   var char buffer[MAXHOSTNAMELEN];
-  return safe_to_string(inet_ntop(type,addr,buffer,MAXHOSTNAMELEN));
+  return safe_to_string(inet_ntop(af,addr,buffer,MAXHOSTNAMELEN));
 }
 
 LISPFUNN(machine_instance,0)
@@ -145,7 +159,7 @@ LISPFUNN(machine_instance,0)
       if (h) {
         STACK_0 = asciz_to_string(h->h_name,O(misc_encoding));
         if (h->h_addr && (h->h_length > 0)) {
-          object hostname = addr_to_string(h->h_addrtype,h->h_addr);
+          var object hostname = addr_to_string(h->h_addrtype,h->h_addr);
           if (!nullp(hostname)) {
               pushSTACK(NIL); pushSTACK(hostname);
               STACK_1 = ascii_to_string(" [");
@@ -180,7 +194,7 @@ LISPFUNN(machine_instance,0)
 
 /* A wrapper around the connect() function.
  To be used inside begin/end_system_call() only. */
-global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
+global int nonintr_connect (SOCKET fd, const struct sockaddr * name, int namelen) {
   var int retval;
   do {
     retval = connect(fd,name,namelen);
@@ -190,8 +204,7 @@ global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
 #undef connect  /* because of UNIX_CYGWIN32 */
 #define connect nonintr_connect
 
-/* Execute a statement, but save errno during it.
- NB: gnulib ensures that the win32 errors are in errno, not WSA */
+/* Execute a statement, but save errno during it. */
 #define saving_errno(statement)                                         \
     do { int _olderrno = errno; statement; errno = _olderrno; } while(0)
 
@@ -200,8 +213,12 @@ global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
 #if defined(TCPCONN)
 
 /* for syscalls and rawsock modules */
-typedef int (*host_fn_t) (const void* addr, int addrlen, int family, void* opts);
-/* call FN on host/size/opts if HOST is an IP address */
+/* A function that receives either a 'struct in_addr' or 'struct in6_addr'
+   (with addrlen > 0) or a string (with addrlen = 0).
+   To be used inside begin/end_system_call() only. */
+typedef int (*host_fn_t) (const void* addr, size_t addrlen, int family, void* opts);
+/* Call FN on host/size/opts if HOST is an IP address.
+   To be used inside begin/end_system_call() only. */
 local int with_host (const char* host, host_fn_t fn, void* opts) {
  #ifdef HAVE_IPV6
   {
@@ -218,7 +235,7 @@ local int with_host (const char* host, host_fn_t fn, void* opts) {
   return fn(host,0,0,opts);
 }
 
-local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
+local int string_to_addr1 (const void* addr, size_t addrlen, int family, void* ret)
 {
   *(object*)ret = (addrlen
                    ? data_to_sb8vector(addr,addrlen)
@@ -233,14 +250,14 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
  for syscalls & rawsock modules
  can trigger GC */
 modexp maygc object string_to_addr (const char* name) {
-  object ret;
+  var object ret;
   begin_system_call();
   with_host(name,&string_to_addr1,&ret);
   end_system_call();
   return ret;
 }
 
-local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
+local int resolve_host1 (const void* addr, size_t addrlen, int family, void* ret) {
   *(struct hostent**)ret =
     (addrlen
      ? gethostbyaddr((const char*)addr,addrlen,family)
@@ -276,7 +293,7 @@ modexp struct hostent* resolve_host (object arg) {
     var struct in_addr addr;
     UI_to_LEbytes(arg,8*sizeof(struct in_addr),(uintB*)&addr);
     begin_system_call();
-    he = gethostbyaddr((char*)&addr,sizeof(struct in_addr),AF_INET);
+    he = gethostbyaddr((const char*)&addr,sizeof(struct in_addr),AF_INET);
     end_system_call();
   } else if (vectorp(arg)) {
     /* bit vector: treat as raw IP address data */
@@ -302,7 +319,7 @@ modexp struct hostent* resolve_host (object arg) {
       var uintL index = 0;
       var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
-      he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
+      he = gethostbyaddr((const char*)(TheSbvector(data)->data+index),
                          data_size,AF_INET);
       end_system_call();
     }
@@ -311,7 +328,7 @@ modexp struct hostent* resolve_host (object arg) {
       var uintL index = 0;
       var object data = array_displace_check(arg,vec_len,&index);
       begin_system_call();
-      he = gethostbyaddr((char*)(TheSbvector(data)->data+index),
+      he = gethostbyaddr((const char*)(TheSbvector(data)->data+index),
                          data_size,AF_INET6);
       end_system_call();
     }
@@ -323,7 +340,8 @@ modexp struct hostent* resolve_host (object arg) {
       pushSTACK(fixnum(sizeof(struct in6_addr)));
      #endif
       pushSTACK(fixnum(sizeof(struct in_addr)));
-      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(arg);
+      pushSTACK(TheSubr(subr_self)->name);
       error(type_error,
             #ifdef HAVE_IPV6
              GETTEXT("~S: IP address ~S must have length ~S or ~S")
@@ -341,7 +359,7 @@ modexp struct hostent* resolve_host (object arg) {
     var struct in6_addr addr;
     UI_to_LEbytes(arg,8*sizeof(struct in6_addr),(uintB*)&addr);
     begin_system_call();
-    he = gethostbyaddr((char*)&addr,sizeof(struct in6_addr),AF_INET6);
+    he = gethostbyaddr((const char*)&addr,sizeof(struct in6_addr),AF_INET6);
     end_system_call();
   }
  #endif
@@ -350,10 +368,14 @@ modexp struct hostent* resolve_host (object arg) {
 }
 
 
-/* Look up a host's IP address, then call a user-defined function taking
-   a `struct sockaddr' and its size, and returning a SOCKET. */
-typedef SOCKET (*socket_connect_fn_t) (struct sockaddr * addr, int addrlen,
+/* A function that receives either a 'struct in_addr' or 'struct in6_addr'
+   (with addrlen > 0).
+   To be used inside begin/end_system_call() only. */
+typedef SOCKET (*socket_connect_fn_t) (const struct sockaddr * addr, size_t addrlen,
                                        void* opts);
+/* Look up a host's IP address, then call a user-defined function taking
+   a 'struct sockaddr' and its size, and returning a SOCKET.
+   To be used inside begin/end_system_call() only. */
 local SOCKET with_host_port (const char* host, unsigned short port,
                              socket_connect_fn_t connector, void* opts) {
  #ifdef HAVE_IPV6
@@ -363,7 +385,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     if (inet_pton(AF_INET6,host,&inaddr.sin6_addr) > 0) {
       inaddr.sin6_family = AF_INET6;
       inaddr.sin6_port = htons(port);
-      return connector((struct sockaddr *) &inaddr,
+      return connector((const struct sockaddr *) &inaddr,
                        sizeof(struct sockaddr_in6), opts);
     }
   }
@@ -374,7 +396,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
     if (inet_pton(AF_INET,host,&inaddr.sin_addr) > 0) {
       inaddr.sin_family = AF_INET;
       inaddr.sin_port = htons(port);
-      return connector((struct sockaddr *) &inaddr,
+      return connector((const struct sockaddr *) &inaddr,
                        sizeof(struct sockaddr_in), opts);
     }
   }
@@ -392,7 +414,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
       inaddr.sin6_family = AF_INET6;
       inaddr.sin6_addr = *(struct in6_addr *)host_ptr->h_addr;
       inaddr.sin6_port = htons(port);
-      return connector((struct sockaddr *) &inaddr,
+      return connector((const struct sockaddr *) &inaddr,
                        sizeof(struct sockaddr_in6), opts);
     } else
    #endif
@@ -403,7 +425,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
       inaddr.sin_family = AF_INET;
       inaddr.sin_addr = *(struct in_addr *)host_ptr->h_addr;
       inaddr.sin_port = htons(port);
-      return connector((struct sockaddr *) &inaddr,
+      return connector((const struct sockaddr *) &inaddr,
                        sizeof(struct sockaddr_in), opts);
     } else { /* Not an Internet host! */
       errno = EPROTOTYPE; return INVALID_SOCKET;
@@ -444,7 +466,7 @@ local SOCKET with_host_port (const char* host, unsigned short port,
 #endif
 
 #ifdef TCPCONN
-local SOCKET connect_to_x_via_ip (struct sockaddr * addr, int addrlen,
+local SOCKET connect_to_x_via_ip (const struct sockaddr * addr, size_t addrlen,
                                   void* ignore) {
   var SOCKET fd;
   var int retries = 3; /* number of retries on ECONNREFUSED */
@@ -614,7 +636,8 @@ typedef union {
 } sockaddr_max_t;
 
 /* socket_getlocalname_aux(socket_handle,hd)
- Return the IP name of the localhost for the given socket.
+ Returns the IP name of the localhost for the given socket,
+ or NULL in case of error.
  Fills only hd->hostname and hd->port, not hd->truename.
  To be used inside begin/end_system_call() only. */
 local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
@@ -628,14 +651,16 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
   switch (((struct sockaddr *)&addr)->sa_family) {
    #ifdef HAVE_IPV6
     case AF_INET6:
-      inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
-                sizeof(hd->hostname));
+      if (inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
+                    sizeof(hd->hostname)) == NULL)
+        return NULL;
       hd->port = ntohs(addr.inaddr6.sin6_port);
       break;
    #endif
     case AF_INET:
-      inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
-                sizeof(hd->hostname));
+      if (inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
+                    sizeof(hd->hostname)) == NULL)
+        return NULL;
       hd->port = ntohs(addr.inaddr.sin_port);
       break;
     default:                    /* AF_UNIX, AF_LOCAL &c */
@@ -647,7 +672,8 @@ local host_data_t * socket_getlocalname_aux (SOCKET socket_handle,
 }
 
 /* socket_getlocalname(socket_handle,hd, truename_p)
- Return the IP name of the localhost for the given socket.
+ Returns the IP name of the localhost for the given socket,
+ or NULL in case of error.
  Fills all of *hd, may even fetch truename.
  To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getlocalname (SOCKET socket_handle,
@@ -666,24 +692,27 @@ global host_data_t * socket_getlocalname (SOCKET socket_handle,
 }
 
 /* socket_getpeername(socket_handle,hd,truename_p)
- Returns the name of the host to which IP socket fd is connected.
+ Returns the name of the host to which IP socket fd is connected,
+ or NULL in case of error.
  Fills all of *hd, may even fetch truename.
  To be used inside begin/end_system_call() only. */
 global host_data_t * socket_getpeername (SOCKET socket_handle,
                                          host_data_t * hd, bool resolve_p) {
   var sockaddr_max_t addr;
   var socklen_t addrlen = sizeof(sockaddr_max_t);
-  var struct hostent* hp = NULL;
+  var struct hostent* hp;
   FILL0(addr);
   /* Get host's IP address. */
   if (getpeername(socket_handle,(struct sockaddr *)&addr,&addrlen) < 0)
     return NULL;
   /* Fill in hd->port and hd->hostname, and retrieve hp. */
+  hp = NULL;
   switch (((struct sockaddr *)&addr)->sa_family) {
     #ifdef HAVE_IPV6
     case AF_INET6:
-      inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
-                sizeof(hd->hostname));
+      if (inet_ntop(AF_INET6,&addr.inaddr6.sin6_addr,hd->hostname,
+                    sizeof(hd->hostname)) == NULL)
+        return NULL;
       hd->port = ntohs(addr.inaddr6.sin6_port);
       if (resolve_p)
         hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,
@@ -691,8 +720,9 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
       break;
     #endif
     case AF_INET:
-      inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
-                sizeof(hd->hostname));
+      if (inet_ntop(AF_INET,&addr.inaddr.sin_addr,hd->hostname,
+                    sizeof(hd->hostname)) == NULL)
+        return NULL;
       hd->port = ntohs(addr.inaddr.sin_port);
       if (resolve_p)
         hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
@@ -726,8 +756,9 @@ global host_data_t * socket_getpeername (SOCKET socket_handle,
    waits for a connection to another process.
    This can (and should) be done multiple times for the same
    socket_handle. */
-local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
-                                void* backlog) {
+
+local SOCKET bindlisten_via_ip (const struct sockaddr * addr, size_t addrlen,
+                                void* backlogp) {
   var SOCKET fd;
   /* Get a socket. */
   if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
@@ -746,7 +777,7 @@ local SOCKET bindlisten_via_ip (struct sockaddr * addr, int addrlen,
   /* Bind it to the desired port. */
   if (bind(fd, addr, addrlen) >= 0)
     /* Start listening for client connections. */
-    if (listen(fd, *(int *)backlog) >= 0)
+    if (listen(fd, *(int*)backlogp) >= 0)
       return fd;
   saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
@@ -786,7 +817,7 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
       break;
     default: NOTREACHED;
   }
-  fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen,&backlog);
+  fd = bindlisten_via_ip((const struct sockaddr *)&addr,addrlen,&backlog);
   /* common part */
   if (fd == INVALID_SOCKET)
     return INVALID_SOCKET;
@@ -797,12 +828,13 @@ global SOCKET create_server_socket_by_socket (host_data_t *hd, SOCKET sock,
   return INVALID_SOCKET;
 }
 
+/* Waits for a connection from another process. */
 global SOCKET accept_connection (SOCKET socket_handle) {
  #if defined(WIN32_NATIVE)
   /* make it interruptible on windows
      it seems no need implementing interruptible_accept */
   if (!interruptible_socket_wait(socket_handle,socket_wait_read,NULL)) {
-    WSASetLastError(WSAETIMEDOUT); /* user-inspired timeout */
+    errno = ETIMEDOUT; /* user-inspired timeout */
     return INVALID_SOCKET;
   }
  #endif
@@ -817,9 +849,11 @@ global SOCKET accept_connection (SOCKET socket_handle) {
 /* Creation of sockets on the client side:
  SOCKET fd = create_client_socket(hostname,port,timeout);
    creates a connection to a server (which must be waiting
-   on the specified host and port). */
+   on the specified host and port).
+   timeout may be NULL or a 'struct timeval *'. In the latter case,
+   its value may be modified upon return, to indicate the time not slept. */
 
-local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
+local SOCKET connect_via_ip (const struct sockaddr * addr, size_t addrlen,
                              void* timeout) {
   /* <http://cr.yp.to/docs/connect.html>:
      - make a non-blocking socket, connect(), select() for WR */
@@ -838,49 +872,48 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
   if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
     var struct timeval *tvp = (struct timeval*)timeout;
     if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
-     var int ret = 0;
+     var int ret;
      #if defined(WIN32_NATIVE)
       ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
      #else
-     restart_select: {
-        var fd_set handle_set;
+      var fd_set handle_set;
+      do {
         FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-        ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
-        if (ret < 0) {
-          if (errno == EINTR) goto restart_select;
-          goto fail;
-        }
-       #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
-        var int errorp;
-        var socklen_t len = sizeof(errorp);
-        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
-          goto fail;
-        }
-        if (errorp) {
-          errno = errorp;
-          goto fail;
-        }
-       #endif
+        ret = select(fd+1,NULL,&handle_set,NULL,tvp);
+      } while (ret < 0 && errno == EINTR);
+      if (ret < 0) {
+        goto fail;
       }
+      #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
+      var int errorp;
+      var socklen_t len = sizeof(errorp);
+      if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
+        goto fail;
+      }
+      if (errorp) {
+        errno = errorp;
+        goto fail;
+      }
+      #endif
      #endif
       if (ret == 0) {
         errno = ETIMEDOUT;
         goto fail;
       }
     }
-    if (timeout) { /* connected - restore blocking IO */
+    if (timeout) { /* connected - restore blocking I/O */
       END_NO_BLOCK(fd, goto fail);
       return fd;
     }
   }
- #endif
  fail:
   saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
+ #endif
 }
 
 global SOCKET create_client_socket (const char* hostname, unsigned int port,
-                                    void* timeout) {
+                                    struct timeval* timeout) {
   return with_host_port(hostname,(unsigned short)port,
                         &connect_via_ip,timeout);
 }

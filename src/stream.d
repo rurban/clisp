@@ -14170,8 +14170,6 @@ local maygc bool socket_server_wait (gcv_object_t *sose_, struct timeval *tvp) {
 }
 #endif
 
-extern SOCKET accept_connection (SOCKET socket_handle);
-
 /* (SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered]
                 [:timeout]) */
 LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
@@ -14223,9 +14221,6 @@ LISPFUN(socket_wait,seclass_default,1,2,norest,nokey,0,NIL) {
  #endif
   skipSTACK(3);
 }
-
-extern SOCKET create_client_socket (const char* host, unsigned int port,
-                                    void* timeout);
 
 /* (SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered]
                  [:timeout]) */

@@ -377,8 +377,7 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
  used by spvw.d */
 
 #ifdef FIONBIO                  /*  */
-  /* for socked.d: non-blocking I/O a la BSD 4.2 */
-  /* semicolon in NO_BLOCK_DECL ensures no declaration after it */
+  /* for socket.d: non-blocking I/O a la BSD 4.2 */
   #define NO_BLOCK_DECL()  \
     int non_blocking_io = 1
   #define START_NO_BLOCK(handle, on_fail)                         \

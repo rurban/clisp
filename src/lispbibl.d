@@ -16543,21 +16543,21 @@ extern bool check_charset (const char * code, object charset);
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
 /* Convert the IP address from C format to Lisp
- > type: address type (AF_INET..)
- > addr: whatever the address is for this type
+ > af: address family (AF_INET..)
+ > addr: whatever the address is for this address family
  < lisp string representing the address in a human-readable format
  for syscalls & rawsock modules
  can trigger GC */
-extern maygc object addr_to_string (short type, char *addr);
+extern maygc object addr_to_string (int af, const void *addr);
 #endif
 %% #if defined(UNIX) || defined(WIN32_NATIVE)
-%%   exportF(object,addr_to_string,(short type, char *addr));
+%%   exportF(object,addr_to_string,(int af, const void *addr));
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
 /* A wrapper around the connect() function.
  To be used inside begin/end_system_call() only. */
-extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
+extern int nonintr_connect (SOCKET fd, const struct sockaddr * name, int namelen);
 #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
@@ -16602,7 +16602,8 @@ extern SOCKET connect_to_x_server (const char* host, int display);
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
 /* socket_getlocalname(socket_handle,hd)
- Return the IP name of the localhost for the given socket.
+ Returns the IP name of the localhost for the given socket,
+ or NULL in case of error.
  Fills all of *hd.
  To be used inside begin/end_system_call() only. */
 extern host_data_t * socket_getlocalname (SOCKET socket_handle, host_data_t * hd, bool resolve_p);
@@ -16610,7 +16611,8 @@ extern host_data_t * socket_getlocalname (SOCKET socket_handle, host_data_t * hd
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
 /* socket_getpeername(socket_handle,hd)
- Returns the name of the host to which IP socket fd is connected.
+ Returns the name of the host to which IP socket fd is connected,
+ or NULL in case of error.
  Fills all of *hd.
  To be used inside begin/end_system_call() only. */
 extern host_data_t * socket_getpeername (SOCKET socket_handle, host_data_t * hd, bool resolve_p);
@@ -16627,14 +16629,16 @@ extern SOCKET create_server_socket_by_string (host_data_t *hd,
 #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
-/* Waits for a connection to another process. */
+/* Waits for a connection from another process. */
 extern SOCKET accept_connection (SOCKET socket_handle);
 #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(SOCKET_STREAMS)
 /* Creates a connection to a server (which must be waiting
-   on the specified host and port). */
-extern SOCKET create_client_socket (const char* hostname, unsigned int port, void* timeout);
+   on the specified host and port).
+   timeout may be NULL or a 'struct timeval *'. In the latter case,
+   its value may be modified upon return, to indicate the time not slept. */
+extern SOCKET create_client_socket (const char* hostname, unsigned int port, struct timeval* timeout);
 #endif
 
 /* ####################### SYMBIBL for SYMBOL.D ############################ */
