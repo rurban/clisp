@@ -2023,12 +2023,13 @@ LISPSYM(windows_1258,"WINDOWS-1258",charset)
 #endif
 LISPSYM(english,"ENGLISH",i18n) /* a language for MISC */
 #ifdef GNU_GETTEXT
-LISPSYM(danish,"DANSK",i18n) /* a language for MISC */
 LISPSYM(german,"DEUTSCH",i18n) /* a language for MISC */
 LISPSYM(french," FRAN\303\207AIS",i18n) /* a language for MISC [' ' => utf8] */
 LISPSYM(spanish," ESPA\303\221OL",i18n) /* a language for MISC [' ' => utf8] */
 LISPSYM(dutch,"NEDERLANDS",i18n) /* a language for MISC */
 LISPSYM(russian," \320\240\320\243\320\241\320\241\320\232\320\230\320\231",i18n) /* a language for MISC [' ' => utf8] */
+LISPSYM(danish,"DANSK",i18n) /* a language for MISC */
+LISPSYM(swedish,"SVENSKA",i18n) /* a language for MISC */
 #endif
 LISPSYM(init_hooks,"*INIT-HOOKS*",custom) /* variable for SPVW */
 LISPSYM(fini_hooks,"*FINI-HOOKS*",custom) /* variable for SPVW */

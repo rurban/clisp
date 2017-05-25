@@ -37,7 +37,8 @@ static enum {
   language_spanish,
   language_dutch,
   language_russian,
-  language_danish
+  language_danish,
+  language_swedish
 } language;
 
 /* Initializes the language, given the language name. */
@@ -52,6 +53,7 @@ global object current_language_o (void) {
     case language_dutch:    { return S(dutch); }
     case language_russian:  { return S(russian); }
     case language_danish:   { return S(danish); }
+    case language_swedish:  { return S(swedish); }
     default: NOTREACHED;
   }
 }
@@ -99,6 +101,10 @@ local bool init_language_from (const char* langname) {
       || asciz_equal(langname,"DANISH") || asciz_equal(langname,"danish")) {
     language = language_danish; return true;
   }
+  if (asciz_equal(langname,"SVENSKA") || asciz_equal(langname,"svenska")
+      || asciz_equal(langname,"SWEDISH") || asciz_equal(langname,"swedish")) {
+    language = language_swedish; return true;
+  }
   return false;
 }
 
@@ -137,6 +143,7 @@ global void init_language
       case language_dutch:   locale1 = "nl_NL"; locale2 = "nl_NL.utf8"; break;
       case language_russian: locale1 = "ru_RU"; locale2 = "ru_RU.utf8"; break;
       case language_danish:  locale1 = "da_DK"; locale2 = "da_DK.utf8"; break;
+      case language_swedish: locale1 = "sv_SE"; locale2 = "sv_SE.utf8"; break;
       default:               MY_NOTREACHED;
     }
     if (getenv("LANGUAGE") && unsetenv("LANGUAGE")) {
