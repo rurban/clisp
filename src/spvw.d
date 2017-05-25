@@ -3477,7 +3477,7 @@ local inline void main_actions (struct argv_actions *p) {
     funcall(L(set_lib_directory),1);
   }
   /* if the options suggest that user input will not be available,
-     reset *DEBUG-IO* so that READ-CHAR on it retults in an immediate EOF
+     reset *DEBUG-IO* so that READ-CHAR on it results in an immediate EOF
      to avoid infinite loops on error. */
   if (p->argv_batchmode_p) {
     /* (setq *debug-io*
@@ -3900,16 +3900,17 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
  #endif
-  /* query the size of the terminal-window also now on program start: */
+  /* Establish signal handler for SIGWINCH and query the size of the
+     terminal window also now on program start: */
  #if defined(HAVE_SIGNALS)
+  #if defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS) && !defined(MULTITHREAD)
+  install_sigwinch_handler();
+  #endif
   update_linelength();
  #endif
   /* handling of async interrupts with single thread */
 #if !defined(MULTITHREAD)
   /* establish interrupt-handler: */
- #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-  install_sigwinch_handler();
- #endif
  #if (defined(HAVE_SIGNALS) && defined(UNIX)) || defined(WIN32_NATIVE)
   /* install Ctrl-C-Handler: */
   install_sigint_handler();
@@ -3925,7 +3926,7 @@ global int main (argc_t argc, char* argv[]) {
   install_async_signal_handlers();
 #endif
  #if defined(GENERATIONAL_GC)
-  /* insatll Page-Fault-Handler: */
+  /* install Page-Fault-Handler: */
   install_segv_handler();
  #endif
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
