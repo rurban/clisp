@@ -1,5 +1,10 @@
 2017-05-25  Bruno Haible  <bruno@clisp.org>
 
+	Silence error messages from 'find' (regression from 2017-03-21).
+	* makemake.in (make_modules): Add test whether $m/Makefile exists.
+
+2017-05-25  Bruno Haible  <bruno@clisp.org>
+
 	Small fixes in socket.d.
 	* lispbibl.d (addr_to_string): Change argument types.
 	(nonintr_connect): Change name argument type.

@@ -3286,7 +3286,7 @@ make_modules() {
   # srcdir must be correct in Makefile because clisp-link calls link.sh
   # which cannot pass srcdir to make on the command line.
   # The 'if' condition here tests whether $$m/Makefile is newer than $@/Makefile.
-  echotab "if test ! -f \$@/Makefile || test -n \"\`find \$\$m/Makefile -prune -newer \$@/Makefile\`\" ; then \\"
+  echotab "if test -f \$\$m/Makefile && { test ! -f \$@/Makefile || test -n \"\`find \$\$m/Makefile -prune -newer \$@/Makefile\`\"; } ; then \\"
   echotab "  sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
   echotab "fi ; \\"
   echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
