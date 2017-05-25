@@ -1,5 +1,10 @@
 2017-05-25  Bruno Haible  <bruno@clisp.org>
 
+	Silence error messages from 'find' (regression from 2017-03-21).
+	* makemake.in (make_modules): Add test whether $m/configure exists.
+
+2017-05-25  Bruno Haible  <bruno@clisp.org>
+
 	Fix build warning
 	"unrecognized command line option ‘-Wno-shift-negative-value’".
 	* makemake.in (XCFLAGS): Use -Wno-shift-negative-value only for
