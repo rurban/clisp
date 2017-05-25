@@ -1,5 +1,12 @@
 2017-05-25  Bruno Haible  <bruno@clisp.org>
 
+	Fix build warning
+	"unrecognized command line option ‘-Wno-shift-negative-value’".
+	* makemake.in (XCFLAGS): Use -Wno-shift-negative-value only for
+	GCC versions that really support it.
+
+2017-05-25  Bruno Haible  <bruno@clisp.org>
+
 	Fix race condition w.r.t. SIGWINCH signal (regression from 2009-10-21).
 	* spvw.d (main): Invoke update_linelength after establishing the
 	SIGWINCH handler, not before.
