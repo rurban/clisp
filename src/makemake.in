@@ -1259,7 +1259,7 @@ if [ $XCC_GCC = true ] ; then
   # https://gcc.gnu.org/ml/gcc-patches/2015-04/msg01353.html
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
-      2.* | 3.* | 4.[0-3]*) ;;
+      2.* | 3.* | 4.* | 5.*) ;;
       *)
         XCFLAGS=$XCFLAGS' -Wno-shift-negative-value'
         ;;
