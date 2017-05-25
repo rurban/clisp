@@ -1,3 +1,32 @@
+2017-05-25  Bruno Haible  <bruno@clisp.org>
+
+	Small fixes in socket.d.
+	* lispbibl.d (addr_to_string): Change argument types.
+	(nonintr_connect): Change name argument type.
+	(socket_getlocalname, socket_getpeername, accept_connection): Fix
+	comment.
+	(create_client_socket): Change timeout argument type. Fix comment.
+	* socket.d: Mention use of gnulib.
+	(addr_to_string): Change argument types.
+	(nonintr_connect): Change name argument type.
+	(host_fn_t): Change addrlen argument type. Add comment.
+	(string_to_addr1, resolve_host1): Change addrlen argument type.
+	(resolve_host): Relax cast of gethostbyaddr's first argument.
+	(socket_connect_fn_t): Change addr and addrlen argument types. Add
+	comment.
+	(with_host_port): Relax cast of connector's first argument.
+	(connect_to_x_via_ip): Change addr and addrlen argument types.
+	(socket_getlocalname_aux): Fix comment. Handle inet_ntop failure.
+	(socket_getlocalname, socket_getpeername): Fix comment.
+	(socket_getpeername): Handle inet_ntop failure.
+	(bindlisten_via_ip): Change addr and addrlen argument types.
+	(accept_connection): Add comment. Set errno, not WSAGetLastError.
+	(connect_via_ip): Change addr and addrlen argument types. Use do/while
+	loop instead of 'goto'.
+	(create_client_socket): Change timeout argument type. Fix comment.
+	* stream.d (accept_connection, create_client_socket): Remove redundant
+	declarations.
+
 2017-05-22  Bruno Haible  <bruno@clisp.org>
 
 	Update some URLs.
@@ -27065,7 +27094,7 @@
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* unixaux.d (fd_read, fd_write, sock_read, sock_write): When returning
-	0, set errno to indicate whether EOF or EOFW is reached.
+	0, set errno to indicate whether EOF or EOWF is reached.
 	* win32.d (WSAEAGAIN, WSAENOENT): New macros.
 	* win32aux.d (lowlevel_fd_read): When returning 0, set errno to
 	indicate whether EOF is reached.
