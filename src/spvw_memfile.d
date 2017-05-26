@@ -114,7 +114,7 @@ typedef struct {
   uintL _module_names_size;
   uintC _fsubr_count;
   uintC _pseudofun_count;
- #if defined(MULTITHREAD)
+ #if !defined(OLD_GC) && defined(MULTITHREAD)
   /* number of per thread symvalues */
   uintC _per_thread_symvalues_count;
  #endif
@@ -380,7 +380,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
   header->_module_names_size = module_names_size;
   header->_fsubr_count     = fsubr_count;
   header->_pseudofun_count = pseudofun_count;
- #if defined(MULTITHREAD)
+ #if !defined(OLD_GC) && defined(MULTITHREAD)
   header->_per_thread_symvalues_count = num_symvalues;
  #endif
   header->_symbol_count    = symbol_count;
@@ -439,7 +439,7 @@ global maygc off_t savemem (object stream, uintL executable)
   header._dumptime = universal_time;
   memcpy(&header._dumphost[0],&hostname[0],DUMPHOST_LEN+1);
   WRITE(&header,sizeof(header));
-  #ifdef MULTITHREAD
+  #if !defined(OLD_GC) && defined(MULTITHREAD)
    /* save per thread special variables symvalues.
       currently just a single thread. instead of:
     for_all_threads({
@@ -1120,7 +1120,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (header._heapcount != heapcount) ABORT_INI;
    #endif
 
-   #if defined(MULTITHREAD)
+   #if !defined(OLD_GC) && defined(MULTITHREAD)
     /* allocate per thread symvalues for the thread */
     {
       var uintL max_symvalues=
@@ -1367,7 +1367,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               physpages[i].firstobject     = _physpages[i].firstobject;
               physpages[i].protection = PROT_READ;
               physpages[i].cache_size = 0; physpages[i].cache = NULL;
-             #ifdef MULTITHREAD
+             #if !defined(OLD_GC) && defined(MULTITHREAD)
               spinlock_init(&physpages[i].cache_lock);
              #endif
             }
@@ -1596,7 +1596,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     update_subr_tab();
     update_symbol_tab();
     for_all_constobjs( update(objptr); );  /* update object_tab */
-    #ifdef MULTITHREAD
+    #if !defined(OLD_GC) && defined(MULTITHREAD)
       /* and now the per thread symbol bindings of the thread */
       var gcv_object_t* objptr = allthreads.head->_ptr_symvalues;
       var uintC count;
@@ -1731,8 +1731,13 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         /* Don't need to rebuild the cache. */
         xmprotect_old_generation_cache(heapnr);
        #else
-        if (!is_unused_heap(heapnr))
+        if (!is_unused_heap(heapnr)) {
+         #if !defined(OLD_GC)
           build_old_generation_cache(heapnr,NULL);
+         #else
+          build_old_generation_cache(heapnr);
+         #endif
+        }
        #endif
       }
     }
@@ -1791,7 +1796,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     O(lisp_implementation_version_string) = NIL;
    #endif
   }
-  #ifdef MULTITHREAD
+  #if !defined(OLD_GC) && defined(MULTITHREAD)
   {
     /* mutex and exemption objects are loaded from the mem file but do not
        represent valid OS objects. We should recreate the OS objects here.
@@ -1883,7 +1888,7 @@ local void find_memdump (Handle fd) {
       && lseek(fd,mem_start,SEEK_SET) == mem_start) {
     var memdump_header_t header1;
     full_read(fd,(void*)&header1,header_size);
-   #if defined(MULTITHREAD)
+   #if !defined(OLD_GC) && defined(MULTITHREAD)
     /* restore the count of symvalues. this field should not be used for
        validation by compare */
     header._per_thread_symvalues_count = header1._per_thread_symvalues_count;

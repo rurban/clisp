@@ -61,7 +61,7 @@ modexp maygc object allocate_cons (void) {
  can trigger GC */
 modexp maygc object make_symbol (object string) {
   pushSTACK(string);            /* save string */
-#if defined(MULTITHREAD)
+#if !defined(OLD_GC) && defined(MULTITHREAD)
   #define INIT_TLS_INDEX ptr->tls_index = SYMBOL_TLS_INDEX_NONE
 #else
   #define INIT_TLS_INDEX

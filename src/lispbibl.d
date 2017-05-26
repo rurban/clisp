@@ -96,8 +96,8 @@
        permissions and page faults): GENERATIONAL_GC
          NO_GENERATIONAL_GC
        Whether to use the GC code in its state before MULTITHREAD support
-       was added:
-         NO_MULTITHREAD_GC
+       was added (that is, in clisp-2.47 state):
+         OLD_GC
        Whether conses are garbage-collected through an algorithm that preserves
        locality (but makes debugging of GC crashes very hard): MORRIS_GC
          NO_MORRIS_GC
@@ -4620,6 +4620,11 @@ extern bool inside_gc;
 #endif
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(GENERATIONAL_GC)
   #error GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!
+#endif
+
+/* The old GC algorithm does not support MULTITHREAD. */
+#if defined(OLD_GC) && defined(MULTITHREAD)
+  #error OLD_GC does not support MULTITHREAD!
 #endif
 
 /* Algorithm by Morris, that compacts Conses without mixing them up: */

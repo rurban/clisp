@@ -1,3 +1,12 @@
+/* This file is only used when OLD_GC is defined.
+   It implements the garbage collector algorithm of clisp-2.47.
+   How to maintain this file:
+     - Keep in sync with updates to spvw_garcol.d that are necessary
+       to make it compile (e.g. corresponding to changes in lispbibl.d).
+     - Keep in sync with updates to spvw_garcol.d that are stylistic
+       updates, comment fixes etc.
+     - DO NOT include here changes to the garbage collector algorithm. */
+
 /* Garbage collector. */
 
 /* --------------------------- Specification --------------------------- */
@@ -7,6 +16,7 @@
 local maygc void gar_col_simple (void);
 
 /* Execute a full garbage collection.
+ > level: if 1, also drop all jitc code
  can trigger GC */
 global maygc void gar_col (int level);
 
@@ -31,7 +41,7 @@ local void move_conses (sintM delta);
  4. perform the displacements of objects of variable length.
 */
 
-#include "spvw_genera1.c"
+#include "spvw_genera1_old.c"
 
 /* marking-subroutine
  procedure: marking routine without stack usage (i.e.
@@ -1178,8 +1188,8 @@ local void gc_sweep1_varobject_page (Page* page)
                      poss. symbol-binding-flag) */                      \
            var object newptr =                                          \
              type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-           DEBUG_SPVW_ASSERT(is_valid_heap_object_address(as_oint(newptr)) \
-                             || is_valid_stack_address(as_oint(newptr))); \
+           DEBUG_SPVW_ASSERT(is_valid_heap_object_address(pointable_unchecked(newptr)) \
+                             || is_valid_stack_address(pointable_unchecked(newptr))); \
            *(gcv_object_t*)objptr = newptr;                             \
          }                                                              \
      }                                                                  \
@@ -1232,8 +1242,8 @@ local void gc_sweep1_varobject_page (Page* page)
               if (marked(ThePointer(obj))) {             /* marked? */  \
                 var object newptr =                                     \
                   type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-                DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr)) \
-                                  || is_valid_stack_address(as_oint(newptr))); \
+                DEBUG_SPVW_ASSERT(is_valid_varobject_address(pointable_unchecked(newptr)) \
+                                  || is_valid_stack_address(pointable_unchecked(newptr))); \
                 *(gcv_object_t*)objptr = newptr;                        \
               }                                                         \
           }                                                             \
@@ -1316,7 +1326,7 @@ local void gc_sweep1_varobject_page (Page* page)
  #define update_stackobj(objptr)   update(objptr);
 #endif
 /* update of old generation: */
-#include "spvw_genera3.c"
+#include "spvw_genera3_old.c"
 
 /* second SWEEP-phase:
    relocation of an object of variable length, advance p1 and p2:
@@ -1330,7 +1340,7 @@ local void gc_sweep1_varobject_page (Page* page)
 #elif (varobject_alignment==8)
   #define uintVLA  uintL2
 #else
-  #error "Unknown value for 'varobject_alignment'!"
+  #error Unknown value for 'varobject_alignment'!
 #endif
 #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) /* better for optimization */
   #if defined(fast_dotimesL) && (intMsize==intLsize)
@@ -1589,6 +1599,9 @@ local void gar_col_normal (void)
  #endif
   /* No more gc_mark operations from here on. */
   clean_weakpointers(all_weakpointers);
+ #if defined(USE_JITC)
+  gc_scan_jitc_objects();
+ #endif
   inside_gc = true;
   /* All active objects are marked now:
    active objects of variable length and active two-pointer-objects carry
@@ -1799,7 +1812,7 @@ local void gar_col_normal (void)
            #endif
             heap->heap_gen1_start = heap->heap_end = end;
           }
-          build_old_generation_cache(heapnr,NULL);
+          build_old_generation_cache(heapnr);
         } else
           rebuild_old_generation_cache(heapnr);
       }
@@ -2404,6 +2417,8 @@ global maygc void gar_col(int level)
   var uintC saved_mv_count = mv_count; /* save mv_count */
  #if defined(USE_JITC)
   gc_drop_jitc = (level==1);
+ #else
+  (void)level;
  #endif
   with_gc_statistics(&do_gar_col);     /* GC and statistics */
  #if defined(USE_JITC)

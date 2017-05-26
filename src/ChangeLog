@@ -1,3 +1,33 @@
+2017-05-26  Bruno Haible  <bruno@clisp.org>
+
+	Reinstall the old GC from clisp-2.47.
+	This should provide a reference point when hunting down GC bugs.
+	* lispbibl.d: Document OLD_GC instead of NO_MULTITHREAD_GC.
+	Verify OLD_GC and MULTITHREAD are exclusive.
+	* spvw_allocate_old.d: New file, from clisp-2.47 with non-algorithmic
+	updates from spvw_allocate.d.
+	* spvw_circ_old.d: New file, from clisp-2.47.
+	* spvw_fault_old.d: New file, from clisp-2.47 with non-algorithmic
+	updates from spvw_fault.d.
+	* spvw_genera1_old.d: New file, from clisp-2.47 with non-algorithmic
+	updates from spvw_genera1.d.
+	* spvw_genera3_old.d: New file, from clisp-2.47.
+	* spvw_global_old.d: New file, from clisp-2.47 with non-algorithmic
+	updates from spvw_global.d.
+	* spvw_heap_old.d: New file, from clisp-2.47.
+	* spvw.d: Include these files instead of the non-_old variant when
+	OLD_GC is defined.
+	* spvw_garcol_old.d: Include the _old variant of spvw* files.
+	(gc_sweep1_varobject_page): Include DEBUG_SPVW_ASSERT fix from
+	2009-01-07.
+	* spvw_memfile.d: Change condition from MULTITHREAD to
+	!OLD_GC && MULTITHREAD, for clarity.
+	* spvw_space.d: Likewise.
+	* spvw_typealloc.d: Likewise.
+	* makemake.in (SPVW_INCLUDES): Add the new files.
+	* Makefile.devel (build-porting*old_gc): Define OLD_GC instead of
+	NO_MULTITHREAD_GC.
+
 2017-05-25  Bruno Haible  <bruno@clisp.org>
 
 	Silence error messages from 'find' (regression from 2017-03-21).

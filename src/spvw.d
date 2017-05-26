@@ -307,8 +307,12 @@ global handler_args_t handler_args;
  is true for one of the regions listed in inactive_handlers */
 global stack_range_t* inactive_handlers = NULL;
 
+#endif /* !MULTITHREAD */
+
 /* --------------------------------------------------------------------------
                            Multithreading */
+
+#ifndef MULTITHREAD
 
 #define for_all_threadobjs(statement)                                   \
   do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;               \
@@ -327,7 +331,6 @@ global stack_range_t* inactive_handlers = NULL;
     { statement;  }                         \
   } while(0)
 
-/* #if MULTITHREAD*/
 #else
 
 /* forward decalration of MT signal handler */
@@ -862,8 +865,16 @@ local bool realloc_threads_symvalues(uintL nsyms)
                            Page-Management */
 
 #include "spvw_page.c"
-#include "spvw_heap.c"
-#include "spvw_global.c"
+#if !defined(OLD_GC)
+  #include "spvw_heap.c"
+#else
+  #include "spvw_heap_old.c"
+#endif
+#if !defined(OLD_GC)
+  #include "spvw_global.c"
+#else
+  #include "spvw_global_old.c"
+#endif
 
 #ifdef SPVW_PAGES
 
@@ -950,7 +961,11 @@ modexp _Noreturn void STACK_ueber (void) {
 
 #if defined(GENERATIONAL_GC)
 
-#include "spvw_fault.c"
+#if !defined(OLD_GC)
+  #include "spvw_fault.c"
+#else
+  #include "spvw_fault_old.c"
+#endif
 
 #endif  /* GENERATIONAL_GC */
 
@@ -977,7 +992,7 @@ typedef struct varobj_mem_region {
   aint size; /* region size */
 } varobj_mem_region;
 
-#if defined(MULTITHREAD) || !defined(NO_MULTITHREAD_GC)
+#if !defined(OLD_GC)
   #include "spvw_garcol.c"
 #else
   #include "spvw_garcol_old.c"
@@ -986,13 +1001,21 @@ typedef struct varobj_mem_region {
 /* --------------------------------------------------------------------------
                  Memory Allocation Functions */
 
-#include "spvw_allocate.c"
+#if !defined(OLD_GC)
+  #include "spvw_allocate.c"
+#else
+  #include "spvw_allocate_old.c"
+#endif
 #include "spvw_typealloc.c"
 
 /* --------------------------------------------------------------------------
                    Circularity Test */
 
-#include "spvw_circ.c"
+#if !defined(OLD_GC)
+  #include "spvw_circ.c"
+#else
+  #include "spvw_circ_old.c"
+#endif
 
 /* --------------------------------------------------------------------------
                      Memory Walk */

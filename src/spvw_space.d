@@ -21,7 +21,7 @@ local void recalc_space (bool check);
 
 /* -------------------------- Implementation --------------------------- */
 
-#if defined(MULTITHREAD) && defined(SPVW_BLOCKS)
+#if !defined(OLD_GC) && defined(MULTITHREAD) && defined(SPVW_BLOCKS)
 /* UP: returns sum of sizes of all holes in a heap
    currently used from spvw_garcol.d and here */
 local inline uintM heap_holes_space(Heap *heap) {

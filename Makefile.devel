@@ -455,7 +455,7 @@ build-porting32-gcc-wide:
 build-porting32-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 build-porting32-gcc-multithread_gc:
@@ -467,7 +467,7 @@ build-porting32-gcc-multithread_gc:
 build-porting32-gcc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 build-porting32-gcc-generational_gc-multithread_gc:
@@ -614,7 +614,7 @@ build-porting32-cc-wide:
 build-porting32-cc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 build-porting32-cc-multithread_gc:
@@ -626,7 +626,7 @@ build-porting32-cc-multithread_gc:
 build-porting32-cc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 build-porting32-cc-generational_gc-multithread_gc:
@@ -748,7 +748,7 @@ build-porting64-gcc-spvw_pure_blocks:
 build-porting64-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 build-porting64-gcc-multithread_gc:
@@ -760,7 +760,7 @@ build-porting64-gcc-multithread_gc:
 build-porting64-gcc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 build-porting64-gcc-generational_gc-multithread_gc:
@@ -883,7 +883,7 @@ build-porting64-cc-spvw_pure_blocks:
 build-porting64-cc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 build-porting64-cc-multithread_gc:
@@ -895,7 +895,7 @@ build-porting64-cc-multithread_gc:
 build-porting64-cc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DNO_MULTITHREAD_GC" \
+	CPPFLAGS="-DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 build-porting64-cc-generational_gc-multithread_gc:
