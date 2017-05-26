@@ -59,18 +59,19 @@ local void install_sigcld_handler (void) {
 }
 
 modexp void begin_want_sigcld () {
+ #if defined(SIGCLD)
   int sigcld_level;
   sigcld_enabled_INCF(sigcld_level);
- #if defined(SIGCLD)
-  if (sigcld_level == 0)
+  if (sigcld_level == 0) {
     SIGNAL(SIGCLD,SIG_DFL);
+  }
  #endif
 }
 
 modexp void end_want_sigcld () {
+ #if defined(SIGCLD)
   int sigcld_level;
   sigcld_enabled_DECF(sigcld_level);
- #if defined(SIGCLD)
   if (sigcld_level == 0) {
     SIGNAL(SIGCLD,SIG_IGN);
     /* Try to remove zombies which may have been created since the last
