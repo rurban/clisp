@@ -346,7 +346,8 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-try1_typecodes \
   build-porting32-gcc-try2_typecodes \
   build-porting32-gcc-heapcodes-spvw_pages \
-  build-porting32-gcc-typecodes-spvw_pages \
+  build-porting32-gcc-typecodes-spvw_pure_pages \
+  build-porting32-gcc-typecodes-spvw_mixed_pages \
   build-porting32-gcc-heapcodes-spvw_mixed_blocks \
   build-porting32-gcc-typecodes-spvw_mixed_blocks \
   build-porting32-gcc-spvw_pure_blocks \
@@ -415,8 +416,15 @@ build-porting32-gcc-heapcodes-spvw_pages:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force TYPECODES with SPVW_PAGES (no use of mmap).
-build-porting32-gcc-typecodes-spvw_pages:
+# Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
+build-porting32-gcc-typecodes-spvw_pure_pages:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
+build-porting32-gcc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
@@ -507,7 +515,8 @@ multibuild-porting32-cc: \
   build-porting32-cc-try1_typecodes \
   build-porting32-cc-try2_typecodes \
   build-porting32-cc-heapcodes-spvw_pages \
-  build-porting32-cc-typecodes-spvw_pages \
+  build-porting32-cc-typecodes-spvw_pure_pages \
+  build-porting32-cc-typecodes-spvw_mixed_pages \
   build-porting32-cc-heapcodes-spvw_mixed_blocks \
   build-porting32-cc-typecodes-spvw_mixed_blocks \
   build-porting32-cc-spvw_pure_blocks \
@@ -574,8 +583,15 @@ build-porting32-cc-heapcodes-spvw_pages:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force TYPECODES with SPVW_PAGES (no use of mmap).
-build-porting32-cc-typecodes-spvw_pages:
+# Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
+build-porting32-cc-typecodes-spvw_pure_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
+build-porting32-cc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
@@ -661,7 +677,8 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-one_free_bit_heapcodes \
   build-porting64-gcc-generic64_heapcodes \
   build-porting64-gcc-heapcodes-spvw_pages \
-  build-porting64-gcc-typecodes-spvw_pages \
+  build-porting64-gcc-typecodes-spvw_pure_pages \
+  build-porting64-gcc-typecodes-spvw_mixed_pages \
   build-porting64-gcc-heapcodes-spvw_mixed_blocks \
   build-porting64-gcc-typecodes-spvw_mixed_blocks \
   build-porting64-gcc-spvw_pure_blocks \
@@ -715,8 +732,15 @@ build-porting64-gcc-heapcodes-spvw_pages:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force TYPECODES with SPVW_PAGES (no use of mmap).
-build-porting64-gcc-typecodes-spvw_pages:
+# Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
+build-porting64-gcc-typecodes-spvw_pure_pages:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
+build-porting64-gcc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
@@ -798,7 +822,8 @@ multibuild-porting64-cc: \
   build-porting64-cc-one_free_bit_heapcodes \
   build-porting64-cc-generic64_heapcodes \
   build-porting64-cc-heapcodes-spvw_pages \
-  build-porting64-cc-typecodes-spvw_pages \
+  build-porting64-cc-typecodes-spvw_pure_pages \
+  build-porting64-cc-typecodes-spvw_mixed_pages \
   build-porting64-cc-heapcodes-spvw_mixed_blocks \
   build-porting64-cc-typecodes-spvw_mixed_blocks \
   build-porting64-cc-spvw_pure_blocks \
@@ -850,8 +875,15 @@ build-porting64-cc-heapcodes-spvw_pages:
 	CPPFLAGS="-DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force TYPECODES with SPVW_PAGES (no use of mmap).
-build-porting64-cc-typecodes-spvw_pages:
+# Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
+build-porting64-cc-typecodes-spvw_pure_pages:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
+build-porting64-cc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \

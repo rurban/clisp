@@ -1,5 +1,23 @@
 2017-05-26  Bruno Haible  <bruno@clisp.org>
 
+	Allow regular testing of SPVW_PURE_PAGES memory management.
+	* lispbibl.d: In SPVW_PAGES case with TYPECODES, test PREFER_PURE_PAGES
+	to decide between SPVW_PURE and SPVW_MIXED.
+	* Makefile.devel (build-porting32-gcc-typecodes-spvw_pure_pages,
+	build-porting32-cc-typecodes-spvw_pure_pages,
+	build-porting64-gcc-typecodes-spvw_pure_pages,
+	build-porting64-cc-typecodes-spvw_pure_pages): New targets.
+	(build-porting32-gcc-typecodes-spvw_mixed_pages): Renamed from
+	build-porting32-gcc-typecodes-spvw_pages.
+	(build-porting32-cc-typecodes-spvw_mixed_pages): Renamed from
+	build-porting32-cc-typecodes-spvw_pages.
+	(build-porting64-gcc-typecodes-spvw_mixed_pages): Renamed from
+	build-porting64-gcc-typecodes-spvw_pages.
+	(build-porting64-cc-typecodes-spvw_mixed_pages): Renamed from
+	build-porting64-cc-typecodes-spvw_pages.
+
+2017-05-26  Bruno Haible  <bruno@clisp.org>
+
 	Optimize unneeded code when SIGCLD is not defined.
 	* spvw_sigcld.d (begin_want_sigcld, end_want_sigcld): Do nothing if
 	SIGCLD is not defined.

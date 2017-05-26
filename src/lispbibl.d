@@ -85,6 +85,8 @@
        Put objects at their address by using mmap with MAP_FIXED:
        TRIVIALMAP_MEMORY
          NO_TRIVIALMAP
+       In case of SPVW_PAGES, to prefer SPVW_PURE over SPVW_MIXED:
+         PREFER_PURE_PAGES
        Depending on these, there is an automatic determination of
        - SPVW_BLOCKS vs. SPVW_PAGES,
        - SPVW_MIXED vs. SPVW_PURE,
@@ -4600,8 +4602,14 @@ extern bool inside_gc;
    SPVW_BLOCKS -> SPVW_PURE_BLOCKS is only implemented for SINGLEMAP_MEMORY.
    TRIVIALMAP_MEMORY -> not many blocks available, small adress space. */
   #define SPVW_MIXED
-#elif 1 /* provisionally!?? */
-  #define SPVW_MIXED
+#else
+  /* The decision among SPVW_PURE_PAGES and SPVW_MIXED_PAGES is quite
+     arbitrary. */
+  #if defined(PREFER_PURE_PAGES)
+    #define SPVW_PURE
+  #else
+    #define SPVW_MIXED
+  #endif
 #endif
 #if !(defined(SPVW_BLOCKS) || defined(SPVW_PAGES))
   #error readjust SPVW_BLOCKS/SPVW_PAGES!
