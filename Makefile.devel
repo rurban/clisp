@@ -352,6 +352,7 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-typecodes-spvw_mixed_blocks \
   build-porting32-gcc-spvw_pure_blocks \
   build-porting32-gcc-wide \
+  build-porting32-gcc-limited_memory \
   build-porting32-gcc-old_gc \
   build-porting32-gcc-multithread_gc \
   build-porting32-gcc-generational_gc-old_gc \
@@ -460,6 +461,13 @@ build-porting32-gcc-wide:
 	CPPFLAGS="-DSAFETY=3 -DWIDE" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
+# Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
+build-porting32-gcc-limited_memory:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
 build-porting32-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -521,6 +529,7 @@ multibuild-porting32-cc: \
   build-porting32-cc-typecodes-spvw_mixed_blocks \
   build-porting32-cc-spvw_pure_blocks \
   build-porting32-cc-wide \
+  build-porting32-cc-limited_memory \
   build-porting32-cc-old_gc \
   build-porting32-cc-multithread_gc \
   build-porting32-cc-generational_gc-old_gc \
@@ -627,6 +636,13 @@ build-porting32-cc-wide:
 	CPPFLAGS="-DSAFETY=3 -DWIDE" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
+# Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
+build-porting32-cc-limited_memory:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
 build-porting32-cc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
@@ -682,6 +698,7 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-heapcodes-spvw_mixed_blocks \
   build-porting64-gcc-typecodes-spvw_mixed_blocks \
   build-porting64-gcc-spvw_pure_blocks \
+  build-porting64-gcc-limited_memory \
   build-porting64-gcc-old_gc \
   build-porting64-gcc-multithread_gc \
   build-porting64-gcc-generational_gc-old_gc \
@@ -769,6 +786,13 @@ build-porting64-gcc-spvw_pure_blocks:
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
+# Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
+build-porting64-gcc-limited_memory:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
 build-porting64-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -827,6 +851,7 @@ multibuild-porting64-cc: \
   build-porting64-cc-heapcodes-spvw_mixed_blocks \
   build-porting64-cc-typecodes-spvw_mixed_blocks \
   build-porting64-cc-spvw_pure_blocks \
+  build-porting64-cc-limited_memory \
   build-porting64-cc-old_gc \
   build-porting64-cc-multithread_gc \
   build-porting64-cc-generational_gc-old_gc \
@@ -910,6 +935,13 @@ build-porting64-cc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
+build-porting64-cc-limited_memory:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 build-porting64-cc-old_gc:
