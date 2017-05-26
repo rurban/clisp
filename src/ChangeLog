@@ -1,5 +1,13 @@
 2017-05-26  Bruno Haible  <bruno@clisp.org>
 
+	Allow regular testing of memory management with limited memory size.
+	* Makefile.devel (build-porting32-gcc-limited_memory,
+	build-porting32-cc-limited_memory, build-porting64-gcc-limited_memory,
+	build-porting64-cc-limited_memory): New targets.
+	* modules/asdf/Makefile (asdf.fas): Give it more memory.
+
+2017-05-26  Bruno Haible  <bruno@clisp.org>
+
 	Allow regular testing of SPVW_PURE_PAGES memory management.
 	* lispbibl.d: In SPVW_PAGES case with TYPECODES, test PREFER_PURE_PAGES
 	to decide between SPVW_PURE and SPVW_MIXED.

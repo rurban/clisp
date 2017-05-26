@@ -19,7 +19,7 @@ distribdir =
 clisp-module : $(GENERATED)
 
 asdf.fas: $(srcdir)/asdf.lisp
-	$(CLISP) -c $(srcdir)/asdf.lisp -o ./
+	$(CLISP) -m 2MW -c $(srcdir)/asdf.lisp -o ./
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $(srcdir)/link.sh .
