@@ -1,5 +1,11 @@
 2017-05-26  Bruno Haible  <bruno@clisp.org>
 
+	Optimize unneeded code when SIGCLD is not defined.
+	* spvw_sigcld.d (begin_want_sigcld, end_want_sigcld): Do nothing if
+	SIGCLD is not defined.
+
+2017-05-26  Bruno Haible  <bruno@clisp.org>
+
 	Reinstall the old GC from clisp-2.47.
 	This should provide a reference point when hunting down GC bugs.
 	* lispbibl.d: Document OLD_GC instead of NO_MULTITHREAD_GC.
