@@ -1,5 +1,14 @@
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
+	Put only valid pointers into the FRAME_(frame_SP) of a CHANDLER frame.
+	* pathname.d (signal_type_error): Fetch the thing from the STACK.
+	(LOGICAL-PATHNAME): Pass NULL to make_CHANDLER_frame.
+	* io.d (signal_reader_error): Fetch the stream from the STACK.
+	(read_internal): Put the stream into the STACK, and pass NULL to
+	make_CHANDLER_frame.
+
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
 	New frame type CHANDLER.
 	Needed because GC has to skip 3 words when scanning STACK, not just 2.
 	* lispbibl.d: Describe the CHANDLER frames.

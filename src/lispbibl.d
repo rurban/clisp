@@ -12824,7 +12824,7 @@ extern  gcv_environment_t aktenv;
  make_CHANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
  > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
  > handler: void (*) (void* sp, gcv_object_t* frame, object label, object condition)
- > sp_arg: any void*
+ > sp_arg: a pointer into the C stack, or NULL
  > sp_jmp_buf* returner: longjmp-Buffer for re-entry
  > reentry_statement: what is to be done right after the re-entry. */
 #define make_CHANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
