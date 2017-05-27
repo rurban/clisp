@@ -1,5 +1,14 @@
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
+	Don't put arbitrary C function pointers onto the STACK.
+	* list.d (sublis_assoc): Add pcall_test argument. Use it instead of
+	assuming to find this C function in the STACK.
+	(sublis, nsublis): Add pcall_test argument.
+	(SUBLIS, NSUBLIS): Don't invoke make_machine_code. Put a dummy onto the
+	STACK instead.
+
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
 	Put only valid pointers into the FRAME_(frame_SP) of a CHANDLER frame.
 	* pathname.d (signal_type_error): Fetch the thing from the STACK.
 	(LOGICAL-PATHNAME): Pass NULL to make_CHANDLER_frame.
