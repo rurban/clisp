@@ -1,5 +1,33 @@
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
+	New frame type CHANDLER.
+	Needed because GC has to skip 3 words when scanning STACK, not just 2.
+	* lispbibl.d: Describe the CHANDLER frames.
+	(CHANDLER_frame_info): New macro.
+	(unwind_limit_t, entrypoint_limit_t, skip2_limit_t): Adjust to make room
+	for this frame info.
+	(*_frame_info, nested_bit_t, dynjump_mask_t, driver_bit_t,
+	handler_bit_t, blockgo_max_t): Redefine so that the values fit together.
+	(make_CHANDLER_frame): Renamed from make_HANDLER_frame. Use
+	fake_gcv_object instead of make_machine_code.
+	(make_CHANDLER_entry_frame): Renamed from make_HANDLER_entry_frame. Use
+	fake_gcv_object instead of make_machine_code.
+	(unwind_CHANDLER_frame): Renamed from unwind_HANDLER_frame.
+	* spvw_garcol.d (gc_mark_stack): For CHANDLER frames, skip 3 words,
+	not 2.
+	* spvw_garcol_old.d: Likewise.
+	* spvw_update.d (update_STACKs): Likewise.
+	* eval.d (invoke_handlers): Distinguish CHANDLER frames and HANDLER
+	frames through the frame info.
+	(nest_env): Don't assume that NESTED_ITAGBODY_frame_info and
+	ITAGBODY_frame_info differ by just bit(nested_bit_t).
+	* io.d (signal_reader_error): Fix comment.
+	(read_internal): Update.
+	* pathname.d (LOGICAL_PATHNAME, direntry_to_string): Update.
+	* stream.d (MAYBE_IGNORE_ERRORS, lisp_completion): Update.
+
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
 	Prepare for new frame info byte values.
 	* lispbibl.d (blockgo_bit_t, cframe_bit_t, dynjump_bit_t,
 	blockgo_bit_o, cframe_bit_o, dynjump_bit_o): Remove macros.

@@ -1644,8 +1644,9 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
  condition. */
 local void signal_reader_error (void* sp, gcv_object_t* frame, object label,
                                 object condition) {
+  (void)label;
   var gcv_object_t* stream_ = (gcv_object_t*)sp;
-  /* (SYS::ERROR-OF-TYPE 'READER-ERROR :STREAM label "~A" condition) */
+  /* (SYS::ERROR-OF-TYPE 'READER-ERROR :STREAM stream "~A" condition) */
   pushSTACK(S(reader_error)); pushSTACK(S(Kstream)); pushSTACK(*stream_);
   pushSTACK(O(tildeA)); pushSTACK(condition);
   funcall(L(error_of_type),5);
@@ -1944,8 +1945,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       var object result;
       /* ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR
        into READER-ERROR */
-      make_HANDLER_frame(O(handler_for_arithmetic_error),
-                         &signal_reader_error,stream_);
+      make_CHANDLER_frame(O(handler_for_arithmetic_error),
+                          &signal_reader_error,stream_);
       switch (numtype) {
         case 1:                 /* Integer */
           result = read_integer(base,info.sign,string,info.index1,info.index2);
@@ -1960,7 +1961,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
           break;
         default: NOTREACHED;
       }
-      unwind_HANDLER_frame();
+      unwind_CHANDLER_frame();
       return result;
     }
   }
