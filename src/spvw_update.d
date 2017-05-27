@@ -351,9 +351,12 @@
 #define update_STACKs()                                                 \
   for_all_STACKs(while (!eq(*objptr,nullobj)) { /* until STACK is finished: */ \
     if (as_oint(*objptr) & wbit(frame_bit_o)) { /* here starts a frame? */ \
-      if (framecode(*objptr) < skip2_limit_t) /* below skip2-limit? */  \
-        objptr skipSTACKop 2;                /* yes -> advance by 2 */  \
-      else                                                              \
+      if (framecode(*objptr) < skip2_limit_t) { /* below skip2-limit? */ \
+        if (framecode(*objptr) == CHANDLER_frame_info)                  \
+          objptr skipSTACKop 3;               /* yes -> advance by 3 */ \
+        else                                                            \
+          objptr skipSTACKop 2;               /* ... or 2 */            \
+      } else                                                            \
         objptr skipSTACKop 1;                 /* no -> advance by 1 */  \
     } else {                              /* normal object, update: */  \
       update_stackobj(objptr);                                          \

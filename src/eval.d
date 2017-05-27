@@ -723,7 +723,8 @@ global maygc void invoke_handlers (object cond) {
       break; /* yes -> finised, jump back */
     } else if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
       /* found frame */
-      if (framecode(FRAME_(0)) == HANDLER_frame_info) { /* Handler-Frame? */
+      var fcint frame_info = framecode(FRAME_(0));
+      if (frame_info == HANDLER_frame_info || frame_info == CHANDLER_frame_info) { /* Handler-Frame? */
         /* loop over types of the vectors #(type1 label1 ... typem labelm): */
         var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); /* 2*m */
         var uintL i = 0;
@@ -756,7 +757,7 @@ global maygc void invoke_handlers (object cond) {
               fun(arg);
               NOTREACHED;
             });
-            if (!nullp(Cdr(FRAME_(frame_handlers)))) {
+            if (frame_info == HANDLER_frame_info) {
               /* deactivate Handler: */
               inactive_handlers = &new_range;
               /* make information available for Handler: */
@@ -773,7 +774,7 @@ global maygc void invoke_handlers (object cond) {
               /* reactivate Handler: */
               inactive_handlers = saved_inactive_handlers;
             } else { /* call C-Handler - it must deactivate itself! */
-              void* handler_fn = TheMachineCode(FRAME_(frame_closure));
+              void* handler_fn = (void*)(aint)as_oint(FRAME_(frame_closure));
               ((void (*) (void*, gcv_object_t*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
                  TheSvector(Car(FRAME_(frame_handlers)))->data[i+1],
@@ -1296,7 +1297,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
             Car(env) = popSTACK(); /* new_cons */
             Cdr(env) = popSTACK(); /* previous Alist */
             FRAME_(frame_next_env) = env; /* store new NEXT_ENV */
-            *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); /* this frame is now nested. */
+            *(oint*)(&FRAME_(0)) += (oint)(NESTED_ITAGBODY_frame_info-ITAGBODY_frame_info) << oint_type_shift; /* this frame is now nested. */
           }
         }
       }
@@ -1339,7 +1340,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
             Car(env) = popSTACK(); /* new_cons */
             Cdr(env) = popSTACK(); /* previous Alist */
             FRAME_(frame_next_env) = env; /* store new NEXT_ENV */
-            *(oint*)(&FRAME_(0)) |= wbit(nested_bit_o); /* this frame is now nested. */
+            *(oint*)(&FRAME_(0)) += (oint)(NESTED_IBLOCK_frame_info-IBLOCK_frame_info) << oint_type_shift; /* this frame is now nested. */
           }
         }
       }

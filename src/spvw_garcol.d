@@ -85,9 +85,12 @@ local void gc_mark_stack (gcv_object_t* objptr)
     IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark_stack: 0x%lx/%lu (%lu)\n",
                              objptr,objptr,as_oint(*objptr)));
     if (as_oint(*objptr) & wbit(frame_bit_o)) { /* does a frame start here? */
-      if (framecode(*objptr) < skip2_limit_t) /* below skip2-limit? */
-        objptr skipSTACKop 2; /* yes -> advance by 2 */
-      else
+      if (framecode(*objptr) < skip2_limit_t) { /* below skip2-limit? */
+        if (framecode(*objptr) == CHANDLER_frame_info)
+          objptr skipSTACKop 3; /* yes -> advance by 3 */
+        else
+          objptr skipSTACKop 2; /* ... or 2 */
+      } else
         objptr skipSTACKop 1; /* no -> advance by 1 */
     } else { /* normal object, mark: */
       var object obj = *objptr;
