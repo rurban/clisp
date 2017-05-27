@@ -650,7 +650,7 @@ local bool framep (gcv_object_t* FRAME)
      then FRAME_(0) is part of this frame, which means,
      it is not itself the start of a frame: */
   if (   (!(FRAME==STACK))      /* do not trespass the STACK borders! */
-      && ((as_oint(FRAME_(-1)) & wbit(skip2_bit_o)) == 0)
+      && (framecode(FRAME_(-1)) < skip2_limit_t)
       && framep(FRAME STACKop -1))
     return false;
   return true;                  /* else, a frame starts here. */
@@ -662,12 +662,12 @@ local bool framep (gcv_object_t* FRAME)
 /* Macro: Tests, if the frame at FRAME is a lexical frame. */
 #ifdef entrypoint_bit_t
 #define lexical_frame_p()                                  \
-  (   (!( (as_oint(FRAME_(0)) & wbit(skip2_bit_o)) ==0))   \
+  (   (framecode(FRAME_(0)) >= skip2_limit_t)              \
    || ( (as_oint(FRAME_(0)) & wbit(entrypoint_bit_o)) ==0) \
    || (!( (as_oint(FRAME_(0)) & wbit(blockgo_bit_o)) ==0)))
 #else
 #define lexical_frame_p()                                  \
-  (/* (!( (as_oint(FRAME_(0)) & wbit(skip2_bit_o)) ==0))   \
+  (/* (framecode(FRAME_(0)) >= skip2_limit_t)              \
    || */ (framecode(FRAME_(0)) >= entrypoint_limit_t)      \
    || (!( (as_oint(FRAME_(0)) & wbit(blockgo_bit_o)) ==0)) \
   )
@@ -943,7 +943,7 @@ local void same_env_as (void)
       if (FRAME==STACK)       /* done? */
         goto end;
       if (   frame_p()
-          && (!( (as_oint(FRAME_(0)) & wbit(skip2_bit_o)) ==0))
+          && (framecode(FRAME_(0)) >= skip2_limit_t)
           && (!( (as_oint(FRAME_(0)) & wbit(envbind_bit_o)) ==0)))
         break;
     }

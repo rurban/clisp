@@ -94,7 +94,7 @@ local void gc_mark_stack (gcv_object_t* objptr)
     IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark_stack: 0x%lx/%lu (%lu)\n",
                              objptr,objptr,as_oint(*objptr)));
     if (as_oint(*objptr) & wbit(frame_bit_o)) { /* does a frame start here? */
-      if ((as_oint(*objptr) & wbit(skip2_bit_o)) == 0) /* without skip2-Bit? */
+      if (framecode(*objptr) < skip2_limit_t) /* below skip2-limit? */
         objptr skipSTACKop 2; /* yes -> advance by 2 */
       else
         objptr skipSTACKop 1; /* no -> advance by 1 */
