@@ -7307,17 +7307,19 @@ typedef struct {
 
 /* Pointer to machine code
  make_machine_code(ptr)
- ptr must be a multiple of PSEUDOCODE_ALIGNMENT. */
+ ptr must be a multiple of PSEUDOCODE_ALIGNMENT.
+ make_machine_code_unchecked(ptr) does the same thing, without alignment check.
+*/
 #if PSEUDODATA_ALIGNMENT <= C_CODE_ALIGNMENT
   #define PSEUDOCODE_ALIGNMENT  C_CODE_ALIGNMENT
   #define log2_PSEUDOCODE_ALIGNMENT  log2_C_CODE_ALIGNMENT
   /* The C_CODE_ALIGNMENT implies the PSEUDODATA_ALIGNMENT. */
-  #define make_machine_code(ptr)  make_machine(ptr)
+  #define make_machine_code_unchecked(ptr)  make_machine(ptr)
 #elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
   /* Assume that all function pointers are == 2 mod 4. */
   #define PSEUDOCODE_ALIGNMENT  4
   #define log2_PSEUDOCODE_ALIGNMENT  2
-  #define make_machine_code(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
+  #define make_machine_code_unchecked(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
 #elif !defined(NO_ADDRESS_SPACE_ASSUMPTIONS) \
       && (CODE_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))) \
       && (MALLOC_ADDRESS_RANGE < (oint_data_mask >> oint_data_shift >> (log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))) \
@@ -7327,14 +7329,24 @@ typedef struct {
      bits, and they will still fit into the data part of an oint. */
   #define PSEUDOCODE_ALIGNMENT  C_CODE_ALIGNMENT
   #define log2_PSEUDOCODE_ALIGNMENT  log2_C_CODE_ALIGNMENT
-  #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))
+  #define make_machine_code_unchecked(ptr)  make_machine((uintP)(ptr)<<(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))
 #else
   /* An alignment of PSEUDODATA_ALIGNMENT is also necessary for the C functions.
      When using gcc, this may require adding -falign-functions=4 or
      -falign-functions=8, respectively, to the FALIGNFLAGS in the Makefile. */
   #define PSEUDOCODE_ALIGNMENT  PSEUDODATA_ALIGNMENT
   #define log2_PSEUDOCODE_ALIGNMENT  log2_PSEUDODATA_ALIGNMENT
-  #define make_machine_code(ptr)  make_machine(ptr)
+  #define make_machine_code_unchecked(ptr)  make_machine(ptr)
+#endif
+#if (SAFETY < 2) || (PSEUDOCODE_ALIGNMENT == 1)
+  #define make_machine_code(ptr)  make_machine_code_unchecked(ptr)
+#else
+  extern _Noreturn void error_pseudocode_alignment (uintP address, const char* prefix, const char* name);
+  #define make_machine_code(ptr)  \
+    ((((uintP)(void*)(ptr) & (PSEUDOCODE_ALIGNMENT-1))               \
+      ? (error_pseudocode_alignment((uintP)(void*)(ptr),"",#ptr), 0) \
+      : 0),                                                          \
+     make_machine_code_unchecked(ptr))
 #endif
 
 /* System-Pointer */

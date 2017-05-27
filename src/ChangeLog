@@ -1,5 +1,16 @@
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
+	Add check of make_machine_code argument.
+	* lispbibl.d (make_machine_code_unchecked): Renamed from
+	make_machine_code.
+	(make_machine_code): New macro.
+	(error_pseudocode_alignment): New declaration.
+	* spvw.d (error_pseudocode_alignment): Make global. Add a 'prefix'
+	parameter.
+	(verify_pseudocode_alignment): Pass "&" as prefix argument.
+
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
 	Don't put arbitrary C function pointers onto the STACK.
 	* list.d (sublis_assoc): Add pcall_test argument. Use it instead of
 	assuming to find this C function in the STACK.
