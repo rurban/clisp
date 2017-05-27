@@ -417,7 +417,7 @@ global /*maygc*/ void unwind (void)
  #endif
     { /* (not at APPLY, EVAL untrapped, CATCH, HANDLER,
          IBLOCK or ITAGBODY unnested) */
-      if ((frame_info & bit(skip2_bit_t)) == 0) { /* ENV- or DYNBIND-Frame? */
+      if (frame_info < skip2_limit_t) { /* ENV- or DYNBIND-Frame? */
        #ifdef entrypoint_bit_t
         if (frame_info & bit(entrypoint_bit_t)) /* BLOCK, TAGBODY, CATCH etc. ? */
        #else

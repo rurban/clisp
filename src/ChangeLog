@@ -1,3 +1,15 @@
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
+	Prepare for new frame info byte values.
+	* lispbibl.d (skip2_limit_t): New macro.
+	(skip2_bit_t, skip2_bit_o): Remove macros.
+	* eval.d (unwind): Use skip2_limit_t instead of skip2_bit_t.
+	* spvw_garcol.d (gc_mark_stack): Use skip2_limit_t instead of
+	skip2_bit_o.
+	* spvw_garcol_old.d: Likewise.
+	* spvw_update.d (update_STACKs): Likewise.
+	* debug.d (framep, lexical_frame_p, same_env_as): Likewise.
+
 2017-05-26  Bruno Haible  <bruno@clisp.org>
 
 	Allow regular testing of memory management with limited memory size.

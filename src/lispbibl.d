@@ -12383,20 +12383,22 @@ extern  gcv_environment_t aktenv;
   #endif
   /* depending on it: */
   #define frame_bit_t    FB7  /* garcol_bit as FRAME-identifier */
-  #define skip2_bit_t    FB6  /* unset if GC has to skip two longwords */
+  /* define skip2_limit_t  ...  (below)
+    frame_info < skip2_limit_t  if the GC has to skip two long words
+    frame_info >= skip2_limit_t  if the GC has to skip only the frame bottom word */
   #define unwind_bit_t   FB5  /* set if there's something to do while */
                               /* unwinding the frame */
-  /* skip2-Bit=1 ==> unwind-Bit=1.
-   for further Information within the Frames with skip2-Bit=1: */
+  /* frame_info >= skip2_limit_t ==> unwind-Bit=1. */
+  /* for further Information within the Frames with frame_info >= skip2_limit_t: */
   #define envbind_bit_t  FB4  /* Bit set for ENV-Frames. */
                               /* Bit is unset for DYNBIND-Frames. */
   /* for further identification of the ENV-Frames: */
   #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-  /* for further discrimination within the Frames with skip2-Bit=0: */
+  /* for further discrimination within the Frames with frame_info < skip2_limit_t: */
   #define entrypoint_bit_t  FB4  /* Bit is set, if FRAME contains */
   /* a non-local entrypoint, with Offset SP_, SP is on the STACK.
-   Bit is unset for VAR/FUN-Frame and CALLBACK-Frame.
-   for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
+   Bit is unset for VAR/FUN-Frame and CALLBACK-Frame. */
+  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
   #define blockgo_bit_t    FB3  /* Bit set for BLOCK- and TAGBODY-FRAME */
   /* for further discrimination in BLOCK/TAGBODY: */
   #define cframe_bit_t     FB1  /* set for compiled BLOCK/TAGBODY-Frames, */
@@ -12423,7 +12425,6 @@ extern  gcv_environment_t aktenv;
   #define fun_bit_t      FB2    /* set for FUN-Frame, unset for VAR-Frame */
   /* on objects on the STACK (oint): */
   #define      frame_bit_o      (frame_bit_t+oint_type_shift)
-  #define      skip2_bit_o      (skip2_bit_t+oint_type_shift)
   #define     unwind_bit_o     (unwind_bit_t+oint_type_shift)
   #define    envbind_bit_o    (envbind_bit_t+oint_type_shift)
   #define   callback_bit_o   (callback_bit_t+oint_type_shift)
@@ -12446,6 +12447,7 @@ extern  gcv_environment_t aktenv;
   #define ENV1D_frame_info            /* %1111100 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3))
   #define ENV2VD_frame_info           /* %1111101 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define ENV5_frame_info             /* %1111110 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
+  #define skip2_limit_t                              (bit(FB7)|bit(FB6))
   #ifdef HAVE_SAVED_REGISTERS
     #define CALLBACK_frame_info         /* %10100.. */ (bit(FB7)|bit(FB5))
   #endif
@@ -12494,22 +12496,26 @@ extern  gcv_environment_t aktenv;
   #endif
   /* depending on it: */
   #define frame_bit_t    FB6  /* garcol_bit as FRAME-indicator */
-  #define skip2_bit_t    FB5  /* unset if the GC has to skip two long words */
-  /* define unwind_limit_t  ...  # above:
-   if there's something to be done while to unwind a Frame
-   skip2-Bit=1 ==> >= unwind-limit.
-   for further information within the Frames with skip2-Bit=1: */
+  /* define skip2_limit_t  ...  (below)
+    frame_info < skip2_limit_t  if the GC has to skip two long words
+    frame_info >= skip2_limit_t  if the GC has to skip only the frame bottom word */
+  /* define unwind_limit_t  ...  (below)
+    frame_info >= unwind_limit_t  if there's something to be done while unwinding the frame
+    Note: skip2_limit_t >= unwind_limit_t. */
+  /* for further information within the Frames with frame_info >= skip2_limit_t: */
   #define envbind_bit_t  FB4  /* Bit is set for ENV-Frames. */
                               /* Bit unset for DYNBIND-Frames. */
   /* for further identification within the ENV-Frames: */
   #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-  /* for further discrimination with the Frames with skip2-Bit=0:
-   define entrypoint_limit_t  ...  # below:
-   if FRAME contains a non-local entry point
-   with Offset SP_ SP is on the STACK.
-   above: for VAR/FUN-Frame and CALLBACK-Frame.
-   for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
-  #define blockgo_bit_t    FB3  /* Bit set for BLOCK- and TAGBODY-FRAME */
+  /* for further discrimination with the Frames with frame_info < skip2_limit_t:
+   define entrypoint_limit_t  ...  (below)
+   frame_info < entrypoint_limit_t
+     if FRAME contains a non-local entry point
+     with Offset SP_ SP is on the STACK.
+   frame_info >= entrypoint_limit_t
+     for VAR/FUN-Frame and CALLBACK-Frame. */
+  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
+  #define blockgo_bit_t  FB3  /* Bit set for BLOCK- and TAGBODY-FRAME */
   /* for further discrimination in BLOCK/TAGBODY: */
   #define cframe_bit_t   FB4  /* set for compiled, unset for */
                               /* interpreted BLOCK/TAGBODY-Frames */
@@ -12529,13 +12535,12 @@ extern  gcv_environment_t aktenv;
   #define handler_bit_t  FB1  /* set for HANDLER-Frames, */
                               /* unset for CATCH-Frames */
   /* for further discrimination in VAR/FUN/CALLBACK: */
-  #define callback_bit_t   FB2  /* Bit is unset for CALLBACK-Frames. */
-                                /* Bit is set for VAR/FUN-Frames. */
+  #define callback_bit_t FB2  /* Bit is unset for CALLBACK-Frames. */
+                              /* Bit is set for VAR/FUN-Frames. */
   /* for further discrimination in VAR/FUN: */
   #define fun_bit_t      FB1  /* set for FUN-Frame, unset for VAR-Frame */
   /* in Objects on the STACK (oint): */
   #define    frame_bit_o    (frame_bit_t+oint_type_shift)
-  #define    skip2_bit_o    (skip2_bit_t+oint_type_shift)
   #define  envbind_bit_o  (envbind_bit_t+oint_type_shift)
   #define callback_bit_o (callback_bit_t+oint_type_shift)
   #define  blockgo_bit_o  (blockgo_bit_t+oint_type_shift)
@@ -12568,6 +12573,7 @@ extern  gcv_environment_t aktenv;
   #endif
   #define VAR_frame_info              /* %101110 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2))
   #define FUN_frame_info              /* %101111 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
+  #define skip2_limit_t                             (bit(FB6)|bit(FB5))
   #define DYNBIND_frame_info          /* %110... */ (bit(FB6)|bit(FB5))
   #define ENV1V_frame_info            /* %111000 */ (bit(FB6)|bit(FB5)|bit(FB4))
   #define ENV1F_frame_info            /* %111001 */ (bit(FB6)|bit(FB5)|bit(FB4)|bit(FB1))
