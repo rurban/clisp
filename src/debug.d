@@ -664,14 +664,28 @@ local bool framep (gcv_object_t* FRAME)
 #define lexical_frame_p()                                  \
   (   (framecode(FRAME_(0)) >= skip2_limit_t)              \
    || ( (as_oint(FRAME_(0)) & wbit(entrypoint_bit_o)) ==0) \
-   || (!( (as_oint(FRAME_(0)) & wbit(blockgo_bit_o)) ==0)))
+   || blockgo_frame_p(framecode(FRAME_(0)))                \
+  )
 #else
 #define lexical_frame_p()                                  \
   (/* (framecode(FRAME_(0)) >= skip2_limit_t)              \
    || */ (framecode(FRAME_(0)) >= entrypoint_limit_t)      \
-   || (!( (as_oint(FRAME_(0)) & wbit(blockgo_bit_o)) ==0)) \
+   || blockgo_frame_p(framecode(FRAME_(0)))                \
   )
 #endif
+local bool blockgo_frame_p(fcint frame_info)
+{
+  switch (frame_info) {
+    case IBLOCK_frame_info:
+    case ITAGBODY_frame_info:
+    case NESTED_IBLOCK_frame_info:
+    case NESTED_ITAGBODY_frame_info:
+    case CBLOCK_CTAGBODY_frame_info:
+      return true;
+    default:
+      return false;
+  }
+}
 
 /* Macro: Tests, if the frame at FRAME is an EVAL/APPLY frame. */
 #define evalapply_frame_p()  \

@@ -1,6 +1,19 @@
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
 	Prepare for new frame info byte values.
+	* lispbibl.d (blockgo_bit_t, cframe_bit_t, dynjump_bit_t,
+	blockgo_bit_o, cframe_bit_o, dynjump_bit_o): Remove macros.
+	(blockgo_max_t, dynjump_mask_t): New macros.
+	(*_frame_info, driver_bit_t): Redefine so that blockgo_max_t works.
+	* eval.d (unwind): Use blockgo_max_t instead of blockgo_bit_t. Use
+	CBLOCK_CTAGBODY_frame_info instead of cframe_bit_t. Use dynjump_mask_t
+	instead of dynjump_bit_t.
+	* debug.d (blockgo_frame_p): New function.
+	(lexical_frame_p): Use it.
+
+2017-05-27  Bruno Haible  <bruno@clisp.org>
+
+	Prepare for new frame info byte values.
 	* lispbibl.d (skip2_limit_t): New macro.
 	(skip2_bit_t, skip2_bit_o): Remove macros.
 	* eval.d (unwind): Use skip2_limit_t instead of skip2_bit_t.
