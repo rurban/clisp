@@ -2048,14 +2048,17 @@ local maygc object parse_as_logical (object obj) {
    condition. */
 local void signal_type_error (void* sp, gcv_object_t* frame, object label,
                               object condition) {
-  var gcv_object_t* thing_ = (gcv_object_t*)sp;
-  (void)label; (void)frame;
+  (void)sp; (void)label;
+  /* Fetch the thing. It was in STACK_0 before the frame was established. */
+  var gcv_object_t* FRAME = frame;
+  FRAME = topofframe(FRAME_(0));
+  var object thing = FRAME_(0);
   /* (SYS::ERROR-OF-TYPE 'TYPE-ERROR
         :DATUM thing
         :EXPECTED-TYPE '(AND STRING (SATISFIES SYSTEM::VALID-LOGICAL-PATHNAME-STRING-P))
         "~A" condition) */
   pushSTACK(S(type_error));
-  pushSTACK(S(Kdatum)); pushSTACK(*thing_);
+  pushSTACK(S(Kdatum)); pushSTACK(thing);
   pushSTACK(S(Kexpected_type)); pushSTACK(O(type_logical_pathname_string));
   pushSTACK(O(tildeA)); pushSTACK(condition);
   funcall(L(error_of_type),7);
@@ -2088,8 +2091,7 @@ LISPFUNNS(logical_pathname,1)
     VALUES1(pathname);
   } else {
     /* ANSI CL requires that we transform PARSE-ERROR into TYPE-ERROR. */
-    var gcv_object_t* thing_ = &STACK_0;
-    make_CHANDLER_frame(O(handler_for_parse_error), &signal_type_error, thing_);
+    make_CHANDLER_frame(O(handler_for_parse_error),&signal_type_error,NULL);
     var object pathname = parse_as_logical(thing);
     unwind_CHANDLER_frame();
     /* Check that a host was given. This makes it hard to create relative
