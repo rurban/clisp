@@ -1330,12 +1330,12 @@ LISPFUN(nsubst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
  sublis_assoc(stackptr)
  > *(stackptr+3) = alist
  > stackptr: *(stackptr-1) = KEY
- > *(stackptr-3) = TESTFUN = test function, called on each list element
+ > pcall_test = TESTFUN = test function, called on each list element
        (u . v) with the same stackptr and with (KEY x) and u as arguments.
        returns true, when the test passes, false otherwise.
  < return: list element (a CONS) or NIL
  can trigger GC */
-local maygc object sublis_assoc (gcv_object_t* stackptr)
+local maygc object sublis_assoc (gcv_object_t* stackptr, funarg_t* pcall_test)
 {
   var object alist = *(stackptr STACKop 3);
   pushSTACK(alist); /* save the list ((u . v) ...) */
@@ -1358,12 +1358,10 @@ local maygc object sublis_assoc (gcv_object_t* stackptr)
        it is more in line with the ASSOC behavior */
     var object head = Car(STACK_0);
     if (mconsp(head)) { /* skip atoms in the list */
-      /* test whether the 2-argument test function
-         *(stackptr-3) (an adress!), called on u and the
-         value in *(stackptr-2), returns true: */
+      /* test whether the 2-argument test function pcall_test, called on u and
+         the value in *(stackptr-2), returns true: */
       var bool erg = /* 2-argument test function, called on (KEY x) and u */
-        (*(funarg_t*)TheMachineCode(*(stackptr STACKop -3)))
-        ( stackptr, *(stackptr STACKop -2), Car(head) );
+        pcall_test(stackptr, *(stackptr STACKop -2), Car(head));
       if (erg) /* test passed ==> return x = (u . v) = (CAR alist) */
         return Car(popSTACK());
       /* test failed */
@@ -1385,12 +1383,12 @@ local maygc object sublis_assoc (gcv_object_t* stackptr)
              *(stackptr-2) is free for (KEY x)
  < result: (evtl. newer) Tree
  can trigger GC */
-local maygc object sublis (object tree, gcv_object_t* stackptr) {
+local maygc object sublis (object tree, gcv_object_t* stackptr, funarg_t* pcall_test) {
   /* First calculate (KEY tree) and call ASSOC: */
   pushSTACK(tree); /* save tree */
   funcall_key(*(stackptr STACKop -1),tree); /* (KEY tree) */
   *(stackptr STACKop -2) = value1; /* save for sublis_assoc */
-  var object assoc_erg = sublis_assoc(stackptr);
+  var object assoc_erg = sublis_assoc(stackptr,pcall_test);
   if (consp(assoc_erg)) { /* Test ok */
     skipSTACK(1); return Cdr(assoc_erg); /* (CDR (ASSOC ...)) as value */
   } else /* Test not ok */
@@ -1401,10 +1399,10 @@ local maygc object sublis (object tree, gcv_object_t* stackptr) {
       /* Argument is a Cons -> call SUBLIS recursively: */
       check_STACK(); check_SP();
       /* call recursively for the CDR: */
-      var object new_cdr = sublis(Cdr(STACK_0),stackptr);
+      var object new_cdr = sublis(Cdr(STACK_0),stackptr,pcall_test);
       pushSTACK(new_cdr); /* save CDR result */
       /* call recursively for the CAR: */
-      var object new_car = sublis(Car(STACK_1),stackptr);
+      var object new_car = sublis(Car(STACK_1),stackptr,pcall_test);
       if (eq(new_car,Car(STACK_1)) && eq(STACK_0,Cdr(STACK_1))) {
         /* both unchanged */
         skipSTACK(1); /* skip CDR result */
@@ -1428,9 +1426,9 @@ LISPFUN(sublis,seclass_default,2,0,norest,key,3,
     skipSTACK(5);
   } else {
     pushSTACK(NIL); /* Dummy */
-    pushSTACK(make_machine_code(pcall_test)); /* Testfunction, because of Typeinfo=machine_type GC-safe! */
-    /* stack layout: alist, tree, test, test_not, key, dummy, pcall_test. */
-    VALUES1(sublis(STACK_5,stackptr)); /* do the substitution */
+    pushSTACK(NIL); /* Dummy */
+    /* stack layout: alist, tree, test, test_not, key, dummy, dummy. */
+    VALUES1(sublis(STACK_5,stackptr,pcall_test)); /* do the substitution */
     skipSTACK(7);
   }
 }
@@ -1438,18 +1436,18 @@ LISPFUN(sublis,seclass_default,2,0,norest,key,3,
 /* UP: Replaces in tree all x by its A-LIST representation (by ASSOC):
  x is replaced by the first v, so that (u . v) is a member in ALIST and
  (KEY x) and u pass the TESTFUNction. Destructively (in-place).
- sublis(tree,stackptr)
+ nsublis(tree,stackptr)
  > tree: the Tree
  > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
              *(stackptr-2) is free for (KEY x)
  < result: same Tree CAR
  can trigger GC */
-local maygc object nsublis (object tree, gcv_object_t* stackptr) {
+local maygc object nsublis (object tree, gcv_object_t* stackptr, funarg_t* pcall_test) {
   /* First calculate (KEY tree) and call ASSOC: */
   pushSTACK(tree); /* save tree */
   funcall_key(*(stackptr STACKop -1),tree); /* (KEY tree) */
   *(stackptr STACKop -2) = value1; /* save for sublis_assoc */
-  var object assoc_erg = sublis_assoc(stackptr);
+  var object assoc_erg = sublis_assoc(stackptr,pcall_test);
   if (consp(assoc_erg)) { /* Test ok */
     skipSTACK(1); return Cdr(assoc_erg); /* (CDR (ASSOC ...)) as value */
   } else { /* Test not ok */
@@ -1457,11 +1455,11 @@ local maygc object nsublis (object tree, gcv_object_t* stackptr) {
       /* Argument is a Cons -> call NSUBLIS recursively: */
       check_STACK(); check_SP();
       { /* call recursively for the CDR: */
-        var object modified_cdr = nsublis(Cdr(STACK_0),stackptr);
+        var object modified_cdr = nsublis(Cdr(STACK_0),stackptr,pcall_test);
         Cdr(STACK_0) = modified_cdr;
       }
       { /* call recursively for the CAR: */
-        var object modified_car = nsublis(Car(STACK_0),stackptr);
+        var object modified_car = nsublis(Car(STACK_0),stackptr,pcall_test);
         Car(STACK_0) = modified_car;
       }
     }
@@ -1481,9 +1479,9 @@ LISPFUN(nsublis,seclass_default,2,0,norest,key,3,
     skipSTACK(5);
   } else {
     pushSTACK(NIL); /* Dummy */
-    pushSTACK(make_machine_code(pcall_test)); /* Testfunction, because of Typeinfo=machine_type GC-safe! */
-    /* Stackaufbau: alist, tree, test, test_not, key, dummy, pcall_test. */
-    VALUES1(nsublis(STACK_5,stackptr)); /* do the substitution */
+    pushSTACK(NIL); /* Dummy */
+    /* Stackaufbau: alist, tree, test, test_not, key, dummy, dummy. */
+    VALUES1(nsublis(STACK_5,stackptr,pcall_test)); /* do the substitution */
     skipSTACK(7);
   }
 }
