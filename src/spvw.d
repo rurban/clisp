@@ -1340,10 +1340,10 @@ local _Noreturn void error_pseudodata_alignment (uintP address, const char* name
 #else
   #define verify_pseudocode_alignment(ptr,name)  \
     if ((uintP)(void*)(ptr) & (PSEUDOCODE_ALIGNMENT-1))     \
-      error_pseudocode_alignment((uintP)(void*)(ptr),name)
-local _Noreturn void error_pseudocode_alignment (uintP address, const char* name) {
-  fprintf(stderr,"PSEUDOCODE_ALIGNMENT is not fulfilled. &%s = 0x%lx.\n",
-          name, (unsigned long)address);
+      error_pseudocode_alignment((uintP)(void*)(ptr),"&",name)
+global _Noreturn void error_pseudocode_alignment (uintP address, const char* prefix, const char* name) {
+  fprintf(stderr,"PSEUDOCODE_ALIGNMENT is not fulfilled. %s%s = 0x%lx.\n",
+          prefix, name, (unsigned long)address);
  #if (__GNUC__ >= 3)
   fprintf(stderr,"Add -falign-functions=%d to FALIGNFLAGS in the Makefile.\n",
           PSEUDOCODE_ALIGNMENT);
