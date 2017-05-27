@@ -12399,15 +12399,15 @@ extern  gcv_environment_t aktenv;
   /* a non-local entrypoint, with Offset SP_, SP is on the STACK.
    Bit is unset for VAR/FUN-Frame and CALLBACK-Frame. */
   /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
-  #define blockgo_bit_t    FB3  /* Bit set for BLOCK- and TAGBODY-FRAME */
+  /* define blockgo_max_t  (below)
+     >= all BLOCK/TAGBODY frame infos,
+     < UNWIND_PROTECT_frame_info, DRIVER_frame_info. */
   /* for further discrimination in BLOCK/TAGBODY: */
-  #define cframe_bit_t     FB1  /* set for compiled BLOCK/TAGBODY-Frames, */
-                                /* unset for interpreted BLOCK/TAGBODY-Frames */
   #define nested_bit_t unwind_bit_t /* set for IBLOCK and ITAGBODY, */
                                     /* if Exitpoint resp. Tags were nested */
   /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
-  #define dynjump_bit_t  FB2    /* unset for APPLY and EVAL, set */
-                                /* for CATCH/UNWIND_PROTECT/DRIVER-Frames */
+  #define dynjump_mask_t  bit(FB2)  /* unset for APPLY and EVAL, */
+                                /* partially set for CATCH/UNWIND_PROTECT/DRIVER-Frames */
   #define trapped_bit_t unwind_bit_t /* set for APPLY and EVAL, if */
                                 /* interrupted while unwinding the Frame */
   /* unwind-Bit set for UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
@@ -12429,10 +12429,7 @@ extern  gcv_environment_t aktenv;
   #define    envbind_bit_o    (envbind_bit_t+oint_type_shift)
   #define   callback_bit_o   (callback_bit_t+oint_type_shift)
   #define entrypoint_bit_o (entrypoint_bit_t+oint_type_shift)
-  #define    blockgo_bit_o    (blockgo_bit_t+oint_type_shift)
-  #define     cframe_bit_o     (cframe_bit_t+oint_type_shift)
   #define     nested_bit_o     (nested_bit_t+oint_type_shift)
-  #define    dynjump_bit_o    (dynjump_bit_t+oint_type_shift)
   #define    trapped_bit_o    (trapped_bit_t+oint_type_shift)
   #define       eval_bit_o       (eval_bit_t+oint_type_shift)
   #define     driver_bit_o     (driver_bit_t+oint_type_shift)
@@ -12449,23 +12446,24 @@ extern  gcv_environment_t aktenv;
   #define ENV5_frame_info             /* %1111110 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
   #define skip2_limit_t                              (bit(FB7)|bit(FB6))
   #ifdef HAVE_SAVED_REGISTERS
-    #define CALLBACK_frame_info         /* %10100.. */ (bit(FB7)|bit(FB5))
+    #define CALLBACK_frame_info       /* %10100.. */ (bit(FB7)|bit(FB5))
   #endif
   #define VAR_frame_info              /* %101010. */ (bit(FB7)|bit(FB5)|bit(FB3))
   #define FUN_frame_info              /* %101011. */ (bit(FB7)|bit(FB5)|bit(FB3)|bit(FB2))
-  #define IBLOCK_frame_info           /* %1001100 */ (bit(FB7)|bit(FB4)|bit(FB3))
-  #define NESTED_IBLOCK_frame_info    /* %1011100 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3))
-  #define ITAGBODY_frame_info         /* %1001110 */ (bit(FB7)|bit(FB4)|bit(FB3)|bit(FB2))
-  #define NESTED_ITAGBODY_frame_info  /* %1011110 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
-  #define CBLOCK_CTAGBODY_frame_info  /* %1011101 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
-  #define APPLY_frame_info            /* %1001000 */ (bit(FB7)|bit(FB4))
-  #define TRAPPED_APPLY_frame_info    /* %1011000 */ (bit(FB7)|bit(FB5)|bit(FB4))
-  #define EVAL_frame_info             /* %1001001 */ (bit(FB7)|bit(FB4)|bit(FB1))
-  #define TRAPPED_EVAL_frame_info     /* %1011001 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB1))
-  #define CATCH_frame_info            /* %1001010 */ (bit(FB7)|bit(FB4)|bit(FB2))
-  #define HANDLER_frame_info          /* %1001011 */ (bit(FB7)|bit(FB4)|bit(FB2)|bit(FB1))
-  #define UNWIND_PROTECT_frame_info   /* %1011010 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2))
-  #define DRIVER_frame_info           /* %1011011 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2)|bit(FB1))
+  #define IBLOCK_frame_info           /* %1001000 */ (bit(FB7)|bit(FB4))
+  #define NESTED_IBLOCK_frame_info    /* %1011000 */ (bit(FB7)|bit(FB5)|bit(FB4))
+  #define ITAGBODY_frame_info         /* %1001010 */ (bit(FB7)|bit(FB4)|bit(FB2))
+  #define NESTED_ITAGBODY_frame_info  /* %1011010 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2))
+  #define CBLOCK_CTAGBODY_frame_info  /* %1011001 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB1))
+  #define APPLY_frame_info            /* %1001100 */ (bit(FB7)|bit(FB4)|bit(FB3))
+  #define TRAPPED_APPLY_frame_info    /* %1011100 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3))
+  #define EVAL_frame_info             /* %1001101 */ (bit(FB7)|bit(FB4)|bit(FB3)|bit(FB1))
+  #define TRAPPED_EVAL_frame_info     /* %1011101 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
+  #define CATCH_frame_info            /* %1001110 */ (bit(FB7)|bit(FB4)|bit(FB3)|bit(FB2))
+  #define HANDLER_frame_info          /* %1001111 */ (bit(FB7)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
+  #define UNWIND_PROTECT_frame_info   /* %1011110 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
+  #define DRIVER_frame_info           /* %1011111 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
+  #define blockgo_max_t                              (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2))
 #endif
 #if (oint_type_len==6) || 1 /* provisionally?? */
   /* bit numbers in Frame-Info-Byte:
@@ -12515,22 +12513,22 @@ extern  gcv_environment_t aktenv;
    frame_info >= entrypoint_limit_t
      for VAR/FUN-Frame and CALLBACK-Frame. */
   /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
-  #define blockgo_bit_t  FB3  /* Bit set for BLOCK- and TAGBODY-FRAME */
+  /* define blockgo_max_t  (below)
+     >= all BLOCK/TAGBODY frame infos,
+     < UNWIND_PROTECT_frame_info, DRIVER_frame_info. */
   /* for further discrimination in BLOCK/TAGBODY: */
-  #define cframe_bit_t   FB4  /* set for compiled, unset for */
-                              /* interpreted BLOCK/TAGBODY-Frames */
   #define nested_bit_t   FB2  /* set for IBLOCK and ITAGBODY, */
                               /* if exit point or Tags have been nested */
   /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER: */
-  #define dynjump_bit_t  FB2  /* unset for APPLY and EVAL, set */
-                              /* for CATCH/UNWIND_PROTECT/HANDLER/DRIVER-Frames */
+  #define dynjump_mask_t  (bit(FB2)|bit(FB3))  /* unset for APPLY and EVAL, */
+                              /* partially set for CATCH/UNWIND_PROTECT/HANDLER/DRIVER-Frames */
   #define trapped_bit_t  FB4  /* set for APPLY and EVAL, if interruped while */
                               /* unwinding the Frames */
   /* >= unwind_limit_t for UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
    < unwind_limit_t else. */
   #define eval_bit_t     FB1  /* set for EVAL-Frames, */
                               /* unset for APPLY-Frames */
-  #define driver_bit_t   FB1  /* set for DRIVER-Frames, */
+  #define driver_bit_t   FB3  /* set for DRIVER-Frames, */
                               /* unset for UNWIND_PROTECT-Frames */
   #define handler_bit_t  FB1  /* set for HANDLER-Frames, */
                               /* unset for CATCH-Frames */
@@ -12543,10 +12541,7 @@ extern  gcv_environment_t aktenv;
   #define    frame_bit_o    (frame_bit_t+oint_type_shift)
   #define  envbind_bit_o  (envbind_bit_t+oint_type_shift)
   #define callback_bit_o (callback_bit_t+oint_type_shift)
-  #define  blockgo_bit_o  (blockgo_bit_t+oint_type_shift)
-  #define   cframe_bit_o   (cframe_bit_t+oint_type_shift)
   #define   nested_bit_o   (nested_bit_t+oint_type_shift)
-  #define  dynjump_bit_o  (dynjump_bit_t+oint_type_shift)
   #define  trapped_bit_o  (trapped_bit_t+oint_type_shift)
   #define     eval_bit_o     (eval_bit_t+oint_type_shift)
   #define   driver_bit_o   (driver_bit_t+oint_type_shift)
@@ -12564,12 +12559,13 @@ extern  gcv_environment_t aktenv;
   #define NESTED_ITAGBODY_frame_info  /* %100111 */ (bit(FB6)|bit(FB3)|bit(FB2)|bit(FB1))
   #define TRAPPED_APPLY_frame_info    /* %101000 */ (bit(FB6)|bit(FB4))
   #define TRAPPED_EVAL_frame_info     /* %101001 */ (bit(FB6)|bit(FB4)|bit(FB1))
-  #define UNWIND_PROTECT_frame_info   /* %101010 */ (bit(FB6)|bit(FB4)|bit(FB2))
-  #define DRIVER_frame_info           /* %101011 */ (bit(FB6)|bit(FB4)|bit(FB2)|bit(FB1))
-  #define CBLOCK_CTAGBODY_frame_info  /* %101100 */ (bit(FB6)|bit(FB4)|bit(FB3))
+  #define CBLOCK_CTAGBODY_frame_info  /* %101010 */ (bit(FB6)|bit(FB4)|bit(FB2))
+  #define blockgo_max_t                             (bit(FB6)|bit(FB4)|bit(FB2))
+  #define UNWIND_PROTECT_frame_info   /* %101011 */ (bit(FB6)|bit(FB4)|bit(FB2)|bit(FB1))
+  #define DRIVER_frame_info           /* %101100 */ (bit(FB6)|bit(FB4)|bit(FB3))
   #define entrypoint_limit_t                        (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
   #ifdef HAVE_SAVED_REGISTERS
-  #define CALLBACK_frame_info         /* %101101 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
+    #define CALLBACK_frame_info       /* %101101 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
   #endif
   #define VAR_frame_info              /* %101110 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2))
   #define FUN_frame_info              /* %101111 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))

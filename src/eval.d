@@ -424,9 +424,9 @@ global /*maygc*/ void unwind (void)
         if (frame_info < entrypoint_limit_t) /* BLOCK, TAGBODY, CATCH etc. ? */
        #endif
           /* Frame with Exitpoint */
-          if (frame_info & bit(blockgo_bit_t)) { /* BLOCK or TAGBODY? */
+          if (frame_info <= blockgo_max_t) { /* BLOCK or TAGBODY? */
             /* BLOCK_FRAME or TAGBODY_FRAME */
-            if (frame_info & bit(cframe_bit_t)) { /* compiled? */
+            if (frame_info == CBLOCK_CTAGBODY_frame_info) { /* compiled? */
               /* CBLOCK_FRAME or CTAGBODY_FRAME
                  In Cons (NAME/Tags . <Framepointer>) */
               Cdr(STACK_(frame_ctag)) = disabled; /* disable Exit/Tags */
@@ -438,7 +438,7 @@ global /*maygc*/ void unwind (void)
             }
           } else {
             /* UNWIND_PROTECT_FRAME DRIVER_FRAME or trapped APPLY/EVAL_FRAME */
-            if (frame_info & bit(dynjump_bit_t)) {
+            if (frame_info & dynjump_mask_t) {
               /* UNWIND_PROTECT_FRAME or DRIVER_FRAME */
               if (frame_info & bit(driver_bit_t)) {
                 /* DRIVER_FRAME */
