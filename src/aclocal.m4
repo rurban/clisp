@@ -1719,7 +1719,57 @@ AC_DEFUN([gl___BUILTIN_EXPECT],
     ])
 ])
 
-# close.m4 serial 8
+# c-strtod.m4 serial 15
+
+# Copyright (C) 2004-2006, 2009-2017 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Paul Eggert.
+
+AC_DEFUN([gl_C99_STRTOLD],
+[
+  AC_CACHE_CHECK([whether strtold conforms to C99],
+    [gl_cv_func_c99_strtold],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+          [[/* On HP-UX before 11.23, strtold returns a struct instead of
+                long double.  Reject implementations like that, by requiring
+                compatibility with the C99 prototype.  */
+             #include <stdlib.h>
+             static long double (*p) (char const *, char **) = strtold;
+             static long double
+             test (char const *nptr, char **endptr)
+             {
+               long double r;
+               r = strtold (nptr, endptr);
+               return r;
+             }]],
+           [[return test ("1.0", NULL) != 1 || p ("1.0", NULL) != 1;]])],
+       [gl_cv_func_c99_strtold=yes],
+       [gl_cv_func_c99_strtold=no])])
+  if test $gl_cv_func_c99_strtold = yes; then
+    AC_DEFINE([HAVE_C99_STRTOLD], [1], [Define to 1 if strtold conforms to C99.])
+  fi
+])
+
+dnl Prerequisites of lib/c-strtod.c.
+AC_DEFUN([gl_C_STRTOD],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_FUNCS([strtod_l])
+])
+
+dnl Prerequisites of lib/c-strtold.c.
+AC_DEFUN([gl_C_STRTOLD],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_REQUIRE([gl_C99_STRTOLD])
+  AC_CHECK_FUNCS([strtold_l])
+])
+
+# close.m4 serial 9
 dnl Copyright (C) 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1728,10 +1778,12 @@ dnl with or without modifications, as long as this notice is preserved.
 AC_DEFUN([gl_FUNC_CLOSE],
 [
   AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
-  AC_REQUIRE([gl_MSVC_INVAL])
-  if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
-    REPLACE_CLOSE=1
-  fi
+  m4_ifdef([gl_MSVC_INVAL], [
+    AC_REQUIRE([gl_MSVC_INVAL])
+    if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
+      REPLACE_CLOSE=1
+    fi
+  ])
   m4_ifdef([gl_PREREQ_SYS_H_WINSOCK2], [
     gl_PREREQ_SYS_H_WINSOCK2
     if test $UNISTD_H_HAVE_WINSOCK2_H = 1; then
@@ -3556,7 +3608,7 @@ AC_DEFUN([AM_GNU_GETTEXT_VERSION], [])
 dnl Usage: AM_GNU_GETTEXT_REQUIRE_VERSION([gettext-version])
 AC_DEFUN([AM_GNU_GETTEXT_REQUIRE_VERSION], [])
 
-# serial 21
+# serial 23
 
 # Copyright (C) 2001-2003, 2005, 2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -3567,9 +3619,10 @@ dnl From Jim Meyering.
 
 AC_DEFUN([gl_FUNC_GETTIMEOFDAY],
 [
-  AC_REQUIRE([AC_C_RESTRICT])
-  AC_REQUIRE([gl_HEADER_SYS_TIME_H])
   AC_REQUIRE([gl_HEADER_SYS_TIME_H_DEFAULTS])
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_REQUIRE([gl_HEADER_SYS_TIME_H])
   AC_CHECK_FUNCS_ONCE([gettimeofday])
 
   gl_gettimeofday_timezone=void
@@ -3612,19 +3665,11 @@ int gettimeofday (struct timeval *restrict, struct timezone *restrict);
     if test $REPLACE_STRUCT_TIMEVAL = 1; then
       REPLACE_GETTIMEOFDAY=1
     fi
-    m4_ifdef([gl_FUNC_TZSET_CLOBBER], [
-      gl_FUNC_TZSET_CLOBBER
-      case "$gl_cv_func_tzset_clobber" in
-        *yes)
-          REPLACE_GETTIMEOFDAY=1
-          gl_GETTIMEOFDAY_REPLACE_LOCALTIME
-          AC_DEFINE([tzset], [rpl_tzset],
-            [Define to rpl_tzset if the wrapper function should be used.])
-          AC_DEFINE([TZSET_CLOBBERS_LOCALTIME], [1],
-            [Define if tzset clobbers localtime's static buffer.])
-          ;;
-      esac
-    ])
+    dnl On mingw, the original gettimeofday has only a precision of 15.6
+    dnl milliseconds. So override it.
+    case "$host_os" in
+      mingw*) REPLACE_GETTIMEOFDAY=1 ;;
+    esac
   fi
   AC_DEFINE_UNQUOTED([GETTIMEOFDAY_TIMEZONE], [$gl_gettimeofday_timezone],
     [Define this to 'void' or 'struct timezone' to match the system's
@@ -3643,6 +3688,7 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
 [
  AC_REQUIRE([gl_HEADER_SYS_TIME_H])
  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+ AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
 
  AC_CACHE_CHECK([whether gettimeofday clobbers localtime buffer],
   [gl_cv_func_gettimeofday_clobber],
@@ -3677,23 +3723,15 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
  case "$gl_cv_func_gettimeofday_clobber" in
    *yes)
      REPLACE_GETTIMEOFDAY=1
-     gl_GETTIMEOFDAY_REPLACE_LOCALTIME
      AC_DEFINE([GETTIMEOFDAY_CLOBBERS_LOCALTIME], [1],
        [Define if gettimeofday clobbers the localtime buffer.])
+     gl_LOCALTIME_BUFFER_NEEDED
      ;;
  esac
 ])
 
-AC_DEFUN([gl_GETTIMEOFDAY_REPLACE_LOCALTIME], [
-  REPLACE_GMTIME=1
-  REPLACE_LOCALTIME=1
-])
-
 # Prerequisites of lib/gettimeofday.c.
-AC_DEFUN([gl_PREREQ_GETTIMEOFDAY], [
-  AC_CHECK_HEADERS([sys/timeb.h])
-  AC_CHECK_FUNCS([_ftime])
-])
+AC_DEFUN([gl_PREREQ_GETTIMEOFDAY], [:])
 
 # glibc21.m4 serial 5
 dnl Copyright (C) 2000-2002, 2004, 2008, 2010-2017 Free Software Foundation,
@@ -4272,6 +4310,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module btowc:
   # Code from module builtin-expect:
   # Code from module c-ctype:
+  # Code from module c-strtod:
   # Code from module close:
   # Code from module configmake:
   # Code from module connect:
@@ -4283,6 +4322,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module extern-inline:
   # Code from module fcntl-h:
   # Code from module fd-hook:
+  # Code from module filename:
   # Code from module flexmember:
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
@@ -4314,8 +4354,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module localcharset:
   # Code from module locale:
   # Code from module localeconv:
+  # Code from module localtime-buffer:
   # Code from module lock:
   # Code from module lstat:
+  # Code from module malloc-posix:
   # Code from module malloca:
   # Code from module mbrtowc:
   # Code from module mbsinit:
@@ -4364,6 +4406,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdint:
   # Code from module stdlib:
   # Code from module strcase:
+  # Code from module strdup-posix:
   # Code from module streq:
   # Code from module strerror-override:
   # Code from module strerror_r-posix:
@@ -4389,6 +4432,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module time_r:
   # Code from module time_rz:
   # Code from module timegm:
+  # Code from module tzset:
   # Code from module uname:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -4441,6 +4485,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_WCHAR_MODULE_INDICATOR([btowc])
   gl___BUILTIN_EXPECT
+  gl_C_STRTOD
   gl_FUNC_CLOSE
   if test $REPLACE_CLOSE = 1; then
     AC_LIBOBJ([close])
@@ -4556,6 +4601,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LOCALECONV
   fi
   gl_LOCALE_MODULE_INDICATOR([localeconv])
+  AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
+  AC_LIBOBJ([localtime-buffer])
   gl_LOCK
   gl_MODULE_INDICATOR([lock])
   gl_FUNC_LSTAT
@@ -4564,6 +4611,11 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LSTAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
+  gl_FUNC_MALLOC_POSIX
+  if test $REPLACE_MALLOC = 1; then
+    AC_LIBOBJ([malloc])
+  fi
+  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_MALLOCA
   gl_FUNC_MBRTOWC
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
@@ -4625,7 +4677,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_TIME_MODULE_INDICATOR([mktime])
   gl_FUNC_MKTIME_INTERNAL
-  if test $REPLACE_MKTIME = 1; then
+  if test $WANT_MKTIME_INTERNAL = 1; then
     AC_LIBOBJ([mktime])
     gl_PREREQ_MKTIME
   fi
@@ -4637,6 +4689,7 @@ AC_DEFUN([gl_INIT],
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-nothrow])
   fi
+  gl_MODULE_INDICATOR([msvc-nothrow])
   gl_MULTIARCH
   gl_HEADER_NETINET_IN
   AC_PROG_MKDIR_P
@@ -4726,6 +4779,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
+    AC_LIBOBJ([stat-w32])
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
@@ -4743,6 +4797,12 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([strncasecmp])
     gl_PREREQ_STRNCASECMP
   fi
+  gl_FUNC_STRDUP_POSIX
+  if test $ac_cv_func_strdup = no || test $REPLACE_STRDUP = 1; then
+    AC_LIBOBJ([strdup])
+    gl_PREREQ_STRDUP
+  fi
+  gl_STRING_MODULE_INDICATOR([strdup])
   AC_REQUIRE([gl_HEADER_ERRNO_H])
   AC_REQUIRE([gl_FUNC_STRERROR_0])
   if test -n "$ERRNO_H" || test $REPLACE_STRERROR_0 = 1; then
@@ -4755,6 +4815,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STRERROR_R
   fi
   gl_STRING_MODULE_INDICATOR([strerror_r])
+  dnl For the modules argp, error.
+  gl_MODULE_INDICATOR([strerror_r-posix])
   gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRING_H
   gl_HEADER_STRINGS_H
@@ -4772,7 +4834,7 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([strverscmp])
   gl_SYS_IOCTL_H
   AC_PROG_MKDIR_P
-  gl_HEADER_SYS_SELECT
+  AC_REQUIRE([gl_HEADER_SYS_SELECT])
   AC_PROG_MKDIR_P
   AC_REQUIRE([gl_HEADER_SYS_SOCKET])
   AC_PROG_MKDIR_P
@@ -4798,7 +4860,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_TIME_MODULE_INDICATOR([time_r])
   gl_TIME_RZ
-  if test "$HAVE_TIMEZONE_T" = 0; then
+  if test $HAVE_TIMEZONE_T = 0; then
     AC_LIBOBJ([time_rz])
   fi
   gl_TIME_MODULE_INDICATOR([time_rz])
@@ -4808,6 +4870,11 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_TIMEGM
   fi
   gl_TIME_MODULE_INDICATOR([timegm])
+  gl_FUNC_TZSET
+  if test $HAVE_TZSET = 0 || test $REPLACE_TZSET = 1; then
+    AC_LIBOBJ([tzset])
+  fi
+  gl_TIME_MODULE_INDICATOR([tzset])
   gl_FUNC_UNAME
   if test $HAVE_UNAME = 0; then
     AC_LIBOBJ([uname])
@@ -4828,6 +4895,8 @@ AC_DEFUN([gl_INIT],
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
   AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
+  dnl On Solaris <= 9, <sys/procfs.h> is unusable when AC_SYS_LARGEFILE is in use.
+  AC_CHECK_HEADERS([sys/procfs.h])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -4988,6 +5057,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
+  lib/c-strtod.c
+  lib/c-strtod.h
   lib/close.c
   lib/config.charset
   lib/connect.c
@@ -4997,6 +5068,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fcntl.in.h
   lib/fd-hook.c
   lib/fd-hook.h
+  lib/filename.h
   lib/flexmember.h
   lib/fnmatch.c
   lib/fnmatch.in.h
@@ -5025,7 +5097,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/localcharset.h
   lib/locale.in.h
   lib/localeconv.c
+  lib/localtime-buffer.c
+  lib/localtime-buffer.h
   lib/lstat.c
+  lib/malloc.c
   lib/malloca.c
   lib/malloca.h
   lib/malloca.valgrind
@@ -5073,6 +5148,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-w32.c
+  lib/stat-w32.h
   lib/stat.c
   lib/stdalign.in.h
   lib/stdbool.in.h
@@ -5080,6 +5157,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/strcasecmp.c
+  lib/strdup.c
   lib/streq.h
   lib/strerror-override.c
   lib/strerror-override.h
@@ -5110,6 +5188,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/time_r.c
   lib/time_rz.c
   lib/timegm.c
+  lib/tzset.c
   lib/uname.c
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -5139,6 +5218,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/asm-underscore.m4
   m4/btowc.m4
   m4/builtin-expect.m4
+  m4/c-strtod.m4
   m4/close.m4
   m4/codeset.m4
   m4/configmake.m4
@@ -5191,9 +5271,11 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/locale_h.m4
   m4/localeconv.m4
+  m4/localtime-buffer.m4
   m4/lock.m4
   m4/longlong.m4
   m4/lstat.m4
+  m4/malloc.m4
   m4/malloca.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
@@ -5241,6 +5323,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdlib_h.m4
   m4/strcase.m4
+  m4/strdup.m4
   m4/strerror.m4
   m4/strerror_r.m4
   m4/strftime.m4
@@ -5264,6 +5347,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/time_rz.m4
   m4/timegm.m4
   m4/tm_gmtoff.m4
+  m4/tzset.m4
   m4/uintmax_t.m4
   m4/uname.m4
   m4/unistd_h.m4
@@ -5585,8 +5669,8 @@ EOF
 
 ])
 
-# iconv.m4 serial 20
-dnl Copyright (C) 2000-2002, 2007-2014, 2016 Free Software Foundation, Inc.
+# iconv.m4 serial 21
+dnl Copyright (C) 2000-2002, 2007-2014, 2016-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -5754,15 +5838,27 @@ AC_DEFUN([AM_ICONV_LINK],
 #endif
   /* Test against HP-UX 11.11 bug: No converter from EUC-JP to UTF-8 is
      provided.  */
-  if (/* Try standardized names.  */
-      iconv_open ("UTF-8", "EUC-JP") == (iconv_t)(-1)
-      /* Try IRIX, OSF/1 names.  */
-      && iconv_open ("UTF-8", "eucJP") == (iconv_t)(-1)
-      /* Try AIX names.  */
-      && iconv_open ("UTF-8", "IBM-eucJP") == (iconv_t)(-1)
-      /* Try HP-UX names.  */
-      && iconv_open ("utf8", "eucJP") == (iconv_t)(-1))
-    result |= 16;
+  {
+    /* Try standardized names.  */
+    iconv_t cd1 = iconv_open ("UTF-8", "EUC-JP");
+    /* Try IRIX, OSF/1 names.  */
+    iconv_t cd2 = iconv_open ("UTF-8", "eucJP");
+    /* Try AIX names.  */
+    iconv_t cd3 = iconv_open ("UTF-8", "IBM-eucJP");
+    /* Try HP-UX names.  */
+    iconv_t cd4 = iconv_open ("utf8", "eucJP");
+    if (cd1 == (iconv_t)(-1) && cd2 == (iconv_t)(-1)
+        && cd3 == (iconv_t)(-1) && cd4 == (iconv_t)(-1))
+      result |= 16;
+    if (cd1 != (iconv_t)(-1))
+      iconv_close (cd1);
+    if (cd2 != (iconv_t)(-1))
+      iconv_close (cd2);
+    if (cd3 != (iconv_t)(-1))
+      iconv_close (cd3);
+    if (cd4 != (iconv_t)(-1))
+      iconv_close (cd4);
+  }
   return result;
 ]])],
           [am_cv_func_iconv_works=yes], ,
@@ -5861,7 +5957,7 @@ size_t iconv();
     ])
 ])
 
-# include_next.m4 serial 23
+# include_next.m4 serial 24
 dnl Copyright (C) 2006-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5869,7 +5965,8 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Paul Eggert and Derek Price.
 
-dnl Sets INCLUDE_NEXT and PRAGMA_SYSTEM_HEADER.
+dnl Sets INCLUDE_NEXT, INCLUDE_NEXT_AS_FIRST_DIRECTIVE, PRAGMA_SYSTEM_HEADER,
+dnl and PRAGMA_COLUMNS.
 dnl
 dnl INCLUDE_NEXT expands to 'include_next' if the compiler supports it, or to
 dnl 'include' otherwise.
@@ -6556,9 +6653,24 @@ AC_DEFUN([gl_LARGEFILE],
       else
         WINDOWS_64_BIT_OFF_T=0
       fi
-      dnl But all native Windows platforms (including mingw64) have a 32-bit
-      dnl st_size member in 'struct stat'.
-      WINDOWS_64_BIT_ST_SIZE=1
+      dnl Some mingw versions define, if _FILE_OFFSET_BITS=64, 'struct stat'
+      dnl to 'struct _stat32i64' or 'struct _stat64' (depending on
+      dnl _USE_32BIT_TIME_T), which has a 32-bit st_size member.
+      AC_CACHE_CHECK([for 64-bit st_size], [gl_cv_member_st_size_64],
+        [AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM(
+              [[#include <sys/types.h>
+                struct stat buf;
+                int verify_st_size_size[sizeof (buf.st_size) >= 8 ? 1 : -1];
+              ]],
+              [[]])],
+           [gl_cv_member_st_size_64=yes], [gl_cv_member_st_size_64=no])
+        ])
+      if test $gl_cv_member_st_size_64 = no; then
+        WINDOWS_64_BIT_ST_SIZE=1
+      else
+        WINDOWS_64_BIT_ST_SIZE=0
+      fi
       ;;
     *)
       dnl Nothing to do on gnulib's side.
@@ -8726,6 +8838,28 @@ AC_DEFUN([gl_PREREQ_LOCALECONV],
     [[#include <locale.h>]])
 ])
 
+# localtime-buffer.m4 serial 1
+dnl Copyright (C) 2017 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_LOCALTIME_BUFFER_DEFAULTS],
+[
+  NEED_LOCALTIME_BUFFER=0
+])
+
+dnl Macro invoked from other modules, to signal that the compilation of
+dnl module 'localtime-buffer' is needed.
+AC_DEFUN([gl_LOCALTIME_BUFFER_NEEDED],
+[
+  AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  NEED_LOCALTIME_BUFFER=1
+  REPLACE_GMTIME=1
+  REPLACE_LOCALTIME=1
+])
+
 # lock.m4 serial 14
 dnl Copyright (C) 2005-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -8958,6 +9092,108 @@ AC_DEFUN([gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
          with a trailing slash.])
       ;;
   esac
+])
+
+# malloc.m4 serial 15
+dnl Copyright (C) 2007, 2009-2017 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+m4_version_prereq([2.70], [] ,[
+
+# This is adapted with modifications from upstream Autoconf here:
+# http://git.savannah.gnu.org/cgit/autoconf.git/commit/?id=04be2b7a29d65d9a08e64e8e56e594c91749598c
+AC_DEFUN([_AC_FUNC_MALLOC_IF],
+[
+  AC_REQUIRE([AC_HEADER_STDC])dnl
+  AC_REQUIRE([AC_CANONICAL_HOST])dnl for cross-compiles
+  AC_CHECK_HEADERS([stdlib.h])
+  AC_CACHE_CHECK([for GNU libc compatible malloc],
+    [ac_cv_func_malloc_0_nonnull],
+    [AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM(
+          [[#if defined STDC_HEADERS || defined HAVE_STDLIB_H
+            # include <stdlib.h>
+            #else
+            char *malloc ();
+            #endif
+          ]],
+          [[char *p = malloc (0);
+            int result = !p;
+            free (p);
+            return result;]])
+       ],
+       [ac_cv_func_malloc_0_nonnull=yes],
+       [ac_cv_func_malloc_0_nonnull=no],
+       [case "$host_os" in
+          # Guess yes on platforms where we know the result.
+          *-gnu* | freebsd* | netbsd* | openbsd* \
+          | hpux* | solaris* | cygwin* | mingw*)
+            ac_cv_func_malloc_0_nonnull=yes ;;
+          # If we don't know, assume the worst.
+          *) ac_cv_func_malloc_0_nonnull=no ;;
+        esac
+       ])
+    ])
+  AS_IF([test $ac_cv_func_malloc_0_nonnull = yes], [$1], [$2])
+])# _AC_FUNC_MALLOC_IF
+
+])
+
+# gl_FUNC_MALLOC_GNU
+# ------------------
+# Test whether 'malloc (0)' is handled like in GNU libc, and replace malloc if
+# it is not.
+AC_DEFUN([gl_FUNC_MALLOC_GNU],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  dnl _AC_FUNC_MALLOC_IF is defined in Autoconf.
+  _AC_FUNC_MALLOC_IF(
+    [AC_DEFINE([HAVE_MALLOC_GNU], [1],
+               [Define to 1 if your system has a GNU libc compatible 'malloc'
+                function, and to 0 otherwise.])],
+    [AC_DEFINE([HAVE_MALLOC_GNU], [0])
+     REPLACE_MALLOC=1
+    ])
+])
+
+# gl_FUNC_MALLOC_POSIX
+# --------------------
+# Test whether 'malloc' is POSIX compliant (sets errno to ENOMEM when it
+# fails), and replace malloc if it is not.
+AC_DEFUN([gl_FUNC_MALLOC_POSIX],
+[
+  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
+  AC_REQUIRE([gl_CHECK_MALLOC_POSIX])
+  if test $gl_cv_func_malloc_posix = yes; then
+    AC_DEFINE([HAVE_MALLOC_POSIX], [1],
+      [Define if the 'malloc' function is POSIX compliant.])
+  else
+    REPLACE_MALLOC=1
+  fi
+])
+
+# Test whether malloc, realloc, calloc are POSIX compliant,
+# Set gl_cv_func_malloc_posix to yes or no accordingly.
+AC_DEFUN([gl_CHECK_MALLOC_POSIX],
+[
+  AC_CACHE_CHECK([whether malloc, realloc, calloc are POSIX compliant],
+    [gl_cv_func_malloc_posix],
+    [
+      dnl It is too dangerous to try to allocate a large amount of memory:
+      dnl some systems go to their knees when you do that. So assume that
+      dnl all Unix implementations of the function are POSIX compliant.
+      AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM(
+           [[]],
+           [[#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+             choke me
+             #endif
+            ]])],
+        [gl_cv_func_malloc_posix=yes],
+        [gl_cv_func_malloc_posix=no])
+    ])
 ])
 
 # malloca.m4 serial 1
@@ -10230,7 +10466,7 @@ AC_DEFUN([gl_PREREQ_MKSTEMP],
 [
 ])
 
-# serial 27
+# serial 28
 dnl Copyright (C) 2002-2003, 2005-2007, 2009-2017 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -10253,9 +10489,9 @@ AC_DEFUN([gl_TIME_T_IS_SIGNED],
   fi
 ])
 
-AC_DEFUN([gl_FUNC_MKTIME],
+dnl Test whether mktime works. Set gl_cv_func_working_mktime.
+AC_DEFUN([gl_FUNC_MKTIME_WORKS],
 [
-  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
   AC_REQUIRE([gl_TIME_T_IS_SIGNED])
 
   dnl We don't use AC_FUNC_MKTIME any more, because it is no longer maintained
@@ -10471,29 +10707,50 @@ main ()
 }]])],
        [gl_cv_func_working_mktime=yes],
        [gl_cv_func_working_mktime=no],
-       [gl_cv_func_working_mktime=no])
+       [gl_cv_func_working_mktime="guessing no"])
     ])
-
-  if test $gl_cv_func_working_mktime = no; then
-    REPLACE_MKTIME=1
-  else
-    REPLACE_MKTIME=0
-  fi
 ])
 
-AC_DEFUN([gl_FUNC_MKTIME_INTERNAL], [
-  AC_REQUIRE([gl_FUNC_MKTIME])
-  if test $REPLACE_MKTIME = 0; then
-    dnl BeOS has __mktime_internal in libc, but other platforms don't.
-    AC_CHECK_FUNC([__mktime_internal],
-      [AC_DEFINE([mktime_internal], [__mktime_internal],
-         [Define to the real name of the mktime_internal function.])
-      ],
-      [dnl mktime works but it doesn't export __mktime_internal,
-       dnl so we need to substitute our own mktime implementation.
-       REPLACE_MKTIME=1
-      ])
+dnl Main macro of module 'mktime'.
+AC_DEFUN([gl_FUNC_MKTIME],
+[
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_REQUIRE([gl_FUNC_MKTIME_WORKS])
+
+  REPLACE_MKTIME=0
+  if test "$gl_cv_func_working_mktime" != yes; then
+    REPLACE_MKTIME=1
+    AC_DEFINE([NEED_MKTIME_WORKING], [1],
+      [Define if the compilation of mktime.c should define 'mktime'
+       with the algorithmic workarounds.])
   fi
+  case "$host_os" in
+    mingw*)
+      REPLACE_MKTIME=1
+      AC_DEFINE([NEED_MKTIME_WINDOWS], [1],
+        [Define if the compilation of mktime.c should define 'mktime'
+         with the native Windows TZ workaround.])
+      ;;
+  esac
+])
+
+dnl Main macro of module 'mktime-internal'.
+AC_DEFUN([gl_FUNC_MKTIME_INTERNAL], [
+  AC_REQUIRE([gl_FUNC_MKTIME_WORKS])
+
+  WANT_MKTIME_INTERNAL=0
+  dnl BeOS has __mktime_internal in libc, but other platforms don't.
+  AC_CHECK_FUNC([__mktime_internal],
+    [AC_DEFINE([mktime_internal], [__mktime_internal],
+       [Define to the real name of the mktime_internal function.])
+    ],
+    [dnl mktime works but it doesn't export __mktime_internal,
+     dnl so we need to substitute our own mktime implementation.
+     WANT_MKTIME_INTERNAL=1
+     AC_DEFINE([NEED_MKTIME_INTERNAL], [1],
+       [Define if the compilation of mktime.c should define 'mktime_internal'.])
+    ])
 ])
 
 # Prerequisites of lib/mktime.c.
@@ -11442,13 +11699,13 @@ dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 dnl
-dnl This file can can be used in projects which are not available under
+dnl This file can be used in projects which are not available under
 dnl the GNU General Public License or the GNU Library General Public
 dnl License but which still want to provide support for the GNU gettext
 dnl functionality.
 dnl Please note that the actual code of the GNU gettext library is covered
 dnl by the GNU Library General Public License, and the rest of the GNU
-dnl gettext package package is covered by the GNU General Public License.
+dnl gettext package is covered by the GNU General Public License.
 dnl They are *not* in the public domain.
 
 dnl Authors:
@@ -12740,7 +12997,7 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
-# serial 11
+# serial 12
 
 # Copyright (C) 2009-2017 Free Software Foundation, Inc.
 #
@@ -12750,67 +13007,63 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
 
 AC_DEFUN([gl_FUNC_STAT],
 [
-  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_REQUIRE([AC_CANONICAL_HOST])
   AC_REQUIRE([gl_SYS_STAT_H_DEFAULTS])
   AC_CHECK_FUNCS_ONCE([lstat])
-  dnl mingw is the only known platform where stat(".") and stat("./") differ
-  AC_CACHE_CHECK([whether stat handles trailing slashes on directories],
-      [gl_cv_func_stat_dir_slash],
-      [AC_RUN_IFELSE(
-         [AC_LANG_PROGRAM(
-           [[#include <sys/stat.h>
-]], [[struct stat st; return stat (".", &st) != stat ("./", &st);]])],
-         [gl_cv_func_stat_dir_slash=yes], [gl_cv_func_stat_dir_slash=no],
-         [case $host_os in
-            mingw*) gl_cv_func_stat_dir_slash="guessing no";;
-            *) gl_cv_func_stat_dir_slash="guessing yes";;
-          esac])])
-  dnl AIX 7.1, Solaris 9, mingw64 mistakenly succeed on stat("file/").
-  dnl (For mingw, this is due to a broken stat() override in libmingwex.a.)
-  dnl FreeBSD 7.2 mistakenly succeeds on stat("link-to-file/").
-  AC_CACHE_CHECK([whether stat handles trailing slashes on files],
-      [gl_cv_func_stat_file_slash],
-      [touch conftest.tmp
-       # Assume that if we have lstat, we can also check symlinks.
-       if test $ac_cv_func_lstat = yes; then
-         ln -s conftest.tmp conftest.lnk
-       fi
-       AC_RUN_IFELSE(
-         [AC_LANG_PROGRAM(
-           [[#include <sys/stat.h>
+  case "$host_os" in
+    mingw*)
+      dnl On this platform, the original stat() returns st_atime, st_mtime,
+      dnl st_ctime values that are affected by the time zone.
+      REPLACE_STAT=1
+      ;;
+    *)
+      dnl AIX 7.1, Solaris 9, mingw64 mistakenly succeed on stat("file/").
+      dnl (For mingw, this is due to a broken stat() override in libmingwex.a.)
+      dnl FreeBSD 7.2 mistakenly succeeds on stat("link-to-file/").
+      AC_CACHE_CHECK([whether stat handles trailing slashes on files],
+        [gl_cv_func_stat_file_slash],
+        [touch conftest.tmp
+         # Assume that if we have lstat, we can also check symlinks.
+         if test $ac_cv_func_lstat = yes; then
+           ln -s conftest.tmp conftest.lnk
+         fi
+         AC_RUN_IFELSE(
+           [AC_LANG_PROGRAM(
+             [[#include <sys/stat.h>
 ]], [[int result = 0;
-      struct stat st;
-      if (!stat ("conftest.tmp/", &st))
-        result |= 1;
+               struct stat st;
+               if (!stat ("conftest.tmp/", &st))
+                 result |= 1;
 #if HAVE_LSTAT
-      if (!stat ("conftest.lnk/", &st))
-        result |= 2;
+               if (!stat ("conftest.lnk/", &st))
+                 result |= 2;
 #endif
-      return result;
-           ]])],
-         [gl_cv_func_stat_file_slash=yes], [gl_cv_func_stat_file_slash=no],
-         [case "$host_os" in
-                    # Guess yes on glibc systems.
-            *-gnu*) gl_cv_func_stat_file_slash="guessing yes" ;;
-                    # If we don't know, assume the worst.
-            *)      gl_cv_func_stat_file_slash="guessing no" ;;
-          esac
-         ])
-       rm -f conftest.tmp conftest.lnk])
-  case $gl_cv_func_stat_dir_slash in
-    *no) REPLACE_STAT=1
-      AC_DEFINE([REPLACE_FUNC_STAT_DIR], [1], [Define to 1 if stat needs
-        help when passed a directory name with a trailing slash]);;
-  esac
-  case $gl_cv_func_stat_file_slash in
-    *no) REPLACE_STAT=1
-      AC_DEFINE([REPLACE_FUNC_STAT_FILE], [1], [Define to 1 if stat needs
-        help when passed a file name with a trailing slash]);;
+               return result;
+             ]])],
+           [gl_cv_func_stat_file_slash=yes], [gl_cv_func_stat_file_slash=no],
+           [case "$host_os" in
+                      # Guess yes on glibc systems.
+              *-gnu*) gl_cv_func_stat_file_slash="guessing yes" ;;
+                      # If we don't know, assume the worst.
+              *)      gl_cv_func_stat_file_slash="guessing no" ;;
+            esac
+           ])
+         rm -f conftest.tmp conftest.lnk])
+      case $gl_cv_func_stat_file_slash in
+        *no)
+          REPLACE_STAT=1
+          AC_DEFINE([REPLACE_FUNC_STAT_FILE], [1], [Define to 1 if stat needs
+            help when passed a file name with a trailing slash]);;
+      esac
+      ;;
   esac
 ])
 
-# Prerequisites of lib/stat.c.
-AC_DEFUN([gl_PREREQ_STAT], [:])
+# Prerequisites of lib/stat.c and lib/stat-w32.c.
+AC_DEFUN([gl_PREREQ_STAT], [
+  AC_REQUIRE([gl_HEADER_SYS_STAT_H])
+  :
+])
 
 # Check for stdalign.h that conforms to C11.
 
@@ -13740,6 +13993,43 @@ AC_DEFUN([gl_PREREQ_STRNCASECMP], [
   :
 ])
 
+# strdup.m4 serial 13
+
+dnl Copyright (C) 2002-2017 Free Software Foundation, Inc.
+
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_STRDUP],
+[
+  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
+  AC_CHECK_FUNCS_ONCE([strdup])
+  AC_CHECK_DECLS_ONCE([strdup])
+  if test $ac_cv_have_decl_strdup = no; then
+    HAVE_DECL_STRDUP=0
+  fi
+])
+
+AC_DEFUN([gl_FUNC_STRDUP_POSIX],
+[
+  AC_REQUIRE([gl_HEADER_STRING_H_DEFAULTS])
+  AC_REQUIRE([gl_CHECK_MALLOC_POSIX])
+  AC_CHECK_FUNCS_ONCE([strdup])
+  if test $ac_cv_func_strdup = yes; then
+    if test $gl_cv_func_malloc_posix != yes; then
+      REPLACE_STRDUP=1
+    fi
+  fi
+  AC_CHECK_DECLS_ONCE([strdup])
+  if test $ac_cv_have_decl_strdup = no; then
+    HAVE_DECL_STRDUP=0
+  fi
+])
+
+# Prerequisites of lib/strdup.c.
+AC_DEFUN([gl_PREREQ_STRDUP], [:])
+
 # strerror.m4 serial 17
 dnl Copyright (C) 2002, 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -13837,7 +14127,7 @@ AC_DEFUN([gl_FUNC_STRERROR_0],
   esac
 ])
 
-# strerror_r.m4 serial 18
+# strerror_r.m4 serial 19
 dnl Copyright (C) 2002, 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13853,10 +14143,10 @@ AC_DEFUN([gl_FUNC_STRERROR_R],
 
   dnl Some systems don't declare strerror_r() if _THREAD_SAFE and _REENTRANT
   dnl are not defined.
-  AC_CHECK_DECL([strerror_r],
-    [HAVE_DECL_STRERROR_R=1], [HAVE_DECL_STRERROR_R=0])
-  AC_DEFINE_UNQUOTED([HAVE_DECL_STRERROR_R_ORIG], [$HAVE_DECL_STRERROR_R],
-    [Define to 1 if you have the declaration of 'strerror_r' in the system include files, or to 0 otherwise.])
+  AC_CHECK_DECLS_ONCE([strerror_r])
+  if test $ac_cv_have_decl_strerror_r = no; then
+    HAVE_DECL_STRERROR_R=0
+  fi
 
   if test $ac_cv_func_strerror_r = yes; then
     if test "$ERRNO_H:$REPLACE_STRERROR_0" = :0; then
@@ -13875,20 +14165,6 @@ AC_DEFUN([gl_FUNC_STRERROR_R],
       REPLACE_STRERROR_R=1
     fi
   fi
-
-  # Overwrite the findings of AC_FUNC_STRERROR_R (for code that uses that).
-  AC_REQUIRE([AC_FUNC_STRERROR_R])
-])
-
-# If this module is in use, we unconditionally want POSIX semantics; so
-# replace autoconf's macro with a version that does not probe
-AC_DEFUN([AC_FUNC_STRERROR_R], [
-  AC_DEFINE([HAVE_DECL_STRERROR_R], [1],
-    [Define to 1, since you should have the declaration of strerror_r.])
-  AC_DEFINE([HAVE_STRERROR_R], [1],
-    [Define to 1, since you should have the function strerror_r.])
-  AC_DEFINE([STRERROR_R_CHAR_P], [0],
-    [Define to 0, since strerror_r should not return char *.])
 ])
 
 # Prerequisites of lib/strerror_r.c.
@@ -13907,7 +14183,7 @@ AC_DEFUN([gl_FUNC_STRERROR_R_WORKS],
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_REQUIRE([gl_FUNC_STRERROR_0])
 
-  AC_CHECK_FUNC([strerror_r])
+  AC_CHECK_FUNCS_ONCE([strerror_r])
   if test $ac_cv_func_strerror_r = yes; then
     if test "$ERRNO_H:$REPLACE_STRERROR_0" = :0; then
       dnl The POSIX prototype is:  int strerror_r (int, char *, size_t);
@@ -14025,7 +14301,7 @@ changequote([,])dnl
   fi
 ])
 
-# serial 33
+# serial 34
 
 # Copyright (C) 1996-1997, 1999-2007, 2009-2017 Free Software Foundation, Inc.
 #
@@ -14036,12 +14312,6 @@ changequote([,])dnl
 # Written by Jim Meyering and Paul Eggert.
 
 AC_DEFUN([gl_FUNC_GNU_STRFTIME],
-[
-  gl_FUNC_STRFTIME
-])
-
-# These are the prerequisite macros for GNU's strftime.c replacement.
-AC_DEFUN([gl_FUNC_STRFTIME],
 [
  # This defines (or not) HAVE_TZNAME and HAVE_TM_ZONE.
  AC_REQUIRE([AC_STRUCT_TIMEZONE])
@@ -14612,7 +14882,7 @@ AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
   HAVE_ACCEPT4=1;       AC_SUBST([HAVE_ACCEPT4])
 ])
 
-# sys_stat_h.m4 serial 28   -*- Autoconf -*-
+# sys_stat_h.m4 serial 31   -*- Autoconf -*-
 dnl Copyright (C) 2006-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -14633,18 +14903,21 @@ AC_DEFUN([gl_HEADER_SYS_STAT_H],
   dnl Ensure the type mode_t gets defined.
   AC_REQUIRE([AC_TYPE_MODE_T])
 
-  dnl Whether to override 'struct stat'.
+  dnl Whether to enable precise timestamps in 'struct stat'.
+  m4_ifdef([gl_WINDOWS_STAT_TIMESPEC], [
+    AC_REQUIRE([gl_WINDOWS_STAT_TIMESPEC])
+  ], [
+    WINDOWS_STAT_TIMESPEC=0
+  ])
+  AC_SUBST([WINDOWS_STAT_TIMESPEC])
+
+  dnl Whether to ensure that struct stat.st_size is 64-bit wide.
   m4_ifdef([gl_LARGEFILE], [
     AC_REQUIRE([gl_LARGEFILE])
   ], [
     WINDOWS_64_BIT_ST_SIZE=0
   ])
   AC_SUBST([WINDOWS_64_BIT_ST_SIZE])
-  if test $WINDOWS_64_BIT_ST_SIZE = 1; then
-    AC_DEFINE([_GL_WINDOWS_64_BIT_ST_SIZE], [1],
-      [Define to 1 if Gnulib overrides 'struct stat' on Windows so that
-       struct stat.st_size becomes 64-bit.])
-  fi
 
   dnl Define types that are supposed to be defined in <sys/types.h> or
   dnl <sys/stat.h>.
@@ -14686,6 +14959,7 @@ AC_DEFUN([gl_SYS_STAT_H_DEFAULTS],
   GNULIB_MKNODAT=0;     AC_SUBST([GNULIB_MKNODAT])
   GNULIB_STAT=0;        AC_SUBST([GNULIB_STAT])
   GNULIB_UTIMENSAT=0;   AC_SUBST([GNULIB_UTIMENSAT])
+  GNULIB_OVERRIDES_STRUCT_STAT=0; AC_SUBST([GNULIB_OVERRIDES_STRUCT_STAT])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_FCHMODAT=1;      AC_SUBST([HAVE_FCHMODAT])
   HAVE_FSTATAT=1;       AC_SUBST([HAVE_FSTATAT])
@@ -14710,7 +14984,7 @@ AC_DEFUN([gl_SYS_STAT_H_DEFAULTS],
 ])
 
 # Configure a replacement for <sys/time.h>.
-# serial 8
+# serial 9
 
 # Copyright (C) 2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -14816,12 +15090,11 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   HAVE_GETTIMEOFDAY=1;       AC_SUBST([HAVE_GETTIMEOFDAY])
   HAVE_STRUCT_TIMEVAL=1;     AC_SUBST([HAVE_STRUCT_TIMEVAL])
   HAVE_SYS_TIME_H=1;         AC_SUBST([HAVE_SYS_TIME_H])
-  HAVE_TIMEZONE_T=0;         AC_SUBST([HAVE_TIMEZONE_T])
   REPLACE_GETTIMEOFDAY=0;    AC_SUBST([REPLACE_GETTIMEOFDAY])
   REPLACE_STRUCT_TIMEVAL=0;  AC_SUBST([REPLACE_STRUCT_TIMEVAL])
 ])
 
-# sys_types_h.m4 serial 6
+# sys_types_h.m4 serial 7
 dnl Copyright (C) 2011-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -14840,6 +15113,14 @@ AC_DEFUN_ONCE([gl_SYS_TYPES_H],
 
   dnl Whether to override the 'off_t' type.
   AC_REQUIRE([gl_TYPE_OFF_T])
+
+  dnl Whether to override the 'dev_t' and 'ino_t' types.
+  m4_ifdef([gl_WINDOWS_STAT_INODES], [
+    AC_REQUIRE([gl_WINDOWS_STAT_INODES])
+  ], [
+    WINDOWS_STAT_INODES=0
+  ])
+  AC_SUBST([WINDOWS_STAT_INODES])
 ])
 
 AC_DEFUN([gl_SYS_TYPES_H_DEFAULTS],
@@ -15411,7 +15692,7 @@ dnl   0.0 if the first test already loops endlessly.
 
 # Copyright (C) 2000-2001, 2003-2007, 2009-2017 Free Software Foundation, Inc.
 
-# serial 9
+# serial 11
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -15513,24 +15794,34 @@ AC_DEFUN([gl_TIME_MODULE_INDICATOR],
 
 AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
 [
+  GNULIB_CTIME=0;                        AC_SUBST([GNULIB_CTIME])
   GNULIB_MKTIME=0;                       AC_SUBST([GNULIB_MKTIME])
+  GNULIB_LOCALTIME=0;                    AC_SUBST([GNULIB_LOCALTIME])
   GNULIB_NANOSLEEP=0;                    AC_SUBST([GNULIB_NANOSLEEP])
+  GNULIB_STRFTIME=0;                     AC_SUBST([GNULIB_STRFTIME])
   GNULIB_STRPTIME=0;                     AC_SUBST([GNULIB_STRPTIME])
   GNULIB_TIMEGM=0;                       AC_SUBST([GNULIB_TIMEGM])
   GNULIB_TIME_R=0;                       AC_SUBST([GNULIB_TIME_R])
   GNULIB_TIME_RZ=0;                      AC_SUBST([GNULIB_TIME_RZ])
+  GNULIB_TZSET=0;                        AC_SUBST([GNULIB_TZSET])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_DECL_LOCALTIME_R=1;               AC_SUBST([HAVE_DECL_LOCALTIME_R])
   HAVE_NANOSLEEP=1;                      AC_SUBST([HAVE_NANOSLEEP])
   HAVE_STRPTIME=1;                       AC_SUBST([HAVE_STRPTIME])
   HAVE_TIMEGM=1;                         AC_SUBST([HAVE_TIMEGM])
+  HAVE_TZSET=1;                          AC_SUBST([HAVE_TZSET])
+  dnl Even GNU libc does not have timezone_t yet.
+  HAVE_TIMEZONE_T=0;                     AC_SUBST([HAVE_TIMEZONE_T])
   dnl If another module says to replace or to not replace, do that.
   dnl Otherwise, replace only if someone compiles with -DGNULIB_PORTCHECK;
   dnl this lets maintainers check for portability.
+  REPLACE_CTIME=GNULIB_PORTCHECK;        AC_SUBST([REPLACE_CTIME])
   REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;  AC_SUBST([REPLACE_LOCALTIME_R])
   REPLACE_MKTIME=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_MKTIME])
   REPLACE_NANOSLEEP=GNULIB_PORTCHECK;    AC_SUBST([REPLACE_NANOSLEEP])
+  REPLACE_STRFTIME=GNULIB_PORTCHECK;     AC_SUBST([REPLACE_STRFTIME])
   REPLACE_TIMEGM=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_TIMEGM])
+  REPLACE_TZSET=GNULIB_PORTCHECK;        AC_SUBST([REPLACE_TZSET])
 
   dnl Hack so that the time module doesn't depend on the sys_time module.
   dnl First, default GNULIB_GETTIMEOFDAY to 0 if sys_time is absent.
@@ -15613,9 +15904,8 @@ dnl Written by Paul Eggert.
 AC_DEFUN([gl_TIME_RZ],
 [
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
-  AC_REQUIRE([gl_HEADER_SYS_TIME_H_DEFAULTS])
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
   AC_REQUIRE([AC_STRUCT_TIMEZONE])
-  AC_CHECK_FUNCS_ONCE([tzset])
 
   AC_CHECK_TYPES([timezone_t], [], [], [[#include <time.h>]])
   if test "$ac_cv_type_timezone_t" = yes; then
@@ -15623,7 +15913,7 @@ AC_DEFUN([gl_TIME_RZ],
   fi
 ])
 
-# timegm.m4 serial 11
+# timegm.m4 serial 12
 dnl Copyright (C) 2003, 2007, 2009-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -15632,11 +15922,11 @@ dnl with or without modifications, as long as this notice is preserved.
 AC_DEFUN([gl_FUNC_TIMEGM],
 [
   AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
-  AC_REQUIRE([gl_FUNC_MKTIME])
+  AC_REQUIRE([gl_FUNC_MKTIME_WORKS])
   REPLACE_TIMEGM=0
   AC_CHECK_FUNCS_ONCE([timegm])
   if test $ac_cv_func_timegm = yes; then
-    if test $gl_cv_func_working_mktime = no; then
+    if test "$gl_cv_func_working_mktime" != yes; then
       # Assume that timegm is buggy if mktime is.
       REPLACE_TIMEGM=1
     fi
@@ -15665,6 +15955,88 @@ AC_DEFUN([gl_TM_GMTOFF],
                  [#include <time.h>])
 ])
 
+# serial 8
+
+# Copyright (C) 2003, 2007, 2009-2017 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# See if we have a working tzset function.
+# If so, arrange to compile the wrapper function.
+# For at least Solaris 2.5.1 and 2.6, this is necessary
+# because tzset can clobber the contents of the buffer
+# used by localtime.
+
+# Written by Paul Eggert and Jim Meyering.
+
+AC_DEFUN([gl_FUNC_TZSET],
+[
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_CHECK_FUNCS_ONCE([tzset])
+  if test $ac_cv_func_tzset = no; then
+    HAVE_TZSET=0
+  fi
+  gl_FUNC_TZSET_CLOBBER
+  REPLACE_TZSET=0
+  case "$gl_cv_func_tzset_clobber" in
+    *yes)
+      REPLACE_TZSET=1
+      AC_DEFINE([TZSET_CLOBBERS_LOCALTIME], [1],
+        [Define if tzset clobbers localtime's static buffer.])
+      gl_LOCALTIME_BUFFER_NEEDED
+      ;;
+  esac
+  case "$host_os" in
+    mingw*) REPLACE_TZSET=1 ;;
+  esac
+])
+
+# Set gl_cv_func_tzset_clobber.
+AC_DEFUN([gl_FUNC_TZSET_CLOBBER],
+[
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether tzset clobbers localtime buffer],
+                 gl_cv_func_tzset_clobber,
+  [
+  AC_RUN_IFELSE([AC_LANG_SOURCE([[
+#include <time.h>
+#include <stdlib.h>
+
+int
+main ()
+{
+  time_t t1 = 853958121;
+  struct tm *p, s;
+  putenv ("TZ=GMT0");
+  p = localtime (&t1);
+  s = *p;
+  putenv ("TZ=EST+3EDT+2,M10.1.0/00:00:00,M2.3.0/00:00:00");
+  tzset ();
+  return (p->tm_year != s.tm_year
+          || p->tm_mon != s.tm_mon
+          || p->tm_mday != s.tm_mday
+          || p->tm_hour != s.tm_hour
+          || p->tm_min != s.tm_min
+          || p->tm_sec != s.tm_sec);
+}
+  ]])],
+       [gl_cv_func_tzset_clobber=no],
+       [gl_cv_func_tzset_clobber=yes],
+       [case "$host_os" in
+                  # Guess all is fine on glibc systems.
+          *-gnu*) gl_cv_func_tzset_clobber="guessing no" ;;
+                  # If we don't know, assume the worst.
+          *)      gl_cv_func_tzset_clobber="guessing yes" ;;
+        esac
+       ])])
+
+  AC_DEFINE([HAVE_RUN_TZSET_TEST], [1],
+    [Define to 1 if you have run the test for working tzset.])
+])
+
 # uname.m4 serial 11
 dnl Copyright (C) 2009-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -15685,7 +16057,7 @@ AC_DEFUN([gl_PREREQ_UNAME], [
   :
 ])
 
-# unistd_h.m4 serial 69
+# unistd_h.m4 serial 70
 dnl Copyright (C) 2006-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -15733,8 +16105,8 @@ AC_DEFUN([gl_UNISTD_H],
     gethostname getlogin getlogin_r getpagesize
     getusershell setusershell endusershell
     group_member isatty lchown link linkat lseek pipe pipe2 pread pwrite
-    readlink readlinkat rmdir sethostname sleep symlink symlinkat ttyname_r
-    unlink unlinkat usleep])
+    readlink readlinkat rmdir sethostname sleep symlink symlinkat
+    truncate ttyname_r unlink unlinkat usleep])
 ])
 
 AC_DEFUN([gl_UNISTD_MODULE_INDICATOR],
@@ -15789,6 +16161,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   GNULIB_SLEEP=0;                AC_SUBST([GNULIB_SLEEP])
   GNULIB_SYMLINK=0;              AC_SUBST([GNULIB_SYMLINK])
   GNULIB_SYMLINKAT=0;            AC_SUBST([GNULIB_SYMLINKAT])
+  GNULIB_TRUNCATE=0;             AC_SUBST([GNULIB_TRUNCATE])
   GNULIB_TTYNAME_R=0;            AC_SUBST([GNULIB_TTYNAME_R])
   GNULIB_UNISTD_H_NONBLOCKING=0; AC_SUBST([GNULIB_UNISTD_H_NONBLOCKING])
   GNULIB_UNISTD_H_SIGPIPE=0;     AC_SUBST([GNULIB_UNISTD_H_SIGPIPE])
@@ -15826,6 +16199,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   HAVE_SLEEP=1;           AC_SUBST([HAVE_SLEEP])
   HAVE_SYMLINK=1;         AC_SUBST([HAVE_SYMLINK])
   HAVE_SYMLINKAT=1;       AC_SUBST([HAVE_SYMLINKAT])
+  HAVE_TRUNCATE=1;        AC_SUBST([HAVE_TRUNCATE])
   HAVE_UNLINKAT=1;        AC_SUBST([HAVE_UNLINKAT])
   HAVE_USLEEP=1;          AC_SUBST([HAVE_USLEEP])
   HAVE_DECL_ENVIRON=1;    AC_SUBST([HAVE_DECL_ENVIRON])
@@ -15866,6 +16240,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   REPLACE_SLEEP=0;        AC_SUBST([REPLACE_SLEEP])
   REPLACE_SYMLINK=0;      AC_SUBST([REPLACE_SYMLINK])
   REPLACE_SYMLINKAT=0;    AC_SUBST([REPLACE_SYMLINKAT])
+  REPLACE_TRUNCATE=0;     AC_SUBST([REPLACE_TRUNCATE])
   REPLACE_TTYNAME_R=0;    AC_SUBST([REPLACE_TTYNAME_R])
   REPLACE_UNLINK=0;       AC_SUBST([REPLACE_UNLINK])
   REPLACE_UNLINKAT=0;     AC_SUBST([REPLACE_UNLINKAT])
@@ -15933,7 +16308,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl Written by Eric Blake.
 
-# wchar_h.m4 serial 40
+# wchar_h.m4 serial 42
 
 AC_DEFUN([gl_WCHAR_H],
 [
@@ -15961,6 +16336,8 @@ AC_DEFUN([gl_WCHAR_H],
   fi
   AC_SUBST([HAVE_WINT_T])
 
+  AC_REQUIRE([gl_TYPE_WINT_T_PREREQ])
+
   dnl Check for declarations of anything we want to poison if the
   dnl corresponding gnulib module is not in use.
   gl_WARN_ON_USE_PREPARE([[
@@ -15979,7 +16356,7 @@ AC_DEFUN([gl_WCHAR_H],
      wcsrtombs wcsnrtombs wcwidth wmemchr wmemcmp wmemcpy wmemmove wmemset
      wcslen wcsnlen wcscpy wcpcpy wcsncpy wcpncpy wcscat wcsncat wcscmp
      wcsncmp wcscasecmp wcsncasecmp wcscoll wcsxfrm wcsdup wcschr wcsrchr
-     wcscspn wcsspn wcspbrk wcsstr wcstok wcswidth
+     wcscspn wcsspn wcspbrk wcsstr wcstok wcswidth wcsftime
     ])
 ])
 
@@ -16103,6 +16480,7 @@ AC_DEFUN([gl_WCHAR_H_DEFAULTS],
   GNULIB_WCSSTR=0;      AC_SUBST([GNULIB_WCSSTR])
   GNULIB_WCSTOK=0;      AC_SUBST([GNULIB_WCSTOK])
   GNULIB_WCSWIDTH=0;    AC_SUBST([GNULIB_WCSWIDTH])
+  GNULIB_WCSFTIME=0;    AC_SUBST([GNULIB_WCSFTIME])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_BTOWC=1;         AC_SUBST([HAVE_BTOWC])
   HAVE_MBSINIT=1;       AC_SUBST([HAVE_MBSINIT])
@@ -16141,6 +16519,7 @@ AC_DEFUN([gl_WCHAR_H_DEFAULTS],
   HAVE_WCSSTR=1;        AC_SUBST([HAVE_WCSSTR])
   HAVE_WCSTOK=1;        AC_SUBST([HAVE_WCSTOK])
   HAVE_WCSWIDTH=1;      AC_SUBST([HAVE_WCSWIDTH])
+  HAVE_WCSFTIME=1;      AC_SUBST([HAVE_WCSFTIME])
   HAVE_DECL_WCTOB=1;    AC_SUBST([HAVE_DECL_WCTOB])
   HAVE_DECL_WCWIDTH=1;  AC_SUBST([HAVE_DECL_WCWIDTH])
   REPLACE_MBSTATE_T=0;  AC_SUBST([REPLACE_MBSTATE_T])
@@ -16156,6 +16535,7 @@ AC_DEFUN([gl_WCHAR_H_DEFAULTS],
   REPLACE_WCSNRTOMBS=0; AC_SUBST([REPLACE_WCSNRTOMBS])
   REPLACE_WCWIDTH=0;    AC_SUBST([REPLACE_WCWIDTH])
   REPLACE_WCSWIDTH=0;   AC_SUBST([REPLACE_WCSWIDTH])
+  REPLACE_WCSFTIME=0;   AC_SUBST([REPLACE_WCSFTIME])
 ])
 
 # wchar_t.m4 serial 4 (gettext-0.18.2)
@@ -16296,7 +16676,7 @@ AC_DEFUN([gl_PREREQ_WCRTOMB], [
   :
 ])
 
-# wctype_h.m4 serial 18
+# wctype_h.m4 serial 20
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -16327,6 +16707,8 @@ AC_DEFUN([gl_WCTYPE_H],
     HAVE_WINT_T=0
   fi
   AC_SUBST([HAVE_WINT_T])
+
+  AC_REQUIRE([gl_TYPE_WINT_T_PREREQ])
 
   gl_CHECK_NEXT_HEADERS([wctype.h])
   if test $ac_cv_header_wctype_h = yes; then
@@ -16506,7 +16888,7 @@ AC_DEFUN([gl_WCTYPE_H_DEFAULTS],
   REPLACE_ISWBLANK=0;   AC_SUBST([REPLACE_ISWBLANK])
 ])
 
-# wint_t.m4 serial 6
+# wint_t.m4 serial 7
 dnl Copyright (C) 2003, 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -16567,6 +16949,18 @@ AC_DEFUN([gt_TYPE_WINT_T],
     GNULIB_OVERRIDES_WINT_T=0
   fi
   AC_SUBST([GNULIB_OVERRIDES_WINT_T])
+])
+
+dnl Prerequisites of the 'wint_t' override.
+AC_DEFUN([gl_TYPE_WINT_T_PREREQ],
+[
+  AC_CHECK_HEADERS_ONCE([crtdefs.h])
+  if test $ac_cv_header_crtdefs_h = yes; then
+    HAVE_CRTDEFS_H=1
+  else
+    HAVE_CRTDEFS_H=0
+  fi
+  AC_SUBST([HAVE_CRTDEFS_H])
 ])
 
 dnl -*- Autoconf -*-

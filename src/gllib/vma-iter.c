@@ -32,7 +32,7 @@
 # include <sys/procfs.h> /* PIOC*, prmap_t */
 #endif
 
-#if defined __sun /* Solaris */
+#if defined __sun && HAVE_SYS_PROCFS_H /* Solaris */
 # include <string.h> /* memcpy */
 # include <sys/types.h>
 # include <sys/mman.h> /* mmap, munmap */
@@ -378,7 +378,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   close (fd);
   return -1;
 
-#elif defined __sun /* Solaris */
+#elif defined __sun && HAVE_SYS_PROCFS_H /* Solaris */
 
   /* Note: Solaris <sys/procfs.h> defines a different type prmap_t with
      _STRUCTURED_PROC than without! Here's a table of sizeof(prmap_t):
@@ -399,6 +399,13 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   int fd;
   int nmaps;
   size_t memneed;
+#  if HAVE_MAP_ANONYMOUS
+#   define zero_fd -1
+#   define map_flags MAP_ANONYMOUS
+#  else /* Solaris <= 7 */
+  int zero_fd;
+#   define map_flags 0
+#  endif
   void *auxmap;
   unsigned long auxmap_start;
   unsigned long auxmap_end;
@@ -433,8 +440,16 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      and thus pre-allocate available memory.
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
+#  if !HAVE_MAP_ANONYMOUS
+  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  if (zero_fd < 0)
+    goto fail2;
+#  endif
   auxmap = (void *) mmap ((void *) 0, memneed, PROT_READ | PROT_WRITE,
-                          MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+                          map_flags | MAP_PRIVATE, zero_fd, 0);
+#  if !HAVE_MAP_ANONYMOUS
+  close (zero_fd);
+#  endif
   if (auxmap == (void *) -1)
     goto fail2;
   auxmap_start = (unsigned long) auxmap;
@@ -502,6 +517,13 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   int fd;
   int nmaps;
   size_t memneed;
+#  if HAVE_MAP_ANONYMOUS
+#   define zero_fd -1
+#   define map_flags MAP_ANONYMOUS
+#  else /* Solaris <= 7 */
+  int zero_fd;
+#   define map_flags 0
+#  endif
   void *auxmap;
   unsigned long auxmap_start;
   unsigned long auxmap_end;
@@ -541,8 +563,16 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      and thus pre-allocate available memory.
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
+#  if !HAVE_MAP_ANONYMOUS
+  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  if (zero_fd < 0)
+    goto fail2;
+#  endif
   auxmap = (void *) mmap ((void *) 0, memneed, PROT_READ | PROT_WRITE,
-                          MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+                          map_flags | MAP_PRIVATE, zero_fd, 0);
+#  if !HAVE_MAP_ANONYMOUS
+  close (zero_fd);
+#  endif
   if (auxmap == (void *) -1)
     goto fail2;
   auxmap_start = (unsigned long) auxmap;
