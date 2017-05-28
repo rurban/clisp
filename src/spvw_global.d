@@ -83,6 +83,9 @@ local struct {
      Upper limit of big allocated memory block. */
   aint MEMTOP;
  #endif
+  /* User provided parameters, used for deciding when to start a GC. */
+  double nextgc_trigger_factor; /* influences the amount of space
+                                   that can be allocated until the next GC */
   /* Statistical data, used for deciding when to start a GC. */
  #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
   uintM total_room; /* the space that may be occupied without triggering GC */

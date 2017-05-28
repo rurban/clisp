@@ -1870,9 +1870,13 @@ local void gar_col_normal (void)
   /* we let the used space grow up to 25%, only then
    the next GC is triggered: */
   {
-    var uintM total_room = floor(mem.last_gcend_space,4);
+    var uintM total_room = floor(mem.last_gcend_space,4); /* 25% of the now used space */
     if (total_room < 512*1024) { total_room = 512*1024; } /* at least 512 KB */
-    mem.gctrigger_space = mem.last_gcend_space + total_room;
+    total_room = mem.nextgc_trigger_factor * total_room; /* user-provided parameter */
+    mem.gctrigger_space =
+      (mem.last_gcend_space + total_room >= mem.last_gcend_space /* overflow check */
+       ? mem.last_gcend_space + total_room
+       : ~(uintM)0);
   }
  #endif
  #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -1889,8 +1893,10 @@ local void gar_col_normal (void)
   /* we let the used space grow by up to 50%, only then
    the next GC is triggered: */
   #define set_total_room_(space_used_now)  \
-    { mem.total_room = floor(space_used_now,2); /* 50% of the now used space */ \
-      if (mem.total_room < 512*1024) { mem.total_room = 512*1024; } /* at least 512 KB */ \
+    { var uintM total_room = floor(space_used_now,2); /* 50% of the now used space */ \
+      if (total_room < 512*1024) { total_room = 512*1024; } /* at least 512 KB */ \
+      total_room = mem.nextgc_trigger_factor * total_room; /* user-provided parameter */ \
+      mem.total_room = total_room; \
     }
   set_total_room(gcend_space);
  #endif
@@ -1898,8 +1904,10 @@ local void gar_col_normal (void)
   /* we let the used space grow up to 25%, only then
    the next GC is triggered: */
   #define set_total_room_(space_used_now)  \
-    { mem.total_room = floor(space_used_now,4); /* 25% of the now used space */ \
-      if (mem.total_room < 512*1024) { mem.total_room = 512*1024; } /* at least 512 KB */ \
+    { var uintM total_room = floor(space_used_now,4); /* 25% of the now used space */ \
+      if (total_room < 512*1024) { total_room = 512*1024; } /* at least 512 KB */ \
+      total_room = mem.nextgc_trigger_factor * total_room; /* user-provided parameter */ \
+      mem.total_room = total_room; \
     }
   {
     var uintM gen0_sum = 0;     /* current size of the old generation */
