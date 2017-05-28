@@ -52,6 +52,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module btowc:
   # Code from module builtin-expect:
   # Code from module c-ctype:
+  # Code from module c-strtod:
   # Code from module close:
   # Code from module configmake:
   # Code from module connect:
@@ -63,6 +64,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module extern-inline:
   # Code from module fcntl-h:
   # Code from module fd-hook:
+  # Code from module filename:
   # Code from module flexmember:
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
@@ -94,8 +96,10 @@ AC_DEFUN([gl_EARLY],
   # Code from module localcharset:
   # Code from module locale:
   # Code from module localeconv:
+  # Code from module localtime-buffer:
   # Code from module lock:
   # Code from module lstat:
+  # Code from module malloc-posix:
   # Code from module malloca:
   # Code from module mbrtowc:
   # Code from module mbsinit:
@@ -144,6 +148,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module stdint:
   # Code from module stdlib:
   # Code from module strcase:
+  # Code from module strdup-posix:
   # Code from module streq:
   # Code from module strerror-override:
   # Code from module strerror_r-posix:
@@ -169,6 +174,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module time_r:
   # Code from module time_rz:
   # Code from module timegm:
+  # Code from module tzset:
   # Code from module uname:
   # Code from module uniname/base:
   # Code from module uniname/uniname:
@@ -221,6 +227,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_WCHAR_MODULE_INDICATOR([btowc])
   gl___BUILTIN_EXPECT
+  gl_C_STRTOD
   gl_FUNC_CLOSE
   if test $REPLACE_CLOSE = 1; then
     AC_LIBOBJ([close])
@@ -336,6 +343,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LOCALECONV
   fi
   gl_LOCALE_MODULE_INDICATOR([localeconv])
+  AC_REQUIRE([gl_LOCALTIME_BUFFER_DEFAULTS])
+  AC_LIBOBJ([localtime-buffer])
   gl_LOCK
   gl_MODULE_INDICATOR([lock])
   gl_FUNC_LSTAT
@@ -344,6 +353,11 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LSTAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
+  gl_FUNC_MALLOC_POSIX
+  if test $REPLACE_MALLOC = 1; then
+    AC_LIBOBJ([malloc])
+  fi
+  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_MALLOCA
   gl_FUNC_MBRTOWC
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
@@ -405,7 +419,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_TIME_MODULE_INDICATOR([mktime])
   gl_FUNC_MKTIME_INTERNAL
-  if test $REPLACE_MKTIME = 1; then
+  if test $WANT_MKTIME_INTERNAL = 1; then
     AC_LIBOBJ([mktime])
     gl_PREREQ_MKTIME
   fi
@@ -417,6 +431,7 @@ AC_DEFUN([gl_INIT],
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
     AC_LIBOBJ([msvc-nothrow])
   fi
+  gl_MODULE_INDICATOR([msvc-nothrow])
   gl_MULTIARCH
   gl_HEADER_NETINET_IN
   AC_PROG_MKDIR_P
@@ -506,6 +521,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
+    AC_LIBOBJ([stat-w32])
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
@@ -523,6 +539,12 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([strncasecmp])
     gl_PREREQ_STRNCASECMP
   fi
+  gl_FUNC_STRDUP_POSIX
+  if test $ac_cv_func_strdup = no || test $REPLACE_STRDUP = 1; then
+    AC_LIBOBJ([strdup])
+    gl_PREREQ_STRDUP
+  fi
+  gl_STRING_MODULE_INDICATOR([strdup])
   AC_REQUIRE([gl_HEADER_ERRNO_H])
   AC_REQUIRE([gl_FUNC_STRERROR_0])
   if test -n "$ERRNO_H" || test $REPLACE_STRERROR_0 = 1; then
@@ -535,6 +557,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STRERROR_R
   fi
   gl_STRING_MODULE_INDICATOR([strerror_r])
+  dnl For the modules argp, error.
+  gl_MODULE_INDICATOR([strerror_r-posix])
   gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRING_H
   gl_HEADER_STRINGS_H
@@ -552,7 +576,7 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([strverscmp])
   gl_SYS_IOCTL_H
   AC_PROG_MKDIR_P
-  gl_HEADER_SYS_SELECT
+  AC_REQUIRE([gl_HEADER_SYS_SELECT])
   AC_PROG_MKDIR_P
   AC_REQUIRE([gl_HEADER_SYS_SOCKET])
   AC_PROG_MKDIR_P
@@ -578,7 +602,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_TIME_MODULE_INDICATOR([time_r])
   gl_TIME_RZ
-  if test "$HAVE_TIMEZONE_T" = 0; then
+  if test $HAVE_TIMEZONE_T = 0; then
     AC_LIBOBJ([time_rz])
   fi
   gl_TIME_MODULE_INDICATOR([time_rz])
@@ -588,6 +612,11 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_TIMEGM
   fi
   gl_TIME_MODULE_INDICATOR([timegm])
+  gl_FUNC_TZSET
+  if test $HAVE_TZSET = 0 || test $REPLACE_TZSET = 1; then
+    AC_LIBOBJ([tzset])
+  fi
+  gl_TIME_MODULE_INDICATOR([tzset])
   gl_FUNC_UNAME
   if test $HAVE_UNAME = 0; then
     AC_LIBOBJ([uname])
@@ -608,6 +637,8 @@ AC_DEFUN([gl_INIT],
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
   AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
+  dnl On Solaris <= 9, <sys/procfs.h> is unusable when AC_SYS_LARGEFILE is in use.
+  AC_CHECK_HEADERS([sys/procfs.h])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
@@ -768,6 +799,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/c++defs.h
   lib/c-ctype.c
   lib/c-ctype.h
+  lib/c-strtod.c
+  lib/c-strtod.h
   lib/close.c
   lib/config.charset
   lib/connect.c
@@ -777,6 +810,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fcntl.in.h
   lib/fd-hook.c
   lib/fd-hook.h
+  lib/filename.h
   lib/flexmember.h
   lib/fnmatch.c
   lib/fnmatch.in.h
@@ -805,7 +839,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/localcharset.h
   lib/locale.in.h
   lib/localeconv.c
+  lib/localtime-buffer.c
+  lib/localtime-buffer.h
   lib/lstat.c
+  lib/malloc.c
   lib/malloca.c
   lib/malloca.h
   lib/malloca.valgrind
@@ -853,6 +890,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-w32.c
+  lib/stat-w32.h
   lib/stat.c
   lib/stdalign.in.h
   lib/stdbool.in.h
@@ -860,6 +899,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/strcasecmp.c
+  lib/strdup.c
   lib/streq.h
   lib/strerror-override.c
   lib/strerror-override.h
@@ -890,6 +930,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/time_r.c
   lib/time_rz.c
   lib/timegm.c
+  lib/tzset.c
   lib/uname.c
   lib/uniname.in.h
   lib/uniname/gen-uninames.lisp
@@ -919,6 +960,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/asm-underscore.m4
   m4/btowc.m4
   m4/builtin-expect.m4
+  m4/c-strtod.m4
   m4/close.m4
   m4/codeset.m4
   m4/configmake.m4
@@ -971,9 +1013,11 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/locale_h.m4
   m4/localeconv.m4
+  m4/localtime-buffer.m4
   m4/lock.m4
   m4/longlong.m4
   m4/lstat.m4
+  m4/malloc.m4
   m4/malloca.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
@@ -1021,6 +1065,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint_h.m4
   m4/stdlib_h.m4
   m4/strcase.m4
+  m4/strdup.m4
   m4/strerror.m4
   m4/strerror_r.m4
   m4/strftime.m4
@@ -1044,6 +1089,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/time_rz.m4
   m4/timegm.m4
   m4/tm_gmtoff.m4
+  m4/tzset.m4
   m4/uintmax_t.m4
   m4/uname.m4
   m4/unistd_h.m4
