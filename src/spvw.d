@@ -22,6 +22,8 @@
  version */
 #include "lispbibl.c"
 
+#include "c-strtod.h"
+
 #ifdef MULTITHREAD
   #define bzero(ptr,len)  memset(ptr,0,len)
   #define bcopy(source,dest,len)  memcpy(dest,source,len)
@@ -2378,6 +2380,7 @@ struct argv_init_c {
 /* Parameters needed to initialize Lisp memory. */
 struct argv_initparams {
   uintM argv_memneed;
+  double argv_nextgc_factor;
   const char* argv_memfile;
 };
 
@@ -2491,6 +2494,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p0->argv_language = NULL;
   p0->argv_localedir = NULL;
   p1->argv_memneed = 0;
+  p1->argv_nextgc_factor = 1.0;
   p1->argv_memfile = NULL;
   p2->argv_memfile = NULL;
   p2->argv_verbose = 2;
@@ -2643,7 +2647,19 @@ local inline int parse_options (int argc, const char* const* argv,
             p2->argv_lisplibdir = arg;
             break;
           case 'n':
-            if (asciz_equal(arg,"-norc"))
+            if (asciz_equal(arg,"-nextgc-factor")) {
+              if (!(argptr < argptr_limit)) {
+                arg_error(GETTEXTL("This option requires an argument"),arg);
+                return 1;
+              }
+              arg = *argptr++;
+              var char* arg_endptr;
+              var double arg_value = c_strtod(arg,&arg_endptr);
+              if (arg_value > 0.0 && arg_value < 1.0e10)
+                p1->argv_nextgc_factor = arg_value;
+              else
+                arg_error("invalid 'nextgc-factor' value",arg);
+            } else if (asciz_equal(arg,"-norc"))
               p2->argv_norc = true;
             else
               INVALID_ARG(arg);
@@ -3354,6 +3370,7 @@ local inline int init_memory (struct argv_initparams *p) {
         mem.MEMTOP = ptr;
         /* above (far away) the machine stack. */
         #endif
+        mem.nextgc_trigger_factor = p->argv_nextgc_factor;
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
         mem.total_room = 0;
         #ifdef GENERATIONAL_GC

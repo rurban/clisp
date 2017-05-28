@@ -1,5 +1,18 @@
 2017-05-28  Bruno Haible  <bruno@clisp.org>
 
+	New command line option -nextgc-factor (undocumented).
+	* spvw_global.d (mem): Add nextgc_trigger_factor field.
+	* spvw_global_old.d: Likewise.
+	* spvw_garcol.d (gar_col_normal): Multiply total_room with
+	mem.nextgc_trigger_factor.
+	* spvw_garcol_old.d: Likewise.
+	* spvw.d: Include c-strtod.h.
+	(argv_initparams): Add argv_nextgc_factor field.
+	(parse_options): Accept option -nextgc-factor.
+	(init_memory): Initialize mem.nextgc_trigger_factor.
+
+2017-05-28  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib, and import module 'c-strtod'.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported
 	build-prerequisites".
