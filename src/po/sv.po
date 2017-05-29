@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:01-0400\n"
-"PO-Revision-Date: 2017-05-21 20:46+0800\n"
+"PO-Revision-Date: 2017-05-29 13:12+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -847,7 +847,7 @@ msgstr "~S: ~S är inte en symbol"
 #: control.d:2424
 #, lisp-format
 msgid "keyword argument list ~S has an odd length"
-msgstr ""
+msgstr "argumentlista för nyckelord ~S har en udda längd"
 
 #: control.d:2461
 #, lisp-format
@@ -855,95 +855,97 @@ msgid ""
 "Illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
 msgstr ""
+"Illegala nyckelords/värde-par ~S, ~S i argumentlista.\n"
+"De tillåtna nyckelorden är ~S"
 
 #: encoding.d:242
 #, lisp-format
 msgid "~S: Invalid base64 encoding termination at position ~S"
-msgstr ""
+msgstr "~S: Ogiltig avslutning av base64-kodning vid position ~S"
 
 #: encoding.d:250
 #, lisp-format
 msgid "~S: Invalid base64 encoding at ~S (character ~S of ~S)"
-msgstr ""
+msgstr "~S: Ogiltig kodning av base64 vid ~S (tecken ~S av ~S)"
 
 #: encoding.d:285
 #, lisp-format
 msgid "~S: Character #\\u~C~C~C~C cannot be represented in the character set ~S"
-msgstr ""
+msgstr "~S: Tecken #\\u~C~C~C~C kan inte representeras i teckenuppsättningen ~S"
 
 #: encoding.d:290
 #, lisp-format
 msgid "~S: Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"
-msgstr ""
+msgstr "~S: Tecken #\\u00~C~C~C~C~C~C kan inte representeras i teckenuppsättningen ~S"
 
 #: encoding.d:308
 #, lisp-format
 msgid "~S: Incomplete byte sequence at end of buffer for ~S"
-msgstr ""
+msgstr "~S: Ofullständig bytesekvens vid slut av buffert för ~S"
 
 #: encoding.d:572
 #, lisp-format
 msgid "~S: Character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"
-msgstr ""
+msgstr "~S: Tecken #x~C~C~C~C~C~C~C~C i ~S-konvertering, är inte ett UTF-32-tecken"
 
 #: encoding.d:772
 #, lisp-format
 msgid "~S: Invalid byte #x~C~C in ~S conversion, not a Unicode-16"
-msgstr ""
+msgstr "~S: Ogiltig byte #x~C~C i ~S-konvertering, inte Unicode-16"
 
 #: encoding.d:790
 #, lisp-format
 msgid "~S: Invalid byte sequence #x~C~C #x~C~C in ~S conversion"
-msgstr ""
+msgstr "~S: Ogiltig bytesekvens #x~C~C #x~C~C i ~S-konvertering"
 
 #: encoding.d:811
 #, lisp-format
 msgid "~S: Invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"
-msgstr ""
+msgstr "~S: Ogiltig bytesekvens #x~C~C #x~C~C #x~C~C i ~S-konvertering"
 
 #: encoding.d:836
 #, lisp-format
 msgid "~S: Invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"
-msgstr ""
+msgstr "~S: Ogiltig bytesekvens #x~C~C #x~C~C #x~C~C #x~C~C i ~S-konvertering"
 
 #: encoding.d:1642
 #, lisp-format
 msgid "~S: Invalid byte #x~C~C in ~S conversion"
-msgstr ""
+msgstr "~S: Ogiltig byte #x~C~C i ~S-konvertering"
 
 #: encoding.d:2569 encoding.d:2574
 msgid "WARNING: %s: no encoding %s, using %s"
-msgstr ""
+msgstr "VARNING: %s: kodning %s existerar inte, använder %s"
 
 #: pathname.d:717 pathname.d:760
 #, lisp-format
 msgid "~S: host should be NIL or a string, not ~S"
-msgstr ""
+msgstr "~S: värd bör vara NIL eller en sträng, inte ~S"
 
 #: pathname.d:737 pathname.d:781
 #, lisp-format
 msgid "~S: illegal hostname ~S"
-msgstr ""
+msgstr "~S: ogiltigt värdnamn ~S"
 
 #: pathname.d:798
 #, lisp-format
 msgid "~S: host should be NIL, not ~S"
-msgstr ""
+msgstr "~S: värd bör vara NIL, inte ~S"
 
 #: pathname.d:928
 #, lisp-format
 msgid "~S: Argument ~S should be a pathname designator ~S"
-msgstr ""
+msgstr "~S: Argument ~S bör vara en sökvägsbeteckning ~S"
 
 #: pathname.d:961
 #, lisp-format
 msgid "~S: Filename for ~S is unknown"
-msgstr ""
+msgstr "~S: Filnamn för ~S är okänt"
 
 #: pathname.d:1302 pathname.d:3608 pathname.d:8803 hashtabl.d:2013 error.d:1301 error.d:1321
 #, lisp-format
 msgid "~S: Illegal ~S argument ~S"
-msgstr ""
+msgstr "~S: Ogiltig ~S-argument ~S"
 
 #: pathname.d:1434 realelem.d:204
 #, lisp-format
@@ -951,199 +953,201 @@ msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
 msgstr ""
+"Variabeln ~S har ett ogiltig värde.\n"
+"~S har återställts till ~S."
 
 #: pathname.d:1778
 #, lisp-format
 msgid "~S: there is no user named ~S"
-msgstr ""
+msgstr "~S: det finns ingen användare med namnet ~S"
 
 #: pathname.d:1837
 #, lisp-format
 msgid "~S: there is no environment variable ~S"
-msgstr ""
+msgstr "~S: det finns ingen miljövariabel med namnet ~S"
 
 #: pathname.d:2004
 #, lisp-format
 msgid "~S: syntax error in filename ~S at position ~S"
-msgstr ""
+msgstr "~S: syntaxfel i filnamn ~S vid position ~S"
 
 #: pathname.d:2020 pathname.d:2035
 #, lisp-format
 msgid "~S: hosts ~S and ~S of ~S should coincide"
-msgstr ""
+msgstr "~S: värdar ~S och ~S av ~S bör sammanfalla"
 
 #: pathname.d:2179
 #, lisp-format
 msgid "~S: argument ~S is not a logical pathname, string, stream or symbol"
-msgstr ""
+msgstr "~S: argumentet ~S är inte ett logiskt sökvägsnamn, sträng, ström eller symbol"
 
 #: pathname.d:2189
 #, lisp-format
 msgid "~S: the stream ~S was not opened with a logical pathname"
-msgstr ""
+msgstr "~S: strömmen ~S öppnades inte med ett logiskt sökvägsnamn"
 
 #: pathname.d:2204
 #, lisp-format
 msgid "~S: argument ~S does not contain a host specification"
-msgstr ""
+msgstr "~S: argumentet ~S innehåller inte en värdspecifikation"
 
 #: pathname.d:2259
 #, lisp-format
 msgid "~S: endless loop while resolving ~S"
-msgstr ""
+msgstr "~S: oändlig loop vid upplösning av ~S"
 
 #: pathname.d:2286
 #, lisp-format
 msgid "~S: unknown logical host ~S in ~S"
-msgstr ""
+msgstr "~S: okänd logisk värd ~S i ~S"
 
 #: pathname.d:2298
 #, lisp-format
 msgid "~S: No replacement rule for ~S is known."
-msgstr ""
+msgstr "~S: Ingen ersättningsregel är känd för ~S."
 
 #: pathname.d:2611
 #, lisp-format
 msgid "~S: :VERSION-argument should be NIL or a positive fixnum or :WILD or :NEWEST, not ~S"
-msgstr ""
+msgstr "~S: :VERSION-argument bör vara NIL eller ett positivt fixnum eller :WILD: eller :NEWEST, inte ~S"
 
 #: pathname.d:2679
 #, lisp-format
 msgid "The value of ~S was not a pathname. ~:*~S is being reset."
-msgstr ""
+msgstr "Värdet för ~S var inte ett sökvägsnamn. ~:*~S återställs."
 
 #: pathname.d:3422
 #, lisp-format
 msgid "~S: on host ~S, device ~S is invalid, should be NIL"
-msgstr ""
+msgstr "~S: vid värd ~S, enhet ~S är ogiltigt, bör vara NIL"
 
 #: pathname.d:3861
 #, lisp-format
 msgid "~S: wildcards are not allowed here: ~S"
-msgstr ""
+msgstr "~S: jokertecken är inte tillåtna här: ~S"
 
 #: pathname.d:3896
 #, lisp-format
 msgid "~S: argument ~S should be ~S, ~S, ~S, ~S, ~S, ~S or ~S"
-msgstr ""
+msgstr "~S: argumentet ~S bör vara ~S, ~S, ~S, ~S, ~S, ~S eller ~S"
 
 #: pathname.d:4817
 #, lisp-format
 msgid "~S: replacement pieces ~S do not fit into ~S"
-msgstr ""
+msgstr "~S: återställningsdelar ~S passar inte i ~S"
 
 #: pathname.d:4900
 #, lisp-format
 msgid "~S: ~S is not a specialization of ~S"
-msgstr ""
+msgstr "~S: ~S är inte en specialisering av ~S"
 
 #: pathname.d:4956
 #, lisp-format
 msgid "(~S ~S ~S ~S) is ambiguous: ~S"
-msgstr ""
+msgstr "(~S ~S ~S ~S) är tvetydig: ~S"
 
 #: pathname.d:4992
 #, lisp-format
 msgid "~S: Directory ~S does not exist"
-msgstr ""
+msgstr "~S: Katalogen ~S existerar inte"
 
 #: pathname.d:5001 runprog.lisp:162
 #, lisp-format
 msgid "~S: File ~S already exists"
-msgstr ""
+msgstr "~S: Filen ~S existerar redan"
 
 #: pathname.d:5009
 #, lisp-format
 msgid "~S: ~S names a directory, not a file"
-msgstr ""
+msgstr "~S: ~S anger en katalog, inte en fil"
 
 #: pathname.d:5220
 #, lisp-format
 msgid "no directory ~S above ~S"
-msgstr ""
+msgstr "ingen katalog ~S ovanför ~S"
 
 #: pathname.d:5227
 #, lisp-format
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~S"
-msgstr ""
+msgstr "”..\\\\” efter ”...\\\\” är ogiltigt: ~S"
 
 #: pathname.d:5512
 #, lisp-format
 msgid "UNIX error while GETWD: ~S"
-msgstr ""
+msgstr "UNIX-fel vid GETWD: ~S"
 
 #: pathname.d:5519
 #, lisp-format
 msgid "UNIX GETWD returned ~S"
-msgstr ""
+msgstr "UNIX GETWD returnerade ~S"
 
 #: pathname.d:5682
 #, lisp-format
 msgid "UNIX REALPATH returned ~S"
-msgstr ""
+msgstr "UNIX REALPATH returnerade ~S"
 
 #: pathname.d:5800
 #, lisp-format
 msgid "~S: No file name given: ~S"
-msgstr ""
+msgstr "~S: Inget filnamn angivet: ~S"
 
 #: pathname.d:5811
 #, lisp-format
 msgid "~S: Not a directory: ~S"
-msgstr ""
+msgstr "~S: Inte en katalog: ~S"
 
 #: pathname.d:5855
 #, lisp-format
 msgid "~S: File ~S does not exist"
-msgstr ""
+msgstr "~S: Fil ~S existerar inte"
 
 #: pathname.d:5888
 #, lisp-format
 msgid "~S: pathname with type but without name makes no sense: ~S"
-msgstr ""
+msgstr "~S: sökvägsnamn med typ men utan namn saknar betydelse: ~S"
 
 #: pathname.d:6245
 #, lisp-format
 msgid "~S: Cannot delete file ~S since there is a file stream open to it"
-msgstr ""
+msgstr "~S: Kan inte ta bort fil ~S eftersom det finns en filström öppen till den"
 
 #: pathname.d:6289
 #, lisp-format
 msgid "~S: Cannot rename file ~S since there is a file stream open to it"
-msgstr ""
+msgstr "~S: Kan inte byta namn på fil ~S eftersom det finns en filström öppen till den"
 
 #: pathname.d:6692
 #, lisp-format
 msgid "~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results"
-msgstr ""
+msgstr "~S: ~S pekar redan på filen ~S, att öppna filen igen för ~S kan få oväntade resultat"
 
 #: pathname.d:6704
 msgid "Open the file anyway"
-msgstr ""
+msgstr "Öppna filen ändå"
 
 #: pathname.d:6722
 #, lisp-format
 msgid "~S: The value of ~S should be one of ~S, ~S, ~S, or ~S, not ~S. It has been changed to ~S."
-msgstr ""
+msgstr "~S: Värdet ~s borde vara endera av ~S, ~S, ~S, eller ~S, inte ~S. Det har ändrats till ~S."
 
 #: pathname.d:7974
 #, lisp-format
 msgid "root directory not allowed here: ~S"
-msgstr ""
+msgstr "rotkatalogen inte tillåten här: ~S"
 
 #: pathname.d:8075
 msgid "Creating directory: "
-msgstr ""
+msgstr "Skapar katalog: "
 
 #: pathname.d:9074
 #, lisp-format
 msgid "~S: There are multiple running threads. Currently they do not survive image saving/loading."
-msgstr ""
+msgstr "~S: Det finns multipla körande trådar. För närvarande överlever de inte sparande/inläsning av avbild."
 
 #: pathname.d:9087
 #, lisp-format
 msgid "~S: Mutex ~S is locked by thread ~S. Currently locked mutexes are not allowed in memory files."
-msgstr ""
+msgstr "~S: Mutex ~S är låst av tråd ~S. För närvarande låsta mutexar är inte tillåtna i minnesfiler."
 
 #: pathname.d:9139
 msgid "Loading module~P ~{~A~^, ~} from ~A"
@@ -1156,358 +1160,358 @@ msgstr ""
 #: pathname.d:9193
 #, lisp-format
 msgid "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
-msgstr ""
+msgstr "~S: installationskatalog är inte känd, använd kommandoradsflaggan -B för att ange den eller sätt *LIB-DIRECTORY*"
 
 #: stream.d:276 stream.d:13959
 #, lisp-format
 msgid "~S on ~S is illegal"
-msgstr ""
+msgstr "~S vid ~S är ogiltigt"
 
 #: stream.d:595
 #, lisp-format
 msgid "Return value ~S of call to ~S should be an integer between ~S and ~S."
-msgstr ""
+msgstr "Returvärde ~S vid anrop av ~S bör vara ett heltal mellan ~S och ~S."
 
 #: stream.d:762
 #, lisp-format
 msgid "~S: the last character read from ~S was not ~S"
-msgstr ""
+msgstr "~S: det sista tecknet som lästes från ~S var inte ~S"
 
 #: stream.d:768
 #, lisp-format
 msgid "~S from ~S without ~S before it"
-msgstr ""
+msgstr "~S från ~S utan föregående ~S"
 
 #: stream.d:1119
 #, lisp-format
 msgid "~S: cannot output to ~S"
-msgstr ""
+msgstr "~S: kan inte mata ut till ~S"
 
 #: stream.d:1130
 #, lisp-format
 msgid "~S: cannot output ~S into ~S, not of type ~S"
-msgstr ""
+msgstr "~S: kan inte mata ut ~S till ~S, är inte av typen ~S"
 
 #: stream.d:1156
 #, lisp-format
 msgid "integer ~S is out of range, cannot be output onto ~S"
-msgstr ""
+msgstr "heltalet ~S är utanför intervall, kan inte matas ut till ~S"
 
 #: stream.d:1170
 #, lisp-format
 msgid "~S: argument ~S is not a stream of type ~S"
-msgstr ""
+msgstr "~S: argument ~S är inte en ström av typ ~S"
 
 #: stream.d:1228
 #, lisp-format
 msgid "~S: argument ~S should be an input stream"
-msgstr ""
+msgstr "~S: argument ~S bör vara en inmatningsström"
 
 #: stream.d:1240
 #, lisp-format
 msgid "~S: argument ~S should be an output stream"
-msgstr ""
+msgstr "~S: argument ~S bör vara en utmatningsström"
 
 #: stream.d:1530
 #, lisp-format
 msgid "~S: argument should be a symbol, not ~S"
-msgstr ""
+msgstr "~S: argumentet bör vara en symbol, inte ~S"
 
 #: stream.d:2373 stream.d:2856
 #, lisp-format
 msgid "~S is beyond the end because the string ~S has been adjusted"
-msgstr ""
+msgstr "~S är bortom slutet eftersom strängen ~S har justerats"
 
 #: stream.d:2485
 #, lisp-format
 msgid "~S: ~S is not a string input stream"
-msgstr ""
+msgstr "~S: ~S är inte en strängström för inmatning"
 
 #: stream.d:2557 charstrg.d:3150
 #, lisp-format
 msgid "~S: ~S argument must be a subtype of ~S, not ~S"
-msgstr ""
+msgstr "~S: ~S argument måste vara en undertyp till ~S, inte ~S"
 
 #: stream.d:2612
 #, lisp-format
 msgid "~S: ~S is not a string output stream"
-msgstr ""
+msgstr "~S: ~S är inte en strängström för utmatning"
 
 #: stream.d:2646
 #, lisp-format
 msgid "~S: argument ~S should be a string with fill pointer"
-msgstr ""
+msgstr "~S: argument ~S bör vara en sträng med fyllnadspekare"
 
 #: stream.d:2697
 #, lisp-format
 msgid "~S: ~S is not a string stream"
-msgstr ""
+msgstr "~S: ~S är inte en strängström"
 
 #: stream.d:2944
 #, lisp-format
 msgid "~S: ~S is not a buffered input stream"
-msgstr ""
+msgstr "~S: ~S är inte en buffrad inmatningsström"
 
 #: stream.d:3937
 #, lisp-format
 msgid "~S: Ctrl-C: User break"
-msgstr ""
+msgstr "~S: Ctrl-C: Användaravbrott"
 
 #: stream.d:4017
 #, lisp-format
 msgid "unknown character set ~S"
-msgstr ""
+msgstr "okänd teckenkodning ~S"
 
 #: stream.d:5882
 #, lisp-format
 msgid "Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"
-msgstr ""
+msgstr "Obuffrade strömar behöver en ~S med en bitstorlek som är en multipel av 8, inte ~S"
 
 #: stream.d:6252
 #, lisp-format
 msgid "Closed ~S because disk is full."
-msgstr ""
+msgstr "Stängde ~S eftersom disken är full."
 
 #: stream.d:6386
 #, lisp-format
 msgid "cannot position ~S beyond EOF"
-msgstr ""
+msgstr "kan inte positionera ~S bortom EOF"
 
 #: stream.d:8100
 #, lisp-format
 msgid "~S: argument ~S ~S was specified, but ~S is not a regular file."
-msgstr ""
+msgstr "~S: argument ~S ~S angavs, men ~S är inte en vanlig fil."
 
 #: stream.d:8132
 #, lisp-format
 msgid "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."
-msgstr ""
+msgstr "~S: argumenten ~S ~S och ~S ~S angavs, men ~S är inte en vanlig fil."
 
 #: stream.d:8195
 #, lisp-format
 msgid "file ~S is not an integer file"
-msgstr ""
+msgstr "fil ~S är inte en heltalsfil"
 
 #: stream.d:9312
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
-msgstr ""
+msgstr "Returvärde ~S från anrop till ~S är inte en lista."
 
 #: stream.d:9333
 #, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
-msgstr ""
+msgstr "Returvärde ~S från anrop till ~S innehåller ~S vilket inte är en ~S."
 
 #: stream.d:10407
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
-msgstr ""
+msgstr "~S: argumentet ~S borde vara en fönsterström"
 
 #: stream.d:10955
 msgid "cannot output to standard output"
-msgstr ""
+msgstr "kan inte mata ut till standard ut"
 
 #: stream.d:12146
 msgid "environment has no TERM variable"
-msgstr ""
+msgstr "miljövariabel har ingen TERM-variabel"
 
 #: stream.d:12151
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
-msgstr ""
+msgstr "terminaltyp ~S okänd för termcap"
 
 #: stream.d:12164
 msgid "insufficient terminal: hardcopy terminal"
-msgstr ""
+msgstr "otillräcklig terminal: terminal för hårdkopia"
 
 #: stream.d:12168
 msgid "insufficient terminal: overstrikes, cannot clear output"
-msgstr ""
+msgstr "otillräcklig terminal: överstrykning, kan inte rensa utmatning"
 
 #: stream.d:12172
 msgid "insufficient terminal: cannot scroll"
-msgstr ""
+msgstr "otillräcklig terminal: kan inte rulla"
 
 #: stream.d:12177
 msgid "insufficient terminal: cannot clear screen"
-msgstr ""
+msgstr "otillräcklig terminal: kan inte rensa skärmen"
 
 #: stream.d:12181
 msgid "insufficient terminal: cannot position cursor randomly"
-msgstr ""
+msgstr "otillräcklig terminal: kan inte positionera markör slumpmässigt"
 
 #: stream.d:13673
 #, lisp-format
 msgid "host should be string, not ~S"
-msgstr ""
+msgstr "värd bör vara en sträng, inte ~S"
 
 #: stream.d:13680
 #, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
-msgstr ""
+msgstr "skärm bör vara ett litet icke-negativt heltal, inte ~S"
 
 #: stream.d:13751 io.d:935
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
-msgstr ""
+msgstr "~S: inmatningsström ~S har nått sitt slut"
 
 #: stream.d:13954 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:862 error.d:864 error.d:1072
 #, lisp-format
 msgid "~S: ~S is not a ~S"
-msgstr ""
+msgstr "~S: ~S är inte en ~S"
 
 #: stream.d:14003
 #, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
-msgstr ""
+msgstr "~S: argument ~S är inte en öppen SOCKET-STREAM"
 
 #: stream.d:14014
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
-msgstr ""
+msgstr "~S: argument ~S är inte en SOCKET-STREAM"
 
 #: stream.d:14028
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
-msgstr ""
+msgstr "VARNING: (socket-server <socket>) är föråldrat, använd (socket-server <port> :interface <socket>)"
 
 #: stream.d:14285
 #, lisp-format
 msgid "~S: argument ~S is not an open stream"
-msgstr ""
+msgstr "~S: argument ~S är inte öppen ström"
 
 #: stream.d:14512
 #, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
-msgstr ""
+msgstr "~S: lista ~S för lång (~S maximalt)"
 
 #: stream.d:14742
 #, lisp-format
 msgid "~S: argument ~S should be of type ~S."
-msgstr ""
+msgstr "~S: argument ~S bör vara av typen ~S."
 
 #: stream.d:15076
 #, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
-msgstr ""
+msgstr "Ogiltig riktning ~S för åtkomst av ~S"
 
 #: stream.d:15104
 #, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
-msgstr ""
+msgstr "~S: ~S bör vara ett handtag, handtagsström eller endera av ~S, ~S, ~S"
 
 #: stream.d:15408
 #, lisp-format
 msgid "~S: The value of ~S is not a stream: ~S"
-msgstr ""
+msgstr "~S: Värdet av ~S är inte en ström: ~S"
 
 #: stream.d:15410
 #, lisp-format
 msgid "~S: The value of ~S is not an appropriate stream: ~S"
-msgstr ""
+msgstr "~S: Värdet av ~S är inte en lämplig ström: ~S"
 
 #: stream.d:15423
 #, lisp-format
 msgid "~S: The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
-msgstr ""
+msgstr "~S: Värdet av ~S var inte en lämplig ström: ~S. Det har ändrats till ~S."
 
 #: stream.d:15436
 msgid "readline library: out of memory."
-msgstr ""
+msgstr "readline-biblioteket: slut på minne."
 
 #: stream.d:15751
 #, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
-msgstr ""
+msgstr "~S: ~s av ~S kan inte ändras från ~S till ~S."
 
 #: stream.d:16345
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
-msgstr ""
+msgstr "Returvärdet ~S från anrop till ~S är inte en sträng."
 
 #: stream.d:16853
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
-msgstr ""
+msgstr "Returvärdet ~S från anrop till ~S är inte ett fixnum >= 0 eller NIL."
 
 #: stream.d:17014
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
-msgstr ""
+msgstr "~S behöver en ~S med en bitstorlek som är en multipel av 8, inte ~S"
 
 #: stream.d:17062
 #, lisp-format
 msgid "~S: illegal endianness argument ~S"
-msgstr ""
+msgstr "~S: ogiltigt byteordningsargument ~S"
 
 #: stream.d:17195
 #, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
-msgstr ""
+msgstr "~S: argument ~S innehåller inte en giltigt OS-strömhandtag"
 
 #: stream.d:17196
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
-msgstr ""
+msgstr "~S: ~S: buffrade rörinmatningsströmmar stöds inte."
 
 #: stream.d:17197
 #, lisp-format
 msgid "~S: ~S: stream of wrong direction"
-msgstr ""
+msgstr "~S: ~S: ström med fel riktning"
 
 #: stream.d:17404 stream.d:17414
 #, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
-msgstr ""
+msgstr "~S är inte en ~S, kan inte matas ut till ~S"
 
 #: stream.d:17488
 #, lisp-format
 msgid "~S: argument ~S is not an open file stream"
-msgstr ""
+msgstr "~S: argument ~S är inte en öppen filström"
 
 #: stream.d:17546
 #, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
-msgstr ""
+msgstr "~S: positionsargument bör vara ~S eller ~S eller ett icke-negativt heltal, inte ~S"
 
 #: socket.d:458
 #, lisp-format
 msgid "~S: IP address ~S must have length ~S or ~S"
-msgstr ""
+msgstr "~S: IP-adress ~S måste ha längden ~S eller ~S"
 
 #: socket.d:460
 #, lisp-format
 msgid "~S: IP address ~S must have length ~S"
-msgstr ""
+msgstr "~S: IP-adress ~S måste ha längden ~S"
 
 #: io.d:464
 #, lisp-format
 msgid "The value of ~S was not a readtable. It has been reset."
-msgstr ""
+msgstr "Värdet av ~S var inte en lästabell. Det har återställts."
 
 #: io.d:550 error.d:1200
 #, lisp-format
 msgid "~S: argument ~S is not a ~S"
-msgstr ""
+msgstr "~S: argument ~S är inte en ~S"
 
 #: io.d:704
 #, lisp-format
 msgid "~S: ~S is a dispatch macro character"
-msgstr ""
+msgstr "~S: ~S är ett avsändarmakrotecken"
 
 #: io.d:756
 #, lisp-format
 msgid "~S: ~S is not a dispatch macro character"
-msgstr ""
+msgstr "~S: ~S är inte ett avsändarmakrotecken"
 
 #: io.d:780
 #, lisp-format
 msgid "~S: digit ~C not allowed as sub-char"
-msgstr ""
+msgstr "~S: siffra ~C inte tillåten som undertecken"
 
 #: io.d:827
 #, lisp-format
 msgid "~S: new value ~S should be ~S, ~S, ~S or ~S."
-msgstr ""
+msgstr "~S: nytt värde ~S borde vara ~S, ~S, ~S eller ~S."
 
 #: io.d:859
 #, lisp-format
@@ -1515,341 +1519,343 @@ msgid ""
 "The value of ~S should be an integer between 2 and 36, not ~S.\n"
 "It has been reset to 10."
 msgstr ""
+"Värdet ~S borde vara ett heltal mellan 2 och 36, inte ~S.\n"
+"Det har återställts till 10."
 
 #: io.d:905 defs2.lisp:179
 #, lisp-format
 msgid "~S from ~S: character read should be a character: ~S"
-msgstr ""
+msgstr "~S från ~S: läst tecken borde vara ett tecken: ~S"
 
 #: io.d:947
 #, lisp-format
 msgid "~S: input stream ~S ends within an object. Last opening parenthesis probably in line ~S."
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom ett objekt. Sista inledande parentes troligen på rad ~S."
 
 #: io.d:951
 #, lisp-format
 msgid "~S: input stream ~S ends within an object"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom ett objekt"
 
 #: io.d:1214
 #, lisp-format
 msgid "~S from ~S: illegal character ~S"
-msgstr ""
+msgstr "~S från ~S: ogiltigt tecken ~S"
 
 #: io.d:1224
 #, lisp-format
 msgid "~S: input stream ~S ends within a token after single escape character"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom en symbol efter enkelt kontrollsekvenstecken"
 
 #: io.d:1270
 #, lisp-format
 msgid "~S: input stream ~S ends within a token after multiple escape character"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom en symbol efter multipla kontrollsekvenstecken"
 
 #: io.d:1787
 #, lisp-format
 msgid "~S from ~S: ~S has no macro character definition"
-msgstr ""
+msgstr "~S från ~S: ~S har ingen makroteckendefintion"
 
 #: io.d:1799
 #, lisp-format
 msgid "~S from ~S: macro character definition for ~S may not return ~S values, only one value."
-msgstr ""
+msgstr "~S från ~S: makroteckensdefinition för ~S får inte returnera ~S värden, endast ett värde."
 
 #: io.d:1820 defs2.lisp:173
 #, lisp-format
 msgid "~S: input stream ~S ends within read macro beginning with ~S"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom läsmakro som börjar med ~S"
 
 #: io.d:1852 defs2.lisp:200
 #, lisp-format
 msgid "~S from ~S: After ~S is ~S an undefined dispatch macro character"
-msgstr ""
+msgstr "~S från ~S: Efter ~S är ~S en odefinerat tecken för avsändarmakrotecken"
 
 #: io.d:1864
 #, lisp-format
 msgid "~S from ~S: dispatch macro character definition for ~S after ~S may not return ~S values, only one value."
-msgstr ""
+msgstr "~S från ~S: definition för avsändarmakrotecken för ~S efter ~S får inte returnera ~S värden, endast ett värde."
 
 #: io.d:1930
 #, lisp-format
 msgid "~S from ~S: a token consisting only of dots cannot be meaningfully read in"
-msgstr ""
+msgstr "~S från ~S: en symbol som endast består av punkter kan inte läsas in på ett meningsfullt sätt"
 
 #: io.d:2041
 #, lisp-format
 msgid "~S from ~S: too many colons in token ~S"
-msgstr ""
+msgstr "~S from ~S: för många kolon i symbol ~S"
 
 #: io.d:2048
 #, lisp-format
 msgid "~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"
-msgstr ""
+msgstr "~S från ~S: symbol ~S innehåller ett ogiltigt tecken (se ANSI CL 2.1.4.2.)"
 
 #: io.d:2097
 #, lisp-format
 msgid "~S from ~S: there is no package with name ~S"
-msgstr ""
+msgstr "~S från ~S: det finns inget paket med namn ~S"
 
 #: io.d:2123
 #, lisp-format
 msgid "~S from ~S: ~S has no external symbol with name ~S"
-msgstr ""
+msgstr "~S från ~S: ~S har ingen extern symbol med namn ~S"
 
 #: io.d:2162
 #, lisp-format
 msgid "~S from ~S: token \".\" not allowed here"
-msgstr ""
+msgstr "~S från ~S: symbol ”.” är inte tillåten här"
 
 #: io.d:2188
 #, lisp-format
 msgid "~S: the value of ~S has been arbitrarily altered to ~S"
-msgstr ""
+msgstr "~S: värdet av ~S har godtyckligt ändrats till ~S"
 
 #: io.d:2196
 #, lisp-format
 msgid "~S: symbol ~S is not bound, it appears that top-level ~S was called with a non-NIL recursive-p argument"
-msgstr ""
+msgstr "~S: symbol ~S är inte bunden, det verkar som om toppnivå ~S anropades utan ett icke-NIL rekursivt-p-argument"
 
 #: io.d:2232
 #, lisp-format
 msgid "~S: no entry for ~S from ~S in ~S = ~S"
-msgstr ""
+msgstr "~S: ingen post för ~S från ~S i ~S = ~S"
 
 #: io.d:2443
 #, lisp-format
 msgid "~S from ~S: illegal end of dotted list"
-msgstr ""
+msgstr "~S från ~S: ogiltigt slut på punktad lista"
 
 #: io.d:2511
 #, lisp-format
 msgid "~S from ~S: an object cannot start with ~S"
-msgstr ""
+msgstr "~S från ~S: ett objekt kan inte börja med ~S"
 
 #: io.d:2628
 #, lisp-format
 msgid "~S: input stream ~S ends within a string"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom en sträng"
 
 #: io.d:2691
 #, lisp-format
 msgid "~S from ~S: no number allowed between # and ~C"
-msgstr ""
+msgstr "~S från ~S: inget nummer tillåtet mellan # och ~C"
 
 #: io.d:2780
 #, lisp-format
 msgid "~S: input stream ~S ends within a comment #~C ... ~C#"
-msgstr ""
+msgstr "~S: inmatningsström ~S slutar inom en kommentar #~C … ~C#"
 
 #: io.d:2848
 #, lisp-format
 msgid "~S from ~S: font number ~S for character is too large, should be = 0"
-msgstr ""
+msgstr "~S från ~S: typsnitt nummer ~S för tecken är för stort, borde vara = 0"
 
 #: io.d:2913
 #, lisp-format
 msgid "~S from ~S: there is no character with name ~S"
-msgstr ""
+msgstr "~S från ~S: det finns inget tecken med namn ~S"
 
 #: io.d:2969
 #, lisp-format
 msgid "~S from ~S: token ~S after #~C is not a rational number in base ~S"
-msgstr ""
+msgstr "~S från ~S: symbol ~S efter #~C är inte ett rationellt nummer i bas ~S"
 
 #: io.d:3035
 #, lisp-format
 msgid "~S from ~S: the number base must be given between # and R"
-msgstr ""
+msgstr "~S från ~S: numrets bas måste anges mellan # och R"
 
 #: io.d:3048
 #, lisp-format
 msgid "~S from ~S: The base ~S given between # and R should lie between 2 and 36"
-msgstr ""
+msgstr "~S från ~S: Basen ~S angiven mellan # och R borde vara mellan 2 och 36"
 
 #: io.d:3093
 #, lisp-format
 msgid "~S from ~S: bad syntax for complex number: #C~S"
-msgstr ""
+msgstr "~S från ~S: felaktig syntax för komplext tal: #C~S"
 
 #: io.d:3123
 #, lisp-format
 msgid "~S from ~S: token expected after #:"
-msgstr ""
+msgstr "~S från ~S: symbol förväntad efter #:"
 
 #: io.d:3151
 #, lisp-format
 msgid "~S from ~S: token ~S after #: should contain no colon"
-msgstr ""
+msgstr "~S från ~S: symbol ~S efter #: borde inte innehålla kolon"
 
 #: io.d:3176
 #, lisp-format
 msgid "~S from ~S: ~S is longer than the explicitly given length ~S"
-msgstr ""
+msgstr "~S från ~S: ~S är längre än den uttryckligt angivna längden ~S"
 
 #: io.d:3185
 #, lisp-format
 msgid "~S from ~S: must specify elements of ~S of length ~S"
-msgstr ""
+msgstr "~S från ~S: måste ange element i ~S av längd ~S"
 
 #: io.d:3195
 #, lisp-format
 msgid "~S from ~S: invalid ~S length ~S"
-msgstr ""
+msgstr "~S från ~S: ogiltig ~S längd ~S"
 
 #: io.d:3245
 #, lisp-format
 msgid "~S from ~S: only zeroes and ones are allowed after #*"
-msgstr ""
+msgstr "~S från ~S: endast nollor och ettor är tillåtna efter #*"
 
 #: io.d:3392
 #, lisp-format
 msgid "~S from ~S: bad syntax for array: #A~S"
-msgstr ""
+msgstr "~S från ~S: felaktig syntax för vektor: #A~S"
 
 #: io.d:3456
 #, lisp-format
 msgid "~S from ~S: ~S = ~S does not allow the evaluation of ~S"
-msgstr ""
+msgstr "~S från ~S: ~S = ~S tillåter inte beräkningen av ~S"
 
 #: io.d:3571
 #, lisp-format
 msgid "~S from ~S: a number must be given between # and ~C"
-msgstr ""
+msgstr "~S från ~S: ett nummer måste anges mellan # och ~C"
 
 #: io.d:3620
 #, lisp-format
 msgid "~S from ~S: label #~S= may not be defined twice"
-msgstr ""
+msgstr "~S från ~S: etikett #~S= får inte definieras två gånger"
 
 #: io.d:3647
 #, lisp-format
 msgid "~S from ~S: #~S= #~S# is illegal"
-msgstr ""
+msgstr "~S från ~S: #~S= #~S# är ogiltig"
 
 #: io.d:3671
 #, lisp-format
 msgid "~S from ~S: undefined label #~S#"
-msgstr ""
+msgstr "~S från ~S: odefinierad etikett #~S#"
 
 #: io.d:3685
 #, lisp-format
 msgid "~S from ~S: objects printed as #<...> cannot be read back in"
-msgstr ""
+msgstr "~S från ~S: objekt utskrivna som #<…> kan inte läsas in igen"
 
 #: io.d:3700
 #, lisp-format
 msgid "~S from ~S: objects printed as # in view of ~S cannot be read back in"
-msgstr ""
+msgstr "~S från ~S: objekt utskrivna som # i vy från ~S kan inte läsas in igen"
 
 #: io.d:3730
 #, lisp-format
 msgid "~S from ~S: illegal feature ~S"
-msgstr ""
+msgstr "~S från ~S: ogiltig funktion ~S"
 
 #: io.d:3734
 #, lisp-format
 msgid "~S: illegal feature ~S"
-msgstr ""
+msgstr "~S: ogiltig funktion ~S"
 
 #: io.d:3902
 #, lisp-format
 msgid "~S from ~S: #S must be followed by the type and the contents of the structure, not ~S"
-msgstr ""
+msgstr "~S från ~S: #S måste åtföljas av typen och strukturens innehåll, inte ~S"
 
 #: io.d:3913
 #, lisp-format
 msgid "~S from ~S: the type of a structure should be a symbol, not ~S"
-msgstr ""
+msgstr "~S från ~S: strukturens typ bör vara en symbol, inte ~S"
 
 #: io.d:3924 io.d:3988
 #, lisp-format
 msgid "~S from ~S: bad ~S"
-msgstr ""
+msgstr "~S: från ~S: felaktig ~S"
 
 #: io.d:3964
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "~S from ~S: bad ~S (not enough fields)"
-msgstr ""
+msgstr "~S från ~S: felaktig ~S för ~S"
 
 #: io.d:3971
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "~S from ~S: bad ~S (extra fields: ~S"
-msgstr ""
+msgstr "~S från ~S: felaktig ~S för ~S"
 
 #: io.d:4042
 #, lisp-format
 msgid "~S from ~S: bad ~S for ~S"
-msgstr ""
+msgstr "~S från ~S: felaktig ~S för ~S"
 
 #: io.d:4052
 #, lisp-format
 msgid "~S from ~S: no structure of type ~S has been defined"
-msgstr ""
+msgstr "~S från ~S: ingen struktur av typen ~S har definierats"
 
 #: io.d:4061
 #, lisp-format
 msgid "~S from ~S: structures of type ~S cannot be read in, missing constructor function"
-msgstr ""
+msgstr "~S från ~S: strukturer av typ ~S kan inte läsas in, saknar konstruktorfunktion"
 
 #: io.d:4082
 #, lisp-format
 msgid "~S from ~S: a structure ~S may not contain a component \".\""
-msgstr ""
+msgstr "~S från ~S: en ~S-struktur får inte innehålla en ”.”-komponent"
 
 #: io.d:4093
 #, lisp-format
 msgid "~S from ~S: ~S is not a symbol, not a slot name of structure ~S"
-msgstr ""
+msgstr "~S från ~S: ~S är inte en symbol, inte ett namn på en lucka från struktur ~S"
 
 #: io.d:4102
 #, lisp-format
 msgid "~S from ~S: missing value of slot ~S in structure ~S"
-msgstr ""
+msgstr "~S från ~S: saknar värde för lucka ~S i struktur ~S"
 
 #: io.d:4121
 #, lisp-format
 msgid "~S from ~S: too many slots for structure ~S"
-msgstr ""
+msgstr "~S från ~S: för många luckor för struktur ~S"
 
 #: io.d:4159
 #, lisp-format
 msgid "~S from ~S: illegal syntax of closure code vector after #~SY"
-msgstr ""
+msgstr "~S från ~S: ogiltig syntax för kodvektor för hölje efter #~SY"
 
 #: io.d:4217
 #, lisp-format
 msgid "~S from ~S: object #Y~S has not the syntax of a compiled closure"
-msgstr ""
+msgstr "~S från ~S: objekt #Y~S följer inte syntaxen för ett kompilerat hölje"
 
 #: io.d:4247
 #, lisp-format
 msgid "~S from ~S: invalid code vector length ~S"
-msgstr ""
+msgstr "~S från ~S: ogiltig längd ~S för kodvektor"
 
 #: io.d:4365
 #, lisp-format
 msgid "~S from ~S: bad syntax for pathname: #P~S"
-msgstr ""
+msgstr "~S från ~S: ogiltig syntax för sökvägsnamn: #P~S"
 
 #: io.d:4586
 #, lisp-format
 msgid "~S: peek type should be NIL or T or a character, not ~S"
-msgstr ""
+msgstr "~S: titt-typ borde vara NIL eller T eller ett tecken, inte ~S"
 
 #: io.d:4726
 #, lisp-format
 msgid "~S: ~S argument ~S is not an integer between 2 and 36"
-msgstr ""
+msgstr "~S: ~S argument ~S är inte ett heltal mellan 2 och 36"
 
 #: io.d:4825
 #, lisp-format
 msgid "~S: substring ~S does not have integer syntax at position ~S"
-msgstr ""
+msgstr "~S: delsträng ~S har inte en heltalsyntax vid position ~S"
 
 #: io.d:4973
 #, lisp-format
 msgid "~S: Despite ~S, ~S cannot be printed readably."
-msgstr ""
+msgstr "~S: Trots ~S, kan ~S inte skrivas ut läsbart."
 
 #: io.d:4999
 #, lisp-format
@@ -1857,274 +1863,278 @@ msgid ""
 "~S: the value ~S of ~S is neither ~S nor ~S nor ~S.\n"
 "It is reset to ~S."
 msgstr ""
+"~S: värdet ~S av ~S är varken ~S eller ~S eller ~S.\n"
+"Det har återställts till ~S."
 
 #: io.d:5577
 #, lisp-format
 msgid "~S: must be a positive integer or NIL, not ~S"
-msgstr ""
+msgstr "~S: måste vara ett positivt heltal eller NIL, inte ~S"
 
 #: io.d:6618
 #, lisp-format
 msgid "~S: not enough stack space for carrying out circularity analysis"
-msgstr ""
+msgstr "~S: inte tillräckligt med stackutrymme för att utföra cirkularitetsanalys"
 
 #: io.d:8374
 #, lisp-format
 msgid "~S: bad class"
-msgstr ""
+msgstr "~S: felaktig klass"
 
 #: io.d:9499
 #, lisp-format
 msgid "~S: an unknown record type has been generated!"
-msgstr ""
+msgstr "~S: en okänd posttyp har genererats!"
 
 #: io.d:10040
 #, lisp-format
 msgid "~S: argument ~S is too large"
-msgstr ""
+msgstr "~S: argument ~S är för stort"
 
 #: io.d:10062
 #, lisp-format
 msgid "~S: argument ~S should be ~S or ~S."
-msgstr ""
+msgstr "~S: argument ~S borde vara ~S eller ~S."
 
 #: io.d:10103 weak.d:684
 #, lisp-format
 msgid "~S: argument ~S should be ~S, ~S, ~S or ~S."
-msgstr ""
+msgstr "~S: argument ~S borde vara ~S, ~S, ~S eller ~S."
 
 #: array.d:239
 msgid "index too large"
-msgstr ""
+msgstr "index för stort"
 
 #: array.d:244
 msgid "An array has been shortened by adjusting it while another array was displaced to it."
-msgstr ""
+msgstr "En vektor har kortats ned genom att justera den medan en annan vektor blev förskjuten till den."
 
 #: array.d:348 foreign.d:2664
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
-msgstr ""
+msgstr "~S: fick ~S index, men ~S har rang ~S"
 
+# sebras: does subscripts mean index in this context?
 #: array.d:360 foreign.d:2679
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-msgstr ""
+msgstr "~S: index ~S för ~S är inte av typen `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
+# sebras: does subscripts mean index in this context?
 #: array.d:382 foreign.d:2688
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
-msgstr ""
+msgstr "~S: index ~S för ~S är utanför intervall"
 
 #: array.d:439
 #, lisp-format
 msgid "~S: index ~S for ~S is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-msgstr ""
+msgstr "~S: index ~S för ~S är inte av typen `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
 #: array.d:456
 #, lisp-format
 msgid "~S: index ~S for ~S is out of range"
-msgstr ""
+msgstr "~S: index ~S för ~S är utanför intervall"
 
 #: array.d:503
 #, lisp-format
 msgid "~S: cannot retrieve values from an array of element type NIL"
-msgstr ""
+msgstr "~S: kan inte hämta värden från en vektor av elementtyp NIL"
 
 #: array.d:509
 #, lisp-format
 msgid "~S: cannot store values in an array of element type NIL"
-msgstr ""
+msgstr "~S: kan inte lagra värde i en vektor av elementtyp NIL"
 
 #: array.d:515
 #, lisp-format
 msgid "~S: cannot access values of an array of element type NIL"
-msgstr ""
+msgstr "~S: kan inte komma åt värden från en vektor av elementtyp NIL"
 
 #: array.d:560
 #, lisp-format
 msgid "~S: ~S does not fit into ~S, bad type"
-msgstr ""
+msgstr "~S: ~S får inte plats i ~S, felaktig typ"
 
 #: array.d:564
 #, lisp-format
 msgid "~S: ~S cannot be stored in an array of element type NIL"
-msgstr ""
+msgstr "~S: ~S kan inte lagras i en vektor av elementtyp NIL"
 
 #: array.d:937
 #, lisp-format
 msgid "~S: ~S is not an nonnegative integer less than the rank of ~S"
-msgstr ""
+msgstr "~S: ~S är inte ett icke-negativt heltal mindre än rangen av ~S"
 
 #: array.d:1162
 #, lisp-format
 msgid "~S: ~S is not an array of bits"
-msgstr ""
+msgstr "~S: ~S är inte en vektor av bitar"
 
 #: array.d:1963
 #, lisp-format
 msgid "~S: The arguments ~S and ~S should be arrays of bits with the same dimensions"
-msgstr ""
+msgstr "~S: Argumenten ~S och ~S borde vara vektorer av bitar med samma dimensioner"
 
 #: array.d:1972
 #, lisp-format
 msgid "~S: The arguments ~S, ~S and ~S should be arrays of bits with the same dimensions"
-msgstr ""
+msgstr "~S: Argumenten ~S, ~S och ~S borde vara vektorer av bitar med samma dimensioner"
 
 #: array.d:3748
 #, lisp-format
 msgid "~S: vector ~S has no fill pointer"
-msgstr ""
+msgstr "~S: vektor ~S har ingen fyllnadspekare"
 
 #: array.d:3812
 #, lisp-format
 msgid "~S: ~S has length zero"
-msgstr ""
+msgstr "~S: ~S har längd noll"
 
 #: array.d:3824
 #, lisp-format
 msgid "~S: extending the vector by ~S elements makes it too long"
-msgstr ""
+msgstr "~S: att utöka vektorn med ~S element skulle göra den för lång"
 
 #: array.d:3845
 #, lisp-format
 msgid "~S works only on adjustable arrays, not on ~S"
-msgstr ""
+msgstr "~S arbetar endast på justerbara vektorer, inte på ~S"
 
 #: array.d:3862
 #, lisp-format
 msgid "~S: extension ~S should be a positive fixnum"
-msgstr ""
+msgstr "~S: utökning ~S borde vara ett positivt fixnum"
 
 #: array.d:3955
 #, lisp-format
 msgid "~S: cannot push ~S into array ~S (bad type)"
-msgstr ""
+msgstr "~S: kan inte knuffa ~S in i vektor ~S (felaktig typ)"
 
 #: array.d:4020
 #, lisp-format
 msgid "~S: dimension ~S is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
-msgstr ""
+msgstr "~S: dimension ~S är inte av typen `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
 #: array.d:4282
 #, lisp-format
 msgid "~S: dimensions ~S produce too large total-size"
-msgstr ""
+msgstr "~S: dimension ~S producerar för stor totalstorlek"
 
 #: array.d:4323
 #, lisp-format
 msgid "~S: ambiguous, more than one initialization specified"
-msgstr ""
+msgstr "~S: tvetydigt, mer är en initialisering angiven"
 
 #: array.d:4332
 #, lisp-format
 msgid "~S: ~S must not be specified without ~S"
-msgstr ""
+msgstr "~S: ~S får inte anges utan ~S"
 
 #: array.d:4354
 #, lisp-format
 msgid "~S: the initial-element ~S is not of type ~S"
-msgstr ""
+msgstr "~S: det inledande elementet ~S är inte av typen ~S"
 
 #: array.d:4486
 #, lisp-format
 msgid "~S: ~S is of incorrect length"
-msgstr ""
+msgstr "~S: ~S är av felaktig längd"
 
 #: array.d:4510
 #, lisp-format
 msgid "~S: ~S-argument ~S is not an array"
-msgstr ""
+msgstr "~S: ~S-argument ~S är inte en vektor"
 
 #: array.d:4527
 #, lisp-format
 msgid "~S: ~S-argument ~S does not have element type ~S"
-msgstr ""
+msgstr "~S: ~S-argument ~S har inte elementtyp ~S"
 
 #: array.d:4542
 #, lisp-format
 msgid "~S: ~S-argument ~S is not of type `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"
-msgstr ""
+msgstr "~S: ~S-argument ~S är inte av typen `(INTEGER 0 (,ARRAY-TOTAL-SIZE-LIMIT))"
 
 #: array.d:4552
 #, lisp-format
 msgid "~S: array-total-size + displaced-offset (= ~S) exceeds total size ~S of ~S-argument"
-msgstr ""
+msgstr "~S: total vektorstorlek + förskjuten position (= ~S) överstiger total storlek ~S för ~S-argument"
 
 #: array.d:4573
 #, lisp-format
 msgid "~S: fill-pointer ~S should be a nonnegative fixnum"
-msgstr ""
+msgstr "~S: fyllnadspekare ~S borde vara ett icke-negativt fixnum"
 
 #: array.d:4580
 #, lisp-format
 msgid "~S: fill-pointer argument ~S is larger than the length ~S"
-msgstr ""
+msgstr "~S: fyllnadspekarargument ~S är större än längden ~S"
 
 #: array.d:4648
 #, lisp-format
 msgid "~S: attempted rank ~S is too large"
-msgstr ""
+msgstr "~S: provad rang ~S är för stor"
 
 #: array.d:4661
 #, lisp-format
 msgid "~S: ~S may not be specified for an array of rank ~S"
-msgstr ""
+msgstr "~S: ~S får inte anges för en vektor av rang ~S"
 
 #: array.d:4856
 #, lisp-format
 msgid "~S: rank ~S of array ~S cannot be altered: ~S"
-msgstr ""
+msgstr "~S: rang ~S för vektor ~S kan inte ändras: ~S"
 
 #: array.d:4876
 #, lisp-format
 msgid "~S: array ~S does not have element-type ~S"
-msgstr ""
+msgstr "~S: vektor ~S har inte elementtyp ~S"
 
 #: array.d:4989
 #, lisp-format
 msgid "~S: cannot displace array ~S to itself"
-msgstr ""
+msgstr "~S: kan inte förskjuta vektor ~S till sig själv"
 
 #: array.d:5020
 #, lisp-format
 msgid "~S: the fill-pointer of array ~S is ~S, greater than ~S"
-msgstr ""
+msgstr "~S: fyllnadspekaren för vektor ~S är ~S, större än ~S"
 
 #: array.d:5142
 #, lisp-format
 msgid "Illegal START index ~S for ~S"
-msgstr ""
+msgstr "Ogiltigt START-index ~S för ~S"
 
 #: array.d:5170
 #, lisp-format
 msgid "Illegal END index ~S for ~S"
-msgstr ""
+msgstr "Ogiltigt END-index ~S för ~S"
 
 #: array.d:5183
 #, lisp-format
 msgid "~S: invalid bit-vector length ~S"
-msgstr ""
+msgstr "~S: ogiltig längd för bitvektor ~S"
 
 #: hashtabl.d:1356
 #, lisp-format
 msgid "Performance/scalability warning: The hash table ~S needs to be rehashed after a garbage collection, since it contains key whose hash code is not GC-invariant."
-msgstr ""
+msgstr "Prestanda-/skalbarhetsvarning: Hashtabellen ~S behöver omhashas efter en skräpsamling, eftersom den innehåller en nyckel vars hashkod inte är GC-invariant"
 
 #: hashtabl.d:1544
 #, lisp-format
 msgid "Performance/scalability warning: The hash table ~S must be rehashed after each garbage collection, since its key ~S has a hash code that is not GC-invariant."
-msgstr ""
+msgstr "Prestanda-/skalbarhetsvarning: Hashtabellen ~S måste omhashas efter varje skräpsamling, eftersom dess nyckel ~S har en hashkod som inte är GC-invariant"
 
 #: hashtabl.d:1692
 #, lisp-format
 msgid "Hash table size ~S too large"
-msgstr ""
+msgstr "Storlek ~S för hashtabell för stor"
 
 #: hashtabl.d:1739
 #, lisp-format
 msgid "internal error occured while resizing ~S"
-msgstr ""
+msgstr "internt fel inträffade medan storlek för ~S ändrades"
 
 #: hashtabl.d:1853 hashtabl.d:1873 hashtabl.d:1893
 #, lisp-format
@@ -2132,89 +2142,91 @@ msgid ""
 "~S: The value of ~S should be ~S or ~S, not ~S.\n"
 "It has been reset to ~S."
 msgstr ""
+"~S: Värdet för ~S borde vara ~S eller ~S, inte ~S.\n"
+"Det har återställts till ~S."
 
 #: hashtabl.d:1913
 #, lisp-format
 msgid "~S: argument ~S should be ~S, ~S, ~S, ~S or ~S."
-msgstr ""
+msgstr "~S: argument ~S borde vara ~S, ~S, ~S, ~S eller ~S."
 
 #: hashtabl.d:2032
 #, lisp-format
 msgid "~S: ~S argument should be a fixnum >=0, not ~S"
-msgstr ""
+msgstr "~S: ~S argument borde vara ett fixnum >=0, inte ~S"
 
 #: hashtabl.d:2054
 #, lisp-format
 msgid "~S: ~S argument should be an integer or a float > 1, not ~S"
-msgstr ""
+msgstr "~S: ~S argument borde vara ett heltal eller ett flyttal > 1, inte ~S"
 
 #: hashtabl.d:2099
 #, lisp-format
 msgid "~S: ~S argument should be a real between 0 and 1, not ~S"
-msgstr ""
+msgstr "~S: ~S argument borde vara ett flyttal mellan 0 och 1, inte ~S"
 
 #: hashtabl.d:2193
 #, lisp-format
 msgid "~S: internal error while building ~S"
-msgstr ""
+msgstr "~S: internt fel medan ~S byggdes ihop"
 
 #: hashtabl.d:2237
 #, lisp-format
 msgid "~S: argument ~S is not a hash table"
-msgstr ""
+msgstr "~S: argument ~S är inte en hashtabell"
 
 #: list.d:747
 #, lisp-format
 msgid "~S: ~S is a circular list"
-msgstr ""
+msgstr "~S: ~S är en cirkulär lista"
 
 #: list.d:1145
 #, lisp-format
 msgid "~S: ~S is not a pair"
-msgstr ""
+msgstr "~S: ~S är inte ett par"
 
 #: list.d:1669
 #, lisp-format
 msgid "~S: lists ~S and ~S are not of same length"
-msgstr ""
+msgstr "~S: listorna ~S och ~S har inte samma längd"
 
 #: list.d:1845
 #, lisp-format
 msgid "~S: index ~S too large for ~S"
-msgstr ""
+msgstr "~S: index ~S för stort för ~S"
 
 #: list.d:1897
 #, lisp-format
 msgid "~S: start index ~S too large for ~S"
-msgstr ""
+msgstr "~S: startindex ~S för stort för ~S"
 
 #: list.d:1937
 #, lisp-format
 msgid "~S: end index ~S too large for ~S"
-msgstr ""
+msgstr "~S: slutindex ~S för stort för ~S"
 
 #: package.d:397
 #, lisp-format
 msgid "symbol ~S cannot be deleted from symbol table"
-msgstr ""
+msgstr "symbol ~S kan inte tas bort från symboltabell"
 
 #: package.d:720
 #, lisp-format
 msgid "~S inconsistent: symbol ~S is a shadowing symbol but not present"
-msgstr ""
+msgstr "~S motstridig: symbol ~S är skuggande symbol men är inte närvarande"
 
 #: package.d:754
 msgid "Ignore the lock and proceed"
-msgstr ""
+msgstr "Ignorera låset och fortsätt"
 
 #: package.d:755
 #, lisp-format
 msgid "~A(~S): ~S is locked"
-msgstr ""
+msgstr "~A(~S): ~S är låst"
 
 #: package.d:1033
 msgid "symbol ~A from ~A will become a shadowing symbol"
-msgstr ""
+msgstr "symbol ~A från ~A kommer att bli en skuggande symbol"
 
 #: package.d:1064
 #, lisp-format
@@ -2222,55 +2234,57 @@ msgid ""
 "Uninterning ~S from ~S uncovers a name conflict.\n"
 "You may choose the symbol in favour of which to resolve the conflict."
 msgstr ""
+"Att släppa ut ~S från ~S avslöjar en namnkonflikt.\n"
+"Du kan välja vilken symbol som ska ges förstur för att lösa upp konflikten."
 
 #: package.d:1112
 msgid "((IMPORT \"import it and unintern the other symbol\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
-msgstr ""
+msgstr "((IMPORT \"importera den och släpp ut den andra symbolen\" . T) (IGNORE \"importera den inte, lämna ogjord\" . NIL))"
 
 #: package.d:1116
 msgid "((IMPORT \"import it, unintern one other symbol and shadow the other symbols\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
-msgstr ""
+msgstr "((IMPORT \"importera den, släpp ut en annan symbol och skugga de övriga symbolerna\" . T) (IGNORE \"importera den inte, lämna ogjord\" . NIL))"
 
 #: package.d:1120
 msgid "((IMPORT \"import it and shadow the other symbol\" . T) (IGNORE \"do nothing\" . NIL))"
-msgstr ""
+msgstr "((IMPORT \"importera den och skugga den andra symbolen\" . T) (IGNORE \"gör ingenting\" . NIL))"
 
 #: package.d:1126
 #, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S and other symbols."
-msgstr ""
+msgstr "Att importera ~S in i ~S ger upphov till en namnkonflikt med ~S och andra symboler."
 
 #: package.d:1127
 #, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S."
-msgstr ""
+msgstr "Att importera ~S in i ~S ger upphov till en namnkonflikt med ~S."
 
 #: package.d:1229
 #, lisp-format
 msgid "UNEXPORT in ~S is illegal"
-msgstr ""
+msgstr "UNEXPORT i ~S är ogiltigt"
 
 #: package.d:1248
 #, lisp-format
 msgid "UNEXPORT works only on accessible symbols, not on ~S in ~S"
-msgstr ""
+msgstr "UNEXPORT fungerar endast för tillgängliga symboler, inte för ~S i ~S"
 
 #: package.d:1301
 msgid "((IMPORT \"import the symbol first\" . T) (IGNORE \"do nothing, do not export the symbol\" . NIL))"
-msgstr ""
+msgstr "((IMPORT \"importera symbolen först\" . T) (IGNORE \"för ingenting, exportera inte symbolen\" . NIL))"
 
 #: package.d:1303
 #, lisp-format
 msgid "~S: Symbol ~S should be imported into ~S before being exported."
-msgstr ""
+msgstr "~S: Symbol ~S borde importeras in i ~S innan den exporteras."
 
 #: package.d:1337
 msgid "the symbol to export, "
-msgstr ""
+msgstr "symbolen att exportera, "
 
 #: package.d:1348
 msgid "the old symbol, "
-msgstr ""
+msgstr "den gamla symbolen, "
 
 #: package.d:1362
 #, lisp-format
@@ -2278,6 +2292,8 @@ msgid ""
 "Exporting ~S from ~S produces a name conflict with ~S from ~S.\n"
 "You may choose which symbol should be accessible in ~S."
 msgstr ""
+"Att exportera ~S från ~S ger upphov till en namnkonflikt med ~S från ~S\n"
+"Du kan välja vilken symbol som ska vara åtkomlig i ~S."
 
 #: package.d:1628
 #, lisp-format
@@ -2285,658 +2301,661 @@ msgid ""
 "(~S ~S ~S): ~S name conflicts remain\n"
 "Which symbol with name ~S should be accessible in ~S?"
 msgstr ""
+"(~S ~S ~S): ~S namnkonflikter återstår\n"
+"Vilken symbol med namn ~S borde vara åtkomlig i ~S?"
 
+# sebras: missing space before *PACKAGE*?
 #: package.d:1871
 #, lisp-format
 msgid "The value of *PACKAGE* was not a package and was reset. The old value was ~S. The new value is ~S."
-msgstr ""
+msgstr "Värdet av *PACKAGE* var inte ett paket och återställdes därför. Det gamla värdet var ~S. Det nya värdet är ~S."
 
 #: package.d:1872
 msgid "Proceed with the new value."
-msgstr ""
+msgstr "Fortsätt med det nya värdet."
 
 #: package.d:1895
 #, lisp-format
 msgid "~S: Package ~S has been deleted."
-msgstr ""
+msgstr "~S: Paket ~S har tagits bort."
 
 #: package.d:1909
 #, lisp-format
 msgid "~S: There is no package with name ~S"
-msgstr ""
+msgstr "~S: Det finns inget paket med med namn ~S"
 
 #: package.d:1926
 #, lisp-format
 msgid "~S: argument should be a package or a package name, not ~S"
-msgstr ""
+msgstr "~S: argument bör vara ett paket eller ett paketnamn, inte ~S"
 
 #: package.d:2043
 #, lisp-format
 msgid "~S: there is already a package named ~S"
-msgstr ""
+msgstr "~S: det finns redan ett paket med namnet ~S"
 
 #: package.d:2355
 #, lisp-format
 msgid "~S: argument should be a symbol or a list of symbols, not ~S"
-msgstr ""
+msgstr "~S: argument bör vara en symbol eller lista av symboler, inte ~S"
 
 #: package.d:2504
 msgid "discard this nickname"
-msgstr ""
+msgstr "kassera detta smeknamn"
 
 #: package.d:2505
 msgid "return the existing package"
-msgstr ""
+msgstr "returnera det existerande paketet"
 
 #: package.d:2509
 msgid "input another nickname"
-msgstr ""
+msgstr "mata in ett annat smeknamn"
 
 #: package.d:2510
 msgid "input another name"
-msgstr ""
+msgstr "mata in ett annat namn"
 
 #: package.d:2516
 #, lisp-format
 msgid "~S: a package with name ~S already exists."
-msgstr ""
+msgstr "~S: ett paket med namn ~S finns redan."
 
 #: package.d:2614
 #, lisp-format
 msgid "One should not change the case sensitiveness of ~S."
-msgstr ""
+msgstr "Man bör inte ändra skiftlägeskänsligheten för ~S."
 
 #: package.d:2624
 #, lisp-format
 msgid "One should not change the case inversion of ~S."
-msgstr ""
+msgstr "Man bör inte ändra skiftlägesinversionen för ~S."
 
 #: package.d:2702
 msgid "Ignore."
-msgstr ""
+msgstr "Ignorera."
 
 #: package.d:2703
 #, lisp-format
 msgid "~S: There is no package with name ~S."
-msgstr ""
+msgstr "~S: Det finns inget paket med namn ~S."
 
 #: package.d:2731
 #, lisp-format
 msgid "~*Delete ~S anyway."
-msgstr ""
+msgstr "~*Ta bort ~S ändå."
 
 #: package.d:2732
 #, lisp-format
 msgid "~S: ~S is used by ~{~S~^, ~}."
-msgstr ""
+msgstr "~S: ~S används av ~{~S~^,~}"
 
 #: package.d:2939
 #, lisp-format
 msgid "~S: ~S is not using ~S"
-msgstr ""
+msgstr "~S: ~S använder inte ~S"
 
 #: record.d:32
 #, lisp-format
 msgid "~S: ~S is not a valid index into ~S"
-msgstr ""
+msgstr "~S: ~S är inte ett giltigt index in i ~S"
 
 #: record.d:40
 #, lisp-format
 msgid "~S: ~S is not a record"
-msgstr ""
+msgstr "~S: ~S är inte en post"
 
 #: record.d:99
 #, lisp-format
 msgid "~S: length ~S should be of type ~S"
-msgstr ""
+msgstr "~S: längd ~S borde vara av typ ~S"
 
 #: record.d:132
 #, lisp-format
 msgid "~S: ~S is not a structure of type ~S"
-msgstr ""
+msgstr "~S: ~S är inte en struktur av typ ~S"
 
 #: record.d:180
 #, lisp-format
 msgid "~S: Slot ~S of ~S has no value"
-msgstr ""
+msgstr "~S: Lucka ~S av ~S saknar värde"
 
 #: record.d:284 trace.lisp:72
 #, lisp-format
 msgid "~S: ~S is not a closure"
-msgstr ""
+msgstr "~S: ~S är inte ett hölje"
 
 #: record.d:312
 #, lisp-format
 msgid "~S: ~S is not a compiled closure"
-msgstr ""
+msgstr "~S: ~S är inte ett kompilerat hölje"
 
 #: record.d:401
 #, lisp-format
 msgid "~S is not a valid code-vector byte"
-msgstr ""
+msgstr "~S är inte en giltig byte för kodvektor"
 
 #: record.d:412
 #, lisp-format
 msgid "~S: invalid side-effect class ~S for function ~S"
-msgstr ""
+msgstr "~S: ogiltig sidoeffektsklass ~S för funktion ~S"
 
 #: record.d:439
 #, lisp-format
 msgid "~S: function ~S is too big: ~S"
-msgstr ""
+msgstr "~S: funktion ~S är för stor: ~S"
 
 #: record.d:547
 #, lisp-format
 msgid "~S: argument is not a funcallable instance: ~S"
-msgstr ""
+msgstr "~S: argument är inte en funkanropbar instans: ~S"
 
 #: record.d:554
 #, lisp-format
 msgid "~S: argument is not a function: ~S"
-msgstr ""
+msgstr "~S: argument är inte en funktion: ~S"
 
 #: record.d:617
 #, lisp-format
 msgid "~S: This is not a prototype of a generic function: ~S"
-msgstr ""
+msgstr "~S: Detta är inte en prototyp av en generisk funktion: ~S"
 
 #: record.d:811
 #, lisp-format
 msgid "Due to the compiler optimization settings, lambda list for ~S is not available"
-msgstr ""
+msgstr "På grund av kompilator optimeringsinställningar är lambdalistan för ~S inte tillgänglig"
 
 #: record.d:963
 #, lisp-format
 msgid "~S: ~S is not a CLOS class-version"
-msgstr ""
+msgstr "~S: ~S är inte en CLOS-klassversion"
 
 #: record.d:1050
 #, lisp-format
 msgid "~S: invalid initialization argument ~S"
-msgstr ""
+msgstr "~S: ogiltigt initialiseringsargument ~S"
 
 #: record.d:1138
 #, lisp-format
 msgid "~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option)"
-msgstr ""
+msgstr "~S: Ogiltig plats ~S för lucka ~S i ~S (kontrollera luckalternativet :ALLOCATION)"
 
 #: record.d:1155
 #, lisp-format
 msgid "~S: invalid arguments: class argument ~S is not the class of ~S"
-msgstr ""
+msgstr "~S: ogiltiga argument: klass argument ~S är inte av klassen ~S"
 
 #: record.d:1375
 #, lisp-format
 msgid "~S: invalid slot location ~S"
-msgstr ""
+msgstr "~S: ogiltig luckplats ~S"
 
 #: record.d:1381
 #, lisp-format
 msgid "~S: not a CLOS instance: ~S"
-msgstr ""
+msgstr "~S: inte en CLOS-instans: ~S"
 
 #: record.d:2073 clos-class5.lisp:633
 #, lisp-format
 msgid "~S method for ~S returned ~S"
-msgstr ""
+msgstr "~S metod för ~S returnerade ~S"
 
 #: weak.d:436 weak.d:538
 #, lisp-format
 msgid "~S: the keys list argument is empty"
-msgstr ""
+msgstr "~S: nycklarnas listargument är tomt"
 
 #: weak.d:649
 #, lisp-format
 msgid "~S: ~S is not an association list"
-msgstr ""
+msgstr "~S: ~S är inte en assoicationslista"
 
 #: sequence.d:271
 #, lisp-format
 msgid "There are no sequences of type ~S"
-msgstr ""
+msgstr "Det finns inga sekvenser av typ ~S"
 
 #: sequence.d:359
 #, lisp-format
 msgid "~S: sequence type forces length ~S, but result has length ~S"
-msgstr ""
+msgstr "~S: sekvenstyp tvingar längd ~S, men resultat har längd ~S"
 
 #: sequence.d:371
 #, lisp-format
 msgid "~S: ~S should be an integer >=0, not ~S"
-msgstr ""
+msgstr "~S: ~S borde vara ett heltal >=0, inte ~S"
 
 #: sequence.d:415 sequence.d:442
 #, lisp-format
 msgid "~S: ~S = ~S should not be greater than ~S = ~S"
-msgstr ""
+msgstr "~S: ~S = ~S borde inte vara större än ~S = ~S"
 
 #: sequence.d:583
 #, lisp-format
 msgid "~S: the index should be a fixnum >=0, not ~S"
-msgstr ""
+msgstr "~S: indexet borde vara ett fixnum >=0, inte ~S"
 
 #: sequence.d:848 sequence.d:1194
 #, lisp-format
 msgid "~S: bad length ~S"
-msgstr ""
+msgstr "~S: felaktig längd ~S"
 
 #: sequence.d:956
 #, lisp-format
 msgid "~S: the result ~S is not of type ~S"
-msgstr ""
+msgstr "~S: resultatet ~S är inte av typ ~S"
 
 #: sequence.d:978
 #, lisp-format
 msgid "~S: size should be an integer >=0, not ~S"
-msgstr ""
+msgstr "~S: storlek borde vara ett heltal >=0, inte ~S"
 
 #: sequence.d:984
 #, lisp-format
 msgid "~S: :UPDATE must not be specified without :INITIAL-ELEMENT"
-msgstr ""
+msgstr "~S: :UPDATE får inte anges utan :INITIAL-ELEMENT"
 
 #: sequence.d:2011
 #, lisp-format
 msgid "~S: sequence ~S is too long: ~S is not a FIXNUM"
-msgstr ""
+msgstr "~S: sekvens ~S är för lång: ~S är inte ett FIXNUM"
 
 #: charstrg.d:1527
 #, lisp-format
 msgid "~S: the radix must be an integer between 2 and 36, not ~S"
-msgstr ""
+msgstr "~S: talbasen måste vara ett heltal mellan 2 och 36, inte ~S"
 
 #: charstrg.d:1872
 #, lisp-format
 msgid "~S: the code argument should be an integer, not ~S"
-msgstr ""
+msgstr "~S: kodargumentet borde vara ett heltal, inte ~S"
 
 #: charstrg.d:1893
 #, lisp-format
 msgid "~S: cannot coerce ~S to a character"
-msgstr ""
+msgstr "~S: kan inte tvinga ~S till ett tecken"
 
 #: charstrg.d:1926
 #, lisp-format
 msgid "~S: the weight argument should be an integer, not ~S"
-msgstr ""
+msgstr "~S: viktargumentet borde vara ett heltal, inte ~S"
 
 #: charstrg.d:1962
 #, lisp-format
 msgid "~S: argument should be an integer, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara vara ett heltal, inte ~S"
 
 #: charstrg.d:2109 compiler.lisp:7175
 #, lisp-format
 msgid "~S: index should be an integer, not ~S"
-msgstr ""
+msgstr "~S: index borde vara ett heltal, inte ~S"
 
 #: charstrg.d:2112
 #, lisp-format
 msgid "~S: ~S-index should be an integer, not ~S"
-msgstr ""
+msgstr "~S: ~S-index borde vara ett heltal, inte ~S"
 
 #: charstrg.d:2123
 #, lisp-format
 msgid "~S: index should be NIL or an integer, not ~S"
-msgstr ""
+msgstr "~S: index borde vara NIL eller ett heltal, inte ~S"
 
 #: charstrg.d:2126
 #, lisp-format
 msgid "~S: ~S-index should be NIL or an integer, not ~S"
-msgstr ""
+msgstr "~S: ~S-index borde vara NIL eller ett heltal, inte ~S"
 
 #: charstrg.d:2137
 #, lisp-format
 msgid "~S: index should not be negative: ~S"
-msgstr ""
+msgstr "~S: index borde inte vara negativt: ~S"
 
 #: charstrg.d:2140
 #, lisp-format
 msgid "~S: ~S-index should not be negative: ~S"
-msgstr ""
+msgstr "~S: ~S-index borde inte vara negativt: ~S"
 
 #: charstrg.d:2158
 #, lisp-format
 msgid "~S: index ~S should not be greater than the length of the string"
-msgstr ""
+msgstr "~S index ~S borde inte vara större än längden för strängen"
 
 #: charstrg.d:2161
 #, lisp-format
 msgid "~S: ~S-index ~S should not be greater than the length of the string"
-msgstr ""
+msgstr "~S: ~S-index ~S borde inte vara större än längden för strängen"
 
 #: charstrg.d:2180
 #, lisp-format
 msgid "~S: index ~S should be less than the length of the string"
-msgstr ""
+msgstr "~S: index ~S borde vara mindre än längden för strängen"
 
 #: charstrg.d:2183
 #, lisp-format
 msgid "~S: ~S-index ~S should be less than the length of the string"
-msgstr ""
+msgstr "~S: ~S-index ~S borde vara mindre än längden för strängen"
 
 #: charstrg.d:2342 charstrg.d:2446 charstrg.d:3652
 #, lisp-format
 msgid "~S: :START-index ~S must not be greater than :END-index ~S"
-msgstr ""
+msgstr "~S: :START-index ~S får inte vara större än :END-index ~S"
 
 #: charstrg.d:2407
 #, lisp-format
 msgid "~S: argument ~S should be a string, a symbol or a character"
-msgstr ""
+msgstr "~S: argument ~S borde vara en sträng, en symbol eller ett tecken"
 
 #: charstrg.d:2496
 #, lisp-format
 msgid "~S: :START1-index ~S must not be greater than :END1-index ~S"
-msgstr ""
+msgstr "~S: :START1-index ~S får inte vara större än :END1-index ~S"
 
 #: charstrg.d:2519
 #, lisp-format
 msgid "~S: :START2-index ~S must not be greater than :END2-index ~S"
-msgstr ""
+msgstr "~S: :START2-index ~S får inte vara större än :END2-index ~S"
 
 #: charstrg.d:3135
 #, lisp-format
 msgid "~S: the string length ~S should be nonnegative fixnum"
-msgstr ""
+msgstr "~S: stränglängden ~S borde vara ett icke-negativt fixnum"
 
 #: charstrg.d:3167
 #, lisp-format
 msgid "~S: ~S argument ~S should be of type ~S"
-msgstr ""
+msgstr "~S: ~S argument ~S borde vara av typ ~S"
 
 #: debug.d:860
 #, lisp-format
 msgid "~S: bad frame climbing mode ~S"
-msgstr ""
+msgstr "~S: felaktigt ramklättringsläge ~S"
 
 #: debug.d:878
 #, lisp-format
 msgid "~S: ~S is not a stack pointer"
-msgstr ""
+msgstr "~S: ~S är inte en stackpekare"
 
 #: debug.d:1046
 #, lisp-format
 msgid "~S: ~S is not a pointer to an EVAL/APPLY frame"
-msgstr ""
+msgstr "~S: ~S är inte en pekare till en EVAL/APPLY-ram"
 
 #: debug.d:1208
 msgid "APPLY frame with breakpoint for call "
-msgstr ""
+msgstr "APPLY-ram med brytpunkt för anrop "
 
 #: debug.d:1211
 msgid "APPLY frame for call "
-msgstr ""
+msgstr "APPLY-ram för anrop "
 
 #: debug.d:1228
 msgid "EVAL frame with breakpoint for form "
-msgstr ""
+msgstr "EVAL-ram med brytpunkt för form "
 
 #: debug.d:1231
 msgid "EVAL frame for form "
-msgstr ""
+msgstr "EVAL-ram för form "
 
 #: debug.d:1236
 msgid "frame binding variables (~ = dynamically):"
-msgstr ""
+msgstr "rambindningsvariabler (~ = dynamiska):"
 
 #: debug.d:1252
 msgid "CALLBACK frame"
-msgstr ""
+msgstr "CALLBACK-ram"
 
 #: debug.d:1257
 msgid "frame binding variables "
-msgstr ""
+msgstr "rambindningsvariabler "
 
 #: debug.d:1260 debug.d:1289
 msgid " binds (~ = dynamically):"
-msgstr ""
+msgstr " bindningar (~ = dynamiska):"
 
 #: debug.d:1285
 msgid "frame binding functions "
-msgstr ""
+msgstr "rambindningsfunktioner "
 
 #: debug.d:1309 debug.d:1380
 msgid "  Next environment: "
-msgstr ""
+msgstr "  Nästa miljö: "
 
 #: debug.d:1335
 msgid "compiled tagbody frame for "
-msgstr ""
+msgstr "kompilerad taggkroppsram för "
 
 #: debug.d:1339
 msgid "compiled block frame for "
-msgstr ""
+msgstr "kompilerad blockram för  "
 
 #: debug.d:1345
 msgid "block frame "
-msgstr ""
+msgstr "blockram "
 
 #: debug.d:1348
 msgid "nested block frame "
-msgstr ""
+msgstr "nästlad blockram "
 
 #: debug.d:1353
 msgid " for "
-msgstr ""
+msgstr " för "
 
 #: debug.d:1358
 msgid "tagbody frame "
-msgstr ""
+msgstr "taggkroppsram "
 
 #: debug.d:1361
 msgid "nested tagbody frame "
-msgstr ""
+msgstr "nästlad taggkroppsram "
 
 #: debug.d:1366
 msgid " for"
-msgstr ""
+msgstr " för"
 
 #: debug.d:1391
 #, lisp-format
 msgid "~S: environment is not an association list"
-msgstr ""
+msgstr "~S: miljö är inte en associationslista"
 
 #: debug.d:1404
 msgid "catch frame for tag "
-msgstr ""
+msgstr "fångstram för tagg "
 
 #: debug.d:1408
 msgid "handler frame for conditions"
-msgstr ""
+msgstr "hanterarram för villkor"
 
 #: debug.d:1418
 msgid "unwind-protect frame"
-msgstr ""
+msgstr "ram för upprullningsskydd"
 
 #: debug.d:1422
 msgid "driver frame"
-msgstr ""
+msgstr "drivarram"
 
 #: debug.d:1426 debug.d:1431 debug.d:1436 debug.d:1441 debug.d:1446 debug.d:1451 debug.d:1458
 msgid "frame binding environments"
-msgstr ""
+msgstr "rambidningsmiljöer"
 
 #: debug.d:1472
 #, lisp-format
 msgid "~S: unknown frame type"
-msgstr ""
+msgstr "~S: okänd ramtyp"
 
 #: error.d:57 reploop.lisp:496
 msgid "Unprintable error message"
-msgstr ""
+msgstr "Outskrivbart felmeddelande"
 
 #: error.d:183
 #, lisp-format
 msgid "internal error or error in message catalog: invalid low-level format string ~S"
-msgstr ""
+msgstr "internt fel eller fel i meddelandekatalog: ogiltig lågnivåformatssträng ~S"
 
 #: error.d:764 error.d:769
 #, lisp-format
 msgid "~S: User break"
-msgstr ""
+msgstr "~S: Användaravbrott"
 
 #: error.d:767
 msgid "Continue execution"
-msgstr ""
+msgstr "Fortsätt exekvering"
 
 #: error.d:841 foreign.d:698 foreign.d:2440 foreign.d:2552 foreign.d:3204
 #, lisp-format
 msgid "~S: ~S is not of type ~S"
-msgstr ""
+msgstr "~S: ~S är inte av typ ~S"
 
 #: error.d:872 error.d:874
 #, lisp-format
 msgid "~S: ~S comes from a previous Lisp session and is invalid"
-msgstr ""
+msgstr "~S: ~S kommer från en föregående Lisp-session och är ogiltig"
 
 #: error.d:891 error.d:916
 #, lisp-format
 msgid "~S: ~S is not a list"
-msgstr ""
+msgstr "~S: ~S är inte en lista"
 
 #: error.d:927
 #, lisp-format
 msgid "~S: A proper list must not end with ~S"
-msgstr ""
+msgstr "~S: En korrekt lista får inte sluta med ~S"
 
 #: error.d:940
 #, lisp-format
 msgid "~S: A proper list must not be circular: ~S"
-msgstr ""
+msgstr "~S: En korrekt lista får inte vara cirkulär: ~S"
 
 #: error.d:980
 #, lisp-format
 msgid "~S: ~S is a constant, may not be used as a variable"
-msgstr ""
+msgstr "~S: ~S är en konstant, och får inte användas som en variabel"
 
 #: error.d:996
 #, lisp-format
 msgid "~S: ~S is not a symbol, cannot be declared ~S"
-msgstr ""
+msgstr "~S: ~S är inte en symbol, och kan inte deklareras som ~S"
 
 #: error.d:1017
 msgid "Remove the global SYMBOL-MACRO definition"
-msgstr ""
+msgstr "Ta bort den globala SYMBOL-MACRO-definitionen"
 
 #: error.d:1019
 #, lisp-format
 msgid "~S: attempting to turn ~S into a SPECIAL variable, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgstr "~S: försöker att ändra ~S till en SPECIAL-variabel, men den är redan ett globalt SYMBOL-MACRO."
 
 #: error.d:1021
 #, lisp-format
 msgid "~S: attempting to turn ~S into a constant, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgstr "~S: försöker att ändra ~S till en konstant, men det är redan ett globalt SYMBOL-MAKRO."
 
 #: error.d:1022
 #, lisp-format
 msgid "~S: interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgstr "~S: att stänga in ~S i KEYWORD-paketet skulle göra det till en konstant, men det är redan ett globalt SYMBOL-MACRO."
 
 #: error.d:1041 error.d:1053
 #, lisp-format
 msgid "~S: the symbol ~S names a global SPECIAL variable"
-msgstr ""
+msgstr "~S: symbolen ~S namnger en global SPECIAL-variabel"
 
 #: error.d:1052
 msgid "Remove the global SPECIAL variable binding"
-msgstr ""
+msgstr "Ta bort den globala SPECIAL-variabelbindningen"
 
 #: error.d:1082
 #, lisp-format
 msgid "~S: ~S is not a vector"
-msgstr ""
+msgstr "~S: ~S är inte en vektor"
 
 #: error.d:1090
 #, lisp-format
 msgid "~S: argument ~S is not an array"
-msgstr ""
+msgstr "~S: argument ~S är inte en vektor"
 
 #: error.d:1097
 #, lisp-format
 msgid "~S: argument ~S is not a vector"
-msgstr ""
+msgstr "~S: argumentet ~S är inte en vektor"
 
 #: error.d:1110
 #, lisp-format
 msgid "~S: argument ~S is not a vector of type ~S"
-msgstr ""
+msgstr "~S: argument ~S är inte vektor av typ ~S"
 
 #: error.d:1124
 #, lisp-format
 msgid "~S: ~S may not be used as an environment"
-msgstr ""
+msgstr "~S: ~S får inte användas som en miljö"
 
 #: error.d:1134 error.d:1142
 #, lisp-format
 msgid "~S: argument ~S is not a nonnegative fixnum"
-msgstr ""
+msgstr "~S: argument ~S är inte ett icke-negativt fixnum"
 
 #: error.d:1149
 #, lisp-format
 msgid "~S: ~S is not an integer"
-msgstr ""
+msgstr "~S: ~S är inte ett heltal"
 
 #: error.d:1162
 #, lisp-format
 msgid "~S: ~S is not a non-negative integer"
-msgstr ""
+msgstr "~S: ~S är inte ett icke-negativt heltal"
 
 #: error.d:1176 error.d:1184 xcharin.lisp:34
 #, lisp-format
 msgid "~S: argument ~S is not a character"
-msgstr ""
+msgstr "~S: argument ~S är inte ett tecken"
 
 #: error.d:1191
 #, lisp-format
 msgid "~S: argument ~S is not a string"
-msgstr ""
+msgstr "~S: argument ~S är inte en sträng"
 
 #: error.d:1208
 #, lisp-format
 msgid "Attempt to modify a read-only string: ~S"
-msgstr ""
+msgstr "Försök att modifiera en oskrivbar sträng: ~S"
 
 #: error.d:1218
 #, lisp-format
 msgid "~S: argument ~S is neither a string nor an integer"
-msgstr ""
+msgstr "~S: argument ~S är varken en sträng eller ett heltal"
 
 #: error.d:1229
 #, lisp-format
 msgid "string too long: desired length ~S exceeds the supported maximum length"
-msgstr ""
+msgstr "sträng för lång: önskad längd ~S överstiger den största längden som stöds"
 
 #: error.d:1240 clos-class2.lisp:103
 #, lisp-format
 msgid "~S: ~S is not a class"
-msgstr ""
+msgstr "~S: ~S är inte en klass"
 
 #: error.d:1249
 #, lisp-format
 msgid "~S: argument ~S is not a stream"
-msgstr ""
+msgstr "~S: argument ~S är inte en ström"
 
 #: error.d:1302
 #, lisp-format
 msgid "~S: Argument ~S is not a character set"
-msgstr ""
+msgstr "~S: Argument ~S är inte en teckenuppsättning"
 
 #: error.d:1331
 #, lisp-format
 msgid "~S: the property list ~S has an odd length"
-msgstr ""
+msgstr "~S: egenskapslistan ~S har en udda längd"
 
 #: error.d:1347
 #, lisp-format
 msgid "~S: keyword arguments in ~S should occur pairwise"
-msgstr ""
+msgstr "~S: nyckelordsargument i ~S borde förekomma parvis"
 
 #: error.d:1358
 #, lisp-format
 msgid "~S: ~S marker ~S is not a symbol"
-msgstr ""
+msgstr "~S: ~S-markör ~S är inte en symbol"
 
 #: error.d:1381
 #, lisp-format
@@ -2944,21 +2963,23 @@ msgid ""
 "~S: illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
 msgstr ""
+"~S: ogiltigt nyckelord/värde-par ~S, ~S i argumentlista.\n"
+"De tillåtna nyckelorden är ~S"
 
 #: error.d:1396
 #, lisp-format
 msgid "~S: ~S is not a function"
-msgstr ""
+msgstr "~S: ~S är inte en funktion"
 
 #: error.d:1432 trace.lisp:159
 #, lisp-format
 msgid "~S: undefined function ~S"
-msgstr ""
+msgstr "~S: odefinierad funktion ~S"
 
 #: error.d:1489
 #, lisp-format
 msgid "~S: ~S is not a function name; try using a symbol instead"
-msgstr ""
+msgstr "~S: ~S är inte ett funktionsnamn; prova att använda en symbol istället"
 
 #: error.d:1505
 #, lisp-format
@@ -2967,211 +2988,214 @@ msgid ""
 "To get a function in the current environment, write (FUNCTION ...).\n"
 "To get a function in the global environment, write (COERCE '... 'FUNCTION)."
 msgstr ""
+"~S: argument ~S är inte en funktion.\n"
+"För att få en funktion i den aktuella miljön, skriv (FUNCTION …).\n"
+"För att få en funktion i den globala miljön, skriv (COERCE '…'FUNCTION)."
 
 #: error.d:1522
 #, lisp-format
 msgid "EVAL/APPLY: Too many arguments (~S instead of at most ~S) given to ~S"
-msgstr ""
+msgstr "EVAL/APPLY: För många argument (~S istället för som mest ~S) angivna till ~S"
 
 #: error.d:1525
 #, lisp-format
 msgid "~S: Too many arguments (~S instead of at most ~S) given to ~S"
-msgstr ""
+msgstr "~S: För många argument (~S istället för som mest ~S) angivna till ~S"
 
 #: error.d:1541
 #, lisp-format
 msgid "EVAL/APPLY: Too few arguments (~S instead of at least ~S) given to ~S"
-msgstr ""
+msgstr "EVAL/APPLY: För få argument (~S istället för åtminstone ~S) angivna till ~S"
 
 #: error.d:1544
 #, lisp-format
 msgid "~S: Too few arguments (~S instead of at least ~S) given to ~S"
-msgstr ""
+msgstr "~S: För få argument (~S istället för åtminstone ~S) angivna till ~S"
 
 #: error.d:1561 error.d:1562
 #, lisp-format
 msgid "~S: variable ~S has no value"
-msgstr ""
+msgstr "~S: variabel ~S saknar värde"
 
 #: error.d:1578
 #, lisp-format
 msgid "~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"
-msgstr ""
+msgstr "~S: argument ~S är inte ett heltal med som mest ~S bitar (inklusive teckenbiten)"
 
 #: error.d:1579
 #, lisp-format
 msgid "~S: argument ~S is not a nonnegative integer with at most ~S bits"
-msgstr ""
+msgstr "~S: argument ~S är inte ett icke-negativt heltal med som mest ~S bitar"
 
 #: error.d:1625
 #, lisp-format
 msgid "~S: ~S is not an `unsigned int' number"
-msgstr ""
+msgstr "~S: ~S är inte ett ”unsigned int”-tal"
 
 #: error.d:1633
 #, lisp-format
 msgid "~S: ~S is not an `int' number"
-msgstr ""
+msgstr "~S: ~S är inte ett ”int”-tal"
 
 #: error.d:1652
 #, lisp-format
 msgid "~S: ~S is not a `unsigned long' number"
-msgstr ""
+msgstr "~S: ~S är inte ett ”unsigned long”-tal"
 
 #: error.d:1660
 #, lisp-format
 msgid "~S: ~S is not a `long' number"
-msgstr ""
+msgstr "~S: ~S är inte ett ”long”-tal"
 
 #: error.d:1671
 #, lisp-format
 msgid "~S: ~S is not a single-float"
-msgstr ""
+msgstr "~S: ~S är inte ett enkelprecisionsflyttal"
 
 #: error.d:1679
 #, lisp-format
 msgid "~S: ~S is not a double-float"
-msgstr ""
+msgstr "~S: ~S är inte ett dubbelprecisionsflyttal"
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr ""
+msgstr "Ogiltig flerbytes- eller brett tecken"
 
 #: errunix.d:65
 msgid "Operation not permitted"
-msgstr ""
+msgstr "Åtgärd inte tillåten"
 
 #: errunix.d:71
 msgid "No such file or directory"
-msgstr ""
+msgstr "Ingen sådan fil eller katalog"
 
 #: errunix.d:77
 msgid "No such process"
-msgstr ""
+msgstr "Ingen sådan process"
 
 #: errunix.d:83
 msgid "Interrupted system call"
-msgstr ""
+msgstr "Avbrutet systemanrop"
 
 #: errunix.d:89
 msgid "I/O error"
-msgstr ""
+msgstr "I/O-fel"
 
 #: errunix.d:95
 msgid "No such device or address"
-msgstr ""
+msgstr "Ingen sådan enhet eller adress"
 
 #: errunix.d:101
 msgid "Arg list too long"
-msgstr ""
+msgstr "Argumentlista för lång"
 
 #: errunix.d:107
 msgid "Exec format error"
-msgstr ""
+msgstr "Exekveringsformatsfel"
 
 #: errunix.d:113
 msgid "Bad file number"
-msgstr ""
+msgstr "Felaktigt filnummer"
 
 #: errunix.d:119
 msgid "No child processes"
-msgstr ""
+msgstr "Ingen barnprocess"
 
 #: errunix.d:125
 msgid "No more processes"
-msgstr ""
+msgstr "Inga fler processer"
 
 #: errunix.d:131
 msgid "Not enough memory"
-msgstr ""
+msgstr "Inte tillräckligt med minne"
 
 #: errunix.d:137
 msgid "Permission denied"
-msgstr ""
+msgstr "Åtkomst nekas"
 
 #: errunix.d:143
 msgid "Bad address"
-msgstr ""
+msgstr "Felaktig adress"
 
 #: errunix.d:149
 msgid "Block device required"
-msgstr ""
+msgstr "Blockenhet krävs"
 
 #: errunix.d:155
 msgid "Device busy"
-msgstr ""
+msgstr "Enhet upptagen"
 
 #: errunix.d:161
 msgid "File exists"
-msgstr ""
+msgstr "Fil existerar"
 
 #: errunix.d:167
 msgid "Cross-device link"
-msgstr ""
+msgstr "Enhetskorsande länk"
 
 #: errunix.d:173
 msgid "No such device"
-msgstr ""
+msgstr "Ingen sådan enhet"
 
 #: errunix.d:179
 msgid "Not a directory"
-msgstr ""
+msgstr "Inte en katalog"
 
 #: errunix.d:185
 msgid "Is a directory"
-msgstr ""
+msgstr "Är en katalog"
 
 #: errunix.d:191
 msgid "Invalid argument"
-msgstr ""
+msgstr "Ogiltigt argument"
 
 #: errunix.d:197
 msgid "File table overflow"
-msgstr ""
+msgstr "Överspill i filtabell"
 
 #: errunix.d:203
 msgid "Too many open files"
-msgstr ""
+msgstr "För många öppna filer"
 
 #: errunix.d:209
 msgid "Inappropriate ioctl for device"
-msgstr ""
+msgstr "Olämplig ioctl för enhet"
 
 #: errunix.d:215
 msgid "Text file busy"
-msgstr ""
+msgstr "Textfil upptagen"
 
 #: errunix.d:221
 msgid "File too large"
-msgstr ""
+msgstr "Fil för stor"
 
 #: errunix.d:227
 msgid "No space left on device"
-msgstr ""
+msgstr "Inte tillräckligt med utrymme på enhet"
 
 #: errunix.d:233
 msgid "Illegal seek"
-msgstr ""
+msgstr "Ogiltig sökning"
 
 #: errunix.d:239
 msgid "Read-only file system"
-msgstr ""
+msgstr "Skrivskyddat filsystem"
 
 #: errunix.d:245
 msgid "Too many links"
-msgstr ""
+msgstr "För många länkar"
 
 #: errunix.d:251
 msgid "Broken pipe, child process terminated or socket closed"
-msgstr ""
+msgstr "Brutet rör, barnprocess avslutad eller uttag stängt"
 
 #: errunix.d:261
 msgid "Argument out of domain"
-msgstr ""
+msgstr "Argument utanför domän"
 
 #: errunix.d:267
 msgid "Result too large"
-msgstr ""
+msgstr "Resultat för stort"
 
 #: errunix.d:274
 msgid "Operation would block"
@@ -5973,12 +5997,12 @@ msgstr ""
 #: clos-class5.lisp:663
 #, lisp-format
 msgid "~S cannot change a funcallable object to a non-funcallable object: ~S"
-msgstr ""
+msgstr "~S kan inte ändra ett funkanropbart objekt till ett icke-funkanropbartobjekt: ~S"
 
 #: clos-class5.lisp:671
 #, lisp-format
 msgid "~S cannot change a non-funcallable object to a funcallable object: ~S"
-msgstr ""
+msgstr "~S kan inte ändra ett icke-funkanropbart objekt till ett funkanropbart objekt: ~S"
 
 #: clos-class5.lisp:785
 #, lisp-format
@@ -6816,8 +6840,9 @@ msgid "WARNING: "
 msgstr ""
 
 #: condition.lisp:1686
+#, fuzzy
 msgid "Ignore the error and proceed"
-msgstr ""
+msgstr "Ignorera låset och fortsätt"
 
 #: condition.lisp:1877
 #, lisp-format

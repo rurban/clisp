@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:16-0400\n"
-"PO-Revision-Date: 2017-05-21 20:46+0800\n"
+"PO-Revision-Date: 2017-05-29 13:12+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -425,143 +425,143 @@ msgstr "%s: metoden ”avbildsstorlek” misslyckades, man hittade avbildningshu
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr ""
+msgstr "Ogiltig flerbytes- eller brett tecken"
 
 #: errunix.d:65
 msgid "Operation not permitted"
-msgstr ""
+msgstr "Åtgärd inte tillåten"
 
 #: errunix.d:71
 msgid "No such file or directory"
-msgstr ""
+msgstr "Ingen sådan fil eller katalog"
 
 #: errunix.d:77
 msgid "No such process"
-msgstr ""
+msgstr "Ingen sådan process"
 
 #: errunix.d:83
 msgid "Interrupted system call"
-msgstr ""
+msgstr "Avbrutet systemanrop"
 
 #: errunix.d:89
 msgid "I/O error"
-msgstr ""
+msgstr "I/O-fel"
 
 #: errunix.d:95
 msgid "No such device or address"
-msgstr ""
+msgstr "Ingen sådan enhet eller adress"
 
 #: errunix.d:101
 msgid "Arg list too long"
-msgstr ""
+msgstr "Argumentlista för lång"
 
 #: errunix.d:107
 msgid "Exec format error"
-msgstr ""
+msgstr "Exekveringsformatsfel"
 
 #: errunix.d:113
 msgid "Bad file number"
-msgstr ""
+msgstr "Felaktigt filnummer"
 
 #: errunix.d:119
 msgid "No child processes"
-msgstr ""
+msgstr "Ingen barnprocess"
 
 #: errunix.d:125
 msgid "No more processes"
-msgstr ""
+msgstr "Inga fler processer"
 
 #: errunix.d:131
 msgid "Not enough memory"
-msgstr ""
+msgstr "Inte tillräckligt med minne"
 
 #: errunix.d:137
 msgid "Permission denied"
-msgstr ""
+msgstr "Åtkomst nekas"
 
 #: errunix.d:143
 msgid "Bad address"
-msgstr ""
+msgstr "Felaktig adress"
 
 #: errunix.d:149
 msgid "Block device required"
-msgstr ""
+msgstr "Blockenhet krävs"
 
 #: errunix.d:155
 msgid "Device busy"
-msgstr ""
+msgstr "Enhet upptagen"
 
 #: errunix.d:161
 msgid "File exists"
-msgstr ""
+msgstr "Fil existerar"
 
 #: errunix.d:167
 msgid "Cross-device link"
-msgstr ""
+msgstr "Enhetskorsande länk"
 
 #: errunix.d:173
 msgid "No such device"
-msgstr ""
+msgstr "Ingen sådan enhet"
 
 #: errunix.d:179
 msgid "Not a directory"
-msgstr ""
+msgstr "Inte en katalog"
 
 #: errunix.d:185
 msgid "Is a directory"
-msgstr ""
+msgstr "Är en katalog"
 
 #: errunix.d:191
 msgid "Invalid argument"
-msgstr ""
+msgstr "Ogiltigt argument"
 
 #: errunix.d:197
 msgid "File table overflow"
-msgstr ""
+msgstr "Överspill i filtabell"
 
 #: errunix.d:203
 msgid "Too many open files"
-msgstr ""
+msgstr "För många öppna filer"
 
 #: errunix.d:209
 msgid "Inappropriate ioctl for device"
-msgstr ""
+msgstr "Olämplig ioctl för enhet"
 
 #: errunix.d:215
 msgid "Text file busy"
-msgstr ""
+msgstr "Textfil upptagen"
 
 #: errunix.d:221
 msgid "File too large"
-msgstr ""
+msgstr "Fil för stor"
 
 #: errunix.d:227
 msgid "No space left on device"
-msgstr ""
+msgstr "Inte tillräckligt med utrymme på enhet"
 
 #: errunix.d:233
 msgid "Illegal seek"
-msgstr ""
+msgstr "Ogiltig sökning"
 
 #: errunix.d:239
 msgid "Read-only file system"
-msgstr ""
+msgstr "Skrivskyddat filsystem"
 
 #: errunix.d:245
 msgid "Too many links"
-msgstr ""
+msgstr "För många länkar"
 
 #: errunix.d:251
 msgid "Broken pipe, child process terminated or socket closed"
-msgstr ""
+msgstr "Brutet rör, barnprocess avslutad eller uttag stängt"
 
 #: errunix.d:261
 msgid "Argument out of domain"
-msgstr ""
+msgstr "Argument utanför domän"
 
 #: errunix.d:267
 msgid "Result too large"
-msgstr ""
+msgstr "Resultat för stort"
 
 #: errunix.d:274
 msgid "Operation would block"
