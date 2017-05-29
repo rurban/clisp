@@ -740,9 +740,10 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
  manual page or <olink targetdoc="impnotes" targetptr="impnotes-top"/>),
  please report it to the &clisp;
  <ulink url="https://sourceforge.net/p/clisp/bugs/">SourceForge bug tracker</ulink>.
-To ensure that we can get back to you, you will have to login either to
-your &sf; account, or to your <ulink url="http://openid.net/">OpenID</ulink>
-account.</para>
+Visit this bug tracker with a browser other than Firefox (because as of May 2017,
+the "Create Ticket" button is not visible in Firefox). Then login, either
+to your &sf; account, or to your <ulink url="http://openid.net/">OpenID</ulink>
+account. Then press the "Create Ticket" button on the left-hand side.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
  the following basic steps to make the report more useful:<orderedlist>
