@@ -100,7 +100,7 @@ TEXI2HTML=makeinfo --verbose --no-split --no-headers --force --html $< -o $@
 
 # NB: keep in sync with src/makemake.in:MYIMPROOT
 DIST_SFBETA = sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
-DIST = ${DIST_SFBETA}
+DIST =
 RSYNC = rsync -avC --copy-unsafe-links
 CHMOD = chmod -R a+rX
 
