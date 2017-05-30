@@ -5164,12 +5164,8 @@ enum {
 %% printf("#define Rectype_Logpathname %d\n",Rectype_Logpathname);
   Rectype_Random_State,
 %% printf("#define Rectype_Random_State %d\n",Rectype_Random_State);
-#ifndef case_stream
-%% #ifndef case_stream
   Rectype_Stream,
 %% printf("#define Rectype_Stream %d\n",Rectype_Stream);
-%% #endif
-#endif  /* case_stream */
   Rectype_Byte,
 %% printf("#define Rectype_Byte %d\n",Rectype_Byte);
   Rectype_Subr,
@@ -6649,19 +6645,12 @@ typedef struct {
 
 /* Streams with metaclass BUILT-IN-CLASS */
 typedef struct {
-  #ifdef case_stream
-    VAROBJECT_HEADER /* self-pointer for GC */
-    uintB strmtype;  /* subtype (as sintB >=0 !) */
-    uintB strmflags; /* flags */
-    uintB reclength; /* length in object */
-    uintB recxlength; /* lengths of the extra-elements */
-  #else
+  XRECORD_HEADER
     /* Because of space requirements, I have to put strmflags and strmtype
      into a fixnum in recdata[0]. */
     #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
       #error No room for stream flags -- re-accommodate Stream-Flags!!
     #endif
-    XRECORD_HEADER
     #if defined(WIDE) && BIG_ENDIAN_P
       uintL strmfiller0;
     #endif
@@ -6672,7 +6661,6 @@ typedef struct {
     #if defined(WIDE) && !BIG_ENDIAN_P
       uintL strmfiller0;
     #endif
-  #endif
   gcv_object_t strm_rd_by            _attribute_aligned_object_;
   gcv_object_t strm_rd_by_array      _attribute_aligned_object_;
   gcv_object_t strm_wr_by            _attribute_aligned_object_;
@@ -10547,12 +10535,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
  > uintC recxlen: extra-length in bytes
  < result: LISP-object Stream (elements are initialized with NIL)
  can trigger GC */
-#ifdef case_stream
-  #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
-    allocate_xrecord(strmflags | strmflags_open_B,strmtype,reclen,recxlen,stream_type)
-#else
-  extern maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
-#endif
+extern maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
 /* is used by STREAM */
 
 /* UP: allocates Package

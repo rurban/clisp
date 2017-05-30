@@ -1,5 +1,19 @@
 2017-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Fix GC bug that affects some stream types (regression from 2004-04-28).
+	Analyzed by Vladimir Tzankov <vtzankov@gmail.com>.
+	The problem is that since the macro SXrecord_nonweak_length was
+	introduced, walking a page of Xrecord objects makes use of the
+	Record_type(obj) without testing whether typecode(obj)==stream_type.
+	Thus, the fact of storing strmtype in the same place as the rectype
+	causes an strmtype to be interpreted as a rectype.
+	* lispbibl.d (Rectype_Stream): Define always.
+	(Stream): Don't try to save space when case_stream is defined.
+	(allocate_stream): Define as a function always.
+	* spvw_typealloc.d (allocate_stream): Likewise.
+
+2017-05-29  Bruno Haible  <bruno@clisp.org>
+
 	Update Swedish translation.
 	* po/sv.po: Update from Sebastian Rasmussen <sebras@gmail.com>.
 	* po/sv.gmo, po/clisplow_sv.*: Regenerated.

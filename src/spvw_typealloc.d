@@ -18,9 +18,7 @@ global maygc object allocate_lrecord_ (uintB rectype, uintL reclen);
 global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen);
 global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
 #endif
-#ifndef case_stream
 global maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
-#endif
 #ifdef FOREIGN
 global maygc object allocate_fpointer (FOREIGN foreign);
 #endif
@@ -429,8 +427,6 @@ global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
 }
 #endif
 
-#ifndef case_stream
-
 /* UP, provides stream
  allocate_stream(strmflags,strmtype,reclen)
  > uintB strmflags: flags
@@ -442,15 +438,17 @@ global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
 global maygc object allocate_stream (uintB strmflags, uintB strmtype,
                                      uintC reclen, uintC recxlen) {
   var object obj =
+   #ifdef case_stream
+    allocate_xrecord(0,Rectype_Stream,reclen,recxlen,stream_type);
+   #else
     allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
+   #endif
   /* Fixnum as place for strmflags and strmtype: */
   TheRecord(obj)->recdata[0] = Fixnum_0;
   TheStream(obj)->strmflags = strmflags | strmflags_open_B;
   TheStream(obj)->strmtype = strmtype;
   return obj;
 }
-
-#endif
 
 #ifdef FOREIGN
 
