@@ -1,3 +1,8 @@
+2017-05-30  Bruno Haible  <bruno@clisp.org>
+
+	Don't publish impnotes.html for the moment.
+	* doc/Makefile (DIST): Set to empty.
+
 2017-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix GC bug that affects some stream types (regression from 2004-04-28).
