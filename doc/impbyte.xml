@@ -1400,6 +1400,30 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 
 </section>
 
+<section id="nextgc-factor"><title>Forcing or inhibiting Garbage Collections</title>
+
+<para>Here are some tips to debug &gc;ion-related problems.</para>
+
+<para>It is possible to force &gc;ions to occur at specific points, by inserting
+calls to <function>EXT:GC</function> in the code.</para>
+
+<para>It is also possible to make &gc;ions more frequent overall, by use of the
+command-line option <option>-nextgc-factor</option>. This option specifies a
+factor that gets applied to the amount of space that can be consumed before
+the next &gc;ion is triggered. If you specify a factor smaller than 1, the
+frequency of &gc;ions is increased. For example,
+<literal><option>-nextgc-factor</option> 0.001</literal> reduces the
+"Bytes available until next GC" value displayed by the &room; function by a
+factor of 1000, and thus makes &gc;ions 1000 times more frequent.</para>
+
+<para>It is equally possible to make &gc;ions less frequent. To this effect,
+you pass to <option>-nextgc-factor</option> a value larger than 1. For example,
+<literal><option>-nextgc-factor</option> 1e9</literal> multiplies the
+"Bytes available until next GC" value displayed by the &room; function with a
+factor of 1000000000, and thus effectively inhibits &gc;ions entirely.</para>
+
+</section>
+
 <section id="gc-mt"><title>Garbage Collection and Multithreading</title>
 
 <para>While the &gc;ion is executing, all other threads must stop.
