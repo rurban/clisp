@@ -156,7 +156,7 @@
 <!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
 <!ENTITY hurd '<ulink url="http://www.gnu.org/software/hurd/"><emphasis role="platform">Hurd</emphasis></ulink>'>
 <!ENTITY kde '<ulink url="http://www.kde.org/"><emphasis role="platform">KDE</emphasis></ulink>'>
-<!ENTITY linux '<ulink url="https://www.linuxfoundation.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
+<!ENTITY linux '<ulink url="https://www.kernel.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
 <!ENTITY macosx '<ulink url="http://www.apple.com/macosx/"><emphasis role="platform">Mac OS X</emphasis></ulink>'>
 <!ENTITY mingw '<ulink url="http://www.mingw.org/"><emphasis role="platform">MinGW</emphasis></ulink>'>
 <!ENTITY nextstep '<ulink url="http://www.next.com/"><emphasis role="platform">NeXTstep</emphasis></ulink>'>
