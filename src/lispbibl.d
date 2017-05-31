@@ -17521,7 +17521,7 @@ struct object_tab_tl_ {
 
   /* try to use the compiler support for thread local storage */
   #if defined(__GNUC__)
-    #if defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || (defined(UNIX_MACOSX) && (defined(__clang__) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 5))))
+    #if defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || (defined(UNIX_MACOSX) && (defined(__clang__) || (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)) || (__GNUC__ > 4))))
       #define per_thread __thread
     #endif
   #elif defined(__WIN32__) && defined (MICROSOFT)
