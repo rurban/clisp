@@ -1,3 +1,18 @@
+2017-06-02  Bruno Haible  <bruno@clisp.org>
+
+	Rename frame type CHANDLER to C_HANDLER.
+	Suggested by Sam Steingold.
+	* lispbibl.d (C_HANDLER_frame_info): Renamed from CHANDLER_frame_info.
+	(make_C_HANDLER_frame): Renamed from make_CHANDLER_frame.
+	(make_C_HANDLER_entry_frame): Renamed from make_CHANDLER_entry_frame.
+	(unwind_C_HANDLER_frame): Renamed from unwind_CHANDLER_frame.
+	* eval.d (invoke_handlers): Update.
+	* io.d (read_internal): Likewise.
+	* pathname.d (LOGICAL-PATHNAME, direntry_to_string): Likewise.
+	* stream.d (MAYBE_IGNORE_ERRORS,lisp_completion) : Likewise.
+	* spvw_update.d (update_STACKs): Likewise.
+	* spvw_garcol.d, spvw_garcol_old.d (gc_mark_stack): Likewise.
+
 2017-05-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (per_thread) [UNIX_MACOSX]: use __thread with clang

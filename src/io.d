@@ -1949,8 +1949,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       /* ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR
        into READER-ERROR */
       pushSTACK(*stream_);
-      make_CHANDLER_frame(O(handler_for_arithmetic_error),
-                          &signal_reader_error,NULL);
+      make_C_HANDLER_frame(O(handler_for_arithmetic_error),
+                           &signal_reader_error,NULL);
       switch (numtype) {
         case 1:                 /* Integer */
           result = read_integer(base,info.sign,string,info.index1,info.index2);
@@ -1965,7 +1965,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
           break;
         default: NOTREACHED;
       }
-      unwind_CHANDLER_frame();
+      unwind_C_HANDLER_frame();
       skipSTACK(1);
       return result;
     }
