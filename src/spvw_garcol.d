@@ -86,7 +86,7 @@ local void gc_mark_stack (gcv_object_t* objptr)
                              objptr,objptr,as_oint(*objptr)));
     if (as_oint(*objptr) & wbit(frame_bit_o)) { /* does a frame start here? */
       if (framecode(*objptr) < skip2_limit_t) { /* below skip2-limit? */
-        if (framecode(*objptr) == CHANDLER_frame_info)
+        if (framecode(*objptr) == C_HANDLER_frame_info)
           objptr skipSTACKop 3; /* yes -> advance by 3 */
         else
           objptr skipSTACKop 2; /* ... or 2 */

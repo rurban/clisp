@@ -11629,7 +11629,7 @@ There are the following 14 kinds of frames:
   - Catch-Frame (CATCH_FRAME),
   - Unwind-Protect-frame (UNWIND_PROTECT_FRAME),
   - Handler-frame (HANDLER_FRAME),
-  - C-Handler-frame (CHANDLER_FRAME),
+  - C-Handler-frame (C_HANDLER_FRAME),
   - Driver-frame (DRIVER_FRAME).
 Right at the bottom of a frame there is a long-word, that contains the
 frame-type information and a pointer above the frame (= the value of the
@@ -12397,14 +12397,14 @@ extern  gcv_environment_t aktenv;
   #define entrypoint_bit_t  FB4  /* Bit is set, if FRAME contains */
   /* a non-local entrypoint, with Offset SP_, SP is on the STACK.
    Bit is unset for VAR/FUN-Frame and CALLBACK-Frame. */
-  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/CHANDLER/DRIVER: */
+  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/C_HANDLER/DRIVER: */
   /* define blockgo_max_t  (below)
      >= all BLOCK/TAGBODY frame infos,
      < UNWIND_PROTECT_frame_info, DRIVER_frame_info. */
   /* for further discrimination in BLOCK/TAGBODY: */
   #define nested_bit_t unwind_bit_t /* set for IBLOCK and ITAGBODY, */
                                     /* if Exitpoint resp. Tags were nested */
-  /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/CHANDLER/DRIVER: */
+  /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/C_HANDLER/DRIVER: */
   #define dynjump_mask_t  bit(FB2)  /* unset for APPLY and EVAL, */
                                 /* partially set for UNWIND_PROTECT/DRIVER-Frames */
   #define trapped_bit_t unwind_bit_t /* set for APPLY and EVAL, if */
@@ -12415,7 +12415,7 @@ extern  gcv_environment_t aktenv;
                                 /* unset for APPLY-Frames */
   #define driver_bit_t   FB1    /* set for DRIVER-Frames, */
                                 /* unset for UNWIND_PROTECT-Frames */
-  #define handler_bit_t  FB2    /* set for HANDLER/CHANDLER-Frames, */
+  #define handler_bit_t  FB2    /* set for HANDLER/C_HANDLER-Frames, */
                                 /* unset for CATCH-Frames */
   /* for further discrimination in VAR/FUN/CALLBACK: */
   #define callback_bit_t   FB3  /* Bit is unset for CALLBACK-Frames. */
@@ -12460,7 +12460,7 @@ extern  gcv_environment_t aktenv;
   #define TRAPPED_EVAL_frame_info     /* %1011101 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define CATCH_frame_info            /* %1101000 */ (bit(FB7)|bit(FB6)|bit(FB4))
   #define HANDLER_frame_info          /* %1101010 */ (bit(FB7)|bit(FB6)|bit(FB4)|bit(FB2))
-  #define CHANDLER_frame_info         /* %1101011 */ (bit(FB7)|bit(FB6)|bit(FB4)|bit(FB2)|bit(FB1))
+  #define C_HANDLER_frame_info        /* %1101011 */ (bit(FB7)|bit(FB6)|bit(FB4)|bit(FB2)|bit(FB1))
   #define UNWIND_PROTECT_frame_info   /* %1011110 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
   #define DRIVER_frame_info           /* %1011111 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
   #define blockgo_max_t                              (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2))
@@ -12512,14 +12512,14 @@ extern  gcv_environment_t aktenv;
      with Offset SP_ SP is on the STACK.
    frame_info >= entrypoint_limit_t
      for VAR/FUN-Frame and CALLBACK-Frame. */
-  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/CHANDLER/DRIVER: */
+  /* for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/C_HANDLER/DRIVER: */
   /* define blockgo_max_t  (below)
      >= all BLOCK/TAGBODY frame infos,
      < UNWIND_PROTECT_frame_info, DRIVER_frame_info. */
   /* for further discrimination in BLOCK/TAGBODY: */
   #define nested_bit_t   FB4  /* set for IBLOCK and ITAGBODY, */
                               /* if exit point or Tags have been nested */
-  /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/CHANDLER/DRIVER: */
+  /* for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/C_HANDLER/DRIVER: */
   #define dynjump_mask_t  bit(FB3)  /* unset for APPLY and EVAL, */
                               /* partially set for UNWIND_PROTECT/DRIVER-Frames */
   #define trapped_bit_t  FB4  /* set for APPLY and EVAL, if interrupted while */
@@ -12530,7 +12530,7 @@ extern  gcv_environment_t aktenv;
                               /* unset for APPLY-Frames */
   #define driver_bit_t   FB1  /* set for DRIVER-Frames, */
                               /* unset for UNWIND_PROTECT-Frames */
-  #define handler_bit_t  FB2  /* set for HANDLER/CHANDLER-Frames, */
+  #define handler_bit_t  FB2  /* set for HANDLER/C_HANDLER-Frames, */
                               /* unset for CATCH-Frames */
   /* for further discrimination in VAR/FUN/CALLBACK: */
   #define callback_bit_t FB2  /* Bit is unset for CALLBACK-Frames. */
@@ -12552,7 +12552,7 @@ extern  gcv_environment_t aktenv;
   #define APPLY_frame_info            /* %100010 */ (bit(FB6)|bit(FB2))
   #define EVAL_frame_info             /* %100011 */ (bit(FB6)|bit(FB2)|bit(FB1))
   #define HANDLER_frame_info          /* %100100 */ (bit(FB6)|bit(FB3))
-  #define CHANDLER_frame_info         /* %100101 */ (bit(FB6)|bit(FB3)|bit(FB1))
+  #define C_HANDLER_frame_info        /* %100101 */ (bit(FB6)|bit(FB3)|bit(FB1))
   #define IBLOCK_frame_info           /* %100110 */ (bit(FB6)|bit(FB3)|bit(FB2))
   #define ITAGBODY_frame_info         /* %100111 */ (bit(FB6)|bit(FB3)|bit(FB2)|bit(FB1))
   #define unwind_limit_t                            (bit(FB6)|bit(FB4))
@@ -12613,11 +12613,11 @@ extern  gcv_environment_t aktenv;
 #define frame_closure   2  /* APPLY, HANDLER */
 #define frame_count     1  /* VAR, FUN */
 #define frame_SP        1  /* IBLOCK, CBLOCK, ITAGBODY, CTAGBODY, */
-                           /* EVAL, CATCH, UNWIND-PROTECT, HANDLER, CHANDLER, DRIVER */
+                           /* EVAL, CATCH, UNWIND-PROTECT, HANDLER, C_HANDLER, DRIVER */
 #define frame_next_env  2  /* VAR, FUN, IBLOCK, ITAGBODY */
 #define frame_ctag      2  /* CBLOCK, CTAGBODY */
 #define frame_tag       2  /* CATCH */
-#define frame_handlers  3  /* HANDLER, CHANDLER */
+#define frame_handlers  3  /* HANDLER, C_HANDLER */
 #define frame_name      3  /* IBLOCK */
 #define frame_args      3  /* APPLY */
 #define frame_bindings  3  /* VAR, FUN, ITAGBODY */
@@ -12814,28 +12814,28 @@ extern  gcv_environment_t aktenv;
  } while(0)
 /* is used by EVAL */
 
-/* Makes a CHANDLER-Frame.
- make_CHANDLER_frame(types_labels_vector_list,handler,sp_arg);
- make_CHANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
+/* Makes a C_HANDLER-Frame.
+ make_C_HANDLER_frame(types_labels_vector_list,handler,sp_arg);
+ make_C_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
  > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
  > handler: void (*) (void* sp, gcv_object_t* frame, object label, object condition)
  > sp_arg: a pointer into the C stack, or NULL
  > sp_jmp_buf* returner: longjmp-Buffer for re-entry
  > reentry_statement: what is to be done right after the re-entry. */
-#define make_CHANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
+#define make_C_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
   do { var gcv_object_t* top_of_frame = STACK;             \
        pushSTACK(types_labels_vector_list);                \
        pushSTACK(fake_gcv_object((aint)(void*)(handler))); \
        pushSTACK(fake_gcv_object((aint)(sp_arg)));         \
-       finish_frame(CHANDLER);                             \
+       finish_frame(C_HANDLER);                            \
   } while(0)
-#define make_CHANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
-  do { var gcv_object_t* top_of_frame = STACK;                   \
-       pushSTACK(types_labels_vector_list);                      \
-       pushSTACK(fake_gcv_object((aint)(void*)(handler)));       \
-       finish_entry_frame(CHANDLER,returner,,reentry_statement); \
+#define make_C_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
+  do { var gcv_object_t* top_of_frame = STACK;                    \
+       pushSTACK(types_labels_vector_list);                       \
+       pushSTACK(fake_gcv_object((aint)(void*)(handler)));        \
+       finish_entry_frame(C_HANDLER,returner,,reentry_statement); \
   } while(0)
-#define unwind_CHANDLER_frame()  skipSTACK(4)
+#define unwind_C_HANDLER_frame()  skipSTACK(4)
 
 /* UP: Applies a function to its arguments.
  apply(function,args_on_stack,other_args);

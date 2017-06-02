@@ -724,7 +724,7 @@ global maygc void invoke_handlers (object cond) {
     } else if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
       /* found frame */
       var fcint frame_info = framecode(FRAME_(0));
-      if (frame_info == HANDLER_frame_info || frame_info == CHANDLER_frame_info) { /* Handler-Frame? */
+      if (frame_info == HANDLER_frame_info || frame_info == C_HANDLER_frame_info) { /* Handler-Frame? */
         /* loop over types of the vectors #(type1 label1 ... typem labelm): */
         var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); /* 2*m */
         var uintL i = 0;

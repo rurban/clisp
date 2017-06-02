@@ -2091,9 +2091,9 @@ LISPFUNNS(logical_pathname,1)
     VALUES1(pathname);
   } else {
     /* ANSI CL requires that we transform PARSE-ERROR into TYPE-ERROR. */
-    make_CHANDLER_frame(O(handler_for_parse_error),&signal_type_error,NULL);
+    make_C_HANDLER_frame(O(handler_for_parse_error),&signal_type_error,NULL);
     var object pathname = parse_as_logical(thing);
-    unwind_CHANDLER_frame();
+    unwind_C_HANDLER_frame();
     /* Check that a host was given. This makes it hard to create relative
        logical pathnames, but it is what ANSI CL specifies. */
     if (nullp(TheLogpathname(pathname)->pathname_host)) {
@@ -6984,17 +6984,17 @@ local maygc object direntry_to_string (char* string, volatile int len) {
   running_handle_directory_encoding_error = false;
   /* build UNWIND-PROTECT-frame: */
   var sp_jmp_buf returner; /* return point */
-  make_CHANDLER_entry_frame(O(handler_for_charset_type_error),
-                            handle_directory_encoding_error,returner,
-                            goto signal_encoding_error; );
+  make_C_HANDLER_entry_frame(O(handler_for_charset_type_error),
+                             handle_directory_encoding_error,returner,
+                             goto signal_encoding_error; );
   value1 = n_char_to_string(string,len,encoding);
-  unwind_CHANDLER_frame();
+  unwind_C_HANDLER_frame();
  direntry_to_string_done:
   running_handle_directory_encoding_error = false;
   if (stack_save != STACK) abort();
   return value1;
  signal_encoding_error:         /* value1 = condition */
-  unwind_CHANDLER_frame();
+  unwind_C_HANDLER_frame();
   pushSTACK(S(pathname_encoding)); /* PLACE */
   pushSTACK(value1);               /* condition - for CHECK-VALUE */
   /* set condition $DATUM slot to string (as a byte vector) */

@@ -2977,17 +2977,17 @@ local void handle_close_errors (void* sp, gcv_object_t* frame, object label,
   else running_handle_close_errors = true;
   unwind_upto(frame);
 }
-#define MAYBE_IGNORE_ERRORS(abort,code)                                  \
-  if (abort) {                                                           \
-    var sp_jmp_buf returner; /* return point */                          \
-    running_handle_close_errors = false;                                 \
-    make_CHANDLER_entry_frame(O(handler_for_error), handle_close_errors, \
-                              returner, goto end_ignore_errors; );       \
-  }                                                                      \
-  code;                                                                  \
-  if (abort) running_handle_close_errors = false;                        \
- end_ignore_errors:                                                      \
-  if (abort) { unwind_CHANDLER_frame(); }
+#define MAYBE_IGNORE_ERRORS(abort,code)                                   \
+  if (abort) {                                                            \
+    var sp_jmp_buf returner; /* return point */                           \
+    running_handle_close_errors = false;                                  \
+    make_C_HANDLER_entry_frame(O(handler_for_error), handle_close_errors, \
+                              returner, goto end_ignore_errors; );        \
+  }                                                                       \
+  code;                                                                   \
+  if (abort) running_handle_close_errors = false;                         \
+ end_ignore_errors:                                                       \
+  if (abort) { unwind_C_HANDLER_frame(); }
 
 
 /* Buffered-Output-Stream
@@ -9341,8 +9341,8 @@ local maygc char** lisp_completion (char* text, int start, int end) {
         finish_entry_frame(CATCH,returner,, goto catch_return; );
       }
       /* Upon charset_type_error, call lisp_completion_ignore. */
-      make_CHANDLER_frame(O(handler_for_charset_type_error),
-                          &lisp_completion_ignore,NULL);
+      make_C_HANDLER_frame(O(handler_for_charset_type_error),
+                           &lisp_completion_ignore,NULL);
       { /* Convert ptr1 to *TERMINAL-ENCODING*: */
         var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
         begin_system_call();
@@ -9351,7 +9351,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
           while (ptr != array) { free(*--ptr); }
           free(array);
           end_system_call();
-          unwind_CHANDLER_frame();
+          unwind_C_HANDLER_frame();
           skipSTACK(3+1); /* unwind CATCH frame, pop mlist */
           end_rl_callback();
           return NULL;
@@ -9361,7 +9361,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
         ptr2[bytecount] = '\0';
         *ptr++ = ptr2;
       }
-      unwind_CHANDLER_frame();
+      unwind_C_HANDLER_frame();
     catch_return:
       /* Here we need the values of array and ptr. Avoid gcc warnings. */
       unused &array; /* avoid "'array' might be clobbered by 'longjmp'" */
