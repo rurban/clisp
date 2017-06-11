@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:01-0400\n"
-"PO-Revision-Date: 2017-05-29 13:12+0800\n"
+"PO-Revision-Date: 2017-06-11 14:06+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -558,7 +558,7 @@ msgstr "~S: lambda-lista för ~S bör vara en lista, inte ~S"
 #: eval.d:1894
 #, lisp-format
 msgid "~S: illegal declaration ~S"
-msgstr "~S: ogiltig deklaration ~S"
+msgstr "~S: otillåten deklaration ~S"
 
 #: eval.d:1988 eval.d:2170
 #, lisp-format
@@ -727,7 +727,7 @@ msgstr "dok-sträng är inte tillåten här och kommer att hoppas över: ~S"
 #: control.d:403
 #, lisp-format
 msgid "~S: illegal variable specification ~S"
-msgstr "~S: olaglig variabelspecifikation ~S"
+msgstr "~S: otillåten variabelspecifikation ~S"
 
 #: control.d:553
 #, lisp-format
@@ -802,7 +802,7 @@ msgstr "~S: ~S är varken tagg eller form"
 #: control.d:1666
 #, lisp-format
 msgid "~S: illegal tag ~S"
-msgstr "~S: olaglig tagg ~S"
+msgstr "~S: otillåten tagg ~S"
 
 #: control.d:1704
 #, lisp-format
@@ -855,7 +855,7 @@ msgid ""
 "Illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
 msgstr ""
-"Illegala nyckelords/värde-par ~S, ~S i argumentlista.\n"
+"Otillåtet nyckelords/värde-par ~S, ~S i argumentlista.\n"
 "De tillåtna nyckelorden är ~S"
 
 #: encoding.d:242
@@ -925,7 +925,7 @@ msgstr "~S: värd bör vara NIL eller en sträng, inte ~S"
 #: pathname.d:737 pathname.d:781
 #, lisp-format
 msgid "~S: illegal hostname ~S"
-msgstr "~S: ogiltigt värdnamn ~S"
+msgstr "~S: otillåtet värdnamn ~S"
 
 #: pathname.d:798
 #, lisp-format
@@ -945,7 +945,7 @@ msgstr "~S: Filnamn för ~S är okänt"
 #: pathname.d:1302 pathname.d:3608 pathname.d:8803 hashtabl.d:2013 error.d:1301 error.d:1321
 #, lisp-format
 msgid "~S: Illegal ~S argument ~S"
-msgstr "~S: Ogiltig ~S-argument ~S"
+msgstr "~S: Otillåtet ~S-argument ~S"
 
 #: pathname.d:1434 realelem.d:204
 #, lisp-format
@@ -953,7 +953,7 @@ msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
 msgstr ""
-"Variabeln ~S har ett ogiltig värde.\n"
+"Variabeln ~S har ett otillåtet värde.\n"
 "~S har återställts till ~S."
 
 #: pathname.d:1778
@@ -1165,7 +1165,7 @@ msgstr "~S: installationskatalog är inte känd, använd kommandoradsflaggan -B 
 #: stream.d:276 stream.d:13959
 #, lisp-format
 msgid "~S on ~S is illegal"
-msgstr "~S vid ~S är ogiltigt"
+msgstr "~S vid ~S är otillåtet"
 
 #: stream.d:595
 #, lisp-format
@@ -1441,7 +1441,7 @@ msgstr "~S behöver en ~S med en bitstorlek som är en multipel av 8, inte ~S"
 #: stream.d:17062
 #, lisp-format
 msgid "~S: illegal endianness argument ~S"
-msgstr "~S: ogiltigt byteordningsargument ~S"
+msgstr "~S: otillåtet byteordningsargument ~S"
 
 #: stream.d:17195
 #, lisp-format
@@ -1540,7 +1540,7 @@ msgstr "~S: inmatningsström ~S slutar inom ett objekt"
 #: io.d:1214
 #, lisp-format
 msgid "~S from ~S: illegal character ~S"
-msgstr "~S från ~S: ogiltigt tecken ~S"
+msgstr "~S från ~S: otillåtet tecken ~S"
 
 #: io.d:1224
 #, lisp-format
@@ -1625,7 +1625,7 @@ msgstr "~S: ingen post för ~S från ~S i ~S = ~S"
 #: io.d:2443
 #, lisp-format
 msgid "~S from ~S: illegal end of dotted list"
-msgstr "~S från ~S: ogiltigt slut på punktad lista"
+msgstr "~S från ~S: otillåtet slut på punktad lista"
 
 #: io.d:2511
 #, lisp-format
@@ -1730,7 +1730,7 @@ msgstr "~S från ~S: etikett #~S= får inte definieras två gånger"
 #: io.d:3647
 #, lisp-format
 msgid "~S from ~S: #~S= #~S# is illegal"
-msgstr "~S från ~S: #~S= #~S# är ogiltig"
+msgstr "~S från ~S: #~S= #~S# är otillåten"
 
 #: io.d:3671
 #, lisp-format
@@ -1750,12 +1750,12 @@ msgstr "~S från ~S: objekt utskrivna som # i vy från ~S kan inte läsas in ige
 #: io.d:3730
 #, lisp-format
 msgid "~S from ~S: illegal feature ~S"
-msgstr "~S från ~S: ogiltig funktion ~S"
+msgstr "~S från ~S: otillåten funktion ~S"
 
 #: io.d:3734
 #, lisp-format
 msgid "~S: illegal feature ~S"
-msgstr "~S: ogiltig funktion ~S"
+msgstr "~S: otillåten funktion ~S"
 
 #: io.d:3902
 #, lisp-format
@@ -1820,7 +1820,7 @@ msgstr "~S från ~S: för många luckor för struktur ~S"
 #: io.d:4159
 #, lisp-format
 msgid "~S from ~S: illegal syntax of closure code vector after #~SY"
-msgstr "~S från ~S: ogiltig syntax för kodvektor för hölje efter #~SY"
+msgstr "~S från ~S: otillåten syntax för kodvektor för hölje efter #~SY"
 
 #: io.d:4217
 #, lisp-format
@@ -2104,12 +2104,12 @@ msgstr "~S: fyllnadspekaren för vektor ~S är ~S, större än ~S"
 #: array.d:5142
 #, lisp-format
 msgid "Illegal START index ~S for ~S"
-msgstr "Ogiltigt START-index ~S för ~S"
+msgstr "Otillåtet START-index ~S för ~S"
 
 #: array.d:5170
 #, lisp-format
 msgid "Illegal END index ~S for ~S"
-msgstr "Ogiltigt END-index ~S för ~S"
+msgstr "Otillåtet END-index ~S för ~S"
 
 #: array.d:5183
 #, lisp-format
@@ -2163,7 +2163,7 @@ msgstr "~S: ~S argument borde vara ett heltal eller ett flyttal > 1, inte ~S"
 #: hashtabl.d:2099
 #, lisp-format
 msgid "~S: ~S argument should be a real between 0 and 1, not ~S"
-msgstr "~S: ~S argument borde vara ett flyttal mellan 0 och 1, inte ~S"
+msgstr "~S: ~S argument borde vara ett reellt tal mellan 0 och 1, inte ~S"
 
 #: hashtabl.d:2193
 #, lisp-format
@@ -2262,7 +2262,7 @@ msgstr "Att importera ~S in i ~S ger upphov till en namnkonflikt med ~S."
 #: package.d:1229
 #, lisp-format
 msgid "UNEXPORT in ~S is illegal"
-msgstr "UNEXPORT i ~S är ogiltigt"
+msgstr "UNEXPORT i ~S är otillåtet"
 
 #: package.d:1248
 #, lisp-format
@@ -2963,7 +2963,7 @@ msgid ""
 "~S: illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
 msgstr ""
-"~S: ogiltigt nyckelord/värde-par ~S, ~S i argumentlista.\n"
+"~S: otillåtet nyckelord/värde-par ~S, ~S i argumentlista.\n"
 "De tillåtna nyckelorden är ~S"
 
 #: error.d:1396
@@ -3059,19 +3059,19 @@ msgstr "~S: ~S är inte ett dubbelprecisionsflyttal"
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr "Ogiltig flerbytes- eller brett tecken"
+msgstr "Ogiltigt flerbytes- eller brett tecken"
 
 #: errunix.d:65
 msgid "Operation not permitted"
-msgstr "Åtgärd inte tillåten"
+msgstr "Operation inte tillåten"
 
 #: errunix.d:71
 msgid "No such file or directory"
-msgstr "Ingen sådan fil eller katalog"
+msgstr "Filen eller katalogen finns inte"
 
 #: errunix.d:77
 msgid "No such process"
-msgstr "Ingen sådan process"
+msgstr "Processen finns inte"
 
 #: errunix.d:83
 msgid "Interrupted system call"
@@ -3079,11 +3079,11 @@ msgstr "Avbrutet systemanrop"
 
 #: errunix.d:89
 msgid "I/O error"
-msgstr "I/O-fel"
+msgstr "In/ut-fel"
 
 #: errunix.d:95
 msgid "No such device or address"
-msgstr "Ingen sådan enhet eller adress"
+msgstr "Enheten eller adressen finns inte"
 
 #: errunix.d:101
 msgid "Arg list too long"
@@ -3091,15 +3091,15 @@ msgstr "Argumentlista för lång"
 
 #: errunix.d:107
 msgid "Exec format error"
-msgstr "Exekveringsformatsfel"
+msgstr "Formatfel på körbar fil"
 
 #: errunix.d:113
 msgid "Bad file number"
-msgstr "Felaktigt filnummer"
+msgstr "Felaktigt filidentifierare"
 
 #: errunix.d:119
 msgid "No child processes"
-msgstr "Ingen barnprocess"
+msgstr "Inga barnprocesser"
 
 #: errunix.d:125
 msgid "No more processes"
@@ -3131,11 +3131,11 @@ msgstr "Fil existerar"
 
 #: errunix.d:167
 msgid "Cross-device link"
-msgstr "Enhetskorsande länk"
+msgstr "Länk över skilda enheter"
 
 #: errunix.d:173
 msgid "No such device"
-msgstr "Ingen sådan enhet"
+msgstr "Enhet finns inte"
 
 #: errunix.d:179
 msgid "Not a directory"
@@ -3159,7 +3159,7 @@ msgstr "För många öppna filer"
 
 #: errunix.d:209
 msgid "Inappropriate ioctl for device"
-msgstr "Olämplig ioctl för enhet"
+msgstr "Olämplig ”ioctl” för enhet"
 
 #: errunix.d:215
 msgid "Text file busy"
@@ -3171,11 +3171,11 @@ msgstr "Fil för stor"
 
 #: errunix.d:227
 msgid "No space left on device"
-msgstr "Inte tillräckligt med utrymme på enhet"
+msgstr "Enheten är full"
 
 #: errunix.d:233
 msgid "Illegal seek"
-msgstr "Ogiltig sökning"
+msgstr "Otillåten sökning"
 
 #: errunix.d:239
 msgid "Read-only file system"
@@ -3199,1210 +3199,1210 @@ msgstr "Resultat för stort"
 
 #: errunix.d:274
 msgid "Operation would block"
-msgstr ""
+msgstr "Operationen skulle blockera"
 
 #: errunix.d:280
 msgid "Operation now in progress"
-msgstr ""
+msgstr "Operationen pågår nu"
 
 #: errunix.d:286
 msgid "Operation already in progress"
-msgstr ""
+msgstr "Operationen pågår redan"
 
 #: errunix.d:293
 msgid "Too many levels of symbolic links"
-msgstr ""
+msgstr "För många nivåer av symboliska länkar"
 
 #: errunix.d:299
 msgid "File name too long"
-msgstr ""
+msgstr "För långt filnamn"
 
 #: errunix.d:305
 msgid "Directory not empty"
-msgstr ""
+msgstr "Katalog inte tom"
 
 #: errunix.d:312
 msgid "Stale NFS file handle"
-msgstr ""
+msgstr "Förlegat NFS-filhandtag"
 
 #: errunix.d:318
 msgid "Too many levels of remote in path"
-msgstr ""
+msgstr "För många nivåer av fjärr i sökväg"
 
 #: errunix.d:325
 msgid "Socket operation on non-socket"
-msgstr ""
+msgstr "Uttagsoperation på icke-uttag"
 
 #: errunix.d:331
 msgid "Destination address required"
-msgstr ""
+msgstr "Destinationsadress krävs"
 
 #: errunix.d:337
 msgid "Message too long"
-msgstr ""
+msgstr "Meddelande för långt"
 
 #: errunix.d:343
 msgid "Protocol wrong type for socket"
-msgstr ""
+msgstr "Fel protokolltyp för uttag"
 
 #: errunix.d:349
 msgid "Option not supported by protocol"
-msgstr ""
+msgstr "Flagga stöds inte av protokoll"
 
 #: errunix.d:355
 msgid "Protocol not supported"
-msgstr ""
+msgstr "Protokoll stöds ej"
 
 #: errunix.d:361
 msgid "Socket type not supported"
-msgstr ""
+msgstr "Uttagstyp stöds ej"
 
 #: errunix.d:367
 msgid "Operation not supported on socket"
-msgstr ""
+msgstr "Operation stöds inte för uttag"
 
 #: errunix.d:373
 msgid "Protocol family not supported"
-msgstr ""
+msgstr "Protokollfamilj stöds inte"
 
 #: errunix.d:379
 msgid "Address family not supported by protocol family"
-msgstr ""
+msgstr "Adressfamilj stöds inte av protokollfamilj"
 
 #: errunix.d:385
 msgid "Address already in use"
-msgstr ""
+msgstr "Adress redan i bruk"
 
 #: errunix.d:391
 msgid "Cannot assign requested address"
-msgstr ""
+msgstr "Kan inte tilldela begärd adress"
 
 #: errunix.d:397
 msgid "Network is down"
-msgstr ""
+msgstr "Nätverk är nere"
 
 #: errunix.d:403
 msgid "Network is unreachable"
-msgstr ""
+msgstr "Nätverk kan inte nås"
 
 #: errunix.d:409
 msgid "Network dropped connection on reset"
-msgstr ""
+msgstr "Nätverk tog bort förbindelsen"
 
 #: errunix.d:415
 msgid "Software caused connection abort"
-msgstr ""
+msgstr "Mjukvara orsakade förbindelsebrott"
 
 #: errunix.d:421
 msgid "Connection reset by peer"
-msgstr ""
+msgstr "Förbindelse borttagen av partnern"
 
 #: errunix.d:427
 msgid "No buffer space available"
-msgstr ""
+msgstr "Ingen buffertplats tillgänglig"
 
 #: errunix.d:433
 msgid "Socket is already connected"
-msgstr ""
+msgstr "Uttag är redan anslutet"
 
 #: errunix.d:439
 msgid "Socket is not connected"
-msgstr ""
+msgstr "Uttag är inte anslutet"
 
 #: errunix.d:445
 msgid "Cannot send after socket shutdown"
-msgstr ""
+msgstr "Kan inte skicka efter att uttag stängts"
 
 #: errunix.d:451
 msgid "Too many references: cannot splice"
-msgstr ""
+msgstr "För många referenser: kan inte skarva"
 
 #: errunix.d:457
 msgid "Connection timed out"
-msgstr ""
+msgstr "Förbindelsens tidsgräns löpte ut"
 
 #: errunix.d:463
 msgid "Connection refused"
-msgstr ""
+msgstr "Förbindelse förvägrad"
 
 #: errunix.d:468
 msgid "Remote peer released connection"
-msgstr ""
+msgstr "Fjärrpartner släppte anslutning"
 
 #: errunix.d:473
 msgid "Host is down"
-msgstr ""
+msgstr "Värddator är nere"
 
 #: errunix.d:479
 msgid "Host is unreachable"
-msgstr ""
+msgstr "Värddator är onåbar"
 
 #: errunix.d:484
 msgid "Networking error"
-msgstr ""
+msgstr "Nätverksfel"
 
 #: errunix.d:490
 msgid "Too many processes"
-msgstr ""
+msgstr "För många processer"
 
 #: errunix.d:496
 msgid "Too many users"
-msgstr ""
+msgstr "För många användare"
 
 #: errunix.d:502
 msgid "Disk quota exceeded"
-msgstr ""
+msgstr "Diskkvot överskriden"
 
 #: errunix.d:509
 msgid "Not a stream device"
-msgstr ""
+msgstr "Inte en strömenhet"
 
 #: errunix.d:515
 msgid "Timer expired"
-msgstr ""
+msgstr "Tidsgräns löpte ut"
 
 #: errunix.d:521
 msgid "Out of stream resources"
-msgstr ""
+msgstr "Strömresurserna är slut"
 
 #: errunix.d:527
 msgid "No message of desired type"
-msgstr ""
+msgstr "Inget meddelande av önskad typ"
 
 #: errunix.d:533
 msgid "Not a data message"
-msgstr ""
+msgstr "Inte ett datameddelande"
 
 #: errunix.d:540
 msgid "Identifier removed"
-msgstr ""
+msgstr "Identifierare borttagen"
 
 #: errunix.d:547
 msgid "Resource deadlock would occur"
-msgstr ""
+msgstr "Resursdödläge skulle inträffa"
 
 #: errunix.d:553
 msgid "No record locks available"
-msgstr ""
+msgstr "Inga postlås tillgängliga"
 
 #: errunix.d:560
 msgid "Machine is not on the network"
-msgstr ""
+msgstr "Maskin finns inte på nätverket"
 
 #: errunix.d:566 errunix.d:572
 msgid "Object is remote"
-msgstr ""
+msgstr "Är ett fjärrobjekt"
 
 #: errunix.d:578
 msgid "Link has been severed"
-msgstr ""
+msgstr "Länken har brutits"
 
 #: errunix.d:584
 msgid "Advertise error"
-msgstr ""
+msgstr "Annonseringsfel"
 
 #: errunix.d:590
 msgid "Srmount error"
-msgstr ""
+msgstr "Srmount-fel"
 
 #: errunix.d:596
 msgid "Communication error on send"
-msgstr ""
+msgstr "Kommunikationsfel vid sändning"
 
 #: errunix.d:602
 msgid "Protocol error"
-msgstr ""
+msgstr "Protokollfel"
 
 #: errunix.d:608
 msgid "Multihop attempted"
-msgstr ""
+msgstr "Flerhopp försöktes"
 
 #: errunix.d:620
 msgid "Remote address changed"
-msgstr ""
+msgstr "Fjärradress ändrades"
 
 #: errunix.d:627
 msgid "Function not implemented"
-msgstr ""
+msgstr "Funktion inte implementerad"
 
 #: errunix.d:656
 msgid "UNIX error "
-msgstr ""
+msgstr "UNIX-fel "
 
 #: errunix.d:658
 msgid "POSIX library error "
-msgstr ""
+msgstr "POSIX-biblioteksfel "
 
 #: errwin32.d:3871
 msgid "Win32 error "
-msgstr ""
+msgstr "Win32-fel "
 
 #: errwin32.d:3918
 msgid "Winsock error "
-msgstr ""
+msgstr "Winsock-fel "
 
 #: misc.d:108
 msgid "This file was produced by another lisp version, must be recompiled."
-msgstr ""
+msgstr "Denna fil producerades av en annan lisp-version, måst omkompileras."
 
 #: misc.d:412
 #, lisp-format
 msgid "~S (~S ~S): out of memory"
-msgstr ""
+msgstr "~S (~S ~S): slut på minne"
 
 #: misc.d:469
 #, lisp-format
 msgid "~S: type of attribute ~S is unsupported"
-msgstr ""
+msgstr "~S: typ för attribut ~S stöds inte"
 
 #: misc.d:489
 msgid "GNU C++ "
-msgstr ""
+msgstr "GNU C++ "
 
 #: misc.d:491
 msgid "GNU C "
-msgstr ""
+msgstr "GNU C "
 
 #: misc.d:497
 msgid "C++ compiler"
-msgstr ""
+msgstr "C++-kompilator"
 
 #: misc.d:499
 msgid "C compiler"
-msgstr ""
+msgstr "C-kompilator"
 
 #: misc.d:702
 #, lisp-format
 msgid "~S: Lisp value ~S is not found in table ~S: ~S"
-msgstr ""
+msgstr "~S: Lisp-värde ~S hittas inte i tabell ~S: ~S"
 
 #: misc.d:729
 #, lisp-format
 msgid "~S: C value ~S is not found in table ~S: ~S"
-msgstr ""
+msgstr "~S: C-värde ~S hittas inte i tabell ~S: ~S"
 
 #: time.d:670
 #, lisp-format
 msgid "~S: too large shift amount ~S"
-msgstr ""
+msgstr "~S: för stor skiftmängd ~S"
 
 #: predtype.d:1798 predtype.d:2039
 #, lisp-format
 msgid "~S: unidentifiable type!!!"
-msgstr ""
+msgstr "~S: oidentifierbar typ!!!"
 
 #: predtype.d:2045
 #, lisp-format
 msgid "~S: type ~S does not correspond to a class"
-msgstr ""
+msgstr "~S: typ ~S motsvarar inte en klass"
 
 #: predtype.d:2073
 #, lisp-format
 msgid "~S: ~S does not name a class"
-msgstr ""
+msgstr "~S: ~S namnger inte en klass"
 
 #: predtype.d:2192
 #, lisp-format
 msgid "~S: type definition for ~S exceeds depth limit, maybe recursive"
-msgstr ""
+msgstr "~S: typdefinition för ~S överstiger djupbegränsning, kan vara rekursiv"
 
 #: predtype.d:2511 type.lisp:32
 #, lisp-format
 msgid "~S: invalid type specification ~S"
-msgstr ""
+msgstr "~S: ogiltig typspecifikation ~S"
 
 #: predtype.d:2519
 #, lisp-format
 msgid "~S: ~S cannot be coerced to type ~S"
-msgstr ""
+msgstr "~S: ~S kan inte tvingas till typ ~S"
 
 #: symbol.d:17
 #, lisp-format
 msgid "~S: the property list of ~S has an odd length"
-msgstr ""
+msgstr "~S: egenskapslistan för ~S har en udda längd"
 
 #: symbol.d:89
 #, lisp-format
 msgid "~S: ~S is not a system function"
-msgstr ""
+msgstr "~S: ~S är inte en systemfunktion"
 
 #: symbol.d:362
 #, lisp-format
 msgid "The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S."
-msgstr ""
+msgstr "Värdet för *GENSYM-COUNTER* var inte ett icke-negativt heltal. Gammalt värde ~S. Nytt värde ~S."
 
 #: lisparit.d:323
 #, lisp-format
 msgid "~S: argument should be a positive fixnum, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara ett positivt fixnum, inte ~S"
 
 #: lisparit.d:347
 #, lisp-format
 msgid "~S: ~S is not a number"
-msgstr ""
+msgstr "~S: ~S är inte ett tal"
 
 #: lisparit.d:364
 #, lisp-format
 msgid "~S: ~S is not a real number"
-msgstr ""
+msgstr "~S: ~S är inte ett reellt tal"
 
 #: lisparit.d:391
 #, lisp-format
 msgid "~S: ~S is not a floating-point number"
-msgstr ""
+msgstr "~S: ~S är inte ett flyttal"
 
 #: lisparit.d:417
 #, lisp-format
 msgid "~S: ~S is not a rational number"
-msgstr ""
+msgstr "~S: ~S är inte ett rationellt tal"
 
 #: lisparit.d:1659
 #, lisp-format
 msgid "~S: argument should be a ~S, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara en ~S, inte ~S"
 
 #: lisparit.d:1671
 #, lisp-format
 msgid "~S: the value of ~S should be a ~S, not ~S"
-msgstr ""
+msgstr "~S: värde för ~S borde vara en ~S, inte ~S"
 
 #: lisparit.d:1694
 #, lisp-format
 msgid "~S: argument should be positive and an integer or float, not ~S"
-msgstr ""
+msgstr "~S: argumentet borde vara positivt och ett heltal eller flyttal, inte ~S"
 
 #: aridecl.d:353
 #, lisp-format
 msgid "~S: division by zero"
-msgstr ""
+msgstr "~S: division med noll"
 
 #: aridecl.d:362
 #, lisp-format
 msgid "~S: floating point overflow"
-msgstr ""
+msgstr "~S: flyttalsöverspill"
 
 #: aridecl.d:371
 #, lisp-format
 msgid "~S: floating point underflow"
-msgstr ""
+msgstr "~S: flyttalsunderspill"
 
 #: intelem.d:232 intelem.d:328
 #, lisp-format
 msgid "not a 32-bit integer: ~S"
-msgstr ""
+msgstr "inte ett 32 bitars heltal: ~S"
 
 #: intelem.d:412 intelem.d:550
 #, lisp-format
 msgid "not a 64-bit integer: ~S"
-msgstr ""
+msgstr "inte ett 64 bitars heltal: ~S"
 
 #: intelem.d:1370
 msgid "bignum overflow"
-msgstr ""
+msgstr "bignumöverspill"
 
 #: intlog.d:424
 #, lisp-format
 msgid "~S: ~S is not a valid boolean operation"
-msgstr ""
+msgstr "~S: ~S är inte en giltig boolesk åtgärd"
 
 #: intlog.d:533
 #, lisp-format
 msgid "~S: index ~S is negative"
-msgstr ""
+msgstr "~S: index ~S är negativt"
 
 #: intlog.d:665
 #, lisp-format
 msgid "~S: shift ~S is too large"
-msgstr ""
+msgstr "~S: skift ~S är för stort"
 
 #: intbyte.d:13
 #, lisp-format
 msgid "The arguments to BYTE must be fixnums >=0: ~S, ~S"
-msgstr ""
+msgstr "Argumenten till BYTE måste vara fixnum >=0: ~S, ~S"
 
 #: intbyte.d:34
 #, lisp-format
 msgid "~S is not a BYTE specifier"
-msgstr ""
+msgstr "~S är inte en BYTE-specificerare"
 
 #: intmal.d:8
 msgid "overflow during multiplication of large numbers"
-msgstr ""
+msgstr "överspill vid multiplikation av stora tal"
 
 #: intdiv.d:383
 #, lisp-format
 msgid "quotient ~S / ~S is not an integer"
-msgstr ""
+msgstr "kvot ~S / ~S är inte ett heltal"
 
 #: lfloat.d:7
 msgid "long float too long"
-msgstr ""
+msgstr "långt flyttal för långt"
 
 #: flo_konv.d:429
 #, lisp-format
 msgid "~S: floating point NaN occurred"
-msgstr ""
+msgstr "~S: flyttals-NaN inträffade"
 
 #: flo_rest.d:39
 #, lisp-format
 msgid "Floating point operation combines numbers of different precision. See ANSI CL 12.1.4.4 and the CLISP impnotes for details. The result's actual precision is controlled by ~S. To shut off this warning, set ~S to ~S."
-msgstr ""
+msgstr "Flyttalsoperation kombinerar tal av olika precision. Se ANSI CL 12.1.4.4 och CLISP-impl.-noter för detaljer. Resultatets faktiska precision bestäms av ~S. För att stänga av denna varning, ställ in ~S på ~S."
 
 #: realelem.d:149
 #, lisp-format
 msgid "Numerical operation combines exact and inexact numbers (rational numbers and floating-point numbers), and the mathematical result is exact. See ANSI CL 12.1.4.1 and the CLISP impnotes for details. The result's actual exactness is controlled by ~S. To shut off this warning, set ~S to ~S."
-msgstr ""
+msgstr "Numerisk operation kombinerar exakta och inexakta tal (rationella tal och flyttal), och det matematiska resultatet är exakt. Se ANSI CL 12.1.4.1 och CLISP-impl.-noter för detljer. Resultatets faktiska exakthet bestäms av ~S. För att stänga av denna varning, ställ in ~S på ~S."
 
 #: funarg.d:107
 #, lisp-format
 msgid "~S: must not specify both :TEST and :TEST-NOT arguments"
-msgstr ""
+msgstr "~S: får inte ange både :TEST- och :TEST-NOT-argument"
 
 #: foreign.d:21
 #, lisp-format
 msgid "~S: argument is not a foreign object: ~S"
-msgstr ""
+msgstr "~S: argument är inte ett främmande objekt: ~S"
 
 #: foreign.d:63
 #, lisp-format
 msgid "~S: argument ~S should be a ~S, ~S or ~S"
-msgstr ""
+msgstr "~S: argument ~S borde vara en ~S, ~S eller ~S"
 
 #: foreign.d:121
 #, lisp-format
 msgid "~S: must not invalidate the sole FFI session pointer"
-msgstr ""
+msgstr "~S: får inte invalidera den enda FFI-sessionspekaren"
 
 #: foreign.d:127
 #, lisp-format
 msgid "~S: cannot resurrect the zombie ~S"
-msgstr ""
+msgstr "~S: kan inte återuppliva zombien ~S"
 
 #: foreign.d:201
 #, lisp-format
 msgid "Foreign variable ~S already exists"
-msgstr ""
+msgstr "Främmande variabel ~S existerar redan"
 
 #: foreign.d:235
 #, lisp-format
 msgid "Foreign function ~S already exists"
-msgstr ""
+msgstr "Främmande funktion ~S existerar redan"
 
 #: foreign.d:262
 #, lisp-format
 msgid "No foreign int type of size ~S"
-msgstr ""
+msgstr "Ingen främmande int-typ av storlek ~S"
 
 #: foreign.d:279
 #, lisp-format
 msgid "Cannot redefine foreign type ~S from ~S to ~S"
-msgstr ""
+msgstr "Kan inte omdefiniera främmande typ ~S från ~S till ~S"
 
 #: foreign.d:287
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "No foreign int type named ~S"
-msgstr ""
+msgstr "Ingen främmande int-typ av storlek ~S"
 
 #: foreign.d:317
 #, lisp-format
 msgid "~S: illegal foreign data type ~S"
-msgstr ""
+msgstr "~S: otillåten främmande datatyp ~S"
 
 #: foreign.d:325
 #, lisp-format
 msgid "~S: ~S cannot be converted to the foreign type ~S"
-msgstr ""
+msgstr "~S: ~S kan inte konverteras till den främmande typen ~S"
 
 #: foreign.d:333
 #, lisp-format
 msgid "~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"
-msgstr ""
+msgstr "~S: 64-bitars heltal stöds inte för denna plattform och med denna C-kompilator: ~S"
 
 #: foreign.d:347
 #, lisp-format
 msgid "~S: illegal foreign function type ~S"
-msgstr ""
+msgstr "~S: otillåten främmande funktionstyp ~S"
 
 #: foreign.d:477
 #, lisp-format
 msgid "~S cannot be converted to a foreign function with another calling convention."
-msgstr ""
+msgstr "~S kan inte konverteras till en främmande funktion med andra anropskonventioner."
 
 #: foreign.d:1104
 #, lisp-format
 msgid "~S: element type has size 0: ~S"
-msgstr ""
+msgstr "~S: elementtyp har storlek 0: ~S"
 
 #: foreign.d:1112
 #, lisp-format
 msgid "~S: trying to read an object of type ~S from NULL address"
-msgstr ""
+msgstr "~S: försöker att läsa ett objekt av typen ~S från adress NULL"
 
 #: foreign.d:1932
 #, lisp-format
 msgid "~S: trying to write object ~S of type ~S into NULL address"
-msgstr ""
+msgstr "~S: försöker att skriva objekt ~S av typen ~S till adress NULL"
 
 #: foreign.d:2445
 #, lisp-format
 msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
-msgstr ""
+msgstr "~S: främmande variabel med okänd typ, saknar DEF-C-VAR: ~S"
 
 #: foreign.d:2461
 #, lisp-format
 msgid "~S: foreign variable ~S does not exist"
-msgstr ""
+msgstr "~S: främmande variabel ~S existerar inte"
 
 #: foreign.d:2462
 msgid "Skip foreign variable creation"
-msgstr ""
+msgstr "Hoppa över skapande av främmande variabel"
 
 #: foreign.d:2476
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required size or alignment"
-msgstr ""
+msgstr "~S: främmande variabel ~S har inte den begärda storleken eller justeringen"
 
 #: foreign.d:2487
 #, lisp-format
 msgid "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
-msgstr ""
+msgstr "~S: typspecifikationer för främmande variabel ~S står i konflikt: ~S och ~S"
 
 #: foreign.d:2514
 #, lisp-format
 msgid "~S(~S): version ~S without library does not make sense"
-msgstr ""
+msgstr "~S(~S): version ~S utan bibliotek är inte vettigt"
 
 #: foreign.d:2533
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required alignment"
-msgstr ""
+msgstr "~S: främmande variabel ~S har inte den justering som krävs"
 
 #: foreign.d:2610
 #, lisp-format
 msgid "~S: foreign variable ~S may not be modified"
-msgstr ""
+msgstr "~S: främmande variabel ~S får inte modifieras"
 
 #: foreign.d:2656
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not an array"
-msgstr ""
+msgstr "~S: främmande variabel ~S av typ ~S är inte en vektor"
 
 #: foreign.d:2732
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a pointer"
-msgstr ""
+msgstr "~S: främmande variabel ~S av typ ~S är inte en pekare"
 
 #: foreign.d:2840
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a struct or union"
-msgstr ""
+msgstr "~S: främmande variabel ~S av typ ~S är inte en struktur eller union"
 
 #: foreign.d:2847
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
-msgstr ""
+msgstr "~S: främmande variabel ~S av typ ~S har ingen komponent med namn ~S"
 
 #: foreign.d:3184
 #, lisp-format
 msgid "~S: ~S has no type, :FULL is illegal"
-msgstr ""
+msgstr "~S: ~S har ingen typ, : FULL är otillåtet"
 
 #: foreign.d:3210
 #, lisp-format
 msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
-msgstr ""
+msgstr "~S: främmande funktion med okänd anropskonvention, saknar DEF-CALL-OUT: ~S"
 
 #: foreign.d:3228
 #, lisp-format
 msgid "~S: foreign function ~S does not exist"
-msgstr ""
+msgstr "~S: främmande funktion ~S existerar inte"
 
 #: foreign.d:3229
 msgid "Skip foreign function creation"
-msgstr ""
+msgstr "Hoppa över skapande av främmande funktion"
 
 #: foreign.d:3236
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
-msgstr ""
+msgstr "~S: anropskonventioner för främmande funktion ~S står i konflikt"
 
 #: foreign.d:3563 foreign1.lisp:1254
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
-msgstr ""
+msgstr "~S: OUT-argument är inte en pekare: ~S"
 
 #: foreign.d:4215
 #, lisp-format
 msgid "~S: ~S is not supported on this platform."
-msgstr ""
+msgstr "~S: ~S stöds inte på denna plattform."
 
 #: foreign.d:4234
 #, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
-msgstr ""
+msgstr "~S: Kan inte öppna bibliotek ~S: ~S"
 
 #: foreign.d:4236
 #, lisp-format
 msgid "~S: Cannot open library ~S"
-msgstr ""
+msgstr "~S: Kan inte öppna bibliotek ~S"
 
 #: foreign.d:4306
 #, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
-msgstr ""
+msgstr "~S: inget dynamiskt objekt vid namn ~S i bibliotek ~S"
 
 #: foreign.d:4307
 #, lisp-format
 msgid "~S: no dynamic object named ~S (version ~S) in library ~S"
-msgstr ""
+msgstr "~S: inget dynamiskt objekt vid namn ~S (version ~S) i bibliotek ~S"
 
 #: foreign.d:4308
 msgid "Skip foreign object creation"
-msgstr ""
+msgstr "Hoppa över skapande av främmande objekt"
 
 #: foreign.d:4591
 #, lisp-format
 msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
-msgstr ""
+msgstr "~S: kan inte hitta ~S i ~S på grund av avsaknad av dlsym() på denna plattform"
 
 #: foreign.d:4655
 #, lisp-format
 msgid "~S(~S): dladdr() failed: ~S"
-msgstr ""
+msgstr "~S(~S): dladdr() misslyckades: ~S"
 
 #: foreign.d:4657
 #, lisp-format
 msgid "~S(~S): dladdr() failed"
-msgstr ""
+msgstr "~S(~S): dladdr() misslyckades"
 
 #: init.lisp:271 format.lisp:367
 #, lisp-format
 msgid "The destination argument ~S is invalid (not NIL or T or a stream or a string)."
-msgstr ""
+msgstr "Destinationsargumentet ~S är ogiltigt (inte NIL eller T eller en ström eller en sträng)."
 
 #: init.lisp:301 format.lisp:392 format.lisp:2548
 #, lisp-format
 msgid "~S: The control-string must be a string, not ~S"
-msgstr ""
+msgstr "~S: Kontrollsträngen måste vara en strängm, inte ~S"
 
 #: init.lisp:314 init.lisp:2233 condition.lisp:1604 reploop.lisp:487
 msgid "Continuable Error"
-msgstr ""
+msgstr "Fortsättningsbart fel"
 
 #: init.lisp:550
 msgid "special operator"
-msgstr ""
+msgstr "specialoperator"
 
 #: init.lisp:555
 msgid "macro"
-msgstr ""
+msgstr "makro"
 
 #: init.lisp:561 trace.lisp:175
 msgid "function"
-msgstr ""
+msgstr "funktion"
 
 #: init.lisp:616
 #, lisp-format
 msgid "~A: ~S is a special operator and may not be redefined."
-msgstr ""
+msgstr "~A: ~S är en speciell operator som får inte omdefinieras."
 
 #: init.lisp:678
 #, lisp-format
 msgid "~A: redefining ~A ~S in ~A, was defined in ~A"
-msgstr ""
+msgstr "~S: omdefinierar ~A ~S i ~A, definierades i ~A"
 
 #: init.lisp:707
 #, lisp-format
 msgid "~A: redefining ~S; it was traced!"
-msgstr ""
+msgstr "~A: omdefinierar ~S; den spårades!"
 
 #: init.lisp:721
 #, lisp-format
 msgid "~S is impossible in compiled code"
-msgstr ""
+msgstr "~S är omöjlig i kompilerad kod."
 
 #: init.lisp:807
 #, lisp-format
 msgid "~S is an invalid function environment"
-msgstr ""
+msgstr "~S är en ogiltig funktionsmiljö"
 
 #: init.lisp:868
 #, lisp-format
 msgid "~S is an invalid variable environment"
-msgstr ""
+msgstr "~S är en ogiltig variabelmiljö"
 
 #: init.lisp:896 compiler.lisp:3460
 #, lisp-format
 msgid "Illegal syntax in ~A: ~S"
-msgstr ""
+msgstr "Otillåten syntax i ~A: ~S"
 
 #: init.lisp:944
 #, lisp-format
 msgid "~S: ~S is illegal since ~S is a local macro"
-msgstr ""
+msgstr "~S: ~S är otillåten då ~S är ett lokalt makro"
 
 #: init.lisp:947
 #, lisp-format
 msgid "~S: invalid function environment ~S"
-msgstr ""
+msgstr "~S: ogiltig funktionsmiljö ~S"
 
 #: init.lisp:953
 #, lisp-format
 msgid "~S: ~S is invalid since ~S is not a symbol"
-msgstr ""
+msgstr "~S: ~S är ogiltig då ~S inte är en symbol"
 
 #: init.lisp:1105
 #, lisp-format
 msgid "code after MACROLET contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "kod efter MACROLET innehåller en punktad lista som slutar med ~S"
 
 #: init.lisp:1138
 #, lisp-format
 msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "kod efter SYMBOL-MACROLET innehåller en punktad lista som slutar med ~S"
 
 #: init.lisp:1150 compiler.lisp:5812
 #, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-msgstr ""
+msgstr "~S: symbol ~S får inte deklareras som SPECIAL och samtidigt som ett makro"
 
 #: init.lisp:1163
 #, lisp-format
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
-msgstr ""
+msgstr "~S: symbol ~S är deklarerad speciell och får inte deklareras som ett makro"
 
 #: init.lisp:1192
 #, lisp-format
 msgid "bad function environment occurred in ~S: ~S"
-msgstr ""
+msgstr "felaktig funktionsmiljö inträffade i ~S: ~S"
 
 #: init.lisp:1201
 #, lisp-format
 msgid "~S: invalid form ~S"
-msgstr ""
+msgstr "~S: ogiltig form ~S"
 
 #: init.lisp:1218
 #, lisp-format
 msgid "code contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "kod innehåller en punktad lista som slutar med ~S"
 
 #: init.lisp:1294
 #, lisp-format
 msgid "lambda list must not end with the atom ~S"
-msgstr ""
+msgstr "lambdalista får inte sluta med atomen ~S"
 
 #: init.lisp:1323 init.lisp:1340
 #, lisp-format
 msgid "~S: variable list ends with the atom ~S"
-msgstr ""
+msgstr "~S: variabellista slutar med atomen ~S"
 
 #: init.lisp:1437
 #, lisp-format
 msgid "FLET/LABELS: code contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "FLET/LABELS: kod innehåller en punktad lista som slutar med ~S"
 
 #: init.lisp:1463
 #, lisp-format
 msgid "FUNCTION-MACRO-LET: code contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "FUNCTION-MACRO-LET: kod innehåller en punktad lista som slutar med ~S"
 
 #: init.lisp:1568 condition.lisp:1639
 msgid "WARNING:"
-msgstr ""
+msgstr "VARNING:"
 
 #: init.lisp:1600
 #, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
-msgstr ""
+msgstr "~S: kompilerad fil ~A saknar versionsmarkör"
 
 #: init.lisp:1602
 #, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
-msgstr ""
+msgstr "~S: kompilerad fil ~A har en korrumperad versionsmarkör ~S"
 
 #: init.lisp:1604
 #, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
-msgstr ""
+msgstr "~S: kompilerad fil ~A skapades med en äldre CLISP-version och måste omkompileras"
 
 #: init.lisp:1717
 #, lisp-format
 msgid "~S: A file with name ~A does not exist"
-msgstr ""
+msgstr "~S: En fil med namnet ~A finns inte"
 
 #: init.lisp:1739
 #, lisp-format
 msgid "Loading file ~A ..."
-msgstr ""
+msgstr "Läser in fil ~A …"
 
 #: init.lisp:1774 defs1.lisp:520
 #, lisp-format
 msgid "Loaded file ~A"
-msgstr ""
+msgstr "Läste in fil ~A"
 
 #: init.lisp:1787
 #, lisp-format
 msgid "~S: missing function name and/or parameter list"
-msgstr ""
+msgstr "~S: saknar funktionsnamn och/eller parameterlista"
 
 #: init.lisp:1797
 #, lisp-format
 msgid "~S: special operator ~S cannot be redefined."
-msgstr ""
+msgstr "~S: specialoperator ~S kan inte omdefinieras"
 
 #: init.lisp:1832 macros1.lisp:155
 #, lisp-format
 msgid "exit clause in ~S must be a list"
-msgstr ""
+msgstr "avslutningsklausul i ~S måste vara en lista"
 
 #: init.lisp:1994
 #, lisp-format
 msgid "~S: cannot define a function from that: ~S"
-msgstr ""
+msgstr "~S: kan inte definiera en funktion från det: ~S"
 
 #: init.lisp:2000 clos-genfun3.lisp:101 clos-genfun3.lisp:176
 #, lisp-format
 msgid "~S: the name of a function must be a symbol, not ~S"
-msgstr ""
+msgstr "~S: namnet på en funktion måste vara en symbol, inte ~S"
 
 #: init.lisp:2006
 #, lisp-format
 msgid "~S: function ~S is missing a lambda list"
-msgstr ""
+msgstr "~S: funktion ~S saknar en lambdalista"
 
 #: init.lisp:2240 condition.lisp:1611 reploop.lisp:514
 msgid "If you continue (by typing 'continue'): "
-msgstr ""
+msgstr "Om du fortsätter (genom att skriva ”continue”): "
 
 #: backquote.lisp:67
 #, lisp-format
 msgid "~S: unquotes may occur only in (...) or #(...) forms"
-msgstr ""
+msgstr "~S: avcitering får endast inträffa i (…)- eller #(…)-formerna"
 
 #: backquote.lisp:85
 #, lisp-format
 msgid "~S: comma is illegal outside of backquote"
-msgstr ""
+msgstr "~S: komma är otillåtet utanför en grav accent"
 
 #: backquote.lisp:90
 #, lisp-format
 msgid "~S: more commas out than backquotes in, is illegal"
-msgstr ""
+msgstr "~S: fler komman ut är grava accenter in är otillåtet"
 
 #: backquote.lisp:95
 #, lisp-format
 msgid "~S: unquotes may not occur in structures"
-msgstr ""
+msgstr "~S: avcitering får inte inträffa i strukturer"
 
 #: backquote.lisp:100
 #, lisp-format
 msgid "~S: unquotes may not occur in arrays"
-msgstr ""
+msgstr "~S: avcitering får inte inträffa i vektorer"
 
 #: backquote.lisp:131
 msgid "the syntax `,@form is invalid"
-msgstr ""
+msgstr "syntaxen `,@form är ogiltig"
 
 #: backquote.lisp:132
 msgid "the syntax `,.form is invalid"
-msgstr ""
+msgstr "syntaxen `,.form är ogiltig"
 
 #: backquote.lisp:136 backquote.lisp:152
 #, lisp-format
 msgid "READ: ~@?"
-msgstr ""
+msgstr "READ: ~@?"
 
 #: backquote.lisp:147
 msgid "the syntax `( ... . ,@form) is invalid"
-msgstr ""
+msgstr "syntaxen `( … . ,@form) är ogiltig"
 
 #: backquote.lisp:148
 msgid "the syntax `( ... . ,.form) is invalid"
-msgstr ""
+msgstr "syntaxen `( … . ,.form) är ogiltig"
 
 #: defmacro.lisp:50
 #, lisp-format
 msgid "The macro ~S may not be called with a circular argument list: ~S"
-msgstr ""
+msgstr "Makrot ~s får inte anropas med en cirkulär argumentlista: ~S"
 
 #: defmacro.lisp:56
 #, lisp-format
 msgid "The macro ~S may not be called with a dotted argument list: ~S"
-msgstr ""
+msgstr "Makrot ~S får inte anropas med en punktad argumentlista: ~S"
 
 #: defmacro.lisp:61
 #, lisp-format
 msgid "The macro ~S may not be called with ~S arguments: ~S"
-msgstr ""
+msgstr "Makrot ~S får inte anropas med ~S-argument: ~S"
 
 #: defmacro.lisp:68 defmacro.lisp:427
 #, lisp-format
 msgid "~S: ~S does not match lambda list element ~:S"
-msgstr ""
+msgstr "~S: ~S matchar inte element i lambdalista ~:S"
 
 #: defmacro.lisp:139 defmacro.lisp:180 defmacro.lisp:268
 #, lisp-format
 msgid "The rest of the lambda list will be ignored."
-msgstr ""
+msgstr "Resten av lambdalistan kommera att hoppas över."
 
 #: defmacro.lisp:140 defmacro.lisp:181
 #, lisp-format
 msgid "The lambda list of macro ~S contains a dot after ~S."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en punkt efter ~S."
 
 #: defmacro.lisp:147
 #, lisp-format
 msgid "in macro ~S: ~S may not be used as &AUX variable."
-msgstr ""
+msgstr "i makro ~S: ~S får inte användas som &AUX-variabel."
 
 #: defmacro.lisp:158
 #, lisp-format
 msgid "~S: invalid supplied-p variable ~S"
-msgstr ""
+msgstr "~S: ogiltig medskickad-p-variabel ~S"
 
 #: defmacro.lisp:189 defmacro.lisp:344
 #, lisp-format
 msgid "It will be ignored."
-msgstr ""
+msgstr "Den kommer att hoppas över."
 
 #: defmacro.lisp:190
 #, lisp-format
 msgid "The lambda list of macro ~S contains a badly placed ~S."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en felaktigt placerad ~S."
 
 #: defmacro.lisp:203
 #, lisp-format
 msgid "The lambda list of macro ~S contains the invalid element ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller det ogiltiga elementet ~S."
 
 #: defmacro.lisp:215
 #, lisp-format
 msgid "~0*It will be ignored."
-msgstr ""
+msgstr "~0*Den kommer att hoppas över."
 
 #: defmacro.lisp:216
 #, lisp-format
 msgid "The lambda list of macro ~S contains an invalid keyword specification ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en ogiltig nyckelordsspecifikation ~S"
 
 #: defmacro.lisp:250
 #, lisp-format
 msgid "The lambda list of macro ~S is missing a variable after &REST/&BODY."
-msgstr ""
+msgstr "Lambdalistan för makro ~S saknar en variabel efter &REST/&BODY."
 
 #: defmacro.lisp:261
 #, lisp-format
 msgid "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en otillåten variabel efter &REST/&BODY: ~S"
 
 #: defmacro.lisp:269
 #, lisp-format
 msgid "The lambda list of macro ~S contains a misplaced dot."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en felplacerad punkt."
 
 #: defmacro.lisp:273
 #, lisp-format
 msgid "They will be ignored."
-msgstr ""
+msgstr "De kommer att hoppas över."
 
 #: defmacro.lisp:274
 #, lisp-format
 msgid "The lambda list of macro ~S contains superfluous elements: ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller överflödiga element: ~S"
 
 #: defmacro.lisp:324
 #, lisp-format
 msgid "The lambda list of macro ~S contains an illegal &REST variable: ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller en otillåten &REST-variabel: ~S"
 
 #: defmacro.lisp:340
 #, lisp-format
 msgid "The lambda list of macro ~S contains an invalid &WHOLE: ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller ett otillåtet &WHOLE: ~S"
 
 #: defmacro.lisp:345
 #, lisp-format
 msgid "The lambda list of macro ~S contains a superfluous ~S."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller ett överflödigt ~S."
 
 #: defmacro.lisp:356
 #, lisp-format
 msgid "The lambda list of macro ~S contains ~S before &KEY."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller ~S före &KEY."
 
 #: defmacro.lisp:359
 #, lisp-format
 msgid "The lambda list of macro ~S contains ~S which is illegal here."
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller ~S som är otillåtet här."
 
 #: defmacro.lisp:378
 #, lisp-format
 msgid "The lambda list of macro ~S contains an invalid element ~S"
-msgstr ""
+msgstr "Lambdalistan för makro ~S innehåller ett ogiltigt element ~S"
 
 #: defmacro.lisp:448
 #, lisp-format
 msgid "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S"
-msgstr ""
+msgstr "I lambdalistan för makro ~S, måste &ENVIRONMENT efterföljas av en icke-NIL-symbol: ~S"
 
 #: defmacro.lisp:473
 #, lisp-format
 msgid "Cannot define a macro from that: ~S"
-msgstr ""
+msgstr "Kan inte definiera ett makro från detta: ~S"
 
 #: defmacro.lisp:479
 #, lisp-format
 msgid "The name of a macro must be a symbol, not ~S"
-msgstr ""
+msgstr "Namnet på ett makro måste vara en symbol, inte ~S"
 
 #: defmacro.lisp:485
 #, lisp-format
 msgid "Macro ~S is missing a lambda list."
-msgstr ""
+msgstr "Makro ~S saknar en lambdalista."
 
 #: macros1.lisp:25 macros1.lisp:48
 #, lisp-format
 msgid "~S: non-symbol ~S cannot be a variable"
-msgstr ""
+msgstr "~S: icke-symbol ~S kan inte vara en variabel"
 
 #: macros1.lisp:31 macros1.lisp:54
 #, lisp-format
 msgid "~S: the constant ~S must not be redefined to be a variable"
-msgstr ""
+msgstr "~S: konstanten ~S får inte omdefinieras till att vara en variabel"
 
 #: macros1.lisp:68
 #, lisp-format
 msgid "~S: non-symbol ~S cannot be defined constant"
-msgstr ""
+msgstr "~S: icke-symbol ~S kan inte definieras som en konstant"
 
 #: macros1.lisp:104
 #, lisp-format
 msgid "~S redefines the constant ~S. Its old value was visually similar though. Set ~S to avoid this warning."
-msgstr ""
+msgstr "~S omdefinierar konstanten ~S. Dess gamla värde var visuellt liknande dock. Sätt ~S för att undvika denna varning."
 
 #: macros1.lisp:107
 #, lisp-format
 msgid "~S redefines the constant ~S. Its old value was ~S."
-msgstr ""
+msgstr "~S omdefinierar konstanten ~S. Dess gamla värde var ~S."
 
 #: macros1.lisp:161
 #, lisp-format
 msgid "Invalid syntax in ~S form: ~S."
-msgstr ""
+msgstr "Ogiltig syntax i ~S-form: ~S."
 
 #: macros1.lisp:261 places.lisp:619 places.lisp:839
 #, lisp-format
 msgid "~S called with an odd number of arguments: ~S"
-msgstr ""
+msgstr "~S anropades med ett udda antal argument: ~S"
 
 #: macros1.lisp:299
 #, lisp-format
 msgid "~S: missing key list"
-msgstr ""
+msgstr "~S: saknar nyckellista"
 
 #: macros1.lisp:428
 #, lisp-format
 msgid "Not a list of COND clauses: ~S"
-msgstr ""
+msgstr "Inte en lista av COND-klausuler: ~S"
 
 #: macros1.lisp:434
 #, lisp-format
 msgid "The atom ~S must not be used as a COND clause."
-msgstr ""
+msgstr "Atomen ~S får inte användas som en COND-klausul."
 
 #: macros2.lisp:13
 #, lisp-format
 msgid "Invalid clause in ~S: ~S"
-msgstr ""
+msgstr "Ogiltig klausul i ~S: ~S"
 
 #: macros2.lisp:26
 #, lisp-format
 msgid "~A~%The value is: ~S"
-msgstr ""
+msgstr "~A~%Värdet är: ~S"
 
 #: macros2.lisp:29
 #, lisp-format
 msgid "The value of ~S should be ~:[of type ~S~;~:*~A~]."
-msgstr ""
+msgstr "Värdet av ~S borde vara ~:[av typ ~S~;~:*~A~]."
 
 #: macros2.lisp:32
 #, lisp-format
 msgid "Input a new value for ~S."
-msgstr ""
+msgstr "Mata in ett nytt värde för ~S."
 
 #: macros2.lisp:34
 #, lisp-format
 msgid "Input a value to be used instead~@[ of ~S~]."
-msgstr ""
+msgstr "Mata in ett värde som kan användas istället~@[ för ~S~]."
 
 #: macros2.lisp:36
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "New ~S"
-msgstr ""
+msgstr "Ny ~S: "
 
 #: macros2.lisp:53
 msgid "Retry"
-msgstr ""
+msgstr "Försök igen"
 
 #: macros2.lisp:55
 #, lisp-format
 msgid "Input new values for ~@{~S~^, ~}."
-msgstr ""
+msgstr "Mata in nya värden för ~@{~S~^, ~}."
 
 #: macros2.lisp:58
 #, lisp-format
 msgid "~S must evaluate to a non-NIL value."
-msgstr ""
+msgstr "~S måste beräknas till ett icke-NIL-värde."
 
 #: macros2.lisp:84
 #, lisp-format
 msgid "The value of ~S must be of one of the types ~{~S~^, ~}"
-msgstr ""
+msgstr "Värdet av ~S måste vara endera av typerna ~{~S~^, ~}"
 
 #: macros2.lisp:88
 #, lisp-format
 msgid "The value of ~S must be one of ~{~S~^, ~}"
-msgstr ""
+msgstr "Värdet av ~S måste vara endera av ~{~S~^, ~}"
 
 #: macros2.lisp:103 condition.lisp:1442
 #, lisp-format
 msgid "~S used as a key in ~S, it would be better to use parentheses."
-msgstr ""
+msgstr "~S användes som en nyckel i ~S, det vore bättre att använda parenteser."
 
 #: macros2.lisp:177
 #, lisp-format
 msgid "~S is a built-in type and may not be redefined."
-msgstr ""
+msgstr "~S är en inbyggd typ och kan inte omdefinieras."
 
 #: macros2.lisp:206
 #, lisp-format
 msgid "The deftype expander for ~S may not be called with ~S arguments."
-msgstr ""
+msgstr "Deftype-expanderaren för ~S får inte anropas med ~S argument."
 
 #: macros2.lisp:216
 #, lisp-format
 msgid "~S: the name of a symbol macro must be a symbol, not ~S"
-msgstr ""
+msgstr "~S: namnet på ett symbolmakro måste vara en symbol, inte ~S"
 
 #: defs1.lisp:98
 #, lisp-format
 msgid "missing symbol types (~S/~S/~S) in ~S"
-msgstr ""
+msgstr "saknar symboltyper (~S/~S/~S) i ~S"
 
 #: defs1.lisp:106
 #, lisp-format
 msgid "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S"
-msgstr ""
+msgstr "~S: flagga måste vara endera av symbolerna ~S, ~S, ~S, inte ~S"
 
 #: defs1.lisp:501
 #, lisp-format
 msgid "~S: ~S does not name a logical host"
-msgstr ""
+msgstr "~S: ~S namnger inte en logisk värd"
 
 #: defs1.lisp:518
 #, lisp-format
 msgid "Loading logical hosts from file ~A ..."
-msgstr ""
+msgstr "Läser in logiska värdar från fil ~A …"
 
 #: defs1.lisp:523 defs1.lisp:531
 #, lisp-format
@@ -5449,9 +5449,9 @@ msgid "Unknown declaration ~S.~%The whole declaration will be ignored."
 msgstr ""
 
 #: compiler.lisp:1897
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "in file ~S "
-msgstr ""
+msgstr "Läser in fil ~A …"
 
 #: compiler.lisp:1899
 #, lisp-format
@@ -5469,9 +5469,9 @@ msgid "in ~S "
 msgstr ""
 
 #: compiler.lisp:1928
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "WARNING: ~A"
-msgstr ""
+msgstr "VARNING:"
 
 #: compiler.lisp:1945
 #, lisp-format
@@ -6778,9 +6778,9 @@ msgid "~S: restart cannot be invoked interactively because it is missing a ~S op
 msgstr ""
 
 #: condition.lisp:1205
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "Use instead~@[ of ~S~]"
-msgstr ""
+msgstr "Mata in ett värde som kan användas istället~@[ för ~S~]."
 
 #: condition.lisp:1215
 #, lisp-format
@@ -6812,8 +6812,9 @@ msgid "skip "
 msgstr ""
 
 #: condition.lisp:1424
+#, fuzzy
 msgid "retry "
-msgstr ""
+msgstr "Försök igen"
 
 #: condition.lisp:1428
 #, lisp-format
@@ -7883,7 +7884,7 @@ msgstr ""
 #: foreign1.lisp:685
 #, lisp-format
 msgid "illegal foreign data type ~S"
-msgstr ""
+msgstr "Främmande datatyp ~S "
 
 #: foreign1.lisp:919
 #, lisp-format
