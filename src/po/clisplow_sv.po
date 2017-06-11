@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:16-0400\n"
-"PO-Revision-Date: 2017-05-29 13:12+0800\n"
+"PO-Revision-Date: 2017-06-11 14:06+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -425,19 +425,19 @@ msgstr "%s: metoden ”avbildsstorlek” misslyckades, man hittade avbildningshu
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr "Ogiltig flerbytes- eller brett tecken"
+msgstr "Ogiltigt flerbytes- eller brett tecken"
 
 #: errunix.d:65
 msgid "Operation not permitted"
-msgstr "Åtgärd inte tillåten"
+msgstr "Operation inte tillåten"
 
 #: errunix.d:71
 msgid "No such file or directory"
-msgstr "Ingen sådan fil eller katalog"
+msgstr "Filen eller katalogen finns inte"
 
 #: errunix.d:77
 msgid "No such process"
-msgstr "Ingen sådan process"
+msgstr "Processen finns inte"
 
 #: errunix.d:83
 msgid "Interrupted system call"
@@ -445,11 +445,11 @@ msgstr "Avbrutet systemanrop"
 
 #: errunix.d:89
 msgid "I/O error"
-msgstr "I/O-fel"
+msgstr "In/ut-fel"
 
 #: errunix.d:95
 msgid "No such device or address"
-msgstr "Ingen sådan enhet eller adress"
+msgstr "Enheten eller adressen finns inte"
 
 #: errunix.d:101
 msgid "Arg list too long"
@@ -457,15 +457,15 @@ msgstr "Argumentlista för lång"
 
 #: errunix.d:107
 msgid "Exec format error"
-msgstr "Exekveringsformatsfel"
+msgstr "Formatfel på körbar fil"
 
 #: errunix.d:113
 msgid "Bad file number"
-msgstr "Felaktigt filnummer"
+msgstr "Felaktigt filidentifierare"
 
 #: errunix.d:119
 msgid "No child processes"
-msgstr "Ingen barnprocess"
+msgstr "Inga barnprocesser"
 
 #: errunix.d:125
 msgid "No more processes"
@@ -497,11 +497,11 @@ msgstr "Fil existerar"
 
 #: errunix.d:167
 msgid "Cross-device link"
-msgstr "Enhetskorsande länk"
+msgstr "Länk över skilda enheter"
 
 #: errunix.d:173
 msgid "No such device"
-msgstr "Ingen sådan enhet"
+msgstr "Enhet finns inte"
 
 #: errunix.d:179
 msgid "Not a directory"
@@ -525,7 +525,7 @@ msgstr "För många öppna filer"
 
 #: errunix.d:209
 msgid "Inappropriate ioctl for device"
-msgstr "Olämplig ioctl för enhet"
+msgstr "Olämplig ”ioctl” för enhet"
 
 #: errunix.d:215
 msgid "Text file busy"
@@ -537,11 +537,11 @@ msgstr "Fil för stor"
 
 #: errunix.d:227
 msgid "No space left on device"
-msgstr "Inte tillräckligt med utrymme på enhet"
+msgstr "Enheten är full"
 
 #: errunix.d:233
 msgid "Illegal seek"
-msgstr "Ogiltig sökning"
+msgstr "Otillåten sökning"
 
 #: errunix.d:239
 msgid "Read-only file system"
@@ -565,228 +565,228 @@ msgstr "Resultat för stort"
 
 #: errunix.d:274
 msgid "Operation would block"
-msgstr ""
+msgstr "Operationen skulle blockera"
 
 #: errunix.d:280
 msgid "Operation now in progress"
-msgstr ""
+msgstr "Operationen pågår nu"
 
 #: errunix.d:286
 msgid "Operation already in progress"
-msgstr ""
+msgstr "Operationen pågår redan"
 
 #: errunix.d:293
 msgid "Too many levels of symbolic links"
-msgstr ""
+msgstr "För många nivåer av symboliska länkar"
 
 #: errunix.d:299
 msgid "File name too long"
-msgstr ""
+msgstr "För långt filnamn"
 
 #: errunix.d:305
 msgid "Directory not empty"
-msgstr ""
+msgstr "Katalog inte tom"
 
 #: errunix.d:312
 msgid "Stale NFS file handle"
-msgstr ""
+msgstr "Förlegat NFS-filhandtag"
 
 #: errunix.d:318
 msgid "Too many levels of remote in path"
-msgstr ""
+msgstr "För många nivåer av fjärr i sökväg"
 
 #: errunix.d:325
 msgid "Socket operation on non-socket"
-msgstr ""
+msgstr "Uttagsoperation på icke-uttag"
 
 #: errunix.d:331
 msgid "Destination address required"
-msgstr ""
+msgstr "Destinationsadress krävs"
 
 #: errunix.d:337
 msgid "Message too long"
-msgstr ""
+msgstr "Meddelande för långt"
 
 #: errunix.d:343
 msgid "Protocol wrong type for socket"
-msgstr ""
+msgstr "Fel protokolltyp för uttag"
 
 #: errunix.d:349
 msgid "Option not supported by protocol"
-msgstr ""
+msgstr "Flagga stöds inte av protokoll"
 
 #: errunix.d:355
 msgid "Protocol not supported"
-msgstr ""
+msgstr "Protokoll stöds ej"
 
 #: errunix.d:361
 msgid "Socket type not supported"
-msgstr ""
+msgstr "Uttagstyp stöds ej"
 
 #: errunix.d:367
 msgid "Operation not supported on socket"
-msgstr ""
+msgstr "Operation stöds inte för uttag"
 
 #: errunix.d:373
 msgid "Protocol family not supported"
-msgstr ""
+msgstr "Protokollfamilj stöds inte"
 
 #: errunix.d:379
 msgid "Address family not supported by protocol family"
-msgstr ""
+msgstr "Adressfamilj stöds inte av protokollfamilj"
 
 #: errunix.d:385
 msgid "Address already in use"
-msgstr ""
+msgstr "Adress redan i bruk"
 
 #: errunix.d:391
 msgid "Cannot assign requested address"
-msgstr ""
+msgstr "Kan inte tilldela begärd adress"
 
 #: errunix.d:397
 msgid "Network is down"
-msgstr ""
+msgstr "Nätverk är nere"
 
 #: errunix.d:403
 msgid "Network is unreachable"
-msgstr ""
+msgstr "Nätverk kan inte nås"
 
 #: errunix.d:409
 msgid "Network dropped connection on reset"
-msgstr ""
+msgstr "Nätverk tog bort förbindelsen"
 
 #: errunix.d:415
 msgid "Software caused connection abort"
-msgstr ""
+msgstr "Mjukvara orsakade förbindelsebrott"
 
 #: errunix.d:421
 msgid "Connection reset by peer"
-msgstr ""
+msgstr "Förbindelse borttagen av partnern"
 
 #: errunix.d:427
 msgid "No buffer space available"
-msgstr ""
+msgstr "Ingen buffertplats tillgänglig"
 
 #: errunix.d:433
 msgid "Socket is already connected"
-msgstr ""
+msgstr "Uttag är redan anslutet"
 
 #: errunix.d:439
 msgid "Socket is not connected"
-msgstr ""
+msgstr "Uttag är inte anslutet"
 
 #: errunix.d:445
 msgid "Cannot send after socket shutdown"
-msgstr ""
+msgstr "Kan inte skicka efter att uttag stängts"
 
 #: errunix.d:451
 msgid "Too many references: cannot splice"
-msgstr ""
+msgstr "För många referenser: kan inte skarva"
 
 #: errunix.d:457
 msgid "Connection timed out"
-msgstr ""
+msgstr "Förbindelsens tidsgräns löpte ut"
 
 #: errunix.d:463
 msgid "Connection refused"
-msgstr ""
+msgstr "Förbindelse förvägrad"
 
 #: errunix.d:468
 msgid "Remote peer released connection"
-msgstr ""
+msgstr "Fjärrpartner släppte anslutning"
 
 #: errunix.d:473
 msgid "Host is down"
-msgstr ""
+msgstr "Värddator är nere"
 
 #: errunix.d:479
 msgid "Host is unreachable"
-msgstr ""
+msgstr "Värddator är onåbar"
 
 #: errunix.d:484
 msgid "Networking error"
-msgstr ""
+msgstr "Nätverksfel"
 
 #: errunix.d:490
 msgid "Too many processes"
-msgstr ""
+msgstr "För många processer"
 
 #: errunix.d:496
 msgid "Too many users"
-msgstr ""
+msgstr "För många användare"
 
 #: errunix.d:502
 msgid "Disk quota exceeded"
-msgstr ""
+msgstr "Diskkvot överskriden"
 
 #: errunix.d:509
 msgid "Not a stream device"
-msgstr ""
+msgstr "Inte en strömenhet"
 
 #: errunix.d:515
 msgid "Timer expired"
-msgstr ""
+msgstr "Tidsgräns löpte ut"
 
 #: errunix.d:521
 msgid "Out of stream resources"
-msgstr ""
+msgstr "Strömresurserna är slut"
 
 #: errunix.d:527
 msgid "No message of desired type"
-msgstr ""
+msgstr "Inget meddelande av önskad typ"
 
 #: errunix.d:533
 msgid "Not a data message"
-msgstr ""
+msgstr "Inte ett datameddelande"
 
 #: errunix.d:540
 msgid "Identifier removed"
-msgstr ""
+msgstr "Identifierare borttagen"
 
 #: errunix.d:547
 msgid "Resource deadlock would occur"
-msgstr ""
+msgstr "Resursdödläge skulle inträffa"
 
 #: errunix.d:553
 msgid "No record locks available"
-msgstr ""
+msgstr "Inga postlås tillgängliga"
 
 #: errunix.d:560
 msgid "Machine is not on the network"
-msgstr ""
+msgstr "Maskin finns inte på nätverket"
 
 #: errunix.d:566 errunix.d:572
 msgid "Object is remote"
-msgstr ""
+msgstr "Är ett fjärrobjekt"
 
 #: errunix.d:578
 msgid "Link has been severed"
-msgstr ""
+msgstr "Länken har brutits"
 
 #: errunix.d:584
 msgid "Advertise error"
-msgstr ""
+msgstr "Annonseringsfel"
 
 #: errunix.d:590
 msgid "Srmount error"
-msgstr ""
+msgstr "Srmount-fel"
 
 #: errunix.d:596
 msgid "Communication error on send"
-msgstr ""
+msgstr "Kommunikationsfel vid sändning"
 
 #: errunix.d:602
 msgid "Protocol error"
-msgstr ""
+msgstr "Protokollfel"
 
 #: errunix.d:608
 msgid "Multihop attempted"
-msgstr ""
+msgstr "Flerhopp försöktes"
 
 #: errunix.d:620
 msgid "Remote address changed"
-msgstr ""
+msgstr "Fjärradress ändrades"
 
 #: errunix.d:627
 msgid "Function not implemented"
-msgstr ""
+msgstr "Funktion inte implementerad"

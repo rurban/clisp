@@ -1,3 +1,9 @@
+2017-06-11  Bruno Haible  <bruno@clisp.org>
+
+	Update Swedish translation.
+	* po/sv.po: Update from Sebastian Rasmussen <sebras@gmail.com>.
+	* po/sv.gmo, po/clisplow_sv.*: Regenerated.
+
 2017-06-02  Bruno Haible  <bruno@clisp.org>
 
 	Rename frame type CHANDLER to C_HANDLER.
