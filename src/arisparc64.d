@@ -1394,5 +1394,9 @@ C(divucopy_loop_up:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 2:      retl
        _ srl %o4,0,%o0          # Rest als Ergebnis
 
+#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
+        .section .note.GNU-stack,"",@progbits
+#endif
+
 #endif
 

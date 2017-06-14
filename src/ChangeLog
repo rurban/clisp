@@ -1,3 +1,15 @@
+2017-06-14  Bruno Haible  <bruno@clisp.org>
+
+	Don't declare the need for an executable stack on Linux and FreeBSD.
+	For explanations, see
+	<https://git.savannah.gnu.org/gitweb/?p=libffcall.git;a=blob_plain;f=porting-tools/execstack/README>.
+	* ari80386.d, sp80386.d: Add GNU-stack note.
+	* arisparc.d, arisparc64.d, spsparc.d, spsparc64.d: Likewise.
+	* arihppa.d: Likewise.
+	* arivaxunix.d: Likewise.
+	* sp68000.d: Likewise.
+	* ariarm.d: Likewise, but with slightly different syntax.
+
 2017-06-11  Bruno Haible  <bruno@clisp.org>
 
 	Update Swedish translation.

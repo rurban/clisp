@@ -1059,5 +1059,9 @@ L(dclu2:)   movl    %edx,%eax       # Ergebnis := letzter Rest
             popl    %edi            # %edi zurück
             ret
 
+#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
+            .section .note.GNU-stack,"",@progbits
+#endif
+
 #endif
 
