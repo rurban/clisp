@@ -1979,6 +1979,10 @@ LABEL(mulusub_loop_down_l1)
         LDMFD   sp!,{v1-v5,pc}^
 #endif
 
+#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
+        .section .note.GNU-stack,"",%progbits
+#endif
+
         END
 
 #endif
