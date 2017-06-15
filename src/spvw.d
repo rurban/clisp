@@ -4112,7 +4112,7 @@ local _Noreturn void quit_instantly (int exitcode)
 global int final_exitcode = 0;
 global bool quit_on_signal_in_progress = false;
 local int quit_retry = 0;
-global _Noreturn void quit (void) {
+global _GL_NORETURN_FUNC void quit (void) {
   /* first "unwind" the STACK downto STACK-end: */
   VALUES0; /* do not save values for UNWIND-PROTECT-frames */
   unwind_protect_to_save.fun = (restartf_t)&quit;

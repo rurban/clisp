@@ -551,7 +551,7 @@ global /*maygc*/ void unwind (void)
 /* UP: "unwinds" the STACK up to the next DRIVER_FRAME and
  jumps into the corresponding top-level-loop.
  if count=0, unwind to TOP; otherwise reset that many times */
-global _Noreturn void reset (uintL count) {
+global _GL_NORETURN_FUNC void reset (uintL count) {
   /* when unwinding UNWIND-PROTECT-frames, don't save values: */
   bool top_p = (count==0);
   gcv_object_t *last_driver_frame = NULL;
@@ -659,7 +659,7 @@ global maygc void progv (object symlist, object vallist) {
  changes STACK,SP
  can trigger GC
  then jumps to the frame, which was found. */
-global _Noreturn /*maygc*/ void unwind_upto (gcv_object_t* upto_frame) {
+global _GL_NORETURN_FUNC /*maygc*/ void unwind_upto (gcv_object_t* upto_frame) {
   GCTRIGGER1(mv_space);
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
