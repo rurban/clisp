@@ -4377,6 +4377,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module noreturn:
   # Code from module pathmax:
   # Code from module readlink:
   # Code from module recv:
@@ -5125,6 +5126,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/msvc-nothrow.h
   lib/netinet_in.in.h
   lib/nl_langinfo.c
+  lib/noreturn.h
   lib/pathmax.h
   lib/readlink.c
   lib/recv.c
@@ -5373,7 +5375,7 @@ AC_DEFUN([gl_HARD_LOCALE],
   :
 ])
 
-# host-cpu-c-abi.m4 serial 3
+# host-cpu-c-abi.m4 serial 4
 dnl Copyright (C) 2002-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5464,13 +5466,21 @@ changequote([,])dnl
 
        arm* | aarch64 )
          # Assume arm with EABI.
-         # On arm64, the C compiler may be generating 64-bit (= aarch64) code
-         # or 32-bit (= arm) code.
+         # On arm64 systems, the C compiler may be generating code in one of
+         # these ABIs:
+         # - aarch64 instruction set, 64-bit pointers, 64-bit 'long': arm64.
+         # - aarch64 instruction set, 32-bit pointers, 32-bit 'long': arm64-ilp32.
+         # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': arm or armhf.
          AC_EGREP_CPP([yes],
            [#if defined(__aarch64__) || defined(__ARM_64BIT_STATE) || defined(__ARM_PCS_AAPCS64)
             yes
             #endif],
-           [gl_cv_host_cpu_c_abi=arm64],
+           [AC_EGREP_CPP([yes],
+              [#if defined __ILP32__ || defined _ILP32
+               yes
+               #endif],
+              [gl_cv_host_cpu_c_abi=arm64-ilp32],
+              [gl_cv_host_cpu_c_abi=arm64])],
            [# Don't distinguish little-endian and big-endian arm, since they
             # don't require different machine code for simple operations and
             # since the user can distinguish them through the preprocessot
@@ -5616,6 +5626,9 @@ EOF
 #endif
 #ifndef __armhf__
 #undef __armhf__
+#endif
+#ifndef __arm64_ilp32__
+#undef __arm64_ilp32__
 #endif
 #ifndef __arm64__
 #undef __arm64__
@@ -15094,7 +15107,7 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   REPLACE_STRUCT_TIMEVAL=0;  AC_SUBST([REPLACE_STRUCT_TIMEVAL])
 ])
 
-# sys_types_h.m4 serial 7
+# sys_types_h.m4 serial 8
 dnl Copyright (C) 2011-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -15102,6 +15115,9 @@ dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN_ONCE([gl_SYS_TYPES_H],
 [
+  dnl Use sane struct stat types in OpenVMS 8.2 and later.
+  AC_DEFINE([_USE_STD_STAT], 1, [For standard stat data types on VMS.])
+
   AC_REQUIRE([gl_SYS_TYPES_H_DEFAULTS])
   gl_NEXT_HEADERS([sys/types.h])
 

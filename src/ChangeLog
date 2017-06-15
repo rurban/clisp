@@ -1,3 +1,14 @@
+2017-06-15  Bruno Haible  <bruno@clisp.org>
+
+	Update to the newest gnulib, and import module 'noreturn'.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported
+	build-prerequisites".
+	* Makefile.devel (GNULIB_CORE): Add noreturn.
+	* build-aux/config.guess: Update from gnulib git.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
 2017-06-14  Bruno Haible  <bruno@clisp.org>
 
 	Don't declare the need for an executable stack on Linux and FreeBSD.
