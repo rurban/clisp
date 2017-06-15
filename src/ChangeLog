@@ -1,5 +1,14 @@
 2017-06-15  Bruno Haible  <bruno@clisp.org>
 
+	Avoid warning about restartf_t.
+	* lispbibl.d: Include <noreturn.h>.
+	(restartf_t): Use _GL_NORETURN_FUNCPTR instead of _Noreturn.
+	(quit, reset, unwind_upto): Use _GL_NORETURN_FUNC.
+	* spvw.d (quit): Use _GL_NORETURN_FUNC.
+	* eval.d (reset, unwind_upto): Likewise.
+
+2017-06-15  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib, and import module 'noreturn'.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported
 	build-prerequisites".

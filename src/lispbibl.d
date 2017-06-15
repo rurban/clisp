@@ -1093,6 +1093,7 @@
 #include <locale.h>
 #include <errno.h>
 #include <string.h> /* declares strlen() et al */
+#include <noreturn.h>      /* defines _GL_NORETURN_FUNC, _GL_NORETURN_FUNCPTR */
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
@@ -10022,7 +10023,7 @@ extern _Noreturn void STACK_ueber (void);
 /* Exit the LISP-Interpreter
  quit();
  > final_exitcode: 0 for a normal end, >0 for failure, -signum for a signal */
-extern _Noreturn void quit (void);
+extern _GL_NORETURN_FUNC void quit (void);
 extern int final_exitcode;
 /* is used by CONTROL */
 
@@ -12927,12 +12928,7 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
    and then jumps to unwind_protect_to_save.fun.
  modifies STACK
  can trigger GC */
-#if defined(__cplusplus) || !defined(GNU) || defined(__clang__)
-  /* g++-3.4 and strict ISO C 11 compilers don't like _Noreturn in a typedef. */
-  typedef /* _Noreturn */ /*maygc*/ void (*restartf_t)(gcv_object_t* upto_frame);
-#else
-  typedef _Noreturn /*maygc*/ void (*restartf_t) (gcv_object_t* upto_frame);
-#endif
+typedef _GL_NORETURN_FUNCPTR /*maygc*/ void (*restartf_t) (gcv_object_t* upto_frame);
 typedef struct {
   restartf_t fun;
   gcv_object_t* upto_frame;
@@ -12944,7 +12940,7 @@ extern /*maygc*/ void unwind (void);
 /* UP: "unwinds" the STACK to the next DRIVER_FRAME and
  jumps to the corresponding Top-Level-loop
  if count=0, unwind to TOP; otherwise reset that many times */
-extern _Noreturn void reset (uintL count);
+extern _GL_NORETURN_FUNC void reset (uintL count);
 /* is used by SPVW, CONTROL */
 
 /* UP: binds the symbols of the list symlist dynamically
@@ -12965,7 +12961,7 @@ extern maygc void progv (object symlist, object vallist);
  modifies STACK,SP
  can trigger GC
  Jumps to the found Frame. */
-extern _Noreturn /*maygc*/ void unwind_upto (gcv_object_t* upto_frame);
+extern _GL_NORETURN_FUNC /*maygc*/ void unwind_upto (gcv_object_t* upto_frame);
 /* is used by CONTROL, DEBUG */
 
 /* UP: throws to the Tag tag and passes the values mv_count/mv_space.
