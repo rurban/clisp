@@ -19,6 +19,9 @@
 #ifndef __armhf__
 #undef __armhf__
 #endif
+#ifndef __arm64_ilp32__
+#undef __arm64_ilp32__
+#endif
 #ifndef __arm64__
 #undef __arm64__
 #endif
@@ -2126,6 +2129,9 @@
 
 /* Define if you want regoff_t to be at least as wide POSIX requires. */
 #undef _REGEX_LARGE_OFFSETS
+
+/* For standard stat data types on VMS. */
+#undef _USE_STD_STAT
 
 /* Define to 1 if type `char' is unsigned and you are not using gcc.  */
 #ifndef __CHAR_UNSIGNED__

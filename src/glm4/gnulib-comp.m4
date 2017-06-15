@@ -119,6 +119,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
+  # Code from module noreturn:
   # Code from module pathmax:
   # Code from module readlink:
   # Code from module recv:
@@ -867,6 +868,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/msvc-nothrow.h
   lib/netinet_in.in.h
   lib/nl_langinfo.c
+  lib/noreturn.h
   lib/pathmax.h
   lib/readlink.c
   lib/recv.c
