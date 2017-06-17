@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:01-0400\n"
-"PO-Revision-Date: 2017-06-11 14:06+0800\n"
+"PO-Revision-Date: 2017-06-17 13:20+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -4407,714 +4407,716 @@ msgstr "Läser in logiska värdar från fil ~A …"
 #: defs1.lisp:523 defs1.lisp:531
 #, lisp-format
 msgid "Defined logical host ~A"
-msgstr ""
+msgstr "Definierad logisk värd ~A"
 
 #: defs1.lisp:529
 #, lisp-format
 msgid "Loading logical host from file ~A ..."
-msgstr ""
+msgstr "Läser in logisk värd från fil ~A …"
 
 #: defs1.lisp:560
 #, lisp-format
 msgid "No translations for logical host ~S found"
-msgstr ""
+msgstr "Inga översättningar för logisk värd ~S hittade"
 
 #: defs1.lisp:622
 #, lisp-format
 msgid "~S: argument ~S should be a nonnegative number"
-msgstr ""
+msgstr "~S: argument ~S borde vara ett icke-negativt nummer"
 
 #: defs1.lisp:782
 #, lisp-format
 msgid "incorrect date: ~S-~S-~S ~S:~S:~S, time zone ~S"
-msgstr ""
+msgstr "felaktigt datum: ~S-~S-~s ~S:~S:~S, tidszon ~S"
 
 #: lambdalist.lisp:16
 #, lisp-format
 msgid "Lambda list marker ~S not allowed here."
-msgstr ""
+msgstr "Lambdalistamarkör ~S inte tillåten här."
 
 #: lambdalist.lisp:21
 #, lisp-format
 msgid "Invalid lambda list element ~S"
-msgstr ""
+msgstr "Ogiltigt lambdalistelement ~S"
 
 #: lambdalist.lisp:22
 #, lisp-format
 msgid "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."
-msgstr ""
+msgstr "Ogiltigt lambdalistelement ~S. En lambdalista får endast innehålla symboler och listor."
 
 #: lambdalist.lisp:26
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "Invalid lambda list element ~S. ~S parameters cannot have default value forms in generic function lambda lists."
-msgstr ""
+msgstr "Ogiltigt lambdalistelement ~S. Nyckelordsparametrar kan inte har standardvärdesformer i lambdalistor för generiska funktioner."
 
 #: lambdalist.lisp:40
 #, lisp-format
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
-msgstr ""
+msgstr "Lambdalistor med punkter är endast tillåtna i makron, inte här: ~S"
 
 #: lambdalist.lisp:53
 #, lisp-format
 msgid "Missing ~S parameter in lambda list ~S"
-msgstr ""
+msgstr "Saknar ~S-parameter i lambdalista ~S"
 
 #: lambdalist.lisp:76
 #, lisp-format
 msgid "Duplicate variable name ~S"
-msgstr ""
+msgstr "Duplicerat variabelnamn ~S"
 
 #: lambdalist.lisp:151
 #, lisp-format
 msgid "Lambda list element ~S is superfluous. Only one variable is allowed after ~S."
-msgstr ""
+msgstr "Lambdalistelement ~S är överflödigt. Endast en variabel tillåts efter ~S."
 
 #: lambdalist.lisp:152
 #, lisp-format
 msgid "Lambda list element ~S is superfluous. No variable is allowed right after ~S."
-msgstr ""
+msgstr "Lambdalistelement ~S är överflödigt. Ingen variabel är tillåten direkt efter ~S."
 
 #: lambdalist.lisp:153
 #, lisp-format
 msgid "Lambda list element ~S (after ~S) is superfluous."
-msgstr ""
+msgstr "Lambdalistelement ~S (efter ~S) är överflödligt."
 
 #: places.lisp:24
 #, lisp-format
 msgid "The function (~S ~S) is hidden by a SETF expander."
-msgstr ""
+msgstr "Funktionen (~S ~S) är gömd av en SETF-expanderare."
 
 #: places.lisp:78
 #, lisp-format
 msgid "The argument ~S to ~S should be a keyword."
-msgstr ""
+msgstr "Argumentet ~S till ~S borde vara ett nyckelord."
 
 #: places.lisp:126
 #, lisp-format
 msgid "~S: Argument ~S is not a SETF place."
-msgstr ""
+msgstr "~S: Argumentet ~S är inte en SETF-plats."
 
 #: places.lisp:135
 #, lisp-format
 msgid "SETF place ~S should produce exactly one store variable."
-msgstr ""
+msgstr "SETF-plats ~S borde producera exakt en lagringsvariabel."
 
+# sebras: how to translate this?
 #: places.lisp:343
 #, lisp-format
 msgid "The name of the accessor must be a symbol, not ~S"
-msgstr ""
+msgstr "Namnet på åtkomstaren måste vara en symbol, inte ~S"
 
 #: places.lisp:378
 #, lisp-format
 msgid "The SETF expander for ~S may not be called with ~S arguments."
-msgstr ""
+msgstr "SETF-expanderaren för ~S får inte anropas med ~S argument."
 
 #: places.lisp:390 places.lisp:406 places.lisp:463
 msgid "SETF expander"
-msgstr ""
+msgstr "SETF-expanderare"
 
 #: places.lisp:416
 #, lisp-format
 msgid "~S: Too many arguments: ~S"
-msgstr ""
+msgstr "~S: För många argument: ~S"
 
 #: places.lisp:421
 #, lisp-format
 msgid "~S: The documentation string must be a string: ~S"
-msgstr ""
+msgstr "~S: Dokumentationssträngen måste vara en sträng: ~S"
 
 #: places.lisp:439 places.lisp:723 clos-methcomb2.lisp:185
 #, lisp-format
 msgid "~S ~S: invalid ~S lambda-list: ~A"
-msgstr ""
+msgstr "~S ~S: ogiltig ~S-lambdalista: ~A"
 
 #: places.lisp:473
 #, lisp-format
 msgid "(~S ~S): Illegal syntax."
-msgstr ""
+msgstr "(~S ~S): Otillåten syntax."
 
 #: places.lisp:503
 #, lisp-format
 msgid "~S: index ~S is too large for ~S"
-msgstr ""
+msgstr "~S: index ~S för stort för ~S"
 
 #: places.lisp:833
 #, lisp-format
 msgid "~S: Illegal place: ~S"
-msgstr ""
+msgstr "~S: Otillåten plats: ~S"
 
 #: places.lisp:852
 #, lisp-format
 msgid "~S: too few arguments: ~S"
-msgstr ""
+msgstr "~S: för få argument: ~S"
 
 #: places.lisp:1011 places.lisp:1073
 #, lisp-format
 msgid "~S is only defined for functions of the form #'symbol."
-msgstr ""
+msgstr "~S är endast definierad för funktioner på formen #'symbol."
 
 #: places.lisp:1019
 #, lisp-format
 msgid "~S on ~S is not a SETF place."
-msgstr ""
+msgstr "~S på ~S är inte en SETF-plats."
 
 #: places.lisp:1118
 #, lisp-format
 msgid "SETF place ~S expects different numbers of values in the true and false branches (~D vs. ~D values)."
-msgstr ""
+msgstr "SETF-plats ~S förväntar sig olika antal värden på sant- och falskt-grenarna (~D vs. ~D värden)."
 
 #: floatprint.lisp:337
 #, lisp-format
 msgid "argument is not a float: ~S"
-msgstr ""
+msgstr "argument är inte ett flyttal: ~S"
 
 #: defpackage.lisp:55
 #, lisp-format
 msgid "~S ~A: the symbol ~A must not be specified more than once"
-msgstr ""
+msgstr "~S ~A: symbolen ~A får inte anges mer än en gång"
 
 #: defpackage.lisp:78 defpackage.lisp:86
 #, lisp-format
 msgid "~S ~A: the ~S option must not be given more than once"
-msgstr ""
+msgstr "~S ~A: flaggan ~S får inte anges mer än en gång"
 
 #: defpackage.lisp:135
 #, lisp-format
 msgid "~S ~A: unknown option ~S"
-msgstr ""
+msgstr "~S ~A: okänd flagga ~S"
 
 #: defpackage.lisp:140
 #, lisp-format
 msgid "~S ~A: invalid syntax in ~S option: ~S"
-msgstr ""
+msgstr "~S ~A: felaktig syntax i ~S-flagga: ~S"
 
 #: defpackage.lisp:145
 #, lisp-format
 msgid "~S ~A: not a ~S option: ~S"
-msgstr ""
+msgstr "~S ~A: inte en ~S-flagga: ~S"
 
 #: defpackage.lisp:212
 #, lisp-format
 msgid "This symbol will be created."
-msgstr ""
+msgstr "Denna symbol kommer att skapas."
 
 #: defpackage.lisp:213
 #, lisp-format
 msgid "~S ~A: There is no symbol ~A::~A ."
-msgstr ""
+msgstr "~S ~A: Det finns ingen symbol ~A::~A ."
 
 #: type.lisp:63 compiler.lisp:7072
 #, lisp-format
 msgid "~S: argument to SATISFIES must be a symbol: ~S"
-msgstr ""
+msgstr "~S: argument till SATISFIES måste vara en symbol: ~S"
 
 #: type.lisp:160 condition.lisp:174
 #, lisp-format
 msgid "~S: type ~S is not a subtype of ~S"
-msgstr ""
+msgstr "~S: typ ~S är inte en undertyp av ~S"
 
 #: type.lisp:357
 #, lisp-format
 msgid "~S: dimension ~S is invalid"
-msgstr ""
+msgstr "~S: dimension ~S är ogiltig"
 
 #: type.lisp:362
 #, lisp-format
 msgid "~S: rank ~S is invalid"
-msgstr ""
+msgstr "~S: rang ~S är ogiltig"
 
 #: type.lisp:407 type.lisp:425
 #, lisp-format
 msgid "~S: argument to ~S must be *, ~S or a list of ~S: ~S"
-msgstr ""
+msgstr "~S: argument till ~S måste vara *{, ~S eller en lista av ~S: ~S"
 
 #: type.lisp:523
 #, lisp-format
 msgid "~S: argument to MOD must be an integer: ~S"
-msgstr ""
+msgstr "~S: argument till MOD måste vara ett heltal: ~S"
 
 #: type.lisp:531 type.lisp:540
 #, lisp-format
 msgid "~S: argument to ~S must be an integer or * : ~S"
-msgstr ""
+msgstr "~S: argument till ~S måste vara ett heltal eller *:  ~S"
 
 #: type.lisp:1113 type.lisp:1137
 #, lisp-format
 msgid "~S is not up-to-date with ~S for element type ~S"
-msgstr ""
+msgstr "~S är inte uppdaterad med ~S för elementtyp ~S"
 
 #: clos-slotdef1.lisp:198
 #, lisp-format
 msgid "(~S ~S): The slot name is not specified."
-msgstr ""
+msgstr "(~S ~S): Lucknamnet är inte angivet."
 
 #: clos-slotdef1.lisp:201
 #, lisp-format
 msgid "(~S ~S): The slot name should be a symbol, not ~S"
-msgstr ""
+msgstr "(~S ~S): Lucknamnet borde vara en symbol, inte ~S"
 
 #: clos-slotdef1.lisp:204
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S and ~S arguments can only be specified together."
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumenten ~S och ~S kan endast anges tillsammans."
 
 #: clos-slotdef1.lisp:209
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S argument should be a function, not ~S"
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumentet ~S borde vara en funktion, inte ~S"
 
 #: clos-slotdef1.lisp:212
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S argument should be a symbol, not ~S"
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumentet ~S borde vara en symbol inte ~S"
 
 #: clos-slotdef1.lisp:215
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S argument should be a proper list of symbols, not ~S"
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumentet ~S borde vara en ordentlig lista av symboler, inte ~S"
 
 #: clos-slotdef1.lisp:218
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S argument should be a string or NIL, not ~S"
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumentet ~S borde vara en sträng eller NIL, inte ~S"
 
 #: clos-slotdef1.lisp:243 clos-slotdef1.lisp:246
 #, lisp-format
 msgid "(~S ~S) for slot ~S: The ~S argument should be a proper list of function names, not ~S"
-msgstr ""
+msgstr "(~S ~S) för lucka ~S: Argumentet ~S borde vara en ordentlig lista av funktionsnamn, inte ~S"
 
 #: clos-slotdef1.lisp:423
 #, lisp-format
 msgid "Wrong ~S result for class ~S: not a property list: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för klass ~S: inte en egenskapslista: ~s"
 
 #: clos-slotdef1.lisp:426
 #, lisp-format
 msgid "Wrong ~S result for class ~S, slot ~S: value of ~S is wrong: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för klass ~S, lucka ~S: värdet för ~S är fel: ~S"
 
 #: clos-slotdef1.lisp:436 clos-slotdef1.lisp:442 clos-class3.lisp:1175 clos-class3.lisp:1181 clos-class3.lisp:1596 clos-class3.lisp:1639
 #, lisp-format
 msgid "Wrong ~S result for class ~S: not a subclass of ~S: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för klass ~S: inte en underklass av ~S: ~S"
 
 #: clos-slotdef1.lisp:462 clos-class3.lisp:208 clos-class3.lisp:219
 #, lisp-format
 msgid "~S ~S, slot option for slot ~S: ~S is not a valid slot option"
-msgstr ""
+msgstr "~S ~S, luckalternativ för lucka ~S: ~S är inte ett giltigt luckalternativ"
 
 #: clos-specializer1.lisp:112
 #, lisp-format
 msgid "~S: Some methods have been removed from their generic function, but the list in the ~S specializer was not updated."
-msgstr ""
+msgstr "~S: Vissa metoder har tagits bort från dess generiska funktion, men listan i ~S-specialiseraren uppdaterades inte."
 
 #: clos-class1.lisp:316 clos-class1.lisp:339 clos-class1.lisp:350
 #, lisp-format
 msgid "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S"
-msgstr ""
+msgstr "(~S ~S) för klass ~S: Argumentet ~S borde vara en ordentlig lista, inte ~S"
 
 #: clos-class1.lisp:323
 #, lisp-format
 msgid "(~S ~S) for class ~S: The direct-superclasses list should consist of classes, not ~S"
-msgstr ""
+msgstr "(~S ~S) för klass ~S: Listan direct-superclasses borde bestå av klasser, inte ~S"
 
 #: clos-class1.lisp:328
 #, lisp-format
 msgid "(~S ~S) for class ~S: The metaclass ~S forbids more than one direct superclass: It does not support multiple inheritance."
-msgstr ""
+msgstr "(~S ~S) för klass ~S: Metaklassen ~S förbjuder mer än en direkt superklass: Den stöder inte multipelt arv."
 
 #: clos-class1.lisp:344
 #, lisp-format
 msgid "(~S ~S) for class ~S: The direct slot specification ~S is not in the canonicalized form (slot-name initform initfunction)."
-msgstr ""
+msgstr "(~S ~S) för klass ~S: Den direkta luckspecifikationen ~S är inte den kanoniska formen (lucknamn initform inintfunktion)"
 
 #: clos-class1.lisp:355
 #, lisp-format
 msgid "(~S ~S) for class ~S: The direct default initarg ~S is not in canonicalized form (a property list)."
-msgstr ""
+msgstr "(~S ~S) för klass ~S:  Det direkta standardvärdet initarg ~S är inte i kanoniska form (en egenskapslista)."
 
 #: clos-class1.lisp:361
 #, lisp-format
 msgid "(~S ~S) for class ~S: The ~S argument should be a string or NIL, not ~S"
-msgstr ""
+msgstr "(~S ~S) för klass ~S: Argumentet ~S borde vara en sträng eller NIL, inte ~S"
 
 #: clos-class2.lisp:98
 #, lisp-format
 msgid "~S: argument ~S is not a symbol"
-msgstr ""
+msgstr "~S: argument ~S är inte en symbol"
 
 #: clos-class2.lisp:109
 #, lisp-format
 msgid "~S: cannot redefine built-in class ~S"
-msgstr ""
+msgstr "~S: kan inte omdefiniera den inbyggda klassen ~S"
 
 #: clos-class2.lisp:114 describe.lisp:69
 msgid "class"
-msgstr ""
+msgstr "klass"
 
 #: clos-class3.lisp:54
 #, lisp-format
 msgid "~S ~S: expecting list of superclasses instead of ~S"
-msgstr ""
+msgstr "~S ~S: förväntade en lista av superklasser istället för ~S"
 
 #: clos-class3.lisp:61
 #, lisp-format
 msgid "~S ~S: superclass name ~S should be a symbol"
-msgstr ""
+msgstr "~S ~S: superklassnamn ~S borde vara en symbol"
 
 #: clos-class3.lisp:74
 #, lisp-format
 msgid "~S ~S: expecting list of slot specifications instead of ~S"
-msgstr ""
+msgstr "~S ~S: förväntade lista av luckspecifikationer istället för ~S"
 
 #: clos-class3.lisp:84
 #, lisp-format
 msgid "~S ~S: Every second slot name is a keyword, and these slots have no options. If you want to define a slot with options, you need to enclose all slot specifications in parentheses: ~S, not ~S."
-msgstr ""
+msgstr "~S ~S: Varannat lucknamn är ett nyckelord och dessa luckor har inga alternativ. Om du vill definiera en lucka med alternativ måste du placera alla luckspecifikationer inom parentes: ~S, inte ~S."
 
 #: clos-class3.lisp:95
 #, lisp-format
 msgid "~S ~S: slot name ~S should be a symbol"
-msgstr ""
+msgstr "~S ~S: lucknamn ~S borde vara en symbol"
 
 #: clos-class3.lisp:101
 #, lisp-format
 msgid "~S ~S: There may be only one direct slot with the name ~S."
-msgstr ""
+msgstr "~S ~S: Det får endast finnas en direkt lucka med namnet ~S."
 
 #: clos-class3.lisp:116
 #, lisp-format
 msgid "~S ~S: slot options for slot ~S must come in pairs"
-msgstr ""
+msgstr "~S ~S: luckalternativ för lucka ~S måste anges parvis"
 
 #: clos-class3.lisp:128 clos-class3.lisp:144
 #, lisp-format
 msgid "~S ~S, slot option for slot ~S: ~S is not a non-NIL symbol"
-msgstr ""
+msgstr "~S ~S, luckalternativ för lucka ~S: ~S är inte en icke-NIL-symbol"
 
 #: clos-class3.lisp:136
 #, lisp-format
 msgid "~S ~S, slot option for slot ~S: ~S is not a function name"
-msgstr ""
+msgstr "~S ~S, luckalternativ för lucka ~S: ~S är inte ett funktionsnamn"
 
 #: clos-class3.lisp:153
 #, lisp-format
 msgid "~S ~S, slot option ~S for slot ~S: ~S is not a symbol"
-msgstr ""
+msgstr "~S ~S, luckalternativ ~S för lucka ~S: ~S är inte en symbol"
 
 #: clos-class3.lisp:159 clos-class3.lisp:175 clos-class3.lisp:184 clos-class3.lisp:192
 #, lisp-format
 msgid "~S ~S, slot option ~S for slot ~S may only be given once"
-msgstr ""
+msgstr "~S ~S, luckalternativ ~S för lucka ~S får endast anges en gång"
 
 #: clos-class3.lisp:167
 #, lisp-format
 msgid "~S ~S, slot option for slot ~S: ~S is not a symbol"
-msgstr ""
+msgstr "~S ~S, luckalternativ för lucka ~S: ~S är inte en symbol"
 
 #: clos-class3.lisp:198
 #, lisp-format
 msgid "~S ~S, slot option for slot ~S: ~S is not a string"
-msgstr ""
+msgstr "~S ~S, luckalternativ för lucka ~S: ~S är inte en sträng"
 
 #: clos-class3.lisp:277 clos-class3.lisp:360 clos-methcomb2.lisp:1139 clos-methcomb2.lisp:1153 clos-methcomb2.lisp:1161
 #, lisp-format
 msgid "~S ~S: option ~S may only be given once"
-msgstr ""
+msgstr "~S ~S: alternativ ~S för endast anges en gång"
 
+# sebras: original shouldn't be using a comma, right?
 #: clos-class3.lisp:287 clos-class3.lisp:314 clos-methcomb2.lisp:1167
 #, lisp-format
 msgid "~S ~S, option ~S: ~S is not a symbol"
-msgstr ""
+msgstr "~S ~S, alternativ ~S: ~S är inte en symbol"
 
 #: clos-class3.lisp:296
 #, lisp-format
 msgid "~S ~S: option ~S should be written ~S"
-msgstr ""
+msgstr "~S ~S: alternativ ~S borde anges som ~S"
 
 #: clos-class3.lisp:302
 #, lisp-format
 msgid "~S ~S, option ~S: arguments must come in pairs"
-msgstr ""
+msgstr "~S ~S, alternativ ~S: argument måste anges parvis"
 
 #: clos-class3.lisp:320
 #, lisp-format
 msgid "~S ~S, option ~S: ~S may only be given once"
-msgstr ""
+msgstr "~S ~S, alternativ ~S: ~S får endast anges en gång"
 
 #: clos-class3.lisp:335
 #, lisp-format
 msgid "~S ~S, option ~S: ~S is not a string"
-msgstr ""
+msgstr "~S ~S, alternativ ~S: ~S är inte en sträng"
 
 #: clos-class3.lisp:346 clos-class3.lisp:367 clos-class3.lisp:391 clos-genfun3.lisp:555
 #, lisp-format
 msgid "~S ~S: invalid option ~S"
-msgstr ""
+msgstr "~S ~S: ogiltigt alternativ ~S"
 
 #: clos-class3.lisp:443 clos-class3.lisp:565
 #, lisp-format
 msgid "~S: class name ~S should be a symbol"
-msgstr ""
+msgstr "~S: klassnamn ~S borde vara en symbol"
 
 #: clos-class3.lisp:450
 #, lisp-format
 msgid "~S for class ~S: metaclass ~S is neither a class or a symbol"
-msgstr ""
+msgstr "~S för klass ~S: metaklass ~S är varken en klass eller en symbol"
 
 #: clos-class3.lisp:454
 #, lisp-format
 msgid "~S for class ~S: metaclass ~S is not a subclass of CLASS"
-msgstr ""
+msgstr "~S för klass ~S: metaklass ~S är inte en underklass av CLASS"
 
 #: clos-class3.lisp:457
 #, lisp-format
 msgid "~S for class ~S: The ~S argument should be a proper list, not ~S"
-msgstr ""
+msgstr "~S för klass ~S: Argumentet ~S borde vara en ordentlig lista, inte ~S"
 
 #: clos-class3.lisp:464
 #, lisp-format
 msgid "~S for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S"
-msgstr ""
+msgstr "~S för klass ~S: Listan direct-superclasses borde bestå av klasser och symboler, inte ~S"
 
 #: clos-class3.lisp:483
 #, lisp-format
 msgid "Cannot redefine ~S with a different metaclass ~S"
-msgstr ""
+msgstr "Kan inte omdefiniera ~S med en annan metaklass ~S"
 
 #: clos-class3.lisp:572
 #, lisp-format
 msgid "Wrong ~S result for ~S: not a class: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för ~S: inte en klass: ~S"
 
 #: clos-class3.lisp:602
 #, lisp-format
 msgid "Redefining metaobject class ~S has no effect."
-msgstr ""
+msgstr "Att omdefiniera metaobjektklass ~S har ingen effekt."
 
 #: clos-class3.lisp:800
 #, lisp-format
 msgid "(~S ~S): superclass ~S should be of class ~S"
-msgstr ""
+msgstr "(~S ~S): superklass ~S borde vara av klass ~S"
 
 #: clos-class3.lisp:823
 #, lisp-format
 msgid "(~S ~S) for class ~S: ~S does not allow ~S to become a subclass of ~S. You may define a method on ~S to allow this."
-msgstr ""
+msgstr "(~S ~S) för klass ~S: ~S tillåter inte ~S att bli en underklass till ~S. Du kan definiera en metod på ~S för att tillåta detta."
 
 #: clos-class3.lisp:856 clos-class3.lisp:1039 clos-class3.lisp:1240 clos-class3.lisp:1370 clos-class3.lisp:1514
 #, lisp-format
 msgid "Wrong ~S result for class ~S: not a proper list: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: inte en ordentlig lista: ~S"
 
 #: clos-class3.lisp:860 clos-class3.lisp:1043
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list element is not a class: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: listelement är inte en klass: ~S"
 
 #: clos-class3.lisp:863
 #, lisp-format
 msgid "Wrong ~S result for class ~S: ~S is not a direct superclass of ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: ~S är inte en direkt superklass till ~S"
 
 #: clos-class3.lisp:989
 #, lisp-format
 msgid "~S ~S: inconsistent precedence graph, cycle ~S"
-msgstr ""
+msgstr "~S ~S: inkonsekvent precedensgraf, cykel ~S"
 
 #: clos-class3.lisp:1021
 #, lisp-format
 msgid "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent"
-msgstr ""
+msgstr "(class-precedence-list ~S) och (class-precedence-list ~S) är inkonsekventa"
 
 #: clos-class3.lisp:1046
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list doesn't start with the class itself: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista börjar inte med klassen själv. ~S"
 
 #: clos-class3.lisp:1050
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list doesn't end with ~S: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: list slutar inte med ~S: ~S"
 
 #: clos-class3.lisp:1053
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list contains duplicates: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista innehåller duplikat: ~S"
 
 #: clos-class3.lisp:1061
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list doesn't contain the superclass~[~;~:;es~] ~{~S~^, ~}."
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista innehåller inte superklassen~[~;~:;es~] ~{~S~^, ~}."
 
 #: clos-class3.lisp:1065
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list contains elements that are not superclasses: ~{~S~^, ~}"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista innehåller element som inte är superklasser: ~{~S~^, ~}"
 
 #: clos-class3.lisp:1093
 #, lisp-format
 msgid "~S: argument should be a non-empty proper list, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara en ordentlig icke-tom lista, inte ~S"
 
 #: clos-class3.lisp:1097
 #, lisp-format
 msgid "~S: argument list element is not a ~S: ~S"
-msgstr ""
+msgstr "~S: element i argumentlista är inte en ~S: ~S"
 
 #: clos-class3.lisp:1103
 #, lisp-format
 msgid "~S: argument list elements should all have the same name, not ~S and ~S"
-msgstr ""
+msgstr "~S: element i argumentlista borde alla ha samma namn, inte ~S och ~S"
 
 #: clos-class3.lisp:1158
 #, lisp-format
 msgid "Wrong ~S result for ~S: not a list of keyword/value pairs: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för ~S: inte en lista av nyckelord/värde-par: ~S"
 
 #: clos-class3.lisp:1164
 #, lisp-format
 msgid "Wrong ~S result for ~S: missing ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för ~S: saknar ~S"
 
 #: clos-class3.lisp:1166
 #, lisp-format
 msgid "Wrong ~S result for ~S: invalid ~S value"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för ~S: ogiltigt ~S-värde"
 
 #: clos-class3.lisp:1226
 #, lisp-format
 msgid "Wrong ~S result for class ~S, slot ~S: not an ~S instance: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S, lucka ~S: inte en ~S-instans: ~S"
 
 #: clos-class3.lisp:1245 clos-class3.lisp:1251 clos-class3.lisp:1374
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list element is not a ~S: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: listelement är inte en ~S: ~S"
 
 #: clos-class3.lisp:1256 clos-class3.lisp:1379
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list contains duplicate slot names: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista innehåller duplicerade lucknamn: ~S"
 
 #: clos-class3.lisp:1278
 #, lisp-format
 msgid "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses."
-msgstr ""
+msgstr "I klass ~S, lucka ~S är begränsad av inkompatibla begränsningar som ärvs från superklassen."
 
 #: clos-class3.lisp:1283
 #, lisp-format
 msgid "In class ~S, non-local slot ~S is constrained to be a local slot at offset ~S."
-msgstr ""
+msgstr "I klass ~S, icke-lokal lucka ~S är begränsad till att vara en lokal lucka vid position ~S."
 
 #: clos-class3.lisp:1293
 #, lisp-format
 msgid "In class ~S, the slots ~S and ~S are constrained from the superclasses to both be located at offset ~S."
-msgstr ""
+msgstr "I klass ~S, luckorna ~S och ~S är begränsade från superklassen till att båda vara placerade vid position ~S."
 
 #: clos-class3.lisp:1304
 #, lisp-format
 msgid "In class ~S, a slot constrained from a superclass wants to be located at offset ~S, which is impossible."
-msgstr ""
+msgstr "I klass ~S, en lucka begränsad från en superklass vill vara placerad vid position ~S, vilket är omöjligt."
 
 #: clos-class3.lisp:1357
 #, lisp-format
 msgid "In class ~S, constrained slot locations cause holes to appear."
-msgstr ""
+msgstr "I klass ~S, begränsad luckpositioner orsakar att hål uppstår."
 
 #: clos-class3.lisp:1385
 #, lisp-format
 msgid "Wrong ~S result for class ~S: no slot location has been assigned to ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: ingen luckposition har tilldelats till ~S"
 
 #: clos-class3.lisp:1518
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list element is not a canonicalized default initarg: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: listelement är inte ett kanoniskt standardvärde initarg: ~S"
 
 #: clos-class3.lisp:1522
 #, lisp-format
 msgid "Wrong ~S result for class ~S: list contains duplicate initarg names: ~S"
-msgstr ""
+msgstr "Felaktigt ~S-resultat för klass ~S: lista innehåller duplicerade initarg-namn: ~S"
 
 #: clos-class3.lisp:1541
 msgid "method"
-msgstr ""
+msgstr "metod"
 
 #: clos-class3.lisp:1832
 #, lisp-format
 msgid "(~S ~S): metaclass ~S does not support shared slots"
-msgstr ""
+msgstr "(~S ~S): metaklass ~S stöder inte delade luckor"
 
 #: clos-class3.lisp:1952
 #, lisp-format
 msgid "~S: class definition circularity: ~S depends on itself"
-msgstr ""
+msgstr "~S: klassdefinitionscirkuläritet: ~S beror på sig själv"
 
 #: clos-class3.lisp:1960
 #, lisp-format
 msgid "~S has a direct-superclasses element ~S, which is invalid."
-msgstr ""
+msgstr "~S har ett direct-superclasses element ~S som är ogiltigt."
 
 #: clos-class3.lisp:2011
 #, lisp-format
 msgid "~S: Cannot finalize class ~S. ~:{Class ~S inherits from class ~S. ~}Class ~S is not yet defined."
-msgstr ""
+msgstr "~S: Kan inte finalisera klass ~S. ~:{Klass ~S ärver från klass ~S. ~}Klass ~S är inte definierad än."
 
 #: clos-class3.lisp:2091
 #, lisp-format
 msgid "~S: Class ~S (or one of its ancestors) is being redefined, but its instances cannot be made obsolete"
-msgstr ""
+msgstr "~S: Klass ~S (eller en av dess förfäder) omdefinieras, men dess instanser kan inte göras föråldrad"
 
 #: clos-class3.lisp:2101
 #, lisp-format
 msgid "~S: Class ~S (or one of its ancestors) is being redefined, instances are obsolete"
-msgstr ""
+msgstr "~S: Klass ~S (eller en av dess förfäder) omdefinieras, instanser är föråldrade"
 
 #: clos-class3.lisp:2103
 #, lisp-format
 msgid "~S: instances of class ~S are made obsolete"
-msgstr ""
+msgstr "~S: instanser av klass ~S görs föråldras"
 
 #: defstruct.lisp:368
 #, lisp-format
 msgid "~S ~S: In ~S argument list: ~A"
-msgstr ""
+msgstr "~S ~S: I ~S argumentlista: ~A"
 
 #: defstruct.lisp:536
 #, lisp-format
 msgid "The class ~S is not a structure class: ~S"
-msgstr ""
+msgstr "Klassen ~S är inte en strukturklass: ~S"
 
 #: defstruct.lisp:544
 #, lisp-format
 msgid "The class ~S has no slot named ~S."
-msgstr ""
+msgstr "Klassen ~S har ingen lucka vid namn ~S."
 
 #: defstruct.lisp:552
 #, lisp-format
 msgid "The structure type ~S has been defined as a class."
-msgstr ""
+msgstr "Strukturtypen ~S har definierats som en klass."
 
 #: defstruct.lisp:554
 #, lisp-format
 msgid "The structure type ~S has not been defined."
-msgstr ""
+msgstr "Strukturtypen ~S har inte definierats."
 
 #: defstruct.lisp:562
 #, lisp-format
 msgid "The structure type ~S has no slot named ~S."
-msgstr ""
+msgstr "Strukturtypen ~S har ingen lucka vid namn ~S."
 
 #: defstruct.lisp:644
 #, lisp-format
 msgid "~S ~S: argument list should be a list: ~S"
-msgstr ""
+msgstr "~S ~S: argumentlistan borde vara en lista: ~S"
 
 #: defstruct.lisp:664
 #, lisp-format
 msgid "~S ~S: At most one :INCLUDE argument may be specified: ~S"
-msgstr ""
+msgstr "~S ~S: Som mest kan ett :INCLUDE-argument anges: ~S"
 
 #: defstruct.lisp:671
 #, lisp-format
@@ -5122,276 +5124,279 @@ msgid ""
 "~S: Use of ~S implicitly applies FUNCTION.~@\n"
 "                                     Therefore using ~S instead of ~S."
 msgstr ""
+"~S: Användning av ~S applicerar implicit FUNCTION.~@\n"
+"                                     Använder därför ~S istället för ~S."
 
 #: defstruct.lisp:685 condition.lisp:117
 #, lisp-format
 msgid "~S ~S: unknown option ~S"
-msgstr ""
+msgstr "~S ~S: okänt alternativ ~S"
 
 #: defstruct.lisp:690 clos-genfun3.lisp:446 condition.lisp:123
 #, lisp-format
 msgid "~S ~S: invalid syntax in ~S option: ~S"
-msgstr ""
+msgstr "~S ~S: ogiltig syntax i ~S-alternativ: ~S"
 
 #: defstruct.lisp:695 clos-genfun3.lisp:320 condition.lisp:128
 #, lisp-format
 msgid "~S ~S: not a ~S option: ~S"
-msgstr ""
+msgstr "~S ~S: är inte ett ~S-alternativ: ~S"
 
 #: defstruct.lisp:720
 #, lisp-format
 msgid "~S ~S: There is no ~S for unnamed structures."
-msgstr ""
+msgstr "~S ~S: Det finns ingen ~S för icke-namngivna strukturer."
 
 #: defstruct.lisp:743
 #, lisp-format
 msgid "~S ~S: invalid :TYPE option ~S"
-msgstr ""
+msgstr "~S ~S: ogiltigt :TYP-alternativ ~S"
 
 #: defstruct.lisp:750
 #, lisp-format
 msgid "~S ~S: The :INITIAL-OFFSET must be a nonnegative integer, not ~S"
-msgstr ""
+msgstr "~S ~S: :INITIAL-OFFSET måste vara ett icke-negativt heltal, inte ~S"
 
 #: defstruct.lisp:757
 #, lisp-format
 msgid "~S ~S: :INITIAL-OFFSET must not be specified without :TYPE : ~S"
-msgstr ""
+msgstr "~S ~S: :INITIAL-OFFSET får inte anges utan :TYPE : ~S"
 
 #: defstruct.lisp:779
 #, lisp-format
 msgid "~S ~S: included structure ~S has not been defined."
-msgstr ""
+msgstr "~S ~S: inkluderad struktur ~S har inte definierats."
 
 #: defstruct.lisp:785
 #, lisp-format
 msgid "~S ~S: included structure ~S is not a structure type."
-msgstr ""
+msgstr "~S ~S: inkluderad struktur ~S är inte en strukturtyp."
 
 #: defstruct.lisp:798
 #, lisp-format
 msgid "~S ~S: included structure ~S must be of the same type ~S."
-msgstr ""
+msgstr "~S ~S: inkluderad struktur ~S måste vara av samma typ ~S."
 
 #: defstruct.lisp:828
 #, lisp-format
 msgid "~S ~S: included structure ~S has no component with name ~S."
-msgstr ""
+msgstr "~S ~S: inkluderad struktur ~S har ingen komponent med namn ~S."
 
 #: defstruct.lisp:862
 #, lisp-format
 msgid "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S."
-msgstr ""
+msgstr "~S ~S: READ-ONLY-luckan ~S för den inkluderade strukturen ~S måste förbli READ-ONLY i ~S."
 
 #: defstruct.lisp:873
 #, lisp-format
 msgid "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S."
-msgstr ""
+msgstr "~S ~S: Typen ~S för lucka ~S borde vara en underype av typen definierad för den inkluderade strukturen ~S, mer nämligen ~S."
 
 #: defstruct.lisp:880 defstruct.lisp:987
 #, lisp-format
 msgid "~S ~S: ~S is not a slot option."
-msgstr ""
+msgstr "~S ~S: ~S är inte ett luckalternativ."
 
 #: defstruct.lisp:928
 #, lisp-format
 msgid "~S ~S: structure of type ~S cannot hold the name."
-msgstr ""
+msgstr "~S ~S: strukturen av typ ~S kan inte innehålla namnet."
 
 #: defstruct.lisp:973
 #, lisp-format
 msgid "~S ~S: There may be only one slot with the name ~S."
-msgstr ""
+msgstr "~S ~S: Det får endast finnas en lucka med namnet ~S."
 
+# sebras: how to translate accessor?
 #: defstruct.lisp:1005
 #, lisp-format
 msgid "~S ~S: Slot ~S accessor will shadow the predicate ~S."
-msgstr ""
+msgstr "~S ~S: Luck ~S-åtkomstaren kommer att skugga predikatet ~S"
 
 #: format.lisp:73
 msgid "The control string terminates within a format directive."
-msgstr ""
+msgstr "Kontrollsträngen avslutas inom ett formateringsdirektiv."
 
 #: format.lisp:130
 #, lisp-format
 msgid "~A must introduce a number."
-msgstr ""
+msgstr "~A måste introducera ett tal."
 
 #: format.lisp:139
 msgid "The control string terminates in the middle of a parameter."
-msgstr ""
+msgstr "Kontrollsträngen avslutas mitt i en parameter."
 
 #: format.lisp:215
 msgid "Non-existent format directive"
-msgstr ""
+msgstr "Icke-existerande formaterings-direktiv"
 
 #: format.lisp:222
 msgid "Closing '/' is missing"
-msgstr ""
+msgstr "Avslutande ”/” saknas"
 
 #: format.lisp:236
 #, lisp-format
 msgid "There is no package with name ~S"
-msgstr ""
+msgstr "Det finns inget paket med namnet ~S"
 
 #: format.lisp:254
 #, lisp-format
 msgid "The closing format directive '~A' does not have a corresponding opening one."
-msgstr ""
+msgstr "Det avslutande formateringsdirektivet ”~A” har inte ett motsvarande inledande direktiv."
 
 #: format.lisp:258
 #, lisp-format
 msgid "The closing format directive '~A' does not match the corresponding opening one. It should read '~A'."
-msgstr ""
+msgstr "Det avslutande formateringsdirektivet ”~A” matchar inte det motsvarande inledande direktivet. Det borde vara ”~A”."
 
 #: format.lisp:265 format.lisp:1495 format.lisp:2288
 #, lisp-format
 msgid "The ~~; format directive is not allowed at this point."
-msgstr ""
+msgstr "Formateringsdirektivet ~~; tillåts inte i detta läget."
 
 #: format.lisp:289
 #, lisp-format
 msgid "An opening format directive is never closed; expecting '~A'."
-msgstr ""
+msgstr "Ett inledande formateringsdirektiv avslutas aldrig; förväntade ”~A”."
 
 #: format.lisp:320
 msgid "Current point in control string:"
-msgstr ""
+msgstr "Aktuell punkt i kontrollsträng:"
 
 #: format.lisp:339
 #, lisp-format
 msgid "The ~A format directive cannot take both modifiers."
-msgstr ""
+msgstr "Formateringsdirektivet ~A kan inte ta båda modifierarna."
 
 #: format.lisp:362
 #, lisp-format
 msgid "The destination string ~S should have a fill pointer."
-msgstr ""
+msgstr "Destinationssträngen ~S borde ha en fyllnadspekare."
 
 #: format.lisp:403
 msgid "There are not enough arguments left for this format directive."
-msgstr ""
+msgstr "Det finns inte tillräckligt med argument kvar för detta formateringsdirektiv."
 
 #: format.lisp:406
 #, lisp-format
 msgid "The argument list is a dotted list: ~S"
-msgstr ""
+msgstr "Argumentlistan är en punktad lista: ~S"
 
 #: format.lisp:491
 #, lisp-format
 msgid "The ~~:@R format directive requires an integer in the range 1 - 4999, not ~S"
-msgstr ""
+msgstr "Formateringsdirektivet ~~:@R kräver ett heltal i intervallet 1 - 4999, inte ~S"
 
 #: format.lisp:507
 #, lisp-format
 msgid "The ~~@R format directive requires an integer in the range 1 - 3999, not ~S"
-msgstr ""
+msgstr "Formateringsdirektivet ~~@R kräver ett heltal i intervallet 1 - 3999, inte ~S"
 
 #: format.lisp:564
 #, lisp-format
 msgid "The argument for the ~~R format directive is too large."
-msgstr ""
+msgstr "Argumentet för formateringsdirektivet ~~R är för stort."
 
 #: format.lisp:1192
 #, lisp-format
 msgid "The ~~R and ~~:R format directives require an integer argument, not ~S"
-msgstr ""
+msgstr "Formateringsdirektivet ~~R och ~~:R kräver ett heltalsargument, inte ~S"
 
 #: format.lisp:1212
 #, lisp-format
 msgid "The ~~C format directive requires a character argument, not ~S"
-msgstr ""
+msgstr "Formateringsdirektivet ~~C kräver ett teckenargument, inte ~S"
 
 #: format.lisp:1440
 #, lisp-format
 msgid "The control string argument for the ~~? format directive is invalid: ~S"
-msgstr ""
+msgstr "Kontrollsträngsargumentet för formateringsdirektivet ~~? är ogiltigt: ~S"
 
 #: format.lisp:1445
 #, lisp-format
 msgid "The argument list argument for the ~~? format directive is invalid: ~S"
-msgstr ""
+msgstr "Argumentlistargumentet för formateringsdirektivet ~~? är ogiltigt: ~S"
 
 #: format.lisp:1500
 #, lisp-format
 msgid "The ~~[ parameter must be an integer, not ~S"
-msgstr ""
+msgstr "Parametern ~~[ måste vara ett heltal, inte ~S"
 
 #: format.lisp:1533
 #, lisp-format
 msgid "The ~~{ format directive requires a list argument, not ~S"
-msgstr ""
+msgstr "Formateringsdirektivet ~~{ kräver ett listargument, inte ~S"
 
 #: format.lisp:1685
 msgid "Logical block prefix must be constant"
-msgstr ""
+msgstr "Logiskt blockprefix måste vara konstant"
 
 #: format.lisp:1697
 msgid "Logical block suffix must be constant"
-msgstr ""
+msgstr "Logiskt blocksuffix måste vara konstant"
 
 #: format.lisp:2049
 msgid "Too many arguments for this format directive"
-msgstr ""
+msgstr "För många argument för detta formateringsdirektiv"
 
 #: international.lisp:46
 #, lisp-format
 msgid "Language ~S is not defined"
-msgstr ""
+msgstr "Språk ~S är inte definierat"
 
 #: international.lisp:56
 #, lisp-format
 msgid "Language ~S inherits from ~S"
-msgstr ""
+msgstr "Språk ~S ärver från ~S"
 
 #: international.lisp:106
 #, lisp-format
 msgid "~S: Language ~S is not defined"
-msgstr ""
+msgstr "~S: Språk ~S är inte definierat"
 
 #: international.lisp:129
 #, lisp-format
 msgid "~S ~S: no value for default language ~S"
-msgstr ""
+msgstr "~S ~S: inget värde för standardspråk ~S"
 
 #: savemem.lisp:104
 #, lisp-format
 msgid "Wrote the memory image into ~A (~:D byte~:P)"
-msgstr ""
+msgstr "Skrev minnesavbilden till ~A (~:D byte~:P)"
 
 #: trace.lisp:40
 #, lisp-format
 msgid "~S: no local name ~S in ~S"
-msgstr ""
+msgstr "~S: inget lokalt namn ~S i ~S"
 
 #: trace.lisp:53
 #, lisp-format
 msgid "~S: ~S does not name a closure"
-msgstr ""
+msgstr "~S: ~S namnger inte ett hölje"
 
 #: trace.lisp:161
 #, lisp-format
 msgid "~S: cannot trace special operator ~S"
-msgstr ""
+msgstr "~S: kan inte spåra specialoperator ~S"
 
 #: trace.lisp:189
 #, lisp-format
 msgid ";; Tracing ~:[function~;macro~] ~S."
-msgstr ""
+msgstr ";; Spårar ~:[funktion~;makro~] ~S."
 
 #: trace.lisp:327
 #, lisp-format
 msgid "~S: ~S was traced and has been redefined!"
-msgstr ""
+msgstr "~S: ~S spårades och har omdefinierats!"
 
 #: cmacros.lisp:81
 msgid "compiler macro"
-msgstr ""
+msgstr "kompilatormakro"
 
 #: compiler.lisp:651
 #, lisp-format
 msgid "Compiler bug!! Occurred in ~A~@[ at ~A~]."
-msgstr ""
+msgstr "Kompilatorfel!! Inträffade i ~A~@[ vid ~A~]."
 
 #: compiler.lisp:1410
 #, lisp-format
@@ -7947,3 +7952,6 @@ msgstr ""
 
 #~ msgid "~S: too many arguments to ~S"
 #~ msgstr "~S: för många argument till ~S"
+
+#~ msgid "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists."
+#~ msgstr "Ogiltigt lambdalistelement ~S. Valfria parametrar kan inte har standardvärdesformer i lambdalistor för generiska funktioner."
