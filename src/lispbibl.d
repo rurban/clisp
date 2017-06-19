@@ -7875,16 +7875,7 @@ typedef struct {
 
 /* Test for Symbol */
 #ifdef TYPECODES
-  #if defined(symbol_bit_o)
-    /* define symbolp(obj)  (as_oint(obj) & wbit(symbol_bit_o)) */
-    #define symbolp(obj)  (wbit_test(as_oint(obj),symbol_bit_o))
-    #ifdef WIDE_STRUCT
-      #undef symbolp
-      #define symbolp(obj)  (typecode(obj) & bit(symbol_bit_t))
-    #endif
-  #else
-    #define symbolp(obj)  (typecode(obj) == symbol_type)
-  #endif
+  #define symbolp(obj)  (typecode(obj) == symbol_type)
 #else
   #define symbolp(obj)  \
     (varobjectp(obj) && (Record_type(obj) == Rectype_Symbol))
