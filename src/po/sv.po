@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:01-0400\n"
-"PO-Revision-Date: 2017-06-17 13:20+0800\n"
+"PO-Revision-Date: 2017-06-23 00:27+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -5401,72 +5401,73 @@ msgstr "Kompilatorfel!! Inträffade i ~A~@[ vid ~A~]."
 #: compiler.lisp:1410
 #, lisp-format
 msgid "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S"
-msgstr ""
+msgstr "Inte en giltig optimeringsnivå för ~S, borde vara endera av 0, 1,2 3: ~S"
 
 #: compiler.lisp:1412
 #, lisp-format
 msgid "~S is not a valid ~S quality."
-msgstr ""
+msgstr "~S är inte en giltig ~S-kvalitet."
 
+# sebras: how to translate specifier?
 #: compiler.lisp:1413 compiler.lisp:1524
 #, lisp-format
 msgid "Not a valid ~S specifier: ~S"
-msgstr ""
+msgstr "Inte en giltig ~S-specificerare: ~S"
 
 #: compiler.lisp:1439
 #, lisp-format
 msgid "Bad declaration syntax: ~S~%Will be ignored."
-msgstr ""
+msgstr "Felaktig deklarationssyntax: ~S~%Kommer att hoppas över."
 
 #: compiler.lisp:1452 compiler.lisp:1458 compiler.lisp:1464 compiler.lisp:1470
 #, lisp-format
 msgid "Non-symbol ~S may not be declared ~S."
-msgstr ""
+msgstr "Icke-symbol ~S får inte deklareras ~S."
 
 #: compiler.lisp:1482
 #, lisp-format
 msgid "Non-symbol ~S may not be subject to a TYPE declaration."
-msgstr ""
+msgstr "Icke-symbol ~S får inte vara föremål för en TYPE-deklaration."
 
 #: compiler.lisp:1493
 #, lisp-format
 msgid "~S is not a function name and therefore may not be subject to a FTYPE declaration."
-msgstr ""
+msgstr "~S är inte ett funktionsnamn och får därför inte vara föremål för en FTYPE-deklaration."
 
 #: compiler.lisp:1504
 #, lisp-format
 msgid "~S is not a function name and therefore may not be declared ~S."
-msgstr ""
+msgstr "~S är inte ett funktionsnamn och får därför inte deklareras ~S."
 
 #: compiler.lisp:1535
 #, lisp-format
 msgid "Non-symbol ~S may not be subject to a DECLARATION declaration."
-msgstr ""
+msgstr "Icke-symbol ~S får inte vara föremål för en DECLARATION-deklaration."
 
 #: compiler.lisp:1544
 #, lisp-format
 msgid "The argument of a COMPILE declaration must be a function name: ~S"
-msgstr ""
+msgstr "Argumentet till en COMPILE-deklaration måste vara ett funktionsnamn: ~S"
 
 #: compiler.lisp:1548
 #, lisp-format
 msgid "Unknown declaration ~S.~%The whole declaration will be ignored."
-msgstr ""
+msgstr "Okänd deklaration ~S.~%Hela deklarationen kommer att hoppas över."
 
 #: compiler.lisp:1897
 #, fuzzy, lisp-format
 msgid "in file ~S "
-msgstr "Läser in fil ~A …"
+msgstr " i fil ~S"
 
 #: compiler.lisp:1899
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "in line ~D "
-msgstr ""
+msgstr " på rad ~D"
 
 #: compiler.lisp:1900
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "in lines ~D..~D "
-msgstr ""
+msgstr " på raderna ~D..~D"
 
 #: compiler.lisp:1919
 #, lisp-format
@@ -5486,22 +5487,22 @@ msgstr ""
 #: compiler.lisp:2098
 #, lisp-format
 msgid "Code contains dotted list ~S"
-msgstr ""
+msgstr "Kod innehåller en punktad lista ~S"
 
 #: compiler.lisp:2100
 #, lisp-format
 msgid "Form too short, too few arguments: ~S"
-msgstr ""
+msgstr "Form för kort, för få argument: ~S"
 
 #: compiler.lisp:2103
 #, lisp-format
 msgid "Form too long, too many arguments: ~S"
-msgstr ""
+msgstr "Form för lång, för många argument: ~S"
 
 #: compiler.lisp:2359
 #, lisp-format
 msgid "Not the name of a function: ~S"
-msgstr ""
+msgstr "Inte ett namn på en funktion: ~S"
 
 #: compiler.lisp:2424 compiler.lisp:2487
 #, lisp-format
@@ -5509,6 +5510,8 @@ msgid ""
 "~S is neither declared nor bound,~@\n"
 "                     it will be treated as if it were declared SPECIAL."
 msgstr ""
+"~S är varken deklarerad eller bunden,~@\n"
+"                     den kommer att behandlas som om den deklarerats SPECIAL."
 
 #: compiler.lisp:2504
 #, lisp-format
@@ -5516,21 +5519,23 @@ msgid ""
 "The constant ~S may not be assigned to.~@\n"
 "                                        The assignment will be ignored."
 msgstr ""
+"Konstanten ~S får inte tilldelas.~@\n"
+"                                        Tilldelningen kommer att hoppas över."
 
 #: compiler.lisp:2757
 #, lisp-format
 msgid "argument list to function ~S is dotted: ~S"
-msgstr ""
+msgstr "argumentlistan till funktion ~S är punktad: ~S"
 
 #: compiler.lisp:2762
 #, lisp-format
 msgid "~S was called with ~S~:[~; or more~] arguments, but it requires ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p."
-msgstr ""
+msgstr "~S anropades med ~S~:[~; eller fler~] argument, men den kräver ~:[~:[från ~S till ~S~;~S~]~;åtminstone ~*~S~] argument~:p."
 
 #: compiler.lisp:2772
 #, lisp-format
 msgid "keyword arguments to function ~S should occur pairwise: ~S"
-msgstr ""
+msgstr "nyckelordsargument till funktion ~S borde förekomma parvis: ~S"
 
 #: compiler.lisp:2782
 #, lisp-format
@@ -5538,41 +5543,44 @@ msgid ""
 "keyword ~S is not allowed for function ~S.~\n"
 "                             ~%The only allowed keyword~[s are~; is~:;s are~] ~{~S~#[~; and ~S~:;, ~]~}."
 msgstr ""
+"nyckelord ~S är inte tillåtet för funktion ~S.~\n"
+"                             ~%Det enda tillåtna nyckelorde~[n är~;t är~:;n är~] ~{~S~#[~; och ~S~:;, ~]~}."
 
 #: compiler.lisp:2792
 #, lisp-format
 msgid "argument ~S to function ~S is not a symbol"
-msgstr ""
+msgstr "argument ~S till funktion ~S är inte en symbol"
 
 #: compiler.lisp:2814
 #, lisp-format
 msgid "Run time error expected: ~@?"
-msgstr ""
+msgstr "Fel i exekveringsmiljö förväntas: ~@?"
 
 #: compiler.lisp:2965
 #, lisp-format
 msgid "~S: ignored duplicate keyword ~S ~S"
-msgstr ""
+msgstr "~S: hoppade över duplicerade nyckelord ~S ~S"
 
 #: compiler.lisp:2968
 #, lisp-format
 msgid "~S: ignored keyword ~S ~S"
-msgstr ""
+msgstr "~S: hoppade över nyckelord ~S ~S"
 
+# sebras: lower case s? really?
 #: compiler.lisp:3312
 #, lisp-format
 msgid "Function ~s is not defined"
-msgstr ""
+msgstr "Funktion ~s är inte definierad"
 
 #: compiler.lisp:3319
 #, lisp-format
 msgid "Function ~S is deprecated."
-msgstr ""
+msgstr "Funktion ~S är föråldrad."
 
 #: compiler.lisp:3395
 #, lisp-format
 msgid "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]"
-msgstr ""
+msgstr "Funktion ~s~% redan definierad~a~:[~% med signaturen~%~a~% omdefinieras med en ny signatur~%~a~;~2*~]"
 
 #: compiler.lisp:3440
 #, lisp-format
@@ -5582,422 +5590,422 @@ msgstr ""
 #: compiler.lisp:3591
 #, lisp-format
 msgid "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL."
-msgstr ""
+msgstr "Att binda variabel ~S kan orsaka sidoeffekter trots IGNORE-deklaration då den är deklarerad SPECIAL"
 
 #: compiler.lisp:3596
 #, lisp-format
 msgid "variable ~S is used despite IGNORE declaration."
-msgstr ""
+msgstr "variabel ~S används trots IGNORE-deklaration."
 
 #: compiler.lisp:3606
 #, lisp-format
 msgid "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
-msgstr ""
+msgstr "variabel ~S används inte.~%Felstavad eller saknas IGNORE-deklaration?"
 
 #: compiler.lisp:3611
 #, lisp-format
 msgid "The variable ~S is assigned to, despite READ-ONLY declaration."
-msgstr ""
+msgstr "Variabeln ~S tilldelas, trots READ-ONLY-deklaration."
 
 #: compiler.lisp:3652 compiler.lisp:3767
 #, lisp-format
 msgid "Constant ~S cannot be bound."
-msgstr ""
+msgstr "Konstanten ~S kan inte bindas."
 
 #: compiler.lisp:4471
 #, lisp-format
 msgid "Misplaced declaration: ~S"
-msgstr ""
+msgstr "Felplacerad deklaration: ~S"
 
 #: compiler.lisp:4681
 #, lisp-format
 msgid "~S: assignment to the internal special variable ~S"
-msgstr ""
+msgstr "~S: tilldelning till den interna specialvariabeln ~S"
 
 #: compiler.lisp:4689
 #, lisp-format
 msgid "Odd number of arguments to SETQ: ~S"
-msgstr ""
+msgstr "Udda anta argument till SETQ: ~S"
 
 #: compiler.lisp:4719 compiler.lisp:4748 compiler.lisp:4840
 #, lisp-format
 msgid "Cannot assign to non-symbol ~S."
-msgstr ""
+msgstr "Kan inte tilldela till icke-symbol ~S."
 
 #: compiler.lisp:4728
 #, lisp-format
 msgid "Odd number of arguments to PSETQ: ~S"
-msgstr ""
+msgstr "Udda antal argument till PSETQ: ~S"
 
 #: compiler.lisp:4965
 #, lisp-format
 msgid "Only symbols may be used as variables, not ~S"
-msgstr ""
+msgstr "Endast symboler får användas som variabler, inte ~S"
 
 #: compiler.lisp:5059
 #, lisp-format
 msgid "Block name must be a symbol, not ~S"
-msgstr ""
+msgstr "Blocknamn måste vara en symbol, inte ~S"
 
 #: compiler.lisp:5102
 #, lisp-format
 msgid "RETURN-FROM block ~S is impossible from here."
-msgstr ""
+msgstr "RETURN-FROM-block ~S är omöjligt härifrån."
 
 #: compiler.lisp:5160
 #, lisp-format
 msgid "Only numbers and symbols are valid tags, not ~S"
-msgstr ""
+msgstr "Endast tal och symboler är giltiga taggar, inte ~S"
 
 #: compiler.lisp:5232
 #, lisp-format
 msgid "Tag must be a symbol or a number, not ~S"
-msgstr ""
+msgstr "Tagg måste vara en symbol eller ett tal, inte ~S"
 
 #: compiler.lisp:5235
 #, lisp-format
 msgid "GO to tag ~S is impossible from here."
-msgstr ""
+msgstr "GO-till-tagg ~S är omöjlig härifrån."
 
 #: compiler.lisp:5310
 #, lisp-format
 msgid "~S is not a function. It is a locally defined macro."
-msgstr ""
+msgstr "~S är inte en funktion. Det är ett lokalt definierat makro."
 
 #: compiler.lisp:5324
 #, lisp-format
 msgid "Only symbols and lambda expressions are function names, not ~S"
-msgstr ""
+msgstr "Endast symboler och lambdauttryck är funktionsnamn, inte ~S"
 
 #: compiler.lisp:5374
 #, lisp-format
 msgid "Illegal function definition syntax in ~S: ~S"
-msgstr ""
+msgstr "Otillåten funktionsdefinitionssyntax i ~S: ~S"
 
 #: compiler.lisp:5793
 #, lisp-format
 msgid "~S: Illegal syntax: ~S"
-msgstr ""
+msgstr "~S: Otillåten syntax: ~S"
 
 #: compiler.lisp:5809
 #, lisp-format
 msgid "~S: symbol ~S is declared SPECIAL and must not be declared a macro"
-msgstr ""
+msgstr "~S: symbol ~S deklarerades SPECIAL och får inte deklareras som ett makro"
 
 #: compiler.lisp:5834
 #, lisp-format
 msgid "~S situation must be ~S, ~S or ~S, but not ~S"
-msgstr ""
+msgstr "~S-situationen måste vara ~S, ~S eller ~S, men inte ~S"
 
 #: compiler.lisp:5851
 #, lisp-format
 msgid "COND clause without test: ~S"
-msgstr ""
+msgstr "COND-klausul utan test: ~S"
 
 #: compiler.lisp:5873
 #, lisp-format
 msgid "CASE clause without objects: ~S"
-msgstr ""
+msgstr "CASE-klausul utan objekt: ~S"
 
 #: compiler.lisp:5882
 #, lisp-format
 msgid "~S: the ~S clause must be the last one: ~S"
-msgstr ""
+msgstr "~S: ~S-klausulen måste vara den sista: ~S"
 
 #: compiler.lisp:5890
 #, lisp-format
 msgid "Duplicate ~S label ~S : ~S"
-msgstr ""
+msgstr "Duplicerad ~S-etikett ~S : ~S"
 
 #: compiler.lisp:6159
 #, lisp-format
 msgid "Too many arguments to ~S"
-msgstr ""
+msgstr "För många argument till ~S"
 
 #: compiler.lisp:6170
 #, lisp-format
 msgid "Too few arguments to ~S"
-msgstr ""
+msgstr "För få argument till ~S"
 
 #: compiler.lisp:6609
 #, lisp-format
 msgid "Arithmetic operand ~s must evaluate to a number, not ~s"
-msgstr ""
+msgstr "Artimetisk operand ~s måste beräknas till ett tal, inte ~s"
 
 #: compiler.lisp:7139
 #, lisp-format
 msgid "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
-msgstr ""
+msgstr "Destinationen ~S är ogiltig (inte NIL eller T eller en ström eller en sträng med fyllnadspekare): ~S"
 
 #: compiler.lisp:7163
 #, lisp-format
 msgid "First argument to ~S should be sequence, not ~S"
-msgstr ""
+msgstr "Första argumentet till ~S borde vara en sekvens, inte ~S"
 
 #: compiler.lisp:7166
 #, lisp-format
 msgid "~S is destructive, should not be called on a constant ~S"
-msgstr ""
+msgstr "~S är destruktiv, borde inte anropas för en konstant ~S"
 
 #: compiler.lisp:8059
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "function ~S is used despite IGNORE declaration."
-msgstr ""
+msgstr "funktion ~S använd trots IGNORE-deklaration."
 
 #: compiler.lisp:10814
 #, lisp-format
 msgid "function ~S is not used.~%Misspelled or missing IGNORE declaration?"
-msgstr ""
+msgstr "funktion ~S används inte.~%Felstavad eller saknas IGNORE-deklaration?"
 
 #: compiler.lisp:10850
 #, lisp-format
 msgid "~S cannot be compiled"
-msgstr ""
+msgstr "~S kan inte kompileras"
 
 #: compiler.lisp:10901
 #, lisp-format
 msgid "~S: redefining ~S; it was traced!"
-msgstr ""
+msgstr "~S: omdefiniering av ~S; den spårades!"
 
 #: compiler.lisp:10906
 #, lisp-format
 msgid "~S is already compiled."
-msgstr ""
+msgstr "~S är redan kompilerad."
 
 #: compiler.lisp:10921 disassem.lisp:9
 #, lisp-format
 msgid "Undefined function ~S"
-msgstr ""
+msgstr "Odefinierad funktion ~S"
 
 #: compiler.lisp:10936
 #, lisp-format
 msgid "Not a lambda expression nor a function: ~S"
-msgstr ""
+msgstr "Inte ett lambdauttryck eller en funktion: ~S"
 
 #: compiler.lisp:10994
 msgid "A function compiled with errors cannot be executed."
-msgstr ""
+msgstr "En funktion kompilerad med fel kan inte exekveras."
 
 #: compiler.lisp:11123
 #, lisp-format
 msgid "[~s was defined~a]"
-msgstr ""
+msgstr "[~s definierad som~a]"
 
 #: compiler.lisp:11130
 #, lisp-format
 msgid "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
-msgstr ""
+msgstr "Det förekom fel i följande funktioner:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11136
 #, lisp-format
 msgid "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr ""
+msgstr "Följande funktion användes med var inte definierade:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11144
 #, lisp-format
 msgid "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr ""
+msgstr "Följande specialvariabler var inte definierade:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11147
 #, lisp-format
 msgid "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
-msgstr ""
+msgstr "Följande specialvariabler definierades för sent:~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:11150
 #, lisp-format
 msgid "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"
-msgstr ""
+msgstr "Följande funktioner användes men är föråldrade:~%~:{~<~%~:; ~S - ~@?~>~^~}"
 
 #: compiler.lisp:11155
 #, lisp-format
 msgid "~D error~:P, ~D warning~:P"
-msgstr ""
+msgstr "~D fel~:P, ~D varning~:P"
 
 #: compiler.lisp:11320
 #, lisp-format
 msgid "Listing of compilation of file ~A~%on ~A by ~A, version ~A"
-msgstr ""
+msgstr "Listning av kompilering av fil ~A~%på ~A av ~A, version ~A"
 
 #: compiler.lisp:11352
 #, lisp-format
 msgid ";; Compiling file ~A ..."
-msgstr ""
+msgstr ";; Kompilerar fil ~A …"
 
 #: compiler.lisp:11387
 #, lisp-format
 msgid ";; Wrote file ~A"
-msgstr ""
+msgstr ";; Skrev fil ~A"
 
 #: compiler.lisp:11395
 #, lisp-format
 msgid ";; Deleted file ~A"
-msgstr ""
+msgstr ";; Tog bort fil ~A"
 
 #: compiler.lisp:11445
 #, lisp-format
 msgid "Disassembly of function ~S"
-msgstr ""
+msgstr "Avassemblering av funktion ~S"
 
 #: compiler.lisp:11455
 #, lisp-format
 msgid "~S required argument~:P"
-msgstr ""
+msgstr "~S krävde argument~:P"
 
 #: compiler.lisp:11457
 #, lisp-format
 msgid "~S optional argument~:P"
-msgstr ""
+msgstr "~S valfritt argument~:P"
 
 #: compiler.lisp:11460
 msgid "Rest parameter"
-msgstr ""
+msgstr "Rest-parameter"
 
 #: compiler.lisp:11461
 msgid "No rest parameter"
-msgstr ""
+msgstr "Ingen rest-parameter"
 
 #: compiler.lisp:11465
 #, lisp-format
 msgid "~S keyword parameter~:P: "
-msgstr ""
+msgstr "~S nyckelordsparameter~:P: "
 
 #: compiler.lisp:11472
 msgid "Other keywords are allowed."
-msgstr ""
+msgstr "Andra nyckelord är tillåtna."
 
 #: compiler.lisp:11475
 msgid "No keyword parameters"
-msgstr ""
+msgstr "Inga nyckelordsparametrar"
 
 #: compiler.lisp:11491
 #, lisp-format
 msgid "reads special variable~P: ~{~S~^ ~}"
-msgstr ""
+msgstr "läser specialvariabel~P: ~{~S~^ ~}"
 
 #: compiler.lisp:11495
 #, lisp-format
 msgid "writes special variable~P: ~{~S~^ ~}"
-msgstr ""
+msgstr "skriver specialvariabel~P: ~{~S~^ ~}"
 
 #: compiler.lisp:11498
 #, lisp-format
 msgid "~S byte-code instruction~:P:"
-msgstr ""
+msgstr "~S bytekodsinstruktion~:P:"
 
 #: defs2.lisp:62
 #, lisp-format
 msgid "The object to be destructured should be a list with at most ~S elements, not the circular list ~S"
-msgstr ""
+msgstr "Objektet som ska förstöras borde vara en lista med som mest ~S element, inte en cirkulär lista ~S"
 
 #: defs2.lisp:65
 #, lisp-format
 msgid "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S."
-msgstr ""
+msgstr "Objektet som ska förstöras borde vara en lista med ~:[åtminstone ~*~S~;~:[från ~S till ~S~;~S~]~] element, inte ~4@*~S."
 
 #: defs2.lisp:142
 #, lisp-format
 msgid "~S: macro name should be a symbol, not ~S"
-msgstr ""
+msgstr "~S: makronamn borde vara en symbol, inte ~S"
 
 #: defs2.lisp:256 defs2.lisp:279
 #, lisp-format
 msgid "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S."
-msgstr ""
+msgstr "~S: elementtyper av ~S och ~S är tvetydiga. Använd ~S eller ~S."
 
 #: loop.lisp:51
 #, lisp-format
 msgid "~S: syntax error after ~A in ~S"
-msgstr ""
+msgstr "~S: syntaxfel efter ~A i ~S"
 
 #: loop.lisp:312
 #, lisp-format
 msgid "~S: variable ~S is used in incompatible clauses~{ ~A ~S~} and~{ ~A ~S~}"
-msgstr ""
+msgstr "~S: variabel ~S används i inkompatibla klausuler~{ ~S ~S~} och~{ ~A ~S~}"
 
 #: loop.lisp:354
 #, lisp-format
 msgid "~S: missing variable."
-msgstr ""
+msgstr "~S: saknar variabel."
 
 #: loop.lisp:363
 #, lisp-format
 msgid "~S: After ~S, ~S is interpreted as a type specification"
-msgstr ""
+msgstr "~S: Efter ~S tolkas ~S som en typspecifikation"
 
 #: loop.lisp:384
 #, lisp-format
 msgid "~S: missing forms after ~A: permitted by CLtL2, forbidden by ANSI CL."
-msgstr ""
+msgstr "~S: saknar former efter ~A: tillåtet i CLtL2, förbjudet i ANSI CL."
 
 #: loop.lisp:557
 #, lisp-format
 msgid "~S: duplicate iteration variable ~S"
-msgstr ""
+msgstr "~S: duplicerad iterationsvariabel ~S"
 
 #: loop.lisp:619
 #, lisp-format
 msgid "~S: loop keyword immediately after ~A: permitted by CLtL2, forbidden by ANSI CL."
-msgstr ""
+msgstr "~S: loop-nyckelord omedelbart efter ~A: tillåtet i CLtL2, förbjudet i ANSI CL."
 
 #: loop.lisp:626
 #, lisp-format
 msgid "~S: ~A clauses should occur before the loop's main body"
-msgstr ""
+msgstr "~S: ~A-klausuler borde inträffa före loopens huvudkropp"
 
 #: loop.lisp:779
 #, lisp-format
 msgid "~S: After ~S a plural loop keyword is required, not ~A"
-msgstr ""
+msgstr "~S: Efter ~S krävs ett flertal loopnyckelord, inte ~A"
 
 #: loop.lisp:784
 #, lisp-format
 msgid "~S: After ~S a singular loop keyword is required, not ~A"
-msgstr ""
+msgstr "~S: Efter ~S krävs ett enstaka loopnyckelord, inte ~A."
 
 #: loop.lisp:940
 #, lisp-format
 msgid "~S: questionable iteration direction after ~A"
-msgstr ""
+msgstr "~S: ifrågasättbar iterationsriktning efter ~A"
 
 #: loop.lisp:951
 #, lisp-format
 msgid "~S: specifying ~A requires FROM or DOWNFROM"
-msgstr ""
+msgstr "~S: att specificera ~A kräver FROM eller DOWNFROM"
 
 #: loop.lisp:1013
 #, lisp-format
 msgid "~S: illegal syntax near ~S in ~S"
-msgstr ""
+msgstr "~S: otillåten syntax nära ~S i ~S"
 
 #: loop.lisp:1019
 #, lisp-format
 msgid "~S: ambiguous result:~:{~%~S from ~@{~{~A ~S~}~^, ~}~}"
-msgstr ""
+msgstr "~S: tvetydigt resultat:~:{~%~S från ~@{~{~A ~S~}~^, ~}~}"
 
 #: loop.lisp:1097
 #, lisp-format
 msgid "~S: accumulation variable ~S is already bound"
-msgstr ""
+msgstr "~S: ackulmuleringsvariabel ~S är redan bunden"
 
 #: loop.lisp:1169
 #, lisp-format
 msgid "~S is possible only from within ~S"
-msgstr ""
+msgstr "~S är endast möjlig inifrån ~S"
 
 #: loop.lisp:1172
 #, lisp-format
 msgid "Use of ~S in FINALLY clauses is deprecated because it can lead to infinite loops."
-msgstr ""
+msgstr "Användning av ~S i FINALLY-kalusuler är föråldrat eftersom det kan leda till oändliga loopar."
 
 #: loop.lisp:1175
 #, lisp-format
 msgid "~S is not possible here"
-msgstr ""
+msgstr "~S är inte möjligt här"
 
 #: clos-specializer2.lisp:15 clos-methcomb3.lisp:33
 #, lisp-format
 msgid "~S: It is not allowed to reinitialize ~S"
-msgstr ""
+msgstr "~S: Det är inte tillåtet att ominitiera ~S"
 
 #: clos-class5.lisp:663
 #, lisp-format
@@ -6012,157 +6020,158 @@ msgstr "~S kan inte ändra ett icke-funkanropbart objekt till ett funkanropbart 
 #: clos-class5.lisp:785
 #, lisp-format
 msgid "~S: The MOP does not allow changing the class of metaobject ~S"
-msgstr ""
+msgstr "~S: MOP tillåter inte att klassen för metaobjektet ~S ändras"
 
 #: clos-class6.lisp:51
 #, lisp-format
 msgid "The class ~S has not yet been initialized."
-msgstr ""
+msgstr "Klassen ~S har inte initierats än."
 
 #: clos-class6.lisp:57
 #, lisp-format
 msgid "The class ~S has not yet been finalized."
-msgstr ""
+msgstr "Klassen ~S har inte finaliserats än."
 
 #: clos-class6.lisp:82
 #, lisp-format
 msgid "~S: The name of a class must be a symbol, not ~S"
-msgstr ""
+msgstr "~S: Namnet på en klass måste vara en symbol, inte ~S"
 
 #: clos-class6.lisp:86
 #, lisp-format
 msgid "~S: The name of the built-in class ~S cannot be modified"
-msgstr ""
+msgstr "~S: Namnet på den inbyggda klassen ~S kan inte modifierats"
 
 #: clos-class6.lisp:112
 #, lisp-format
 msgid "~S being called on ~S, but class ~S is not yet defined."
-msgstr ""
+msgstr "~S anropad på ~S, men klass ~S är inte definierad än."
 
 #: clos-class6.lisp:388
 #, lisp-format
 msgid "~S: ~S is an abstract class and therefore does not have a direct instance"
-msgstr ""
+msgstr "~S: ~S är en abstrakt klass och har därför inte en direkt instans"
 
 #: clos-slotdef2.lisp:44 clos-method3.lisp:46
 #, lisp-format
 msgid "~S: The MOP does not allow reinitializing ~S"
-msgstr ""
+msgstr "~S: MOP tillåter inte ominitiering av ~S"
 
 #: clos-slots1.lisp:143 clos-slots1.lisp:186
 #, lisp-format
 msgid "~S: not a list of slots: ~S"
-msgstr ""
+msgstr "~S: inte en lista av luckor: ~S"
 
 #: clos-slots1.lisp:152
 #, lisp-format
 msgid "~S: invalid slot and variable specification ~S"
-msgstr ""
+msgstr "~S: ogiltig luck- och variabelspecifikation ~S"
 
 #: clos-slots1.lisp:159 clos-slots1.lisp:199
 #, lisp-format
 msgid "~S: variable ~S should be a symbol"
-msgstr ""
+msgstr "~S: variabel ~S borde vara en symbol"
 
 #: clos-slots1.lisp:165
 #, lisp-format
 msgid "~S: slot name ~S should be a symbol"
-msgstr ""
+msgstr "~S: lucknamn ~S borde vara en symbol"
 
 #: clos-slots1.lisp:193
 #, lisp-format
 msgid "~S: invalid slot and accessor specification ~S"
-msgstr ""
+msgstr "~S: ogiltig lucka och åtkomstspecifikation ~S"
 
 #: clos-slots1.lisp:205
 #, lisp-format
 msgid "~S: accessor name ~S should be a symbol"
-msgstr ""
+msgstr "~S: åtkomstnamn ~S borde vara en symbol"
 
 #: clos-slots2.lisp:15
 #, lisp-format
 msgid "~S: The class ~S has no slot named ~S"
-msgstr ""
+msgstr "~S: Klassen ~S har inget lucknamn ~S"
 
 #: clos-slots2.lisp:26
 #, lisp-format
 msgid "~S: The slot ~S of ~S has no value"
-msgstr ""
+msgstr "~S: Luckan ~S av ~S har inget värde"
 
 #: clos-method1.lisp:130 clos-method1.lisp:158
 #, lisp-format
 msgid "(~S ~S): The ~S argument should be a proper list, not ~S"
-msgstr ""
+msgstr "(~S ~S): Argumentet ~S borde vara en ordentlig lista, inte ~S"
 
 #: clos-method1.lisp:133
 #, lisp-format
 msgid "(~S ~S): The qualifiers list should consist of non-NIL atoms, not ~S"
-msgstr ""
+msgstr "(~S ~S): Kvalificerarlistan borde bestå av atomer som är icke-NIL, inte ~S"
 
 #: clos-method1.lisp:137 clos-method1.lisp:155 clos-method1.lisp:173 clos-method1.lisp:265
 #, lisp-format
 msgid "(~S ~S): Missing ~S argument."
-msgstr ""
+msgstr "(~S ~S): Saknar ~S-argument."
 
 #: clos-method1.lisp:142
 #, lisp-format
 msgid "(~S ~S): Invalid ~S argument: ~A"
-msgstr ""
+msgstr "(~S ~S): Ogiltigt ~S-argument: ~A"
 
 #: clos-method1.lisp:150
 #, lisp-format
 msgid "(~S ~S): Lambda-list ~S and signature ~S are inconsistent."
-msgstr ""
+msgstr "(~S ~S): Lambdalista ~S och signatur ~S är inkonsekventa."
 
 #: clos-method1.lisp:163
 #, lisp-format
 msgid "(~S ~S): The element ~S of the ~S argument is not yet defined."
-msgstr ""
+msgstr "(~S ~S): Elementet ~S för ~S-argumentet är inte definierat än."
 
 #: clos-method1.lisp:165
 #, lisp-format
 msgid "(~S ~S): The element ~S of the ~S argument is not of type ~S."
-msgstr ""
+msgstr "(~S ~S): Elementet ~S för ~S-argumentet är inte av typ ~S."
 
 #: clos-method1.lisp:168
 #, lisp-format
 msgid "(~S ~S): The lambda list ~S has ~S required arguments, but the specializers list ~S has length ~S."
-msgstr ""
+msgstr "(~S ~S): Lambdalistan ~S har kräver ~S argument, men specialiserarlistan ~S har längden ~S."
 
 #: clos-method1.lisp:177 clos-method1.lisp:181
 #, lisp-format
 msgid "(~S ~S): The ~S argument should be a function, not ~S"
-msgstr ""
+msgstr "(~S ~S): ~S-argumentet borde vara en funktion, inte ~S"
 
+# sebras: "a NIL"?
 #: clos-method1.lisp:184
 #, lisp-format
 msgid "(~S ~S): The ~S argument should be a NIL or T, not ~S"
-msgstr ""
+msgstr "(~S ~S): ~S-argumentet borde vara NIL eller T, inte ~S"
 
 #: clos-method1.lisp:194
 #, lisp-format
 msgid "(~S ~S): The ~S argument should be a string or NIL, not ~S"
-msgstr ""
+msgstr "(~S ~S): ~S-argumentet borde vara en sträng eller NIL, inte ~S"
 
 #: clos-method1.lisp:268
 #, lisp-format
 msgid "(~S ~S): Argument ~S is not of type ~S."
-msgstr ""
+msgstr "(~S ~S): Argumentet ~S är inte av typ ~S."
 
 #: clos-method2.lisp:35
 #, lisp-format
 msgid "Invalid specialized parameter in method lambda list ~S: ~S"
-msgstr ""
+msgstr "Ogiltig specialiserad parameter i methodlambdalista ~S: ~S"
 
 #: clos-method2.lisp:82
 #, lisp-format
 msgid "~S ~S: missing lambda list"
-msgstr ""
+msgstr "~S ~S: saknar lambdalista"
 
 #: clos-method2.lisp:111
 #, lisp-format
 msgid "~S ~S: Invalid specializer ~S in lambda list ~S"
-msgstr ""
+msgstr "~S ~S: Ogiltig specialiserare ~S i lambdalista ~S"
 
 #: clos-method3.lisp:81
 #, lisp-format
@@ -7955,3 +7964,9 @@ msgstr ""
 
 #~ msgid "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists."
 #~ msgstr "Ogiltigt lambdalistelement ~S. Valfria parametrar kan inte har standardvärdesformer i lambdalistor för generiska funktioner."
+
+#~ msgid "WARNING~@[ in ~S~]~A :"
+#~ msgstr "VARNING~@[ in ~S~]~A :"
+
+#~ msgid "ERROR~@[ in ~S~]~A :"
+#~ msgstr "FEL~@[ in ~S~]~A :"
