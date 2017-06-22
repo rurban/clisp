@@ -1,5 +1,11 @@
 2017-06-22  Bruno Haible  <bruno@clisp.org>
 
+	Update French translation.
+	* po/fr.po: Update from Stéphane Aulery <lkppo@free.fr>.
+	* po/fr.gmo, po/clisplow_fr.*: Regenerated.
+
+2017-06-22  Bruno Haible  <bruno@clisp.org>
+
 	Update Swedish translation.
 	* po/sv.po: Update from Sebastian Rasmussen <sebras@gmail.com>.
 	* po/sv.gmo, po/clisplow_sv.*: Regenerated.
