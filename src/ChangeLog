@@ -1,3 +1,10 @@
+2017-06-24  Bruno Haible  <bruno@clisp.org>
+
+	Use newest libffcall.
+	* m4/ffcall.m4 (CL_LIBFFCALL_DOWNLOAD_URL): Point to the libffcall-1.13
+	release.
+	* aclocal.m4, src/configure: Regenerated.
+
 2017-06-22  Bruno Haible  <bruno@clisp.org>
 
 	Update French translation.
