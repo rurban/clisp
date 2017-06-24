@@ -5,7 +5,7 @@ AC_PREREQ(2.61)
 
 dnl Download location of the newest libffcall release.
 AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
-  [https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz])
+  [https://ftp.gnu.org/gnu/libffcall/libffcall-1.13.tar.gz])
 
 AC_DEFUN([CL_FFCALL],[dnl
 AC_ARG_WITH([ffcall],
