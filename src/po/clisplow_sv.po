@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2010-07-07 11:09:16-0400\n"
+"POT-Creation-Date: 2017-06-25 11:29:03+0200\n"
 "PO-Revision-Date: 2017-06-25 01:31+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
@@ -19,35 +19,35 @@ msgstr ""
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Generator: Poedit 1.8.11\n"
 
-#: spvw.d:852
+#: spvw.d:909
 msgid "*** - Program stack overflow. RESET"
 msgstr "*** - Programstacköverspill. ÅTERSTÄLLNING"
 
-#: spvw.d:867
+#: spvw.d:924
 msgid "*** - Lisp stack overflow. RESET"
 msgstr "*** - Lispstacköverspill. ÅTERSTÄLLNING"
 
-#: spvw.d:1096
+#: spvw.d:1190
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Okänd FSUBR-signatur: %d %d %d\n"
 
-#: spvw.d:1204
+#: spvw.d:1298
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Okänd SUBR-signatur: %d %d %d %d"
 
-#: spvw.d:1945
+#: spvw.d:2022
 msgid "module '%s' requires package %s.\n"
 msgstr "modul ”%s” kräver paket %s.\n"
 
-#: spvw.d:1955
+#: spvw.d:2032
 msgid "module '%s' redefines symbol "
 msgstr "modul ”%s” omdefinierar symbol "
 
-#: spvw.d:1957
+#: spvw.d:2034
 msgid " in the locked package "
 msgstr " i det låsta paketet "
 
-#: spvw.d:1959
+#: spvw.d:2036
 msgid ""
 "\n"
 "old definition: "
@@ -55,11 +55,11 @@ msgstr ""
 "\n"
 "gammal definition: "
 
-#: spvw.d:1996
+#: spvw.d:2073
 msgid "is an ANSI Common Lisp implementation."
 msgstr "är en ANSI Common Lisp-implementation."
 
-#: spvw.d:1998
+#: spvw.d:2075
 msgid ""
 "This image does not process the usual command line arguments.\n"
 "To create a normal image \"myclisp\", please do\n"
@@ -69,7 +69,7 @@ msgstr ""
 "För att skapa en normal avbild ”minclisp”, kör\n"
 "%s --clisp-x '(ext:saveinitmem \"minclisp\" :executable t :init-function nil)'\n"
 
-#: spvw.d:2003
+#: spvw.d:2080
 msgid ""
 "Usage:  %s [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -81,67 +81,67 @@ msgstr ""
 " till listan av argumentsträngar. Annars kommer en interaktiv\n"
 " read-eval-print-loop att startas.\n"
 
-#: spvw.d:2007
+#: spvw.d:2084
 msgid "Informative output:"
 msgstr "Informativ utmatning:"
 
-#: spvw.d:2008
+#: spvw.d:2085
 msgid " -h, --help    - print this help and exit"
 msgstr " -h, --help    - skriv ut denna hjälp och avsluta"
 
-#: spvw.d:2009
+#: spvw.d:2086
 msgid " --version     - print the version information"
 msgstr " --version     - skriv ut versionsinformationen"
 
-#: spvw.d:2010
+#: spvw.d:2087
 msgid " --license     - print the licensing information"
 msgstr " --license     - skriv ut licensinformationen"
 
-#: spvw.d:2011
+#: spvw.d:2088
 msgid " -help-image   - print image-specific help and exit"
 msgstr " -help-image   - skriv ut avbildsspecifik hjälp och avsluta"
 
-#: spvw.d:2012
+#: spvw.d:2089
 msgid "Memory image selection:"
 msgstr "Val av minnesavbild:"
 
-#: spvw.d:2013
+#: spvw.d:2090
 msgid " -B lisplibdir - set the installation directory"
 msgstr " -B lispbibkat - sätt installationskatalogen"
 
-#: spvw.d:2015
+#: spvw.d:2092
 msgid " -K linkingset - use this executable and memory image"
 msgstr " -K länkningsmängd - använd denna exekverbara fil och minnesavbild"
 
-#: spvw.d:2017
+#: spvw.d:2094
 msgid " -M memfile    - use this memory image"
 msgstr " -M memfil     - använd denna minnesavbild"
 
-#: spvw.d:2018
+#: spvw.d:2095
 msgid " -m size       - memory size (size = nB or nKB or nMB)"
 msgstr " -m storlek    - minnesstorlek (storlek = nB eller nKB eller nMB)"
 
-#: spvw.d:2019
+#: spvw.d:2096
 msgid "Internationalization:"
 msgstr "Internationalisering:"
 
-#: spvw.d:2020
+#: spvw.d:2097
 msgid " -L language   - set user language"
 msgstr " -L språk      - sätt användarspråket"
 
-#: spvw.d:2021
+#: spvw.d:2098
 msgid " -N nlsdir     - NLS catalog directory"
 msgstr " -N nlskat     - katalog för NLS-katalog"
 
-#: spvw.d:2022
+#: spvw.d:2099
 msgid " -Edomain encoding - set encoding"
 msgstr " -Edomain kodning  - sätt kodning"
 
-#: spvw.d:2023
+#: spvw.d:2100
 msgid "Interoperability:"
 msgstr "Interoperabilitet:"
 
-#: spvw.d:2024
+#: spvw.d:2101
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -151,155 +151,160 @@ msgstr ""
 "     påverkar banderoll, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     och *LOAD-PRINT*/*COMPILE-PRINT*"
 
-#: spvw.d:2027
+#: spvw.d:2104
 msgid " -w            - wait for a keypress after program termination"
 msgstr " -w            - vänta på en knapptryckning efter programavslut"
 
-#: spvw.d:2028
+#: spvw.d:2105
 msgid " -I            - be ILISP-friendly"
 msgstr " -I            - var ILISP-vänlig"
 
-#: spvw.d:2029
+#: spvw.d:2106
 msgid " -disable-readline - do not use the gnu readline library"
 msgstr ""
 
-#: spvw.d:2030
+#: spvw.d:2107
 msgid "Startup actions:"
 msgstr "Startåtgärder:"
 
-#: spvw.d:2031
+#: spvw.d:2108
 msgid " -ansi         - more ANSI CL compliance"
 msgstr " -ansi         - ytterligare ANSI CL-överrensstämmelse"
 
-#: spvw.d:2032
+#: spvw.d:2109
 msgid " -traditional  - traditional (undoes -ansi)"
 msgstr " -traditional  - traditionell (gör -ansi ogjord)"
 
-#: spvw.d:2033
+#: spvw.d:2110
 msgid " -modern       - start in a case-sensitive lowercase-preferring package"
 msgstr " -modern       - start i ett skiftlägeskänsligt paket som föredrar gemener"
 
-#: spvw.d:2034
+#: spvw.d:2111
 msgid " -p package    - start in the package"
 msgstr " -p paket      - starta i paketet"
 
-#: spvw.d:2035
+#: spvw.d:2112
 msgid " -C            - set *LOAD-COMPILING* to T"
 msgstr " -C            - sätt *LOAD-COMPILING* till T"
 
-#: spvw.d:2036
+#: spvw.d:2113
 msgid " -norc         - do not load the user ~/.clisprc file"
 msgstr " -norc         - läs inte in användarens ~/.clisprc-fil"
 
-#: spvw.d:2037
+#: spvw.d:2114
 msgid " -lp dir       - add dir to *LOAD-PATHS* (can be repeated)"
 msgstr " -lp kat       - lägg till kat till *LOAD-PATHS* (kan repeteras)"
 
-#: spvw.d:2038
+#: spvw.d:2115
 msgid " -i file       - load initfile (can be repeated)"
 msgstr " -i fil        - läs in initfil (kan repeteras)"
 
-#: spvw.d:2039
+#: spvw.d:2116
 msgid "Actions:"
 msgstr "Åtgärder:"
 
-#: spvw.d:2040
+#: spvw.d:2117
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile"
 msgstr " -c [-l] lispfil [-o utmatningsfil] - kompilera lispfil"
 
-#: spvw.d:2041
+#: spvw.d:2118
 msgid " -x expressions - execute the expressions, then exit"
 msgstr " -x uttryck     - exekvera uttrycken, avsluta därefter"
 
-#: spvw.d:2042
+#: spvw.d:2119
 msgid " Depending on the image, positional arguments can mean:"
 msgstr " Beroende på avbilden kan positionsargument innebära:"
 
-#: spvw.d:2043
+#: spvw.d:2120
 msgid "   lispscript [argument ...] - load script, then exit"
 msgstr "   lispskript [argument …] - läs in skript, avsluta därefter"
 
-#: spvw.d:2044
+#: spvw.d:2121
 msgid "   [argument ...]            - run the init-function"
 msgstr "   [argument …]            - kör init-funktionen"
 
-#: spvw.d:2045
+#: spvw.d:2122
 msgid "  arguments are placed in EXT:*ARGS* as strings."
 msgstr "  argumenten placeras i EXT:*ARGS* som strängar."
 
-#: spvw.d:2046
+#: spvw.d:2123
 msgid "These actions put CLISP into a batch mode, which is overridden by"
 msgstr "Dessa åtgärder placerar CLISP i satsvisläge vilket är åsidosatt av"
 
-#: spvw.d:2047
+#: spvw.d:2124
 msgid " -on-error action - action can be one of debug, exit, abort, appease"
 msgstr " -on-error åtgärd - åtgärd kan vara endera av debug, exit, abort, appease"
 
-#: spvw.d:2048
+#: spvw.d:2125
 msgid " -repl            - enter the interactive read-eval-print loop when done"
 msgstr " -repl            - gå in i interaktiv read-eval-print-loop när klar"
 
-#: spvw.d:2049
+#: spvw.d:2126
 msgid "Default action is an interactive read-eval-print loop."
 msgstr "Standardåtgärd är en inaktiv read-eval-print-loop."
 
-#: spvw.d:2058
+#: spvw.d:2135
 msgid "%s: use '-h' for help"
 msgstr "%s: använd ”-h” för hjälp"
 
-#: spvw.d:2062
+#: spvw.d:2139
 msgid "invalid argument"
 msgstr "ogiltigt argument"
 
-#: spvw.d:2369
+#: spvw.d:2450
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Syntax för %s: nnnnnnn eller nnnnKB eller nMB"
 
-#: spvw.d:2375
+#: spvw.d:2456
 msgid "warning: %s %lu too small, using %lu instead"
 msgstr "varning: %s %lu för liten, använder %lu istället"
 
-#: spvw.d:2381
+#: spvw.d:2462
 msgid "warning: %s %lu too large, using %lu instead"
 msgstr "varning: %s %lu för stor, använder %lu istället"
 
-#: spvw.d:2532
+#: spvw.d:2618
 msgid "memory size"
 msgstr "minnesstorlek"
 
-#: spvw.d:2558
+#: spvw.d:2644
 msgid "multiple -B"
 msgstr "multipla -B"
 
-#: spvw.d:2591
+#: spvw.d:2652
+#, fuzzy
+msgid "This option requires an argument"
+msgstr "-E kräver ett argument"
+
+#: spvw.d:2689
 msgid "-E requires an argument"
 msgstr "-E kräver ett argument"
 
-#: spvw.d:2822
+#: spvw.d:2924
 msgid "-l without -c is invalid"
 msgstr "-l utan -c är ogiltigt"
 
-#: spvw.d:2828
+#: spvw.d:2930
 msgid "-x with -c is invalid"
 msgstr "-x samtidigt med -c är ogiltigt"
 
-#: spvw.d:2833
+#: spvw.d:2935
 msgid "-x with lisp-file is invalid"
 msgstr "-x med lisp-fil är ogiltigt"
 
-#: spvw.d:2945
+#: spvw.d:3079
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Returvärde från malloc() = %lx är inte kompatibel med typkoddistribution."
 
-#: spvw.d:2952
+#: spvw.d:3086
 msgid "Only %ld bytes available."
 msgstr "Endast %ld byte tillgängliga."
 
-#: spvw.d:3157
+#: spvw.d:3321
 msgid "Could not determine the end of the SP stack!"
 msgstr "Kunde inte avgöra slutet av SP-stacken!"
 
-#: spvw.d:3892
+#: spvw.d:4060
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Inte tillräckligt minne för Lisp."
 
@@ -311,43 +316,51 @@ msgstr "*** - Slut på virtuellt minne. ÅTERSTÄLLNING"
 msgid "*** - Memory exhausted. RESET"
 msgstr "*** - Slut på minne. ÅTERSTÄLLNING"
 
-#: spvw_mmap.d:64 spvw_mmap.d:184 spvw_mmap.d:345
+#: spvw_mmap.d:105
+msgid "Warning: overwriting existing memory mappings in the address range 0x%lx...0x%lx. clisp will likely crash soon!!\n"
+msgstr ""
+
+#: spvw_mmap.d:161
+msgid "Warning: reserving address range 0x%lx...0x%lx that contains memory mappings. clisp might crash later!\n"
+msgstr ""
+
+#: spvw_mmap.d:203 spvw_mmap.d:323 spvw_mmap.d:496
 msgid "Cannot map memory to address 0x%lx ."
 msgstr "Kan inte mappa minne till adress 0x%lx."
 
-#: spvw_mmap.d:157
+#: spvw_mmap.d:296
 msgid "Cannot reserve address range at 0x%lx ."
 msgstr "Kan inte reservera minnesintervall vid 0x%lx."
 
-#: spvw_mmap.d:167
+#: spvw_mmap.d:306
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "Kan inte reservera adressintervall 0x%lx-0x%lx."
 
-#: spvw_mmap.d:211
+#: spvw_mmap.d:350
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() misslyckades."
 
-#: spvw_mmap.d:219
+#: spvw_mmap.d:358
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) misslyckades."
 
-#: spvw_mmap.d:225
+#: spvw_mmap.d:364
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
 msgstr "MapViewOfFileEx() returnerade 0x%x istället för 0x%x."
 
-#: spvw_mmap.d:240
+#: spvw_mmap.d:379
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() misslyckades."
 
-#: spvw_mmap.d:254
+#: spvw_mmap.d:393
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() misslyckades."
 
-#: spvw_mmap.d:325
+#: spvw_mmap.d:460
 msgid "Cannot open <%s>."
 msgstr "Kan inte öppna <%s>."
 
-#: spvw_fault.d:273
+#: spvw_fault.d:285
 msgid "mprotect(0x%lx,%d,%d) failed."
 msgstr "mprotect(0x%lx,%d,%d) misslyckades."
 
@@ -387,11 +400,11 @@ msgstr "Ledigt utrymme:  %lu byte."
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
 msgstr "SIGSEGV kan inte kureras. Feladress = 0x%lx."
 
-#: spvw_sigsegv.d:185
+#: spvw_sigsegv.d:180
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
 msgstr "Apollo 13-scenario: Hantering av stacköverspill misslyckades. Vid nästa stacköverspill kommer vi att krascha!!!"
 
-#: spvw_garcol.d:2560 spvw_garcol_old.d:1961
+#: spvw_garcol.d:2563 spvw_garcol_old.d:1981
 msgid "munmap() failed."
 msgstr "munmap() misslyckades."
 
@@ -403,390 +416,22 @@ msgstr "*** - Plats för LISP-objekt slut: ÅTERSTÄLLNING"
 msgid "Trying to make room through a GC..."
 msgstr "Försöker att skapa rum genom GC…"
 
-#: spvw_memfile.d:981 spvw_memfile.d:1833
+#: spvw_memfile.d:991 spvw_memfile.d:1847
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: operativsystemsfel vid inläsning av initialiseringsfil ”%s”"
 
-#: spvw_memfile.d:1501
+#: spvw_memfile.d:1512
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Kan inte mappa initialiseringsfilen ”%s” till minne."
 
-#: spvw_memfile.d:1838
+#: spvw_memfile.d:1852
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
 msgstr "%s: initialiseringsfilen ”%s” skapades inte av denna version av CLISP-exekveringsmiljön"
 
-#: spvw_memfile.d:1842
+#: spvw_memfile.d:1856
 msgid "%s: not enough memory for initialization"
 msgstr "%s: inte tillräckligt med minne för initialisering"
 
-#: spvw_memfile.d:1893
+#: spvw_memfile.d:1906
 msgid "%s: 'image size' method failed, but found image header at %d\n"
 msgstr "%s: metoden ”avbildsstorlek” misslyckades, man hittade avbildningshuvud vid %d\n"
-
-#: errunix.d:58
-msgid "Invalid multibyte or wide character"
-msgstr "Ogiltigt flerbytes- eller brett tecken"
-
-#: errunix.d:65
-msgid "Operation not permitted"
-msgstr "Operation inte tillåten"
-
-#: errunix.d:71
-msgid "No such file or directory"
-msgstr "Filen eller katalogen finns inte"
-
-#: errunix.d:77
-msgid "No such process"
-msgstr "Processen finns inte"
-
-#: errunix.d:83
-msgid "Interrupted system call"
-msgstr "Avbrutet systemanrop"
-
-#: errunix.d:89
-msgid "I/O error"
-msgstr "In/ut-fel"
-
-#: errunix.d:95
-msgid "No such device or address"
-msgstr "Enheten eller adressen finns inte"
-
-#: errunix.d:101
-msgid "Arg list too long"
-msgstr "Argumentlista för lång"
-
-#: errunix.d:107
-msgid "Exec format error"
-msgstr "Formatfel på körbar fil"
-
-#: errunix.d:113
-msgid "Bad file number"
-msgstr "Felaktigt filidentifierare"
-
-#: errunix.d:119
-msgid "No child processes"
-msgstr "Inga barnprocesser"
-
-#: errunix.d:125
-msgid "No more processes"
-msgstr "Inga fler processer"
-
-#: errunix.d:131
-msgid "Not enough memory"
-msgstr "Inte tillräckligt med minne"
-
-#: errunix.d:137
-msgid "Permission denied"
-msgstr "Åtkomst nekas"
-
-#: errunix.d:143
-msgid "Bad address"
-msgstr "Felaktig adress"
-
-#: errunix.d:149
-msgid "Block device required"
-msgstr "Blockenhet krävs"
-
-#: errunix.d:155
-msgid "Device busy"
-msgstr "Enhet upptagen"
-
-#: errunix.d:161
-msgid "File exists"
-msgstr "Fil existerar"
-
-#: errunix.d:167
-msgid "Cross-device link"
-msgstr "Länk över skilda enheter"
-
-#: errunix.d:173
-msgid "No such device"
-msgstr "Enhet finns inte"
-
-#: errunix.d:179
-msgid "Not a directory"
-msgstr "Inte en katalog"
-
-#: errunix.d:185
-msgid "Is a directory"
-msgstr "Är en katalog"
-
-#: errunix.d:191
-msgid "Invalid argument"
-msgstr "Ogiltigt argument"
-
-#: errunix.d:197
-msgid "File table overflow"
-msgstr "Överspill i filtabell"
-
-#: errunix.d:203
-msgid "Too many open files"
-msgstr "För många öppna filer"
-
-#: errunix.d:209
-msgid "Inappropriate ioctl for device"
-msgstr "Olämplig ”ioctl” för enhet"
-
-#: errunix.d:215
-msgid "Text file busy"
-msgstr "Textfil upptagen"
-
-#: errunix.d:221
-msgid "File too large"
-msgstr "Fil för stor"
-
-#: errunix.d:227
-msgid "No space left on device"
-msgstr "Enheten är full"
-
-#: errunix.d:233
-msgid "Illegal seek"
-msgstr "Otillåten sökning"
-
-#: errunix.d:239
-msgid "Read-only file system"
-msgstr "Skrivskyddat filsystem"
-
-#: errunix.d:245
-msgid "Too many links"
-msgstr "För många länkar"
-
-#: errunix.d:251
-msgid "Broken pipe, child process terminated or socket closed"
-msgstr "Brutet rör, barnprocess avslutad eller uttag stängt"
-
-#: errunix.d:261
-msgid "Argument out of domain"
-msgstr "Argument utanför domän"
-
-#: errunix.d:267
-msgid "Result too large"
-msgstr "Resultat för stort"
-
-#: errunix.d:274
-msgid "Operation would block"
-msgstr "Operationen skulle blockera"
-
-#: errunix.d:280
-msgid "Operation now in progress"
-msgstr "Operationen pågår nu"
-
-#: errunix.d:286
-msgid "Operation already in progress"
-msgstr "Operationen pågår redan"
-
-#: errunix.d:293
-msgid "Too many levels of symbolic links"
-msgstr "För många nivåer av symboliska länkar"
-
-#: errunix.d:299
-msgid "File name too long"
-msgstr "För långt filnamn"
-
-#: errunix.d:305
-msgid "Directory not empty"
-msgstr "Katalog inte tom"
-
-#: errunix.d:312
-msgid "Stale NFS file handle"
-msgstr "Förlegat NFS-filhandtag"
-
-#: errunix.d:318
-msgid "Too many levels of remote in path"
-msgstr "För många nivåer av fjärr i sökväg"
-
-#: errunix.d:325
-msgid "Socket operation on non-socket"
-msgstr "Uttagsoperation på icke-uttag"
-
-#: errunix.d:331
-msgid "Destination address required"
-msgstr "Destinationsadress krävs"
-
-#: errunix.d:337
-msgid "Message too long"
-msgstr "Meddelande för långt"
-
-#: errunix.d:343
-msgid "Protocol wrong type for socket"
-msgstr "Fel protokolltyp för uttag"
-
-#: errunix.d:349
-msgid "Option not supported by protocol"
-msgstr "Flagga stöds inte av protokoll"
-
-#: errunix.d:355
-msgid "Protocol not supported"
-msgstr "Protokoll stöds ej"
-
-#: errunix.d:361
-msgid "Socket type not supported"
-msgstr "Uttagstyp stöds ej"
-
-#: errunix.d:367
-msgid "Operation not supported on socket"
-msgstr "Operation stöds inte för uttag"
-
-#: errunix.d:373
-msgid "Protocol family not supported"
-msgstr "Protokollfamilj stöds inte"
-
-#: errunix.d:379
-msgid "Address family not supported by protocol family"
-msgstr "Adressfamilj stöds inte av protokollfamilj"
-
-#: errunix.d:385
-msgid "Address already in use"
-msgstr "Adress redan i bruk"
-
-#: errunix.d:391
-msgid "Cannot assign requested address"
-msgstr "Kan inte tilldela begärd adress"
-
-#: errunix.d:397
-msgid "Network is down"
-msgstr "Nätverk är nere"
-
-#: errunix.d:403
-msgid "Network is unreachable"
-msgstr "Nätverk kan inte nås"
-
-#: errunix.d:409
-msgid "Network dropped connection on reset"
-msgstr "Nätverk tog bort förbindelsen"
-
-#: errunix.d:415
-msgid "Software caused connection abort"
-msgstr "Mjukvara orsakade förbindelsebrott"
-
-#: errunix.d:421
-msgid "Connection reset by peer"
-msgstr "Förbindelse borttagen av partnern"
-
-#: errunix.d:427
-msgid "No buffer space available"
-msgstr "Ingen buffertplats tillgänglig"
-
-#: errunix.d:433
-msgid "Socket is already connected"
-msgstr "Uttag är redan anslutet"
-
-#: errunix.d:439
-msgid "Socket is not connected"
-msgstr "Uttag är inte anslutet"
-
-#: errunix.d:445
-msgid "Cannot send after socket shutdown"
-msgstr "Kan inte skicka efter att uttag stängts"
-
-#: errunix.d:451
-msgid "Too many references: cannot splice"
-msgstr "För många referenser: kan inte skarva"
-
-#: errunix.d:457
-msgid "Connection timed out"
-msgstr "Förbindelsens tidsgräns löpte ut"
-
-#: errunix.d:463
-msgid "Connection refused"
-msgstr "Förbindelse förvägrad"
-
-#: errunix.d:468
-msgid "Remote peer released connection"
-msgstr "Fjärrpartner släppte anslutning"
-
-#: errunix.d:473
-msgid "Host is down"
-msgstr "Värddator är nere"
-
-#: errunix.d:479
-msgid "Host is unreachable"
-msgstr "Värddator är onåbar"
-
-#: errunix.d:484
-msgid "Networking error"
-msgstr "Nätverksfel"
-
-#: errunix.d:490
-msgid "Too many processes"
-msgstr "För många processer"
-
-#: errunix.d:496
-msgid "Too many users"
-msgstr "För många användare"
-
-#: errunix.d:502
-msgid "Disk quota exceeded"
-msgstr "Diskkvot överskriden"
-
-#: errunix.d:509
-msgid "Not a stream device"
-msgstr "Inte en strömenhet"
-
-#: errunix.d:515
-msgid "Timer expired"
-msgstr "Tidsgräns löpte ut"
-
-#: errunix.d:521
-msgid "Out of stream resources"
-msgstr "Strömresurserna är slut"
-
-#: errunix.d:527
-msgid "No message of desired type"
-msgstr "Inget meddelande av önskad typ"
-
-#: errunix.d:533
-msgid "Not a data message"
-msgstr "Inte ett datameddelande"
-
-#: errunix.d:540
-msgid "Identifier removed"
-msgstr "Identifierare borttagen"
-
-#: errunix.d:547
-msgid "Resource deadlock would occur"
-msgstr "Resursdödläge skulle inträffa"
-
-#: errunix.d:553
-msgid "No record locks available"
-msgstr "Inga postlås tillgängliga"
-
-#: errunix.d:560
-msgid "Machine is not on the network"
-msgstr "Maskin finns inte på nätverket"
-
-#: errunix.d:566 errunix.d:572
-msgid "Object is remote"
-msgstr "Är ett fjärrobjekt"
-
-#: errunix.d:578
-msgid "Link has been severed"
-msgstr "Länken har brutits"
-
-#: errunix.d:584
-msgid "Advertise error"
-msgstr "Annonseringsfel"
-
-#: errunix.d:590
-msgid "Srmount error"
-msgstr "Srmount-fel"
-
-#: errunix.d:596
-msgid "Communication error on send"
-msgstr "Kommunikationsfel vid sändning"
-
-#: errunix.d:602
-msgid "Protocol error"
-msgstr "Protokollfel"
-
-#: errunix.d:608
-msgid "Multihop attempted"
-msgstr "Flerhopp försöktes"
-
-#: errunix.d:620
-msgid "Remote address changed"
-msgstr "Fjärradress ändrades"
-
-#: errunix.d:627
-msgid "Function not implemented"
-msgstr "Funktion inte implementerad"
