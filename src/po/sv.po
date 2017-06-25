@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: clisp 2.48-pre1\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2010-07-07 11:09:01-0400\n"
-"PO-Revision-Date: 2017-06-23 00:27+0800\n"
+"PO-Revision-Date: 2017-06-25 01:31+0800\n"
 "Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -6176,525 +6176,525 @@ msgstr "~S ~S: Ogiltig specialiserare ~S i lambdalista ~S"
 #: clos-method3.lisp:81
 #, lisp-format
 msgid "Invalid ~S result for ~S: ~:S: ~A"
-msgstr ""
+msgstr "Ogiltigt ~S-resultat för ~S: ~:S: ~A"
 
 #: clos-methcomb1.lisp:21
 #, lisp-format
 msgid "~S: The method combination ~S is not defined."
-msgstr ""
+msgstr "~S: Metod kombinationen ~S är inte definierad."
 
 #: clos-methcomb2.lisp:81
 #, lisp-format
 msgid "The method function of ~S cannot be called before the method has been added to a generic function."
-msgstr ""
+msgstr "Metodfunktionen för ~S kan inte anropas för metoden har lagts till till en generisk funktion."
 
 #: clos-methcomb2.lisp:123
 #, lisp-format
 msgid "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Invalid method: ~S~%~?"
-msgstr ""
+msgstr "För funktionen ~S applicerad på argumentlistan ~S:~%Medan beräkningen av den effektiva metoden via ~S:~%Ogiltig metod: ~S~%~?"
 
 #: clos-methcomb2.lisp:137
 #, lisp-format
 msgid "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Impossible to combine the methods:~%~?"
-msgstr ""
+msgstr "För funktionen ~S applicerad på argumentlistan ~S:~%Medan beräkningen av den effektiva metoden via ~S:~%Omöjligt att kombinera metoderna:~%~?"
 
 #: clos-methcomb2.lisp:144 clos-methcomb2.lisp:158
 #, lisp-format
 msgid "The value of ~S is ~S, should be ~S or ~S."
-msgstr ""
+msgstr "Värde av ~S är ~S, borde vara ~S eller ~S."
 
 #: clos-methcomb2.lisp:151
 #, lisp-format
 msgid "Method ~S has the same specializers and different qualifiers than other methods in method group ~S, and is actually used in the effective method."
-msgstr ""
+msgstr "Metoden ~S har samma specialiserare och olika kvalificerare jämfört med andra metoder i metodgrupp ~S, och används i samma effektiva metod."
 
 #: clos-methcomb2.lisp:168
 #, lisp-format
 msgid "~S ~S: Invalid method-combination options ~S for ~S: ~A"
-msgstr ""
+msgstr "~S ~S: Ogiltig metodkombinationsalternativ ~S för ~S: ~A"
 
 #: clos-methcomb2.lisp:205 clos-methcomb2.lisp:222
 #, lisp-format
 msgid "~S ~S: Invalid syntax for ~S option: ~S"
-msgstr ""
+msgstr "~S ~S: Ogiltig syntax för ~S-alternativ: ~S"
 
 #: clos-methcomb2.lisp:294
 #, lisp-format
 msgid "~S is possible only from within the context of an effective method function. See ~S."
-msgstr ""
+msgstr "~S är möjlig endast inifrån en effektiv metodfunktions miljö. Se ~S."
 
 #: clos-methcomb2.lisp:303
 #, lisp-format
 msgid "~S is possible only at particular places from within the context of an effective method function. See ~S."
-msgstr ""
+msgstr "~S är endast möjlig på speciella platser inifrån en effektiv metodfunktions miljö. Se ~S."
 
 #: clos-methcomb2.lisp:310
 #, lisp-format
 msgid "~S cannot be used here: ~S"
-msgstr ""
+msgstr "~S kan inte användas här: ~S"
 
 #: clos-methcomb2.lisp:322
 #, lisp-format
 msgid "~S: The first argument is neither a method nor a (MAKE-METHOD ...) form: ~S"
-msgstr ""
+msgstr "~S: Det första argumentet är varken en metod eller en (MAKE-METHOD …)-form: ~S"
 
 #: clos-methcomb2.lisp:329
 #, lisp-format
 msgid "~S: The second argument is not a list: ~S"
-msgstr ""
+msgstr "~S: Det andra argumentet är inte en lista: ~S"
 
 #: clos-methcomb2.lisp:336
 #, lisp-format
 msgid "~S: The second argument is not a list of methods or (MAKE-METHOD ...) forms: ~S"
-msgstr ""
+msgstr "~S: Det andra argumentet är inte en lista över metoder eller (MAKE-METHOD …)-former: ~S"
 
 #: clos-methcomb2.lisp:483
 #, lisp-format
 msgid "In ~S ~S lambda list: ~A"
-msgstr ""
+msgstr "I ~S ~S lambdalista: ~A"
 
 #: clos-methcomb2.lisp:649
 #, lisp-format
 msgid "~S ~S: The ~S method combination permits no options: ~S"
-msgstr ""
+msgstr "~S ~S: Metodkombinationen ~S tillåter inte alternativ: ~S"
 
 #: clos-methcomb2.lisp:726
 #, lisp-format
 msgid "~S method combination, used by ~S, allows no method qualifiers except ~S: ~S"
-msgstr ""
+msgstr "Metodkombinationen ~S, använd av ~S, tillåter inte metodkvalificerare förut ~S: ~S"
 
 #: clos-methcomb2.lisp:729
 #, lisp-format
 msgid "~S method combination, used by ~S, does not allow method qualifiers: ~S"
-msgstr ""
+msgstr "Metodkombinationen ~S, använd av ~S, tillåter inte metodkvalificerare: ~S"
 
 #: clos-methcomb2.lisp:733
 #, lisp-format
 msgid "~S method combination, used by ~S, does not allow more than one method qualifier on a method: ~S"
-msgstr ""
+msgstr "Methodkombinationen ~S, använd av ~S, tillåter inte mer än en metodkvalificerare på en metod: ~S"
 
 #: clos-methcomb2.lisp:797
 #, lisp-format
 msgid "~S method combination, used by ~S, does not allow less than one method qualifier on a method: ~S"
-msgstr ""
+msgstr "~S metodkombination, använd av ~S, tillåter inte mindre än en metodkvalificerare på en metod: ~S"
 
 #: clos-methcomb2.lisp:868
 #, lisp-format
 msgid "~S ~S: invalid method group specifier ~S: ~A"
-msgstr ""
+msgstr "~S ~S: ogiltig metodgruppsspecificerare ~S: ~A"
 
 #: clos-methcomb2.lisp:879
 msgid "Not a list of length at least 2"
-msgstr ""
+msgstr "Inte lista med längd åtminstone 2"
 
 #: clos-methcomb2.lisp:888
 #, lisp-format
 msgid "Not a variable name: ~S"
-msgstr ""
+msgstr "Inte ett variabelnamn: ~S"
 
 #: clos-methcomb2.lisp:899 clos-methcomb2.lisp:909
 #, lisp-format
 msgid "In method group ~S: Cannot specify both qualifier patterns and a predicate."
-msgstr ""
+msgstr "I metodgrupp ~S: Kan inte ange både kvalificerarmönster och ett predikat."
 
 #: clos-methcomb2.lisp:907
 #, lisp-format
 msgid "In method group ~S: Cannot specify more than one predicate."
-msgstr ""
+msgstr "I metodgrupp ~S: Kan inte ange mer än ett predikat."
 
 #: clos-methcomb2.lisp:912
 #, lisp-format
 msgid "In method group ~S: Neither a qualifier pattern nor a predicate: ~S"
-msgstr ""
+msgstr "I metodgrupp ~S: Varken ett kvalificerarmönster eller ett predikat: ~S"
 
 #: clos-methcomb2.lisp:917
 #, lisp-format
 msgid "In method group ~S: options must come in pairs"
-msgstr ""
+msgstr "I metodgrupp ~S: alternativ måste förekomma parvis"
 
 #: clos-methcomb2.lisp:923 clos-methcomb2.lisp:927 clos-methcomb2.lisp:931
 #, lisp-format
 msgid "In method group ~S: option ~S may only be given once"
-msgstr ""
+msgstr "I metodgrupp ~S: alternativ ~S får endast anges en gång"
 
 #: clos-methcomb2.lisp:933
 #, lisp-format
 msgid "In method group ~S: ~S is not a string"
-msgstr ""
+msgstr "I metodgrupp ~S: ~S är inte en sträng"
 
 #: clos-methcomb2.lisp:936
 #, lisp-format
 msgid "In method group ~S: Invalid option ~S"
-msgstr ""
+msgstr "I metodgrupp ~S: Ogiltigt alternativ ~S"
 
 #: clos-methcomb2.lisp:939
 #, lisp-format
 msgid "In method group ~S: Missing pattern or predicate."
-msgstr ""
+msgstr "I metodgrupp ~S: Saknar mönster eller predikat."
 
 #: clos-methcomb2.lisp:1102
 #, lisp-format
 msgid "~S: method combination name ~S should be a symbol"
-msgstr ""
+msgstr "~S: metodkombinationsnamnet ~S borde var en symbol"
 
 #: clos-methcomb2.lisp:1107
 msgid "method combination"
-msgstr ""
+msgstr "metodkombination"
 
 #: clos-methcomb2.lisp:1118 clos-methcomb2.lisp:1129
 #, lisp-format
 msgid "~S ~S: options must come in pairs"
-msgstr ""
+msgstr "~S ~S: alternativ måste förekomma parvis"
 
 #: clos-methcomb2.lisp:1145
 #, lisp-format
 msgid "~S ~S: ~S is not a string"
-msgstr ""
+msgstr "~S ~S: ~S är inte en sträng"
 
 #: clos-methcomb2.lisp:1174
 #, lisp-format
 msgid "~S ~S: ~S is not a valid short-form option"
-msgstr ""
+msgstr "~S ~S: ~S är inte ett giltigt kortformsalternativ"
 
 #: clos-methcomb2.lisp:1196
 #, lisp-format
 msgid "~S ~S: invalid syntax for long form: ~S"
-msgstr ""
+msgstr "~S ~S: ogiltig syntax för lång form: ~S"
 
 #: clos-methcomb2.lisp:1206
 #, lisp-format
 msgid "~S ~S: invalid lambda-list: ~A"
-msgstr ""
+msgstr "~S ~S: ogiltig lambdalista: ~A"
 
 #: clos-methcomb2.lisp:1275
 #, lisp-format
 msgid "~S ~S: invalid syntax, neither short form nor long form syntax: ~S"
-msgstr ""
+msgstr "~S ~S: ogiltig syntax, varken kortforms eller långformssyntax: ~S"
 
 #: clos-genfun2a.lisp:154 clos-genfun2b.lisp:58
 #, lisp-format
 msgid "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S"
-msgstr ""
+msgstr "~S: ~S kräver ~S argument~:P, men endast ~S argument angavs till ~S: ~S"
 
 #: clos-genfun2a.lisp:170
 #, lisp-format
 msgid "~S: argument should be a proper list of classes, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara en ordentlig lista av klasser, inte ~S"
 
 #: clos-genfun2a.lisp:211
 #, lisp-format
 msgid "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S"
-msgstr ""
+msgstr "~S: ~S kräver ~S argument~:P, men ~S klasser angavs till ~S: ~S"
 
 #: clos-genfun2a.lisp:229
 #, lisp-format
 msgid "~S: argument should be a proper list of specifiers, not ~S"
-msgstr ""
+msgstr "~S: argument borde vara en ordentlig lista av specificerare, inte ~S"
 
 #: clos-genfun2a.lisp:324 clos-genfun2b.lisp:88
 #, lisp-format
 msgid "~S: ~S has ~S required argument~:P"
-msgstr ""
+msgstr "~S: ~S kräver ~S argument~:P"
 
 #: clos-genfun2a.lisp:335
 #, lisp-format
 msgid "~S: Invalid method specializer ~S on ~S in ~S"
-msgstr ""
+msgstr "~S: Ogiltig metodspecialiserare ~S på ~S i ~S"
 
 #: clos-genfun2b.lisp:46
 #, lisp-format
 msgid "Wrong ~S result for generic function ~S: not a proper list: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för generisk funktion ~S: inte en ordentlig lista: ~S"
 
 #: clos-genfun2b.lisp:50
 #, lisp-format
 msgid "Wrong ~S result for generic function ~S: list element is not a method: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för generisk funktion ~S: listelement är inte en metod: ~S"
 
 #: clos-genfun2b.lisp:520
 #, lisp-format
 msgid "~S is not one of the required parameters: ~S"
-msgstr ""
+msgstr "~S är inte en av de parametrar som krävs: ~S"
 
 #: clos-genfun2b.lisp:530
 #, lisp-format
 msgid "Some variable occurs twice in ~S"
-msgstr ""
+msgstr "Vissa variabler förekommer två gånger i ~S"
 
 #: clos-genfun2b.lisp:535
 #, lisp-format
 msgid "The variables ~S are missing in ~S"
-msgstr ""
+msgstr "Variablerna ~S saknas i ~S"
 
 #: clos-genfun2b.lisp:552
 #, lisp-format
 msgid "Invalid generic function lambda-list: ~A"
-msgstr ""
+msgstr "Ogiltig labmdalista för generisk funktion: ~A"
 
 #: clos-genfun2b.lisp:561 clos-genfun2b.lisp:577
 #, lisp-format
 msgid "The ~S argument should be a proper list, not ~S"
-msgstr ""
+msgstr "Argumentet ~S borde vara en ordentlig lista, inte ~S"
 
 #: clos-genfun2b.lisp:568
 #, lisp-format
 msgid "Incorrect ~S argument: ~A"
-msgstr ""
+msgstr "Felaktigt ~S-argument: ~A"
 
 #: clos-genfun2b.lisp:581
 #, lisp-format
 msgid "In the ~S argument, only ~S declarations are permitted, not ~S"
-msgstr ""
+msgstr "I argumentet ~S tillåts endast ~S deklarationer, inte ~S"
 
 #: clos-genfun2b.lisp:590
 #, lisp-format
 msgid "~S has ~D, but ~S has ~D required parameter~:P"
-msgstr ""
+msgstr "~S kräver ~D, men ~S kräver ~D parametrar~:P"
 
 #: clos-genfun2b.lisp:594
 #, lisp-format
 msgid "~S has ~D, but ~S has ~D optional parameter~:P"
-msgstr ""
+msgstr "~S kräver ~D, men ~S kräver ~D valfria parametrar~:P"
 
 #: clos-genfun2b.lisp:598 clos-genfun2b.lisp:602
 #, lisp-format
 msgid "~S accepts &REST or &KEY, but ~S does not."
-msgstr ""
+msgstr "~S accepterar &REST eller &KEY, men ~S gör inte det."
 
 #: clos-genfun2b.lisp:611
 #, lisp-format
 msgid "~S does not accept the keywords ~S of ~S"
-msgstr ""
+msgstr "~S accepterar inte nyckel;orden ~S av ~S"
 
 #: clos-genfun2b.lisp:621
 #, lisp-format
 msgid "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S"
-msgstr ""
+msgstr "Metodkombinationen ~S, använd av ~S, tillåter inte metodkvalificerarna ~:S: ~S"
 
 #: clos-genfun2b.lisp:642
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: ~S argument specified without a ~S argument."
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S-argument angivet utan ett ~S-argument."
 
 #: clos-genfun2b.lisp:653 clos-genfun2b.lisp:719
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: ~A"
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~A"
 
 #: clos-genfun2b.lisp:671
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: The ~S argument should be a class, not ~S"
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S-argumentet borde vara en klass, inte ~S"
 
 #: clos-genfun2b.lisp:676
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: The ~S argument should be a subclass of ~S, not ~S"
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S-argumentet borde vara en underklass av ~S, inte ~S"
 
 #: clos-genfun2b.lisp:693
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: The ~S argument should be a ~S object, not ~S"
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S-argumentet borde vara ett ~S-objekt, inte ~S"
 
 #: clos-genfun2b.lisp:704
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: The ~S argument should be a string or NIL, not ~S"
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S-argumentet borde vara en sträng eller NIL, inte ~S"
 
 #: clos-genfun2b.lisp:712
 #, lisp-format
 msgid "(~S ~S) for generic function ~S: The ~S and ~S arguments cannot be specified together."
-msgstr ""
+msgstr "(~S ~S) för generisk funktion ~S: ~S- och ~S-argumenten kan inte anges samtidigt."
 
 #: clos-genfun2b.lisp:834
 #, lisp-format
 msgid "Replacing method ~S in ~S"
-msgstr ""
+msgstr "Ersätter metod ~S i ~S"
 
 #: clos-genfun2b.lisp:841
 #, lisp-format
 msgid "Wrong ~S behaviour: ~S has not been removed from ~S"
-msgstr ""
+msgstr "Fel ~S-beteende: ~S har inte tagits bort från ~S"
 
 #: clos-genfun2b.lisp:887
 #, lisp-format
 msgid "Removing method ~S in ~S"
-msgstr ""
+msgstr "Tar bort metod ~S i ~S"
 
 #: clos-genfun2b.lisp:926
 #, lisp-format
 msgid "~S: the specializers argument is not a list: ~S"
-msgstr ""
+msgstr "~S: specialiserar argumentet är inte en lista: ~S"
 
 #: clos-genfun2b.lisp:935
 #, lisp-format
 msgid "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P"
-msgstr ""
+msgstr "~S: specialiserarargumentet har längden ~D, men ~S kräver ~D parametrar~:P"
 
 #: clos-genfun2b.lisp:955
 #, lisp-format
 msgid "~S has no method with qualifiers ~:S and specializers ~:S"
-msgstr ""
+msgstr "~S har ingen metod med kvalificerare ~:S och specialiserare ~:S"
 
 #: clos-genfun2b.lisp:1229
 #, lisp-format
 msgid "The generic function ~S is being modified, but has already been called."
-msgstr ""
+msgstr "Den generiska funktionen ~S modifieras, men har redan anropats."
 
 #: clos-genfun2b.lisp:1256
 #, lisp-format
 msgid "Wrong ~S result for generic-function ~S: not a function: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för generisk funktion ~S: inte en funktion: ~S"
 
 #: clos-genfun3.lisp:35
 #, lisp-format
 msgid "~S in ~S: bug in determination of effective methods"
-msgstr ""
+msgstr "~S i ~S: fel vid bestämning av effektiva metoder"
 
 #: clos-genfun3.lisp:42
 #, lisp-format
 msgid "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S"
-msgstr ""
+msgstr "~S i ~S: de nya argumenten ~S har en annan effektiv metod än de gamla argumenten ~S"
 
 #: clos-genfun3.lisp:60 clos-genfun3.lisp:431
 #, lisp-format
 msgid "~S ~S: invalid ~S option ~S"
-msgstr ""
+msgstr "~S ~S: ogiltigt ~S-alternativ ~S"
 
 #: clos-genfun3.lisp:106 clos-genfun3.lisp:120
 #, lisp-format
 msgid "~S for generic-function ~S: ~S ~S is neither a class or a symbol"
-msgstr ""
+msgstr "~S för generisk funktion ~S: ~S ~S är varken en klass eller en symbol"
 
 #: clos-genfun3.lisp:110
 #, lisp-format
 msgid "~S for generic-function ~S: ~S ~S is not a subclass of ~S"
-msgstr ""
+msgstr "~S för generisk funktion ~S: ~S ~S är inte en underklass av ~S"
 
 #: clos-genfun3.lisp:186 clos-genfun3.lisp:236
 #, lisp-format
 msgid "~S: ~S does not name a generic function"
-msgstr ""
+msgstr "~S: ~S namnger inte en generisk funktion"
 
 #: clos-genfun3.lisp:195
 #, lisp-format
 msgid "Wrong ~S result for ~S: not a generic-function: ~S"
-msgstr ""
+msgstr "Fel ~S-resultat för ~S: inte en generisk funktion: ~S"
 
 #: clos-genfun3.lisp:349 clos-genfun3.lisp:371
 #, lisp-format
 msgid "~S ~S: ~S may only be specified once."
-msgstr ""
+msgstr "~S ~S: ~S får endast anges en gång."
 
 #: clos-genfun3.lisp:357
 #, lisp-format
 msgid "~S ~S: A string must be specified after ~S : ~S"
-msgstr ""
+msgstr "~S ~S: En sträng måste anges efter ~S : ~S"
 
 #: clos-genfun3.lisp:363
 #, lisp-format
 msgid "~S ~S: Only one ~S string is allowed."
-msgstr ""
+msgstr "~S ~S: Endast en ~S-sträng är tillåten."
 
 #: clos-genfun3.lisp:383
 #, lisp-format
 msgid "~S ~S: A method combination type name must be specified after ~S : ~S"
-msgstr ""
+msgstr "~S ~S: Ett typnamn för en metodkombination måste anges efter ~S : ~S"
 
 #: clos-genfun3.lisp:391
 #, lisp-format
 msgid "~S ~S: Invalid method combination specification: ~S"
-msgstr ""
+msgstr "~S ~S: Ogiltig specifikation för metodkombination: ~S"
 
 #: clos-genfun3.lisp:399 clos-genfun3.lisp:413
 #, lisp-format
 msgid "~S ~S: A class name must be specified after ~S : ~S"
-msgstr ""
+msgstr "~S ~S: Ett klassnamn måste anges efter ~S : ~S"
 
 #: clos-genfun3.lisp:405 clos-genfun3.lisp:419 clos-genfun3.lisp:440
 #, lisp-format
 msgid "~S ~S: Only one ~S option is allowed."
-msgstr ""
+msgstr "~S ~S: Endast ett ~S-alternativ är tillåtet."
 
 #: clos-genfun3.lisp:515
 #, lisp-format
 msgid "~S ~S: invalid generic function lambda-list: ~A"
-msgstr ""
+msgstr "~S ~S: ogiltig lambdalista för generisk funktion: ~A"
 
 #: clos-genfun3.lisp:638
 #, lisp-format
 msgid "~S: ~S is not a generic function specification"
-msgstr ""
+msgstr "~S: ~S är inte en specifikation för en generisk funktion"
 
 #: clos-genfun4.lisp:101 clos-genfun4.lisp:105
 #, lisp-format
 msgid "~S: When calling ~S with arguments ~S, no method is applicable."
-msgstr ""
+msgstr "~S: När ~S anropas med argumenten ~S är ingen metod tillämpbar."
 
 #: clos-genfun4.lisp:122 clos-genfun4.lisp:126
 #, lisp-format
 msgid "~S: When calling ~S with arguments ~S, no method of group ~S (from ~S) is applicable."
-msgstr ""
+msgstr "~S: När ~S anropas med argumenten ~S är ingen metod från gruppen ~S (från ~S) tillämpbar."
 
 #: clos-genfun4.lisp:146 clos-genfun4.lisp:150
 #, lisp-format
 msgid "~S: When calling ~S with arguments ~S, no primary method is applicable."
-msgstr ""
+msgstr "~S: När ~S anropas med argumenten ~S finns är ingen primärmetod tillämpbar."
 
 #: clos-genfun4.lisp:159
 #, lisp-format
 msgid "ignore ~S"
-msgstr ""
+msgstr "hoppa över ~S"
 
 #: clos-genfun4.lisp:165
 #, lisp-format
 msgid "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called."
-msgstr ""
+msgstr "~S: När ~S anropas med argumenten ~S finns det ingen nästa metod efter ~S och ~S anropades."
 
 #: clos-genfun4.lisp:171
 #, lisp-format
 msgid "~S: ~S is invalid within ~{~S~^ ~} methods"
-msgstr ""
+msgstr "~S: ~S är ogiltig inom ~{~S~^ ~} metoder"
 
 #: clos-genfun4.lisp:174
 #, lisp-format
 msgid "~S: ~S is invalid within primary methods"
-msgstr ""
+msgstr "~S: ~S är ogiltig inom primära metoder"
 
 #: clos-genfun4.lisp:248
 #, lisp-format
 msgid "~S: Overriding a standardized method is not allowed. You need to call ~S."
-msgstr ""
+msgstr "~S: Att åsidosätta en standardiserad metod är inte tillåtet. Du måste anropa ~S."
 
 #: clos-genfun4.lisp:253
 #, lisp-format
 msgid "~S: Extending a standardized method is only allowed if it returns the same values as the next method.~%Original value: ~{~S~^, ~}~%Value returned by the extending method: ~{~S~^, ~}"
-msgstr ""
+msgstr "~S: Att utöka en standardisera metod är endast tillåtet om den returnerar samma värden som nästa metod.~%Originalvärde: ~{~S~^, ~}~%Värde returnerat av den utökade metoden: ~{~S~^, ~}"
 
 #: clos-genfun4.lisp:254
 #, lisp-format
 msgid "~S: Extending a standardized method is only allowed if it returns the same values as the next method.~%Original values: ~{~S~^, ~}~%Values returned by the extending method: ~{~S~^, ~}"
-msgstr ""
+msgstr "~S: Att utöka en standardisera metod är endast tillåtet om den returnerar samma värden som nästa metod.~%Originalvärden: ~{~S~^, ~}~%Värden returnerade av den utökade metoden: ~{~S~^, ~}"
 
 #: clos-genfun4.lisp:349
 #, lisp-format
 msgid "The generic function ~S has not yet been initialized."
-msgstr ""
+msgstr "Den generiska funktionen ~S har inte initierats än."
 
 #: clos-genfun4.lisp:364
 #, lisp-format
 msgid "~S: The name of a generic function must be a function name, not ~S"
-msgstr ""
+msgstr "~S: Namnet på en generisk funktion måste vara ett funktionsnamn, inte ~S"
 
 #: clos-genfun4.lisp:390
 #, lisp-format
 msgid "~S: the lambda-list of ~S is not yet known"
-msgstr ""
+msgstr "~S: lambdalistan för ~S är inte känd än"
 
 #: clos-genfun4.lisp:408 clos-genfun4.lisp:464
 #, lisp-format
 msgid "Invalid ~S result ~S: ~A"
-msgstr ""
+msgstr "Ogiltigt ~S-resultat ~S: ~A"
 
 #: clos-print.lisp:16
 #, lisp-format
@@ -7718,36 +7718,36 @@ msgstr ""
 #: describe.lisp:592
 #, lisp-format
 msgid "~A [see above]"
-msgstr ""
+msgstr "~A [se ovan]"
 
 #: describe.lisp:596
 #, lisp-format
 msgid "~A is "
-msgstr ""
+msgstr "~A är "
 
 #: describe.lisp:601
 #, lisp-format
 msgid "Documentation:"
-msgstr ""
+msgstr "Dokumentation:"
 
 #: describe.lisp:663
 #, lisp-format
 msgid "Documentation: ~A"
-msgstr ""
+msgstr "Dokumentation: ~A"
 
 #: describe.lisp:675
 #, lisp-format
 msgid "~S: file ~S does not exist - adjust ~S"
-msgstr ""
+msgstr "~S: fil ~S existerar inte - justera ~s"
 
 #: room.lisp:17
 #, lisp-format
 msgid "~S: argument must be ~S, ~S or ~S, not ~S"
-msgstr ""
+msgstr "~S: argumentet måste vara ~S, ~S eller ~S, inte ~S"
 
 #: room.lisp:48 room.lisp:218
 msgid "Total"
-msgstr ""
+msgstr "Totalt"
 
 #: room.lisp:54
 #, lisp-format
@@ -7756,6 +7756,9 @@ msgid ""
 "                       Bytes freed by GC:             ~16:D~%~\n"
 "                       Time spent in GC:              ~16F sec"
 msgstr ""
+"Antal skräpsamlingar: ~16:D~%~\n"
+"                   Byte som frigjorts av skräpsamling ~16:D~%~\n"
+"                   Tid spenderad på skräpsamling      ~16F sek"
 
 #: room.lisp:60
 #, lisp-format
@@ -7764,20 +7767,23 @@ msgid ""
 "                     Bytes currently in use:        ~16:D~%~\n"
 "                     Bytes available until next GC: ~16:D"
 msgstr ""
+"Byte permanent allokerade:     ~16:D~%~\n"
+"         Byte som används:                          ~16:D~%~\n"
+"         Byte tillgängliga till nästa skräpsamling: ~16:D"
 
 #: edit.lisp:28
 msgid "No external editor installed."
-msgstr ""
+msgstr "Ingen extern redigerare installerad."
 
 #: edit.lisp:82
 #, lisp-format
 msgid "~S cannot be edited."
-msgstr ""
+msgstr "~S kan inte redigeras."
 
 #: edit.lisp:101
 #, lisp-format
 msgid "~S: source code for ~S not available."
-msgstr ""
+msgstr "~S: källkod för ~S inte tillgänglig."
 
 #: macros3.lisp:14
 #, lisp-format
@@ -7785,115 +7791,117 @@ msgid ""
 "The form ~S yielded ~:[no values~;~:*~{~S~^ ; ~}~] ,~@\n"
 "                       that's not of type ~S."
 msgstr ""
+"Formen ~S gav ~:[inga värden~;~:*~{~S~^ ; ~}~] ,~@\n"
+"                       som inte är av typ ~S."
 
 #: macros3.lisp:66
 #, lisp-format
 msgid "LETF* code contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "LETF*-kod innehåller en punktad lista som avslutas med ~S"
 
 #: macros3.lisp:240
 #, lisp-format
 msgid "LETF code contains a dotted list, ending with ~S"
-msgstr ""
+msgstr "LETF-kod innehåller en punktad lista som avslutas med ~S"
 
 #: clhs.lisp:187
 #, lisp-format
 msgid "~S: error ~D: ~S"
-msgstr ""
+msgstr "~S: fel ~D: ~S"
 
 #: clhs.lisp:249
 #, lisp-format
 msgid "~S is not found"
-msgstr ""
+msgstr "~S hittades inte"
 
 #: clhs.lisp:270 clhs.lisp:310
 #, lisp-format
 msgid "~S returns invalid value ~S, fix it, ~S, ~S, or ~S"
-msgstr ""
+msgstr "~S returnerar ogiltigt värde ~S, fixa det, ~S, ~S, eller ~S"
 
 #: clhs.lisp:342
 #, lisp-format
 msgid "~S: invalid symbol ~S with id ~S: ~A"
-msgstr ""
+msgstr "~S: ogiltig symbol ~S med id ~S: ~A"
 
 #: clhs.lisp:345
 #, lisp-format
 msgid "~S: invalid id ~S for symbol ~S"
-msgstr ""
+msgstr "~S: ogiltigt id ~S för symbol ~S"
 
 #: clhs.lisp:355
 #, lisp-format
 msgid "Ignore"
-msgstr ""
+msgstr "Hoppa över"
 
 #: clhs.lisp:355
 #, lisp-format
 msgid "~S(~S): ~S does not know about ~S; the Implementation Notes must be regenerated"
-msgstr ""
+msgstr "~S(~S): ~S känner inte till ~S; Implementationsnoterna måste omgenereras"
 
 #: threads.lisp:74
 msgid "[Timed out] "
-msgstr ""
+msgstr "[Tidsgräns uppnåddes] "
 
 #: foreign1.lisp:106
 #, lisp-format
 msgid "Cannot map string ~S to C since it contains a character ~S"
-msgstr ""
+msgstr "Kan inte mappa sträng ~S till C då den innehåller tecknet ~S."
 
 #: foreign1.lisp:146
 #, lisp-format
 msgid "Invalid ~S component: ~S"
-msgstr ""
+msgstr "Ogiltig ~S-komponent: ~S"
 
 #: foreign1.lisp:212
 #, lisp-format
 msgid "Incomplete FFI type ~S is not allowed here."
-msgstr ""
+msgstr "Ofullständig FFI-typ ~S tillåts inte här."
 
 #: foreign1.lisp:220
 #, lisp-format
 msgid "FFI type should be a symbol, not ~S"
-msgstr ""
+msgstr "FFI-typ borde vara en symbol, inte ~S"
 
 #: foreign1.lisp:223
 #, lisp-format
 msgid "Invalid FFI type: ~S"
-msgstr ""
+msgstr "Ogiltig FFI-typ: ~S"
 
 #: foreign1.lisp:328
 #, lisp-format
 msgid "Invalid option in ~S: ~S"
-msgstr ""
+msgstr "Ogiltig alternativ i ~S: ~S"
 
 #: foreign1.lisp:331
 #, lisp-format
 msgid "Only one ~S option is allowed: ~S"
-msgstr ""
+msgstr "Endast ett ~S-alternativ tillåts: ~S"
 
 #: foreign1.lisp:387
 #, lisp-format
 msgid "Invalid parameter specification in ~S: ~S"
-msgstr ""
+msgstr "Ogiltig parameter specifikation i ~S: ~S"
 
 #: foreign1.lisp:401
 #, lisp-format
 msgid "~S argument ~S is not a pointer in ~S"
-msgstr ""
+msgstr "~S argument ~S är inte en pekare in i ~S"
 
 #: foreign1.lisp:426
 #, lisp-format
 msgid "~S: No ~S argument and no ~S form in this compilation unit; ~S assumed now and for the rest of this unit"
-msgstr ""
+msgstr "~S: Inget ~S-argument och ingen ~S-form i denna kompileringsenhet; ~S antas tillsvidare och under resten av denna enhet."
 
 #: foreign1.lisp:432
 #, lisp-format
 msgid "The name must be a string, not ~S"
-msgstr ""
+msgstr "Namnet måste var en sträng, inte ~S"
 
 #: foreign1.lisp:436
 #, lisp-format
 msgid "The name ~S is not a valid C identifier"
-msgstr ""
+msgstr "Namnet ~S är inte en giltig C-identifierare"
 
 #: foreign1.lisp:685
 #, lisp-format
@@ -7901,54 +7909,54 @@ msgid "illegal foreign data type ~S"
 msgstr "Främmande datatyp ~S "
 
 #: foreign1.lisp:919
-#, lisp-format
+#, fuzzy, lisp-format
 msgid "~S(~S) requires writing to a C file"
-msgstr ""
+msgstr "~S(~S ~S) kräver skrivning till en C-fil"
 
 #: foreign1.lisp:939
 #, lisp-format
 msgid "~S(~S): CPP constant ~A is not defined"
-msgstr ""
+msgstr "~S(~S): CPP-konstant ~A är inte definierad"
 
 #: foreign1.lisp:955
 #, lisp-format
 msgid "~S: ~S option missing in ~S"
-msgstr ""
+msgstr "~S: flaggan ~S saknas i ~S"
 
 #: foreign1.lisp:1078 foreign1.lisp:1135
 #, lisp-format
 msgid "~S is deprecated, use ~S instead"
-msgstr ""
+msgstr "~S är föråldrat, använd ~S istället"
 
 #: foreign1.lisp:1303
 #, lisp-format
 msgid "~S (~S): value ~S will be assigned to both ~S and ~S"
-msgstr ""
+msgstr "~S (~S): värdet ~S kommer att tilldelas till både ~S och ~S"
 
 #: foreign1.lisp:1312
 #, lisp-format
 msgid "~S does not name a C enum type"
-msgstr ""
+msgstr "~S namnger inte en en uppräkningsbar C-typ"
 
 #: foreign1.lisp:1315
 #, lisp-format
 msgid "~S is not of C enum type ~S"
-msgstr ""
+msgstr "~S är inte av den uppräkningsbara C-typen ~S"
 
 #: foreign1.lisp:1319
 #, lisp-format
 msgid "~S symbol value (~S) does not match its table value (~S) in ~S"
-msgstr ""
+msgstr "~S symbolvärde (~S) matchar inte dess tabellvärde (~S) i ~S"
 
 #: foreign1.lisp:1324
 #, lisp-format
 msgid "~S is not a valid value of type ~S"
-msgstr ""
+msgstr "~S är inte ett giltigt värde av typ ~S"
 
 #: foreign1.lisp:1342
 #, lisp-format
 msgid "~S is only allowed after ~S: ~S"
-msgstr ""
+msgstr "~S tillåts endast efter ~S: ~S"
 
 #~ msgid "EVAL/APPLY: too few arguments given to ~S"
 #~ msgstr "EVAL/APPLY: för få argument angivna till ~S"
