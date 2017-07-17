@@ -1,3 +1,7 @@
+2017-07-17  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: test CLOS:GF-ALREADY-CALLED-WARNING on Gray streams
+
 2017-03-14  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: bind *reopen-open-file* to nil when copying stdout

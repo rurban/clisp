@@ -3294,6 +3294,10 @@ T
        (already-called 0) (replacing-method 0))
   (defmethod initialize-instance :after ((o clos:gf-already-called-warning) &rest opts) (incf already-called))
   (defmethod initialize-instance :after ((o clos:gf-replacing-method-warning) &rest opts) (incf replacing-method))
+  ;; system classes --- do NOT warn!
+  (defclass gray-test (fundamental-character-output-stream) ())
+  (defmethod stream-write-char ((s gray-test) ch) nil)
+  ;; user classes --- DO warn!
   (defclass ware () ((title :initarg :title :accessor title)))
   (defclass book (ware) ())
   (defclass compact-disk (ware) ())
@@ -3312,6 +3316,7 @@ T
 
 ;; cleanup
 (setf (find-class 'class-bad-slot) nil
+      (find-class 'gray-test) nil
       (find-class 'ware) nil
       (find-class 'book) nil
       (find-class 'compact-disk) nil

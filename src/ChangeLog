@@ -1,3 +1,10 @@
+2017-07-17  Sam Steingold  <sds@gnu.org>
+
+	* gray.lisp (clos::*dynamically-modifiable-generic-function-names*):
+	Add Gray generic functions to avoid the
+	CLOS:GF-ALREADY-CALLED-WARNING as per the spec.
+	Reported by Jean Louis <bugs@gnu.support>.
+
 2017-06-25  Bruno Haible  <bruno@clisp.org>
 
 	Bump version number after beta release.
