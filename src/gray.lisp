@@ -2,6 +2,7 @@
 ;;; ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail
 
 (in-package "GRAY")
+
 (common-lisp:export
  '(;; Classes:
    fundamental-stream
@@ -12,42 +13,49 @@
    fundamental-character-input-stream
    fundamental-character-output-stream
    fundamental-binary-input-stream
-   fundamental-binary-output-stream
-   ;; general generic functions:
-   stream-position
-   stream-read-sequence
-   stream-write-sequence
-   ;; Generic functions for character input:
-   stream-read-char
-   stream-unread-char
-   stream-read-char-no-hang
-   stream-peek-char
-   stream-listen
-   stream-read-char-will-hang-p
-   stream-read-char-sequence
-   stream-read-line
-   stream-clear-input
-   ;; Generic functions for character output:
-   stream-write-char
-   stream-line-column
-   stream-start-line-p
-   stream-write-char-sequence
-   stream-write-string
-   stream-terpri
-   stream-fresh-line
-   stream-finish-output
-   stream-force-output
-   stream-clear-output
-   stream-advance-to-column
-   ;; Generic functions for binary input:
-   stream-read-byte
-   stream-read-byte-lookahead
-   stream-read-byte-will-hang-p
-   stream-read-byte-no-hang
-   stream-read-byte-sequence
-   ;; Generic functions for binary output:
-   stream-write-byte
-   stream-write-byte-sequence))
+   fundamental-binary-output-stream))
+(common-lisp:let
+    ((gray-generic-functions
+      '(;; general generic functions:
+        stream-position
+        stream-read-sequence
+        stream-write-sequence
+        ;; Generic functions for character input:
+        stream-read-char
+        stream-unread-char
+        stream-read-char-no-hang
+        stream-peek-char
+        stream-listen
+        stream-read-char-will-hang-p
+        stream-read-char-sequence
+        stream-read-line
+        stream-clear-input
+        ;; Generic functions for character output:
+        stream-write-char
+        stream-line-column
+        stream-start-line-p
+        stream-write-char-sequence
+        stream-write-string
+        stream-terpri
+        stream-fresh-line
+        stream-finish-output
+        stream-force-output
+        stream-clear-output
+        stream-advance-to-column
+        ;; Generic functions for binary input:
+        stream-read-byte
+        stream-read-byte-lookahead
+        stream-read-byte-will-hang-p
+        stream-read-byte-no-hang
+        stream-read-byte-sequence
+        ;; Generic functions for binary output:
+        stream-write-byte
+        stream-write-byte-sequence)))
+  (common-lisp:export gray-generic-functions)
+  (common-lisp:setq clos::*dynamically-modifiable-generic-function-names*
+                    (common-lisp:append
+                     clos::*dynamically-modifiable-generic-function-names*
+                     gray-generic-functions)))
 (common-lisp:in-package "SYSTEM")
 (import '(close open-stream-p stream-element-type) "GRAY")
 (use-package '("GRAY") "EXT")
@@ -383,4 +391,3 @@
     (do ((index start (1+ index)))
         ((eql index end) nil)
       (stream-write-byte stream (aref sequence index)))))
-
