@@ -57,7 +57,12 @@
                      clos::*dynamically-modifiable-generic-function-names*
                      gray-generic-functions)))
 (common-lisp:in-package "SYSTEM")
-(import '(close open-stream-p stream-element-type) "GRAY")
+(let ((imported '(close open-stream-p stream-element-type)))
+  (import imported "GRAY")
+  (setq clos::*dynamically-modifiable-generic-function-names*
+        (append imported
+                '((setf stream-element-type))
+                clos::*dynamically-modifiable-generic-function-names*)))
 (use-package '("GRAY") "EXT")
 (ext:re-export "GRAY" "EXT")
 
