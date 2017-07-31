@@ -46,6 +46,7 @@
   ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
   ;; "The methods specialized on standard-object, structure-object, and
   ;;  condition all signal an error of type error."
+  (declare (dynamically-modifiable))
   (:method ((object standard-object) &optional environment)
     (declare (ignore environment))
     (signal-missing-load-form object))

@@ -30,20 +30,24 @@
 
 ;; MOP p. 103
 (defgeneric specializer-direct-generic-functions (specializer)
+  (declare (dynamically-modifiable))
   (:method ((specializer specializer))
     (compute-direct-generic-functions specializer)))
 
 ;; MOP p. 31
 (defgeneric add-direct-method (specializer method)
+  (declare (dynamically-modifiable))
   (:method ((specializer specializer) (method method))
     (add-direct-method-<specializer>-<method> specializer method)))
 
 ;; MOP p. 89
 (defgeneric remove-direct-method (specializer method)
+  (declare (dynamically-modifiable))
   (:method ((specializer specializer) (method method))
     (remove-direct-method-internal specializer method)))
 
 ;; MOP p. 103
 (defgeneric specializer-direct-methods (specializer)
+  (declare (dynamically-modifiable))
   (:method ((specializer specializer))
     (list-direct-methods specializer)))

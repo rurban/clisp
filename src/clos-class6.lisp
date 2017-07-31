@@ -66,6 +66,7 @@
   (setf (sys::%record-ref class *<potential-class>-classname-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-name (class)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class))
     (check-class-initialized class 1)
     (class-classname class))
@@ -75,6 +76,7 @@
 ;(initialize-extended-method-check #'class-name)
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
+  (declare (dynamically-modifiable))
   (:method (new-value (class potential-class))
     (unless (symbolp new-value)
       (error-of-type 'type-error
@@ -102,6 +104,7 @@
     (setf (slot-value class '$direct-subclasses) new-value)))
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (list-direct-subclasses class))
@@ -114,6 +117,7 @@
 
 ;; MOP p. 76
 (defgeneric class-direct-superclasses (class)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<defined-class>-direct-superclasses-location*))
@@ -405,6 +409,7 @@
 
 ;; Not in MOP.
 (defgeneric compute-direct-slot-definition-initargs (class &rest slot-spec)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class) &rest slot-spec)
     slot-spec))
 
@@ -437,21 +442,25 @@
 
 ;; MOP p. 38
 (defgeneric compute-class-precedence-list (class)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class))
     (compute-class-precedence-list-<defined-class> class)))
 
 ;; Not in MOP.
 (defgeneric compute-effective-slot-definition-initargs (class direct-slot-definitions)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class) direct-slot-definitions)
     (compute-effective-slot-definition-initargs-<defined-class> class direct-slot-definitions)))
 
 ;; MOP p. 42
 (defgeneric compute-effective-slot-definition (class slotname direct-slot-definitions)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class) slotname direct-slot-definitions)
     (compute-effective-slot-definition-<defined-class> class slotname direct-slot-definitions)))
 
 ;; MOP p. 43
 (defgeneric compute-slots (class)
+  (declare (dynamically-modifiable))
   (:method ((class semi-standard-class))
     (compute-slots-<defined-class>-primary class))
   (:method :around ((class semi-standard-class))
@@ -460,6 +469,7 @@
 
 ;; MOP p. 39
 (defgeneric compute-default-initargs (class)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class))
     (compute-default-initargs-<defined-class> class)))
 
@@ -477,6 +487,7 @@
                                            ; CLISP specific extension:
                                            fixed-slot-locations
                                       &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((class potential-class) name &rest args)
     (apply #'ensure-class-using-class-<t> class name args))
   (:method ((class null) name &rest args)
@@ -484,6 +495,7 @@
 
 ;; MOP p. 102
 (defgeneric validate-superclass (class superclass)
+  (declare (dynamically-modifiable))
   (:method ((class potential-class) (superclass potential-class))
     (or (eq superclass <t>)
         (eq (class-of class) (class-of superclass))
@@ -508,11 +520,13 @@
 
 ;; MOP p. 32
 (defgeneric add-direct-subclass (class subclass)
+  (declare (dynamically-modifiable))
   (:method ((class super-class) (subclass potential-class))
     (add-direct-subclass-internal class subclass)))
 
 ;; MOP p. 90
 (defgeneric remove-direct-subclass (class subclass)
+  (declare (dynamically-modifiable))
   (:method ((class super-class) (subclass potential-class))
     (remove-direct-subclass-internal class subclass)))
 
@@ -522,12 +536,14 @@
 
 ;; MOP p. 86
 (defgeneric reader-method-class (class direct-slot &rest initargs)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
     <standard-reader-method>))
 
 ;; MOP p. 103
 (defgeneric writer-method-class (class direct-slot &rest initargs)
+  (declare (dynamically-modifiable))
   (:method ((class defined-class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
     <standard-writer-method>))

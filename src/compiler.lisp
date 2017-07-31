@@ -1285,6 +1285,7 @@ for-value   NIL or T
     sys::in-defun ; indicates, which global function the Code belongs to
     ignorable ; marks variables as possibly ignorable
               ; (aside: Gensym-Variable are always automatically ignorable.)
+    clos::dynamically-modifiable ; add/remove methods without a warning
     sys::read-only)) ; marks Variables as not assigned
 
 ;; passed by the Interpreter: %denv%
@@ -1536,6 +1537,9 @@ for-value   NIL or T
                                                        x)
                                                '())))
                                        (cddr declspec)))))
+                 (CLOS::DYNAMICALLY-MODIFIABLE
+                  (when (cdr declspec)
+                    (c-warn (TEXT "Arguments in ~S are not allowed") declspec)))
                  (COMPILE
                   (when (and (cdr declspec)
                              (not (and (consp (cdr declspec))

@@ -7,6 +7,7 @@
 
 
 (defgeneric print-object (object stream)
+  (declare (dynamically-modifiable))
   (:method ((object t) stream)
     (unless (eq (class-of (class-of object)) <built-in-class>)
       ;; this method exists for things like (PRINT-OBJECT 2 *STANDARD-OUTPUT*)

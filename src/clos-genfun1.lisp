@@ -134,7 +134,10 @@
   (defclass generic-function (metaobject funcallable-standard-object)
     (($listeners          ; list of objects to be notified upon a change
        :type list
-       :accessor gf-listeners))
+       :accessor gf-listeners)
+     ($dynamically-modifiable   ; signal gf-already-called-warning?
+      :type boolean
+      :accessor gf-dynamically-modifiable))
     (:metaclass funcallable-standard-class)
     (:fixed-slot-locations t)
     (:generic-accessors nil)))

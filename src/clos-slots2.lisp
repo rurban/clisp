@@ -9,6 +9,7 @@
 
 (defgeneric slot-missing (class instance slot-name operation
                           &optional new-value)
+  (declare (dynamically-modifiable))
   (:method ((class t) instance slot-name operation &optional new-value)
     (declare (ignore instance new-value))
     (error-of-type 'error
@@ -16,6 +17,7 @@
       operation class slot-name)))
 
 (defgeneric slot-unbound (class instance slot-name)
+  (declare (dynamically-modifiable))
   (:method ((class t) instance slot-name)
     (declare (ignore class))
     (multiple-value-bind (new-value store-p)
@@ -78,7 +80,8 @@
   (apply #'invalidate-slot-value-info (method-specializers method)))
 
 ;; MOP p. 97
-(defgeneric slot-value-using-class (class object slot))
+(defgeneric slot-value-using-class (class object slot)
+  (declare (dynamically-modifiable)))
 (setq |#'slot-value-using-class| #'slot-value-using-class)
 #|
 (defmethod slot-value-using-class ((class semi-standard-class) instance (slot standard-effective-slot-definition))
@@ -109,7 +112,8 @@
     'signature #s(system::signature :req-num 3)))
 
 ;; MOP p. 93
-(defgeneric (setf slot-value-using-class) (new-value class object slot))
+(defgeneric (setf slot-value-using-class) (new-value class object slot)
+  (declare (dynamically-modifiable)))
 (setq |#'(setf slot-value-using-class)| #'(setf slot-value-using-class))
 #|
 (defmethod (setf slot-value-using-class) (new-value (class semi-standard-class) instance (slot standard-effective-slot-definition))
@@ -138,7 +142,8 @@
     'signature #s(system::signature :req-num 4)))
 
 ;; MOP p. 94
-(defgeneric slot-boundp-using-class (class object slot))
+(defgeneric slot-boundp-using-class (class object slot)
+  (declare (dynamically-modifiable)))
 (setq |#'slot-boundp-using-class| #'slot-boundp-using-class)
 #|
 (defmethod slot-boundp-using-class ((class semi-standard-class) instance (slot standard-effective-slot-definition))
@@ -166,7 +171,8 @@
     'signature #s(system::signature :req-num 3)))
 
 ;; MOP p. 96
-(defgeneric slot-makunbound-using-class (class object slot))
+(defgeneric slot-makunbound-using-class (class object slot)
+  (declare (dynamically-modifiable)))
 (setq |#'slot-makunbound-using-class| #'slot-makunbound-using-class)
 #|
 (defmethod slot-makunbound-using-class ((class semi-standard-class) instance (slot standard-effective-slot-definition))

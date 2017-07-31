@@ -3382,30 +3382,33 @@ ERROR
 
 ;; http://clisp.org/impnotes/mop-clisp.html#mop-clisp-warn
 #+CLISP
-(defmacro with-counting-mop-warnings (&body body)
-  `(let ((already-called 0) (replacing-method 0))
-     (defmethod initialize-instance :after
-       ((o clos:gf-already-called-warning) &rest opts)
-       (incf already-called))
-     (defmethod initialize-instance :after
-       ((o clos:gf-replacing-method-warning) &rest opts)
-       (incf replacing-method))
-     (list
-      (progn ,@body)
-      (list already-called replacing-method))))
-#+CLISP WITH-COUNTING-MOP-WARNINGS
+(defmacro with-collecting-mop-warnings (&body body)
+  `(let ((already-called ()) (replacing-method ()))
+     (flet ((warning-gf (w)
+              (generic-function-name
+               (car (last (simple-condition-format-arguments w))))))
+       (defmethod initialize-instance :after
+         ((o clos:gf-already-called-warning) &rest opts)
+         (push (warning-gf o) already-called))
+       (defmethod initialize-instance :after
+         ((o clos:gf-replacing-method-warning) &rest opts)
+         (push (warning-gf o) replacing-method))
+       (list
+        (progn ,@body)
+        (list already-called replacing-method)))))
+#+CLISP WITH-COLLECTING-MOP-WARNINGS
 
 #+CLISP
-(with-counting-mop-warnings ; system classes --- do NOT warn!
+(with-collecting-mop-warnings ; system classes --- do NOT warn!
   (defclass gray-test (fundamental-character-output-stream) ())
   (defmethod stream-write-char ((s gray-test) ch) nil)
   (stream-write-char (make-instance 'gray-test) #\A)
   (symbol-cleanup 'gray-test))
-#+CLISP (T (0 0))
+#+CLISP (T (() ()))
 
 #+CLISP
 (let ((book-counter 0) (sale-stats (make-hash-table :test 'equal)))
-  (with-counting-mop-warnings ; user classes --- DO warn!
+  (with-collecting-mop-warnings ; user classes --- DO warn!
     (defclass ware () ((title :initarg :title :accessor title)))
     (defclass book (ware) ())
     (defclass compact-disk (ware) ())
@@ -3419,8 +3422,39 @@ ERROR
       (setf (gethash (title object) sale-stats) (cons 0 0)))
     (add-to-inventory (make-instance 'book :title "AMOP"))
     (list book-counter (hash-table-count sale-stats)
-          (symbols-cleanup '(ware book compact-disk dvd add-to-inventory)))))
-#+CLISP ((1 1 ()) (2 1))
+          (symbols-cleanup '(ware book compact-disk dvd title add-to-inventory)))))
+#+CLISP ((1 1 ()) ((add-to-inventory add-to-inventory) (add-to-inventory)))
+
+#+CLISP
+(let ((book-counter 0) (sale-stats (make-hash-table :test 'equal)))
+  (with-collecting-mop-warnings
+    (defclass ware () ((title :initarg :title :accessor title)))
+    (defclass book (ware) ())
+    (defclass compact-disk (ware) ())
+    (defclass dvd (ware) ())
+    (defgeneric add-to-inventory (object)
+      (declare (dynamically-modifiable))) ; do NOT warn!
+    (defmethod add-to-inventory ((object ware)) nil)
+    (add-to-inventory (make-instance 'book :title "CLtL1"))
+    (defmethod add-to-inventory ((object book)) (incf book-counter))
+    (add-to-inventory (make-instance 'book :title "CLtL2"))
+    (defmethod add-to-inventory ((object book))
+      (setf (gethash (title object) sale-stats) (cons 0 0)))
+    (add-to-inventory (make-instance 'book :title "AMOP"))
+    (list book-counter (hash-table-count sale-stats)
+          (symbols-cleanup '(ware book compact-disk dvd title add-to-inventory)))))
+#+CLISP ((1 1 ()) (() (add-to-inventory)))
+
+#+CLISP
+(let (bad)
+  (do-all-symbols (s)
+    (when (and (fboundp s)
+               (typep (fdefinition s) 'generic-function)
+               (not (member (clos::gf-dynamically-modifiable (fdefinition s))
+                            '(t nil))))
+      (push s bad)))
+  bad)
+#+CLISP ()
 
 ;; cleanup
 (symbols-cleanup
@@ -3444,5 +3478,5 @@ ERROR
    class-supporting-classof-slots classof-direct-slot-definition-mixin
    add-classof-direct-mixin classof-effective-slot-definition-mixin
    add-classof-effective-mixin initialize-classof-slot testclass29a testclass29b
-   class-bad-slot with-counting-mop-warnings))
+   class-bad-slot #+clisp with-collecting-mop-warnings))
 ()

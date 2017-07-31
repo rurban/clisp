@@ -1,5 +1,10 @@
 2017-07-31  Sam Steingold  <sds@gnu.org>
 
+	* mop.tst (with-collecting-mop-warnings): replaces
+	with-counting-mop-warnings for testing rfe#52
+
+2017-07-31  Sam Steingold  <sds@gnu.org>
+
 	* mop.tst (with-counting-mop-warnings): extract from a test and
 	split the test in two
 

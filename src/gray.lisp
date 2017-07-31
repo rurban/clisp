@@ -13,56 +13,44 @@
    fundamental-character-input-stream
    fundamental-character-output-stream
    fundamental-binary-input-stream
-   fundamental-binary-output-stream))
-(common-lisp:let
-    ((gray-generic-functions
-      '(;; general generic functions:
-        stream-position
-        stream-read-sequence
-        stream-write-sequence
-        ;; Generic functions for character input:
-        stream-read-char
-        stream-unread-char
-        stream-read-char-no-hang
-        stream-peek-char
-        stream-listen
-        stream-read-char-will-hang-p
-        stream-read-char-sequence
-        stream-read-line
-        stream-clear-input
-        ;; Generic functions for character output:
-        stream-write-char
-        stream-line-column
-        stream-start-line-p
-        stream-write-char-sequence
-        stream-write-string
-        stream-terpri
-        stream-fresh-line
-        stream-finish-output
-        stream-force-output
-        stream-clear-output
-        stream-advance-to-column
-        ;; Generic functions for binary input:
-        stream-read-byte
-        stream-read-byte-lookahead
-        stream-read-byte-will-hang-p
-        stream-read-byte-no-hang
-        stream-read-byte-sequence
-        ;; Generic functions for binary output:
-        stream-write-byte
-        stream-write-byte-sequence)))
-  (common-lisp:export gray-generic-functions)
-  (common-lisp:setq clos::*dynamically-modifiable-generic-function-names*
-                    (common-lisp:append
-                     clos::*dynamically-modifiable-generic-function-names*
-                     gray-generic-functions)))
+   fundamental-binary-output-stream
+   ;; general generic functions:
+   stream-position
+   stream-read-sequence
+   stream-write-sequence
+   ;; Generic functions for character input:
+   stream-read-char
+   stream-unread-char
+   stream-read-char-no-hang
+   stream-peek-char
+   stream-listen
+   stream-read-char-will-hang-p
+   stream-read-char-sequence
+   stream-read-line
+   stream-clear-input
+   ;; Generic functions for character output:
+   stream-write-char
+   stream-line-column
+   stream-start-line-p
+   stream-write-char-sequence
+   stream-write-string
+   stream-terpri
+   stream-fresh-line
+   stream-finish-output
+   stream-force-output
+   stream-clear-output
+   stream-advance-to-column
+   ;; Generic functions for binary input:
+   stream-read-byte
+   stream-read-byte-lookahead
+   stream-read-byte-will-hang-p
+   stream-read-byte-no-hang
+   stream-read-byte-sequence
+   ;; Generic functions for binary output:
+   stream-write-byte
+   stream-write-byte-sequence))
 (common-lisp:in-package "SYSTEM")
-(let ((imported '(close open-stream-p stream-element-type)))
-  (import imported "GRAY")
-  (setq clos::*dynamically-modifiable-generic-function-names*
-        (append imported
-                '((setf stream-element-type))
-                clos::*dynamically-modifiable-generic-function-names*)))
+(import '(close open-stream-p stream-element-type) "GRAY")
 (use-package '("GRAY") "EXT")
 (ext:re-export "GRAY" "EXT")
 
@@ -77,93 +65,81 @@
     (clos:defclass fundamental-stream (stream clos:standard-object)
       (($open :type boolean :initform t) ; whether the stream is open
        ($fasl :type boolean :initform nil) ; read-eval is allowed; \r=#\Return
-       ($penl :type boolean :initform nil) ; whether an elastic newline is pending
-) ) ) )
+       ($penl :type boolean :initform nil))))) ; whether an elastic newline is pending
 
 (clos:defclass fundamental-input-stream (fundamental-stream)
-  ()
-)
+  ())
 
 (clos:defclass fundamental-output-stream (fundamental-stream)
-  ()
-)
+  ())
 
 ; Stuff these classes into the runtime system.
 (%defgray
   (vector
-    (clos:find-class 'fundamental-stream)        ; for STREAMP to work
-    (clos:find-class 'fundamental-input-stream)  ; for INPUT-STREAM-P to work
-    (clos:find-class 'fundamental-output-stream) ; for OUTPUT-STREAM-P to work
-) )
+    (clos:find-class 'fundamental-stream)       ; for STREAMP to work
+    (clos:find-class 'fundamental-input-stream) ; for INPUT-STREAM-P to work
+    (clos:find-class 'fundamental-output-stream))) ; for OUTPUT-STREAM-P to work
 
 (clos:defclass fundamental-character-stream (fundamental-stream)
-  ()
-)
+  ())
 
 (clos:defclass fundamental-binary-stream (fundamental-stream)
-  ()
-)
+  ())
 
-(clos:defclass fundamental-character-input-stream (fundamental-input-stream fundamental-character-stream)
-  (($lastchar :initform nil) ; last character read (and not yet unread)
-) )
+(clos:defclass fundamental-character-input-stream
+    (fundamental-input-stream fundamental-character-stream)
+  (($lastchar :initform nil))) ; last character read (and not yet unread)
 
-(clos:defclass fundamental-character-output-stream (fundamental-output-stream fundamental-character-stream)
-  ()
-)
 
-(clos:defclass fundamental-binary-input-stream (fundamental-input-stream fundamental-binary-stream)
-  ()
-)
+(clos:defclass fundamental-character-output-stream
+    (fundamental-output-stream fundamental-character-stream)
+  ())
 
-(clos:defclass fundamental-binary-output-stream (fundamental-output-stream fundamental-binary-stream)
-  ()
-)
+(clos:defclass fundamental-binary-input-stream
+    (fundamental-input-stream fundamental-binary-stream)
+  ())
+
+(clos:defclass fundamental-binary-output-stream
+    (fundamental-output-stream fundamental-binary-stream)
+  ())
 
 ;; General generic functions
 
 (clos:defgeneric close (stream &key abort)
+  (declare (dynamically-modifiable))
   (:method ((stream stream) &rest args)
     (apply #'sys::built-in-stream-close stream args))
   (:method ((stream fundamental-stream) &rest more-args)
     (declare (ignore more-args))
     (clos:with-slots ($open $penl) stream
       (when $penl (setq $penl nil) (write-char #\Newline stream))
-      (prog1 $open (setq $open nil))
-  ) )
-)
+      (prog1 $open (setq $open nil)))))
 
 (clos:defgeneric open-stream-p (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream stream))
-    (sys::built-in-stream-open-p stream)
-  )
+    (sys::built-in-stream-open-p stream))
   (:method ((stream fundamental-stream))
     (clos:with-slots ($open) stream
-      $open
-  ) )
-)
+      $open)))
 
 (clos:defgeneric stream-element-type (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream stream))
-    (sys::built-in-stream-element-type stream)
-  )
+    (sys::built-in-stream-element-type stream))
   (:method ((stream fundamental-stream))
-    (clos:no-applicable-method #'stream-element-type stream)
-  )
+    (clos:no-applicable-method #'stream-element-type stream))
   (:method ((stream fundamental-character-stream))
-    'CHARACTER
-  )
-)
+    'CHARACTER))
 (clos:defgeneric (setf stream-element-type) (new-element-type stream)
+  (declare (dynamically-modifiable))
   (:method (new-element-type (stream stream))
-    (sys::built-in-stream-set-element-type stream new-element-type)
-  )
+    (sys::built-in-stream-set-element-type stream new-element-type))
   (:method (new-element-type (stream fundamental-stream))
-    (clos:no-applicable-method #'(setf stream-element-type) new-element-type stream)
-  )
-)
+    (clos:no-applicable-method #'(setf stream-element-type) new-element-type stream)))
 
 (clos:defgeneric stream-position (stream position)
+  (declare (dynamically-modifiable))
   (:method ((stream stream) position)
     (if position
         (cl:file-position stream position)
@@ -173,6 +149,7 @@
 
 
 (clos:defgeneric stream-read-sequence (sequence stream &key start end)
+  (declare (dynamically-modifiable))
   (:method (sequence (stream fundamental-binary-input-stream)
             &key (start 0) (end nil))
     (stream-read-byte-sequence stream sequence start end))
@@ -183,6 +160,7 @@
     (apply #'sys::%read-sequence sequence stream rest)))
 
 (clos:defgeneric stream-write-sequence (sequence stream &key start end)
+  (declare (dynamically-modifiable))
   (:method (sequence (stream fundamental-binary-output-stream)
             &key (start 0) (end nil))
     (stream-write-byte-sequence stream sequence start end))
@@ -198,70 +176,66 @@
 ; fundamental-character-input-stream, so that people can use
 ; (setf stream-element-type).
 
-(clos:defgeneric stream-read-char (stream))
+(clos:defgeneric stream-read-char (stream)
+  (declare (dynamically-modifiable)))
 
-(clos:defgeneric stream-unread-char (stream char))
+(clos:defgeneric stream-unread-char (stream char)
+  (declare (dynamically-modifiable)))
 
 (clos:defgeneric stream-read-char-no-hang (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
-    (stream-read-char stream)
-  )
-)
+    (stream-read-char stream)))
 
 (clos:defgeneric stream-peek-char (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
     (let ((c (stream-read-char stream)))
       (unless (eq c ':EOF) (stream-unread-char stream c))
-      c
-  ) )
-)
+      c)))
 
 (clos:defgeneric stream-listen (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
     (let ((c (stream-read-char-no-hang stream)))
       (if (or (eq c 'NIL) (eq c ':EOF))
         nil
-        (progn (stream-unread-char stream c) t)
-  ) ) )
-)
+        (progn (stream-unread-char stream c) t)))))
 
 (clos:defgeneric stream-read-char-will-hang-p (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
     (let ((c (stream-read-char-no-hang stream)))
       (cond ((eq c 'NIL) t)
             ((eq c ':EOF) nil)
-            (t (stream-unread-char stream c) nil)
-  ) ) )
-)
+            (t (stream-unread-char stream c) nil)))))
 
 (clos:defgeneric stream-read-char-sequence (stream sequence &optional start end)
-  (:method ((stream fundamental-input-stream) (sequence string) &optional (start 0) (end nil))
+  (declare (dynamically-modifiable))
+  (:method ((stream fundamental-input-stream) (sequence string)
+            &optional (start 0) (end nil))
     ; sequence is a simple-string, and start and end are suitable integers.
     (unless end (setq end (length sequence)))
     (do ((index start (1+ index)))
         ((eql index end) index)
       (let ((c (stream-read-char stream)))
         (when (eq c ':EOF) (return index))
-        (setf (char sequence index) c)
-  ) ) )
-)
+        (setf (char sequence index) c)))))
 
 (clos:defgeneric stream-read-line (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
     (let ((buffer (make-array 10 :element-type 'character :adjustable t :fill-pointer 0)))
       (loop
         (let ((c (stream-read-char stream)))
           (cond ((eq c ':EOF) (return (values (coerce buffer 'simple-string) t)))
                 ((eql c #\Newline) (return (values (coerce buffer 'simple-string) nil)))
-                (t (vector-push-extend c buffer))
-  ) ) ) ) )
-)
+                (t (vector-push-extend c buffer))))))))
 
 (clos:defgeneric stream-clear-input (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
-    nil
-  )
-)
+    nil))
 
 ;; Generic functions for character output
 
@@ -269,97 +243,92 @@
 ; fundamental-character-output-stream, so that people can use
 ; (setf stream-element-type).
 
-(clos:defgeneric stream-write-char (stream character))
+(clos:defgeneric stream-write-char (stream character)
+  (declare (dynamically-modifiable)))
 
-(clos:defgeneric stream-line-column (stream))
+(clos:defgeneric stream-line-column (stream)
+  (declare (dynamically-modifiable)))
 
 (clos:defgeneric stream-start-line-p (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
-    (eql (stream-line-column stream) 0)
-  )
-)
+    (eql (stream-line-column stream) 0)))
 
 (clos:defgeneric stream-write-char-sequence (stream sequence &optional start end)
-  (:method ((stream fundamental-output-stream) (sequence string) &optional (start 0) (end nil))
+  (declare (dynamically-modifiable))
+  (:method ((stream fundamental-output-stream) (sequence string)
+            &optional (start 0) (end nil))
     ; sequence is a simple-string, and start and end are suitable integers.
     (unless end (setq end (length sequence)))
     (do ((index start (1+ index)))
         ((eql index end) nil)
-      (stream-write-char stream (char sequence index))
-  ) )
-)
+      (stream-write-char stream (char sequence index)))))
 
 (clos:defgeneric stream-write-string (stream string &optional start end)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream) string &optional (start 0) (end nil))
     (stream-write-char-sequence stream string start end)
-    string
-  )
-)
+    string))
 
 (clos:defgeneric stream-terpri (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
     (stream-write-char stream #\Newline)
-    nil
-  )
-)
+    nil))
 
 (clos:defgeneric stream-fresh-line (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
     (if (stream-start-line-p stream)
       nil
-      (progn (stream-terpri stream) t)
-  ) )
-)
+      (progn (stream-terpri stream) t))))
 
 (clos:defgeneric stream-finish-output (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
-    nil
-  )
-)
+    nil))
 
 (clos:defgeneric stream-force-output (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
-    nil
-  )
-)
+    nil))
 
 (clos:defgeneric stream-clear-output (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream))
-    nil
-  )
-)
+    nil))
 
 (clos:defgeneric stream-advance-to-column (stream column)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream) (column real))
     (let ((currcol (stream-line-column stream)))
       (if currcol
         (dotimes (i (- column currcol) t) (stream-write-char stream #\Space))
-        nil
-  ) ) )
-)
+        nil))))
 
 ;; Generic functions for binary input
 
-(clos:defgeneric stream-read-byte (stream))
+(clos:defgeneric stream-read-byte (stream)
+  (declare (dynamically-modifiable)))
 
-(clos:defgeneric stream-read-byte-lookahead (stream))
+(clos:defgeneric stream-read-byte-lookahead (stream)
+  (declare (dynamically-modifiable)))
 
 (clos:defgeneric stream-read-byte-will-hang-p (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
-    (eq (stream-read-byte-lookahead stream) 'NIL)
-  )
-)
+    (eq (stream-read-byte-lookahead stream) 'NIL)))
 
 (clos:defgeneric stream-read-byte-no-hang (stream)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream))
     (if (stream-read-byte-lookahead stream)
       (stream-read-byte stream)
-      nil
-  ) )
-)
+      nil)))
 
 (clos:defgeneric stream-read-byte-sequence (stream sequence
                                             &optional start end no-hang interactive)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-input-stream) (sequence vector)
             &optional (start 0) (end nil) (no-hang nil) (interactive nil))
     ;; sequence is a (simple-array (unsigned-byte 8) (*)),
@@ -375,10 +344,12 @@
 
 ;; Generic functions for binary output
 
-(clos:defgeneric stream-write-byte (stream integer))
+(clos:defgeneric stream-write-byte (stream integer)
+  (declare (dynamically-modifiable)))
 
 (clos:defgeneric stream-write-byte-sequence (stream sequence
                                              &optional start end no-hang interactive)
+  (declare (dynamically-modifiable))
   (:method ((stream fundamental-output-stream) (sequence vector)
             &optional (start 0) (end nil) (no-hang nil) (interactive nil))
     ;; sequence is a (simple-array (unsigned-byte 8) (*)),

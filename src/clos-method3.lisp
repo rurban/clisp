@@ -57,6 +57,7 @@
 ;; MOP p. 82
 (let ((*allow-making-generic* t))
   (defgeneric method-qualifiers (method)
+    (declare (dynamically-modifiable))
     (:method ((method standard-method))
       (std-method-qualifiers method))))
 (setq |#'method-qualifiers| #'method-qualifiers)
@@ -95,16 +96,19 @@
 ;; MOP p. 82
 (let ((*allow-making-generic* t))
   (defgeneric method-generic-function (method)
+    (declare (dynamically-modifiable))
     (:method ((method standard-method))
       (std-method-generic-function method))))
 (initialize-extended-method-check #'method-generic-function)
 ;; Not in MOP.
 (let ((*allow-making-generic* t))
   (defgeneric (setf method-generic-function) (new-gf method)
+    (declare (dynamically-modifiable))
     (:method (new-gf (method standard-method))
       (setf (std-method-generic-function method) new-gf))))
 
 (defgeneric function-keywords (method)
+  (declare (dynamically-modifiable))
   (:method ((method standard-method))
     (let ((sig (method-signature method)))
       (values (sig-keywords sig) (sig-allow-p sig)))))

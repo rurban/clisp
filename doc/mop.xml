@@ -5413,6 +5413,16 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
   instances of book that exist at this moment, rather than to &zero;),
   or maybe not. This is what the warning is about.
 </para></simplesect>
+
+<simplesect id="mop-clisp-gf-dynamically-modifiable"><title>Disabling
+the warning for a specific generic function</title>
+<para>If your generic function constitutes a pubic interface which is
+used by adding methods (similar to aforementioned &print-object;), you
+can declare it as such:<programlisting language="lisp">
+(defgeneric my-public-gf (a b c)
+  (declare (clos:dynamically-modifiable))
+  ...)</programlisting>
+</para></simplesect>
 </section> <!-- mop-clisp-gf-already-called-warning -->
 
 <section id="mop-clisp-gf-replacing-method-warning"><title>Warning
