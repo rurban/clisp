@@ -34,6 +34,24 @@
 ;; append: must come after vc-find-file-hook
 (add-hook 'find-file-hooks 'clisp-set-change-log-default-name t)
 
+(defun clisp-set-compile-command ()
+  "Set `compile-command' for CLISP lisp and tst files."
+  (when (eq (vc-backend buffer-file-name) 'Hg)
+    (let ((dir (file-name-directory buffer-file-name)))
+      (when (clisp-repo-p dir)
+        (set (make-variable-buffer-local 'compile-command)
+             (if (string= "tst" (file-name-extension (buffer-file-name)))
+                 (concat "cd ../build && "
+                         (if (file-executable-p "../build/lisp.exe")
+                             "../build/lisp.exe"
+                           "../build/lisp.run")
+                         " -q -norc -M lispinit.mem -i tests/tests"
+                         " -x '(run-test \"tests/" (file-name-base (buffer-file-name))
+                         "\")'")
+                 "make -C ../build lispinit.mem"))))))
+
+(add-hook 'lisp-mode-hook 'clisp-set-compile-command)
+
 (defun clisp-set-change-log-vc-dir ()
   (when (and (eq vc-dir-backend 'Hg)
              (clisp-repo-p default-directory))
