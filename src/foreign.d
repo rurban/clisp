@@ -1,7 +1,7 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
- * Bruno Haible 1995-2005
- * Sam Steingold 2000-2010
+ * Bruno Haible 1995-2005, 2016, 2017
+ * Sam Steingold 2000-2011, 2017
  */
 
 #include "lispbibl.c"

@@ -2,7 +2,7 @@
 ;;;; Generic Functions
 ;;;; Part n-2: make/initialize-instance methods, generic functions.
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2005, 2008, 2010
+;;;; Sam Steingold 1998 - 2005, 2008, 2010, 2017
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")

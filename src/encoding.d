@@ -1,6 +1,6 @@
 /*
  * Encodings (character sets and conversions) for CLISP
- * Bruno Haible 1998-2008
+ * Bruno Haible 1998-2008, 2017
  * Sam Steingold 1998-2009, 2011
  */
 

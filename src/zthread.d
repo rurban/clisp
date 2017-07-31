@@ -2,7 +2,7 @@
  * CLISP thread functions - multiprocessing
  * Distributed under the GNU GPL as a part of GNU CLISP
  * Sam Steingold 2003-2010
- * Vladimir Tzankov 2008-2010
+ * Vladimir Tzankov 2008-2012
  */
 
 #include "lispbibl.c"

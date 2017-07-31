@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2008, 2016-2017
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -10565,4 +10565,3 @@ LISPFUN(line_position,seclass_default,0,1,norest,nokey,0,NIL) {
   check_ostream(&STACK_0);       /* check Output-Stream */
   VALUES1(get_line_position(popSTACK()));
 }
-

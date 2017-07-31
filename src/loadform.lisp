@@ -1,5 +1,5 @@
 ;;; MAKE-LOAD-FORM for CLISP
-;;; Sam Steingold 2001-2004, 2009
+;;; Sam Steingold 2001-2004, 2009, 2017
 ;;; Bruno Haible 2004
 
 ;; this could have been placed in in clos.lisp,
