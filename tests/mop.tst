@@ -3380,33 +3380,47 @@ ERROR
   (symbols-cleanup '(testgf38class testgf38)))
 ()
 
-
 ;; http://clisp.org/impnotes/mop-clisp.html#mop-clisp-warn
-(let ((book-counter 0) (sale-stats (make-hash-table :test 'equal))
-       (already-called 0) (replacing-method 0))
-  (defmethod initialize-instance :after ((o clos:gf-already-called-warning) &rest opts) (incf already-called))
-  (defmethod initialize-instance :after ((o clos:gf-replacing-method-warning) &rest opts) (incf replacing-method))
-  ;; system classes --- do NOT warn!
+#+CLISP
+(defmacro with-counting-mop-warnings (&body body)
+  `(let ((already-called 0) (replacing-method 0))
+     (defmethod initialize-instance :after
+       ((o clos:gf-already-called-warning) &rest opts)
+       (incf already-called))
+     (defmethod initialize-instance :after
+       ((o clos:gf-replacing-method-warning) &rest opts)
+       (incf replacing-method))
+     (list
+      (progn ,@body)
+      (list already-called replacing-method))))
+#+CLISP WITH-COUNTING-MOP-WARNINGS
+
+#+CLISP
+(with-counting-mop-warnings ; system classes --- do NOT warn!
   (defclass gray-test (fundamental-character-output-stream) ())
   (defmethod stream-write-char ((s gray-test) ch) nil)
-  ;; user classes --- DO warn!
-  (defclass ware () ((title :initarg :title :accessor title)))
-  (defclass book (ware) ())
-  (defclass compact-disk (ware) ())
-  (defclass dvd (ware) ())
-  (defgeneric add-to-inventory (object))
-  (defmethod add-to-inventory ((object ware)) nil)
-  (add-to-inventory (make-instance 'book :title "CLtL1"))
-  (defmethod add-to-inventory ((object book)) (incf book-counter))
-  (add-to-inventory (make-instance 'book :title "CLtL2"))
-  (defmethod add-to-inventory ((object book))
-    (setf (gethash (title object) sale-stats) (cons 0 0)))
-  (add-to-inventory (make-instance 'book :title "AMOP"))
-  (list book-counter (hash-table-count sale-stats)
-        already-called replacing-method
-        (symbols-cleanup '(gray-test ware book compact-disk dvd add-to-inventory))))
-(1 1 2 1 ())
+  (stream-write-char (make-instance 'gray-test) #\A)
+  (symbol-cleanup 'gray-test))
+#+CLISP (T (0 0))
 
+#+CLISP
+(let ((book-counter 0) (sale-stats (make-hash-table :test 'equal)))
+  (with-counting-mop-warnings ; user classes --- DO warn!
+    (defclass ware () ((title :initarg :title :accessor title)))
+    (defclass book (ware) ())
+    (defclass compact-disk (ware) ())
+    (defclass dvd (ware) ())
+    (defgeneric add-to-inventory (object))
+    (defmethod add-to-inventory ((object ware)) nil)
+    (add-to-inventory (make-instance 'book :title "CLtL1"))
+    (defmethod add-to-inventory ((object book)) (incf book-counter))
+    (add-to-inventory (make-instance 'book :title "CLtL2"))
+    (defmethod add-to-inventory ((object book))
+      (setf (gethash (title object) sale-stats) (cons 0 0)))
+    (add-to-inventory (make-instance 'book :title "AMOP"))
+    (list book-counter (hash-table-count sale-stats)
+          (symbols-cleanup '(ware book compact-disk dvd add-to-inventory)))))
+#+CLISP ((1 1 ()) (2 1))
 
 ;; cleanup
 (symbols-cleanup
@@ -3430,5 +3444,5 @@ ERROR
    class-supporting-classof-slots classof-direct-slot-definition-mixin
    add-classof-direct-mixin classof-effective-slot-definition-mixin
    add-classof-effective-mixin initialize-classof-slot testclass29a testclass29b
-   class-bad-slot))
+   class-bad-slot with-counting-mop-warnings))
 ()
