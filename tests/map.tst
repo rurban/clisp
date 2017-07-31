@@ -267,12 +267,5 @@ ERROR
 
 
 ; Clean up.
-(progn (symbol-cleanup 'a-vector)
-       (symbol-cleanup 'x)
-       (symbol-cleanup 'liste)
-       (symbol-cleanup 'list-reverse)
-       (symbol-cleanup 'foo)
-       (symbol-cleanup 'bar)
-       (symbol-cleanup 'fkt)
-       (symbol-cleanup 'palindromep))
-T
+(symbols-cleanup '(a-vector x liste list-reverse foo bar fkt palindromep))
+()

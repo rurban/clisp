@@ -290,9 +290,5 @@ T
   (multiple-value-list (thread-join thr)))
 ((4 5) NIL)
 
-(progn (symbol-cleanup '*thread-special*)
-       (symbol-cleanup '*mu1*)
-       (symbol-cleanup '*mu2*)
-       (symbol-cleanup '*th1*)
-       (symbol-cleanup '*th2*))
-T
+(symbols-cleanup '(*thread-special* *mu1* *mu2* *th1* *th2*))
+()

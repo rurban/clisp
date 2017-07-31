@@ -259,7 +259,5 @@ ERROR                                   ; agreed
 ;; Paul Dietz' ANSI testsuite (part of gcl) checks some border cases
 ;; http://cvs.savannah.gnu.org/viewcvs/gcl/ansi-tests/beyond-ansi/?root=gcl
 
-(progn ; cleanup
-  (symbol-cleanup 'first-special-then-macro)
-  (symbol-cleanup 'first-macro-then-special))
-T
+(symbols-cleanup '(first-special-then-macro first-macro-then-special))
+()

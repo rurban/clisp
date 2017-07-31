@@ -297,13 +297,6 @@ NIL
 "
 
 ;; Clean up.
-(progn (symbol-cleanup 'setf-foo)
-       (symbol-cleanup 'bar)
-       (symbol-cleanup 'x)
-       (symbol-cleanup '*collector*)
-       (symbol-cleanup 'dummy-function)
-       (symbol-cleanup 'recursive-times)
-       (symbol-cleanup 'mlets)
-       (symbol-cleanup 'integer-power)
-       (symbol-cleanup 'example))
-T
+(symbols-cleanup '(setf-foo bar x *collector* dummy-function
+                   recursive-times mlets integer-power example))
+()

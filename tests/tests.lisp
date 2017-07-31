@@ -55,10 +55,12 @@ This will not work right after (cd) if -M was a relative pathname."
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
 (defun symbol-cleanup (s)
   (setf (find-class s) nil) (makunbound s) (fmakunbound s) (unintern s))
+(defun symbols-cleanup (l)      ; drop many symbols
+  (loop for s in l unless (symbol-cleanup s) collect s))
 (defvar *run-test-truename*)
 ;; export symbols used by tests
 (export '(princ-error show show-file finish-file post-compile-file-cleanup
-          type-error-handler handler-return check-os-error
+          type-error-handler handler-return check-os-error symbols-cleanup
           symbol-cleanup *run-test-truename* with-ignored-errors diff-seq))
 ;;; end helpers
 

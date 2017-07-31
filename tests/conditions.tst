@@ -577,14 +577,6 @@ WARNING
                            (car arg))))))
 #+clisp NIL
 
-(progn ; Clean up.
-  (symbol-cleanup 'my-cpl)
-  (symbol-cleanup 'check-superclasses)
-  (symbol-cleanup 'test)
-  (symbol-cleanup 'test2)
-  (symbol-cleanup 'test3)
-  (symbol-cleanup 'test4)
-  (symbol-cleanup 'test5)
-  (symbol-cleanup 'test6)
-  (symbol-cleanup 'test~))
-T
+(symbols-cleanup '(my-cpl check-superclasses
+                   test test2 test3 test4 test5 test6 test~))
+()

@@ -417,9 +417,5 @@ b
 (labels ((z () (return-from z 4))) (z))
 4
 
-(progn ; cleanup
-  (symbol-cleanup 'plus)
-  (symbol-cleanup 'adder)
-  (symbol-cleanup 'a)
-  (symbol-cleanup 'b))
-T
+(symbols-cleanup '(plus adder a b))
+()

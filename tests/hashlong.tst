@@ -121,11 +121,6 @@ NIL
    (sxhash '(1 (2 . 3) 4 (5 . 6) (8 (7)))))
 NIL
 
-(progn (symbol-cleanup 'symbole)
-       (symbol-cleanup 'hash-table-keys)
-       (symbol-cleanup 'check-hash-unique-vec)
-       (symbol-cleanup 'do-hash-test)
-       (symbol-cleanup 'setf-gethash)
-       (symbol-cleanup 'ht1)
-       (symbol-cleanup 'ht2))
-T
+(symbols-cleanup '(symbole hash-table-keys check-hash-unique-vec
+                   do-hash-test setf-gethash ht1 ht2))
+()

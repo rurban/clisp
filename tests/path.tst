@@ -1430,20 +1430,7 @@ NIL
 #+unix (pathnamep (truename "/dev/fd/2")) #+unix T
 
 
-(progn
-  (symbol-cleanup '*dir*)
-  (symbol-cleanup 'a)
-  (symbol-cleanup 'test)
-  (symbol-cleanup 'my-string)
-  (symbol-cleanup 'my-symbol)
-  (symbol-cleanup 'pathstring)
-  (symbol-cleanup 'pathsymbol)
-  (symbol-cleanup 'pathpath)
-  (symbol-cleanup 'my-path)
-  (symbol-cleanup 'path=)
-  (symbol-cleanup 'my-stream)
-  (symbol-cleanup 'my-file)
-  (symbol-cleanup '*pathname-var*)
-  (symbol-cleanup 'cfp-test)
-  (symbol-cleanup '*load-var*))
-t
+(symbols-cleanup
+ '(*dir* a test my-string my-symbol pathstring pathsymbol pathpath
+   my-path path= my-stream my-file *pathname-var* cfp-test *load-var*))
+()
