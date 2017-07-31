@@ -132,7 +132,7 @@ all: check impnotes.html regexp.html man
 ifneq (,$(CATALOG_FILE))
 # depends on Makefile because of $(XSL_PATH)
 # gnu license xml files specify a bad dtd file
-GNU_DTD = http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd
+GNU_DTD = http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 $(CATALOG_FILE): Makefile
 	$(RM) $(CATALOG_FILE)
 	$(XMLCATALOG) --create > $(CATALOG_FILE)
