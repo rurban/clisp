@@ -1,5 +1,10 @@
 2017-07-31  Sam Steingold  <sds@gnu.org>
 
+	* mop.tst (with-counting-mop-warnings): extract from a test and
+	split the test in two
+
+2017-07-31  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (symbols-cleanup): add
 	* conditions.tst, eval20.tst, ext-clisp.tst, format.tst:
 	* hashlong.tst, iofkts.tst, macro8.tst, map.tst, mop.tst, mt.tst:
