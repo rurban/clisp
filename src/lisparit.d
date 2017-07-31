@@ -1,7 +1,7 @@
 /*
  * Arithmetics for CLISP
- * Bruno Haible 1990-2005
- * Sam Steingold 1998-2010
+ * Bruno Haible 1990-2005, 2016-2017
+ * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-12-23
  */
 

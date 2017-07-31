@@ -1,7 +1,7 @@
 /*
  * list of all SUBRs
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2011, 2013, 2017
 
  A C-compiled LISP-function is defined by a declaration
  LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)

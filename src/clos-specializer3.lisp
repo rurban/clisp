@@ -2,6 +2,7 @@
 ;;;; Specializers
 ;;;; Part n-1: Generic functions specified in the MOP.
 ;;;; Bruno Haible 2004-05-15
+;;;; Sam Steingold 2017
 
 (in-package "CLOS")
 

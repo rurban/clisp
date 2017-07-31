@@ -1,6 +1,7 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Dependent Protocol
 ;;;; Bruno Haible 2004-07-29
+;;;; Sam Steingold 2017
 
 (in-package "CLOS")
 

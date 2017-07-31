@@ -2,7 +2,7 @@
 ;;;; Generic Functions
 ;;;; Part 2: Generic function dispatch and execution
 ;;;; Bruno Haible 21.8.1993 - 2004, 2012
-;;;; Sam Steingold 1998-2004, 2007-2008, 2010
+;;;; Sam Steingold 1998-2004, 2007-2008, 2010, 2017
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")

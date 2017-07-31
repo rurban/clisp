@@ -1,8 +1,8 @@
 /*
  * top level loop, aux functions for the debugger, stepper for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2005, 2016-2017
  * ILISP friendliness: Marcus Daniels 8.4.1994
- * Sam Steingold 2001-2010
+ * Sam Steingold 2001-2011
  * German comments translated into English: Stefan Kain 2004-08-30
  */
 
@@ -1599,4 +1599,3 @@ LISPFUN(gc,seclass_default,0,1,norest,nokey,0,NIL)
 }
 
 /* rewrite read-form, in collaboration with the terminal-stream?? */
-

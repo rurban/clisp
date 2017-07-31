@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Classes
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2007
+;;;; Sam Steingold 1998 - 2007, 2017
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")

@@ -7,7 +7,7 @@
 # Ergebnis-Übergabe: in %eax
 # Einstellungen: intCsize=32, intDsize=32.
 
-# Bruno Haible 1992-1999
+# Bruno Haible 1992-2001, 2017
 # Zum Teil abgeschrieben von Bernhard Degels "v-i386.s"
 
 #ifdef INCLUDED_FROM_C
@@ -1064,4 +1064,3 @@ L(dclu2:)   movl    %edx,%eax       # Ergebnis := letzter Rest
 #endif
 
 #endif
-

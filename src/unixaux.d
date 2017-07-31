@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on UNIX
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2009, 2011
+ * Sam Steingold 1998-2009, 2011, 2017
  */
 
 #include "lispbibl.c"

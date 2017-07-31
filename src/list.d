@@ -1,6 +1,6 @@
 /*
  * List functions for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2005, 2017
  * Marcus Daniels 8.4.1994
  * Sam Steingold 1999-2009
  * German comments and names translated into English: Reini Urban 2008-01
@@ -1938,4 +1938,3 @@ LISPFUNN(list_fe_init_end,2)
   VALUES1(STACK_2); /* return L1 */
   skipSTACK(5);
 }
-
