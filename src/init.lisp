@@ -529,7 +529,7 @@
           method-call-error method-call-type-error
           method-call-error-generic-function
           method-call-error-method method-call-error-argument-list
-          standard-stablehash structure-stablehash
+          standard-stablehash structure-stablehash dynamically-modifiable
           clos-warning gf-already-called-warning gf-replacing-method-warning
           clos-novice-warning clos-style-warning class-obsolescence-warning)
      "CLOS")

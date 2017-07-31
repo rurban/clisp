@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Classes
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004, 2009
+;;;; Sam Steingold 1998 - 2004, 2009, 2017
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -338,7 +338,8 @@
 
 ;; CLtL2 28.1.9.5., 28.1.9.4., ANSI CL 7.1.5., 7.1.4.
 (defgeneric shared-initialize
-    (instance slot-names &rest initargs &key &allow-other-keys))
+    (instance slot-names &rest initargs &key &allow-other-keys)
+  (declare (dynamically-modifiable)))
 (setq |#'shared-initialize| #'shared-initialize)
 #||
  (defmethod shared-initialize ((instance standard-object) slot-names
@@ -379,7 +380,8 @@
 
 ;; CLtL2 28.1.12., ANSI CL 7.3.
 (defgeneric reinitialize-instance
-    (instance &rest initargs &key &allow-other-keys))
+    (instance &rest initargs &key &allow-other-keys)
+  (declare (dynamically-modifiable)))
 (setq |#'reinitialize-instance| #'reinitialize-instance)
 #||
  (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
@@ -443,7 +445,8 @@
 
 ;; CLtL2 28.1.9.6., ANSI CL 7.1.6.
 (defgeneric initialize-instance (instance &rest initargs
-                                 &key &allow-other-keys))
+                                 &key &allow-other-keys)
+  (declare (dynamically-modifiable)))
 (setq |#'initialize-instance| #'initialize-instance)
 #||
  (defmethod initialize-instance ((instance standard-object) &rest initargs)
@@ -505,7 +508,8 @@
         (apply si-ef instance 'T initargs)))))
 
 ;; User-defined methods on allocate-instance are now supported.
-(defgeneric allocate-instance (instance &rest initargs &key &allow-other-keys))
+(defgeneric allocate-instance (instance &rest initargs &key &allow-other-keys)
+  (declare (dynamically-modifiable)))
 (setq |#'allocate-instance| #'allocate-instance)
 #||
  (defgeneric allocate-instance (class)
@@ -556,6 +560,7 @@
 
 ;; CLtL2 28.1.9.7., ANSI CL 7.1.7.
 (defgeneric make-instance (class &rest initargs &key &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((class symbol) &rest initargs)
     (apply #'make-instance (find-class class) initargs)))
 #||
@@ -654,6 +659,7 @@
 ;;; change-class
 
 (defgeneric change-class (instance new-class &key &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((instance standard-object) (new-class standard-class)
             &rest initargs)
     (apply #'do-change-class instance new-class initargs))
@@ -716,6 +722,7 @@
 
 (defgeneric update-instance-for-different-class (previous current
                                                  &key &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((previous standard-object) (current standard-object)
             &rest initargs)
     ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.
@@ -790,6 +797,7 @@
 ;; MAKE-INSTANCES-OBSOLETE as a generic function.
 (fmakunbound 'make-instances-obsolete)
 (defgeneric make-instances-obsolete (class)
+  (declare (dynamically-modifiable))
   (:method ((class semi-standard-class))
     (make-instances-obsolete-<semi-standard-class> class)
     class)
@@ -800,6 +808,7 @@
 (defgeneric update-instance-for-redefined-class
     (instance added-slots discarded-slots property-list &rest initargs
      &key &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((instance standard-object) added-slots discarded-slots
             property-list &rest initargs)
     ;; Check initargs.

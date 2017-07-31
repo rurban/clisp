@@ -1,3 +1,70 @@
+2017-07-31  Sam Steingold  <sds@gnu.org>
+
+	Implement RFE#52: add (declare (dynamically-modifiable)).
+	* clos-genfun1.lisp (generic-function): Add slot
+	$DYNAMICALLY-MODIFIABLE.
+	* clos-genfun2b.lisp (+gf-declarations+): New constant.
+	(check-gf-declspecs): Use it.
+	(std-add-method): Use GF-DYNAMICALLY-MODIFIABLE instead of
+	*DYNAMICALLY-MODIFIABLE-GENERIC-FUNCTION-NAMES* to disable warnings.
+	(gf-set-dynamically-modifiable): New function.
+	(initialize-instance-<generic-function>)
+	(reinitialize-instance-<generic-function>): Use it.
+	(*dynamically-modifiable-generic-function-names*): Remove.
+	(need-gf-already-called-warning-p): Use GF-DYNAMICALLY-MODIFIABLE
+	instead of *DYNAMICALLY-MODIFIABLE-GENERIC-FUNCTION-NAMES*.
+	* clos-package.lisp, init.lisp: Export DYNAMICALLY-MODIFIABLE.
+	* compiler.lisp (*declaration-types*): Add DYNAMICALLY-MODIFIABLE.
+	(process-declarations): Handle DYNAMICALLY-MODIFIABLE.
+	* clos-genfun4.lisp (no-applicable-method, no-primary-method)
+	(no-next-method, find-method, add-method, remove-method)
+	(compute-discriminating-function, compute-applicable-methods)
+	(compute-applicable-methods-using-classes)
+	(compute-effective-method): Declare dynamically-modifiable.
+	* clos-genfun5.lisp (ensure-generic-function-using-class): Ditto.
+	* clos-method3.lisp (method-qualifiers, method-generic-function)
+	((setf method-generic-function), function-keywords): Ditto.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance)
+	(initialize-instance, allocate-instance, make-instance)
+	(dynamically-modifiable, update-instance-for-different-class)
+	(make-instances-obsolete, update-instance-for-redefined-class): Ditto.
+	* clos-class6.lisp (class-name, (setf class-name))
+	(class-direct-subclasses, class-direct-superclasses)
+	(compute-direct-slot-definition-initargs)
+	(compute-class-precedence-list)
+	(compute-effective-slot-definition-initargs)
+	(compute-effective-slot-definition, compute-slots)
+	(compute-default-initargs, ensure-class-using-class)
+	(validate-superclass, add-direct-subclass, remove-direct-subclass)
+	(reader-method-class, writer-method-class): Ditto.
+	* clos-dependent.lisp (add-dependent, remove-dependent)
+	(map-dependents): Ditto.
+	* clos-print.lisp (print-object): Ditto.
+	* clos-slotdef3.lisp (direct-slot-definition-class)
+	(effective-slot-definition-class): Ditto.
+	* clos-slots2.lisp (slot-missing, slot-unbound)
+	(slot-value-using-class, (setf slot-value-using-class))
+	(slot-boundp-using-class, slot-makunbound-using-class): Ditto.
+	* clos-specializer3.lisp (specializer-direct-generic-functions)
+	(add-direct-method, remove-direct-method)
+	(specializer-direct-methods): Ditto.
+	* describe.lisp (describe-object): Ditto.
+	* documentation.lisp (documentation, (setf documentation)): Ditto.
+	* gray.lisp (close, open-stream-p, stream-element-type)
+	((setf stream-element-type), stream-position)
+	(stream-read-sequence, stream-write-sequence, stream-read-char)
+	(stream-unread-char, stream-read-char-no-hang, stream-peek-char)
+	(stream-listen, stream-read-char-will-hang-p)
+	(stream-read-char-sequence, stream-read-line, stream-clear-input)
+	(stream-write-char, stream-line-column, stream-start-line-p)
+	(stream-write-char-sequence, stream-write-string, stream-terpri)
+	(stream-fresh-line, stream-finish-output, stream-force-output)
+	(stream-clear-output, stream-advance-to-column, stream-read-byte)
+	(stream-read-byte-lookahead, stream-read-byte-will-hang-p)
+	(stream-read-byte-no-hang, stream-read-byte-sequence)
+	(stream-write-byte, stream-write-byte-sequence): Ditto.
+	* loadform.lisp (make-load-form): Ditto.
+
 2017-07-17  Sam Steingold  <sds@gnu.org>
 
 	* gray.lisp (clos::*dynamically-modifiable-generic-function-names*):

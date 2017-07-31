@@ -28,7 +28,8 @@
                                                       declarations
                                                       declare
                                                       environment
-                                                 &allow-other-keys)
+                                                   &allow-other-keys)
+  (declare (dynamically-modifiable))
   (:method ((gf generic-function) funname &rest args)
     (apply #'ensure-generic-function-using-class-<t> gf funname args))
   (:method ((gf null) funname &rest args)

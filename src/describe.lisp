@@ -123,6 +123,7 @@ to print the corresponding values, or T for all of them.")
               "..." (subseq string (- end *squeeze-string-section*)) suffix)))))
 
 (clos:defgeneric describe-object (obj stream)
+  (declare (dynamically-modifiable))
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
       #+MT

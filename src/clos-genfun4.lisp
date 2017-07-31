@@ -85,6 +85,7 @@
            :test #'same-specializers-p)))
 
 (defgeneric no-applicable-method (gf &rest args)
+  (declare (dynamically-modifiable))
   (:method ((gf t) &rest args)
     (let* ((methods (safe-gf-methods gf))
            (dispatching-arg
@@ -129,6 +130,7 @@
 ;; Special case of missing-required-method for STANDARD method combination
 ;; and the PRIMARY method group.
 (defgeneric no-primary-method (gf &rest args)
+  (declare (dynamically-modifiable))
   (:method ((gf t) &rest args)
     (let* ((methods (remove-if-not #'null (safe-gf-methods gf)
                                    :key #'method-qualifiers))
@@ -155,6 +157,7 @@
   (let ((method (car backpointer)))
     (apply #'no-next-method (method-generic-function method) method args)))
 (defgeneric no-next-method (gf method &rest args)
+  (declare (dynamically-modifiable))
   (:method ((gf standard-generic-function) (method method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))
     (if (let ((method-combo (safe-gf-method-combination gf)))
@@ -177,12 +180,14 @@
 ;; ----------------------------------------------------------------------------
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
+  (declare (dynamically-modifiable))
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
     (std-find-method gf qualifiers specializers errorp)))
 
 ;; MOP p. 33
 (let ((*allow-making-generic* t))
   (defgeneric add-method (gf method)
+    (declare (dynamically-modifiable))
     (:method ((gf standard-generic-function) (method method))
       (std-add-method gf method))))
 ; No extended method check because this GF is specified in ANSI CL.
@@ -191,6 +196,7 @@
 ;; MOP p. 91
 (fmakunbound 'remove-method)
 (defgeneric remove-method (gf method)
+  (declare (dynamically-modifiable))
   (:method ((gf standard-generic-function) (method method))
     (std-remove-method gf method)))
 ; No extended method check because this GF is specified in ANSI CL.
@@ -199,6 +205,7 @@
 ;; MOP p. 40
 (fmakunbound 'compute-discriminating-function)
 (defgeneric compute-discriminating-function (gf)
+  (declare (dynamically-modifiable))
   (:method ((gf generic-function))
     (compute-discriminating-function-<generic-function> gf)))
 (setq |#'compute-discriminating-function| #'compute-discriminating-function)
@@ -206,6 +213,7 @@
 ;; MOP p. 35
 (fmakunbound 'compute-applicable-methods)
 (defgeneric compute-applicable-methods (gf args)
+  (declare (dynamically-modifiable))
   (:method ((gf generic-function) args)
     (compute-applicable-methods-<generic-function> gf args)))
 (setq |#'compute-applicable-methods| #'compute-applicable-methods)
@@ -213,6 +221,7 @@
 ;; MOP p. 36
 (fmakunbound 'compute-applicable-methods-using-classes)
 (defgeneric compute-applicable-methods-using-classes (gf req-arg-classes)
+  (declare (dynamically-modifiable))
   (:method ((gf generic-function) req-arg-classes)
     (compute-applicable-methods-using-classes-<generic-function> gf req-arg-classes)))
 (setq |#'compute-applicable-methods-using-classes| #'compute-applicable-methods-using-classes)
@@ -220,6 +229,7 @@
 ;; MOP p. 41
 (fmakunbound 'compute-effective-method)
 (defgeneric compute-effective-method (gf combination methods)
+  (declare (dynamically-modifiable))
   (:method ((gf generic-function) combination methods)
     (compute-effective-method-<generic-function> gf combination methods)))
 (setq |#'compute-effective-method| #'compute-effective-method)

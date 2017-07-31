@@ -8,6 +8,7 @@
 
 ;; MOP p. 30
 (defgeneric add-dependent (metaobject dependent)
+  (declare (dynamically-modifiable))
   (:method ((metaobject defined-class) dependent)
     (pushnew dependent (class-listeners metaobject) :test #'eq))
   (:method ((metaobject generic-function) dependent)
@@ -15,6 +16,7 @@
 
 ;; MOP p. 87
 (defgeneric remove-dependent (metaobject dependent)
+  (declare (dynamically-modifiable))
   (:method ((metaobject defined-class) dependent)
     (setf (class-listeners metaobject)
           (delete dependent (the list (class-listeners metaobject)) :test #'eq)))
@@ -24,6 +26,7 @@
 
 ;; MOP p. 73
 (defgeneric map-dependents (metaobject function)
+  (declare (dynamically-modifiable))
   (:method ((metaobject defined-class) function)
     (map-dependents-<defined-class> metaobject function))
   (:method ((metaobject generic-function) function)

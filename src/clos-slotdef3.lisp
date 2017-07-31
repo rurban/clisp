@@ -293,6 +293,7 @@
 
 ;; MOP p. 45
 (defgeneric direct-slot-definition-class (class &rest initargs)
+  (declare (dynamically-modifiable))
   (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))
     <standard-direct-slot-definition>)
@@ -302,6 +303,7 @@
 
 ;; MOP p. 45
 (defgeneric effective-slot-definition-class (class &rest initargs)
+  (declare (dynamically-modifiable))
   (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))
     <standard-effective-slot-definition>)

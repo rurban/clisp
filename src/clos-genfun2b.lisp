@@ -589,14 +589,16 @@
       (values signature reqvars (countup reqnum)))))
 
 ;; Checks a generic-function declspecs list.
+(defconstant +gf-declarations+ '(OPTIMIZE DYNAMICALLY-MODIFIABLE))
 (defun check-gf-declspecs (declspecs keyword errfunc)
   (unless (proper-list-p declspecs)
     (funcall errfunc (TEXT "The ~S argument should be a proper list, not ~S")
              keyword declspecs))
   (dolist (declspec declspecs)
-    (unless (and (consp declspec) (eq (first declspec) 'OPTIMIZE))
-      (funcall errfunc (TEXT "In the ~S argument, only ~S declarations are permitted, not ~S")
-               keyword 'optimize declspec))))
+    (unless (and (consp declspec)
+                 (memq (first declspec) +gf-declarations+))
+      (funcall errfunc (TEXT "In the ~S argument, only ~{~S~^, ~} declarations are permitted, not ~S")
+               keyword +gf-declarations+ declspec))))
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method
@@ -853,9 +855,11 @@
       (clos-warn 'simple-gf-replacing-method-warning
         (TEXT "Replacing method ~S in ~S") old-method gf)
       ;; Call remove-method without warnings.
-      (let ((*dynamically-modifiable-generic-function-names*
-              (cons (sys::closure-name gf) *dynamically-modifiable-generic-function-names*)))
-        (remove-method gf old-method))
+      (let ((old-dm (gf-dynamically-modifiable gf))) ; cf. macros3.lisp:letf
+        (unwind-protect
+             (progn (setf (gf-dynamically-modifiable gf) t)
+                    (remove-method gf old-method))
+          (setf (gf-dynamically-modifiable gf) old-dm)))
       ;; Ensure that remove-method really has removed the method.
       (when (memq method (safe-gf-methods gf))
         (error (TEXT "Wrong ~S behaviour: ~S has not been removed from ~S")
@@ -979,6 +983,10 @@
 
 ;; ===================== Generic Function Initialization =====================
 
+(defun gf-set-dynamically-modifiable (gf declarations)
+  (setf (gf-dynamically-modifiable gf)
+        (and (assoc 'DYNAMICALLY-MODIFIABLE declarations) t)))
+
 (defun initialize-instance-<generic-function> (gf &rest args
                                                &key name
                                                     lambda-list
@@ -991,11 +999,12 @@
                                                     ((methods methods) nil methods-p) ; from DEFGENERIC
                                                &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
-                   method-combination documentation declarations declare))
+                   method-combination documentation declare))
   (if *classes-finished*
     (apply #'%initialize-instance gf args) ; == (call-next-method)
     ;; During bootstrapping, only <standard-generic-function> instances are used.
     (apply #'shared-initialize-<standard-generic-function> gf 't args))
+  (gf-set-dynamically-modifiable gf declarations)
   (when methods-p
     ;; When invoked from DEFGENERIC: Install the defgeneric-originated methods.
     (dolist (method methods) (add-method gf method)))
@@ -1013,7 +1022,7 @@
                                                       ((methods methods) nil methods-p) ; from DEFGENERIC
                                                  &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
-                   method-combination documentation declarations declare))
+                   method-combination documentation declare))
   (when methods-p
     ;; When invoked from DEFGENERIC:
     ;; Remove the old defgeneric-originated methods. Instead of calling
@@ -1034,6 +1043,7 @@
                 #'shared-initialize-<standard-generic-function>)
                (t #'shared-initialize))
          gf nil args)
+  (gf-set-dynamically-modifiable gf declarations)
   (when methods-p
     ;; When invoked from DEFGENERIC: Install the defgeneric-originated
     ;; methods.
@@ -1204,46 +1214,9 @@
                (prototype-factory+codevec (gethash hash-key prototype-factory-table)))
           (assert prototype-factory+codevec)
           (eq (sys::closure-codevec gf) (cdr prototype-factory+codevec)))))
-  (defvar *dynamically-modifiable-generic-function-names*
-    ;; A list of names of functions, which ANSI CL explicitly denotes as
-    ;; "Standard Generic Function"s, meaning that the user may add methods.
-    '(add-method allocate-instance change-class class-name (setf class-name)
-      compute-applicable-methods describe-object documentation
-      (setf documentation) find-method function-keywords initialize-instance
-      make-instance make-instances-obsolete make-load-form method-qualifiers
-      no-applicable-method no-next-method print-object reinitialize-instance
-      remove-method shared-initialize slot-missing slot-unbound
-      update-instance-for-different-class update-instance-for-redefined-class
-      ;; Similar functions from the MOP.
-      add-dependent remove-dependent map-dependents
-      add-direct-method remove-direct-method
-      specializer-direct-generic-functions specializer-direct-methods
-      add-direct-subclass remove-direct-subclass class-direct-subclasses
-      compute-applicable-methods-using-classes
-      compute-class-precedence-list
-      compute-default-initargs
-      compute-direct-slot-definition-initargs
-      compute-discriminating-function
-      compute-effective-method
-      compute-effective-slot-definition
-      compute-effective-slot-definition-initargs
-      compute-slots
-      direct-slot-definition-class
-      effective-slot-definition-class
-      ensure-class-using-class
-      ensure-generic-function-using-class
-      reader-method-class
-      slot-value-using-class (setf slot-value-using-class)
-      slot-boundp-using-class slot-makunbound-using-class
-      validate-superclass
-      writer-method-class
-      ;; Similar functions that are CLISP extensions.
-      (setf method-generic-function) no-primary-method))
   (defun need-gf-already-called-warning-p (gf)
     (and (not (gf-never-called-p gf))
-         (not (member (sys::closure-name gf)
-                      *dynamically-modifiable-generic-function-names*
-                      :test #'equal))))
+         (not (gf-dynamically-modifiable gf))))
 ) ; let
 
 

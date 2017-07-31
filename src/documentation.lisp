@@ -17,6 +17,7 @@
 
 ;;; documentation
 (defgeneric documentation (x doc-type)
+  (declare (dynamically-modifiable))
   (:argument-precedence-order doc-type x)
   (:method ((x function) (doc-type (eql 't)))
     (function-documentation x))
@@ -96,6 +97,7 @@
 	       new-value))))
 
 (defgeneric (setf documentation) (new-value x doc-type)
+  (declare (dynamically-modifiable))
   (:argument-precedence-order doc-type x new-value)
   (:method (new-value (x function) (doc-type (eql 't)))
     (set-function-documentation x new-value))

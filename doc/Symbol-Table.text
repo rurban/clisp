@@ -1090,6 +1090,8 @@ CLOS:GF-ALREADY-CALLED-WARNING
 mop-clisp-gf-already-called-warning
 CLOS:GF-REPLACING-METHOD-WARNING
 mop-clisp-gf-replacing-method-warning
+CLOS:DYNAMICALLY-MODIFIABLE
+mop-clisp-gf-dynamically-modifiable
 GRAY:FUNDAMENTAL-STREAM
 fu-st
 GRAY:FUNDAMENTAL-INPUT-STREAM
