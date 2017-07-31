@@ -1287,18 +1287,9 @@ def")
   (type-error (e) (princ-error e) t))  T
 
 
-(progn
-  (symbol-cleanup 'format-blocksatz)
-  (symbol-cleanup 'type-clash-error)
-  (symbol-cleanup 'foo)
-  (symbol-cleanup 'x)
-  (symbol-cleanup 'y)
-  (symbol-cleanup 'n)
-  (symbol-cleanup 'liste)
-  (symbol-cleanup 'donestr)
-  (symbol-cleanup 'tellstr)
-  (symbol-cleanup 'gray-string-output-stream))
-T
+(symbols-cleanup '(format-blocksatz type-clash-error foo x y n liste
+                   donestr tellstr gray-string-output-stream))
+()
 
 ;; local variables:
 ;; eval: (make-local-variable 'before-save-hook)

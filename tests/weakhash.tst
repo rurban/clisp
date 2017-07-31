@@ -370,11 +370,7 @@ B
 #+(or CLISP LISPWORKS)
 (1 "bar" NIL)
 
-(progn ; cleanup
-  (symbol-cleanup 'weak-ht-fill-initially)
-  (symbol-cleanup 'make-freak-mapping)
-  (symbol-cleanup 'freak-mapping-pair)
-  (symbol-cleanup 'freak-mapping-value)
-  (symbol-cleanup 'test-weak-mapping-chain)
-  (symbol-cleanup 'test-weak-mapping-chain-reverse))
-T
+(symbols-cleanup '(weak-ht-fill-initially make-freak-mapping freak-mapping-pair
+                   freak-mapping-value test-weak-mapping-chain
+                   test-weak-mapping-chain-reverse))
+()

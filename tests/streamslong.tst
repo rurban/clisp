@@ -328,7 +328,5 @@ nil
     (delete-file file)))
 #+(and CLISP UNIX) NIL
 
-(progn ; cleanup
-  (symbol-cleanup '*A*)
-  (symbol-cleanup 'bin-stream-test))
-T
+(symbols-cleanup '(*A* bin-stream-test))
+()

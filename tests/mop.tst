@@ -71,9 +71,10 @@ T
     (incf (slot-value c 'counter)))
   (slot-value (find-class 'counted1-rectangle) 'counter)
   (make-instance 'counted1-rectangle)
-  (slot-value (find-class 'counted1-rectangle) 'counter))
+  (list (slot-value (find-class 'counted1-rectangle) 'counter)
+        (symbols-cleanup '(rectangle1 counted1-class counted1-rectangle))))
 #-(or ALLEGRO CMU18 OpenMCL LISPWORKS)
-1
+(1 ())
 
 #-CMU18
 (progn
@@ -89,9 +90,10 @@ T
     (incf (slot-value c 'counter)))
   (slot-value (find-class 'counted2-rectangle) 'counter)
   (make-instance 'counted2-rectangle)
-  (slot-value (find-class 'counted2-rectangle) 'counter))
+  (list (slot-value (find-class 'counted2-rectangle) 'counter)
+        (symbols-cleanup '(rectangle2 counted2-class counted2-rectangle))))
 #-CMU18
-1
+(1 ())
 
 (progn
   (defclass counter ()
@@ -104,8 +106,10 @@ T
   (list (how-many (make-instance 'counted-object :name 'foo))
         (how-many (clos:class-prototype (find-class 'counter)))
         (how-many (make-instance 'counted-object :name 'bar))
-        (how-many (clos:class-prototype (find-class 'counter)))))
-(1 1 2 2)
+        (how-many (clos:class-prototype (find-class 'counter)))
+        #+CLISP (clos::gf-dynamically-modifiable #'how-many)
+        (symbols-cleanup '(counter counted-object how-many))))
+(1 1 2 2 #+CLISP NIL ())
 
 ;; Check that the slot :accessor option works also on structure-class.
 #-(or ALLEGRO OpenMCL LISPWORKS)
@@ -115,9 +119,10 @@ T
   (let ((object (make-instance 'structure01 :x 17)))
     (list (typep #'structure01-x 'generic-function)
           (structure01-x object)
-          (progn (incf (structure01-x object)) (structure01-x object)))))
+          (progn (incf (structure01-x object)) (structure01-x object))
+          (symbols-cleanup '(structure01 structure01-x)))))
 #-(or ALLEGRO OpenMCL LISPWORKS)
-(t 17 18)
+(t 17 18 ())
 
 ;; Check that defstruct and defclass interoperate with each other.
 #-(or ALLEGRO LISPWORKS)
@@ -164,11 +169,12 @@ T
           (structure02c-slot11 b)
           (equalp a (copy-structure a))
           (equalp b (copy-structure b))
-          (equalp a b))))
+          (equalp a b)
+          (symbols-cleanup '(structure02a structure02b structure02c)))))
 #-(or ALLEGRO LISPWORKS)
 (nil t 3 -44 nil t 9 -88 nil t 20
      t 3 -44     t 9 -88     t 20
- t t nil)
+ t t nil ())
 
 ;; Check that defstruct and defclass interoperate with each other.
 #-(or ALLEGRO LISPWORKS)
@@ -202,10 +208,11 @@ T
           ;(slot-value b 'slot9) ; #<UNBOUND>
           (slot-value b 'slot10)
           (slot-value b 'slot11)
-          (equalp b (copy-structure b)))))
+          (equalp b (copy-structure b))
+          (symbols-cleanup '(structure03a structure03b structure03c)))))
 #-(or ALLEGRO LISPWORKS)
 (    t 3 -44     t 9 -88     t 20
- t)
+ t ())
 
 ;; Check that print-object can print all kinds of uninitialized metaobjects.
 (defun as-string (obj)
@@ -414,6 +421,7 @@ AS-STRING
     (clos:finalize-inheritance (find-class 'foo135b)))
   (clos:class-prototype (find-class 'foo135b))
   (defclass foo135b (foo135a) ((s :accessor foo135b-s)))
+  (symbols-cleanup '(foo135b foo135b-s))
   t)
 T
 
@@ -624,9 +632,10 @@ ERROR
   (defgeneric test-funcallable-01 (x y)
     (:method (x y) (cons x y)))
   (clos:set-funcallable-instance-function f #'test-funcallable-01)
-  (funcall f 'a 'b))
+  (list (funcall f 'a 'b)
+        (symbol-cleanup 'test-funcallable-01)))
 #-LISPWORKS
-(A . B)
+((A . B) T)
 
 
 ;; Check that changing the class of a generic function works.
@@ -645,9 +654,9 @@ T
   (defmethod foo110 ((x integer)) (* x x))
   (defgeneric foo110 (x) (:generic-function-class my-gf-class))
   (defmethod foo110 ((x float)) (* x x x))
-  (list (foo110 10) (foo110 3.0) (my-myslot #'foo110)))
+  (list (foo110 10) (foo110 3.0) (my-myslot #'foo110) (symbol-cleanup 'foo110)))
 #-OpenMCL
-(100 27.0 17)
+(100 27.0 17 T)
 
 ; Also check that the GC cleans up forward pointers.
 
@@ -659,9 +668,11 @@ T
   (gc)
   (defmethod foo111 ((x float)) (* x x x))
   (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)
-        #+CLISP (eq (sys::%record-ref #'foo111 0) (clos::class-current-version (find-class 'my-gf-class)))))
+        #+CLISP (eq (sys::%record-ref #'foo111 0)
+                    (clos::class-current-version (find-class 'my-gf-class)))
+        (symbol-cleanup 'foo111)))
 #-OpenMCL
-(100 27.0 17 #+CLISP T)
+(100 27.0 17 #+CLISP T T)
 
 #-OpenMCL
 (progn
@@ -671,9 +682,11 @@ T
   (defmethod foo112 ((x float)) (* x x x))
   (gc)
   (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
-        #+CLISP (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
+        #+CLISP (eq (sys::%record-ref #'foo112 0)
+                    (clos::class-current-version (find-class 'my-gf-class)))
+        (symbol-cleanup 'foo112)))
 #-OpenMCL
-(100 27.0 17 #+CLISP T)
+(100 27.0 17 #+CLISP T T)
 
 
 ;; Check that ensure-generic-function supports both :DECLARE (ANSI CL)
@@ -681,21 +694,21 @@ T
 
 (progn
   (ensure-generic-function 'foo113 :declare '((optimize (speed 3))))
-  (clos:generic-function-declarations #'foo113))
-((OPTIMIZE (SPEED 3)))
+  (list (clos:generic-function-declarations #'foo113) (symbol-cleanup 'foo113)))
+(((OPTIMIZE (SPEED 3))) T)
 
 (progn
   (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
-  (clos:generic-function-declarations #'foo114))
-((OPTIMIZE (SPEED 3)))
+  (list (clos:generic-function-declarations #'foo114) (symbol-cleanup 'foo114)))
+(((OPTIMIZE (SPEED 3))) T)
 
 
 ;; Check that ensure-generic-function without :lambda-list argument works.
 (progn
   (ensure-generic-function 'foo115)
   (defmethod foo115 (x y) (list x y))
-  (foo115 3 4))
-(3 4)
+  (list (foo115 3 4) (symbol-cleanup 'foo115)))
+((3 4) T)
 
 
 ;; Check that defclass supports user-defined options.
@@ -723,8 +736,9 @@ T
             (defclass testclass02c ()
               ()
               (:other-option foo)
-              (:metaclass option-class))))))
-(T (FOO) NIL NIL)
+              (:metaclass option-class)))
+          (symbols-cleanup '(option-class testclass02a testclass02b testclass02c)))))
+(T (FOO) NIL NIL ())
 
 
 ;; Check that defclass supports user-defined slot options.
@@ -759,8 +773,10 @@ T
             (defclass testclass03d ()
               ((x :my-option foo))
               (:my-option bar)
-              (:metaclass option-slot-class))))))
-(T FOO T (BAR BAZ) NIL NIL)
+              (:metaclass option-slot-class)))
+          (symbols-cleanup '(option-slot-definition option-slot-class
+                             testclass03a testclass03b testclass03c testclass03d)))))
+(T FOO T (BAR BAZ) NIL NIL ())
 
 ;; Check that after a class redefinition, new user-defined direct slots
 ;; have replaced the old direct slots.
@@ -781,8 +797,10 @@ T
   (let ((cl (find-class 'testclass03e)))
     (list (length (clos:class-direct-slots cl))
           (slot-boundp (first (clos:class-direct-slots cl)) 'option1)
-          (slot-boundp (first (clos:class-direct-slots cl)) 'option2))))
-(1 NIL T)
+          (slot-boundp (first (clos:class-direct-slots cl)) 'option2)
+          (symbols-cleanup '(extended-slot-definition extended-slot-class
+                             testclass03e)))))
+(1 NIL T ())
 
 
 ;; Check that in defclass, the default-initargs of the metaclass have
@@ -795,15 +813,17 @@ T
   #-CLISP
   (defmethod clos:validate-superclass ((c1 testclass51) (c2 standard-class))
     t)
-  (mapcar #'(lambda (x) (documentation x 'type))
+  (list
+   (mapcar #'(lambda (x) (documentation x 'type))
     (list
       (defclass testclass51a () ())
       (defclass testclass51b () ()
         (:metaclass testclass51))
       (defclass testclass51c () ()
         (:documentation "some other doc")
-        (:metaclass testclass51)))))
-(NIL "some doc" "some other doc")
+        (:metaclass testclass51))))
+   (symbols-cleanup '(testclass51 testclass51a testclass51b testclass51c))))
+((NIL "some doc" "some other doc") ())
 
 
 ;; Check that defgeneric supports user-defined options.
@@ -828,9 +848,10 @@ T
             (defgeneric testgf04c (x y)
               (:my-option bar)
               (:other-option baz)
-              (:generic-function-class option-generic-function))))))
+              (:generic-function-class option-generic-function)))
+          (symbols-cleanup '(option-generic-function testgf04a testgf04b testgf04c)))))
 #-(or ALLEGRO CMU SBCL OpenMCL LISPWORKS)
-(T (FOO) NIL NIL)
+(T (FOO) NIL NIL ())
 
 
 ;; Check that in defgeneric, the default-initargs of the generic-function-class
@@ -843,7 +864,8 @@ T
     (:default-initargs
       :method-class (find-class 'testmethod50))
     (:metaclass clos:funcallable-standard-class))
-  (mapcar #'class-name
+  (list
+   (mapcar #'class-name
     (mapcar #'clos:generic-function-method-class
       (list
         (defgeneric testgf50a (x))
@@ -854,8 +876,10 @@ T
           (:generic-function-class testgenericfunction50))
         (defgeneric testgf50d (x)
           (:method-class testmethod50)
-          (:generic-function-class testgenericfunction50))))))
-(STANDARD-METHOD TESTMETHOD50 STANDARD-METHOD TESTMETHOD50)
+          (:generic-function-class testgenericfunction50)))))
+   (symbols-cleanup '(testmethod50 testgenericfunction50
+                      testgf50a testgf50b testgf50c testgf50d))))
+((STANDARD-METHOD TESTMETHOD50 STANDARD-METHOD TESTMETHOD50) ())
 #|
 ; Same thing with generic-flet.
 (progn
@@ -905,8 +929,22 @@ T
     (reinitialize-instance testclass :name 'testclass05-rerenamed)
     (list (slot-value dep1 'counter)
           (slot-value dep2 'counter)
-          (slot-value dep3 'counter))))
-(2 1 2)
+          (slot-value dep3 'counter)
+          (symbols-cleanup '(dependent05 testclass05)))))
+(2 1 2 ())
+
+(defun dependent-methods (objects slot)
+  (mapcar (lambda (obj)
+            (mapcar (lambda (event)
+                      (mapcar (lambda (x)
+                                (if (typep x 'method)
+                                    (list 'method (mapcar #'class-name
+                                                          (method-specializers x)))
+                                    x))
+                              event))
+                    (reverse (slot-value obj slot))))
+          objects))
+DEPENDENT-METHODS
 
 ;; Check dependents notification on generic functions.
 (progn
@@ -927,20 +965,15 @@ T
     (clos:remove-dependent testgf dep2)
     (defmethod testgf06 ((x real)))
     (remove-method testgf (find-method testgf '() (list (find-class 'integer))))
-    (mapcar #'(lambda (history)
-                (mapcar #'(lambda (event)
-                            (mapcar #'(lambda (x)
-                                        (if (typep x 'method)
-                                          (list 'method (mapcar #'class-name (method-specializers x)))
-                                          x))
-                                    event))
-                        history))
-            (list (reverse (slot-value dep1 'history))
-                  (reverse (slot-value dep2 'history))
-                  (reverse (slot-value dep3 'history))))))
-(((:name testgf06-renamed) (add-method (method (integer))) (add-method (method (real))) (remove-method (method (integer))))
- ((:name testgf06-renamed) (add-method (method (integer))))
- ((:name testgf06-renamed) (add-method (method (integer))) (add-method (method (real))) (remove-method (method (integer)))))
+    (list
+     (dependent-methods (list dep1 dep2 dep3) 'history)
+     (symbols-cleanup '(dependent06 testgf06)))))
+((((:name testgf06-renamed) (add-method (method (integer)))
+   (add-method (method (real))) (remove-method (method (integer))))
+  ((:name testgf06-renamed) (add-method (method (integer))))
+  ((:name testgf06-renamed) (add-method (method (integer)))
+   (add-method (method (real))) (remove-method (method (integer)))))
+ ())
 
 
 ;;; Check the dependent protocol
@@ -993,10 +1026,12 @@ T
     (reinitialize-instance testclass :name 'testclass07-rerenamed)
     (list (reverse (slot-value dep1 'history))
           (reverse (slot-value dep2 'history))
-          (reverse (slot-value dep3 'history)))))
+          (reverse (slot-value dep3 'history))
+          (symbols-cleanup '(prioritized-class testclass07 dependent07)))))
 (((1 :name testclass07-renamed) (3 :name testclass07-rerenamed))
  ((0 :name testclass07-renamed))
- ((2 :name testclass07-renamed) (4 :name testclass07-rerenamed)))
+ ((2 :name testclass07-renamed) (4 :name testclass07-rerenamed))
+ ())
 
 ;; Check that notification on generic-functions can proceed by priorities.
 (progn
@@ -1021,20 +1056,15 @@ T
     (clos:remove-dependent testgf dep2)
     (defmethod testgf08 ((x real)))
     (remove-method testgf (find-method testgf '() (list (find-class 'integer))))
-    (mapcar #'(lambda (history)
-                (mapcar #'(lambda (event)
-                            (mapcar #'(lambda (x)
-                                        (if (typep x 'method)
-                                          (list 'method (mapcar #'class-name (method-specializers x)))
-                                          x))
-                                    event))
-                        history))
-            (list (reverse (slot-value dep1 'history))
-                  (reverse (slot-value dep2 'history))
-                  (reverse (slot-value dep3 'history))))))
-(((2 :name testgf08-renamed) (5 add-method (method (integer))) (7 add-method (method (real))) (9 remove-method (method (integer))))
- ((0 :name testgf08-renamed) (3 add-method (method (integer))))
- ((1 :name testgf08-renamed) (4 add-method (method (integer))) (6 add-method (method (real))) (8 remove-method (method (integer)))))
+    (list
+     (dependent-methods (list dep1 dep2 dep3) 'history)
+     (symbols-cleanup '(prioritized-generic-function testgf08 dependent08)))))
+((((2 :name testgf08-renamed) (5 add-method (method (integer)))
+   (7 add-method (method (real))) (9 remove-method (method (integer))))
+  ((0 :name testgf08-renamed) (3 add-method (method (integer))))
+  ((1 :name testgf08-renamed) (4 add-method (method (integer)))
+   (6 add-method (method (real))) (8 remove-method (method (integer)))))
+ ())
 
 ;; check that reinitialize-instance calls finalize-inheritance https://sourceforge.net/p/clisp/bugs/353/
 (progn
@@ -1050,8 +1080,10 @@ T
   (unless (class-finalized-p (find-class 'reinit-instance-object))
     (finalize-inheritance (find-class 'reinit-instance-object)))
   (reinitialize-instance (find-class 'reinit-instance-object))
-  *finalize-inheritance-count*)
-2
+  (list *finalize-inheritance-count*
+        (symbols-cleanup '(reinit-instance-class *finalize-inheritance-count*
+                           reinit-instance-object))))
+(2 ())
 
 ;;; Check the direct-methods protocol
 ;;;   add-direct-method remove-direct-method
@@ -1077,17 +1109,20 @@ T
   (defmethod testgf09 (x y z) (+ x y z))
   (list (null (clos:specializer-direct-generic-functions (find-class 't)))
         (null (clos:specializer-direct-methods (find-class 't)))
-        operation-counter))
-(t t 3)
+        operation-counter
+        #+CLISP (clos::gf-dynamically-modifiable #'testgf09)
+        (symbol-cleanup 'testgf09)))
+(t t 3 #+CLISP NIL T)
 
 ;; Check that redefinition of a generic function correctly updates the lists
 ;; of generic functions belonging to each specializer.
 (progn
   (defgeneric foo142 (x) (:method ((x t))))
   (defgeneric foo142 (x))
-  (null (member #'foo142
-                (clos:specializer-direct-generic-functions (find-class 't)))))
-T
+  (list (null (member #'foo142
+                      (clos:specializer-direct-generic-functions (find-class 't))))
+        (symbol-cleanup 'foo142)))
+(T T)
 
 
 ;;; Check the direct-subclasses protocol
@@ -1135,9 +1170,11 @@ T
     (push (clos:class-direct-subclasses (find-class 'testclass10b)) results)
     (push (clos:class-direct-subclasses (find-class 'testclass10c)) results)
     (push (clos:class-direct-subclasses (find-class 'testclass10d)) results)
-    (mapcar #'(lambda (l) (mapcar #'class-name l)) (nreverse results))))
-(() () () () ()
- (testclass10b) () (testclass10d) () ())
+    (list (mapcar #'(lambda (l) (mapcar #'class-name l)) (nreverse results))
+          (symbols-cleanup '(volatile-class *volatile-class-hack*
+                             note-volatile-class-instantiated testclass10
+                             testclass10a testclass10b testclass10c testclass10d)))))
+((() () () () () (testclass10b) () (testclass10d) () ()) ())
 
 
 ;;; Check the compute-applicable-methods protocol
@@ -1167,8 +1204,9 @@ T
     (:method ((x real)) (cons 'real (if (next-method-p) (call-next-method))))
     (:method ((x number)) (cons 'number (if (next-method-p) (call-next-method))))
     (:method :around ((x integer)) (coerce (call-next-method) 'vector)))
-  (list (testgf11 5.0) (testgf11 17)))
-((number real) #(number real integer))
+  (list (testgf11 5.0) (testgf11 17)
+        (symbols-cleanup '(msl-generic-function reverse-method-list testgf11))))
+((number real) #(number real integer) ())
 
 ;; Check that it's possible to filter-out applicable methods.
 (progn
@@ -1189,8 +1227,9 @@ T
     (:method ((x real)) (cons 'real (if (next-method-p) (call-next-method))))
     (:method ((x number)) (cons 'number (if (next-method-p) (call-next-method))))
     (:method :around ((x integer)) (coerce (call-next-method) 'vector)))
-  (list (testgf12 5.0) (testgf12 17)))
-((real) #(integer real))
+  (list (testgf12 5.0) (testgf12 17)
+        (symbols-cleanup '(nonumber-generic-function nonumber-method-list testgf12))))
+((real) #(integer real) ())
 
 
 ;;; Check the compute-class-precedence-list protocol
@@ -1233,10 +1272,12 @@ T
   (defclass testclass13f (testclass13c testclass13e) () (:metaclass bfs-class))
   (unless (clos:class-finalized-p (find-class 'testclass13f))
     (clos:finalize-inheritance (find-class 'testclass13f)))
-  (mapcar #'class-name (subseq (clos:class-precedence-list (find-class 'testclass13f)) 0 6)))
+  (list (mapcar #'class-name (subseq (clos:class-precedence-list (find-class 'testclass13f)) 0 6))
+        (symbols-cleanup '(bfs-class testclass13a testclass13b testclass13c
+                           testclass13d testclass13e testclass13f))))
 ;; With the default depth-first / topological-sort search algorithm:
 ;; (testclass13f testclass13c testclass13b testclass13e testclass13d testclass13a)
-(testclass13f testclass13c testclass13e testclass13b testclass13d testclass13a)
+((testclass13f testclass13c testclass13e testclass13b testclass13d testclass13a) ())
 
 
 ;;; Check the compute-default-initargs protocol
@@ -1261,8 +1302,9 @@ T
   (defmethod clos:validate-superclass ((c1 custom-default-initargs-class) (c2 standard-class))
     t)
   (defclass testclass14 () ((slot :initarg :extra)) (:metaclass custom-default-initargs-class))
-  (slot-value (make-instance 'testclass14) 'slot))
-EXTRA
+  (list (slot-value (make-instance 'testclass14) 'slot)
+        (symbols-cleanup '(*extra-value* custom-default-initargs-class testclass14))))
+(EXTRA ())
 
 
 ;;; Check the compute-direct-slot-definition-initargs protocol
@@ -1294,9 +1336,10 @@ EXTRA
     ((x :initarg :x) (y))
     (:metaclass auto-accessors-2-class))
   (let ((inst (make-instance 'testclass15 :x 12)))
-    (list (testclass15-x inst) (setf (testclass15-y inst) 13))))
+    (list (testclass15-x inst) (setf (testclass15-y inst) 13)
+          (symbols-cleanup '(auto-accessors-2-class testclass15)))))
 #+CLISP
-(12 13)
+(12 13 ())
 
 
 ;;; Check the compute-discriminating-function protocol
@@ -1323,8 +1366,10 @@ EXTRA
   (defgeneric testgf15 (x) (:generic-function-class traced-generic-function)
      (:method ((x number)) (values x (- x) (* x x) (/ x))))
   (testgf15 5)
-  (list *last-traced-arguments* *last-traced-values*))
-((5) (5 -5 25 1/5))
+  (list *last-traced-arguments* *last-traced-values*
+        (symbols-cleanup '(traced-generic-function *last-traced-arguments*
+                           *last-traced-values* testgf15))))
+((5) (5 -5 25 1/5) ())
 
 
 ;;; Check the compute-effective-method protocol
@@ -1396,8 +1441,12 @@ EXTRA
     (cons 'c (call-next-method)))
   (defmethod testgf16 ((x testclass16d))
     (cons 'd (call-next-method)))
-  (testgf16 (make-instance 'testclass16d)))
-(D B C A T T)
+  (list (testgf16 (make-instance 'testclass16d))
+        (symbols-cleanup '(prompt-for-new-values add-method-restarts
+                           convert-effective-method debuggable-generic-function
+                           testgf16 testclass16a testclass16b testclass16c
+                           testclass16d))))
+((D B C A T T) ())
 
 
 ;;; Check the compute-effective-slot-definition protocol
@@ -1429,9 +1478,10 @@ EXTRA
     t)
   (defclass testclass17 () ((x) (y)) (:metaclass auto-initargs-class))
   (let ((inst (make-instance 'testclass17 :x 17)))
-    (list (slot-value inst 'x) (slot-value inst 'y))))
+    (list (slot-value inst 'x) (slot-value inst 'y)
+          (symbols-cleanup '(auto-initargs-class testclass17)))))
 #-(or ALLEGRO OpenMCL LISPWORKS)
-(17 42)
+(17 42 ())
 
 
 ;;; Check the compute-effective-slot-definition-initargs protocol
@@ -1462,9 +1512,10 @@ EXTRA
     t)
   (defclass testclass17-2 () ((x) (y)) (:metaclass auto-initargs-2-class))
   (let ((inst (make-instance 'testclass17-2 :x 17)))
-    (list (slot-value inst 'x) (slot-value inst 'y))))
+    (list (slot-value inst 'x) (slot-value inst 'y)
+          (symbols-cleanup '(auto-initargs-2-class testclass17-2)))))
 #+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
-(17 42)
+(17 42 ())
 
 
 ;;; Check the compute-slots protocol
@@ -1491,7 +1542,8 @@ EXTRA
           (inst2 (make-instance 'testclass18b)))
       (setf (slot-value inst1 'y) 'abc)
       (setf (slot-value inst2 'y) 'def)
-      (list (slot-value inst1 'y) (slot-value inst2 'y)))))
+      (list (slot-value inst1 'y) (slot-value inst2 'y)))
+    (symbols-cleanup '(testclass18a testclass18b))))
 ((X NIL) (Y T) ABC DEF)
 
 ;; Check that it's possible to add additional shared slots.
@@ -1515,7 +1567,8 @@ EXTRA
           (inst2 (make-instance 'testclass19b)))
       (setf (slot-value inst1 'y) 'abc)
       (setf (slot-value inst2 'y) 'def)
-      (list (slot-value inst1 'y) (slot-value inst2 'y)))))
+      (list (slot-value inst1 'y) (slot-value inst2 'y)))
+    (symbols-cleanup '(testclass19b testclass19a))))
 ((X NIL) (Y NIL) DEF DEF)
 
 
@@ -1559,8 +1612,10 @@ EXTRA
     ((x :initarg :x) (y))
     (:metaclass auto-accessors-class))
   (let ((inst (make-instance 'testclass20 :x 12)))
-    (list (testclass20-x inst) (setf (testclass20-y inst) 13))))
-(12 13)
+    (list (testclass20-x inst) (setf (testclass20-y inst) 13)
+          (symbols-cleanup '(auto-accessors-direct-slot-definition-class
+                             auto-accessors-class testclass20)))))
+(12 13 ())
 
 
 ;;; Check the effective-slot-definition-class protocol
@@ -1624,8 +1679,10 @@ EXTRA
               (equal *external-slot-values*
                      (list inst2 (list 'y 12 'x -5) inst1 nil)))
           results)
-    (nreverse results)))
-(3 5 4 12 T -5 (T NIL) T)
+    (list (nreverse results)
+          (symbols-cleanup '(*external-slot-values* external-slot-definition
+                             external-slot-definition-class testclass22)))))
+((3 5 4 12 T -5 (T NIL) T) ())
 
 
 ;;; Check the ensure-class-using-class protocol
@@ -1655,8 +1712,9 @@ EXTRA
   (defclass testclass23 ()
     ()
     (:metaclass externally-documented-class))
-  (documentation 'testclass23 'type))
-"This is a dumb class for testing."
+  (list (documentation 'testclass23 'type)
+        (symbols-cleanup '(*doc-database* externally-documented-class testclass23))))
+("This is a dumb class for testing." ())
 
 
 ;;; Check the ensure-generic-function-using-class protocol
@@ -1683,8 +1741,10 @@ EXTRA
         (call-next-method))))
   (defgeneric testgf24 (x)
     (:generic-function-class externally-documented-generic-function))
-  (documentation 'testgf24 'function))
-"This is a dumb generic function for testing."
+  (list (documentation 'testgf24 'function)
+        (symbols-cleanup '(*doc-database* externally-documented-generic-function
+                           testgf24))))
+("This is a dumb generic function for testing." ())
 
 
 ;;; Check the reader-method-class protocol
@@ -1728,8 +1788,10 @@ EXTRA
             (succeeds (setf (testclass25-pair x) p))
             (succeeds (setf (second p) 456))
             (succeeds (testclass25-pair x))
-            (succeeds (slot-value x 'pair))))))
-(t t t nil t)
+            (succeeds (slot-value x 'pair))
+            (symbols-cleanup '(typechecking-reader-method typechecking-reader-class
+                               testclass25 testclass25-pair))))))
+(t t t nil t ())
 
 
 ;;; Check the writer-method-class protocol
@@ -1773,8 +1835,10 @@ EXTRA
             (succeeds (setf (second p) 456))
             (succeeds (testclass26-pair x))
             (succeeds (setf (testclass26-pair x) p))
-            (succeeds (setf (slot-value x 'pair) p))))))
-(t t t t nil t)
+            (succeeds (setf (slot-value x 'pair) p))
+            (symbols-cleanup '(typechecking-writer-method typechecking-writer-class
+                               testclass26 testclass26-pair))))))
+(t t t t nil t ())
 
 
 ;;; Check the validate-superclass protocol
@@ -1817,8 +1881,9 @@ EXTRA
   (defclass testclass27b (testclass27a) () (:metaclass standard-class))
   (make-instance 'testclass27b)
   (make-instance 'testclass27b)
-  *counter27*)
-1
+  (list *counter27* (symbols-cleanup '(*counter27* counted27-class
+                                       testclass27a testclass27b))))
+(1 ())
 
 
 ;;; Check that finalize-inheritance is called when it should be.
@@ -1831,11 +1896,14 @@ EXTRA
   (defclass testclass52d (testclass52c) ())
   (defclass testclass52b () ())
   (make-instance 'testclass52d)
-  (prog1
-    finalize-inheritance-history
-    (remove-method #'clos:finalize-inheritance
-      (find-method #'clos:finalize-inheritance '(:after) (list (find-class 'class))))))
-(TESTCLASS52D TESTCLASS52C TESTCLASS52B TESTCLASS52A)
+  (list
+   finalize-inheritance-history
+   (progn
+     (remove-method #'clos:finalize-inheritance
+                    (find-method #'clos:finalize-inheritance '(:after)
+                                 (list (find-class 'class))))
+     (symbols-cleanup '(testclass52a testclass52b testclass52c testclass52d)))))
+((TESTCLASS52D TESTCLASS52C TESTCLASS52B TESTCLASS52A) ())
 
 
 ;;; Check that extending many MOP generic functions is possible, however
@@ -2511,8 +2579,8 @@ T
     (:generic-function-class testgenericfunction142))
   (defmethod testgf142 (x)
     (declare (ignore x)))
-  add-method-called)
-T
+  (list add-method-called (symbols-cleanup '(testgenericfunction142 testgf142))))
+(T ())
 
 
 ;; Check that DEFMETHOD calls REMOVE-METHOD.
@@ -2530,8 +2598,8 @@ T
   (defmethod testgf143 (x)
     (declare (ignore x))
     19)
-  remove-method-called)
-T
+  (list remove-method-called (symbols-cleanup '(testgenericfunction143 testgf143))))
+(T ())
 
 
 ;; Check that it's possible to call methods individually.
@@ -2541,8 +2609,9 @@ T
     (:method ((x real)) (- x)))
   (let ((my-method (find-method #'foo141 nil (list (find-class 'real))))
         (my-arglist (list 43)))
-    (funcall (clos:method-function my-method) my-arglist '())))
--43
+    (list (funcall (clos:method-function my-method) my-arglist '())
+          (symbol-cleanup 'foo141))))
+(-43 T)
 
 
 ;; Check that it's possible to create custom method classes.
@@ -2610,8 +2679,11 @@ T
     (push (not (find-method #'testgf30 nil (list (find-class 'integer) (find-class 'integer)) nil))
           result)
     (push (testgf30 17 2) result)
-    (nreverse result)))
-(NIL 0.5 T 8.5)
+    (list (nreverse result)
+          #+CLISP (clos::gf-dynamically-modifiable #'(setf custom-method-function))
+          #+CLISP (clos::gf-dynamically-modifiable #'custom-method-documentation)
+          (symbols-cleanup '(testgf30)))))
+((NIL 0.5 T 8.5) #+CLISP NIL #+CLISP NIL ())
 
 
 ;; Check that changing a method's class clears the generic function's
@@ -2636,8 +2708,9 @@ T
       (list
         (testgf34 3) ; NEW-RATIONAL
         (testgf34 22/7) ; NEW-RATIONAL
+        (symbols-cleanup '(custom-method testgf34))
       ))))
-(OLD-INTEGER REAL NEW-RATIONAL NEW-RATIONAL)
+(OLD-INTEGER REAL NEW-RATIONAL NEW-RATIONAL ())
 
 
 ;; Check that changing a generic function's class clears its
@@ -2659,9 +2732,10 @@ T
     (testgf35 3)
     (progn
       (change-class #'testgf35 'customized5-generic-function)
-      (testgf35 3))))
+      (testgf35 3))
+    (symbols-cleanup '(testgf35 customized5-generic-function))))
 #-OpenMCL
-((INTEGER REAL) (REAL INTEGER))
+((INTEGER REAL) (REAL INTEGER) ())
 ; The discriminating-function cache:
 #-OpenMCL
 (progn
@@ -2681,9 +2755,10 @@ T
     (testgf36 3)
     (progn
       (change-class #'testgf36 'customized6-generic-function)
-      (testgf36 3))))
+      (testgf36 3))
+    (symbols-cleanup '(testgf36 customized6-generic-function))))
 #-OpenMCL
-((INTEGER REAL) (REAL INTEGER))
+((INTEGER REAL) (REAL INTEGER) ())
 
 
 #| ;; Not implemented, because the MOP's description of
@@ -2712,8 +2787,9 @@ T
       (defmethod clos:compute-applicable-methods-using-classes ((gf customized1-generic-function) classes)
         (let ((all-applicable (call-next-method)))
           (if all-applicable (list (first all-applicable)) '())))
-      (testgf31 3))))
-((INTEGER REAL) (INTEGER))
+      (testgf31 3))
+    (symbols-cleanup '(testgf31 customized1-generic-function))))
+((INTEGER REAL) (INTEGER) ())
 
 ;; Check that defining a method on compute-effective-method
 ;; invalidates the cache of all affected generic functions.
@@ -2732,8 +2808,9 @@ T
     (progn
       (defmethod clos:compute-effective-method ((gf customized2-generic-function) method-combination methods)
         `(REVERSE ,(call-next-method)))
-      (testgf32 3))))
-((INTEGER REAL) (REAL INTEGER))
+      (testgf32 3))
+    (symbols-cleanup '(testgf32 customized2-generic-function))))
+((INTEGER REAL) (REAL INTEGER) ())
 
 ;; Check that defining a method on compute-discriminating-function
 ;; invalidates the cache of all affected generic functions.
@@ -2754,8 +2831,9 @@ T
         (let ((orig-df (call-next-method)))
           #'(lambda (&rest arguments)
               (reverse (apply orig-df arguments)))))
-      (testgf33 3))))
-((INTEGER REAL) (REAL INTEGER))
+      (testgf33 3))
+    (symbols-cleanup '(testgf33 customized3-generic-function))))
+((INTEGER REAL) (REAL INTEGER) ())
 
 |#
 
@@ -2794,8 +2872,10 @@ T
             (succeeds (setf (testclass28-pair x) p))
             (succeeds (setf (second p) 456))
             (succeeds (testclass28-pair x))
-            (succeeds (slot-value x 'pair))))))
-(nil t t nil nil)
+            (succeeds (slot-value x 'pair))
+            (symbols-cleanup '(typechecked-slot-definition testclass28 testclass28-pair
+                               typechecked-slot-definition-class))))))
+(nil t t nil nil ())
 
 
 ;;; Application example: Slot which has one value cell per subclass.
@@ -3221,9 +3301,18 @@ t
           (testgf30g insta 10)
           (testgf30g instd 20)
           (testgf30h instc 30)
-          (testgf30h instd 40))))
+          (testgf30h instd 40)
+          (symbols-cleanup
+           '(virtual-class virtual-base-class
+             virtual-table-direct-slot-definition
+             virtual-table-effective-slot-definition
+             compute-virtual-generic-function-effective-method
+             collect-all-subclasses virtual-generic-function
+             update-virtual-generic-function virtual-generic-function-updater
+             *virtual-generic-function-updater* testclass30a testclass30b
+             testclass30c testclass30d testgf30f testgf30g testgf30h)))))
 #+(or CLISP CMU SBCL)
-("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40))
+("f on A" "f on A" ("g on A" 10) ("g on D" 20) ("h on C" 30) ("h on D" 40) ())
 
 
 ;;; user-defined :allocation :hash
@@ -3243,8 +3332,9 @@ t
                    "Dilbert")
           (progn
             (remhash 'name (slot-value dilbert 'hash-classes::hash-slots))
-            (slot-boundp dilbert 'name)))))
-(T T NIL NIL T NIL)
+            (slot-boundp dilbert 'name))
+          (symbols-cleanup '(person person-name person-address)))))
+(T T NIL NIL T NIL ())
 
 ;; https://sourceforge.net/p/clisp/bugs/288/
 ;; but the allocation must be defined!
@@ -3270,8 +3360,9 @@ ERROR
   (setq constructor (make-instance 'constructor :name 'position :fields '(x y)))
   (list (stringp (with-output-to-string (*standard-output*)
                    (describe constructor)))
-        (funcall constructor)))
-(T #(POSITION NIL NIL))
+        (funcall constructor)
+        (symbols-cleanup '(constructor constructor-name constructor-fields))))
+(T #(POSITION NIL NIL) ())
 
 ;; Ability to specify a default method-combination on the generic-function
 ;; class. https://sourceforge.net/p/clisp/bugs/316/
@@ -3286,8 +3377,9 @@ ERROR
   (defgeneric testgf38 (x)
     (:generic-function-class testgf38class))
   (defmethod testgf38 + (x) 0)
-  t)
-T
+  (symbols-cleanup '(testgf38class testgf38)))
+()
+
 
 ;; http://clisp.org/impnotes/mop-clisp.html#mop-clisp-warn
 (let ((book-counter 0) (sale-stats (make-hash-table :test 'equal))
@@ -3311,189 +3403,32 @@ T
     (setf (gethash (title object) sale-stats) (cons 0 0)))
   (add-to-inventory (make-instance 'book :title "AMOP"))
   (list book-counter (hash-table-count sale-stats)
-        already-called replacing-method))
-(1 1 2 1)
+        already-called replacing-method
+        (symbols-cleanup '(gray-test ware book compact-disk dvd add-to-inventory))))
+(1 1 2 1 ())
+
 
 ;; cleanup
-(setf (find-class 'class-bad-slot) nil
-      (find-class 'gray-test) nil
-      (find-class 'ware) nil
-      (find-class 'book) nil
-      (find-class 'compact-disk) nil
-      (find-class 'dvd) nil
-      (find-class 'constructor) nil
-      (find-class 'person) nil
-      (find-class 'counted1-class) nil
-      (find-class 'counted1-rectangle) nil
-      (find-class 'rectangle2) nil
-      (find-class 'counted2-class) nil
-      (find-class 'counted2-rectangle) nil
-      (find-class 'counter) nil
-      (find-class 'counted-object) nil
-      (find-class 'structure01) nil
-      (find-class 'structure02b) nil
-      (find-class 'structure03a) nil
-      (find-class 'structure03c) nil
-      (find-class 'foo135b) nil
-      (find-class 'foo135b) nil
-      (find-class 'foo133) nil
-      (find-class 'foo134) nil
-      (find-class 'my-gf-class) nil
-      (find-class 'option-class) nil
-      (find-class 'testclass02a) nil
-      (find-class 'testclass02b) nil
-      (find-class 'testclass02c) nil
-      (find-class 'option-slot-definition) nil
-      (find-class 'option-slot-class) nil
-      (find-class 'testclass03a) nil
-      (find-class 'testclass03b) nil
-      (find-class 'testclass03c) nil
-      (find-class 'testclass03d) nil
-      (find-class 'extended-slot-definition) nil
-      (find-class 'extended-slot-class) nil
-      (find-class 'testclass03e) nil
-      (find-class 'testclass03e) nil
-      (find-class 'testclass51) nil
-      (find-class 'testclass51a) nil
-      (find-class 'testclass51b) nil
-      (find-class 'testclass51c) nil
-      (find-class 'option-generic-function) nil
-      (find-class 'testmethod50) nil
-      (find-class 'testgenericfunction50) nil
-      (find-class 'testmethod51) nil
-      (find-class 'testgenericfunction51) nil
-      (find-class 'dependent05) nil
-      (find-class 'testclass05) nil
-      (find-class 'dependent06) nil
-      (find-class 'prioritized-dependent) nil
-      (find-class 'prioritized-dispatcher) nil
-      (find-class 'prioritized-class) nil
-      (find-class 'testclass07) nil
-      (find-class 'dependent07) nil
-      (find-class 'prioritized-generic-function) nil
-      (find-class 'dependent08) nil
-      (find-class 'reinit-instance-class) nil
-      (find-class 'reinit-instance-object) nil
-      (find-class 'volatile-class) nil
-      (find-class 'testclass10) nil
-      (find-class 'testclass10a) nil
-      (find-class 'testclass10b) nil
-      (find-class 'testclass10c) nil
-      (find-class 'testclass10d) nil
-      (find-class 'msl-generic-function) nil
-      (find-class 'nonumber-generic-function) nil
-      (find-class 'bfs-class) nil
-      (find-class 'testclass13a) nil
-      (find-class 'testclass13b) nil
-      (find-class 'testclass13c) nil
-      (find-class 'testclass13d) nil
-      (find-class 'testclass13e) nil
-      (find-class 'testclass13f) nil
-      (find-class 'custom-default-initargs-class) nil
-      (find-class 'testclass14) nil
-      (find-class 'auto-accessors-2-class) nil
-      (find-class 'testclass15) nil
-      (find-class 'traced-generic-function) nil
-      (find-class 'debuggable-generic-function) nil
-      (find-class 'testclass16a) nil
-      (find-class 'testclass16b) nil
-      (find-class 'testclass16c) nil
-      (find-class 'testclass16d) nil
-      (find-class 'auto-initargs-class) nil
-      (find-class 'testclass17) nil
-      (find-class 'auto-initargs-2-class) nil
-      (find-class 'testclass17-2) nil
-      (find-class 'testclass18b) nil
-      (find-class 'testclass18a) nil
-      (find-class 'testclass19b) nil
-      (find-class 'testclass19a) nil
-      (find-class 'auto-accessors-direct-slot-definition-class) nil
-      (find-class 'auto-accessors-class) nil
-      (find-class 'testclass20) nil
-      (find-class 'external-slot-definition) nil
-      (find-class 'external-slot-definition-class) nil
-      (find-class 'testclass22) nil
-      (find-class 'externally-documented-class) nil
-      (find-class 'testclass23) nil
-      (find-class 'externally-documented-generic-function) nil
-      (find-class 'typechecking-reader-method) nil
-      (find-class 'typechecking-reader-class) nil
-      (find-class 'testclass25) nil
-      (find-class 'typechecking-writer-method) nil
-      (find-class 'typechecking-writer-class) nil
-      (find-class 'testclass26) nil
-      (find-class 'uncallable-generic-function) nil
-      (find-class 'counted27-class) nil
-      (find-class 'testclass27a) nil
-      (find-class 'testclass27b) nil
-      (find-class 'testclass52a) nil
-      (find-class 'testclass52c) nil
-      (find-class 'testclass52d) nil
-      (find-class 'testclass52b) nil
-      (find-class 'sampclass01) nil
-      (find-class 'sampclass02) nil
-      (find-class 'sampclass03) nil
-      (find-class 'sampclass04) nil
-      (find-class 'sampclass05) nil
-      (find-class 'sampclass06) nil
-      (find-class 'sampclass07) nil
-      (find-class 'sampclass08) nil
-      (find-class 'sampclass09) nil
-      (find-class 'sampclass10) nil
-      (find-class 'sampclass11) nil
-      (find-class 'sampclass12) nil
-      (find-class 'sampclass13) nil
-      (find-class 'sampclass14) nil
-      (find-class 'sampclass15) nil
-      (find-class 'sampclass16) nil
-      (find-class 'sampclass17) nil
-      (find-class 'sampclass18) nil
-      (find-class 'sampclass19) nil
-      (find-class 'sampclass20) nil
-      (find-class 'sampclass21) nil
-      (find-class 'sampclass22) nil
-      (find-class 'sampclass23) nil
-      (find-class 'sampclass24) nil
-      (find-class 'sampclass25) nil
-      (find-class 'sampclass26) nil
-      (find-class 'sampclass27) nil
-      (find-class 'sampclass28) nil
-      (find-class 'sampclass29) nil
-      (find-class 'sampclass30) nil
-      (find-class 'sampclass31) nil
-      (find-class 'sampclass32) nil
-      (find-class 'sampclass33) nil
-      (find-class 'sampclass34) nil
-      (find-class 'sampclass35) nil
-      (find-class 'sampclass36) nil
-      (find-class 'sampclass37) nil
-      (find-class 'sampclass38) nil
-      (find-class 'sampclass39) nil
-      (find-class 'sampclass39) nil
-      (find-class 'testgenericfunction142) nil
-      (find-class 'testgenericfunction143) nil
-      (find-class 'custom-method) nil
-      (find-class 'customized5-generic-function) nil
-      (find-class 'customized6-generic-function) nil
-      (find-class 'customized1-generic-function) nil
-      (find-class 'customized2-generic-function) nil
-      (find-class 'customized3-generic-function) nil
-      (find-class 'typechecked-slot-definition) nil
-      (find-class 'typechecked-slot-definition-class) nil
-      (find-class 'testclass28) nil
-      (find-class 'class-supporting-classof-slots) nil
-      (find-class 'classof-direct-slot-definition-mixin) nil
-      (find-class 'classof-effective-slot-definition-mixin) nil
-      (find-class 'testclass29a) nil
-      (find-class 'testclass29b) nil
-      (find-class 'virtual-class) nil
-      (find-class 'virtual-base-class) nil
-      (find-class 'virtual-table-direct-slot-definition) nil
-      (find-class 'virtual-table-effective-slot-definition) nil
-      (find-class 'virtual-generic-function) nil
-      (find-class 'virtual-generic-function-updater) nil
-      (find-class 'testclass30a) nil
-      (find-class 'testclass30b) nil
-      (find-class 'testclass30c) nil
-      (find-class 'testclass30d) nil)
-NIL
+(symbols-cleanup
+ '(as-string foo133 foo133a foo133b foo134 *forwardclass* foo134a foo134b
+   my-gf-class dependent-methods *timestamp* prioritized-dependent
+   prioritized-dispatcher uncallable-generic-function
+   *sampclass* sampclass01 sampclass02 sampclass03 sampclass04 sampclass05
+   sampclass06 sampclass07 sampclass08 sampclass09 sampclass10 sampclass11
+   sampclass12 sampclass13 sampclass14 sampclass15 sampclass16 sampclass17
+   sampclass18 sampclass19 sampclass20
+   *sampgf* sampgf01 sampgf02 sampgf03 sampgf04 sampgf05 sampgf06 sampgf07
+   sampgf08 sampgf09 sampgf10 sampgf11 sampgf12 sampgf13 sampgf14 sampgf15
+   sampgf16 sampgf17 sampgf18
+   *sampmethod* sampgf19 sampgf20 sampgf21 sampgf22 sampgf23 sampgf24 sampgf25
+   sampgf26 sampclass21 sampclass21x sampclass22 sampclass22x
+   *sampslot* sampclass23 sampclass24 sampclass25 sampclass26 sampclass27
+   sampclass28 sampclass29 sampclass30 sampclass31 sampclass32 sampclass33
+   sampclass34 sampclass35 sampclass36
+   struct04 struct04ro struct04v struct04rov struct05 struct05v
+   sampclass37 sampclass38 sampclass39
+   class-supporting-classof-slots classof-direct-slot-definition-mixin
+   add-classof-direct-mixin classof-effective-slot-definition-mixin
+   add-classof-effective-mixin initialize-classof-slot testclass29a testclass29b
+   class-bad-slot))
+()

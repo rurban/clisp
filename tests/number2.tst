@@ -630,10 +630,6 @@ CHECK-ERROR
 (check-error (ash 1 10000000)) (ASH 1 10000000)
 (check-error (float (ash 1 100000) 0d0)) (FLOAT) ; overflow
 
-(progn (symbol-cleanup 'check-xgcd)
-       (symbol-cleanup 'check-sqrt)
-       (symbol-cleanup 'check-mult)
-       (symbol-cleanup 'float-rational-cmp)
-       (symbol-cleanup 'test-function)
-       (symbol-cleanup 'check-error))
-T
+(symbols-cleanup
+ '(check-xgcd check-sqrt check-mult float-rational-cmp test-function check-error))
+()

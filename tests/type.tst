@@ -872,23 +872,8 @@ error
   (proclaim `(declaration ,sym)))
 error
 
-(progn ; cleanup
-  (symbol-cleanup 'MOD1)
-  (symbol-cleanup 'BELIEBIGER-TEST)
-  (symbol-cleanup 'BELIEBIGER-TYP)
-  (symbol-cleanup 'typeof-typep-subtype)
-  (symbol-cleanup '*DISJOINT-TYPES-LIST*)
-  (symbol-cleanup 'bar)
-  (symbol-cleanup 'foo)
-  (symbol-cleanup 'otherwise)
-  (symbol-cleanup 'foo70)
-  (symbol-cleanup 'foo71)
-  (symbol-cleanup 'foo72)
-  (symbol-cleanup 'foo73)
-  (symbol-cleanup 'foo74)
-  (symbol-cleanup 'foo129a)
-  (symbol-cleanup 'foo129b)
-  (symbol-cleanup 'foo139)
-  (symbol-cleanup 'foo140)
-  (symbol-cleanup 'check-type-error))
-T
+(symbols-cleanup
+ '(MOD1 BELIEBIGER-TEST BELIEBIGER-TYP typeof-typep-subtype *DISJOINT-TYPES-LIST*
+   bar foo foo70 foo71 foo72 foo73 foo74 foo129a foo129b foo139 foo140
+   check-type-error))
+()

@@ -452,7 +452,5 @@ T
         (eq *current-language* 'ENGLISH)))
 (T T)
 
-(progn (symbol-cleanup 'check-load) (symbol-cleanup 'test-dohash)
-       (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
-       (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))
-T
+(symbols-cleanup '(check-load test-dohash *s1* *s2* *s3* *s4*))
+()

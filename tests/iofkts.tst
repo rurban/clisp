@@ -898,26 +898,9 @@ T
 	
 yyy"
 
-(progn ; cleanup
-  (symbol-cleanup 'bs)
-  (symbol-cleanup 'str1)
-  (symbol-cleanup 's1)
-  (symbol-cleanup 'string1)
-  (symbol-cleanup 'string2)
-  (symbol-cleanup 'a)
-  (symbol-cleanup 'aa)
-  (symbol-cleanup 'b)
-  (symbol-cleanup 'c)
-  (symbol-cleanup 'd)
-  (symbol-cleanup 'j)
-  (symbol-cleanup 'x)
-  (symbol-cleanup 'ask)
-  (symbol-cleanup 'my-pprint-reverse)
-  (symbol-cleanup 'my-pprint-logical)
-  (symbol-cleanup 'foo-printer)
-  (symbol-cleanup 'c1)
-  (symbol-cleanup 'c2))
-T
+(symbols-cleanup '(bs str1 s1 string1 string2 a aa b c d j x ask
+                   my-pprint-reverse my-pprint-logical foo-printer c1 c2))
+()
 
 ;; local variables:
 ;; eval: (make-local-variable 'before-save-hook)

@@ -564,15 +564,5 @@ T
   (length l))
 4
 
-(progn ; cleanup
-  (symbol-cleanup 'testvar)
-  (symbol-cleanup 'clrvar)
-  (symbol-cleanup 'v1)
-  (symbol-cleanup 'v2)
-  (symbol-cleanup 'v3)
-  (symbol-cleanup 'v4)
-  (symbol-cleanup 'v5)
-  (symbol-cleanup 'v6)
-  (symbol-cleanup 'var3)
-  (symbol-cleanup 'var33))
-T
+(symbols-cleanup '(testvar clrvar v1 v2 v3 v4 v5 v6 var3 var33))
+()

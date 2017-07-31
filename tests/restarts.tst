@@ -384,12 +384,5 @@ T
     (+ 'symbol-macrolet 'handler-bind 'type-error)))
 3
 
-(progn ; cleanup
-  (symbol-cleanup 'check-use-value)
-  (symbol-cleanup 'use-value-read)
-  (symbol-cleanup 'zot)
-  (symbol-cleanup 'foo)
-  (symbol-cleanup 'bar)
-  (symbol-cleanup 'baz)
-  (symbol-cleanup 'xyzzy))
-T
+(symbols-cleanup '(check-use-value use-value-read zot foo bar baz xyzzy))
+()

@@ -702,8 +702,5 @@ T
 (documentation 'foo 'function) "docstring"
 
 ;; Clean up.
-(progn (symbol-cleanup 'x)
-       (symbol-cleanup 'func01)
-       (symbol-cleanup 'func03)
-       (symbol-cleanup 'foo))
-T
+(symbols-cleanup '(x func01 func03 foo))
+()
