@@ -5319,6 +5319,12 @@ cache of the dependent when it is updated.</para>
   See <xref linkend="forward-referenced-class-clisp"/>.</para></listitem>
 <listitem><para>The function &gf-argument-precedence-order; &sig-err;
   if the generic function has no &lalist;.</para></listitem>
+<listitem><para>It is not possible to create a class with metaclass
+  &standard-class; when specifying a superclass with metaclass
+  &funcallable-standard-class;, even though &validate-superclass;
+  returns &t; for this situation.
+  <!-- see uncallable-generic-function in tests/mop.tst-->
+</para></listitem>
 </itemizedlist>
 
 <itemizedlist id="mop-clisp-ext"><title>Extensions specific to &clisp;</title>
