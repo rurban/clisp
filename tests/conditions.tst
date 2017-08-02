@@ -528,7 +528,7 @@ T
                 floating-point-invalid-operation
                 floating-point-underflow floating-point-overflow
                 package-error parse-error print-not-readable
-                  program-error reader-error serious-condition
+                program-error reader-error serious-condition
                 simple-condition simple-error simple-type-error
                 simple-warning storage-condition stream-error
                 style-warning type-error unbound-slot
@@ -577,6 +577,6 @@ WARNING
                            (car arg))))))
 #+clisp NIL
 
-(symbols-cleanup '(my-cpl check-superclasses
+(symbols-cleanup '(my-cpl check-superclasses c my-simple
                    test test2 test3 test4 test5 test6 test~))
 ()
