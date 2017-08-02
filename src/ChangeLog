@@ -1,3 +1,7 @@
+2017-08-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (gllib/libgnu.a): Depend on build-aux.
+
 2017-07-31  Sam Steingold  <sds@gnu.org>
 
 	Implement RFE#52: add (declare (dynamically-modifiable)).
