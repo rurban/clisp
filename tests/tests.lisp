@@ -54,7 +54,18 @@ This will not work right after (cd) if -M was a relative pathname."
   (delete-file (compile-file-pathname file))
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
 (defun symbol-cleanup (s)
-  (setf (find-class s) nil) (makunbound s) (fmakunbound s) (unintern s))
+  #+CLISP (proclaim `(ext:notspecial ,s)) ; constants cannot be makunbound
+  #+XCL(subr 84 ;sys::%p-set-cdr-content
+              s 0 (sys::%p-get-content 'sys::%void-value 0) 0)
+  #+ALLEGRO (setf (excl::symbol-bit s 'excl::.globally-special.) nil)
+  #+CMU (setf (ext:info variable kind s) ':global)
+  #+SBCL (setf (sb-int:info :variable :kind s) ':global)
+  #+OpenMCL (proclaim `(ccl::notspecial ,s))
+  (setf (find-class s) nil
+        (symbol-plist s) '())
+  (makunbound s)
+  (fmakunbound s)
+  (unintern s))
 (defun symbols-cleanup (l)      ; drop many symbols
   (loop for s in l unless (symbol-cleanup s) collect s))
 (defvar *run-test-truename*)
