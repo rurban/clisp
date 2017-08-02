@@ -1,3 +1,9 @@
+2017-08-02  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (symbol-cleanup): handle constants using code from ...
+	* symbol10.tst (clrvar): remove
+	* clos.tst: call symbols-cleanup
+
 2017-07-31  Sam Steingold  <sds@gnu.org>
 
 	* mop.tst (with-collecting-mop-warnings): replaces

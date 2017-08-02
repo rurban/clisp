@@ -298,8 +298,6 @@ ERROR
 (unintern '<C1>)
 T
 
-;; either #+clisp (declaim (ext:notspecial a b c)) here or at end of file
-
 (progn
 (defclass <C1> ()
   ((x :initform 0 :accessor x-val :initarg :x)
@@ -4255,5 +4253,80 @@ LIST
 (make-instance (make-instance 'standard-class :name 3))
 ERROR
 
-#+CLISP (declaim (ext:notspecial a b c))
-#+CLISP NIL
+(symbols-cleanup
+ '(<C1> <C2> foo a b c f g *hl* hgen h testgf00 foo136 subclassp
+   mlf-tester mlf-kill test-class1 test-class2 *t-list* *tmp-file* *foo*
+   bar-const pos tree-with-parent *initform-executed-counter* foo64a
+   foo64b foo64c foo64d abstract-position x-y-position
+   rho-theta-position c0 c1 c2 c3 c4 c7 c8 foo60-a foo60-b foo61-a
+   foo62-a foo62-b foo62-c foo63-a foo63-b foo63-c foo65a foo65b foo65c
+   position-x position-y foo70 foo71 foo72 foo73 foo74 foo75 foo76 foo77
+   foo80a foo80b foo81a foo81b foo82a foo82b foo83a foo83b foo84a foo84b
+   foo85a foo85b foo86a foo86b foo87a foo87b foo88a foo88b foo88c foo89a
+   foo89b foo89c foo90a foo90b foo90c foo91a foo91b foo91c foo92a foo92b
+   foo93a foo93b foo94 foo95b foo96a foo96b foo97a foo97b foo100 foo101a
+   foo101b foo102a foo102b foo102c foo103a foo103b foo103c foo104a
+   foo104b foo104c foo105a foo105b foo105c foo106a foo106b foo106c
+   foo107a foo107b foo108a foo108b foo109 foo116 foo117 foo118 foo119
+   foo120 foo121 foo122 foo123 foo124 foo125 testclass31a testclass31b
+   testclass31c testgf37 testclass40a testclass40b testclass40c testgf40
+   testclass41a testclass41b testclass41c testgf41 testclass42a
+   testclass42b testclass42c testgf42 testclass45a testclass45b
+   testclass45c testgf45 testclass46a testclass46b testclass46c testgf46
+   testclass47a testclass47b testclass47c testgf47 testclass48a
+   testclass48b testclass48c testgf48 testclass49a testclass49b
+   testclass49c testgf49 testclass50a testclass50b testclass50c testgf50
+   class-0203 class-0204 class-0206a class-0206b reinit-class-01 foo126
+   foo127 no-app-meth-gf-01 no-app-meth-gf-02 no-app-meth-gf-03
+   no-prim-meth-gf-01 no-prim-meth-gf-02 no-prim-meth-gf-03
+   test-mc-standard test-mc-standard-bad-qualifiers
+   test-mc-standard-bad1 test-mc-standard-bad2 test-mc-standard-bad3
+   test-mc-standard-bad4 test-mc-progn test-mc-append-1 test-mc-append-2
+   test-mc-append-3 mc01 mc02 mc03 mc04 mc05 test-mc05-1 test-mc05-2
+   test-mc05-3 test-mc05-4 test-mc05-5 test-mc05-6 mc06 test-mc06-1
+   positive-integer-qualifier-p example-method-combination mc-test-piq
+   w-args mc-test-w-args mc11 mc12 mc13 mc14 mc15 mc16 mc17 mc18 mc19
+   mc20 mc21 mc22 mc23 mc24 mc25 test-mc25 mc26 test-mc26 mc27 test-mc27
+   mc28 test-mc28 mc29 test-mc29 mc50 test-mc50-1 test-mc50-2
+   test-mc50-3 mc51 test-mc51-1 test-mc51-2 test-mc51-3 test-mc51-4
+   test-mc51-5 mc60 test-mc60-1 test-mc60-2 test-mc60-3 test-mc60-4 mc61
+   test-mc61-1 test-mc61-2 test-mc61-3 test-mc61-4 test-mc61-5
+   test-mc61-6 test-mc61-7 test-mc61-8 test-mc61-9 mc62 test-mc62-1
+   test-mc62-2 test-mc62-3 test-mc62-4 test-mc62-5 test-mc62-6
+   test-mc62-7 mc63 test-mc63-1 test-mc63-2 test-mc63-3 test-mc63-4 mc64
+   test-mc64-1 test-mc64-2 test-mc64-3 test-mc64-4 test-mc64-5
+   test-mc64-6 test-mc64-7 test-mc64-8 test-mc64-9 test-mc64-10
+   test-mc64-11 test-mc64-12 test-mc64-13 test-mc64-14 test-mc64-15
+   test-mc64-16 test-mc64-17 test-mc64-18 test-mc64-19 mc65 test-mc65-1
+   test-mc65-2 test-mc65-3 test-mc65-4 test-mc65-5 test-mc65-6
+   test-mc65-7 test-mc65-8 test-mc65-9 test-mc65-10 test-mc65-11
+   test-mc65-12 test-mc65-13 test-mc65-14 test-mc65-15 test-mc65-16
+   test-mc65-17 test-mc65-18 test-mc65-19 mc66 test-mc66-1 test-mc66-2
+   test-mc66-3 test-mc66-4 test-mc66-5 test-mc66-6 test-mc66-7
+   test-mc66-8 test-mc66-9 test-mc66-10 test-mc66-11 test-mc66-12
+   test-mc66-13 test-mc66-14 test-mc66-15 test-mc66-16 test-mc66-17
+   test-mc66-18 test-mc66-19 mc67 test-mc67-1 test-mc67-2 test-mc67-3
+   test-mc67-4 test-mc67-5 test-mc67-6 test-mc67-7 test-mc67-8
+   test-mc67-9 test-mc67-10 test-mc67-11 test-mc67-12 test-mc67-13
+   test-mc67-14 test-mc67-15 test-mc67-16 test-mc67-17 test-mc67-18
+   test-mc67-19 mc68 test-mc68-1 test-mc68-2 test-mc68-3 test-mc68-4
+   test-mc68-5 test-mc68-6 mc69 test-mc69-1 test-mc69-2 test-mc69-3
+   test-mc69-4 test-mc69-5 test-mc69-6 test-mc69-7 test-mc69-8
+   test-mc69-9 test-mc69-10 test-mc69-11 test-mc69-12 test-mc69-13
+   test-mc69-14 test-mc69-15 test-mc69-16 test-mc69-17 test-mc69-18
+   test-mc69-19 mc70 test-mc70-1 test-mc70-2 test-mc70-3 test-mc70-4
+   test-mc70-5 test-mc70-6 test-mc70-7 test-mc70-8 test-mc70-9
+   test-mc70-10 test-mc70-11 test-mc70-12 test-mc70-13 test-mc70-14
+   test-mc70-15 test-mc70-16 test-mc70-17 test-mc70-18 test-mc70-19 mc71
+   test-mc71-1 test-mc71-2 test-mc71-3 test-mc71-4 test-mc71-5
+   test-mc71-6 test-mc71-7 mc72 test-mc72-1 test-mc72-2 test-mc72-3
+   test-mc72-4 test-mc72-5 test-mc72-6 prompt-for-new-values
+   add-method-restarts convert-effective-method standard-with-restarts
+   testgf16 testclass16a testclass16b testclass16c testclass16d
+   user-method def-user-method test-um01 test-um02 test-um03 test-um04
+   test-um05 test-um06 test-um07 test-um08 test-um10 test-um11 test-um12
+   test-um13 foo128 foo129 *foo129-counter* foo130 *foo130-counter*
+   foo131 foo131a foo131b foo132 foo132a foo132b incomplete147
+   mixin-foo-144 class-foo-144 fun-144 class-bar-144 mixin-foo-145
+   class-foo-145 fun-145 class-bar-145 foo146 foo147 foosub147 foo148))
+()

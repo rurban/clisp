@@ -27,23 +27,9 @@
 )  )
 testvar
 
-(defun clrvar (var)
-   #+CLISP (proclaim `(ext:notspecial ,var)) ; constants cannot be makunbound
-   #+XCL(subr 84 ;sys::%p-set-cdr-content
-              var 0 (sys::%p-get-content 'sys::%void-value 0) 0)
-   #-XCL (progn (makunbound var) (fmakunbound var)
-                (setf (symbol-plist var) '()))
-   #+ALLEGRO (setf (excl::symbol-bit var 'excl::.globally-special.) nil)
-   #+CMU (setf (ext:info variable kind var) ':global)
-   #+SBCL (setf (sb-int:info :variable :kind var) ':global)
-   #+OpenMCL (proclaim `(ccl::notspecial ,var))
-   var)
-clrvar
-
 ;;; Begin Breitentest
 
-(clrvar 'v1)
-v1
+(symbol-cleanup 'v1) t
 
 ;;;; value - umbinden - macro - umbinden - props - umbinden
 
@@ -163,15 +149,14 @@ val4
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   val4 nil   nil  t    t   nil  t     99  nil nil)
 
-(clrvar 'v1) v1
+(symbol-cleanup 'v1) t
 (testvar 'v1)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 ;;; --- Ende Test1 -----
 
-(clrvar 'v2)
-v2
+(symbol-cleanup 'v2) t
 
 ;;; specvar - props - rebind - function
 
@@ -235,14 +220,13 @@ v2
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   v2b  nil   t    t    nil nil  t     111 222 333 )
 
-(clrvar 'v2) v2
+(symbol-cleanup 'v2) t
 (testvar 'v2)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 
-(clrvar 'v3)
-v3
+(symbol-cleanup 'v3) t
 
 ;;;;; function - con - rebind - prop
 
@@ -335,14 +319,13 @@ var3
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   999  t     nil  t    nil nil  t     111 222 nil)
 
-(clrvar 'v3) v3
+(symbol-cleanup 'v3) t
 (testvar 'v3)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
 
-(clrvar 'v4)
-v4
+(symbol-cleanup 'v4) t
 
 ;;;;  function - rebind - prop - rebind - specvar
 
@@ -413,13 +396,12 @@ v4
 ;geb val     konst svar func mac spec plist i1  i2  i3
 (t  v4-value nil   t    t    nil nil  t     nil 222 333)
 
-(clrvar 'v4) v4
+(symbol-cleanup 'v4) t
 (testvar 'v4)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
-(clrvar 'v5)
-v5
+(symbol-cleanup 'v5) t
 
 ;;;;; prop - rebind - con - rebind - fun
 
@@ -499,13 +481,12 @@ v5
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   321  t     nil  t    nil nil  t     nil 222 333)
 
-(clrvar 'v5) v5
+(symbol-cleanup 'v5) t
 (testvar 'v5)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
 
-(clrvar 'v6)
-v6
+(symbol-cleanup 'v6) t
 
 ;;;;; prop mac con
 
@@ -533,7 +514,7 @@ v6
 ;geb val  konst svar func mac spec plist i1  i2  i3
 (t   234  t     nil  t    t   nil  t     1   nil 3)
 
-(clrvar 'v6) v6
+(symbol-cleanup 'v6) t
 (testvar 'v6)
 ;geb val konst svar func mac spec plist i1  i2  i3
 (nil nil nil   nil  nil  nil nil  nil   nil nil nil)
@@ -564,5 +545,5 @@ T
   (length l))
 4
 
-(symbols-cleanup '(testvar clrvar v1 v2 v3 v4 v5 v6 var3 var33))
+(symbols-cleanup '(testvar v1 v2 v3 v4 v5 v6 var3 var33))
 ()
