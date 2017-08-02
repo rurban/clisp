@@ -2244,7 +2244,7 @@ echol 'subdirs: gllib/libgnu.a'
 echol
 # gnulib cannot be compiled with C++, thus NO_CXX
 echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG} @NO_CXX@"
-echol 'gllib/libgnu.a: config.status'
+echol 'gllib/libgnu.a: config.status build-aux'
 echotab 'mkdir -p gllib'
 echotab 'test -f gllib/Makefile || sh config.status gllib/Makefile depfiles'
 top_srcdir=`cd "${SRCDIR}"; pwd`
