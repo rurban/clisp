@@ -1,10 +1,10 @@
 2017-08-02  Sam Steingold  <sds@gnu.org>
 
-	* clos-genfun2b.lisp, clos-genfun2b.lisp, clos-genfun3.lisp:
-	* clos-genfun4.lisp, clos-methcomb2.lisp, clos-method1.lisp:
-	* clos-method2.lisp, clos-method3.lisp, defstruct.lisp:
-	* places.lisp: Use ("~?" fmt args) instead of ("~A" (apply
-	#'format nil fmt args)) for brevity, clarity and uniformity.
+	* clos-genfun2b.lisp, clos-genfun3.lisp, clos-genfun4.lisp:
+	* clos-methcomb2.lisp, clos-method1.lisp, clos-method2.lisp:
+	* clos-method3.lisp, defstruct.lisp, places.lisp: Use ("~?" fmt args)
+	instead of ("~A" (apply #'format nil fmt args))
+	for brevity, clarity and uniformity.
 
 2017-08-02  Sam Steingold  <sds@gnu.org>
 

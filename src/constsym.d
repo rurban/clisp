@@ -1,7 +1,7 @@
 /*
  * List of all symbols known to the C-program ("program constants")
  * Bruno Haible 1990-2006, 2017
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2011, 2017
  */
 
 /* The macro LISPSYM declares a LISP symbol.

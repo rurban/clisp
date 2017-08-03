@@ -1,6 +1,6 @@
 ;;; Sources for CLISP DEFSTRUCT macro
 ;;; Bruno Haible 1988-2005
-;;; Sam Steingold 1998-2010
+;;; Sam Steingold 1998-2010, 2017
 ;;; German comments translated into English: Stefan Kain 2003-01-14
 
 (in-package "SYSTEM")
