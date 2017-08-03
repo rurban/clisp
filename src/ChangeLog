@@ -1,3 +1,14 @@
+2017-08-03  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#702: CLISP handles declarations inconsistently.
+	* clos-genfun2b.lisp (+gf-declarations+): Remove.
+	(check-gf-declspecs): Pass ERROR or WARN to ERRFUNC as appropriate
+	and return the list of validated declarations.
+	(shared-initialize-<standard-generic-function>): Use the return
+	value of check-gf-declspecs as the declspecs slot.
+	* clos-genfun3.lisp (analyze-defgeneric): Ditto.
+	* constobj.d (declaration_types): Add DYNAMICALLY-MODIFIABLE.
+
 2017-08-02  Sam Steingold  <sds@gnu.org>
 
 	* clos-genfun2b.lisp, clos-genfun3.lisp, clos-genfun4.lisp:

@@ -1,7 +1,7 @@
 /*
  * list of all objects known to the C-program ("program-constants")
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2010
+ * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2002-02-20
 
  The symbols are already treated specially in CONSTSYM.
@@ -665,7 +665,7 @@
    toplevel-declaration-environment: */
   LISPOBJ(top_decl_env,"(NIL)") /* list of O(declaration_types) (is initialized later) */
   /* decl-spec with list of declaration-types to be recognized: */
-  LISPOBJ(declaration_types,"(DECLARATION OPTIMIZE DECLARATION)")
+  LISPOBJ(declaration_types,"(DECLARATION OPTIMIZE DECLARATION CLOS::DYNAMICALLY-MODIFIABLE)")
 /* for DEBUG.D: */
   LISPOBJ_S(newline_string,NLstring)
   /* prompts: */

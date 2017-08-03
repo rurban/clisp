@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Generic Functions
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004, 2007 - 2010
+;;;; Sam Steingold 1998-2004, 2007-2010, 2016-2017
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -336,13 +336,13 @@
              (TEXT "~S ~S: ~S may only be specified once.")
              caller funname 'declare))
          |#
-         (check-gf-declspecs (rest option) 'declare
-           #'(lambda (errorstring &rest arguments)
-               (error "~S ~S: ~?" caller funname errorstring arguments)))
-         (setq declares
-               (if declares
-                 `(DECLARE ,@(append (rest declares) (rest option)))
-                 option)))
+         (let ((new-delarations
+                (check-gf-declspecs (rest option) 'declare
+                  (lambda (reporter errorstring &rest arguments)
+                    (funcall reporter "~S ~S: ~?" caller funname
+                             errorstring arguments)))))
+           (when new-delarations
+             (setq declares `(DECLARE ,@(rest declares) ,@new-delarations)))))
         (:ARGUMENT-PRECEDENCE-ORDER
          (when argorders
            (error-of-type 'ext:source-program-error
