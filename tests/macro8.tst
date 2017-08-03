@@ -1271,17 +1271,15 @@ check-const-fold
 (multiple-value-list (compile 'x (lambda (s) (read-from-string s t t :start 7)))) (X NIL NIL)
 (multiple-value-list (compile 'x (lambda (s) (format "~A" s)))) (X 1 1)
 
-(progn
-  (proclaim '(special foo140)) ; cannot makunbound a constant!
-  (symbols-cleanup
-   '(*c* *donc* *my-typeof-counter* *notinline-test-var* *s* *v* *z* add-crlf
-     alpha arithmetic-if bar beta caller check-const-fold circularity-in-code
-     delta dm1a dm1b dm2a dm2b fexpand fexpand-1 foo foo137 foo138 foo140 foo141
-     foo142 foo143 g halibut incfq ltv1 ltv2 ltv3 test-warning-compile-file-1
-     test-warning-compile-file-2 m m1 mexpand mexpand-1 my-mac my-typeof
-     notinline-test-func-1 notinline-test-func-2 p stem t1 test-compile-time-value-c
-     test-compile-time-value-f test-compile-time-value-v test-compiler
-     test-constant-folding test-fun-arglist test-key test-macro-arglist
-     test-macro-dotted-args test10 test11 test12 test6 test9 testf testp testw
-     with-var x)))
+(symbols-cleanup
+ '(*c* *donc* *my-typeof-counter* *notinline-test-var* *s* *v* *z* add-crlf
+   alpha arithmetic-if bar beta caller check-const-fold circularity-in-code
+   delta dm1a dm1b dm2a dm2b fexpand fexpand-1 foo foo137 foo138 foo140 foo141
+   foo142 foo143 g halibut incfq ltv1 ltv2 ltv3 test-warning-compile-file-1
+   test-warning-compile-file-2 m m1 mexpand mexpand-1 my-mac my-typeof
+   notinline-test-func-1 notinline-test-func-2 p stem t1 test-compile-time-value-c
+   test-compile-time-value-f test-compile-time-value-v test-compiler
+   test-constant-folding test-fun-arglist test-key test-macro-arglist
+   test-macro-dotted-args test10 test11 test12 test6 test9 testf testp testw
+   with-var x))
 ()
