@@ -872,6 +872,13 @@ error
   (proclaim `(declaration ,sym)))
 error
 
+;; undo the effect of the above declaration proclamations
+#+CLISP                         ; cf. tests.lisp:symbols-cleanup
+(let ((decl (assoc 'declaration sys::*toplevel-denv* :test #'eq)))
+  (setf (cdr decl) (delete-if-not #'symbol-package (cdr decl)))
+  (every #'symbol-package decl))
+#+CLISP T
+
 (symbols-cleanup
  '(MOD1 BELIEBIGER-TEST BELIEBIGER-TYP typeof-typep-subtype *DISJOINT-TYPES-LIST*
    bar foo foo70 foo71 foo72 foo73 foo74 foo129a foo129b foo139 foo140

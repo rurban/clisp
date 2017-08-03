@@ -55,6 +55,9 @@ This will not work right after (cd) if -M was a relative pathname."
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
 (defun symbol-cleanup (s)
   #+CLISP (proclaim `(ext:notspecial ,s)) ; constants cannot be makunbound
+  #+CLISP (let ((decl (assoc 'declaration sys::*toplevel-denv* :test #'eq)))
+            (when decl
+              (setf (cdr decl) (delete s (cdr decl) :test #'eq))))
   #+XCL(subr 84 ;sys::%p-set-cdr-content
               s 0 (sys::%p-get-content 'sys::%void-value 0) 0)
   #+ALLEGRO (setf (excl::symbol-bit s 'excl::.globally-special.) nil)
