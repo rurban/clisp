@@ -652,6 +652,17 @@
       ;; see (define-setf-expander THE) in places.lisp
       ;; and (def <t> <function>...) in clos-class3.lisp
       (sys::check-special-operator caller object))
+    (unless custom:*suppress-check-redefinition*
+      (sys::check-package-lock
+       caller
+       (cond ((atom object) (symbol-package object))
+             ((function-name-p object) (symbol-package (second object)))
+             ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
+                          (let ((oo (if (atom obj) obj (second obj))))
+                            (when (symbolp oo)
+                              (symbol-package oo))))
+                      object)))
+       object))
     (let ((cur-file *current-source-file*)
           (old-file ; distinguish between undefined and defined at top-level
            (if (and (not (or (eq caller 'define-setf-expander)
@@ -664,16 +675,6 @@
                   (and (pathnamep old-file) (pathnamep cur-file)
                        (equal (pathname-name old-file)
                               (pathname-name cur-file))))
-        (sys::check-package-lock
-         caller
-         (cond ((atom object) (symbol-package object))
-               ((function-name-p object) (symbol-package (second object)))
-               ((mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
-                            (let ((oo (if (atom obj) obj (second obj))))
-                              (when (symbolp oo)
-                                (symbol-package oo))))
-                        object)))
-         object)
         (when what ; when not yet defined, `what' is NIL
           (warn-of-type 'simple-style-warning
             (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")

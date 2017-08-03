@@ -616,7 +616,8 @@ t
 (coerce 1.0 'complex)
 #C(1.0 0.0)
 
-(deftype otherwise () nil)
+(#+CLISP without-package-lock #+CLISP ("CL") #-CLISP progn
+         (deftype otherwise () nil))
 otherwise
 
 (typecase 'foo (otherwise :wrong) (t :right))
@@ -874,9 +875,9 @@ error
 
 ;; undo the effect of the above declaration proclamations
 #+CLISP                         ; cf. tests.lisp:symbols-cleanup
-(let ((decl (assoc 'declaration sys::*toplevel-denv* :test #'eq)))
-  (setf (cdr decl) (delete-if-not #'symbol-package (cdr decl)))
-  (every #'symbol-package decl))
+(let ((tldl (sys::top-level-declarations)))
+  (setf (cdr tldl) (delete-if-not #'symbol-package (cdr tldl)))
+  (every #'symbol-package tldl))
 #+CLISP T
 
 (symbols-cleanup

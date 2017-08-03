@@ -589,6 +589,8 @@
       (values signature reqvars (countup reqnum)))))
 
 ;; Checks a generic-function declspecs list.
+(defun sys::top-level-declarations ()
+  (assoc 'declaration sys::*toplevel-denv* :test #'eq))
 (defun check-gf-declspecs (declspecs keyword errfunc)
   (unless (proper-list-p declspecs)
     (funcall errfunc #'error (TEXT "The ~S argument should be a proper list, not ~S")
@@ -597,8 +599,7 @@
    (lambda (declspec)
      (if (and (consp declspec)
               (let ((d (first declspec)))
-                (or (sys::memq d (cdr (assoc 'declaration sys::*toplevel-denv*
-                                             :test #'eq)))
+                (or (sys::memq d (cdr (sys::top-level-declarations)))
                     (sys::memq d sys::*user-declaration-types*))))
          declspec
          (funcall errfunc #'warn

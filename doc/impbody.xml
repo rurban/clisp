@@ -1509,8 +1509,9 @@ the value entered is treated as usual for the Lisp &repl;, i.e., it is
     <primary>PACKAGE-LOCK</primary></indexterm></firstterm></title>
 <para>Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
-redefine functions which its symbols name result in a &cont-err;
-(continuing overrides locking for this operation).
+redefine its symbols (as &defun;, &defmacro;, &defgeneric;, &defvar;,
+&defparameter;, &defconstant;, &deftype;, &declaration-dec;)
+result in a &cont-err; (continuing overrides locking for this operation).
 When &suppress-check-redef; is &t; (&not-e; a good idea!), the &error-t;
 is not &signal;ed for redefine operations.
 Function <code>(&package-lock; &pack-r;)</code>

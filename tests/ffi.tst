@@ -28,12 +28,12 @@ T
         (:return-type c-string :none))
       (loop :for i :from 0 :to 100 :do (show (strerror i)))
       (def-c-var errno (:type ffi:int) (:library :default))
-      (defun os-error (where)
+      (defun my-os-error (where)
         (error "~S failed: errno=~D: ~S" where errno (strerror errno))))
   (error (c)
     (princ-error c)
-    (defun os-error (where) (error "~S failed" where))))
-OS-ERROR
+    (defun my-os-error (where) (error "~S failed" where))))
+MY-OS-ERROR
 
 (def-call-out gethostname1 (:name "gethostname")
   (:arguments (name (c-ptr (c-array-max character 256)) :out :alloca) (len int))
@@ -43,7 +43,7 @@ GETHOSTNAME1
 (defun myhostname1 ()
   (multiple-value-bind (success name) (gethostname1 256)
     (if (zerop success) name
-        (os-error 'myhostname1))))
+        (my-os-error 'myhostname1))))
 MYHOSTNAME1
 
 (def-call-out gethostname2 (:name "gethostname")
@@ -54,7 +54,7 @@ GETHOSTNAME2
 (defun myhostname2 ()
   (multiple-value-bind (success name) (gethostname2 256)
     (if (zerop success) name
-        (os-error 'myhostname2))))
+        (my-os-error 'myhostname2))))
 MYHOSTNAME2
 
 (def-call-out gethostname3 (:name "gethostname")
@@ -66,14 +66,14 @@ GETHOSTNAME3
   (with-foreign-object (name '(c-array-max character 256))
     (let ((success (gethostname3 name 256)))
       (if (zerop success) (foreign-value name)
-          (os-error 'myhostname3)))))
+          (my-os-error 'myhostname3)))))
 MYHOSTNAME3
 
 (defun myhostname4 ()
   (with-foreign-object (name '(c-array-max char 256))
     (let ((success (gethostname3 name 256)))
       (if (zerop success) (foreign-value name)
-          (os-error 'myhostname4)))))
+          (my-os-error 'myhostname4)))))
 MYHOSTNAME4
 
 (string= (myhostname1) (myhostname3)) T
@@ -1289,3 +1289,12 @@ NIL
 ;; in ./foo:
 (gsl_cheb_alloc 10)
 )
+
+(symbols-cleanup
+ '(strerror errno my-os-error gethostname1 myhostname1 gethostname2
+   myhostname2 gethostname3 myhostname3 myhostname4 gethostbyname c-self
+   opaque triv trigger user-pointer *x* callback uint->uint *callbackf*
+   pass-float idfpfun *fpcallback* foreign-as-string make-foreign-string
+   link-node command-line c-malloc c-free foo-var foo-const ffi_uintp
+   my-uintp toupper pcre-version strlen))
+()

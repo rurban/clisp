@@ -1,5 +1,16 @@
 2017-08-03  Sam Steingold  <sds@gnu.org>
 
+	Fix bug#701: deftype does not check package lock.
+	* clos-genfun2b.lisp (top-level-declarations): Extract from...
+	(check-gf-declspecs): Use it.
+	* condition.lisp (check-not-type): Call check-package-lock.
+	(check-not-declaration): Call check-not-declaration,
+	use top-level-declarations.
+	* init.lisp (check-redefinition): Call check-package-lock even if
+	no files are associated with the symbol.
+
+2017-08-03  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#702: CLISP handles declarations inconsistently.
 	* clos-genfun2b.lisp (+gf-declarations+): Remove.
 	(check-gf-declspecs): Pass ERROR or WARN to ERRFUNC as appropriate
