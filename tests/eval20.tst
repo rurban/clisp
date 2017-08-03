@@ -296,7 +296,62 @@ NIL
 "WARNING: ZOT is not a valid OPTIMIZE quality.
 "
 
+(let ((warnings 0) (errors 0))
+  (list
+   (with-output-to-string (#+CLISP *error-output* #-CLISP s)
+     (handler-bind ((warning (lambda (w) (incf warnings)))
+                    (error (lambda (e) (incf errors) (princ e *error-output*)
+                                   (continue e))))
+       (warn "foo")
+       (cerror "baz" 'error)
+       (warn "bar")))
+   warnings errors))
+(#+CLISP "WARNING: foo
+Condition of type ERROR.
+WARNING: bar
+" #-CLISP ""
+ 2 1)
+
+;; declaration proclamation
+(defparameter *decl-file* "decl.lisp") *decl-file*
+(defun write-decl-file (declaration)
+  (let ((f `(defun f (x) (declare (,declaration)) x))
+        (gf `(defgeneric gf (x) (declare (,declaration)))))
+    (with-open-file (o *decl-file* :direction :output)
+      (flet ((wr (code name)
+               (setf (second code) name)
+               (write code :stream o :pretty t)
+               (terpri o)))
+        (wr f 'f1)
+        (wr gf 'gf1)
+        (write `(declaim (declaration ,declaration)) :stream o)
+        (terpri o)
+        (wr f 'f2)
+        (wr gf 'gf2)))))
+WRITE-DECL-FILE
+
+(let ((warnings 0))
+  (write-decl-file 'test-decl-load)
+  (handler-bind ((warning (lambda (w) (incf warnings))))
+    (load *decl-file*))
+  warnings)
+1                               ; f1 is ignored!
+
+(progn
+  (write-decl-file 'test-decl-compile)
+  (rest (multiple-value-list (compile-file *decl-file*))))
+(2 2)                           ; both f1 and gf1 are reported
+
+(let ((warnings 0))
+  (handler-bind  ((warning (lambda (w) (incf warnings))))
+    (load (compile-file-pathname *decl-file*)))
+  (post-compile-file-cleanup *decl-file*)
+  warnings)
+0                ; the invalid declarations were removed at compile time
+
 ;; Clean up.
 (symbols-cleanup '(setf-foo bar x *collector* dummy-function
+                   *decl-file* write-decl-file f1 f2 gf1 gf2
+                   test-decl-load test-decl-compile
                    recursive-times mlets integer-power example))
 ()

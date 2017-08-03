@@ -589,16 +589,22 @@
       (values signature reqvars (countup reqnum)))))
 
 ;; Checks a generic-function declspecs list.
-(defconstant +gf-declarations+ '(OPTIMIZE DYNAMICALLY-MODIFIABLE))
 (defun check-gf-declspecs (declspecs keyword errfunc)
   (unless (proper-list-p declspecs)
-    (funcall errfunc (TEXT "The ~S argument should be a proper list, not ~S")
+    (funcall errfunc #'error (TEXT "The ~S argument should be a proper list, not ~S")
              keyword declspecs))
-  (dolist (declspec declspecs)
-    (unless (and (consp declspec)
-                 (memq (first declspec) +gf-declarations+))
-      (funcall errfunc (TEXT "In the ~S argument, only ~{~S~^, ~} declarations are permitted, not ~S")
-               keyword +gf-declarations+ declspec))))
+  (remove-if-not
+   (lambda (declspec)
+     (if (and (consp declspec)
+              (let ((d (first declspec)))
+                (or (sys::memq d (cdr (assoc 'declaration sys::*toplevel-denv*
+                                             :test #'eq)))
+                    (sys::memq d sys::*user-declaration-types*))))
+         declspec
+         (funcall errfunc #'warn
+                  (TEXT "In the ~S argument, ~S declaration is not permitted")
+                  keyword declspec)))
+   declspecs))
 
 ;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
 (defun check-signature-congruence (gf method
@@ -732,10 +738,12 @@
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'standard-generic-function (funcallable-name gf)
              ':declarations ':declare))
-    (let ((declspecs (if declare-p declare declarations)))
-      (check-gf-declspecs declspecs (if declare-p ':declare ':declarations)
-        #'(lambda (errorstring &rest arguments)
-            (error (TEXT "(~S ~S) for generic function ~S: ~?")
+    (setq declarations
+      (check-gf-declspecs
+       (if declare-p declare declarations)
+       (if declare-p ':declare ':declarations)
+       (lambda (reporter errorstring &rest arguments)
+         (funcall reporter (TEXT "(~S ~S) for generic function ~S: ~?")
                    (if (eq situation 't) 'initialize-instance 'shared-initialize)
                    'standard-generic-function (funcallable-name gf)
                    errorstring arguments)))))
@@ -751,7 +759,7 @@
   (when (or (eq situation 't) documentation-p)
     (setf (std-gf-documentation gf) documentation))
   (when (or (eq situation 't) declarations-p declare-p)
-    (setf (std-gf-declspecs gf) (if declare-p declare declarations)))
+    (setf (std-gf-declspecs gf) declarations))
   (when (eq situation 't)
     (setf (std-gf-methods gf) '()))
   (when (or (eq situation 't)
