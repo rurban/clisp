@@ -436,9 +436,9 @@
                             #'(lambda (lalist detail errorstring &rest arguments)
                                 (declare (ignore lalist));use WHOLE-FORM instead
                                 (lambda-list-error whole-form detail
-                                  (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                                  (TEXT "~S ~S: invalid ~S lambda-list: ~?")
                                   'defsetf accessfn 'defsetf
-                                  (apply #'format nil errorstring arguments))))
+                                  errorstring arguments)))
                         (declare (ignore optinits optsvars rest keywords keyvars
                                          keyinits keysvars allowp))
                         (setq arg-count (if keyp (+ (length reqvars)
@@ -720,9 +720,9 @@
         #'(lambda (lalist detail errorstring &rest arguments)
             (declare (ignore lalist)) ; use WHOLE-FORM instead
             (lambda-list-error whole-form detail
-              (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+              (TEXT "~S ~S: invalid ~S lambda-list: ~?")
               'define-modify-macro name 'define-modify-macro
-              (apply #'format nil errorstring arguments))))
+              errorstring arguments)))
     (declare (ignore optinits optsvars))
     (let ((varlist (append reqvars optvars))
           (restvar (if (not (eql rest 0)) rest nil)))

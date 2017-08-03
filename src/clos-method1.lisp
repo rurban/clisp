@@ -139,9 +139,9 @@
   (let ((sig (method-lambda-list-to-signature lambda-list
                #'(lambda (form detail errorstring &rest arguments)
                    (sys::lambda-list-error form detail
-                     (TEXT "(~S ~S): Invalid ~S argument: ~A")
+                     (TEXT "(~S ~S): Invalid ~S argument: ~?")
                      'initialize-instance 'standard-method ':lambda-list
-                     (apply #'format nil errorstring arguments))))))
+                     errorstring arguments)))))
     ; Check the signature argument. It is optional; specifying it only has
     ; the purpose of saving memory allocation (by sharing the same signature
     ; for all reader methods and the same signature for all writer methods).

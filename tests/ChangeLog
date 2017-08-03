@@ -1,5 +1,10 @@
 2017-08-02  Sam Steingold  <sds@gnu.org>
 
+	* mop-aux.lisp: Use ("~?" fmt args) instead of ("~A" (apply
+	#'format nil fmt args)) for brevity, clarity and uniformity.
+
+2017-08-02  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (symbol-cleanup): handle constants using code from ...
 	* symbol10.tst (clrvar): remove
 	* clos.tst: call symbols-cleanup

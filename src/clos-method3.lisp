@@ -79,9 +79,9 @@
         (method-lambda-list-to-signature lambda-list
           #'(lambda (form detail errorstring &rest arguments)
               (sys::lambda-list-error form detail
-                (TEXT "Invalid ~S result for ~S: ~:S: ~A")
+                (TEXT "Invalid ~S result for ~S: ~:S: ~?")
                 'method-lambda-list method lambda-list
-                (apply #'format nil errorstring arguments))))))
+                errorstring arguments)))))
     (:method ((method standard-method))
       (std-method-signature method))))
 

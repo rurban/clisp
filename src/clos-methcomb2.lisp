@@ -182,12 +182,10 @@
               (declare (ignore lalist)) ; use WHOLE-FORM instead
               (if (eq caller 'define-method-combination)
                 (sys::lambda-list-error whole-form detail
-                  #1=(TEXT "~S ~S: invalid ~S lambda-list: ~A")
-                  caller name ':arguments
-                  (apply #'format nil errorstring arguments))
+                  #1=(TEXT "~S ~S: invalid ~S lambda-list: ~?")
+                  caller name ':arguments errorstring arguments)
                 (error-of-type 'program-error
-                  #1# caller name ':arguments
-                  (apply #'format nil errorstring arguments)))))
+                  #1# caller name ':arguments errorstring arguments))))
       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
       (values
        arguments-lambda-list
@@ -476,9 +474,8 @@
                        (sys::analyze-method-combination-lambdalist combination-arguments-lambda-list
                          #'(lambda (lalist detail errorstring &rest arguments)
                              (sys::lambda-list-error lalist detail
-                               (TEXT "In ~S ~S lambda list: ~A")
-                               combination ':arguments
-                               (apply #'format nil errorstring arguments))))
+                               (TEXT "In ~S ~S lambda list: ~?")
+                               combination ':arguments errorstring arguments)))
                      (declare (ignore optinits optsvars
                                       keywords keyvars keyinits keysvars
                                       allowp auxvars auxinits))
@@ -861,9 +858,8 @@
              (error-of-type 'ext:source-program-error
                :form whole-form
                :detail detail
-               (TEXT "~S ~S: invalid method group specifier ~S: ~A")
-               'define-method-combination name group
-               (apply #'format nil message message-args)))
+               (TEXT "~S ~S: invalid method group specifier ~S: ~?")
+               'define-method-combination name group message message-args))
            ;; Performs the syntax check of a method-group-specifier and
            ;; returns a simple-vector
            ;;   #(name patterns/predicate orderform required-p description)
@@ -1199,9 +1195,8 @@ Long-form options are a list of method-group specifiers,
              #'(lambda (lalist detail errorstring &rest arguments)
                  (declare (ignore lalist)) ; use WHOLE-FORM instead
                  (sys::lambda-list-error whole-form detail
-                   (TEXT "~S ~S: invalid lambda-list: ~A")
-                   'define-method-combination name
-                   (apply #'format nil errorstring arguments))))
+                   (TEXT "~S ~S: invalid lambda-list: ~?")
+                   'define-method-combination name errorstring arguments)))
            ; Check the method-group-specifiers, then the rest.
            (let ((method-groups
                    (parse-method-groups whole-form name method-group-specifiers))
