@@ -1,5 +1,10 @@
 2017-08-03  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (symbol-cleanup): cleanup *toplevel-denv*
+	* type.tst: undo the effect of the gensym declaration proclamations
+
+2017-08-03  Sam Steingold  <sds@gnu.org>
+
 	* eval20.tst: add tests for bug#702
 	* lambda.tst: the default declaration environment now contains
 	DYNAMICALLY-MODIFIABLE
