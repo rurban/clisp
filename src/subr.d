@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2006
+ * Bruno Haible 1990-2006, 2009
  * Sam Steingold 1998-2011, 2013, 2017
 
  A C-compiled LISP-function is defined by a declaration
