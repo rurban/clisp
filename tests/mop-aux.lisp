@@ -481,7 +481,7 @@
 (defun generic-function-lambda-list-to-signature (lambdalist errfunc)
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (analyze-generic-function-lambdalist lambdalist errfunc)
-    (declare (ignore keyvars)) 
+    (declare (ignore keyvars))
     (let ((reqnum (length reqvars))
           (optnum (length optvars))
           (restp (or (not (eql rest 0)) keyp))) ; &key implies &rest
@@ -491,12 +491,12 @@
 
 (defun generic-function-signature (gf)
   (let ((lambdalist (clos:generic-function-lambda-list gf)))
-    (generic-function-lambda-list-to-signature lambdalist 
+    (generic-function-lambda-list-to-signature lambdalist
       #'(lambda (detail errorstring &rest arguments)
           (declare (ignore detail))
-          (error "Invalid ~S result ~S: ~A"
+          (error "Invalid ~S result ~S: ~?"
                  'generic-function-lambda-list lambdalist
-                 (apply #'format nil errorstring arguments))))))
+                 errorstring arguments)))))
 
 (defun gf-sig-restp (sig)
   (or (sig-rest-p sig) (> (sig-opt-num sig) 0)))
@@ -514,13 +514,13 @@
       :keywords keywords :allow-p allowp)))
 
 (defun method-signature (method)
-  (let ((lambda-list (clos:method-lambda-list method))) 
+  (let ((lambda-list (clos:method-lambda-list method)))
     (method-lambda-list-to-signature lambda-list
       #'(lambda (detail errorstring &rest arguments)
           (declare (ignore detail))
-          (error "Invalid ~S result for ~S: ~:S: ~A"
+          (error "Invalid ~S result for ~S: ~:S: ~?"
                  'method-lambda-list method lambda-list
-                 (apply #'format nil errorstring arguments))))))
+                 errorstring arguments)))))
 
 (defun gensym-list (how-many)
   (map-into (make-list how-many) #'gensym))
@@ -670,9 +670,9 @@
               (declare (ignore detail))
               (error
                 (make-condition 'program-error
-                  :format-control "~S ~S: invalid ~S lambda-list: ~A"
+                  :format-control "~S ~S: invalid ~S lambda-list: ~?"
                   :format-arguments (list caller name ':arguments
-                                          (apply #'format nil errorstring arguments))))))
+                                          errorstring arguments)))))
       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
       (values
        arguments-lambda-list
@@ -731,9 +731,9 @@
                      (analyze-method-combination-lambdalist combination-arguments-lambda-list
                        #'(lambda (detail errorstring &rest arguments)
                            (declare (ignore detail))
-                           (error "In ~S ~S lambda list: ~A"
+                           (error "In ~S ~S lambda list: ~?"
                                   combination ':arguments
-                                  (apply #'format nil errorstring arguments))))
+                                  errorstring arguments)))
                    (declare (ignore optinits optsvars
                                     keywords keyvars keyinits keysvars
                                     allowp auxvars auxinits))

@@ -365,9 +365,8 @@
           #'(lambda (lalist detail errorstring &rest arguments)
               (declare (ignore lalist)) ; use WHOLE-FORM instead
               (sys::lambda-list-error whole-form detail
-                (TEXT "~S ~S: In ~S argument list: ~A")
-                'defstruct name ':constructor
-                (apply #'format nil errorstring arguments))))
+                (TEXT "~S ~S: In ~S argument list: ~?")
+                'defstruct name ':constructor errorstring arguments)))
       (let* ((argnames
                ; The list of all arguments that are already supplied with
                ; values through the parameter list.

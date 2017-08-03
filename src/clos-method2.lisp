@@ -40,9 +40,8 @@
 
 ;; helper
 (defmacro program-error-reporter (caller)
-  `#'(lambda (form detail errorstring &rest arguments)
-       (apply #'sys::lambda-list-error form detail
-              "~S: ~A" ,caller (apply #'format nil errorstring arguments))))
+  `(lambda (form detail errorstring &rest arguments)
+     (sys::lambda-list-error form detail "~S: ~?" ,caller errorstring arguments)))
 
 ;; MOP p. 52
 (defun extract-lambda-list (specialized-lambda-list)
@@ -92,8 +91,7 @@
             #'(lambda (form detail errorstring &rest arguments)
                 (declare (ignore form)) ; FORM is lambda-list, use WHOLE-FORM
                 (sys::lambda-list-error whole-form detail
-                  "~S ~S: ~A" caller funname
-                  (apply #'format nil errorstring arguments))))
+                  "~S ~S: ~?" caller funname errorstring arguments)))
         (let ((req-specializer-forms
                 (mapcar #'(lambda (specializer-name)
                             (cond ((defined-class-p specializer-name)
@@ -119,8 +117,7 @@
                 #'(lambda (lalist detail errorstring &rest arguments)
                     (declare (ignore lalist)) ; use WHOLE-FORM instead
                     (sys::lambda-list-error whole-form detail
-                      "~S ~S: ~A" caller funname
-                      (apply #'format nil errorstring arguments))))
+                      "~S ~S: ~?" caller funname errorstring arguments)))
             (declare (ignore optinits optsvars keyvars keyinits keysvars
                              auxvars auxinits))
             (let ((reqnum (length reqvars))

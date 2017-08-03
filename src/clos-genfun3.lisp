@@ -338,8 +338,7 @@
          |#
          (check-gf-declspecs (rest option) 'declare
            #'(lambda (errorstring &rest arguments)
-               (error "~S ~S: ~A" caller funname
-                      (apply #'format nil errorstring arguments))))
+               (error "~S ~S: ~?" caller funname errorstring arguments)))
          (setq declares
                (if declares
                  `(DECLARE ,@(append (rest declares) (rest option)))
@@ -455,8 +454,7 @@
               (error-of-type 'ext:source-program-error
                 :form whole-form
                 :detail detail
-                "~S ~S: ~A" caller funname
-                (apply #'format nil errorstring arguments))))
+                "~S ~S: ~?" caller funname errorstring arguments)))
       (declare (ignore argorder))
       (let ((method-combinations-defaulted
               ;; Default :method-combination is STANDARD:
@@ -515,8 +513,8 @@
         #'(lambda (lalist detail errorstring &rest arguments)
             (declare (ignore lalist)) ; use WHOLE-FORM instead
             (sys::lambda-list-error whole-form detail
-              (TEXT "~S ~S: invalid generic function lambda-list: ~A")
-              caller funname (apply #'format nil errorstring arguments))))
+              (TEXT "~S ~S: invalid generic function lambda-list: ~?")
+              caller funname errorstring arguments)))
     (declare (ignore keyvars))
     (values (length reqvars) reqvars (length optvars)
             (or (not (eql rest 0)) keyp) ; &key implies &rest

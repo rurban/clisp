@@ -566,8 +566,8 @@
            (generic-function-lambda-list-to-signature lambdalist
              #'(lambda (lalist detail errorstring &rest arguments)
                  (funcall errfunc lalist detail
-                          (TEXT "Invalid generic function lambda-list: ~A")
-                          (apply #'format nil errorstring arguments)))))
+                          (TEXT "Invalid generic function lambda-list: ~?")
+                          errorstring arguments))))
          (reqnum (sig-req-num signature))
          (reqvars (subseq lambdalist 0 reqnum)))
     (if argument-precedence-order-p
@@ -582,9 +582,9 @@
                   argument-precedence-order reqnum reqvars
                   #'(lambda (detail errorstring &rest arguments)
                       (funcall errfunc detail
-                               (TEXT "Incorrect ~S argument: ~A")
+                               (TEXT "Incorrect ~S argument: ~?")
                                ':argument-precedence-order
-                               (apply #'format nil errorstring arguments))))))
+                               errorstring arguments)))))
           (values signature argument-precedence-order indices)))
       (values signature reqvars (countup reqnum)))))
 
@@ -669,10 +669,10 @@
           argument-precedence-order argument-precedence-order-p
           #'(lambda (detail errorstring &rest arguments)
               (declare (ignore detail))
-              (error (TEXT "(~S ~S) for generic function ~S: ~A")
+              (error (TEXT "(~S ~S) for generic function ~S: ~?")
                      (if (eq situation 't) 'initialize-instance 'shared-initialize)
                      'standard-generic-function (funcallable-name gf)
-                     (apply #'format nil errorstring arguments)))))
+                     errorstring arguments))))
     (unless (eq situation 't)
       ;; ANSI CL description of ENSURE-GENERIC-FUNCTION says "If ... the new
       ;; value [for the :lambda-list argument] is congruent with the lambda
@@ -735,10 +735,10 @@
     (let ((declspecs (if declare-p declare declarations)))
       (check-gf-declspecs declspecs (if declare-p ':declare ':declarations)
         #'(lambda (errorstring &rest arguments)
-            (error (TEXT "(~S ~S) for generic function ~S: ~A")
+            (error (TEXT "(~S ~S) for generic function ~S: ~?")
                    (if (eq situation 't) 'initialize-instance 'shared-initialize)
                    'standard-generic-function (funcallable-name gf)
-                   (apply #'format nil errorstring arguments))))))
+                   errorstring arguments)))))
   ; Fill the slots.
   (when lambda-list-p
     (setf (std-gf-lambda-list gf) lambda-list)
