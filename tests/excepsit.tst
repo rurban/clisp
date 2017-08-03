@@ -304,6 +304,21 @@ program-error
 #+CLISP (defun ext:! (a b c) (+ a b c))
 #+CLISP PACKAGE-ERROR
 
+#+CLISP (deftype car () t)
+#+CLISP PACKAGE-ERROR
+
+#+CLISP (proclaim '(declaration car))
+#+CLISP PACKAGE-ERROR
+
+#+CLISP (defgeneric otherwise (x))
+#+CLISP PACKAGE-ERROR
+
+#+CLISP (defmethod otherwise ((x integer)) (1+ x))
+#+CLISP PACKAGE-ERROR
+
+#+CLISP (defmacro otherwise (&body body) `(progn ,@body))
+#+CLISP PACKAGE-ERROR
+
 (defun foo11 ((x y 1) z) (list x y z))
 program-error
 
@@ -1316,3 +1331,11 @@ type-error
 
 #+(and clisp unicode) (ext:convert-string-from-bytes #(1) charset:ucs-4)
 #+(and clisp unicode) simple-charset-type-error
+
+(progn
+  (symbols-cleanup
+   '(foo01 foo02 foo03 foo04 foo041 foo05 foo06 foo07 foo08 foo09 foo10
+     foo11 foo12 foo13 foo14 foo15 foo16-1 foo16-2 foo17 foo18 foo19
+     foo32 foo33 foo34 foo36 foo37 foo42 foo43 foo54 foo55 foo56 foo57))
+  (error "no error"))
+ERROR

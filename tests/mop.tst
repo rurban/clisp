@@ -3387,12 +3387,13 @@ ERROR
      (flet ((warning-gf (w)
               (generic-function-name
                (car (last (simple-condition-format-arguments w))))))
-       (defmethod initialize-instance :after
-         ((o clos:gf-already-called-warning) &rest opts)
-         (push (warning-gf o) already-called))
-       (defmethod initialize-instance :after
-         ((o clos:gf-replacing-method-warning) &rest opts)
-         (push (warning-gf o) replacing-method))
+       (without-package-lock ("CL" "CLOS")
+         (defmethod initialize-instance :after
+           ((o clos:gf-already-called-warning) &rest opts)
+           (push (warning-gf o) already-called))
+         (defmethod initialize-instance :after
+           ((o clos:gf-replacing-method-warning) &rest opts)
+           (push (warning-gf o) replacing-method)))
        (list
         (progn ,@body)
         (list already-called replacing-method)))))

@@ -1876,6 +1876,7 @@ Returns the added or removed method(s)."
 (defun check-not-type (symbol caller)
   (loop
     (setq symbol (check-symbol symbol caller))
+    (check-package-lock caller (symbol-package symbol) symbol)
     (when (handler-bind ((error #'(lambda (c)
                                     (declare (ignore c))
                                     (return-from check-not-type symbol))))
@@ -1894,7 +1895,8 @@ Returns the added or removed method(s)."
 (defun check-not-declaration (symbol caller)
   (loop
     (setq symbol (check-symbol symbol caller))
-    (unless (memq symbol (cdar *toplevel-denv*))
+    (check-package-lock caller (symbol-package symbol) symbol)
+    (unless (memq symbol (cdr (top-level-declarations)))
       (return-from check-not-declaration symbol))
     (with-restarts ((use-value (new-value)
                       :report

@@ -1,5 +1,14 @@
 2017-08-03  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (symbol-cleanup): use top-level-declarations
+	* excepsit.tst: test bug#701, add symbols-cleanup
+	* ffi.tst: rename os-error to my-os-error to avoid package lock
+	error, add symbols-cleanup
+	* mop.tst (with-collecting-mop-warnings): use without-package-locks
+	* type.tst: need to unlock CL for (deftype otherwise)
+
+2017-08-03  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (symbol-cleanup): cleanup *toplevel-denv*
 	* type.tst: undo the effect of the gensym declaration proclamations
 
