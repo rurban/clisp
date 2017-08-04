@@ -1,5 +1,6 @@
 # -*- Autoconf -*-
-# Copyright (C) 2007-2010 Sam Steingold (GNU GPL2+)
+# Copyright (C) 2007-2010, 2017 Sam Steingold (GNU GPL2+)
+# Copyright (C) 2017 Bruno Haible (GNU GPL2+)
 
 AC_PREREQ(2.61)
 
@@ -47,7 +48,7 @@ if test $cl_use_ffcall = yes -a "$cl_cv_have_ffcall" != yes; then
   libffcall_dirname=`echo "$libffcall_targz" | sed -e 's|\.tar\.gz$||'`
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
-  mkdir prerequisites; cd prerequisites; prefix=`pwd`/${ac_cv_host}
+  mkdir prerequisites; cd prerequisites; prefix=\$(pwd)/${ac_cv_host}
   wget ${libffcall_url}
   tar xfz ${libffcall_targz}
   cd ${libffcall_dirname}

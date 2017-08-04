@@ -35,6 +35,9 @@ syntax: regexp
 # build directories & their logs
 ^build.*
 
+# libsigsegv & libffcall
+^prerequisites
+
 # cf Makefile.devel:update-ansi-tests
 ^ansi-tests
 # cf Makefile.devel:update-gnulib
