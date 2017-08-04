@@ -1,3 +1,9 @@
+2017-08-04  Sam Steingold  <sds@gnu.org>
+
+	* m4/ffcall.m4, configure, .hgignore: Recommend building libffcall
+	and libsigsegv in the hg-ignored prerequisites directory and use
+	$() instead of `` in instructions for the sake of tmux.
+
 2017-08-03  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#701: deftype does not check package lock.

@@ -697,7 +697,7 @@ EOF
     libsigsegv_targz=`echo "$libsigsegv_url" | sed -e 's|^.*/||'`
     libsigsegv_dirname=`echo "$libsigsegv_targz" | sed -e 's|\.tar\.gz$||'`
     cat <<EOF 1>&2
-  mkdir tools; cd tools; prefix=\`pwd\`/${ac_cv_host}
+  mkdir prerequisites; cd prerequisites; prefix=\$(pwd)/${ac_cv_host}
   wget ${libsigsegv_url}
   tar xfz ${libsigsegv_targz}
   cd ${libsigsegv_dirname}
