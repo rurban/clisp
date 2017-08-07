@@ -2495,8 +2495,7 @@ static inline maygc gcv_object_t* check_stream_arg (gcv_object_t *stream_) {
 }
 
 /* (set-macro-character #\(
-   #'(lambda (stream char)
-       (read-delimited-list #\) stream t :dot-allowed t))) */
+     #'(lambda (stream char) (read-delimited-list #\) stream t))) */
 LISPFUNN(lpar_reader,2) {       /* reads ( */
   var gcv_object_t* stream_ = check_stream_arg(&STACK_1);
   /* read List after '(' until ')', Dot allowed: */
