@@ -64,8 +64,7 @@ Notes:
   protected by #+ and #-. Think twice before doing so as you may be
   deliberately ignoring a bug in your implementation.
 
-* The tests "readtable", "tread", "tprint" are currently not used
-  by tests.lisp.
+* The tests "tread", "tprint" are currently not used by tests.lisp.
 
 * Additions are welcome.
 
