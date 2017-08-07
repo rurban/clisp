@@ -1,11 +1,12 @@
+;; -*- Lisp -*- vim:filetype=lisp
+
 ;******************************************************************************
 ;*      ROSENMUELLER    TPRINT.QUE                                            *
 ;******************************************************************************
 
-;;** displace zu displac0 umbenannt, weil paket gedruckt wird 22.08.1990 
-**;;
+;;** displace zu displac0 umbenannt, weil paket gedruckt wird 22.08.1990**;;
 
-(write-to-string 
+(write-to-string
         '(let ((a a1)
                (b b1))
               1 2
