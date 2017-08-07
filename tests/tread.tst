@@ -1,278 +1,290 @@
- ;       ***********************************************************
- ;       *  ROSENMUELLER  143   Tel.340   TREAD.dat   04.11.1987   *
- ;       ***********************************************************
-;&----- Tread0.tst -------------------------------------------------------------
+;;       ***********************************************************
+;;       *  ROSENMUELLER  143   Tel.340   TREAD.dat   04.11.1987   *
+;;       ***********************************************************
+;;&----- Tread0.tst -------------------------------------------------------------
 
- ;      Testdaten aus den Beispielen der Sprachbeschreibung
- ;
- ;      Eingabe der Zahl 27 und der Liste (a b)         Seite 334
+;;      Testdaten aus den Beispielen der Sprachbeschreibung
+;;
+;;      Eingabe der Zahl 27 und der Liste (a b)         Seite 334
 
 
-     27
-   27
-     27.
-   27
-     #o33 
-   27
-       #x1b 
-   27
-       #b11011
-   27
-        #.(* 3 3 3)
-   27
-        81/3
-   27
-        '(A B)
-   (A B)
-        '(a b)
-   (A B)
-        '( a b )
-   (A B)
-        '(\A |B|)
-   (A B)
+27
+27
+
+27.
+27
+
+#o33
+27
+
+#x1b
+27
+
+#b11011
+27
+
+#.(* 3 3 3)
+27
+
+81/3
+27
+
+'(A B)
+(A B)
+
+'(a b)
+(A B)
+
+'( a b )
+(A B)
+
+'(\A |B|)
+(A B)
 
            '(|\A|
            B
         )
-   (A B)
+(A B)
 
 
- ;      Test auf Gleichheit                             Seite 338
-        '|foo||bar| 
-   |foobar|
-       '|foobar|
+;;      Test auf Gleichheit                             Seite 338
+'|foo||bar|
+|foobar|
 
-   |foobar|
- ;      Test auf Gleichheit
-        '|foo|bar|baz| 
-   |foo|BAR|baz|
-       '|fooBARbaz|
+'|foobar|
+|foobar|
 
-   |foo|BAR|baz|
- ;      Test auf Ungleichheit
+;;      Test auf Gleichheit
+'|foo|bar|baz|
+|foo|BAR|baz|
 
+'|fooBARbaz|
+|foo|BAR|baz|
 
-(progn (unless (find-package '|foo| )(make-package '|foo|)) t)
-   T
+;;      Test auf Ungleichheit
+(progn (unless (find-package '|foo|) (make-package '|foo|)) t) T
 
-        '|foo:bar| 
-   |foo:bar|
-      
-        (read-from-string "|foo|:|bar|")
+'|foo:bar|
+|foo:bar|
 
-   ERROR
+(read-from-string "|foo|:|bar|")
+ERROR
 
-
-
- ;      reserved token : potential numbers              Seite 341
- ;              eingelesen als Symbol und 
- ;              als solches gedruckt (dh. mit '\' als 1.Zeichen)
-        '1b5000 
-   \1B5000
-       '777777q 
-   \777777Q
-       '1.7J 
-   \1.7J
-       '-3/4+6.7J
-
-   \-3/4+6.7J
-        '12/25/83 
-   \12/25/83
-     '27^19 
-   \27^19
-         '3^4/5 
-   \3^4/5
-      '6//7
-
-   \6//7
-        '3.1.2.6 
-   \3.1.2.6
-      '^-43^ 
-   \^-43^
-         '3.141_592_653_589_793_238_4
-
-   \3.141_592_653_589_793_238_4
-        '-3.7+2.6i-6.17j+19.6k
-
-   \-3.7+2.6I-6.17J+19.6K
-
- ;      not potential numbers
- ;          sind immer Symbole :
-        '/ 
-   /
-         '/5 
-   /5
-       '+ 
-   +
-       '1+ 
-   1+
-         '1-
-
-   1-
-        'foo+ 
-   FOO+
-      'ab.cd 
-   AB.CD
-    '_ 
-   _
-       '^ 
-   ^
-          '^/-
-
-   ^/-
-
- ;      die folgenden token sind Symbole , wenn *read-base* == 10 :
-        'bad-face 
-   BAD-FACE
-        '25-sec-83 
-   25-SEC-83
-       'a/b 
-   A/B
-       'fad_cafe
-
-   FAD_CAFE
-        'f^
-
-   F^
-
-(progn  (setq *print-base* 16)t)
-T
-
- ;      und sind reserved token, wenn *read-base* == 16
- ;      und werden mit '\' gedruckt, falls *print-base* == 16 :
-        'bad-face 
-   \BAD-FACE
-        '25-sec-83 
-   \25-SEC-83
-       'a/b 
-   \A/B
-       'fad_cafe
-
-   \FAD_CAFE
-        'f^
-
-   \F^
-
-(progn (setq *print-base* 10)t)
+(delete-package '#:|foo|)
 T
 
 
- ;      folgende "Zahlen"-Atome muessen mit '\' gedruckt werden :
-        '\123 
-   \123
-       '\123E12 
-   \123E12
-     '\123S12 
-   \123S12
-      '\123L12
+;;      reserved token : potential numbers              Seite 341
+;;              eingelesen als Symbol und
+;;              als solches gedruckt (dh. mit '\' als 1.Zeichen)
 
-   \123L12
-        '\123D12 
-   \123D12
-    '\123F12 
-   \123F12
-     '\123/12
+'1b5000
+\1B5000
 
-   \123/12
+'777777q
+\777777Q
+
+'1.7J
+\1.7J
+
+'-3/4+6.7J
+\-3/4+6.7J
+
+'12/25/83
+\12/25/83
+
+'27^19
+\27^19
+
+'3^4/5
+\3^4/5
+
+'6//7
+\6//7
+
+'3.1.2.6
+\3.1.2.6
+
+'^-43^
+\^-43^
+
+'3.141_592_653_589_793_238_4
+\3.141_592_653_589_793_238_4
+
+'-3.7+2.6i-6.17j+19.6k
+\-3.7+2.6I-6.17J+19.6K
+
+;;      not potential numbers
+;;          sind immer Symbole :
+
+'/
+/
+
+'/5
+/5
+
+'+
++
+
+'1+
+1+
+
+'1-
+1-
+
+'foo+
+FOO+
+
+'ab.cd
+AB.CD
+
+'_
+_
+
+'^
+^
+
+'^/-
+^/-
+
+;;      die folgenden token sind Symbole , wenn *read-base* == 10 :
+
+'bad-face
+BAD-FACE
+
+'25-sec-83
+25-SEC-83
+
+'a/b
+A/B
+
+'fad_cafe
+FAD_CAFE
+
+'f^
+F^
+
+(setq *print-base* 16) #10r16
+
+;;      und sind reserved token, wenn *read-base* == 16
+;;      und werden mit '\' gedruckt, falls *print-base* == 16 :
+
+'bad-face
+\BAD-FACE
+
+'25-sec-83
+\25-SEC-83
+
+'a/b
+\A/B
+
+'fad_cafe
+\FAD_CAFE
+
+'f^
+\F^
+
+(setq *print-base* 10) 10
+
+;;      folgende "Zahlen"-Atome muessen mit '\' gedruckt werden :
+
+'\123
+\123
+
+'\123E12
+\123E12
+
+'\123S12
+\123S12
+
+'\123L12
+\123L12
+
+'\123D12
+\123D12
+
+'\123F12
+\123F12
+
+'\123/12
+\123/12
 
 
-;
- ;        Test der Punktsyntax
-        '(a . b)
-   (A . B)
-        '(a.b)
-   (A.B)
-                '(a. b)
-   (A. B)
-                
-        '(a \. b c)
-   (A \. B C)
-        '(a |.| b c)
-   (A \. B C)
-        '(a \... b c)
-   (A \... B C)
+;;        Test der Punktsyntax
 
-        '(a |...| b c)
-   (A \... B C)
-        '(a b . c)
-   (A B . C)
-        '.ab
+'(a . b)
+(A . B)
 
-   .AB
-        (read-from-string "(. b)")
-   ERROR
-        (read-from-string "(a .. b)")
-   ERROR
-        
-        (read-from-string "(a . . 'b   )")
-   ERROR
-        ; Fehler
-        (read-from-string "(a b c ...)")
-   ERROR
+'(a.b)
+(A.B)
 
-;-------------------------------------------------------------------------------
-;(progn (print "etwa ein achtel") t) T
-;-------------------------------------------------------------------------------
+'(a. b)
+(A. B)
 
- ;        test zeichen einlesen
-     #\control-meta-a
+'(a \. b c)
+(A \. B C)
 
-   #\M-C-A
-     #\control-meta-\a
-   #\M-C-\a
+'(a |.| b c)
+(A \. B C)
 
-     #\linefeed
+'(a \... b c)
+(A \... B C)
 
-   #\NEWLINE
-     #\newline
+'(a |...| b c)
+(A \... B C)
 
-   #\NEWLINE
-     #\space
+'(a b . c)
+(A B . C)
 
-   #\SPACE
-     #\rubout
+'.ab
+.AB
 
-   #\RUBOUT
-     #\page
+(read-from-string "(. b)")
+ERROR
 
-   #\PAGE
-     #\tab
+(read-from-string "(a .. b)")
+ERROR
 
-   #\TAB
-     #\backspace
+(read-from-string "(a . . 'b   )")
+ERROR
 
-   #\BACKSPACE
-     #\return
+(read-from-string "(a b c ...)")
+ERROR
 
-   #\RETURN
-     #\control-space
+;;-------------------------------------------------------------------------------
+;;(progn (print "etwa ein achtel") t) T
+;;-------------------------------------------------------------------------------
 
-   #\C-SPACE
-     #\c-m-return
+;;        test zeichen einlesen
 
-   #\M-C-RETURN
-     #\control-meta-tab
+#\linefeed
+#\NEWLINE
 
-   #\M-C-TAB
-     #\h-s-m-c-rubout
+#\newline
+#\NEWLINE
 
-   #\H-S-M-C-RUBOUT
-     #\control-%
+#\space
+#\SPACE
 
-   #\C-%
-     #\control-\"
-   #\C-\"
+#\rubout
+#\RUBOUT
 
-     #\meta->
+#\page
+#\PAGE
 
-   #\M->
+#\tab
+#\TAB
 
- ;        Test *read-base*
-(setq *read-base* 2)
-2
+#\backspace
+#\BACKSPACE
 
-(setq *print-radix* t)
-T
+#\return
+#\RETURN
+
+;;        Test *read-base*
+(setq *read-base* 2) 2.
+
+(setq *print-radix* t) T
 
 #+XCL (prin1-to-string 4/3.) #+XCL "4/3."
 #-XCL (prin1-to-string #10r4/3) #-XCL "#10r4/3"
@@ -284,71 +296,78 @@ T
 
 (setq *print-base* 10.) 10.
 
-       '123 
-   \123
-        123. 
-   123.
-       312.
+'123
+\123
 
-   312.
+123.
+123.
 
-(progn (setq *read-base* 10. ) t)
-T
+312.
+312.
+
+(setq *read-base* 10.) 10.
 
 (setq *print-radix* nil)
 NIL
 
- ;        Test floatings extrema 
-        .1      
-   0.1
-+.1     
-   0.1
--.1     
-   -0.1
-.1e1    
-   1.0
-+.1e1   
-   1.0
--.1e1   
-   -1.0
-1e1     
-   10.0
-+1e1    
-   10.0
+;;        Test floatings extrema
+
+.1
+0.1
+
++.1
+0.1
+
+-.1
+-0.1
+
+.1e1
+1.0
+
++.1e1
+1.0
+
+-.1e1
+-1.0
+
+1e1
+10.0
+
++1e1
+10.0
+
 -1e1
+-10.0
 
-   -10.0
-        1.e1    
-   10.0
-+1.e1   
-   10.0
+1.e1
+10.0
+
++1.e1
+10.0
+
 -1.e1
+-10.0
 
-   -10.0
+(setq *read-base* 16) 16.
 
-(setq *read-base* 16)
-16
+'1a1.
+\1A1.
 
-        '1a1.   
-   \1A1.
-; fehler symbol
-        '1r1.   
-   \1R1.
-; fehler symbol
+'1r1.
+\1R1.
 
-(progn (setq *read-base* 10. ) t)
-T
+(setq *read-base* 10.) 10.
 
- ;        Test *print-level*
+;;        Test *print-level*
 (setq *print-level* 10)
 10
 
-(setq *print-circle* t) 
+(setq *print-circle* t)
 T
 
-;-- NSUBST ging in Zyklus ! 
-(prin1-to-string '(#1=(a b #1#)) ) 
-"(#1=(a b #1#))"  
+;-- NSUBST ging in Zyklus !
+(prin1-to-string '(#1=(a b #1#)) )
+"(#1=(a b #1#))"
 
 (prin1-to-string '(#1=(#1#)))
 "(#1=(#1#))"
@@ -359,14 +378,14 @@ T
 (setq *print-level* nil)
 NIL
 
- ;        Test *print-length*
+;;        Test *print-length*
 (setq *print-length* 11)
 11
 
 (prin1-to-string '(1 2 3 4 (5 5) 6 7 8 9 10 11 12 13))
 "(1 2 3 4 (5 5) 6 7 8 9 10 11 ...)"
 
-;;;; NSUBST  
+;;;; NSUBST
 (prin1-to-string '#1=(a b . #1#))
 #+XCL "#2=(a b . #2#)"
 #-XCL "#1=(A B . #1#)"
@@ -374,193 +393,208 @@ NIL
 (setq *print-length* nil)
 NIL
 
- ;        Test packagemarker
-        ':abc
+;;        Test packagemarker
+':abc
+:ABC
 
-   :ABC
- ;        zur Zeit noch nicht implementiert :
-(progn (unless (find-package 'abc)(make-package 'abc)) t)
-   T
+;;        zur Zeit noch nicht implementiert :
+(progn (unless (find-package 'abc) (make-package 'abc)) t)
+T
 
-        (read-from-string "abc:de")
-   ERROR
-        'abc::de
-   ABC::DE
-        (read-from-string "::111")
-   #+XCL ERROR #+CLISP :|111|
-        (read-from-string ":abc:")
-   ERROR
-        (read-from-string ":abc:00")
-   ERROR
-       ;Fehler
-        (read-from-string "ab:cd:2")
-   ERROR
-        (read-from-string "ab:")
-   ERROR
-        (read-from-string "ab:cd:")
-   ERROR
-        (read-from-string "abc::")
-   #+XCL ERROR #+CLISP abc::||
- ;
-
-;&----- Tread1.tst -------------------------------------------------------------
-
- ;        Test array
-        '#0a7
-   #0A7
-        '#1a(1 2 3 4 5 6 7 8)
-   #(1 2 3 4 5 6 7 8)
-
-        '#2a((1 2 3)(3 2 1))
-   #2A((1 2 3)(3 2 1))
-
-        '#3a(((1 2 3 ) (4 5 6))
-             ((1 2 3 ) (4 5 6)))
-   #3A(((1 2 3)(4 5 6))((1 2 3)(4 5 6)))
-
-   #+XCL '#a7
-   #+XCL #0A7
-   #+CLISP '#a7
-   #+CLISP #(NIL NIL NIL NIL NIL NIL NIL)
-
-        '#2a((1 2)(3 4)(5 6))
-   #2A((1 2)(3 4)(5 6))
-
-        '#3a(((1 2)(3 4)(5 6))
-             ((7 8)(9 10)(11 12)))
-   #3A(((1 2)(3 4)(5 6))((7 8)(9 10)(11 12)))
-
- ;
- ;        Test ehemaliger Fehler
-        (multiple-value-list (read-from-string "1(123)"))
-   (1 1)
-
-
-        (read-from-string "#0*111") 
-   ERROR
-                               ; Fehler
-        (read-from-string "#0(1 1 1 )")
-   ERROR
-                        ; Fehler
-        (read-from-string "#0r111")
-   ERROR
-        (read-from-string "#1r111")
-   ERROR
-               ; Fehler
-        #2r111 
-   7
-               #36r111
-
-   1333
-        (read-from-string "#37r111")
-   ERROR
-                               ; Fehler
-        (read-from-string "#011010")
+(read-from-string "abc:de")
 ERROR
 
-        -01     
-   -1
--001    
-   -1
--01.    
-   -1
--0.     
-   0
--0/12   
-   0
--00.    
-   0
--00/12  
-   0
-;zahlen
-        '-12./12        
-   \-12./12
-'-0./12 
-   \-0./12
-                                ;symbole
+'abc::de
+ABC::DE
 
-        (list 1 2 #\a)
-   (1 2 #\a)
+(read-from-string "::111")
+#+XCL ERROR #+CLISP :|111|
 
+(read-from-string ":abc:")
+ERROR
+
+(read-from-string ":abc:00")
+ERROR
+
+(read-from-string "ab:cd:2")
+ERROR
+
+(read-from-string "ab:")
+ERROR
+
+(read-from-string "ab:cd:")
+ERROR
+
+(read-from-string "abc::")
+#+XCL ERROR #+CLISP abc::||
+
+(delete-package '#:abc) T
+
+;;&----- Tread1.tst -------------------------------------------------------------
+
+;;        Test array
+
+#0a7                            ; 0 dimensional array
+#0A7
+
+#1a(1 2 3 4 5 6 7 8)
+#(1 2 3 4 5 6 7 8)
+
+#2a((1 2 3)(3 2 1))
+#2A((1 2 3)(3 2 1))
+
+#3a(((1 2 3 ) (4 5 6))
+    ((1 2 3 ) (4 5 6)))
+#3A(((1 2 3)(4 5 6))((1 2 3)(4 5 6)))
+
+(read-from-string "#a7")
+ERROR
+
+#2a((1 2)(3 4)(5 6))
+#2A((1 2)(3 4)(5 6))
+
+#3a(((1 2)(3 4)(5 6))
+    ((7 8)(9 10)(11 12)))
+#3A(((1 2)(3 4)(5 6))((7 8)(9 10)(11 12)))
+
+;;        Test ehemaliger Fehler
+(multiple-value-list (read-from-string "1(123)"))
+(1 1)
+
+(read-from-string "#0*111")
+ERROR
+
+(read-from-string "#0(1 1 1 )")
+ERROR
+
+(read-from-string "#0r111")
+ERROR
+
+(read-from-string "#1r111")
+ERROR
+
+#2r111
+7
+
+#36r111
+1333
+
+(read-from-string "#37r111")
+ERROR
+
+(read-from-string "#011010")
+ERROR
+
+-01
+-1
+
+-001
+
+-1
+
+-01.
+-1
+
+-0.
+0
+
+-0/12
+0
+
+-00.
+0
+
+-00/12
+0
+
+;;zahlen
+'-12./12
+\-12./12
+
+'-0./12
+\-0./12
+
+;;symbole
+(list 1 2 #\a)
+(1 2 #\a)
 
 ;;        '{1 2 3 { 4 5 6) (7 8 9 }
 ;;   (1 2 3 (4 5 6) (7 8 9))
 
-;-------------------------------------------------------------------------------
-;(progn (print "etwa ein viertel") t) T
-;-------------------------------------------------------------------------------
+;;-------------------------------------------------------------------------------
+;;(progn (print "etwa ein viertel") t) T
+;;-------------------------------------------------------------------------------
 
- ;
- ;        Test der Fehlerbehandlung
- ;
- ;        -2        <esc> als 1. zeichen
-          (read-from-string "")
-   ERROR
- 
- ;        -3       <esc> im token
-          (read-from-string "abc")
-   ERROR
+;;
+;;        Test der Fehlerbehandlung
+;;
+;;        -2        <esc> als 1. zeichen
+(read-from-string "")
+ERROR
 
+;;        -3       <esc> im token
+(read-from-string "abc")
+ERROR
 
- 
- ;        -4       <esc> innerhalb von |.....|
-          (read-from-string "a|bc")
-   ERROR
+;;        -4       <esc> innerhalb von |.....|
+(read-from-string "a|bc")
+ERROR
 
- ;        -5         zu langer vektor
-          (read-from-string "#2(a b c)")
-   ERROR
+;;        -5         zu langer vektor
+(read-from-string "#2(a b c)")
+ERROR
 
- ;        -6         packagezeichenfehler
-          (read-from-string "::")
-   #+XCL ERROR #+CLISP :||
- ;        -7         zu langer bitvektor
-          (read-from-string "#2*1010")
-   ERROR
+;;        -6         packagezeichenfehler
+(read-from-string "::")
+#+XCL ERROR #+CLISP :||
 
-;        -9         labelfehler
-          (read-from-string "#1#")
-   ERROR
+;;        -7         zu langer bitvektor
+(read-from-string "#2*1010")
+ERROR
 
- ;        -10        punkttoken
-        (READ-FROM-STRING "... ")
-   ERROR
+;;        -9         labelfehler
+(read-from-string "#1#")
+ERROR
 
-;        -11        unzulaessige *read-base*
-;                wird auf 10 gesetzt durch Fehlerbehandlung
-        (progn (setq *read-base* 40) (read-from-string "123"))
-   ERROR
+;;        -10        punkttoken
+(READ-FROM-STRING "... ")
+ERROR
 
-;        Bindung nach Rueckkehr aus Debug
+;;        -11        unzulaessige *read-base*
+;;                wird auf 10 gesetzt durch Fehlerbehandlung
+(progn (setq *read-base* 40) (read-from-string "123"))
+ERROR
+
+;;        Bindung nach Rueckkehr aus Debug
 *read-base*
 10.
 
-(progn (setq *read-base* 10.) t)
-T
+(setq *read-base* 10.) 10.
 
 *read-base*
 10
 
-;        -12        falsche printbase
+;;        -12        falsche printbase
 (progn (setq *print-base* nil) (prin1-to-string *print-base*))
 ERROR
 
-(progn  (setq *print-base* 10.)t)
+(progn (setq *print-base* 10.) t)
 T
 
 *print-base*
 10
 
-;        -14        feldfehler
-        (read-from-string "#2a((1 2 3)(1 2)")
-   ERROR
-        (read-from-string "#2a((1 2 3)(1 2))")
-   ERROR
+;;        -14        feldfehler
+(read-from-string "#2a((1 2 3)(1 2)")
+ERROR
 
-;;        (read-from-string "#2a(1 2 3}")
-;;   ERROR
+(read-from-string "#2a((1 2 3)(1 2))")
+ERROR
 
-;        -16        unzulaessige printlevel
+(read-from-string "#2a(1 2 3}")
+ERROR
+
+;;        -16        unzulaessige printlevel
 (setq *print-level* t)
 T
 
@@ -573,7 +607,7 @@ NIL
 *print-level*
 NIL
 
-;        -17        unzulaessige printlength
+;;        -17        unzulaessige printlength
 (setq *print-length* t)
 T
 
@@ -588,399 +622,415 @@ NIL
 
 ;&----- Tread2.tst -------------------------------------------------------------
 
- ;        -22        kein Atom fuer synonym
-;;;;; typsystem notwendig        
+;;        -22        kein Atom fuer synonym
+;;;;; typsystem notwendig
 (make-synonym-stream 123)
 ERROR
 
- ;        -23        kein stream als wert 
-        (prin1-to-string (make-synonym-stream '*read-base*))
-   #+XCL "#<SYSTEM::%TYPE-SYNONYM-STREAM *READ-BASE*>"
-   #+CLISP "#<SYNONYM-STREAM *READ-BASE*>"
+;;        -23        kein stream als wert
+(prin1-to-string (make-synonym-stream '*read-base*))
+#+XCL "#<SYSTEM::%TYPE-SYNONYM-STREAM *READ-BASE*>"
+#+CLISP "#<IO SYNONYM-STREAM *READ-BASE*>"
 
- ;        -24        falscher abschluss fuer vektor
+;;        -24        falscher abschluss fuer vektor
+(read-from-string "#(1 2 3 .               )")
+ERROR
 
-        (read-from-string "#(1 2 3 .               )")
-   ERROR
+;;      -29     falsch gepunktete liste
+(read-from-string "(a .)")
+ERROR
 
- ;      -29     falsch gepunktete liste
-        (read-from-string "(a .)")
-   ERROR
+(read-from-string "(. a)")
+ERROR
 
+;;      -30     kein stream als argument
+(make-echo-stream pi *standard-output*)
+ERROR
 
-        (read-from-string "(. a)")
-   ERROR
+(make-two-way-stream pi *standard-output*)
+ERROR
 
+;;      -31     kein stream als argument
+(make-echo-stream *standard-input* pi)
+ERROR
 
- ;      -30     kein stream als argument
-        (make-echo-stream pi *standard-output*)
-   ERROR
+(make-two-way-stream *standard-input* pi)
+ERROR
 
-
-        (make-two-way-stream pi *standard-output*)
-   ERROR
-
- ;      -31     kein stream als argument
-        (make-echo-stream *standard-input* pi)
-   ERROR
-
-
-        (make-two-way-stream *standard-input* pi)
-   ERROR
-
-
- ;      -33     illegale readtable
+;;      -33     illegale readtable
 (progn (setq *readtable* t) (read-from-string "123"))
 ERROR
 
 (progn (setq *readtable* (copy-readtable nil)) t)
 T
 
- ;      -35     illegale readbase in #xxR
-        (read-from-string "#37R")
-   ERROR
+;;      -35     illegale readbase in #xxR
+(read-from-string "#37R")
+ERROR
 
- ;      -36     illegale ziffern in #xxR
-        (read-from-string "#10rabc")
-   ERROR
+;;      -36     illegale ziffern in #xxR
+(read-from-string "#10rabc")
+ERROR
 
-        (read-from-string "#10ra/b")
-   ERROR
- ;      -37     illegaler #\-string
-        (read-from-string "#\nocontrol-")
-   ERROR
-        (read-from-string "#\control-")
-   ERROR
- ;      -38     ????????
+(read-from-string "#10ra/b")
+ERROR
+
+;;      -37     illegaler #\-string
+(read-from-string "#\nocontrol-")
+ERROR
+
+(read-from-string "#\control-")
+ERROR
+
+;;      -38     ????????
 ;;        }
 ;;   ERROR
 
- ;
- ;      test print-radix
- ;
+
+;;      test print-radix
+
 (setq *print-radix* t)
 T
 
-(WRITE-TO-STRING 11111 )
-   "11111."
+(WRITE-TO-STRING 11111)
+"11111."
 
-(progn  (setq *print-base* 2)t)
-T
+(setq *print-base* 2)
+2.
 
-(WRITE-TO-STRING 11111 )
-   #+XCL "#2r10101101100111"
-   #-XCL "#b10101101100111"
+(WRITE-TO-STRING 11111)
+#+XCL "#2r10101101100111"
+#-XCL "#b10101101100111"
 
-(progn  (setq *print-base* 8)t)
-T
+(setq *print-base* 8) 8.
 
-(WRITE-TO-STRING 11111 )
-   "#o25547"
+(WRITE-TO-STRING 11111)
+"#o25547"
 
-(progn  (setq *print-base* 16)t)
-T
+(setq *print-base* 16) 16.
 
-(WRITE-TO-STRING 11111 )
-   "#x2B67"
+(WRITE-TO-STRING 11111)
+"#x2B67"
 
-(progn  (setq *print-base* 22)t)
-T
+(setq *print-base* 22) 22.
 
-(WRITE-TO-STRING 11111 )
-   "#22r10L1"
+(WRITE-TO-STRING 11111)
+"#22r10L1"
 
-(progn  (setq *print-base* 10)t)
-T
+(setq *print-base* 10) 10.
 
 (setq *print-radix* nil)
 NIL
 
-(WRITE-TO-STRING 11111 )
-   "11111"
+(WRITE-TO-STRING 11111)
+"11111"
 
-(progn  (setq *print-base* 2)t)
-T
+(setq *print-base* 2) 2.
 
-(WRITE-TO-STRING 11111 )
-   "10101101100111"
+(WRITE-TO-STRING 11111)
+"10101101100111"
 
-(progn  (setq *print-base* 8)t)
-T
+(setq *print-base* 8) 8.
 
-(WRITE-TO-STRING 11111 )
-   "25547"
+(WRITE-TO-STRING 11111)
+"25547"
 
-(progn  (setq *print-base* 16)t)
-T
+(setq *print-base* 16) 16.
 
 (WRITE-TO-STRING 11111 )
-   "2B67"
+"2B67"
 
-(progn  (setq *print-base* 22)t)
-T
+(setq *print-base* 22) 22.
 
-(WRITE-TO-STRING 11111 )
-   "10L1"
+(WRITE-TO-STRING 11111)
+"10L1"
 
-(progn  (setq *print-base* 10)t)
-T
+(setq *print-base* 10) 10.
 
- ;
- ;      test read-default-float-format (besser write-to-string ?)
- ;
-        0.00999998
 
-   0.00999998
-        0.009999998
+;;      test read-default-float-format (besser write-to-string ?)
 
-   0.009999998
-        0.0099999997
+0.00999998
+0.00999998
 
-   0.01
-        1.23
+0.009999998
+0.009999998
 
-   1.23
-(prin1-to-string        1.23e20)
-   "1.23E20" ; "1.229999E20"
+0.0099999997
+0.01
 
-(prin1-to-string        1.23f20)
-   "1.23E20" ; "1.229999E20"
+1.23
+1.23
 
-(prin1-to-string        1.23s20)
-   #+XCL "1.229S20" #+CLISP "1.23s20"
+(prin1-to-string 1.23e20)
+"1.23E20" ; "1.229999E20"
 
-        1.23d20
-   1.23D20
-        1.23l20
-   1.23D20
-(prin1-to-string        123456789.123456789)
-   "1.2345679E8" ; "1.234567E8"
+(prin1-to-string 1.23f20)
+"1.23E20" ; "1.229999E20"
 
-(prin1-to-string        12345678.12345678)
-   "1.2345678E7" ; "1.234567E7"
+(prin1-to-string 1.23s20)
+#+XCL "1.229S20" #+CLISP "1.23s20"
 
-(prin1-to-string        1234567.1234567)
-   "1234567.1" ; "1234567.0"
+1.23d20
+1.23D20
 
-(prin1-to-string        123456.123456)
-   #-CLISP "123456.12" ; "123456.1"
-   #+CLISP "123456.125" ; Anzeigefehler
+1.23l20
+1.23D20
 
-(prin1-to-string        12345.12345)
-   "12345.123" ; "12345.12"
+(prin1-to-string 123456789.123456789)
+"1.2345679E8" ; "1.234567E8"
 
-(prin1-to-string        1234.1234)
-   "1234.1234" ; "1234.123"
+(prin1-to-string 12345678.12345678)
+"1.2345678E7" ; "1.234567E7"
 
-        123.123
-   123.123
-        12.12
-   12.12
-        1.1
-   1.1
+(prin1-to-string 1234567.1234567)
+"1234567.1" ; "1234567.0"
+
+(prin1-to-string 123456.123456)
+#-CLISP "123456.12" ; "123456.1"
+#+CLISP "123456.125" ; Anzeigefehler
+
+(prin1-to-string 12345.12345)
+"12345.123" ; "12345.12"
+
+(prin1-to-string 1234.1234)
+"1234.1234" ; "1234.123"
+
+123.123
+123.123
+
+12.12
+12.12
+
+1.1
+1.1
 
 (setq *read-default-float-format* 'short-float)
 SHORT-FLOAT
 
-        1.23
-   1.23
-(prin1-to-string        1.23e20)
-   "1.23E20" ; "1.229E20"
+1.23
+1.23
 
-(prin1-to-string        1.23f20)
-   "1.23f20" ; "1.229999F20"
+(prin1-to-string 1.23e20)
+"1.23E20" ; "1.229E20"
 
-(prin1-to-string        1.23s20)
-   "1.23E20" ; "1.229E20"
+(prin1-to-string 1.23f20)
+"1.23f20" ; "1.229999F20"
 
-        1.23d20
-   1.23D20
-        1.23l20
-   1.23D20
-(prin1-to-string        123456789.123456789)
-   "1.23457E8" ; "1.234E8"
+(prin1-to-string 1.23s20)
+"1.23E20" ; "1.229E20"
 
-(prin1-to-string        12345678.12345678)
-   "1.23457E7" ; "1.234E7"
+1.23d20
+1.23D20
 
-(prin1-to-string        1234567.1234567)
-   "1234560.0"
+1.23l20
+1.23D20
 
-(prin1-to-string        123456.123456)
-   "123456.0"
+(prin1-to-string 123456789.123456789)
+"1.23457E8" ; "1.234E8"
 
-(prin1-to-string        12345.12345)
-   "12345.1" ; "12345.0"
+(prin1-to-string 12345678.12345678)
+"1.23457E7" ; "1.234E7"
 
-(prin1-to-string        1234.1234)
-   #-CLISP "1234.12" ; "1234.0"
-   #+CLISP "1234.13" ; Anzeigefehler
+(prin1-to-string 1234567.1234567)
+"1234560.0"
 
-(prin1-to-string        123.123)
-   "123.123" ; "123.1"
+(prin1-to-string 123456.123456)
+"123456.0"
 
-        12.12
-   12.12
-        1.1
-   1.1
+(prin1-to-string 12345.12345)
+"12345.1" ; "12345.0"
+
+(prin1-to-string 1234.1234)
+#-CLISP "1234.12" ; "1234.0"
+#+CLISP "1234.13" ; Anzeigefehler
+
+(prin1-to-string 123.123)
+"123.123" ; "123.1"
+
+12.12
+12.12
+
+1.1
+1.1
 
 (setq *read-default-float-format* 'double-float)
 DOUBLE-FLOAT
 
-        1.23
-   1.23
-        1.23e20
-   1.23E20
-(prin1-to-string        1.23f20)
-   "1.23f20" ; "1.229999F20"
+1.23
+1.23
 
-(prin1-to-string        1.23s20)
-   "1.23s20" ; "1.229S20"
+1.23e20
+1.23E20
 
-        1.23d20
-   1.23E20
-        1.23l20
-   1.23E20
-(prin1-to-string        123456789.123456789)
-   "1.2345678912345679E8" ; "1.234567891234568E8"
+(prin1-to-string 1.23f20)
+"1.23f20" ; "1.229999F20"
 
-        12345678.12345678
-   1.234567812345678E7
-        1234567.1234567
-   1234567.1234567
-        123456.123456
-   123456.123456
-        12345.12345
-   12345.12345
-        1234.1234
-   1234.1234
-        123.123
-   123.123
-        12.12
-   12.12
-        1.1
-   1.1
+(prin1-to-string 1.23s20)
+"1.23s20" ; "1.229S20"
+
+1.23d20
+1.23E20
+
+1.23l20
+1.23E20
+
+(prin1-to-string 123456789.123456789)
+"1.2345678912345679E8" ; "1.234567891234568E8"
+
+12345678.12345678
+1.234567812345678E7
+
+1234567.1234567
+1234567.1234567
+
+123456.123456
+123456.123456
+
+12345.12345
+12345.12345
+
+1234.1234
+1234.1234
+
+123.123
+123.123
+
+12.12
+12.12
+
+1.1
+1.1
 
 (setq *read-default-float-format* 'long-float)
 LONG-FLOAT
 
-        1.23
-   #+XCL 1.23D0 #-XCL 1.23
-        1.23e20
-   #+XCL 1.23D20 #-XCL 1.23E20
-(prin1-to-string        1.23f20)
-   "1.23f20" ; "1.229999F20"
+1.23
+#+XCL 1.23D0 #-XCL 1.23
 
-(prin1-to-string        1.23s20)
-   "1.23s20" ; "1.229S20"
+1.23e20
+#+XCL 1.23D20 #-XCL 1.23E20
 
-        1.23d20
-   1.23D20
-        1.23l20
-   #+XCL 1.23D20 #-XCL 1.23E20
-(prin1-to-string        123456789.123456789)
-   "1.23456789123456789E8" ; "1.234567891234568D8"
+(prin1-to-string 1.23f20)
+"1.23f20" ; "1.229999F20"
 
-        12345678.12345678
-   #+XCL 1.234567812345678D7 #-XCL 1.234567812345678E7
-        1234567.1234567
-   #+XCL 1234567.1234567D0 #-XCL 1234567.1234567
-        123456.123456
-   #+XCL 123456.123456D0 #-XCL 123456.123456
-        12345.12345
-   #+XCL 12345.12345D0 #-XCL 12345.12345
-        1234.1234
-   #+XCL 1234.1234D0 #-XCL 1234.1234
-        123.123
-   #+XCL 123.123D0 #-XCL 123.123
-        12.12
-   #+XCL 12.12D0 #-XCL 12.12
-        1.1
-   #+XCL 1.1D0 #-XCL 1.1
+(prin1-to-string 1.23s20)
+"1.23s20" ; "1.229S20"
+
+1.23d20
+1.23D20
+
+1.23l20
+#+XCL 1.23D20 #-XCL 1.23E20
+
+(prin1-to-string 123456789.123456789)
+"1.23456789123456789E8" ; "1.234567891234568D8"
+
+12345678.12345678
+#+XCL 1.234567812345678D7 #-XCL 1.234567812345678E7
+
+1234567.1234567
+#+XCL 1234567.1234567D0 #-XCL 1234567.1234567
+
+123456.123456
+#+XCL 123456.123456D0 #-XCL 123456.123456
+
+12345.12345
+#+XCL 12345.12345D0 #-XCL 12345.12345
+
+1234.1234
+#+XCL 1234.1234D0 #-XCL 1234.1234
+
+123.123
+#+XCL 123.123D0 #-XCL 123.123
+
+12.12
+#+XCL 12.12D0 #-XCL 12.12
+
+1.1
+#+XCL 1.1D0 #-XCL 1.1
 
 (setq *read-default-float-format* 'single-float)
 SINGLE-FLOAT
 
- ;
- ;      test print-case
- ;
+;;      test print-case
+
 (WRITE-TO-STRING 'abcde)
-   "ABCDE"
+"ABCDE"
 
-(WRITE-TO-STRING        'abcde-efghij)
-   "ABCDE-EFGHIJ"
+(WRITE-TO-STRING 'abcde-efghij)
+"ABCDE-EFGHIJ"
 
-(WRITE-TO-STRING        'abcde1efghij)
+(WRITE-TO-STRING 'abcde1efghij)
    "ABCDE1EFGHIJ"
 
-(WRITE-TO-STRING        'abcde-1efgh)
-   "ABCDE-1EFGH"
+(WRITE-TO-STRING 'abcde-1efgh)
+"ABCDE-1EFGH"
 
 (setq *print-case* :downcase)
 :downcase
 
-(WRITE-TO-STRING        'abcde)
-   "abcde"
+(WRITE-TO-STRING 'abcde)
+"abcde"
 
-(WRITE-TO-STRING        'abcde-efghij)
-   "abcde-efghij"
+(WRITE-TO-STRING 'abcde-efghij)
+"abcde-efghij"
 
-(WRITE-TO-STRING        'abcde1efghij)
-   "abcde1efghij"
+(WRITE-TO-STRING 'abcde1efghij)
+"abcde1efghij"
 
-(WRITE-TO-STRING        'abcde-1efgh)
-   "abcde-1efgh"
+(WRITE-TO-STRING 'abcde-1efgh)
+"abcde-1efgh"
 
 (setq *print-case* :capitalize)
 :Capitalize
 
-(WRITE-TO-STRING        'abcde)
-   "Abcde"
+(WRITE-TO-STRING 'abcde)
+"Abcde"
 
-(WRITE-TO-STRING        'abcde-efghij)
-   "Abcde-Efghij"
+(WRITE-TO-STRING 'abcde-efghij)
+"Abcde-Efghij"
 
-(WRITE-TO-STRING        'abcde1efghij)
-   "Abcde1efghij"
+(WRITE-TO-STRING 'abcde1efghij)
+"Abcde1efghij"
 
-(WRITE-TO-STRING        'abcde-1efgh)
-   "Abcde-1efgh"
+(WRITE-TO-STRING 'abcde-1efgh)
+"Abcde-1efgh"
 
 (setq *print-case* :upcase)
 :UPCASE
 
- ;
- ;      test print-gensym
- ;
-(progn (gensym "test")(gensym 77) t)
-   T
 
-(setq *print-gensym* nil)
-NIL
+;;      test print-gensym
 
-(WRITE-TO-STRING        (gensym))
-   #+XCL "|test|78" #+CLISP "|test78|"
+(let ((*gensym-counter* 1234))
+  (symbol-name (gensym "TEST")))
+"TEST1234"
 
-(setq *print-gensym* t)
-T
+(let ((*print-gensym* t) (g (gensym 7)))
+  (list (princ-to-string g)
+        (prin1-to-string g)))
+("G7" "#:G7")
 
-(WRITE-TO-STRING        (gensym))
-   #+XCL "#:|test|79" #+CLISP "#:|test79|"
+(let ((*print-gensym* nil) (g (gensym 20)))
+  (list (princ-to-string g)
+        (prin1-to-string g)))
+("G20" "G20")
 
- ;
- ;      test print-escape-pretty NIL
- ;
-(WRITE-TO-STRING        nil)
-   "NIL"
 
-(WRITE-TO-STRING        '(a b nil c))
-   "(A B NIL C)"
+;;      test print-escape-pretty NIL
 
-(WRITE-TO-STRING        '(a b (nil) c))
-   "(A B (NIL) C)"
+(WRITE-TO-STRING nil)
+"NIL"
 
-(WRITE-TO-STRING        '(a b (nil c) d))
-   "(A B (NIL C) D)"
+(WRITE-TO-STRING '(a b nil c))
+"(A B NIL C)"
+
+(WRITE-TO-STRING '(a b (nil) c))
+"(A B (NIL) C)"
+
+(WRITE-TO-STRING '(a b (nil c) d))
+"(A B (NIL C) D)"
 
 (WRITE-TO-STRING '#(a b nil c (a b nil c) (nil)))
 "#(A B NIL C (A B NIL C) (NIL))"
@@ -988,42 +1038,41 @@ T
 (setq *print-pretty* t)
 T
 
-(WRITE-TO-STRING        nil)
-   "NIL"
+(WRITE-TO-STRING nil)
+"NIL"
 
-(WRITE-TO-STRING        '(a b nil c))
-   "(A B NIL C)"
+(WRITE-TO-STRING '(a b nil c))
+"(A B NIL C)"
 
-(WRITE-TO-STRING        '(a b (nil) c))
+(WRITE-TO-STRING '(a b (nil) c))
 #+XCL
-"(A B 
-   (NIL) 
+"(A B
+   (NIL)
    C)"
 #+CLISP "(A B (NIL) C)"
 
-(WRITE-TO-STRING        '(a b (nil c) d))
+(WRITE-TO-STRING '(a b (nil c) d))
 #+XCL
-"(A B 
-   (NIL C) 
+"(A B
+   (NIL C)
    D)"
 #+CLISP "(A B (NIL C) D)"
 
 (WRITE-TO-STRING '#(a b nil c (a b nil c) (nil)))
 "#(A B NIL C (A B NIL C) (NIL))"
-;;"#(A B NIL C 
-;;(A B NIL C) 
+;;"#(A B NIL C
+;;(A B NIL C)
 ;;(NIL))"
 
-;-------------------------------------------------------------------------------
-;(progn (print "etwa mitte") t) T
-;-------------------------------------------------------------------------------
+;;-------------------------------------------------------------------------------
+;;(progn (print "etwa mitte") t) T
+;;-------------------------------------------------------------------------------
 
 (setq *print-pretty* nil)
 NIL
 
- ;
- ;      test read-suppress
- ;
+;;      test read-suppress
+
 (let ((*read-suppress* t)) (read-from-string "#o33"))
 NIL
 
@@ -1037,46 +1086,47 @@ NIL
 NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a . b)"))
-#+XCL NIL #-XCL (NIL NIL NIL)
+NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a.b)"))
-#+XCL (A.B) #-XCL (NIL)
+#+XCL (A.B) #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a. b)"))
-#+XCL (A. B) #-XCL (NIL NIL)
-                
+#+XCL (A. B) #-XCL NIL
+
 (let ((*read-suppress* t)) (read-from-string "(a \. b c)"))
-#+XCL (A \. B C) #-XCL (NIL NIL NIL NIL)
+#+XCL (A \. B C) #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a |.| b c)"))
-#+XCL (A \. B C) #-XCL (NIL NIL NIL NIL)
+#+XCL (A \. B C) #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a \... b c)"))
-#+XCL (A \... B C) #-XCL (NIL NIL NIL NIL)
+#+XCL (A \... B C) #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a |...| b c)"))
-#+XCL (A \... B C) #-XCL (NIL NIL NIL NIL)
+#+XCL (A \... B C) #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a b . c)"))
-#+XCL NIL #-XCL (NIL NIL NIL NIL)
+#+XCL NIL #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string ".ab"))
 #+XCL .AB #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(. b)"))
-#+XCL NIL #-XCL (NIL NIL)
+#+XCL NIL #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a .. b)"))
-#+XCL (A NIL B) #-XCL (NIL NIL NIL)
-        
+#+XCL (A NIL B) #-XCL NIL
+
 (let ((*read-suppress* t)) (read-from-string "(a . . 'b   )"))
-#+XCL NIL #-XCL (NIL NIL NIL 'NIL)
+#+XCL NIL #-XCL NIL
 
 (let ((*read-suppress* t)) (read-from-string "(a b c ...)"))
-#+XCL (A B C NIL) #-XCL (NIL NIL NIL NIL)
+#+XCL (A B C NIL) #-XCL NIL
 
-(let ((*read-suppress* t)) (read-from-string "#\\control-meta-a"))
-NIL
+(let ((*read-suppress* t))
+  (multiple-value-list (read-from-string "#\\control-meta-a")))
+(NIL 16)
 
 (let ((*read-suppress* t)) (read-from-string "#\\control-meta-\\a"))
 NIL
@@ -1133,13 +1183,14 @@ NIL
 (setq *print-level* 10)
 10
 
-        (let ((*read-suppress* t)) (read-from-string "(#1=(a b #1#))"))
-   #+XCL ((A B NIL)) #-XCL ((NIL NIL NIL))
-        (let ((*read-suppress* t)) (read-from-string "(#1=(#1#))"))
-   ((NIL))
+(let ((*read-suppress* t)) (read-from-string "(#1=(a b #1#))"))
+#+XCL ((A B NIL)) #-XCL NIL
 
-        (let ((*read-suppress* t)) (read-from-string "(#1=(a b #1#) (c d #1#))"))
-   #+XCL ((A B NIL) (C D NIL)) #-XCL ((NIL NIL NIL) (NIL NIL NIL))
+(let ((*read-suppress* t)) (read-from-string "(#1=(#1#))"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "(#1=(a b #1#) (c d #1#))"))
+#+XCL ((A B NIL) (C D NIL)) #-XCL NIL
 
 (setq *print-level* nil)
 NIL
@@ -1147,84 +1198,95 @@ NIL
 (setq *print-length* 11)
 11
 
-        (let ((*read-suppress* t)) (read-from-string "#1=(a b . #1#)"))
-   #+XCL NIL #-XCL (NIL NIL NIL NIL)
+(let ((*read-suppress* t)) (read-from-string "#1=(a b . #1#)"))
+NIL
 
 (setq *print-length* nil)
 NIL
 
 
-        (let ((*read-suppress* t)) (read-from-string "#0a7"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#1a(1 2 3 4 5 6 7 8)"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#2a((1 2 3)(3 2 1))"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#3a(((1 2 3 ) (4 5 6))
+(let ((*read-suppress* t)) (read-from-string "#0a7"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#1a(1 2 3 4 5 6 7 8)"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#2a((1 2 3)(3 2 1))"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#3a(((1 2 3 ) (4 5 6))
                                                           ((1 2 3 ) (4 5 6)))"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#a7"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#2a((1 2)(3 4)(5 6))"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#3a(((1 2)(3 4)(5 6))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#a7"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#2a((1 2)(3 4)(5 6))"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#3a(((1 2)(3 4)(5 6))
                                                           ((7 8)(9 10)(11 12)))"))
-   NIL
+NIL
 
-        (let ((*read-suppress* t)) (read-from-string "#0*111"))
-   NIL
-   
-        (let ((*read-suppress* t)) (read-from-string "#0(1 1 1 )"))
-   #+XCL ERROR #-XCL NIL
+(let ((*read-suppress* t)) (read-from-string "#0*111"))
+NIL
 
-        (let ((*read-suppress* t)) (read-from-string "#0r111"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#1r111"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#2r111"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#36r111"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#37r111"))
-   NIL
+(let ((*read-suppress* t)) (read-from-string "#0(1 1 1 )"))
+#+XCL ERROR #-XCL NIL
 
-;        (list 1 2 #\a)
-;   (1 2 NIL)
+(let ((*read-suppress* t)) (read-from-string "#0r111"))
+NIL
 
-        (let ((*read-suppress* t)) (read-from-string "#2(a b c)"))
-   #+XCL ERROR #-XCL NIL
-        (let ((*read-suppress* t)) (read-from-string "#2*1010"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#1#"))
-   NIL
+(let ((*read-suppress* t)) (read-from-string "#1r111"))
+NIL
 
-;;        #2a((1 2 3)(1 2)
-;;        #2a(1 2 3}
-;;   NIL
+(let ((*read-suppress* t)) (read-from-string "#2r111"))
+NIL
 
-        (let ((*read-suppress* t)) (read-from-string "#(1 2 3 .               )"))
-   #+XCL ERROR #-XCL NIL
+(let ((*read-suppress* t)) (read-from-string "#36r111"))
+NIL
 
-        (let ((*read-suppress* t)) (read-from-string "(a .)"))
-   #+XCL NIL #-XCL (NIL NIL)
-        (let ((*read-suppress* t)) (read-from-string "(. a)"))
-   #+XCL NIL #-XCL (NIL NIL)
-
-        (let ((*read-suppress* t)) (read-from-string "#37R"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#10rabc"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#10ra/b"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#\\nocontrol-"))
-   NIL
-        (let ((*read-suppress* t)) (read-from-string "#\\control-"))
-   NIL
+(let ((*read-suppress* t)) (read-from-string "#37r111"))
+NIL
 
 
-;&----- Tread3.tst -------------------------------------------------------------
+(let ((*read-suppress* t)) (read-from-string "#2(a b c)"))
+#+XCL ERROR #-XCL NIL
 
-;******** Readfehler ***********************************************************
+(let ((*read-suppress* t)) (read-from-string "#2*1010"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#1#"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#(1 2 3 .               )"))
+#+XCL ERROR #-XCL NIL
+
+(let ((*read-suppress* t)) (read-from-string "(a .)"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "(. a)"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#37R"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#10rabc"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#10ra/b"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#\\nocontrol-"))
+NIL
+
+(let ((*read-suppress* t)) (read-from-string "#\\control-"))
+NIL
+
+
+;;&----- Tread3.tst -------------------------------------------------------------
+
+;;******** Readfehler ***********************************************************
 (read-from-string "#\\break")
 ERROR
 
@@ -1295,7 +1357,7 @@ T
    ab
 
 ;       constituent/illegal2
-;       'abAcd  
+;       'abAcd
 ;   ABACD
                                         ; s.o.
 ;       unzulaessige :
@@ -1368,7 +1430,7 @@ T
 (read-from-string "xx::a|bc")
 "(LT-ERROR E-READ-MACRO 3 (NIL) LISP::E-READ-TOKEN 4 (\"Abc<|>\"))"
 ;;"(LT-ERROR LISP::E-READ-TOKEN 4 (\"Abc<|>\"))"
-        
+
 (read-from-string "xx::a\\")
 "(LT-ERROR E-READ-MACRO 3 (NIL) LISP::E-READ-TOKEN 4 (\"A\\\\\"))"
 ;;"(LT-ERROR LISP::E-READ-TOKEN 4 (\"A\\\\\"))"
@@ -1399,28 +1461,28 @@ T
 ;       : leer
         (read-from-string ":")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\":*\"))"
-        
+
         (read-from-string ": ")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\": \"))"
-        
+
         (read-from-string "#:")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"#:\"))"
 
         (read-from-string "#: ")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"#: \"))"
-        
+
         (read-from-string "a:")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"A:*\"))"
-        
+
         (read-from-string "a: ")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"A: \"))"
-        
+
         (read-from-string "a::")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"A::*\"))"
-        
+
         (read-from-string "a:: ")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"A:: \"))"
-        
+
 ;       punkttoken
         ....
 
@@ -1429,13 +1491,13 @@ T
 ;;;     ---------------------------                                         ;;;
 ;;      listen                                                               ;;
 ;;      ------                                                               ;;
-;       EOF 
+;       EOF
         (read-from-string "(a b" )
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((A B)) LISP::E-READ-TOKEN 4 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((A B)) LISP::E-READ-TOKEN 4
 (\"\"))"
 
         (read-from-string "(a b " )
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((A B)) LISP::E-READ-TOKEN 4 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((A B)) LISP::E-READ-TOKEN 4
 (\"\"))"
 
         (read-from-string "(a b" nil 'dummy)
@@ -1446,7 +1508,7 @@ T
 
 ;       EOF nach .
         (read-from-string "(a b . ")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 1 ((A B #\\.)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 1 ((A B #\\.)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "(a b ." nil 'dummy)
@@ -1460,7 +1522,7 @@ T
     "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((A B)))"
 
         (read-from-string "(a b . c")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 1 ((A B C)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 1 ((A B C)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
 ;       2. .obj
@@ -1492,7 +1554,7 @@ T
    "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((UNQUOTE)))"
 
         (read-from-string ", ")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((UNQUOTE)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((UNQUOTE)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "," nil 'dummy)
@@ -1503,12 +1565,12 @@ T
 
 ;       . nach backquotekomma
         (read-from-string ",.")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((LISP::UNQUOTE-NSPLICING)) 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((LISP::UNQUOTE-NSPLICING))
 
 LISP::E-READ-TOKEN 4 (\"\"))"
 
         (read-from-string ",. ")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((LISP::UNQUOTE-NSPLICING)) 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((LISP::UNQUOTE-NSPLICING))
 
 LISP::E-READ-TOKEN 4 (\"\"))"
 
@@ -1546,11 +1608,11 @@ LISP::E-READ-TOKEN 4 (\"\"))"
 
 ;       EOF nach quote
         (read-from-string "'")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUOTE)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUOTE)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "' ")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUOTE)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUOTE)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "'" nil 'dummy)
@@ -1608,11 +1670,11 @@ LISP::E-READ-TOKEN 4 (\"\"))"
 ;   T
 ;       EOF nach backquote
         (read-from-string "`")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUASIQUOTE)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUASIQUOTE)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "` ")
-   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUASIQUOTE)) LISP::E-READ-TOKEN 
+   "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((QUASIQUOTE)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "`" nil 'dummy)
@@ -1744,7 +1806,7 @@ LISP::E-READ-TOKEN 4 (\"\"))"
         (read-from-string "#:( a b )")
    "(LT-ERROR LISP::E-READ-TOKEN 3 (\"#:(\"))"
 
-#:123   
+#:123
 "(LT-ERROR UNBOUND-VARIABLE 1 #:\\123)"
 
 ;       kein subchar
@@ -1775,7 +1837,7 @@ LISP::E-READ-TOKEN 4 (\"\"))"
 ;;      ------                                                              ;;
 ;       EOF
         (read-from-string "#(a b c")
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\( (A B C)) LISP::E-READ-TOKEN 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\( (A B C)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
 ;       gelesene anzahl zu gross
@@ -1857,14 +1919,14 @@ T
 Y,
 "(LT-ERROR E-READ-MACRO 2 (#\\Y NIL #\\, NIL))"
 
-(progn (SETQ *READTAbLE* (COPY-READTAbLE nil)) t) 
+(progn (SETQ *READTAbLE* (COPY-READTAbLE nil)) t)
 T
 
 ;;      Makearray                                                         ;;
 ;;      ---------                                                         ;;
 ;       dimension = 0 und EOF
         (read-from-string "#0a")
-   "(LT-ERROR E-READ-MACRO 1 (#\\# 0 #\\a NIL) LISP::E-READ-TOKEN 4 
+   "(LT-ERROR E-READ-MACRO 1 (#\\# 0 #\\a NIL) LISP::E-READ-TOKEN 4
 (\"\"))"
 
         (read-from-string "#0a" nil 'dummy)
@@ -1885,15 +1947,15 @@ T
    "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2)))"
 
         (read-from-string "#3a(((1)(2))((3" )
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
-;       klammereinlesen falsche termacro 
+;       klammereinlesen falsche termacro
         (multiple-value-list (read-from-string "#3a(((1)(2))(;xyz"))
    "(LT-ERROR E-READ-MACRO 1 (#\\# 3 #\\a (1 2 #\\;)))"
 
         (multiple-value-list (read-from-string "#3a(((1)(2))((3;xyz"))
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
 ;       klammereinlesen falsche zeichen
@@ -1906,12 +1968,12 @@ T
 T
 
 (read-from-string "#3a(((1)(2))((3 axyz")
-"(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3 AXYZ)) LISP::E-READ-TOKEN 
+"(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3 AXYZ)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
 ;       EOF in obj
         (read-from-string "#3a(((1)(2))((" )
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2)) LISP::E-READ-TOKEN 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
         (read-from-string "#3a(((1)(2))((" nil 'dummy)
@@ -1931,7 +1993,7 @@ xyz
 "(LT-ERROR LISP::E-READ-STRUCTURE 0 ((XYZ)) LISP::E-READ-TOKEN 4 (\"\"))"
 
         (read-from-string "#3a(((1)(2))((3" )
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 3 #\\a (1 2 3)) LISP::E-READ-TOKEN
 4 (\"\"))"
 
 ;       falsche klammerung
@@ -1947,13 +2009,13 @@ xyz
 ;       zu viele elemente
         #5*111001101
 
-   "(LT-ERROR E-READ-MACRO 1 (#\\# 5 #\\* (49 49 49 48 48 49 49 48 
+   "(LT-ERROR E-READ-MACRO 1 (#\\# 5 #\\* (49 49 49 48 48 49 49 48
 49)))"
 ;;      Makemacro                                                            ;;
 ;;      ---------                                                            ;;
 ;       complex-obj nicht 2elementige liste
 
-;;;declare ?    
+;;;declare ?
 #cab
 "(LT-ERROR E-READ-MACRO 1 (#\\# NIL #\\c AB))"
 ;;;declare ?
@@ -1964,13 +2026,13 @@ xyz
 "(LT-ERROR E-READ-MACRO 1 (#\\# NIL #\\c (1 2 3)))"
 
 (read-from-string "#c")
-;alt   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\c NIL) LISP::E-READ-TOKEN 
+;alt   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\c NIL) LISP::E-READ-TOKEN
 4 (\"\"))"
 "(LT-ERROR E-READ-MACRO 3 (NIL) LISP::E-READ-TOKEN 4 (\"\"))"
 
 ;       EOF nach #'
         (read-from-string "#'" )
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\' NIL) LISP::E-READ-TOKEN 4 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\' NIL) LISP::E-READ-TOKEN 4
 (\"\"))"
 
         (read-from-string "#'" nil 'dummy)
@@ -2037,7 +2099,7 @@ xyz
 
 ;       EOF nach #.
         (read-from-string "#." )
-   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\. NIL) LISP::E-READ-TOKEN 4 
+   "(LT-ERROR E-READ-MACRO 0 (#\\# 0 #\\. NIL) LISP::E-READ-TOKEN 4
 (\"\"))"
 
         (read-from-string "#." nil 'dummy)
@@ -2058,7 +2120,7 @@ xyz
    "(LT-ERROR E-READ-MACRO 1 (#\\# 1 #\\a #\\x))"
 
         (read-from-string "#1a")
-   "(LT-ERROR E-READ-MACRO 1 (#\\# 1 #\\a #\\*))"       
+   "(LT-ERROR E-READ-MACRO 1 (#\\# 1 #\\a #\\*))"
 ;       EOF nach #n=
         (read-from-string "#1=" )
 ;alt   "(LT-ERROR LISP::E-READ-TOKEN 4 (\"\"))"
@@ -2085,8 +2147,20 @@ xyz
 (progn
 (makunbound 'illegal1)
 (setq lisptest::*error-message* nil)
-(setq *print-circle* t) 
+(setq *print-circle* t)
 T)
 T
 |#
 
+(setq *readtable* (copy-readtable nil)
+      *print-base* 10.
+      *print-case* :upcase
+      *print-circle* nil
+      *print-escape* t
+      *print-gensym* t
+      *print-length* nil
+      *print-level* nil
+      *print-lines* nil
+      *print-radix* nil
+      *read-base* 10.)
+10.
