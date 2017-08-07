@@ -1,3 +1,7 @@
+2017-08-07  Sam Steingold  <sds@gnu.org>
+
+	* hash.tst: adapt for CLISP
+
 2017-08-03  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (symbol-cleanup): use top-level-declarations
