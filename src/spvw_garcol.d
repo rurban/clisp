@@ -1795,7 +1795,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
         /* TODO: HANDLE STRINGS */
-        fprintf(stderr,"unsupported type of pinned object !!!\n");
+        fputs("unsupported type of pinned object !!!\n",stderr);
         abort();
       }
      #ifndef SPVW_PAGES

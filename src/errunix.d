@@ -107,6 +107,6 @@ global void errno_out_low (int errorcode, const char* file, uintL line) {
   if (msg && msg[0]) { /* non-empty message? */
     fprintf(stderr,": %s",msg);
   }
-  fprintf(stderr,".\n");
+  fputs(".\n",stderr);
 }
 #endif

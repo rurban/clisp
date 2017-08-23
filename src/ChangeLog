@@ -1,3 +1,11 @@
+2017-08-23  Sam Steingold  <sds@gnu.org>
+
+	* error.d, errunix.d, errwin32.d, eval.d, floatparam.c:
+	* genclisph.d, intparam.c, io.d, lightning.c, lispbibl.d:
+	* spvw_alloca.d, spvw_debug.d, spvw_fault.d, spvw_fault_old.d:
+	* spvw_garcol.d, spvw_global.d, spvw_mmap.d, spvw_sigint.d:
+	Use (f)puts instead of (f)printf when possible.
+
 2017-08-04  Sam Steingold  <sds@gnu.org>
 
 	* m4/ffcall.m4, configure, .hgignore: Recommend building libffcall

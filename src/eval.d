@@ -1,7 +1,7 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
  * Bruno Haible 1990-2008, 2016-2017
- * Sam Steingold 1998-2012, 2016
+ * Sam Steingold 1998-2012, 2016-2017
  * German comments translated into English: Stefan Kain 2001-08-13
  */
 #include "lispbibl.c"
@@ -234,9 +234,9 @@ local void check_funtab (void) {
       printf("=FUNTABR[%lu] does NOT accept &rest\n",(unsigned long)i);
     }
   printf("FUNTAB_length=%ld\n",(long)FUNTAB_length);
-  if (FUNTAB_length > 512) printf(" *** - > 512!\n");
+  if (FUNTAB_length > 512) puts(" *** - > 512!");
   printf("FUNTABR_length=%ld\n",(long)FUNTABR_length);
-  if (FUNTABR_length > 256) printf(" *** - > 256!\n");
+  if (FUNTABR_length > 256) puts(" *** - > 256!");
 }
 #endif
 
@@ -3147,7 +3147,7 @@ local maygc Values eval1 (object form)
     fprintf(stderr,"\n[%s:%d] STACK is not restored: %lu in ",          \
             __FILE__,__LINE__,                                          \
             (unsigned long)STACK_item_count(STACK,stack_before));       \
-    nobject_out(stderr,fun); fprintf(stderr,"\n");                      \
+    nobject_out(stderr,fun); fputs("\n",stderr);                        \
     abort();                   /* no -> go to Debugger */               \
   }} while(0)
 #if STACKCHECKS

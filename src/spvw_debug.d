@@ -387,7 +387,7 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
     bt_out(out,bt_fast,bt_index++); bt_fast = bt_fast->bt_next;
     if (bt_fast == bt_slow) {
      circular:
-      fprintf(out,"*** error: backtrace circularity detected!\n");
+      fputs("*** error: backtrace circularity detected!\n",out);
       bt_index = -bt_index;
       break;
     }

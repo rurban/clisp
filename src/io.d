@@ -2,7 +2,7 @@
  * Input/Output for CLISP
  * Bruno Haible 1990-2008, 2016-2017
  * Marcus Daniels 11.3.1997
- * Sam Steingold 1998-2011
+ * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2001-06-12
  */
 
@@ -15,7 +15,7 @@
 #define PPH_OUT(label,stream)                   \
   do { printf(#label "[%d]: [",__LINE__);       \
     nobject_out(stdout,stream);                 \
-    printf("]\n"); } while(0)
+    puts("]"); } while(0)
 #else
 #define PPH_OUT(l,s)
 #endif

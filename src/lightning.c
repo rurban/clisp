@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007-2008 Yann Nicolas Dauphin
- * Copyright (C) 2007-2008 Sam Steingold
+ * Copyright (C) 2007-2008, 2017 Sam Steingold
+ * Copyright (C) 2016-2017 Bruno Handle
  * This file is a part of GNU CLISP and is distributed under GNU GPL v2+
  *
  * These are the set of macros built on top of GNU Lightning
@@ -96,7 +97,7 @@ void gc_scan_jitc_objects (void) {
 /* Check overflow on codebuffer */
 #define jitc_check_overflow()\
     if((jit_insn*)jit_get_ip().ptr > (codeBuffer + (sizeof(jit_insn)*byteptr_max*JITC_AVG_BCSIZE))){\
-        fprintf(stderr,"\nFATAL ERROR: JIT codeBuffer overflow\n");\
+        fputs("\nFATAL ERROR: JIT codeBuffer overflow\n",stderr);\
         exit(-1);\
     }
 /* jitc_patch_fwdjmps():

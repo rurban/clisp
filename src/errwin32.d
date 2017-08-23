@@ -66,7 +66,7 @@ local void errno_out_body (const char* name, const char* msg) {
   if (msg != NULL)
     fprintf(stderr,": %s",msg);
   else
-    fprintf(stderr,".");
+    fputc('.',stderr);
 }
 global void errno_out_low (DWORD errorcode, const char* file, uintL line) {
   fprintf(stderr,"\n[%s:%d] GetLastError() = 0x%x",file,line,errorcode);
