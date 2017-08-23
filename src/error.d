@@ -1,8 +1,8 @@
 /*
  * Error-Handling for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2005, 2009
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2012
+ * Sam Steingold 1998-2012, 2017
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -224,13 +224,13 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   if (spinlock_tryacquire(&current_thread()->_gc_suspend_ack)) {
     /* this should never happen - we always hold this lock unless we are in
        blocking system call (or waiting for the GC) */
-    fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call()\n");
+    fputs("*** thread is going into lisp land without calling end_blocking_call()\n",stderr);
     abort();
   }
   if (current_thread()->_suspend_count) {
     /* hmm aren't we supposed to be suspended? if we are here - there
        is GC running NOW */
-    fprintf(stderr,"*** thread is going into lisp land while GC in progress.\n");
+    fputs("*** thread is going into lisp land while GC in progress.\n",stderr);
     abort();
   }
 #endif

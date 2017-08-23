@@ -738,7 +738,7 @@ global maygc uintL add_per_thread_special_var(object symbol)
         var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
         WITH_STOPPED_WORLD(true, {
           if (!realloc_threads_symvalues(nsyms)) {
-            fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
+            fputs("*** could not make symbol value per-thread. aborting\n",stderr);
             abort();
           }
           maxnum_symvalues = nsyms;

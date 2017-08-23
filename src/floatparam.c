@@ -15,12 +15,12 @@ typedef long double ldouble;
 
 static void header (void)
 {
-  printf("/* Rounding modes, for use below */\n");
-  printf("#define rounds_to_nearest        0  /* 0.5 ulp */\n");
-  printf("#define rounds_to_zero           1  /* 1 ulp */\n");
-  printf("#define rounds_to_infinity       2  /* 1 ulp */\n");
-  printf("#define rounds_to_minus_infinity 3  /* 1 ulp */\n");
-  printf("\n");
+  puts("/* Rounding modes, for use below */");
+  puts("#define rounds_to_nearest        0  /* 0.5 ulp */");
+  puts("#define rounds_to_zero           1  /* 1 ulp */");
+  puts("#define rounds_to_infinity       2  /* 1 ulp */");
+  puts("#define rounds_to_minus_infinity 3  /* 1 ulp */");
+  puts("");
 }
 
 #define check(type,typeprefix,typestr,equalfn,mainfn)  \
@@ -102,7 +102,7 @@ static void mainfn (void)						\
     else								\
       printf("#define %s_rounds_correctly 0\n",typeprefix);		\
   }									\
-  printf("\n");								\
+  puts("");								\
 }									\
 static boolean equalfn (volatile type* x, volatile type* y)		\
 {									\

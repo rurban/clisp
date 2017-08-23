@@ -10098,7 +10098,7 @@ extern maygc object object_out (object obj);
 extern maygc object nobject_out (FILE* out, object obj);
 #define NOBJECT_OUT(obj,label)                                         \
   (printf("[%s:%d] %s: %s: ",__FILE__,__LINE__,STRING(obj),label),     \
-   nobject_out(stdout,obj), printf("\n"), fflush(stdout))
+   nobject_out(stdout,obj), puts(""), fflush(stdout))
 /* used for debugging purposes */
 %% exportF(object,object_out,(object obj));
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");

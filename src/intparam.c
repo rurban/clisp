@@ -129,7 +129,7 @@ void main1(void) {
       printf("/* Integers of type %s have %ld bits. */\n",typestr,(long)where); \
       if (typestr[0] != 'u')                                            \
         { printf("#define "); printf_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
-      printf("\n");                                                     \
+      puts("");                                                         \
     } else                                                              \
       printf("#error \"Integers of type %s have no binary representation!!\"\n",typestr); \
     if (where != char_bitsize * sizeof(type))                           \
@@ -226,7 +226,7 @@ void main3(void) {
 #ifdef HAVE_LONG_LONG_INT
   compare_integer_representation(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,longlong_ulonglong_same);
 #endif
-  printf("\n");
+  puts("");
 }
 
 void main4(void) {
@@ -434,7 +434,7 @@ void main6(void) {
   pointer_bitsize = char_bitsize * sizeof(char*);
   printf("/* Pointers of type %s have %ld bits. */\n","char *",(long)pointer_bitsize);
   printf("#define pointer_bitsize %ld\n",(long)pointer_bitsize);
-  printf("\n");
+  puts("");
 }
 
 void main7(void) {
@@ -471,7 +471,7 @@ void main7(void) {
   }
   test_pointer_casts(char*,long*,"char *","long *");
   test_pointer_casts(char*,function*,"char *","function *");
-  printf("\n");
+  puts("");
 }
 
 void main8(void) {
@@ -492,7 +492,7 @@ void main8(void) {
     }                                                                   \
     if ((alignment & (alignment-1)) != 0)                               \
       printf("#error \"The alignment %ld of type %s is not a power of two!!\"\n",alignment,typestr); \
-    printf("\n");                                                       \
+    puts("");                                                           \
   }
   get_alignment(char,"char"); get_alignment(uchar,"unsigned char");
   get_alignment(short,"short"); get_alignment(ushort,"unsigned short");
@@ -533,12 +533,12 @@ void main9(void) {
       if (big_endian && !little_endian) {                               \
         printf("/* Type %s is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */\n",typestr); \
         printf("#define "); printf_underscored(&typestr[9]);            \
-        printf("_big_endian\n");                                        \
+        puts("_big_endian");                                            \
       }                                                                 \
       if (little_endian && !big_endian) {                               \
         printf("/* Type %s is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */\n",typestr); \
         printf("#define "); printf_underscored(&typestr[9]);            \
-        printf("_little_endian\n");                                     \
+        puts("_little_endian");                                         \
       }                                                                 \
       if (!big_endian && !little_endian)                                \
         printf("#error \"Type %s is stored in memory in an obscure manner!!\"\n",typestr); \
@@ -552,7 +552,7 @@ void main9(void) {
 #ifdef HAVE_LONG_LONG_INT
   get_endian(ulonglong,"unsigned long long",ulonglong_bitsize);
 #endif
-  printf("\n");
+  puts("");
 }
 
 long get_stack_direction(void)
@@ -575,12 +575,12 @@ void main10(void)
 { long stack_direction = get_stack_direction();
   if (stack_direction > 0) {
     printf("/* Stack grows up, ca. %ld bytes per function call. */\n",(long)stack_direction);
-    printf("#define stack_grows_up\n");
+    puts("#define stack_grows_up");
   } else if (stack_direction < 0) {
     printf("/* Stack grows down, ca. %ld bytes per function call. */\n",-(long)stack_direction);
-    printf("#define stack_grows_down\n");
+    puts("#define stack_grows_down");
   } else
-    printf("#error \"Unknown stack model -- incorrect C semantics!!\"\n");
+    puts("#error \"Unknown stack model -- incorrect C semantics!!\"");
 }
 
 int main (int argc, char *argv[]) {
