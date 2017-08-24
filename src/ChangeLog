@@ -1,5 +1,15 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Remove the need to pass --with-libsigsegv-prefix when passing --prefix.
+	Likewise for --with-libffcall-prefix.
+	This helps at least on Linux/powerpc64 (CentOS 7).
+	* configure (explicit_prefix): New variable.
+	(note_prefix): New function. Invoke it when a --prefix option is seen.
+	(have_explicit_libsigsegv_args, have_explicit_libffcall_args): New
+	variables. Use them to know whether to augment subdir_configure_args.
+	
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Improve support for portability testing.
 	The function mymalloc had code for checking the result of malloc(),
 	but this check was a no-op in the interesting cases (e.g. with

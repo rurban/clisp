@@ -151,6 +151,8 @@ set -e
 srcdir=''
 # http://www.gnu.org/software/autoconf/manual/html_node/Option-Checking.html
 subdir_configure_args='--disable-option-checking'
+have_explicit_libsigsegv_args=false
+have_explicit_libffcall_args=false
 makemake_args=''
 do_config=''
 do_cbc=''
@@ -174,6 +176,11 @@ note_module(){
   makemake_args=${makemake_args}" --with-module=$1"
 }
 
+explicit_prefix=''
+note_prefix(){
+  explicit_prefix="$1"
+}
+
 for arg # in "$@"
 do
   # If the previous option needs an argument, assign it.
@@ -181,11 +188,22 @@ do
     # If the previous option needs an argument for subdir configures or
     # makemake, pass it, otherwise set the variable
     case "$passnext" in
-      configure) subdir_configure_args="$subdir_configure_args $arg" ;;
-      makemake) makemake_args="$makemake_args$arg" ;;
-      both) makemake_args="$makemake_args$arg"
-        subdir_configure_args="$subdir_configure_args $arg" ;;
-      with-module) note_module $arg ;;
+      configure)
+        subdir_configure_args="$subdir_configure_args $arg"
+        ;;
+      makemake)
+        makemake_args="$makemake_args$arg"
+        ;;
+      both)
+        makemake_args="$makemake_args$arg"
+        subdir_configure_args="$subdir_configure_args $arg"
+        if test "$prev" = prefix; then
+          note_prefix "$arg"
+        fi
+        ;;
+      with-module)
+        note_module $arg
+        ;;
       *) eval "$prev=\$arg" ;;
     esac
     passnext=''
@@ -244,6 +262,7 @@ do
       --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=*)
         subdir_configure_args="$subdir_configure_args $arg"
         prefix=`getarg "$arg"`
+        note_prefix "${prefix}"
         makemake_args="$makemake_args --prefix=${prefix}" ;;
 
       --prefix | --prefi | --pref | --pre | --pr)
@@ -474,7 +493,12 @@ do
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
-        makemake_args="$makemake_args $arg" ;;
+        makemake_args="$makemake_args $arg"
+        case "$arg" in
+          --with-libsigsegv-prefix* | --without-libsigsegv-prefix*) have_explicit_libsigsegv_args=true ;;
+          --with-libffcall-prefix* | --without-libffcall-prefix*) have_explicit_libffcall_args=true ;;
+        esac
+        ;;
 
       --enable-* | --disable-*)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -511,6 +535,22 @@ if test -z "$do_config" -a -z "$do_cbc"; then
   # Default is --config
   do_config=1
 fi
+
+# Add an implicit --with-libsegsegv-prefix option, based on --prefix,
+# if no such option was explicitly given.
+$have_explicit_libsigsegv_args || {
+  if test -n "$explicit_prefix"; then
+    subdir_configure_args="$subdir_configure_args --with-libsigsegv-prefix=${explicit_prefix}"
+  fi
+}
+
+# Add an implicit --with-libffcall-prefix option, based on --prefix,
+# if no such option was explicitly given.
+$have_explicit_libffcall_args || {
+  if test -n "$explicit_prefix"; then
+    subdir_configure_args="$subdir_configure_args --with-libffcall-prefix=${explicit_prefix}"
+  fi
+}
 
 # checking how to copy files
 echo "blabla" > conftest.x
