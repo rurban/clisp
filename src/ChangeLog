@@ -1,5 +1,13 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Avoid unwarranted warnings from gcc's -Wformat-security.
+	Reported by Jerry James in
+	<https://sourceforge.net/p/clisp/mailman/message/36008037/>.
+	* lispbibl.d (gettext, clgettext, clgettextl): Declare with GCC
+	attribute format_arg.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	For stdio to stdout/stderr, avoid use of fputs and puts.
 	* lispbibl.d (fprint, print): New macros.
 	* lispbibl.d, avl.d, encoding.d, error.d, errunix.d, errwin32.d:
