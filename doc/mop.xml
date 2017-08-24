@@ -5422,7 +5422,7 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
 
 <simplesect id="mop-clisp-gf-dynamically-modifiable"><title>Disabling
 the warning for a specific generic function</title>
-<para>If your generic function constitutes a pubic interface which is
+<para>If your generic function constitutes a public interface which is
 used by adding methods (similar to aforementioned &print-object;), you
 can declare it as such:<programlisting language="lisp">
 (defgeneric my-public-gf (a b c)
