@@ -2388,6 +2388,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && ((CODE_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)       \
     && ((MALLOC_ADDRESS_RANGE >> (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)) == 0)     \
     && defined(WIDE_HARD)                                                      \
+    && !(defined(UNIX_LINUX) && defined(S390_64))                              \
     && !defined(NO_SINGLEMAP)                                                  \
     && !defined(MULTITHREAD)
 /* If we have not already excluded TYPECODES, and not WIDE_SOFT,
@@ -2397,6 +2398,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE (maybe also need to check
    SHLIB_ADDRESS_RANGE and STACK_ADDRESS_RANGE?),
    and we are on a 64-bit platform [2],
+   and we are not on Linux/s390x.
    then pick SINGLEMAP_MEMORY.
    [1] It does not work reliably when address space layout randomization
    is in effect: SINGLEMAP_MEMORY assumes that one can extend an existing
@@ -2428,12 +2430,14 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          PSEUDOCODE_ALIGNMENT; this can be harder to achieve.
        TYPECODES is typically a few percent slower than HEAPCODES.
        For portability, choose TYPECODES if possible, and HEAPCODES otherwise.
+       Special case: On Linux/s390x, TYPECODES does not work right so far.
      */
     #if !defined(NO_ADDRESS_SPACE_ASSUMPTIONS) \
         && ((CODE_ADDRESS_RANGE >> 56) == 0)   \
         && ((MALLOC_ADDRESS_RANGE >> 56) == 0) \
         && ((SHLIB_ADDRESS_RANGE >> 56) == 0)  \
-        && ((STACK_ADDRESS_RANGE >> 56) == 0)
+        && ((STACK_ADDRESS_RANGE >> 56) == 0)  \
+        && !(defined(UNIX_LINUX) && defined(S390_64))
       #define TYPECODES
     #else
       #define HEAPCODES
@@ -2627,6 +2631,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      addresses. But we know that pointers have alignment 8. */
     #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD)) || (defined(I80386) && defined(UNIX_CYGWIN32))
       #define KERNELVOID32_HEAPCODES
+    #elif defined(S390_64) && defined(UNIX_LINUX)
+      #define GENERIC64_HEAPCODES
     #else
       #define ONE_FREE_BIT_HEAPCODES
     #endif
@@ -2936,6 +2942,26 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
            Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
                                   0x00003FFFFFFFFFFFUL
          Bits 63..56 = type code, Bits 55..0 = address */
+      #define oint_type_shift 56
+      #define oint_type_len 8
+      #define oint_type_mask 0xFF00000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 56
+      #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
+      #define oint_data_shift oint_addr_shift
+      #define oint_data_len oint_addr_len
+      #define oint_data_mask oint_addr_mask
+    #endif
+    #if defined(S390_64) && defined(UNIX_LINUX)
+      /* UNIX_LINUX:
+           CODE_ADDRESS_RANGE     0x0000000080000000UL
+           MALLOC_ADDRESS_RANGE   0x0000000081000000UL ... 0x00000000BE000000UL
+           SHLIB_ADDRESS_RANGE    0x000003FFFD000000UL
+           STACK_ADDRESS_RANGE    0x000003FFFF000000UL
+           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                  0x001FFFFFFFFFFFFFUL
+         Bits 63..56 = type code, Bits 55..0 = address */
+      /* FIXME: This parameterization does not actually work. */
       #define oint_type_shift 56
       #define oint_type_len 8
       #define oint_type_mask 0xFF00000000000000UL
