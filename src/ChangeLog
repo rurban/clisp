@@ -1,5 +1,15 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Support for Linux/s390x.
+	* lispbibl.d: On Linux/s390x, default the memory model to
+	GENERIC64_HEAPCODES and avoid SINGLEMAP_MEMORY.
+	(oint_type_*, oint_addr_*, oint_data_*) [UNIX_LINUX && S390_64]: Define
+	a parameterization of TYPECODES configuration.
+	* spvw.d (init_memory): Hardcode some good heap limits for the
+	TRIVIALMAP_MEMORY model on Linux/s390x.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Support for Linux/powerpc64.
 	* lispbibl.d (oint_type_*, oint_addr_*, oint_data_*)
 	[UNIX_LINUX && POWERPC64]: Define parameterization of TYPECODES
