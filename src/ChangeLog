@@ -1,5 +1,15 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Improve support for portability testing.
+	The function mymalloc had code for checking the result of malloc(),
+	but this check was a no-op in the interesting cases (e.g. with
+	SINGLEMAP_MEMORY), and additionally it remained silent.
+	* spvw_allocate.d (pointable_usable_test): Really test whether the
+	malloc() result occupied some bits outside oint_addr_mask.
+	(mymalloc): Print a warning before returning NULL.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Handle ILP32 ABIs properly.
 	* lispbibl.d (intQsize, HAVE_DD): Omit redundancy. But list ARM64
 	because of its ILP32 ABI.
