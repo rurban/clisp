@@ -1,5 +1,17 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Support for Linux/arm64.
+	* makemake.in (XCFLAGS): Add '-fPIC' on ARM64.
+	* lispbibl.d (MALLOC_ADDRESS_RANGE) [UNIX_LINUX && ARM64]: Redefine,
+	to work around deficiency of the configure test.
+	(oint_type_*, oint_addr_*, oint_data_*) [UNIX_LINUX && ARM64]: Define
+	parameterization of TYPECODES configuration.
+	(varobject_alignment): Define to 8 on ARM64.
+	* spvw.d (init_memory): Hardcode some good heap limits for the
+	TRIVIALMAP_MEMORY model on Linux/arm64.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Support 64-bit platforms with MMAP_FIXED_ADDRESS_HIGHEST_BIT <= 38.
 	On 64-bit platforms with an mmapable address range of at most 39 bits,
 	aint and saint were defined to 32-bit integer types, which is
