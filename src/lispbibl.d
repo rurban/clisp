@@ -2927,6 +2927,25 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len oint_addr_len
       #define oint_data_mask oint_addr_mask
     #endif
+    #if defined(POWERPC64) && defined(UNIX_LINUX)
+      /* UNIX_LINUX:
+           CODE_ADDRESS_RANGE     0x0000000010000000UL
+           MALLOC_ADDRESS_RANGE   0x0000010028000000UL (varies a bit)
+           SHLIB_ADDRESS_RANGE    0x00003FFFA0000000UL
+           STACK_ADDRESS_RANGE    0x00003FFFD1000000UL
+           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                  0x00003FFFFFFFFFFFUL
+         Bits 63..56 = type code, Bits 55..0 = address */
+      #define oint_type_shift 56
+      #define oint_type_len 8
+      #define oint_type_mask 0xFF00000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 56
+      #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
+      #define oint_data_shift oint_addr_shift
+      #define oint_data_len oint_addr_len
+      #define oint_data_mask oint_addr_mask
+    #endif
   #endif
 #elif defined(WIDE_SOFT)
   /* separate one 32-bit word for typcode and address. */
@@ -3397,26 +3416,32 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       #define typecode(expr)  ((expr).u.both.type)
     #endif
     /* Furthermore you can do accesses in memory without shift: */
-    #if !defined(WIDE) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
+    #if !defined(WIDE) && (oint_type_len==8) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
       #define mtypecode(expr)  (*(tint*)&(expr))
       #define fast_mtypecode
-    #elif !defined(WIDE) && (((oint_type_shift==24) && !BIG_ENDIAN_P) || ((oint_type_shift==0) && BIG_ENDIAN_P))
+    #elif !defined(WIDE) && (oint_type_len==8) && (((oint_type_shift==24) && !BIG_ENDIAN_P) || ((oint_type_shift==0) && BIG_ENDIAN_P))
       #define mtypecode(expr)  (*((tint*)&(expr)+3))
       #define fast_mtypecode
     #elif defined(WIDE)
       #ifdef WIDE_STRUCT
         #define mtypecode(expr)  ((expr).u.both.type)
-      #elif (oint_type_len==16)
-        #if (oint_type_shift==0) == BIG_ENDIAN_P
-          #define mtypecode(expr)  (*((tint*)&(expr)+3))
-        #else /* (oint_type_shift==48) == BIG_ENDIAN_P */
+      #elif (oint_type_len==8)
+        #if ((oint_type_shift==56) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P)
           #define mtypecode(expr)  (*(tint*)&(expr))
+        #elif ((oint_type_shift==0) && BIG_ENDIAN_P) || ((oint_type_shift==56) && !BIG_ENDIAN_P)
+          #define mtypecode(expr)  (*((tint*)&(expr)+7))
+        #endif
+      #elif (oint_type_len==16)
+        #if ((oint_type_shift==48) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P)
+          #define mtypecode(expr)  (*(tint*)&(expr))
+        #elif ((oint_type_shift==0) && BIG_ENDIAN_P) || ((oint_type_shift==48) && !BIG_ENDIAN_P)
+          #define mtypecode(expr)  (*((tint*)&(expr)+3))
         #endif
       #elif (oint_type_len==32)
-        #if (oint_type_shift==0) == BIG_ENDIAN_P
-          #define mtypecode(expr)  (*((tint*)&(expr)+1))
-        #else /* (oint_type_shift==32) == BIG_ENDIAN_P */
+        #if ((oint_type_shift==32) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P)
           #define mtypecode(expr)  (*(tint*)&(expr))
+        #elif ((oint_type_shift==0) && BIG_ENDIAN_P) || ((oint_type_shift==32) && !BIG_ENDIAN_P)
+          #define mtypecode(expr)  (*((tint*)&(expr)+1))
         #endif
       #endif
       #define fast_mtypecode

@@ -3165,6 +3165,11 @@ local inline int init_memory (struct argv_initparams *p) {
          and there is room from 0x003000000000 to 0x007000000000. */
       mem.heaps[0].heap_limit = 0x003000000000UL;
       mem.heaps[1].heap_limit = 0x007000000000UL;
+      #elif defined(UNIX_LINUX) && defined(POWERPC64)
+      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
+         and there is room from 0x080000000000 to 0x380000000000. */
+      mem.heaps[0].heap_limit = 0x080000000000UL;
+      mem.heaps[1].heap_limit = 0x380000000000UL;
       #elif defined(UNIX_FREEBSD) && defined(AMD64)
       mem.heaps[0].heap_limit = 0x001000000000UL;
       mem.heaps[1].heap_limit = 0x700000000000UL;
@@ -3217,6 +3222,13 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[0].heap_hardlimit = 0x005000000000UL;
       mem.heaps[1].heap_limit = 0x005000000000UL;
       mem.heaps[1].heap_hardlimit = 0x007000000000UL;
+      #elif defined(UNIX_LINUX) && defined(POWERPC64)
+      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
+         and there is room from 0x080000000000 to 0x380000000000. */
+      mem.heaps[0].heap_limit = 0x080000000000UL;
+      mem.heaps[0].heap_hardlimit = 0x200000000000UL;
+      mem.heaps[1].heap_limit = 0x200000000000UL;
+      mem.heaps[1].heap_hardlimit = 0x380000000000UL;
       #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
        #ifdef UNIX_DARWIN
       /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
