@@ -293,8 +293,13 @@ docbook-dtd :
 	  wget -O docbook-xml.zip $(DTD_DOWNLOAD) && \
 	  unzip docbook-xml.zip && $(RM) docbook-xml.zip
 
-docbook-xsl : force
-	$(RSYNC) --port=5873 docbook.xml-doc.org::xsl docbook-xsl
+#XSL_DOWNLOAD=https://sourceforge.net/projects/docbook/files/latest/download?source=files
+XSL_VERSION=1.79.1
+XSL_DOWNLOAD=https://downloads.sourceforge.net/project/docbook/docbook-xsl/$(XSL_VERSION)/docbook-xsl-$(XSL_VERSION).zip
+docbook-xsl :
+	wget $(XSL_DOWNLOAD) && unzip docbook-xsl-$(XSL_VERSION).zip && \
+	  mv -v docbook-xsl-$(XSL_VERSION) docbook-xsl && \
+	  $(RM) docbook-xsl-$(XSL_VERSION).zip
 	grep '<fm:Version>' docbook-xsl/VERSION
 
 IMPNOTES_SRC = impnotes-src
