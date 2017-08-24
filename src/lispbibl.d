@@ -10044,10 +10044,22 @@ extern _Noreturn void error_notreached (const char * file, uintL line);
     #endif
     /* Fetch the message translations from a message catalog. */
     #ifndef gettext  /* Sometimes `gettext' is a macro... */
-      extern char* gettext (const char * msgid);
+      extern char* gettext (const char * msgid)
+        #ifdef __GNUC__
+        __attribute__ ((__format_arg__ (1)))
+        #endif
+        ;
     #endif
-    extern const char * clgettext (const char * msgid);
-    extern const char * clgettextl (const char * msgid);
+    extern const char * clgettext (const char * msgid)
+      #ifdef __GNUC__
+      __attribute__ ((__format_arg__ (1)))
+      #endif
+      ;
+    extern const char * clgettextl (const char * msgid)
+      #ifdef __GNUC__
+      __attribute__ ((__format_arg__ (1)))
+      #endif
+      ;
     /* GETTEXT(english_message) fetches the translation of english_message
      and returns it in UTF-8 (if ENABLE_UNICODE is defined).
      GETTEXTL(english_message) fetches the translation of english_message
