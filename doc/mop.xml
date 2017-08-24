@@ -5407,17 +5407,18 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
 <simplesect id="mop-clisp-gf-already-called-warning-motivation">
  <title>Motivation</title>
  <para>A generic function is defined by a contract.
-  Whoever puts a method on a generic function, however, is also
-  expecting a contract to be fulfilled.
-  (In the example above, it is that <varname>*book-counter*</varname>
-  equals the number of invocations
-  of <function>add-to-inventory</function> on book instances.)
-  If the generic function was already called before the
-  method was installed, the method's contract was definitely broken.
+  Whoever adds a method to a generic function, however, also
+  expects the contract to be fulfilled.
+  (In the example above, the contract is that
+  <varname>*book-counter*</varname> equals the number of invocations
+  of <function>add-to-inventory</function> on
+  <classname>book</classname> instances.)
+  If the generic function has already been called before the
+  method was added, the method's contract is definitely broken.
   Maybe the programmer has foreseen this case (in this example:
   he could initialize <varname>*book-counter*</varname> to the number of
-  instances of book that exist at this moment, rather than to &zero;),
-  or maybe not. This is what the warning is about.
+  instances of <classname>book</classname> that exist at this moment,
+  rather than to &zero;), or maybe not. This is what the warning is about.
 </para></simplesect>
 
 <simplesect id="mop-clisp-gf-dynamically-modifiable"><title>Disabling
