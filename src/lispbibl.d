@@ -374,6 +374,10 @@
      * On MIPS64, you can have long_bitsize = pointer_bitsize = 32.
        This is the so-called n32 ABI. It is advertised through the _ABIN32
        predefined macro.
+     * On ARM64, you can have long_bitsize = pointer_bitsize = 32.
+       This is the so-called ilp32 ABI. It is advertised through the _ILP32
+       predefined macro.
+     * On IA64 with HP-UX, there is an ilp32 ABI as well.
  */
 
 
@@ -1559,7 +1563,7 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
 #define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-#if (long_bitsize==64) || defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
+#if (long_bitsize==64) || defined(MIPS64) || defined(IA64) || defined(AMD64) || defined(ARM64)
   /* Machine has real 64-bit integers in hardware. */
   #define intQsize 64
   typedef signed_int_with_n_bits(intQsize)    sintQ;
@@ -1846,7 +1850,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 #endif
 typedef unsigned_int_with_n_bits(intDsize)  uintD;
 typedef signed_int_with_n_bits(intDsize)    sintD;
-#if (intDDsize<=32) || ((intDDsize<=64) && ((long_bitsize==64) || defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)))
+#if (intDDsize<=32) || ((intDDsize<=64) && ((long_bitsize==64) || defined(MIPS64) || defined(IA64) || defined(AMD64) || defined(ARM64)))
   #define HAVE_DD 1
   typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
   typedef signed_int_with_n_bits(intDDsize)    sintDD;

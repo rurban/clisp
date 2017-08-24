@@ -1,5 +1,11 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Handle ILP32 ABIs properly.
+	* lispbibl.d (intQsize, HAVE_DD): Omit redundancy. But list ARM64
+	because of its ILP32 ABI.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Support for Linux/s390x.
 	* lispbibl.d: On Linux/s390x, default the memory model to
 	GENERIC64_HEAPCODES and avoid SINGLEMAP_MEMORY.
