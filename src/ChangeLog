@@ -1,5 +1,13 @@
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
+	Support 64-bit platforms with MMAP_FIXED_ADDRESS_HIGHEST_BIT <= 38.
+	On 64-bit platforms with an mmapable address range of at most 39 bits,
+	aint and saint were defined to 32-bit integer types, which is
+	catastrophic for SINGLEMAP_MEMORY support.
+	* lispbibl.d (aint, saint): Define to 64-bit integer types in this case.
+
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
 	Avoid unwarranted warnings from gcc's -Wformat-security.
 	Reported by Jerry James in
 	<https://sourceforge.net/p/clisp/mailman/message/36008037/>.
