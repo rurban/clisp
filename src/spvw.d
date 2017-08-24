@@ -216,7 +216,7 @@ local int dump_process_memory_map_callback (void *data,
 /* Print out the memory map of the process. */
 local void dump_process_memory_map (void)
 {
-  fputs("Memory dump:\n",stderr);
+  fprint(stderr,"Memory dump:\n");
   vma_iterate (&dump_process_memory_map_callback, NULL);
 }
 
@@ -554,7 +554,7 @@ modexp uintL* current_thread_alloccount()
     if (!get_stack_region(&stack_base,&stack_size)) {
       /* this either works or not. so on first (main) thread created
        it will barf if not supported. */
-      fputs("FATAL: get_stack_region() failed.",stderr);
+      fprint(stderr,"FATAL: get_stack_region() failed.");
       abort();
     }
     for (p=stack_base, mapped=0;
@@ -905,9 +905,9 @@ global bool near_SP_overflow (void) {
 global _Noreturn void SP_ueber (void) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputc('\n',stderr);
-  fputs(GETTEXTL("*** - " "Program stack overflow. RESET"),stderr);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
+  fprint(stderr,GETTEXTL("*** - " "Program stack overflow. RESET"));
+  fprint(stderr,"\n");
   fflush(stderr);
   end_system_call();
   if (interactive_p)
@@ -920,9 +920,9 @@ global _Noreturn void SP_ueber (void) {
 modexp _Noreturn void STACK_ueber (void) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
-  fputc('\n',stderr);
-  fputs(GETTEXTL("*** - " "Lisp stack overflow. RESET"),stderr);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
+  fprint(stderr,GETTEXTL("*** - " "Lisp stack overflow. RESET"));
+  fprint(stderr,"\n");
   fflush(stderr);
   end_system_call();
   if (interactive_p)
@@ -1299,7 +1299,8 @@ local subr_argtype_t subr_argtype (uintW req_count, uintW opt_count,
           req_count,opt_count,rest_flag,key_flag);
   if (sid)
     fprintf(stderr," (%s::%s)\n",sid->packname,sid->symname);
-  else fputc('\n',stderr);
+  else
+    fprint(stderr,"\n");
   quit_instantly(1);
 }
 /* set the argtype of a subr_t *ptr */
@@ -2031,11 +2032,11 @@ local void init_module_2 (module_t* module) {
           && !nullp(Symbol_function(symbol))) { /* package lock error */
         fprintf(stderr,GETTEXTL("module '%s' redefines symbol "),module->name);
         nobject_out(stderr,symbol);
-        fputs(GETTEXTL(" in the locked package "),stderr);
+        fprint(stderr,GETTEXTL(" in the locked package "));
         nobject_out(stderr,Symbol_package(symbol));
-        fputs(GETTEXTL("\nold definition: "),stderr);
+        fprint(stderr,GETTEXTL("\nold definition: "));
         nobject_out(stderr,Symbol_function(symbol));
-        fputc('\n',stderr);
+        fprint(stderr,"\n");
         quit_instantly(1);
       }
       Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); /* define function */
@@ -2133,7 +2134,7 @@ local void arg_error (const char *error_message, const char *arg) {
   else
     fprintf(stderr,"%s: %s\n",PACKAGE_NAME,error_message);
   fprintf(stderr,GETTEXTL("%s: use '-h' for help"),PACKAGE_NAME);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
 }
 #define INVALID_ARG(a)    do {                                          \
   arg_error(GETTEXTL("invalid argument"),a);                            \
@@ -2449,19 +2450,19 @@ local inline int size_arg (const char *arg, const char *docstring, uintM *ret,
   if (*arg != '\0') {           /* argument finished? */
     fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB"),
             docstring);
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     return 1;
   }
   if (val < limit_low) {
     fprintf(stderr,GETTEXTL("warning: %s %lu too small, using %lu instead"),
             docstring, val, limit_low);
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     val = limit_low;
   }
   if (val > limit_high) {
     fprintf(stderr,GETTEXTL("warning: %s %lu too large, using %lu instead"),
             docstring, val, limit_high);
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     val = limit_high;
   }
   /* For multiple -m arguments, only the last counts. */
@@ -3078,13 +3079,13 @@ local inline int init_memory (struct argv_initparams *p) {
       end_system_call();
       fprintf(stderr,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
               memblock);
-      fputc('\n',stderr);
+      fprint(stderr,"\n");
       return -1;
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { /* but with less than MINIMUM_SPACE */
       /* we will not be satisfied: */
       fprintf(stderr,GETTEXTL("Only %ld bytes available."),memneed);
-      fputc('\n',stderr);
+      fprint(stderr,"\n");
       return -1;
     }
     {                       /* round to the next lower page boundary: */
@@ -3318,8 +3319,8 @@ local inline int init_memory (struct argv_initparams *p) {
              page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000. */
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info))) {
-                fputs(GETTEXTL("Could not determine the end of the SP stack!"),stderr);
-                fputc('\n',stderr);
+                fprint(stderr,GETTEXTL("Could not determine the end of the SP stack!"));
+                fprint(stderr,"\n");
                 SP_bound = 0;
               } else { /* 0x4000 might be enough, but 0x8000 will be better. */
                 SP_bound = (void*)((aint)info.AllocationBase + 0x8000);
@@ -4058,7 +4059,7 @@ global int main (argc_t argc, char* argv[]) {
   /* if the memory does not suffice: */
   no_mem:
   fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp."),program_name);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   quit_instantly(1);
   /*NOTREACHED*/
   /* termination of program via quit_instantly(): */
@@ -4898,7 +4899,7 @@ local void *signal_handler_thread(void *arg)
             break;
         });
         if (!signal_sent) {
-          fputs("*** SIGINT will be missed.\n",stderr); abort();
+          fprint(stderr,"*** SIGINT will be missed.\n"); abort();
         }
         ENABLE_DUMMY_ALLOCCOUNT(false);
       });
@@ -4939,7 +4940,7 @@ local void *signal_handler_thread(void *arg)
         });
         fini_lowest_level();
         if (!all_succeeded) {
-          fputs("*** some threads were not signaled to terminate.",stderr);
+          fprint(stderr,"*** some threads were not signaled to terminate.");
           exit(-sig); /* nothing we can do - exit immediately (cannot call quit
                          from here) */
         }

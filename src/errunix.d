@@ -97,9 +97,9 @@ global void errno_out_low (int errorcode, const char* file, uintL line) {
   fprintf(stderr,"\n[%s:%lu] errno = %d", file, (unsigned long)line, errorcode);
   var object code = ANSIC_error_code_converter(errorcode);
   if (symbolp(code)) { /* known name? */
-    fputs(" (",stderr);
+    fprint(stderr," (");
     nobject_out(stderr,code);
-    fputs(")",stderr);
+    fprint(stderr,")");
   }
   var char buffer[BUFSIZ];
   strerror_r(errorcode,buffer,BUFSIZ);
@@ -107,6 +107,6 @@ global void errno_out_low (int errorcode, const char* file, uintL line) {
   if (msg && msg[0]) { /* non-empty message? */
     fprintf(stderr,": %s",msg);
   }
-  fputs(".\n",stderr);
+  fprint(stderr,".\n");
 }
 #endif

@@ -1,9 +1,15 @@
-/* Determine some float parameters, much like gcc's "enquire.c". */
-/* Bruno Haible 24.8.1996 */
+/*
+ * Determine some float parameters, much like gcc's "enquire.c".
+ * Bruno Haible 1996-08-24, 2002-2008, 2017
+ * Sam Steingold 2008, 2017
+ */
 
 /* This program expects to be compiled by an ANSI C or C++ compiler. */
 
 #include <stdio.h>
+/* Use printf only for format strings that take at least 1 argument.
+   For literal strings, use print. */
+#define print(string) fputs(string,stdout)
 
 typedef int boolean;
 #define TRUE  1
@@ -15,12 +21,12 @@ typedef long double ldouble;
 
 static void header (void)
 {
-  puts("/* Rounding modes, for use below */");
-  puts("#define rounds_to_nearest        0  /* 0.5 ulp */");
-  puts("#define rounds_to_zero           1  /* 1 ulp */");
-  puts("#define rounds_to_infinity       2  /* 1 ulp */");
-  puts("#define rounds_to_minus_infinity 3  /* 1 ulp */");
-  puts("");
+  print("/* Rounding modes, for use below */\n");
+  print("#define rounds_to_nearest        0  /* 0.5 ulp */\n");
+  print("#define rounds_to_zero           1  /* 1 ulp */\n");
+  print("#define rounds_to_infinity       2  /* 1 ulp */\n");
+  print("#define rounds_to_minus_infinity 3  /* 1 ulp */\n");
+  print("\n");
 }
 
 #define check(type,typeprefix,typestr,equalfn,mainfn)  \
@@ -102,7 +108,7 @@ static void mainfn (void)						\
     else								\
       printf("#define %s_rounds_correctly 0\n",typeprefix);		\
   }									\
-  puts("");								\
+  print("\n");								\
 }									\
 static boolean equalfn (volatile type* x, volatile type* y)		\
 {									\

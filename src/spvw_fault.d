@@ -62,7 +62,7 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
   /* During GC the physpage cache contents may be abused by MORRIS_GC,
    so don't use it. */
   if (inside_gc) {
-    fputs("\n*** - handle_fault called at a point inside GC where it shouldn't!\n",stderr);
+    fprint(stderr,"\n*** - " "handle_fault called at a point inside GC where it shouldn't!\n");
     OS_set_errno(0);
     return -1;
   }
@@ -210,15 +210,15 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     }
    error5:      /* fault on a read-write page with no physpages array */
     if (verbose)
-      fputs("\n*** - handle_fault error5 !",stderr);
+      fprint(stderr,"\n*** - " "handle_fault error5 !");
     goto error;
    error1:          /* A fault was not expected on this type of heap. */
     if (verbose)
-      fputs("\n*** - handle_fault error1 !",stderr);
+      fprint(stderr,"\n*** - " "handle_fault error1 !");
     goto error;
    error2: /* The address is outside of the used address range for this heap. */
     if (verbose)
-      fprintf(stderr,"\n*** - handle_fault error2 ! address = 0x%lx not in [0x%lx,0x%lx) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
+      fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%lx not in [0x%lx,0x%lx) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
     goto error;
     #endif
   }

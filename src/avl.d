@@ -1,6 +1,8 @@
 /*
  * AVL-trees for CLISP
- * Bruno Haible 1993-1999
+ * Bruno Haible 1993-2001, 2004, 2017
+ * Sam Steingold 2007
+ * German comments translated into English: Stefan Kain 2002
  */
 /*
  Goal: Keep a set of elements sorted, where every now and then an
@@ -694,15 +696,15 @@ local NODE* AVL(AVLID,sort) (NODE* tree) {
 /* prints an AVL-tree. */
 local void AVL(AVLID,out) (NODE* tree) {
   if (tree!=EMPTY) {
-    printf("(");
+    print("(");
     if (!(tree->nodedata.left==EMPTY)) {
-      AVL(AVLID,out)(tree->nodedata.left); printf("<");
+      AVL(AVLID,out)(tree->nodedata.left); print("<");
     }
     printf("%lx",tree);
     if (!(tree->nodedata.right==EMPTY)) {
-      printf(">"); AVL(AVLID,out)(tree->nodedata.right);
+      print(">"); AVL(AVLID,out)(tree->nodedata.right);
     }
-    printf(")");
+    print(")");
   }
 }
 #endif

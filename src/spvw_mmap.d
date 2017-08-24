@@ -347,7 +347,7 @@ local void* mmap_filemap (void* map_addr, uintM map_len, Handle fd,
   var HANDLE maphandle = CreateFileMapping(fd,NULL,PAGE_WRITECOPY,0,0,NULL);
   if (maphandle == NULL) {
     var DWORD errcode = GetLastError();
-    fputs(GETTEXTL("CreateFileMapping() failed."),stderr);
+    fprint(stderr,GETTEXTL("CreateFileMapping() failed."));
     errno_out(errcode);
     return (void*)(-1);
   }
@@ -363,7 +363,7 @@ local void* mmap_filemap (void* map_addr, uintM map_len, Handle fd,
   if (resultaddr != map_addr) {
     fprintf(stderr,GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x."),
             resultaddr,map_addr);
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     UnmapViewOfFile(resultaddr);
     return (void*)(-1);
   }
@@ -376,7 +376,7 @@ global int munmap (void* addr, size_t len)
 {
   if (!VirtualFree(addr,len,MEM_DECOMMIT)) {
     var DWORD errcode = GetLastError();
-    fputs(GETTEXTL("VirtualFree() failed."),stderr);
+    fprint(stderr,GETTEXTL("VirtualFree() failed."));
     errno_out(errcode);
     return -1;
   }
@@ -390,7 +390,7 @@ global int mprotect (void* addr, size_t len, int prot)
   var DWORD oldprot;
   if (!VirtualProtect(addr,len,prot,&oldprot)) {
     var DWORD errcode = GetLastError();
-    fputs(GETTEXTL("VirtualProtect() failed."),stderr);
+    fprint(stderr,GETTEXTL("VirtualProtect() failed."));
     errno_out(errcode);
     return -1;
   }

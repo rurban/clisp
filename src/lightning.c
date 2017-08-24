@@ -97,7 +97,7 @@ void gc_scan_jitc_objects (void) {
 /* Check overflow on codebuffer */
 #define jitc_check_overflow()\
     if((jit_insn*)jit_get_ip().ptr > (codeBuffer + (sizeof(jit_insn)*byteptr_max*JITC_AVG_BCSIZE))){\
-        fputs("\nFATAL ERROR: JIT codeBuffer overflow\n",stderr);\
+        fprint(stderr,"\nFATAL ERROR: JIT codeBuffer overflow\n");\
         exit(-1);\
     }
 /* jitc_patch_fwdjmps():

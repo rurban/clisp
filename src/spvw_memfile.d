@@ -1850,11 +1850,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   goto abort_quit;
  abort_ini:
   fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP runtime"),program_name,filename);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   goto abort_quit;
  abort_mem:
   fprintf(stderr,GETTEXTL("%s: not enough memory for initialization"),program_name);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   goto abort_quit;
  abort_quit:
   /* close the file beforehand. */

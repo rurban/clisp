@@ -1,6 +1,6 @@
 /*
  * Export CLISP internals for modules
- * Bruno Haible 1994-2005, 2009
+ * Bruno Haible 1994-2005, 2009, 2017
  * Sam Steingold 1998-2011, 2016-2017
  */
 
@@ -161,7 +161,7 @@ static void include_file (const char* fname) {
   } else {
     char* line;
     while ((line = fgets(buf,BUFSIZ,includefile)) != NULL)
-      fputs(line,stdout);
+      fprint(stdout,line);
     if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
   }
 }
@@ -182,9 +182,9 @@ static void emit_typedef (const char* def, const char* new_type) {
 }
 
 static void emit_typedef_f (const char* format, const char* new_type) {
-  fputs("typedef ",header_f);
+  fprint(header_f,"typedef ");
   fprintf(header_f,format,new_type);
-  fputs(";\n",header_f);
+  fprint(header_f,";\n");
   typedef_count++;
   if (test_f) emit_typedef_test(new_type);
 }
@@ -201,8 +201,8 @@ static void emit_define (const char* form, const char* definition) {
 }
 
 /* this cannot be used on X whose definition includes ##! */
-#define export_def(x)  puts("#define " #x "  " STRING(x))
-#define export_literal(x)  puts(STRING(x))
+#define export_def(x)  fprint(stdout, "#define " #x "  " STRING(x) "\n")
+#define export_literal(x)  fprint(stdout, STRING(x) "\n")
 
 static void emit_to_I (const char* name, int signedp, int size)
 { printf("#define %s_to_I %cint%d_to_I\n",name,(signedp ? 's' : 'u'),size*8); }
@@ -302,12 +302,12 @@ static void check_typecodes (void) {
   if (test_f == NULL) return;
   /* cannot run the check when including clisp.h because there typecode(obj)
      has already been expanded to something horrible */
-  fputs("#if !USE_CLISP_H\n #undef typecode\n "
-        "#define typecode(c)   (c)\n {int failure_count = 0;\n",test_f);
+  fprint(test_f,"#if !USE_CLISP_H\n #undef typecode\n "
+         "#define typecode(c)   (c)\n {int failure_count = 0;\n");
   for (i=0; i<typecode_count; i++)
     check_typecode_entry(&(all_typecodes[i]));
-  fputs("  if (failure_count>0) { fprintf(stderr,\"%d typecode"
-        " error(s)\\n\",failure_count); abort(); }}\n#endif\n",test_f);
+  fprint(test_f,"  if (failure_count>0) { fprintf(stderr,\"%%d typecode"
+         " error(s)\\n\",failure_count); abort(); }}\n#endif\n");
 }
 #else
 #define check_typecodes()
@@ -336,28 +336,28 @@ int main(int argc, char* argv[])
     /* Having both EXPORTS and IMPORTS generates a syntax error on
        Cygwin.  All we need is imports, for building dynamic modules. */
    #ifdef UNIX_CYGWIN32
-    fputs("IMPORTS\n",def_f);
+    fprint(def_f,"IMPORTS\n");
    #else
-    fputs("EXPORTS\nIMPORTS\n",def_f);
+    fprint(def_f,"EXPORTS\nIMPORTS\n");
    #endif
   }
  #endif
 
   printf("#define SAFETY %d\n",SAFETY);
  #if defined(ENABLE_UNICODE)
-  puts("#define CLISP_UNICODE 1");
+  print("#define CLISP_UNICODE 1\n");
  #else
-  puts("#define CLISP_UNICODE 0");
+  print("#define CLISP_UNICODE 0\n");
  #endif
 
   /* The definitions are extracted from lispbibl.d. */
 #include "gen.lispbibl.c"
 
-  puts("#define LISPFUNN(name,req_count)  LISPFUN(name,sec,req_count,0,norest,nokey,0,NIL)");
+  print("#define LISPFUNN(name,req_count)  LISPFUN(name,sec,req_count,0,norest,nokey,0,NIL)\n");
   /* In LISPFUN_B, emit the decl first, to avoid "gcc -missing-declarations" warnings. */
-  puts("#define LISPFUN_B(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  Values C_##name subr_##rest_flag##_function_args; Values C_##name subr_##rest_flag##_function_args");
-  puts("#define subr_norest_function_args  (void)");
-  puts("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)");
+  print("#define LISPFUN_B(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  Values C_##name subr_##rest_flag##_function_args; Values C_##name subr_##rest_flag##_function_args\n");
+  print("#define subr_norest_function_args  (void)\n");
+  print("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
  #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
   printf4("#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  { gcv_nullobj, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_count, opt_count, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_count, sec, 0},\n", Rectype_Subr, 0, subr_length, subr_xlength);
@@ -367,60 +367,60 @@ int main(int argc, char* argv[])
  #else
   printf1("#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_count, opt_count, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_count, sec, 0},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
  #endif
-  puts("#define LISPFUN  LISPFUN_B");
+  print("#define LISPFUN  LISPFUN_B\n");
 
   /* Note: The following inline/macro definitions are _not_ in lispbibl.d! */
 
-  puts("#ifndef COMPILE_STANDALONE");
-  puts("static inline unsigned int check_uint_defaulted (object obj, unsigned int defolt) {"
-       " return missingp(obj) ? defolt : I_to_uint(check_uint(obj)); "
-       "}");
-  puts("#endif");
-  puts("#define check_uint_default0(obj) check_uint_defaulted(obj,0)");
+  print("#ifndef COMPILE_STANDALONE\n");
+  printf("static inline unsigned int check_uint_defaulted (object obj, unsigned int defolt) {"
+          " return missingp(obj) ? defolt : I_to_uint(check_uint(obj)); "
+         "}\n");
+  print("#endif\n");
+  print("#define check_uint_default0(obj) check_uint_defaulted(obj,0)\n");
   EMIT_TO_I("size",size_t);
   EMIT_TO_I("ssize",ssize_t);
   EMIT_TO_I("off",off_t);
 
 #if defined(UNIX_CYGWIN32)
-  puts("#ifndef COMPILE_STANDALONE");
-  puts("static inline object convert_time_to_universal_w32 (const FILETIME* w32_time) {\n"
-       "  time_t unix_time = time_t_from_filetime(w32_time);\n"
-       "  return convert_time_to_universal(&unix_time);\n"
-       "}");
-  puts("static inline void convert_time_from_universal_w32 (object universal, FILETIME* w32_time) {\n"
-       "  time_t unix_time;\n"
-       "  convert_time_from_universal(universal,&unix_time);\n"
-       "  time_t_to_filetime(unix_time,w32_time);\n"
-       "}");
-  puts("#endif");
+  print("#ifndef COMPILE_STANDALONE\n");
+  print("static inline object convert_time_to_universal_w32 (const FILETIME* w32_time) {\n");
+  print("  time_t unix_time = time_t_from_filetime(w32_time);\n");
+  print("  return convert_time_to_universal(&unix_time);\n");
+  print("}\n");
+  print("static inline void convert_time_from_universal_w32 (object universal, FILETIME* w32_time) {\n");
+  print("  time_t unix_time;\n");
+  print("  convert_time_from_universal(universal,&unix_time);");
+  print("  time_t_to_filetime(unix_time,w32_time);\n");
+  print("}\n");
+  print("#endif\n");
 #endif
 #if defined(WIN32_NATIVE)
-  puts("#define convert_time_to_universal_w32 convert_time_to_universal");
-  puts("#define convert_time_from_universal_w32 convert_time_from_universal");
+  print("#define convert_time_to_universal_w32 convert_time_to_universal\n");
+  print("#define convert_time_from_universal_w32 convert_time_from_universal\n");
 #endif
 
   /* avoid some stupid warnings */
-  puts("#undef PACKAGE_BUGREPORT");
-  puts("#undef PACKAGE_NAME");
-  puts("#undef PACKAGE_STRING");
-  puts("#undef PACKAGE_TARNAME");
-  puts("#undef PACKAGE_VERSION");
-  puts("#undef PACKAGE_URL");
+  print("#undef PACKAGE_BUGREPORT\n");
+  print("#undef PACKAGE_NAME\n");
+  print("#undef PACKAGE_STRING\n");
+  print("#undef PACKAGE_TARNAME\n");
+  print("#undef PACKAGE_VERSION\n");
+  print("#undef PACKAGE_URL\n");
   /* Additional stuff for modules. */
-  puts("#define DEFMODULE(module_name,package_name)");
-  puts("#define DEFUN(funname,lambdalist,signature) LISPFUN signature");
-  puts("#define DEFUNF DEFUN");
-  puts("#define DEFUNN DEFUN");
-  puts("#define DEFUNR DEFUN");
-  puts("#define DEFUNW DEFUN");
-  puts("#define DEFUND DEFUN");
-  puts("#define DEFVAR(varname)");
+  print("#define DEFMODULE(module_name,package_name)\n");
+  print("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
+  print("#define DEFUNF DEFUN\n");
+  print("#define DEFUNN DEFUN\n");
+  print("#define DEFUNR DEFUN\n");
+  print("#define DEFUNW DEFUN\n");
+  print("#define DEFUND DEFUN\n");
+  print("#define DEFVAR(varname)\n");
   /* done - check for errors, close test files &c */
   if (ferror(stdout)) exit(1);
   if (ferror(header_f)) exit(1);
   check_typecodes();
   if (test_f) {
-    fputs("  return 0;\n}\n",test_f);
+    fprint(test_f,"  return 0;\n}\n");
     if (ferror(test_f)) exit(1);
     fclose(test_f);
     fprintf(stderr,"wrote %d tests (%d typedefs, %d defines)\n",

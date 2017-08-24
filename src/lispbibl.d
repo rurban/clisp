@@ -3,6 +3,7 @@
  * Bruno Haible 1990-2011, 2016-2017
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2012, 2016-2017
+ * Vladimir Tzankov 2008-2012, 2017
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags that may be set through CFLAGS:
@@ -900,18 +901,18 @@
 %%   #ifdef back_trace_register
 %%     printf("register long back_trace_reg __asm__(\"%s\");\n",back_trace_register);
 %%   #endif
-%%   printf("struct registers { ");
+%%   print("struct registers { ");
 %%   #ifdef STACK_register
-%%     printf("long STACK_register_contents; ");
+%%     print("long STACK_register_contents; ");
 %%   #endif
 %%   #ifdef mv_count_register
-%%     printf("long mv_count_register_contents; ");
+%%     print("long mv_count_register_contents; ");
 %%   #endif
 %%   #ifdef value1_register
-%%     printf("long value1_register_contents; ");
+%%     print("long value1_register_contents; ");
 %%   #endif
 %%   #ifdef back_trace_register
-%%     printf("long back_trace_register_contents; ");
+%%     print("long back_trace_register_contents; ");
 %%   #endif
 %%   puts("};");
 %%   puts("extern struct registers * callback_saved_registers;");
@@ -1218,7 +1219,16 @@ typedef signed int  signean;
 %% puts("#undef NULL");
 %% export_def(NULL);
 
-#include <stdio.h>    /* libc i/o */
+/* libc I/O */
+#include <stdio.h>
+/* Use fprintf and printf only for format strings that take at least 1 argument.
+   For literal strings, use print and fprint.
+   Avoid using fputs, puts, fputc, putc, putchar directly, because these APIs
+   are hard to memorize (fputs, fputc, putc don't take the stream first; puts
+   outputs an extra newline) or redundant (fputc, putc, putchar are special
+   cases of fputs that GCC recognizes anyway). */
+#define fprint(fp,string) fputs(string,fp)
+#define print(string) fputs(string,stdout)
 
 /* A more precise classification of the operating system:
  (This test works only after at least one system header has been included.) */
@@ -10098,7 +10108,7 @@ extern maygc object object_out (object obj);
 extern maygc object nobject_out (FILE* out, object obj);
 #define NOBJECT_OUT(obj,label)                                         \
   (printf("[%s:%d] %s: %s: ",__FILE__,__LINE__,STRING(obj),label),     \
-   nobject_out(stdout,obj), puts(""), fflush(stdout))
+   nobject_out(stdout,obj), print("\n"), fflush(stdout))
 /* used for debugging purposes */
 %% exportF(object,object_out,(object obj));
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
@@ -11295,13 +11305,13 @@ static inline bool gcinvariant_symbol_p (object obj) {
 }
 #endif
 %% #if defined(DEBUG_GCSAFETY)
-%%   printf("static inline bool gcinvariant_symbol_p (object obj) { if (");
+%%   print("static inline bool gcinvariant_symbol_p (object obj) { if (");
 %%   #ifdef TYPECODES
-%%     printf("symbolp(obj)");
+%%     print("symbolp(obj)");
 %%   #else
-%%     printf("varobjectp(obj)");
+%%     print("varobjectp(obj)");
 %%   #endif
-%%   printf(" && (");
+%%   print(" && (");
 %%   #if !defined(MAP_MEMORY_TABLES)
 %%     #ifdef TYPECODES
 %%       printf2("(as_oint(obj) >> %d) - %d", oint_addr_shift-addr_shift, (aint)(tint)symbol_type<<oint_type_shift);
@@ -11309,7 +11319,7 @@ static inline bool gcinvariant_symbol_p (object obj) {
 %%       printf1("as_oint(obj) - %d", varobject_bias);
 %%     #endif
 %%   #else
-%%     printf("as_oint(obj)");
+%%     print("as_oint(obj)");
 %%   #endif
 %%   puts(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }");
 %% #endif

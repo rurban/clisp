@@ -122,7 +122,7 @@ local void interrupt_handler (int sig) { /* sig = SIGINT */
 /* This is the Ctrl-C handler. It is executed in the main thread and must
  not return! */
 global void interrupt_handler (void) {
-  /* puts("Entering interrupt handler."); */
+  /* print("Entering interrupt handler.\n"); */
  #ifdef HAVE_SAVED_STACK
   /* set STACK to a meaningful value: */
   if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }

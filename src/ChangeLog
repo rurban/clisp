@@ -1,3 +1,19 @@
+2017-08-24  Bruno Haible  <bruno@clisp.org>
+
+	For stdio to stdout/stderr, avoid use of fputs and puts.
+	* lispbibl.d (fprint, print): New macros.
+	* lispbibl.d, avl.d, encoding.d, error.d, errunix.d, errwin32.d:
+	* eval.d, genclisph.d, io.d, lightning.c, spvw.d:
+	* spvw_alloca.d, spvw_allocate.d, spvw_allocate_old.d, spvw_debug.d:
+	* spvw_fault.d, spvw_fault_old.d, spvw_garcol.d, spvw_garcol_old.d:
+	* spvw_global.d, spvw_memfile.d, spvw_mmap.d, spvw_sigint.d:
+	* spvw_sigsegv.d, win32aux.d:
+	Replace most uses of fputs, puts, fputc, putc by uses of macros 'print'
+	and 'fprint'.
+	* floatparam.c (print): New macro. Use it instead of puts.
+	* intparam.c (print): New macro. Use it instead of puts.
+	(print_underscored): Renamed from printf_underscored.
+
 2017-08-23  Sam Steingold  <sds@gnu.org>
 
 	* error.d, errunix.d, errwin32.d, eval.d, floatparam.c:

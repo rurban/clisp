@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on Win32
- * Bruno Haible 1997-2003
- * Sam Steingold 1999-2009
+ * Bruno Haible 1997-2005, 2009, 2017
+ * Sam Steingold 1999-2009, 2011
  */
 
 #include "lispbibl.c"
@@ -1104,14 +1104,14 @@ global void DumpProcessMemoryMap (void)
 {
   var MEMORY_BASIC_INFORMATION info;
   var aint address = 0;
-  fputs("Memory dump:\n",stderr);
+  fprint(stderr,"Memory dump:\n");
   while (VirtualQuery((void*)address,&info,sizeof(info)) == sizeof(info)) {
     /* Always info.BaseAddress = address. */
     switch (info.State) {
-      case MEM_FREE:    fputs("-",stderr); break;
-      case MEM_RESERVE: fputs("+",stderr); break;
-      case MEM_COMMIT:  fputs("*",stderr); break;
-      default: fputs("?",stderr); break;
+      case MEM_FREE:    fprint(stderr,"-"); break;
+      case MEM_RESERVE: fprint(stderr,"+"); break;
+      case MEM_COMMIT:  fprint(stderr,"*"); break;
+      default: fprint(stderr,"?"); break;
     }
     fprintf(stderr," 0x%x - 0x%x",(aint)info.BaseAddress,
             (aint)info.BaseAddress+info.RegionSize-1);
@@ -1119,32 +1119,32 @@ global void DumpProcessMemoryMap (void)
       fprintf(stderr," (0x%x) ",(aint)info.AllocationBase);
       /* info.AllocationProtect is apparently irrelevant. */
       switch (info.Protect & ~(PAGE_GUARD|PAGE_NOCACHE)) {
-        case PAGE_READONLY:          fputs(" R  ",stderr); break;
-        case PAGE_READWRITE:         fputs(" RW ",stderr); break;
-        case PAGE_WRITECOPY:         fputs(" RWC",stderr); break;
-        case PAGE_EXECUTE:           fputs("X   ",stderr); break;
-        case PAGE_EXECUTE_READ:      fputs("XR  ",stderr); break;
-        case PAGE_EXECUTE_READWRITE: fputs("XRW ",stderr); break;
-        case PAGE_EXECUTE_WRITECOPY: fputs("XRWC",stderr); break;
-        case PAGE_NOACCESS:          fputs("----",stderr); break;
-        default: fputs("?",stderr); break;
+        case PAGE_READONLY:          fprint(stderr," R  "); break;
+        case PAGE_READWRITE:         fprint(stderr," RW "); break;
+        case PAGE_WRITECOPY:         fprint(stderr," RWC"); break;
+        case PAGE_EXECUTE:           fprint(stderr,"X   "); break;
+        case PAGE_EXECUTE_READ:      fprint(stderr,"XR  "); break;
+        case PAGE_EXECUTE_READWRITE: fprint(stderr,"XRW "); break;
+        case PAGE_EXECUTE_WRITECOPY: fprint(stderr,"XRWC"); break;
+        case PAGE_NOACCESS:          fprint(stderr,"----"); break;
+        default: fprint(stderr,"?"); break;
       }
       if (info.Protect & PAGE_GUARD)
-        fputs(" PAGE_GUARD",stderr);
+        fprint(stderr," PAGE_GUARD");
       if (info.Protect & PAGE_NOCACHE)
-        fputs(" PAGE_NOCACHE",stderr);
-      fputs(" ",stderr);
+        fprint(stderr," PAGE_NOCACHE");
+      fprint(stderr," ");
       switch (info.Type) {
-        case MEM_IMAGE:   fputs("MEM_IMAGE",stderr); break;
-        case MEM_MAPPED:  fputs("MEM_MAPPED",stderr); break;
-        case MEM_PRIVATE: fputs("MEM_PRIVATE",stderr); break;
-        default:          fputs("MEM_?",stderr); break;
+        case MEM_IMAGE:   fprint(stderr,"MEM_IMAGE"); break;
+        case MEM_MAPPED:  fprint(stderr,"MEM_MAPPED"); break;
+        case MEM_PRIVATE: fprint(stderr,"MEM_PRIVATE"); break;
+        default:          fprint(stderr,"MEM_?"); break;
       }
     }
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     address = (aint)info.BaseAddress + info.RegionSize;
   }
-  fputs("End of memory dump.\n",stderr);
+  fprint(stderr,"End of memory dump.\n");
 }
 
 /* file identification for check_file_re_open() */

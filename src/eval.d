@@ -234,9 +234,9 @@ local void check_funtab (void) {
       printf("=FUNTABR[%lu] does NOT accept &rest\n",(unsigned long)i);
     }
   printf("FUNTAB_length=%ld\n",(long)FUNTAB_length);
-  if (FUNTAB_length > 512) puts(" *** - > 512!");
+  if (FUNTAB_length > 512) print(" *** - > 512!\n");
   printf("FUNTABR_length=%ld\n",(long)FUNTABR_length);
-  if (FUNTABR_length > 256) puts(" *** - > 256!");
+  if (FUNTABR_length > 256) print(" *** - > 256!\n");
 }
 #endif
 
@@ -3147,7 +3147,7 @@ local maygc Values eval1 (object form)
     fprintf(stderr,"\n[%s:%d] STACK is not restored: %lu in ",          \
             __FILE__,__LINE__,                                          \
             (unsigned long)STACK_item_count(STACK,stack_before));       \
-    nobject_out(stderr,fun); fputs("\n",stderr);                        \
+    nobject_out(stderr,fun); fprint(stderr,"\n");                       \
     abort();                   /* no -> go to Debugger */               \
   }} while(0)
 #if STACKCHECKS

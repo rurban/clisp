@@ -1795,7 +1795,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
         /* TODO: HANDLE STRINGS */
-        fputs("unsupported type of pinned object !!!\n",stderr);
+        fprint(stderr,"unsupported type of pinned object !!!\n");
         abort();
       }
      #ifndef SPVW_PAGES
@@ -2560,7 +2560,7 @@ local void gar_col_normal (void)
    munmap_failure:
     end_system_call();
     var int errcode = OS_errno;
-    fputs(GETTEXTL("munmap() failed."),stderr);
+    fprint(stderr,GETTEXTL("munmap() failed."));
     errno_out(errcode);
     abort();
   }

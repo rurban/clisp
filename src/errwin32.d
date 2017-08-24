@@ -66,20 +66,20 @@ local void errno_out_body (const char* name, const char* msg) {
   if (msg != NULL)
     fprintf(stderr,": %s",msg);
   else
-    fputc('.',stderr);
+    fprint(stderr,".");
 }
 global void errno_out_low (DWORD errorcode, const char* file, uintL line) {
   fprintf(stderr,"\n[%s:%d] GetLastError() = 0x%x",file,line,errorcode);
   var object code = WINDOWS_error_code_converter(errorcode);
   if (symbolp(code)) { /* known name? */
-    fputs(" (",stderr);
+    fprint(stderr," (");
     nobject_out(stderr,code);
-    fputs(")",stderr);
+    fprint(stderr,")");
   }
   var char* msg = format_message(errorcode);
   if (msg)
     fprintf(stderr,": %s.",msg);
   else
-    fputc('.',stderr);
-  fputc('\n',stderr);
+    fprint(stderr,".");
+  fprint(stderr,"\n");
 }

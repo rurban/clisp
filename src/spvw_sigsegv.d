@@ -23,14 +23,14 @@ local void print_mem_stats (void) {
   var timescore_t tm;
   get_running_times(&tm);
   fprintf(stderr,GETTEXTL("GC count: %lu"),tm.gccount);
-  fputc('\n',stderr);
-  fputs(GETTEXTL("Space collected by GC:"),stderr);
+  fprint(stderr,"\n");
+  fprint(stderr,GETTEXTL("Space collected by GC:"));
  #if defined(intQsize)
   fprintf(stderr," %llu",(unsigned long long)tm.gcfreed);
  #else
   fprintf(stderr," %lu %lu",tm.gcfreed.hi,tm.gcfreed.lo);
  #endif
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
  #if defined(TIME_UNIX)
   #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",(unsigned long)t.tv_sec,(unsigned long)t.tv_usec)
  #elif defined(TIME_WIN32)
@@ -38,22 +38,22 @@ local void print_mem_stats (void) {
  #else
   #error print_mem_stats not implemented
  #endif
-  fputs(GETTEXTL("Run time:"),stderr);
-  PRINT_INTERNAL_TIME(tm.runtime); fputc('\n',stderr);
-  fputs(GETTEXTL("Real time:"),stderr);
-  PRINT_INTERNAL_TIME(tm.realtime); fputc('\n',stderr);
-  fputs(GETTEXTL("GC time:"),stderr);
-  PRINT_INTERNAL_TIME(tm.gctime); fputc('\n',stderr);
+  fprint(stderr,GETTEXTL("Run time:"));
+  PRINT_INTERNAL_TIME(tm.runtime); fprint(stderr,"\n");
+  fprint(stderr,GETTEXTL("Real time:"));
+  PRINT_INTERNAL_TIME(tm.realtime); fprint(stderr,"\n");
+  fprint(stderr,GETTEXTL("GC time:"));
+  PRINT_INTERNAL_TIME(tm.gctime); fprint(stderr,"\n");
  #undef PRINT_INTERNAL_TIME
   fprintf(stderr,GETTEXTL("Permanently allocated: %lu bytes."),
           (unsigned long) static_space());
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   fprintf(stderr,GETTEXTL("Currently in use: %lu bytes."),
           (unsigned long) used_space());
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   fprintf(stderr,GETTEXTL("Free space: %lu bytes."),
           (unsigned long) free_space());
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
 }
 #endif
 
@@ -61,10 +61,10 @@ local void print_mem_stats (void) {
 
 /* Put a breakpoint here if you want to catch CLISP just before it dies. */
 global void sigsegv_handler_failed (void* address) {
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   fprintf(stderr,GETTEXTL("SIGSEGV cannot be cured. Fault address = 0x%lx."),
           address);
-  fputc('\n',stderr);
+  fprint(stderr,"\n");
   print_mem_stats();
 }
 
@@ -177,8 +177,8 @@ local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg
 
 local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   if (emergency) {
-    fputs(GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"),stderr);
-    fputc('\n',stderr);
+    fprint(stderr,GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"));
+    fprint(stderr,"\n");
     print_mem_stats();
   }
   /* Libsigsegv requires handlers to restore the normal signal mask
