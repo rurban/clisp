@@ -48,9 +48,9 @@ local _Noreturn void handle_memory_exhausted (void) {
     /* halved reserve, aligned: shift up the conses by that amount */
     error_memory_exhausted();
   } else { /* yes -> hard error-message */
-    fputc('\n',stderr);
-    fputs(GETTEXTL("*** - " "No more room for LISP objects: RESET"),stderr);
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
+    fprint(stderr,GETTEXTL("*** - " "No more room for LISP objects: RESET"));
+    fprint(stderr,"\n");
     fflush(stderr);
     reset(1); /* and return to the last driver-frame */
   }
@@ -246,8 +246,8 @@ local void make_space_gc_true (uintM need, Heap* heapptr)
       end_system_call();
       if (result >= 0)
         goto sufficient;
-      fputs(GETTEXTL("Trying to make room through a GC..."),stderr);
-      fputc('\n',stderr);
+      fprint(stderr,GETTEXTL("Trying to make room through a GC..."));
+      fprint(stderr,"\n");
     }
     /* not successful */
     if (!done_gc)
@@ -305,8 +305,8 @@ local void make_space_gc_false (uintM need, Heap* heapptr)
       end_system_call();
       if (result >= 0)
         goto sufficient;
-      fputs(GETTEXTL("Trying to make room through a GC..."),stderr);
-      fputc('\n',stderr);
+      fprint(stderr,GETTEXTL("Trying to make room through a GC..."));
+      fprint(stderr,"\n");
     }
     /* not successful */
    failed:
@@ -388,8 +388,8 @@ local void make_space_gc (uintM need, Heap* heapptr)
       end_system_call();
       if (result >= 0)
         goto sufficient;
-      fputs(GETTEXTL("Trying to make room through a GC..."),stderr);
-      fputc('\n',stderr);
+      fprint(stderr,GETTEXTL("Trying to make room through a GC..."));
+      fprint(stderr,"\n");
     }
     /* not successful */
     if (!done_gc)

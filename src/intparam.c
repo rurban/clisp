@@ -1,7 +1,9 @@
 /*
  * Bestimmung einiger Maschinen-Parameter und -Abhängigkeiten
  * und Ausgabe in ein Include-File
- * Bruno Haible 10.9.1991, 12.10.1992, 6.12.1992, 24.10.1993
+ * Bruno Haible 1991-09-10, 1992-10-12, 1992-12-06, 1993-10-24, 1998-2008, 2004,
+ *              2007-2008, 2017
+ * Sam Steingold 2002, 2007-2008, 2017
  *
  * On some systems, <sys/types.h> defines the types uchar, ushort, uint, ulong.
  * In order to avoid this, there are two approaches:
@@ -20,6 +22,9 @@
 #undef uint
 #undef ushort
 #undef uchar
+/* Use printf only for format strings that take at least 1 argument.
+   For literal strings, use print. */
+#define print(string) fputs(string,stdout)
 
 /* Boolean type.  */
 /* Not a typedef because AIX <sys/types.h> already defines boolean_t.  */
@@ -74,7 +79,7 @@ int next_random_bit(void)
   return (random_table[random_position/8] >> (random_position % 8)) & 1;
 }
 
-void printf_underscored (const char* string)
+void print_underscored (const char* string)
 { char c;
   while ((c = *string++) != '\0') { printf("%c",(c==' ' ? '_' : c)); }
 }
@@ -128,8 +133,8 @@ void main1(void) {
   { if (where >= 0) {                                                   \
       printf("/* Integers of type %s have %ld bits. */\n",typestr,(long)where); \
       if (typestr[0] != 'u')                                            \
-        { printf("#define "); printf_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
-      puts("");                                                         \
+        { print("#define "); print_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
+      print("\n");                                                      \
     } else                                                              \
       printf("#error \"Integers of type %s have no binary representation!!\"\n",typestr); \
     if (where != char_bitsize * sizeof(type))                           \
@@ -226,7 +231,7 @@ void main3(void) {
 #ifdef HAVE_LONG_LONG_INT
   compare_integer_representation(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,longlong_ulonglong_same);
 #endif
-  puts("");
+  print("\n");
 }
 
 void main4(void) {
@@ -434,7 +439,7 @@ void main6(void) {
   pointer_bitsize = char_bitsize * sizeof(char*);
   printf("/* Pointers of type %s have %ld bits. */\n","char *",(long)pointer_bitsize);
   printf("#define pointer_bitsize %ld\n",(long)pointer_bitsize);
-  puts("");
+  print("\n");
 }
 
 void main7(void) {
@@ -471,7 +476,7 @@ void main7(void) {
   }
   test_pointer_casts(char*,long*,"char *","long *");
   test_pointer_casts(char*,function*,"char *","function *");
-  puts("");
+  print("\n");
 }
 
 void main8(void) {
@@ -485,14 +490,14 @@ void main8(void) {
     long alignment = (char*)&dummy.dummy2 - (char*)&dummy;              \
     printf("/* Type %s has sizeof = %ld and alignment = %ld. */\n",typestr,(long)sizeof(type),alignment); \
     if (typestr[0] != 'u' && (typestr[string_length(typestr)-1] != '*')) { \
-      printf("#define sizeof_"); printf_underscored(typestr);           \
+      print("#define sizeof_"); print_underscored(typestr);             \
       printf(" %ld\n",(long)sizeof(type));                              \
-      printf("#define alignment_"); printf_underscored(typestr);        \
+      print("#define alignment_"); print_underscored(typestr);          \
       printf(" %ld\n",alignment);                                       \
     }                                                                   \
     if ((alignment & (alignment-1)) != 0)                               \
       printf("#error \"The alignment %ld of type %s is not a power of two!!\"\n",alignment,typestr); \
-    puts("");                                                           \
+    print("\n");                                                        \
   }
   get_alignment(char,"char"); get_alignment(uchar,"unsigned char");
   get_alignment(short,"short"); get_alignment(ushort,"unsigned short");
@@ -532,13 +537,13 @@ void main9(void) {
       }                                                                 \
       if (big_endian && !little_endian) {                               \
         printf("/* Type %s is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */\n",typestr); \
-        printf("#define "); printf_underscored(&typestr[9]);            \
-        puts("_big_endian");                                            \
+        print("#define "); print_underscored(&typestr[9]);              \
+        print("_big_endian\n");                                         \
       }                                                                 \
       if (little_endian && !big_endian) {                               \
         printf("/* Type %s is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */\n",typestr); \
-        printf("#define "); printf_underscored(&typestr[9]);            \
-        puts("_little_endian");                                         \
+        print("#define "); print_underscored(&typestr[9]);              \
+        print("_little_endian\n");                                      \
       }                                                                 \
       if (!big_endian && !little_endian)                                \
         printf("#error \"Type %s is stored in memory in an obscure manner!!\"\n",typestr); \
@@ -552,7 +557,7 @@ void main9(void) {
 #ifdef HAVE_LONG_LONG_INT
   get_endian(ulonglong,"unsigned long long",ulonglong_bitsize);
 #endif
-  puts("");
+  print("\n");
 }
 
 long get_stack_direction(void)
@@ -575,12 +580,12 @@ void main10(void)
 { long stack_direction = get_stack_direction();
   if (stack_direction > 0) {
     printf("/* Stack grows up, ca. %ld bytes per function call. */\n",(long)stack_direction);
-    puts("#define stack_grows_up");
+    print("#define stack_grows_up\n");
   } else if (stack_direction < 0) {
     printf("/* Stack grows down, ca. %ld bytes per function call. */\n",-(long)stack_direction);
-    puts("#define stack_grows_down");
+    print("#define stack_grows_down\n");
   } else
-    puts("#error \"Unknown stack model -- incorrect C semantics!!\"");
+    print("#error \"Unknown stack model -- incorrect C semantics!!\"\n");
 }
 
 int main (int argc, char *argv[]) {

@@ -1978,7 +1978,7 @@ local void gar_col_normal (void)
    munmap_failure:
     end_system_call();
     var int errcode = OS_errno;
-    fputs(GETTEXTL("munmap() failed."),stderr);
+    fprint(stderr,GETTEXTL("munmap() failed."));
     errno_out(errcode);
     abort();
   }

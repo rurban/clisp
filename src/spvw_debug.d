@@ -21,7 +21,7 @@ local void mem_hex_out (const void* buf, uintL count) {
       ptr1++;
     });
     *ptr2 = '\0';
-    fputs(cbuf,stdout);
+    fprint(stdout,cbuf);
     FREE_DYNAMIC_ARRAY(cbuf);
   }
 }
@@ -49,7 +49,7 @@ local void string_out_ (FILE* out, object str, object encoding) {
   var DYNAMIC_ARRAY(buffer,uintB,bytelen+1);
   cstombs(encoding,srcptr,len,buffer,bytelen);
   buffer[bytelen] = 0;
-  fputs((const char*)buffer,out);
+  fprint(out,(const char*)buffer);
   FREE_DYNAMIC_ARRAY(buffer);
 }
 #define string_out(o,s) string_out_(o,s,O(terminal_encoding))
@@ -64,7 +64,7 @@ local void string_out (FILE* out, object str) {
   var uintB* destptr = buffer;
   while (len--) *destptr++ = as_cint(*srcptr++);
   *destptr++ = '\0'; /* append NUL byte */
-  fputs((const char*)buffer,out);
+  fprint(out,(const char*)buffer);
   FREE_DYNAMIC_ARRAY(buffer);
 }
 #endif
@@ -73,51 +73,51 @@ local void string_out (FILE* out, object str) {
  must be enclosed in begin_system_call()/end_system_call() */
 local void nobject_out1 (FILE* out, object obj, int level) {
   if (level) --level;
-  else { fputs("<...>",out); return; }
+  else { fprint(out,"<...>"); return; }
  #define XOUT(x) nobject_out1(out,x,level)
   if (stringp(obj)) {
-    fputc('"',out);
+    fprint(out,"\"");
     string_out(out,obj);
-    fputc('"',out);
+    fprint(out,"\"");
   } else if (charp(obj)) {
     object name = char_name(char_code(obj));
     fprintf(out,"[%c]",(int)as_cint(char_code(obj)));
     if (!nullp(name)) {
-      fputs("=#\\",out);
+      fprint(out,"=#\\");
       string_out(out,name);
     }
   } else if (symbolp(obj)) {
     object symbol = symbol_without_flags(obj);
     object pack = Symbol_package(symbol);
-    if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
-    else if (eq(pack,O(keyword_package))) fputc(':',out);
+    if (nullp(pack)) fprint(out,"#:"); /* uninterned symbol */
+    else if (eq(pack,O(keyword_package))) fprint(out,":");
     else {
       string_out(out,ThePackage(pack)->pack_shortest_name);
-      fputs("::",out);
+      fprint(out,"::");
     }
     string_out(out,Symbol_name(symbol));
   } else if (simple_vector_p(obj)) {
     uintL len = vector_length(obj);
     uintL elt_index = 0;
-    fputs("#(",out);
+    fprint(out,"#(");
     while (elt_index < len) {
-      if (elt_index) fputc(' ',out);
+      if (elt_index) fprint(out," ");
       XOUT(TheSvector(obj)->data[elt_index++]);
     }
-    fputc(')',out);
+    fprint(out,")");
   } else if (consp(obj)) {
-    fputc('(',out);
+    fprint(out,"(");
     while (1) {
       XOUT(Car(obj));
       obj = Cdr(obj);
       if (atomp(obj)) break;
-      fputc(' ',out);
+      fprint(out," ");
     }
     if (!nullp(obj)) {
-      fputs(" . ",out);
+      fprint(out," . ");
       XOUT(obj);
     }
-    fputc(')',out);
+    fprint(out,")");
   } else if (arrayp(obj)) {
     fprintf(out,"#<array %lu",(unsigned long)Array_type(obj));
     if (mdarrayp(obj))
@@ -126,7 +126,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       fprintf(out," len=%lu",(unsigned long)vector_length(obj));
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (functionp(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     if (subrp(obj)) {
       string_out(out, (((as_oint(subr_tab_ptr_as_object(&subr_tab)) <=
                          as_oint(obj))
@@ -136,7 +136,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       obj = TheSubr(obj)->name;
     } else if (cclosurep(obj)) {
       if (Closure_instancep(obj))
-        fputs("FUNCALLABLE-INSTANCE",out);
+        fprint(out,"FUNCALLABLE-INSTANCE");
       else
         string_out(out, O(printstring_compiled_closure));
       obj = Closure_name(obj);
@@ -153,18 +153,18 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       string_out(out,O(printstring_closure));
       obj = TheIclosure(obj)->clos_name;
     }
-    fputc(' ',out);
+    fprint(out," ");
     XOUT(obj);
-    fputc('>',out);
+    fprint(out,">");
   } else if (fsubrp(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     string_out(out,O(printstring_fsubr));
-    fputc(' ',out);
+    fprint(out," ");
     XOUT(TheFsubr(obj)->name);
-    fputc('>',out);
+    fprint(out,">");
   } else if (pathnamep(obj)) {
-    fputs("#(",out); XOUT(S(pathname));
-   #define SLOT(s) fputc(' ',out); XOUT(S(K##s)); fputc(' ',out); \
+    fprint(out,"#("); XOUT(S(pathname));
+   #define SLOT(s) fprint(out," "); XOUT(S(K##s)); fprint(out," "); \
      XOUT(ThePathname(obj)->pathname_##s)
    #if HAS_HOST
     SLOT(host);
@@ -174,23 +174,23 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #endif
     SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
    #undef SLOT
-    fputs(")",out);
+    fprint(out,")");
   } else if (logpathnamep(obj)) {
-    fputs("#(",out); XOUT(S(logical_pathname));
-   #define SLOT(s) fputc(' ',out); XOUT(S(K##s)); fputc(' ',out); \
+    fprint(out,"#("); XOUT(S(logical_pathname));
+   #define SLOT(s) fprint(out," "); XOUT(S(K##s)); fprint(out," "); \
      XOUT(TheLogpathname(obj)->pathname_##s)
     SLOT(host); SLOT(directory); SLOT(name); SLOT(type); SLOT(version);
    #undef SLOT
-    fputc(')',out);
+    fprint(out,")");
   } else if (hash_table_p(obj)) {
-    fputs("#(",out); XOUT(S(hash_table));
+    fprint(out,"#("); XOUT(S(hash_table));
     fprintf(out," size=%lu maxcount=%lu mincount=%lu\n",
             (unsigned long)TheHashtable(obj)->ht_size,
             (unsigned long)posfixnum_to_V(TheHashtable(obj)->ht_maxcount),
             (unsigned long)posfixnum_to_V(TheHashtable(obj)->ht_mincount));
-    fputs("  test=",out);
+    fprint(out,"  test=");
     if (ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(obj))))) {
-      XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
+      XOUT(TheHashtable(obj)->ht_test); fprint(out,"/");
       XOUT(TheHashtable(obj)->ht_hash);
     } else {
       switch (ht_test_code(record_flags(TheHashtable(obj))) & (bit(1)|bit(0))) {
@@ -201,87 +201,87 @@ local void nobject_out1 (FILE* out, object obj, int level) {
         default: abort();
       }
     }
-    fputs("\n  KV=",out); XOUT(TheHashtable(obj)->ht_kvtable);
-    fputc(')',out);
+    fprint(out,"\n  KV="); XOUT(TheHashtable(obj)->ht_kvtable);
+    fprint(out,")");
   } else if (packagep(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     string_out(out,O(printstring_package));
-    fputc(' ',out);
+    fprint(out," ");
     string_out(out,ThePackage(obj)->pack_name);
-    fputc('>',out);
+    fprint(out,">");
   } else if (weakpointerp(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     string_out(out,O(printstring_weakpointer));
-    fputc(' ',out);
+    fprint(out," ");
     XOUT(TheWeakpointer(obj)->wp_value);
-    fputc(' ',out);
-    if (weakpointerp(TheWeakpointer(obj)->wp_cdr)) fputs("#<next wp>",out);
+    fprint(out," ");
+    if (weakpointerp(TheWeakpointer(obj)->wp_cdr)) fprint(out,"#<next wp>");
     else XOUT(TheWeakpointer(obj)->wp_cdr);
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (fpointerp(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     if (!fp_validp(TheFpointer(obj))) string_out(out,O(printstring_invalid));
     string_out(out,O(printstring_fpointer));
     fprintf(out," 0x%lx>",(uintP)TheFpointer(obj)->fp_pointer);
   } else if (structurep(obj)) {
     uintL ii;
-    fputs("#<structure",out);
+    fprint(out,"#<structure");
     for(ii=0; ii<Structure_length(obj); ii++) {
-      fputc(' ',out);
+      fprint(out," ");
       XOUT(TheStructure(obj)->recdata[ii]);
     }
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (instancep(obj)) {
-    fputs("#<instance ",out);
+    fprint(out,"#<instance ");
     XOUT(TheInstance(obj)->inst_class_version);
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (fixnump(obj)) fprintf(out,"%ld",fixnum_to_V(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
-  else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
+  else if (eq(obj,nullobj))   fprint(out,"#<NULLOBJ>");
   else if (eq(obj,disabled))  string_out(out,O(printstring_disabled_pointer));
   else if (eq(obj,specdecl))  string_out(out,O(printstring_special_reference));
   else if (eq(obj,eof_value)) string_out(out,O(printstring_eof));
   else if (eq(obj,dot_value)) string_out(out,O(printstring_dot));
 #if defined(DYNAMIC_FFI)
   else if (faddressp(obj)) {
-    fputs("#<",out);
+    fprint(out,"#<");
     if (!fp_validp(TheFpointer(TheFaddress(obj)->fa_base)))
       string_out(out,O(printstring_invalid));
-    string_out(out,O(printstring_faddress)); fputs(" ",out);
+    string_out(out,O(printstring_faddress)); fprint(out," ");
     XOUT(TheFaddress(obj)->fa_base);
     fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
   }
 #endif
   else if (framepointerp(obj)) {
-    fputs("#<frame ",out);
+    fprint(out,"#<frame ");
     switch (framecode(obj)) {
-      case DYNBIND_frame_info: fputs("DYNBIND",out); break;
-      case ENV1V_frame_info: fputs("ENV1V",out); break;
-      case ENV1F_frame_info: fputs("ENV1F",out); break;
-      case ENV1B_frame_info: fputs("ENV1B",out); break;
-      case ENV1G_frame_info: fputs("ENV1G",out); break;
-      case ENV1D_frame_info: fputs("ENV1D",out); break;
-      case ENV2VD_frame_info: fputs("ENV2VD",out); break;
-      case ENV5_frame_info: fputs("ENV5",out); break;
+      case DYNBIND_frame_info: fprint(out,"DYNBIND"); break;
+      case ENV1V_frame_info: fprint(out,"ENV1V"); break;
+      case ENV1F_frame_info: fprint(out,"ENV1F"); break;
+      case ENV1B_frame_info: fprint(out,"ENV1B"); break;
+      case ENV1G_frame_info: fprint(out,"ENV1G"); break;
+      case ENV1D_frame_info: fprint(out,"ENV1D"); break;
+      case ENV2VD_frame_info: fprint(out,"ENV2VD"); break;
+      case ENV5_frame_info: fprint(out,"ENV5"); break;
      #ifdef HAVE_SAVED_REGISTERS
-      case CALLBACK_frame_info: fputs("CALLBACK",out); break;
+      case CALLBACK_frame_info: fprint(out,"CALLBACK"); break;
      #endif
-      case VAR_frame_info: fputs("VAR",out); break;
-      case FUN_frame_info: fputs("FUN",out); break;
-      case IBLOCK_frame_info: fputs("IBLOCK",out); break;
-      case NESTED_IBLOCK_frame_info: fputs("NESTED_IBLOCK",out); break;
-      case ITAGBODY_frame_info: fputs("ITAGBODY",out); break;
-      case NESTED_ITAGBODY_frame_info: fputs("NESTED_ITAGBODY",out); break;
-      case CBLOCK_CTAGBODY_frame_info: fputs("CBLOCK_CTAGBODY",out); break;
-      case APPLY_frame_info: fputs("APPLY",out); break;
-      case TRAPPED_APPLY_frame_info: fputs("TRAPPED_APPLY",out); break;
-      case EVAL_frame_info: fputs("EVAL",out); break;
-      case TRAPPED_EVAL_frame_info: fputs("TRAPPED_EVAL",out); break;
-      case CATCH_frame_info: fputs("CATCH",out); break;
-      case HANDLER_frame_info: fputs("HANDLER",out); break;
-      case UNWIND_PROTECT_frame_info: fputs("UNWIND_PROTECT",out); break;
-      case DRIVER_frame_info: fputs("DRIVER",out); break;
-      default: fputs("**UNKNOWN**",out);
+      case VAR_frame_info: fprint(out,"VAR"); break;
+      case FUN_frame_info: fprint(out,"FUN"); break;
+      case IBLOCK_frame_info: fprint(out,"IBLOCK"); break;
+      case NESTED_IBLOCK_frame_info: fprint(out,"NESTED_IBLOCK"); break;
+      case ITAGBODY_frame_info: fprint(out,"ITAGBODY"); break;
+      case NESTED_ITAGBODY_frame_info: fprint(out,"NESTED_ITAGBODY"); break;
+      case CBLOCK_CTAGBODY_frame_info: fprint(out,"CBLOCK_CTAGBODY"); break;
+      case APPLY_frame_info: fprint(out,"APPLY"); break;
+      case TRAPPED_APPLY_frame_info: fprint(out,"TRAPPED_APPLY"); break;
+      case EVAL_frame_info: fprint(out,"EVAL"); break;
+      case TRAPPED_EVAL_frame_info: fprint(out,"TRAPPED_EVAL"); break;
+      case CATCH_frame_info: fprint(out,"CATCH"); break;
+      case HANDLER_frame_info: fprint(out,"HANDLER"); break;
+      case UNWIND_PROTECT_frame_info: fprint(out,"UNWIND_PROTECT"); break;
+      case DRIVER_frame_info: fprint(out,"DRIVER"); break;
+      default: fprint(out,"**UNKNOWN**");
     }
     fprintf(out," %lu>",
             (unsigned long)STACK_item_count(uTheFramepointer(obj),(gcv_object_t*)STACK_start));
@@ -292,18 +292,18 @@ local void nobject_out1 (FILE* out, object obj, int level) {
             (unsigned long)Stream_xlength(obj),
             (unsigned long)strm_len);
     switch (TheStream(obj)->strmtype) {
-      case strmtype_pphelp: fputs(" pretty-print-help",out);
-        fputs(" modus=",out); XOUT(TheStream(obj)->strm_pphelp_modus);
-        fputs(" lpos=",out); XOUT(TheStream(obj)->strm_pphelp_lpos);
-        fputs(" strings=",out); XOUT(TheStream(obj)->strm_pphelp_strings);
+      case strmtype_pphelp: fprint(out," pretty-print-help");
+        fprint(out," modus="); XOUT(TheStream(obj)->strm_pphelp_modus);
+        fprint(out," lpos="); XOUT(TheStream(obj)->strm_pphelp_lpos);
+        fprint(out," strings="); XOUT(TheStream(obj)->strm_pphelp_strings);
         break;
-      case strmtype_file: fputs(" file",out);
-        fputs(" name=",out); XOUT(TheStream(obj)->strm_file_name);
-        fputs(" truename=",out); XOUT(TheStream(obj)->strm_file_truename);
+      case strmtype_file: fprint(out," file");
+        fprint(out," name="); XOUT(TheStream(obj)->strm_file_name);
+        fprint(out," truename="); XOUT(TheStream(obj)->strm_file_truename);
         fprintf(out," channel=%d",
                 TheHandle(TheStream(obj)->strm_buffered_channel));
-        fputs(" eltype=",out); XOUT(TheStream(obj)->strm_eltype);
-        fputs(" encoding=",out); XOUT(TheStream(obj)->strm_encoding);
+        fprint(out," eltype="); XOUT(TheStream(obj)->strm_eltype);
+        fprint(out," encoding="); XOUT(TheStream(obj)->strm_encoding);
         break;
       default: {
         int ii=0;
@@ -315,11 +315,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     }
     fprintf(out," 0x%lx>",as_oint(obj));
   } else if (encodingp(obj)) {
-    fputs("#<encoding eol=",out); XOUT(TheEncoding(obj)->enc_eol);
-    fputs(" wce=",out); XOUT(TheEncoding(obj)->enc_towcs_error);
-    fputs(" mbe=",out); XOUT(TheEncoding(obj)->enc_tombs_error);
+    fprint(out,"#<encoding eol="); XOUT(TheEncoding(obj)->enc_eol);
+    fprint(out," wce="); XOUT(TheEncoding(obj)->enc_towcs_error);
+    fprint(out," mbe="); XOUT(TheEncoding(obj)->enc_tombs_error);
    #ifdef ENABLE_UNICODE
-    fputs(" cs=",out); XOUT(TheEncoding(obj)->enc_charset);
+    fprint(out," cs="); XOUT(TheEncoding(obj)->enc_charset);
    #endif
     fprintf(out," 0x%lx>",as_oint(obj));
   }
@@ -373,7 +373,7 @@ local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
                                             top_of_back_trace_frame(bt->bt_next)),
             (((long)((char*)(bt->bt_next) - (char*)bt) ^ SPoffset) - SPoffset)
             / sizeof(SPint));
-  fputc('\n',out); fflush(out);
+  fprint(out,"\n"); fflush(out);
 }
 
 /* print the whole backtrace stack */
@@ -387,7 +387,7 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
     bt_out(out,bt_fast,bt_index++); bt_fast = bt_fast->bt_next;
     if (bt_fast == bt_slow) {
      circular:
-      fputs("*** error: backtrace circularity detected!\n",out);
+      fprint(out,"*** error: backtrace circularity detected!\n");
       bt_index = -bt_index;
       break;
     }
@@ -488,7 +488,7 @@ local void venv_out (FILE *out, object venv) { /* cf eval.d:symbol_env_search */
   begin_system_call();
   if (out == NULL) out = stdout;
  next_env:
-  nobject_out(out,venv); fputc('\n',out);
+  nobject_out(out,venv); fprint(out,"\n");
   if (framepointerp(venv)) {
      var gcv_object_t* FRAME = TheFramepointer(venv);
      var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
@@ -501,7 +501,7 @@ local void venv_out (FILE *out, object venv) { /* cf eval.d:symbol_env_search */
        #else
         nobject_out(out,*(bindingsptr STACKop 0));
        #endif
-        fputc('\n',out);
+        fprint(out,"\n");
         bindingsptr skipSTACKop varframe_binding_size; /* no: next binding */
       } while (--count);
     }

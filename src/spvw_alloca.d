@@ -43,13 +43,13 @@ global void* malloca (size_t size)
     malloca_list = ptr;
     return &ptr->usable_memory;
   } else {
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
    #ifdef VIRTUAL_MEMORY
-    fputs(GETTEXTL("*** - " "Virtual memory exhausted. RESET"),stderr);
+    fprint(stderr,GETTEXTL("*** - " "Virtual memory exhausted. RESET"));
    #else
-    fputs(GETTEXTL("*** - " "Memory exhausted. RESET"),stderr);
+    fprint(stderr,GETTEXTL("*** - " "Memory exhausted. RESET"));
    #endif
-    fputc('\n',stderr);
+    fprint(stderr,"\n");
     fflush(stderr);
     reset(1);
   }
