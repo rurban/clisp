@@ -3013,7 +3013,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %% #endif
 
 /* Integer type for typebits: */
-/* Use a #if cascade because oint_type_len may expand to an parenthezised expression. */
+/* Use a #if cascade because oint_type_len may expand to an parenthesized expression. */
 #if oint_type_len <= 8
 typedef uint8  tint;
 #elif oint_type_len <= 16
@@ -3032,8 +3032,11 @@ typedef unsigned_int_with_n_bits(oint_type_len)  tint;
 %% #endif
 
 /* Integer type for addresses: */
-/* Use a #if cascade because oint_addr_len may expand to an parenthezised expression. */
-#if oint_addr_len <= 8
+/* Use a #if cascade because oint_addr_len may expand to an parenthesized expression. */
+#if defined(WIDE_HARD)
+typedef uint64  aint;
+typedef sint64  saint;
+#elif oint_addr_len <= 8
 typedef uint8  aint;
 typedef sint8  saint;
 #elif oint_addr_len <= 16
@@ -3049,7 +3052,7 @@ typedef sint64  saint;
 typedef unsigned_int_with_n_bits(oint_addr_len)  aint;
 typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
-%% #if oint_addr_len > 32 && oint_addr_len <= 64
+%% #if defined(WIDE_HARD) || (oint_addr_len > 32 && oint_addr_len <= 64)
 %% sprintf(buf,"uint64"); emit_typedef(buf,"aint");
 %% #if notused
 %% sprintf(buf,"sint64"); emit_typedef(buf,"saint");
