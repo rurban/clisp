@@ -391,6 +391,13 @@
   #define UNIX_DARWIN  /* MacOS X, a.k.a. Darwin */
 #endif
 
+/* On Linux/arm64, MALLOC_ADDRESS_RANGE comes out as a value < 1*2^32, but
+   for larger malloc()s, the address can be around 0x20*2^32 or 0x7F*2^32. */
+#if defined(UNIX_LINUX) && defined(ARM64)
+  #undef MALLOC_ADDRESS_RANGE
+  #define MALLOC_ADDRESS_RANGE STACK_ADDRESS_RANGE
+#endif
+
 
 /* Choose the character set: */
 #if defined(UNIX) || defined(WIN32)
@@ -2901,6 +2908,25 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len oint_addr_len
       #define oint_data_mask oint_addr_mask
     #endif
+    #if defined(ARM64) && defined(UNIX_LINUX)
+      /* UNIX_LINUX:
+           CODE_ADDRESS_RANGE     0x0000000000000000UL
+           MALLOC_ADDRESS_RANGE   0x000000000E000000UL (varies, < 2^32)
+           SHLIB_ADDRESS_RANGE    0x0000002000000000UL
+           STACK_ADDRESS_RANGE    0x0000007FF0000000UL
+           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                  0x0000007FFFFFFFFFUL
+         Bits 63..48 = type code, Bits 47..0 = address */
+      #define oint_type_shift 48
+      #define oint_type_len 16
+      #define oint_type_mask 0xFFFF000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 48
+      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+      #define oint_data_shift oint_addr_shift
+      #define oint_data_len oint_addr_len
+      #define oint_data_mask oint_addr_mask
+    #endif
   #endif
 #elif defined(WIDE_SOFT)
   /* separate one 32-bit word for typcode and address. */
@@ -3950,7 +3976,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if defined(I80386) || defined(POWERPC) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)

@@ -1317,6 +1317,13 @@ if [ $XCC_GCC = true ] ; then
         ;;
     esac
   fi
+  # On arm64, gcc 4.8.4 with binutils 2.24 produces code that, when TYPECODES
+  # is used, leads to a link error when linking lisp.run:
+  #   relocation truncated to fit: R_AARCH64_ADR_PREL_PG_HI21 against symbol `symbol_tab_data' defined in .data section in spvwtabs.o
+  # The option -fPIC is a workaround.
+  if [ "$cpu" = arm64 ] ; then
+    XCFLAGS=$XCFLAGS' -fPIC'
+  fi
   if [ $TSYS = win32gcc ] ; then
     XCFLAGS=$XCFLAGS' -D_WIN32'
   fi
