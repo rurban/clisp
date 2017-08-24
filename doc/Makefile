@@ -268,10 +268,11 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 mop-classes.png : mop-classes.dot
 	dot -Tpng mop-classes.dot -o mop-classes.png
 
-UPLOAD = impnotes.css clisp.png
-up: impnotes.html html impnotes.css
-	$(CHMOD) $^ $(UPLOAD)
-	$(RSYNC) $^ $(UPLOAD) $(DIST_SFBETA)
+up: impnotes.html html
+	mv html impnotes
+	$(CHMOD) impnotes.html impnotes
+	$(RSYNC) impnotes.html impnotes $(DIST_SFBETA)
+	mv impnotes html
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
