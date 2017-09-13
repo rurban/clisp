@@ -793,7 +793,7 @@ executes the compiled version of &form-r;.<programlisting language="lisp">
  to &make-package; is &cl-pac;, the standard &clos; symbols are normally
  visible in all user-defined packages.
  If you do not want them (for example, if you want to use the
- <ulink url="ftp://ftp.gnu.org/pub/gnu/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
+ <ulink url="https://ftp.gnu.org/pub/gnu/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
 <programlisting language="lisp">
 (&defpackage; "CL-NO-CLOS" (:use "CL"))
