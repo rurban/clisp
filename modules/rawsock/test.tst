@@ -106,7 +106,7 @@
       (error (e) (show (list 'my-bind sock sa e (princ-to-string e)) :pretty t))))
   T) T
 
-(progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
+(progn (setq *sa-remote* (host->sa "ftp.gnu.org" 80)) T) T
 (progn (setq *sa-local* (host->sa :default)) T) T
 
 (catch 'type-error-handler
