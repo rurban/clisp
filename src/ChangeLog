@@ -1,3 +1,17 @@
+2017-09-19  Bruno Haible  <bruno@clisp.org>
+
+	Avoid build failure in clx/new-clx module in WIDE_SOFT model.
+	Reported and fix proposed by Sébastien Villemot in
+	<https://sourceforge.net/p/clisp/patches/51/>.
+	The cause is that export_def is not 100% hygienic: It outputs a
+	definition with all occurring macros pre-expanded. Therefore the macro
+	argument names must be different from all identifiers that may be
+	pulled in by macro expansion of the occurring macros.
+	* lispbibl.d (cstombs_help_): Rename argument 'A' to 'asserter'.
+	(with_string_0_help_, with_sstring_0_help_): Rename argument 'A' to
+	'asserter', 'NR' to 'notreached'.
+	(unpack_sstring_alloca_help_): Rename argument 'u' to 'notreached'.
+
 2017-09-10  Bruno Haible  <bruno@clisp.org>
 
 	Use newest libffcall.
