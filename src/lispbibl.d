@@ -6508,18 +6508,18 @@ typedef struct {
 #ifdef ENABLE_UNICODE
   #define cslen(encoding,src,srclen)  \
     Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))
-  #define cstombs_help_(encoding,src,srclen,dest,destlen,A)         \
+  #define cstombs_help_(encoding,src,srclen,dest,destlen,asserter)  \
     do { var const chart* _srcptr = (src);                          \
       var const chart* _srcendptr = _srcptr+(srclen);               \
       var uintB* _destptr = (dest);                                 \
       var uintB* _destendptr = _destptr+(destlen);                  \
       Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); \
-      A((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
+      asserter((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
     } while(0)
 #else
   #define cslen(encoding,src,srclen)  (srclen)
-  #define cstombs_help_(encoding,src,srclen,dest,destlen,A)           \
-    do { A((srclen) == (destlen));                                   \
+  #define cstombs_help_(encoding,src,srclen,dest,destlen,asserter)  \
+    do { asserter((srclen) == (destlen));                           \
          begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
     } while(0)
 #endif
@@ -6536,7 +6536,7 @@ typedef struct {
 %%  export_def(Encoding_wcstombs(encoding));
 %% #endif
 %% export_def(cslen(encoding,src,srclen));
-%% export_def(cstombs_help_(encoding,src,srclen,dest,destlen,A));
+%% export_def(cstombs_help_(encoding,src,srclen,dest,destlen,asserter));
 %% puts("#define cstombs(encoding,src,srclen,dest,destlen)  cstombs_help_(encoding,src,srclen,dest,destlen,ASSERT)");
 
 #ifdef FOREIGN
@@ -13502,15 +13502,15 @@ extern maygc object ascii_to_string (const char * asciz);
     } while(0)
   #define with_sstring_0  with_string_0
 #else
-  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,A,NR) \
+  #define with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,asserter,notreached) \
     do { var uintL ascizvar_len;                                        \
       var uintL ascizvar_offset;                                        \
       var object ascizvar_string = unpack_string_ro(string,&ascizvar_len,&ascizvar_offset); \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=,NR); \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,ascizvar_offset, ptr1=,notreached); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,A); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,asserter); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
@@ -13518,15 +13518,15 @@ extern maygc object ascii_to_string (const char * asciz);
     }} while(0)
   #define with_string_0(string,encoding,ascizvar,statement) \
     with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,ASSERT,NOTREACHED)
-  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,A,NR) \
+  #define with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,asserter,notreached) \
     do { var object ascizvar_string = (string);                         \
       sstring_un_realloc(ascizvar_string);                              \
      {var uintL ascizvar_len = Sstring_length(ascizvar_string);         \
       var const chart* ptr1;                                            \
-      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,0, ptr1=,NR); \
+      unpack_sstring_alloca_help_(ascizvar_string,ascizvar_len,0, ptr1=,notreached); \
      {var uintL ascizvar_bytelen = cslen(encoding,ptr1,ascizvar_len);   \
       var DYNAMIC_ARRAY(ascizvar_data,uintB,ascizvar_bytelen+1);        \
-      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,A); \
+      cstombs_help_(encoding,ptr1,ascizvar_len,&ascizvar_data[0],ascizvar_bytelen,asserter); \
       ascizvar_data[ascizvar_bytelen] = '\0';                           \
      {var char* ascizvar = (char*) &ascizvar_data[0];                   \
       statement}                                                        \
@@ -13536,8 +13536,8 @@ extern maygc object ascii_to_string (const char * asciz);
     with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,ASSERT,NOTREACHED)
 #endif
 /* is used by PATHNAME, MISC, FOREIGN */
-%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,A,NR));
-%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,A,NR));
+%% export_def(with_string_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_offset,ascizvar_string,ascizvar_bytelen,ascizvar_data,asserter,notreached));
+%% export_def(with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar_len,ascizvar_string,ascizvar_bytelen,ascizvar_data,asserter,notreached));
 %% /* cannot use emit_define because Rectype_* is not a define in lispbibl.d */
 %% puts("#define with_string_0(string,encoding,ascizvar,statement) with_string_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_offset,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,ASSERT,NOTREACHED)");
 %% puts("#define with_sstring_0(string,encoding,ascizvar,statement) with_sstring_0_help_(string,encoding,ascizvar,statement,ascizvar##_len,ascizvar##_string,ascizvar##_bytelen,ascizvar##_data,ASSERT,NOTREACHED)");
@@ -14277,9 +14277,9 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
  < const chart* charptr: pointer to the characters
    (may be in string, may be on the stack) */
 #ifdef HAVE_SMALL_SSTRING
-  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
+  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,notreached) \
     if (simple_nilarray_p(string)) {                                           \
-      if ((len) > 0) error_nilarray_retrieve();                               \
+      if ((len) > 0) error_nilarray_retrieve();                                \
       charptr_assignment NULL;                                                 \
     } else if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) {      \
       charptr_assignment (const chart*) &TheS32string(string)->data[offset];   \
@@ -14288,17 +14288,17 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
       if ((len) > 0) {                                                         \
         if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit)           \
           copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);\
-        else if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) \
+        else if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit)       \
           copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);\
         else                                                                   \
-          u;                                                            \
+          notreached;                                                          \
       }                                                                        \
       charptr_assignment (const chart*) _unpacked_;                            \
     }
 #else
-  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
+  #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,notreached) \
     if (simple_nilarray_p(string)) {                                           \
-      if ((len) > 0) error_nilarray_retrieve();                               \
+      if ((len) > 0) error_nilarray_retrieve();                                \
       charptr_assignment NULL;                                                 \
     } else {                                                                   \
       charptr_assignment (const chart*) &TheSnstring(string)->data[offset];    \
@@ -14307,7 +14307,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 #define unpack_sstring_alloca(string,len,offset,charptr_assignment)     \
   unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,NOTREACHED)
 /* is used by */
-%% export_def(unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u));
+%% export_def(unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,notreached));
 %% puts("#define unpack_sstring_alloca(s,l,o,c) unpack_sstring_alloca_help_(s,l,o,c,NOTREACHED)");
 
 /* UP: Fetches a character from a simple string.
