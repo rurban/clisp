@@ -5,8 +5,7 @@
 
 (in-package "EXT")
 
-(export '(clhs clhs-root read-from-file browse-url open-http with-http-input
-          http-proxy))
+(export '(clhs clhs-root browse-url open-http with-http-input http-proxy))
 
 (in-package "SYSTEM")
 
@@ -39,35 +38,6 @@
 `~a' will be replaced with the URL to view.")
 (defvar *browser* nil
   "The default browser - a key in `*browsers*' or a list of strings.")
-
-(defun start-message (out caller file size &optional (units "bytes"))
-  (when out
-    (format out "~&;; ~S(~A): ~:D ~A..." caller file size units)
-    (force-output (if (eq out t) *standard-output* out))))
-
-(defun read-from-file (file &key (out *standard-output*) (package "KEYWORD")
-                       repeat)
-  "Read an object from a file.
-The keyword argument PACKAGE specifies the package to read in.
-The keyword argument OUT specifies the output for log messages.
-The keyword argument REPEAT specifies how many objects to read:
- If NIL (default), read once and return the object read;
- if a number, read that many times and return a list of objects read,
- if T, read until end of file and return a list of objects read"
-  (let ((beg-real (get-internal-real-time)))
-    (prog1 (with-open-file (str file :direction :input)
-             (start-message out 'read-from-file file (file-length str))
-             (with-standard-io-syntax
-               (let ((*package* (find-package package)))
-                 (cond ((null repeat) (read str))
-                       ((numberp repeat)
-                        (loop :repeat repeat :collect (read str)))
-                       (t (loop :for obj = (read str nil str)
-                            :until (eq obj str) :collect obj))))))
-      (when out
-        (format out "done [~,2f sec]~%"
-                (/ (- (get-internal-real-time) beg-real)
-                   internal-time-units-per-second))))))
 
 (defun browse-url (url &key (browser *browser*) (out *standard-output*))
   "Run the browser (a keyword in *BROWSERS* or a list) on the URL."
