@@ -1,4 +1,5 @@
 ;;; Sam Steingold 2000-2008, 2010-2011
+;;; Bruno Haible 2017
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
@@ -235,6 +236,22 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 ;;   (setf (documentation foo 'sys::impnotes) "bar")
 ;;   "bar" is the URL sans (clhs-root) and (impnotes-root)
 
+;; (clhs-root) is defined in cfgunix.lisp or cfgwin32.lisp.
+;; The CLHS is not free documentation: the legal notices state that it must
+;; not be "made or distributed or displayed or transmitted for direct
+;; commercial advantage". Therefore neither Linux distros nor CLISP source
+;; or binary packages may include it. Instead, the only options to use it are:
+;; * Reference it on the web. The most common (official) URLs are
+;;   (1996) http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/FrontMatter/
+;;          http://cliki.net/site/HyperSpec/FrontMatter/index.html
+;;   (2001) http://yon.maclisp.org/clhs/HyperSpec/Front/
+;;   (2005) http://www.lispworks.com/documentation/HyperSpec/Front/
+;;          http://clhs.lisp.se/Front/index.htm
+;; * Let the user download it as a complete package and install it in their
+;;   file system.
+;;   Download location:
+;;   ftp://ftp.lispworks.com/pub/software_tools/reference/HyperSpec-7-0.tar.gz
+
 (defun get-clhs-map (stream)
   "Download and install the CLHS map."
   (format *http-log-stream* "~&;; ~S(~S)..." 'get-clhs-map stream)
@@ -260,20 +277,33 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (let ((clhs-root (clhs-root)))
     (when (and clhs-root (string/= clhs-map-source clhs-root))
       (setq clhs-map-source clhs-root)
-      ;; there are two version of CLHS available:
-      ;; cf http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
-      ;; vs http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
-      ;; we support both.
-      ;; is you are scared of the 404 errors on the screen,
+      ;; The symbol map exists under different names:
+      ;;   (1996) http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
+      ;;          http://cliki.net/site/HyperSpec/Data/Symbol-Table.text
+      ;;   (2001) http://yon.maclisp.org/clhs/HyperSpec/Data/Map_Sym.txt
+      ;;   (2005) http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
+      ;;          http://clhs.lisp.se/Data/Map_Sym.txt
+      ;; We support both names.
+      ;; If you are scared of logging on the screen,
       ;; bind or set *HTTP-LOG-STREAM*
-      (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
-                               (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
-        (unless s
-          (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
-                'clhs-root clhs-root '(getenv "CLHSROOT")
-                '*clhs-root-default* '*http-proxy*)
-          (return-from ensure-clhs-map))
-        (get-clhs-map s))
+      (flet ((get-map-1996 ()
+               (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil))
+             (get-map-2001 ()
+               (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)))
+        (with-open-stream (s (cond ((or (search "ai.mit.edu/" clhs-root)
+                                        (search "cliki.net/" clhs-root))
+                                    (get-map-1996))
+                                   ((or (search "maclisp.org/" clhs-root)
+                                        (search "lispworks.com/" clhs-root)
+                                        (search "lisp.se/" clhs-root))
+                                    (get-map-2001))
+                                   (t (or (get-map-1996) (get-map-2001)))))
+          (unless s
+            (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
+                  'clhs-root clhs-root '(getenv "CLHSROOT")
+                  '*clhs-root-default* '*http-proxy*)
+            (return-from ensure-clhs-map))
+          (get-clhs-map s)))
       (setq clhs-map-good t))
     (and clhs-map-good clhs-root))))
 (defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
