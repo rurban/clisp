@@ -1,3 +1,9 @@
+2017-09-20  Bruno Haible  <bruno@clisp.org>
+
+	Retrieve the CLHS symbol map in one step, in most cases.
+	* clhs.lisp (ensure-clhs-map): Use the domain name as a guidance which
+	map file name to try.
+
 2017-09-19  Bruno Haible  <bruno@clisp.org>
 
 	Avoid build failure in clx/new-clx module in WIDE_SOFT model.
