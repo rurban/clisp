@@ -268,13 +268,18 @@ You must call (destroy-problem ret) yourself!
     (foreign-free problem :full t)
     (setf (validp problem) nil)))
 
+(defun start-message (out caller file size &optional (units "bytes"))
+  (when out
+    (format out "~&;; ~S(~A): ~:D ~A..." caller file size units)
+    (force-output (if (eq out t) *standard-output* out))))
+
 (defun load-problem (file &key (log *standard-output*))
   "Load the `problem' object from a standard libsvm/svmlight problem file:
   target index1:value1 index2:value2 ..."
   (let ((len 0) y x (maxindex 0)
         (*read-default-float-format* 'double-float))
     (with-open-file (in file)
-      (sys::start-message log 'load-problem file (file-length in))
+      (start-message log 'load-problem file (file-length in))
       (loop :for line = (read-line in nil nil) :while line
         :unless (or (zerop (length line)) (char= #\# (aref line 0))) :do
         (incf len)
@@ -305,7 +310,7 @@ You must call (destroy-problem ret) yourself!
     (let* ((size (problem-l problem))
            (*read-default-float-format* 'double-float)
            (y (problem-y problem size)) (x (problem-x problem size)))
-      (sys::start-message log 'save-problem file size "records")
+      (start-message log 'save-problem file size "records")
       (dotimes (i size)
         (write (aref y i) :stream out)
         (let ((nodes (aref x i)))
