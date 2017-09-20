@@ -9,6 +9,8 @@
 
 (in-package "SYSTEM")
 
+;;; ============== Presenting data from the Internet to the user ==============
+
 (defvar *browsers*
   '((:netscape "netscape" "~a")
     (:netscape-window "netscape" "-remote" "openURL(~a,new-window)")
@@ -65,6 +67,8 @@
              (format out "done~%")))
           (t (format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
+
+;;; ===================== Reading data from the Internet =====================
 
 (defvar *http-log-stream* (make-synonym-stream '*terminal-io*))
 ;;; keep in sync with clocc/cllib/url.lisp
@@ -178,6 +182,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                     (setq content-length (parse-integer line :start #6#))))
           :finally (terpri)))
     (values sock content-length)))
+
 (defun open-url (path &rest options &aux (len (length path)))
   (cond ((string-equal #1="http://" path :end2 (min len #.(length #1#)))
          (apply #'open-http path options))
@@ -197,6 +202,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                   options)))
         (t (open path))))
 
+;;; ========== Common Lisp HyperSpec and CLISP implementation notes ==========
+
 ;;; the CLHS & IMPNOTES documentation:
 ;; * symbols (and packages for IMPNOTES) can have a doc string that points
 ;;   to the position of the documentation text in the CLHS or IMPNOTES.
@@ -205,6 +212,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 ;; * (setf (documentation foo 'sys::clhs) "bar") and
 ;;   (setf (documentation foo 'sys::impnotes) "bar")
 ;;   "bar" is the URL sans (clhs-root) and (impnotes-root)
+
+;;; ============ Using the Common Lisp HyperSpec as documentation ============
 
 ;; (clhs-root) is defined in cfgunix.lisp or cfgwin32.lisp.
 ;; The CLHS is not free documentation: the legal notices state that it must
@@ -237,6 +246,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                    (subseq destination #.(length "../"))))
             (t (warn (TEXT "~S is not found") symbol-name))))
     :finally (format *http-log-stream* "~:D/~:D symbol~:P~%" good total)))
+
 (let ((clhs-map-source nil) (clhs-map-good nil))
   ;; if clhs-map-source is the same as (clhs-root), do nothing and
   ;; return (clhs-root); otherwise set clhs-map-source to (clhs-root)
@@ -276,6 +286,22 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           (get-clhs-map s)))
       (setq clhs-map-good t))
     (and clhs-map-good clhs-root))))
+
+(defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
+  (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
+    (let ((doc (call-next-method)))
+      (when doc (string-concat (clhs-root) doc)))))
+
+(defun clhs (symbol &key (browser *browser*) (out *standard-output*))
+  "Dump the CLHS doc for the symbol."
+  (warn "function ~S is deprecated, set ~S and use ~S instead"
+        'clhs '*browser* 'describe)
+  (browse-url (or (documentation symbol 'sys::clhs)
+                  (error "No HyperSpec doc for ~S" symbol))
+              :browser browser :out out))
+
+;;; ========== Using the CLISP implementation notes as documentation ==========
+
 (defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
   (format *http-log-stream* "~&;; ~S(~S)..." 'get-string-map stream)
   (force-output *http-log-stream*)
@@ -292,6 +318,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (setf (gethash id table) destination)
     :finally (format *http-log-stream* "~:D ID~:P~%" total))
   table)
+
 (let ((impnotes-map-source nil) (impnotes-map-good nil) id-href
       (dest (lambda (id) (string-concat "#" id))))
   ;; if impnotes-map-source is the same as (impnotes-root), do nothing
@@ -349,6 +376,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           :finally (format *http-log-stream* "~:D ID~:P~%" count)))
       (setq impnotes-map-good t)) ; success
     (and impnotes-map-good impnotes-root)))
+
 (defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
   (let ((doc (sys::package-documentation obj)))
     (and (consp doc) (ensure-impnotes-map)
@@ -356,11 +384,6 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
            (if suffix (string-concat (impnotes-root) suffix)
                (cerror (TEXT "Ignore") (TEXT "~S(~S): ~S does not know about ~S; the Implementation Notes must be regenerated")
                        'documentation obj id-href (second doc))))))))
-
-(defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
-  (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
-    (let ((doc (call-next-method)))
-      (when doc (string-concat (clhs-root) doc)))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::impnotes)))
   (let ((pack (symbol-package obj)))
@@ -404,10 +427,4 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 (setf (documentation (find-package "EXT") 'sys::impnotes) "ext-pac")
 #+MT (setf (documentation (find-package "THREADS") 'sys::impnotes) "mt")
 
-(defun clhs (symbol &key (browser *browser*) (out *standard-output*))
-  "Dump the CLHS doc for the symbol."
-  (warn "function ~S is deprecated, set ~S and use ~S instead"
-        'clhs '*browser* 'describe)
-  (browse-url (or (documentation symbol 'sys::clhs)
-                  (error "No HyperSpec doc for ~S" symbol))
-              :browser browser :out out))
+;;; ===========================================================================
