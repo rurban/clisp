@@ -3241,7 +3241,7 @@ checks whether the &hash-table-t; is weak.</para>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
+<!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN) -->
 <varlistentry id="device-prefix"><term>&win32-cygwin-only;</term>
  <listitem><simpara>User variable <firstterm>&dev-prefix;</firstterm>
   controls translation between &cygwin; pathnames

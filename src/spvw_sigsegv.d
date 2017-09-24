@@ -165,7 +165,7 @@ local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
    #endif
   #endif
-  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
    #ifdef I80386
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->Ebx)); }
    #endif

@@ -680,7 +680,7 @@ LISPSYM(launch,"LAUNCH",ext)
 LISPSYM(shell_execute,"SHELL-EXECUTE",ext)
 #endif
 LISPSYM(savemem,"SAVEMEM",system)
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
 #endif
 #ifdef DYNAMIC_MODULES
@@ -1490,7 +1490,7 @@ LISPSYM(os_error,"OS-ERROR",ext) /* type for ERROR */
 LISPSYM(os_file_error,"OS-FILE-ERROR",ext) /* type for ERROR */
 LISPSYM(os_stream_error,"OS-STREAM-ERROR",ext) /* type for ERROR */
 LISPSYM(strerror,"STRERROR",system)
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 LISPSYM(os_error_win32,"OS-ERROR-WIN32",ext) /* type for ERROR */
 LISPSYM(format_message,"FORMAT-MESSAGE",system)
 #endif

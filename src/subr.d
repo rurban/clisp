@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2006, 2009
+ * Bruno Haible 1990-2006, 2009, 2017
  * Sam Steingold 1998-2011, 2013, 2017
 
  A C-compiled LISP-function is defined by a declaration
@@ -468,7 +468,7 @@ LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) )
 /* ---------- ERROR ---------- */
 LISPFUNNF(strerror,1)
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 LISPFUNNF(format_message,1)
 #endif
 LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)

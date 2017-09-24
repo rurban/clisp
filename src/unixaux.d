@@ -1,6 +1,6 @@
 /*
  * Auxiliary functions for CLISP on UNIX
- * Bruno Haible 1990-2008
+ * Bruno Haible 1990-2005, 2008, 2017
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -744,7 +744,7 @@ global signal_handler_t install_signal_handler (int sig,
 
 /* ======================================================================= */
 
-#if defined(UNIX_CYGWIN32)
+#if defined(UNIX_CYGWIN)
 
 /* Prepare for <windows.h>. */
 #define ULONG     OS_ULONG

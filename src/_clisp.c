@@ -8,7 +8,7 @@
  * Since we are at it, this driver program also implements the "-K" option.
  * All other options are passed to the main program.
  *
- * Bruno Haible 31.3.1997
+ * Bruno Haible 31.3.1997-2000, 2004-2005, 2008-2009, 2017
  * Sam Steingold 1998-2009, 2011
  */
 
@@ -327,7 +327,7 @@ int main (int argc, char* argv[])
       strcat(linkingsetdir, argv_linkingset);
     }
     { /* Compute executable's name. */
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
       const char* execname = "lisp.exe";
 #else
       const char* execname = "lisp.run";

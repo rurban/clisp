@@ -136,7 +136,7 @@ local char* realpath (const char* path, char* resolved_path) {
           #ifdef HAVE_READLINK
             /* read symbolic link: */
             to_ptr[-1]=0; /* replace '/' with 0 */
-            #ifdef UNIX_CYGWIN32
+            #ifdef UNIX_CYGWIN
             /* readlink() does not work right on NFS mounted directories
              (it returns -1,ENOENT or -1,EIO).
              So check for a directory first. */
@@ -189,7 +189,7 @@ local char* realpath (const char* path, char* resolved_path) {
                   }
                   to_ptr = from_ptr;
                 } else {
-                  #if defined(UNIX_CYGWIN32)
+                  #if defined(UNIX_CYGWIN)
                   if ((errno == EINVAL) || (errno == EACCES))
                   #else
                   if (errno == EINVAL)
@@ -1769,7 +1769,7 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         } else
      #endif /* PATHNAME_UNIX & 0 */
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
-      #if defined(UNIX_CYGWIN32)
+      #if defined(UNIX_CYGWIN)
         if (z.count > 1 && !nullpSv(device_prefix)
             && colonp(schar(STACK_2,z.index+1))) {
           /* if string starts with 'x:', treat it as a device */
@@ -1886,7 +1886,7 @@ LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         ThePathname(STACK_0)->pathname_device = device;
       }
      #endif
-     #ifdef UNIX_CYGWIN32
+     #ifdef UNIX_CYGWIN
       var object dir = ThePathname(STACK_0)->pathname_directory;
       if (consp(dir) && stringp(Car(dir))) {
         /* dir = ("c" ...) --> (:absolute *device-prefix* "c" ...)*/
@@ -6806,7 +6806,7 @@ local maygc void with_stat_info_computed (struct file_status *fs) {
 local maygc inline int stat_for_search (char* pathstring, struct stat * statbuf) {
   var int result;
   GC_SAFE_SYSTEM_CALL(result = stat(pathstring,statbuf));
- #ifdef UNIX_CYGWIN32
+ #ifdef UNIX_CYGWIN
   if ((result < 0) && (errno == EACCES)) { errno = ENOENT; }
  #endif
   return result;
@@ -7117,7 +7117,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
       var object direntry;
       {
         var uintL direntry_len;
-       #if defined(UNIX_CYGWIN32)
+       #if defined(UNIX_CYGWIN)
         /* Neither d_reclen nor d_namlen present in DIR structure. */
         direntry_len = asciz_length(dp->d_name);
        #elif !defined(HAVE_STRUCT_DIRENT_D_NAMLEN) || defined(__USE_GNU)

@@ -170,7 +170,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
   #define HAVE_UALARM
 #endif
 #ifdef HAVE_UALARM
-  #ifdef UNIX_CYGWIN32
+  #ifdef UNIX_CYGWIN
     /* <sys/types.h>: typedef long useconds_t; */
     extern_C useconds_t ualarm (useconds_t value, useconds_t interval);
   #else
@@ -301,7 +301,7 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 
 /* work with open files: */
 #include <fcntl.h> /* declares open(), O_RDWR etc. */
-/* Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
+/* Only a few Unices (like UNIX_CYGWIN) have O_TEXT and O_BINARY.
    BeOS 5 has them, but they have no effect. */
 #ifdef UNIX_BEOS
   #undef O_BINARY
@@ -609,7 +609,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 #endif
 
 /* Interpretation of FILETIME structure: */
-#ifdef UNIX_CYGWIN32
+#ifdef UNIX_CYGWIN
   #define WIN32_LEAN_AND_MEAN
   #pragma push_macro ("Handle")
   #undef Handle

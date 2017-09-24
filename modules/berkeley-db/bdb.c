@@ -12,12 +12,12 @@
 #include "config.h"
 
 #if defined(__CYGWIN__)
-# define UNIX_CYGWIN32
+# define UNIX_CYGWIN
 #endif
 
-#if defined(_WIN32) || defined(UNIX_CYGWIN32)
+#if defined(_WIN32) || defined(UNIX_CYGWIN)
 # define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-# if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
+# if defined(UNIX_CYGWIN) || defined(__MINGW32__)
 #  define ULONGLONG OS_ULONGLONG
 #  define ULONG OS_ULONG
 #  include <windows.h>

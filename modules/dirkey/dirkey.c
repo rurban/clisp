@@ -8,11 +8,11 @@
 #include "config.h"
 
 #if defined(__CYGWIN__)
-# define UNIX_CYGWIN32
+# define UNIX_CYGWIN
 #endif
 
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
-#if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
+#if defined(UNIX_CYGWIN) || defined(__MINGW32__)
 # define ULONGLONG OS_ULONGLONG
 # define ULONG OS_ULONG
 # include <windows.h>
@@ -22,9 +22,9 @@
 # include <windows.h>
 #endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 # include <winreg.h>
-# if !defined(__MINGW32__) && !defined(UNIX_CYGWIN32)
+# if !defined(__MINGW32__) && !defined(UNIX_CYGWIN)
 #  include <winldap.h>
 /* #define ACCESS_LDAP *//* not yet! */
 # endif

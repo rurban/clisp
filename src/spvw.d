@@ -1787,7 +1787,7 @@ local void init_symbol_values (void) {
   define_variable(S(parse_namestring_dot_file),S(Ktype)); /* CUSTOM:*PARSE-NAMESTRING-DOT-FILE* */
  #endif
   define_variable(S(deftype_depth_limit),NIL); /* CUSTOM:*DEFTYPE-DEPTH-LIMIT* */
- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+ #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
   define_variable(S(device_prefix),NIL); /* CUSTOM:*DEVICE-PREFIX* */
  #endif
   /* for EVAL: */
@@ -1842,7 +1842,7 @@ local void init_symbol_values (void) {
    On FreeBSD 4.0, if set to T, gdb stops the clisp process.
    On Linux ppc64 & MacOSX, if set to T, clisp hangs until C-c.
    On Woe32, the debugging APIs are flawed, the Cygwin developers say. */
- #if defined(UNIX_FREEBSD) || defined(UNIX_MACOSX) || defined(UNIX_CYGWIN32) || (defined(UNIX_LINUX) && defined(POWERPC))
+ #if defined(UNIX_FREEBSD) || defined(UNIX_MACOSX) || defined(UNIX_CYGWIN) || (defined(UNIX_LINUX) && defined(POWERPC))
   define_variable(S(disassemble_use_live_process),NIL);
   #else
   define_variable(S(disassemble_use_live_process),T);
@@ -1910,7 +1910,7 @@ local void init_object_tab (void) {
      #ifdef UNIX_MACOSX
       " :MACOS"
      #endif
-     #ifdef UNIX_CYGWIN32
+     #ifdef UNIX_CYGWIN
       " :CYGWIN"
      #endif
      #ifdef UNIX_BEOS

@@ -1,5 +1,17 @@
 2017-09-24  Bruno Haible  <bruno@clisp.org>
 
+	Talk about Cygwin, not Cygwin32.
+	* lispbibl.d (UNIX_CYGWIN): Renamed from UNIX_CYGWIN32.
+	* constsym.d, error.d, genclisph.d, pathname.d, socket.d, spvw.d,
+	spvw_sigsegv.d, stream.d, subr.d, unix.d, unixaux.d, execname.c: Update.
+	* _distmakefile, _clisp.c: Likewise.
+	* modules/syscalls/calls.c: Likewise.
+	* modules/berkeley-db/bdb.c: Likewise.
+	* modules/dirkey/dirkey.c: Likewise.
+	* m4/closedir.m4: Update comment.
+
+2017-09-24  Bruno Haible  <bruno@clisp.org>
+
 	Extend porting documentation.
 	* unix/PLATFORMS: Add section about address space layout.
 

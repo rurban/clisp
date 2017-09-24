@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -12,7 +12,7 @@ AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CLOSEDIR],
 [AC_BEFORE([$0], [CL_FILECHARSET])dnl
-# The following test is necessary, because Cygwin32 declares closedir()
+# The following test is necessary, because Cygwin declares closedir()
 # as returning int but the return value is unusable.
 AC_CACHE_CHECK(for usable closedir return value, cl_cv_func_closedir_retval,[
 AC_TRY_RUN([

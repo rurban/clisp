@@ -1,7 +1,7 @@
 /*
  * Finding the full path of the executable.
- * Bruno Haible 20.12.1994
- * Sam Steingold 2004-2006, 2008
+ * Bruno Haible 20.12.1994, 2017
+ * Sam Steingold 2004-2006, 2008, 2017
  */
 
 /* This assumes that the executable is not removed or renamed while
@@ -9,7 +9,7 @@
 
 /* file name of the executable */
 static char* executable_name = NULL;
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 /* note that up to and including win2000, detaching from a process kills it
  <https://sourceware.org/ml/cygwin/2003-06/msg00932.html>
  <https://sourceware.org/ml/cygwin/2003-06/msg00933.html>
@@ -73,7 +73,7 @@ int find_executable (const char * program_name) {
     strcpy(executable_name,execname);
     return 0;  }
 #elif defined(UNIX)
- #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN32)
+ #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN)
   { /* The executable is accessible as /proc/<pid>/exe. We try this first
    because it is safer: no race condition w.r.t. the file system. It may
    fail, however, if the user has not compiled /proc support into his
@@ -139,7 +139,7 @@ int find_executable (const char * program_name) {
     if (realpath(program_name,executable_name) == NULL) {
       free(executable_name); goto notfound;
     }
-#if defined(UNIX_CYGWIN32)
+#if defined(UNIX_CYGWIN)
     { /* cygwin does not append ".exe" on its own */
       int len = strlen(executable_name);
       if (!(len > 4 && (executable_name[len-4] == '.') &&
