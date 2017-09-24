@@ -18,7 +18,7 @@ global maygc object allocate_lrecord_ (uintB rectype, uintL reclen);
 global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen);
 global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
 #endif
-global maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+global maygc object allocate_stream (uintB streamflags, uintB streamtype, uintC reclen, uintC recxlen);
 #ifdef FOREIGN
 global maygc object allocate_fpointer (FOREIGN foreign);
 #endif
@@ -428,14 +428,14 @@ global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
 #endif
 
 /* UP, provides stream
- allocate_stream(strmflags,strmtype,reclen)
- > uintB strmflags: flags
- > uintB strmtype: further typeinfo
+ allocate_stream(streamflags,streamtype,reclen)
+ > uintB streamflags: flags
+ > uintB streamtype: further typeinfo
  > uintC reclen: length in objects
  > uintC recxlen: extra-length in bytes
  < result: LISP-object stream (Elements are initialized with NIL)
  can trigger GC */
-global maygc object allocate_stream (uintB strmflags, uintB strmtype,
+global maygc object allocate_stream (uintB streamflags, uintB streamtype,
                                      uintC reclen, uintC recxlen) {
   var object obj =
    #ifdef case_stream
@@ -443,10 +443,10 @@ global maygc object allocate_stream (uintB strmflags, uintB strmtype,
    #else
     allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
    #endif
-  /* Fixnum as place for strmflags and strmtype: */
+  /* Fixnum as place for streamflags and streamtype: */
   TheRecord(obj)->recdata[0] = Fixnum_0;
-  TheStream(obj)->strmflags = strmflags | strmflags_open_B;
-  TheStream(obj)->strmtype = strmtype;
+  TheStream(obj)->strmflags = streamflags | strmflags_open_B;
+  TheStream(obj)->strmtype = streamtype;
   return obj;
 }
 
