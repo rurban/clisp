@@ -458,7 +458,7 @@
  #endif
   LISPOBJ(user_homedir,"#\".\"") /* user-homedir-pathname */
  #ifdef UNIX
-  LISPOBJ(command_shell,"\""SHELL"\"") /* command-shell as string */
+  LISPOBJ(command_shell, "\"" SHELL "\"") /* command-shell as string */
   LISPOBJ(command_shell_option,"\"-c\"") /* command-shell-option for command */
   LISPOBJ(user_shell,"\"/bin/csh\"")     /* user-shell as string */
  #elif defined(WIN32_NATIVE)

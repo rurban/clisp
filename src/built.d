@@ -22,10 +22,10 @@ global object built_flags (void) {
   var const char * part1 =
     /* string concatenation done by the C compiler */
     CC
-    " "CFLAGS
-    " "CLFLAGS
-    " "LIBS
-    " "X_LIBS"\n"
+    " " CFLAGS
+    " " CLFLAGS
+    " " LIBS
+    " " X_LIBS "\n"
     "SAFETY=" STRINGIFY(SAFETY)
   #ifdef TYPECODES
     " TYPECODES"
