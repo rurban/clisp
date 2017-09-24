@@ -1,5 +1,17 @@
 2017-09-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on Linux/mipseb with WIDE_SOFT.
+	This fixes a problem of the 2017-05-29 change.
+	Based on work by Sébastien Villemot <sebastien@debian.org>, reported in
+	<https://sourceforge.net/p/clisp/bugs/705/>.
+	* lispbibl.d (Stream): Put strmflags and strmtype inside a union.
+	(strmflags, strmtype): Define as macros.
+	(allocate_stream, var_stream): Rename parameters.
+	* spvw_typealloc.d (allocate_stream): Rename parameters.
+	* stream.d (var_stream): Likewise.
+
+2017-09-24  Bruno Haible  <bruno@clisp.org>
+
 	Talk about Cygwin, not Cygwin32.
 	* lispbibl.d (UNIX_CYGWIN): Renamed from UNIX_CYGWIN32.
 	* constsym.d, error.d, genclisph.d, pathname.d, socket.d, spvw.d,

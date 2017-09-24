@@ -1083,16 +1083,16 @@ local _Noreturn void error_value_stream (object sym);
 /* see below */
 
 /* UP: Returns the Stream, that is the value of a Variable.
- var_stream(sym,strmflags)
+ var_stream(sym,streamflags)
  > sym: Variable (Symbol)
- > strmflags: set of Operations, that are to be possible on the Stream
+ > streamflags: set of Operations, that are to be possible on the Stream
  < result: Stream */
-global object var_stream (object sym, uintB strmflags) {
+global object var_stream (object sym, uintB streamflags) {
   var object stream;
  recurse:
   stream = Symbol_value(sym);
   if (builtin_stream_p(stream)) {
-    if ((strmflags | strmflags_open_B) & ~ TheStream(stream)->strmflags)
+    if ((streamflags | strmflags_open_B) & ~ TheStream(stream)->strmflags)
       error_value_stream(sym);
     if (TheStream(stream)->strmtype == strmtype_synonym) {
       sym = TheStream(stream)->strm_synonym_symbol;
@@ -1102,9 +1102,9 @@ global object var_stream (object sym, uintB strmflags) {
     /* Among instances of FUNDAMENTAL-STREAM:
      Only instances of FUNDAMENTAL-INPUT-STREAM can do input.
      Only instances of FUNDAMENTAL-OUTPUT-STREAM can do output. */
-    if (((strmflags & strmflags_rd_B)
+    if (((streamflags & strmflags_rd_B)
          && !instanceof(stream,O(class_fundamental_input_stream)))
-        || ((strmflags & strmflags_wr_B)
+        || ((streamflags & strmflags_wr_B)
             && !instanceof(stream,O(class_fundamental_output_stream))))
       error_value_stream(sym);
   } else

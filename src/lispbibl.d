@@ -6741,21 +6741,31 @@ typedef struct {
 /* Streams with metaclass BUILT-IN-CLASS */
 typedef struct {
   XRECORD_HEADER
-    /* Because of space requirements, I have to put strmflags and strmtype
-     into a fixnum in recdata[0]. */
-    #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-      #error No room for stream flags -- re-accommodate Stream-Flags!!
-    #endif
-    #if defined(WIDE) && BIG_ENDIAN_P
-      uintL strmfiller0;
-    #endif
-    uintB strmfiller1;
-    uintB strmflags; /* Flags */
-    uintB strmtype;  /* Subtype */
-    uintB strmfiller2;
-    #if defined(WIDE) && !BIG_ENDIAN_P
-      uintL strmfiller0;
-    #endif
+  /* Because of space requirements, I have to put strmflags and strmtype
+   into a fixnum in recdata[0]. */
+  union {
+    /* Use a union, so that we have fast access to strmflags and strmtype.
+       With DEBUG_GCSAFETY and C++ prior to -std=gnu++11, we cannot put a
+       gcv_object_t in a union. */
+    struct { INNARDS_OF_GCV_OBJECT } recdata0_o _attribute_aligned_object_;
+    struct {
+      #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
+        #error No room for stream flags -- re-accommodate Stream-Flags!!
+      #endif
+      #if defined(WIDE) && BIG_ENDIAN_P
+        uintL r0_filler0;
+      #endif
+      uintB r0_filler1;
+      uintB r0_flags; /* Flags */
+      uintB r0_type;  /* Subtype */
+      uintB r0_filler2;
+      #if defined(WIDE) && !BIG_ENDIAN_P
+        uintL r0_filler0;
+      #endif
+    } recdata0_decomposed;
+  } strm_recdata0;
+  #define strmflags strm_recdata0.recdata0_decomposed.r0_flags
+  #define strmtype  strm_recdata0.recdata0_decomposed.r0_type
   gcv_object_t strm_rd_by            _attribute_aligned_object_;
   gcv_object_t strm_rd_by_array      _attribute_aligned_object_;
   gcv_object_t strm_wr_by            _attribute_aligned_object_;
@@ -10626,14 +10636,14 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 /* is used by RECORD */
 
 /* UP: allocates Stream
- allocate_stream(strmflags,strmtype,reclen,recxlen)
- > uintB strmflags: Flags
- > uintB strmtype: further type-info
+ allocate_stream(streamflags,streamtype,reclen,recxlen)
+ > uintB streamflags: Flags
+ > uintB streamtype: further type-info
  > uintC reclen: length in objects
  > uintC recxlen: extra-length in bytes
  < result: LISP-object Stream (elements are initialized with NIL)
  can trigger GC */
-extern maygc object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+extern maygc object allocate_stream (uintB streamflags, uintB streamtype, uintC reclen, uintC recxlen);
 /* is used by STREAM */
 
 /* UP: allocates Package
@@ -16500,11 +16510,11 @@ extern maygc void write_char_array (const gcv_object_t* stream_, const gcv_objec
 /* is used by SEQUENCE */
 
 /* UP: Gives the stream that is the value of a variable
- var_stream(sym,strmflags)
+ var_stream(sym,streamflags)
  > sym: Variable (symbol)
- > strmflags: Set of operations that should work on the stream
+ > streamflags: Set of operations that should work on the stream
  < result: Stream */
-extern object var_stream (object sym, uintB strmflags);
+extern object var_stream (object sym, uintB streamflags);
 /* is used by IO, PACKAGE, ERROR, DEBUG, SPVW */
 
 /* UP: makes a file-stream
