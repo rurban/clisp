@@ -15,6 +15,14 @@ BEGIN_DECLS
 #include <callback.h>      /* Low level support for call-in */
 END_DECLS
 
+/* Convert a void* to a callback_t.
+   Note that this type only exists in libffcall >= 2.0. */
+#if LIBFFCALL_VERSION >= 0x0200
+  #define cast_to_callback_t(address) (callback_t)(address)
+#else
+  #define cast_to_callback_t(address) (address)
+#endif
+
 /* complain about non-foreign object */
 local _Noreturn void error_foreign_object (object arg) {
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
@@ -591,8 +599,8 @@ local void free_foreign_callin (void* address)
 {
   begin_system_call();
   if (is_callback(address) /* safety check */
-      && (callback_address(address) == &callback)) {
-    var uintL cb_data = (uintL)(uintP)callback_data(address);
+      && (callback_address(cast_to_callback_t(address)) == &callback)) {
+    var uintL cb_data = (uintL)(uintP)callback_data(cast_to_callback_t(address));
     end_system_call();
     var object dv = TheIarray(O(foreign_callin_vector))->data;
     var gcv_object_t* triple = &TheSvector(dv)->data[3*cb_data-2];
@@ -644,8 +652,8 @@ local object convert_function_from_foreign (void* address, object resulttype,
                                             object argtypes, object flags) {
   begin_system_call();
   if (is_callback(address) /* safety check */
-      && (callback_address(address) == &callback)) {
-    var uintL cb_data = (uintL)(uintP)callback_data(address);
+      && (callback_address(cast_to_callback_t(address)) == &callback)) {
+    var uintL cb_data = (uintL)(uintP)callback_data(cast_to_callback_t(address));
     end_system_call();
     var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*cb_data-2];
     var object ffun = triple[1];
