@@ -1,3 +1,9 @@
+2017-09-24  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with "g++ -std=gnu++11" and libffcall 2.0.
+	* foreign.d (cast_to_callback_t): New macro.
+	(free_foreign_callin, convert_function_from_foreign): Use it.
+
 2017-09-20  Bruno Haible  <bruno@clisp.org>
 
 	Improve code structure.
