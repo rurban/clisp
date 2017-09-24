@@ -1,5 +1,10 @@
 2017-09-24  Bruno Haible  <bruno@clisp.org>
 
+	Extend porting documentation.
+	* unix/PLATFORMS: Add section about address space layout.
+
+2017-09-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix g++ -std=gnu++11 "invalid suffix on literal" warnings.
 	* constobj.d (O(command_shell)): Put a space between literal string and
 	token that expands to some strings.
