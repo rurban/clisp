@@ -5,15 +5,15 @@ This file presents
 
 
 List of platforms
------------------
+==================
 
 * GNU and Unix platforms
 * macOS
 * Windows (both native Windows and Cygwin)
 
 
-Special hints for some platforms:
----------------------------------
+Special hints for some platforms
+================================
 
 
 * On Nokia N800 (Arm) running Linux:
@@ -40,35 +40,82 @@ Seen with cc for which 'cc -V' reports "cc: Sun C 5.8 ...".
 Use gcc instead.
 
 
-Hints for porting to new platforms:
------------------------------------
+Porting to new platforms
+========================
+
+The C compiler
+--------------
 
 Choose a reliable C compiler. GNU gcc is a good bet. Generally, start the
 port with the least optimization settings regarding the compiler (-O0 in
 the CFLAGS) and the safest optimization settings regarding the CLISP source
 (configure with --enable-portability).
 
+Address space layout
+--------------------
+
+Generally (except on 32-bit machines when configured with --enable-portability)
+CLISP tries to use memory mapping facilities (mmap on Unix, VirtualAlloc on
+Windows) in order to
+  - simplify memory management (a large block of memory is more efficient
+    to manage that a set of randomly distributed memory pages),
+    cf. macro SPVW_BLOCKS vs. SPVW_PAGES,
+  - support generational garbage collection,
+    cf. macro GENERATIONAL_GC,
+  - speed up type recognition by putting type tags into the pointers,
+    cf. macro TYPECODES vs. HEAPCODES.
+
+Such memory mapping requires knowledge about the address space layout.
+The configuration determines some parameters about the address space layout,
+such as:
+  checking for the code address range... 0x00000000
+  checking for the malloc address range... 0x01000000
+  checking for the shared library address range... 0xB6000000
+  checking for the stack address range... 0xBE000000
+
+If you need a deeper understanding of the address space layout, the following
+tools print a memory map (i.e. the virtual memory areas) of a running process:
+  * The '-mm' option: Run
+      $ ./lisp.run -mm
+    This option works on many, but not all platforms.
+  * OS dependent tools: Run an executable, look up its process ID (through "ps"),
+    then:
+    - On Linux:
+      $ cat /proc/$pid/maps
+      $ pmap $pid
+    - On Mac OS X:
+      $ vmmap -interleaved $pid
+    - On FreeBSD:
+      $ cat /proc/$pid/map
+      $ procstat -v $pid
+    - On NetBSD:
+      $ cat /proc/$pid/map
+    - On OpenBSD:
+      # procmap -p $pid
+    - On AIX:
+      $ procmap -S $pid
+    - On Solaris:
+      $ pmap $pid
+
+The stack address range is printed by these tools, but CLISP does not make
+assumptions about it.
+
+On 64-bit platforms, if you cannot identify a pattern for the address space
+layout, add -DGENERIC64_HEAPCODES -falign-functions=8 to the CFLAGS.
+
+If you get an error message concerning mapped memory, you should add
+-DNO_SINGLEMAP to the CFLAGS and recompile. Doing so introduces a tiny speed
+penalty. If you still get an error message concerning mapped memory, you
+should add -DNO_TRIVIALMAP to the CFLAGS and recompile.
+
+Other troubleshooting
+---------------------
+
 Some options or optimizations are enabled through macros, conditionally
 defined in lispbibl.d. You can check which macros get defined in lispbibl.d
 by looking into lispbibl.h, assuming you are using gcc. For example:
     make lispbibl.h
     grep TYPECODES lispbibl.h
-
-Has your machine a weird address space layout?
-On 64-bit machines, CLISP assumes that the code and data area as well as the
-area of malloc'ed memory have addresses in specific ranges, each at most 4 GB
-large. This allows CLISP to use the upper 32 bits as tags, for encoding the
-run time type of Lisp objects. In case this assumption does not hold, add
--DGENERIC64_HEAPCODES -falign-functions=8 to the CFLAGS.
-No assumptions about the stack area are made.
-
-Has your operating system shared memory or memory mapping facilities?
-On 64-bit platforms, CLISP tries to use them to save the time for stripping
-off the tag bits (see above) before memory accesses. If you get an error
-message concerning mapped memory, you should add -DNO_SINGLEMAP to the CFLAGS
-and recompile. Doing so introduces a speed penalty of about 6%. If you still
-get an error message concerning mapped memory, you should add -DNO_TRIVIALMAP
-to the CFLAGS and recompile.
 
 If you get an error message mentioning "handle_fault", then generational GC
 is not working. Add -DNO_GENERATIONAL_GC to the CFLAGS and recompile.
