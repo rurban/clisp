@@ -940,11 +940,11 @@ Extending the Core\&.
 .br
 \fBclisp\&.exe\fR
 .RS 4
-#if defined(UNIX) && !defined(UNIX_CYGWIN32)
+#if defined(UNIX) && !defined(UNIX_CYGWIN)
 
 #endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 
 #endif
 startup driver (an executable or, rarely, a shell script) which remembers the location of the
@@ -956,11 +956,11 @@ lisp\&.run
 .br
 lisp\&.exe
 .RS 4
-#if defined(UNIX) && !defined(UNIX_CYGWIN32)
+#if defined(UNIX) && !defined(UNIX_CYGWIN)
 
 #endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 
 #endif
 main executable (runtime) \- the part of

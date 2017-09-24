@@ -316,7 +316,7 @@
     #define CONSTANT_PATHNAME_ENCODING  Symbol_value(S(utf_8))
   #endif
   #ifdef __CYGWIN__
-    #define UNIX_CYGWIN32  /* Cygwin32 (UNIXlike on WinNT/Win95) */
+    #define UNIX_CYGWIN  /* Cygwin (UNIXlike on Windows) */
   #endif
   #ifdef __BEOS__
     #define UNIX_BEOS  /* BeOS (UNIXlike) */
@@ -623,7 +623,7 @@
    Info: resolving _mv_space by linking to __imp__mv_space (auto-import)
    on woe32. */
 #if defined(DYNAMIC_MODULES)
-  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
     #define DYNAMIC_TABLES 1
     #define modexp  __declspec(dllexport)
     #define modimp  __declspec(dllimport)
@@ -1162,7 +1162,7 @@
 #else
   #error No 32 bit integer type? -- Which Integer-type has 32 Bit?
 #endif
-#if (long_bitsize==64) && !defined(UNIX_CYGWIN32)
+#if (long_bitsize==64) && !defined(UNIX_CYGWIN)
   typedef long           SLONGLONG;
   typedef unsigned long  ULONGLONG;
   #ifndef HAVE_LONG_LONG_INT
@@ -1198,7 +1198,7 @@
 %%   emit_typedef("int","SLONG");
 %%   emit_typedef("unsigned int","ULONG");
 %% #endif
-%% #if (long_bitsize==64) && !defined(UNIX_CYGWIN32)
+%% #if (long_bitsize==64) && !defined(UNIX_CYGWIN)
 %%   emit_typedef("long","SLONGLONG");
 %%   emit_typedef("unsigned long","ULONGLONG");
 %% #elif defined(MICROSOFT)
@@ -1900,7 +1900,7 @@ typedef enum {
 %% #if defined(UNIX)
 %%   emit_typedef("int","Handle");
 %%   emit_typedef("int","SOCKET");
-%%   #ifdef UNIX_CYGWIN32
+%%   #ifdef UNIX_CYGWIN
 %%     puts("#include <windows.h>");
 %%     puts("#undef WIN32");
 %%     exportF(long,time_t_from_filetime,(const FILETIME * ptr));
@@ -1947,7 +1947,7 @@ typedef enum {
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_LIBSIGSEGV)
   /* Support for fault handling. */
   #include <sigsegv.h>
-  #if defined(UNIX_CYGWIN32)
+  #if defined(UNIX_CYGWIN)
     /* <sigsegv.h> includes <windows.h> */
     #undef WIN32
   #endif
@@ -2166,7 +2166,7 @@ typedef enum {
   #define PATHNAME_NOEXT  /* no explicit extension. */
 #endif
 /* Whether "//" at the beginning of a pathname has to remain (and not to be shortened to "/"): */
-#ifdef UNIX_CYGWIN32
+#ifdef UNIX_CYGWIN
   #define PATHNAME_UNIX_UNC
 #endif
 /* When changed: extend pathname.d */
@@ -2633,7 +2633,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      is around 0xCF000000. In this case, we also use KERNELVOID32_HEAPCODES.
      On some 64-bit systems, we cannot make assumptions about the virtual
      addresses. But we know that pointers have alignment 8. */
-    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD)) || (defined(I80386) && defined(UNIX_CYGWIN32))
+    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD)) || (defined(I80386) && defined(UNIX_CYGWIN))
       #define KERNELVOID32_HEAPCODES
     #elif defined(S390_64) && defined(UNIX_LINUX)
       #define GENERIC64_HEAPCODES
@@ -3010,7 +3010,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      M68K platforms without new gcc.
      It worked on the following platforms in the past, and may still work on:
        (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-       (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
+       (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN) && !defined(WIN32_NATIVE))
        (defined(SPARC) && !defined(SUN4_29))
        defined(MIPS)
        defined(M88000)

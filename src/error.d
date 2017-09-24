@@ -478,7 +478,7 @@ static error_code_converter_t *ecc_w = (error_code_converter_t*)1;
 #undef OS_error_arg
 #undef OS_filestream_error
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 local char * format_message (DWORD errcode) {
   char* ret;
   begin_system_call();
@@ -513,7 +513,7 @@ local char * format_message (DWORD errcode) {
   #include "errwin32.c"
 #endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 LISPFUNNF(format_message,1) {
   DWORD error_code = I_to_uint32(check_uint32(popSTACK()));
   char *msg = format_message(error_code);

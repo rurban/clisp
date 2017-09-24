@@ -201,7 +201,7 @@ global int nonintr_connect (SOCKET fd, const struct sockaddr * name, int namelen
   } while ((retval < 0) && errno == EINTR);
   return retval;
 }
-#undef connect  /* because of UNIX_CYGWIN32 */
+#undef connect  /* because of UNIX_CYGWIN */
 #define connect nonintr_connect
 
 /* Execute a statement, but save errno during it. */

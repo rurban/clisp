@@ -578,10 +578,10 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
 
 <variablelist>
 <varlistentry id="driver">
-<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
+<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN) -->
 <term>&clisp-cmd;</term>
 <!-- #endif -->
-<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
+<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN) -->
 <term><command>clisp.exe</command></term>
 <!-- #endif -->
 <listitem><simpara>startup driver (an executable or, rarely, a shell script)
@@ -590,10 +590,10 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="runtime">
-<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
+<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN) -->
 <term>&lisp-run;</term>
 <!-- #endif -->
-<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
+<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN) -->
 <term><filename>lisp.exe</filename></term>
 <!-- #endif -->
 <listitem><simpara>main executable (runtime) - the part of &clisp;

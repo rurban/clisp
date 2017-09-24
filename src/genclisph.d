@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
     fprintf(stderr,"writing DLL export file %s\n",argv[2]);
     /* Having both EXPORTS and IMPORTS generates a syntax error on
        Cygwin.  All we need is imports, for building dynamic modules. */
-   #ifdef UNIX_CYGWIN32
+   #ifdef UNIX_CYGWIN
     fprint(def_f,"IMPORTS\n");
    #else
     fprint(def_f,"EXPORTS\nIMPORTS\n");
@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
   EMIT_TO_I("ssize",ssize_t);
   EMIT_TO_I("off",off_t);
 
-#if defined(UNIX_CYGWIN32)
+#if defined(UNIX_CYGWIN)
   print("#ifndef COMPILE_STANDALONE\n");
   print("static inline object convert_time_to_universal_w32 (const FILETIME* w32_time) {\n");
   print("  time_t unix_time = time_t_from_filetime(w32_time);\n");

@@ -3492,7 +3492,7 @@ local void clear_tty_input (Handle handle) {
   end_system_call();
 }
 
-#if defined(UNIX_CYGWIN32) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
+#if defined(UNIX_CYGWIN) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
   #define IS_EINVAL_EXTRA  ((errno==EBADF)||(errno==EACCES)||(errno==EBADRQC))
 #elif defined(UNIX_DARWIN) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD) || defined(UNIX_OPENBSD)
   #if !defined(ENOTSUP)         /* OpenBSD */
@@ -9962,7 +9962,7 @@ local maygc void clear_output_terminal3 (object stream) {
 local bool stdio_same_tty_p (void)
 { /* check that STDIN and STDOUT point to the same TTY */
 #ifdef UNIX
- #if defined(UNIX_CYGWIN32)
+ #if defined(UNIX_CYGWIN)
   /* st_ino does not make sense on Cygwin: they are based on
      filenames, and stdin is CONIN$ while stdout is CONOUT$ */
   var char* res = ttyname(stdin_handle);

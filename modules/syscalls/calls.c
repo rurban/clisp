@@ -11,7 +11,7 @@
 # define WINVER 0x0500
 #endif
 #if defined(__CYGWIN__)
-# define UNIX_CYGWIN32
+# define UNIX_CYGWIN
 #endif
 
 /* clisp.h includes system headers among other stuff
@@ -69,7 +69,7 @@
 #endif
 #include <fnmatch.h>
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 #include <initguid.h>
 DEFINE_GUID(FMTID_SummaryInformation, 0xF29F85E0, 0x4FF9, 0x1068,
             0xAB, 0x91, 0x08, 0x00, 0x2B, 0x27, 0xB3, 0xD9);
@@ -2151,7 +2151,7 @@ static int my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
   return 0;
 }
 #endif  /* WIN32_NATIVE */
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 /* get WIN32_FIND_DATA from the PATH
  < sh - search handle (optional)
  < wfd - file information
@@ -2175,7 +2175,7 @@ static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
   if (atime) *atime = wfd.ftLastAccessTime;
   if (mtime) *mtime = wfd.ftLastWriteTime;
 }
-#endif  /* WIN32_NATIVE | UNIX_CYGWIN32*/
+#endif  /* WIN32_NATIVE | UNIX_CYGWIN */
 DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://opengroup.org/onlinepubs/9699919799/functions/utime.html
@@ -2520,7 +2520,7 @@ DEFUN(POSIX::STAT-VFS, file)
 #endif  /* fstatvfs statvfs */
 
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 
 /* Dynamically load some functions missing in Windows95/98/ME
    to work with Security IDentifiers (SIDs). */
@@ -2590,7 +2590,7 @@ static void initialize_sid_apis () {
   initialized_sid_apis = TRUE;
 }
 
-#endif /* (WIN32_NATIVE || UNIX_CYGWIN32) */
+#endif /* (WIN32_NATIVE || UNIX_CYGWIN) */
 
 /* FILE-OWNER */
 
@@ -2756,7 +2756,7 @@ static void init_win32_link (void) {
 }
 #endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
             DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
             void * reserved2, REFIID riid, void ** ppObjectOpen);
@@ -3331,7 +3331,7 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
   VALUES1(fixnum(new_handle));
 }
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 #include <shlobj.h>
 /* for CLSID_ShellLink & IID_IShellLink */
 #include <shldisp.h>
@@ -4642,7 +4642,7 @@ DEFUN(OS:FILE-VERSION,filename) {
     file_version(pathz);
   });
 }
-#endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
+#endif  /* WIN32_NATIVE || UNIX_CYGWIN */
 
 /* STDIO inteface for postgresql et al and to access wild files like 'foo*' */
 DEFUN(POSIX::FOPEN, path mode) {
@@ -4765,7 +4765,7 @@ DEFUN(POSIX::%STDIO, &optional which) {
 }
 
 /* ========================= OS error printing ========================= */
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
 # include <winerror.h>
 /* http://cygwin.com/cgi-bin/cvsweb.cgi/src/winsup/w32api/include/winerror.h */
 /* http://msdn.microsoft.com/en-us/library/aa914935.aspx */
@@ -5748,7 +5748,7 @@ DEFUN(SYS::FORMAT-MESSAGE, &optional error_code) {
   STACK_0 = UL_to_I(error_code);
   funcall(L(format_message),1);
 }
-#endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
+#endif  /* WIN32_NATIVE || UNIX_CYGWIN */
 
 /* http://opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html */
 DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
@@ -5868,7 +5868,7 @@ void module__syscalls__init_function_2 (module_t* module) {
 #if defined(WIN32_NATIVE)
   init_win32_link();
 #endif
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
   init_win32_cygwin_open_storage();
 #endif
 #if defined(HAVE_FFI)
