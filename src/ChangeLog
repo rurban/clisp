@@ -1,5 +1,12 @@
 2017-09-24  Bruno Haible  <bruno@clisp.org>
 
+	Define suitable address ranges in lispbibl.d, rather than in spvw.d.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE*): New macros, extracted from
+	spvw.d.
+	* spvw.d (init_memory): Use them.
+
+2017-09-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux/mipseb with WIDE_SOFT.
 	This fixes a problem of the 2017-05-29 change.
 	Based on work by Sébastien Villemot <sebastien@debian.org>, reported in

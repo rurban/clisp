@@ -2120,10 +2120,81 @@ typedef enum {
      SHLIB_ADDRESS_RANGE  varies from 0x000001xxxx000000 to 0x00001Exxxx000000
      STACK_ADDRESS_RANGE  0x00007F7FFF000000
      This varies so wildly that it makes TRIVIALMAP_MEMORY impossible.
+   If not randomized: Define one or two ranges of addresses that are free to use.
+   Determine these through the tools listed in unix/PLATFORMS.
+   For one range:
+     MAPPABLE_ADDRESS_RANGE_START
+     MAPPABLE_ADDRESS_RANGE_END
+   For two ranges:
+     MAPPABLE_ADDRESS_RANGE1_START
+     MAPPABLE_ADDRESS_RANGE1_END
+     MAPPABLE_ADDRESS_RANGE2_START
+     MAPPABLE_ADDRESS_RANGE2_END
+   The _START values should be multiples of the page size.
+   The _END values + 1 should be multiples of the page size.
  */
 #if defined(UNIX_OPENBSD) && defined(WIDE_HARD)
   #define ADDRESS_RANGE_RANDOMIZED
+#else
+  #if !defined(WIDE_HARD)
+    /* 32-bit platforms */
+    #if defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
+      #define MAPPABLE_ADDRESS_RANGE1_START 0x2E000000UL
+      #define MAPPABLE_ADDRESS_RANGE1_END   0x3FFFFFFFUL
+      #define MAPPABLE_ADDRESS_RANGE2_START 0x64000000UL
+      #define MAPPABLE_ADDRESS_RANGE2_END   0x7EFFFFFFUL
+    #endif
+    #if defined(UNIX_DARWIN)
+      /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
+       and the dyld at 0x8f...... */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x8EFFFFFFUL
+    #endif
+    #if defined(UNIX_NETBSD)
+      #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
+    #endif
+    #if defined(UNIX_OPENBSD) && !defined(WIDE_SOFT)
+      #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
+    #endif
+  #else
+    /* 64-bit platforms */
+    #if defined(UNIX_LINUX) && defined(ARM64)
+      /* On Linux/arm64, the available addresses are in the range 0..2^39,
+         and there is room from 0x003000000000 to 0x007000000000. */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x003000000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x006FFFFFFFFFUL
+    #endif
+    #if defined(UNIX_LINUX) && defined(POWERPC64)
+      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
+         and there is room from 0x080000000000 to 0x380000000000. */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x080000000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x37FFFFFFFFFFUL
+    #endif
+    #if defined(UNIX_LINUX) && defined(S390_64)
+      /* On Linux/s390x, the available addresses are in the range 0..2^53,
+         and there is room from 0x008000000000 to 0x038000000000. */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x008000000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x037FFFFFFFFFUL
+    #endif
+    #if defined(UNIX_DARWIN)
+      /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
+         mach_vm_allocate are in the range 2^33...2^47. */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x3FFFFFFFFFFFUL
+    #endif
+    #if defined(UNIX_FREEBSD) && defined(AMD64)
+      #define MAPPABLE_ADDRESS_RANGE_START 0x001000000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFFFFFUL
+    #endif
+    #if defined(UNIX_NETBSD) && defined(AMD64)
+      #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFFFFFUL
+    #endif
+  #endif
 #endif
+
 /* When changed: do nothing */
 
 /* Whether the operating system is capable of sending interruptions

@@ -3139,9 +3139,6 @@ local inline int init_memory (struct argv_initparams *p) {
       var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
       mem.heaps[0].heap_limit = start + round_down(floor(end-start,5),map_pagesize);
       mem.heaps[1].heap_limit = round_down(end,map_pagesize);
-      #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
-      mem.heaps[0].heap_limit = 0x2E000000; /* room until at least 0x40000000 */
-      mem.heaps[1].heap_limit = 0x7F000000; /* room until at least 0x64000000 */
       #elif defined(UNIX_NETBSD) && !defined(WIDE_HARD)
        #ifdef ONE_FREE_BIT_HEAPCODES
       /* To avoid garcol_bit_o = bit 30, either of
@@ -3152,35 +3149,14 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[0].heap_limit = 0x10000000;
       mem.heaps[1].heap_limit = 0xB0000000;
        #endif
-      #elif defined(UNIX_OPENBSD) && !defined(WIDE_SOFT) && !defined(WIDE_HARD)
-      mem.heaps[0].heap_limit = 0x40000000;
-      mem.heaps[1].heap_limit = 0x70000000;
-      #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
-      /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
-         mach_vm_allocate are in the range 2^33...2^47. */
-      mem.heaps[0].heap_limit = 0x000200000000UL;
-      mem.heaps[1].heap_limit = 0x400000000000UL;
-      #elif defined(UNIX_LINUX) && defined(ARM64)
-      /* On Linux/arm64, the available addresses are in the range 0..2^39,
-         and there is room from 0x003000000000 to 0x007000000000. */
-      mem.heaps[0].heap_limit = 0x003000000000UL;
-      mem.heaps[1].heap_limit = 0x007000000000UL;
-      #elif defined(UNIX_LINUX) && defined(POWERPC64)
-      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
-         and there is room from 0x080000000000 to 0x380000000000. */
-      mem.heaps[0].heap_limit = 0x080000000000UL;
-      mem.heaps[1].heap_limit = 0x380000000000UL;
-      #elif defined(UNIX_LINUX) && defined(S390_64)
-      /* On Linux/s390x, the available addresses are in the range 0..2^53,
-         and there is room from 0x008000000000 to 0x038000000000. */
-      mem.heaps[0].heap_limit = 0x008000000000UL;
-      mem.heaps[1].heap_limit = 0x038000000000UL;
-      #elif defined(UNIX_FREEBSD) && defined(AMD64)
-      mem.heaps[0].heap_limit = 0x001000000000UL;
-      mem.heaps[1].heap_limit = 0x700000000000UL;
-      #elif defined(UNIX_NETBSD) && defined(AMD64)
-      mem.heaps[0].heap_limit = 0x000100000000UL;
-      mem.heaps[1].heap_limit = 0x700000000000UL;
+      #elif defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
+      /* Let's hope heap 0 will not go past MAPPABLE_ADDRESS_RANGE1_END.
+         Let's hope heap 1 will not go past MAPPABLE_ADDRESS_RANGE2_START. */
+      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE1_START;
+      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE2_END + 1;
+      #elif defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
+      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE_START;
+      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE_END + 1;
       #else
        #ifdef TYPECODES
       var aint end = bitm(oint_addr_len+addr_shift);
@@ -3203,44 +3179,16 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[0].heap_hardlimit =
         mem.heaps[1].heap_limit = start + round_down(floor((end-start)*3,5),map_pagesize);
       mem.heaps[1].heap_hardlimit = end;
-      #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
-      mem.heaps[0].heap_limit = 0x2E000000; /* room until at least 0x40000000 */
-      mem.heaps[0].heap_hardlimit = 0x40000000;
-      mem.heaps[1].heap_limit = 0x64000000; /* room until at least 0x7F000000 */
-      mem.heaps[1].heap_hardlimit = 0x7F000000;
-      #elif defined(UNIX_NETBSD) && !defined(WIDE_HARD)
-      mem.heaps[0].heap_limit = 0x10000000;
-      mem.heaps[0].heap_hardlimit = 0x80000000;
-      mem.heaps[1].heap_limit = 0x80000000;
-      mem.heaps[1].heap_hardlimit = 0xB0000000;
-      #elif defined(UNIX_DARWIN) && defined(WIDE_HARD)
-      /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
-         mach_vm_allocate are in the range 2^33...2^47. */
-      mem.heaps[0].heap_limit = 0x000200000000UL; /* room until 0x200000000000 */
-      mem.heaps[0].heap_hardlimit = 0x200000000000UL;
-      mem.heaps[1].heap_limit = 0x200000000000UL; /* room until at least 0x400000000000 */
-      mem.heaps[1].heap_hardlimit = 0x400000000000UL;
-      #elif defined(UNIX_LINUX) && defined(ARM64)
-      /* On Linux/arm64, the available addresses are in the range 0..2^39,
-         and there is room from 0x003000000000 to 0x007000000000. */
-      mem.heaps[0].heap_limit = 0x003000000000UL;
-      mem.heaps[0].heap_hardlimit = 0x005000000000UL;
-      mem.heaps[1].heap_limit = 0x005000000000UL;
-      mem.heaps[1].heap_hardlimit = 0x007000000000UL;
-      #elif defined(UNIX_LINUX) && defined(POWERPC64)
-      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
-         and there is room from 0x080000000000 to 0x380000000000. */
-      mem.heaps[0].heap_limit = 0x080000000000UL;
-      mem.heaps[0].heap_hardlimit = 0x200000000000UL;
-      mem.heaps[1].heap_limit = 0x200000000000UL;
-      mem.heaps[1].heap_hardlimit = 0x380000000000UL;
-      #elif defined(UNIX_LINUX) && defined(S390_64)
-      /* On Linux/s390x, the available addresses are in the range 0..2^53,
-         and there is room from 0x008000000000 to 0x038000000000. */
-      mem.heaps[0].heap_limit = 0x008000000000UL;
-      mem.heaps[0].heap_hardlimit = 0x020000000000UL;
-      mem.heaps[1].heap_limit = 0x020000000000UL;
-      mem.heaps[1].heap_hardlimit = 0x038000000000UL;
+      #elif defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
+      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE1_START;
+      mem.heaps[0].heap_hardlimit = MAPPABLE_ADDRESS_RANGE1_END + 1;
+      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE2_START;
+      mem.heaps[1].heap_hardlimit = MAPPABLE_ADDRESS_RANGE2_END + 1;
+      #elif defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
+      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE_START;
+      mem.heaps[0].heap_hardlimit =
+      mem.heaps[1].heap_limit = round_down((MAPPABLE_ADDRESS_RANGE_START >> 1) + (MAPPABLE_ADDRESS_RANGE_END >> 1), map_pagesize);
+      mem.heaps[1].heap_hardlimit = MAPPABLE_ADDRESS_RANGE_END + 1;
       #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
        #ifdef UNIX_DARWIN
       /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
