@@ -395,7 +395,7 @@
  <title>Variable &defun-accept-spelalist;</title>
 <para>When <firstterm>&defun-accept-spelalist;</firstterm> is
 non-&nil;, &defun; accepts &spelalist;s, converting type-parameter
-associations to type declarations:
+associations to type <link linkend="declarations">declarations</link>:
 <programlisting language="lisp">(defun f ((x list) (y integer)) ...)</programlisting>
 is equivalent to
 <programlisting language="lisp">(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
@@ -568,7 +568,7 @@ NIL
 <section id="declarations"><title>Declarations
   <ulink role="clhs" url="sec_3-3"/></title>
 
-<para>The declarations <code>(&type-dec; &type-r; &var-r; ...)</code>,
+<para>The type declarations <code>(&type-dec; &type-r; &var-r; ...)</code>,
  <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
    are ignored by both the interpreter and the compiler.</para>
 
