@@ -553,7 +553,7 @@ the users will often forget to supply optional arguments when supplying
 keys, e.g., <code>(&read-from-string; &string-r; &start-k; 5)</code>
 instead of <code>(&read-from-string; &string-r; t nil &start-k; 5)</code>.
 This is why the &clisp; compiler issues a &style-warning-t; in such cases:
-<programlisting>(&defun; foo (&optional-amp; a &key-amp; b) (cons a b))
+<programlisting language="lisp">(&defun; foo (&optional-amp; a &key-amp; b) (cons a b))
 (&compile; 'foo)
 WARNING: in FOO : Mixing &optional-amp; and &key-amp; in lambda list (&optional-amp; A &key-amp; B) is bad design
 FOO ;
@@ -562,15 +562,18 @@ NIL
 </programlisting></para></formalpara>
 
 </section>
-
 </section>
 
 <section id="declarations"><title>Declarations
   <ulink role="clhs" url="sec_3-3"/></title>
 
-<para>The type declarations <code>(&type-dec; &type-r; &var-r; ...)</code>,
- <code>(&ftype-dec; &type-r; &func-r; ...)</code>,
-   are ignored by both the interpreter and the compiler.</para>
+<section id="decl-min"><title>Minimal Declaration Processing Requirements
+  <ulink role="clhs" url="sec_3-3-1"/></title>
+
+<para>The type declarations <code>(&type-dec; &type-r; &var-r; ...)</code>
+ and <code>(&ftype-dec; &type-r; &func-r; ...)</code>
+ are ignored by both the interpreter and the compiler.
+ Use &check-type; to force type checks.</para></section>
 
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
