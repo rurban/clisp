@@ -1,3 +1,10 @@
+2017-09-30  Bruno Haible  <bruno@clisp.org>
+
+	configure: Fix build failure on IRIX when CC is set and not GCC
+	(regression from 2011-05-17).
+	* configure: Don't invoke $CC -dumpmachine when $CC does not contain
+	'gcc'.
+
 2017-09-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on many platforms (regression from 2017-09-24).

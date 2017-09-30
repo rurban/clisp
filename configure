@@ -660,11 +660,15 @@ if test -n "$do_config"; then
     # cygwin comes with a true cross-compiler, i.e. one does
     #   ./configure CC=i686-w64-mingw32-gcc ...
     # instead of ./configure --with-mingw
-    CC_machine=`($CC -dumpmachine) 2>/dev/null` || :
-    case "$CC_machine" in
-      *mingw32* )
-        echo "cross-compiling for mingw"
-        subdir_configure_args="${subdir_configure_args} --build=$CC_machine" ;;
+    case "$CC" in
+      *gcc*)
+        CC_machine=`($CC -dumpmachine) 2>/dev/null` || :
+        case "$CC_machine" in
+          *mingw32* )
+            echo "cross-compiling for mingw"
+            subdir_configure_args="${subdir_configure_args} --build=$CC_machine" ;;
+        esac
+        ;;
     esac
   fi
   cd "${ABS_DIRNAME}"
