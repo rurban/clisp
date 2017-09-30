@@ -6818,7 +6818,11 @@ typedef struct {
     /* Use a union, so that we have fast access to strmflags and strmtype.
        With DEBUG_GCSAFETY and C++ prior to -std=gnu++11, we cannot put a
        gcv_object_t in a union. */
+    #if defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
     struct { INNARDS_OF_GCV_OBJECT } recdata0_o _attribute_aligned_object_;
+    #else
+    gcv_object_t                     recdata0_o _attribute_aligned_object_;
+    #endif
     struct {
       #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
         #error No room for stream flags -- re-accommodate Stream-Flags!!
