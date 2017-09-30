@@ -1,3 +1,21 @@
+2017-09-29  Bruno Haible  <bruno@clisp.org>
+
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* build-aux/config.guess: Update from gnulib git.
+	* build-aux/config.sub: Likewise.
+	* build-aux/ar-lib: Update from automake git.
+	* build-aux/compile: Likewise.
+	* build-aux/depcomp: Likewise.
+	* build-aux/install-sh: Likewise.
+	* build-aux/missing: Likewise.
+	* build-aux/ylwrap: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+
 2017-09-24  Bruno Haible  <bruno@clisp.org>
 
 	Define suitable address ranges in lispbibl.d, rather than in spvw.d.

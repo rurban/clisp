@@ -15,7 +15,7 @@
 
    You should have received a copy of the GNU General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _REGEX_INTERNAL_H
 #define _REGEX_INTERNAL_H 1
@@ -897,6 +897,14 @@ re_string_elem_size_at (const re_string_t *pstr, Idx idx)
    __attribute__ ((__warn_unused_result__))
 #else
 # define __attribute_warn_unused_result__ /* empty */
+#endif
+
+#ifndef FALLTHROUGH
+# if __GNUC__ < 7
+#  define FALLTHROUGH ((void) 0)
+# else
+#  define FALLTHROUGH __attribute__ ((__fallthrough__))
+# endif
 #endif
 
 #endif /*  _REGEX_INTERNAL_H */

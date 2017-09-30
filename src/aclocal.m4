@@ -1346,12 +1346,12 @@ AC_DEFUN([gl_FUNC_ALLOCA],
 AC_DEFUN([gl_PREREQ_ALLOCA], [:])
 
 # This works around a bug in autoconf <= 2.68.
-# See <http://lists.gnu.org/archive/html/bug-gnulib/2011-06/msg00277.html>.
+# See <https://lists.gnu.org/archive/html/bug-gnulib/2011-06/msg00277.html>.
 
 m4_version_prereq([2.69], [] ,[
 
 # This is taken from the following Autoconf patch:
-# http://git.savannah.gnu.org/cgit/autoconf.git/commit/?id=6cd9f12520b0d6f76d3230d7565feba1ecf29497
+# https://git.savannah.gnu.org/gitweb/?p=autoconf.git;a=commitdiff;h=6cd9f12520b0d6f76d3230d7565feba1ecf29497
 
 # _AC_LIBOBJ_ALLOCA
 # -----------------
@@ -1552,7 +1552,7 @@ MicrosoftCompiler
     ])
 ])
 
-# btowc.m4 serial 10
+# btowc.m4 serial 11
 dnl Copyright (C) 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1564,7 +1564,7 @@ AC_DEFUN([gl_FUNC_BTOWC],
 
   dnl Check whether <wchar.h> is usable at all, first. Otherwise the test
   dnl program below may lead to an endless loop. See
-  dnl <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42440>.
+  dnl <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42440>.
   AC_REQUIRE([gl_WCHAR_H_INLINE_OK])
 
   AC_CHECK_FUNCS_ONCE([btowc])
@@ -1604,6 +1604,8 @@ changequote(,)dnl
            case "$host_os" in
                       # Guess no on Cygwin.
              cygwin*) gl_cv_func_btowc_nul="guessing no" ;;
+                      # Guess yes on native Windows.
+             mingw*)  gl_cv_func_btowc_nul="guessing yes" ;;
                       # Guess yes otherwise.
              *)       gl_cv_func_btowc_nul="guessing yes" ;;
            esac
@@ -1619,10 +1621,12 @@ changequote([,])dnl
         dnl is present.
 changequote(,)dnl
         case "$host_os" in
-                 # Guess no on IRIX.
-          irix*) gl_cv_func_btowc_eof="guessing no" ;;
-                 # Guess yes otherwise.
-          *)     gl_cv_func_btowc_eof="guessing yes" ;;
+                  # Guess no on IRIX.
+          irix*)  gl_cv_func_btowc_eof="guessing no" ;;
+                  # Guess yes on native Windows.
+          mingw*) gl_cv_func_btowc_eof="guessing yes" ;;
+                  # Guess yes otherwise.
+          *)      gl_cv_func_btowc_eof="guessing yes" ;;
         esac
 changequote([,])dnl
         if test $LOCALE_FR != none; then
@@ -2222,7 +2226,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
   AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
 ])
 
-# serial 15  -*- Autoconf -*-
+# serial 17  -*- Autoconf -*-
 # Enable extensions on systems that normally disable them.
 
 # Copyright (C) 2003, 2006-2017 Free Software Foundation, Inc.
@@ -2292,6 +2296,14 @@ dnl configure.ac when using autoheader 2.62.
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
+/* Enable NetBSD extensions on NetBSD.  */
+#ifndef _NETBSD_SOURCE
+# undef _NETBSD_SOURCE
+#endif
+/* Enable OpenBSD extensions on NetBSD.  */
+#ifndef _OPENBSD_SOURCE
+# undef _OPENBSD_SOURCE
+#endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
@@ -2352,6 +2364,8 @@ dnl configure.ac when using autoheader 2.62.
   AC_DEFINE([_ALL_SOURCE])
   AC_DEFINE([_DARWIN_C_SOURCE])
   AC_DEFINE([_GNU_SOURCE])
+  AC_DEFINE([_NETBSD_SOURCE])
+  AC_DEFINE([_OPENBSD_SOURCE])
   AC_DEFINE([_POSIX_PTHREAD_SEMANTICS])
   AC_DEFINE([__STDC_WANT_IEC_60559_ATTRIBS_EXT__])
   AC_DEFINE([__STDC_WANT_IEC_60559_BFP_EXT__])
@@ -2409,7 +2423,7 @@ AC_DEFUN([gl_EXTERN_INLINE],
 [/* Please see the Gnulib manual for how to use these macros.
 
    Suppress extern inline with HP-UX cc, as it appears to be broken; see
-   <http://lists.gnu.org/archive/html/bug-texinfo/2013-02/msg00030.html>.
+   <https://lists.gnu.org/archive/html/bug-texinfo/2013-02/msg00030.html>.
 
    Suppress extern inline with Sun C in standards-conformance mode, as it
    mishandles inline functions that call each other.  E.g., for 'inline void f
@@ -2426,16 +2440,16 @@ AC_DEFUN([gl_EXTERN_INLINE],
    from calling static functions.  This bug is known to occur on:
 
      OS X 10.8 and earlier; see:
-     http://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html
+     https://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html
 
      DragonFly; see
      http://muscles.dragonflybsd.org/bulk/bleeding-edge-potential/latest-per-pkg/ah-tty-0.3.12.log
 
      FreeBSD; see:
-     http://lists.gnu.org/archive/html/bug-gnulib/2014-07/msg00104.html
+     https://lists.gnu.org/archive/html/bug-gnulib/2014-07/msg00104.html
 
    OS X 10.9 has a macro __header_inline indicating the bug is fixed for C and
-   for clang but remains for g++; see <http://trac.macports.org/ticket/41033>.
+   for clang but remains for g++; see <https://trac.macports.org/ticket/41033>.
    Assume DragonFly and FreeBSD will be similar.  */
 #if (((defined __APPLE__ && defined __MACH__) \
       || defined __DragonFly__ || defined __FreeBSD__) \
@@ -2499,7 +2513,7 @@ AC_DEFUN([gl_EXTERN_INLINE],
 #endif])
 ])
 
-# fcntl-o.m4 serial 4
+# fcntl-o.m4 serial 5
 dnl Copyright (C) 2006, 2009-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2519,6 +2533,7 @@ AC_DEFUN([gl_FCNTL_O_FLAGS],
     [AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])],
     [AC_REQUIRE([AC_GNU_SOURCE])])
 
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_CHECK_HEADERS_ONCE([unistd.h])
   AC_CHECK_FUNCS_ONCE([symlink])
   AC_CACHE_CHECK([for working fcntl.h], [gl_cv_header_working_fcntl_h],
@@ -2617,7 +2632,13 @@ AC_DEFUN([gl_FCNTL_O_FLAGS],
         68) gl_cv_header_working_fcntl_h='no (bad O_NOATIME, O_NOFOLLOW)';; #(
          *) gl_cv_header_working_fcntl_h='no';;
         esac],
-       [gl_cv_header_working_fcntl_h=cross-compiling])])
+       [case "$host_os" in
+                  # Guess 'no' on native Windows.
+          mingw*) gl_cv_header_working_fcntl_h='no' ;;
+          *)      gl_cv_header_working_fcntl_h=cross-compiling ;;
+        esac
+       ])
+    ])
 
   case $gl_cv_header_working_fcntl_h in #(
   *O_NOATIME* | no | cross-compiling) ac_val=0;; #(
@@ -2939,7 +2960,7 @@ AC_DEFUN([gl_PREREQ_HOST_NAME_MAX], [
   dnl - On most Unix systems, use MAXHOSTNAMELEN from <sys/param.h> instead.
   dnl - On Solaris, Cygwin, BeOS, use MAXHOSTNAMELEN from <netdb.h> instead.
   dnl - On mingw, use 256, because
-  dnl   <http://msdn.microsoft.com/en-us/library/ms738527.aspx> says:
+  dnl   <https://msdn.microsoft.com/en-us/library/ms738527.aspx> says:
   dnl   "if a buffer of 256 bytes is passed in the name parameter and
   dnl    the namelen parameter is set to 256, the buffer size will always
   dnl    be adequate."
@@ -3608,7 +3629,7 @@ AC_DEFUN([AM_GNU_GETTEXT_VERSION], [])
 dnl Usage: AM_GNU_GETTEXT_REQUIRE_VERSION([gettext-version])
 AC_DEFUN([AM_GNU_GETTEXT_REQUIRE_VERSION], [])
 
-# serial 23
+# serial 24
 
 # Copyright (C) 2001-2003, 2005, 2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -3715,6 +3736,8 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
       case "$host_os" in
                 # Guess all is fine on glibc systems.
         *-gnu*) gl_cv_func_gettimeofday_clobber="guessing no" ;;
+                # Guess no on native Windows.
+        mingw*) gl_cv_func_gettimeofday_clobber="guessing no" ;;
                 # If we don't know, assume the worst.
         *)      gl_cv_func_gettimeofday_clobber="guessing yes" ;;
       esac
@@ -4018,13 +4041,13 @@ m4_ifndef([AS_VAR_IF],
 # This is like AC_PROG_CC_C99, except that
 # - AC_PROG_CC_C99 did not exist in Autoconf versions < 2.60,
 # - AC_PROG_CC_C99 does not mix well with AC_PROG_CC_STDC
-#   <http://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00367.html>,
+#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00367.html>,
 #   but many more packages use AC_PROG_CC_STDC than AC_PROG_CC_C99
-#   <http://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00441.html>.
+#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00441.html>.
 # Remaining problems:
 # - When AC_PROG_CC_STDC is invoked twice, it adds the C99 enabling options
 #   to CC twice
-#   <http://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00431.html>.
+#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00431.html>.
 # - AC_PROG_CC_STDC is likely to change now that C11 is an ISO standard.
 AC_DEFUN([gl_PROG_CC_C99],
 [
@@ -4270,7 +4293,7 @@ m4_ifndef([AC_PROG_SED],
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -4378,12 +4401,12 @@ AC_DEFUN([gl_EARLY],
   # Code from module no-c++:
   # Code from module nocrash:
   # Code from module noreturn:
+  # Code from module nstrftime:
   # Code from module pathmax:
   # Code from module readlink:
   # Code from module recv:
   # Code from module recvfrom:
   # Code from module regex:
-  # Code from module secure_getenv:
   # Code from module select:
   # Code from module send:
   # Code from module sendto:
@@ -4700,6 +4723,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
   gt_NO_CXX
+  gl_FUNC_GNU_STRFTIME
   gl_PATHMAX
   gl_FUNC_READLINK
   if test $HAVE_READLINK = 0 || test $REPLACE_READLINK = 1; then
@@ -4722,12 +4746,6 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([regex])
     gl_PREREQ_REGEX
   fi
-  gl_FUNC_SECURE_GETENV
-  if test $HAVE_SECURE_GETENV = 0; then
-    AC_LIBOBJ([secure_getenv])
-    gl_PREREQ_SECURE_GETENV
-  fi
-  gl_STDLIB_MODULE_INDICATOR([secure_getenv])
   gl_FUNC_SELECT
   if test $REPLACE_SELECT = 1; then
     AC_LIBOBJ([select])
@@ -4780,7 +4798,11 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
-    AC_LIBOBJ([stat-w32])
+    case "$host_os" in
+      mingw*)
+        AC_LIBOBJ([stat-w32])
+        ;;
+    esac
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
@@ -4818,7 +4840,6 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([strerror_r])
   dnl For the modules argp, error.
   gl_MODULE_INDICATOR([strerror_r-posix])
-  gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRING_H
   gl_HEADER_STRINGS_H
   gl_FUNC_STRPTIME
@@ -4895,6 +4916,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
+  AC_REQUIRE([AC_C_INLINE])
   AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
   dnl On Solaris <= 9, <sys/procfs.h> is unusable when AC_SYS_LARGEFILE is in use.
   AC_CHECK_HEADERS([sys/procfs.h])
@@ -5127,6 +5149,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/netinet_in.in.h
   lib/nl_langinfo.c
   lib/noreturn.h
+  lib/nstrftime.c
   lib/pathmax.h
   lib/readlink.c
   lib/recv.c
@@ -5139,7 +5162,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
-  lib/secure_getenv.c
   lib/select.c
   lib/send.c
   lib/sendto.c
@@ -5164,7 +5186,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strerror-override.c
   lib/strerror-override.h
   lib/strerror_r.c
-  lib/strftime.c
   lib/strftime.h
   lib/string.in.h
   lib/strings.in.h
@@ -5299,6 +5320,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/nls.m4
   m4/no-c++.m4
   m4/nocrash.m4
+  m4/nstrftime.m4
   m4/off_t.m4
   m4/pathmax.m4
   m4/po.m4
@@ -5307,7 +5329,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/pthread_rwlock_rdlock.m4
   m4/readlink.m4
   m4/regex.m4
-  m4/secure_getenv.m4
   m4/select.m4
   m4/setenv.m4
   m4/signal_h.m4
@@ -5328,7 +5349,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strdup.m4
   m4/strerror.m4
   m4/strerror_r.m4
-  m4/strftime.m4
   m4/string_h.m4
   m4/strings_h.m4
   m4/strptime.m4
@@ -5375,7 +5395,7 @@ AC_DEFUN([gl_HARD_LOCALE],
   :
 ])
 
-# host-cpu-c-abi.m4 serial 4
+# host-cpu-c-abi.m4 serial 7
 dnl Copyright (C) 2002-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5423,7 +5443,7 @@ dnl   - Speed of execution of the common instruction set is reasonable across
 dnl     the entire family of CPUs. If you have assembly language source files
 dnl     that are optimized for particular CPU types (like GNU gmp has), you
 dnl     will need to make the distinction.
-dnl   See <http://en.wikipedia.org/wiki/X86_instruction_listings>.
+dnl   See <https://en.wikipedia.org/wiki/X86_instruction_listings>.
 AC_DEFUN([gl_HOST_CPU_C_ABI],
 [
   AC_REQUIRE([AC_CANONICAL_HOST])
@@ -5472,7 +5492,7 @@ changequote([,])dnl
          # - aarch64 instruction set, 32-bit pointers, 32-bit 'long': arm64-ilp32.
          # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': arm or armhf.
          AC_EGREP_CPP([yes],
-           [#if defined(__aarch64__) || defined(__ARM_64BIT_STATE) || defined(__ARM_PCS_AAPCS64)
+           [#if defined __aarch64__
             yes
             #endif],
            [AC_EGREP_CPP([yes],
@@ -5483,13 +5503,13 @@ changequote([,])dnl
               [gl_cv_host_cpu_c_abi=arm64])],
            [# Don't distinguish little-endian and big-endian arm, since they
             # don't require different machine code for simple operations and
-            # since the user can distinguish them through the preprocessot
+            # since the user can distinguish them through the preprocessor
             # defines __ARMEL__ vs. __ARMEB__.
             # But distinguish arm which passes floating-point arguments and
             # return values in integer registers (r0, r1, ...) - this is
             # gcc -mfloat-abi=soft or gcc -mfloat-abi=softfp - from arm which
             # passes them in float registers (s0, s1, ...) and double registers
-            # (d0, d1, ...) - rhis is gcc -mfloat-abi=hard. GCC 4.6 or newer
+            # (d0, d1, ...) - this is gcc -mfloat-abi=hard. GCC 4.6 or newer
             # sets the preprocessor defines __ARM_PCS (for the first case) and
             # __ARM_PCS_VFP (for the second case), but older GCC does not.
             echo 'double ddd; void func (double dd) { ddd = dd; }' > conftest.c
@@ -5515,6 +5535,17 @@ changequote([,])dnl
            [gl_cv_host_cpu_c_abi=hppa])
          ;;
 
+       ia64* )
+         # On ia64 on HP-UX, the C compiler may be generating 64-bit code or
+         # 32-bit code. In the latter case, it defines _ILP32.
+         AC_EGREP_CPP([yes],
+           [#if defined _ILP32
+            yes
+            #endif],
+           [gl_cv_host_cpu_c_abi=ia64-ilp32],
+           [gl_cv_host_cpu_c_abi=ia64])
+         ;;
+
        mips* )
          # We should also check for (_MIPS_SZPTR == 64), but gcc keeps this
          # at 32.
@@ -5523,12 +5554,12 @@ changequote([,])dnl
             yes
             #endif],
            [gl_cv_host_cpu_c_abi=mips64],
-           [# Strictly speaking, the MIPS ABI (-32 or -n32) is independent
-            # from the CPU identification (-mips[12] or -mips[34]). But -n32
-            # is commonly used together with -mips3, and it's easier to test
-            # the CPU identification.
+           [# In the n32 ABI, _ABIN32 is defined, _ABIO32 is not defined (but
+            # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIN32.
+            # In the 32 ABI, _ABIO32 is defined, _ABIN32 is not defined (but
+            # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIO32.
             AC_EGREP_CPP([yes],
-              [#if __mips >= 3
+              [#if (_MIPS_SIM == _ABIN32)
                yes
                #endif],
               [gl_cv_host_cpu_c_abi=mipsn32],
@@ -5638,6 +5669,9 @@ EOF
 #endif
 #ifndef __hppa64__
 #undef __hppa64__
+#endif
+#ifndef __ia64_ilp32__
+#undef __ia64_ilp32__
 #endif
 #ifndef __ia64__
 #undef __ia64__
@@ -7810,7 +7844,7 @@ AC_DEFUN([AC_LIB_PREPARE_MULTILIB],
      case "$host_os" in
        solaris*)
          dnl See Solaris 10 Software Developer Collection > Solaris 64-bit Developer's Guide > The Development Environment
-         dnl <http://docs.sun.com/app/docs/doc/816-5138/dev-env?l=en&a=view>.
+         dnl <https://docs.oracle.com/cd/E19253-01/816-5138/dev-env/index.html>.
          dnl "Portable Makefiles should refer to any library directories using the 64 symbolic link."
          dnl But we want to recognize the sparcv9 or amd64 subdirectory also if the
          dnl symlink is missing, so we set acl_libdirstem2 too.
@@ -9035,7 +9069,7 @@ AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
               | (ullmax / ull) | (ullmax % ull));]])
 ])
 
-# serial 27
+# serial 29
 
 # Copyright (C) 1997-2001, 2003-2017 Free Software Foundation, Inc.
 #
@@ -9070,6 +9104,7 @@ AC_DEFUN([gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
 [
   dnl We don't use AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK any more, because it
   dnl is no longer maintained in Autoconf and because it invokes AC_LIBOBJ.
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_CACHE_CHECK([whether lstat correctly handles trailing slash],
     [gl_cv_func_lstat_dereferences_slashed_symlink],
     [rm -f conftest.sym conftest.file
@@ -9091,6 +9126,9 @@ AC_DEFUN([gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK],
           *-gnu*)
             # Guess yes on glibc systems.
             gl_cv_func_lstat_dereferences_slashed_symlink="guessing yes" ;;
+          mingw*)
+            # Guess no on native Windows.
+            gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
           *)
             # If we don't know, assume the worst.
             gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
@@ -9116,7 +9154,7 @@ dnl with or without modifications, as long as this notice is preserved.
 m4_version_prereq([2.70], [] ,[
 
 # This is adapted with modifications from upstream Autoconf here:
-# http://git.savannah.gnu.org/cgit/autoconf.git/commit/?id=04be2b7a29d65d9a08e64e8e56e594c91749598c
+# https://git.savannah.gnu.org/cgit/autoconf.git/commit/?id=04be2b7a29d65d9a08e64e8e56e594c91749598c
 AC_DEFUN([_AC_FUNC_MALLOC_IF],
 [
   AC_REQUIRE([AC_HEADER_STDC])dnl
@@ -9225,7 +9263,7 @@ AC_DEFUN([gl_MALLOCA],
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
 ])
 
-# mbrtowc.m4 serial 27  -*- coding: utf-8 -*-
+# mbrtowc.m4 serial 29  -*- coding: utf-8 -*-
 dnl Copyright (C) 2001-2002, 2004-2005, 2008-2017 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -9790,9 +9828,11 @@ AC_DEFUN([gl_MBRTOWC_EMPTY_INPUT],
       dnl is present.
 changequote(,)dnl
       case "$host_os" in
-                     # Guess no on AIX and glibc systems.
+                    # Guess no on AIX and glibc systems.
         aix* | *-gnu*)
                     gl_cv_func_mbrtowc_empty_input="guessing no" ;;
+                    # Guess yes on native Windows.
+        mingw*)     gl_cv_func_mbrtowc_empty_input="guessing yes" ;;
         *)          gl_cv_func_mbrtowc_empty_input="guessing yes" ;;
       esac
 changequote([,])dnl
@@ -9819,6 +9859,7 @@ dnl https://sourceware.org/bugzilla/show_bug.cgi?id=19932
 
 AC_DEFUN([gl_MBRTOWC_C_LOCALE],
 [
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_CACHE_CHECK([whether the C locale is free of encoding errors],
     [gl_cv_C_locale_sans_EILSEQ],
     [
@@ -9849,7 +9890,12 @@ AC_DEFUN([gl_MBRTOWC_C_LOCALE],
           ]])],
       [gl_cv_C_locale_sans_EILSEQ=yes],
       [gl_cv_C_locale_sans_EILSEQ=no],
-      [:])])
+      [case "$host_os" in
+                 # Guess yes on native Windows.
+         mingw*) gl_cv_C_locale_sans_EILSEQ="guessing yes" ;;
+       esac
+      ])
+    ])
 ])
 
 # Prerequisites of lib/mbrtowc.c.
@@ -9866,7 +9912,7 @@ AC_DEFUN([AC_FUNC_MBRTOWC],
 [
   dnl Same as AC_FUNC_MBRTOWC in autoconf-2.60.
   AC_CACHE_CHECK([whether mbrtowc and mbstate_t are properly declared],
-    gl_cv_func_mbrtowc,
+    [gl_cv_func_mbrtowc],
     [AC_LINK_IFELSE(
        [AC_LANG_PROGRAM(
             [[/* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be
@@ -9882,8 +9928,8 @@ AC_DEFUN([AC_FUNC_MBRTOWC],
               size_t n = 1;
               mbstate_t state;
               return ! (sizeof state && (mbrtowc) (&wc, s, n, &state));]])],
-       gl_cv_func_mbrtowc=yes,
-       gl_cv_func_mbrtowc=no)])
+       [gl_cv_func_mbrtowc=yes],
+       [gl_cv_func_mbrtowc=no])])
   if test $gl_cv_func_mbrtowc = yes; then
     AC_DEFINE([HAVE_MBRTOWC], [1],
       [Define to 1 if mbrtowc and mbstate_t are properly declared.])
@@ -10160,7 +10206,7 @@ AC_DEFUN([gl_PREREQ_MBTOWC], [
   :
 ])
 
-# memchr.m4 serial 12
+# memchr.m4 serial 13
 dnl Copyright (C) 2002-2004, 2009-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -10168,6 +10214,8 @@ dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
 [
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+
   dnl Check for prerequisites for memory fence checks.
   gl_FUNC_MMAP_ANON
   AC_CHECK_HEADERS_ONCE([sys/mman.h])
@@ -10185,10 +10233,10 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
   if test $HAVE_MEMCHR = 1; then
     # Detect platform-specific bugs in some versions of glibc:
     # memchr should not dereference anything with length 0
-    #   http://bugzilla.redhat.com/499689
+    #   https://bugzilla.redhat.com/show_bug.cgi?id=499689
     # memchr should not dereference overestimated length after a match
-    #   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=521737
-    #   http://sourceware.org/bugzilla/show_bug.cgi?id=10162
+    #   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=521737
+    #   https://sourceware.org/bugzilla/show_bug.cgi?id=10162
     # Assume that memchr works on platforms that lack mprotect.
     AC_CACHE_CHECK([whether memchr works], [gl_cv_func_memchr_works],
       [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
@@ -10235,12 +10283,21 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
         result |= 4;
     }
   return result;
-]])], [gl_cv_func_memchr_works=yes], [gl_cv_func_memchr_works=no],
-      [dnl Be pessimistic for now.
-       gl_cv_func_memchr_works="guessing no"])])
-    if test "$gl_cv_func_memchr_works" != yes; then
-      REPLACE_MEMCHR=1
-    fi
+]])],
+         [gl_cv_func_memchr_works=yes],
+         [gl_cv_func_memchr_works=no],
+         [case "$host_os" in
+                    # Guess yes on native Windows.
+            mingw*) gl_cv_func_memchr_works="guessing yes" ;;
+                    # Be pessimistic for now.
+            *)      gl_cv_func_memchr_works="guessing no" ;;
+          esac
+         ])
+      ])
+    case "$gl_cv_func_memchr_works" in
+      *yes) ;;
+      *) REPLACE_MEMCHR=1 ;;
+    esac
   fi
 ])
 
@@ -10396,7 +10453,7 @@ AC_DEFUN([gl_FUNC_MKNOD],
   fi
 ])
 
-#serial 23
+#serial 24
 
 # Copyright (C) 2001, 2003-2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -10457,6 +10514,8 @@ AC_DEFUN([gl_FUNC_MKSTEMP],
           [case "$host_os" in
                      # Guess yes on glibc systems.
              *-gnu*) gl_cv_func_working_mkstemp="guessing yes" ;;
+                     # Guess no on native Windows.
+             mingw*) gl_cv_func_working_mkstemp="guessing no" ;;
                      # If we don't know, assume the worst.
              *)      gl_cv_func_working_mkstemp="guessing no" ;;
            esac
@@ -10479,7 +10538,7 @@ AC_DEFUN([gl_PREREQ_MKSTEMP],
 [
 ])
 
-# serial 28
+# serial 30
 dnl Copyright (C) 2002-2003, 2005-2007, 2009-2017 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
@@ -10506,6 +10565,7 @@ dnl Test whether mktime works. Set gl_cv_func_working_mktime.
 AC_DEFUN([gl_FUNC_MKTIME_WORKS],
 [
   AC_REQUIRE([gl_TIME_T_IS_SIGNED])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
 
   dnl We don't use AC_FUNC_MKTIME any more, because it is no longer maintained
   dnl in Autoconf and because it invokes AC_LIBOBJ.
@@ -10533,6 +10593,10 @@ AC_DEFUN([gl_FUNC_MKTIME_WORKS],
 
 #if HAVE_DECL_ALARM
 # include <signal.h>
+#endif
+
+#ifndef TIME_T_IS_SIGNED
+# define TIME_T_IS_SIGNED 0
 #endif
 
 /* Work around redefinition to rpl_putenv by other config tests.  */
@@ -10720,7 +10784,12 @@ main ()
 }]])],
        [gl_cv_func_working_mktime=yes],
        [gl_cv_func_working_mktime=no],
-       [gl_cv_func_working_mktime="guessing no"])
+       [case "$host_os" in
+                  # Guess no on native Windows.
+          mingw*) gl_cv_func_working_mktime="guessing no" ;;
+          *)      gl_cv_func_working_mktime="guessing no" ;;
+        esac
+       ])
     ])
 ])
 
@@ -11189,6 +11258,29 @@ nocrash_init (void)
 }
 #endif
 ]])
+
+# serial 34
+
+# Copyright (C) 1996-1997, 1999-2007, 2009-2017 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Jim Meyering and Paul Eggert.
+
+AC_DEFUN([gl_FUNC_GNU_STRFTIME],
+[
+ # This defines (or not) HAVE_TZNAME and HAVE_TM_ZONE.
+ AC_REQUIRE([AC_STRUCT_TIMEZONE])
+
+ AC_REQUIRE([gl_TM_GMTOFF])
+
+ AC_CHECK_FUNCS_ONCE([tzset])
+
+ AC_DEFINE([my_strftime], [nstrftime],
+   [Define to the name of the strftime replacement function.])
+])
 
 # off_t.m4 serial 1
 dnl Copyright (C) 2012-2017 Free Software Foundation, Inc.
@@ -12034,7 +12126,7 @@ AC_DEFUN([gl_PREREQ_READLINK],
   :
 ])
 
-# serial 66
+# serial 67
 
 # Copyright (C) 1996-2001, 2003-2017 Free Software Foundation, Inc.
 #
@@ -12049,6 +12141,7 @@ AC_PREREQ([2.50])
 
 AC_DEFUN([gl_REGEX],
 [
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_ARG_WITH([included-regex],
     [AS_HELP_STRING([--without-included-regex],
                     [don't compile regex; this is the default on systems
@@ -12111,7 +12204,7 @@ AC_DEFUN([gl_REGEX],
             if (setlocale (LC_ALL, "en_US.UTF-8"))
               {
                 {
-                  /* http://sourceware.org/ml/libc-hacker/2006-09/msg00008.html
+                  /* https://sourceware.org/ml/libc-hacker/2006-09/msg00008.html
                      This test needs valgrind to catch the bug on Debian
                      GNU/Linux 3.1 x86, but it might catch the bug better
                      on other platforms and it shouldn't hurt to try the
@@ -12135,7 +12228,7 @@ AC_DEFUN([gl_REGEX],
                 {
                   /* This test is from glibc bug 15078.
                      The test case is from Andreas Schwab in
-                     <http://www.sourceware.org/ml/libc-alpha/2013-01/msg00967.html>.
+                     <https://sourceware.org/ml/libc-alpha/2013-01/msg00967.html>.
                      */
                   static char const pat[] = "[^x]x";
                   static char const data[] =
@@ -12233,7 +12326,7 @@ AC_DEFUN([gl_REGEX],
               result |= 16;
 
             /* Catch a bug reported by Vin Shelton in
-               http://lists.gnu.org/archive/html/bug-coreutils/2007-06/msg00089.html
+               https://lists.gnu.org/archive/html/bug-coreutils/2007-06/msg00089.html
                */
             re_set_syntax (RE_SYNTAX_POSIX_BASIC
                            & ~RE_CONTEXT_INVALID_DUP
@@ -12262,13 +12355,19 @@ AC_DEFUN([gl_REGEX],
 
             return result;
           ]])],
-       [gl_cv_func_re_compile_pattern_working=yes],
-       [gl_cv_func_re_compile_pattern_working=no],
-       dnl When crosscompiling, assume it is not working.
-       [gl_cv_func_re_compile_pattern_working=no])])
-    case $gl_cv_func_re_compile_pattern_working in #(
-    yes) ac_use_included_regex=no;; #(
-    no) ac_use_included_regex=yes;;
+        [gl_cv_func_re_compile_pattern_working=yes],
+        [gl_cv_func_re_compile_pattern_working=no],
+        [case "$host_os" in
+                   # Guess no on native Windows.
+           mingw*) gl_cv_func_re_compile_pattern_working="guessing no" ;;
+                   # Otherwise, assume it is not working.
+           *)      gl_cv_func_re_compile_pattern_working="guessing no" ;;
+         esac
+        ])
+      ])
+    case "$gl_cv_func_re_compile_pattern_working" in #(
+      *yes) ac_use_included_regex=no;; #(
+      *no) ac_use_included_regex=yes;;
     esac
     ;;
   *) AC_MSG_ERROR([Invalid value for --with-included-regex: $with_included_regex])
@@ -12326,33 +12425,6 @@ AC_DEFUN([gl_PREREQ_REGEX],
   AC_CHECK_HEADERS([libintl.h])
   AC_CHECK_FUNCS_ONCE([isblank iswctype])
   AC_CHECK_DECLS([isblank], [], [], [[#include <ctype.h>]])
-])
-
-# Look up an environment variable more securely.
-dnl Copyright 2013-2017 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-AC_DEFUN([gl_FUNC_SECURE_GETENV],
-[
-  dnl Persuade glibc <stdlib.h> to declare secure_getenv().
-  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
-
-  AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
-  AC_CHECK_FUNCS_ONCE([secure_getenv])
-  if test $ac_cv_func_secure_getenv = no; then
-    HAVE_SECURE_GETENV=0
-  fi
-])
-
-# Prerequisites of lib/secure_getenv.c.
-AC_DEFUN([gl_PREREQ_SECURE_GETENV], [
-  AC_CHECK_FUNCS([__secure_getenv])
-  if test $ac_cv_func___secure_getenv = no; then
-    AC_CHECK_FUNCS([issetugid])
-  fi
-  AC_CHECK_FUNCS_ONCE([getuid geteuid getgid getegid])
 ])
 
 # select.m4 serial 8
@@ -13098,7 +13170,7 @@ AC_DEFUN([gl_STDALIGN_H],
 
             /* Test that alignof yields a result consistent with offsetof.
                This catches GCC bug 52023
-               <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52023>.  */
+               <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52023>.  */
             #ifdef __cplusplus
                template <class t> struct alignof_helper { char a; t b; };
             # define ao(type) offsetof (alignof_helper<type>, b)
@@ -13225,8 +13297,8 @@ AC_DEFUN([AC_CHECK_HEADER_STDBOOL],
              char o[sizeof n == m * sizeof n[0] ? 1 : -1];
              char p[-1 - (Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
              /* Catch a bug in an HP-UX C compiler.  See
-                http://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
-                http://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
+                https://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
+                https://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
               */
              Bool q = true;
              Bool *pq = &q;
@@ -13297,7 +13369,7 @@ AC_DEFUN([gl_STDDEF_H_DEFAULTS],
   HAVE_WCHAR_T=1;                AC_SUBST([HAVE_WCHAR_T])
 ])
 
-# stdint.m4 serial 50
+# stdint.m4 serial 51
 dnl Copyright (C) 2001-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13309,6 +13381,7 @@ dnl Test whether <stdint.h> is supported or must be substituted.
 AC_DEFUN_ONCE([gl_STDINT_H],
 [
   AC_PREREQ([2.59])dnl
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
 
   AC_REQUIRE([gl_LIMITS_H])
   AC_REQUIRE([gt_TYPE_WINT_T])
@@ -13587,8 +13660,12 @@ static const char *macro_values[] =
 ]])],
               [gl_cv_header_working_stdint_h=yes],
               [],
-              [dnl When cross-compiling, assume it works.
-               gl_cv_header_working_stdint_h=yes
+              [case "$host_os" in
+                         # Guess yes on native Windows.
+                 mingw*) gl_cv_header_working_stdint_h="guessing yes" ;;
+                         # In general, assume it works.
+                 *)      gl_cv_header_working_stdint_h="guessing yes" ;;
+               esac
               ])
          ])
       ])
@@ -13598,15 +13675,16 @@ static const char *macro_values[] =
   HAVE_SYS_BITYPES_H=0
   HAVE_SYS_INTTYPES_H=0
   STDINT_H=stdint.h
-  if test "$gl_cv_header_working_stdint_h" = yes; then
-    HAVE_C99_STDINT_H=1
-    dnl Now see whether the system <stdint.h> works without
-    dnl __STDC_CONSTANT_MACROS/__STDC_LIMIT_MACROS defined.
-    AC_CACHE_CHECK([whether stdint.h predates C++11],
-      [gl_cv_header_stdint_predates_cxx11_h],
-      [gl_cv_header_stdint_predates_cxx11_h=yes
-       AC_COMPILE_IFELSE([
-         AC_LANG_PROGRAM([[
+  case "$gl_cv_header_working_stdint_h" in
+    *yes)
+      HAVE_C99_STDINT_H=1
+      dnl Now see whether the system <stdint.h> works without
+      dnl __STDC_CONSTANT_MACROS/__STDC_LIMIT_MACROS defined.
+      AC_CACHE_CHECK([whether stdint.h predates C++11],
+        [gl_cv_header_stdint_predates_cxx11_h],
+        [gl_cv_header_stdint_predates_cxx11_h=yes
+         AC_COMPILE_IFELSE([
+           AC_LANG_PROGRAM([[
 #define _GL_JUST_INCLUDE_SYSTEM_STDINT_H 1 /* work if build isn't clean */
 #include <stdint.h>
 ]
@@ -13614,45 +13692,47 @@ gl_STDINT_INCLUDES
 [
 intmax_t im = INTMAX_MAX;
 int32_t i32 = INT32_C (0x7fffffff);
-         ]])],
-         [gl_cv_header_stdint_predates_cxx11_h=no])])
+           ]])],
+           [gl_cv_header_stdint_predates_cxx11_h=no])])
 
-    if test "$gl_cv_header_stdint_predates_cxx11_h" = yes; then
-      AC_DEFINE([__STDC_CONSTANT_MACROS], [1],
-                [Define to 1 if the system <stdint.h> predates C++11.])
-      AC_DEFINE([__STDC_LIMIT_MACROS], [1],
-                [Define to 1 if the system <stdint.h> predates C++11.])
-    fi
-    AC_CACHE_CHECK([whether stdint.h has UINTMAX_WIDTH etc.],
-      [gl_cv_header_stdint_width],
-      [gl_cv_header_stdint_width=no
-       AC_COMPILE_IFELSE(
-         [AC_LANG_PROGRAM([[
-            /* Work if build is not clean.  */
-            #define _GL_JUST_INCLUDE_SYSTEM_STDINT_H 1
-            #ifndef __STDC_WANT_IEC_60559_BFP_EXT__
-             #define __STDC_WANT_IEC_60559_BFP_EXT__ 1
-            #endif
-            #include <stdint.h>
-            ]gl_STDINT_INCLUDES[
-            int iw = UINTMAX_WIDTH;
-            ]])],
-         [gl_cv_header_stdint_width=yes])])
-    if test "$gl_cv_header_stdint_width" = yes; then
-      STDINT_H=
-    fi
-  else
-    dnl Check for <sys/inttypes.h>, and for
-    dnl <sys/bitypes.h> (used in Linux libc4 >= 4.6.7 and libc5).
-    AC_CHECK_HEADERS([sys/inttypes.h sys/bitypes.h])
-    if test $ac_cv_header_sys_inttypes_h = yes; then
-      HAVE_SYS_INTTYPES_H=1
-    fi
-    if test $ac_cv_header_sys_bitypes_h = yes; then
-      HAVE_SYS_BITYPES_H=1
-    fi
-    gl_STDINT_TYPE_PROPERTIES
-  fi
+      if test "$gl_cv_header_stdint_predates_cxx11_h" = yes; then
+        AC_DEFINE([__STDC_CONSTANT_MACROS], [1],
+                  [Define to 1 if the system <stdint.h> predates C++11.])
+        AC_DEFINE([__STDC_LIMIT_MACROS], [1],
+                  [Define to 1 if the system <stdint.h> predates C++11.])
+      fi
+      AC_CACHE_CHECK([whether stdint.h has UINTMAX_WIDTH etc.],
+        [gl_cv_header_stdint_width],
+        [gl_cv_header_stdint_width=no
+         AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM([[
+              /* Work if build is not clean.  */
+              #define _GL_JUST_INCLUDE_SYSTEM_STDINT_H 1
+              #ifndef __STDC_WANT_IEC_60559_BFP_EXT__
+               #define __STDC_WANT_IEC_60559_BFP_EXT__ 1
+              #endif
+              #include <stdint.h>
+              ]gl_STDINT_INCLUDES[
+              int iw = UINTMAX_WIDTH;
+              ]])],
+           [gl_cv_header_stdint_width=yes])])
+      if test "$gl_cv_header_stdint_width" = yes; then
+        STDINT_H=
+      fi
+      ;;
+    *)
+      dnl Check for <sys/inttypes.h>, and for
+      dnl <sys/bitypes.h> (used in Linux libc4 >= 4.6.7 and libc5).
+      AC_CHECK_HEADERS([sys/inttypes.h sys/bitypes.h])
+      if test $ac_cv_header_sys_inttypes_h = yes; then
+        HAVE_SYS_INTTYPES_H=1
+      fi
+      if test $ac_cv_header_sys_bitypes_h = yes; then
+        HAVE_SYS_BITYPES_H=1
+      fi
+      gl_STDINT_TYPE_PROPERTIES
+      ;;
+  esac
 
   dnl The substitute stdint.h needs the substitute limit.h's _GL_INTEGER_WIDTH.
   LIMITS_H=limits.h
@@ -13839,7 +13919,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
   AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
 ])
 
-# stdlib_h.m4 serial 43
+# stdlib_h.m4 serial 44
 dnl Copyright (C) 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -13862,9 +13942,9 @@ AC_DEFUN([gl_STDLIB_H],
 #endif
     ]], [_Exit atoll canonicalize_file_name getloadavg getsubopt grantpt
     initstate initstate_r mkdtemp mkostemp mkostemps mkstemp mkstemps
-    posix_openpt ptsname ptsname_r qsort_r random random_r realpath rpmatch
-    secure_getenv setenv setstate setstate_r srandom srandom_r
-    strtod strtoll strtoull unlockpt unsetenv])
+    posix_openpt ptsname ptsname_r qsort_r random random_r reallocarray
+    realpath rpmatch secure_getenv setenv setstate setstate_r srandom
+    srandom_r strtod strtoll strtoull unlockpt unsetenv])
 ])
 
 AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
@@ -13899,6 +13979,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_QSORT_R=0;       AC_SUBST([GNULIB_QSORT_R])
   GNULIB_RANDOM=0;        AC_SUBST([GNULIB_RANDOM])
   GNULIB_RANDOM_R=0;      AC_SUBST([GNULIB_RANDOM_R])
+  GNULIB_REALLOCARRAY=0;  AC_SUBST([GNULIB_REALLOCARRAY])
   GNULIB_REALLOC_POSIX=0; AC_SUBST([GNULIB_REALLOC_POSIX])
   GNULIB_REALPATH=0;      AC_SUBST([GNULIB_REALPATH])
   GNULIB_RPMATCH=0;       AC_SUBST([GNULIB_RPMATCH])
@@ -13918,6 +13999,7 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_DECL_GETLOADAVG=1;    AC_SUBST([HAVE_DECL_GETLOADAVG])
   HAVE_GETSUBOPT=1;          AC_SUBST([HAVE_GETSUBOPT])
   HAVE_GRANTPT=1;            AC_SUBST([HAVE_GRANTPT])
+  HAVE_DECL_INITSTATE=1;     AC_SUBST([HAVE_DECL_INITSTATE])
   HAVE_MKDTEMP=1;            AC_SUBST([HAVE_MKDTEMP])
   HAVE_MKOSTEMP=1;           AC_SUBST([HAVE_MKOSTEMP])
   HAVE_MKOSTEMPS=1;          AC_SUBST([HAVE_MKOSTEMPS])
@@ -13930,11 +14012,13 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   HAVE_RANDOM=1;             AC_SUBST([HAVE_RANDOM])
   HAVE_RANDOM_H=1;           AC_SUBST([HAVE_RANDOM_H])
   HAVE_RANDOM_R=1;           AC_SUBST([HAVE_RANDOM_R])
+  HAVE_REALLOCARRAY=1;       AC_SUBST([HAVE_REALLOCARRAY])
   HAVE_REALPATH=1;           AC_SUBST([HAVE_REALPATH])
   HAVE_RPMATCH=1;            AC_SUBST([HAVE_RPMATCH])
   HAVE_SECURE_GETENV=1;      AC_SUBST([HAVE_SECURE_GETENV])
   HAVE_SETENV=1;             AC_SUBST([HAVE_SETENV])
   HAVE_DECL_SETENV=1;        AC_SUBST([HAVE_DECL_SETENV])
+  HAVE_DECL_SETSTATE=1;      AC_SUBST([HAVE_DECL_SETSTATE])
   HAVE_STRTOD=1;             AC_SUBST([HAVE_STRTOD])
   HAVE_STRTOLL=1;            AC_SUBST([HAVE_STRTOLL])
   HAVE_STRTOULL=1;           AC_SUBST([HAVE_STRTOULL])
@@ -14043,7 +14127,7 @@ AC_DEFUN([gl_FUNC_STRDUP_POSIX],
 # Prerequisites of lib/strdup.c.
 AC_DEFUN([gl_PREREQ_STRDUP], [:])
 
-# strerror.m4 serial 17
+# strerror.m4 serial 18
 dnl Copyright (C) 2002, 2007-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -14125,6 +14209,8 @@ AC_DEFUN([gl_FUNC_STRERROR_0],
       [case "$host_os" in
                  # Guess yes on glibc systems.
          *-gnu*) gl_cv_func_strerror_0_works="guessing yes" ;;
+                 # Guess yes on native Windows.
+         mingw*) gl_cv_func_strerror_0_works="guessing yes" ;;
                  # If we don't know, assume the worst.
          *)      gl_cv_func_strerror_0_works="guessing no" ;;
        esac
@@ -14314,29 +14400,6 @@ changequote([,])dnl
   fi
 ])
 
-# serial 34
-
-# Copyright (C) 1996-1997, 1999-2007, 2009-2017 Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-# Written by Jim Meyering and Paul Eggert.
-
-AC_DEFUN([gl_FUNC_GNU_STRFTIME],
-[
- # This defines (or not) HAVE_TZNAME and HAVE_TM_ZONE.
- AC_REQUIRE([AC_STRUCT_TIMEZONE])
-
- AC_REQUIRE([gl_TM_GMTOFF])
-
- AC_CHECK_FUNCS_ONCE([tzset])
-
- AC_DEFINE([my_strftime], [nstrftime],
-   [Define to the name of the strftime replacement function.])
-])
-
 # Configure a GNU-like replacement for <string.h>.
 
 # Copyright (C) 2007-2017 Free Software Foundation, Inc.
@@ -14344,7 +14407,7 @@ AC_DEFUN([gl_FUNC_GNU_STRFTIME],
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-# serial 21
+# serial 22
 
 # Written by Paul Eggert.
 
@@ -14382,6 +14445,7 @@ AC_DEFUN([gl_STRING_MODULE_INDICATOR],
 
 AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
 [
+  GNULIB_EXPLICIT_BZERO=0; AC_SUBST([GNULIB_EXPLICIT_BZERO])
   GNULIB_FFSL=0;        AC_SUBST([GNULIB_FFSL])
   GNULIB_FFSLL=0;       AC_SUBST([GNULIB_FFSLL])
   GNULIB_MEMCHR=0;      AC_SUBST([GNULIB_MEMCHR])
@@ -14421,6 +14485,7 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   GNULIB_STRVERSCMP=0;  AC_SUBST([GNULIB_STRVERSCMP])
   HAVE_MBSLEN=0;        AC_SUBST([HAVE_MBSLEN])
   dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_EXPLICIT_BZERO=1;        AC_SUBST([HAVE_EXPLICIT_BZERO])
   HAVE_FFSL=1;                  AC_SUBST([HAVE_FFSL])
   HAVE_FFSLL=1;                 AC_SUBST([HAVE_FFSLL])
   HAVE_MEMCHR=1;                AC_SUBST([HAVE_MEMCHR])
@@ -14444,17 +14509,17 @@ AC_DEFUN([gl_HEADER_STRING_H_DEFAULTS],
   REPLACE_MEMCHR=0;             AC_SUBST([REPLACE_MEMCHR])
   REPLACE_MEMMEM=0;             AC_SUBST([REPLACE_MEMMEM])
   REPLACE_STPNCPY=0;            AC_SUBST([REPLACE_STPNCPY])
-  REPLACE_STRDUP=0;             AC_SUBST([REPLACE_STRDUP])
-  REPLACE_STRSTR=0;             AC_SUBST([REPLACE_STRSTR])
-  REPLACE_STRCASESTR=0;         AC_SUBST([REPLACE_STRCASESTR])
   REPLACE_STRCHRNUL=0;          AC_SUBST([REPLACE_STRCHRNUL])
-  REPLACE_STRERROR=0;           AC_SUBST([REPLACE_STRERROR])
-  REPLACE_STRERROR_R=0;         AC_SUBST([REPLACE_STRERROR_R])
+  REPLACE_STRDUP=0;             AC_SUBST([REPLACE_STRDUP])
   REPLACE_STRNCAT=0;            AC_SUBST([REPLACE_STRNCAT])
   REPLACE_STRNDUP=0;            AC_SUBST([REPLACE_STRNDUP])
   REPLACE_STRNLEN=0;            AC_SUBST([REPLACE_STRNLEN])
-  REPLACE_STRSIGNAL=0;          AC_SUBST([REPLACE_STRSIGNAL])
+  REPLACE_STRSTR=0;             AC_SUBST([REPLACE_STRSTR])
+  REPLACE_STRCASESTR=0;         AC_SUBST([REPLACE_STRCASESTR])
   REPLACE_STRTOK_R=0;           AC_SUBST([REPLACE_STRTOK_R])
+  REPLACE_STRERROR=0;           AC_SUBST([REPLACE_STRERROR])
+  REPLACE_STRERROR_R=0;         AC_SUBST([REPLACE_STRERROR_R])
+  REPLACE_STRSIGNAL=0;          AC_SUBST([REPLACE_STRSIGNAL])
   UNDEFINE_STRTOK_R=0;          AC_SUBST([UNDEFINE_STRTOK_R])
 ])
 
@@ -15107,7 +15172,7 @@ AC_DEFUN([gl_HEADER_SYS_TIME_H_DEFAULTS],
   REPLACE_STRUCT_TIMEVAL=0;  AC_SUBST([REPLACE_STRUCT_TIMEVAL])
 ])
 
-# sys_types_h.m4 serial 8
+# sys_types_h.m4 serial 9
 dnl Copyright (C) 2011-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -15149,7 +15214,7 @@ AC_DEFUN([gl_SYS_TYPES_H_DEFAULTS],
 m4_version_prereq([2.70], [], [
 
 # This is taken from the following Autoconf patch:
-# http://git.sv.gnu.org/cgit/autoconf.git/commit/?id=e17a30e98
+# https://git.savannah.gnu.org/cgit/autoconf.git/commit/?id=e17a30e987d7ee695fb4294a82d987ec3dc9b974
 
 m4_undefine([AC_HEADER_MAJOR])
 AC_DEFUN([AC_HEADER_MAJOR],
@@ -15312,7 +15377,7 @@ AC_DEFUN([gl_PREREQ_TEMPNAME],
   :
 ])
 
-# threadlib.m4 serial 12
+# threadlib.m4 serial 13
 dnl Copyright (C) 2005-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -15380,7 +15445,7 @@ changequote(,)dnl
          dnl child process gets an endless segmentation fault inside execvp().
          dnl Disable multithreading by default on Cygwin 1.5.x, because it has
          dnl bugs that lead to endless loops or crashes. See
-         dnl <http://cygwin.com/ml/cygwin/2009-08/msg00283.html>.
+         dnl <https://cygwin.com/ml/cygwin/2009-08/msg00283.html>.
          osf*) gl_use_threads=no ;;
          cygwin*)
                case `uname -r` in
@@ -15462,6 +15527,10 @@ int main ()
               [gl_cv_have_weak="guessing no"])
            ])
        fi
+       dnl But when linking statically, weak symbols don't work.
+       case " $LDFLAGS " in
+         *" -static "*) gl_cv_have_weak=no ;;
+       esac
       ])
     if test "$gl_use_threads" = yes || test "$gl_use_threads" = posix; then
       # On OSF/1, the compiler needs the flag -pthread or -D_REENTRANT so that
@@ -15479,7 +15548,7 @@ int main ()
         #
         # If -pthread works, prefer it to -lpthread, since Ubuntu 14.04
         # needs -pthread for some reason.  See:
-        # http://lists.gnu.org/archive/html/bug-gnulib/2014-09/msg00023.html
+        # https://lists.gnu.org/archive/html/bug-gnulib/2014-09/msg00023.html
         save_LIBS=$LIBS
         for gl_pthread in '' '-pthread'; do
           LIBS="$LIBS $gl_pthread"
@@ -15971,7 +16040,7 @@ AC_DEFUN([gl_TM_GMTOFF],
                  [#include <time.h>])
 ])
 
-# serial 8
+# serial 10
 
 # Copyright (C) 2003, 2007, 2009-2017 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
@@ -16015,9 +16084,8 @@ AC_DEFUN([gl_FUNC_TZSET_CLOBBER],
 [
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_CACHE_CHECK([whether tzset clobbers localtime buffer],
-                 gl_cv_func_tzset_clobber,
-  [
-  AC_RUN_IFELSE([AC_LANG_SOURCE([[
+                 [gl_cv_func_tzset_clobber],
+    [AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <time.h>
 #include <stdlib.h>
 
@@ -16044,10 +16112,13 @@ main ()
        [case "$host_os" in
                   # Guess all is fine on glibc systems.
           *-gnu*) gl_cv_func_tzset_clobber="guessing no" ;;
+                  # Guess no on native Windows.
+          mingw*) gl_cv_func_tzset_clobber="guessing no" ;;
                   # If we don't know, assume the worst.
           *)      gl_cv_func_tzset_clobber="guessing yes" ;;
         esac
-       ])])
+       ])
+    ])
 
   AC_DEFINE([HAVE_RUN_TZSET_TEST], [1],
     [Define to 1 if you have run the test for working tzset.])
@@ -16380,8 +16451,8 @@ dnl Check whether <wchar.h> is usable at all.
 AC_DEFUN([gl_WCHAR_H_INLINE_OK],
 [
   dnl Test whether <wchar.h> suffers due to the transition from '__inline' to
-  dnl 'gnu_inline'. See <http://sourceware.org/bugzilla/show_bug.cgi?id=4022>
-  dnl and <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=42440>. In summary,
+  dnl 'gnu_inline'. See <https://sourceware.org/bugzilla/show_bug.cgi?id=4022>
+  dnl and <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=42440>. In summary,
   dnl glibc version 2.5 or older, together with gcc version 4.3 or newer and
   dnl the option -std=c99 or -std=gnu99, leads to a broken <wchar.h>.
   AC_CACHE_CHECK([whether <wchar.h> uses 'inline' correctly],
@@ -16439,7 +16510,7 @@ This is a known interoperability problem of glibc <= 2.5 with gcc >= 4.3 in
 C99 mode. You have four options:
   - Add the flag -fgnu89-inline to CC and reconfigure, or
   - Fix your include files, using parts of
-    <http://sourceware.org/git/?p=glibc.git;a=commitdiff;h=b037a293a48718af30d706c2e18c929d0e69a621>, or
+    <https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=b037a293a48718af30d706c2e18c929d0e69a621>, or
   - Use a gcc version older than 4.3, or
   - Don't use the flags -std=c99 or -std=gnu99.
 Configuration aborted.])
@@ -16579,7 +16650,7 @@ AC_DEFUN([gt_TYPE_WCHAR_T],
   fi
 ])
 
-# wcrtomb.m4 serial 11
+# wcrtomb.m4 serial 12
 dnl Copyright (C) 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -16632,6 +16703,8 @@ changequote(,)dnl
           case "$host_os" in
                                      # Guess no on AIX 4, OSF/1 and Solaris.
             aix4* | osf* | solaris*) gl_cv_func_wcrtomb_retval="guessing no" ;;
+                                     # Guess yes on native Windows.
+            mingw*)                  gl_cv_func_wcrtomb_retval="guessing yes" ;;
                                      # Guess yes otherwise.
             *)                       gl_cv_func_wcrtomb_retval="guessing yes" ;;
           esac
@@ -16692,7 +16765,7 @@ AC_DEFUN([gl_PREREQ_WCRTOMB], [
   :
 ])
 
-# wctype_h.m4 serial 20
+# wctype_h.m4 serial 21
 
 dnl A placeholder for ISO C99 <wctype.h>, for platforms that lack it.
 
@@ -16747,7 +16820,8 @@ AC_DEFUN([gl_WCTYPE_H],
                int main () { return iswprint ('x') == 0; }
             ]])],
             [gl_cv_func_iswcntrl_works=yes], [gl_cv_func_iswcntrl_works=no],
-            [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
+            [dnl Guess no on Linux libc5, yes otherwise.
+             AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
                           #if __GNU_LIBRARY__ == 1
                           Linux libc5 i18n is broken.
                           #endif]], [])],

@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this file.  If not, see <http://www.gnu.org/licenses/>.
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
 #
 # As a special exception to the GNU General Public License,
 # this file may be distributed as part of a program that
@@ -120,12 +120,12 @@ AC_DEFUN([gl_EARLY],
   # Code from module no-c++:
   # Code from module nocrash:
   # Code from module noreturn:
+  # Code from module nstrftime:
   # Code from module pathmax:
   # Code from module readlink:
   # Code from module recv:
   # Code from module recvfrom:
   # Code from module regex:
-  # Code from module secure_getenv:
   # Code from module select:
   # Code from module send:
   # Code from module sendto:
@@ -442,6 +442,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_LANGINFO_MODULE_INDICATOR([nl_langinfo])
   gt_NO_CXX
+  gl_FUNC_GNU_STRFTIME
   gl_PATHMAX
   gl_FUNC_READLINK
   if test $HAVE_READLINK = 0 || test $REPLACE_READLINK = 1; then
@@ -464,12 +465,6 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([regex])
     gl_PREREQ_REGEX
   fi
-  gl_FUNC_SECURE_GETENV
-  if test $HAVE_SECURE_GETENV = 0; then
-    AC_LIBOBJ([secure_getenv])
-    gl_PREREQ_SECURE_GETENV
-  fi
-  gl_STDLIB_MODULE_INDICATOR([secure_getenv])
   gl_FUNC_SELECT
   if test $REPLACE_SELECT = 1; then
     AC_LIBOBJ([select])
@@ -522,7 +517,11 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_STAT
   if test $REPLACE_STAT = 1; then
     AC_LIBOBJ([stat])
-    AC_LIBOBJ([stat-w32])
+    case "$host_os" in
+      mingw*)
+        AC_LIBOBJ([stat-w32])
+        ;;
+    esac
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
@@ -560,7 +559,6 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([strerror_r])
   dnl For the modules argp, error.
   gl_MODULE_INDICATOR([strerror_r-posix])
-  gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRING_H
   gl_HEADER_STRINGS_H
   gl_FUNC_STRPTIME
@@ -637,6 +635,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([unsetenv])
   gl_FUNC_MMAP_ANON
+  AC_REQUIRE([AC_C_INLINE])
   AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
   dnl On Solaris <= 9, <sys/procfs.h> is unusable when AC_SYS_LARGEFILE is in use.
   AC_CHECK_HEADERS([sys/procfs.h])
@@ -869,6 +868,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/netinet_in.in.h
   lib/nl_langinfo.c
   lib/noreturn.h
+  lib/nstrftime.c
   lib/pathmax.h
   lib/readlink.c
   lib/recv.c
@@ -881,7 +881,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
-  lib/secure_getenv.c
   lib/select.c
   lib/send.c
   lib/sendto.c
@@ -906,7 +905,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strerror-override.c
   lib/strerror-override.h
   lib/strerror_r.c
-  lib/strftime.c
   lib/strftime.h
   lib/string.in.h
   lib/strings.in.h
@@ -1041,6 +1039,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/nls.m4
   m4/no-c++.m4
   m4/nocrash.m4
+  m4/nstrftime.m4
   m4/off_t.m4
   m4/pathmax.m4
   m4/po.m4
@@ -1049,7 +1048,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/pthread_rwlock_rdlock.m4
   m4/readlink.m4
   m4/regex.m4
-  m4/secure_getenv.m4
   m4/select.m4
   m4/setenv.m4
   m4/signal_h.m4
@@ -1070,7 +1068,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strdup.m4
   m4/strerror.m4
   m4/strerror_r.m4
-  m4/strftime.m4
   m4/string_h.m4
   m4/strings_h.m4
   m4/strptime.m4
