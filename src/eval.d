@@ -6543,12 +6543,12 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
               GC_SAFE_ACK_SUSPEND_REQUEST_();  \
               STACK_to_mv(cnt);                \
             }),;);                             \
-        var const uintB* label_byteptr;        \
+       {var const uintB* label_byteptr;        \
         L_operand(label_byteptr);              \
         DEBUG_CHECK_BYTEPTR(label_byteptr);    \
         byteptr = label_byteptr;               \
         goto next_byte;                        \
-      }
+      }}
     #define NOTJMP()  \
       { L_operand_ignore(); goto next_byte; }
     jmp0:
