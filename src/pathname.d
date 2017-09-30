@@ -5058,9 +5058,9 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
     rent[pos] = '\0';
     if (pos == 0) symbol = fn_eof; else
     if (cpslashp(rent[pos-1])) { pos--; symbol = fn_slash; } else
-    { int dotcount = 0;/* < 0 -> not only dots */
-      int wild = 0;
-      while(pos > 0 && !cpslashp(rent[pos-1])) {
+    { var int dotcount = 0;/* < 0 -> not only dots */
+      var int wild = 0;
+      while (pos > 0 && !cpslashp(rent[pos-1])) {
         if (rent[pos-1] == '.') dotcount++; else dotcount = -pos;
         if (rent[pos-1] == '*' || rent[pos-1] == '?') wild = 1;
         pos--;
@@ -5183,7 +5183,7 @@ local maygc void assure_dir_exists (struct file_status *fs,
     var bool error = false;
     begin_system_call();
     if (links_resolved) { /* use light function */
-      shell_shortcut_target_t rresolve = resolve_shell_symlink(path,resolved);
+      var shell_shortcut_target_t rresolve = resolve_shell_symlink(path,resolved);
       if (rresolve != shell_shortcut_notresolved) {
         if (rresolve == shell_shortcut_notexists)
           error = true;
@@ -5737,8 +5737,8 @@ global /*maygc*/ file_kind_t classify_namestring
 (const char* namestring, char *resolved, gcv_object_t *fwd, gcv_object_t* fsize) {
   if (fwd || fsize) GCTRIGGER();
 #if defined(UNIX)
-  struct stat status;
-  int ret;
+  var struct stat status;
+  var int ret;
   GC_SAFE_SYSTEM_CALL(ret = stat(namestring,&status));
   if (ret) {
     if (errno != ENOENT && errno != ENOTDIR) return FILE_KIND_BAD;
@@ -5751,11 +5751,11 @@ global /*maygc*/ file_kind_t classify_namestring
     else return FILE_KIND_FILE;
   }
 #elif defined(WIN32_NATIVE)
-  bool ret;
+  var bool ret;
   begin_blocking_system_call();
   if (real_path(namestring,resolved)) {
-    WIN32_FILE_ATTRIBUTE_DATA filedata;
-    BOOL success = GetFileAttributesEx(resolved, GetFileExInfoStandard, &filedata);
+    var WIN32_FILE_ATTRIBUTE_DATA filedata;
+    var BOOL success = GetFileAttributesEx(resolved, GetFileExInfoStandard, &filedata);
     end_blocking_system_call();
     if (success) {                  /* file exists. */
       if (fwd) *fwd = convert_time_to_universal(
@@ -5788,7 +5788,7 @@ LISPFUN(probe_pathname,seclass_rd_sig,1,0,norest,key,1,(kw(error)))
      "none", "none/" ==> NIL
   the first value is the truename,
   the second is the "correct" absolute pathname */
-  bool errorp = !nullp(popSTACK());
+  var bool errorp = !nullp(popSTACK());
   if (builtin_stream_p(STACK_0)) { /* stream -> path */
     probe_path_from_stream(&STACK_0); /* STACK_0 is now an absolute truename */
   } else { /* turn into a pathname */
@@ -5820,7 +5820,7 @@ LISPFUN(probe_pathname,seclass_rd_sig,1,0,norest,key,1,(kw(error)))
     case FILE_KIND_NONE:        /* does not exist */
       VALUES1(NIL); skipSTACK(3); return;
     case FILE_KIND_DIR: {       /* directory */
-      int len = strlen(resolved);
+      var int len = strlen(resolved);
       if (!cpslashp(resolved[len-1])) { /* append '/' to truename */
         resolved[len] = '/'; resolved[len+1]= 0;
       }
@@ -8193,7 +8193,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       set_args_end_pointer(args_pointer); /* clean up STACK */
       if (WIFEXITED(status)) {
         /* process ended normally (without signal, without core-dump) */
-        int exitcode = WEXITSTATUS(status);
+        var int exitcode = WEXITSTATUS(status);
         VALUES1(exitcode ? fixnum(exitcode) : NIL); /* exit-status as value */
       } else /* minus signal as value */
         VALUES1(WIFSIGNALED(status)

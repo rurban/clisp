@@ -416,7 +416,7 @@ global bool terminal_stream_p (object stream) {
     /* this is a gross hack for the CLISP kludge
      of reading the first line with READ-LINE for *KEY-BINDINGS*
      and then concatenating the line with the terminal stream */
-    object list = TheStream(stream)->strm_concat_list;
+    var object list = TheStream(stream)->strm_concat_list;
     while (consp(list)) {
       if (terminal_stream_p(Car(list)))
         return true;
@@ -598,7 +598,7 @@ global maygc object read_byte (object stream) {
  can trigger GC */
 local maygc uintL check_value_range (object value, object caller,
                                      uintL minval, uintL maxval) {
-  uintV result;
+  var uintV result;
   if (posfixnump(value)
       && (result = posfixnum_to_V(value),
           result >= minval && result <= maxval))
@@ -1310,7 +1310,7 @@ local _Noreturn void error_output_stream (object stream) {
 local object resolve_synonym_stream (object stream) {
   while (builtin_stream_p(stream)
          && TheStream(stream)->strmtype == strmtype_synonym) {
-    object symbol = TheStream(stream)->strm_synonym_symbol;
+    var object symbol = TheStream(stream)->strm_synonym_symbol;
     stream = get_synonym_stream(symbol);
   }
   return stream;
@@ -3709,7 +3709,7 @@ local inline bool pipe_handle_type_p (handle_type_t mode) {
  > handle: Handle of the opened File
  < result: true if it is a socket/pipe/file */
 local inline bool pipe_file_handle_p (Handle handle) {
-  handle_type_t mode = handle_type(handle);
+  var handle_type_t mode = handle_type(handle);
   DEBUG_OUT(("\npipe_file_handle_p(%d): 0x%x\n",handle,mode));
   return regular_handle_type_p(mode) || pipe_handle_type_p(mode);
 }
@@ -5508,7 +5508,7 @@ local void low_clear_output_unbuffered_handle (object stream) {
 local maygc void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
                                           uintL bytesize) {
   (void)bitsize;
-  uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+  var uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,
                                           persev_full);
@@ -5537,10 +5537,10 @@ local maygc void wr_by_iau8_unbuffered (object stream, object obj) {
 local maygc uintL wr_by_array_iau8_unbuffered
 (const gcv_object_t* stream_, const gcv_object_t* bytearray_,
  uintL start, uintL len, perseverance_t persev) {
-  object stream = *stream_;
-  uintB* startp = &TheSbvector(*bytearray_)->data[start];
+  var object stream = *stream_;
+  var uintB* startp = &TheSbvector(*bytearray_)->data[start];
   pin_unprotect_varobject(*bytearray_,PROT_READ);
-  const uintB* endp =
+  var const uintB* endp =
     UnbufferedStreamLow_write_array(stream)(stream,startp,len,persev);
   unpin_varobject(*bytearray_);
   return (endp - startp);
@@ -6752,7 +6752,7 @@ local maygc listen_t listen_char_buffered (object stream) {
  > stream: Buffered Stream
  < result: true if Input was deleted, else false */
 local maygc bool clear_input_buffered (object stream) {
-  bool ret = BufferedStream_have_eof_p(stream);
+  var bool ret = BufferedStream_have_eof_p(stream);
   BufferedStream_have_eof_p(stream) = false;
   return ret;
 }
@@ -6846,10 +6846,10 @@ local maygc uintL rd_ch_array_buffered (const gcv_object_t* stream_,
       SstringDispatch(chararray,X, {
         var cintX* startptr = &((SstringX)TheVarobject(chararray))->data[startindex];
         var cintX* currptr = &((SstringX)TheVarobject(chararray))->data[currindex];
-        const cintX* ptr1 = startptr;
-        cintX* ptr2 = startptr;
+        var const cintX* ptr1 = startptr;
+        var cintX* ptr2 = startptr;
         do {
-          cintX c = *ptr1++;
+          var cintX c = *ptr1++;
           if (chareq(as_chart(c),ascii(NL))) {
             if (ChannelStream_ignore_next_LF(stream)) {
               ChannelStream_ignore_next_LF(stream) = false;
@@ -7524,7 +7524,7 @@ local maygc uintL rd_by_array_iau8_buffered
  < result: input availability
  can trigger GC */
 local maygc listen_t listen_byte_ia8_buffered (object stream) {
-  uintB* buf = buffered_nextbyte(stream,persev_immediate);
+  var uintB* buf = buffered_nextbyte(stream,persev_immediate);
   if (buf == (uintB*)NULL) return LISTEN_EOF; /* EOF */
   if (buf == (uintB*)-1)   return LISTEN_WAIT; /* will hang */
   return LISTEN_AVAIL;
@@ -10461,8 +10461,8 @@ local const WORD attr_table[5] = {
 };
 
 local void move_ccp_by(COORD *pos,COORD sz,int by) {
-  int linear_ccp = pos->Y * sz.X + pos->X;
-  int new_linear = linear_ccp + by;
+  var int linear_ccp = pos->Y * sz.X + pos->X;
+  var int new_linear = linear_ccp + by;
   pos->X = new_linear % sz.X;
   pos->Y = ( new_linear % ( sz.X * sz.Y )) / sz.X;
 }
@@ -10475,48 +10475,48 @@ local void v_move(HANDLE handle,uintW y,uintW x) {
 }
 
 local void v_emit_spaces(HANDLE handle,COORD *pos,int nspaces,uintW attr) {
-  DWORD i;
+  var DWORD i;
   FillConsoleOutputAttribute(handle,attr,nspaces,*pos,&i);
   FillConsoleOutputCharacter(handle,' ',nspaces,*pos,&i);
 }
 
 local void v_cb (HANDLE handle) {
   /* cursor have 50 percent fill and visibility */
-  CONSOLE_CURSOR_INFO ci = { 50, 1 };
+  var CONSOLE_CURSOR_INFO ci = { 50, 1 };
   SetConsoleCursorInfo(handle,&ci);
 }
 
 local void v_cs (HANDLE handle) {
   /* cursor have 10 percent fill and 0 visibility */
-  CONSOLE_CURSOR_INFO ci = { 10, 0 };
+  var CONSOLE_CURSOR_INFO ci = { 10, 0 };
   SetConsoleCursorInfo(handle,&ci);
 }
 
 local void v_ce (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
   /* clear to end: get cursor position and emit the appropriate number
    of spaces, without moving cursor. attr of spaces set to default. */
-  int nspaces = sz.X - pos->X;
+  var int nspaces = sz.X - pos->X;
   v_emit_spaces(handle,pos,nspaces,attr);
 }
 
 local void v_cl (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
-  int nspaces = sz.X * sz.Y;
+  var int nspaces = sz.X * sz.Y;
   v_emit_spaces(handle,pos,nspaces,attr);
   v_move(handle,0,0);
 }
 
 local void v_cd (HANDLE handle,COORD *pos,COORD sz,uintW attr) {
   /* clear to bottom: get position, clear to eol, clear next line to end */
-  int nspaces = (sz.Y - pos->Y) * sz.X - pos->X;
+  var int nspaces = (sz.Y - pos->Y) * sz.X - pos->X;
   v_emit_spaces(handle,pos,nspaces,attr);
 }
 
 local void v_scroll (HANDLE handle,int ax,int ay,int bx,int by,
                      int n,uintW attr) {
-  CHAR_INFO c;
-  SMALL_RECT r1;
-  SMALL_RECT r2;
-  COORD p;
+  var CHAR_INFO c;
+  var SMALL_RECT r1;
+  var SMALL_RECT r2;
+  var COORD p;
   c.Char.AsciiChar = ' '; c.Attributes = attr;
   r1.Left = ax; r1.Top = ay; r1.Right = bx; r1.Bottom = by;
   r2 = r1;
@@ -10582,11 +10582,11 @@ local void v_puts(HANDLE handle,char *s,COORD *pos,COORD sz,uintW attr) {
         break;                                  }
     }
     if (cp > start) {
-      CHAR_INFO * ac = (CHAR_INFO *)malloc((cp - start) * sizeof(CHAR_INFO));
-      SMALL_RECT rto;
-      COORD zp;
-      COORD p;
-      int i;
+      var CHAR_INFO * ac = (CHAR_INFO *)malloc((cp - start) * sizeof(CHAR_INFO));
+      var SMALL_RECT rto;
+      var COORD zp;
+      var COORD p;
+      var int i;
       zp.X = 0; zp.Y = 0;
       if (!ac) return;
       for (i=0;i<(cp - start);i++) {
@@ -14607,8 +14607,8 @@ local maygc void sock_opt_time (SOCKET handle, int option, object value)
   #ifdef HAVE_GETSOCKOPT
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   if (val.tv_usec) {
-    double x = val.tv_sec + val.tv_sec*0.000001;
-    dfloatjanus t = *(dfloatjanus*)&x;
+    var double x = val.tv_sec + val.tv_sec*0.000001;
+    var dfloatjanus t = *(dfloatjanus*)&x;
     pushSTACK(c_double_to_DF(&t));
   } else
     pushSTACK(fixnum(val.tv_sec));
@@ -15261,15 +15261,16 @@ local /*maygc*/ object terminal_io_output_stream (object preallocated_default) {
 local int next_line_virtual(int,int);
 local int previous_line_virtual(int,int);
 local int get_col (void) {
-  int col=rl_point;
+  var int col = rl_point;
   while(col && rl_line_buffer[col]!='\n') col--;
   return rl_point - col;
 }
 local int next_line_virtual (int count, int key) {
   if (count > 0) {
-    int col = get_col(),len=strlen(rl_line_buffer);
+    var int col = get_col();
+    var int len = strlen(rl_line_buffer);
     while (count--) {
-      while(rl_point<len && rl_line_buffer[rl_point]!='\n') rl_point++;
+      while (rl_point<len && rl_line_buffer[rl_point]!='\n') rl_point++;
       if (rl_point<len) rl_point++;
     }
     rl_point += col-1;
@@ -15281,7 +15282,7 @@ local int next_line_virtual (int count, int key) {
 }
 local int previous_line_virtual (int count, int key) {
   if (count > 0) {
-    int col = get_col();
+    var int col = get_col();
     do {
       while(rl_point && rl_line_buffer[rl_point]!='\n') rl_point--;
       if (rl_point) rl_point--;
@@ -15436,7 +15437,7 @@ local _Noreturn void rl_memory_abort (void) {
 }
 
 local char* xmalloc (int count) {
-  char* tmp = (char*)malloc(count);
+  var char* tmp = (char*)malloc(count);
   if (tmp) return tmp;
   else     rl_memory_abort();
 }
@@ -15472,8 +15473,8 @@ LISPFUNNR(output_stream_p,1)
             (member (car t0) '(unsigned-byte signed-byte))
             (eql (cadr t0) (cadr t1))))) */
 LISPFUNN(stream_element_type_eq,2) {
-  object t0 = popSTACK();
-  object t1 = popSTACK();
+  var object t0 = popSTACK();
+  var object t1 = popSTACK();
   VALUES_IF(eq(t0,t1)
             || (consp(t0) && consp(t1) && eq(Car(t0),Car(t1))
                 && (eq(Car(t0),S(unsigned_byte)) || eq(Car(t0),S(signed_byte)))
@@ -17656,9 +17657,9 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
       case strmtype_file:
         stream = check_open_file_stream(stream,false); /* check open */
         if (!ChannelStream_buffered(stream)) {
-          Handle fd = TheHandle(TheStream(stream)->strmflags & strmflags_wr_B
-                                ? ChannelStream_ochannel(stream)
-                                : ChannelStream_ichannel(stream));
+          var Handle fd = TheHandle(TheStream(stream)->strmflags & strmflags_wr_B
+                                    ? ChannelStream_ochannel(stream)
+                                    : ChannelStream_ichannel(stream));
           pushSTACK(stream);
           switch (pos_type) {
             case POS_SET_END:   /* :END */

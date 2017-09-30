@@ -1,5 +1,15 @@
 2017-09-30  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure with pre-C99 compilers (regression from 2008-07-12).
+	* eval.d (JMP): Insert extra braces.
+	* pathname.d (classify_namestring): Use 'var'.
+	Likewise in some other places.
+	* stream.d (wr_by_aux_ia_unbuffered, wr_by_array_iau8_unbuffered): Use
+	'var'.
+	Likewise in some other places.
+
+2017-09-30  Bruno Haible  <bruno@clisp.org>
+
 	configure: Fix build failure on IRIX when CC is set and not GCC
 	(regression from 2011-05-17).
 	* configure: Don't invoke $CC -dumpmachine when $CC does not contain
