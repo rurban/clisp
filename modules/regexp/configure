@@ -3616,6 +3616,10 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
   $as_echo "#define _GNU_SOURCE 1" >>confdefs.h
 
+  $as_echo "#define _NETBSD_SOURCE 1" >>confdefs.h
+
+  $as_echo "#define _OPENBSD_SOURCE 1" >>confdefs.h
+
   $as_echo "#define _POSIX_PTHREAD_SEMANTICS 1" >>confdefs.h
 
   $as_echo "#define __STDC_WANT_IEC_60559_ATTRIBS_EXT__ 1" >>confdefs.h

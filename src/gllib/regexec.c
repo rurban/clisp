@@ -15,7 +15,7 @@
 
    You should have received a copy of the GNU General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.  */
 
 static reg_errcode_t match_ctx_init (re_match_context_t *cache, int eflags,
 				     Idx n) internal_function;
@@ -4078,7 +4078,7 @@ check_node_accept (const re_match_context_t *mctx, const re_token_t *node,
     case OP_UTF8_PERIOD:
       if (ch >= ASCII_CHARS)
         return false;
-      /* FALLTHROUGH */
+      FALLTHROUGH;
 #endif
     case OP_PERIOD:
       if ((ch == '\n' && !(mctx->dfa->syntax & RE_DOT_NEWLINE))
