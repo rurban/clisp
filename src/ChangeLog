@@ -1,5 +1,11 @@
 2017-09-30  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on glibc systems where iconv converters are missing.
+	* encoding.d: Remove verification that HAVE_GOOD_ICONV is set.
+	(init_encodings_2): Don't assume that HAVE_GOOD_ICONV is set.
+
+2017-09-30  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with pre-C99 compilers (regression from 2008-07-12).
 	* eval.d (JMP): Insert extra braces.
 	* pathname.d (classify_namestring): Use 'var'.
