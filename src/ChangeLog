@@ -1,8 +1,11 @@
-2017-09-30  Bruno Haible  <bruno@clisp.org>
+2017-10-01  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on glibc systems where iconv converters are missing.
+	* constsym.d: Don't define many charset symbols if HAVE_GOOD_ICONV is
+	not set.
 	* encoding.d: Remove verification that HAVE_GOOD_ICONV is set.
 	(init_encodings_2): Don't assume that HAVE_GOOD_ICONV is set.
+	(encoding_from_name): Update accordingly.
 
 2017-09-30  Bruno Haible  <bruno@clisp.org>
 

@@ -2539,7 +2539,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
   name = canonicalize_encoding((char*)name); /* FIXME: dangerous cast */
   if (asciz_equal(name,"US-ASCII") || asciz_equal(name,"ANSI_X3.4-1968"))
     pushSTACK(Symbol_value(S(ascii)));
-  #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
+  #if defined(HAVE_GOOD_ICONV) && (defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)))
   else if (asciz_equal(name,"GB2312"))
     pushSTACK(Symbol_value(S(euc_cn)));
   else if (asciz_equal(name,"SJIS"))
