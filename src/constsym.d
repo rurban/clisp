@@ -1955,7 +1955,7 @@ LISPSYM(windows_1253,"WINDOWS-1253",charset)
 LISPSYM(windows_1254,"WINDOWS-1254",charset)
 LISPSYM(windows_1256,"WINDOWS-1256",charset)
 LISPSYM(windows_1257,"WINDOWS-1257",charset)
-#if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
+#if defined(HAVE_GOOD_ICONV) && (defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)))
 /* All documented encodings of libiconv, except for those which are already
    builtin without libiconv. */
 #ifdef GNU_LIBICONV
