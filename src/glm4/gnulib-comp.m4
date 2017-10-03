@@ -306,7 +306,7 @@ AC_DEFUN([gl_INIT],
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
   gl_GNU_MAKE
   gl_HARD_LOCALE
-  gl_HOST_CPU_C_ABI
+  AC_REQUIRE([gl_HOST_CPU_C_ABI])
   gl_FUNC_INET_NTOP
   if test $HAVE_INET_NTOP = 0 || test $REPLACE_INET_NTOP = 1; then
     AC_LIBOBJ([inet_ntop])
