@@ -637,8 +637,6 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_MMAP_ANON
   AC_REQUIRE([AC_C_INLINE])
   AC_CHECK_FUNCS_ONCE([mquery pstat_getprocvm])
-  dnl On Solaris <= 9, <sys/procfs.h> is unusable when AC_SYS_LARGEFILE is in use.
-  AC_CHECK_HEADERS([sys/procfs.h])
   gl_WCHAR_H
   gl_FUNC_WCRTOMB
   if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
