@@ -1,3 +1,15 @@
+2017-10-03  Bruno Haible  <bruno@clisp.org>
+
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* build-aux/config.guess: Update from gnulib git.
+	* build-aux/config.sub: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+
 2017-10-01  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on glibc systems where iconv converters are missing.

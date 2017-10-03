@@ -626,6 +626,8 @@ LIBOBJS
 LIBZ_PREFIX
 LTLIBZ
 LIBZ
+HOST_CPU_C_ABI
+HOST_CPU
 host_os
 host_vendor
 host_cpu
@@ -4060,6 +4062,329 @@ fi
 
 
 
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#ifdef _MSC_VER
+MicrosoftCompiler
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "MicrosoftCompiler" >/dev/null 2>&1; then :
+  gl_asmext='asm'
+     gl_c_asm_opt='-c -Fa'
+
+else
+  gl_asmext='s'
+     gl_c_asm_opt='-S'
+
+fi
+rm -f conftest*
+
+
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking host CPU and C ABI" >&5
+$as_echo_n "checking host CPU and C ABI... " >&6; }
+if ${gl_cv_host_cpu_c_abi+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case "$host_cpu" in
+
+       i[4567]86 )
+         gl_cv_host_cpu_c_abi=i386
+         ;;
+
+       x86_64 )
+         # On x86_64 systems, the C compiler may be generating code in one of
+         # these ABIs:
+         # - 64-bit instruction set, 64-bit pointers, 64-bit 'long': x86_64.
+         # - 64-bit instruction set, 64-bit pointers, 32-bit 'long': x86_64
+         #   with native Windows (mingw, MSVC).
+         # - 64-bit instruction set, 32-bit pointers, 32-bit 'long': x86_64-x32.
+         # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': i386.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_AMD64
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __ILP32__ || defined _ILP32
+               yes
+               #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=x86_64-x32
+else
+  gl_cv_host_cpu_c_abi=x86_64
+fi
+rm -f conftest*
+
+else
+  gl_cv_host_cpu_c_abi=i386
+fi
+rm -f conftest*
+
+         ;;
+
+       alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
+         gl_cv_host_cpu_c_abi=alpha
+         ;;
+
+       arm* | aarch64 )
+         # Assume arm with EABI.
+         # On arm64 systems, the C compiler may be generating code in one of
+         # these ABIs:
+         # - aarch64 instruction set, 64-bit pointers, 64-bit 'long': arm64.
+         # - aarch64 instruction set, 32-bit pointers, 32-bit 'long': arm64-ilp32.
+         # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': arm or armhf.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __aarch64__
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __ILP32__ || defined _ILP32
+               yes
+               #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=arm64-ilp32
+else
+  gl_cv_host_cpu_c_abi=arm64
+fi
+rm -f conftest*
+
+else
+  # Don't distinguish little-endian and big-endian arm, since they
+            # don't require different machine code for simple operations and
+            # since the user can distinguish them through the preprocessor
+            # defines __ARMEL__ vs. __ARMEB__.
+            # But distinguish arm which passes floating-point arguments and
+            # return values in integer registers (r0, r1, ...) - this is
+            # gcc -mfloat-abi=soft or gcc -mfloat-abi=softfp - from arm which
+            # passes them in float registers (s0, s1, ...) and double registers
+            # (d0, d1, ...) - this is gcc -mfloat-abi=hard. GCC 4.6 or newer
+            # sets the preprocessor defines __ARM_PCS (for the first case) and
+            # __ARM_PCS_VFP (for the second case), but older GCC does not.
+            echo 'double ddd; void func (double dd) { ddd = dd; }' > conftest.c
+            # Look for a reference to the register d0 in the .s file.
+            { ac_try='${CC-cc} $CFLAGS $CPPFLAGS $gl_c_asm_opt conftest.c'
+  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; } >/dev/null 2>&1
+            if LC_ALL=C grep -E 'd0,' conftest.$gl_asmext >/dev/null; then
+              gl_cv_host_cpu_c_abi=armhf
+            else
+              gl_cv_host_cpu_c_abi=arm
+            fi
+            rm -f conftest*
+
+fi
+rm -f conftest*
+
+         ;;
+
+       hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
+         # On hppa, the C compiler may be generating 32-bit code or 64-bit
+         # code. In the latter case, it defines _LP64 and __LP64__.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined(__LP64__)
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=hppa64
+else
+  gl_cv_host_cpu_c_abi=hppa
+fi
+rm -f conftest*
+
+         ;;
+
+       ia64* )
+         # On ia64 on HP-UX, the C compiler may be generating 64-bit code or
+         # 32-bit code. In the latter case, it defines _ILP32.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined _ILP32
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=ia64-ilp32
+else
+  gl_cv_host_cpu_c_abi=ia64
+fi
+rm -f conftest*
+
+         ;;
+
+       mips* )
+         # We should also check for (_MIPS_SZPTR == 64), but gcc keeps this
+         # at 32.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined _MIPS_SZLONG && (_MIPS_SZLONG == 64)
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=mips64
+else
+  # In the n32 ABI, _ABIN32 is defined, _ABIO32 is not defined (but
+            # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIN32.
+            # In the 32 ABI, _ABIO32 is defined, _ABIN32 is not defined (but
+            # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIO32.
+            cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if (_MIPS_SIM == _ABIN32)
+               yes
+               #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=mipsn32
+else
+  gl_cv_host_cpu_c_abi=mips
+fi
+rm -f conftest*
+
+fi
+rm -f conftest*
+
+         ;;
+
+       powerpc* )
+         # Different ABIs are in use on AIX vs. Mac OS X vs. Linux,*BSD.
+         # No need to distinguish them here; the caller may distinguish
+         # them based on the OS.
+         # On powerpc64 systems, the C compiler may still be generating
+         # 32-bit code. And on powerpc-ibm-aix systems, the C compiler may
+         # be generating 64-bit code.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __powerpc64__ || defined _ARCH_PPC64
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  # On powerpc64, there are two ABIs on Linux: The AIX compatible
+            # one and the ELFv2 one. The latter defines _CALL_ELF=2.
+            cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined _CALL_ELF && _CALL_ELF == 2
+               yes
+               #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=powerpc64-elfv2
+else
+  gl_cv_host_cpu_c_abi=powerpc64
+fi
+rm -f conftest*
+
+
+else
+  gl_cv_host_cpu_c_abi=powerpc
+fi
+rm -f conftest*
+
+         ;;
+
+       rs6000 )
+         gl_cv_host_cpu_c_abi=powerpc
+         ;;
+
+       s390* )
+         # On s390x, the C compiler may be generating 64-bit (= s390x) code
+         # or 31-bit (= s390) code.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined(__LP64__) || defined(__s390x__)
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=s390x
+else
+  gl_cv_host_cpu_c_abi=s390
+fi
+rm -f conftest*
+
+         ;;
+
+       sparc | sparc64 )
+         # UltraSPARCs running Linux have `uname -m` = "sparc64", but the
+         # C compiler still generates 32-bit code.
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#if defined __sparcv9 || defined __arch64__
+            yes
+            #endif
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "yes" >/dev/null 2>&1; then :
+  gl_cv_host_cpu_c_abi=sparc64
+else
+  gl_cv_host_cpu_c_abi=sparc
+fi
+rm -f conftest*
+
+         ;;
+
+       *)
+         gl_cv_host_cpu_c_abi="$host_cpu"
+         ;;
+     esac
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_host_cpu_c_abi" >&5
+$as_echo "$gl_cv_host_cpu_c_abi" >&6; }
+
+    HOST_CPU=`echo "$gl_cv_host_cpu_c_abi" | sed -e 's/-.*//'`
+  HOST_CPU_C_ABI="$gl_cv_host_cpu_c_abi"
+
+
+
+  # This was
+  #   AC_DEFINE_UNQUOTED([__${HOST_CPU}__])
+  #   AC_DEFINE_UNQUOTED([__${HOST_CPU_C_ABI}__])
+  # earlier, but KAI C++ 3.2d doesn't like this.
+  sed -e 's/-/_/g' >> confdefs.h <<EOF
+#ifndef __${HOST_CPU}__
+#define __${HOST_CPU}__ 1
+#endif
+#ifndef __${HOST_CPU_C_ABI}__
+#define __${HOST_CPU_C_ABI}__ 1
+#endif
+EOF
+
+
+
+
+
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the common suffixes of directories in the library search path" >&5
 $as_echo_n "checking for the common suffixes of directories in the library search path... " >&6; }
@@ -4104,31 +4429,37 @@ $as_echo "$gl_cv_solaris_64bit" >&6; }
          fi
          ;;
        *)
-                                    searchpath=`(if test -f /usr/bin/gcc \
-                         && LC_ALL=C /usr/bin/gcc -print-search-dirs >/dev/null 2>/dev/null; then \
-                        LC_ALL=C /usr/bin/gcc -print-search-dirs; \
-                      else \
-                        LC_ALL=C $CC -print-search-dirs; \
-                      fi) 2>/dev/null \
-                     | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
-         if test -n "$searchpath"; then
-           acl_save_IFS="${IFS= 	}"; IFS=":"
-           for searchdir in $searchpath; do
-             if test -d "$searchdir"; then
-               case "$searchdir" in
-                 */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
-                 */../ | */.. )
-                   # Better ignore directories of this form. They are misleading.
-                   ;;
-                 *) searchdir=`cd "$searchdir" && pwd`
-                    case "$searchdir" in
-                      */lib64 ) acl_libdirstem=lib64 ;;
-                    esac ;;
-               esac
+                           case "$gl_cv_host_cpu_c_abi" in
+           i386 | arm | armhf | arm64-ilp32 | hppa | ia64-ilp32 | mips | mipsn32 | powerpc | s390 | sparc)
+             ;;
+           *) # x86_64 | arm64 | hppa64 | ia64 | mips64 | powerpc64* | s390x | sparc64 | ...
+                                                    searchpath=`(if test -f /usr/bin/gcc \
+                             && LC_ALL=C /usr/bin/gcc -print-search-dirs >/dev/null 2>/dev/null; then \
+                            LC_ALL=C /usr/bin/gcc -print-search-dirs; \
+                          else \
+                            LC_ALL=C $CC -print-search-dirs; \
+                          fi) 2>/dev/null \
+                         | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
+             if test -n "$searchpath"; then
+               acl_save_IFS="${IFS= 	}"; IFS=":"
+               for searchdir in $searchpath; do
+                 if test -d "$searchdir"; then
+                   case "$searchdir" in
+                     */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
+                     */../ | */.. )
+                       # Better ignore directories of this form. They are misleading.
+                       ;;
+                     *) searchdir=`cd "$searchdir" && pwd`
+                        case "$searchdir" in
+                          */lib64 ) acl_libdirstem=lib64 ;;
+                        esac ;;
+                   esac
+                 fi
+               done
+               IFS="$acl_save_IFS"
              fi
-           done
-           IFS="$acl_save_IFS"
-         fi
+             ;;
+         esac
          ;;
      esac
      test -n "$acl_libdirstem2" || acl_libdirstem2="$acl_libdirstem"
