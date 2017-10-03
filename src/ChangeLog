@@ -1,5 +1,13 @@
 2017-10-03  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused autoconf test.
+	* src/configure.in: Don't invoke CL_SHM_RMID.
+	* src/m4/shm-rmid.m4: Remove file.
+	* src/m4/shm.m4 (CL_SHM): Update.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-03  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".

@@ -1859,9 +1859,6 @@
 /* address range of shared library code */
 #undef SHLIB_ADDRESS_RANGE
 
-/* attaching removed (but alive!) shared memory segments works */
-#undef SHM_RMID_VALID
-
 /* signal handlers installed via sigaction() need to be reinstalled when they
    are activated */
 #undef SIGACTION_NEED_REINSTALL
