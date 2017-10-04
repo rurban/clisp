@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -8,18 +8,23 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_WAITPID],
-[CL_PROTO([waitpid], [
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-], [pid_t waitpid (pid_t pid, int* statusp, int options);],
-cl_cv_proto_waitpid_arg1="pid_t", cl_cv_proto_waitpid_arg1="int")
-], [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
-AC_DEFINE_UNQUOTED(PID_T,$cl_cv_proto_waitpid_arg1,[type of `pid' in waitpid() declaration])
+[
+  CL_PROTO([waitpid],
+    [CL_PROTO_TRY([
+       #include <stdlib.h>
+       #ifdef HAVE_UNISTD_H
+        #include <unistd.h>
+       #endif
+       #include <sys/types.h>
+       ],
+       [pid_t waitpid (pid_t pid, int* statusp, int options);],
+       [cl_cv_proto_waitpid_arg1="pid_t"],
+       [cl_cv_proto_waitpid_arg1="int"])
+    ],
+    [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
+  AC_DEFINE_UNQUOTED([PID_T], [$cl_cv_proto_waitpid_arg1],
+    [type of `pid' in waitpid() declaration])
 ])

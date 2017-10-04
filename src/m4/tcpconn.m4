@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -8,62 +8,71 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_TCPCONN],
-[CL_COMPILE_CHECK([IPv4 sockets], cl_cv_socket_ipv4,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>],
-[int x = AF_INET; struct in_addr y; struct sockaddr_in z;],
-AC_DEFINE(HAVE_IPV4,,[<sys/socket.h> defines AF_INET]))
-CL_COMPILE_CHECK([IPv6 sockets], cl_cv_socket_ipv6,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>],
-[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
-AC_DEFINE(HAVE_IPV6,,[<sys/socket.h> defines AF_INET6]))
-if test $cl_cv_socket_ipv6 = no; then
-CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <linux/in6.h>],
-[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
-AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
-AC_DEFINE(HAVE_IPV6))
-fi
-AC_CHECK_FUNCS(setsockopt getsockopt)
-AC_CHECK_HEADERS(netinet/tcp.h,,,
-dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
-[#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-])
-if test $ac_cv_func_setsockopt = yes; then
-CL_PROTO([setsockopt], [
-for z in SIZE_VARIANTS; do
-for y in 'char*' 'void*'; do
-for x in CONST_VARIANTS; do
-if test -z "$have_setsockopt_decl"; then
-CL_PROTO_TRY([
-#include <sys/types.h>
-#include <sys/socket.h>
-], [int setsockopt (int, int, int, $x $y, $z);], [
-cl_cv_proto_setsockopt_const="$x"
-cl_cv_proto_setsockopt_arg_t="$y"
-cl_cv_proto_setsockopt_optlen_t="$z"
-have_setsockopt_decl=1])
-fi
-done
-done
-done
-if test -z "$have_setsockopt_decl"; then
-CL_PROTO_MISSING(setsockopt)
-fi
-], [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_OPTLEN_T,$cl_cv_proto_setsockopt_optlen_t,[type of `optlen' in setsockopt() declaration])
-fi
+[
+  CL_COMPILE_CHECK([IPv4 sockets], [cl_cv_socket_ipv4],
+    [#include <sys/types.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>],
+    [int x = AF_INET; struct in_addr y; struct sockaddr_in z;],
+    [AC_DEFINE([HAVE_IPV4],,[<sys/socket.h> defines AF_INET])])
+  CL_COMPILE_CHECK([IPv6 sockets], [cl_cv_socket_ipv6],
+    [#include <sys/types.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>],
+    [int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+    [AC_DEFINE([HAVE_IPV6],,[<sys/socket.h> defines AF_INET6])])
+  if test $cl_cv_socket_ipv6 = no; then
+    CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], [cl_cv_socket_ipv6_linux],
+      [#include <sys/types.h>
+       #include <sys/socket.h>
+       #include <netinet/in.h>
+       #include <linux/in6.h>],
+      [int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+      [AC_DEFINE([IPV6_NEED_LINUX_IN6_H],,
+         [need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
+       AC_DEFINE([HAVE_IPV6])
+      ])
+  fi
+  AC_CHECK_FUNCS([setsockopt getsockopt])
+  AC_CHECK_HEADERS([netinet/tcp.h],,,
+    dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
+    [#if HAVE_NETINET_IN_H
+     #include <netinet/in.h>
+     #endif
+    ])
+  if test $ac_cv_func_setsockopt = yes; then
+    CL_PROTO([setsockopt],
+      [for z in SIZE_VARIANTS; do
+         for y in 'char*' 'void*'; do
+           for x in CONST_VARIANTS; do
+             if test -z "$have_setsockopt_decl"; then
+               CL_PROTO_TRY(
+                 [#include <sys/types.h>
+                  #include <sys/socket.h>
+                 ],
+                 [int setsockopt (int, int, int, $x $y, $z);],
+                 [cl_cv_proto_setsockopt_const="$x"
+                  cl_cv_proto_setsockopt_arg_t="$y"
+                  cl_cv_proto_setsockopt_optlen_t="$z"
+                  have_setsockopt_decl=1
+                 ])
+             fi
+           done
+         done
+       done
+       if test -z "$have_setsockopt_decl"; then
+         CL_PROTO_MISSING([setsockopt])
+       fi
+      ],
+      [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_CONST], [$cl_cv_proto_setsockopt_const],
+      [declaration of setsockopt() needs const])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_ARG_T], [$cl_cv_proto_setsockopt_arg_t],
+      [type of `optval' in setsockopt() declaration])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_OPTLEN_T], [$cl_cv_proto_setsockopt_optlen_t],
+      [type of `optlen' in setsockopt() declaration])
+  fi
 ])

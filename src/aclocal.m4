@@ -17070,92 +17070,124 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_ADDRESS_RANGE],
-[AC_REQUIRE([AC_PROG_CC])dnl
-address_range_prog='
-#include <stdio.h>
-int printf_address (unsigned long addr) {
-  FILE* out = fopen("conftest.h","w");
-  if (sizeof(unsigned long) <= 4)
-    fprintf(out,"0x%08X\n", (unsigned int)addr);
-  else
-    fprintf(out,"0x%08X%08X\n",(unsigned int)(addr>>32),(unsigned int)(addr&0xFFFFFFFF));
-  return ferror(out) || fclose(out);
-}
-#define chop_address(addr) ((unsigned long)(char*)(addr) & ~0x00FFFFFFL)
-'
-AC_CACHE_CHECK(for the code address range, cl_cv_address_code, [dnl
-AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
-$address_range_prog],[
-dnl printf_address(chop_address(&main)); doesn't work in C++.
-return printf_address(chop_address(&printf_address));])],
-[cl_cv_address_code=`cat conftest.h`],[cl_cv_address_code='guessing 0'],
-[cl_cv_address_code='guessing 0'])
-rm -f conftest.h
-])
-x=`echo $cl_cv_address_code | sed -e 's,^guessing ,,'`"UL"
-AC_DEFINE_UNQUOTED(CODE_ADDRESS_RANGE,$x,[address range of program code (text+data+bss)])
-dnl
-AC_CACHE_CHECK(for the malloc address range, cl_cv_address_malloc, [dnl
-AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
-#include <sys/types.h>
-/* declare malloc() */
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-$address_range_prog],[return printf_address(chop_address(malloc(10000)));])],
-[cl_cv_address_malloc=`cat conftest.h`],[cl_cv_address_malloc='guessing 0'],
-[cl_cv_address_malloc='guessing 0'])
-rm -f conftest.h
-])
-x=`echo $cl_cv_address_malloc | sed -e 's,^guessing ,,'`"UL"
-AC_DEFINE_UNQUOTED(MALLOC_ADDRESS_RANGE,$x,[address range of malloc() memory])
-dnl
-AC_CACHE_CHECK(for the shared library address range, cl_cv_address_shlib, [dnl
-AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
-$address_range_prog
-/* Declare tmpnam(). */
-#ifdef __cplusplus
-extern "C" char* tmpnam (char*);
-#else
-extern char* tmpnam (char*);
-#endif
-],[
-/* With normal simple DLLs, &printf is in the shared library. Fine.
-   But with ELF, &printf is a trampoline function allocated near the
-   program's code range. errno and other global variables - such as
-   &stdout - are allocated near the program's code and bss as well.
-   However, the return value of tmpnam(NULL) is a pointer to a static
-   buffer in the shared library. (This buffer is unlikely to be named
-   by a global symbol.) */
-  char* addr;
-  addr = (char*) tmpnam((char*)0);
-  if (!addr) addr = (char*) &printf;
-  return printf_address(chop_address(addr));
-])],[cl_cv_address_shlib=`cat conftest.h`],[cl_cv_address_shlib='guessing 0'],
-[cl_cv_address_shlib='guessing 0'])
-rm -f conftest.h
-])
-x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"UL"
-AC_DEFINE_UNQUOTED(SHLIB_ADDRESS_RANGE,$x,[address range of shared library code])
+[
+  AC_REQUIRE([AC_PROG_CC])
+  address_range_prog='
+    #include <stdio.h>
+    int printf_address (unsigned long addr)
+    {
+      FILE* out = fopen("conftest.h","w");
+      if (sizeof(unsigned long) <= 4)
+        fprintf(out,"0x%08X\n", (unsigned int)addr);
+      else
+        fprintf(out,"0x%08X%08X\n",(unsigned int)(addr>>32),(unsigned int)(addr&0xFFFFFFFF));
+      return ferror(out) || fclose(out);
+    }
+    #define chop_address(addr) ((unsigned long)(char*)(addr) & ~0x00FFFFFFL)
+    '
 
-AC_CACHE_CHECK(for the stack address range, cl_cv_address_stack, [dnl
-AC_RUN_IFELSE([AC_LANG_PROGRAM([#include "confdefs.h"
-#include "confdefs.h"
-$address_range_prog],[int dummy; return printf_address(chop_address(&dummy));])],
-[cl_cv_address_stack=`cat conftest.h`],[cl_cv_address_stack='guessing ~0'],
-[cl_cv_address_stack='guessing ~0'])
-rm -f conftest.h
-])
-x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"UL"
-AC_DEFINE_UNQUOTED(STACK_ADDRESS_RANGE,$x,[address range of the C stack])
+  AC_CACHE_CHECK([for the code address range], [cl_cv_address_code],
+    [AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([
+          #include "confdefs.h"
+          $address_range_prog
+          ],
+          [dnl printf_address(chop_address(&main)); doesn't work in C++.
+           return printf_address(chop_address(&printf_address));
+          ])
+       ],
+       [cl_cv_address_code=`cat conftest.h`],
+       [cl_cv_address_code='guessing 0'],
+       [cl_cv_address_code='guessing 0'])
+     rm -f conftest.h
+    ])
+  x=`echo $cl_cv_address_code | sed -e 's,^guessing ,,'`"UL"
+  AC_DEFINE_UNQUOTED([CODE_ADDRESS_RANGE], [$x],
+    [address range of program code (text+data+bss)])
+
+  AC_CACHE_CHECK([for the malloc address range], [cl_cv_address_malloc],
+    [AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([
+          #include "confdefs.h"
+          #include <sys/types.h>
+          /* declare malloc() */
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          $address_range_prog
+          ],
+          [return printf_address(chop_address(malloc(10000)));])
+       ],
+       [cl_cv_address_malloc=`cat conftest.h`],
+       [cl_cv_address_malloc='guessing 0'],
+       [cl_cv_address_malloc='guessing 0'])
+     rm -f conftest.h
+    ])
+  x=`echo $cl_cv_address_malloc | sed -e 's,^guessing ,,'`"UL"
+  AC_DEFINE_UNQUOTED([MALLOC_ADDRESS_RANGE], [$x],
+    [address range of malloc() memory])
+
+  AC_CACHE_CHECK([for the shared library address range], [cl_cv_address_shlib],
+    [AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([
+          #include "confdefs.h"
+          $address_range_prog
+          /* Declare tmpnam(). */
+          #ifdef __cplusplus
+          extern "C" char* tmpnam (char*);
+          #else
+          extern char* tmpnam (char*);
+          #endif
+          ],
+          [/* With normal simple DLLs, &printf is in the shared library. Fine.
+              But with ELF, &printf is a trampoline function allocated near the
+              program's code range. errno and other global variables - such as
+              &stdout - are allocated near the program's code and bss as well.
+              However, the return value of tmpnam(NULL) is a pointer to a static
+              buffer in the shared library. (This buffer is unlikely to be named
+              by a global symbol.) */
+           char* addr;
+           addr = (char*) tmpnam((char*)0);
+           if (!addr) addr = (char*) &printf;
+           return printf_address(chop_address(addr));
+          ])
+       ],
+       [cl_cv_address_shlib=`cat conftest.h`],
+       [cl_cv_address_shlib='guessing 0'],
+       [cl_cv_address_shlib='guessing 0'])
+     rm -f conftest.h
+    ])
+  x=`echo $cl_cv_address_shlib | sed -e 's,^guessing ,,'`"UL"
+  AC_DEFINE_UNQUOTED([SHLIB_ADDRESS_RANGE],[$x],
+    [address range of shared library code])
+
+  AC_CACHE_CHECK([for the stack address range], [cl_cv_address_stack],
+    [AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([
+          #include "confdefs.h"
+          #include "confdefs.h"
+          $address_range_prog
+          ],
+          [int dummy;
+           return printf_address(chop_address(&dummy));
+          ])
+       ],
+       [cl_cv_address_stack=`cat conftest.h`],
+       [cl_cv_address_stack='guessing ~0'],
+       [cl_cv_address_stack='guessing ~0'])
+     rm -f conftest.h
+    ])
+  x=`echo "$cl_cv_address_stack" | sed -e 's,^guessing ,,'`"UL"
+  AC_DEFINE_UNQUOTED([STACK_ADDRESS_RANGE], [$x],
+    [address range of the C stack])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17164,40 +17196,42 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_AS_UNDERSCORE],
-[AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
-m4_pattern_allow([^AS_UNDERSCORE$])
-AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
-cat > conftest.c <<EOF
+[
+  AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
+  m4_pattern_allow([^AS_UNDERSCORE$])
+  AC_CACHE_CHECK([for underscore in external names], [cl_cv_prog_as_underscore],
+    [cat > conftest.c <<EOF
 #ifdef __cplusplus
 extern "C"
 #endif
 int foo() { return 0; }
 EOF
-# look for the assembly language name in the .s file
-AC_TRY_COMMAND(${CC-cc} -S conftest.c) >/dev/null 2>&1
-if grep _foo conftest.s >/dev/null ; then
-  cl_cv_prog_as_underscore=yes
-else
-  cl_cv_prog_as_underscore=no
-fi
-rm -f conftest*
-])
-if test $cl_cv_prog_as_underscore = yes; then
-  AS_UNDERSCORE=true
-  AC_DEFINE(ASM_UNDERSCORE,,[symbols are prefixed by an underscore in assembly language])
-else
-  AS_UNDERSCORE=false
-fi
-AC_SUBST(AS_UNDERSCORE)dnl
+     # look for the assembly language name in the .s file
+     AC_TRY_COMMAND([${CC-cc} -S conftest.c]) >/dev/null 2>&1
+     if grep _foo conftest.s >/dev/null; then
+       cl_cv_prog_as_underscore=yes
+     else
+       cl_cv_prog_as_underscore=no
+     fi
+     rm -f conftest*
+    ])
+  if test $cl_cv_prog_as_underscore = yes; then
+    AS_UNDERSCORE=true
+    AC_DEFINE([ASM_UNDERSCORE],,
+      [symbols are prefixed by an underscore in assembly language])
+  else
+    AS_UNDERSCORE=false
+  fi
+  AC_SUBST([AS_UNDERSCORE])
 ])
 
 dnl -*- Autoconf -*-
-# bold.m4 serial 2 (clisp)
+# bold.m4 serial 3 (clisp)
 dnl Copyright (C) 1999-2002 Ralf S. Engelschall <rse@engelschall.com>
-dnl Copyright (C) 2002-2008 Bruno Haible <bruno@clisp.org>
+dnl Copyright (C) 2002-2008, 2017 Bruno Haible <bruno@clisp.org>
 dnl Copyright (C) 2006 Sam Steingold <sds@gnu.org>
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -17252,12 +17286,15 @@ AC_DEFUN([RSE_BOLD],
       done
       ;;
   esac
-
 ])
-AC_DEFUN([BOLD_MSG],[AC_MSG_NOTICE([${term_bold}** $1${term_norm}])])
+
+AC_DEFUN([BOLD_MSG],
+[
+  AC_MSG_NOTICE([${term_bold}** $1${term_norm}])
+])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17266,31 +17303,35 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_BUILTIN_STRLEN],
-[AC_CACHE_CHECK(for inline __builtin_strlen, cl_cv_builtin_strlen, [
-cat > conftest.$ac_ext <<EOF
+[
+  AC_CACHE_CHECK([for inline __builtin_strlen], [cl_cv_builtin_strlen],
+    [cat > conftest.$ac_ext <<EOF
 int foo (char* x)
-{ return __builtin_strlen(x); }
+{
+  return __builtin_strlen(x);
+}
 EOF
-if AC_TRY_COMMAND(${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext) >/dev/null 2>&1 ; then
-  if grep strlen conftest.s >/dev/null ; then
-    cl_cv_builtin_strlen=no
-  else
-    cl_cv_builtin_strlen=yes
+     if AC_TRY_COMMAND([${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext]) >/dev/null 2>&1; then
+       if grep strlen conftest.s >/dev/null; then
+         cl_cv_builtin_strlen=no
+       else
+         cl_cv_builtin_strlen=yes
+       fi
+     else
+       cl_cv_builtin_strlen=no
+     fi
+     rm -f conftest*
+    ])
+  if test $cl_cv_builtin_strlen = yes; then
+    AC_DEFINE([HAVE_BUILTIN_STRLEN],,
+      [__builtin_strlen() is compiled inline (not a call to strlen())])
   fi
-else
-  cl_cv_builtin_strlen=no
-fi
-rm -f conftest*
-])
-if test $cl_cv_builtin_strlen = yes; then
-  AC_DEFINE(HAVE_BUILTIN_STRLEN,,[__builtin_strlen() is compiled inline (not a call to strlen())])
-fi
 ])
 
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17299,46 +17340,58 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 AC_DEFUN([CL_CC_CPLUSPLUS],
-[AC_REQUIRE([AC_PROG_CPP])
-AC_CACHE_CHECK(whether using C++, cl_cv_prog_cc_cplusplus, [
-AC_EGREP_CPP(yes,[#ifdef __cplusplus
-  yes
-#endif
-], cl_cv_prog_cc_cplusplus=yes, cl_cv_prog_cc_cplusplus=no)
-])
-if test $cl_cv_prog_cc_cplusplus = yes; then
-  CC_CPLUSPLUS=true
-else
-  CC_CPLUSPLUS=false
-fi
-AC_SUBST(CC_CPLUSPLUS)dnl
+[
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_CACHE_CHECK([whether using C++], [cl_cv_prog_cc_cplusplus],
+    [AC_EGREP_CPP([yes],
+       [#ifdef __cplusplus
+          yes
+        #endif
+       ],
+       [cl_cv_prog_cc_cplusplus=yes],
+       [cl_cv_prog_cc_cplusplus=no])
+    ])
+  if test $cl_cv_prog_cc_cplusplus = yes; then
+    CC_CPLUSPLUS=true
+  else
+    CC_CPLUSPLUS=false
+  fi
+  AC_SUBST([CC_CPLUSPLUS])
 ])
 
 AC_DEFUN([CL_CXX_WORKS],
-[AC_CACHE_CHECK(whether CXX works at all, cl_cv_prog_cxx_works, [
-AC_LANG_PUSH(C++)
-AC_RUN_IFELSE([AC_LANG_SOURCE([int main() { exit(0); }])],
-[cl_cv_prog_cxx_works=yes], [cl_cv_prog_cxx_works=no],
-[AC_LINK_IFELSE([AC_LANG_SOURCE([])], [cl_cv_prog_cxx_works=yes],
-[cl_cv_prog_cxx_works=no])])
-AC_LANG_POP(C++)
-])
-if test "$cl_cv_prog_cxx_works" = "no"; then
-AC_MSG_FAILURE([Installation or configuration problem: C++ compiler cannot create executables.])
-fi
+[
+  AC_CACHE_CHECK([whether CXX works at all], [cl_cv_prog_cxx_works],
+    [AC_LANG_PUSH([C++])
+     AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([int main() { exit(0); }])],
+       [cl_cv_prog_cxx_works=yes],
+       [cl_cv_prog_cxx_works=no],
+       [AC_LINK_IFELSE(
+          [AC_LANG_SOURCE([])],
+          [cl_cv_prog_cxx_works=yes],
+          [cl_cv_prog_cxx_works=no])
+       ])
+     AC_LANG_POP([C++])
+    ])
+  if test "$cl_cv_prog_cxx_works" = no; then
+    AC_MSG_FAILURE([Installation or configuration problem: C++ compiler cannot create executables.])
+  fi
 ])
 
 AC_DEFUN([CL_TEMPLATE_NULL],
-[CL_COMPILE_CHECK([working template<>], cl_cv_c_templatenull,
-[template <class T> class c {}; template <> class c<int> { int x; };], ,
-AC_DEFINE(HAVE_TEMPLATE_NULL))
+[
+  CL_COMPILE_CHECK([working template<>], [cl_cv_c_templatenull],
+    [template <class T> class c {};
+     template <> class c<int> { int x; };], ,
+    [AC_DEFINE([HAVE_TEMPLATE_NULL])])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17347,21 +17400,23 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_CADDR_T],
-[AC_CACHE_CHECK(for caddr_t in sys/types.h, cl_cv_type_caddr_t, [
-AC_EGREP_HEADER(caddr_t, sys/types.h,
-cl_cv_type_caddr_t=yes, cl_cv_type_caddr_t=no)
-])
-if test $cl_cv_type_caddr_t = yes; then
-  AC_DEFINE(CADDR_T, caddr_t, [what is your caddr_t type?])
-else
-  AC_DEFINE(CADDR_T, void*)
-fi
+[
+  AC_CACHE_CHECK([for caddr_t in sys/types.h], [cl_cv_type_caddr_t],
+    [AC_EGREP_HEADER([caddr_t], [sys/types.h],
+       [cl_cv_type_caddr_t=yes],
+       [cl_cv_type_caddr_t=no])
+    ])
+  if test $cl_cv_type_caddr_t = yes; then
+    AC_DEFINE([CADDR_T], [caddr_t], [what is your caddr_t type?])
+  else
+    AC_DEFINE([CADDR_T], [void*])
+  fi
 ])
 
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17370,23 +17425,28 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 AC_DEFUN([CL_CC_NEED_DEEMA],
-[AC_REQUIRE([AC_PROG_CPP])
-AC_CACHE_CHECK(whether CPP likes empty macro arguments, cl_cv_prog_cc_ema, [
-AC_PREPROC_IFELSE([AC_LANG_SOURCE([#define divide(x,y,q_zuw,r_zuw) (r_zuw(x)-(q_zuw(x)/(y))*(y))
-foo(x,y) int x,y; { int q; divide(x,y,q=,); return q; }])],
-cl_cv_prog_cc_ema=yes, cl_cv_prog_cc_ema=no)])
-if test $cl_cv_prog_cc_ema = yes; then
-  CC_NEED_DEEMA=false
-else
-  CC_NEED_DEEMA=true
-fi
-AC_SUBST(CC_NEED_DEEMA)dnl
+[
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_CACHE_CHECK([whether CPP likes empty macro arguments], [cl_cv_prog_cc_ema],
+    [AC_PREPROC_IFELSE(
+       [AC_LANG_SOURCE([
+          #define divide(x,y,q_zuw,r_zuw) (r_zuw(x)-(q_zuw(x)/(y))*(y))
+          foo(x,y) int x,y; { int q; divide(x,y,q=,); return q; }])],
+       [cl_cv_prog_cc_ema=yes],
+       [cl_cv_prog_cc_ema=no])
+    ])
+  if test $cl_cv_prog_cc_ema = yes; then
+    CC_NEED_DEEMA=false
+  else
+    CC_NEED_DEEMA=true
+  fi
+  AC_SUBST([CC_NEED_DEEMA])
 ])
 
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17395,49 +17455,60 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_CC_GCC],
-[AC_REQUIRE([AC_PROG_CPP])
-AC_CACHE_CHECK(whether using GNU C, cl_cv_prog_cc_gcc, [
-AC_EGREP_CPP(yes,[#ifdef __GNUC__
-  yes
-#endif
-], cl_cv_prog_cc_gcc=yes, cl_cv_prog_cc_gcc=no)
-])
-if test $cl_cv_prog_cc_gcc = yes; then
-  CC_GCC=true
-  GCC_X_NONE='-x none'
-else
-  CC_GCC=false
-  GCC_X_NONE=''
-fi
-AC_SUBST(CC_GCC)dnl
-AC_SUBST(GCC_X_NONE)dnl
+[
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_CACHE_CHECK([whether using GNU C], [cl_cv_prog_cc_gcc],
+    [AC_EGREP_CPP([yes],
+       [#ifdef __GNUC__
+         yes
+        #endif
+       ],
+       [cl_cv_prog_cc_gcc=yes],
+       [cl_cv_prog_cc_gcc=no])
+    ])
+  if test $cl_cv_prog_cc_gcc = yes; then
+    CC_GCC=true
+    GCC_X_NONE='-x none'
+  else
+    CC_GCC=false
+    GCC_X_NONE=''
+  fi
+  AC_SUBST([CC_GCC])
+  AC_SUBST([GCC_X_NONE])
 ])
 
-dnl Copyright (C) 2008 Sam Steingold (GNU GPLv2+)
 dnl -*- Autoconf -*-
+dnl Copyright (C) 2008 Sam Steingold
+dnl Copyright (C) 2017 Bruno Haible
+dnl This is free software, distributed under the GNU GPL v2+
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_CC_SUNPRO],
-[AC_REQUIRE([AC_PROG_CPP])
-AC_CACHE_CHECK(whether using SUNPRO C, cl_cv_prog_cc_sunpro, [
-AC_EGREP_CPP(yes,[#ifdef __SUNPRO_C
-  yes
-#endif
-], cl_cv_prog_cc_sunpro=yes, cl_cv_prog_cc_sunpro=no)])
-if test $cl_cv_prog_cc_sunpro = yes; then
-  CC_SUNPRO=true
-else
-  CC_SUNPRO=false
-fi
-AC_SUBST(CC_SUNPRO)dnl
+[
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_CACHE_CHECK([whether using SUNPRO C], [cl_cv_prog_cc_sunpro],
+    [AC_EGREP_CPP([yes],
+       [#ifdef __SUNPRO_C
+          yes
+        #endif
+       ],
+       [cl_cv_prog_cc_sunpro=yes],
+       [cl_cv_prog_cc_sunpro=no])
+    ])
+  if test $cl_cv_prog_cc_sunpro = yes; then
+    CC_SUNPRO=true
+  else
+    CC_SUNPRO=false
+  fi
+  AC_SUBST([CC_SUNPRO])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008-2011 Free Software Foundation, Inc.
+dnl Copyright (C) 2008-2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17446,10 +17517,11 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Sam Steingold.
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.59])
 
 dnl set variable $1 to the result of evaluating in clisp of $2
-AC_DEFUN([CLISP_SET],[$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
+AC_DEFUN([CLISP_SET],
+  [$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
 
 dnl for use with autoconf 2.64 which supports m4_map_args_w
 dnl <http://article.gmane.org/gmane.comp.sysutils.autoconf.general/12077>
@@ -17457,9 +17529,11 @@ dnl <https://lists.gnu.org/archive/html/autoconf/2009-09/msg00082.html>
 m4_define([_CL_CLISP_REQUIRE_FEATURE_1],
 [_CL_CLISP_REQUIRE_FEATURE_2([$1], m4_toupper([$1]))])
 m4_define([_CL_CLISP_REQUIRE_FEATURE_2],
-[AC_CACHE_CHECK([for $2 in CLISP], [cl_cv_clisp_$1],
- [CLISP_SET([cl_cv_clisp_$1], [[#+$1 "yes" #-$1 "no"]])])
-test $cl_cv_clisp_$1 = no && AC_MSG_ERROR([no $2 in CLISP])])
+[
+  AC_CACHE_CHECK([for $2 in CLISP], [cl_cv_clisp_$1],
+    [CLISP_SET([cl_cv_clisp_$1], [[#+$1 "yes" #-$1 "no"]])])
+  test $cl_cv_clisp_$1 = no && AC_MSG_ERROR([no $2 in CLISP])
+])
 dnl replace m4_foreach_w below with this:
 dnl m4_map_args_w([$1], [_CL_CLISP_REQUIRE_FEATURE_1(], [)], [
 dnl ])
@@ -17470,91 +17544,106 @@ dnl when $(CLISP_LIBDIR) appears in the list of dependencies.
 dnl Moreover, if a colon appears in CPPFLAGS (as -Ic:/foo/bar),
 dnl then it will creep into the <module>/gllib/.deps/* files.
 AC_DEFUN([CL_DECOLONIZE],
-[AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
-[case $ac_cv_build in
-  *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* )
-    if test "$cross_compiling" = yes; then
-      cl_cv_decolonize='cygpath --unix $x'
-    else
-      cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
-    fi  ;;
-  * ) cl_cv_decolonize='echo $x' ;;
-esac])
-CLISP_DECOLONIZE=$cl_cv_decolonize
-AC_SUBST(CLISP_DECOLONIZE)])
+[
+  AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
+    [case $ac_cv_build in
+       *-cygwin) cl_cv_decolonize='cygpath --unix $x' ;;
+       *-mingw*)
+         if test "$cross_compiling" = yes; then
+           cl_cv_decolonize='cygpath --unix $x'
+         else
+           cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+         fi
+         ;;
+       *) cl_cv_decolonize='echo $x' ;;
+     esac
+    ])
+  CLISP_DECOLONIZE=$cl_cv_decolonize
+  AC_SUBST([CLISP_DECOLONIZE])
+])
 
 dnl check for a clisp installation
 dnl use --with-clisp=path if your clisp is not in the PATH
 dnl if you want to link with the full linking set,
 dnl use --with-clisp='clisp -K full'
-AC_DEFUN([CL_CLISP],[dnl
-AC_REQUIRE([CL_DECOLONIZE])
-AC_ARG_WITH([clisp],
-AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
-[cl_use_clisp="$withval"], [cl_use_clisp=default])
-cl_have_clisp=no
-if test "$cl_use_clisp" != "no"; then
-  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
-  then AC_PATH_PROG(cl_cv_clisp, clisp)
-  else cl_cv_clisp="$cl_use_clisp"
+AC_DEFUN([CL_CLISP],[
+  AC_REQUIRE([CL_DECOLONIZE])
+  AC_ARG_WITH([clisp],
+    AC_HELP_STRING([--with-clisp], [use a specific CLISP installation]),
+      [cl_use_clisp="$withval"],
+      [cl_use_clisp=default])
+  cl_have_clisp=no
+  if test "$cl_use_clisp" != "no"; then
+    if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
+      AC_PATH_PROG([cl_cv_clisp], [clisp])
+    else
+      cl_cv_clisp="$cl_use_clisp"
+    fi
+    if test -n "$cl_cv_clisp"; then
+      AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version],
+        [dnl head closes its input after the 1st line and clisp (at least on woe32)
+         dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
+         dnl we avoid this message by redirecting clisp stderr to /dev/null
+         if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
+           CLISP_SET([cl_cv_clisp_version], [(lisp-implementation-version)])
+         else
+           AC_MSG_ERROR(['$cl_cv_clisp' is not a CLISP])
+         fi
+        ])
+      AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir],
+        [CLISP_SET([cl_cv_clisp_libdir], [(namestring *lib-directory*)])
+         x=$cl_cv_clisp_libdir
+         cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
+         # cf src/clisp-link.in:linkkitdir
+         missing=''
+         for f in modules.c clisp.h; do
+           test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_libdir}linkkit'])
+        ])
+      AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset],
+        [CLISP_SET([cl_cv_clisp_linkset], [(sys::program-name)])
+         cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
+         missing=''
+         # cf. src/clisp-link.in:check_linkset (we do not need to check for
+         # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
+         for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+           test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_linkset}'])
+        ])
+      CLISP=$cl_cv_clisp
+      AC_SUBST([CLISP])
+      CLISP_LIBDIR="${cl_cv_clisp_libdir}"
+      AC_SUBST([CLISP_LIBDIR])
+      CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
+      AC_SUBST([CLISP_LINKKIT])
+      sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+      . ./conftestvars
+      rm -f conftestvars
+      AC_SUBST([CLISP_FILES])
+      AC_SUBST([CLISP_LIBS])
+      AC_SUBST([CLISP_CFLAGS])
+      AC_SUBST([CLISP_CPPFLAGS])
+      test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+    fi
   fi
-  if test -n "$cl_cv_clisp"; then
-    AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
-     dnl head closes its input after the 1st line and clisp (at least on woe32)
-     dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
-     dnl we avoid this message by redirecting clisp stderr to /dev/null
-     if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
-     then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
-     else AC_MSG_ERROR(['$cl_cv_clisp' is not a CLISP])
-     fi])
-    AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
-     CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
-     x=$cl_cv_clisp_libdir;
-     cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
-     # cf src/clisp-link.in:linkkitdir
-     missing=''
-     for f in modules.c clisp.h; do
-       test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_libdir}linkkit'])])
-    AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset], [dnl
-     CLISP_SET(cl_cv_clisp_linkset,[(sys::program-name)])
-     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
-     missing=''
-     # cf. src/clisp-link.in:check_linkset (we do not need to check for
-     # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
-     for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_linkset}'])])
-    CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
-    CLISP_LIBDIR="${cl_cv_clisp_libdir}"; AC_SUBST(CLISP_LIBDIR)dnl
-    CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
-    sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    . ./conftestvars
-    rm -f conftestvars
-    AC_SUBST(CLISP_FILES)dnl
-    AC_SUBST(CLISP_LIBS)dnl
-    AC_SUBST(CLISP_CFLAGS)dnl
-    AC_SUBST(CLISP_CPPFLAGS)dnl
-    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
-  fi
-fi
-AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
-[cl_cv_have_clisp=$cl_have_clisp])
-required=m4_default([$2], [true])
-${required} && test $cl_cv_have_clisp = no && AC_MSG_ERROR([CLISP not found])
-m4_foreach_w([cl_feat], m4_toupper([$1]),
-[AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
-[CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
-${required} && test $cl_cv_clisp_[]cl_feat = no && \
-AC_MSG_ERROR([no ]cl_feat[ in CLISP])])])
+  AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
+    [cl_cv_have_clisp=$cl_have_clisp])
+  required=m4_default([$2], [true])
+  ${required} && test $cl_cv_have_clisp = no && AC_MSG_ERROR([CLISP not found])
+  m4_foreach_w([cl_feat], m4_toupper([$1]),
+    [AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
+       [CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
+     ${required} && test $cl_cv_clisp_[]cl_feat = no \
+       && AC_MSG_ERROR([no ]cl_feat[ in CLISP])
+    ])
+])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17563,32 +17652,40 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_CLOSEDIR],
-[AC_BEFORE([$0], [CL_FILECHARSET])dnl
-# The following test is necessary, because Cygwin declares closedir()
-# as returning int but the return value is unusable.
-AC_CACHE_CHECK(for usable closedir return value, cl_cv_func_closedir_retval,[
-AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-/* Declare opendir(), closedir(). */
-#include <dirent.h>
-int main() { exit(closedir(opendir(".")) != 0); }],
-cl_cv_func_closedir_retval=yes, cl_cv_func_closedir_retval=no,
-# When cross-compiling, don't assume a return value.
-cl_cv_func_closedir_retval="guessing no")])
-case "$cl_cv_func_closedir_retval" in
-  *no) AC_DEFINE(VOID_CLOSEDIR,,[closedir() return value is void or unusable]) ;;
-esac
+[
+  AC_BEFORE([$0], [CL_FILECHARSET])dnl
+  # The following test is necessary, because Cygwin declares closedir()
+  # as returning int but the return value is unusable.
+  AC_CACHE_CHECK([for usable closedir return value], [cl_cv_func_closedir_retval],
+    [AC_TRY_RUN([
+       #include <stdlib.h>
+       #ifdef HAVE_UNISTD_H
+        #include <sys/types.h>
+        #include <unistd.h>
+       #endif
+       /* Declare opendir(), closedir(). */
+       #include <dirent.h>
+       int main()
+       {
+         exit(closedir(opendir(".")) != 0);
+       }
+       ],
+       [cl_cv_func_closedir_retval=yes],
+       [cl_cv_func_closedir_retval=no],
+       [dnl When cross-compiling, don't assume a return value.
+        cl_cv_func_closedir_retval="guessing no"
+       ])
+    ])
+  case "$cl_cv_func_closedir_retval" in
+    *no) AC_DEFINE([VOID_CLOSEDIR],,[closedir() return value is void or unusable]) ;;
+  esac
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17597,19 +17694,20 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_DYNLOAD],
-[dnl Some systems have dlopen in libc, some have it in libdl.
-AC_CHECK_HEADERS(dlfcn.h)
-if test "$ac_cv_header_dlfcn_h" = yes; then
-  AC_SEARCH_LIBS(dlopen, dl)
-  AC_CHECK_FUNCS(dlopen dlsym dlvsym dlerror dlclose dladdr)
-fi
+[
+  dnl Some systems have dlopen in libc, some have it in libdl.
+  AC_CHECK_HEADERS([dlfcn.h])
+  if test "$ac_cv_header_dlfcn_h" = yes; then
+    AC_SEARCH_LIBS([dlopen], [dl])
+    AC_CHECK_FUNCS([dlopen dlsym dlvsym dlerror dlclose dladdr])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17618,62 +17716,78 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_ELOOP],
-[AC_REQUIRE([AC_PROG_CC])dnl
-AC_CACHE_CHECK(for ELOOP, cl_cv_decl_eloop, [dnl
-AC_RUN_IFELSE([AC_LANG_SOURCE([#include "confdefs.h"
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <errno.h>
-#include <stdio.h>
-#ifdef ELOOP
-int main () {
-  if (freopen("conftest.out", "w", stdout) == NULL) return 1;
-  printf("ELOOP\n");
-  return ferror(stdout) || fclose(stdout);
-}
-#else
-extern int errno;
-#define foo "conflink"
-#define foobar "conflink/somefile"
-int main() {
-  /* If a system goes into an endless loop on this, it must be really broken. */
-  if (symlink(foo,foo)<0) return 1;
-  if (unlink(foobar)>=0) { unlink(foo); return 1; }
-  if (freopen("conftest.out", "w", stdout) == NULL) return 1;
-  printf("%d\n",errno); unlink(foo);
-  return ferror(stdout) || fclose(stdout);
-}
-#endif
-])],[cl_cv_decl_ELOOP=`cat conftest.out`
-if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
-  cl_cv_decl_eloop=yes
-else
-  cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
-fi],[cl_cv_decl_eloop=no
-cl_cv_decl_ELOOP="ELOOP"],[AC_EGREP_CPP(yes,[
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <errno.h>
-#include <stdio.h>
-#ifdef ELOOP
-yes
-#endif
-],[cl_cv_decl_eloop=yes],[cl_cv_decl_eloop=no])
-cl_cv_decl_ELOOP="ELOOP"])
-rm -f conftest.out
-])
-AC_DEFINE_UNQUOTED(ELOOP_VALUE,$cl_cv_decl_ELOOP,[the real value of ELOOP even if it is hidden in <errno.h>])
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_CACHE_CHECK([for ELOOP], [cl_cv_decl_eloop],
+    [AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([
+          #include "confdefs.h"
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <errno.h>
+          #include <stdio.h>
+          #ifdef ELOOP
+           int main ()
+           {
+             if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+             printf("ELOOP\n");
+             return ferror(stdout) || fclose(stdout);
+           }
+          #else
+           extern int errno;
+           #define foo "conflink"
+           #define foobar "conflink/somefile"
+           int main()
+           {
+             /* If a system goes into an endless loop on this, it must be really broken. */
+             if (symlink(foo,foo)<0) return 1;
+             if (unlink(foobar)>=0) { unlink(foo); return 1; }
+             if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+             printf("%d\n",errno);
+             unlink(foo);
+             return ferror(stdout) || fclose(stdout);
+           }
+          #endif
+          ])
+       ],
+       [cl_cv_decl_ELOOP=`cat conftest.out`
+        if test "$cl_cv_decl_ELOOP" = "ELOOP"; then
+          cl_cv_decl_eloop=yes
+        else
+          cl_cv_decl_eloop="$cl_cv_decl_ELOOP"
+        fi
+       ],
+       [cl_cv_decl_eloop=no
+        cl_cv_decl_ELOOP="ELOOP"
+       ],
+       [AC_EGREP_CPP([yes],[
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <errno.h>
+          #include <stdio.h>
+          #ifdef ELOOP
+           yes
+          #endif
+          ],
+          [cl_cv_decl_eloop=yes],
+          [cl_cv_decl_eloop=no])
+        cl_cv_decl_ELOOP="ELOOP"
+       ])
+     rm -f conftest.out
+    ])
+  AC_DEFINE_UNQUOTED([ELOOP_VALUE],[$cl_cv_decl_ELOOP],
+    [the real value of ELOOP even if it is hidden in <errno.h>])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17682,7 +17796,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Sam Steingold.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 dnl Each of the macros determines a facet of the default floating-point
 dnl environment.
@@ -17691,243 +17805,304 @@ dnl   CL_FLOAT_OVERFLOW    CL_DOUBLE_OVERFLOW    CL_LONGDOUBLE_OVERFLOW
 dnl   CL_FLOAT_UNDERFLOW   CL_DOUBLE_UNDERFLOW   CL_LONGDOUBLE_UNDERFLOW
 dnl   CL_FLOAT_INEXACT     CL_DOUBLE_INEXACT     CL_LONGDOUBLE_INEXACT
 
-m4_define([CL_FENV_SIGNAL_INSTALL],[signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif])
+m4_define([CL_FENV_SIGNAL_INSTALL],
+[signal (SIGFPE, sigfpe_handler);
+ #if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+   signal (SIGTRAP, sigfpe_handler);
+ #endif
+])
 
-AC_DEFUN([CL_FENV_CHECK],[dnl
-AC_CACHE_CHECK([whether $1],[$2],
-[AC_RUN_IFELSE([AC_LANG_SOURCE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
-$3])],[$2=no], [$2=yes], [$2="guessing no"])])])
+AC_DEFUN([CL_FENV_CHECK],
+[
+  AC_CACHE_CHECK([whether $1],[$2],
+    [AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([
+          #include <stdlib.h>
+          #include <signal.h>
+          static void sigfpe_handler (int sig) { exit (1); }
+          $3
+          ])
+       ],
+       [$2=no],
+       [$2=yes],
+       [$2="guessing no"])
+    ])
+])
 
 AC_DEFUN([CL_FLOAT_DIV0],
-[CL_FENV_CHECK([single-float divbyzero raises an exception],
-[cl_cv_cc_float_divbyzero],[dnl
-float x = 1;
-float y = 0;
-float z;
-float nan;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y; nan = y / y;
-  return 0;
-}])
-if test "$cl_cv_cc_float_divbyzero" = yes; then
-  AC_DEFINE(FLOAT_DIV0_EXCEPTION,1,
-    [Define to 1 if 'float' division by zero raises an exception.])
-fi
+[
+  CL_FENV_CHECK([single-float divbyzero raises an exception],
+    [cl_cv_cc_float_divbyzero],
+    [
+     float x = 1;
+     float y = 0;
+     float z;
+     float nan;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y; nan = y / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_float_divbyzero" = yes; then
+    AC_DEFINE([FLOAT_DIV0_EXCEPTION], [1],
+      [Define to 1 if 'float' division by zero raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_DOUBLE_DIV0],
-[CL_FENV_CHECK([double-float divbyzero raises an exception],
-[cl_cv_cc_double_divbyzero],[dnl
-double x = 1;
-double y = 0;
-double z;
-double nan;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y; nan = y / y;
-  return 0;
-}])
-if test "$cl_cv_cc_double_divbyzero" = yes; then
-  AC_DEFINE(DOUBLE_DIV0_EXCEPTION,1,
-    [Define to 1 if 'double' division by zero raises an exception.])
-fi
+[
+  CL_FENV_CHECK([double-float divbyzero raises an exception],
+    [cl_cv_cc_double_divbyzero],
+    [
+     double x = 1;
+     double y = 0;
+     double z;
+     double nan;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y; nan = y / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_double_divbyzero" = yes; then
+    AC_DEFINE([DOUBLE_DIV0_EXCEPTION], [1],
+      [Define to 1 if 'double' division by zero raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_DIV0],
-[CL_FENV_CHECK([long-float divbyzero raises an exception],
-[cl_cv_cc_longdouble_divbyzero],[dnl
-long double x = 1;
-long double y = 0;
-long double z;
-long double nan;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y; nan = y / y;
-  return 0;
-}])
-if test "$cl_cv_cc_longdouble_divbyzero" = yes; then
-  AC_DEFINE(LONGDOUBLE_DIV0_EXCEPTION,1,
-    [Define to 1 if 'long double' division by zero raises an exception.])
-fi
+[
+  CL_FENV_CHECK([long-float divbyzero raises an exception],
+    [cl_cv_cc_longdouble_divbyzero],
+    [
+     long double x = 1;
+     long double y = 0;
+     long double z;
+     long double nan;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y; nan = y / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_longdouble_divbyzero" = yes; then
+    AC_DEFINE([LONGDOUBLE_DIV0_EXCEPTION], [1],
+      [Define to 1 if 'long double' division by zero raises an exception.])
+  fi
 ])
 
 
 AC_DEFUN([CL_FLOAT_OVERFLOW],
-[CL_FENV_CHECK([single-float overflow raises an exception],
-[cl_cv_cc_float_overflow],[dnl
-#include <float.h>
-float x = FLT_MAX;
-float y = FLT_MAX;
-float z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_float_overflow" = yes; then
-  AC_DEFINE(FLOAT_OVERFLOW_EXCEPTION,1,
-    [Define to 1 if 'float' overflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([single-float overflow raises an exception],
+    [cl_cv_cc_float_overflow],
+    [
+     #include <float.h>
+     float x = FLT_MAX;
+     float y = FLT_MAX;
+     float z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_float_overflow" = yes; then
+    AC_DEFINE([FLOAT_OVERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'float' overflow raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_DOUBLE_OVERFLOW],
-[CL_FENV_CHECK([double-float overflow raises an exception],
-[cl_cv_cc_double_overflow],[dnl
-#include <float.h>
-double x = DBL_MAX;
-double y = DBL_MAX;
-double z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_double_overflow" = yes; then
-  AC_DEFINE(DOUBLE_OVERFLOW_EXCEPTION,1,
-    [Define to 1 if 'double' overflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([double-float overflow raises an exception],
+    [cl_cv_cc_double_overflow],
+    [
+     #include <float.h>
+     double x = DBL_MAX;
+     double y = DBL_MAX;
+     double z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_double_overflow" = yes; then
+    AC_DEFINE([DOUBLE_OVERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'double' overflow raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_OVERFLOW],
-[CL_FENV_CHECK([long-float overflow raises an exception],
-[cl_cv_cc_longdouble_overflow],[dnl
-#include <float.h>
-long double x;
-long double y;
-long double z;
-int main () {
-  x = LDBL_MAX;
-  y = LDBL_MAX;
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_longdouble_overflow" = yes; then
-  AC_DEFINE(LONGDOUBLE_OVERFLOW_EXCEPTION,1,
-    [Define to 1 if 'long double' overflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([long-float overflow raises an exception],
+    [cl_cv_cc_longdouble_overflow],
+    [
+     #include <float.h>
+     long double x;
+     long double y;
+     long double z;
+     int main ()
+     {
+       x = LDBL_MAX;
+       y = LDBL_MAX;
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_longdouble_overflow" = yes; then
+    AC_DEFINE([LONGDOUBLE_OVERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'long double' overflow raises an exception.])
+  fi
 ])
 
 
 AC_DEFUN([CL_FLOAT_UNDERFLOW],
-[CL_FENV_CHECK([single-float underflow raises an exception],
-[cl_cv_cc_float_underflow],[dnl
-#include <float.h>
-float x = FLT_MIN;
-float y = FLT_MIN;
-float z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_float_underflow" = yes; then
-  AC_DEFINE(FLOAT_UNDERFLOW_EXCEPTION,1,
-    [Define to 1 if 'float' underflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([single-float underflow raises an exception],
+    [cl_cv_cc_float_underflow],
+    [
+     #include <float.h>
+     float x = FLT_MIN;
+     float y = FLT_MIN;
+     float z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_float_underflow" = yes; then
+    AC_DEFINE([FLOAT_UNDERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'float' underflow raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_DOUBLE_UNDERFLOW],
-[CL_FENV_CHECK([double-float underflow raises an exception],
-[cl_cv_cc_double_underflow],[dnl
-#include <float.h>
-double x = DBL_MIN;
-double y = DBL_MIN;
-double z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_double_underflow" = yes; then
-  AC_DEFINE(DOUBLE_UNDERFLOW_EXCEPTION,1,
-    [Define to 1 if 'double' underflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([double-float underflow raises an exception],
+    [cl_cv_cc_double_underflow],
+    [
+     #include <float.h>
+     double x = DBL_MIN;
+     double y = DBL_MIN;
+     double z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_double_underflow" = yes; then
+    AC_DEFINE([DOUBLE_UNDERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'double' underflow raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_UNDERFLOW],
-[CL_FENV_CHECK([long-float underflow raises an exception],
-[cl_cv_cc_longdouble_underflow],[dnl
-#include <float.h>
-long double x;
-long double y;
-long double z;
-int main () {
-  x = LDBL_MIN;
-  y = LDBL_MIN;
-  CL_FENV_SIGNAL_INSTALL
-  z = x * y;
-  return 0;
-}])
-if test "$cl_cv_cc_longdouble_underflow" = yes; then
-  AC_DEFINE(LONGDOUBLE_UNDERFLOW_EXCEPTION,1,
-    [Define to 1 if 'long double' underflow raises an exception.])
-fi
+[
+  CL_FENV_CHECK([long-float underflow raises an exception],
+    [cl_cv_cc_longdouble_underflow],
+    [
+     #include <float.h>
+     long double x;
+     long double y;
+     long double z;
+     int main ()
+     {
+       x = LDBL_MIN;
+       y = LDBL_MIN;
+       CL_FENV_SIGNAL_INSTALL
+       z = x * y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_longdouble_underflow" = yes; then
+    AC_DEFINE([LONGDOUBLE_UNDERFLOW_EXCEPTION], [1],
+      [Define to 1 if 'long double' underflow raises an exception.])
+  fi
 ])
 
 
 AC_DEFUN([CL_FLOAT_INEXACT],
-[CL_FENV_CHECK([single-float inexact raises an exception],
-[cl_cv_cc_float_inexact],[dnl
-float x = 1;
-float y = 3;
-float z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y;
-  return 0;
-}])
-if test "$cl_cv_cc_float_inexact" = yes; then
-  AC_DEFINE(FLOAT_INEXACT_EXCEPTION,1,
-    [Define to 1 if a 'float' inexact operation raises an exception.])
-fi
+[
+  CL_FENV_CHECK([single-float inexact raises an exception],
+    [cl_cv_cc_float_inexact],
+    [
+     float x = 1;
+     float y = 3;
+     float z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_float_inexact" = yes; then
+    AC_DEFINE([FLOAT_INEXACT_EXCEPTION], [1],
+      [Define to 1 if a 'float' inexact operation raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_DOUBLE_INEXACT],
-[CL_FENV_CHECK([double-float inexact raises an exception],
-[cl_cv_cc_double_inexact],[dnl
-double x = 1;
-double y = 3;
-double z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y;
-  return 0;
-}])
-if test "$cl_cv_cc_double_inexact" = yes; then
-  AC_DEFINE(DOUBLE_INEXACT_EXCEPTION,1,
-    [Define to 1 if a 'double' inexact operation raises an exception.])
-fi
+[
+  CL_FENV_CHECK([double-float inexact raises an exception],
+    [cl_cv_cc_double_inexact],
+    [
+     double x = 1;
+     double y = 3;
+     double z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_double_inexact" = yes; then
+    AC_DEFINE([DOUBLE_INEXACT_EXCEPTION], [1],
+      [Define to 1 if a 'double' inexact operation raises an exception.])
+  fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_INEXACT],
-[CL_FENV_CHECK([long-float inexact raises an exception],
-[cl_cv_cc_longdouble_inexact],[dnl
-long double x = 1;
-long double y = 3;
-long double z;
-int main () {
-  CL_FENV_SIGNAL_INSTALL
-  z = x / y;
-  return 0;
-}])
-if test "$cl_cv_cc_longdouble_inexact" = yes; then
-  AC_DEFINE(LONGDOUBLE_INEXACT_EXCEPTION,1,
-    [Define to 1 if a 'long double' inexact operation raises an exception.])
-fi
+[
+  CL_FENV_CHECK([long-float inexact raises an exception],
+    [cl_cv_cc_longdouble_inexact],
+    [
+     long double x = 1;
+     long double y = 3;
+     long double z;
+     int main ()
+     {
+       CL_FENV_SIGNAL_INSTALL
+       z = x / y;
+       return 0;
+     }
+    ])
+  if test "$cl_cv_cc_longdouble_inexact" = yes; then
+    AC_DEFINE([LONGDOUBLE_INEXACT_EXCEPTION], [1],
+      [Define to 1 if a 'long double' inexact operation raises an exception.])
+  fi
 ])
 
-# -*- Autoconf -*-
-# Copyright (C) 2007-2010, 2017 Sam Steingold (GNU GPL2+)
-# Copyright (C) 2017 Bruno Haible (GNU GPL2+)
+dnl -*- Autoconf -*-
+dnl Copyright (C) 2007-2010, 2017 Sam Steingold
+dnl Copyright (C) 2017 Bruno Haible
+dnl This is free software, distributed under the GNU GPL v2+
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 dnl Download location of the newest libffcall release.
 AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
@@ -17936,7 +18111,8 @@ AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
 AC_DEFUN([CL_FFCALL],[
   AC_ARG_WITH([ffcall],
     [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
-    [cl_use_ffcall=$withval],[cl_use_ffcall=default])
+    [cl_use_ffcall=$withval],
+    [cl_use_ffcall=default])
   if test $cl_use_ffcall != no; then
     cl_save_CPPFLAGS="$CPPFLAGS"
     cl_save_LIBS="$LIBS"
@@ -17957,8 +18133,8 @@ AC_DEFUN([CL_FFCALL],[
       CPPFLAGS="$cl_save_CPPFLAGS"
       LIBS="$cl_save_LIBS"
       dnl Second, search for libavcall and libcallback (installed by libffcall < 2.0).
-      AC_LIB_FROMPACKAGE(avcall,libffcall)
-      AC_LIB_FROMPACKAGE(callback,libffcall)
+      AC_LIB_FROMPACKAGE([avcall], [libffcall])
+      AC_LIB_FROMPACKAGE([callback], [libffcall])
       AC_LIB_LINKFLAGS([avcall])
       AC_LIB_LINKFLAGS([callback])
       AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
@@ -17978,7 +18154,7 @@ AC_DEFUN([CL_FFCALL],[
         LIBS="$cl_save_LIBS"
       fi
     fi
-    AC_CACHE_CHECK([whether libffcall is installed],[cl_cv_have_ffcall],
+    AC_CACHE_CHECK([whether libffcall is installed], [cl_cv_have_ffcall],
       [if test -n "$found_libffcall"; then
          cl_cv_have_ffcall=yes
        else
@@ -18008,7 +18184,7 @@ AC_DEFUN([CL_FFCALL],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18017,151 +18193,182 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_FILECHARSET],
-[AC_REQUIRE([AC_PROG_CC])dnl
-AC_REQUIRE([CL_CLOSEDIR])dnl
-AC_CACHE_CHECK(for the valid characters in filenames,
-cl_cv_os_valid_filename_char,[dnl
-dnl Create the subdirectory the test program will use for its files.
-mkdir conftestdir
-AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include "confdefs.h"
-#include <sys/types.h>
-#include <stdlib.h>
-/* Declare chdir(). */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <string.h>
-#include <stdio.h>
-/* Declare open(). */
-#include <fcntl.h>
-/* Declare opendir(), readdir(), closedir(). */
-#include <dirent.h>
-/* A small program which checks for each character whether or not it is
- * valid in filenames.
- * The actual result may depend on OS, its version, and the file system
- * on which the test is run. */
-#define N 256]],[[
-  if (freopen("conftest.out", "w", stdout) == NULL) return 1;
-  char legal[N];
-  char filename[4];
-  int i;
-  if (chdir("conftestdir") < 0) return 1;
-  for (i = 0; i < N; i++) legal[i] = 0;
-  strcpy(filename,"a_z");
-  for (i = 0; i < N; i++)
-    if (i != '\0')
-      { filename[1] = i;
-        /* Determine whether the filename is valid: create a file
-         * and check that it is present afterwards, under the same name. */
-        { int fd = open(filename, O_CREAT | O_RDWR, 0644);
-          if (fd >=0)
-            { DIR* dirp = opendir(".");
-              if (dirp != (DIR*)0)
-                { struct dirent * d;
-                  while ((d = readdir(dirp)))
-                    { if (!strcmp(d->d_name,".")) continue;
-                      if (!strcmp(d->d_name,"..")) continue;
-                      if (!strncmp(d->d_name,".nfs",4)) continue;
-                      if (!strcmp(d->d_name,filename)) legal[i] = 1;
-                      /* Remove the file even if its name is something else. */
-                      unlink(d->d_name);
-                    }
-                  closedir(dirp);
-                }
-              close(fd);
-      } }   }
-  /* Output a boolean expression equivalent to legal[ch] (0 <= ch < N). */
-  { int need_or = 0;
-    int z;
-    for (z = 0; z < N; )
-      { int x, y;
-        if (! legal[z]) { z++; continue; }
-        x = z;
-        if (need_or) printf(" || ");
-        z++;
-        if ((z < N) && legal[z])
-          { do { do { z++; } while ((z < N) && legal[z]);
-                 y = z-1;
-                 z++;
-               } while ((z < N) && legal[z]);
-            { int premises = 0;
-              if (x > 0) premises++;
-              if (y < N-1) premises++;
-              for (i = x; i <= y; i++)
-                if (! legal[i])
-                  premises++;
-              if (premises > 1) printf("(");
-              { int need_and = 0;
-                if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
-                if (y < N-1)
-                  { if (need_and) printf(" && ");
-                    printf("(ch <= %d)",y);
-                    need_and = 1;
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([CL_CLOSEDIR])
+  AC_CACHE_CHECK([for the valid characters in filenames],
+    [cl_cv_os_valid_filename_char],
+    [dnl Create the subdirectory the test program will use for its files.
+     mkdir conftestdir
+     AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([[
+          #include "confdefs.h"
+          #include <sys/types.h>
+          #include <stdlib.h>
+          /* Declare chdir(). */
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <string.h>
+          #include <stdio.h>
+          /* Declare open(). */
+          #include <fcntl.h>
+          /* Declare opendir(), readdir(), closedir(). */
+          #include <dirent.h>
+          /* A small program which checks for each character whether or not it is
+           * valid in filenames.
+           * The actual result may depend on OS, its version, and the file system
+           * on which the test is run. */
+          #define N 256
+          ]],[[
+          if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+          {
+            char legal[N];
+            char filename[4];
+            int i;
+            if (chdir("conftestdir") < 0) return 1;
+            for (i = 0; i < N; i++) legal[i] = 0;
+            strcpy(filename,"a_z");
+            for (i = 0; i < N; i++)
+              if (i != '\0')
+                {
+                  filename[1] = i;
+                  /* Determine whether the filename is valid: create a file
+                   * and check that it is present afterwards, under the same name. */
+                  {
+                    int fd = open(filename, O_CREAT | O_RDWR, 0644);
+                    if (fd >=0)
+                      {
+                        DIR* dirp = opendir(".");
+                        if (dirp != (DIR*)0)
+                          {
+                            struct dirent * d;
+                            while ((d = readdir(dirp)))
+                              {
+                                if (!strcmp(d->d_name,".")) continue;
+                                if (!strcmp(d->d_name,"..")) continue;
+                                if (!strncmp(d->d_name,".nfs",4)) continue;
+                                if (!strcmp(d->d_name,filename)) legal[i] = 1;
+                                /* Remove the file even if its name is something else. */
+                                unlink(d->d_name);
+                              }
+                            closedir(dirp);
+                          }
+                        close(fd);
+                      }
                   }
-                for (i = x; i <= y; i++)
-                  if (! legal[i])
-                    { if (need_and) printf(" && ");
-                      printf("(ch != %d)",i);
-                      need_and = 1;
+                }
+            /* Output a boolean expression equivalent to legal[ch] (0 <= ch < N). */
+            {
+              int need_or = 0;
+              int z;
+              for (z = 0; z < N; )
+                {
+                  int x, y;
+                  if (! legal[z]) { z++; continue; }
+                  x = z;
+                  if (need_or) printf(" || ");
+                  z++;
+                  if ((z < N) && legal[z])
+                    {
+                      do
+                        {
+                          do { z++; } while ((z < N) && legal[z]);
+                          y = z-1;
+                          z++;
+                        }
+                      while ((z < N) && legal[z]);
+                      {
+                        int premises = 0;
+                        if (x > 0) premises++;
+                        if (y < N-1) premises++;
+                        for (i = x; i <= y; i++)
+                          if (! legal[i])
+                            premises++;
+                        if (premises > 1) printf("(");
+                        {
+                          int need_and = 0;
+                          if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
+                          if (y < N-1)
+                            {
+                              if (need_and) printf(" && ");
+                              printf("(ch <= %d)",y);
+                              need_and = 1;
+                            }
+                          for (i = x; i <= y; i++)
+                            if (! legal[i])
+                              {
+                                if (need_and) printf(" && ");
+                                printf("(ch != %d)",i);
+                                need_and = 1;
+                              }
+                          if (!need_and) printf("1");
+                        }
+                        if (premises > 1) printf(")");
+                      }
+                      z = y+1;
                     }
-                if (!need_and) printf("1");
-              }
-              if (premises > 1) printf(")");
+                  else
+                    {
+                      printf("(ch == %d)",x);
+                      z++;
+                    }
+                  need_or = 1;
+                }
+              printf("\n");
             }
-            z = y+1;
           }
-          else
-          { printf("(ch == %d)",x); z++; }
-        need_or = 1;
-      }
-    printf("\n");
-  }
-  return ferror(stdout) || fclose(stdout);
-]])],[cl_cv_os_valid_filename_char=`cat conftest.out`],
-[cl_cv_os_valid_filename_char=''],[cl_cv_os_valid_filename_char=''])
-dnl clean up
-# Workaround a problem with NFS on Solaris 7, where unlink()ed files reappear
-# immediately under a different name and disappear only after 1. the process
-# doing readdir() has exited and 2. waiting a second or two.
-# Even "rm -rf conftestdir" goes into an endless loop, eating CPU time, under
-# these conditions.
-period=1
-while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
-  echo "waiting for NFS..."
-  rm -f conftestdir/.nfs* 2>/dev/null
-  sleep $period
-  period=`expr 2 '*' $period`
-done
-# Now it's safe to do "rm -rf conftestdir".
-rm -rf conftestdir
-rm -f conftest.out
-if test -z "$cl_cv_os_valid_filename_char"; then
-  cl_cv_os_valid_filename_charset="guessing 7-bit"
-else
-  if test "$cl_cv_os_valid_filename_char" = '((ch >= 1) && (ch != 47))'; then
-    cl_cv_os_valid_filename_charset="8-bit"
-  else
-    cl_cv_os_valid_filename_charset="7-bit"
+          return ferror(stdout) || fclose(stdout);
+          ]])
+       ],
+       [cl_cv_os_valid_filename_char=`cat conftest.out`],
+       [cl_cv_os_valid_filename_char=''],
+       [cl_cv_os_valid_filename_char=''])
+     dnl clean up
+     # Workaround a problem with NFS on Solaris 7, where unlink()ed files reappear
+     # immediately under a different name and disappear only after 1. the process
+     # doing readdir() has exited and 2. waiting a second or two.
+     # Even "rm -rf conftestdir" goes into an endless loop, eating CPU time, under
+     # these conditions.
+     period=1
+     while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
+       echo "waiting for NFS..."
+       rm -f conftestdir/.nfs* 2>/dev/null
+       sleep $period
+       period=`expr 2 '*' $period`
+     done
+     # Now it's safe to do "rm -rf conftestdir".
+     rm -rf conftestdir
+     rm -f conftest.out
+     if test -z "$cl_cv_os_valid_filename_char"; then
+       cl_cv_os_valid_filename_charset="guessing 7-bit"
+     else
+       if test "$cl_cv_os_valid_filename_char" = '((ch >= 1) && (ch != 47))'; then
+         cl_cv_os_valid_filename_charset="8-bit"
+       else
+         cl_cv_os_valid_filename_charset="7-bit"
+       fi
+     fi
+    ])
+  if test -n "$cl_cv_os_valid_filename_char"; then
+    AC_DEFINE_UNQUOTED([VALID_FILENAME_CHAR], [$cl_cv_os_valid_filename_char],
+      [expression in ch which is true if ch is a valid character in filenames])
   fi
-fi
-])
-if test -n "$cl_cv_os_valid_filename_char"; then
-  AC_DEFINE_UNQUOTED(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
-fi
 ])
 
-# floatparam.m4 serial 2  -*- Autoconf -*-
-dnl Copyright (C) 2005-2008 Free Software Foundation, Inc.
+# floatparam.m4 serial 3  -*- Autoconf -*-
+dnl Copyright (C) 2005-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Bruno Haible, Sam Steingold.
 
-AC_DEFUN([CL_FLOATPARAM_CROSS],[
+AC_DEFUN([CL_FLOATPARAM_CROSS],
+[
   cl_machine_file_h=$1
   {
     echo "/* Rounding modes, for use below */"
@@ -18174,21 +18381,25 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],[
       if test -n "$type"; then
         epsilon_bits=-1; y="($type)1.0"
         while true; do
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               (($type)(($type)1.0 + ($type)($y)) == ($type)1.0)
-               || ($type)(($type)(($type)1.0 + ($type)($y)) - ($type)1.0) != ($type)($y)
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  (($type)(($type)1.0 + ($type)($y)) == ($type)1.0)
+                  || ($type)(($type)(($type)1.0 + ($type)($y)) - ($type)1.0) != ($type)($y)
+                 ) - 1];]])
+            ],
             [break;])
           epsilon_bits=`expr $epsilon_bits + 1`; y="$y * ($type)0.5"
         done
         negepsilon_bits=-1; y="($type)-1.0"
         while true; do
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               (($type)(($type)1.0 + ($type)($y)) == ($type)1.0)
-               || ($type)(($type)(($type)1.0 + ($type)($y)) - ($type)1.0) != ($type)($y)
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  (($type)(($type)1.0 + ($type)($y)) == ($type)1.0)
+                  || ($type)(($type)(($type)1.0 + ($type)($y)) - ($type)1.0) != ($type)($y)
+                 ) - 1];]])
+            ],
             [break;])
           negepsilon_bits=`expr $negepsilon_bits + 1`; y="$y * ($type)0.5"
         done
@@ -18220,31 +18431,39 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],[
         zs2="($type)(($type)-1.0 + ($type)(-5.6)*$x)"
         rounds=
         if test -z "$rounds"; then
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               $ys1 == $y1 && $ys2 == $y2 && $zs1 == $z1 && $zs2 == $z2
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  $ys1 == $y1 && $ys2 == $y2 && $zs1 == $z1 && $zs2 == $z2
+                 ) - 1];]])
+            ],
             [rounds=rounds_to_nearest])
         fi
         if test -z "$rounds"; then
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               $ys1 == $y1 && $ys2 == $y1 && $zs1 == $z1 && $zs2 == $z1
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  $ys1 == $y1 && $ys2 == $y1 && $zs1 == $z1 && $zs2 == $z1
+                 ) - 1];]])
+            ],
             [rounds=rounds_to_zero])
         fi
         if test -z "$rounds"; then
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               $ys1 == $y2 && $ys2 == $y2 && $zs1 == $z1 && $zs2 == $z1
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  $ys1 == $y2 && $ys2 == $y2 && $zs1 == $z1 && $zs2 == $z1
+                 ) - 1];]])
+            ],
             [rounds=rounds_to_infinity])
         fi
         if test -z "$rounds"; then
-          AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
-            [[typedef int verify[2*(
-               $ys1 == $y1 && $ys2 == $y1 && $zs1 == $z2 && $zs2 == $z2
-             ) - 1];]])],
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([],
+               [[typedef int verify[2*(
+                  $ys1 == $y1 && $ys2 == $y1 && $zs1 == $z2 && $zs2 == $z2
+                 ) - 1];]])
+            ],
             [rounds=rounds_to_minus_infinity])
         fi
         if test -n "$rounds"; then
@@ -18261,17 +18480,23 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],[
     dnl 2.5495230282078065     = { 0x40 0x04 0x65 0x6C 0x54 0x54 0x69 0x4C } ..elTTiL
     dnl 1.4139248369879473e214 = { 0x6C 0x65 0x00 0x00 0x4C 0x69 0x54 0x54 } le..LiTT
     double_wordorder_bigendian_p=
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[double a[9] = {
-       0, 2.5479915693083957, 0, 1.4396527506122064e164,
-       0, 2.5495230282078065, 0, 1.4139248369879473e214,
-       0 };]], [])], [dnl
-      if grep LiTTle conftest.$ac_objext >/dev/null ; then
-        double_wordorder_bigendian_p=0
-      else
-        if grep bIgeN conftest.$ac_objext >/dev/null ; then
-          double_wordorder_bigendian_p=1
-        fi
-      fi])
+    AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM([[
+         double a[9] = {
+           0, 2.5479915693083957, 0, 1.4396527506122064e164,
+           0, 2.5495230282078065, 0, 1.4139248369879473e214,
+           0 };
+         ]],
+         [])
+      ],
+      [if grep LiTTle conftest.$ac_objext >/dev/null; then
+         double_wordorder_bigendian_p=0
+       else
+         if grep bIgeN conftest.$ac_objext >/dev/null; then
+           double_wordorder_bigendian_p=1
+         fi
+       fi
+      ])
     if test -n "$double_wordorder_bigendian_p"; then
       echo "#define double_wordorder_bigendian_p $double_wordorder_bigendian_p"
     else
@@ -18282,7 +18507,7 @@ AC_DEFUN([CL_FLOATPARAM_CROSS],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18291,7 +18516,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_COMPILE_IFELSE      CL_COMPILE_CHECK
@@ -18308,25 +18533,31 @@ dnl the required macros are evaluated BEFORE the macro itself
 dnl and some of them require AC_CONFIG_AUX_DIR.
 dnl <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
 dnl <https://lists.gnu.org/archive/html/bug-gnulib/2009-01/msg00134.html>
-AC_DEFUN([CL_MODULE_COMMON_CHECKS],[dnl
-AC_REQUIRE([CL_CLISP],[CL_CLISP($1)])dnl
-AC_REQUIRE([AC_CONFIG_AUX_DIR],
-[AC_CONFIG_AUX_DIR([$cl_cv_clisp_libdir/build-aux])])dnl
-AC_REQUIRE([AC_PROG_CC])dnl
-AC_REQUIRE([AC_PROG_CPP])dnl
-AC_REQUIRE([CL_PROG_LN_S])dnl
-AC_REQUIRE([AC_GNU_SOURCE])dnl
-AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])dnl
+AC_DEFUN([CL_MODULE_COMMON_CHECKS],[
+  AC_REQUIRE([CL_CLISP], [CL_CLISP($1)])
+  AC_REQUIRE([AC_CONFIG_AUX_DIR],
+    [AC_CONFIG_AUX_DIR([$cl_cv_clisp_libdir/build-aux])])
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([AC_PROG_CPP])
+  AC_REQUIRE([CL_PROG_LN_S])
+  AC_REQUIRE([AC_GNU_SOURCE])
+  AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 ])
 
-AC_DEFUN([CL_CHECK],[dnl
+AC_DEFUN([CL_CHECK],[
   AC_CACHE_CHECK([for $2],[$3],
     [$1([AC_LANG_PROGRAM([$4],[$5])],[$3=yes],[$3=no])])
   AS_IF([test $$3 = yes], [$6], [$7])
 ])
 
-AC_DEFUN([CL_COMPILE_CHECK], [CL_CHECK([AC_COMPILE_IFELSE],$@)])
-AC_DEFUN([CL_LINK_CHECK], [CL_CHECK([AC_LINK_IFELSE],$@)])
+AC_DEFUN([CL_COMPILE_CHECK],
+[
+  CL_CHECK([AC_COMPILE_IFELSE],$@)
+])
+AC_DEFUN([CL_LINK_CHECK],
+[
+  CL_CHECK([AC_LINK_IFELSE],$@)
+])
 
 dnl Expands to the "extern ..." prefix used for system declarations.
 dnl AC_LANG_EXTERN()
@@ -18338,21 +18569,27 @@ AC_DEFUN([AC_LANG_EXTERN],
 ])
 
 AC_DEFUN([CL_CC_WORKS],
-[AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
-AC_LANG_PUSH(C)
-AC_RUN_IFELSE([AC_LANG_PROGRAM([],[])],
-[cl_cv_prog_cc_works=yes], [cl_cv_prog_cc_works=no],
-AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
-[cl_cv_prog_cc_works=yes], [cl_cv_prog_cc_works=no]))
-AC_LANG_POP(C)
-])
-if test "$cl_cv_prog_cc_works" = no; then
-AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create executables.])
-fi
+[
+  AC_CACHE_CHECK([whether CC works at all], [cl_cv_prog_cc_works],
+    [AC_LANG_PUSH([C])
+     AC_RUN_IFELSE(
+       [AC_LANG_PROGRAM([],[])],
+       [cl_cv_prog_cc_works=yes],
+       [cl_cv_prog_cc_works=no],
+       [AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM([],[])],
+          [cl_cv_prog_cc_works=yes],
+          [cl_cv_prog_cc_works=no])
+       ])
+     AC_LANG_POP([C])
+    ])
+  if test "$cl_cv_prog_cc_works" = no; then
+    AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create executables.])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18361,12 +18598,15 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_GETHOSTBYNAME],
-[AC_CHECK_HEADERS(netdb.h,
-[AC_DEFINE(HAVE_GETHOSTBYNAME,,[have gethostbyname()])dnl
-break])])
+[
+  AC_CHECK_HEADERS([netdb.h],
+    [AC_DEFINE([HAVE_GETHOSTBYNAME],,[have gethostbyname()])
+     break
+    ])
+])
 
 # Configure paths for GTK+
 # Owen Taylor     1997-2001
@@ -18554,8 +18794,8 @@ main ()
   rm -f conf.gtktest
 ])
 
-# intparam.m4 serial 3  -*- Autoconf -*-
-dnl Copyright (C) 2005-2008 Free Software Foundation, Inc.
+# intparam.m4 serial 4  -*- Autoconf -*-
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -18838,19 +19078,21 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <stddef.h>
-#ifdef __cplusplus
-# ifdef __GNUC__
-#  define alignof(type)  __alignof__ (type)
-# else
-   template <class type> struct alignof_helper { char slot1; type slot2; };
-#  define alignof(type)  offsetof (alignof_helper<type>, slot2)
-# endif
-#else
-# define alignof(type)  offsetof (struct { char slot1; type slot2; }, slot2)
-#endif
-]], [[typedef int verify[2*(alignof($1) == $n) - 1];]])],
+    AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM([[
+         #include <stddef.h>
+         #ifdef __cplusplus
+          #ifdef __GNUC__
+           #define alignof(type)  __alignof__ (type)
+          #else
+           template <class type> struct alignof_helper { char slot1; type slot2; };
+           #define alignof(type)  offsetof (alignof_helper<type>, slot2)
+          #endif
+         #else
+          #define alignof(type)  offsetof (struct { char slot1; type slot2; }, slot2)
+         #endif
+         ]],
+         [[typedef int verify[2*(alignof($1) == $n) - 1];]])],
       [$2=$n; break;]
       [if test $n = 0; then $2=; break; fi])
     n=`expr $n '*' 2`
@@ -18858,7 +19100,7 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18867,145 +19109,167 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_IOCTL],
-[AC_REQUIRE([CL_TERM])dnl
-AC_REQUIRE([CL_CADDR_T])dnl
-AC_CHECK_FUNCS(ioctl)
-if test $ac_cv_func_ioctl = yes; then
-ioctl_decl1='
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-#ifndef HAVE_TCSAFLUSH
-#undef HAVE_TERMIOS_H
-#endif
-#ifdef HAVE_TERMIOS_H
-#include <termios.h>
-#else
-#ifdef HAVE_SYS_TERMIO_H
-#include <sys/termio.h>
-#else
-#ifdef HAVE_TERMIO_H
-#include <termio.h>
-#else
-#ifdef HAVE_SGTTY_H
-#include <sgtty.h>
-#include <sys/ioctl.h>
-#endif
-#endif
-#endif
-#endif
-'
-CL_PROTO([ioctl], [
-dnl First find out whether this set of includes declares ioctl(), or whether
-dnl we shall use <sys/ioctl.h> instead.
-dnl Note: we must not include <sys/ioctl.h> deliberately since it is
-dnl incompatible to <termios.h> (and doesn't even declare ioctl()) on SunOS 4.
-AC_TRY_COMPILE($ioctl_decl1
-AC_LANG_EXTERN[char* ioctl();], [], try_sys_ioctl=1, ioctl_decl="$ioctl_decl1")
-if test -n "try_sys_ioctl"; then
-ioctl_decl2='
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-#include <sys/ioctl.h>
-'
-AC_TRY_COMPILE($ioctl_decl2
-AC_LANG_EXTERN[char* ioctl();], [],
-ioctl_decl="$ioctl_decl1", ioctl_decl="$ioctl_decl2")
-fi
-dnl Then find out about the correct ioctl declaration:
-for y in 'caddr_t arg' 'void* arg' '...'; do
-for x in SIZE_VARIANTS; do
-if test -z "$have_ioctl"; then
-CL_PROTO_TRY($ioctl_decl[
-#ifdef INCLUDE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-], [int ioctl (int fd, $x request, $y);], [
-cl_cv_proto_ioctl_arg2="$x"
-if test "$y" = "..."; then
-cl_cv_proto_ioctl_dots=yes
-cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, ..."
-else
-cl_cv_proto_ioctl_dots=no
-cl_cv_proto_ioctl_arg3=`echo "$y" | sed -e 's, arg,,'`
-cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, $cl_cv_proto_ioctl_arg3"
-fi
-have_ioctl=1])
-fi
-done
-done
-if test -z "$have_ioctl"; then
-CL_PROTO_MISSING(ioctl)
-fi
-], [extern int ioctl ($cl_cv_proto_ioctl_args);])
-AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in ioctl() declaration])
-if test $cl_cv_proto_ioctl_dots = yes; then
-AC_DEFINE(IOCTL_DOTS,,[declaration of ioctl() needs dots])
-else
-AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])
-fi
-ioctl_decl="$ioctl_decl1"
-ioctl_prog='int x = FIONREAD;'
-CL_COMPILE_CHECK([FIONREAD], cl_cv_decl_FIONREAD_1,
-$ioctl_decl, $ioctl_prog, ioctl_ok=1)dnl
-if test -z "$ioctl_ok"; then
-CL_COMPILE_CHECK([FIONREAD in sys/filio.h], cl_cv_decl_FIONREAD_1_sys_filio_h,
-$ioctl_decl[#include <sys/filio.h>], $ioctl_prog,
-AC_DEFINE(NEED_SYS_FILIO_H,,[need <sys/filio.h> for using ioctl() FIONREAD])
-ioctl_ok=1)dnl
-fi
-if test -z "$ioctl_ok"; then
-CL_COMPILE_CHECK([FIONREAD in sys/ioctl.h], cl_cv_decl_FIONREAD_1_sys_ioctl_h,
-$ioctl_decl[#include <sys/ioctl.h>], $ioctl_prog,
-AC_DEFINE(NEED_SYS_IOCTL_H,,[need <sys/ioctl.h> for using ioctl() FIONREAD])
-ioctl_ok=1)dnl
-fi
-if test -n "$ioctl_ok"; then
-AC_DEFINE(HAVE_FIONREAD,,[have the FIONREAD ioctl()])
-# Now check whether FIONREAD reliably checks for the EOF of a regular file.
-# The number of available characters returned by ioctl(fd,FIONREAD,...) should
-# be > 0 for a non-empty regular file at least. On Solaris 2, it is 0.
-AC_CACHE_CHECK(for reliable FIONREAD, cl_cv_decl_FIONREAD_reliable, [
-AC_TRY_RUN([
-/* Declare ioctl(). */
-]$ioctl_decl[
-#ifdef NEED_SYS_FILIO_H
-#include <sys/filio.h>
-#endif
-#ifdef NEED_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-/* Declare open(). */
-#include <fcntl.h>
-int main ()
-{ int fd = open("conftest.c",O_RDONLY,0644);
-  unsigned long bytes_ready;
-  /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
-     apparently expect an 'int *', not a 'long *', as argument of this ioctl,
-     and thus fill only part of the bytes_ready variable. Fortunately,
-     endianness is not a problem here, because we only check whether
-     bytes_ready is == 0 or != 0. */
-  bytes_ready = 0;
-  exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
-}],
-cl_cv_decl_FIONREAD_reliable=yes, cl_cv_decl_FIONREAD_reliable=no,
-dnl When cross-compiling, don't assume anything.
-cl_cv_decl_FIONREAD_reliable="guessing no")
-])
-case "$cl_cv_decl_FIONREAD_reliable" in
-  *yes) AC_DEFINE(HAVE_RELIABLE_FIONREAD,,[have the FIONREAD ioctl() and it works reliably on files]) ;;
-  *no) ;;
-esac
-fi
-fi
+[
+  AC_REQUIRE([CL_TERM])
+  AC_REQUIRE([CL_CADDR_T])
+  AC_CHECK_FUNCS([ioctl])
+  if test $ac_cv_func_ioctl = yes; then
+    ioctl_decl1='
+      #include <stdlib.h>
+      #ifdef HAVE_UNISTD_H
+       #include <sys/types.h>
+       #include <unistd.h>
+      #endif
+      #ifndef HAVE_TCSAFLUSH
+       #undef HAVE_TERMIOS_H
+      #endif
+      #ifdef HAVE_TERMIOS_H
+       #include <termios.h>
+      #else
+       #ifdef HAVE_SYS_TERMIO_H
+        #include <sys/termio.h>
+       #else
+        #ifdef HAVE_TERMIO_H
+         #include <termio.h>
+        #else
+         #ifdef HAVE_SGTTY_H
+          #include <sgtty.h>
+          #include <sys/ioctl.h>
+         #endif
+        #endif
+       #endif
+      #endif
+      '
+    CL_PROTO([ioctl],
+      [dnl First find out whether this set of includes declares ioctl(), or whether
+       dnl we shall use <sys/ioctl.h> instead.
+       dnl Note: we must not include <sys/ioctl.h> deliberately since it is
+       dnl incompatible to <termios.h> (and doesn't even declare ioctl()) on SunOS 4.
+       AC_TRY_COMPILE([$ioctl_decl1
+         ]AC_LANG_EXTERN[char* ioctl();],
+         [],
+         [try_sys_ioctl=1],
+         [ioctl_decl="$ioctl_decl1"])
+       if test -n "try_sys_ioctl"; then
+         ioctl_decl2='
+           #include <stdlib.h>
+           #ifdef HAVE_UNISTD_H
+            #include <sys/types.h>
+            #include <unistd.h>
+           #endif
+           #include <sys/ioctl.h>
+           '
+         AC_TRY_COMPILE([$ioctl_decl2
+           ]AC_LANG_EXTERN[char* ioctl();],
+           [],
+           [ioctl_decl="$ioctl_decl1"],
+           [ioctl_decl="$ioctl_decl2"])
+       fi
+       dnl Then find out about the correct ioctl declaration:
+       for y in 'caddr_t arg' 'void* arg' '...'; do
+         for x in SIZE_VARIANTS; do
+           if test -z "$have_ioctl"; then
+             CL_PROTO_TRY([$ioctl_decl
+               #ifdef INCLUDE_SYS_IOCTL_H
+                #include <sys/ioctl.h>
+               #endif
+               ],
+               [int ioctl (int fd, $x request, $y);],
+               [cl_cv_proto_ioctl_arg2="$x"
+                if test "$y" = "..."; then
+                  cl_cv_proto_ioctl_dots=yes
+                  cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, ..."
+                else
+                  cl_cv_proto_ioctl_dots=no
+                  cl_cv_proto_ioctl_arg3=`echo "$y" | sed -e 's, arg,,'`
+                  cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, $cl_cv_proto_ioctl_arg3"
+                fi
+                have_ioctl=1
+               ])
+           fi
+         done
+       done
+       if test -z "$have_ioctl"; then
+         CL_PROTO_MISSING([ioctl])
+       fi
+      ],
+      [extern int ioctl ($cl_cv_proto_ioctl_args);])
+    AC_DEFINE_UNQUOTED([IOCTL_REQUEST_T], [$cl_cv_proto_ioctl_arg2],
+      [type of `request' in ioctl() declaration])
+    if test $cl_cv_proto_ioctl_dots = yes; then
+      AC_DEFINE([IOCTL_DOTS],,[declaration of ioctl() needs dots])
+    else
+      AC_DEFINE_UNQUOTED([IOCTL_ARGUMENT_T], [$cl_cv_proto_ioctl_arg3],
+        [type of `argument' in ioctl() declaration, if not superseded by dots])
+    fi
+    ioctl_decl="$ioctl_decl1"
+    ioctl_prog='int x = FIONREAD;'
+    CL_COMPILE_CHECK([FIONREAD], [cl_cv_decl_FIONREAD_1],
+      [$ioctl_decl], [$ioctl_prog], [ioctl_ok=1])
+    if test -z "$ioctl_ok"; then
+      CL_COMPILE_CHECK([FIONREAD in sys/filio.h], [cl_cv_decl_FIONREAD_1_sys_filio_h],
+        [$ioctl_decl
+         #include <sys/filio.h>
+        ],
+        [$ioctl_prog],
+        [AC_DEFINE([NEED_SYS_FILIO_H],,[need <sys/filio.h> for using ioctl() FIONREAD])
+         ioctl_ok=1
+        ])
+    fi
+    if test -z "$ioctl_ok"; then
+      CL_COMPILE_CHECK([FIONREAD in sys/ioctl.h], [cl_cv_decl_FIONREAD_1_sys_ioctl_h],
+        [$ioctl_decl
+         #include <sys/ioctl.h>
+        ],
+        [$ioctl_prog],
+        [AC_DEFINE(NEED_SYS_IOCTL_H,,[need <sys/ioctl.h> for using ioctl() FIONREAD])
+         ioctl_ok=1
+        ])
+    fi
+    if test -n "$ioctl_ok"; then
+      AC_DEFINE([HAVE_FIONREAD],,[have the FIONREAD ioctl()])
+      # Now check whether FIONREAD reliably checks for the EOF of a regular file.
+      # The number of available characters returned by ioctl(fd,FIONREAD,...) should
+      # be > 0 for a non-empty regular file at least. On Solaris 2, it is 0.
+      AC_CACHE_CHECK([for reliable FIONREAD], [cl_cv_decl_FIONREAD_reliable],
+        [AC_TRY_RUN([
+           /* Declare ioctl(). */
+           $ioctl_decl
+           #ifdef NEED_SYS_FILIO_H
+            #include <sys/filio.h>
+           #endif
+           #ifdef NEED_SYS_IOCTL_H
+            #include <sys/ioctl.h>
+           #endif
+           /* Declare open(). */
+           #include <fcntl.h>
+           int main ()
+           {
+             int fd = open("conftest.c",O_RDONLY,0644);
+             unsigned long bytes_ready;
+             /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+                apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+                and thus fill only part of the bytes_ready variable. Fortunately,
+                endianness is not a problem here, because we only check whether
+                bytes_ready is == 0 or != 0. */
+             bytes_ready = 0;
+             exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
+           }
+           ],
+           [cl_cv_decl_FIONREAD_reliable=yes], [cl_cv_decl_FIONREAD_reliable=no],
+           [dnl When cross-compiling, don't assume anything.
+            cl_cv_decl_FIONREAD_reliable="guessing no"
+           ])
+        ])
+      case "$cl_cv_decl_FIONREAD_reliable" in
+        *yes) AC_DEFINE([HAVE_RELIABLE_FIONREAD],,[have the FIONREAD ioctl() and it works reliably on files]) ;;
+        *no) ;;
+      esac
+    fi
+  fi
 ])
 
 # libtool.m4 - Configure libtool for the host system. -*-Autoconf-*-
@@ -27357,19 +27621,25 @@ _LT_DECL([to_tool_file_cmd], [lt_cv_to_tool_file_cmd],
 ])# _LT_PATH_CONVERSION_FUNCTIONS
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008 Sam Steingold (repleased under GPLv2+)
+dnl Copyright (C) 2008 Sam Steingold
+dnl Copyright (C) 2017 Bruno Haible
+dnl This is free software, distributed under the GNU GPL v2+
 
-AC_DEFUN([CL_LIGHTNING], [
-AC_ARG_WITH([lightning-prefix],
-[AS_HELP_STRING([--with-lightning-prefix],
-[additional place to look for the lightning headers])],
-[if test -f $withval/include/lightning.h; then
-  AC_LIB_APPENDTOVAR([CPPFLAGS],-I$withval/include)
-fi],[])
-AC_CHECK_HEADERS(lightning.h)])
+AC_DEFUN([CL_LIGHTNING],
+[
+  AC_ARG_WITH([lightning-prefix],
+    [AS_HELP_STRING([--with-lightning-prefix],
+       [additional place to look for the lightning headers])],
+    [if test -f $withval/include/lightning.h; then
+       AC_LIB_APPENDTOVAR([CPPFLAGS], [-I$withval/include])
+     fi
+    ],
+    [])
+  AC_CHECK_HEADERS([lightning.h])
+])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -27378,79 +27648,83 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_PROG_LN],
-[AC_CACHE_CHECK(how to make hard links, cl_cv_prog_LN, [
-rm -f conftestdata conftestfile
-echo data > conftestfile
-if ln conftestfile conftestdata 2>/dev/null; then
-  cl_cv_prog_LN=ln
-else
-  cl_cv_prog_LN="cp -p"
-fi
-rm -f conftestdata conftestfile
-])
-LN="$cl_cv_prog_LN"
-AC_SUBST(LN)dnl
+[
+  AC_CACHE_CHECK([how to make hard links], [cl_cv_prog_LN],
+    [rm -f conftestdata conftestfile
+     echo data > conftestfile
+     if ln conftestfile conftestdata 2>/dev/null; then
+       cl_cv_prog_LN=ln
+     else
+       cl_cv_prog_LN="cp -p"
+     fi
+     rm -f conftestdata conftestfile
+    ])
+  LN="$cl_cv_prog_LN"
+  AC_SUBST([LN])
 ])
 
 AC_DEFUN([CL_PROG_LN_S],
-[AC_REQUIRE([CL_PROG_LN])dnl
-dnl Make a symlink if possible; otherwise try a hard link. On filesystems
-dnl which support neither symlink nor hard link, use a plain copy.
-AC_CACHE_CHECK([whether ln -s works], [cl_cv_prog_LN_S_works], [dnl
-rm -f conftestdata
-if ln -s X conftestdata 2>/dev/null; then
-  cl_cv_prog_LN_S_works=yes
-else
-  cl_cv_prog_LN_S_works=no
-fi
-rm -f conftestdata
+[
+  AC_REQUIRE([CL_PROG_LN])
+  dnl Make a symlink if possible; otherwise try a hard link. On filesystems
+  dnl which support neither symlink nor hard link, use a plain copy.
+  AC_CACHE_CHECK([whether ln -s works], [cl_cv_prog_LN_S_works],
+    [rm -f conftestdata
+     if ln -s X conftestdata 2>/dev/null; then
+       cl_cv_prog_LN_S_works=yes
+     else
+       cl_cv_prog_LN_S_works=no
+     fi
+     rm -f conftestdata
+    ])
+  if test $cl_cv_prog_LN_S_works = yes; then
+    LN_S="ln -s"
+  else
+    LN_S="$cl_cv_prog_LN"
+  fi
+  AC_SUBST([LN_S])
 ])
-if test $cl_cv_prog_LN_S_works = yes; then
-  LN_S="ln -s"
-else
-  LN_S="$cl_cv_prog_LN"
-fi
-AC_SUBST(LN_S)])
 
 AC_DEFUN([CL_PROG_HLN],
-[AC_REQUIRE([CL_PROG_LN_S])dnl
-dnl according to the Linux ln(1):
-dnl   "making a hard link to a symbolic link is not portable":
-dnl SVR4 (Solaris, Linux) create symbolic links
-dnl   (breaks when the target is relative)
-dnl Cygwin (1.3.12) is even worse: it makes hard links to the symbolic link,
-dnl   instead of resolving the symbolic link.
-dnl Good behavior means creating a hard link to the symbolic link's target.
-dnl To avoid this, use the "hln" program.
-dnl cf gl_AC_FUNC_LINK_FOLLOWS_SYMLINK in gnulib/m4/link-follow.m4
-AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
-cl_cv_prog_hln="ln"
-if test "$cl_cv_prog_LN_S_works" = "yes"; then
-echo "blabla" > conftest.x
-ln -s conftest.x conftest.y
-mkdir conftest.d
-cd conftest.d
-ln ../conftest.y conftest.z 2>&AC_FD_CC
-data=`cat conftest.z 2>/dev/null`
-if test "$data" = "blabla" ; then
-  # conftest.z contains the correct data -- good!
-  cl_cv_prog_hln="ln"
-else
-  # ln cannot link to symbolic links
-  cl_cv_prog_hln="hln"
-fi
-cd ..
-rm -fr conftest.*
-else
-# If there are no symbolic links, the problem cannot occur.
-cl_cv_prog_hln="ln"
-fi
-])
-HLN="$cl_cv_prog_hln"
-AC_SUBST(HLN)dnl
+[
+  AC_REQUIRE([CL_PROG_LN_S])
+  dnl according to the Linux ln(1):
+  dnl   "making a hard link to a symbolic link is not portable":
+  dnl SVR4 (Solaris, Linux) create symbolic links
+  dnl   (breaks when the target is relative)
+  dnl Cygwin (1.3.12) is even worse: it makes hard links to the symbolic link,
+  dnl   instead of resolving the symbolic link.
+  dnl Good behavior means creating a hard link to the symbolic link's target.
+  dnl To avoid this, use the "hln" program.
+  dnl cf gl_AC_FUNC_LINK_FOLLOWS_SYMLINK in gnulib/m4/link-follow.m4
+  AC_CACHE_CHECK([how to make hard links to symlinks], [cl_cv_prog_hln],
+    [cl_cv_prog_hln="ln"
+     if test "$cl_cv_prog_LN_S_works" = "yes"; then
+       echo "blabla" > conftest.x
+       ln -s conftest.x conftest.y
+       mkdir conftest.d
+       cd conftest.d
+       ln ../conftest.y conftest.z 2>&AC_FD_CC
+       data=`cat conftest.z 2>/dev/null`
+       if test "$data" = "blabla"; then
+         # conftest.z contains the correct data -- good!
+         cl_cv_prog_hln="ln"
+       else
+         # ln cannot link to symbolic links
+         cl_cv_prog_hln="hln"
+       fi
+       cd ..
+       rm -fr conftest.*
+     else
+       # If there are no symbolic links, the problem cannot occur.
+       cl_cv_prog_hln="ln"
+     fi
+    ])
+  HLN="$cl_cv_prog_hln"
+  AC_SUBST([HLN])
 ])
 
 # Helper functions for option handling.                    -*- Autoconf -*-
@@ -28135,7 +28409,7 @@ m4_ifndef([_LT_PROG_FC],		[AC_DEFUN([_LT_PROG_FC])])
 m4_ifndef([_LT_PROG_CXX],		[AC_DEFUN([_LT_PROG_CXX])])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28144,16 +28418,17 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_MACH_VM],
-[CL_LINK_CHECK([vm_allocate], cl_cv_func_vm,
- , [vm_allocate(); task_self();],
-AC_DEFINE(HAVE_MACH_VM,,[have vm_allocate() and task_self() functions])dnl
-)])
+[
+  CL_LINK_CHECK([vm_allocate], [cl_cv_func_vm], ,
+    [vm_allocate(); task_self();],
+    [AC_DEFINE([HAVE_MACH_VM],,[have vm_allocate() and task_self() functions])])
+])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2010, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28162,231 +28437,260 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_MMAP],
-[AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
-AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
-if test -z "$no_mmap"; then
-AC_CHECK_FUNC(mmap, , no_mmap=1)dnl
-if test -z "$no_mmap"; then
-AC_DEFINE(HAVE_MMAP,,[have <sys/mmap.h> and the mmap() function])
-AC_CACHE_CHECK(for working mmap, cl_cv_func_mmap_works, [
-case "$host" in
-  i[34567]86-*-sysv4*)
-    # UNIX_SYSV_UHC_1
-    avoid=0x08000000 ;;
-  mips-sgi-irix* | mips-dec-ultrix*)
-    # UNIX_IRIX, UNIX_DEC_ULTRIX
-    avoid=0x10000000 ;;
-  rs6000-ibm-aix*)
-    # UNIX_AIX
-    avoid=0x20000000 ;;
-  *)
-    avoid=0 ;;
-esac
-mmap_prog_1='
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-int main () {
-'
-mmap_prog_2="#define bits_to_avoid $avoid"'
-#define my_shift 24
-#define my_low   1
-#ifdef FOR_SUN4_29
-#define my_high  31
-#define my_size  32768 /* hope that 32768 is a multiple of the page size */
-/* i*32 KB for i=1..31 gives a total of 15.5 MB, which is close to what we need */
-#else
-#define my_high  64
-#define my_size  8192 /* hope that 8192 is a multiple of the page size */
-/* i*8 KB for i=1..64 gives a total of 16.25 MB, which is close to what we need */
-#endif
-#if defined(__APPLE__) && defined(__MACH__) && defined(__x86_64__)
-/* On MacOS X in 64-bit mode, mmapable addresses start at 2^33. */
-#define base_address 0x200000000UL
-#else
-#define base_address 0
-#endif
- {long i;
-#define i_ok(i)  ((i) & (bits_to_avoid >> my_shift) == 0)
-  for (i=my_low; i<=my_high; i++)
-    if (i_ok(i))
-      { caddr_t addr = (caddr_t)(base_address + (i << my_shift));
-/* Check for 8 MB, not 16 MB. This is more likely to work on Solaris 2. */
-#if bits_to_avoid
-        long size = i*my_size;
-#else
-        long size = ((i+1)/2)*my_size;
-#endif
-        if (mmap(addr,size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) == (void*)-1) exit(1);
-    }
-#define x(i)  *(unsigned char *) (base_address + (i<<my_shift) + (i*i))
-#define y(i)  (unsigned char)((3*i-4)*(7*i+3))
-  for (i=my_low; i<=my_high; i++) if (i_ok(i)) { x(i) = y(i); }
-  for (i=my_high; i>=my_low; i--) if (i_ok(i)) { if (x(i) != y(i)) exit(1); }
-  exit(0);
-}}
-'
-AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
-  int flags = MAP_ANON | MAP_PRIVATE;
-  int fd = -1;
-  nocrash_init();
-$mmap_prog_2
-], have_mmap_anon=1
-cl_cv_func_mmap_anon=yes, ,
-: # When cross-compiling, don't assume anything.
-)
-AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
-  int flags = MAP_ANONYMOUS | MAP_PRIVATE;
-  int fd = -1;
-  nocrash_init();
-$mmap_prog_2
-], have_mmap_anon=1
-cl_cv_func_mmap_anonymous=yes, ,
-: # When cross-compiling, don't assume anything.
-)
-AC_TRY_RUN(GL_NOCRASH[$mmap_prog_1
-#ifndef MAP_FILE
-#define MAP_FILE 0
-#endif
-  int flags = MAP_FILE | MAP_PRIVATE;
-  int fd = open("/dev/zero",O_RDONLY,0666);
-  if (fd<0) exit(1);
-  nocrash_init();
-$mmap_prog_2
-], have_mmap_devzero=1
-cl_cv_func_mmap_devzero=yes, 
-retry_mmap=1,
-: # When cross-compiling, don't assume anything.
-)
-if test -n "$retry_mmap"; then
-AC_TRY_RUN(GL_NOCRASH[#define FOR_SUN4_29
-$mmap_prog_1
-#ifndef MAP_FILE
-#define MAP_FILE 0
-#endif
-  int flags = MAP_FILE | MAP_PRIVATE;
-  int fd = open("/dev/zero",O_RDONLY,0666);
-  if (fd<0) exit(1);
-  nocrash_init();
-$mmap_prog_2
-], have_mmap_devzero=1
-cl_cv_func_mmap_devzero_sun4_29=yes, ,
-: # When cross-compiling, don't assume anything.
-)
-fi
-if test -n "$have_mmap_anon" -o -n "$have_mmap_devzero"; then
-cl_cv_func_mmap_works=yes
-else
-cl_cv_func_mmap_works=no
-fi
-])
-if test "$cl_cv_func_mmap_anon" = yes; then
-AC_DEFINE(HAVE_MMAP_ANON,,[<sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works])
-fi
-if test "$cl_cv_func_mmap_anonymous" = yes; then
-AC_DEFINE(HAVE_MMAP_ANONYMOUS,,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS works])
-fi
-if test "$cl_cv_func_mmap_devzero" = yes; then
-AC_DEFINE(HAVE_MMAP_DEVZERO,,[mmaping of the special device /dev/zero works])
-fi
-if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
-AC_DEFINE(HAVE_MMAP_DEVZERO_SUN4_29,,[mmaping of the special device /dev/zero works, but only on addresses < 2^29])
-fi
-fi
-fi
+[
+  AC_BEFORE([$0], [CL_MUNMAP])
+  AC_BEFORE([$0], [CL_MPROTECT])
+  AC_CHECK_HEADER([sys/mman.h], [], [no_mmap=1])
+  if test -z "$no_mmap"; then
+    AC_CHECK_FUNC([mmap], [], [no_mmap=1])
+    if test -z "$no_mmap"; then
+      AC_DEFINE([HAVE_MMAP],,[have <sys/mmap.h> and the mmap() function])
+      AC_CACHE_CHECK([for working mmap], [cl_cv_func_mmap_works],
+        [case "$host" in
+           i[34567]86-*-sysv4*)
+             # UNIX_SYSV_UHC_1
+             avoid=0x08000000 ;;
+           mips-sgi-irix* | mips-dec-ultrix*)
+             # UNIX_IRIX, UNIX_DEC_ULTRIX
+             avoid=0x10000000 ;;
+           rs6000-ibm-aix*)
+             # UNIX_AIX
+             avoid=0x20000000 ;;
+           *)
+           avoid=0 ;;
+         esac
+         mmap_prog_1='
+           #include <stdlib.h>
+           #ifdef HAVE_UNISTD_H
+            #include <unistd.h>
+           #endif
+           #include <fcntl.h>
+           #include <sys/types.h>
+           #include <sys/mman.h>
+           int main ()
+           {
+           '
+         mmap_prog_2="
+             #define bits_to_avoid $avoid"'
+             #define my_shift 24
+             #define my_low   1
+             #ifdef FOR_SUN4_29
+              #define my_high  31
+              #define my_size  32768 /* hope that 32768 is a multiple of the page size */
+              /* i*32 KB for i=1..31 gives a total of 15.5 MB, which is close to what we need */
+             #else
+              #define my_high  64
+              #define my_size  8192 /* hope that 8192 is a multiple of the page size */
+              /* i*8 KB for i=1..64 gives a total of 16.25 MB, which is close to what we need */
+             #endif
+             #if defined(__APPLE__) && defined(__MACH__) && defined(__x86_64__)
+              /* On MacOS X in 64-bit mode, mmapable addresses start at 2^33. */
+              #define base_address 0x200000000UL
+             #else
+              #define base_address 0
+             #endif
+             {
+               long i;
+               #define i_ok(i)  ((i) & (bits_to_avoid >> my_shift) == 0)
+               for (i=my_low; i<=my_high; i++)
+                 if (i_ok(i))
+                   {
+                     caddr_t addr = (caddr_t)(base_address + (i << my_shift));
+                     /* Check for 8 MB, not 16 MB. This is more likely to work on Solaris 2. */
+                     #if bits_to_avoid
+                       long size = i*my_size;
+                     #else
+                       long size = ((i+1)/2)*my_size;
+                     #endif
+                     if (mmap(addr,size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) == (void*)-1) exit(1);
+                   }
+               #define x(i)  *(unsigned char *) (base_address + (i<<my_shift) + (i*i))
+               #define y(i)  (unsigned char)((3*i-4)*(7*i+3))
+               for (i=my_low; i<=my_high; i++)
+                 if (i_ok(i))
+                   {
+                     x(i) = y(i);
+                   }
+               for (i=my_high; i>=my_low; i--)
+                 if (i_ok(i))
+                   {
+                     if (x(i) != y(i)) exit(1);
+                   }
+               exit(0);
+             }
+           }
+           '
+         AC_TRY_RUN(GL_NOCRASH[
+           $mmap_prog_1
+             int flags = MAP_ANON | MAP_PRIVATE;
+             int fd = -1;
+             nocrash_init();
+           $mmap_prog_2
+           ],
+           [have_mmap_anon=1
+            cl_cv_func_mmap_anon=yes
+           ],
+           [],
+           [: # When cross-compiling, don't assume anything.])
+         AC_TRY_RUN(GL_NOCRASH[
+           $mmap_prog_1
+             int flags = MAP_ANONYMOUS | MAP_PRIVATE;
+             int fd = -1;
+             nocrash_init();
+           $mmap_prog_2
+           ],
+           [have_mmap_anon=1
+            cl_cv_func_mmap_anonymous=yes
+           ],
+           [],
+           [: # When cross-compiling, don't assume anything.])
+         AC_TRY_RUN(GL_NOCRASH[
+           $mmap_prog_1
+             #ifndef MAP_FILE
+              #define MAP_FILE 0
+             #endif
+             int flags = MAP_FILE | MAP_PRIVATE;
+             int fd = open("/dev/zero",O_RDONLY,0666);
+             if (fd<0) exit(1);
+             nocrash_init();
+           $mmap_prog_2
+           ],
+           [have_mmap_devzero=1
+            cl_cv_func_mmap_devzero=yes
+           ],
+           [retry_mmap=1],
+           [: # When cross-compiling, don't assume anything.])
+         if test -n "$retry_mmap"; then
+           AC_TRY_RUN(GL_NOCRASH[
+             #define FOR_SUN4_29
+             $mmap_prog_1
+               #ifndef MAP_FILE
+                #define MAP_FILE 0
+               #endif
+               int flags = MAP_FILE | MAP_PRIVATE;
+               int fd = open("/dev/zero",O_RDONLY,0666);
+               if (fd<0) exit(1);
+               nocrash_init();
+             $mmap_prog_2
+             ],
+             [have_mmap_devzero=1
+              cl_cv_func_mmap_devzero_sun4_29=yes
+             ],
+             [],
+             [: # When cross-compiling, don't assume anything.])
+         fi
+         if test -n "$have_mmap_anon" -o -n "$have_mmap_devzero"; then
+           cl_cv_func_mmap_works=yes
+         else
+           cl_cv_func_mmap_works=no
+         fi
+        ])
+      if test "$cl_cv_func_mmap_anon" = yes; then
+        AC_DEFINE([HAVE_MMAP_ANON],,[<sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works])
+      fi
+      if test "$cl_cv_func_mmap_anonymous" = yes; then
+        AC_DEFINE([HAVE_MMAP_ANONYMOUS],,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS works])
+      fi
+      if test "$cl_cv_func_mmap_devzero" = yes; then
+        AC_DEFINE([HAVE_MMAP_DEVZERO],,[mmaping of the special device /dev/zero works])
+      fi
+      if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
+        AC_DEFINE([HAVE_MMAP_DEVZERO_SUN4_29],,[mmaping of the special device /dev/zero works, but only on addresses < 2^29])
+      fi
+    fi
+  fi
 
-if test "$cl_cv_func_mmap_works" = yes; then
-dnl For SINGLEMAP_MEMORY and the TYPECODES object representation:
-dnl Test which is the highest bit number < 63 (or < 31) at which the kernel
-dnl allows us to mmap memory with MAP_FIXED. That is, try
-dnl   0x4000000000000000 -> 62
-dnl   0x2000000000000000 -> 61
-dnl   0x1000000000000000 -> 60
-dnl   ...
-dnl and return the highest bit number for which mmap succeeds.
-dnl Don't need to test bit 63 (or 31) because we use it as garcol_bit in TYPECODES.
-AC_CACHE_CHECK([for highest bit number which can be included in mmaped addresses],
-  [cl_cv_func_mmap_highest_bit],
-  [AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#ifndef MAP_FILE
-#define MAP_FILE 0
-#endif
-#ifndef MAP_VARIABLE
-#define MAP_VARIABLE 0
-#endif
-int
-main ()
-{
-  unsigned int my_size = 32768; /* hope that 32768 is a multiple of the page size */
-  int pos;
-  for (pos = 8*sizeof(void*)-2; pos > 0; pos--) {
-    unsigned long address = (unsigned long)1 << pos;
-    if (address < 4096)
-      break;
-#ifdef __ia64__
-    /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
-       An mmap call to this address would either crash the program (on Linux)
-       or fail (on HP-UX). */
-    if (pos == 62)
-      continue;
-#endif
-    {
-      char *p;
-      int ret;
-#if defined HAVE_MMAP_ANON
-      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
-#elif defined HAVE_MMAP_ANONYMOUS
-      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
-#elif defined HAVE_MMAP_DEVZERO
-      int zero_fd = open("/dev/zero", O_RDONLY, 0666);
-      if (zero_fd < 0)
-        return 1;
-      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
-#else
-      ??
-#endif
-      if (p != (char*) -1)
-        /* mmap succeeded. */
-        return pos;
-    }
-  }
-  return 0;
-}],
-     [cl_cv_func_mmap_highest_bit=none],
-     [cl_cv_func_mmap_highest_bit=$?
-      case "$cl_cv_func_mmap_highest_bit" in
-        0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ) dnl Most likely a compiler error code.
-          cl_cv_func_mmap_highest_bit=none ;;
-      esac],
-     [cl_cv_func_mmap_highest_bit="guessing none"])
-  ])
-case "$cl_cv_func_mmap_highest_bit" in
-  *none) value='-1' ;;
-  *) value="$cl_cv_func_mmap_highest_bit" ;;
-esac
-else
-value='-1'
-fi
-AC_DEFINE_UNQUOTED([MMAP_FIXED_ADDRESS_HIGHEST_BIT], [$value],
-  [Define to the highest bit number that can be included in mmaped addresses.])
+  if test "$cl_cv_func_mmap_works" = yes; then
+    dnl For SINGLEMAP_MEMORY and the TYPECODES object representation:
+    dnl Test which is the highest bit number < 63 (or < 31) at which the kernel
+    dnl allows us to mmap memory with MAP_FIXED. That is, try
+    dnl   0x4000000000000000 -> 62
+    dnl   0x2000000000000000 -> 61
+    dnl   0x1000000000000000 -> 60
+    dnl   ...
+    dnl and return the highest bit number for which mmap succeeds.
+    dnl Don't need to test bit 63 (or 31) because we use it as garcol_bit in TYPECODES.
+    AC_CACHE_CHECK([for highest bit number which can be included in mmaped addresses],
+      [cl_cv_func_mmap_highest_bit],
+      [AC_TRY_RUN([
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <fcntl.h>
+         #include <sys/types.h>
+         #include <sys/mman.h>
+         #ifndef MAP_FILE
+          #define MAP_FILE 0
+         #endif
+         #ifndef MAP_VARIABLE
+          #define MAP_VARIABLE 0
+         #endif
+         int
+         main ()
+         {
+           unsigned int my_size = 32768; /* hope that 32768 is a multiple of the page size */
+           int pos;
+           for (pos = 8*sizeof(void*)-2; pos > 0; pos--)
+             {
+               unsigned long address = (unsigned long)1 << pos;
+               if (address < 4096)
+                 break;
+               #ifdef __ia64__
+               /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
+                  An mmap call to this address would either crash the program (on Linux)
+                  or fail (on HP-UX). */
+               if (pos == 62)
+                 continue;
+               #endif
+               {
+                 char *p;
+                 int ret;
+                 #if defined HAVE_MMAP_ANON
+                   p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
+                 #elif defined HAVE_MMAP_ANONYMOUS
+                   p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
+                 #elif defined HAVE_MMAP_DEVZERO
+                   int zero_fd = open("/dev/zero", O_RDONLY, 0666);
+                   if (zero_fd < 0)
+                     return 1;
+                   p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
+                 #else
+                   ??
+                 #endif
+                 if (p != (char*) -1)
+                   /* mmap succeeded. */
+                   return pos;
+               }
+             }
+           return 0;
+         }
+         ],
+         [cl_cv_func_mmap_highest_bit=none],
+         [cl_cv_func_mmap_highest_bit=$?
+          case "$cl_cv_func_mmap_highest_bit" in
+            0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ) dnl Most likely a compiler error code.
+              cl_cv_func_mmap_highest_bit=none ;;
+          esac
+         ],
+         [cl_cv_func_mmap_highest_bit="guessing none"])
+      ])
+    case "$cl_cv_func_mmap_highest_bit" in
+      *none) value='-1' ;;
+      *) value="$cl_cv_func_mmap_highest_bit" ;;
+    esac
+  else
+    value='-1'
+  fi
+  AC_DEFINE_UNQUOTED([MMAP_FIXED_ADDRESS_HIGHEST_BIT], [$value],
+    [Define to the highest bit number that can be included in mmaped addresses.])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28395,94 +28699,113 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_MPROTECT],
-[AC_REQUIRE([gl_FUNC_GETPAGESIZE])dnl
-AC_REQUIRE([CL_MMAP])dnl
-AC_CHECK_FUNCS(mprotect)dnl
-if test $ac_cv_func_mprotect = yes; then
-AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
-mprotect_prog='
-#include <sys/types.h>
-/* declare malloc() */
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-/* declare getpagesize() and mprotect() */
-#include <sys/mman.h>
-#ifndef HAVE_GETPAGESIZE
-#include <sys/param.h>
-#define getpagesize() PAGESIZE
-#else
-]AC_LANG_EXTERN[
-int getpagesize (void);
-#endif
-char foo;
-int main () {
-  unsigned long pagesize = getpagesize();
-#define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
-'
-AC_TRY_RUN([$mprotect_prog
-  if ((pagesize-1) & pagesize) exit(1);
-  exit(0); }], , no_mprotect=1,
-# When cross-compiling, don't assume anything.
-no_mprotect=1)
-mprotect_prog="$mprotect_prog"'
-  char* area = (char*) malloc(6*pagesize);
-  char* fault_address = area + pagesize*7/2;
-'
-if test -z "$no_mprotect"; then
-AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-  nocrash_init();
-  if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-  foo = *fault_address; /* this should cause an exception or signal */
-  exit(0); }], no_mprotect=1, ,
-: # When cross-compiling, don't assume anything.
-)
-fi
-if test -z "$no_mprotect"; then
-AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-  nocrash_init();
-  if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-  *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }], no_mprotect=1, ,
-: # When cross-compiling, don't assume anything.
-)
-fi
-if test -z "$no_mprotect"; then
-AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-  nocrash_init();
-  if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
-  *fault_address = 'z'; /* this should cause an exception or signal */
-  exit(0); }], no_mprotect=1, ,
-: # When cross-compiling, don't assume anything.
-)
-fi
-if test -z "$no_mprotect"; then
-AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-  nocrash_init();
-  if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
-  if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
-  *fault_address = 'z'; /* this should not cause an exception or signal */
-  exit(0); }], , no_mprotect=1,
-: # When cross-compiling, don't assume anything.
-)
-fi
-if test -z "$no_mprotect"; then
-  cl_cv_func_mprotect_works=yes
-else
-  cl_cv_func_mprotect_works=no
-fi
-])
-if test $cl_cv_func_mprotect_works = yes; then
-  AC_DEFINE(HAVE_WORKING_MPROTECT,,[have a working mprotect() function])
-fi
-fi
+[
+  AC_REQUIRE([gl_FUNC_GETPAGESIZE])
+  AC_REQUIRE([CL_MMAP])
+  AC_CHECK_FUNCS([mprotect])
+  if test $ac_cv_func_mprotect = yes; then
+    AC_CACHE_CHECK([for working mprotect], [cl_cv_func_mprotect_works],
+      [mprotect_prog='
+         #include <sys/types.h>
+         /* declare malloc() */
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         /* declare getpagesize() and mprotect() */
+         #include <sys/mman.h>
+         #ifndef HAVE_GETPAGESIZE
+          #include <sys/param.h>
+          #define getpagesize() PAGESIZE
+         #else
+         ]AC_LANG_EXTERN[
+         int getpagesize (void);
+         #endif
+         char foo;
+         int main ()
+         {
+           unsigned long pagesize = getpagesize();
+           #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
+         '
+       AC_TRY_RUN([$mprotect_prog
+           if ((pagesize-1) & pagesize) exit(1);
+           exit(0);
+         }
+         ],
+         [],
+         [no_mprotect=1],
+         [# When cross-compiling, don't assume anything.
+          no_mprotect=1
+         ])
+       mprotect_prog="$mprotect_prog"'
+           char* area = (char*) malloc(6*pagesize);
+           char* fault_address = area + pagesize*7/2;
+         '
+       if test -z "$no_mprotect"; then
+         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
+             nocrash_init();
+             if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
+             foo = *fault_address; /* this should cause an exception or signal */
+             exit(0);
+           }
+           ],
+           [no_mprotect=1],
+           [],
+           [: # When cross-compiling, don't assume anything.])
+       fi
+       if test -z "$no_mprotect"; then
+         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
+             nocrash_init();
+             if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
+             *fault_address = 'z'; /* this should cause an exception or signal */
+             exit(0);
+           }
+           ],
+           [no_mprotect=1],
+           [],
+           [: # When cross-compiling, don't assume anything.])
+       fi
+       if test -z "$no_mprotect"; then
+         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
+             nocrash_init();
+             if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
+             *fault_address = 'z'; /* this should cause an exception or signal */
+             exit(0);
+           }
+           ],
+           [no_mprotect=1],
+           [],
+           [: # When cross-compiling, don't assume anything.])
+       fi
+       if test -z "$no_mprotect"; then
+         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
+             nocrash_init();
+             if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
+             if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
+             *fault_address = 'z'; /* this should not cause an exception or signal */
+             exit(0);
+           }
+           ],
+           [],
+           [no_mprotect=1],
+           [: # When cross-compiling, don't assume anything.])
+       fi
+       if test -z "$no_mprotect"; then
+         cl_cv_func_mprotect_works=yes
+       else
+         cl_cv_func_mprotect_works=no
+       fi
+      ])
+    if test $cl_cv_func_mprotect_works = yes; then
+      AC_DEFINE([HAVE_WORKING_MPROTECT],,[have a working mprotect() function])
+    fi
+  fi
 ])
 
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28491,16 +28814,17 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_MSYNC],
-[AC_REQUIRE([CL_MMAP])dnl
-if test -z "$no_mmap"; then
-AC_CHECK_FUNCS(msync)dnl
-fi
+[
+  AC_REQUIRE([CL_MMAP])
+  if test -z "$no_mmap"; then
+    AC_CHECK_FUNCS([msync])
+  fi
 ])
 
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28509,17 +28833,18 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 AC_DEFUN([CL_MUNMAP],
-[AC_REQUIRE([CL_MMAP])dnl
-if test -z "$no_mmap"; then
-AC_CHECK_FUNCS(munmap)dnl
-fi
+[
+  AC_REQUIRE([CL_MMAP])
+  if test -z "$no_mmap"; then
+    AC_CHECK_FUNCS([munmap])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28528,38 +28853,46 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 dnl CL_MACHINE([MESSAGE], [PROGRAM_TO_RUN], [CROSS_MACRO], [DESTINATION], [CACHE_VAR])
 AC_DEFUN([CL_MACHINE],
-[AC_REQUIRE([AC_PROG_CC])dnl
-AC_REQUIRE([AC_C_CHAR_UNSIGNED])dnl
-cl_machine_file_c=$2
-if test -z "$[$5]"; then
-AC_MSG_CHECKING(for [$1])
-cl_machine_file_h=$4
-ORIGCC="$CC"
-if test $ac_cv_prog_gcc = yes; then
-# gcc -O (gcc version <= 2.3.2) crashes when compiling long long shifts for
-# target 80386. Strip "-O".
-CC=`echo "$CC " | sed -e 's/-O //g'`
-fi
-cl_machine_file_program=`cat "$cl_machine_file_c"`
-AC_RUN_IFELSE([AC_LANG_SOURCE([#include "confdefs.h"
-$cl_machine_file_program])],[AC_MSG_RESULT(created $cl_machine_file_h)
-if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
-  # The file exists and we would not be changing it
-  rm -f conftest.h
-else
-  rm -f "$cl_machine_file_h"
-  mv conftest.h "$cl_machine_file_h"
-fi
-[$5]=1],[AC_MSG_RESULT(creation of $cl_machine_file_h failed)],
-[AC_MSG_RESULT(creating $cl_machine_file_h)
-$3([$4])])
-rm -f conftest.h
-CC="$ORIGCC"
-fi
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([AC_C_CHAR_UNSIGNED])
+  cl_machine_file_c=$2
+  if test -z "$[$5]"; then
+    AC_MSG_CHECKING(for [$1])
+    cl_machine_file_h=$4
+    ORIGCC="$CC"
+    if test $ac_cv_prog_gcc = yes; then
+      # gcc -O (gcc version <= 2.3.2) crashes when compiling long long shifts for
+      # target 80386. Strip "-O".
+      CC=`echo "$CC " | sed -e 's/-O //g'`
+    fi
+    cl_machine_file_program=`cat "$cl_machine_file_c"`
+    AC_RUN_IFELSE(
+      [AC_LANG_SOURCE([
+         #include "confdefs.h"
+         $cl_machine_file_program
+         ])],
+      [AC_MSG_RESULT([created $cl_machine_file_h])
+       if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
+         # The file exists and we would not be changing it
+         rm -f conftest.h
+       else
+         rm -f "$cl_machine_file_h"
+         mv conftest.h "$cl_machine_file_h"
+       fi
+       [$5]=1
+      ],
+      [AC_MSG_RESULT([creation of $cl_machine_file_h failed])],
+      [AC_MSG_RESULT([creating $cl_machine_file_h])
+       $3([$4])
+      ])
+    rm -f conftest.h
+    CC="$ORIGCC"
+  fi
 ])
 
 # pkg.m4 - Macros to locate and utilise pkg-config.            -*- Autoconf -*-
@@ -28719,7 +29052,7 @@ fi[]dnl
 ])# PKG_CHECK_MODULES
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2004-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 2004-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28728,115 +29061,126 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_POLL],
-[AC_CHECK_FUNC(poll,
-  [# Check whether poll() works on special files (like /dev/null)
-   # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
-   AC_TRY_RUN([
-/* Declare poll(). */
-#include <poll.h>
-/* Declare open(). */
-#include <fcntl.h>
-     int main()
-     {
-       struct pollfd ufd;
-       /* Try /dev/null for reading. */
-       ufd.fd = open ("/dev/null", O_RDONLY);
-       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+[
+  AC_CHECK_FUNC([poll],
+    [# Check whether poll() works on special files (like /dev/null)
+     # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
+     AC_TRY_RUN([
+       /* Declare poll(). */
+       #include <poll.h>
+       /* Declare open(). */
+       #include <fcntl.h>
+       int main()
+       {
+         struct pollfd ufd;
+         /* Try /dev/null for reading. */
+         ufd.fd = open ("/dev/null", O_RDONLY);
+         if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+           return 0;
+         ufd.events = POLLIN;
+         ufd.revents = 0;
+         if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
+           return 1;
+         /* Try /dev/null for writing. */
+         ufd.fd = open ("/dev/null", O_WRONLY);
+         if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+           return 0;
+         ufd.events = POLLOUT;
+         ufd.revents = 0;
+         if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
+           return 1;
+         /* Trying /dev/tty may be too environment dependent. */
          return 0;
-       ufd.events = POLLIN;
-       ufd.revents = 0;
-       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
-         return 1;
-       /* Try /dev/null for writing. */
-       ufd.fd = open ("/dev/null", O_WRONLY);
-       if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
-         return 0;
-       ufd.events = POLLOUT;
-       ufd.revents = 0;
-       if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
-         return 1;
-       /* Trying /dev/tty may be too environment dependent. */
-       return 0;
-     }],
-     [cl_cv_func_poll=yes],
-     [cl_cv_func_poll=no],
-     [# When cross-compiling, assume that poll() works everywhere except on
-      # MacOS X, regardless of its version.
-      AC_EGREP_CPP([MacOSX], [
-#if defined(__APPLE__) && defined(__MACH__)
-This is MacOSX
-#endif
-], [cl_cv_func_poll=no], [cl_cv_func_poll=yes])])])
-dnl if AC_CHECK_FUNC does not find poll, cl_cv_func_poll will not be set
-if test x$cl_cv_func_poll = xyes; then
-  AC_DEFINE([HAVE_POLL], 1,
-    [Define to 1 if you have the 'poll' function and it works.])
-# Now check whether poll() works reliably on regular files, i.e. signals
-# immediate readability and writability, both before EOF and at EOF.
-# On FreeBSD 4.0, it doesn't.
-AC_CACHE_CHECK([for reliable poll()], cl_cv_func_poll_reliable, [
-AC_TRY_RUN([
-/* Declare poll(). */
-#include <poll.h>
-/* Declare open(). */
-#include <fcntl.h>
-/* Declare lseek(). */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-int main ()
-{ int fd = open("conftest.c",O_RDWR,0644);
-  int correct_readability_nonempty, correct_readability_empty;
-  int correct_writability_nonempty, correct_writability_empty;
-  struct pollfd pollfd_bag[1];
-  {
-    pollfd_bag[0].fd = fd;
-    pollfd_bag[0].events = POLLIN;
-    pollfd_bag[0].revents = 0;
-    correct_readability_nonempty =
-      (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-  }
-  {
-    pollfd_bag[0].fd = fd;
-    pollfd_bag[0].events = POLLOUT;
-    pollfd_bag[0].revents = 0;
-    correct_writability_nonempty =
-      (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-  }
-  lseek(fd,0,SEEK_END);
-  {
-    pollfd_bag[0].fd = fd;
-    pollfd_bag[0].events = POLLIN;
-    pollfd_bag[0].revents = 0;
-    correct_readability_empty =
-      (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-  }
-  {
-    pollfd_bag[0].fd = fd;
-    pollfd_bag[0].events = POLLOUT;
-    pollfd_bag[0].revents = 0;
-    correct_writability_empty =
-      (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-  }
-  return !(correct_readability_nonempty && correct_readability_empty
-           && correct_writability_nonempty && correct_writability_empty);
-}],
-cl_cv_func_poll_reliable=yes, cl_cv_func_poll_reliable=no,
-dnl When cross-compiling, don't assume anything.
-cl_cv_func_poll_reliable="guessing no")
-])
-case "$cl_cv_func_poll_reliable" in
-  *yes) AC_DEFINE(HAVE_RELIABLE_POLL,,[have poll() and it works reliably on files]) ;;
-  *no) ;;
-esac
-fi
+       }
+       ],
+       [cl_cv_func_poll=yes],
+       [cl_cv_func_poll=no],
+       [# When cross-compiling, assume that poll() works everywhere except on
+        # MacOS X, regardless of its version.
+        AC_EGREP_CPP([MacOSX],
+          [
+           #if defined(__APPLE__) && defined(__MACH__)
+            This is MacOSX
+           #endif
+          ],
+          [cl_cv_func_poll=no],
+          [cl_cv_func_poll=yes])
+       ])
+    ])
+  dnl if AC_CHECK_FUNC does not find poll, cl_cv_func_poll will not be set
+  if test x$cl_cv_func_poll = xyes; then
+    AC_DEFINE([HAVE_POLL], [1],
+      [Define to 1 if you have the 'poll' function and it works.])
+    # Now check whether poll() works reliably on regular files, i.e. signals
+    # immediate readability and writability, both before EOF and at EOF.
+    # On FreeBSD 4.0, it doesn't.
+    AC_CACHE_CHECK([for reliable poll()], [cl_cv_func_poll_reliable],
+      [AC_TRY_RUN([
+         /* Declare poll(). */
+         #include <poll.h>
+         /* Declare open(). */
+         #include <fcntl.h>
+         /* Declare lseek(). */
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         int main ()
+         {
+           int fd = open("conftest.c",O_RDWR,0644);
+           int correct_readability_nonempty, correct_readability_empty;
+           int correct_writability_nonempty, correct_writability_empty;
+           struct pollfd pollfd_bag[1];
+           {
+             pollfd_bag[0].fd = fd;
+             pollfd_bag[0].events = POLLIN;
+             pollfd_bag[0].revents = 0;
+             correct_readability_nonempty =
+               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+           }
+           {
+             pollfd_bag[0].fd = fd;
+             pollfd_bag[0].events = POLLOUT;
+             pollfd_bag[0].revents = 0;
+             correct_writability_nonempty =
+               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+           }
+           lseek(fd,0,SEEK_END);
+           {
+             pollfd_bag[0].fd = fd;
+             pollfd_bag[0].events = POLLIN;
+             pollfd_bag[0].revents = 0;
+             correct_readability_empty =
+               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+           }
+           {
+             pollfd_bag[0].fd = fd;
+             pollfd_bag[0].events = POLLOUT;
+             pollfd_bag[0].revents = 0;
+             correct_writability_empty =
+               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+           }
+           return !(correct_readability_nonempty && correct_readability_empty
+                    && correct_writability_nonempty && correct_writability_empty);
+         }
+         ],
+         [cl_cv_func_poll_reliable=yes],
+         [cl_cv_func_poll_reliable=no],
+         [dnl When cross-compiling, don't assume anything.
+          cl_cv_func_poll_reliable="guessing no"
+         ])
+      ])
+    case "$cl_cv_func_poll_reliable" in
+      *yes) AC_DEFINE([HAVE_RELIABLE_POLL],,[have poll() and it works reliably on files]) ;;
+      *no) ;;
+    esac
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2007-2008, 2010 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2010, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28845,44 +29189,60 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 dnl CL_PROTO(IDENTIFIER, ACTION-IF-NOT-FOUND, FINAL-PROTOTYPE)
 AC_DEFUN([CL_PROTO],
-[AC_MSG_CHECKING([for $1 declaration])
-AC_CACHE_VAL(cl_cv_proto_[$1], [$2
-cl_cv_proto_$1="$3"])
-cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
-AC_MSG_RESULT([$]cl_cv_proto_$1)
+[
+  AC_MSG_CHECKING([for $1 declaration])
+  AC_CACHE_VAL([cl_cv_proto_$1],
+    [$2
+     cl_cv_proto_$1="$3"
+    ])
+  cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
+  AC_MSG_RESULT([$][cl_cv_proto_$1])
 ])
 
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
-[AC_TRY_COMPILE([$1]
-AC_LANG_EXTERN
-[$2
-], [], $3="$4", $3="$5")
+[
+  AC_TRY_COMPILE([
+    $1
+    ]AC_LANG_EXTERN[
+    $2
+    ],
+    [],
+    [$3="$4"],
+    [$3="$5"])
 ])
 
 dnl CL_PROTO_TRY(INCLUDES, DECL, ACTION-IF-OK, ACTION-IF-FAILS)
 AC_DEFUN([CL_PROTO_TRY],
-[AC_TRY_COMPILE([$1]
-AC_LANG_EXTERN
-[$2
-], [], [$3], [$4])
+[
+  AC_TRY_COMPILE([
+    $1
+    ]AC_LANG_EXTERN[
+    $2
+    ],
+    [],
+    [$3],
+    [$4])
 ])
 
 dnl CL_PROTO_CONST(INCLUDES, DECL, CACHE-ID)
 AC_DEFUN([CL_PROTO_CONST],
-[CL_PROTO_TRY([$1], [$2], $3="", $3="const")]
-)
+[
+  CL_PROTO_TRY([$1], [$2], [$3=""], [$3="const"])
+])
 
 dnl CL_PROTO_MISSING(function_name)
 AC_DEFUN([CL_PROTO_MISSING],
-[AC_MSG_FAILURE([please report the $1() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT])])
+[
+  AC_MSG_FAILURE([please report the $1() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT])
+])
 
-m4_define([CONST_VARIANTS],['' 'const' '__const'])
-m4_define([SIZE_VARIANTS],['unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'])
+m4_define([CONST_VARIANTS], ['' 'const' '__const'])
+m4_define([SIZE_VARIANTS], ['unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 2002-2008, 2010, 2017 Sam Steingold, Bruno Haible
@@ -28892,83 +29252,90 @@ dnl Public License, this file may be distributed as part of a program
 dnl that contains a configuration script generated by Autoconf, under
 dnl the same distribution terms as the rest of that program.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
-AC_DEFUN([CL_READLINE],[dnl
-AC_ARG_WITH([readline],
-AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)]),
-[ac_cv_use_readline=$withval], [ac_cv_use_readline=default])
-if test "$ac_cv_use_readline" = "no" ; then
-AC_MSG_NOTICE([not checking for readline])
-ac_cv_have_readline='no, per user request'
-else
-AC_REQUIRE([CL_TERMCAP])dnl
-if test $ac_cv_search_tgetent = no ; then
- ac_cv_have_readline='no, consider installing GNU ncurses'
-else
- dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
- AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
- AC_REQUIRE([AC_LIB_RPATH])
- AC_LIB_LINKFLAGS_BODY(readline)
- ac_save_CPPFLAGS="$CPPFLAGS"
- CPPFLAGS="$CPPFLAGS $INCREADLINE"
- AC_CHECK_HEADERS(readline/readline.h)
- if test "$ac_cv_header_readline_readline_h" != yes; then
-  CPPFLAGS="$ac_save_CPPFLAGS"
-  ac_cv_have_readline='no, consider installing GNU readline and its header files'
- else # have <readline/readline.h> => check library
-  ac_save_LIBS="$LIBS"
-  LIBS="$LIBREADLINE $LIBS"
-  AC_CHECK_FUNC(readline)dnl do not define HAVE_READLINE
-  AC_CHECK_FUNCS(rl_filename_completion_function)
-  if test "$ac_cv_func_readline" != yes ; then
-    LIBS="$ac_save_LIBS"
-    CPPFLAGS="$ac_save_CPPFLAGS"
-    ac_cv_have_readline='no, consider installing GNU readline and its header files'
-  else # have readline => check modern features
-    if test $ac_cv_func_rl_filename_completion_function = no ;
-    then RL_FCF=filename_completion_function
-    else RL_FCF=rl_filename_completion_function
-    fi
-    dnl READLINE_CONST is necessary for C++ compilation of stream.d
-    CL_PROTO([filename_completion_function], [
-      CL_PROTO_CONST([
-#include <stdio.h>
-#include <readline/readline.h>
-      ],[char* ${RL_FCF} (char *, int);],
-      cl_cv_proto_readline_const) ],
-      [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
-    AC_CHECK_DECLS([rl_already_prompted, rl_readline_name, dnl
-rl_gnu_readline_p, rl_deprep_term_function],,,
-[#include <stdio.h>
-#include <readline/readline.h>])
-    AC_MSG_CHECKING(for readline 4.1 or newer)
-    if test "$ac_cv_have_decl_rl_already_prompted" = yes \
-         -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
-      dnl LIBREADLINE has been added to LIBS.
-      AC_MSG_RESULT([found GNU readline 4.1 or newer])
-      ac_cv_have_readline=yes
+AC_DEFUN([CL_READLINE],
+[
+  AC_ARG_WITH([readline],
+    [AC_HELP_STRING([--with-readline],[use readline (default is YES, if present)])],
+    [ac_cv_use_readline=$withval],
+    [ac_cv_use_readline=default])
+  if test "$ac_cv_use_readline" = no; then
+    AC_MSG_NOTICE([not checking for readline])
+    ac_cv_have_readline='no, per user request'
+  else
+    AC_REQUIRE([CL_TERMCAP])
+    if test $ac_cv_search_tgetent = no; then
+      ac_cv_have_readline='no, consider installing GNU ncurses'
     else
-      AC_MSG_RESULT([readline is too old and will not be used])
-      LIBS="$ac_save_LIBS"
-      CPPFLAGS="$ac_save_CPPFLAGS"
-      ac_cv_have_readline='no, consider installing GNU readline 4.1 or newer'
+      dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
+      AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
+      AC_REQUIRE([AC_LIB_RPATH])
+      AC_LIB_LINKFLAGS_BODY([readline])
+      ac_save_CPPFLAGS="$CPPFLAGS"
+      CPPFLAGS="$CPPFLAGS $INCREADLINE"
+      AC_CHECK_HEADERS([readline/readline.h])
+      if test "$ac_cv_header_readline_readline_h" != yes; then
+        CPPFLAGS="$ac_save_CPPFLAGS"
+        ac_cv_have_readline='no, consider installing GNU readline and its header files'
+      else # have <readline/readline.h> => check library
+        ac_save_LIBS="$LIBS"
+        LIBS="$LIBREADLINE $LIBS"
+        AC_CHECK_FUNC([readline])dnl do not define HAVE_READLINE
+        AC_CHECK_FUNCS([rl_filename_completion_function])
+        if test "$ac_cv_func_readline" != yes; then
+          LIBS="$ac_save_LIBS"
+          CPPFLAGS="$ac_save_CPPFLAGS"
+          ac_cv_have_readline='no, consider installing GNU readline and its header files'
+        else # have readline => check modern features
+          if test $ac_cv_func_rl_filename_completion_function = no; then
+            RL_FCF=filename_completion_function
+          else
+            RL_FCF=rl_filename_completion_function
+          fi
+          dnl READLINE_CONST is necessary for C++ compilation of stream.d
+          CL_PROTO([filename_completion_function],
+            [CL_PROTO_CONST([
+               #include <stdio.h>
+               #include <readline/readline.h>
+               ],
+               [char* ${RL_FCF} (char *, int);],
+               [cl_cv_proto_readline_const])
+            ],
+            [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
+          AC_CHECK_DECLS([rl_already_prompted, rl_readline_name, rl_gnu_readline_p, rl_deprep_term_function],,,
+            [#include <stdio.h>
+             #include <readline/readline.h>
+            ])
+          AC_MSG_CHECKING([for readline 4.1 or newer])
+          if test "$ac_cv_have_decl_rl_already_prompted" = yes \
+             -a "$ac_cv_have_decl_rl_gnu_readline_p" = yes; then
+            dnl LIBREADLINE has been added to LIBS.
+            AC_MSG_RESULT([found GNU readline 4.1 or newer])
+            ac_cv_have_readline=yes
+          else
+            AC_MSG_RESULT([readline is too old and will not be used])
+            LIBS="$ac_save_LIBS"
+            CPPFLAGS="$ac_save_CPPFLAGS"
+            ac_cv_have_readline='no, consider installing GNU readline 4.1 or newer'
+          fi
+        fi
+      fi
+    fi
+    if test "$ac_cv_have_readline" = yes; then
+      AC_DEFINE_UNQUOTED([READLINE_FILE_COMPLETE], [${RL_FCF}],
+        [The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
+      AC_DEFINE_UNQUOTED([READLINE_CONST], [$cl_cv_proto_readline_const],
+        [declaration of filename_completion_function() needs const in the first argument])
+      AC_DEFINE([HAVE_READLINE],,[have a working modern GNU readline])
+    elif test "$ac_cv_use_readline" = yes; then
+      AC_MSG_FAILURE([despite --with-readline, GNU readline was not found (try --with-libreadline-prefix)])
     fi
   fi
- fi
-fi
-if test "$ac_cv_have_readline" = yes; then
-  AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
-  AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
-  AC_DEFINE(HAVE_READLINE,,[have a working modern GNU readline])
-elif test "$ac_cv_use_readline" = yes; then
-  AC_MSG_FAILURE([despite --with-readline, GNU readline was not found (try --with-libreadline-prefix)])
-fi
-fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -28977,46 +29344,56 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_RLIMIT],
-[AC_CHECK_FUNCS(getrlimit setrlimit)dnl
-if test $ac_cv_func_setrlimit = yes; then
-AC_CHECK_SIZEOF(rlim_t,,[#include <stdio.h>
-#include <sys/resource.h>])
-CL_PROTO([getrlimit], [
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-],
-[int getrlimit (int resource, struct rlimit * rlim);],
-[cl_cv_proto_getrlimit_arg1="int"],
-[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"])
-], [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
-AC_DEFINE_UNQUOTED(RLIMIT_RESOURCE_T,$cl_cv_proto_getrlimit_arg1,[type of `resource' in setrlimit() declaration])
-CL_PROTO([setrlimit], [
-CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-], [int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);],
-cl_cv_proto_setrlimit_arg2)
-], [extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);])
-AC_DEFINE_UNQUOTED(SETRLIMIT_CONST,$cl_cv_proto_setrlimit_arg2,[declaration of setrlimit() needs const])
-fi
+[
+  AC_CHECK_FUNCS([getrlimit setrlimit])
+  if test $ac_cv_func_setrlimit = yes; then
+    AC_CHECK_SIZEOF([rlim_t],,[
+      #include <stdio.h>
+      #include <sys/resource.h>
+      ])
+
+    CL_PROTO([getrlimit],
+      [CL_PROTO_TRY([
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <sys/types.h>
+         #include <sys/time.h>
+         #include <sys/resource.h>
+         ],
+         [int getrlimit (int resource, struct rlimit * rlim);],
+         [cl_cv_proto_getrlimit_arg1="int"],
+         [cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"])
+      ],
+      [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
+    AC_DEFINE_UNQUOTED([RLIMIT_RESOURCE_T], [$cl_cv_proto_getrlimit_arg1],
+      [type of `resource' in setrlimit() declaration])
+
+    CL_PROTO([setrlimit],
+      [CL_PROTO_CONST([
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <sys/types.h>
+         #include <sys/time.h>
+         #include <sys/resource.h>
+         ],
+         [int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);],
+         [cl_cv_proto_setrlimit_arg2])
+      ],
+      [extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);])
+    AC_DEFINE_UNQUOTED([SETRLIMIT_CONST], [$cl_cv_proto_setrlimit_arg2],
+      [declaration of setrlimit() needs const])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29025,75 +29402,96 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold, Peter Burwood.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_RUSAGE],
-[AC_CHECK_HEADERS(sys/resource.h)dnl
-if test $ac_cv_header_sys_resource_h = yes; then
-  dnl HAVE_SYS_RESOURCE_H defined
-  CL_LINK_CHECK([getrusage], cl_cv_func_getrusage,
-[#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <sys/resource.h>],
-    [struct rusage x; int y = RUSAGE_SELF; getrusage(y,&x); x.ru_utime.tv_sec;])dnl
-  if test $cl_cv_func_getrusage = yes; then
-    CL_PROTO([getrusage], [CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <sys/resource.h>
-],
-[int getrusage (int who, struct rusage * rusage);],
-[cl_cv_proto_getrusage_arg1="int"],
-[cl_cv_proto_getrusage_arg1="enum __rusage_who"])
-], [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])dnl
-    AC_CACHE_CHECK(whether getrusage works, cl_cv_func_getrusage_works, [
-    AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
-#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <time.h> /* for time(2) */
-#include <sys/resource.h>
-int main ()
-{
-  struct rusage used, prev;
-  time_t end = time(NULL)+2;
-  int count = 0;
+[
+  AC_CHECK_HEADERS([sys/resource.h])
+  if test $ac_cv_header_sys_resource_h = yes; then
+    dnl HAVE_SYS_RESOURCE_H defined
+    CL_LINK_CHECK([getrusage], [cl_cv_func_getrusage],
+      [#include <sys/types.h> /* NetBSD 1.0 needs this */
+       #include <sys/time.h>
+       #include <sys/resource.h>
+      ],
+      [struct rusage x;
+       int y = RUSAGE_SELF;
+       getrusage(y,&x);
+       x.ru_utime.tv_sec;
+      ])
+    if test $cl_cv_func_getrusage = yes; then
+      CL_PROTO([getrusage],
+        [CL_PROTO_TRY(
+           [#include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <sys/types.h> /* NetBSD 1.0 needs this */
+            #include <sys/time.h>
+            #include <sys/resource.h>
+           ],
+           [int getrusage (int who, struct rusage * rusage);],
+           [cl_cv_proto_getrusage_arg1="int"],
+           [cl_cv_proto_getrusage_arg1="enum __rusage_who"])
+        ],
+        [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])
+      AC_CACHE_CHECK([whether getrusage works], [cl_cv_func_getrusage_works],
+        [AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([[
+              #include <stdio.h>
+              #include <sys/types.h> /* NetBSD 1.0 needs this */
+              #include <sys/time.h>
+              #include <time.h> /* for time(2) */
+              #include <sys/resource.h>
+              int main ()
+              {
+                struct rusage used, prev;
+                time_t end = time(NULL)+2;
+                int count = 0;
 
-  if ((count = getrusage(RUSAGE_SELF, &prev))) {
-    /* getrusage is defined but does not do anything. */
-    /*fprintf(stderr,"getrusage failed: return=%d\n",count);*/
-    return 1;
-  }
-  while (time(NULL) < end) {
-    count++;
-    getrusage(RUSAGE_SELF, &used);
-    if ((used.ru_utime.tv_usec != prev.ru_utime.tv_usec)
-        || (used.ru_utime.tv_sec != prev.ru_utime.tv_sec)
-        || (used.ru_stime.tv_usec != prev.ru_stime.tv_usec)
-        || (used.ru_stime.tv_sec != prev.ru_stime.tv_sec)) {
-      /*fprintf(stderr,"success after %d runs\n",count);*/
-      return 0;
-    }
-  }
-  /* getrusage is defined but does not work. */
-  /*fprintf(stderr,"failure after %d runs\n",count);*/
-  return 1;
-}]])],[cl_cv_func_getrusage_works=yes],[cl_cv_func_getrusage_works=no],
-dnl When cross-compiling, don't assume anything.
-[cl_cv_func_getrusage_works="guessing no"])])
+                if ((count = getrusage(RUSAGE_SELF, &prev)))
+                  {
+                    /* getrusage is defined but does not do anything. */
+                    /*fprintf(stderr,"getrusage failed: return=%d\n",count);*/
+                    return 1;
+                  }
+                while (time(NULL) < end)
+                  {
+                    count++;
+                    getrusage(RUSAGE_SELF, &used);
+                    if ((used.ru_utime.tv_usec != prev.ru_utime.tv_usec)
+                        || (used.ru_utime.tv_sec != prev.ru_utime.tv_sec)
+                        || (used.ru_stime.tv_usec != prev.ru_stime.tv_usec)
+                        || (used.ru_stime.tv_sec != prev.ru_stime.tv_sec))
+                     {
+                       /*fprintf(stderr,"success after %d runs\n",count);*/
+                       return 0;
+                     }
+                  }
+                /* getrusage is defined but does not work. */
+                /*fprintf(stderr,"failure after %d runs\n",count);*/
+                return 1;
+              }
+              ]])
+           ],
+           [cl_cv_func_getrusage_works=yes],
+           [cl_cv_func_getrusage_works=no],
+           [dnl When cross-compiling, don't assume anything.
+            cl_cv_func_getrusage_works="guessing no"
+           ])
+        ])
+    fi
+    if test "$cl_cv_func_getrusage_works" = yes; then
+      AC_DEFINE([HAVE_GETRUSAGE],,
+        [have <sys/time.h>, the getrusage() function, the struct rusage type, and <sys/resource.h> defines RUSAGE_SELF])
+      AC_DEFINE_UNQUOTED([RUSAGE_WHO_T], [$cl_cv_proto_getrusage_arg1],
+        [type of `who' in getrusage() declaration])
+    fi
   fi
-  if test "$cl_cv_func_getrusage_works" = yes; then
-    AC_DEFINE(HAVE_GETRUSAGE,,[have <sys/time.h>, the getrusage() function, the struct rusage type, and <sys/resource.h> defines RUSAGE_SELF])
-    AC_DEFINE_UNQUOTED(RUSAGE_WHO_T,$cl_cv_proto_getrusage_arg1,[type of `who' in getrusage() declaration])
-  fi
-fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29102,135 +29500,150 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_SELECT],
-[dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
-AC_CACHE_CHECK([for select], ac_cv_func_select, [
-AC_TRY_LINK([
-#ifdef __BEOS__
-#include <sys/socket.h>
-#endif
-#include <sys/time.h>
-]AC_LANG_EXTERN[
-#ifdef __cplusplus
-int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
-#else
-int select();
-#endif
-], [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
-ac_cv_func_select=yes, ac_cv_func_select=no)])
-if test $ac_cv_func_select = yes; then
-AC_DEFINE(HAVE_SELECT, 1, [Define if you have the select() function.])
-CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
-[#ifdef __BEOS__
-#include <sys/socket.h>
-#endif
-#include <sys/time.h>
-#include <sys/select.h>], ,
-AC_DEFINE(HAVE_SYS_SELECT_H,,[have <sys/select.h>?]))dnl
-CL_PROTO([select], [
-for z in CONST_VARIANTS; do
-for y in 'fd_set' 'int' 'void' 'struct fd_set'; do
-for x in SIZE_VARIANTS; do
-if test -z "$have_select"; then
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#ifdef __BEOS__
-#include <sys/socket.h>
-#endif
-#include <sys/time.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-], [int select ($x width, $y * readfds, $y * writefds, $y * exceptfds, $z struct timeval * timeout);],
-[cl_cv_proto_select_arg1="$x"
-cl_cv_proto_select_arg2="$y"
-cl_cv_proto_select_arg5="$z"
-have_select=1])
-fi
-done
-done
-done
-if test -z "$have_select"; then
-CL_PROTO_MISSING(select)
-fi
-], [extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg5 struct timeval *);])
-AC_DEFINE_UNQUOTED(SELECT_WIDTH_T,$cl_cv_proto_select_arg1,[type of `width' in select() declaration])
-AC_DEFINE_UNQUOTED(SELECT_SET_T,$cl_cv_proto_select_arg2,[type of `* readfds', `* writefds', `* exceptfds' in select() declaration])
-AC_DEFINE_UNQUOTED(SELECT_CONST,$cl_cv_proto_select_arg5,[declaration of select() needs const in the fifth argument])
-# Now check whether select() works reliably on regular files, i.e. signals
-# immediate readability and writability, both before EOF and at EOF.
-AC_CACHE_CHECK([for reliable select()], cl_cv_func_select_reliable, [
-AC_TRY_RUN([
-/* Declare select(). */
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#ifdef __BEOS__
-#include <sys/socket.h>
-#endif
-#include <sys/time.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-]AC_LANG_EXTERN[
-int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
-/* Declare open(). */
-#include <fcntl.h>
-int main ()
-{ int fd = open("conftest.c",O_RDWR,0644);
-  int correct_readability_nonempty, correct_readability_empty;
-  int correct_writability_nonempty, correct_writability_empty;
-  fd_set handle_set;
-  struct timeval zero_time;
-  {
-    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-    zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-    correct_readability_nonempty =
-      (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-  }
-  {
-    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-    zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-    correct_writability_nonempty =
-      (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-  }
-  lseek(fd,0,SEEK_END);
-  {
-    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-    zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-    correct_readability_empty =
-      (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-  }
-  {
-    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-    zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-    correct_writability_empty =
-      (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-  }
-  exit(!(correct_readability_nonempty && correct_readability_empty
-         && correct_writability_nonempty && correct_writability_empty));
-}],
-cl_cv_func_select_reliable=yes, cl_cv_func_select_reliable=no,
-dnl When cross-compiling, don't assume anything.
-cl_cv_func_select_reliable="guessing no")
-])
-case "$cl_cv_func_select_reliable" in
-  *yes) AC_DEFINE(HAVE_RELIABLE_SELECT,,[have select() and it works reliably on files]) ;;
-  *no) ;;
-esac
-fi
+[
+  dnl Not AC_CHECK_FUNCS([select]) because it doesn't work when CC=g++.
+  AC_CACHE_CHECK([for select], [ac_cv_func_select],
+    [AC_TRY_LINK([
+       #ifdef __BEOS__
+        #include <sys/socket.h>
+       #endif
+       #include <sys/time.h>
+       ]AC_LANG_EXTERN[
+       #ifdef __cplusplus
+       int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+       #else
+       int select();
+       #endif
+       ],
+       [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
+       [ac_cv_func_select=yes], [ac_cv_func_select=no])
+    ])
+  if test $ac_cv_func_select = yes; then
+    AC_DEFINE([HAVE_SELECT], [1], [Define if you have the select() function.])
+    CL_COMPILE_CHECK([sys/select.h], [cl_cv_header_sys_select_h],
+      [#ifdef __BEOS__
+        #include <sys/socket.h>
+       #endif
+       #include <sys/time.h>
+       #include <sys/select.h>
+      ],
+      [],
+      [AC_DEFINE(HAVE_SYS_SELECT_H,,[have <sys/select.h>?])])
+    CL_PROTO([select],
+      [for z in CONST_VARIANTS; do
+         for y in 'fd_set' 'int' 'void' 'struct fd_set'; do
+           for x in SIZE_VARIANTS; do
+             if test -z "$have_select"; then
+               CL_PROTO_TRY([
+                 #include <stdlib.h>
+                 #ifdef HAVE_UNISTD_H
+                  #include <unistd.h>
+                 #endif
+                 #include <sys/types.h>
+                 #ifdef __BEOS__
+                  #include <sys/socket.h>
+                 #endif
+                 #include <sys/time.h>
+                 #ifdef HAVE_SYS_SELECT_H
+                  #include <sys/select.h>
+                 #endif
+                 ],
+                 [int select ($x width, $y * readfds, $y * writefds, $y * exceptfds, $z struct timeval * timeout);],
+                 [cl_cv_proto_select_arg1="$x"
+                  cl_cv_proto_select_arg2="$y"
+                  cl_cv_proto_select_arg5="$z"
+                  have_select=1
+                 ])
+             fi
+           done
+         done
+       done
+       if test -z "$have_select"; then
+         CL_PROTO_MISSING([select])
+       fi
+      ],
+      [extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg2 *, $cl_cv_proto_select_arg5 struct timeval *);])
+    AC_DEFINE_UNQUOTED([SELECT_WIDTH_T], [$cl_cv_proto_select_arg1],
+      [type of `width' in select() declaration])
+    AC_DEFINE_UNQUOTED([SELECT_SET_T], [$cl_cv_proto_select_arg2],
+      [type of `* readfds', `* writefds', `* exceptfds' in select() declaration])
+    AC_DEFINE_UNQUOTED([SELECT_CONST], [$cl_cv_proto_select_arg5],
+      [declaration of select() needs const in the fifth argument])
+    # Now check whether select() works reliably on regular files, i.e. signals
+    # immediate readability and writability, both before EOF and at EOF.
+    AC_CACHE_CHECK([for reliable select()], [cl_cv_func_select_reliable],
+      [AC_TRY_RUN([
+         /* Declare select(). */
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <sys/types.h>
+         #ifdef __BEOS__
+          #include <sys/socket.h>
+         #endif
+         #include <sys/time.h>
+         #ifdef HAVE_SYS_SELECT_H
+          #include <sys/select.h>
+         #endif
+         ]AC_LANG_EXTERN[
+         int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
+         /* Declare open(). */
+         #include <fcntl.h>
+         int main ()
+         {
+           int fd = open("conftest.c",O_RDWR,0644);
+           int correct_readability_nonempty, correct_readability_empty;
+           int correct_writability_nonempty, correct_writability_empty;
+           fd_set handle_set;
+           struct timeval zero_time;
+           {
+             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+             correct_readability_nonempty =
+               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+           }
+           {
+             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+             correct_writability_nonempty =
+               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+           }
+           lseek(fd,0,SEEK_END);
+           {
+             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+             correct_readability_empty =
+               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+           }
+           {
+             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+             correct_writability_empty =
+               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+           }
+           exit(!(correct_readability_nonempty && correct_readability_empty
+                  && correct_writability_nonempty && correct_writability_empty));
+         }
+         ],
+         [cl_cv_func_select_reliable=yes],
+         [cl_cv_func_select_reliable=no],
+         [dnl When cross-compiling, don't assume anything.
+          cl_cv_func_select_reliable="guessing no"
+         ])
+      ])
+    case "$cl_cv_func_select_reliable" in
+      *yes) AC_DEFINE([HAVE_RELIABLE_SELECT],,[have select() and it works reliably on files]) ;;
+      *no) ;;
+    esac
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29239,21 +29652,23 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_SETJMP],
-[AC_CHECK_FUNC(_setjmp, , no__jmp=1)dnl
-if test -z "$no__jmp"; then
-AC_CHECK_FUNC(_longjmp, , no__jmp=1)dnl
-fi
-if test -z "$no__jmp"; then
-AC_DEFINE(HAVE__JMP,,[have _setjmp() and _longjmp()])
-fi
-AC_EGREP_HEADER([void.* longjmp], setjmp.h, , AC_DEFINE(LONGJMP_RETURNS,,[longjmp() may return]))
+[
+  AC_CHECK_FUNC([_setjmp], , [no__jmp=1])
+  if test -z "$no__jmp"; then
+    AC_CHECK_FUNC([_longjmp], , [no__jmp=1])
+  fi
+  if test -z "$no__jmp"; then
+    AC_DEFINE([HAVE__JMP],,[have _setjmp() and _longjmp()])
+  fi
+  AC_EGREP_HEADER([void.* longjmp], [setjmp.h], ,
+    [AC_DEFINE(LONGJMP_RETURNS,,[longjmp() may return])])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29262,53 +29677,66 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_SHM_H],
-[AC_BEFORE([$0], [CL_SHM])dnl
-AC_CHECK_HEADERS(sys/shm.h)
-if test $ac_cv_header_sys_shm_h = yes; then
-AC_CHECK_HEADERS(sys/ipc.h)
-fi
+[
+  AC_BEFORE([$0], [CL_SHM])
+  AC_CHECK_HEADERS([sys/shm.h])
+  if test $ac_cv_header_sys_shm_h = yes; then
+    AC_CHECK_HEADERS([sys/ipc.h])
+  fi
 ])
 
 AC_DEFUN([CL_SHM],
-[AC_REQUIRE([CL_SHM_H])dnl
-if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
-# This test is from Marcus Daniels
-AC_CACHE_CHECK(for working shared memory, cl_cv_sys_shm_works, [
-AC_TRY_RUN([#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-/* try attaching a single segment to multiple addresses */
-#define segsize 0x10000
-#define attaches 128
-#define base_addr 0x01000000
-int main ()
-{ int shmid, i; char* addr; char* result;
-  if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0)
-    return 1;
-  for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
-    if ((result = (char*)shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break;
-  for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
-    shmdt(addr);
-  shmctl(shmid,IPC_RMID,0);
-  return (result == (char*)(-1));
-}], cl_cv_sys_shm_works=yes, cl_cv_sys_shm_works=no,
-dnl When cross-compiling, don't assume anything.
-cl_cv_sys_shm_works="guessing no")
-])
-fi
-case "$cl_cv_sys_shm_works" in
-  *yes) AC_DEFINE(HAVE_SHM,,[have <sys/shm.h> and <sys/ipc.h> and shared memory works])
-        AC_CHECK_HEADERS(sys/sysmacros.h)
-        ;;
-  *) ;;
-esac
+[
+  AC_REQUIRE([CL_SHM_H])
+  if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
+    # This test is from Marcus Daniels
+    AC_CACHE_CHECK([for working shared memory], [cl_cv_sys_shm_works],
+      [AC_TRY_RUN([
+         #include <sys/types.h>
+         #include <sys/ipc.h>
+         #include <sys/shm.h>
+         /* try attaching a single segment to multiple addresses */
+         #define segsize 0x10000
+         #define attaches 128
+         #define base_addr 0x01000000
+         int main ()
+         {
+           int shmid;
+           int i;
+           char* addr;
+           char* result;
+           if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0)
+             return 1;
+           for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
+             if ((result = (char*)shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1))
+               break;
+           for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
+             shmdt(addr);
+           shmctl(shmid,IPC_RMID,0);
+           return (result == (char*)(-1));
+         }
+         ],
+         [cl_cv_sys_shm_works=yes],
+         [cl_cv_sys_shm_works=no],
+         [dnl When cross-compiling, don't assume anything.
+          cl_cv_sys_shm_works="guessing no"
+         ])
+      ])
+  fi
+  case "$cl_cv_sys_shm_works" in
+    *yes)
+      AC_DEFINE([HAVE_SHM],,[have <sys/shm.h> and <sys/ipc.h> and shared memory works])
+      AC_CHECK_HEADERS([sys/sysmacros.h])
+      ;;
+    *) ;;
+  esac
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29317,15 +29745,16 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_SIGINTERRUPT],
-[AC_REQUIRE([CL_SIGACTION])dnl
-AC_CHECK_FUNCS(siginterrupt)dnl
+[
+  AC_REQUIRE([CL_SIGACTION])
+  AC_CHECK_FUNCS([siginterrupt])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2015, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29334,221 +29763,301 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_SIGNAL_REINSTALL],
-[AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])dnl
-AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
-AC_CACHE_CHECK(whether signal handlers need to be reinstalled, cl_cv_func_signal_reinstall, [
-AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-volatile int gotsig=0;
-void sigalrm_handler() { gotsig=1; }
-int got_sig () { return gotsig; }
-typedef void (*signal_handler_t) (int);
-int main() { /* returns 0 if they need not to be reinstalled */
-  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
-          == (signal_handler_t)sigalrm_handler
-      ) );
-}], cl_cv_func_signal_reinstall=no, cl_cv_func_signal_reinstall=yes,
-dnl When cross-compiling, don't assume anything.
-cl_cv_func_signal_reinstall="guessing yes")
-])
-case "$cl_cv_func_signal_reinstall" in
-  *yes) AC_DEFINE(SIGNAL_NEED_REINSTALL,,[signal handlers need to be reinstalled when they are activated]) ;;
-  *no) ;;
-esac
+[
+  AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])
+  AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])
+  AC_CACHE_CHECK([whether signal handlers need to be reinstalled],
+    [cl_cv_func_signal_reinstall],
+    [AC_TRY_RUN([
+       #include <stdlib.h>
+       #ifdef HAVE_UNISTD_H
+        #include <unistd.h>
+       #endif
+       #include <signal.h>
+       volatile int gotsig = 0;
+       void sigalrm_handler()
+       {
+         gotsig = 1;
+       }
+       int got_sig () { return gotsig; }
+       typedef void (*signal_handler_t) (int);
+       int main() /* returns 0 if they need not to be reinstalled */
+       {
+         signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+         alarm(1);
+         while (!got_sig())
+           ;
+         exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
+                 == (signal_handler_t)sigalrm_handler
+             ) );
+       }
+       ],
+       [cl_cv_func_signal_reinstall=no],
+       [cl_cv_func_signal_reinstall=yes],
+       [dnl When cross-compiling, don't assume anything.
+        cl_cv_func_signal_reinstall="guessing yes"
+       ])
+    ])
+  case "$cl_cv_func_signal_reinstall" in
+    *yes)
+      AC_DEFINE([SIGNAL_NEED_REINSTALL],,
+        [signal handlers need to be reinstalled when they are activated])
+      ;;
+    *no) ;;
+  esac
 ])
 
 AC_DEFUN([CL_SIGNAL_UNBLOCK],
-[AC_REQUIRE([CL_SIGNAL_REINSTALL])dnl
-case "$signalblocks" in
-  *POSIX* | *BSD*)
-AC_CACHE_CHECK(whether signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked, [
-AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-volatile int gotsig=0;
-volatile int wasblocked=0;
-typedef void (*signal_handler_t) (int);
-void sigalrm_handler()
-{ gotsig=1;
-#ifdef SIGNAL_NEED_REINSTALL
-  signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-#endif
-  { sigset_t blocked;
-    sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-    wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
-  }
-}
-int got_sig () { return gotsig; }
-int main() { /* returns 0 if they need not to be unblocked */
-  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(wasblocked);
-}], cl_cv_func_signal_blocked=no, cl_cv_func_signal_blocked=yes,
-dnl When cross-compiling, assume the worst case.
-cl_cv_func_signal_blocked="guessing yes")
-])
-case "$cl_cv_func_signal_blocked" in
-  *yes) AC_DEFINE(SIGNAL_NEED_UNBLOCK,,[SIGNALBLOCK_BSD is defined above and signals need to be unblocked when signal handlers are left]) ;;
-  *no) ;;
-esac
-  ;;
-  *) ;;
-esac
+[
+  AC_REQUIRE([CL_SIGNAL_REINSTALL])
+  case "$signalblocks" in
+    *POSIX* | *BSD*)
+      AC_CACHE_CHECK([whether signals are blocked when signal handlers are entered],
+        [cl_cv_func_signal_blocked],
+        [AC_TRY_RUN([
+           #include <stdlib.h>
+           #ifdef HAVE_UNISTD_H
+            #include <unistd.h>
+           #endif
+           #include <signal.h>
+           volatile int gotsig = 0;
+           volatile int wasblocked = 0;
+           typedef void (*signal_handler_t) (int);
+           void sigalrm_handler()
+           {
+             gotsig = 1;
+             #ifdef SIGNAL_NEED_REINSTALL
+               signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+             #endif
+             {
+               sigset_t blocked;
+               sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+               wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
+             }
+           }
+           int got_sig () { return gotsig; }
+           int main() /* returns 0 if they need not to be unblocked */
+           {
+             signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+             alarm(1);
+             while (!got_sig())
+               ;
+             exit(wasblocked);
+           }
+           ],
+           [cl_cv_func_signal_blocked=no], [cl_cv_func_signal_blocked=yes],
+           [dnl When cross-compiling, assume the worst case.
+            cl_cv_func_signal_blocked="guessing yes"
+           ])
+        ])
+      case "$cl_cv_func_signal_blocked" in
+        *yes)
+          AC_DEFINE([SIGNAL_NEED_UNBLOCK],,
+            [SIGNALBLOCK_BSD is defined above and signals need to be unblocked when signal handlers are left])
+          ;;
+        *no) ;;
+      esac
+      ;;
+    *) ;;
+  esac
 ])
 
 AC_DEFUN([CL_SIGNAL_BLOCK_OTHERS],
-[AC_REQUIRE([CL_SIGNAL_REINSTALL])dnl
-case "$signalblocks" in
-  *POSIX* | *BSD*)
-AC_CACHE_CHECK(whether other signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked_others, [
-AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-volatile int gotsig=0;
-volatile int somewereblocked=0;
-typedef void (*signal_handler_t) (int);
-void sigalrm_handler()
-{ gotsig=1;
-#ifdef SIGNAL_NEED_REINSTALL
-  signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-#endif
-  { sigset_t blocked;
-    int i;
-    sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-    for (i=1; i<32; i++)
-      if (i!=SIGALRM && sigismember(&blocked,i))
-        somewereblocked = 1;
-  }
-}
-int got_sig () { return gotsig; }
-int main() { /* returns 0 if they need not to be unblocked */
-  signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(somewereblocked);
-}], cl_cv_func_signal_blocked_others=no, cl_cv_func_signal_blocked_others=yes,
-dnl When cross-compiling, assume the worst case.
-cl_cv_func_signal_blocked_others="guessing yes")
-])
-case "$cl_cv_func_signal_blocked_others" in
-  *yes) AC_DEFINE(SIGNAL_NEED_UNBLOCK_OTHERS,,[SIGNALBLOCK_BSD is defined above and other signals need to be unblocked when signal handlers are left]) ;;
-  *no) ;;
-esac
-  ;;
-  *) ;;
-esac
+[
+  AC_REQUIRE([CL_SIGNAL_REINSTALL])
+  case "$signalblocks" in
+    *POSIX* | *BSD*)
+      AC_CACHE_CHECK([whether other signals are blocked when signal handlers are entered],
+        [cl_cv_func_signal_blocked_others],
+        [AC_TRY_RUN([
+           #include <stdlib.h>
+           #ifdef HAVE_UNISTD_H
+            #include <unistd.h>
+           #endif
+           #include <signal.h>
+           volatile int gotsig = 0;
+           volatile int somewereblocked = 0;
+           typedef void (*signal_handler_t) (int);
+           void sigalrm_handler()
+           {
+             gotsig = 1;
+             #ifdef SIGNAL_NEED_REINSTALL
+               signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+             #endif
+             {
+               sigset_t blocked;
+               int i;
+               sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+               for (i=1; i<32; i++)
+                 if (i!=SIGALRM && sigismember(&blocked,i))
+                   somewereblocked = 1;
+             }
+           }
+           int got_sig () { return gotsig; }
+           int main() /* returns 0 if they need not to be unblocked */
+           {
+             signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+             alarm(1);
+             while (!got_sig())
+               ;
+             exit(somewereblocked);
+           }
+           ],
+           [cl_cv_func_signal_blocked_others=no],
+           [cl_cv_func_signal_blocked_others=yes],
+           [dnl When cross-compiling, assume the worst case.
+            cl_cv_func_signal_blocked_others="guessing yes"
+           ])
+        ])
+      case "$cl_cv_func_signal_blocked_others" in
+        *yes)
+          AC_DEFINE([SIGNAL_NEED_UNBLOCK_OTHERS],,
+            [SIGNALBLOCK_BSD is defined above and other signals need to be unblocked when signal handlers are left])
+          ;;
+        *no) ;;
+      esac
+      ;;
+    *) ;;
+  esac
 ])
 
 AC_DEFUN([CL_SIGACTION],
-[AC_BEFORE([$0], [CL_SIGACTION_REINSTALL])
-AC_BEFORE([$0], [CL_SIGINTERRUPT])
-AC_CHECK_FUNCS(sigaction)])
+[
+  AC_BEFORE([$0], [CL_SIGACTION_REINSTALL])
+  AC_BEFORE([$0], [CL_SIGINTERRUPT])
+  AC_CHECK_FUNCS(sigaction)
+])
 
 AC_DEFUN([CL_SIGACTION_REINSTALL],
-[AC_REQUIRE([CL_SIGACTION])dnl
-AC_BEFORE([$0], [CL_SIGACTION_UNBLOCK])dnl
-if test -n "$have_sigaction"; then
-AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
-AC_TRY_RUN([
-#include <stdlib.h>
-#include <string.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-typedef void (*signal_handler_t) (int);
-signal_handler_t mysignal (int sig, signal_handler_t handler)
-{ struct sigaction old_sa;
-  struct sigaction new_sa;
-  memset(&new_sa,0,sizeof(new_sa));
-  new_sa.sa_handler = handler;
-  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
-  return (signal_handler_t)old_sa.sa_handler;
-}
-volatile int gotsig=0;
-void sigalrm_handler() { gotsig=1; }
-int got_sig () { return gotsig; }
-int main() { /* returns 0 if they need not to be reinstalled */
-  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(!( mysignal(SIGALRM,(signal_handler_t)sigalrm_handler)
-          == (signal_handler_t)sigalrm_handler
-      ) );
-}], cl_cv_func_sigaction_reinstall=no, cl_cv_func_sigaction_reinstall=yes,
-dnl When cross-compiling, don't assume anything.
-cl_cv_func_sigaction_reinstall="guessing yes")
-])
-case "$cl_cv_func_sigaction_reinstall" in
-  *yes) AC_DEFINE(SIGACTION_NEED_REINSTALL,,[signal handlers installed via sigaction() need to be reinstalled when they are activated]) ;;
-  *no) ;;
-esac
-fi
+[
+  AC_REQUIRE([CL_SIGACTION])
+  AC_BEFORE([$0], [CL_SIGACTION_UNBLOCK])
+  if test -n "$have_sigaction"; then
+    AC_CACHE_CHECK([whether sigaction handlers need to be reinstalled],
+      [cl_cv_func_sigaction_reinstall],
+      [AC_TRY_RUN([
+         #include <stdlib.h>
+         #include <string.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <signal.h>
+         typedef void (*signal_handler_t) (int);
+         signal_handler_t mysignal (int sig, signal_handler_t handler)
+         {
+           struct sigaction old_sa;
+           struct sigaction new_sa;
+           memset(&new_sa,0,sizeof(new_sa));
+           new_sa.sa_handler = handler;
+           if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+           return (signal_handler_t)old_sa.sa_handler;
+         }
+         volatile int gotsig = 0;
+         void sigalrm_handler()
+         {
+           gotsig = 1;
+         }
+         int got_sig () { return gotsig; }
+         int main() /* returns 0 if they need not to be reinstalled */
+         {
+           mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+           alarm(1);
+           while (!got_sig())
+             ;
+           exit(!( mysignal(SIGALRM,(signal_handler_t)sigalrm_handler)
+                   == (signal_handler_t)sigalrm_handler
+               ) );
+         }
+         ],
+         [cl_cv_func_sigaction_reinstall=no],
+         [cl_cv_func_sigaction_reinstall=yes],
+         [dnl When cross-compiling, don't assume anything.
+          cl_cv_func_sigaction_reinstall="guessing yes"
+         ])
+      ])
+    case "$cl_cv_func_sigaction_reinstall" in
+      *yes)
+        AC_DEFINE([SIGACTION_NEED_REINSTALL],,
+          [signal handlers installed via sigaction() need to be reinstalled when they are activated])
+        ;;
+      *no) ;;
+    esac
+  fi
 ])
 
 AC_DEFUN([CL_SIGACTION_UNBLOCK],
-[AC_REQUIRE([CL_SIGACTION])dnl
-AC_REQUIRE([CL_SIGACTION_REINSTALL])dnl
-if test -n "$have_sigaction"; then
-case "$signalblocks" in
-  *POSIX* | *BSD*)
-AC_CACHE_CHECK(whether signals are blocked when sigaction handlers are entered, cl_cv_func_sigaction_blocked, [
-AC_TRY_RUN([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-typedef void (*signal_handler_t) (int);
-signal_handler_t mysignal (int sig, signal_handler_t handler)
-{ struct sigaction old_sa;
-  struct sigaction new_sa;
-  memset(&new_sa,0,sizeof(new_sa));
-  new_sa.sa_handler = handler;
-  if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
-  return (signal_handler_t)old_sa.sa_handler;
-}
-volatile int gotsig=0;
-volatile int wasblocked=0;
-void sigalrm_handler()
-{ gotsig=1;
-#ifdef SIGNAL_NEED_REINSTALL
-  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
-#endif
-  { sigset_t blocked;
-    sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-    wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
-  }
-}
-int got_sig () { return gotsig; }
-int main() { /* returns 0 if they need not to be unblocked */
-  mysignal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
-  exit(wasblocked);
-}], cl_cv_func_sigaction_blocked=no, cl_cv_func_sigaction_blocked=yes,
-dnl When cross-compiling, assume the worst case.
-cl_cv_func_sigaction_blocked="guessing yes")
-])
-case "$cl_cv_func_sigaction_blocked" in
-  *yes) AC_DEFINE(SIGACTION_NEED_UNBLOCK,,[signals need to be unblocked when signal handlers installed via sigaction() are left]) ;;
-  *no) ;;
-esac
-  ;;
-  *) ;;
-esac
-fi
+[
+  AC_REQUIRE([CL_SIGACTION])
+  AC_REQUIRE([CL_SIGACTION_REINSTALL])
+  if test -n "$have_sigaction"; then
+    case "$signalblocks" in
+      *POSIX* | *BSD*)
+        AC_CACHE_CHECK([whether signals are blocked when sigaction handlers are entered],
+          [cl_cv_func_sigaction_blocked],
+          [AC_TRY_RUN([
+             #include <stdlib.h>
+             #ifdef HAVE_UNISTD_H
+              #include <unistd.h>
+             #endif
+             #include <signal.h>
+             typedef void (*signal_handler_t) (int);
+             signal_handler_t mysignal (int sig, signal_handler_t handler)
+             {
+               struct sigaction old_sa;
+               struct sigaction new_sa;
+               memset(&new_sa,0,sizeof(new_sa));
+               new_sa.sa_handler = handler;
+               if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+               return (signal_handler_t)old_sa.sa_handler;
+             }
+             volatile int gotsig = 0;
+             volatile int wasblocked = 0;
+             void sigalrm_handler()
+             {
+               gotsig = 1;
+               #ifdef SIGNAL_NEED_REINSTALL
+                 mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+               #endif
+               {
+                 sigset_t blocked;
+                 sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+                 wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
+               }
+             }
+             int got_sig () { return gotsig; }
+             int main() /* returns 0 if they need not to be unblocked */
+             {
+               mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+               alarm(1);
+               while (!got_sig())
+                 ;
+               exit(wasblocked);
+             }
+             ],
+             [cl_cv_func_sigaction_blocked=no],
+             [cl_cv_func_sigaction_blocked=yes],
+             [dnl When cross-compiling, assume the worst case.
+              cl_cv_func_sigaction_blocked="guessing yes"
+             ])
+          ])
+        case "$cl_cv_func_sigaction_blocked" in
+          *yes)
+            AC_DEFINE([SIGACTION_NEED_UNBLOCK],,
+              [signals need to be unblocked when signal handlers installed via sigaction() are left])
+            ;;
+          *no) ;;
+        esac
+        ;;
+      *) ;;
+    esac
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2011 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29557,68 +30066,77 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_TCPCONN],
-[CL_COMPILE_CHECK([IPv4 sockets], cl_cv_socket_ipv4,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>],
-[int x = AF_INET; struct in_addr y; struct sockaddr_in z;],
-AC_DEFINE(HAVE_IPV4,,[<sys/socket.h> defines AF_INET]))
-CL_COMPILE_CHECK([IPv6 sockets], cl_cv_socket_ipv6,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>],
-[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
-AC_DEFINE(HAVE_IPV6,,[<sys/socket.h> defines AF_INET6]))
-if test $cl_cv_socket_ipv6 = no; then
-CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
-[#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <linux/in6.h>],
-[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
-AC_DEFINE(IPV6_NEED_LINUX_IN6_H,,[need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
-AC_DEFINE(HAVE_IPV6))
-fi
-AC_CHECK_FUNCS(setsockopt getsockopt)
-AC_CHECK_HEADERS(netinet/tcp.h,,,
-dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
-[#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-])
-if test $ac_cv_func_setsockopt = yes; then
-CL_PROTO([setsockopt], [
-for z in SIZE_VARIANTS; do
-for y in 'char*' 'void*'; do
-for x in CONST_VARIANTS; do
-if test -z "$have_setsockopt_decl"; then
-CL_PROTO_TRY([
-#include <sys/types.h>
-#include <sys/socket.h>
-], [int setsockopt (int, int, int, $x $y, $z);], [
-cl_cv_proto_setsockopt_const="$x"
-cl_cv_proto_setsockopt_arg_t="$y"
-cl_cv_proto_setsockopt_optlen_t="$z"
-have_setsockopt_decl=1])
-fi
-done
-done
-done
-if test -z "$have_setsockopt_decl"; then
-CL_PROTO_MISSING(setsockopt)
-fi
-], [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])
-AC_DEFINE_UNQUOTED(SETSOCKOPT_OPTLEN_T,$cl_cv_proto_setsockopt_optlen_t,[type of `optlen' in setsockopt() declaration])
-fi
+[
+  CL_COMPILE_CHECK([IPv4 sockets], [cl_cv_socket_ipv4],
+    [#include <sys/types.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>],
+    [int x = AF_INET; struct in_addr y; struct sockaddr_in z;],
+    [AC_DEFINE([HAVE_IPV4],,[<sys/socket.h> defines AF_INET])])
+  CL_COMPILE_CHECK([IPv6 sockets], [cl_cv_socket_ipv6],
+    [#include <sys/types.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>],
+    [int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+    [AC_DEFINE([HAVE_IPV6],,[<sys/socket.h> defines AF_INET6])])
+  if test $cl_cv_socket_ipv6 = no; then
+    CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], [cl_cv_socket_ipv6_linux],
+      [#include <sys/types.h>
+       #include <sys/socket.h>
+       #include <netinet/in.h>
+       #include <linux/in6.h>],
+      [int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+      [AC_DEFINE([IPV6_NEED_LINUX_IN6_H],,
+         [need <linux/in6.h> for the in6_addr and sockaddr_in6 types])
+       AC_DEFINE([HAVE_IPV6])
+      ])
+  fi
+  AC_CHECK_FUNCS([setsockopt getsockopt])
+  AC_CHECK_HEADERS([netinet/tcp.h],,,
+    dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
+    [#if HAVE_NETINET_IN_H
+     #include <netinet/in.h>
+     #endif
+    ])
+  if test $ac_cv_func_setsockopt = yes; then
+    CL_PROTO([setsockopt],
+      [for z in SIZE_VARIANTS; do
+         for y in 'char*' 'void*'; do
+           for x in CONST_VARIANTS; do
+             if test -z "$have_setsockopt_decl"; then
+               CL_PROTO_TRY(
+                 [#include <sys/types.h>
+                  #include <sys/socket.h>
+                 ],
+                 [int setsockopt (int, int, int, $x $y, $z);],
+                 [cl_cv_proto_setsockopt_const="$x"
+                  cl_cv_proto_setsockopt_arg_t="$y"
+                  cl_cv_proto_setsockopt_optlen_t="$z"
+                  have_setsockopt_decl=1
+                 ])
+             fi
+           done
+         done
+       done
+       if test -z "$have_setsockopt_decl"; then
+         CL_PROTO_MISSING([setsockopt])
+       fi
+      ],
+      [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_CONST], [$cl_cv_proto_setsockopt_const],
+      [declaration of setsockopt() needs const])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_ARG_T], [$cl_cv_proto_setsockopt_arg_t],
+      [type of `optval' in setsockopt() declaration])
+    AC_DEFINE_UNQUOTED([SETSOCKOPT_OPTLEN_T], [$cl_cv_proto_setsockopt_optlen_t],
+      [type of `optlen' in setsockopt() declaration])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2005, 2010, 2014 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2005, 2010, 2014, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29627,42 +30145,44 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
-AC_DEFUN([CL_TERMCAP],[
-dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
-dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
-dnl When both libtermcap and libncurses exist, we prefer the latter,
-dnl because libtermcap is being phased out.
-dnl libcurses is useless: all platforms which have libcurses also have
-dnl libtermcap, also they were all different on the various Unix systems,
-dnl and often buggy
-termcap_prefix=""
-AC_ARG_WITH([libtermcap-prefix],
-[  --with-libtermcap-prefix[=DIR]  search for ncurses and termcap in DIR],
-[case "$withval" in
-  /*) termcap_prefix=$withval; ;;
-esac])
-if test x$termcap_prefix != x; then
-  LDFLAGS_save=$LDFLAGS
-  LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
-fi
-LIBTERMCAP="broken"
-INCTERMCAP=""
-AC_SEARCH_LIBS(tgetent, ncurses termcap tinfo, LIBTERMCAP="")
-if test x$termcap_prefix != x; then
-  LDFLAGS=$LDFLAGS_save
-  if test x$LIBTERMCAP != xbroken; then
-    INCTERMCAP=-I$termcap_prefix/include
-    LIBTERMCAP=-L$termcap_prefix/lib
+AC_DEFUN([CL_TERMCAP],
+[
+  dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
+  dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
+  dnl When both libtermcap and libncurses exist, we prefer the latter,
+  dnl because libtermcap is being phased out.
+  dnl libcurses is useless: all platforms which have libcurses also have
+  dnl libtermcap, also they were all different on the various Unix systems,
+  dnl and often buggy
+  termcap_prefix=""
+  AC_ARG_WITH([libtermcap-prefix],
+    [  --with-libtermcap-prefix[=DIR]  search for ncurses and termcap in DIR],
+    [case "$withval" in
+       /*) termcap_prefix=$withval; ;;
+     esac
+    ])
+  if test x$termcap_prefix != x; then
+    LDFLAGS_save=$LDFLAGS
+    LDFLAGS=$LDFLAGS" -L$termcap_prefix/lib"
   fi
-fi
-AC_SUBST(LIBTERMCAP)
-AC_SUBST(INCTERMCAP)
+  LIBTERMCAP="broken"
+  INCTERMCAP=""
+  AC_SEARCH_LIBS([tgetent], [ncurses termcap tinfo], [LIBTERMCAP=""])
+  if test x$termcap_prefix != x; then
+    LDFLAGS=$LDFLAGS_save
+    if test x$LIBTERMCAP != xbroken; then
+      INCTERMCAP=-I$termcap_prefix/include
+      LIBTERMCAP=-L$termcap_prefix/lib
+    fi
+  fi
+  AC_SUBST([LIBTERMCAP])
+  AC_SUBST([INCTERMCAP])
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29671,45 +30191,58 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_TERM],
-[AC_BEFORE([$0], [CL_IOCTL])
-AC_CHECK_HEADERS(termios.h termio.h sys/termio.h sgtty.h)dnl
-if test $ac_cv_header_termios_h = yes; then
-dnl HAVE_TERMIOS_H defined
-dnl A/UX has <termios.h> but is lacking tcgetattr etc.
-CL_LINK_CHECK([tcgetattr], cl_cv_func_tcgetattr,
-[#include <termios.h>], [struct termios t; tcgetattr(0,&t);],
-AC_DEFINE(HAVE_TCGETATTR,,[have tcgetattr(), either as a function or as a macro defined by <termios.h>]))dnl
-CL_LINK_CHECK([TCSAFLUSH in termios.h], cl_cv_decl_TCSAFLUSH,
-[#include <termios.h>], [int x = TCSAFLUSH;],
-AC_DEFINE(HAVE_TCSAFLUSH,,[<termios.h> defines TCSAFLUSH]))dnl
-dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.
-dnl Linux libc6 defines struct winsize in <termio.h>, <sys/ioctl.h>.
-dnl Since we don't want to include both <termios.h> and <termio.h> (they may
-dnl conflict), prefer <sys/ioctl.h> to <termio.h>.
-dnl SCO defines struct winsize in <sys/ptem.h>, which itself needs <sys/stream.h>.
-CL_COMPILE_CHECK([struct winsize in termios.h], cl_cv_struct_winsize,
-[#include <termios.h>], [struct winsize w;], )dnl
-if test $cl_cv_struct_winsize = no; then
-CL_COMPILE_CHECK([struct winsize in sys/ioctl.h], cl_cv_struct_winsize_ioctl,
-[#include <sys/types.h>
-#include <sys/ioctl.h>],
-[struct winsize w;], AC_DEFINE(WINSIZE_NEED_SYS_IOCTL_H,,[have <termios.h> but need <sys/ioctl.h> for `struct winsize']))dnl
-if test $cl_cv_struct_winsize_ioctl = no; then
-CL_COMPILE_CHECK([struct winsize in sys/ptem.h], cl_cv_struct_winsize_ptem,
-[#include <sys/types.h>
-#include <sys/stream.h>
-#include <sys/ptem.h>],
-[struct winsize w;], AC_DEFINE(WINSIZE_NEED_SYS_PTEM_H,,[have <termios.h> but need <sys/ptem.h> for `struct winsize']))dnl
-fi
-fi
-fi
+[
+  AC_BEFORE([$0], [CL_IOCTL])
+  AC_CHECK_HEADERS([termios.h termio.h sys/termio.h sgtty.h])
+  if test $ac_cv_header_termios_h = yes; then
+    dnl HAVE_TERMIOS_H defined
+    dnl A/UX has <termios.h> but is lacking tcgetattr etc.
+    CL_LINK_CHECK([tcgetattr], [cl_cv_func_tcgetattr],
+      [#include <termios.h>],
+      [struct termios t; tcgetattr(0,&t);],
+      [AC_DEFINE([HAVE_TCGETATTR],,
+         [have tcgetattr(), either as a function or as a macro defined by <termios.h>])
+      ])
+    CL_LINK_CHECK([TCSAFLUSH in termios.h], [cl_cv_decl_TCSAFLUSH],
+      [#include <termios.h>],
+      [int x = TCSAFLUSH;],
+      [AC_DEFINE([HAVE_TCSAFLUSH],,[<termios.h> defines TCSAFLUSH])])
+    dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.
+    dnl Linux libc6 defines struct winsize in <termio.h>, <sys/ioctl.h>.
+    dnl Since we don't want to include both <termios.h> and <termio.h> (they may
+    dnl conflict), prefer <sys/ioctl.h> to <termio.h>.
+    dnl SCO defines struct winsize in <sys/ptem.h>, which itself needs <sys/stream.h>.
+    CL_COMPILE_CHECK([struct winsize in termios.h], [cl_cv_struct_winsize],
+      [#include <termios.h>],
+      [struct winsize w;],
+      [])
+    if test $cl_cv_struct_winsize = no; then
+      CL_COMPILE_CHECK([struct winsize in sys/ioctl.h], [cl_cv_struct_winsize_ioctl],
+        [#include <sys/types.h>
+         #include <sys/ioctl.h>],
+        [struct winsize w;],
+        [AC_DEFINE([WINSIZE_NEED_SYS_IOCTL_H],,
+           [have <termios.h> but need <sys/ioctl.h> for `struct winsize'])
+        ])
+      if test $cl_cv_struct_winsize_ioctl = no; then
+        CL_COMPILE_CHECK([struct winsize in sys/ptem.h], [cl_cv_struct_winsize_ptem],
+          [#include <sys/types.h>
+           #include <sys/stream.h>
+           #include <sys/ptem.h>],
+          [struct winsize w;],
+          [AC_DEFINE([WINSIZE_NEED_SYS_PTEM_H],,
+             [have <termios.h> but need <sys/ptem.h> for `struct winsize'])
+          ])
+      fi
+    fi
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29718,20 +30251,25 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_UNIXCONN],
-[AC_CHECK_HEADERS(sys/un.h)dnl
-if test $ac_cv_header_sys_un_h = yes; then
-CL_COMPILE_CHECK([sun_len in struct sockaddr_un], cl_cv_struct_sockaddr_sun_len,
-[#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/un.h>],
-[struct sockaddr_un unaddr; unaddr.sun_len;], AC_DEFINE(HAVE_SOCKADDR_UN_LEN,,[`struct sockaddr_un' from <sys/un.h> has a `sun_len' field]))dnl
-fi
+[
+  AC_CHECK_HEADERS([sys/un.h])
+  if test $ac_cv_header_sys_un_h = yes; then
+    CL_COMPILE_CHECK([sun_len in struct sockaddr_un],
+      [cl_cv_struct_sockaddr_sun_len],
+      [#include <sys/types.h> /* NetBSD 1.0 needs this */
+       #include <sys/un.h>],
+      [struct sockaddr_un unaddr; unaddr.sun_len;],
+      [AC_DEFINE([HAVE_SOCKADDR_UN_LEN],,
+         [`struct sockaddr_un' from <sys/un.h> has a `sun_len' field])
+      ])
+  fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29740,16 +30278,18 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_VADVISE],
-[CL_LINK_CHECK([vadvise], cl_cv_func_vadvise,
-[#include <sys/vadvise.h>], [vadvise(0);],
-AC_DEFINE(HAVE_VADVISE,,[have the vadvise() system call])dnl
-)])
+[
+  CL_LINK_CHECK([vadvise], [cl_cv_func_vadvise],
+    [#include <sys/vadvise.h>],
+    [vadvise(0);],
+    [AC_DEFINE([HAVE_VADVISE],,[have the vadvise() system call])])
+])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29758,19 +30298,24 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_WAITPID],
-[CL_PROTO([waitpid], [
-CL_PROTO_TRY([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-], [pid_t waitpid (pid_t pid, int* statusp, int options);],
-cl_cv_proto_waitpid_arg1="pid_t", cl_cv_proto_waitpid_arg1="int")
-], [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
-AC_DEFINE_UNQUOTED(PID_T,$cl_cv_proto_waitpid_arg1,[type of `pid' in waitpid() declaration])
+[
+  CL_PROTO([waitpid],
+    [CL_PROTO_TRY([
+       #include <stdlib.h>
+       #ifdef HAVE_UNISTD_H
+        #include <unistd.h>
+       #endif
+       #include <sys/types.h>
+       ],
+       [pid_t waitpid (pid_t pid, int* statusp, int options);],
+       [cl_cv_proto_waitpid_arg1="pid_t"],
+       [cl_cv_proto_waitpid_arg1="int"])
+    ],
+    [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
+  AC_DEFINE_UNQUOTED([PID_T], [$cl_cv_proto_waitpid_arg1],
+    [type of `pid' in waitpid() declaration])
 ])
 

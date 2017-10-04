@@ -1,5 +1,5 @@
-# intparam.m4 serial 3  -*- Autoconf -*-
-dnl Copyright (C) 2005-2008 Free Software Foundation, Inc.
+# intparam.m4 serial 4  -*- Autoconf -*-
+dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -282,19 +282,21 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <stddef.h>
-#ifdef __cplusplus
-# ifdef __GNUC__
-#  define alignof(type)  __alignof__ (type)
-# else
-   template <class type> struct alignof_helper { char slot1; type slot2; };
-#  define alignof(type)  offsetof (alignof_helper<type>, slot2)
-# endif
-#else
-# define alignof(type)  offsetof (struct { char slot1; type slot2; }, slot2)
-#endif
-]], [[typedef int verify[2*(alignof($1) == $n) - 1];]])],
+    AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM([[
+         #include <stddef.h>
+         #ifdef __cplusplus
+          #ifdef __GNUC__
+           #define alignof(type)  __alignof__ (type)
+          #else
+           template <class type> struct alignof_helper { char slot1; type slot2; };
+           #define alignof(type)  offsetof (alignof_helper<type>, slot2)
+          #endif
+         #else
+          #define alignof(type)  offsetof (struct { char slot1; type slot2; }, slot2)
+         #endif
+         ]],
+         [[typedef int verify[2*(alignof($1) == $n) - 1];]])],
       [$2=$n; break;]
       [if test $n = 0; then $2=; break; fi])
     n=`expr $n '*' 2`

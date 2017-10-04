@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003, 2017 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -8,14 +8,19 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.57])
 
 AC_DEFUN([CL_UNIXCONN],
-[AC_CHECK_HEADERS(sys/un.h)dnl
-if test $ac_cv_header_sys_un_h = yes; then
-CL_COMPILE_CHECK([sun_len in struct sockaddr_un], cl_cv_struct_sockaddr_sun_len,
-[#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/un.h>],
-[struct sockaddr_un unaddr; unaddr.sun_len;], AC_DEFINE(HAVE_SOCKADDR_UN_LEN,,[`struct sockaddr_un' from <sys/un.h> has a `sun_len' field]))dnl
-fi
+[
+  AC_CHECK_HEADERS([sys/un.h])
+  if test $ac_cv_header_sys_un_h = yes; then
+    CL_COMPILE_CHECK([sun_len in struct sockaddr_un],
+      [cl_cv_struct_sockaddr_sun_len],
+      [#include <sys/types.h> /* NetBSD 1.0 needs this */
+       #include <sys/un.h>],
+      [struct sockaddr_un unaddr; unaddr.sun_len;],
+      [AC_DEFINE([HAVE_SOCKADDR_UN_LEN],,
+         [`struct sockaddr_un' from <sys/un.h> has a `sun_len' field])
+      ])
+  fi
 ])

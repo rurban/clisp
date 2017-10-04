@@ -2465,27 +2465,33 @@ ac_config_headers="$ac_config_headers config.h"
   esac
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Common)${term_norm}" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Common)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Common)${term_norm}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
 $as_echo_n "checking how to remove colons from paths... " >&6; }
 if ${cl_cv_decolonize+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   case $ac_cv_build in
-  *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* )
-    if test "$cross_compiling" = yes; then
-      cl_cv_decolonize='cygpath --unix $x'
-    else
-      cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
-    fi  ;;
-  * ) cl_cv_decolonize='echo $x' ;;
-esac
+       *-cygwin) cl_cv_decolonize='cygpath --unix $x' ;;
+       *-mingw*)
+         if test "$cross_compiling" = yes; then
+           cl_cv_decolonize='cygpath --unix $x'
+         else
+           cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+         fi
+         ;;
+       *) cl_cv_decolonize='echo $x' ;;
+     esac
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_decolonize" >&5
 $as_echo "$cl_cv_decolonize" >&6; }
-CLISP_DECOLONIZE=$cl_cv_decolonize
+  CLISP_DECOLONIZE=$cl_cv_decolonize
+
+
 
 
 
@@ -2496,10 +2502,10 @@ else
   cl_use_clisp=default
 fi
 
-cl_have_clisp=no
-if test "$cl_use_clisp" != "no"; then
-  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
-  then # Extract the first word of "clisp", so it can be a program name with args.
+  cl_have_clisp=no
+  if test "$cl_use_clisp" != "no"; then
+    if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
+      # Extract the first word of "clisp", so it can be a program name with args.
 set dummy clisp; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
@@ -2539,64 +2545,79 @@ $as_echo "no" >&6; }
 fi
 
 
-  else cl_cv_clisp="$cl_use_clisp"
-  fi
-  if test -n "$cl_cv_clisp"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
+    else
+      cl_cv_clisp="$cl_use_clisp"
+    fi
+    if test -n "$cl_cv_clisp"; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
 $as_echo_n "checking for CLISP version... " >&6; }
 if ${cl_cv_clisp_version+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-                      if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
-     then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     else as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
-     fi
+                             if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
+           cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         else
+           as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
+         fi
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_version" >&5
 $as_echo "$cl_cv_clisp_version" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
 $as_echo_n "checking for CLISP libdir... " >&6; }
 if ${cl_cv_clisp_libdir+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     x=$cl_cv_clisp_libdir;
-     cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
-     # cf src/clisp-link.in:linkkitdir
-     missing=''
-     for f in modules.c clisp.h; do
-       test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+  cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         x=$cl_cv_clisp_libdir
+         cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
+         # cf src/clisp-link.in:linkkitdir
+         missing=''
+         for f in modules.c clisp.h; do
+           test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_libdir" >&5
 $as_echo "$cl_cv_clisp_libdir" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
 $as_echo_n "checking for CLISP linking set... " >&6; }
 if ${cl_cv_clisp_linkset+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
-     missing=''
-     # cf. src/clisp-link.in:check_linkset (we do not need to check for
-     # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
-     for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+  cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
+         missing=''
+         # cf. src/clisp-link.in:check_linkset (we do not need to check for
+         # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
+         for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+           test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LIBDIR="${cl_cv_clisp_libdir}";     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    . ./conftestvars
-    rm -f conftestvars
-                    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+      CLISP=$cl_cv_clisp
+
+      CLISP_LIBDIR="${cl_cv_clisp_libdir}"
+
+      CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
+
+      sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+      . ./conftestvars
+      rm -f conftestvars
+
+
+
+
+      test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+    fi
   fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
 $as_echo_n "checking for CLISP... " >&6; }
 if ${cl_cv_have_clisp+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -2605,8 +2626,9 @@ else
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_have_clisp" >&5
 $as_echo "$cl_cv_have_clisp" >&6; }
-required=true
-${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+  required=true
+  ${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+
 
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
@@ -3625,47 +3647,51 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
 $as_echo_n "checking how to make hard links... " >&6; }
 if ${cl_cv_prog_LN+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-
-rm -f conftestdata conftestfile
-echo data > conftestfile
-if ln conftestfile conftestdata 2>/dev/null; then
-  cl_cv_prog_LN=ln
-else
-  cl_cv_prog_LN="cp -p"
-fi
-rm -f conftestdata conftestfile
+  rm -f conftestdata conftestfile
+     echo data > conftestfile
+     if ln conftestfile conftestdata 2>/dev/null; then
+       cl_cv_prog_LN=ln
+     else
+       cl_cv_prog_LN="cp -p"
+     fi
+     rm -f conftestdata conftestfile
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN" >&5
 $as_echo "$cl_cv_prog_LN" >&6; }
-LN="$cl_cv_prog_LN"
+  LN="$cl_cv_prog_LN"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
+
+
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 if ${cl_cv_prog_LN_S_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   rm -f conftestdata
-if ln -s X conftestdata 2>/dev/null; then
-  cl_cv_prog_LN_S_works=yes
-else
-  cl_cv_prog_LN_S_works=no
-fi
-rm -f conftestdata
+     if ln -s X conftestdata 2>/dev/null; then
+       cl_cv_prog_LN_S_works=yes
+     else
+       cl_cv_prog_LN_S_works=no
+     fi
+     rm -f conftestdata
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN_S_works" >&5
 $as_echo "$cl_cv_prog_LN_S_works" >&6; }
-if test $cl_cv_prog_LN_S_works = yes; then
-  LN_S="ln -s"
-else
-  LN_S="$cl_cv_prog_LN"
-fi
+  if test $cl_cv_prog_LN_S_works = yes; then
+    LN_S="ln -s"
+  else
+    LN_S="$cl_cv_prog_LN"
+  fi
+
 
 
 
@@ -4058,6 +4084,14 @@ fi
 $as_echo "$ac_cv_should_define__xopen_source" >&6; }
   test $ac_cv_should_define__xopen_source = yes &&
     $as_echo "#define _XOPEN_SOURCE 500" >>confdefs.h
+
+
+
+
+
+
+
+
 
 
 
@@ -5466,8 +5500,10 @@ $as_echo "#define _DARWIN_USE_64_BIT_INODE 1" >>confdefs.h
 
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Headers)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Headers)${term_norm}" >&6;}
+
 for ac_header in db.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "db.h" "ac_cv_header_db_h" "$ac_includes_default"
@@ -5484,8 +5520,10 @@ if test "$ac_cv_header_db_h" = "no"; then
   as_fn_error $? "cannot find Berkeley-DB headers" "$LINENO" 5
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Functions)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Functions)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Functions)${term_norm}" >&6;}
+
 
   for element in $LIBDB; do
     haveit=
@@ -5891,8 +5929,10 @@ _ACEOF
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Output)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Output)${term_norm}" >&6;}
+
 ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -7203,5 +7243,7 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Done)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Berkeley-DB (Done)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Berkeley-DB (Done)${term_norm}" >&6;}
+

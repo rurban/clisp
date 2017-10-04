@@ -2259,27 +2259,33 @@ ac_config_headers="$ac_config_headers config.h"
   esac
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Common)${term_norm}" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Common)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Common)${term_norm}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
 $as_echo_n "checking how to remove colons from paths... " >&6; }
 if ${cl_cv_decolonize+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   case $ac_cv_build in
-  *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* )
-    if test "$cross_compiling" = yes; then
-      cl_cv_decolonize='cygpath --unix $x'
-    else
-      cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
-    fi  ;;
-  * ) cl_cv_decolonize='echo $x' ;;
-esac
+       *-cygwin) cl_cv_decolonize='cygpath --unix $x' ;;
+       *-mingw*)
+         if test "$cross_compiling" = yes; then
+           cl_cv_decolonize='cygpath --unix $x'
+         else
+           cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+         fi
+         ;;
+       *) cl_cv_decolonize='echo $x' ;;
+     esac
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_decolonize" >&5
 $as_echo "$cl_cv_decolonize" >&6; }
-CLISP_DECOLONIZE=$cl_cv_decolonize
+  CLISP_DECOLONIZE=$cl_cv_decolonize
+
+
 
 
 
@@ -2290,10 +2296,10 @@ else
   cl_use_clisp=default
 fi
 
-cl_have_clisp=no
-if test "$cl_use_clisp" != "no"; then
-  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
-  then # Extract the first word of "clisp", so it can be a program name with args.
+  cl_have_clisp=no
+  if test "$cl_use_clisp" != "no"; then
+    if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
+      # Extract the first word of "clisp", so it can be a program name with args.
 set dummy clisp; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
@@ -2333,64 +2339,79 @@ $as_echo "no" >&6; }
 fi
 
 
-  else cl_cv_clisp="$cl_use_clisp"
-  fi
-  if test -n "$cl_cv_clisp"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
+    else
+      cl_cv_clisp="$cl_use_clisp"
+    fi
+    if test -n "$cl_cv_clisp"; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
 $as_echo_n "checking for CLISP version... " >&6; }
 if ${cl_cv_clisp_version+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-                      if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
-     then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     else as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
-     fi
+                             if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
+           cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         else
+           as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
+         fi
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_version" >&5
 $as_echo "$cl_cv_clisp_version" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
 $as_echo_n "checking for CLISP libdir... " >&6; }
 if ${cl_cv_clisp_libdir+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     x=$cl_cv_clisp_libdir;
-     cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
-     # cf src/clisp-link.in:linkkitdir
-     missing=''
-     for f in modules.c clisp.h; do
-       test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+  cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         x=$cl_cv_clisp_libdir
+         cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
+         # cf src/clisp-link.in:linkkitdir
+         missing=''
+         for f in modules.c clisp.h; do
+           test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_libdir" >&5
 $as_echo "$cl_cv_clisp_libdir" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
 $as_echo_n "checking for CLISP linking set... " >&6; }
 if ${cl_cv_clisp_linkset+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
-     missing=''
-     # cf. src/clisp-link.in:check_linkset (we do not need to check for
-     # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
-     for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+  cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
+         missing=''
+         # cf. src/clisp-link.in:check_linkset (we do not need to check for
+         # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
+         for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+           test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LIBDIR="${cl_cv_clisp_libdir}";     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    . ./conftestvars
-    rm -f conftestvars
-                    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+      CLISP=$cl_cv_clisp
+
+      CLISP_LIBDIR="${cl_cv_clisp_libdir}"
+
+      CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
+
+      sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+      . ./conftestvars
+      rm -f conftestvars
+
+
+
+
+      test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+    fi
   fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
 $as_echo_n "checking for CLISP... " >&6; }
 if ${cl_cv_have_clisp+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -2399,8 +2420,9 @@ else
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_have_clisp" >&5
 $as_echo "$cl_cv_have_clisp" >&6; }
-required=true
-${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+  required=true
+  ${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+
 
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
@@ -3419,47 +3441,51 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
 $as_echo_n "checking how to make hard links... " >&6; }
 if ${cl_cv_prog_LN+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-
-rm -f conftestdata conftestfile
-echo data > conftestfile
-if ln conftestfile conftestdata 2>/dev/null; then
-  cl_cv_prog_LN=ln
-else
-  cl_cv_prog_LN="cp -p"
-fi
-rm -f conftestdata conftestfile
+  rm -f conftestdata conftestfile
+     echo data > conftestfile
+     if ln conftestfile conftestdata 2>/dev/null; then
+       cl_cv_prog_LN=ln
+     else
+       cl_cv_prog_LN="cp -p"
+     fi
+     rm -f conftestdata conftestfile
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN" >&5
 $as_echo "$cl_cv_prog_LN" >&6; }
-LN="$cl_cv_prog_LN"
+  LN="$cl_cv_prog_LN"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
+
+
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 if ${cl_cv_prog_LN_S_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   rm -f conftestdata
-if ln -s X conftestdata 2>/dev/null; then
-  cl_cv_prog_LN_S_works=yes
-else
-  cl_cv_prog_LN_S_works=no
-fi
-rm -f conftestdata
+     if ln -s X conftestdata 2>/dev/null; then
+       cl_cv_prog_LN_S_works=yes
+     else
+       cl_cv_prog_LN_S_works=no
+     fi
+     rm -f conftestdata
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN_S_works" >&5
 $as_echo "$cl_cv_prog_LN_S_works" >&6; }
-if test $cl_cv_prog_LN_S_works = yes; then
-  LN_S="ln -s"
-else
-  LN_S="$cl_cv_prog_LN"
-fi
+  if test $cl_cv_prog_LN_S_works = yes; then
+    LN_S="ln -s"
+  else
+    LN_S="$cl_cv_prog_LN"
+  fi
+
 
 
 
@@ -3857,8 +3883,21 @@ $as_echo "$ac_cv_should_define__xopen_source" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Headers)${term_norm}" >&5
+
+
+
+
+
+
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Headers)${term_norm}" >&6;}
+
+
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for IPv4 sockets" >&5
 $as_echo_n "checking for IPv4 sockets... " >&6; }
 if ${cl_cv_socket_ipv4+:} false; then :
@@ -3867,8 +3906,8 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>
 int
 main ()
 {
@@ -3892,6 +3931,9 @@ $as_echo "#define HAVE_IPV4 /**/" >>confdefs.h
 
 fi
 
+
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for IPv6 sockets" >&5
 $as_echo_n "checking for IPv6 sockets... " >&6; }
 if ${cl_cv_socket_ipv6+:} false; then :
@@ -3900,8 +3942,8 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+     #include <sys/socket.h>
+     #include <netinet/in.h>
 int
 main ()
 {
@@ -3925,7 +3967,10 @@ $as_echo "#define HAVE_IPV6 /**/" >>confdefs.h
 
 fi
 
-if test $cl_cv_socket_ipv6 = no; then
+
+  if test $cl_cv_socket_ipv6 = no; then
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for IPv6 sockets in linux/in6.h" >&5
 $as_echo_n "checking for IPv6 sockets in linux/in6.h... " >&6; }
 if ${cl_cv_socket_ipv6_linux+:} false; then :
@@ -3934,9 +3979,9 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <linux/in6.h>
+       #include <sys/socket.h>
+       #include <netinet/in.h>
+       #include <linux/in6.h>
 int
 main ()
 {
@@ -3958,12 +4003,14 @@ $as_echo "$cl_cv_socket_ipv6_linux" >&6; }
 
 $as_echo "#define IPV6_NEED_LINUX_IN6_H /**/" >>confdefs.h
 
-$as_echo "#define HAVE_IPV6 1" >>confdefs.h
+       $as_echo "#define HAVE_IPV6 1" >>confdefs.h
+
 
 fi
 
-fi
-for ac_func in setsockopt getsockopt
+
+  fi
+  for ac_func in setsockopt getsockopt
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -3975,11 +4022,11 @@ _ACEOF
 fi
 done
 
-for ac_header in netinet/tcp.h
+  for ac_header in netinet/tcp.h
 do :
-  ac_fn_c_check_header_compile "$LINENO" "netinet/tcp.h" "ac_cv_header_netinet_tcp_h" "#if HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+  ac_fn_c_check_header_compile "$LINENO" "netinet/tcp.h" "ac_cv_header_netinet_tcp_h" "    #if HAVE_NETINET_IN_H
+     #include <netinet/in.h>
+     #endif
 
 "
 if test "x$ac_cv_header_netinet_tcp_h" = xyes; then :
@@ -3991,29 +4038,30 @@ fi
 
 done
 
-if test $ac_cv_func_setsockopt = yes; then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for setsockopt declaration" >&5
+  if test $ac_cv_func_setsockopt = yes; then
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for setsockopt declaration" >&5
 $as_echo_n "checking for setsockopt declaration... " >&6; }
-if ${cl_cv_proto_setsockopt+:} false; then :
+  if ${cl_cv_proto_setsockopt+:} false; then :
   $as_echo_n "(cached) " >&6
 else
+  for z in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
+         for y in 'char*' 'void*'; do
+           for x in '' 'const' '__const'; do
+             if test -z "$have_setsockopt_decl"; then
 
-for z in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
-for y in 'char*' 'void*'; do
-for x in '' 'const' '__const'; do
-if test -z "$have_setsockopt_decl"; then
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
+    #include <sys/types.h>
+                  #include <sys/socket.h>
 
-extern
+    extern
 #ifdef __cplusplus
 "C"
 #endif
 
-int setsockopt (int, int, int, $x $y, $z);
+    int setsockopt (int, int, int, $x $y, $z);
 
 int
 main ()
@@ -4024,30 +4072,33 @@ main ()
 }
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
+  cl_cv_proto_setsockopt_const="$x"
+                  cl_cv_proto_setsockopt_arg_t="$y"
+                  cl_cv_proto_setsockopt_optlen_t="$z"
+                  have_setsockopt_decl=1
 
-cl_cv_proto_setsockopt_const="$x"
-cl_cv_proto_setsockopt_arg_t="$y"
-cl_cv_proto_setsockopt_optlen_t="$z"
-have_setsockopt_decl=1
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-fi
-done
-done
-done
-if test -z "$have_setsockopt_decl"; then
-{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+             fi
+           done
+         done
+       done
+       if test -z "$have_setsockopt_decl"; then
+
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "please report the setsockopt() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
 See \`config.log' for more details" "$LINENO" 5; }
+
+       fi
+
+     cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
+
 fi
 
-cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
-fi
-
-cl_cv_proto_setsockopt=`echo "$cl_cv_proto_setsockopt" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setsockopt" >&5
+  cl_cv_proto_setsockopt=`echo "$cl_cv_proto_setsockopt" | tr -s ' ' | sed -e 's/( /(/'`
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setsockopt" >&5
 $as_echo "$cl_cv_proto_setsockopt" >&6; }
 
 
@@ -4065,7 +4116,7 @@ cat >>confdefs.h <<_ACEOF
 #define SETSOCKOPT_OPTLEN_T $cl_cv_proto_setsockopt_optlen_t
 _ACEOF
 
-fi
+  fi
 
 for ac_header in linux/if_packet.h netdb.h \
 asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h
@@ -4170,8 +4221,10 @@ _ACEOF
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Functions)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Functions)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Functions)${term_norm}" >&6;}
+
 cl_save_LIBS=$LIBS
 LIBS="$LIBS $LIBSOCKET"
 for ac_func in socketpair sockatmark recvmsg sendmsg htonl htons ntohl ntohs readv writev getnameinfo getaddrinfo freeaddrinfo gai_strerror endprotoent getprotobyname getprotobynumber getprotoent setprotoent if_nametoindex if_indextoname if_nameindex if_freenameindex endnetent getnetbyaddr getnetbyname getnetent setnetent getifaddrs freeifaddrs
@@ -4188,8 +4241,10 @@ done
 
 LIBS=$cl_save_LIBS
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Output)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Output)${term_norm}" >&6;}
+
 ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -5500,5 +5555,7 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Done)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Done)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Done)${term_norm}" >&6;}
+
