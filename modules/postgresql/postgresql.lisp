@@ -1,6 +1,6 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
 ;; Copyright (C) 1999-2010 Sam Steingold
-;; This is free software, distributed under the GNU GPL 2
+;; This is free software, distributed under the GNU GPL v2+
 
 ;; this file is in sync with libpq-fe.h 1.147
 ;; CVS tags: REL8_5_ALPHA3_BRANCH, REL8_5_ALPHA3, REL8_5_ALPHA2_BRANCH, REL8_5_ALPHA2, REL8_5_ALPHA1_BRANCH, REL8_5_ALPHA1, REL8_4_STABLE, REL8_4_RC2, REL8_4_RC1, REL8_4_4, REL8_4_3, REL8_4_2, REL8_4_1, REL8_4_0

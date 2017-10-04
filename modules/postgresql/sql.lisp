@@ -1,9 +1,9 @@
 ;;; PostgreSQL higher level functions
 ;;;
 ;;; Copyright (C) 1999-2008 by Sam Steingold
-;;; Distributed under the GNU GPL2 <http://www.gnu.org/copyleft/gpl.html>:
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; No warranty; you may copy/modify/redistribute under the same
-;;; conditions with the source code.
+;;; conditions with the source code (<http://www.gnu.org/copyleft/gpl.html>)
 
 (require "postgresql")
 

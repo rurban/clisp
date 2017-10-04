@@ -1,5 +1,5 @@
 ;;; Copyright (C) 2003-2008, 2010, 2012 by Sam Steingold
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
 (defpackage "BDB"

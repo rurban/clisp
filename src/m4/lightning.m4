@@ -1,5 +1,6 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008 Sam Steingold (repleased under GPLv2+)
+dnl Copyright (C) 2008 Sam Steingold
+dnl This is free software, distributed under the GNU GPL v2+
 
 AC_DEFUN([CL_LIGHTNING], [
 AC_ARG_WITH([lightning-prefix],

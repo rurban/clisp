@@ -2,7 +2,7 @@
 ;;;;     Title: A sample sokoban implementation using CLX
 ;;;;   Created: Tue Feb 27 15:43:28 1996
 ;;;;    Author: Gilbert Baumann <unk6@rz.uni-karlsruhe.de>
-;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GPL.
+;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GNU GPL v2+
 ;;;; some hacking by Sam Steingold 2002-2008
 
 ;;;; History

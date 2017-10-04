@@ -1,6 +1,6 @@
 ;;; win32 CLISP installation
-;;; Copyright (C) 2001-2005  Sam Steingold,
-;;; released as a part of CLISP under GNU GPL.
+;;; Copyright (C) 2001-2005,2011  Sam Steingold,
+;;; released as a part of CLISP under GNU GPL v2+
 
 ;; load this file in the directory where your CLISP distribution is located
 ;;  - to set the Registry appropriately

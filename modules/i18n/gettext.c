@@ -2,7 +2,7 @@
  * ======= General internationalization, for Lisp programs too =======
  * Copyright (C) 1990-2005 Bruno Haible
  * Copyright (C) 1998-2008, 2010, 2012 Sam Steingold
- * GPL2
+ * This is Free Software, distributed under the GNU GPL v2+
  */
 
 #include "clisp.h"

@@ -3,7 +3,7 @@
 ;;;
 ;;; Copyright (C) 2004 by Joerg Hoehle
 ;;; Copyright (C) 2004-2008 by Sam Steingold
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
 (defpackage "ZLIB" (:use "CL" "EXT" "FFI"))

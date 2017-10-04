@@ -2,7 +2,7 @@
  * CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
  * Copyright (C) 1995 Michael Stoll
  * Copyright (C) 2004-2007, 2010 Sam Steingold
- * This is free software, distributed under the GNU GPL
+ * This is free software, distributed under the GNU GPL v2+
  */
 
 #include "clisp.h"
@@ -68,4 +68,3 @@ void init_for_clisp (long parisize, long maxprime)
   pari_outfile = stdout; errfile = stderr; logfile = NULL; infile = stdin;
   pariOut = &clispOut; pariErr = &clispErr;
 }
-

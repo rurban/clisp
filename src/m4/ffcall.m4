@@ -1,6 +1,7 @@
-# -*- Autoconf -*-
-# Copyright (C) 2007-2010, 2017 Sam Steingold (GNU GPL2+)
-# Copyright (C) 2017 Bruno Haible (GNU GPL2+)
+dnl -*- Autoconf -*-
+dnl Copyright (C) 2007-2010, 2017 Sam Steingold
+dnl Copyright (C) 2017 Bruno Haible
+dnl This is free software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.61)
 

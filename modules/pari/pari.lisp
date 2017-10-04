@@ -1,7 +1,7 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
 ;; Copyright (C) 2004-2010 Sam Steingold
-;; This is free software, distributed under the GNU GPL (v2+)
+;; This is free software, distributed under the GNU GPL v2+
 
 (defpackage "PARI"
   (:modern t)

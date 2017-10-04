@@ -1,7 +1,7 @@
 ;;; Inspect
 ;;;
-;;; Copyright (C) 2000-2008 by Sam Steingold
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; Copyright (C) 2000-2008,2011 by Sam Steingold
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
 ;;; This code is adapted from CLOCC/CLLIB/inspect.lisp.

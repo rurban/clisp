@@ -1,13 +1,12 @@
 /* -*- C -*- vim:filetype=c
-Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
+Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GNU GPL v2+
 Bruno Haible  1998-2000
-Sam Steingold 2001-2012, 2016
+Sam Steingold 2001-2012, 2016-2017
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
    Created:     Sat Dec  2 18:04:51 1995
    Author:      Gilbert Baumann <unk6@rz.uni-karlsruhe.de>
-   Copying:  (c) copyright 1996 by Gilbert Baumann distributed under GPL.
 
 ----------------------------------------------------------------------------
 

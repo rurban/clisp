@@ -2,7 +2,7 @@
 ;; <http://www.gnu.org/gdbm/>
 ;; Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
 ;; Copyright (C) 2007-2008  Sam Steingold <sds@gnu.org>
-;; Released under GNU GPL2
+;; This is Free Software, distributed under the GNU GPL v2+
 
 (defpackage #:gdbm
   (:documentation

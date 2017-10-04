@@ -1,6 +1,6 @@
 ;;; Common stuff for the demos
 ;;; Copyright (C) 1999-2008, 2013 by Sam Steingold (sds@gnu.org)
-;;; GPL2 is applicable
+;;; This is free software, distributed under the GNU GPL v2+
 
 (require "clx")
 

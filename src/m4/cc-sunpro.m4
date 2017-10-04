@@ -1,5 +1,6 @@
-dnl Copyright (C) 2008 Sam Steingold (GNU GPLv2+)
 dnl -*- Autoconf -*-
+dnl Copyright (C) 2008 Sam Steingold
+dnl This is free software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.13)
 

@@ -1,7 +1,7 @@
 ;;; Sam Steingold 2000-2008, 2010-2011
 ;;; Bruno Haible 2017
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
-;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
+;;; is distributed under the GNU GPL v2+ (http://www.gnu.org/copyleft/gpl.html)
 
 (in-package "EXT")
 
