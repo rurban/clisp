@@ -1,3 +1,11 @@
+2017-10-04  Bruno Haible  <bruno@clisp.org>
+
+	maint: Modernize code style of Autoconf macros.
+	* m4/*.m4: Use modern indentation and quoting style.
+	* m4/filecharset.m4: Fix compilation failure with pre-C99 compilers
+	(regression from 2008-05-27).
+	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
+
 2017-10-03  Bruno Haible  <bruno@clisp.org>
 
 	Remove unused autoconf test.

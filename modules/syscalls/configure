@@ -2523,27 +2523,33 @@ ac_config_headers="$ac_config_headers config.h"
   esac
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Common)${term_norm}" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Common)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Common)${term_norm}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to remove colons from paths" >&5
 $as_echo_n "checking how to remove colons from paths... " >&6; }
 if ${cl_cv_decolonize+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   case $ac_cv_build in
-  *-cygwin ) cl_cv_decolonize='cygpath --unix $x' ;;
-  *-mingw* )
-    if test "$cross_compiling" = yes; then
-      cl_cv_decolonize='cygpath --unix $x'
-    else
-      cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
-    fi  ;;
-  * ) cl_cv_decolonize='echo $x' ;;
-esac
+       *-cygwin) cl_cv_decolonize='cygpath --unix $x' ;;
+       *-mingw*)
+         if test "$cross_compiling" = yes; then
+           cl_cv_decolonize='cygpath --unix $x'
+         else
+           cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+         fi
+         ;;
+       *) cl_cv_decolonize='echo $x' ;;
+     esac
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_decolonize" >&5
 $as_echo "$cl_cv_decolonize" >&6; }
-CLISP_DECOLONIZE=$cl_cv_decolonize
+  CLISP_DECOLONIZE=$cl_cv_decolonize
+
+
 
 
 
@@ -2554,10 +2560,10 @@ else
   cl_use_clisp=default
 fi
 
-cl_have_clisp=no
-if test "$cl_use_clisp" != "no"; then
-  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
-  then # Extract the first word of "clisp", so it can be a program name with args.
+  cl_have_clisp=no
+  if test "$cl_use_clisp" != "no"; then
+    if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
+      # Extract the first word of "clisp", so it can be a program name with args.
 set dummy clisp; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
@@ -2597,64 +2603,79 @@ $as_echo "no" >&6; }
 fi
 
 
-  else cl_cv_clisp="$cl_use_clisp"
-  fi
-  if test -n "$cl_cv_clisp"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
+    else
+      cl_cv_clisp="$cl_use_clisp"
+    fi
+    if test -n "$cl_cv_clisp"; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP version" >&5
 $as_echo_n "checking for CLISP version... " >&6; }
 if ${cl_cv_clisp_version+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-                      if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
-     then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     else as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
-     fi
+                             if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
+           cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         else
+           as_fn_error $? "'$cl_cv_clisp' is not a CLISP" "$LINENO" 5
+         fi
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_version" >&5
 $as_echo "$cl_cv_clisp_version" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP libdir" >&5
 $as_echo_n "checking for CLISP libdir... " >&6; }
 if ${cl_cv_clisp_libdir+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     x=$cl_cv_clisp_libdir;
-     cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
-     # cf src/clisp-link.in:linkkitdir
-     missing=''
-     for f in modules.c clisp.h; do
-       test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+  cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         x=$cl_cv_clisp_libdir
+         cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
+         # cf src/clisp-link.in:linkkitdir
+         missing=''
+         for f in modules.c clisp.h; do
+           test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_libdir}linkkit'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_libdir" >&5
 $as_echo "$cl_cv_clisp_libdir" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP linking set" >&5
 $as_echo_n "checking for CLISP linking set... " >&6; }
 if ${cl_cv_clisp_linkset+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-       cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
-     missing=''
-     # cf. src/clisp-link.in:check_linkset (we do not need to check for
-     # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
-     for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
-     done
-     test -n "${missing}" && \
-     as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+  cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+         cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
+         missing=''
+         # cf. src/clisp-link.in:check_linkset (we do not need to check for
+         # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
+         for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+           test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
+         done
+         test -n "${missing}" \
+           && as_fn_error $? "missing ${missing} in '${cl_cv_clisp_linkset}'" "$LINENO" 5
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_clisp_linkset" >&5
 $as_echo "$cl_cv_clisp_linkset" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LIBDIR="${cl_cv_clisp_libdir}";     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    . ./conftestvars
-    rm -f conftestvars
-                    test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+      CLISP=$cl_cv_clisp
+
+      CLISP_LIBDIR="${cl_cv_clisp_libdir}"
+
+      CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
+
+      sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+      . ./conftestvars
+      rm -f conftestvars
+
+
+
+
+      test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+    fi
   fi
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CLISP" >&5
 $as_echo_n "checking for CLISP... " >&6; }
 if ${cl_cv_have_clisp+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -2663,8 +2684,9 @@ else
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_have_clisp" >&5
 $as_echo "$cl_cv_have_clisp" >&6; }
-required=true
-${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+  required=true
+  ${required} && test $cl_cv_have_clisp = no && as_fn_error $? "CLISP not found" "$LINENO" 5
+
 
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
@@ -3683,47 +3705,51 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to make hard links" >&5
 $as_echo_n "checking how to make hard links... " >&6; }
 if ${cl_cv_prog_LN+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-
-rm -f conftestdata conftestfile
-echo data > conftestfile
-if ln conftestfile conftestdata 2>/dev/null; then
-  cl_cv_prog_LN=ln
-else
-  cl_cv_prog_LN="cp -p"
-fi
-rm -f conftestdata conftestfile
+  rm -f conftestdata conftestfile
+     echo data > conftestfile
+     if ln conftestfile conftestdata 2>/dev/null; then
+       cl_cv_prog_LN=ln
+     else
+       cl_cv_prog_LN="cp -p"
+     fi
+     rm -f conftestdata conftestfile
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN" >&5
 $as_echo "$cl_cv_prog_LN" >&6; }
-LN="$cl_cv_prog_LN"
+  LN="$cl_cv_prog_LN"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
+
+
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether ln -s works" >&5
 $as_echo_n "checking whether ln -s works... " >&6; }
 if ${cl_cv_prog_LN_S_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   rm -f conftestdata
-if ln -s X conftestdata 2>/dev/null; then
-  cl_cv_prog_LN_S_works=yes
-else
-  cl_cv_prog_LN_S_works=no
-fi
-rm -f conftestdata
+     if ln -s X conftestdata 2>/dev/null; then
+       cl_cv_prog_LN_S_works=yes
+     else
+       cl_cv_prog_LN_S_works=no
+     fi
+     rm -f conftestdata
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_prog_LN_S_works" >&5
 $as_echo "$cl_cv_prog_LN_S_works" >&6; }
-if test $cl_cv_prog_LN_S_works = yes; then
-  LN_S="ln -s"
-else
-  LN_S="$cl_cv_prog_LN"
-fi
+  if test $cl_cv_prog_LN_S_works = yes; then
+    LN_S="ln -s"
+  else
+    LN_S="$cl_cv_prog_LN"
+  fi
+
 
 
 
@@ -4116,6 +4142,14 @@ fi
 $as_echo "$ac_cv_should_define__xopen_source" >&6; }
   test $ac_cv_should_define__xopen_source = yes &&
     $as_echo "#define _XOPEN_SOURCE 500" >>confdefs.h
+
+
+
+
+
+
+
+
 
 
 
@@ -4971,8 +5005,10 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Headers)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
+
 for ac_header in fcntl.h netdb.h utime.h pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h sys/statvfs.h sys/statfs.h sys/param.h ftw.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
@@ -5897,9 +5933,12 @@ $as_echo "$gl_cv_header_errno_h_EOVERFLOW" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Functions)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Functions)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Functions)${term_norm}" >&6;}
-for ac_func in getrlimit setrlimit
+
+
+  for ac_func in getrlimit setrlimit
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -5910,8 +5949,9 @@ _ACEOF
 
 fi
 done
-if test $ac_cv_func_setrlimit = yes; then
-# The cast to long int works around a bug in the HP C Compiler
+
+  if test $ac_cv_func_setrlimit = yes; then
+    # The cast to long int works around a bug in the HP C Compiler
 # version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
 # declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
 # This bug is HP SR number 8606223364.
@@ -5920,8 +5960,10 @@ $as_echo_n "checking size of rlim_t... " >&6; }
 if ${ac_cv_sizeof_rlim_t+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (rlim_t))" "ac_cv_sizeof_rlim_t"        "#include <stdio.h>
-#include <sys/resource.h>
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (rlim_t))" "ac_cv_sizeof_rlim_t"        "
+      #include <stdio.h>
+      #include <sys/resource.h>
+
 "; then :
 
 else
@@ -5946,29 +5988,32 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrlimit declaration" >&5
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrlimit declaration" >&5
 $as_echo_n "checking for getrlimit declaration... " >&6; }
-if ${cl_cv_proto_getrlimit+:} false; then :
+  if ${cl_cv_proto_getrlimit+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 
-extern
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <sys/types.h>
+         #include <sys/time.h>
+         #include <sys/resource.h>
+
+    extern
 #ifdef __cplusplus
 "C"
 #endif
 
-int getrlimit (int resource, struct rlimit * rlim);
+    int getrlimit (int resource, struct rlimit * rlim);
 
 int
 main ()
@@ -5986,11 +6031,12 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);"
+     cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);"
+
 fi
 
-cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrlimit" >&5
+  cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrlimit" >&5
 $as_echo "$cl_cv_proto_getrlimit" >&6; }
 
 
@@ -5998,29 +6044,33 @@ cat >>confdefs.h <<_ACEOF
 #define RLIMIT_RESOURCE_T $cl_cv_proto_getrlimit_arg1
 _ACEOF
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for setrlimit declaration" >&5
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for setrlimit declaration" >&5
 $as_echo_n "checking for setrlimit declaration... " >&6; }
-if ${cl_cv_proto_setrlimit+:} false; then :
+  if ${cl_cv_proto_setrlimit+:} false; then :
   $as_echo_n "(cached) " >&6
 else
 
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 
-extern
+         #include <stdlib.h>
+         #ifdef HAVE_UNISTD_H
+          #include <unistd.h>
+         #endif
+         #include <sys/types.h>
+         #include <sys/time.h>
+         #include <sys/resource.h>
+
+    extern
 #ifdef __cplusplus
 "C"
 #endif
 
-int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);
+    int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);
 
 int
 main ()
@@ -6039,11 +6089,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
 
-cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);"
+     cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);"
+
 fi
 
-cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setrlimit" >&5
+  cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setrlimit" >&5
 $as_echo "$cl_cv_proto_setrlimit" >&6; }
 
 
@@ -6051,7 +6102,7 @@ cat >>confdefs.h <<_ACEOF
 #define SETRLIMIT_CONST $cl_cv_proto_setrlimit_arg2
 _ACEOF
 
-fi
+  fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing crypt" >&5
 $as_echo_n "checking for library containing crypt... " >&6; }
@@ -6427,7 +6478,8 @@ _ACEOF
 fi
 
 fi
-for ac_header in sys/resource.h
+
+  for ac_header in sys/resource.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "sys/resource.h" "ac_cv_header_sys_resource_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_resource_h" = xyes; then :
@@ -6438,8 +6490,11 @@ _ACEOF
 fi
 
 done
-if test $ac_cv_header_sys_resource_h = yes; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrusage" >&5
+
+  if test $ac_cv_header_sys_resource_h = yes; then
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrusage" >&5
 $as_echo_n "checking for getrusage... " >&6; }
 if ${cl_cv_func_getrusage+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6447,12 +6502,17 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <sys/resource.h>
+       #include <sys/time.h>
+       #include <sys/resource.h>
+
 int
 main ()
 {
-struct rusage x; int y = RUSAGE_SELF; getrusage(y,&x); x.ru_utime.tv_sec;
+struct rusage x;
+       int y = RUSAGE_SELF;
+       getrusage(y,&x);
+       x.ru_utime.tv_sec;
+
   ;
   return 0;
 }
@@ -6470,29 +6530,33 @@ $as_echo "$cl_cv_func_getrusage" >&6; }
   if test $cl_cv_func_getrusage = yes; then :
 
 fi
-  if test $cl_cv_func_getrusage = yes; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrusage declaration" >&5
+
+
+    if test $cl_cv_func_getrusage = yes; then
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrusage declaration" >&5
 $as_echo_n "checking for getrusage declaration... " >&6; }
-if ${cl_cv_proto_getrusage+:} false; then :
+  if ${cl_cv_proto_getrusage+:} false; then :
   $as_echo_n "(cached) " >&6
 else
+
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <sys/resource.h>
+    #include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <sys/types.h> /* NetBSD 1.0 needs this */
+            #include <sys/time.h>
+            #include <sys/resource.h>
 
-extern
+    extern
 #ifdef __cplusplus
 "C"
 #endif
 
-int getrusage (int who, struct rusage * rusage);
+    int getrusage (int who, struct rusage * rusage);
 
 int
 main ()
@@ -6510,54 +6574,62 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);"
+     cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);"
+
 fi
 
-cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrusage" >&5
+  cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrusage" >&5
 $as_echo "$cl_cv_proto_getrusage" >&6; }
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether getrusage works" >&5
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether getrusage works" >&5
 $as_echo_n "checking whether getrusage works... " >&6; }
 if ${cl_cv_func_getrusage_works+:} false; then :
   $as_echo_n "(cached) " >&6
 else
+  if test "$cross_compiling" = yes; then :
+              cl_cv_func_getrusage_works="guessing no"
 
-    if test "$cross_compiling" = yes; then :
-  cl_cv_func_getrusage_works="guessing no"
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <stdio.h>
-#include <sys/types.h> /* NetBSD 1.0 needs this */
-#include <sys/time.h>
-#include <time.h> /* for time(2) */
-#include <sys/resource.h>
-int main ()
-{
-  struct rusage used, prev;
-  time_t end = time(NULL)+2;
-  int count = 0;
 
-  if ((count = getrusage(RUSAGE_SELF, &prev))) {
-    /* getrusage is defined but does not do anything. */
-    /*fprintf(stderr,"getrusage failed: return=%d\n",count);*/
-    return 1;
-  }
-  while (time(NULL) < end) {
-    count++;
-    getrusage(RUSAGE_SELF, &used);
-    if ((used.ru_utime.tv_usec != prev.ru_utime.tv_usec)
-        || (used.ru_utime.tv_sec != prev.ru_utime.tv_sec)
-        || (used.ru_stime.tv_usec != prev.ru_stime.tv_usec)
-        || (used.ru_stime.tv_sec != prev.ru_stime.tv_sec)) {
-      /*fprintf(stderr,"success after %d runs\n",count);*/
-      return 0;
-    }
-  }
-  /* getrusage is defined but does not work. */
-  /*fprintf(stderr,"failure after %d runs\n",count);*/
-  return 1;
-}
+              #include <stdio.h>
+              #include <sys/types.h> /* NetBSD 1.0 needs this */
+              #include <sys/time.h>
+              #include <time.h> /* for time(2) */
+              #include <sys/resource.h>
+              int main ()
+              {
+                struct rusage used, prev;
+                time_t end = time(NULL)+2;
+                int count = 0;
+
+                if ((count = getrusage(RUSAGE_SELF, &prev)))
+                  {
+                    /* getrusage is defined but does not do anything. */
+                    /*fprintf(stderr,"getrusage failed: return=%d\n",count);*/
+                    return 1;
+                  }
+                while (time(NULL) < end)
+                  {
+                    count++;
+                    getrusage(RUSAGE_SELF, &used);
+                    if ((used.ru_utime.tv_usec != prev.ru_utime.tv_usec)
+                        || (used.ru_utime.tv_sec != prev.ru_utime.tv_sec)
+                        || (used.ru_stime.tv_usec != prev.ru_stime.tv_usec)
+                        || (used.ru_stime.tv_sec != prev.ru_stime.tv_sec))
+                     {
+                       /*fprintf(stderr,"success after %d runs\n",count);*/
+                       return 0;
+                     }
+                  }
+                /* getrusage is defined but does not work. */
+                /*fprintf(stderr,"failure after %d runs\n",count);*/
+                return 1;
+              }
+
+
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
   cl_cv_func_getrusage_works=yes
@@ -6568,11 +6640,12 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_func_getrusage_works" >&5
 $as_echo "$cl_cv_func_getrusage_works" >&6; }
-  fi
-  if test "$cl_cv_func_getrusage_works" = yes; then
+    fi
+    if test "$cl_cv_func_getrusage_works" = yes; then
 
 $as_echo "#define HAVE_GETRUSAGE /**/" >>confdefs.h
 
@@ -6581,8 +6654,8 @@ cat >>confdefs.h <<_ACEOF
 #define RUSAGE_WHO_T $cl_cv_proto_getrusage_arg1
 _ACEOF
 
+    fi
   fi
-fi
 
 
 
@@ -6754,8 +6827,10 @@ $as_echo "#define HAVE_SETPGRP_POSIX 1" >>confdefs.h
 fi
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (output)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (output)${term_norm}" >&6;}
+
 ac_config_files="$ac_config_files Makefile link.sh"
 
 cat >confcache <<\_ACEOF
@@ -8218,5 +8293,7 @@ $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (done)${term_norm}" >&5
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (done)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (done)${term_norm}" >&6;}
+

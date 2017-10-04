@@ -3,7 +3,7 @@ dnl Copyright (C) 2007-2010, 2017 Sam Steingold
 dnl Copyright (C) 2017 Bruno Haible
 dnl This is free software, distributed under the GNU GPL v2+
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.61])
 
 dnl Download location of the newest libffcall release.
 AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
@@ -12,7 +12,8 @@ AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
 AC_DEFUN([CL_FFCALL],[
   AC_ARG_WITH([ffcall],
     [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
-    [cl_use_ffcall=$withval],[cl_use_ffcall=default])
+    [cl_use_ffcall=$withval],
+    [cl_use_ffcall=default])
   if test $cl_use_ffcall != no; then
     cl_save_CPPFLAGS="$CPPFLAGS"
     cl_save_LIBS="$LIBS"
@@ -33,8 +34,8 @@ AC_DEFUN([CL_FFCALL],[
       CPPFLAGS="$cl_save_CPPFLAGS"
       LIBS="$cl_save_LIBS"
       dnl Second, search for libavcall and libcallback (installed by libffcall < 2.0).
-      AC_LIB_FROMPACKAGE(avcall,libffcall)
-      AC_LIB_FROMPACKAGE(callback,libffcall)
+      AC_LIB_FROMPACKAGE([avcall], [libffcall])
+      AC_LIB_FROMPACKAGE([callback], [libffcall])
       AC_LIB_LINKFLAGS([avcall])
       AC_LIB_LINKFLAGS([callback])
       AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
@@ -54,7 +55,7 @@ AC_DEFUN([CL_FFCALL],[
         LIBS="$cl_save_LIBS"
       fi
     fi
-    AC_CACHE_CHECK([whether libffcall is installed],[cl_cv_have_ffcall],
+    AC_CACHE_CHECK([whether libffcall is installed], [cl_cv_have_ffcall],
       [if test -n "$found_libffcall"; then
          cl_cv_have_ffcall=yes
        else
