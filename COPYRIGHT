@@ -1,14 +1,15 @@
                                                Hey Emacs! -*- coding: utf-8 -*-
 
-       Copyright (c) 1992-2016 Bruno Haible, Michael Stoll, Sam Steingold
+       Copyright (c) 1992-2017 Bruno Haible, Michael Stoll, Sam Steingold
                            All Rights Reserved
 
 
 Summary:
 
   This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License version 2 as
-  published by the Free Software Foundation; see file GNU-GPL.
+  it under the terms of the GNU General Public License version 2
+  or (at your option) any later version
+  as published by the Free Software Foundation; see file GNU-GPL.
 
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -59,7 +60,7 @@ Note:
 
 
 Authors:
-  Generic CLISP: Bruno Haible, Michael Stoll
+  Generic CLISP: Bruno Haible, Michael Stoll, Sam
   Atari version: Bruno Haible, Michael Stoll
   Amiga version: Bruno Haible, Jörg Höhle
   Acorn version: Bruno Haible, Peter Burwood
@@ -72,8 +73,7 @@ Maintenance:
   Bruno Haible, Michael Stoll 1992-1993
   Bruno Haible, Marcus Daniels 1994-1997
   Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
-  Bruno Haible, Sam Steingold 1999-2001
-  Sam Steingold 2002-2010
+  Bruno Haible, Sam Steingold 1999-2017
 
 Email addresses (September 1992 or newer):
   Bruno Haible       bruno@clisp.org
@@ -83,4 +83,3 @@ Email addresses (September 1992 or newer):
   Marcus Daniels     marcus@sysc.pdx.edu
   Pierpaolo Bernardi bernardp@cli.di.unipi.it
   Sam Steingold      sds@gnu.org
-

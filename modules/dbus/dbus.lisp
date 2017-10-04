@@ -1,7 +1,7 @@
 ;;; D-Bus interface <http://www.freedesktop.org/Software/dbus>
 ;;;
 ;;; Copyright (C) 2008-2009 by Sam Steingold
-;;; This is Free Software, covered by the GNU GPL (v2+)
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
 ;; synced with dbus-1.2.14

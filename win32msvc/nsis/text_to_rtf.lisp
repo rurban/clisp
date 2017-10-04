@@ -7,7 +7,7 @@
 ;;
 ;; Copyright (C) Elliott Slaughter 2007
 ;; Copyright (C) Sam Steingold 2007
-;; Released under the GNU GPLv2+
+;; This is Free Software, distributed under the GNU GPL v2+
 
 (defun write-string-rtf (string out)
   ;; unicode chars are represented as \u<decimal>.

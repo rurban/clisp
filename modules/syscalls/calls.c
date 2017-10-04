@@ -1,9 +1,9 @@
 /*
  * system calls
- * Copyright (C) 2003-2012,2016 Sam Steingold
- * Copyright (C) 2005,2008 Bruno Haible
+ * Copyright (C) 2003-2012,2016-2017 Sam Steingold
+ * Copyright (C) 2005,2008,2017 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
- * GPL2
+ * This is Free Software, distributed under the GNU GPL v2+
  */
 
 #if defined(_WIN32)

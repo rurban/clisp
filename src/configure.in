@@ -1,6 +1,6 @@
 dnl  -*- Autoconf -*- configuration for CLISP
-dnl  Bruno Haible 1992-2008
-dnl  Sam Steingold 2002-2011
+dnl  Bruno Haible 1992-2008, 2017
+dnl  Sam Steingold 2002-2011, 2017
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl               ---<autoheader>->> config.h.in
@@ -21,8 +21,8 @@ AC_CONFIG_SRCDIR([lispbibl.d])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([no-define])
-AC_COPYRIGHT([GNU CLISP Copyright 1989-2010 by Bruno Haible and others
-GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
+AC_COPYRIGHT([GNU CLISP Copyright 1989-2017 by Bruno Haible and others
+GNU CLISP is distributed under the GNU GPL v2+, see file COPYRIGHT])dnl
 AC_REVISION(m4_normalize(m4_esyscmd([hg id -i -n -b -t])))dnl
 AC_CONFIG_HEADERS(config.h)
 dnl

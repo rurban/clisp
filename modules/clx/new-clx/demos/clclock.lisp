@@ -1,6 +1,6 @@
 ;;; Adapted from http://common-lisp.net/~crhodes/clx by...
 ;;; Copyright (C) 2007-2008 Sam Steingold <sds@gnu.org>
-;;; GPL2 is applicable
+;;; This is free software, distributed under the GNU GPL v2+
 
 (in-package :clx-demos)
 

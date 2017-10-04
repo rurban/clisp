@@ -9,8 +9,8 @@
 ;;; implied warranty.
 
 ;;; Adapted from http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl by...
-;;; Copyright (C) 2007-2008 Sam Steingold <sds@gnu.org>
-;;; GPL2 is applicable
+;;; Copyright (C) 2007-2009 Sam Steingold <sds@gnu.org>
+;;; This is free software, distributed under the GNU GPL v2+
 
 (in-package :clx-demos)
 

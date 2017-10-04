@@ -1,8 +1,8 @@
 /*
  * PCRE - Perl Compatible Regular Expressions
  * <http://www.pcre.org/> up to v 8.01
- * Copyright (C) 2003-2012 Sam Steingold
- * GPL2
+ * Copyright (C) 2003-2012, 2016 Sam Steingold
+ * This is Free Software, distributed under the GNU GPL v2+
  */
 
 #include "clisp.h"

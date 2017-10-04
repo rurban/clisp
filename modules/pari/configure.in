@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for PARI
 dnl Copyright (C) 2004-2010 Sam Steingold <sds@gnu.org>
-dnl GNU GPL2
+dnl This is Free Software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.57)
 AC_INIT(pari, 1.0, clisp-list)

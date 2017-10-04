@@ -1,7 +1,8 @@
 ;;; Auxiliary functions for MOP.
 ;;;
 ;;; Copyright (C) 2004 Bruno Haible
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; Copyright (C) 2017 Sam Steingold
+;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
 #-(or CLISP ALLEGRO LISPWORKS)
