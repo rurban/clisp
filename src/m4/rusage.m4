@@ -26,21 +26,6 @@ AC_DEFUN([CL_RUSAGE],
        x.ru_utime.tv_sec;
       ])
     if test $cl_cv_func_getrusage = yes; then
-      CL_PROTO([getrusage],
-        [CL_PROTO_TRY(
-           [#include <stdlib.h>
-            #ifdef HAVE_UNISTD_H
-             #include <unistd.h>
-            #endif
-            #include <sys/types.h> /* NetBSD 1.0 needs this */
-            #include <sys/time.h>
-            #include <sys/resource.h>
-           ],
-           [int getrusage (int who, struct rusage * rusage);],
-           [cl_cv_proto_getrusage_arg1="int"],
-           [cl_cv_proto_getrusage_arg1="enum __rusage_who"])
-        ],
-        [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])
       AC_CACHE_CHECK([whether getrusage works], [cl_cv_func_getrusage_works],
         [AC_RUN_IFELSE(
            [AC_LANG_SOURCE([[
@@ -90,8 +75,6 @@ AC_DEFUN([CL_RUSAGE],
     if test "$cl_cv_func_getrusage_works" = yes; then
       AC_DEFINE([HAVE_GETRUSAGE],,
         [have <sys/time.h>, the getrusage() function, the struct rusage type, and <sys/resource.h> defines RUSAGE_SELF])
-      AC_DEFINE_UNQUOTED([RUSAGE_WHO_T], [$cl_cv_proto_getrusage_arg1],
-        [type of `who' in getrusage() declaration])
     fi
   fi
 ])

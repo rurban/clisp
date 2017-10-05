@@ -6405,55 +6405,6 @@ fi
 
 
     if test $cl_cv_func_getrusage = yes; then
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrusage declaration" >&5
-$as_echo_n "checking for getrusage declaration... " >&6; }
-  if ${cl_cv_proto_getrusage+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-    #include <stdlib.h>
-            #ifdef HAVE_UNISTD_H
-             #include <unistd.h>
-            #endif
-            #include <sys/types.h> /* NetBSD 1.0 needs this */
-            #include <sys/time.h>
-            #include <sys/resource.h>
-
-    extern
-#ifdef __cplusplus
-"C"
-#endif
-
-    int getrusage (int who, struct rusage * rusage);
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cl_cv_proto_getrusage_arg1="int"
-else
-  cl_cv_proto_getrusage_arg1="enum __rusage_who"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-     cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);"
-
-fi
-
-  cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrusage" >&5
-$as_echo "$cl_cv_proto_getrusage" >&6; }
-
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether getrusage works" >&5
 $as_echo_n "checking whether getrusage works... " >&6; }
 if ${cl_cv_func_getrusage_works+:} false; then :
@@ -6520,11 +6471,6 @@ $as_echo "$cl_cv_func_getrusage_works" >&6; }
     if test "$cl_cv_func_getrusage_works" = yes; then
 
 $as_echo "#define HAVE_GETRUSAGE /**/" >>confdefs.h
-
-
-cat >>confdefs.h <<_ACEOF
-#define RUSAGE_WHO_T $cl_cv_proto_getrusage_arg1
-_ACEOF
 
     fi
   fi

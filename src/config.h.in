@@ -1805,9 +1805,6 @@
 /* Define to 1 if strerror(0) does not return a message implying success. */
 #undef REPLACE_STRERROR_0
 
-/* type of `who' in getrusage() declaration */
-#undef RUSAGE_WHO_T
-
 /* declaration of select() needs const in the fifth argument */
 #undef SELECT_CONST
 
