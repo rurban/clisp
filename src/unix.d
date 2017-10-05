@@ -34,12 +34,6 @@
 #endif
 /* used by ERROR, SPVW, STREAM, PATHNAME */
 
-#ifdef UNIX_RHAPSODY
-/* Ignore mmap and friends, because the configure test says no working mmap. */
-  #undef HAVE_MMAP
-  #undef HAVE_MUNMAP
-  #undef HAVE_WORKING_MPROTECT
-#endif
 #if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MMAP_DEVZERO_SUN4_29)
   #include <sys/mman.h>
   #if defined(HAVE_MMAP_ANONYMOUS) && !defined(HAVE_MMAP_ANON)
@@ -68,9 +62,6 @@
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */
   #undef local
   #include <mach/mach_interface.h>
-  #ifdef UNIX_RHAPSODY
-    #include <mach/mach_init.h>
-  #endif
   #ifdef UNIX_OSF
     #include <mach_init.h>
   #endif

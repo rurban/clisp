@@ -502,7 +502,7 @@ modexp uintL* current_thread_alloccount()
    > size: stack size */
   local bool get_stack_region(aint *base, size_t *size)
   {
-    #ifdef UNIX_DARWIN
+    #ifdef UNIX_MACOSX
      var pthread_t self_id;
      self_id = pthread_self();
      *base = (aint)pthread_get_stackaddr_np(self_id);
@@ -3190,7 +3190,7 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[1].heap_limit = round_down((MAPPABLE_ADDRESS_RANGE_START >> 1) + (MAPPABLE_ADDRESS_RANGE_END >> 1), map_pagesize);
       mem.heaps[1].heap_hardlimit = MAPPABLE_ADDRESS_RANGE_END + 1;
       #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
-       #ifdef UNIX_DARWIN
+       #ifdef UNIX_MACOSX
       /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
        and the dyld at 0x8f...... */
       mem.heaps[0].heap_limit = 0x10000000; /* lower bound of large usable range */
@@ -4172,7 +4172,7 @@ global void * libopen (const char* libname)
  #if defined(WIN32_NATIVE)
   return (void*)LoadLibrary(libname);
  #else
-  /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
+  /* FIXME: On UNIX_MACOSX, need to search for the library in /usr/lib */
   return dlopen(libname,RTLD_NOW|RTLD_GLOBAL);
  #endif
 }

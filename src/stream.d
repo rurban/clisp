@@ -3494,7 +3494,7 @@ local void clear_tty_input (Handle handle) {
 
 #if defined(UNIX_CYGWIN) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
   #define IS_EINVAL_EXTRA  ((errno==EBADF)||(errno==EACCES)||(errno==EBADRQC))
-#elif defined(UNIX_DARWIN) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD) || defined(UNIX_OPENBSD)
+#elif defined(UNIX_MACOSX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD) || defined(UNIX_OPENBSD)
   #if !defined(ENOTSUP)         /* OpenBSD */
     #define ENOTSUP EOPNOTSUPP
   #endif
