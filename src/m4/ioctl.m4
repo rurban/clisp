@@ -21,9 +21,6 @@ AC_DEFUN([CL_IOCTL],
        #include <sys/types.h>
        #include <unistd.h>
       #endif
-      #ifndef HAVE_TCSAFLUSH
-       #undef HAVE_TERMIOS_H
-      #endif
       #ifdef HAVE_TERMIOS_H
        #include <termios.h>
       #else

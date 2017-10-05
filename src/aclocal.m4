@@ -18973,9 +18973,6 @@ AC_DEFUN([CL_IOCTL],
        #include <sys/types.h>
        #include <unistd.h>
       #endif
-      #ifndef HAVE_TCSAFLUSH
-       #undef HAVE_TERMIOS_H
-      #endif
       #ifdef HAVE_TERMIOS_H
        #include <termios.h>
       #else
@@ -29824,22 +29821,10 @@ AC_DEFUN([CL_TERM],
   AC_CHECK_HEADERS([termios.h termio.h sys/termio.h sgtty.h])
   if test $ac_cv_header_termios_h = yes; then
     dnl HAVE_TERMIOS_H defined
-    dnl A/UX has <termios.h> but is lacking tcgetattr etc.
-    CL_LINK_CHECK([tcgetattr], [cl_cv_func_tcgetattr],
-      [#include <termios.h>],
-      [struct termios t; tcgetattr(0,&t);],
-      [AC_DEFINE([HAVE_TCGETATTR],,
-         [have tcgetattr(), either as a function or as a macro defined by <termios.h>])
-      ])
-    CL_LINK_CHECK([TCSAFLUSH in termios.h], [cl_cv_decl_TCSAFLUSH],
-      [#include <termios.h>],
-      [int x = TCSAFLUSH;],
-      [AC_DEFINE([HAVE_TCSAFLUSH],,[<termios.h> defines TCSAFLUSH])])
     dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.
     dnl Linux libc6 defines struct winsize in <termio.h>, <sys/ioctl.h>.
     dnl Since we don't want to include both <termios.h> and <termio.h> (they may
     dnl conflict), prefer <sys/ioctl.h> to <termio.h>.
-    dnl SCO defines struct winsize in <sys/ptem.h>, which itself needs <sys/stream.h>.
     CL_COMPILE_CHECK([struct winsize in termios.h], [cl_cv_struct_winsize],
       [#include <termios.h>],
       [struct winsize w;],
