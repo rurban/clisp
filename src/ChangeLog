@@ -1,5 +1,18 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: <termio.h>, <sys/termio.h>, <sgtty.h> are not needed.
+	All current platforms that have one of these also have <termios.h>.
+	* unix.d: Assume that if HAVE_TERMIOS_H is not defined,
+	HAVE_SYS_TERMIO_H, HAVE_TERMIO_H, HAVE_SGTTY_H are not defined either.
+	* m4/ioctl.m4 (CL_IOCTL): Likewise.
+	* stream.d: Remove code for UNIX_TERM_TERMIO and UNIX_TERM_SGTTY.
+	* m4/termios.m4 (CL_TERM): Don't test for termio.h, sys/termio.h,
+	sgtty.h.
+	* configure.in: Update comment.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume that <termios.h> has tcgetattr() and TCSAFLUSH.
 	* unix.d: Assume that HAVE_TERMIOS_H implies HAVE_TCGETATTR and
 	HAVE_TCSAFLUSH.
