@@ -378,9 +378,6 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   #endif
   #if defined(WINSIZE_NEED_SYS_IOCTL_H) /* glibc2 needs this for "struct winsize" */
     /* #include <sys/ioctl.h> - already included above */
-  #elif defined(WINSIZE_NEED_SYS_PTEM_H) /* SCO needs this for "struct winsize" */
-    #include <sys/stream.h>
-    #include <sys/ptem.h>
   #endif
 #elif defined(HAVE_SYS_TERMIO_H) || defined(HAVE_TERMIO_H)
   #define UNIX_TERM_TERMIO
