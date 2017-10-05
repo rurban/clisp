@@ -1429,7 +1429,7 @@ DEFUN(POSIX::USAGE, &optional what) { /* getrusage(3) */
 #if defined(HAVE_GETRLIMIT) || defined(HAVE_SETRLIMIT)
 DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \
            AS NPROC MEMLOCK LOCKS)
-#if SIZEOF_RLIMT_T == 8
+#if SIZEOF_RLIM_T == 8
 # define rlim_to_I_0(lim) uint64_to_I(lim)
 # define I_to_rlim_0(lim) I_to_uint64(check_uint64(lim))
 #else
