@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Drop support for old Mac OS Rhapsody.
+	* lispbibl.d (UNIX_RHAPSODY, UNIX_DARWIN): Remove macros.
+	Test UNIX_MACOSX instead of UNIX_DARWIN everywhere.
+	* unix.d: Remove special code for UNIX_RHAPSODY.
+	* spvw.d, stream.d, socket.d: Test UNIX_MACOSX instead of UNIX_DARWIN.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume that caddr_t is a typedef equivalent to 'char *'.
 	* m4/mmap.m4 (CL_MMAP): Use 'char*' instead of 'caddr_t'.
 	* stream.d (clear_tty_input, finish_tty_output, clear_tty_output): Use

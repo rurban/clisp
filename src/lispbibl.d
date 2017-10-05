@@ -308,7 +308,7 @@
     #define UNIX_OSF  /* OSF/1 */
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
-    #define UNIX_MACOSX  /* MacOS X */
+    #define UNIX_MACOSX  /* MacOS X a.k.a. Darwin */
     /* MacOSX pathnames are UTF-8 strings, not byte sequences
        http://thread.gmane.org/gmane.lisp.clisp.general/13725
        https://sourceforge.net/p/clisp/mailman/message/27345286/
@@ -387,12 +387,6 @@
 #endif
 #if defined(__sun)
   #define UNIX_SUNOS5  /* Sun OS Version 5.x (Solaris 2) */
-#endif
-#if defined(UNIX_MACOSX) && !defined(HAVE_MSYNC)
-  #define UNIX_RHAPSODY  /* MacOS X Server, a.k.a. Rhapsody */
-#endif
-#if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
-  #define UNIX_DARWIN  /* MacOS X, a.k.a. Darwin */
 #endif
 
 /* On Linux/arm64, MALLOC_ADDRESS_RANGE comes out as a value < 1*2^32, but
@@ -2144,7 +2138,7 @@ typedef enum {
       #define MAPPABLE_ADDRESS_RANGE2_START 0x64000000UL
       #define MAPPABLE_ADDRESS_RANGE2_END   0x7EFFFFFFUL
     #endif
-    #if defined(UNIX_DARWIN)
+    #if defined(UNIX_MACOSX)
       /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
        and the dyld at 0x8f...... */
       #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
@@ -2178,7 +2172,7 @@ typedef enum {
       #define MAPPABLE_ADDRESS_RANGE_START 0x008000000000UL
       #define MAPPABLE_ADDRESS_RANGE_END   0x037FFFFFFFFFUL
     #endif
-    #if defined(UNIX_DARWIN)
+    #if defined(UNIX_MACOSX)
       /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
          mach_vm_allocate are in the range 2^33...2^47. */
       #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
@@ -2972,7 +2966,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
            MALLOC_ADDRESS_RANGE   0x0000000000000000UL
            SHLIB_ADDRESS_RANGE    0x0000000800000000UL
            STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
-         UNIX_DARWIN:
+         UNIX_MACOSX:
            Virtual address limit: 2^33..2^47.
            CODE_ADDRESS_RANGE     0x0000000100000000UL
            MALLOC_ADDRESS_RANGE   0x0000000100000000UL
@@ -3101,7 +3095,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_data_len oint_addr_len
     #define oint_data_mask oint_addr_mask
   #else
-    #if (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_DARWIN)) || defined(TRY_TYPECODES_1)
+    #if (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_MACOSX)) || defined(TRY_TYPECODES_1)
       /* You can add more platforms here provided that
        1. you need it,
        2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
@@ -13684,7 +13678,7 @@ extern _Noreturn void error_unencodable (object encoding, chart ch);
 #if (oint_data_len<=intLsize)
   #define arraysize_limit_1  ((uintV)(vbitm(oint_data_len)-2))
 #else
-  #if defined(UNIX_DARWIN) && defined(WIDE_HARD)
+  #if defined(UNIX_MACOSX) && defined(WIDE_HARD)
     /* on 64 bit Darwin HEAPCODES are used - limit the size of arrays.*/
     #define arraysize_limit_1  ((uintV)(vbitm(24)-2))
   #else
