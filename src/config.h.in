@@ -1991,9 +1991,6 @@
 /* have <termios.h> but need <sys/ioctl.h> for `struct winsize' */
 #undef WINSIZE_NEED_SYS_IOCTL_H
 
-/* have <termios.h> but need <sys/ptem.h> for `struct winsize' */
-#undef WINSIZE_NEED_SYS_PTEM_H
-
 /* Define to l, ll, u, ul, ull, etc., as suitable for constants of type
    'wint_t'. */
 #undef WINT_T_SUFFIX

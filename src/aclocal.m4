@@ -29852,16 +29852,6 @@ AC_DEFUN([CL_TERM],
         [AC_DEFINE([WINSIZE_NEED_SYS_IOCTL_H],,
            [have <termios.h> but need <sys/ioctl.h> for `struct winsize'])
         ])
-      if test $cl_cv_struct_winsize_ioctl = no; then
-        CL_COMPILE_CHECK([struct winsize in sys/ptem.h], [cl_cv_struct_winsize_ptem],
-          [#include <sys/types.h>
-           #include <sys/stream.h>
-           #include <sys/ptem.h>],
-          [struct winsize w;],
-          [AC_DEFINE([WINSIZE_NEED_SYS_PTEM_H],,
-             [have <termios.h> but need <sys/ptem.h> for `struct winsize'])
-          ])
-      fi
     fi
   fi
 ])

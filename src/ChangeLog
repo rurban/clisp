@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume that <sys/ptem.h> is not needed for 'struct winsize'.
+	'struct winsize' is found in <sys/ioctl.h> on all current platforms.
+	* unix.d: Assume WINSIZE_NEED_SYS_PTEM_H is not defined.
+	* m4/termios.m4 (CL_TERM): Don't test for <sys/ptem.h>.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume that getpagesize() exists on all Unix platforms.
 	* spvw_mmap.d (mmap_init_pagesize): Don't use SHMLBA nor Solaris 2.4
 	fallbacks.
