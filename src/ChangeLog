@@ -1,5 +1,12 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused autoconf test.
+	* configure.in: Don't invoke CL_MSYNC.
+	* m4/msync.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Drop support for old Mac OS Rhapsody.
 	* lispbibl.d (UNIX_RHAPSODY, UNIX_DARWIN): Remove macros.
 	Test UNIX_MACOSX instead of UNIX_DARWIN everywhere.

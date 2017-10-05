@@ -684,9 +684,6 @@
    concept. */
 #undef HAVE_MSVC_INVALID_PARAMETER_HANDLER
 
-/* Define to 1 if you have the `msync' function. */
-#undef HAVE_MSYNC
-
 /* Define to 1 if you have the `munmap' function. */
 #undef HAVE_MUNMAP
 
