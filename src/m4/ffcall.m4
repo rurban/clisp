@@ -11,7 +11,7 @@ AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
 
 AC_DEFUN([CL_FFCALL],[
   AC_ARG_WITH([ffcall],
-    [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
+    [AS_HELP_STRING([[--with-ffcall]],[use GNU libffcall (default is YES, if present)])],
     [cl_use_ffcall=$withval],
     [cl_use_ffcall=default])
   if test $cl_use_ffcall != no; then

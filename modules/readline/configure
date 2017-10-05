@@ -1332,8 +1332,9 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-clisp            use a specific CLISP installation
-  --with-readline         use readline (default is YES, if present)
-  --with-libtermcap-prefix=DIR  search for ncurses and termcap in DIR
+  --with-readline         use GNU readline (default is YES, if present)
+  --with-libtermcap-prefix[=DIR]
+                          search for ncurses and termcap in DIR
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-libreadline-prefix[=DIR]  search for libreadline in DIR/include and DIR/lib
   --without-libreadline-prefix     don't search for libreadline in includedir and libdir
