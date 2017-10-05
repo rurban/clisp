@@ -1,5 +1,12 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume ANSI C or C++ in Autoconf macros.
+	* m4/as-underscore.m4: Use ANSI C prototypes.
+	* m4/signal.m4: Likewise.
+	* aclocal.m4, src/configure: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Remove workaround against ancient systems with old waitpid declaration.
 	* unix.d (waitpid, wait2): Use pid_t instead of PID_T.
 	* unixaux.d (wait2): Likewise.

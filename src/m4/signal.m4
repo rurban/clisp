@@ -23,11 +23,11 @@ AC_DEFUN([CL_SIGNAL_REINSTALL],
        #endif
        #include <signal.h>
        volatile int gotsig = 0;
-       void sigalrm_handler()
+       void sigalrm_handler (void)
        {
          gotsig = 1;
        }
-       int got_sig () { return gotsig; }
+       int got_sig (void) { return gotsig; }
        typedef void (*signal_handler_t) (int);
        int main() /* returns 0 if they need not to be reinstalled */
        {
@@ -71,7 +71,7 @@ AC_DEFUN([CL_SIGNAL_UNBLOCK],
            volatile int gotsig = 0;
            volatile int wasblocked = 0;
            typedef void (*signal_handler_t) (int);
-           void sigalrm_handler()
+           void sigalrm_handler (void)
            {
              gotsig = 1;
              #ifdef SIGNAL_NEED_REINSTALL
@@ -83,7 +83,7 @@ AC_DEFUN([CL_SIGNAL_UNBLOCK],
                wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
              }
            }
-           int got_sig () { return gotsig; }
+           int got_sig (void) { return gotsig; }
            int main() /* returns 0 if they need not to be unblocked */
            {
              signal(SIGALRM,(signal_handler_t)sigalrm_handler);
@@ -126,7 +126,7 @@ AC_DEFUN([CL_SIGNAL_BLOCK_OTHERS],
            volatile int gotsig = 0;
            volatile int somewereblocked = 0;
            typedef void (*signal_handler_t) (int);
-           void sigalrm_handler()
+           void sigalrm_handler (void)
            {
              gotsig = 1;
              #ifdef SIGNAL_NEED_REINSTALL
@@ -141,7 +141,7 @@ AC_DEFUN([CL_SIGNAL_BLOCK_OTHERS],
                    somewereblocked = 1;
              }
            }
-           int got_sig () { return gotsig; }
+           int got_sig (void) { return gotsig; }
            int main() /* returns 0 if they need not to be unblocked */
            {
              signal(SIGALRM,(signal_handler_t)sigalrm_handler);
@@ -201,11 +201,11 @@ AC_DEFUN([CL_SIGACTION_REINSTALL],
            return (signal_handler_t)old_sa.sa_handler;
          }
          volatile int gotsig = 0;
-         void sigalrm_handler()
+         void sigalrm_handler (void)
          {
            gotsig = 1;
          }
-         int got_sig () { return gotsig; }
+         int got_sig (void) { return gotsig; }
          int main() /* returns 0 if they need not to be reinstalled */
          {
            mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
@@ -260,7 +260,7 @@ AC_DEFUN([CL_SIGACTION_UNBLOCK],
              }
              volatile int gotsig = 0;
              volatile int wasblocked = 0;
-             void sigalrm_handler()
+             void sigalrm_handler (void)
              {
                gotsig = 1;
                #ifdef SIGNAL_NEED_REINSTALL
@@ -272,7 +272,7 @@ AC_DEFUN([CL_SIGACTION_UNBLOCK],
                  wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
                }
              }
-             int got_sig () { return gotsig; }
+             int got_sig (void) { return gotsig; }
              int main() /* returns 0 if they need not to be unblocked */
              {
                mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);

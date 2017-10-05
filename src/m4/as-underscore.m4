@@ -19,7 +19,7 @@ AC_DEFUN([CL_AS_UNDERSCORE],
 #ifdef __cplusplus
 extern "C"
 #endif
-int foo() { return 0; }
+int foo (void) { return 0; }
 EOF
      # look for the assembly language name in the .s file
      AC_TRY_COMMAND([${CC-cc} -S conftest.c]) >/dev/null 2>&1
