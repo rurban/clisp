@@ -666,10 +666,8 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
 
 #endif
 
-#ifdef PID_T
-
 /* wait for termination of a child process: */
-global int wait2 (PID_T child) {
+global int wait2 (pid_t child) {
   var int status = 0;
   /* WAIT(2V) and #include <sys/wait.h> :
      WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
@@ -693,8 +691,6 @@ global int wait2 (PID_T child) {
   }
   return status;
 }
-
-#endif
 
 /* ======================================================================== */
 
