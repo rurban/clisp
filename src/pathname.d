@@ -157,7 +157,7 @@ local char* realpath (const char* path, char* resolved_path) {
                   readlink(resolved_path,mypath,sizeof(mypath)-1);
                 if (linklen >=0) { /* was a symbolic link */
                   if (++symlinkcount > MAXSYMLINKS) {
-                    errno = ELOOP_VALUE; return NULL;
+                    errno = ELOOP; return NULL;
                   }
                   { /* append the still to be resolved part of path
                    to the link-content: */
@@ -5372,7 +5372,7 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
     if (*allowed_links == 0) { /* no more links allowed? */
       /* yes -> simulate UNIX-Error ELOOP */
       begin_system_call();
-      errno = ELOOP_VALUE;
+      errno = ELOOP;
       end_system_call();
       OS_file_error(*(fs->fs_pathname));
     }

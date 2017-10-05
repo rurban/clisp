@@ -128,9 +128,6 @@
 /* Define to 1 if 'double' underflow raises an exception. */
 #undef DOUBLE_UNDERFLOW_EXCEPTION
 
-/* the real value of ELOOP even if it is hidden in <errno.h> */
-#undef ELOOP_VALUE
-
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
 #undef ENABLE_NLS
