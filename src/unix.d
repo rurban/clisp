@@ -530,8 +530,8 @@ extern_C int dup2 (int oldfd, int newfd); /* DUP(2V) */
    because the parent process keeps running in this time already
    and can modify data in STACK, malloc() range, Lisp data range etc. */
 #include <sys/wait.h>
-extern_C pid_t waitpid (PID_T pid, int* statusp, int options); /* WAIT(2V) */
-extern int wait2 (PID_T pid); /* see unixaux.d */
+extern_C pid_t waitpid (pid_t pid, int* statusp, int options); /* WAIT(2V) */
+extern int wait2 (pid_t pid); /* see unixaux.d */
 /* used by STREAM, PATHNAME, SPVW, UNIXAUX */
 
 /* get random numbers: */

@@ -1795,9 +1795,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* type of `pid' in waitpid() declaration */
-#undef PID_T
-
 /* Define if the pthread_in_use() detection is hard. */
 #undef PTHREAD_IN_USE_DETECTION_HARD
 
