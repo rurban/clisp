@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Fix signal blocking handling (regression from 2008-05-25).
+	* m4/signal.m4 (CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS,
+	CL_SIGACTION_UNBLOCK): Remove test of now nonexistent variable
+	$signalblocks.
+	* aclocal.m4, src/configure: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: <termio.h>, <sys/termio.h>, <sgtty.h> are not needed.
 	All current platforms that have one of these also have <termios.h>.
 	* unix.d: Assume that if HAVE_TERMIOS_H is not defined,
