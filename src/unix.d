@@ -96,17 +96,6 @@
   #define PROT_NONE  0
 #endif
 #define PROT_READ_WRITE  (PROT_READ | PROT_WRITE)
-#ifdef HAVE_SHM
-  #include <sys/ipc.h>
-  #include <sys/shm.h>
-  #ifdef HAVE_SYS_SYSMACROS_H
-    #include <sys/sysmacros.h>
-  #endif
-  #ifdef UNIX_HPUX
-    #include <sys/vmmac.h> /* for SHMLBA */
-  #endif
-/* <sys/shm.h> declares shmget(), shmat(), shmdt(), shmctl() */
-#endif
 /* used by SPVW, STREAM */
 
 /* paging control */

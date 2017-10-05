@@ -1,5 +1,16 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume that getpagesize() exists on all Unix platforms.
+	* spvw_mmap.d (mmap_init_pagesize): Don't use SHMLBA nor Solaris 2.4
+	fallbacks.
+	* unix.d: Don't include <sys/ipc.h>, <sys/shm.h>, <sys/sysmacros.h>,
+	<sys/vmmac.h>.
+	* configure.in: Don't invoke CL_SHM_H, CL_SHM.
+	* m4/shm.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Ensure compatibility of .mem file between NetBSD/sparc architectures.
 	* spvw_mmap.d (mmap_init_pagesize): Choose 8192 on any SPARC platform.
 
