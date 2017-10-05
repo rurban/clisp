@@ -31,10 +31,9 @@ fi
 gl_HEADER_ERRNO_H
 
 BOLD_MSG([System Calls (Functions)])
-CL_RLIMIT
 AC_SEARCH_LIBS(crypt, crypt)
 AC_SEARCH_LIBS(erf, m)
-AC_CHECK_FUNCS(confstr fcntl gethostent sysconf dnl
+AC_CHECK_FUNCS(confstr fcntl gethostent sysconf getrlimit setrlimit dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
 openlog setlogmask syslog closelog chroot dnl
@@ -48,6 +47,12 @@ ftruncate truncate getusershell endusershell dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx dnl
 gethostid sethostid getdomainname setdomainname nftw getdate)
+if test $ac_cv_func_setrlimit = yes; then
+  AC_CHECK_SIZEOF([rlim_t],,[
+    #include <stdio.h>
+    #include <sys/resource.h>
+    ])
+fi
 AC_FUNC_CHOWN
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 AC_CHECK_DECLS([getdate_err],,,[#include <time.h>])

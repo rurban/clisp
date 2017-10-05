@@ -1,5 +1,15 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused code in Autoconf macros.
+	* configure.in: Don't invoke CL_RLIMIT. Instead, check for getrlimit.
+	* modules/syscalls/configure.in: Don't invoke CL_RLIMIT. Instead, check
+	for getrlimit, setrlimit, and determine sizeof(rlim_t).
+	* src/m4/rlimit.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Remove unused autoconf test.
 	* configure.in: Don't invoke CL_MSYNC.
 	* m4/msync.m4: Remove file.

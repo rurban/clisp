@@ -408,14 +408,8 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* type of `resource' in setrlimit() declaration */
-#undef RLIMIT_RESOURCE_T
-
 /* type of `who' in getrusage() declaration */
 #undef RUSAGE_WHO_T
-
-/* declaration of setrlimit() needs const */
-#undef SETRLIMIT_CONST
 
 /* The size of `fsblkcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSBLKCNT_T
