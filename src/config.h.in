@@ -2026,9 +2026,6 @@
 /* expression in ch which is true if ch is a valid character in filenames */
 #undef VALID_FILENAME_CHAR
 
-/* closedir() return value is void or unusable */
-#undef VOID_CLOSEDIR
-
 /* Define to 1 if unsetenv returns void instead of int. */
 #undef VOID_UNSETENV
 

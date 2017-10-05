@@ -13,7 +13,6 @@ AC_PREREQ([2.13])
 AC_DEFUN([CL_FILECHARSET],
 [
   AC_REQUIRE([AC_PROG_CC])
-  AC_REQUIRE([CL_CLOSEDIR])
   AC_CACHE_CHECK([for the valid characters in filenames],
     [cl_cv_os_valid_filename_char],
     [dnl Create the subdirectory the test program will use for its files.

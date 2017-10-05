@@ -284,11 +284,6 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 /* directory search: */
 #include <dirent.h>
 /* declared in <dirent.h>: opendir(), readdir(), closedir() */
-#ifdef VOID_CLOSEDIR
-  #define CLOSEDIR(dirp)  (closedir(dirp),0)
-#else
-  #define CLOSEDIR  closedir
-#endif
 /* used by PATHNAME */
 
 /* create directory: */
