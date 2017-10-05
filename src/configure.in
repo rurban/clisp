@@ -81,7 +81,6 @@ test "$ac_cv_lib_socket_connect" = yes && LIBS="$LIBS -lsocket"
 test "$ac_cv_lib_nsl_gethostbyname" = yes && LIBS="$LIBS -lnsl"
 dnl
 BOLD_MSG([checks for typedefs])
-CL_CADDR_T    dnl DEFS CADDR_T
 AC_CHECK_SIZEOF([off_t])
 AC_CHECK_SIZEOF(struct timeval,,[#include <stdio.h>
 #include <sys/time.h>])
