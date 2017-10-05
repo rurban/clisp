@@ -60,9 +60,9 @@ dnl use --with-clisp='clisp -K full'
 AC_DEFUN([CL_CLISP],[
   AC_REQUIRE([CL_DECOLONIZE])
   AC_ARG_WITH([clisp],
-    AC_HELP_STRING([--with-clisp], [use a specific CLISP installation]),
-      [cl_use_clisp="$withval"],
-      [cl_use_clisp=default])
+    [AS_HELP_STRING([[--with-clisp]], [use a specific CLISP installation])],
+    [cl_use_clisp="$withval"],
+    [cl_use_clisp=default])
   cl_have_clisp=no
   if test "$cl_use_clisp" != "no"; then
     if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then

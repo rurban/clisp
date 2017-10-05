@@ -8,7 +8,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold
 
-AC_PREREQ([2.13])
+AC_PREREQ([2.59])
 
 AC_DEFUN([CL_TERMCAP],
 [
@@ -21,7 +21,7 @@ AC_DEFUN([CL_TERMCAP],
   dnl and often buggy
   termcap_prefix=""
   AC_ARG_WITH([libtermcap-prefix],
-    [  --with-libtermcap-prefix[=DIR]  search for ncurses and termcap in DIR],
+    [AS_HELP_STRING([[--with-libtermcap-prefix[=DIR]]],[search for ncurses and termcap in DIR])],
     [case "$withval" in
        /*) termcap_prefix=$withval; ;;
      esac

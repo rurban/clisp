@@ -1,5 +1,20 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Autoconf macros: Use AS_HELP_STRING systematically.
+	AS_HELP_STRING ensures proper column alignment.
+	Note that its first argument must be double quoted, otherwise brackets
+	in the argument are discarded if they are not escaped as trigraphs.
+	* m4/clisp.m4 (CL_CLISP): Fix indentation and quoting style.
+	* m4/ffcall.m4 (CL_FFCALL): Talk about GNU libffcall. Use AS_HELP_STRING
+	instead of AC_HELP_STRING.
+	* m4/readline.m4 (CL_READLINE): Talk about GNU readline. Use
+	AS_HELP_STRING instead of AC_HELP_STRING.
+	* m4/termcap.m4 (CL_TERMCAP): Use AS_HELP_STRING.
+	* m4/lightning.m4 (CL_LIGHTNING): Fix quoting style.
+	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Fix signal blocking handling (regression from 2008-05-25).
 	* m4/signal.m4 (CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS,
 	CL_SIGACTION_UNBLOCK): Remove test of now nonexistent variable
