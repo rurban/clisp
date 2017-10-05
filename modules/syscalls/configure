@@ -5937,173 +5937,6 @@ $as_echo "$gl_cv_header_errno_h_EOVERFLOW" >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: ${term_bold}** System Calls (Functions)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Functions)${term_norm}" >&6;}
 
-
-  for ac_func in getrlimit setrlimit
-do :
-  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
-ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
-if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-done
-
-  if test $ac_cv_func_setrlimit = yes; then
-    # The cast to long int works around a bug in the HP C Compiler
-# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
-# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
-# This bug is HP SR number 8606223364.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of rlim_t" >&5
-$as_echo_n "checking size of rlim_t... " >&6; }
-if ${ac_cv_sizeof_rlim_t+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (rlim_t))" "ac_cv_sizeof_rlim_t"        "
-      #include <stdio.h>
-      #include <sys/resource.h>
-
-"; then :
-
-else
-  if test "$ac_cv_type_rlim_t" = yes; then
-     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error 77 "cannot compute sizeof (rlim_t)
-See \`config.log' for more details" "$LINENO" 5; }
-   else
-     ac_cv_sizeof_rlim_t=0
-   fi
-fi
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_rlim_t" >&5
-$as_echo "$ac_cv_sizeof_rlim_t" >&6; }
-
-
-
-cat >>confdefs.h <<_ACEOF
-#define SIZEOF_RLIM_T $ac_cv_sizeof_rlim_t
-_ACEOF
-
-
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for getrlimit declaration" >&5
-$as_echo_n "checking for getrlimit declaration... " >&6; }
-  if ${cl_cv_proto_getrlimit+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <sys/types.h>
-         #include <sys/time.h>
-         #include <sys/resource.h>
-
-    extern
-#ifdef __cplusplus
-"C"
-#endif
-
-    int getrlimit (int resource, struct rlimit * rlim);
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cl_cv_proto_getrlimit_arg1="int"
-else
-  cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-     cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);"
-
-fi
-
-  cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_getrlimit" >&5
-$as_echo "$cl_cv_proto_getrlimit" >&6; }
-
-
-cat >>confdefs.h <<_ACEOF
-#define RLIMIT_RESOURCE_T $cl_cv_proto_getrlimit_arg1
-_ACEOF
-
-
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for setrlimit declaration" >&5
-$as_echo_n "checking for setrlimit declaration... " >&6; }
-  if ${cl_cv_proto_setrlimit+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <sys/types.h>
-         #include <sys/time.h>
-         #include <sys/resource.h>
-
-    extern
-#ifdef __cplusplus
-"C"
-#endif
-
-    int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);
-
-int
-main ()
-{
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  cl_cv_proto_setrlimit_arg2=""
-else
-  cl_cv_proto_setrlimit_arg2="const"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-
-
-     cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);"
-
-fi
-
-  cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $cl_cv_proto_setrlimit" >&5
-$as_echo "$cl_cv_proto_setrlimit" >&6; }
-
-
-cat >>confdefs.h <<_ACEOF
-#define SETRLIMIT_CONST $cl_cv_proto_setrlimit_arg2
-_ACEOF
-
-  fi
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing crypt" >&5
 $as_echo_n "checking for library containing crypt... " >&6; }
 if ${ac_cv_search_crypt+:} false; then :
@@ -6216,7 +6049,7 @@ if test "$ac_res" != no; then :
 
 fi
 
-for ac_func in confstr fcntl gethostent sysconf getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog chroot getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx gethostid sethostid getdomainname setdomainname nftw getdate
+for ac_func in confstr fcntl gethostent sysconf getrlimit setrlimit getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog chroot getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx gethostid sethostid getdomainname setdomainname nftw getdate
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -6228,6 +6061,45 @@ _ACEOF
 fi
 done
 
+if test $ac_cv_func_setrlimit = yes; then
+  # The cast to long int works around a bug in the HP C Compiler
+# version HP92453-01 B.11.11.23709.GP, which incorrectly rejects
+# declarations like `int a3[[(sizeof (unsigned char)) >= 0]];'.
+# This bug is HP SR number 8606223364.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking size of rlim_t" >&5
+$as_echo_n "checking size of rlim_t... " >&6; }
+if ${ac_cv_sizeof_rlim_t+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if ac_fn_c_compute_int "$LINENO" "(long int) (sizeof (rlim_t))" "ac_cv_sizeof_rlim_t"        "
+    #include <stdio.h>
+    #include <sys/resource.h>
+
+"; then :
+
+else
+  if test "$ac_cv_type_rlim_t" = yes; then
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error 77 "cannot compute sizeof (rlim_t)
+See \`config.log' for more details" "$LINENO" 5; }
+   else
+     ac_cv_sizeof_rlim_t=0
+   fi
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sizeof_rlim_t" >&5
+$as_echo "$ac_cv_sizeof_rlim_t" >&6; }
+
+
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_RLIM_T $ac_cv_sizeof_rlim_t
+_ACEOF
+
+
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for uid_t in sys/types.h" >&5
 $as_echo_n "checking for uid_t in sys/types.h... " >&6; }
 if ${ac_cv_type_uid_t+:} false; then :

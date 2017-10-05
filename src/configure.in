@@ -103,8 +103,7 @@ CL_SIGINTERRUPT        dnl DEFS HAVE_SIGINTERRUPT
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
-gethostname getcwd uname readdir_r rand_r)
-CL_RLIMIT dnl DEFS HAVE_GETRLIMIT, HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
+gethostname getcwd getrlimit uname readdir_r rand_r)
 AC_FUNC_VFORK dnl DEFS HAVE_VFORK_H, vfork
 CL_RUSAGE dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
 CL_IOCTL dnl DEFS HAVE_IOCTL, HAVE_FIONREAD, NEED_SYS_FILIO_H, NEED_SYS_IOCTL_H, HAVE_RELIABLE_FIONREAD

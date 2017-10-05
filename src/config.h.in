@@ -1382,9 +1382,6 @@
 /* Define to 1 if you have the `setreuid' function. */
 #undef HAVE_SETREUID
 
-/* Define to 1 if you have the `setrlimit' function. */
-#undef HAVE_SETRLIMIT
-
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
 
@@ -1808,9 +1805,6 @@
 /* Define to 1 if strerror(0) does not return a message implying success. */
 #undef REPLACE_STRERROR_0
 
-/* type of `resource' in setrlimit() declaration */
-#undef RLIMIT_RESOURCE_T
-
 /* type of `who' in getrusage() declaration */
 #undef RUSAGE_WHO_T
 
@@ -1822,9 +1816,6 @@
 
 /* type of `width' in select() declaration */
 #undef SELECT_WIDTH_T
-
-/* declaration of setrlimit() needs const */
-#undef SETRLIMIT_CONST
 
 /* type of `optval' in setsockopt() declaration */
 #undef SETSOCKOPT_ARG_T
@@ -1863,9 +1854,6 @@
 
 /* The size of `off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
-
-/* The size of `rlim_t', as computed by sizeof. */
-#undef SIZEOF_RLIM_T
 
 /* The size of `struct timeval', as computed by sizeof. */
 #undef SIZEOF_STRUCT_TIMEVAL
