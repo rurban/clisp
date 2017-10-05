@@ -13,7 +13,7 @@ AC_PREREQ([2.57])
 AC_DEFUN([CL_TERM],
 [
   AC_BEFORE([$0], [CL_IOCTL])
-  AC_CHECK_HEADERS([termios.h termio.h sys/termio.h sgtty.h])
+  AC_CHECK_HEADERS([termios.h])
   if test $ac_cv_header_termios_h = yes; then
     dnl HAVE_TERMIOS_H defined
     dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.

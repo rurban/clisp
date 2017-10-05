@@ -379,21 +379,6 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   #if defined(WINSIZE_NEED_SYS_IOCTL_H) /* glibc2 needs this for "struct winsize" */
     /* #include <sys/ioctl.h> - already included above */
   #endif
-#elif defined(HAVE_SYS_TERMIO_H) || defined(HAVE_TERMIO_H)
-  #define UNIX_TERM_TERMIO
-  #if defined(HAVE_SYS_TERMIO_H)
-    #include <sys/termio.h> /* TERMIO(4) */
-  #elif defined(HAVE_TERMIO_H)
-    #include <termio.h>
-  #endif
-  #ifndef NCCS
-    #define NCCS  sizeof(((struct termio *)0)->c_cc)
-  #endif
-#elif defined(HAVE_SGTTY_H)
-  /* compatible with V7 or 4BSD, TIOC form ioctls.... */
-  #define UNIX_TERM_SGTTY
-  #include <sgtty.h>
-  /* #include <sys/ioctl.h> - already included above */ /* TTY(4) */
 #endif
 #if defined(NEED_SYS_FILIO_H)
   #include <sys/filio.h>
@@ -437,7 +422,7 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
     } while (0)
 #endif
 
-#if (defined(UNIX_TERM_TERMIOS) || defined(UNIX_TERM_TERMIO)) && !(defined(TCIFLUSH) && defined(TCOFLUSH))
+#if defined(UNIX_TERM_TERMIOS) && !(defined(TCIFLUSH) && defined(TCOFLUSH))
   #define TCIFLUSH 0
   #define TCOFLUSH 1
 #endif

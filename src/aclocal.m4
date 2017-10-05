@@ -18975,19 +18975,6 @@ AC_DEFUN([CL_IOCTL],
       #endif
       #ifdef HAVE_TERMIOS_H
        #include <termios.h>
-      #else
-       #ifdef HAVE_SYS_TERMIO_H
-        #include <sys/termio.h>
-       #else
-        #ifdef HAVE_TERMIO_H
-         #include <termio.h>
-        #else
-         #ifdef HAVE_SGTTY_H
-          #include <sgtty.h>
-          #include <sys/ioctl.h>
-         #endif
-        #endif
-       #endif
       #endif
       '
     ioctl_prog='int x = FIONREAD;'
@@ -29818,7 +29805,7 @@ AC_PREREQ([2.57])
 AC_DEFUN([CL_TERM],
 [
   AC_BEFORE([$0], [CL_IOCTL])
-  AC_CHECK_HEADERS([termios.h termio.h sys/termio.h sgtty.h])
+  AC_CHECK_HEADERS([termios.h])
   if test $ac_cv_header_termios_h = yes; then
     dnl HAVE_TERMIOS_H defined
     dnl Linux libc5 defines struct winsize in <termios.h>, <termio.h>, <sys/ioctl.h>.

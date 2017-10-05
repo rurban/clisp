@@ -3468,27 +3468,6 @@ local void clear_tty_input (Handle handle) {
     }
   }
  #endif
- #if  defined(UNIX_TERM_TERMIO) && defined(TCIFLUSH) /* !RISCOS */
-  if (!( ioctl(handle,TCFLSH,(char*)TCIFLUSH) ==0)) {
-    if (!(errno==ENOTTY)) { /* no TTY: OK */
-      local bool flag = false;
-      /* report other Error, but only once */
-      if (!flag) { flag = true; OS_error(); }
-    }
-  }
- #endif
- #ifdef UNIX_TERM_SGTTY
-  {
-    var int arg = FREAD;
-    if (!( ioctl(handle,TIOCFLUSH,&arg) ==0)) {
-      if (!(errno==ENOTTY)) { /* no TTY: OK */
-        local bool flag = false;
-        /* report other Error, but only once */
-        if (!flag) { flag = true; OS_error(); }
-      }
-    }
-  }
- #endif
   end_system_call();
 }
 
@@ -3526,11 +3505,6 @@ local void finish_tty_output (Handle handle) {
   if (!( TCDRAIN(handle) ==0)) {
     if (!((errno==ENOTTY)||IS_EINVAL))
       { OS_error(); } /* no TTY: OK, report other Error */
-  } else goto ok;
- #endif
- #ifdef UNIX_TERM_TERMIO
-  if (!( ioctl(handle,TCSBRK,(char*)1) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
   } else goto ok;
  #endif
  #if defined(UNIX_TERM_TERMIOS) && defined(TCGETS) && defined(TCSETSW)
@@ -3584,19 +3558,6 @@ local void clear_tty_output (Handle handle) {
   if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
     if (!((errno==ENOTTY)||IS_EINVAL))
       { OS_error(); } /* no TTY: OK, report other Error */
-  }
- #endif
- #if defined(UNIX_TERM_TERMIO) && defined(TCOFLUSH) /* !RISCOS */
-  if (!( ioctl(handle,TCFLSH,(char*)TCOFLUSH) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); } /* no TTY: OK, report other Error */
-  }
- #endif
- #ifdef UNIX_TERM_SGTTY
-  {
-    var int arg = FWRITE;
-    if (!( ioctl(handle,TIOCFLUSH,&arg) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); } /* no TTY: OK, report other Error */
-    }
   }
  #endif
   end_system_call();
@@ -8885,26 +8846,15 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       }
     }
   #else
-   #if defined(UNIX_TERM_TERMIOS) || defined(UNIX_TERM_TERMIO)
+   #ifdef UNIX_TERM_TERMIOS
     {
       /* Use the Termio-Elements VMIN and VTIME. */
-     #ifdef UNIX_TERM_TERMIOS
       var struct termios oldtermio;
       var struct termios newtermio;
-     #else /* UNIX_TERM_TERMIO */
-      var struct termio oldtermio;
-      var struct termio newtermio;
-     #endif
       begin_system_call();
-     #ifdef UNIX_TERM_TERMIOS
       if (!( tcgetattr(stdin_handle,&oldtermio) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
       }
-     #else
-      if (!( ioctl(stdin_handle,TCGETA,&oldtermio) ==0)) {
-        if (!(errno==ENOTTY)) { OS_error(); }
-      }
-     #endif
       /* We assume now, that oldtermio is now identical with the newtermio
        from term_raw() (see below). This is ensured, if
        1. (SYS::TERMINAL-RAW T) was called and
@@ -8912,25 +8862,13 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       newtermio = oldtermio;
       newtermio.c_cc[VMIN] = 0;
       newtermio.c_cc[VTIME] = 1; /* 1/10 second timeout */
-     #ifdef UNIX_TERM_TERMIOS
       if (!( TCSETATTR(stdin_handle,TCSANOW,&newtermio) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
       }
-     #else
-      if (!( ioctl(stdin_handle,TCSETA,&newtermio) ==0)) {
-        if (!(errno==ENOTTY)) { OS_error(); }
-      }
-     #endif
       var int result = read(stdin_handle,&c,1); /* try to read a byte, with timeout */
-     #ifdef UNIX_TERM_TERMIOS
       if (!( TCSETATTR(stdin_handle,TCSANOW,&oldtermio) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
       }
-     #else
-      if (!( ioctl(stdin_handle,TCSETA,&oldtermio) ==0)) {
-        if (!(errno==ENOTTY)) { OS_error(); }
-      }
-     #endif
       end_system_call();
       if (result<0) {
         begin_system_call();
@@ -10120,7 +10058,7 @@ local void term_unraw (void);
 
 local bool oldterm_initialized = false;
 
-#if defined(UNIX_TERM_TERMIOS)
+#ifdef UNIX_TERM_TERMIOS
   local struct termios oldtermio; /* original TTY-Mode */
 local void term_raw() {
   if (!oldterm_initialized) {
@@ -10161,126 +10099,6 @@ local void term_unraw() {
  define nonl()      (_tty.c_iflag &=~ICRNL,_tty.c_oflag &=~ONLCR,tcsetattr(_tty_ch, TCSAFLUSH, &_tty))
  define savetty()   (tcgetattr(_tty_ch, &_oldtty),tcgetattr(_tty_ch, &_tty))
  define resetty()   (tcsetattr(_tty_ch, TCSAFLUSH, &_oldtty)) */
-#elif defined(UNIX_TERM_TERMIO)
-  local struct termio oldtermio; /* original TTY-Mode */
-local void term_raw() {
-  if (!oldterm_initialized) {
-    if (!( ioctl(stdout_handle,TCGETA,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-    oldterm_initialized = true;
-  }
-  var struct termio newtermio;
-  newtermio = oldtermio;
-  newtermio.c_iflag &= ( /* IXON|IXOFF|IXANY| */ ISTRIP|IGNBRK);
-  /* newtermio.c_oflag &= ~OPOST; */ /* Curses is deranged by this! */
-  newtermio.c_lflag &= ISIG;
-  {
-    var uintC i;
-    for (i=0; i<NCCS; i++)
-      newtermio.c_cc[i] = 0;
-  }
-  newtermio.c_cc[VMIN] = 1;
-  newtermio.c_cc[VTIME] = 0;
-  if (!( ioctl(stdout_handle,TCSETAF,&newtermio) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
-  }
-}
-local void term_unraw() {
-  if (oldterm_initialized) {
-    if (!( ioctl(stdout_handle,TCSETAF,&oldtermio) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-  }
-}
-/* Some do it like this:
- define crmode()    (_tty.c_lflag &=~ICANON,_tty.c_cc[VMIN] = 1,ioctl(_tty_ch,TCSETAF,&_tty))
- define nocrmode()  (_tty.c_lflag |= ICANON,_tty.c_cc[VEOF] = CEOF,stty(_tty_ch,&_tty))
- define echo()      (_tty.c_lflag |= ECHO, ioctl(_tty_ch, TCSETA, &_tty))
- define noecho()    (_tty.c_lflag &=~ECHO, ioctl(_tty_ch, TCSETA, &_tty))
- define nl()        (_tty.c_iflag |= ICRNL,_tty.c_oflag |= ONLCR,ioctl(_tty_ch, TCSETAW, &_tty))
- define nonl()      (_tty.c_iflag &=~ICRNL,_tty.c_oflag &=~ONLCR,ioctl(_tty_ch, TCSETAW, &_tty)) */
-#elif defined(UNIX_TERM_SGTTY)
-  local struct sgttyb oldsgttyb; /* original TTY-Mode */
-  local struct tchars oldtchars; /* original control-character */
- #ifdef TIOCSLTC
-  local struct ltchars oldltchars; /* original editing-character */
- #endif
-local void term_raw() {
-  if (!oldterm_initialized) {
-    if (!( ioctl(stdout_handle,TIOCGETP,&oldsgttyb) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-    if (!( ioctl(stdout_handle,TIOCGETC,&oldtchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-   #ifdef TIOCSLTC
-    if (!( ioctl(stdout_handle,TIOCGLTC,&oldltchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-   #endif
-    oldterm_initialized = true;
-  }
-  {
-    var struct sgttyb newsgttyb;
-    newsgttyb = oldsgttyb;
-    newsgttyb.sg_flags |= CBREAK;
-    newsgttyb.sg_flags &= ~(CRMOD|ECHO|XTABS);
-    if (!( ioctl(stdout_handle,TIOCSETP,&newsgttyb) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-  }
-  {
-    var struct tchars newtchars;
-    var local union {
-      char a [sizeof(struct tchars)];
-      struct tchars b;
-    } zero_tchars = {{0,}};
-    newtchars = zero_tchars.b;
-    if (!( ioctl(stdout_handle,TIOCSETC,&newtchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-  }
- #ifdef TIOCSLTC
-  {
-    var struct ltchars newltchars;
-    var local union {
-      char a [sizeof(struct ltchars)];
-      struct ltchars b;
-    } zero_ltchars = {{0,}};
-    newltchars = zero_ltchars.b;
-    if (!( ioctl(stdout_handle,TIOCSLTC,&newltchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-  }
- #endif
-}
-local void term_unraw() {
-  if (oldterm_initialized) {
-    if (!( ioctl(stdout_handle,TIOCSETP,&oldsgttyb) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-    if (!( ioctl(stdout_handle,TIOCSETC,&oldtchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-   #ifdef TIOCSLTC
-    if (!( ioctl(stdout_handle,TIOCSLTC,&oldltchars) ==0)) {
-      if (!(errno==ENOTTY)) { OS_error(); }
-    }
-   #endif
-  }
-}
-/* Some do it like this:
- define raw()       (_tty.sg_flags|=RAW, stty(_tty_ch,&_tty))
- define noraw()     (_tty.sg_flags&=~RAW,stty(_tty_ch,&_tty))
- define crmode()    (_tty.sg_flags |= CBREAK, stty(_tty_ch,&_tty))
- define nocrmode()  (_tty.sg_flags &= ~CBREAK,stty(_tty_ch,&_tty))
- define echo()      (_tty.sg_flags |= ECHO, stty(_tty_ch, &_tty))
- define noecho()    (_tty.sg_flags &= ~ECHO, stty(_tty_ch, &_tty))
- define nl()        (_tty.sg_flags |= CRMOD,stty(_tty_ch, &_tty))
- define nonl()      (_tty.sg_flags &= ~CRMOD, stty(_tty_ch, &_tty))
- define savetty()   (gtty(_tty_ch, &_tty), _res_flg = _tty.sg_flags)
- define resetty()   (_tty.sg_flags = _res_flg, stty(_tty_ch, &_tty)) */
 #endif
 
 /* We store, if term_raw() or term_unraw() was executed lastly,
@@ -12331,7 +12149,7 @@ local const char * init_term (void) {
  arrives at the Terminal. */
   local void term_nlraw (void);
   local void term_nlunraw (uintB abort);
-#if defined(UNIX_TERM_TERMIOS)
+#ifdef UNIX_TERM_TERMIOS
   static unsigned long old_c_oflag = 0;
 local void term_nlraw() {
   var struct termios oldtermio;
@@ -12352,56 +12170,6 @@ local void term_nlunraw (uintB abort) {
     }
     oldtermio.c_oflag |= ONLCR;
     if (!( TCSETATTR(stdout_handle,TCSAFLUSH,&oldtermio) ==0)) {
-      if (!abort && errno!=ENOTTY) { OS_error(); }
-    }
-  }
-}
-#elif defined(UNIX_TERM_TERMIO)
-  static unsigned long old_c_oflag = 0;
-local void term_nlraw() {
-  var struct termio oldtermio;
-  if (!( ioctl(stdout_handle,TCGETA,&oldtermio) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
-  }
-  old_c_oflag = oldtermio.c_oflag;
-  oldtermio.c_oflag &= ~ONLCR;
-  if (!( ioctl(stdout_handle,TCSETAF,&oldtermio) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
-  }
-}
-local void term_nlunraw (uintB abort) {
-  if (old_c_oflag & ONLCR) {
-    var struct termio oldtermio;
-    if (!( ioctl(stdout_handle,TCGETA,&oldtermio) ==0)) {
-      if (!abort && errno!=ENOTTY) { OS_error(); }
-    }
-    oldtermio.c_oflag |= ONLCR;
-    if (!( ioctl(stdout_handle,TCSETAF,&oldtermio) ==0)) {
-      if (!abort && errno!=ENOTTY) { OS_error(); }
-    }
-  }
-}
-#elif defined(UNIX_TERM_SGTTY)
-  static unsigned long old_sg_flags = 0;
-local void term_nlraw() {
-  var struct sgttyb oldsgttyb;
-  if (!( ioctl(stdout_handle,TIOCGETP,&oldsgttyb) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
-  }
-  old_sg_flags = oldsgttyb.sg_flags;
-  oldsgttyb.sg_flags &= ~CRMOD;
-  if (!( ioctl(stdout_handle,TIOCSETP,&oldsgttyb) ==0)) {
-    if (!(errno==ENOTTY)) { OS_error(); }
-  }
-}
-local void term_nlunraw (uintB abort) {
-  if (old_sg_flags & CRMOD) {
-    var struct sgttyb oldsgttyb;
-    if (!( ioctl(stdout_handle,TIOCGETP,&oldsgttyb) ==0)) {
-      if (!abort && errno!=ENOTTY) { OS_error(); }
-    }
-    oldsgttyb.sg_flags |= CRMOD;
-    if (!( ioctl(stdout_handle,TIOCSETP,&oldsgttyb) ==0)) {
       if (!abort && errno!=ENOTTY) { OS_error(); }
     }
   }

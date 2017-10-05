@@ -1388,9 +1388,6 @@
 /* Define to 1 if you have the `setsockopt' function. */
 #undef HAVE_SETSOCKOPT
 
-/* Define to 1 if you have the <sgtty.h> header file. */
-#undef HAVE_SGTTY_H
-
 /* Define to 1 if you have the `shutdown' function. */
 #undef HAVE_SHUTDOWN
 
@@ -1511,9 +1508,6 @@
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
-/* Define to 1 if you have the <sys/termio.h> header file. */
-#undef HAVE_SYS_TERMIO_H
-
 /* Define to 1 if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
 
@@ -1534,9 +1528,6 @@
 
 /* Define to 1 if you have the <termios.h> header file. */
 #undef HAVE_TERMIOS_H
-
-/* Define to 1 if you have the <termio.h> header file. */
-#undef HAVE_TERMIO_H
 
 /* Define to 1 if you have the `timegm' function. */
 #undef HAVE_TIMEGM

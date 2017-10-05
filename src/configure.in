@@ -74,7 +74,7 @@ CL_BUILTIN_STRLEN   dnl DEFS HAVE_BUILTIN_STRLEN
 AC_TYPE_LONG_LONG_INT dnl HAVE_LONG_LONG_INT
 dnl
 BOLD_MSG([checks for header files])
-CL_TERM        dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
+CL_TERM        dnl DEFS HAVE_TERMIOS_H, WINSIZE_NEED_SYS_IOCTL_H
 AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS, X_EXTRA_LIBS, X_PRE_LIBS
 test "$ac_cv_lib_socket_connect" = yes && LIBS="$LIBS -lsocket"
 test "$ac_cv_lib_nsl_gethostbyname" = yes && LIBS="$LIBS -lnsl"
