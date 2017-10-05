@@ -1,5 +1,10 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Ensure compatibility of .mem file between NetBSD/sparc architectures.
+	* spvw_mmap.d (mmap_init_pagesize): Choose 8192 on any SPARC platform.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume that getrusage() is properly declared.
 	* unix.d (getrusage): Remove declaration.
 	* m4/rusage.m4 (CL_RUSAGE): Don't define RUSAGE_WHO_T.

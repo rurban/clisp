@@ -428,7 +428,7 @@ local int mmap_zero_fd;       /* open handle for /dev/zero */
 local void mmap_init_pagesize (void)
 {
   mmap_pagesize =
-   #if (defined(UNIX_SUNOS5) || defined(UNIX_LINUX)) && defined(SPARC)
+   #if defined(SPARC) /* && (defined(UNIX_SUNOS5) || defined(UNIX_LINUX) || defined(UNIX_NETBSD) || ...) */
     /* Normal SPARCs have PAGESIZE=4096, UltraSPARCs have PAGESIZE=8192.
        For compatibility of the .mem files between the architectures,
        choose the same value for both here. */
