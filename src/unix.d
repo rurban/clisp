@@ -483,8 +483,7 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 
 /* inquire used time of the process: */
 #if defined(HAVE_GETRUSAGE)
-  extern_C int getrusage (RUSAGE_WHO_T who, struct rusage * rusage); /* GETRUSAGE(2) */
-  /* prototype useless, there 'struct rusage' /= 'struct rusage' */
+  /* <sys/resource.h> declares: int getrusage (int who, struct rusage * rusage); */ /* GETRUSAGE(2) */
 #elif defined(HAVE_SYS_TIMES_H)
   #include <sys/times.h>
   extern_C clock_t times (struct tms * buffer); /* TIMES(3V) */

@@ -408,9 +408,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* type of `who' in getrusage() declaration */
-#undef RUSAGE_WHO_T
-
 /* The size of `fsblkcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSBLKCNT_T
 

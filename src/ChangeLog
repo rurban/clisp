@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume that getrusage() is properly declared.
+	* unix.d (getrusage): Remove declaration.
+	* m4/rusage.m4 (CL_RUSAGE): Don't define RUSAGE_WHO_T.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Remove unused code in Autoconf macros.
 	* configure.in: Don't invoke CL_RLIMIT. Instead, check for getrlimit.
 	* modules/syscalls/configure.in: Don't invoke CL_RLIMIT. Instead, check
