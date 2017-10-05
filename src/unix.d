@@ -362,7 +362,7 @@ extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t p
 /* inquire the terminal, window size: */
 #include <sys/ioctl.h> /* declares ioctl() */
 extern_C int isatty (int fd); /* TTYNAME(3V) */
-#if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR) && defined(HAVE_TCSAFLUSH)
+#if defined(HAVE_TERMIOS_H)
   #define UNIX_TERM_TERMIOS
   #include <termios.h> /* TERMIOS(3V) */
   /* extern_C int tcgetattr (int fd, struct termios * tp); */

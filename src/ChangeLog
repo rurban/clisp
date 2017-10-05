@@ -1,5 +1,14 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume that <termios.h> has tcgetattr() and TCSAFLUSH.
+	* unix.d: Assume that HAVE_TERMIOS_H implies HAVE_TCGETATTR and
+	HAVE_TCSAFLUSH.
+	* m4/ioctl.m4 (CL_IOCTL): Likewise.
+	* m4/termios.m4 (CL_TERM): Don't test for tcgetattr and TCSAFLUSH.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume that <sys/ptem.h> is not needed for 'struct winsize'.
 	'struct winsize' is found in <sys/ioctl.h> on all current platforms.
 	* unix.d: Assume WINSIZE_NEED_SYS_PTEM_H is not defined.
