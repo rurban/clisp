@@ -7254,7 +7254,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
       }
     }
     begin_blocking_system_call();
-    if (CLOSEDIR(dirp)) { end_blocking_system_call(); OS_file_error(STACK_1); }
+    if (closedir(dirp)) { end_blocking_system_call(); OS_file_error(STACK_1); }
     end_blocking_system_call();
     clr_break_sem_4();
   }
