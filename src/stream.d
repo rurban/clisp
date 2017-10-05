@@ -3469,7 +3469,7 @@ local void clear_tty_input (Handle handle) {
   }
  #endif
  #if  defined(UNIX_TERM_TERMIO) && defined(TCIFLUSH) /* !RISCOS */
-  if (!( ioctl(handle,TCFLSH,(CADDR_T)TCIFLUSH) ==0)) {
+  if (!( ioctl(handle,TCFLSH,(char*)TCIFLUSH) ==0)) {
     if (!(errno==ENOTTY)) { /* no TTY: OK */
       local bool flag = false;
       /* report other Error, but only once */
@@ -3529,7 +3529,7 @@ local void finish_tty_output (Handle handle) {
   } else goto ok;
  #endif
  #ifdef UNIX_TERM_TERMIO
-  if (!( ioctl(handle,TCSBRK,(CADDR_T)1) ==0)) {
+  if (!( ioctl(handle,TCSBRK,(char*)1) ==0)) {
     if (!(errno==ENOTTY)) { OS_error(); }
   } else goto ok;
  #endif
@@ -3587,7 +3587,7 @@ local void clear_tty_output (Handle handle) {
   }
  #endif
  #if defined(UNIX_TERM_TERMIO) && defined(TCOFLUSH) /* !RISCOS */
-  if (!( ioctl(handle,TCFLSH,(CADDR_T)TCOFLUSH) ==0)) {
+  if (!( ioctl(handle,TCFLSH,(char*)TCOFLUSH) ==0)) {
     if (!(errno==ENOTTY)) { OS_error(); } /* no TTY: OK, report other Error */
   }
  #endif

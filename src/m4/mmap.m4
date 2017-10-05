@@ -69,7 +69,7 @@ AC_DEFUN([CL_MMAP],
                for (i=my_low; i<=my_high; i++)
                  if (i_ok(i))
                    {
-                     caddr_t addr = (caddr_t)(base_address + (i << my_shift));
+                     char* addr = (char*)(base_address + (i << my_shift));
                      /* Check for 8 MB, not 16 MB. This is more likely to work on Solaris 2. */
                      #if bits_to_avoid
                        long size = i*my_size;

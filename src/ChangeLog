@@ -1,5 +1,15 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Assume that caddr_t is a typedef equivalent to 'char *'.
+	* m4/mmap.m4 (CL_MMAP): Use 'char*' instead of 'caddr_t'.
+	* stream.d (clear_tty_input, finish_tty_output, clear_tty_output): Use
+	'char*' instead of 'CADDR_T'.
+	* configure.in: Don't invoke CL_CADDR_T.
+	* m4/caddr_t.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Remove unused code in Autoconf macros.
 	* m4/ioctl.m4 (CL_IOCTL): Don't define IOCTL_REQUEST_T, IOCTL_DOTS,
 	IOCTL_ARGUMENT_T.

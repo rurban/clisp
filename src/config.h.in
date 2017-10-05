@@ -96,9 +96,6 @@
 /* Define to the number of bits in type 'wint_t'. */
 #undef BITSIZEOF_WINT_T
 
-/* what is your caddr_t type? */
-#undef CADDR_T
-
 /* address range of program code (text+data+bss) */
 #undef CODE_ADDRESS_RANGE
 
