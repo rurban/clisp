@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Remove workaround against ancient systems with hidden ELOOP macro.
+	* pathname.d (realpath, get_path_info): Use ELOOP, not ELOOP_VALUE.
+	* configure.in: Don't invoke CL_ELOOP.
+	* m4/eloop.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Remove workaround against ancient Cygwin bug (not known to gnulib).
 	* pathname.d (directory_search_scandir): Use closedir, not CLOSEDIR.
 	* unix.d (CLOSEDIR): Remove macro.
