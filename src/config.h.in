@@ -1695,15 +1695,6 @@
 /* Define as const if the declaration of iconv() needs const. */
 #undef ICONV_CONST
 
-/* type of `argument' in ioctl() declaration, if not superseded by dots */
-#undef IOCTL_ARGUMENT_T
-
-/* declaration of ioctl() needs dots */
-#undef IOCTL_DOTS
-
-/* type of `request' in ioctl() declaration */
-#undef IOCTL_REQUEST_T
-
 /* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
 #undef IPV6_NEED_LINUX_IN6_H
 

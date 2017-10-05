@@ -1,5 +1,13 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused code in Autoconf macros.
+	* m4/ioctl.m4 (CL_IOCTL): Don't define IOCTL_REQUEST_T, IOCTL_DOTS,
+	IOCTL_ARGUMENT_T.
+	* configure.in: Update comment.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-05  Bruno Haible  <bruno@clisp.org>
+
 	Modernize: Assume ANSI C or C++ in Autoconf macros.
 	* m4/as-underscore.m4: Use ANSI C prototypes.
 	* m4/signal.m4: Likewise.

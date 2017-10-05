@@ -18991,10 +18991,9 @@ AC_PREREQ([2.57])
 AC_DEFUN([CL_IOCTL],
 [
   AC_REQUIRE([CL_TERM])
-  AC_REQUIRE([CL_CADDR_T])
   AC_CHECK_FUNCS([ioctl])
   if test $ac_cv_func_ioctl = yes; then
-    ioctl_decl1='
+    ioctl_decl='
       #include <stdlib.h>
       #ifdef HAVE_UNISTD_H
        #include <sys/types.h>
@@ -19020,69 +19019,6 @@ AC_DEFUN([CL_IOCTL],
        #endif
       #endif
       '
-    CL_PROTO([ioctl],
-      [dnl First find out whether this set of includes declares ioctl(), or whether
-       dnl we shall use <sys/ioctl.h> instead.
-       dnl Note: we must not include <sys/ioctl.h> deliberately since it is
-       dnl incompatible to <termios.h> (and doesn't even declare ioctl()) on SunOS 4.
-       AC_TRY_COMPILE([$ioctl_decl1
-         ]AC_LANG_EXTERN[char* ioctl();],
-         [],
-         [try_sys_ioctl=1],
-         [ioctl_decl="$ioctl_decl1"])
-       if test -n "try_sys_ioctl"; then
-         ioctl_decl2='
-           #include <stdlib.h>
-           #ifdef HAVE_UNISTD_H
-            #include <sys/types.h>
-            #include <unistd.h>
-           #endif
-           #include <sys/ioctl.h>
-           '
-         AC_TRY_COMPILE([$ioctl_decl2
-           ]AC_LANG_EXTERN[char* ioctl();],
-           [],
-           [ioctl_decl="$ioctl_decl1"],
-           [ioctl_decl="$ioctl_decl2"])
-       fi
-       dnl Then find out about the correct ioctl declaration:
-       for y in 'caddr_t arg' 'void* arg' '...'; do
-         for x in SIZE_VARIANTS; do
-           if test -z "$have_ioctl"; then
-             CL_PROTO_TRY([$ioctl_decl
-               #ifdef INCLUDE_SYS_IOCTL_H
-                #include <sys/ioctl.h>
-               #endif
-               ],
-               [int ioctl (int fd, $x request, $y);],
-               [cl_cv_proto_ioctl_arg2="$x"
-                if test "$y" = "..."; then
-                  cl_cv_proto_ioctl_dots=yes
-                  cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, ..."
-                else
-                  cl_cv_proto_ioctl_dots=no
-                  cl_cv_proto_ioctl_arg3=`echo "$y" | sed -e 's, arg,,'`
-                  cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, $cl_cv_proto_ioctl_arg3"
-                fi
-                have_ioctl=1
-               ])
-           fi
-         done
-       done
-       if test -z "$have_ioctl"; then
-         CL_PROTO_MISSING([ioctl])
-       fi
-      ],
-      [extern int ioctl ($cl_cv_proto_ioctl_args);])
-    AC_DEFINE_UNQUOTED([IOCTL_REQUEST_T], [$cl_cv_proto_ioctl_arg2],
-      [type of `request' in ioctl() declaration])
-    if test $cl_cv_proto_ioctl_dots = yes; then
-      AC_DEFINE([IOCTL_DOTS],,[declaration of ioctl() needs dots])
-    else
-      AC_DEFINE_UNQUOTED([IOCTL_ARGUMENT_T], [$cl_cv_proto_ioctl_arg3],
-        [type of `argument' in ioctl() declaration, if not superseded by dots])
-    fi
-    ioctl_decl="$ioctl_decl1"
     ioctl_prog='int x = FIONREAD;'
     CL_COMPILE_CHECK([FIONREAD], [cl_cv_decl_FIONREAD_1],
       [$ioctl_decl], [$ioctl_prog], [ioctl_ok=1])
