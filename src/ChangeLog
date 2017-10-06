@@ -1,3 +1,11 @@
+2017-10-06  Bruno Haible  <bruno@clisp.org>
+
+	Fix compilation error on NetBSD 8 beta.
+	* unix.d (vadvise): Assume it is declared in <sys/vadvise.h>.
+	* configure.in: Don't invoke CL_VADVISE. Just check for vadvise instead.
+	* m4/vadvise.m4: Remove file.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
 	Autoconf macros: Use AS_HELP_STRING systematically.

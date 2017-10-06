@@ -101,7 +101,7 @@
 /* paging control */
 #ifdef HAVE_VADVISE
   #include <sys/vadvise.h> /* control codes */
-  extern_C void vadvise (int param); /* paging system control, see VADVISE(2) */
+  /* {void|int} vadvise (int param); */ /* paging system control, see VADVISE(2) */
 #endif
 /* use madvise() ?? */
 /* used by SPVW */
