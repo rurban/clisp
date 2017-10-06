@@ -1573,7 +1573,7 @@
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
 
-/* have the vadvise() system call */
+/* Define to 1 if you have the `vadvise' function. */
 #undef HAVE_VADVISE
 
 /* Define to 1 if you have the `vfork' function. */
