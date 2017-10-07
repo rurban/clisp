@@ -661,13 +661,15 @@
 /* have <sys/mmap.h> and the mmap() function */
 #undef HAVE_MMAP
 
-/* <sys/mman.h> defines MAP_ANON and mmaping with MAP_ANON works */
+/* <sys/mman.h> defines MAP_ANON and mmaping with MAP_FIXED | MAP_ANON works
+   */
 #undef HAVE_MMAP_ANON
 
-/* <sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_ANONYMOUS works */
+/* <sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_FIXED |
+   MAP_ANONYMOUS works */
 #undef HAVE_MMAP_ANONYMOUS
 
-/* mmaping of the special device /dev/zero works */
+/* mmaping of the special device /dev/zero with MAP_FIXED works */
 #undef HAVE_MMAP_DEVZERO
 
 /* Define to 1 if you have the `mprotect' function. */
