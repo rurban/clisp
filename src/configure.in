@@ -102,7 +102,7 @@ CL_SIGINTERRUPT        dnl DEFS HAVE_SIGINTERRUPT
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
-gethostname getcwd getrlimit uname readdir_r rand_r vadvise)
+gethostname getcwd getrlimit uname readdir_r rand_r)
 AC_FUNC_VFORK dnl DEFS HAVE_VFORK_H, vfork
 CL_RUSAGE dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, HAVE_SYS_TIMES_H
 CL_IOCTL dnl DEFS HAVE_IOCTL, HAVE_FIONREAD, NEED_SYS_FILIO_H, NEED_SYS_IOCTL_H, HAVE_RELIABLE_FIONREAD
@@ -116,6 +116,7 @@ CL_TCPCONN
 dnl DEFS CODE_ADDRESS_RANGE, MALLOC_ADDRESS_RANGE, SHLIB_ADDRESS_RANGE,
 dnl STACK_ADDRESS_RANGE
 CL_ADDRESS_RANGE
+CL_VADVISE dnl DEFS HAVE_VADVISE
 CL_MACH_VM dnl DEFS HAVE_MACH_VM
 dnl DEFS HAVE_MMAP, HAVE_MMAP_ANON, HAVE_MMAP_ANONYMOUS, HAVE_MMAP_DEVZERO,
 dnl HAVE_MMAP_DEVZERO_SUN4_29
