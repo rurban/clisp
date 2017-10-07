@@ -6,9 +6,13 @@
 
 /* This adds support for mapping private memory pages at given addresses.
  If HAVE_MMAP is defined, it also supports private mappings of files
- at given addresses.
+ at given addresses. */
 
- The size of a single page. (This may be a multiple of the actual physical
+/* The size of a physical page, as returned by the operating system.
+ Initialized by mmap_init_pagesize(). */
+local uintP system_pagesize;
+
+/* The size of a single page. (This may be a multiple of the actual physical
  page size.) Always a power of two. Initialized by mmap_init_pagesize(). */
 local uintP mmap_pagesize;
 local void mmap_init_pagesize (void);
@@ -173,7 +177,10 @@ local void warn_before_reserving_range (uintP map_addr, uintP map_endaddr)
 #if defined(HAVE_MACH_VM)
 
 local void mmap_init_pagesize (void)
-{ mmap_pagesize = vm_page_size; }
+{
+  system_pagesize = vm_page_size;
+  mmap_pagesize = system_pagesize;
+}
 
 #define mmap_init()  0
 
@@ -256,7 +263,10 @@ global int mprotect (void* addr, size_t len, int prot)
 #if defined(HAVE_WIN32_VM)
 
 local void mmap_init_pagesize (void)
-{ mmap_pagesize = getpagesize(); }
+{
+  system_pagesize = getpagesize();
+  mmap_pagesize = system_pagesize;
+}
 
 #define mmap_init()  0
 
@@ -427,6 +437,7 @@ local int mmap_zero_fd;       /* open handle for /dev/zero */
 
 local void mmap_init_pagesize (void)
 {
+  system_pagesize = getpagesize();
   mmap_pagesize =
    #if defined(SPARC) /* && (defined(UNIX_SUNOS5) || defined(UNIX_LINUX) || defined(UNIX_NETBSD) || ...) */
     /* Normal SPARCs have PAGESIZE=4096, UltraSPARCs have PAGESIZE=8192.
@@ -437,10 +448,8 @@ local void mmap_init_pagesize (void)
     /* The pagesize can be 4, 8, 16 or 64 KB.
        For compatibility of the .mem files, choose always the same value. */
     65536
-   #elif defined(HAVE_GETPAGESIZE)
-    getpagesize()
    #else
-    4096                        /* just a wild guess */
+    system_pagesize
    #endif
     ;
 }

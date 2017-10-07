@@ -2,8 +2,12 @@
 
 /* -------------------------- Specification ---------------------------- */
 
-/* Physical page size. When a fault occurs, an entire physical page must
- change its protections. */
+/* "Physical" page size. When a fault occurs, an entire physical page must
+ change its protections.
+ This may actually be a multiple of the system_pagesize. However, for the
+ purposes of memory management and GC (allocation, protection changes, etc.)
+ we always treat it as a unit. A better name would be "memory management page"
+ but this term is already defined in spvw_page.d. */
 local /* uintL */ aint physpagesize;  /* = map_pagesize or mmap_pagesize */
 
 /* 2^physpageshift = physpagesize */
@@ -146,7 +150,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     var Heap* heap = &mem.heaps[heapnr];
     if (!is_heap_containing_objects(heapnr))
       goto error1;
-    if (!(((heap->heap_gen0_start & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT-1)) <= address)
+    if (!(((heap->heap_gen0_start & ~(SIGSEGV_FAULT_ADDRESS_ALIGNMENT > 1UL ? system_pagesize-1 : 0)) <= address)
           && (address < heap->heap_gen0_end)))
       goto error2;
     if (heap->physpages == NULL)
