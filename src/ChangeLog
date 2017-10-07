@@ -1,3 +1,10 @@
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
+	Fix compilation error on FreeBSD (regression from 2017-10-06).
+	* m4/vadvise.m4: New file.
+	* configure.in: Invoke CL_VADVISE.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
 2017-10-06  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation error on NetBSD 8 beta.
