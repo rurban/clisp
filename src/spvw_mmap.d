@@ -79,9 +79,24 @@ typedef char mincore_pageinfo_t;
 /* The page size used by mincore(), that is, the physical page size. */
 local uintP mincore_pagesize;
 
-#define mincore_init() \
-  /* Note: HAVE_MINCORE implies HAVE_GETPAGESIZE. */ \
+/* Whether mincore() can be used to detect mapped pages. */
+local bool mincore_works;
+
+local void mincore_init (void)
+{
+  /* Note: HAVE_MINCORE implies HAVE_GETPAGESIZE. */
   mincore_pagesize = getpagesize();
+  /* FreeBSD 6.[01] doesn't allow to distinguish unmapped pages from mapped
+     but swapped-out pages.  Similarly, on DragonFly BSD 3.8, mincore succeeds
+     for any page, even unmapped ones.
+     Detect these unusable implementations: Test what mincore() reports for
+     the page at address 0 (which is always unmapped, in order to catch NULL
+     pointer accesses). */
+  {
+    mincore_pageinfo_t vec[1];
+    mincore_works = (mincore ((void *) 0, mincore_pagesize, vec) < 0);
+  }
+}
 
 /* Determines whether the memory range [map_addr,map_endaddr) is entirely
    unmapped.
@@ -105,7 +120,7 @@ local bool is_small_range_unmapped (uintP map_addr, uintP map_endaddr)
    randomization. */
 local void warn_before_mmap (uintP map_addr, uintP map_endaddr)
 {
-  if (!is_small_range_unmapped(map_addr,map_endaddr)) {
+  if (mincore_works && !is_small_range_unmapped(map_addr,map_endaddr)) {
     fprintf(stderr,GETTEXTL("Warning: overwriting existing memory mappings in the address range 0x%lx...0x%lx. clisp will likely crash soon!!\n"),
             (unsigned long)map_addr,(unsigned long)(map_endaddr-1));
   }
