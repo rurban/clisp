@@ -1,5 +1,14 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
+	Update after the newest change in libsigsegv's API.
+	* spvw_mmap.d (system_pagesize): New variable.
+	(mmap_init_pagesize): Initialize it.
+	* spvw_fault.d (handle_fault): Use system_pagesize instead of the
+	(constant) value of SIGSEGV_FAULT_ADDRESS_ALIGNMENT.
+	* spvw_fault_old.d (handle_fault): Likewise.
+
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error on FreeBSD (regression from 2017-10-06).
 	* m4/vadvise.m4: New file.
 	* configure.in: Invoke CL_VADVISE.
