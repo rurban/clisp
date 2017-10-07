@@ -1,5 +1,12 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
+	Fix false alarm about mmap on DragonFly BSD.
+	* spvw_mmap.d (mincore_works): New variable.
+	(mincore_init): Initialize it.
+	(warn_before_mmap): Do nothing if mincore_works is false.
+
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
 	Relax the Autoconf test for mmap with MAP_FIXED.
 	* m4/mmap.m4 (CL_MMAP): Test only whether mmap with MAP_FIXED works
 	for some address.
