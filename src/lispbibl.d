@@ -182,9 +182,6 @@
   #if (defined(sun) && defined(unix) && defined(sparc))
     #define SUN4
   #endif
-  #if defined(sparc) || defined(__sparc__)
-    /* maybe SUN4_29 if only addresses <2^29 are supported */
-  #endif
   #if defined(hp9000s800) || defined(__hp9000s800)
     #define HP8XX
   #endif
@@ -3076,7 +3073,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      It worked on the following platforms in the past, and may still work on:
        (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
        (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN) && !defined(WIN32_NATIVE))
-       (defined(SPARC) && !defined(SUN4_29))
+       defined(SPARC)
        defined(MIPS)
        defined(M88000)
        (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
@@ -4260,7 +4257,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    Therefore avoid allocating typecode 0x08 for the moment. */
 #endif
 
-#if (defined(M68K) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
+#if (defined(M68K) || defined(SPARC)) && defined(UNIX_LINUX)
   /* At 0x50000000 there are shared libraries located.
    But this doesn't mean we have to change the type code distribution. */
 #endif
@@ -4437,11 +4434,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  bits before one accesses the address */
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef SINGLEMAP_MEMORY
-  #if defined(SUN4_29)
-    /* Memory-mapping makes the bits 28..24 of an address redundant now. */
-    #undef addressbus_mask
-    #define addressbus_mask  0xE0FFFFFFUL
-  #elif defined(DECALPHA) && defined(UNIX_OSF)
+  #if defined(DECALPHA) && defined(UNIX_OSF)
     /* Memory-mapping makes the bits 39..33 of an address redundant now. */
     #undef addressbus_mask
     #define addressbus_mask  0xFFFFFF01FFFFFFFFUL

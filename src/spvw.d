@@ -3135,11 +3135,7 @@ local inline int init_memory (struct argv_initparams *p) {
       var void* malloc_addr = malloc(1);
       var aint start = round_up((aint)malloc_addr+RESERVE_FOR_MALLOC,map_pagesize); /* reserve for malloc() */
      #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      #if defined(SUN4_29)
-      var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
-      mem.heaps[0].heap_limit = start + round_down(floor(end-start,5),map_pagesize);
-      mem.heaps[1].heap_limit = round_down(end,map_pagesize);
-      #elif defined(UNIX_NETBSD) && !defined(WIDE_HARD)
+      #if defined(UNIX_NETBSD) && !defined(WIDE_HARD)
        #ifdef ONE_FREE_BIT_HEAPCODES
       /* To avoid garcol_bit_o = bit 30, either of
          0x10000000..0x40000000 and 0x80000000..0xB0000000 works. */
@@ -3173,13 +3169,7 @@ local inline int init_memory (struct argv_initparams *p) {
       #endif
       if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0) return -1;
      #else  /* SPVW_MIXED_BLOCKS_STAGGERED */
-      #if defined(SUN4_29)
-      var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
-      mem.heaps[0].heap_limit = start + round_down(floor(end-start,5),map_pagesize);
-      mem.heaps[0].heap_hardlimit =
-        mem.heaps[1].heap_limit = start + round_down(floor((end-start)*3,5),map_pagesize);
-      mem.heaps[1].heap_hardlimit = end;
-      #elif defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
+      #if defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
       mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE1_START;
       mem.heaps[0].heap_hardlimit = MAPPABLE_ADDRESS_RANGE1_END + 1;
       mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE2_START;

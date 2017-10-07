@@ -34,21 +34,12 @@
 #endif
 /* used by ERROR, SPVW, STREAM, PATHNAME */
 
-#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MMAP_DEVZERO_SUN4_29)
+#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO)
   #include <sys/mman.h>
   #if defined(HAVE_MMAP_ANONYMOUS) && !defined(HAVE_MMAP_ANON)
     /* HP-UX uses MAP_ANONYMOUS instead of MAP_ANON. */
     #define MAP_ANON MAP_ANONYMOUS
     #define HAVE_MMAP_ANON
-  #endif
-  #ifdef UNIX_SUNOS5
-    /* for SINGLEMAP_MEMORY: */
-    #if defined(HAVE_MMAP_DEVZERO_SUN4_29) && defined(SUN4_29) && !defined(HAVE_MMAP_DEVZERO)
-      /* On the assumption of the SUN4_29-type code distribution
-         HAVE_MMAP_DEVZERO_SUN4_29 is a sufficient replacement
-         for HAVE_MMAP_DEVZERO. */
-      #define HAVE_MMAP_DEVZERO
-    #endif
   #endif
   #ifdef UNIX_SUNOS5
    /* NB: Under UNIX_SUNOS5, HAVE_MMAP_DEVZERO should be defined.

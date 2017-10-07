@@ -1479,14 +1479,6 @@ if [ "${enable_mmap}" = no ]; then
   XCFLAGS=${XCFLAGS}" -DNO_SINGLEMAP -DNO_TRIVIALMAP"
 fi
 
-if [ $TSYS = sun4 -a $CROSS = false ] ; then
-  ARCH_K=`(arch -k) 2>/dev/null || uname -m 2>/dev/null` # kernel architecture, see arch(1)
-  if [ "$ARCH_K" = sun4 -o "$ARCH_K" = sun4c -o "$ARCH_K" = sun4e ] ; then
-    # sun4, sun4c, sun4e support only 29 bit addresses,
-    # sun4m supports 32 bit addresses.
-    XCFLAGS=$XCFLAGS' -DSUN4_29'
-  fi
-fi
 # When to define BINARY_DISTRIB?
 # There is no general pro or cons of distributing an executable versus a
 # static library, except for the unavailability of the compiler and linker
