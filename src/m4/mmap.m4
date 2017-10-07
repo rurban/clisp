@@ -48,15 +48,9 @@ AC_DEFUN([CL_MMAP],
              #define bits_to_avoid $avoid"'
              #define my_shift 24
              #define my_low   1
-             #ifdef FOR_SUN4_29
-              #define my_high  31
-              #define my_size  32768 /* hope that 32768 is a multiple of the page size */
-              /* i*32 KB for i=1..31 gives a total of 15.5 MB, which is close to what we need */
-             #else
-              #define my_high  64
-              #define my_size  8192 /* hope that 8192 is a multiple of the page size */
-              /* i*8 KB for i=1..64 gives a total of 16.25 MB, which is close to what we need */
-             #endif
+             #define my_high  64
+             #define my_size  8192 /* hope that 8192 is a multiple of the page size */
+             /* i*8 KB for i=1..64 gives a total of 16.25 MB, which is close to what we need */
              #if defined(__APPLE__) && defined(__MACH__) && defined(__x86_64__)
               /* On MacOS X in 64-bit mode, mmapable addresses start at 2^33. */
               #define base_address 0x200000000UL
@@ -132,27 +126,8 @@ AC_DEFUN([CL_MMAP],
            [have_mmap_devzero=1
             cl_cv_func_mmap_devzero=yes
            ],
-           [retry_mmap=1],
+           [],
            [: # When cross-compiling, don't assume anything.])
-         if test -n "$retry_mmap"; then
-           AC_TRY_RUN(GL_NOCRASH[
-             #define FOR_SUN4_29
-             $mmap_prog_1
-               #ifndef MAP_FILE
-                #define MAP_FILE 0
-               #endif
-               int flags = MAP_FILE | MAP_PRIVATE;
-               int fd = open("/dev/zero",O_RDONLY,0666);
-               if (fd<0) exit(1);
-               nocrash_init();
-             $mmap_prog_2
-             ],
-             [have_mmap_devzero=1
-              cl_cv_func_mmap_devzero_sun4_29=yes
-             ],
-             [],
-             [: # When cross-compiling, don't assume anything.])
-         fi
          if test -n "$have_mmap_anon" -o -n "$have_mmap_devzero"; then
            cl_cv_func_mmap_works=yes
          else
@@ -167,9 +142,6 @@ AC_DEFUN([CL_MMAP],
       fi
       if test "$cl_cv_func_mmap_devzero" = yes; then
         AC_DEFINE([HAVE_MMAP_DEVZERO],,[mmaping of the special device /dev/zero works])
-      fi
-      if test "$cl_cv_func_mmap_devzero_sun4_29" = yes; then
-        AC_DEFINE([HAVE_MMAP_DEVZERO_SUN4_29],,[mmaping of the special device /dev/zero works, but only on addresses < 2^29])
       fi
     fi
   fi

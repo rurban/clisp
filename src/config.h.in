@@ -670,10 +670,6 @@
 /* mmaping of the special device /dev/zero works */
 #undef HAVE_MMAP_DEVZERO
 
-/* mmaping of the special device /dev/zero works, but only on addresses < 2^29
-   */
-#undef HAVE_MMAP_DEVZERO_SUN4_29
-
 /* Define to 1 if you have the `mprotect' function. */
 #undef HAVE_MPROTECT
 

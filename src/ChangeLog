@@ -1,5 +1,16 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
+	Remove support for Sun-4 machines prior to Sun-4m.
+	* m4/mmap.m4 (CL_MMAP): Don't define HAVE_MMAP_DEVZERO_SUN4_29.
+	* configure.in: Update comment.
+	* makemake.in (XCFLAGS): Don't define SUN4_29.
+	* lispbibl.d: Remove tests of SUN4_29.
+	* unix.d: Simplify accordingly.
+	* spvw.d (init_memory): Remove SUN4_29 special case.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
 	Update after the newest change in libsigsegv's API.
 	* spvw_mmap.d (system_pagesize): New variable.
 	(mmap_init_pagesize): Initialize it.
