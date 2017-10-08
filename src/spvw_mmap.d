@@ -179,7 +179,7 @@ local void warn_before_reserving_range (uintP map_addr, uintP map_endaddr)
   if (!is_large_range_unmapped(map_addr,map_endaddr)) {
     fprintf(stderr,GETTEXTL("Warning: reserving address range 0x%lx...0x%lx that contains memory mappings. clisp might crash later!\n"),
             (unsigned long)map_addr,(unsigned long)(map_endaddr-1));
-    dump_process_memory_map();
+    dump_process_memory_map(stderr);
   }
 }
 
@@ -320,7 +320,7 @@ local int mmap_prepare (aint* map_addr, aint* map_endaddr, bool shrinkp)
     if (largest_len < 0x10000) {
       fprintf(stderr,GETTEXTL("Cannot reserve address range at 0x%lx ."),
               *map_addr);
-      /* DumpProcessMemoryMap(); */
+      /* DumpProcessMemoryMap(stderr); */
       return -1;
     }
     *map_addr = start_addr = round_up(largest_start_addr,0x10000);
@@ -331,7 +331,7 @@ local int mmap_prepare (aint* map_addr, aint* map_endaddr, bool shrinkp)
     fprintf(stderr,GETTEXTL("Cannot reserve address range 0x%lx-0x%lx ."),
             start_addr,end_addr-1);
     errno_out(errcode);
-    /* DumpProcessMemoryMap(); */
+    /* DumpProcessMemoryMap(stderr); */
     return -1;
   }
  #ifdef DEBUG_SPVW

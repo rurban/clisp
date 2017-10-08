@@ -346,7 +346,7 @@ extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
 
 /* Examining the memory map.
    extern DWORD VirtualQuery (LPCVOID Address, PMEMORY_BASIC_INFORMATION Buffer, DWORD Length); */
-extern void DumpProcessMemoryMap (void); /* see win32aux.d */
+extern void DumpProcessMemoryMap (FILE* out); /* see win32aux.d */
 /* used by spvw.d */
 
 /* Getting virtual memory

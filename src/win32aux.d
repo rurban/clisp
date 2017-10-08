@@ -1100,51 +1100,51 @@ global _Noreturn void abort (void)
 
 
 /* Print out the memory map of the process. */
-global void DumpProcessMemoryMap (void)
+global void DumpProcessMemoryMap (FILE* out)
 {
   var MEMORY_BASIC_INFORMATION info;
   var aint address = 0;
-  fprint(stderr,"Memory dump:\n");
+  fprint(out,"Memory dump:\n");
   while (VirtualQuery((void*)address,&info,sizeof(info)) == sizeof(info)) {
     /* Always info.BaseAddress = address. */
     switch (info.State) {
-      case MEM_FREE:    fprint(stderr,"-"); break;
-      case MEM_RESERVE: fprint(stderr,"+"); break;
-      case MEM_COMMIT:  fprint(stderr,"*"); break;
-      default: fprint(stderr,"?"); break;
+      case MEM_FREE:    fprint(out,"-"); break;
+      case MEM_RESERVE: fprint(out,"+"); break;
+      case MEM_COMMIT:  fprint(out,"*"); break;
+      default: fprint(out,"?"); break;
     }
-    fprintf(stderr," 0x%x - 0x%x",(aint)info.BaseAddress,
+    fprintf(out," 0x%x - 0x%x",(aint)info.BaseAddress,
             (aint)info.BaseAddress+info.RegionSize-1);
     if (info.State != MEM_FREE) {
-      fprintf(stderr," (0x%x) ",(aint)info.AllocationBase);
+      fprintf(out," (0x%x) ",(aint)info.AllocationBase);
       /* info.AllocationProtect is apparently irrelevant. */
       switch (info.Protect & ~(PAGE_GUARD|PAGE_NOCACHE)) {
-        case PAGE_READONLY:          fprint(stderr," R  "); break;
-        case PAGE_READWRITE:         fprint(stderr," RW "); break;
-        case PAGE_WRITECOPY:         fprint(stderr," RWC"); break;
-        case PAGE_EXECUTE:           fprint(stderr,"X   "); break;
-        case PAGE_EXECUTE_READ:      fprint(stderr,"XR  "); break;
-        case PAGE_EXECUTE_READWRITE: fprint(stderr,"XRW "); break;
-        case PAGE_EXECUTE_WRITECOPY: fprint(stderr,"XRWC"); break;
-        case PAGE_NOACCESS:          fprint(stderr,"----"); break;
-        default: fprint(stderr,"?"); break;
+        case PAGE_READONLY:          fprint(out," R  "); break;
+        case PAGE_READWRITE:         fprint(out," RW "); break;
+        case PAGE_WRITECOPY:         fprint(out," RWC"); break;
+        case PAGE_EXECUTE:           fprint(out,"X   "); break;
+        case PAGE_EXECUTE_READ:      fprint(out,"XR  "); break;
+        case PAGE_EXECUTE_READWRITE: fprint(out,"XRW "); break;
+        case PAGE_EXECUTE_WRITECOPY: fprint(out,"XRWC"); break;
+        case PAGE_NOACCESS:          fprint(out,"----"); break;
+        default: fprint(out,"?"); break;
       }
       if (info.Protect & PAGE_GUARD)
-        fprint(stderr," PAGE_GUARD");
+        fprint(out," PAGE_GUARD");
       if (info.Protect & PAGE_NOCACHE)
-        fprint(stderr," PAGE_NOCACHE");
-      fprint(stderr," ");
+        fprint(out," PAGE_NOCACHE");
+      fprint(out," ");
       switch (info.Type) {
-        case MEM_IMAGE:   fprint(stderr,"MEM_IMAGE"); break;
-        case MEM_MAPPED:  fprint(stderr,"MEM_MAPPED"); break;
-        case MEM_PRIVATE: fprint(stderr,"MEM_PRIVATE"); break;
-        default:          fprint(stderr,"MEM_?"); break;
+        case MEM_IMAGE:   fprint(out,"MEM_IMAGE"); break;
+        case MEM_MAPPED:  fprint(out,"MEM_MAPPED"); break;
+        case MEM_PRIVATE: fprint(out,"MEM_PRIVATE"); break;
+        default:          fprint(out,"MEM_?"); break;
       }
     }
-    fprint(stderr,"\n");
+    fprint(out,"\n");
     address = (aint)info.BaseAddress + info.RegionSize;
   }
-  fprint(stderr,"End of memory dump.\n");
+  fprint(out,"End of memory dump.\n");
 }
 
 /* file identification for check_file_re_open() */

@@ -1,5 +1,15 @@
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
+	Emit the output of "lisp.run -mm" to stdout, not stderr.
+	* win32.d (DumpProcessMemoryMap): Accept a FILE* argument.
+	* win32aux.d (DumpProcessMemoryMap): Likewise.
+	* spvw.d (dump_process_memory_map_callback): Likewise.
+	(dump_process_memory_map): Likewise.
+	(parse_options): Pass stdout.
+	* spvw_mmap.d (warn_before_reserving_range, mmap_prepare): Pass stderr.
+
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
 	Fix misuse of Autoconf cache.
 	* m4/mmap.m4 (CL_MMAP): Put the complete test result in a single *_cv_*
 	variable.
