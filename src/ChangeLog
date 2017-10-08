@@ -1,5 +1,12 @@
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* gllib/*: Update from gnulib.
+
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
 	Define mappable address range for many platforms.
 	* lispbibl.d (UNIX_GNU_FREEBSD, UNIX_IRIX): New macros.
 	(MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END): Define for
