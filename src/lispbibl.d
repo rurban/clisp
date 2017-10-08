@@ -251,7 +251,7 @@
   #endif
   #if defined(_IBMR2) || defined(__powerpc) || defined(__powerpc__) || defined(__ppc) || defined(__ppc__)
     #define POWERPC
-    #if defined(__powerpc64__) || defined(__ppc64__)
+    #if defined(__powerpc64__) || defined(__ppc64__) || defined(_ARCH_PPC64)
       #define POWERPC64
     #endif
   #endif
