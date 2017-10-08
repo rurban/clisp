@@ -225,11 +225,46 @@ local void dump_process_memory_map (FILE* out)
 /* --------------------------------------------------------------------------
                           Page-Allocation */
 
-#if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)
-
 #include "spvw_mmap.c"
 
-#endif  /* SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY || MULTITHREAD */
+/* Check the MAPPABLE_ADDRESS_RANGE_* values.
+   Return an exit code. */
+local int mappable_address_range_check (void)
+{
+  var int exitcode = 0;
+#if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+ #if defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
+  var const uintL count = 256;
+  var uintL i;
+  mmap_init_pagesize();
+  mmap_init();
+  #if VMA_ITERATE_SUPPORTED
+  dump_process_memory_map(stdout);
+  #endif
+  fprint(stdout,"Starting check...\n");
+  for (i = 0; i <= count; i++) {
+    var uintP addr = MAPPABLE_ADDRESS_RANGE_START + ((MAPPABLE_ADDRESS_RANGE_END - MAPPABLE_ADDRESS_RANGE_START) / count) * i;
+    addr = addr & ~(mmap_pagesize-1);
+    var uintP endaddr = addr + mmap_pagesize;
+    if (mmap_prepare(&addr,&endaddr,false) < 0
+        || mmap_zeromap((void*)addr,endaddr-addr) < 0) {
+      fprintf(stdout,"  %p FAILED\n",(void*)addr);
+      exitcode = 1;
+    } else {
+      fprintf(stdout,"  %p OK\n",(void*)addr);
+    }
+  }
+  #if VMA_ITERATE_SUPPORTED
+  dump_process_memory_map(stdout);
+  #endif
+ #else
+  fprint(stdout,"Nothing to check: MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END are not defined.\n");
+ #endif
+#else
+  fprint(stdout,"Nothing to check: The OS does not provide memory mapping facilities.\n");
+#endif
+  return exitcode;
+}
 
 #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
 
@@ -2611,6 +2646,9 @@ local inline int parse_options (int argc, const char* const* argv,
                 dump_process_memory_map(stdout);
               #endif
               return 1;
+            }
+            if (asciz_equal(arg,"-marc")) { /* "-marc" -> MAPPABLE_ADDRESS_RANGE_* check */
+              return mappable_address_range_check();
             }
             if (asciz_equal(arg,"-modern"))
               p2->argv_modern = true;

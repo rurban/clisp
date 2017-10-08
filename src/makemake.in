@@ -2226,7 +2226,7 @@ echol
 echol
 
 SUBDIRS=gllib
-needs="gllib/libgnu.a init allc allo lisp${LEXE} interpreted.mem halfcompiled.mem lispinit.mem manual"
+needs="gllib/libgnu.a init allc allo lisp${LEXE} marc.out interpreted.mem halfcompiled.mem lispinit.mem manual"
 if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
   needs=".gdbinit "$needs' modular $(BASE_MODULES) $(MODULES) '"clisp${TEXE} boot base full"
 fi
@@ -2728,6 +2728,10 @@ if [ $TSYS = win32msvc -a "${with_debug}" != no ] ; then
   echotab "bscmake /n /o lisp *.sbr"
   echol
 fi
+
+echol "marc.out : lisp${LEXE}"
+echotab "${HERE}lisp${LEXE} -marc > marc.out"
+echol
 
 CONFIG=cfg${TOS}
 echol "config.lisp : ${SRCDIR}${CONFIG}.lisp"
@@ -3973,7 +3977,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log ${CLISP_DEF}
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} marc.out clisp-link makevars ansi-tests-log ${CLISP_DEF}
 	for m in "" \$(BASE_MODULES) \$(MODULES); do test -n "\$\$m" && \$(RM) \$\$m/*${TOBJ}; done
 	-\$(RMRF) ${RECOMPILEDIR}
 	-\$(RMRF) ${TESTSDIR}
