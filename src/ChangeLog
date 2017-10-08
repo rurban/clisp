@@ -1,5 +1,13 @@
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
+	Define mappable address range for many platforms.
+	* lispbibl.d (UNIX_GNU_FREEBSD, UNIX_IRIX): New macros.
+	(MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END): Define for
+	many platforms.
+	(ADDRESS_RANGE_RANDOMIZED): Don't define on OpenBSD.
+
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
 	New option "-marc" for mappable address range check.
 	* spvw.d (mappable_address_range_check): New function.
 	(parse_options): New option "-marc".

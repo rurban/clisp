@@ -288,6 +288,8 @@
   #if defined(__FreeBSD__) || defined(__DragonFly__)
     /* FreeBSD or its fork called DragonFly BSD. */
     #define UNIX_FREEBSD
+  #elif defined(__FreeBSD_kernel__)
+    #define UNIX_GNU_FREEBSD /* GNU/kFreeBSD */
   #endif
   #ifdef __OpenBSD__
     #define UNIX_OPENBSD
@@ -300,6 +302,9 @@
   #endif
   #ifdef _AIX
     #define UNIX_AIX  /* IBM AIX */
+  #endif
+  #ifdef __sgi
+    #define UNIX_IRIX /* SGI IRIX */
   #endif
   #ifdef __osf__
     #define UNIX_OSF  /* OSF/1 */
@@ -2096,96 +2101,631 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether the operating system allocates memory (via mmap or malloc) at
-   randomized locations.
-   On OpenBSD/x86:
-     CODE_ADDRESS_RANGE   varies from 0x14000000 to 0x1B000000
-     MALLOC_ADDRESS_RANGE varies from 0x74000000..0x84000000 to 0x7A000000..0x8A000000
-     SHLIB_ADDRESS_RANGE  varies from 0x21000000 to 0x2F000000
-     STACK_ADDRESS_RANGE  0xCF000000
-     There is free room from 0x90000000 to 0C8000000.
-     This arrangement is good enough that TRIVIALMAP_MEMORY is possible.
-   On OpenBSD/x86_64:
-     CODE_ADDRESS_RANGE   varies from 0x000001xxxx000000 to 0x00001Fxxxx000000
-     MALLOC_ADDRESS_RANGE varies from 0x000000xxxx000000 to 0x00001Fxxxx000000
-     SHLIB_ADDRESS_RANGE  varies from 0x000001xxxx000000 to 0x00001Exxxx000000
-     STACK_ADDRESS_RANGE  0x00007F7FFF000000
-     This varies so wildly that it makes TRIVIALMAP_MEMORY impossible.
-   If not randomized: Define one or two ranges of addresses that are free to use.
-   Determine these through the tools listed in unix/PLATFORMS.
-   For one range:
-     MAPPABLE_ADDRESS_RANGE_START
-     MAPPABLE_ADDRESS_RANGE_END
-   For two ranges:
-     MAPPABLE_ADDRESS_RANGE1_START
-     MAPPABLE_ADDRESS_RANGE1_END
-     MAPPABLE_ADDRESS_RANGE2_START
-     MAPPABLE_ADDRESS_RANGE2_END
-   The _START values should be multiples of the page size.
-   The _END values + 1 should be multiples of the page size.
- */
-#if defined(UNIX_OPENBSD) && defined(WIDE_HARD)
-  #define ADDRESS_RANGE_RANDOMIZED
-#else
-  #if !defined(WIDE_HARD)
-    /* 32-bit platforms */
-    #if defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
+/* Where the operating system allocates memory (via mmap or malloc).
+   Some of these locations may be randomized to some extent; cf.
+   "address space layout randomization" (ASLR)
+   <https://en.wikipedia.org/wiki/Address_space_layout_randomization>.
+
+   To determine the address space layout:
+   1) Attempt to build clisp with
+        $ make -f Makefile.devel build-porting32-gcc-portability
+      (for 32-bit ABIs) or
+        $ make -f Makefile.devel build-porting64-gcc-portability
+      The build does not need to complete; you only need the lisp.run
+      program.
+        $ cd build-porting{32,64}-gcc-portability
+   2) Gain an understanding of the address space layout:
+        $ grep HIGHEST config.status
+        $ grep RANGE config.status
+        $ ./lisp.run -mm
+      If some randomization is present, run
+        $ for i in `seq 100`; do ./lisp.run -mm; done | sort
+      You can use the tools listed in unix/PLATFORMS here.
+   3) Define the values
+        MAPPABLE_ADDRESS_RANGE_START
+        MAPPABLE_ADDRESS_RANGE_END
+      here. Or for two ranges:
+        MAPPABLE_ADDRESS_RANGE1_START
+        MAPPABLE_ADDRESS_RANGE1_END
+        MAPPABLE_ADDRESS_RANGE2_START
+        MAPPABLE_ADDRESS_RANGE2_END
+      The _START values should be multiples of the page size.
+      The _END values + 1 should be multiples of the page size.
+      If no such range can be determined, define ADDRESS_RANGE_RANDOMIZED.
+   4) Recompile lisp.run and run
+        $ make marc.out
+*/
+/* Sort order: Keep this list sorted by
+     1. word size (32-bit before 64-bit),
+     2. operating system (Linux, *BSD, Mac OS X, proprietary Unices, Windows)
+     3. CPU and ABI (alphabetically) */
+#if !defined(WIDE_HARD)
+  /* 32-bit platforms */
+  #if defined(UNIX_LINUX) && defined(AMD64)
+    /* On Linux/x86_64 with 32-bit x32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x01000000UL ... 0x02000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF7000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x03000000UL to 0xF7000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(ARM)
+    /* On Linux/arm:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL ... 0x02000000UL
+       SHLIB_ADDRESS_RANGE  = 0xB6000000UL
+       STACK_ADDRESS_RANGE  = 0xBE000000UL
+       On Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8":
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x40000000UL or 0xF7000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x41000000UL to 0xB6000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x41000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xB5FFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(HPPA)
+    /* On Linux/hppa in qemu user-mode emulation (with -static):
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL
+       STACK_ADDRESS_RANGE  = 0xF6000000UL
+       There is room from 0x00000000UL to 0xF6000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(I80386)
+    /* On Linux/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL (Debian 9.1) or 0x08000000UL (Ubuntu 17.04)
+       MALLOC_ADDRESS_RANGE = 0x01000000UL (Debian 9.1) or 0x08000000UL (Ubuntu 17.04)
+       SHLIB_ADDRESS_RANGE  = 0xB7000000UL
+       STACK_ADDRESS_RANGE  = 0xBF000000UL
+       On Linux/x86_64 with 32-bit i386 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL ... 0x0A000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF7000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x0B000000UL to 0xB7000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
+    #if 0 /* old */
       #define MAPPABLE_ADDRESS_RANGE1_START 0x2E000000UL
       #define MAPPABLE_ADDRESS_RANGE1_END   0x3FFFFFFFUL
       #define MAPPABLE_ADDRESS_RANGE2_START 0x64000000UL
       #define MAPPABLE_ADDRESS_RANGE2_END   0x7EFFFFFFUL
     #endif
-    #if defined(UNIX_MACOSX)
-      /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
-       and the dyld at 0x8f...... */
-      #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x8EFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(M68K)
+    /* On Linux/m68k in qemu user-mode emulation (with -static):
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x80000000UL
+       MALLOC_ADDRESS_RANGE = 0x80000000UL
+       SHLIB_ADDRESS_RANGE  = 0x80000000UL
+       STACK_ADDRESS_RANGE  = 0xF6000000UL
+       There is room from 0x00000000UL to 0x80000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64))
+    /* On Linux/mipseb and Linux/mipsel with o32 ABI and
+       on Linux/mips64eb and Linux/mips64el with n32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x77000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       On Linux/mips64eb with o32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x2B000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x2C000000UL to 0x77000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x2C000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x76FFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(POWERPC)
+    /* On Linux/powerpc64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x10000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x11000000UL to 0xF7000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x20000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(S390)
+    /* On Linux/s390x with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x7C000000UL or 0x7D000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x01000000UL to 0x7C000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(SPARC)
+    /* On Linux/sparc64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x70000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x01000000UL to 0x70000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
+  #endif
+  #if defined(UNIX_HURD) && defined(I80386)
+    /* On Hurd/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL
+       SHLIB_ADDRESS_RANGE  = 0x01000000UL
+       STACK_ADDRESS_RANGE  = 0x01000000UL
+       Addresses >= 0xC0000000UL are not mmapable.
+       There is room from 0x11000000UL to 0xBFFFFFFFUL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x18000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
+  #endif
+  #if defined(__FreeBSD__) && defined(I80386)
+    /* On FreeBSD/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x28000000UL
+       SHLIB_ADDRESS_RANGE  = 0x28000000UL
+       STACK_ADDRESS_RANGE  = 0xBF000000UL
+       There is room from 0x29000000UL to 0xBF000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x30000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xB7FFFFFFUL
+  #endif
+  #if defined(__DragonFly__) && defined(I80386)
+    /* On DragonFly/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x28000000UL
+       SHLIB_ADDRESS_RANGE  = 0x28000000UL
+       STACK_ADDRESS_RANGE  = 0x9F000000UL
+       There is room from 0x29000000UL to 0x9F000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x30000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x97FFFFFFUL
+  #endif
+  #if defined(UNIX_NETBSD) && defined(I80386)
+    /* On NetBSD/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0xBB000000UL
+       SHLIB_ADDRESS_RANGE  = 0xBB000000UL
+       STACK_ADDRESS_RANGE  = 0xBF000000UL
+       There is room from 0x09000000UL to 0xBB000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
+  #endif
+  #if defined(UNIX_NETBSD) && defined(SPARC)
+    /* On NetBSD/sparc:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0xED000000UL
+       SHLIB_ADDRESS_RANGE  = 0xED000000UL
+       STACK_ADDRESS_RANGE  = 0xEF000000UL
+       On NetBSD/sparc64 with 32-bit ABI:
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x20000000UL ... 0x30000000UL
+       SHLIB_ADDRESS_RANGE  = 0x20000000UL ... 0x40000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x41000000UL to 0xED000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x48000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xDFFFFFFFUL
+  #endif
+  #if defined(UNIX_OPENBSD) && defined(I80386)
+    /* On OpenBSD/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   varies from 0x14000000UL to 0x1B000000UL
+       MALLOC_ADDRESS_RANGE varies from 0x74000000UL..0x84000000UL to 0x7A000000UL..0x8A000000UL
+       SHLIB_ADDRESS_RANGE  varies from 0x21000000UL to 0x2F000000UL
+       STACK_ADDRESS_RANGE  = 0xCF000000UL
+       The allocated ranges are randomized across the ranges
+       from 0x00000000UL to 0x0FFFFFFFUL,
+       from 0x14000000UL to 0x1BFFFFFFUL,
+       from 0x20000000UL to 0x2FFFFFFFUL,
+       from 0x34000000UL to 0x3BFFFFFFUL,
+       from 0x74000000UL to 0x8BFFFFFFUL,
+       from 0xCD000000UL to 0xCDFFFFFFUL,
+       from 0xCF000000UL to 0xCFFFFFFFUL.
+       There is room from 0x3C000000UL to 0x74000000UL
+       and from 0x8C000000UL to 0xCD000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
+  #endif
+  #if defined(UNIX_MACOSX) && defined(I80386)
+    /* On Mac OS X 10.5.8/x86_64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x8F000000UL ... 0xA0000000UL
+       STACK_ADDRESS_RANGE  = 0xB0000000UL ... 0xBF000000UL
+       There is room from 0x02000000UL to 0x8F000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x87FFFFFFUL
+  #endif
+  #if defined(UNIX_MACOSX) && defined(POWERPC)
+    /* On Mac OS X 10.5.8/PowerPC and
+       on Mac OS X 10.5.8/x86_64 with CC="gcc -arch ppc":
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL and 0x01000000UL
+       SHLIB_ADDRESS_RANGE  = 0x8F000000UL ... 0xA0000000UL
+       STACK_ADDRESS_RANGE  = 0xBC000000UL ... 0xBF000000UL
+       There is room from 0x02000000UL to 0x8F000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x87FFFFFFUL
+  #endif
+  #if defined(UNIX_AIX) && defined(POWERPC)
+    /* On AIX/POWER with 32-bit ABI:
+       CODE_ADDRESS_RANGE   = 0x10000000UL (r-x) and 0x20000000UL (rw-)
+       MALLOC_ADDRESS_RANGE = 0x20000000UL or 0x30000000UL
+       SHLIB_ADDRESS_RANGE  = 0xD0000000UL (r-x) and 0xF0000000UL (rw-)
+       STACK_ADDRESS_RANGE  = 0x2F000000UL
+       See also "The 32-bit AIX Virtual Memory Model"
+       <https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.aix.80.doc/diag/problem_determination/aix_mem_32.html>.
+       There is room from 0x40000000UL to 0xD0000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xCFFFFFFFUL
+  #endif
+  #if defined(UNIX_HPUX) && defined(HPPA)
+    /* On HP-UX/hppa with 32-bit ABI:
+       CODE_ADDRESS_RANGE   = 0x40000000UL
+       MALLOC_ADDRESS_RANGE = 0x40000000UL
+       SHLIB_ADDRESS_RANGE  = 0x6F000000UL
+       STACK_ADDRESS_RANGE  = 0x6F000000UL
+       There is room from 0x70000000UL to 0xC0000000UL
+       and also      from 0x01000000UL to 0x40000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x70000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
+  #endif
+  #if defined(UNIX_HPUX) && defined(IA64)
+    /* On HP-UX/ia64 with 32-bit ABI:
+       CODE_ADDRESS_RANGE   = 0x77000000UL
+       MALLOC_ADDRESS_RANGE = 0x40000000UL
+       SHLIB_ADDRESS_RANGE  = 0x77000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x05000000UL to 0x40000000UL
+       and also      from 0x41000000UL to 0x77000000UL
+       and also      from 0x80000000UL to 0xC0000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x80000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
+  #endif
+  #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64))
+    /* On IRIX 6.5 with o32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x11000000UL to 0x5F000000UL.
+       On IRIX 6.5 with n32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x10000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x11000000UL to 0x5F000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x5EFFFFFFUL
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(I80386)
+    /* On Solaris/x86_64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFE000000UL
+       STACK_ADDRESS_RANGE  = 0x08000000UL
+       There is room from 0x09000000UL to 0xFE000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(SPARC)
+    /* On Solaris/sparc64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFF000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x01000000UL to 0xFE000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+  #endif
+  #if defined(UNIX_CYGWIN) && defined(I80386)
+    /* On Cygwin, running on Windows 10 (64-bit):
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x20000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL
+       STACK_ADDRESS_RANGE  = 0x00000000UL
+       There is room from 0x21000000UL to 0x5D000000UL
+       (from which addresses < 0x38000000UL cannot be allocated)
+       and from 0x80000000UL to 0xFF000000UL. */
+    #if 0 /* both are possible */
+      #define MAPPABLE_ADDRESS_RANGE_START 0x38000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x57FFFFFFUL
+    #else
+      #define MAPPABLE_ADDRESS_RANGE_START 0x80000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0xFEFFFFFFUL
     #endif
-    #if defined(UNIX_NETBSD)
-      #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
-    #endif
-    #if defined(UNIX_OPENBSD) && !defined(WIDE_SOFT)
-      #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
-    #endif
-  #else
-    /* 64-bit platforms */
-    #if defined(UNIX_LINUX) && defined(ARM64)
-      /* On Linux/arm64, the available addresses are in the range 0..2^39,
-         and there is room from 0x003000000000 to 0x007000000000. */
-      #define MAPPABLE_ADDRESS_RANGE_START 0x003000000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x006FFFFFFFFFUL
-    #endif
-    #if defined(UNIX_LINUX) && defined(POWERPC64)
-      /* On Linux/powerpc64, the available addresses are in the range 0..2^46,
-         and there is room from 0x080000000000 to 0x380000000000. */
-      #define MAPPABLE_ADDRESS_RANGE_START 0x080000000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x37FFFFFFFFFFUL
-    #endif
-    #if defined(UNIX_LINUX) && defined(S390_64)
-      /* On Linux/s390x, the available addresses are in the range 0..2^53,
-         and there is room from 0x008000000000 to 0x038000000000. */
-      #define MAPPABLE_ADDRESS_RANGE_START 0x008000000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x037FFFFFFFFFUL
-    #endif
-    #if defined(UNIX_MACOSX)
+  #endif
+  #if defined(WIN32_NATIVE) && defined(I80386)
+    /* On mingw, running on Windows 10 (64-bit):
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL
+       STACK_ADDRESS_RANGE  = 0x00000000UL
+       Addresses >= 0x80000000UL are not mmapable.
+       There is room from 0x03000000UL to 0x57000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x03000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x4FFFFFFFUL
+  #endif
+#else
+  /* 64-bit platforms */
+  #if defined(UNIX_LINUX) && defined(AMD64)
+    /* On Linux/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x000000000x000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000003844000000UL or 0x00007Fxxxx000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFEBF000000UL
+       There is room from 0x010000000000UL to 0x7F0000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x010000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(ARM64)
+    /* On Linux/arm64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 38
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000021000000UL or 0x000000001E000000UL or 0x0000000009000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000002000000000UL or 0x0000007F82000000UL
+       STACK_ADDRESS_RANGE  = 0x0000007FC8000000UL or 0x0000007F7A000000UL or 0x0000007FFC000000UL
+       There is room from 0x002100000000UL to 0x007F00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x002100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x007EFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(DECALPHA)
+    /* On Linux/alpha:
+       CODE_ADDRESS_RANGE   = 0x0000000120000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000120000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000020000000000UL
+       STACK_ADDRESS_RANGE  = 0x000000011F000000UL
+       There is room from 0x000200000000UL to 0x020000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x01FFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(IA64)
+    /* On Linux/ia64:
+       CODE_ADDRESS_RANGE   = 0x4000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x6000000000000000UL
+       SHLIB_ADDRESS_RANGE  = 0x2000000000000000UL
+       STACK_ADDRESS_RANGE  = 0x60000FFFFF000000UL
+       A vdso at              0xA000000000000000UL
+       There is room from 0x6000000100000000UL to 0x600007FF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x6000000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x600007FEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(MIPS64)
+    /* On Linux/mips64eb and Linux/mips64el with 64-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 39
+       CODE_ADDRESS_RANGE   = 0x0000000120000000UL
+       MALLOC_ADDRESS_RANGE = 0x000000012x000000UL
+       SHLIB_ADDRESS_RANGE  = 0x000000555F000000UL or 0x000000FFEF000000UL..0x000000FFF2000000UL
+       STACK_ADDRESS_RANGE  = 0x000000FFFF000000UL
+       There is room from 0x005600000000UL to 0x00FF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x005600000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x00FEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(POWERPC64)
+    /* On Linux/powerpc64 and Linux/powerpc64le:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 45
+       CODE_ADDRESS_RANGE   = 0x0000000010000000UL
+       MALLOC_ADDRESS_RANGE = 0x000001001A000000UL or 0x0000010038000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00003FFF79000000UL or 0x00003FFFA0000000UL
+       STACK_ADDRESS_RANGE  = 0x00003FFFF8000000UL or 0x00003FFFFF000000UL
+       There is room from 0x011000000000UL to 0x3FF000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x011000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x3FEFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(S390_64)
+    /* On Linux/s390x:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 52
+       CODE_ADDRESS_RANGE   = 0x0000000080000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000081000000UL ... 0x00000000BE000000UL
+       SHLIB_ADDRESS_RANGE  = 0x000003FFFC000000UL or 0x000003FFFD000000UL
+       STACK_ADDRESS_RANGE  = 0x000003FFFF000000UL
+       There is room from 0x000100000000UL to 0x03FF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x03FEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(SPARC64)
+    /* On Linux/sparc64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 42
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL or 0x0000010000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000000000000UL or 0x0000010000000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFFFFF80100000000UL
+       STACK_ADDRESS_RANGE  = 0x000007FEFF000000UL
+       There is room from 0x0000018000000000UL to 0x000007FE00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000018000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x000007FDFFFFFFFFUL
+  #endif
+  #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64)
+    /* On FreeBSD/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000801000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000800000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFFFF000000UL
+       On GNU/kFreeBSD/x86_64:
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000000000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000800000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFFFF000000UL
+       There is room from 0x000900000000UL to 0x7FFF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000900000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7FFEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_FREEBSD) && defined(ARM64)
+    /* On FreeBSD/arm64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 47
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000040000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000040000000UL
+       STACK_ADDRESS_RANGE  = 0x0000FFFFFF000000UL
+       There is room from 0x000100000000UL to 0xFFFF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xFFFEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_NETBSD) && defined(AMD64)
+    /* On NetBSD/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x00007F7FF7000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00007F7FF7000000UL
+       STACK_ADDRESS_RANGE  = 0x00007F7FFF000000UL
+       There is room from 0x000100000000UL to 0x7F7000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7F6FFFFFFFFFUL
+  #endif
+  #if defined(UNIX_NETBSD) && defined(SPARC64)
+    /* On NetBSD/sparc64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 42
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000040000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000040000000UL
+       STACK_ADDRESS_RANGE  = 0xFFFFFFFFFF000000UL
+       There is room from 0x000048000000UL to 0x080000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000048000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x07FFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_OPENBSD) && defined(AMD64)
+    /* On OpenBSD/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x000000xxxx000000UL ... 0x00001Fxxxx000000UL
+       MALLOC_ADDRESS_RANGE = 0x000000xxxx000000UL ... 0x00001Fxxxx000000UL
+       SHLIB_ADDRESS_RANGE  = 0x000001xxxx000000UL ... 0x00001Fxxxx000000UL
+       STACK_ADDRESS_RANGE  = 0x00007F7FFx000000UL
+       The allocated ranges are randomized across the range
+       from 0x000000000000UL to 0x200000000000UL.
+       There is room from 0x200000000000UL to 0x7F0000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x200000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_MACOSX) && defined(AMD64)
+    /* On Mac OS X 10.5.8/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000100000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000100000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00007FFF70000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFF5F000000UL
+       On Mac OS X 10.12.4/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000105000000UL
+       MALLOC_ADDRESS_RANGE = 0x00007FAB97000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00007FAAF7000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFF5E000000UL
+       There is room from 0x000200000000UL to 0x7F0000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFFFFFUL
+    #if 0 /* old */
       /* On MacOS X 10.5 in 64-bit mode, the available addresses for mmap and
          mach_vm_allocate are in the range 2^33...2^47. */
       #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
       #define MAPPABLE_ADDRESS_RANGE_END   0x3FFFFFFFFFFFUL
     #endif
-    #if defined(UNIX_FREEBSD) && defined(AMD64)
-      #define MAPPABLE_ADDRESS_RANGE_START 0x001000000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFFFFFUL
-    #endif
-    #if defined(UNIX_NETBSD) && defined(AMD64)
-      #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
-      #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFFFFFUL
-    #endif
+  #endif
+  #if defined(UNIX_AIX) && defined(POWERPC64)
+    /* On AIX/POWER with 64-bit ABI:
+       CODE_ADDRESS_RANGE   = 0x0000000100000000UL (r-x) or 0x0000000110000000UL (rw-)
+       MALLOC_ADDRESS_RANGE = 0x0000000110000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0900000xx0000000UL (r-x) or 0x09001000x0000000UL (rw-)
+       STACK_ADDRESS_RANGE  = 0x0FFFFFFFFF000000UL or 0x1000000000000000UL
+       Addresses >= 0x0800000000000000UL are not mmapable.
+       There is room from 0x0000000200000000UL to 0x0800000000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000000200000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x07FFFFFFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_HPUX) && defined(HPPA64)
+    /* On HP-UX/hppa64:
+       CODE_ADDRESS_RANGE   = 0x4000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x8000000100000000UL
+       SHLIB_ADDRESS_RANGE  = 0x800003FFEF000000UL
+       STACK_ADDRESS_RANGE  = 0x800003FFEF000000UL
+       There is room from 0x4100000000000000UL to 0x8000000000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x4100000000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7FFFFFFFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_HPUX) && defined(IA64)
+    /* On HP-UX/ia64:
+       CODE_ADDRESS_RANGE   = 0x87FFFFFFEF000000UL
+       MALLOC_ADDRESS_RANGE = 0x6000000000000000UL
+       SHLIB_ADDRESS_RANGE  = 0x87FFFFFFEF000000UL
+       STACK_ADDRESS_RANGE  = 0x87FFFFFFFF000000UL
+       There is room from 0x6000000100000000UL to 0x8000000000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x6000000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x7FFFFFFFFFFFFFFFUL
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(AMD64)
+    /* On Solaris/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000000000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFFFFFD7FFF000000UL
+       STACK_ADDRESS_RANGE  = 0xFFFFFD7FFF000000UL
+       There is room from 0x0000000100000000UL to 0x00007FFF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x00007FFEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(SPARC64)
+    /* On Solaris/sparc64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000100000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000100000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFFFFFFFF7E000000UL
+       STACK_ADDRESS_RANGE  = 0xFFFFFFFF7F000000UL
+       There is room from 0x0000000200000000UL to 0x00007FFF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000000200000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x00007FFEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_CYGWIN) && defined(AMD64)
+    /* On Cygwin, running on Windows 10:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000100000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000600000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000FF000000UL
+       STACK_ADDRESS_RANGE  = 0x00000000FF000000UL
+       There is room from 0x000700000000UL to 0x06FF00000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000700000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x05FFFFFFFFFFUL
   #endif
 #endif
-
 /* When changed: do nothing */
 
 /* Whether the operating system is capable of sending interruptions
