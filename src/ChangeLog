@@ -1,5 +1,12 @@
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
+	Fix misuse of Autoconf cache.
+	* m4/mmap.m4 (CL_MMAP): Put the complete test result in a single *_cv_*
+	variable.
+	* aclocal.m4, src/configure: Regenerated.
+
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with pre-C99 compilers (regression from 2017-03-14).
 	* spvw_mmap.d: Use 'var' where appropriate.
 	* pathname.d: Put (void)param statements first.
