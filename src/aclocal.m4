@@ -28260,6 +28260,7 @@ AC_DEFUN([CL_MMAP],
              }
            }
            '
+         succeeded=
          AC_TRY_RUN(GL_NOCRASH[
            $mmap_prog_1
              int flags = MAP_ANON | MAP_PRIVATE;
@@ -28267,9 +28268,7 @@ AC_DEFUN([CL_MMAP],
              nocrash_init();
            $mmap_prog_2
            ],
-           [have_mmap_anon=1
-            cl_cv_func_mmap_anon=yes
-           ],
+           [succeeded="$succeeded"${succeeded:+,}"MAP_ANON"],
            [],
            [: # When cross-compiling, don't assume anything.])
          AC_TRY_RUN(GL_NOCRASH[
@@ -28279,9 +28278,7 @@ AC_DEFUN([CL_MMAP],
              nocrash_init();
            $mmap_prog_2
            ],
-           [have_mmap_anon=1
-            cl_cv_func_mmap_anonymous=yes
-           ],
+           [succeeded="$succeeded"${succeeded:+,}"MAP_ANONYMOUS"],
            [],
            [: # When cross-compiling, don't assume anything.])
          AC_TRY_RUN(GL_NOCRASH[
@@ -28295,26 +28292,31 @@ AC_DEFUN([CL_MMAP],
              nocrash_init();
            $mmap_prog_2
            ],
-           [have_mmap_devzero=1
-            cl_cv_func_mmap_devzero=yes
-           ],
+           [succeeded="$succeeded"${succeeded:+,}"/dev/zero"],
            [],
            [: # When cross-compiling, don't assume anything.])
-         if test -n "$have_mmap_anon" -o -n "$have_mmap_devzero"; then
-           cl_cv_func_mmap_fixed=yes
+         if test -n "$succeeded"; then
+           cl_cv_func_mmap_fixed="yes ($succeeded)"
          else
            cl_cv_func_mmap_fixed=no
          fi
         ])
-      if test "$cl_cv_func_mmap_anon" = yes; then
-        AC_DEFINE([HAVE_MMAP_ANON],,[<sys/mman.h> defines MAP_ANON and mmaping with MAP_FIXED | MAP_ANON works])
-      fi
-      if test "$cl_cv_func_mmap_anonymous" = yes; then
-        AC_DEFINE([HAVE_MMAP_ANONYMOUS],,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_FIXED | MAP_ANONYMOUS works])
-      fi
-      if test "$cl_cv_func_mmap_devzero" = yes; then
-        AC_DEFINE([HAVE_MMAP_DEVZERO],,[mmaping of the special device /dev/zero with MAP_FIXED works])
-      fi
+      succeeded=`echo "$cl_cv_func_mmap_fixed" | LC_ALL=C tr '()' ',,'`
+      case "$succeeded" in
+        yes*,MAP_ANON,* )
+          AC_DEFINE([HAVE_MMAP_ANON],,[<sys/mman.h> defines MAP_ANON and mmaping with MAP_FIXED | MAP_ANON works])
+          ;;
+      esac
+      case "$succeeded" in
+        yes*,MAP_ANONYMOUS,* )
+          AC_DEFINE([HAVE_MMAP_ANONYMOUS],,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_FIXED | MAP_ANONYMOUS works])
+          ;;
+      esac
+      case "$succeeded" in
+        yes*,/dev/zero,* )
+          AC_DEFINE([HAVE_MMAP_DEVZERO],,[mmaping of the special device /dev/zero with MAP_FIXED works])
+          ;;
+      esac
     fi
   fi
 
