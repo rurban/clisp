@@ -207,17 +207,17 @@ local int dump_process_memory_map_callback (void *data,
                                             uintptr_t start, uintptr_t end,
                                             unsigned int flags)
 {
-  (void)data; (void)flags;
-  fprintf(stderr,"  0x%lx - 0x%lx\n",
+  (void)flags;
+  fprintf((FILE*)data,"  0x%lx - 0x%lx\n",
           (unsigned long)start, (unsigned long)(end-1));
   return 0; /* continue */
 }
 
 /* Print out the memory map of the process. */
-local void dump_process_memory_map (void)
+local void dump_process_memory_map (FILE* out)
 {
-  fprint(stderr,"Memory dump:\n");
-  vma_iterate (&dump_process_memory_map_callback, NULL);
+  fprint(out,"Memory dump:\n");
+  vma_iterate (&dump_process_memory_map_callback, out);
 }
 
 #endif
@@ -2606,9 +2606,9 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'm':             /* memory size  */
             if (arg[2]=='m' && arg[3]=='\0') { /* "-mm" -> print a memory map */
               #if defined(WIN32_NATIVE)
-                DumpProcessMemoryMap();
+                DumpProcessMemoryMap(stdout);
               #elif VMA_ITERATE_SUPPORTED
-                dump_process_memory_map();
+                dump_process_memory_map(stdout);
               #endif
               return 1;
             }
