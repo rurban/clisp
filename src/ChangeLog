@@ -1,5 +1,10 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
+	Properly recognize PowerPC64 CPU on AIX.
+	* lispbibl.d (POWERPC64): Define also when _ARCH_PPC64 is defined.
+
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
 	Fix error when creating lispbibl.h on AIX.
 	* makemake.in (lispbibl.h): Start the command with '( (', not '(('.
 
