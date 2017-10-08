@@ -2248,8 +2248,8 @@ local maygc object coerce_pathname (object obj) {
   } while(0)
 
 local uintC subdir_namestring_parts (object path,bool logicalp) {
-  var object subdir = Car(path);
   (void)logicalp;
+  var object subdir = Car(path);
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   SUBDIR_PUSHSTACK(subdir); return 1;
  #endif
@@ -8446,8 +8446,8 @@ local Handle nullfile (void) {
 
 /* obtaining a pipe handle */
 local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
-  var int handles[2];
   (void)dummy1; (void)dummy2;
+  var int handles[2];
   begin_system_call();
   if (pipe(handles)) OS_error();
   end_system_call();
