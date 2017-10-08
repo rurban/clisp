@@ -1,5 +1,10 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
+	Fix error when creating lispbibl.h on AIX.
+	* makemake.in (lispbibl.h): Start the command with '( (', not '(('.
+
+2017-10-07  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".
