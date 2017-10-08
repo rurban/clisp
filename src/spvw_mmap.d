@@ -146,7 +146,7 @@ local int is_large_range_unmapped_callback (void *data,
                                             unsigned int flags)
 {
   (void)flags;
-  struct is_large_range_unmapped_locals* locals =
+  var struct is_large_range_unmapped_locals* locals =
     (struct is_large_range_unmapped_locals*) data;
   if (!(start > locals->map_end-1 || locals->map_start > end-1)) {
     locals->intersect = 1;
@@ -164,7 +164,7 @@ local bool is_large_range_unmapped (uintP map_addr, uintP map_endaddr)
 {
   /* Use the gnulib module 'vma-iter' to look for an intersection between
      the specified interval and the existing VMAs. */
-  struct is_large_range_unmapped_locals locals;
+  var struct is_large_range_unmapped_locals locals;
   locals.map_start = map_addr;
   locals.map_end = map_endaddr;
   locals.intersect = 0;

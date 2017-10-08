@@ -1,3 +1,9 @@
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with pre-C99 compilers (regression from 2017-03-14).
+	* spvw_mmap.d: Use 'var' where appropriate.
+	* pathname.d: Put (void)param statements first.
+
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
 	Properly recognize PowerPC64 CPU on AIX.
@@ -1344,6 +1350,12 @@
 
 	* compiler.lisp (c-EVAL-WHEN): Remove the set-but-not-used
 	variable `eval-p'.
+
+2017-03-14  Sam Steingold  <sds@gnu.org>
+
+	avoid many -Wunused-parameter warnings
+	* spvw.d, spvw_garcol.d, spvw_mmap.d, spvw_sigint.d, spvw_sigpipe.d,
+	spvw_sigsegv.d, spvw_sigwinch.d: Cast unused parameters to 'void'.
 
 2017-03-14  Sam Steingold  <sds@gnu.org>
 
