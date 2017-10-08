@@ -1,5 +1,14 @@
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
+	New option "-marc" for mappable address range check.
+	* spvw.d (mappable_address_range_check): New function.
+	(parse_options): New option "-marc".
+	* makemake.in: New target 'marc.out'.
+	(all): Depend on it.
+	(clean1): Remove it.
+
+2017-10-08  Bruno Haible  <bruno@clisp.org>
+
 	Emit the output of "lisp.run -mm" to stdout, not stderr.
 	* win32.d (DumpProcessMemoryMap): Accept a FILE* argument.
 	* win32aux.d (DumpProcessMemoryMap): Likewise.
