@@ -3831,10 +3831,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
        defined(HAVE_WORKING_MPROTECT)                                         \
     && /* It requires SIGSEGV recovery, provided by libsigsegv. */            \
        defined(HAVE_SIGSEGV_RECOVERY)                                         \
-    && /* If the SIGSEGV recovery provides only the page-rounded address,     \
-          not the precise address of the fault, we can use it only if every   \
-          page contains only a single type of Lisp objects. */                \
-       (defined(SINGLEMAP_MEMORY) || SIGSEGV_FAULT_ADDRESS_ALIGNMENT <= 1UL)  \
     && /* Not worth spending effort on making it work with                    \
           WIDE_SOFT_LARGEFIXNUM. */                                           \
        !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
