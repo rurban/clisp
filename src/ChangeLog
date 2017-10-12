@@ -1,5 +1,10 @@
 2017-10-12  Bruno Haible  <bruno@clisp.org>
 
+	Verified mappable address range for Solaris 11.
+	* lispbibl.d: Add comments about Solaris 11.
+
+2017-10-12  Bruno Haible  <bruno@clisp.org>
+
 	Guarantee a page boundary between the growing and shrinking heap_limits
 	in case of GENERATIONAL_GC && SPVW_MIXED_BLOCKS.
 	* spvw_allocate.d (make_space_gc_true, make_space_gc_false): Round to
