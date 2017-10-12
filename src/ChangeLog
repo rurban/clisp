@@ -1,5 +1,16 @@
 2017-10-12  Bruno Haible  <bruno@clisp.org>
 
+	Guarantee a page boundary between the growing and shrinking heap_limits
+	in case of GENERATIONAL_GC && SPVW_MIXED_BLOCKS.
+	* spvw_allocate.d (make_space_gc_true, make_space_gc_false): Round to
+	physpagesize, not map_pagesize, if GENERATIONAL_GC is enabled.
+	* spvw_fault.d (handle_fault): Drop the requirement that
+	SIGSEGV_FAULT_ADDRESS_ALIGNMENT be 1.
+	* lispbibl.d (GENERATIONAL_GC): Define without considering the value of
+	SIGSEGV_FAULT_ADDRESS_ALIGNMENT.
+
+2017-10-12  Bruno Haible  <bruno@clisp.org>
+
 	Fix mistake in "highest bit number" test (regression from 2017-10-08).
 	* m4/mmap.m4 (CL_MMAP): Update after value of cache variable changed.
 	* aclocal.m4, src/configure: Regenerated.

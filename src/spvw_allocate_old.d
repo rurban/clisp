@@ -234,7 +234,7 @@ local void make_space_gc_true (uintM need, Heap* heapptr)
     if (needed_limit <= heapptr->heap_limit) /* has the GC done its job? */
       return;                                /* yes -> finished */
     /* round up to the next page boundary: */
-    needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; /* for suer > heapptr->heap_limit */
+    needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; /* for sure > heapptr->heap_limit */
     /* allocate new memory: */
     if (needed_limit <= mem.conses.heap_limit) { /* avoid crossover */
       var aint mapstart = heapptr->heap_limit;
