@@ -1,3 +1,8 @@
+2017-10-13  Bruno Haible  <bruno@clisp.org>
+
+	Tweak mappable address range for Linux/x86_64.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_END): Shrink a bit.
+
 2017-10-12  Bruno Haible  <bruno@clisp.org>
 
 	Verified mappable address range for Solaris 11.
