@@ -1,3 +1,9 @@
+2017-10-14  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with TYPECODES (regression from 2010-10-08).
+	* genclisph.d (check_typecode_entry): Check array_simplep only for
+	typecodes of array types.
+
 2017-10-13  Bruno Haible  <bruno@clisp.org>
 
 	Fix warning in clisp-test.c (regression from 2017-08-24).

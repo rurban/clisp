@@ -248,7 +248,8 @@ struct typecode_entry {
 static void check_typecode_entry (struct typecode_entry *te) {
   CHECK_FIELD(vector);
   CHECK_FIELD(simple);
-  CHECK_FIELD(array_simple);
+  if (te->arrayP)
+    CHECK_FIELD(array_simple);
   CHECK_FIELD(simple_vector_);
   CHECK_FIELD(general_vector_);
   CHECK_FIELD(simple_string_);
