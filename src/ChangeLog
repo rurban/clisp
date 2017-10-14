@@ -1,5 +1,15 @@
 2017-10-14  Bruno Haible  <bruno@clisp.org>
 
+	Make genclisph check for errors on its output files.
+	* genclisph.d: Take the header output file as first argument. The
+	test output file is no longer optional. Check fclose result on all
+	output streams. Emit logging output to stdout, not stderr.
+	* makemake.in (gen.lispbibl.c): Replace 'puts' and 'printf' statements
+	with fprintf statements.
+	(clisp.h): Use clisp.h.tmp as temporary header output file.
+
+2017-10-14  Bruno Haible  <bruno@clisp.org>
+
 	Make genclisph code clearer.
 	* genclisph.d (check_typecodes): Check test_f value not here...
 	(main): ... but here.
