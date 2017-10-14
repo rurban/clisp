@@ -2453,7 +2453,7 @@ fi
 
 for f in lispbibl; do
   echol "gen.${f}.c : ${SRCDIR}${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///;p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///;p;d;}' -e '/^#line /!s/.*//' | sed -e 's/puts(/fprintf(header_f,\"%s\\\\n\",/g' -e 's/printf(\"/fprintf(header_f,\"/g' > gen.${f}.c"
   echol
 done
 
@@ -3162,18 +3162,20 @@ fi
 
 echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H} ${GLLIB_A}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+if test -z "${CLISP_DEF}"; then
+  echotab "${HERE}genclisph clisp.h.tmp clisp-test.c"
+else
+  echotab "${HERE}genclisph clisp.h.tmp clisp-test.c ${CLISP_DEF}"
+  # new-clx depends on the symbol "hostent_to_lisp", which is defined in the
+  # syscalls module and therefore doesn't get put into lisp.def on Cygwin.
+  # So we just force it.
+  echotab "echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF}"
+fi
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* ==== config.h ==== */' ; cat config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
-# new-clx depends on the symbol "hostent_to_lisp", which is defined in the
-# syscalls module and therefore doesn't get put into lisp.def on Cygwin.
-# So we just force it.
-if test -z "${CLISP_DEF}"; then
-  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
-else
-  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo -e \"\tlisp.exe.hostent_to_lisp\" >> ${CLISP_DEF} ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
-fi
+echotab "(echo; echo '/* genclisph */' ; cat clisp.h.tmp; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
@@ -3184,7 +3186,7 @@ else
   echotab "comp clisp-test-clisp.out clisp-test-lispbibl.out"
 fi
 echotab "if grep lispbibl.d clisp.h; then false; else true; fi"
-echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
+echotab "\$(RM) genclisph${HEXE} clisp.h.tmp clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 OBSOLETE="$OBSOLETE clisp-test.c genclisph${HEXE}"
 echol
 LINKKIT_SOURCES="${SRCDIR}modules.c clisp.h ${UTILDIR}modprep.lisp"
