@@ -300,7 +300,6 @@ struct typecode_entry all_typecodes[] = {
 int typecode_count = sizeof(all_typecodes)/sizeof(struct typecode_entry);
 static void check_typecodes (void) {
   int i;
-  if (test_f == NULL) return;
   /* cannot run the check when including clisp.h because there typecode(obj)
      has already been expanded to something horrible */
   fprint(test_f,"#if !USE_CLISP_H\n #undef typecode\n "
@@ -416,10 +415,14 @@ int main(int argc, char* argv[])
   print("#define DEFUNW DEFUN\n");
   print("#define DEFUND DEFUN\n");
   print("#define DEFVAR(varname)\n");
+
+  if (test_f) {
+    check_typecodes();
+  }
+
   /* done - check for errors, close test files &c */
   if (ferror(stdout)) exit(1);
   if (ferror(header_f)) exit(1);
-  check_typecodes();
   if (test_f) {
     fprint(test_f,"  return 0;\n}\n");
     if (ferror(test_f)) exit(1);
