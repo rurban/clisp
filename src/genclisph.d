@@ -306,7 +306,7 @@ static void check_typecodes (void) {
          "#define typecode(c)   (c)\n {int failure_count = 0;\n");
   for (i=0; i<typecode_count; i++)
     check_typecode_entry(&(all_typecodes[i]));
-  fprint(test_f,"  if (failure_count>0) { fprintf(stderr,\"%%d typecode"
+  fprint(test_f,"  if (failure_count>0) { fprintf(stderr,\"%d typecode"
          " error(s)\\n\",failure_count); abort(); }}\n#endif\n");
 }
 #else
