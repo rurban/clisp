@@ -3066,6 +3066,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* On 32-bit machines:
        - TYPECODES: the resulting limit of 16 MB objects for each type is
          ridiculous today.
+         Additionally, on most 32-bit platforms, TYPECODES leads to the error
+         "Return value of malloc() = ... is not compatible with type code distribution."
        - HEAPCODES: needs a per-platform decision whether to use
          ONE_FREE_BIT_HEAPCODES or KERNELVOID32_HEAPCODES.
        Choose HEAPCODES always. */
@@ -3798,6 +3800,13 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #if (CODE_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
      #error oint_addr_mask does not cover CODE_ADDRESS_RANGE !!
   #endif
+  /* The MALLOC_ADDRESS_RANGE needs to be checked because
+     1) if !defined(SINGLEMAP_MEMORY) && !defined(TRIVIALMAP_MEMORY),
+        Lisp objects reside in memory allocated through mymalloc,
+     2) the STACK is usually allocated through mymalloc (except if
+        SINGLEMAP_MEMORY_STACK), and
+        pointers into the STACK occur in frames (cf. macro framebottomword)
+        and in environments (cf. type environment_t). */
   #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
      #error oint_addr_mask does not cover MALLOC_ADDRESS_RANGE !!
   #endif
@@ -3817,18 +3826,18 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
     && !defined(SINGLEMAP_MEMORY)                                              \
-    && !(defined(UNIX_HPUX) || defined(UNIX_AIX)                               \
-         || defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                              \
-         || defined(ADDRESS_RANGE_RANDOMIZED))                                 \
+    && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
+    && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
+    && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
    It's not really memory-mapping, but a more comfortable way to
    manage two large memory blocks.
-   But it doesn't work on HP-UX 9 and AIX.
-   Also it does not work reliably when address space layout randomization
-   is in effect: TRIVIALMAP_MEMORY assumes that one can extend an existing
-   memory region by mmapping the pages after it; but this might overwrite
-   some small malloc regions that have been put there by the system. */
+   But it requires that we know where to map the large memory blocks in the
+   address range. It does not work reliably when address space layout
+   randomization is in effect: TRIVIALMAP_MEMORY assumes that one can extend an
+   existing memory region by mmapping the pages after it; but this might
+   overwrite some small malloc regions that have been put there by the system. */
   #define TRIVIALMAP_MEMORY
 #endif
 

@@ -1,5 +1,15 @@
 2017-10-14  Bruno Haible  <bruno@clisp.org>
 
+	Use only mappable addresses in TRIVIALMAP_MEMORY.
+	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable if
+	MAPPABLE_ADDRESS_RANGE_START or MAPPABLE_ADDRESS_RANGE_END are not
+	defined.
+	* spvw.d (init_memory) [TRIVIALMAP_MEMORY]: Obey
+	MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END. Remove the
+	previous unreliable heuristics.
+
+2017-10-14  Bruno Haible  <bruno@clisp.org>
+
 	Simplify makemake.in.
 	* makemake.in (echotabpipe): Remove function. Use 'echotab' instead.
 

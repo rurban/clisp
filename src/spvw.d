@@ -3164,101 +3164,121 @@ local inline int init_memory (struct argv_initparams *p) {
     map_tab(subr_tab,varobjects_misaligned+total_subr_count*sizeof(subr_t));
     #endif
     #ifdef TRIVIALMAP_MEMORY
-    /* initialize all heaps as empty.
-     Partition the whole available space with a ratio
-     1:1 , if it is scarce. Otherwise, appoint the two heaps at
-     1/5 resp. 2/5 of the address range. (An "awry" denominator,
-     in order to avoid diverse Shared-Library-regions.) */
-    {
-      var void* malloc_addr = malloc(1);
-      var aint start = round_up((aint)malloc_addr+RESERVE_FOR_MALLOC,map_pagesize); /* reserve for malloc() */
-     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      #if defined(UNIX_NETBSD) && !defined(WIDE_HARD)
-       #ifdef ONE_FREE_BIT_HEAPCODES
-      /* To avoid garcol_bit_o = bit 30, either of
-         0x10000000..0x40000000 and 0x80000000..0xB0000000 works. */
-      mem.heaps[0].heap_limit = 0x10000000;
-      mem.heaps[1].heap_limit = 0x40000000;
-       #else
-      mem.heaps[0].heap_limit = 0x10000000;
-      mem.heaps[1].heap_limit = 0xB0000000;
-       #endif
-      #elif defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
-      /* Let's hope heap 0 will not go past MAPPABLE_ADDRESS_RANGE1_END.
-         Let's hope heap 1 will not go past MAPPABLE_ADDRESS_RANGE2_START. */
-      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE1_START;
-      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE2_END + 1;
-      #elif defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
-      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE_START;
-      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE_END + 1;
-      #else
-       #ifdef TYPECODES
-      var aint end = bitm(oint_addr_len+addr_shift);
-       #else
-      var aint end = bitm(oint_addr_len-1); /* keep garcol_bit zero */
-       #endif
-      var aint part = floor(end - (start & (end-1)),5);
-      #if defined(AMD64) && defined(UNIX_LINUX)
-      /* Don't use more than 36 address bits, otherwise mmap() fails. */
-      part &= 0x0000000FFFFFFFFFUL;
-      #endif
-      mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
-      mem.heaps[1].heap_limit = start + round_down(4*part,map_pagesize);
-      #endif
-      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0) return -1;
-     #else  /* SPVW_MIXED_BLOCKS_STAGGERED */
-      #if defined(MAPPABLE_ADDRESS_RANGE1_START) && defined(MAPPABLE_ADDRESS_RANGE1_END) && defined(MAPPABLE_ADDRESS_RANGE2_START) && defined(MAPPABLE_ADDRESS_RANGE2_END)
-      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE1_START;
-      mem.heaps[0].heap_hardlimit = MAPPABLE_ADDRESS_RANGE1_END + 1;
-      mem.heaps[1].heap_limit = MAPPABLE_ADDRESS_RANGE2_START;
-      mem.heaps[1].heap_hardlimit = MAPPABLE_ADDRESS_RANGE2_END + 1;
-      #elif defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
-      mem.heaps[0].heap_limit = MAPPABLE_ADDRESS_RANGE_START;
-      mem.heaps[0].heap_hardlimit =
-      mem.heaps[1].heap_limit = round_down((MAPPABLE_ADDRESS_RANGE_START >> 1) + (MAPPABLE_ADDRESS_RANGE_END >> 1), map_pagesize);
-      mem.heaps[1].heap_hardlimit = MAPPABLE_ADDRESS_RANGE_END + 1;
-      #elif defined(TYPECODES) && (oint_addr_len+addr_shift > pointer_bitsize)
-       #ifdef UNIX_MACOSX
-      /* 'vmmap' shows that there is room between the malloc area at 0x01...... or 0x02......
-       and the dyld at 0x8f...... */
-      mem.heaps[0].heap_limit = 0x10000000; /* lower bound of large usable range */
-      mem.heaps[1].heap_hardlimit = 0x8F000000; /* upper bound of large usable range */
-      mem.heaps[0].heap_hardlimit = mem.heaps[1].heap_limit = 0x60000000; /* arbitrary separator address */
-       #else
-        #error Where is room in the memory map to put the heaps?
-       #endif
-      #else
-       #ifdef TYPECODES
-      var aint end = bitm(oint_addr_len+addr_shift);
-       #else
-        #ifdef ONE_FREE_BIT_HEAPCODES
-      var aint end = (start | (bit(garcol_bit_o)-1)) + 1; /* keep garcol_bit zero */
+     /* Initialize all heaps as empty.
+        Obey the MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END
+        values, since this is the only way to make mmap with MAP_FIXED work
+        reliably. */
+     var uintP start = MAPPABLE_ADDRESS_RANGE_START;
+     var uintP end = MAPPABLE_ADDRESS_RANGE_END;
+     if (!(start < end)) {
+       fprint(stderr,"Invalid values of MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END\n");
+       return -1;
+     }
+     #if defined(HEAPCODES)
+      var uintL bit_to_avoid = garcol_bit_o-oint_addr_shift;
+      /* Distinguish between ONE_FREE_BIT_HEAPCODES and the other HEAPCODES schemes. */
+      if (bit_to_avoid >= 16) {
+        /* Modify the range so that its endpoints don't contain bit_to_avoid. */
+        if (start & bit(bit_to_avoid)) {
+          start |= bit(bit_to_avoid)-1;
+          start++;
+        }
+        if (end & bit(bit_to_avoid)) {
+          end &= minus_bit(bit_to_avoid);
+          end--;
+        }
+        if (!(start < end)) {
+          fprintf(stderr,"Wrong choice of garcol_bit: %d. It is not consistent with MAPPABLE_ADDRESS_RANGE.\n",bit_to_avoid);
+          return -1;
+        }
+        /* Modify the range so that it does not contain addresses with bit_to_avoid
+           in its interior. */
+        if (bit_to_avoid < pointer_bitsize-1) {
+          var uintP difference = (end >> (bit_to_avoid+1)) - (start >> (bit_to_avoid+1));
+          if (difference > 0) {
+            if (difference == 1) {
+              /* Use the larger of the two available intervals. */
+              var uintP length1 = (start | (bit(bit_to_avoid)-1)) - start;
+              var uintP length2 = end - (end & minus_bit(bit_to_avoid));
+              if (length1 >= length2) {
+                end = start | (bit(bit_to_avoid)-1);
+              } else {
+                start = end & minus_bit(bit_to_avoid);
+              }
+            } else {
+              /* The largest available interval has length 2^bit_to_avoid. */
+              start |= bit(bit_to_avoid+1)-1;
+              start++;
+              end = start | (bit(bit_to_avoid)-1);
+            }
+          }
+        }
+      }
+     #else /* TYPECODES */
+      /* Compute the set of bits used by the interval [start,end].
+         It goes like this: Split start and end (as bit sequences)
+         into a common part (the longest common sequence of bits)
+         and the first bit that differs. Then the result is
+         the common part, OR that different bit, OR all lower bits.
+         For example:
+                 start = 0001001 011000000
+                 end   = 0001001 101011111
+         => range_mask = 0001001 111111111
+         because    x1 = 0001001 011111111
+         and        x2 = 0001001 100000000
+         are consecutive numbers in the range (start <= x1 < x2 <= end)
+         with x1 | x2 = range_mask. */
+      var uintP range_mask;
+      {
+        var uintP diff = start ^ end;
+        diff |= diff >> 1;
+        diff |= diff >> 2;
+        diff |= diff >> 4;
+        diff |= diff >> 8;
+        diff |= diff >> 16;
+        #if (pointer_bitsize > 32)
+        diff |= diff >> 32;
         #endif
-        #ifdef KERNELVOID32_HEAPCODES
-      var aint end = STACK_ADDRESS_RANGE & 0xFF000000; /* virtual addresses end at 0xC0000000 or 0xE0000000. */
-        #endif
-        #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
-      var aint end = 0xBF000000UL; /* just a wild guess */
-        #endif
-        #ifdef GENERIC64C_HEAPCODES
-      var aint end = start + 0x100000000UL; /* just a wild guess */
-        #endif
-       #endif
-      var aint part = floor(end - (start & (end-1)),5);
-      #if defined(AMD64) && defined(UNIX_LINUX)
-      /* Don't use more than 36 address bits, otherwise mmap() fails. */
-      part &= 0x0000000FFFFFFFFFUL;
-      #endif
-      mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
-      mem.heaps[0].heap_hardlimit =
-        mem.heaps[1].heap_limit = start + round_down(2*part,map_pagesize);
-      mem.heaps[1].heap_hardlimit = start + round_down(3*part,map_pagesize);
-      #endif
-      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,true) <0) return -1;
+        range_mask = start | diff;
+        ASSERT(range_mask == (end | diff));
+      }
+      /* Verify that the interval [start,end] is covered by oint_addr_mask. */
+      if ((range_mask & ~(oint_addr_mask>>oint_addr_shift)) != 0) {
+        fprintf(stderr,"Wrong choice of oint_addr_mask: %p. It is not consistent with MAPPABLE_ADDRESS_RANGE's bits: %p.\n",
+                (void*)(uintP)(oint_addr_mask>>oint_addr_shift),(void*)range_mask);
+        return -1;
+      }
      #endif
-      free(malloc_addr);
-    }
-   #endif  /* TRIVIALMAP_MEMORY */
+     /* Verify that the alignment is guaranteed to be a multiple of physpagesize. */
+     if (!((0xFFFF & start) == 0)) {
+       fprintf(stderr,"Misaligned MAPPABLE_ADDRESS_RANGE_START: %p\n",(void*)start);
+       return -1;
+     }
+     if (!((0xFFFF & ~end) == 0)) {
+       fprintf(stderr,"Misaligned MAPPABLE_ADDRESS_RANGE_END: %p\n",(void*)end);
+       return -1;
+     }
+     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
+      mem.heaps[0].heap_limit = start;
+      mem.heaps[1].heap_limit = end+1;
+      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0)
+        return -1;
+     #else /* SPVW_MIXED_BLOCKS_STAGGERED */
+      /* Allocate 2/3 for the varobjects heap, 1/3 for the conses heap. */
+      var uintP mid = (start / 3) * 2 + (end / 3);
+      #ifdef GENERATIONAL_GC
+      mid &= -physpagesize;
+      #else
+      mid &= -map_pagesize;
+      #endif
+      mem.heaps[0].heap_limit = start;
+      mem.heaps[0].heap_hardlimit =
+      mem.heaps[1].heap_limit = mid;
+      mem.heaps[1].heap_hardlimit = end+1;
+      if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,true) <0)
+        return -1;
+     #endif
+    #endif /* TRIVIALMAP_MEMORY */
     {      /* initialize all heaps as empty: */
       var uintL heapnr;
       for (heapnr=0; heapnr<heapcount; heapnr++) {
