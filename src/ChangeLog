@@ -1,5 +1,10 @@
 2017-10-14  Bruno Haible  <bruno@clisp.org>
 
+	Simplify makemake.in.
+	* makemake.in (echotabpipe): Remove function. Use 'echotab' instead.
+
+2017-10-14  Bruno Haible  <bruno@clisp.org>
+
 	Make genclisph check for errors on its output files.
 	* genclisph.d: Take the header output file as first argument. The
 	test output file is no longer optional. Check fclose result on all

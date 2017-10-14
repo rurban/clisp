@@ -1801,12 +1801,6 @@ cat <<!!
 }
 fi
 
-# echotabpipe line
-# outputs a line, split along pipe symbols, preceding with tabs.
-echotabpipe() {
-echotab "$1"
-}
-
 # echolist prefix list suffix prefix
 # outputs a list of items, prefixed by backslashes and newlines to break long
 # lines.
@@ -2401,13 +2395,13 @@ for f in $DFILES ; do
   case "${f}" in
     lispbibl) gen_filter=" | sed -e 's/^\\(%% .*\\)//'" ;;
   esac
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${gen_filter} ${XDECL_FILTER} > ${f}.c"
+  echotab "\$(COMMENT5) ${SRCDIR}${f}.d${gen_filter} ${XDECL_FILTER} > ${f}.c"
   echol
 done
 
 for f in $ARI_ASMD $SP_ASMD ; do
   echol "${f}.c : ${SRCDIR}${f}.d comment5${HEXE} ${XASMCCPAUX}"
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
+  echotab "\$(COMMENT5) ${SRCDIR}${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
   echol
 done
 
@@ -2446,14 +2440,14 @@ if [ $TSYS != win32msvc ] ; then
       *)     g='' ;;
     esac
     echol "${f}.s : ${f}.c"
-    echotabpipe "${g}${XCPP}${ASMFLAGS} ${f}.c${ASM_FILTER} > ${f}.s"
+    echotab "${g}${XCPP}${ASMFLAGS} ${f}.c${ASM_FILTER} > ${f}.s"
     echol
   done
 fi
 
 for f in lispbibl; do
   echol "gen.${f}.c : ${SRCDIR}${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///;p;d;}' -e '/^#line /!s/.*//' | sed -e 's/puts(/fprintf(header_f,\"%s\\\\n\",/g' -e 's/printf(\"/fprintf(header_f,\"/g' > gen.${f}.c"
+  echotab "\$(COMMENT5) ${SRCDIR}${f}.d | sed -e '/^%% /{s///;p;d;}' -e '/^#line /!s/.*//' | sed -e 's/puts(/fprintf(header_f,\"%s\\\\n\",/g' -e 's/printf(\"/fprintf(header_f,\"/g' > gen.${f}.c"
   echol
 done
 
@@ -3444,7 +3438,7 @@ for f in $TXT_FILES ; do
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
-  echotabpipe "${line} > ${f}"
+  echotab "${line} > ${f}"
   echotab "\$(RM) gen-${f}.c"
   echotab "\$(RM) gen-${f}${HEXE}"
   echol
