@@ -1,5 +1,10 @@
 2017-10-13  Bruno Haible  <bruno@clisp.org>
 
+	Fix warning in clisp-test.c (regression from 2017-08-24).
+	* genclisph.d (check_typecodes): Fix %-escape mistake.
+
+2017-10-13  Bruno Haible  <bruno@clisp.org>
+
 	Tweak mappable address range for Linux/x86_64.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_END): Shrink a bit.
 
