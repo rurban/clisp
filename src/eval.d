@@ -5675,7 +5675,7 @@ local maygc Values funcall_closure (object closure, uintC args_on_stack)
   #endif
 #endif
 /* Persuade GNU-C, to keep closure and byteptr in registers: */
-#ifdef GNU
+#if defined(GNU) && !defined(NO_ASM)
   #ifdef M68K
     #define closure_register  "a2"
     #define byteptr_register  "a3"

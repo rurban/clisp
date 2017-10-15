@@ -1,5 +1,11 @@
 2017-10-15  Bruno Haible  <bruno@clisp.org>
 
+	Avoid another dangerous code when --enable-portability is enabled.
+	* eval.d (closure_register, byteptr_register): Don't define if NO_ASM is
+	defined.
+
+2017-10-15  Bruno Haible  <bruno@clisp.org>
+
 	Improve code structure.
 	* lispbibl.d: Reorder a #if cascade.
 
