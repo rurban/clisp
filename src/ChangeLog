@@ -1,3 +1,8 @@
+2017-10-15  Bruno Haible  <bruno@clisp.org>
+
+	Improve code structure.
+	* lispbibl.d: Reorder a #if cascade.
+
 2017-10-14  Bruno Haible  <bruno@clisp.org>
 
 	Use only mappable addresses in TRIVIALMAP_MEMORY.

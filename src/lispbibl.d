@@ -3228,13 +3228,14 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %% export_def(as_object(o));
 
 /* Separation of an oint in type bits and address:
- oint_type_mask  is always subset  (2^oint_type_len-1)<<oint_type_shift
- and  oint_addr_mask superset (2^oint_addr_len-1)<<oint_addr_shift . */
+   oint_type_mask  is always subset of  (2^oint_type_len-1)<<oint_type_shift
+   and
+   oint_addr_mask  is a superset of  (2^oint_addr_len-1)<<oint_addr_shift . */
 #if !defined(TYPECODES)
   /* HEAPCODES model:
-   For pointers, the address takes the full word (with type info in the
-   lowest two bits). For immediate objects, we use 24 bits for the data
-   (but exclude the highest available bit, which is the garcol_bit). */
+     For pointers, the address takes the full word (with type info in the
+     lowest two bits). For immediate objects, we use 24 bits for the data
+     (but exclude the highest available bit, which is the garcol_bit). */
   #if !(defined(ONE_FREE_BIT_HEAPCODES) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES))
     /* Choose the appropriate HEAPCODES variant for the machine.
      On most systems, one of the high bits is suitable as GC bit; here we
@@ -3408,271 +3409,277 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
   #endif
-/* Now come the platforms with TYPECODES. oint_type_len should be >= 8,
- and oint_type_mask should have at least 8 bits set and at most one bit in
- common with oint_addr_mask. */
-#elif defined(WIDE_HARD)
-  #if defined(SINGLEMAP_MEMORY)
-    /* The type bits are part of the address that we send on the addressbus.
-       Cf. macros pointable_unchecked and pointable_address_unchecked.
-       Therefore we must consider MMAP_FIXED_ADDRESS_HIGHEST_BIT. */
-    #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-    #define oint_type_len (64-oint_type_shift)
-    #define oint_type_mask (-1UL<<oint_type_shift)
-    #define oint_addr_shift 0
-    #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-    #define oint_addr_mask ((1UL<<oint_addr_len)-1)
-    #define oint_data_shift oint_addr_shift
-    #define oint_data_len oint_addr_len
-    #define oint_data_mask oint_addr_mask
+#else /* TYPECODES */
+  /* Now come the platforms with TYPECODES. oint_type_len should be >= 8,
+     and oint_type_mask should have at least 8 bits set and at most one bit in
+     common with oint_addr_mask. */
+  #if defined(WIDE_SOFT)
+    /* Separate 32-bit words for typecode and address. */
+    #if defined(WIDE_SOFT_LARGEFIXNUM)
+      /* Used to test large fixnums on 32-bit platforms.
+         Bits 63..48 = type code, Bits 47..32 = zero, Bits 31..0 = address */
+      #define oint_type_shift 48
+      #define oint_type_len 16
+      #define oint_type_mask ULL(0xFFFF000000000000)
+      #define oint_addr_shift 0
+      #define oint_addr_len 48
+      #define oint_addr_mask ULL(0x0000FFFFFFFFFFFF)
+    #elif WIDE_ENDIANNESS
+      /* Bits 63..32 = type code, Bits 31..0 = address */
+      #define oint_type_shift 32
+      #define oint_type_len 32
+      #define oint_type_mask ULL(0xFFFFFFFF00000000)
+      #define oint_addr_shift 0
+      #define oint_addr_len 32
+      #define oint_addr_mask ULL(0x00000000FFFFFFFF)
+    #else /* conversely it is a little slower: */
+      /* Bits 63..32 = address, Bits 31..0 = type code */
+      #define oint_type_shift 0
+      #define oint_type_len 32
+      #define oint_type_mask ULL(0x00000000FFFFFFFF)
+      #define oint_addr_shift 32
+      #define oint_addr_len 32
+      #define oint_addr_mask ULL(0xFFFFFFFF00000000)
+    #endif
   #else
-    #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD))
-      /* UNIX_OSF:
-           Ordinary pointers are in the range 1*2^32..2*2^32.
-           Code address range:    0x000000012xxxxxxx
-           Malloc address range:  0x000000014xxxxxxx
-           Shared libraries:      0x000003FFCxxxxxxx
-         UNIX_LINUX:
-           Code address range:    0x000000012xxxxxxx
-           Malloc address range:  0x000000012xxxxxxx
-                            and:  0x0000015555xxxxxx
-           Shared libraries:      0x0000015555xxxxxx
-           Virtual address limit: 0x0000040000000000
-         UNIX_FREEBSD
-           Code address range:    0x0000000120000000
-           Malloc address range:  0x0000000120000000
-           Shared libraries:      0x0000000160000000
-           Stack address range:   0x0000000011000000
-         UNIX_NETBSD
-           Code address range:    0x0000000120000000
-           Malloc address range:  0x0000000120000000
-           Shared libraries:      0x0000000160000000
-           Stack address range:   0x00000001FF000000 */
-      /* This is the safest.
-       Bits 63..48 = type code, Bits 47..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0xFFFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 48
-      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-    #if defined(MIPS64)
-      /* Bits 63..48 = type code, bits 31..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0xFFFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 64
-      #define oint_addr_mask 0x00000000FFFFFFFFUL
-      #define oint_data_shift 0
-      #define oint_data_len 48
-      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
-    #endif
-    #if defined(SPARC64)
-      /* Virtual address limit on some systems: -2^43..2^43.
-       This is the safest.
-       Bits 63..48 = type code, bits 47..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0xFFFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 48
-      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-    #if defined(IA64) && defined(UNIX_LINUX)
-      /* Bits 63..61 = region code,
-       bits 60..39 all zero or all one,
-       virtual address limit: R*2^61..R*2^61+2^39, (R+1)*2^61-2^39..(R+1)*2^61.
-       SHLIB_ADDRESS_RANGE  = 0x2000000000000000UL (region 1)
-       CODE_ADDRESS_RANGE   = 0x4000000000000000UL (region 2)
-       MALLOC_ADDRESS_RANGE = 0x6000000000000000UL (region 3)
-       STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
-       This is the safest.
-       Bits 63..48 = Typcode, Bits 47..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0x1FFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 64
-      #define oint_addr_mask 0xE000FFFFFFFFFFFFUL
-      #define oint_data_shift 0
-      #define oint_data_len 48
-      #define oint_data_mask 0x0000FFFFFFFFFFFFUL
-    #endif
-    #if defined(AMD64)
-      /* UNIX_LINUX:
-           CODE_ADDRESS_RANGE     0x0000000000000000UL
-           MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-           SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
-           STACK_ADDRESS_RANGE    0x0000007FBF000000UL
-         UNIX_FREEBSD:
-           CODE_ADDRESS_RANGE     0x0000000000000000UL
-           MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-           SHLIB_ADDRESS_RANGE    0x0000000800000000UL
-           STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
-         UNIX_MACOSX:
-           Virtual address limit: 2^33..2^47.
-           CODE_ADDRESS_RANGE     0x0000000100000000UL
-           MALLOC_ADDRESS_RANGE   0x0000000100000000UL
-           SHLIB_ADDRESS_RANGE    0x00007FFF70000000UL
-           STACK_ADDRESS_RANGE    0x00007FFF5F000000UL
-         Bits 63..48 = type code, Bits 47..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0xFFFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 48
-      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-    #if defined(ARM64) && defined(UNIX_LINUX)
-      /* UNIX_LINUX:
-           CODE_ADDRESS_RANGE     0x0000000000000000UL
-           MALLOC_ADDRESS_RANGE   0x000000000E000000UL (varies, < 2^32)
-           SHLIB_ADDRESS_RANGE    0x0000002000000000UL
-           STACK_ADDRESS_RANGE    0x0000007FF0000000UL
-           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                  0x0000007FFFFFFFFFUL
-         Bits 63..48 = type code, Bits 47..0 = address */
-      #define oint_type_shift 48
-      #define oint_type_len 16
-      #define oint_type_mask 0xFFFF000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 48
-      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-    #if defined(POWERPC64) && defined(UNIX_LINUX)
-      /* UNIX_LINUX:
-           CODE_ADDRESS_RANGE     0x0000000010000000UL
-           MALLOC_ADDRESS_RANGE   0x0000010028000000UL (varies a bit)
-           SHLIB_ADDRESS_RANGE    0x00003FFFA0000000UL
-           STACK_ADDRESS_RANGE    0x00003FFFD1000000UL
-           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                  0x00003FFFFFFFFFFFUL
-         Bits 63..56 = type code, Bits 55..0 = address */
-      #define oint_type_shift 56
-      #define oint_type_len 8
-      #define oint_type_mask 0xFF00000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 56
-      #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-    #if defined(S390_64) && defined(UNIX_LINUX)
-      /* UNIX_LINUX:
-           CODE_ADDRESS_RANGE     0x0000000080000000UL
-           MALLOC_ADDRESS_RANGE   0x0000000081000000UL ... 0x00000000BE000000UL
-           SHLIB_ADDRESS_RANGE    0x000003FFFD000000UL
-           STACK_ADDRESS_RANGE    0x000003FFFF000000UL
-           Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                  0x001FFFFFFFFFFFFFUL
-         Bits 63..56 = type code, Bits 55..0 = address */
-      /* FIXME: This parameterization does not actually work. */
-      #define oint_type_shift 56
-      #define oint_type_len 8
-      #define oint_type_mask 0xFF00000000000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 56
-      #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
-      #define oint_data_shift oint_addr_shift
-      #define oint_data_len oint_addr_len
-      #define oint_data_mask oint_addr_mask
-    #endif
-  #endif
-#elif defined(WIDE_SOFT)
-  /* separate one 32-bit word for typcode and address. */
-  #if defined(WIDE_SOFT_LARGEFIXNUM)
-    /* Used to test large fixnums on 32-bit platforms.
-     Bits 63..48 = Typcode, Bits 47..32 = zero, Bits 31..0 = address */
-    #define oint_type_shift 48
-    #define oint_type_len 16
-    #define oint_type_mask ULL(0xFFFF000000000000)
-    #define oint_addr_shift 0
-    #define oint_addr_len 48
-    #define oint_addr_mask ULL(0x0000FFFFFFFFFFFF)
-  #elif WIDE_ENDIANNESS
-    /* Bits 63..32 = Typcode, Bits 31..0 = address */
-    #define oint_type_shift 32
-    #define oint_type_len 32
-    #define oint_type_mask ULL(0xFFFFFFFF00000000)
-    #define oint_addr_shift 0
-    #define oint_addr_len 32
-    #define oint_addr_mask ULL(0x00000000FFFFFFFF)
-  #else /* conversely it is a little slower: */
-    /* Bits 63..32 = Adress, Bits 31..0 = Typcode */
-    #define oint_type_shift 0
-    #define oint_type_len 32
-    #define oint_type_mask ULL(0x00000000FFFFFFFF)
-    #define oint_addr_shift 32
-    #define oint_addr_len 32
-    #define oint_addr_mask ULL(0xFFFFFFFF00000000)
-  #endif
-#else
-  /* Now come the 32-bit platforms with TYPECODES. We need to support it only on
-     M68K platforms without new gcc.
-     It worked on the following platforms in the past, and may still work on:
-       (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-       (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN) && !defined(WIN32_NATIVE))
-       defined(SPARC)
-       defined(MIPS)
-       defined(M88000)
-       (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
-       defined(VAX) */
-  #if defined(SINGLEMAP_MEMORY)
-    /* The type bits are part of the address that we send on the addressbus.
-       Cf. macros pointable_unchecked and pointable_address_unchecked.
-       Therefore we must consider MMAP_FIXED_ADDRESS_HIGHEST_BIT. */
-    #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-    #define oint_type_len (32-oint_type_shift)
-    #define oint_type_mask (-1UL<<oint_type_shift)
-    #define oint_addr_shift 0
-    #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-    #define oint_addr_mask ((1UL<<oint_addr_len)-1)
-    #define oint_data_shift oint_addr_shift
-    #define oint_data_len oint_addr_len
-    #define oint_data_mask oint_addr_mask
-  #else
-    #if (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_MACOSX)) || defined(TRY_TYPECODES_1)
-      /* You can add more platforms here provided that
-       1. you need it,
-       2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
-       3. it works. */
-      #define oint_type_shift 24
-      #define oint_type_len 8
-      #define oint_type_mask (0xFF000000UL & ~(CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE))
-      #define oint_addr_shift 0
-      #define oint_addr_len 24
-      #define oint_addr_mask (0x00FFFFFFUL | CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE)
-      #define oint_data_shift 0
-      #define oint_data_len 24
-      #define oint_data_mask 0x00FFFFFFUL
-    #elif 0 || defined(TRY_TYPECODES_2)
-      /* You can add more platforms here provided that
-       1. you need it,
-       2. it works.
-       Bits 31..24 = Typcode, Bits 23..0 = Adress */
-      #define oint_type_shift 24
-      #define oint_type_len 8
-      #define oint_type_mask 0xFF000000UL
-      #define oint_addr_shift 0
-      #define oint_addr_len 24
-      #define oint_addr_mask 0x00FFFFFFUL
+    /* oint == uintP.
+       Type code and address are in the same word. */
+    #if defined(SINGLEMAP_MEMORY)
+      /* The type bits are part of the address that we send on the addressbus.
+         Cf. macros pointable_unchecked and pointable_address_unchecked.
+         Therefore we must consider MMAP_FIXED_ADDRESS_HIGHEST_BIT. */
+      #if !defined(WIDE_HARD)
+        /* 32-bit platforms */
+        #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
+        #define oint_type_len (32-oint_type_shift)
+        #define oint_type_mask (-1UL<<oint_type_shift)
+        #define oint_addr_shift 0
+        #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
+        #define oint_addr_mask ((1UL<<oint_addr_len)-1)
+        #define oint_data_shift oint_addr_shift
+        #define oint_data_len oint_addr_len
+        #define oint_data_mask oint_addr_mask
+      #else
+        /* 64-bit platforms */
+        #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
+        #define oint_type_len (64-oint_type_shift)
+        #define oint_type_mask (-1UL<<oint_type_shift)
+        #define oint_addr_shift 0
+        #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
+        #define oint_addr_mask ((1UL<<oint_addr_len)-1)
+        #define oint_data_shift oint_addr_shift
+        #define oint_data_len oint_addr_len
+        #define oint_data_mask oint_addr_mask
+      #endif
     #else
-      #error TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES.
+      #if !defined(WIDE_HARD)
+        /* 32-bit platforms */
+        /* We need to support it only on M68K platforms without new gcc.
+           It worked on the following platforms in the past, and may still work on:
+             (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
+             (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN) && !defined(WIN32_NATIVE))
+             defined(SPARC)
+             defined(MIPS)
+             defined(M88000)
+             (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
+             defined(VAX) */
+        #if (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_MACOSX)) || defined(TRY_TYPECODES_1)
+          /* You can add more platforms here provided that
+             1. you need it,
+             2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
+             3. it works. */
+          #define oint_type_shift 24
+          #define oint_type_len 8
+          #define oint_type_mask (0xFF000000UL & ~(CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE))
+          #define oint_addr_shift 0
+          #define oint_addr_len 24
+          #define oint_addr_mask (0x00FFFFFFUL | CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE)
+          #define oint_data_shift 0
+          #define oint_data_len 24
+          #define oint_data_mask 0x00FFFFFFUL
+        #elif 0 || defined(TRY_TYPECODES_2)
+          /* You can add more platforms here provided that
+             1. you need it,
+             2. it works.
+             Bits 31..24 = Typcode, Bits 23..0 = Adress */
+          #define oint_type_shift 24
+          #define oint_type_len 8
+          #define oint_type_mask 0xFF000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 24
+          #define oint_addr_mask 0x00FFFFFFUL
+        #else
+          #error TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES.
+        #endif
+      #else
+        /* 64-bit platforms */
+        #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD))
+          /* UNIX_OSF:
+               Ordinary pointers are in the range 1*2^32..2*2^32.
+               Code address range:    0x000000012xxxxxxx
+               Malloc address range:  0x000000014xxxxxxx
+               Shared libraries:      0x000003FFCxxxxxxx
+             UNIX_LINUX:
+               Code address range:    0x000000012xxxxxxx
+               Malloc address range:  0x000000012xxxxxxx
+                                and:  0x0000015555xxxxxx
+               Shared libraries:      0x0000015555xxxxxx
+               Virtual address limit: 0x0000040000000000
+             UNIX_FREEBSD
+               Code address range:    0x0000000120000000
+               Malloc address range:  0x0000000120000000
+               Shared libraries:      0x0000000160000000
+               Stack address range:   0x0000000011000000
+             UNIX_NETBSD
+               Code address range:    0x0000000120000000
+               Malloc address range:  0x0000000120000000
+               Shared libraries:      0x0000000160000000
+               Stack address range:   0x00000001FF000000 */
+          /* This is the safest.
+             Bits 63..48 = type code, Bits 47..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0xFFFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 48
+          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+        #if defined(MIPS64)
+          /* Bits 63..48 = type code, bits 31..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0xFFFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 64
+          #define oint_addr_mask 0x00000000FFFFFFFFUL
+          #define oint_data_shift 0
+          #define oint_data_len 48
+          #define oint_data_mask 0x0000FFFFFFFFFFFFUL
+        #endif
+        #if defined(SPARC64)
+          /* Virtual address limit on some systems: -2^43..2^43.
+             This is the safest.
+             Bits 63..48 = type code, bits 47..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0xFFFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 48
+          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+        #if defined(IA64) && defined(UNIX_LINUX)
+          /* Bits 63..61 = region code,
+             bits 60..39 all zero or all one,
+             Virtual address limit: R*2^61..R*2^61+2^39, (R+1)*2^61-2^39..(R+1)*2^61.
+             SHLIB_ADDRESS_RANGE  = 0x2000000000000000UL (region 1)
+             CODE_ADDRESS_RANGE   = 0x4000000000000000UL (region 2)
+             MALLOC_ADDRESS_RANGE = 0x6000000000000000UL (region 3)
+             STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
+             This is the safest.
+             Bits 63..48 = Typcode, Bits 47..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0x1FFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 64
+          #define oint_addr_mask 0xE000FFFFFFFFFFFFUL
+          #define oint_data_shift 0
+          #define oint_data_len 48
+          #define oint_data_mask 0x0000FFFFFFFFFFFFUL
+        #endif
+        #if defined(AMD64)
+          /* UNIX_LINUX:
+               CODE_ADDRESS_RANGE     0x0000000000000000UL
+               MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+               SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
+               STACK_ADDRESS_RANGE    0x0000007FBF000000UL
+             UNIX_FREEBSD:
+               CODE_ADDRESS_RANGE     0x0000000000000000UL
+               MALLOC_ADDRESS_RANGE   0x0000000000000000UL
+               SHLIB_ADDRESS_RANGE    0x0000000800000000UL
+               STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
+             UNIX_MACOSX:
+               Virtual address limit: 2^33..2^47.
+               CODE_ADDRESS_RANGE     0x0000000100000000UL
+               MALLOC_ADDRESS_RANGE   0x0000000100000000UL
+               SHLIB_ADDRESS_RANGE    0x00007FFF70000000UL
+               STACK_ADDRESS_RANGE    0x00007FFF5F000000UL
+             Bits 63..48 = type code, Bits 47..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0xFFFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 48
+          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+        #if defined(ARM64) && defined(UNIX_LINUX)
+          /* UNIX_LINUX:
+               CODE_ADDRESS_RANGE     0x0000000000000000UL
+               MALLOC_ADDRESS_RANGE   0x000000000E000000UL (varies, < 2^32)
+               SHLIB_ADDRESS_RANGE    0x0000002000000000UL
+               STACK_ADDRESS_RANGE    0x0000007FF0000000UL
+               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                      0x0000007FFFFFFFFFUL
+             Bits 63..48 = type code, Bits 47..0 = address */
+          #define oint_type_shift 48
+          #define oint_type_len 16
+          #define oint_type_mask 0xFFFF000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 48
+          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+        #if defined(POWERPC64) && defined(UNIX_LINUX)
+          /* UNIX_LINUX:
+               CODE_ADDRESS_RANGE     0x0000000010000000UL
+               MALLOC_ADDRESS_RANGE   0x0000010028000000UL (varies a bit)
+               SHLIB_ADDRESS_RANGE    0x00003FFFA0000000UL
+               STACK_ADDRESS_RANGE    0x00003FFFD1000000UL
+               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                      0x00003FFFFFFFFFFFUL
+             Bits 63..56 = type code, Bits 55..0 = address */
+          #define oint_type_shift 56
+          #define oint_type_len 8
+          #define oint_type_mask 0xFF00000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 56
+          #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+        #if defined(S390_64) && defined(UNIX_LINUX)
+          /* UNIX_LINUX:
+               CODE_ADDRESS_RANGE     0x0000000080000000UL
+               MALLOC_ADDRESS_RANGE   0x0000000081000000UL ... 0x00000000BE000000UL
+               SHLIB_ADDRESS_RANGE    0x000003FFFD000000UL
+               STACK_ADDRESS_RANGE    0x000003FFFF000000UL
+               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
+                                      0x001FFFFFFFFFFFFFUL
+             Bits 63..56 = type code, Bits 55..0 = address */
+          /* FIXME: This parameterization does not actually work. */
+          #define oint_type_shift 56
+          #define oint_type_len 8
+          #define oint_type_mask 0xFF00000000000000UL
+          #define oint_addr_shift 0
+          #define oint_addr_len 56
+          #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
+          #define oint_data_shift oint_addr_shift
+          #define oint_data_len oint_addr_len
+          #define oint_data_mask oint_addr_mask
+        #endif
+      #endif
     #endif
   #endif
 #endif
