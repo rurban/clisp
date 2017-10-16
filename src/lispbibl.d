@@ -558,7 +558,7 @@
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
+#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
   /* When using gcc on i386, this assumes that -malign-functions has not been
    used to specify an alignment smaller than 4 bytes. */
   #define C_CODE_ALIGNMENT  4
@@ -578,6 +578,13 @@
 #if defined(M68K) || defined(__CR16__) || defined(__cris__) || defined(__H8300__) || defined(__mcore__) || defined(__mep__) || defined(__moxie__) || defined(__MSP430__) || defined(__pdp11__) || defined(__sh__) || defined(__xstormy16__) || defined(__v850__) || defined(__vax__)
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
+#endif
+#if defined(ARM)
+  /* When using gcc-4.8 with binutils-2.24 (on Ubuntu 14.04/arm64), the
+     expression &eql apparently evaluates to the address of 'eql' plus 1.
+     This kills the expected alignment of 4 bytes. */
+  #define C_CODE_ALIGNMENT  1
+  #define log2_C_CODE_ALIGNMENT  0
 #endif
 #if defined(__AVR__) || defined(__m32c__) || defined(__mn10300__) || defined(__RL78__)
   #define C_CODE_ALIGNMENT  1

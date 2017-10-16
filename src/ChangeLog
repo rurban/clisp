@@ -1,5 +1,10 @@
 2017-10-16  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8".
+	* lispbibl.d (C_CODE_ALIGNMENT) [ARM]: Set to 1.
+
+2017-10-16  Bruno Haible  <bruno@clisp.org>
+
 	Avoid a crash of the highest bit number test on Linux/arm.
 	* m4/mmap.m4 (CL_MMAP): On arm systems, test address 0x41000000 instead
 	of address 0x40000000.
