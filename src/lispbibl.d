@@ -130,6 +130,9 @@
        Memory saving representation of strings with only 8-bit characters
        or only 16-bit characters:
          NO_SMALL_SSTRING
+       Memory saving representation of variable binding frames, that stores
+       the binding state bits in the symbol word:
+         NO_SYMBOLFLAGS
 
     Flags for debugging of clisp internals (for the clisp developers only):
     Some of these are turned on by the configure option '--with-debug'.
@@ -4921,7 +4924,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define active_bit  0  /* set: binding is active */
   #define dynam_bit   1  /* set: binding is dynamic */
   #define svar_bit    2  /* set: next parameter is supplied-p-parameter for this */
-#if (varobject_alignment >= bit(3))
+#if (varobject_alignment >= bit(3)) && !defined(NO_SYMBOLFLAGS)
   #define oint_symbolflags_shift  oint_addr_shift
 #else
   #define NO_symbolflags /* there's no space in the symbol for active_bit, dynam_bit, svar_bit */
