@@ -1,5 +1,12 @@
 2017-10-16  Bruno Haible  <bruno@clisp.org>
 
+	Avoid another risky optimization when --enable-portability is enabled.
+	* lispbibl.d: When NO_SYMBOLFLAGS is defined, don't use symbolflags.
+	* makemake.in (XCFLAGS): Add -DNO_SYMBOLFLAGS if --enable-portability
+	is specified.
+
+2017-10-16  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux/s390x.
 	* makemake.in: When compiling lisparit.c with GCC for s390x, reduce
 	optimizations.
