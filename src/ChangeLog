@@ -1,3 +1,9 @@
+2017-10-16  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure on Linux/s390x.
+	* makemake.in: When compiling lisparit.c with GCC for s390x, reduce
+	optimizations.
+
 2017-10-15  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on Linux/sparc64.

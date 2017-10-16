@@ -2529,6 +2529,10 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     # gcc-4.6.3 on Linux/sparc64 miscompiles eval.d when -O is used.
     flags2=$flags2' -O0'
   fi
+  if [ $f = lisparit -a "$cpu" = s390x -a $XCC_GCC = true ] ; then
+    # gcc-4.9.2 on Linux/s390x miscompiles lisparit.d when -O2 is used.
+    flags2=$flags2' -O1'
+  fi
   if [ $f = eval -a "${with_jitc}" = lightning ]; then
     flags2=$flags2' -Wno-unused' # should be gone - eventually...
   fi
