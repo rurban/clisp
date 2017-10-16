@@ -28364,9 +28364,15 @@ AC_DEFUN([CL_MMAP],
                  if (pos == 62)
                    continue;
                  #endif
+                 #ifdef __arm__
+                 /* On Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8",
+                    some shared libraries may sit at 0x40000000. An mmap call to
+                    this address may crash the program. */
+                 if (pos == 30)
+                   address += 0x01000000UL;
+                 #endif
                  {
                    char *p;
-                   int ret;
                    #if defined HAVE_MMAP_ANON
                      p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
                    #elif defined HAVE_MMAP_ANONYMOUS
