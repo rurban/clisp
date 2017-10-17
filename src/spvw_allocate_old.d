@@ -84,11 +84,11 @@ local void relax_reserve (uintM need)
 #endif
 
 /* determines, if an address lies in the interval [0..2^oint_addr_len-1] : */
-#if !defined(TYPECODES) || defined(WIDE_SOFT)
+#if defined(WIDE_SOFT) || (oint_addr_len == pointer_bitsize)
   #define pointable_usable_test(a)  true
 #else
   #define pointable_usable_test(a)  \
-    ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
+    ((((uintP)(a) >> addr_shift) >> oint_addr_len) == 0)
 #endif
 
 /* fetches memory from the operating system */
@@ -112,6 +112,10 @@ local void* mymalloc (uintM need)
   /* we cannot do anything with this piece of memory, return it again: */
   begin_system_call();
   free(addr);
+  fprint(stderr,GETTEXTL("Warning: "));
+  fprintf(stderr,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
+          (aint)addr);
+  fprint(stderr,"\n");
   end_system_call();
   return NULL;
 }
