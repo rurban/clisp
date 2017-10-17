@@ -100,6 +100,7 @@
 	physpagesize, not map_pagesize, if GENERATIONAL_GC is enabled.
 	* spvw_fault.d (handle_fault): Drop the requirement that
 	SIGSEGV_FAULT_ADDRESS_ALIGNMENT be 1.
+	* spvw_fault_old.d (handle_fault): Likewise.
 	* lispbibl.d (GENERATIONAL_GC): Define without considering the value of
 	SIGSEGV_FAULT_ADDRESS_ALIGNMENT.
 

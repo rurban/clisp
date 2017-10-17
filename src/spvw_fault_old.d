@@ -126,13 +126,16 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
   heapnr = typecode(obj);
   #else
   #if defined(GENERATIONAL_GC)
-  /* Compile-time check: SIGSEGV_FAULT_ADDRESS_ALIGNMENT is 1.
-     Otherwise the address argument is not the exact fault address, but the
-     address rounded down to page alignment, and the comparisons below may
-     yield a wrong heapnr. */
-  #if SIGSEGV_FAULT_ADDRESS_ALIGNMENT != 1UL
-  #error "GENERATIONAL_GC is defined with SPVW_MIXED_BLOCKS although SIGSEGV_FAULT_ADDRESS_ALIGNMENT is > 1"
-  #endif
+  /* Different heaps never occupy parts of the same physpage; otherwise the
+     fault handler for an object of one heap would have an effect on the
+     state of the physpage of the other heap.
+     In case of SPVW_MIXED_BLOCKS_STAGGERED this is guaranteed by the
+     initialization of the heap limits. In case of SPVW_MIXED_BLOCKS_OPPOSITE
+     this is guaranteed by spvw_allocate.d.
+     This also guarantees that when SIGSEGV_FAULT_ADDRESS_ALIGNMENT > 1UL
+     and the address argument is not the exact fault address, but the address
+     rounded down to page alignment, the comparisons below still compute the
+     correct heapnr. */
   #endif
   #if defined(SPVW_MIXED_BLOCKS_STAGGERED)
   heapnr = (address >= mem.heaps[1].heap_mgen_start ? 1 : 0);
