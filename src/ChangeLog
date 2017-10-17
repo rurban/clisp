@@ -563,6 +563,7 @@
 	* spvw_allocate.d (pointable_usable_test): Really test whether the
 	malloc() result occupied some bits outside oint_addr_mask.
 	(mymalloc): Print a warning before returning NULL.
+	* spvw_allocate_old.d: Likewise.
 
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
