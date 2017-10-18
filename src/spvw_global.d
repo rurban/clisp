@@ -18,10 +18,6 @@
   #define heapcount  typecount
 #endif
 
-#if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
-  #define HAVE_HEAPNR_FROM_TYPE
-#endif
-
 /*
   VTZ:
   MT memory heap changes proposal
@@ -72,9 +68,6 @@ local struct {
  #ifdef SPVW_MIXED
   #define varobjects  heaps[0] /* objects of various lengths */
   #define conses      heaps[1] /* conses and other two-pointer objects */
- #endif
- #if defined(HAVE_HEAPNR_FROM_TYPE)
-  sintB heapnr_from_type[typecount]; /* table type -> heapnr */
  #endif
  #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
   /* now empty, free for Lisp objects. */
@@ -147,6 +140,11 @@ local struct {
  is_cons_heap(heapnr)
  is_unused_heap(heapnr)
 
+ #ifdef TYPECODES
+  Determine the heap that contains objects of the given type.
+  typecode_to_heapnr(type)
+ #endif
+
  Test for valid heap address, used only by consistency checks.
  is_valid_varobject_address(address)
  is_valid_cons_address(address)
@@ -163,9 +161,6 @@ local struct {
  Initializations. */
 #ifdef SPVW_PURE
 local inline void init_mem_heaptypes (void);
-#endif
-#if defined(HAVE_HEAPNR_FROM_TYPE)
-local inline void init_mem_heapnr_from_type (void);
 #endif
 
 /* -------------------------- Implementation --------------------------- */
@@ -309,6 +304,15 @@ local inline void init_mem_heapnr_from_type (void);
   #define is_varobject_heap(heapnr)  (mem.heaptype[heapnr] > 0)
   #define is_unused_heap(heapnr)  (mem.heaptype[heapnr] < 0)
 
+#endif
+
+#ifdef TYPECODES
+  #if defined(SPVW_PURE)
+    #define typecode_to_heapnr(type) (type)
+  #else /* SPVW_MIXED */
+    /* Keep this consistent with the definition of 'case_pair'! */
+    #define typecode_to_heapnr(type) ((type)==cons_type) /* 1 or 0 */
+  #endif
 #endif
 
 #if defined(SPVW_BLOCKS) && defined(DEBUG_SPVW)
@@ -520,18 +524,6 @@ local inline void init_mem_heaptypes (void)
       mem.heaptype[heapnr] = -1; break;
       default:
         mem.heaptype[heapnr] = -2; break;
-    }
-  }
-}
-#endif
-#if defined(HAVE_HEAPNR_FROM_TYPE)
-local inline void init_mem_heapnr_from_type (void)
-{
-  var uintL type;
-  for (type = 0; type < typecount; type++) {
-    switch (type) {
-      case_pair: mem.heapnr_from_type[type] = 1; break;
-      default:   mem.heapnr_from_type[type] = 0; break;
     }
   }
 }

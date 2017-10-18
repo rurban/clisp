@@ -889,10 +889,10 @@ local void rebuild_old_generation_cache (uintL heapnr)
             #define cache_at(obj)                                     \
               { var tint type = mtypecode(obj);                       \
                 if (!gcinvariant_type_p(type))     /* un-movable? */  \
-                  if (!in_old_generation(obj,type,mem.heapnr_from_type[type])) { \
+                  if (!in_old_generation(obj,type,typecode_to_heapnr(type))) { \
                     /* obj is a pointer into the new generation -> memorize */ \
                     cache_ptr->p = &(obj); cache_ptr->o = (obj);      \
-                    DEBUG_SPVW_ASSERT(mem.heapnr_from_type[type]      \
+                    DEBUG_SPVW_ASSERT(typecode_to_heapnr(type)        \
                                       ? is_valid_cons_address(as_oint(obj)) \
                                       : is_valid_varobject_address(as_oint(obj))); \
                     cache_ptr++;                                      \
@@ -1062,12 +1062,11 @@ local bool gc_check_at (gcv_object_t* objptr)
   #ifdef SPVW_PURE
   if (is_unused_heap(type))
     return false;
-  heapnr = type;
   #else
   if (gcinvariant_type_p(type))
     return false;
-  heapnr = mem.heapnr_from_type[type];
   #endif
+  heapnr = typecode_to_heapnr(type);
   #else
   if (gcinvariant_object_p(obj))
     return false;
