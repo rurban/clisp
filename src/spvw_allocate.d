@@ -715,13 +715,13 @@ local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_
  #ifdef SPVW_PURE
   #define allocate(type_expr,flag,size_expr,ptrtype,ptrvar,statement) do { \
     LOCK_ALLOCATE();                                                    \
-    var tint _type = (type_expr);                                       \
+   {var tint _type = (type_expr);                                       \
     var Heap* heapptr = &mem.heaps[_type];                              \
     var ptrtype ptrvar = (ptrtype)allocate_in_heap_hole(size_expr, heapptr); \
     if (!ptrvar) make_space(size_expr,heapptr);                         \
     set_break_sem_1();                    /* lock Break */              \
     /* pointer to memory piece: */                                      \
-    {if (!ptrvar) {                                                     \
+    if (!ptrvar) {                                                      \
       ptrvar = (ptrtype)(heapptr->heap_end);                            \
       heapptr->heap_end += (size_expr); /* adjust memory partitioning */\
       decrement_total_room(size_expr);                                  \
