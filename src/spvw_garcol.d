@@ -1221,7 +1221,7 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
    { var tint type = mtypecode(*(gcv_object_t*)objptr);                 \
      if (!gcinvariant_type_p(type)) {   /* un-movable -> do nothing */  \
        var object obj = *(gcv_object_t*)objptr;           /* object */  \
-       if (!in_old_generation(obj,type,mem.heapnr_from_type[type]))     \
+       if (!in_old_generation(obj,type,typecode_to_heapnr(type)))       \
          /* older generation -> do nothing (object stayed there) */     \
          if (marked(ThePointer(obj))) {                 /* marked? */   \
            /* no -> do nothing (object stayed there)                    \

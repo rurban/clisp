@@ -1,5 +1,20 @@
 2017-10-18  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation failure with DEBUG_SPVW & SPVW_PURE & GENERATIONAL_GC.
+	* spvw_global.d (mem): Remove heapnr_from_type field.
+	(HAVE_HEAPNR_FROM_TYPE): Remove macro.
+	(init_mem_heapnr_from_type): Remove function.
+	(typecode_to_heapnr): New macro.
+	* spvw_global_old.d: Likewise.
+	* spvw_garcol.d (update): Use typecode_to_heapnr instead of
+	mem.heapnr_from_type array.
+	* spvw_garcol_old.d: Likewise.
+	* spvw_genera1.d (rebuild_old_generation_cache, gc_check_at): Likewise.
+	* spvw_genera1_old.d: Likewise.
+	* spvw.d (init_memory): Update.
+
+2017-10-18  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with cc on IRIX.
 	* foreign.d (do_av_start): Access the 'flags' field only on Windows.
 
