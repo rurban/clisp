@@ -3391,8 +3391,12 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist *alist,
                    result_size, result_splittable);
     else error_foreign_type(result_fvd);
   }
+ #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
+  /* This code does not compile with libffcall >= 2.0 and old C compilers.
+     So limit it to the platforms where it is needed, namely Windows. */
   if (flags & ff_lang_stdcall)
     alist->flags |= __AV_STDCALL_CLEANUP;
+ #endif
 }
 
 /* Call the appropriate av_xxx macro for an argument.
