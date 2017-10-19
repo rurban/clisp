@@ -1,7 +1,7 @@
 /*
  * Hash-Tables in CLISP
- * Bruno Haible 1990-2005
- * Sam Steingold 1998-2009
+ * Bruno Haible 1990-2005, 2016-2017
+ * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-01-29
  */
 
@@ -1663,10 +1663,23 @@ local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
     pushSTACK(maxcount); pushSTACK(mincount_threshold); funcall(L(star),2);
     pushSTACK(value1); funcall(L(floor),1);
     pushSTACK(value1);
-    /* stack-layout: MAXCOUNT, SIZE, MINCOUNT.
-     allocate new vectors: */
-    pushSTACK(allocate_vector(sizeV)); /* supply index-vector */
-    pushSTACK(allocate_kvt(weak,maxcountV)); /* supply key-value-vector */
+    /* stack-layout: MAXCOUNT, SIZE, MINCOUNT. */
+    /* Allocate new index-vector: */
+    {
+      var object Ivektor = allocate_vector(sizeV);
+      /* Fill it with "nix". For non-weak hash tables this is not really needed.
+         But when weak /= NIL, during GC, weak_hashed_alist_update relies on
+         the fact that unused entries are "nix", not NIL. And since
+         (SETF HASH-TABLE-WEAK-P) can move the index-vector of a non-weak KVT
+         into a weak KVT, it's best to initialize the index-vector of non-weak
+         KVTs in the same way. */
+      var gcv_object_t* ptr = &TheSvector(Ivektor)->data[0];
+      var uintL count = sizeV; /* SIZE, >0 */
+      dotimespL(count,count, { *ptr++ = nix; } );
+      pushSTACK(Ivektor);
+    }
+    /* Allocate new key-value-vector: */
+    pushSTACK(allocate_kvt(weak,maxcountV));
     /* finished. */
     return maxcountV;
   }
