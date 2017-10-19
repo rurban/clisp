@@ -1648,6 +1648,11 @@ local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
     if (!(4+3*maxcountV <= arraysize_limit_1+1))
       /* kvtable size should fit into ARRAY-SIZE-LIMIT */
       goto check_maxcount;
+   #if 0 /* Redundant because 2*maxcountV+1 < 4+3*maxcountV ≤ arraysize_limit. */
+    if (!(sizeV <= (uintV)(vbitm(oint_data_len)-1)))
+      /* sizeV should fit into a fixnum */
+      goto check_maxcount;
+   #endif
     if (!(sizeV <= (uintL)(bitm(intLsize)-1)))
       /* sizeV should fit into an uintL */
       goto check_maxcount;
