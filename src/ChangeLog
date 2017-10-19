@@ -1,5 +1,11 @@
 2017-10-19  Bruno Haible  <bruno@clisp.org>
 
+	Readd currently redundant check, in comments.
+	* hashtabl.d (prepare_resize): Readd test removed on 2012-03-10, but
+	keep it disabled.
+
+2017-10-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with DEBUG_GCSAFETY (regression from 2017-10-14).
 	* makemake.in (gen.lispbibl.c): Replace 'print' statements with fprint
 	statements.
