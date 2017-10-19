@@ -1,3 +1,9 @@
+2017-10-19  Bruno Haible  <bruno@clisp.org>
+
+	Fix build failure with DEBUG_GCSAFETY (regression from 2017-10-14).
+	* makemake.in (gen.lispbibl.c): Replace 'print' statements with fprint
+	statements.
+
 2017-10-18  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation failure with DEBUG_SPVW & SPVW_PURE & GENERATIONAL_GC.
