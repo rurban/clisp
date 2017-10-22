@@ -1,7 +1,7 @@
 /*
  * Moved out of memory management:
  * table of all fixed symbols
- * Bruno Haible 1990-2006
+ * Bruno Haible 1990-2006, 2017
  * Sam Steingold 2002-2009
  */
 
@@ -25,7 +25,8 @@
 /* Table of all fixed symbols: */
 modexp struct symbol_tab_ symbol_tab_data
   #if defined(HEAPCODES) && (alignment_long < varobject_alignment)
-/* Force all symbols to be allocated with a 4/8-byte alignment. GC needs this. */
+    /* Force all symbols to be allocated with a 4/8-byte alignment. GC needs this.
+       This assumes HAVE_GLOBAL_VAR_ALIGN. */
     #if defined(GNU)
       __attribute__ ((aligned (varobject_alignment)))
     #endif
