@@ -620,8 +620,10 @@
 #if defined(WIDE) && !(defined(WIDE_HARD) || defined(WIDE_SOFT))
   #define WIDE_SOFT
 #endif
-#if (defined(WIDE_HARD) || defined(WIDE_SOFT)) && !defined(WIDE)
-  #define WIDE
+#if defined(WIDE_HARD) || defined(WIDE_SOFT)
+  #ifndef WIDE
+    #define WIDE
+  #endif
 #endif
 /* Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT) */
 
@@ -2980,19 +2982,27 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 #if defined(SINGLEMAP_MEMORY)
   /* SINGLEMAP_MEMORY implies TYPECODES. */
-  #define TYPECODES
+  #ifndef TYPECODES
+    #define TYPECODES
+  #endif
 #endif
 
 #if defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES)
-  #define KERNELVOID32_HEAPCODES
+  #ifndef KERNELVOID32_HEAPCODES
+    #define KERNELVOID32_HEAPCODES
+  #endif
 #endif
 
 #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES)
-  #define GENERIC64_HEAPCODES
+  #ifndef GENERIC64_HEAPCODES
+    #define GENERIC64_HEAPCODES
+  #endif
 #endif
 
 #if defined(ONE_FREE_BIT_HEAPCODES) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
-  #define HEAPCODES
+  #ifndef HEAPCODES
+    #define HEAPCODES
+  #endif
 #endif
 
 #if defined(WIDE_SOFT) && defined(HEAPCODES)
@@ -3036,9 +3046,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    is ridiculous today. */
   /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information. */
-  #define SINGLEMAP_MEMORY
+  #ifndef SINGLEMAP_MEMORY
+    #define SINGLEMAP_MEMORY
+  #endif
   /* SINGLEMAP_MEMORY implies TYPECODES. */
-  #define TYPECODES
+  #ifndef TYPECODES
+    #define TYPECODES
+  #endif
 #endif
 
 #if !(defined(TYPECODES) || defined(HEAPCODES))
@@ -3876,7 +3890,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
        (SAFETY < 3)                                                           \
     && /* The user can also turn off generational GC explicitly. */           \
        !defined(NO_GENERATIONAL_GC)
-  #define GENERATIONAL_GC
+  #ifndef GENERATIONAL_GC
+    #define GENERATIONAL_GC
+  #endif
 #endif
 
 
