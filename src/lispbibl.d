@@ -3902,6 +3902,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
+/* Put subr_tab and symbol_tab to given addresses through memory-mapping. */
+#if defined(SINGLEMAP_MEMORY) && !defined(WIDE_SOFT)
+  #define MAP_MEMORY_TABLES
+#endif
+
+
 #ifdef SINGLEMAP_MEMORY
   /* Some type-bit combinations might not be allowed */
   #ifdef vm_addr_mask
@@ -4675,7 +4681,13 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
-/* Objects with variable length must reside at addresses that are divisable by 2 */
+/* Objects with variable length must reside at addresses that are divisible
+   by 2 or 4 or 8. This alignment should be so large as to avoid misaligned
+   accesses to 'long' and especially 'double' fields in varobjects.
+   Look
+   1. at alignof(long), alignof(double) (matters only if FAST_DOUBLE),
+   2. at the definition of BIGGEST_ALIGNMENT and BIGGEST_FIELD_ALIGNMENT in
+      gcc-5.4.0/gcc/config/<cpu>/<cpu>.h, divided by 8. */
 #if defined(VAX) /* ?? gcc/config/vax/vax.h sagt: Alignment = 4 */
   #define varobject_alignment  1
 #endif
@@ -4713,6 +4725,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #error Bogus varobject_alignment -- readjust varobject_alignment!!
 #endif
 %% export_def(varobject_alignment);
+
+/* In some cases it is required that sizeof(symbol_) is a multiple of varobject_alignment.
+   - When KERNELVOID32_HEAPCODES || GENERIC64_HEAPCODES.
+   - When MAP_MEMORY_TABLES, because symbol_tab_data (with elements of size sizeof(symbol_))
+     gets copied to symbol_tab (into the heap, where varobject_alignment is a requirement). */
+#if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES) || defined(MAP_MEMORY_TABLES)
+ #define sizeof_symbol_is_multiple_of_varobject_alignment
+#endif
 
 
 #ifdef TYPECODES
@@ -5390,11 +5410,6 @@ extern bool inside_gc;
   #define MORRIS_GC
 #endif
 
-/* Put subr_tab and symbol_tab to given addresses through memory-mapping. */
-#if defined(SINGLEMAP_MEMORY) && !defined(WIDE_SOFT)
-  #define MAP_MEMORY_TABLES
-#endif
-
 
 /* ################# definitions by cases with respect to type codes ################# */
 
@@ -5557,7 +5572,7 @@ extern bool inside_gc;
 %%   emit_typedef("uintP","hfint");
 %% #endif
 
-/* Objecs with variable length */
+/* Objects with variable length */
 #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
     #define VAROBJECT_HEADER  \
@@ -6073,12 +6088,13 @@ typedef struct {
   gcv_object_t proplist    _attribute_aligned_object_; /* property list */
   gcv_object_t pname       _attribute_aligned_object_; /* Printname */
   gcv_object_t homepackage _attribute_aligned_object_; /* Home-Package or NIL */
-  /* If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
-   varobject_alignment. */
-  #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
-  /* filler is put here is it is gcv_object_t - so may be easily included in
-     symbol_length if needed. */
-  gcv_object_t filler      _attribute_aligned_object_;
+#define symbol_length  6
+  /* If necessary, add a filler here to ensure sizeof_symbol_is_multiple_of_varobject_alignment. */
+  #if defined(sizeof_symbol_is_multiple_of_varobject_alignment)
+   #if ((((defined(TYPECODES) ? 1 : 2) + symbol_length) * pointer_bitsize/8) % varobject_alignment) != 0
+    gcv_object_t symfiller _attribute_aligned_object_; /* never accessed, not subject to GC */
+    #define symbol_has_symfiller
+   #endif
   #endif
   #if defined(MULTITHREAD)
     /* the first symvalue in thread is dummy - for faster Symbol_value*/
@@ -6088,23 +6104,20 @@ typedef struct {
   #endif
 } symbol_;
 typedef symbol_ *  Symbol;
-#if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES)
+#if defined(sizeof_symbol_is_multiple_of_varobject_alignment)
   /* Compile-time check: sizeof(symbol_) is a multiple of varobject_alignment. */
   typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
 #endif
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
-#define symbol_length  6
 #define symbol_xlength (sizeof(*(Symbol)0)-symbol_objects_offset-symbol_length*sizeof(gcv_object_t))
-%% #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
-%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; gcv_object_t filler%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
-%% #else
-%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% #if defined(symbol_has_symfiller)
+%%   sprintf(buf+strlen(buf),"gcv_object_t symfiller%s; ",attribute_aligned_object);
 %% #endif
 %% #if defined(MULTITHREAD)
-%%   sprintf(buf+strlen(buf)," aint tls_index%s;}",attribute_aligned_object);
-%% #else
-%%   sprintf(buf+strlen(buf),"}");
+%%   sprintf(buf+strlen(buf)," aint tls_index%s;",attribute_aligned_object);
 %% #endif
+%% sprintf(buf+strlen(buf),"}");
 %% emit_typedef(buf,"symbol_");
 %% emit_typedef("symbol_ *","Symbol");
 

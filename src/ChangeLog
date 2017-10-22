@@ -1,5 +1,17 @@
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
+	Improve decision whether to require varobject_alignment for symbols.
+	* lispbibl.d (MAP_MEMORY_TABLES): Move up.
+	(varobject_alignment): Add comment.
+	(sizeof_symbol_is_multiple_of_varobject_alignment): New macro.
+	(symbol_): Add filler word if necessary to ensure appropriate size.
+	Define 'symbol_has_symfiller' if so.
+	* constsym.d (LISPSYM_B): Test 'symbol_has_symfiller'. Define through
+	auxiliary macros SYM_VAROBJECT_HEADER_INIT1, SYM_VAROBJECT_HEADER_INIT2,
+	SYM_SYMFILLER_INIT, SYM_TLS_INDEX_INIT.
+
+2017-10-22  Bruno Haible  <bruno@clisp.org>
+
 	Clarify which compilers can align global variables.
 	* lispbibl.d (HAVE_GLOBAL_VAR_ALIGN): New macro.
 	* spvwtabf.d (subr_tab_data): Mention it in comment.
