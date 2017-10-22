@@ -525,6 +525,12 @@
 #endif
 %% export_def(designated_init(field,value));
 
+/* A property of the compiler:
+   Whether it supports aligning variables on 8-byte boundaries. */
+#if defined(GNU) || defined(__SUNPRO_C)
+  #define HAVE_GLOBAL_VAR_ALIGN
+#endif
+
 /* A property of the processor:
  The sequence in which words/long-words are being put into bytes */
 #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)

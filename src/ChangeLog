@@ -1,5 +1,12 @@
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
+	Clarify which compilers can align global variables.
+	* lispbibl.d (HAVE_GLOBAL_VAR_ALIGN): New macro.
+	* spvwtabf.d (subr_tab_data): Mention it in comment.
+	* spvwtabs.d (symbol_tab_data): Likewise.
+
+2017-10-22  Bruno Haible  <bruno@clisp.org>
+
 	Avoid redefinition warnings.
 	* lispbibl.d (TYPECODES, KERNELVOID32_HEAPCODES, GENERIC64_HEAPCODES,
 	HEAPCODES, SINGLEMAP_MEMORY, GENERATIONAL_GC): Don't define if already
