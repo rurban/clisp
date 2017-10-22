@@ -13,11 +13,6 @@
  > package: home-package of the symbol, either lisp or system or keyword.
  >          it is exported automatically from package lisp. */
 
-#if defined(MULTITHREAD)
-  #define SYM_TLS_INDEX_INIT SYMBOL_TLS_INDEX_NONE
-#else
-  #define SYM_TLS_INDEX_INIT
-#endif
 
 /* expander for the declaration of the symbol table: */
 #define LISPSYM_A(name,printname,package)       \
@@ -26,23 +21,31 @@
 /* expander for the initialization of the symbol table: */
 #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
-    #define LISPSYM_B(name,printname,package)  \
-      { S(name), unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
+    #define SYM_VAROBJECT_HEADER_INIT1
+    #define SYM_VAROBJECT_HEADER_INIT2
   #else
-    #define LISPSYM_B(name,printname,package)  \
-      { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
+    #define SYM_VAROBJECT_HEADER_INIT1 {
+    #define SYM_VAROBJECT_HEADER_INIT2 }
   #endif
 #else
-  #if defined(KERNELVOID32_HEAPCODES) && defined(MULTITHREAD)
-    #define LISPSYM_B(name,printname,package)  \
-      { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
-        unbound, unbound, unbound, NIL, NIL, NIL, unbound, SYM_TLS_INDEX_INIT},
-  #else
-    #define LISPSYM_B(name,printname,package)  \
-      { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
-        unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
-  #endif
+  #define SYM_VAROBJECT_HEADER_INIT1
+  #define SYM_VAROBJECT_HEADER_INIT2 , xrecord_tfl(Rectype_Symbol,0,symbol_length,0)
 #endif
+#if defined(symbol_has_symfiller)
+  #define SYM_SYMFILLER_INIT , unbound
+#else
+  #define SYM_SYMFILLER_INIT
+#endif
+#if defined(MULTITHREAD)
+  #define SYM_TLS_INDEX_INIT , SYMBOL_TLS_INDEX_NONE
+#else
+  #define SYM_TLS_INDEX_INIT
+#endif
+#define LISPSYM_B(name,printname,package)  \
+  { SYM_VAROBJECT_HEADER_INIT1 S(name) SYM_VAROBJECT_HEADER_INIT2, \
+    unbound, unbound, unbound, NIL, NIL, NIL                       \
+    SYM_SYMFILLER_INIT SYM_TLS_INDEX_INIT                          \
+  },
 #define LISPSYM_C(name,printname,package)  printname,
 #define LISPSYM_D(name,printname,package)  (uintB)enum_##package##_index,
 
