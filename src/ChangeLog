@@ -1,5 +1,11 @@
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
+	Improve decision whether to use symbolflags or not.
+	* lispbibl.d (oint_symbolflags_shift, NO_symbolflags): Define depending
+	on sizeof_symbol_is_multiple_of_varobject_alignment and alignment_long.
+
+2017-10-22  Bruno Haible  <bruno@clisp.org>
+
 	Improve decision whether to require varobject_alignment for symbols.
 	* lispbibl.d (MAP_MEMORY_TABLES): Move up.
 	(varobject_alignment): Add comment.
