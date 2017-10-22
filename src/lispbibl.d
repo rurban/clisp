@@ -4968,15 +4968,28 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define cons_type       (BTB6                              ) /* 0x40  # %01000000  ; cons */
   #endif
 
-/* Bits for symbols in VAR/FUN-Frames (in LISP-Stack):
- aren't in the oint_type-part, but in the oint_addr-part. */
+/* Bits for symbols in VAR/FUN-Frames (in LISP-Stack): */
   #define active_bit  0  /* set: binding is active */
   #define dynam_bit   1  /* set: binding is dynamic */
   #define svar_bit    2  /* set: next parameter is supplied-p-parameter for this */
-#if (varobject_alignment >= bit(3)) && !defined(NO_SYMBOLFLAGS)
+/* If symbols are always on addresses divisible by 8, we can store
+   these bits in the symbol pointer.
+   There are
+     1) symbols in the heap - these have the alignment varobject_alignment.
+     2) symbols in the symbol_tab_data - their alignment is:
+        if sizeof_symbol_is_multiple_of_varobject_alignment is defined:
+          varobject_alignment
+        otherwise:
+          alignof(symbol_) = alignment_long. */
+#if (varobject_alignment >= bit(3)) \
+    && ((defined(sizeof_symbol_is_multiple_of_varobject_alignment) ? varobject_alignment : alignment_long) >= bit(3)) \
+    && !defined(NO_SYMBOLFLAGS)
+  /* Store them in the oint_addr part, not in the oint_type part. */
   #define oint_symbolflags_shift  oint_addr_shift
 #else
-  #define NO_symbolflags /* there's no space in the symbol for active_bit, dynam_bit, svar_bit */
+  /* There's no space in the symbol for active_bit, dynam_bit, svar_bit.
+     Use an extra word on the LISP-stack. */
+  #define NO_symbolflags
 #endif
 
 #ifndef IMMEDIATE_FFLOAT
