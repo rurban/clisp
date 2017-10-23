@@ -2953,7 +2953,20 @@ if [ $CROSS = false ] ; then
 
   # check that the scripting works
   echol "check-script : lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null" # https://sourceforge.net/p/clisp/bugs/523/
+  # Check for decent behaviour when stdin is not readable
+  # (cf. https://sourceforge.net/p/clisp/bugs/523/)
+  case "$host_os" in
+    aix*)
+      # On AIX 7.1, inside 'make' or 'gmake', a command that has stdin with mode
+      # O_RDWR gets the current stdin or tty assigned to stdin instead. This
+      # would make the test hang. 'bash -c' is the workaround. Whereas 'sh -c'
+      # would not help.
+      echotab "bash -c '\$(RUN) -q -M lispinit.mem 0>/dev/null'"
+      ;;
+    *)
+      echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null"
+      ;;
+  esac
   TRCR="| tr -d '\r'"; TRLF="| tr '\n' '_'"
   echotab "output=\`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\`; test \"\$\$output\" = 110 || exit 1"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl ${TRCR}${TRLF}\`\" = '99_[1]> _110_' || exit 1"
