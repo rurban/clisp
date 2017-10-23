@@ -516,7 +516,7 @@ void main8(void) {
 void main9(void) {
 #define get_endian(type,typestr,type_bitsize)                           \
   { if (type_bitsize == uchar_bitsize * sizeof(type)) {                 \
-      auto union { uchar einzeln[sizeof(type)]; type gesamt; } x;       \
+      union { uchar einzeln[sizeof(type)]; type gesamt; } x;            \
       int i,j;                                                          \
       boolean_t big_endian = TRUE;                                      \
       boolean_t little_endian = TRUE;                                   \
@@ -562,7 +562,7 @@ void main9(void) {
 
 long get_stack_direction(void)
 {
-  auto char dummy;
+  char dummy;
   static char* dummyaddr = (char*)0;
   if (dummyaddr != (char*)0) {
     return (&dummy) - dummyaddr;
