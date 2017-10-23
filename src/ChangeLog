@@ -1,5 +1,10 @@
 2017-10-23  Bruno Haible  <bruno@clisp.org>
 
+	Fix a "make check" hang on AIX.
+	* makemake.in (check-script): Work around an AIX peculiarity.
+
+2017-10-23  Bruno Haible  <bruno@clisp.org>
+
 	Make intparam.c compile with g++ >= 6.
 	Reported by Sam Steingold at <https://sourceforge.net/p/clisp/bugs/709>.
 	* intparam.c (main9, get_stack_direction): Don't use the C keyword
