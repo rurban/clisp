@@ -1,5 +1,13 @@
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
+	Avoid link errors when passing -DNO_ARI_ASM or -DNO_SP_ASM in CPPFLAGS.
+	* makemake.in (ARI_ASMD, ARI_ASMS): Test whether XCFLAGS or XCPPFLAGS
+	contains -DNO_ARI_ASM. Don't test for --enable-portability directly.
+	(SP_ASMS, SP_ASMD): Test whether XCFLAGS or XCPPFLAGS contains
+	-DNO_SP_ASM. Don't test for --enable-portability directly.
+
+2017-10-22  Bruno Haible  <bruno@clisp.org>
+
 	Improve decision whether to use symbolflags or not.
 	* lispbibl.d (oint_symbolflags_shift, NO_symbolflags): Define depending
 	on sizeof_symbol_is_multiple_of_varobject_alignment and alignment_long.

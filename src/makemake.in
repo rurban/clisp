@@ -1689,57 +1689,63 @@ DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $
 ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
-if [ "${enable_portability}" = no ] ; then
-  if [ "$cpu" = sparc ] ; then
-    ARI_ASMD=$ARI_ASMD' arisparc'
-    ARI_ASMS=$ARI_ASMS' arisparc'
-  fi
-  if [ "$cpu" = sparc64 ] ; then
-    ARI_ASMD=$ARI_ASMD' arisparc64'
-    ARI_ASMS=$ARI_ASMS' arisparc64'
-  fi
-  if [ "$cpu" = mips ] ; then
-    ARI_ASMD=$ARI_ASMD' arimips'
-    ARI_ASMS=$ARI_ASMS' arimips'
-  fi
-  if [ "$cpu" = mips64 ] ; then
-    ARI_ASMD=$ARI_ASMD' arimips64'
-    ARI_ASMS=$ARI_ASMS' arimips64'
-  fi
-  if [ "$cpu" = i386 ] ; then
-    ARI_ASMD=$ARI_ASMD' ari80386'
-    ARI_ASMS=$ARI_ASMS' ari80386'
-  fi
-  if [ "$cpu" = hppa ] ; then
-    ARI_ASMD=$ARI_ASMD' arihppa'
-    ARI_ASMS=$ARI_ASMS' arihppa'
-  fi
-  if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
-    ARI_ASMD=$ARI_ASMD' ariarm'
-    ARI_ASMS=$ARI_ASMS' ariarm'
-  fi
-fi
+case " ${XCPPFLAGS} ${XCFLAGS} " in
+  *" -DNO_ARI_ASM "*) ;;
+  *)
+    if [ "$cpu" = sparc ] ; then
+      ARI_ASMD=$ARI_ASMD' arisparc'
+      ARI_ASMS=$ARI_ASMS' arisparc'
+    fi
+    if [ "$cpu" = sparc64 ] ; then
+      ARI_ASMD=$ARI_ASMD' arisparc64'
+      ARI_ASMS=$ARI_ASMS' arisparc64'
+    fi
+    if [ "$cpu" = mips ] ; then
+      ARI_ASMD=$ARI_ASMD' arimips'
+      ARI_ASMS=$ARI_ASMS' arimips'
+    fi
+    if [ "$cpu" = mips64 ] ; then
+      ARI_ASMD=$ARI_ASMD' arimips64'
+      ARI_ASMS=$ARI_ASMS' arimips64'
+    fi
+    if [ "$cpu" = i386 ] ; then
+      ARI_ASMD=$ARI_ASMD' ari80386'
+      ARI_ASMS=$ARI_ASMS' ari80386'
+    fi
+    if [ "$cpu" = hppa ] ; then
+      ARI_ASMD=$ARI_ASMD' arihppa'
+      ARI_ASMS=$ARI_ASMS' arihppa'
+    fi
+    if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
+      ARI_ASMD=$ARI_ASMD' ariarm'
+      ARI_ASMS=$ARI_ASMS' ariarm'
+    fi
+    ;;
+esac
 
 SP_ASMD=''
 SP_ASMS=''
-if [ "${enable_portability}" = no ] ; then
-  if [ "$cpu" = m68k ] ; then
-    SP_ASMD=$SP_ASMD' sp68000'
-    SP_ASMS=$SP_ASMS' sp68000'
-  fi
-  if [ "$cpu" = sparc -o "$cpu" = sparc64 ] ; then
-    SP_ASMD=$SP_ASMD" sp${cpu}"
-    SP_ASMS=$SP_ASMS" sp${cpu}"
-  fi
-  if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
-    SP_ASMD=$SP_ASMD' spmips'
-    SP_ASMS=$SP_ASMS' spmips'
-  fi
-  if [ "$cpu" = i386 ] ; then
-    SP_ASMD=$SP_ASMD' sp80386'
-    SP_ASMS=$SP_ASMS' sp80386'
-  fi
-fi
+case " ${XCPPFLAGS} ${XCFLAGS} " in
+  *" -DNO_SP_ASM "*) ;;
+  *)
+    if [ "$cpu" = m68k ] ; then
+      SP_ASMD=$SP_ASMD' sp68000'
+      SP_ASMS=$SP_ASMS' sp68000'
+    fi
+    if [ "$cpu" = sparc -o "$cpu" = sparc64 ] ; then
+      SP_ASMD=$SP_ASMD" sp${cpu}"
+      SP_ASMS=$SP_ASMS" sp${cpu}"
+    fi
+    if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
+      SP_ASMD=$SP_ASMD' spmips'
+      SP_ASMS=$SP_ASMS' spmips'
+    fi
+    if [ "$cpu" = i386 ] ; then
+      SP_ASMD=$SP_ASMD' sp80386'
+      SP_ASMS=$SP_ASMS' sp80386'
+    fi
+    ;;
+esac
 
 COMMENTS=''
 
