@@ -88,6 +88,7 @@ AC_DEFINE(HAVE_SETPGRP_POSIX,1,
 [Define to 1 if setpgrp() does not accept arguments])
 fi
 fi
+gl_GETLOADAVG
 
 BOLD_MSG([System Calls (output)])
 AC_CONFIG_FILES([Makefile link.sh])
