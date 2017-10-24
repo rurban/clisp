@@ -1158,15 +1158,23 @@ LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
+LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
+LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
 LISPSYM(validp,"VALIDP",ffi)
 LISPSYM(set_validp,"SET-VALIDP",ffi) /* ABI */
 LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
-LISPSYM(parse_foreign_inttype,"PARSE-FOREIGN-INTTYPE",ffi)
-LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
-LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
-LISPSYM(find_foreign_variable,"FIND-FOREIGN-VARIABLE",ffi) /* ABI */
 LISPSYM(unsigned_foreign_address,"UNSIGNED-FOREIGN-ADDRESS",ffi)
 LISPSYM(foreign_address_unsigned,"FOREIGN-ADDRESS-UNSIGNED",ffi)
+#if defined(HAVE_DLADDR)
+LISPSYM(foreign_pointer_info,"FOREIGN-POINTER-INFO",ffi)
+#endif
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+LISPSYM(open_foreign_library,"OPEN-FOREIGN-LIBRARY",ffi)
+LISPSYM(Krequire,"REQUIRE",keyword)
+LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
+#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
+LISPSYM(parse_foreign_inttype,"PARSE-FOREIGN-INTTYPE",ffi)
+LISPSYM(find_foreign_variable,"FIND-FOREIGN-VARIABLE",ffi) /* ABI */
 LISPSYM(foreign_value,"FOREIGN-VALUE",ffi)
 LISPSYM(set_foreign_value,"SET-FOREIGN-VALUE",ffi) /* ABI */
 LISPSYM(foreign_type,"FOREIGN-TYPE",ffi) /* ABI */
@@ -1183,14 +1191,6 @@ LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
 LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
 LISPSYM(find_foreign_function,"FIND-FOREIGN-FUNCTION",ffi) /* ABI */
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
-#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
-LISPSYM(open_foreign_library,"OPEN-FOREIGN-LIBRARY",ffi)
-LISPSYM(Krequire,"REQUIRE",keyword)
-LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
-#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
-#if defined(HAVE_DLADDR)
-LISPSYM(foreign_pointer_info,"FOREIGN-POINTER-INFO",ffi)
-#endif
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
