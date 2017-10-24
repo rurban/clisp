@@ -1,5 +1,10 @@
 2017-10-23  Bruno Haible  <bruno@clisp.org>
 
+	Fix an endless recursion during "make check" on AIX.
+	* stream.d (IS_EINVAL_EXTRA): On AIX, include the ENODEV errors.
+
+2017-10-23  Bruno Haible  <bruno@clisp.org>
+
 	Fix a "make check" hang on AIX.
 	* makemake.in (check-script): Work around an AIX peculiarity.
 

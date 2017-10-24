@@ -3480,6 +3480,9 @@ local void clear_tty_input (Handle handle) {
   #define IS_EINVAL_EXTRA  ((errno==EOPNOTSUPP)||(errno==ENOTSUP)||(errno==ENODEV))
 #elif defined(UNIX_SUNOS5)
   #define IS_EINVAL_EXTRA  ((errno==ENXIO))
+#elif defined(UNIX_AIX)
+  /* ioctl() on /dev/null produces ENODEV. */
+  #define IS_EINVAL_EXTRA  ((errno==ENODEV))
 #else
   #define IS_EINVAL_EXTRA  0
 #endif
