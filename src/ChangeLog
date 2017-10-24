@@ -1,5 +1,12 @@
 2017-10-24  Bruno Haible  <bruno@clisp.org>
 
+	Improve code structure.
+	* foreign.d: Reorder functions, to avoid forward declarations.
+	* subr.d: Update.
+	* constsym.d: Update.
+
+2017-10-24  Bruno Haible  <bruno@clisp.org>
+
 	Code style.
 	* foreign.d: Use 'var' for local variable declarations.
 

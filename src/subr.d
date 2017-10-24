@@ -1376,6 +1376,8 @@ LISPFUNNR(log2,1)
 LISPFUNNR(log10,1)
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
+LISPFUNN(sizeof,1)
+LISPFUNN(bitsizeof,1)
 LISPFUNNR(validp,1)
 LISPFUNN(set_validp,2)
 LISPFUNNR(foreign_pointer,1)
@@ -1383,10 +1385,15 @@ LISPFUNN(set_foreign_pointer,2)
 LISPFUNNR(unsigned_foreign_address,1)
 LISPFUNNR(foreign_address_unsigned,1)
 LISPFUNNR(foreign_address,1)
+#if defined(HAVE_DLADDR)
+LISPFUNN(foreign_pointer_info,1)
+#endif
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+LISPFUN(open_foreign_library,seclass_read,1,0,norest,key,1,(kw(require)))
+LISPFUNN(close_foreign_library,1)
+#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 LISPFUNNF(parse_foreign_inttype,2)
 LISPFUN(foreign_function,seclass_read,2,0,norest,key,1,(kw(name)) )
-LISPFUNN(sizeof,1)
-LISPFUNN(bitsizeof,1)
 LISPFUNN(find_foreign_variable,5)
 LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
 LISPFUNN(foreign_value,1)
@@ -1406,13 +1413,6 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
 LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 LISPFUNN(find_foreign_function,6)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
-#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
-LISPFUN(open_foreign_library,seclass_read,1,0,norest,key,1,(kw(require)))
-LISPFUNN(close_foreign_library,1)
-#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
-#if defined(HAVE_DLADDR)
-LISPFUNN(foreign_pointer_info,1)
-#endif
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
