@@ -2513,9 +2513,9 @@ local maygc object lookup_foreign_variable
 }
 
 /* forvard declaration -- defined later */
-static maygc object foreign_library_variable
-(gcv_object_t *name, gcv_object_t* fvd,
- gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset);
+local maygc object foreign_library_variable (
+  gcv_object_t *name, gcv_object_t* fvd,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset);
 
 local _Noreturn void error_version_nonlibrary (object name, object version) {
   pushSTACK(version); pushSTACK(name), pushSTACK(TheSubr(subr_self)->name);
@@ -3253,9 +3253,9 @@ local maygc object lookup_foreign_function
 }
 
 /* forvard declaration -- defined later */
-local maygc object foreign_library_function
-(gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
- gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset);
+local maygc object foreign_library_function (
+  gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset);
 
 /* (FFI::FIND-FOREIGN-FUNCTION foreign-function-name foreign-type properties
      foreign-library version foreign-offset) */
@@ -4542,9 +4542,9 @@ local maygc object foreign_library_check
  > offset   - address offset in the library or NIL
  > fvd      - function type
  can trigger GC */
-local maygc object foreign_library_variable
-(gcv_object_t *name, gcv_object_t* fvd,
- gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset) {
+local maygc object foreign_library_variable (
+  gcv_object_t *name, gcv_object_t* fvd,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset) {
   push_foreign_library_object(name,library,version,offset);
   var struct foreign_layout sas;
   foreign_layout(*fvd,&sas);
@@ -4570,9 +4570,9 @@ local maygc object foreign_library_variable
  > version  - object version (NIL or string - checked here)
  > offset   - address offset in the library or NIL
  can trigger GC */
-local maygc object foreign_library_function
-(gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
- gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset) {
+local maygc object foreign_library_function (
+  gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset) {
   push_foreign_library_object(name,library,version,offset);
   var object ffun = allocate_ffunction();
   TheFfunction(ffun)->ff_name = *name;
@@ -4604,14 +4604,18 @@ local _Noreturn void error_no_dlsym (object name, object library) {
 }
 
 /* stubs signalling errors */
-local maygc object foreign_library_function
-(gcv_object_t* name, gcv_object_t* fvd, gcv_object_t* properties,
- gcv_object_t* library, gcv_object_t* offset)
-{ error_no_dlsym(*name,*library); }
-local maygc object foreign_library_variable
-(gcv_object_t *name, gcv_object_t* fvd,
- gcv_object_t *library, gcv_object_t *offset)
-{ error_no_dlsym(*name,*library); }
+local maygc object foreign_library_function (
+  gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset)
+{
+  error_no_dlsym(*name,*library);
+}
+local maygc object foreign_library_variable (
+  gcv_object_t *name, gcv_object_t* fvd,
+  gcv_object_t *library, gcv_object_t *version, gcv_object_t *offset)
+{
+  error_no_dlsym(*name,*library);
+}
 
 #endif
 

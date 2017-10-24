@@ -540,7 +540,11 @@ extern int wait2 (pid_t pid); /* see unixaux.d */
    the situation where we build on a system with the patch but deploy
    on a system without, do not use dlopen on HP-UX. */
 #ifdef UNIX_HPUX
+  #undef HAVE_DLFCN_H
   #undef HAVE_DLOPEN
+  #undef HAVE_DLADDR
+  #undef HAVE_DLVSYM
+  #undef HAVE_DLERROR
 #endif
 #ifdef HAVE_DLOPEN
   #include <dlfcn.h>            /* declares dlopen,dlsym,dlclose,dlerror */
