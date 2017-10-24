@@ -27,17 +27,20 @@
 /* ========================================================================
                        Low level functions */
 
-/* we need realpath() (declared in <stdlib.h>)
-   http://opengroup.org/onlinepubs/9699919799/functions/realpath.html
-   which is alleged to be broken on some systems
-   OTOH, on some other systems, notably on cygwin,
-   we _do_ need the system implementation of realpath
-   because otherwise we get screwed on /proc/self/exe -> lisp
-   instead of lisp.exe and possibly other quirks */
-#if defined(UNIX) && !defined(HAVE_REALPATH)
-  /* library-function realpath implementation:
-   [Copyright: SUN Microsystems, B. Haible]
-   TITLE
+/* We need the realpath() function in two variants:
+   (1) The POSIX function, declared in <stdlib.h>.
+       <http://opengroup.org/onlinepubs/9699919799/functions/realpath.html>
+   (2) Our own implementation that returns information about the missing
+       directory component, in case of ENOENT return.
+   We need (1) because on some systems, notably on Cygwin,
+   we otherwise get screwed on /proc/self/exe -> lisp instead of lisp.exe.
+   Also, on some systems, (1) is implemented more efficiently than (2).
+   We need (2) because POSIX says:
+     "If the resolved_name argument is not a null pointer and the realpath()
+      function fails, the contents of the buffer pointed to by resolved_name
+      are undefined." */
+
+/* TITLE
      REALPATH(3)
    SYNOPSIS
      char* realpath (const char* path, char resolved_path[MAXPATHLEN]);
@@ -53,8 +56,7 @@
      cess.   On  failure, it returns NULL, sets errno to indicate
      the error, and places in resolved_path the absolute pathname
      of the path component which could not be resolved. */
-#define realpath my_realpath /* avoid conflict with Consensys realpath declaration */
-local char* realpath (const char* path, char* resolved_path) {
+local char* my_realpath (const char* path, char* resolved_path) {
   /* Method: use getwd and readlink. */
   var char mypath[MAXPATHLEN];
   var int symlinkcount = 0; /* the number of symbolic links so far */
@@ -217,6 +219,13 @@ local char* realpath (const char* path, char* resolved_path) {
   to_ptr[0] = 0; /* conclude with 0 */
   return resolved_path; /* finished */
 }
+
+#if defined(UNIX) && !defined(HAVE_REALPATH)
+  /* We use realpath() from <stdlib.h>. */
+  #define realpath_is_my_realpath false
+#else
+  #define realpath my_realpath
+  #define realpath_is_my_realpath true
 #endif
 
 /* Creates a new subdirectory.
@@ -5348,6 +5357,10 @@ local maygc char* realpath_obj (object namestring, char *path_buffer) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     begin_blocking_system_call();
     ret = realpath(namestring_asciz,path_buffer);
+    if (!realpath_is_my_realpath && ret == NULL && errno == ENOENT) {
+      /* Put the nonexistent component into path_buffer. */
+      ret = my_realpath(namestring_asciz,path_buffer);
+    }
     end_blocking_system_call();
   });
   return ret;
