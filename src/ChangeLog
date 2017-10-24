@@ -1,5 +1,10 @@
 2017-10-24  Bruno Haible  <bruno@clisp.org>
 
+	Code style.
+	* foreign.d: Use 'var' for local variable declarations.
+
+2017-10-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation errors on HP-UX (regression from 2008-03-12).
 	* unix.d: On HP-UX, undefine also HAVE_DLADDR etc.
 	* foreign.d (foreign_library_variable, foreign_library_function):
