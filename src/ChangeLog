@@ -1,5 +1,12 @@
 2017-10-24  Bruno Haible  <bruno@clisp.org>
 
+	Don't assume that /dev/fd[012] exists on AIX and HP-UX.
+	* stream.d (handle_pathname): On AIX and HP-UX, return NIL.
+	* makemake.in (check-script): Don't run unportable test on AIX and
+	HP-UX.
+
+2017-10-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix the error message of TRUENAME on a nonexistent file.
 	* pathname.d (my_realpath): Define always.
 	(realpath_is_my_realpath): New macro.
