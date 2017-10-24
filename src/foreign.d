@@ -278,9 +278,9 @@ local object parse_foreign_inttype (uintL size, bool signed_p) {
  can trigger GC */
 modexp maygc void register_foreign_inttype
 (const char * name_asciz, uintL size, bool signed_p) {
-  object name = asciz_to_string(name_asciz,O(internal_encoding));
-  object obj = gethash(name,O(foreign_inttype_table),false);
-  object inttype = parse_foreign_inttype(size, signed_p);
+  var object name = asciz_to_string(name_asciz,O(internal_encoding));
+  var object obj = gethash(name,O(foreign_inttype_table),false);
+  var object inttype = parse_foreign_inttype(size, signed_p);
   if (!eq(obj,nullobj)) {
     if (!eq(inttype,obj)) {
       pushSTACK(inttype); pushSTACK(obj); pushSTACK(name);
@@ -290,8 +290,8 @@ modexp maygc void register_foreign_inttype
 }
 
 LISPFUNNF(parse_foreign_inttype,2) { /* "size_t" --> FFI:UINT64 */
-  bool errorp = !nullp(STACK_0);
-  object inttype = gethash(STACK_1,O(foreign_inttype_table),false);
+  var bool errorp = !nullp(STACK_0);
+  var object inttype = gethash(STACK_1,O(foreign_inttype_table),false);
   if (eq(inttype,nullobj))
     if (errorp)
       error(error_condition,GETTEXT("No foreign int type named ~S"));
@@ -679,7 +679,7 @@ local object convert_function_from_foreign (void* address, object resulttype,
  can trigger GC */
 local inline maygc object validate_fpointer (object obj);
 global maygc object check_faddress_valid (object fa) {
-  object fp = TheFaddress(fa)->fa_base;
+  var object fp = TheFaddress(fa)->fa_base;
   if (!fp_validp(TheFpointer(fp))) {
     pushSTACK(fa);              /* save */
     check_fpointer(validate_fpointer(fp),false);
@@ -916,7 +916,7 @@ local void foreign_layout (object fvd, struct foreign_layout *data)
       }
     }
   } else {
-    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj)) {
       foreign_layout(inttype,data);
       return;
@@ -1469,7 +1469,7 @@ modexp maygc object convert_from_foreign (object fvd, const void* data)
       }
     }
   } else {
-    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       return convert_from_foreign(inttype,data);
   }
@@ -2394,7 +2394,7 @@ modexp maygc void convert_to_foreign
       }
     }
   } else {
-    object inttype = gethash(fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj)) {
       convert_to_foreign(inttype,obj,data,converter_malloc,state);
       return;
@@ -2995,7 +2995,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   var void* result_address = (void*)((uintP)(total_room+result_alignment-1)
                                      & -(long)result_alignment);
   if (init) {
-    void *allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    var void* allocaing_room_pointer = (void*)((uintP)result_address + result_size);
     convert_to_foreign(fvd,STACK_0,result_address,&allocaing,
                        &allocaing_room_pointer);
   } else {
@@ -3385,7 +3385,7 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist *alist,
       error_foreign_type(result_fvd);
     }
   } else {
-    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_av_start (flags, inttype, alist, address, result_address,
                    result_size, result_splittable);
@@ -3508,7 +3508,7 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
       error_foreign_type(arg_fvd);
     }
   } else {
-    object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_av_arg (flags, inttype, alist, arg_address, arg_size, arg_alignment);
     else error_foreign_type(arg_fvd);
@@ -3620,7 +3620,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     cumul_size += (-cumul_size) & (cumul_alignment-1);
     var DYNAMIC_ARRAY(total_room,char,cumul_size+cumul_alignment/*-1*/);
     var void* result_address = (void*)((uintP)(total_room+result_alignment-1) & -(long)result_alignment);
-    void *allocaing_room_pointer = (void*)((uintP)result_address + result_size);
+    var void* allocaing_room_pointer = (void*)((uintP)result_address + result_size);
     if (!eq(result_fvd,S(nil))) {
       pushSTACK(result_fvd);
       results[0].address = result_address;
@@ -3860,7 +3860,7 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
       error_foreign_type(result_fvd);
     }
   } else {
-    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_va_start (flags, inttype, alist, result_size, result_alignment,
                    result_splittable);
@@ -3995,7 +3995,7 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
       error_foreign_type(arg_fvd);
     }
   } else {
-    object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       return do_va_arg (flags, inttype, alist);
     else error_foreign_type(arg_fvd);
@@ -4109,7 +4109,7 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
     } else
       error_foreign_type(result_fvd);
   } else {
-    object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
+    var object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_va_return (flags, inttype, alist, result_address,
                     result_size, result_alignment);
@@ -4304,8 +4304,9 @@ local maygc void* object_handle (object library, object name, object version) {
     });
   }
   if (address == NULL) {
-    uintC argcount = 6;
-    gcv_object_t *cfs, *efs;
+    var uintC argcount = 6;
+    var gcv_object_t *cfs;
+    var gcv_object_t *efs;
     pushSTACK(NIL); cfs=&STACK_0; /* continue-format-string */
     pushSTACK(S(error));          /* error type */
     pushSTACK(NIL); efs=&STACK_0; /* error-format-string */
@@ -4657,10 +4658,10 @@ global void exit_ffi (void) {
 
 #if defined(HAVE_DLADDR)
 LISPFUNN(foreign_pointer_info,1) {
-  object arg = foreign_address(popSTACK(),true);
-  void *addr = Fpointer_value(arg);
-  Dl_info dli;
-  int status;
+  var object arg = foreign_address(popSTACK(),true);
+  var void *addr = Fpointer_value(arg);
+  var Dl_info dli;
+  var int status;
   begin_system_call(); status = dladdr(addr,&dli); end_system_call();
   if (status == 0) {            /* failed */
    #if defined(HAVE_DLERROR)
