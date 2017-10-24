@@ -14778,7 +14778,8 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
  < pathname or NIL
  can trigger GC */
 local maygc object handle_pathname (Handle fd) {
- #if defined(UNIX)
+  /* Most UNIX platforms have /dev/fd/[012] pseudo-files. */
+ #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_HPUX))
   var char buf[20];
   begin_system_call();
   sprintf(buf,"/dev/fd/%d",fd);
