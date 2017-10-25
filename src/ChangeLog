@@ -1,3 +1,8 @@
+2017-10-25  Bruno Haible  <bruno@clisp.org>
+
+	Small code cleanup.
+	* package.d (rehash_symtab): Remove leftover code from 2009-10-07.
+
 2017-10-24  Bruno Haible  <bruno@clisp.org>
 
 	Improve code structure.
