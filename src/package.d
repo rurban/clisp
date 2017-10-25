@@ -1,7 +1,7 @@
 /*
  * Package Management for CLISP
- * Bruno Haible 1990-2005
- * Sam Steingold 1999-2011
+ * Bruno Haible 1990-2005, 2017
+ * Sam Steingold 1999-2011, 2016
  * German comments translated into English: Stefan Kain 2002-02-20
  */
 
@@ -208,7 +208,6 @@ local maygc object rehash_symtab (object symtab) {
       offset++;
     } while (--count);
   }
-  #undef REUSE_FREE_CONSES
   { /* then process symbols, that sit there collision-free: */
     var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
     var uintC count;
