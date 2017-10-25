@@ -10269,17 +10269,9 @@ All other long words on the LISP-Stack are LISP-objects.
  pushSP(item)  puts a longword on the SP. Synonym: -(SP).
  popSP(item=)  returns item=SP_(0) and takes it off the SP.
  skipSP(n);  takes n long words of the SP. */
-#if (oint_addr_len <= intLsize)
-  typedef uintL  SPint;
-#else
-  typedef aint  SPint;
-#endif
+typedef uintP  SPint;
 %% #ifdef export_unwind_protect_macros
-%%  #if (oint_addr_len <= intLsize)
-%%   emit_typedef("uintL","SPint");
-%%  #else
-%%   emit_typedef("aint","SPint");
-%%  #endif
+%%  emit_typedef("uintP","SPint");
 %% #endif
 #ifdef SP_DOWN
   #define skipSPop  +=
