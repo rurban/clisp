@@ -181,10 +181,6 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <para>We do not interface to <function role="unix">shutdown</function>
  in this module, it is already available through &sost-shut;.</para>
 
-<para>We do not interface to <function role="unix">gethostbyname</function>
- or <function role="unix">gethostbyaddr</function> in this module,
- they are already available through &resolve-host;.</para>
-
 </section>
 
 <section id="rawsock-errors"><title>Errors</title>

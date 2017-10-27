@@ -32,8 +32,8 @@
    <filename>${windir}/system32/etc/hosts</filename> on a &win32; system).
   </para><simpara>This is an interface
    to <function role="unix">gethostent</function>,
-   <function role="unix">gethostbyname</function>,
-   and <function role="unix">gethostbyaddr</function>.</simpara>
+   <function role="bsd">gethostbyname</function>,
+   and <function role="bsd">gethostbyaddr</function>.</simpara>
  </listitem></varlistentry>
  <varlistentry id="service"><term><code>(OS:SERVICE &optional-amp;
     <replaceable>service-name</replaceable> &proto-r;)</code></term>
