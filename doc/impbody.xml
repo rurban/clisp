@@ -3891,7 +3891,7 @@ under the current directory (similar to the <command role="unix">ls
 <para>However, there may be situations, especially in &batch-mode;,
  when one wants to use a &c-lang;-style i/o where &standard-output-var;
  and &error-output-var; point to different OS &file-des; so that they can be
- <ulink role="unix" url="utilities/xcu_chap02.html#tag_02_07">redirected</ulink>
+ <ulink role="unix" url="utilities/V3_chap02.html#tag_18_07">redirected</ulink>
  to files in the command line and examined separately.
  Often &clisp; can detect such situations (&stdout; and &stderr; not being
  the terminal) and handle them just as expected.

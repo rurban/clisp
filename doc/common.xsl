@@ -166,7 +166,7 @@
 </xsl:template>
 
 <xsl:template match="filename[@role='unix']">
- <a class="{@role}" href="{$unix.top}basedefs/{.}.html"
+ <a class="{@role}" href="{$unix.top}basedefs/{translate(.,'/','_')}.html"
     >&lt;<xsl:apply-imports/>&gt;</a> <!-- formatting for &lt;/&gt;? -->
  <!-- xsl:call-template name="filename">&lt;<xsl:value-of select="."/>&gt;</xsl:call-template -->
 </xsl:template>
@@ -243,7 +243,7 @@
 <!-- ========================== / Berkeley DB ========================== -->
 
 <!-- ========================== Matlab C API ========================== -->
-<xsl:param name="matlab.top" select="'http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/'"/>
+<xsl:param name="matlab.top" select="'https://www.mathworks.com/help/matlab/apiref/'"/>
 <xsl:template match="function[@role='matlab'] | varname[@role='matlab']">
  <a class="{@role}" href="{$matlab.top}{translate(.,&uppercase;,&lowercase;)}.html"><xsl:apply-imports/></a>
 </xsl:template>
@@ -436,8 +436,8 @@ set       toc,title
  <div class="custom-footer"><hr /><table width="100%">
    <tr><td align="left"><a href="http://clisp.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
-    <td align="center"><a href="https://sourceforge.net/p/clisp/donate/?source={@id}"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
-    <td align="right"><a href="https://sourceforge.net/projects/clisp"><img width="120" height="30" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
+    <td align="center"><a href="https://sourceforge.net/p/clisp/donate/?source={@id}"><img src="https://sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
+    <td align="right"><a href="https://sourceforge.net/projects/clisp/"><img width="120" height="30" alt="[SourceForge]" src="https://sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
  </tr></table></div><hr />
  <!-- https://sourceforge.net/p/alexandria/support-requests/122850/ -->
  <form method="get" action="http://www.google.com/custom" target="_top">

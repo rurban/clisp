@@ -98,7 +98,7 @@
    <pagenums>413 pages</pagenums><isbn>0-130-30552-9</isbn></biblioentry>'>
 
 
-<!ENTITY gray-streams '<ulink url="ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail">STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS</ulink>'>
+<!ENTITY gray-streams '<ulink url="http://www.nhplace.com/kent/CL/Issues/stream-definition-by-user.html">STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS</ulink>'>
 
 <!-- *** links related to open-source software *** -->
 <!ENTITY fsf '<ulink url="http://www.fsf.org">Free Software Foundation (FSF)</ulink>'>
@@ -145,9 +145,9 @@
 <!ENTITY vim '<ulink url="http://www.vim.org">VIM</ulink>'>
 
 <!-- *** platforms *** -->
-<!ENTITY acorn '<ulink url="http://www.acorn.com/"><emphasis role="platform">Acorn</emphasis></ulink>'>
+<!ENTITY acorn '<ulink url="https://en.wikipedia.org/wiki/Acorn_Computers"><emphasis role="platform">Acorn</emphasis></ulink>'>
 <!ENTITY amiga '<ulink url="http://www.amiga.org/"><emphasis role="platform">Amiga</emphasis></ulink>'>
-<!ENTITY ascii '<ulink url="http://en.wikipedia.org/wiki/ASCII"><emphasis role="platform">ASCII</emphasis></ulink>'>
+<!ENTITY ascii '<ulink url="https://en.wikipedia.org/wiki/ASCII"><emphasis role="platform">ASCII</emphasis></ulink>'>
 <!ENTITY atari '<ulink url="http://www.atari.org/"><emphasis role="platform">Atari</emphasis></ulink>'>
 <!ENTITY beos '<ulink url="https://www.haiku-os.org/"><emphasis role="platform">BeOS</emphasis></ulink>'>
 <!ENTITY bsd '<ulink url="http://www.bsd.org/"><emphasis role="platform">*BSD</emphasis></ulink>'>

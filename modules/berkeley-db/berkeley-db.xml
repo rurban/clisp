@@ -29,8 +29,8 @@
   <constant>:DSYNC-LOG</constant> to <constant>:LOG-DSYNC</constant>
   when support for version 4.7 was added.
   This means that we always use Lisp names which correspond to the
-  &c-lang; names in the latest Berkeley DB release, even though we keep suport
-  for older releases.
+  &c-lang; names in the <emphasis>latest</emphasis> Berkeley DB release,
+  even though we keep suport for older releases.
   This is convenient because the online documentation to which this
   manual refers documents the latest Berkeley DB release.</para></note>
 

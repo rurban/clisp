@@ -2624,7 +2624,7 @@ to the 3 (or 4) &base; modules.</para>
    <ulink url="http://www.x.org/docs/X11/xlib.pdf">Xlib</ulink>
    functions from &clisp;.  Two implementations are supplied:
   <variablelist><varlistentry><term>&mit-clx;, from MIT
-   <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"/></term>
+   <ulink url="https://www.x.org/archive/unsupported/lib/CLX/"/></term>
    <listitem><simpara>the standard implementation
   </simpara></listitem></varlistentry>
   <varlistentry><term>&new-clx;, by &gilbert-baumann;</term>
@@ -5278,7 +5278,7 @@ EOF
 "hello, world!"</screen></para>
 
 <para>Please read
- <ulink url="http://www.kernel.org/doc/Documentation/binfmt_misc.txt">
+ <ulink url="https://www.kernel.org/doc/Documentation/admin-guide/binfmt-misc.rst">
   <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename></ulink>
  for details.</para>
 </section>

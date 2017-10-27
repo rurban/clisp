@@ -3,7 +3,7 @@
 <section id="matlab"><title>Matlab Interface</title>
 
 <para>This is an interface to the
- <ulink role="matlab" url="">Matlab C API</ulink>.</para>
+ <ulink url="https://www.mathworks.com/help/matlab/calling-matlab-engine-from-c-programs-1.html">Matlab C API</ulink>.</para>
 
 <para>The package <quote role="package">MATLAB</quote> is &case-sensitive-k;,
  so you would write <code>(matlab:engOpen ...)</code>
