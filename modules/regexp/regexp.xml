@@ -125,12 +125,11 @@ such as your local &regex; manual and &emacs; info pages.</para>
 
 <para>The following code computes the number of people who use a
  particular shell:<programlisting language="lisp">
-#!/usr/local/bin/clisp -C
-(&defpackage; "REGEXP-TEST" (:use "LISP" "REGEXP"))
-(&in-package; "REGEXP-TEST")
+#!/usr/bin/clisp -C
+(&use-package; "REGEXP")
 (let ((h (make-hash-table :test #'equal :size 10)) (n 0))
-  (with-open-file (f "/etc/passwd")
-    (with-loop-split (s f ":")
+  (with-open-file (f (or (first &args;) "/etc/passwd"))
+    (with-loop-split (s f (s f (or (second &args;) ":")))
       (incf (gethash (seventh s) h 0))))
   (with-hash-table-iterator (i h)
     (loop (multiple-value-bind (r k v) (i)
@@ -138,26 +137,24 @@ such as your local &regex; manual and &emacs; info pages.</para>
             (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
 </programlisting></para>
 
-<para>For comparison, the almost same (except nice output formatting)
-can be done by the following &perl;: <programlisting language="perl">
-#!/usr/local/bin/perl -w
+<para>For comparison, the same (almost - except for the nice output formatting)
+can be done by the following &perl;:<programlisting language="perl">
+#!/usr/bin/perl -w
 
 use diagnostics;
 use strict;
 
-my $IN = $ARGV[0];
-open(INF,"&lt; $IN") || die "$0: cannot read file [$IN]: $!\n;";
+my $IN = $ARGV[0] || "/etc/passwd";
+open(INF,"&le; $IN") or die "$0: cannot read file [$IN]: $!\n";
 my %hash;
-while (&lt;INF&gt;) {
+while (&le;INF&ge;) {
   chop;
-  my @all = split($ARGV[1]);
-  my $shell = ($#all &gt;= 6 ? $all[6] : "");
-  if ($hash{$shell}) { $hash{$shell} ++; }
-  else { $hash{$shell} = 1; }
+  my @all = split($ARGV[1] || ":");
+  $hash{$all[6] || ""}++;
 }
 my $ii = 0;
 for my $kk (keys(%hash)) {
-  print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
+  print "[",++$ii,"] \"",$kk,"\"  -- ",$hash{$kk},"\n";
 }
 close(INF);
 </programlisting></para></example>
