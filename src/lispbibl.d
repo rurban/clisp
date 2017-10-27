@@ -6370,13 +6370,18 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 /* Value of a non-negative fixnum:
  posfixnum_to_V(obj)
  result is >= 0, < 2^oint_data_len. */
-#if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
+#if !defined(SPARC)
   #define posfixnum_to_V(obj)  \
     ((uintV)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
 #else
   /* Long constants are slower than shifts on a SPARC-processor: */
-  #define posfixnum_to_V(obj)  \
-    ((uintV)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
+  #if (oint_data_len+oint_data_shift<=intVsize)
+    #define posfixnum_to_V(obj)  \
+      (((uintV)as_oint(obj) << (intVsize-oint_data_len-oint_data_shift)) >> (intVsize-oint_data_len))
+  #else
+    #define posfixnum_to_V(obj)  \
+      ((uintV)(as_oint(obj) >> (oint_data_len+oint_data_shift-intVsize)) >> (intVsize-oint_data_len))
+  #endif
 #endif
 %% export_def(posfixnum_to_V(obj));
 
@@ -6413,10 +6418,17 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
              )
   #else
     /* Long constants are slower than shifts on a SPARC-processor: */
-    #define fixnum_to_V(obj)  \
-      (sintV)( ((((sintV)as_oint(obj) >> sign_bit_o) << (intVsize-1)) >> (intVsize-1-oint_data_len)) \
-              |(((uintV)as_oint(obj) << (intVsize-oint_data_len-oint_data_shift)) >> (intVsize-oint_data_len)) \
-             )
+    #if (oint_data_len+oint_data_shift<=intVsize)
+      #define fixnum_to_V(obj)  \
+        (sintV)( ((((sintV)(as_oint(obj) >> sign_bit_o)) << (intVsize-1)) >> (intVsize-1-oint_data_len)) \
+                |(((uintV)as_oint(obj) << (intVsize-oint_data_len-oint_data_shift)) >> (intVsize-oint_data_len)) \
+               )
+    #else
+      #define fixnum_to_V(obj)  \
+        (sintV)( ((((sintV)(as_oint(obj) >> sign_bit_o)) << (intVsize-1)) >> (intVsize-1-oint_data_len)) \
+                |((uintV)(as_oint(obj) >> (oint_data_len+oint_data_shift-intVsize)) >> (intVsize-oint_data_len)) \
+               )
+    #endif
   #endif
 #endif
 %% export_def(fixnum_to_V(obj));

@@ -1,5 +1,11 @@
 2017-10-27  Bruno Haible  <bruno@clisp.org>
 
+	Fix fixnum converter macros on SPARC64.
+	* lispbibl.d (posfixnum_to_V): Optimize on SPARC always.
+	(fixnum_to_V) [SPARC]: Fix expression.
+
+2017-10-27  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".
