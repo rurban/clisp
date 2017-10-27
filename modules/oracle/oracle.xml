@@ -535,7 +535,7 @@ You can test that you really have the &oracle-link;-enabled &clisp; by
 evaluating <code>(&describe; 'oracle:connect)</code>.</para>
 
 <note><para>It may be necessary to edit file
-<filename role="clisp-cvs">modules/oracle/Makefile</filename>
+<filename role="clisp-cvs">modules/oracle/Makefile.in</filename>
 prior to running <command>./configure</command>.</para></note>
 
 

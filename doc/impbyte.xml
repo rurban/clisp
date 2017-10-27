@@ -42,7 +42,7 @@
  <warning><para>The use of &sh;-style comments is deprecated.</para></warning>
 </listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">utils/varbrace.d</filename></term>
+ <term><filename role="clisp-cvs">utils/varbrace.c</filename></term>
 <listitem><simpara>Add braces to &c-lang; source code, so that variable
   declarations (introduced with the pseudo-keyword <literal>var</literal>)
   can be used within blocks, like in <command>C++</command>
@@ -51,7 +51,7 @@
 <listitem><simpara>When &cpp; cannot handle indented directives, remove
   the indentation.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">utils/gctrigger.d</filename></term>
+ <term><filename role="clisp-cvs">utils/gctrigger.c</filename></term>
 <listitem><simpara>Add <function>GCTRIGGER</function> statements at the
   head of function bodies (for functions marked with
   the <literal>maygc</literal> pseudo-keyword).
@@ -121,8 +121,8 @@
 <varlistentry><term><filename role="clisp-cvs">src/xthread.d</filename></term>
  <listitem><simpara>include file for thread support
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/modules.h</filename></term>
- <listitem><simpara>list of foreign &module;s
+<varlistentry><term><filename>build/modules.h</filename></term>
+ <listitem><simpara>list of foreign &module;s, generated at build time
 </simpara></listitem></varlistentry>
 </variablelist>
 </section>
@@ -501,8 +501,8 @@
  <listitem><simpara>macros &letf;, &letf-star;, &ethe;, &with-collect;,
    function &compiled-file-p;.</simpara></listitem></varlistentry>
 <varlistentry id="config-lisp">
- <term><filename role="clisp-cvs">src/config.lisp</filename></term>
- <listitem><para>site-dependent configuration, should be a user-modified
+ <term><filename>build/config.lisp</filename></term>
+ <listitem><para>site-dependent configuration, a user-modified
    copy of one of the following:<variablelist>
     <varlistentry>
      <term><filename role="clisp-cvs">src/cfgunix.lisp</filename></term>
