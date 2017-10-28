@@ -1,5 +1,11 @@
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix endless loop in TRUENAME on Cygwin (regression from 2017-03-14).
+	* pathname.d (get_path_info): When retrying readlink(), choose a buffer
+	size that is greater than the previous one.
+
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
 	Don't use symbolic links when building for native Windows.
 	* makemake.in (LN_S): For native Windows, ignore the autoconfigured
 	value.
