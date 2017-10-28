@@ -538,6 +538,7 @@ CC_SUNPRO='@CC_SUNPRO@'             # either true or false
 CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
+WINDRES='@WINDRES@'                 # something like i686-w64-mingw32-windres
 LD='@LD@'                           # the linker used by $CC, such as 'ld' or '/usr/bin/ld -m elf_i386'
 AR='@AR@'                           # usually 'ar'
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
@@ -3503,7 +3504,7 @@ if [ $CROSS = false ] ; then
     DRIVER_DEP=${DRIVER_RES}" ${SRCDIR}w32shell.c ${SRCDIR}execname.c"
     echol "clispres${TOBJ} : clisp.rc clisp.ico"
     if [ ${TSYS} = win32gcc ]; then
-      echotab "windres -i clisp.rc -o clispres.o"
+      echotab "${WINDRES} -i clisp.rc -o clispres.o"
     else
       echotab "rc /v /foclisp.res clisp.rc"
       echotab "cvtres /verbose /out:clispres.obj clisp.res"
