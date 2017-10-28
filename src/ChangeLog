@@ -1,5 +1,11 @@
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
+	Don't assume that (truename (make-stream :output)) works on Windows.
+	* makemake.in (check-script): Don't run unportable test on native
+	Windows.
+
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix 32-bit mingw build failure on 64-bit Cygwin.
 	* configure.in: Determine WINDRES variable.
 	* makemake.in (clispres.o): Use it.
