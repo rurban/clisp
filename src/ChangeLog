@@ -1,5 +1,12 @@
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix 32-bit mingw build failure on 64-bit Cygwin.
+	* configure.in: Determine WINDRES variable.
+	* makemake.in (clispres.o): Use it.
+	* src/configure, gllib/Makefile.in: Regenerated.
+
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
 	Use SINGLEMAP_MEMORY by default on most 64-bit platforms.
 	* lispbibl.d: Revise decision whether to use SINGLEMAP_MEMORY: Ignore
 	MMAP_FIXED_ADDRESS_HIGHEST_BIT (since the SINGLEMAP_* parameters handle
