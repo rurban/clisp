@@ -5399,7 +5399,7 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
         if (result<0)
           OS_file_error(*(fs->fs_pathname));
         if (result >= (int)linklen) { /* linkbuf too small - probably a link from /proc */
-          FREE_DYNAMIC_ARRAY(linkbuf); linklen = 2*result; goto retry_readlink;
+          FREE_DYNAMIC_ARRAY(linkbuf); linklen = 2*result+1; goto retry_readlink;
         }
         linklen = result;
       }
