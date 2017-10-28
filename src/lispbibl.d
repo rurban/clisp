@@ -2179,6 +2179,7 @@ typedef enum {
        SHLIB_ADDRESS_RANGE  = 0xB6000000UL
        STACK_ADDRESS_RANGE  = 0xBE000000UL
        On Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8":
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
        MALLOC_ADDRESS_RANGE = 0x00000000UL
        SHLIB_ADDRESS_RANGE  = 0x40000000UL or 0xF7000000UL
@@ -2214,6 +2215,11 @@ typedef enum {
        STACK_ADDRESS_RANGE  = 0xFF000000UL
        There is room from 0x0B000000UL to 0xB7000000UL, but let's keep some
        distance. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x08000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x08000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
     #if 0 /* old */
@@ -2236,8 +2242,8 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64))
-    /* On Linux/mipseb and Linux/mipsel with o32 ABI and
-       on Linux/mips64eb and Linux/mips64el with n32 ABI:
+   #if !(_MIPS_SIM == _ABIN32)
+    /* On Linux/mipseb and Linux/mipsel with o32 ABI:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
        MALLOC_ADDRESS_RANGE = 0x00000000UL
@@ -2252,6 +2258,17 @@ typedef enum {
        There is room from 0x2C000000UL to 0x77000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x2C000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x76FFFFFFUL
+   #else
+    /* On Linux/mips64eb and Linux/mips64el with n32 ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x10000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL
+       SHLIB_ADDRESS_RANGE  = 0x77000000UL
+       STACK_ADDRESS_RANGE  = 0x7F000000UL
+       There is room from 0x11000000UL to 0x77000000UL XXX. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x76FFFFFFUL
+   #endif
   #endif
   #if defined(UNIX_LINUX) && defined(POWERPC)
     /* On Linux/powerpc64 with 32-bit ABI:
@@ -2372,6 +2389,11 @@ typedef enum {
        There is room from 0x3C000000UL to 0x74000000UL
        and from 0x8C000000UL to 0xCD000000UL, but let's keep some
        distance. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE >= 0x14000000UL || CODE_ADDRESS_RANGE <= 0x1B000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x1B000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
   #endif
@@ -2409,6 +2431,11 @@ typedef enum {
        See also "The 32-bit AIX Virtual Memory Model"
        <https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.aix.80.doc/diag/problem_determination/aix_mem_32.html>.
        There is room from 0x40000000UL to 0xD0000000UL. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x10000000UL || CODE_ADDRESS_RANGE == 0x20000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x30000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xCFFFFFFFUL
   #endif
@@ -2436,22 +2463,27 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
   #endif
   #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64))
+   #if !(_MIPS_SIM == _ABIN32)
     /* On IRIX 6.5 with o32 ABI:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
        MALLOC_ADDRESS_RANGE = 0x10000000UL
        SHLIB_ADDRESS_RANGE  = 0x0F000000UL
        STACK_ADDRESS_RANGE  = 0x7F000000UL
-       There is room from 0x11000000UL to 0x5F000000UL.
-       On IRIX 6.5 with n32 ABI:
+       There is room from 0x11000000UL to 0x5F800000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x5F7FFFFFUL
+   #else
+    /* On IRIX 6.5 with n32 ABI:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x10000000UL
        MALLOC_ADDRESS_RANGE = 0x10000000UL
        SHLIB_ADDRESS_RANGE  = 0x0F000000UL
        STACK_ADDRESS_RANGE  = 0x7F000000UL
-       There is room from 0x11000000UL to 0x5F000000UL. */
+       There is room from 0x11000000UL to 0x5F800000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x5EFFFFFFUL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x5F7FFFFFUL
+   #endif
   #endif
   #if defined(UNIX_SUNOS5) && defined(I80386)
     /* On Solaris 10/x86_64 with 32-bit ABI:
@@ -2596,6 +2628,12 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x0000000000000000UL or 0x0000010000000000UL
        SHLIB_ADDRESS_RANGE  = 0xFFFFF80100000000UL
        STACK_ADDRESS_RANGE  = 0x000007FEFF000000UL
+       or
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 50
+       CODE_ADDRESS_RANGE   = 0x0000010000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000010000000000UL
+       SHLIB_ADDRESS_RANGE  = 0xFFF8000100000000UL
+       STACK_ADDRESS_RANGE  = 0x000007FEFF000000UL
        There is room from 0x0000018000000000UL to 0x000007FE00000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x0000018000000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x000007FDFFFFFFFFUL
@@ -2645,9 +2683,10 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x0000000040000000UL
        SHLIB_ADDRESS_RANGE  = 0x0000000040000000UL
        STACK_ADDRESS_RANGE  = 0xFFFFFFFFFF000000UL
-       There is room from 0x000048000000UL to 0x080000000000UL. */
+       Addresses >= 0x07FFFFFFE000UL are not mmapable.
+       There is room from 0x000048000000UL to 0x07F000000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x000048000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x07FFFFFFFFFFUL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x07EFFFFFFFFFUL
   #endif
   #if defined(UNIX_OPENBSD) && defined(AMD64)
     /* On OpenBSD/x86_64:
@@ -2659,6 +2698,11 @@ typedef enum {
        The allocated ranges are randomized across the range
        from 0x000000000000UL to 0x200000000000UL.
        There is room from 0x200000000000UL to 0x7F0000000000UL. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE <= 0x00001FFFFF000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x00001FFFFF000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x200000000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x7EFFFFFFFFFFUL
   #endif
@@ -2985,6 +3029,447 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %%   puts("#define WIDE");
 %% #endif
 %% #endif
+
+/* These are the parameters for using SINGLEMAP_MEMORY. They depend heavily
+   on the address space layout. */
+/* When using SINGLEMAP_MEMORY:
+
+   The type bits are part of the address that we send on the addressbus.
+   Cf. macros pointable_unchecked and pointable_address_unchecked.
+   Therefore we must consider MMAP_FIXED_ADDRESS_HIGHEST_BIT.
+
+   In order to respect the constraints given by
+   MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END,
+   we use the addresses
+     (typecode << oint_type_shift) | SINGLEMAP_ADDRESS_BASE
+   where typecode consists of at most 6 or 7 bits and is > 0.
+   oint_type_shift is usually around (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6).
+   SINGLEMAP_ADDRESS_BASE is chosen so that it contains only few bits.
+   SINGLEMAP_TYPE_MASK contains the bits that can be used as type
+   bits (excluding the garcol_bit_o). It consists of 6 or 7 bits.
+   It must be disjoint to SINGLEMAP_ADDRESS_BASE.
+   So, oint_type_shift is the smallest bit set in SINGLEMAP_TYPE_MASK.
+   Trade-offs:
+     - On 32-bit platforms, oint_type_shift should be as large as possible.
+     - On 64-bit platforms, for SINGLEMAP_TYPE_MASK, 7 bits is better
+       than 6 bits. */
+/* Sort order: Keep this list sorted by
+     1. word size (32-bit before 64-bit),
+     2. operating system (Linux, *BSD, Mac OS X, proprietary Unices, Windows)
+     3. CPU and ABI (alphabetically) */
+#if !defined(WIDE_HARD)
+  /* 32-bit platforms */
+  /* We can nowadays assume that MMAP_FIXED_ADDRESS_HIGHEST_BIT is 30. */
+  /* On some platforms, strictly respecting the MAPPABLE_ADDRESS_RANGE
+     would lead to a value of oint_type_shift < 24, which is unusable.
+     Define IGNORE_MAPPABLE_ADDRESS_RANGE for these platforms. */
+  #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 with 32-bit x32 ABI */
+    #if 1 /* arbitrary choice */
+      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+    #elif 1 /* arbitrary choice */
+      #define SINGLEMAP_ADDRESS_BASE 0x20000000UL
+      #define SINGLEMAP_TYPE_MASK    0x5F000000UL
+    #else
+      #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+      #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #endif
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(ARM) /* Linux/arm */
+    #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 0 /* crashes even without GENERATIONAL_GC */
+  #endif
+  #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* garcol_bit_o must be 30, because bit 31 is set in CODE_ADDRESS_RANGE. */
+    #define SINGLEMAP_garcol_bit_o 30
+    #define SINGLEMAP_WORKS 0 /* crashes even without GENERATIONAL_GC */
+  #endif
+  #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
+    #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
+      #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+      #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+      #define SINGLEMAP_oint_type_shift 24
+      #define SINGLEMAP_WORKS 1
+    #else /* Linux/mips with n32 ABI */
+      #if 1 /* arbitrary choice */
+        #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+        #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+        #define SINGLEMAP_oint_type_shift 24
+        #define SINGLEMAP_WORKS 1
+      #else
+        #define SINGLEMAP_ADDRESS_BASE 0UL
+        #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+        #define SINGLEMAP_oint_type_shift 24
+        /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+        #define IGNORE_MAPPABLE_ADDRESS_RANGE
+        #define SINGLEMAP_WORKS 1
+      #endif
+    #endif
+  #endif
+  #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+    #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(S390) /* Linux/s390x with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7E000000UL
+    #define SINGLEMAP_oint_type_shift 25
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    /* This configuration does not work, because it conflicts with the system's
+       use of the memory region at 0x09000000UL. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    /* This configuration works, but it conflicts with the system's use of
+       the memory region at 0x28000000UL and is therefore too dangerous
+       for general use. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+  #endif
+  #if defined(UNIX_NETBSD) && defined(SPARC) /* NetBSD/sparc */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x5F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE:
+       from 0x01000000UL to 0x1FFFFFFFUL and from 0x44000000UL to 0x5FFFFFFFUL. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+  #endif
+  #if defined(UNIX_OPENBSD) && defined(I80386) /* OpenBSD/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 3+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_MACOSX) && defined(I80386) /* Mac OS X/x86_64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+    #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_MACOSX) && defined(POWERPC) /* Mac OS X/PowerPC */
+    #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+    #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_AIX) && defined(POWERPC) /* AIX/POWER with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 5+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 1+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
+    #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
+      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+      #define SINGLEMAP_oint_type_shift 24
+      /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE:
+         it conflicts with the system's use of the memory region at 0x5F800000UL.
+         This leads to
+         "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings. clisp might crash later!"
+         Later, we see an endless loop or a crash while compiling compiler.lisp. */
+      #define IGNORE_MAPPABLE_ADDRESS_RANGE
+      #define SINGLEMAP_WORKS 0
+    #else /* IRIX 6.5 with n32 ABI */
+      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+      #define SINGLEMAP_oint_type_shift 24
+      /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE:
+         it conflicts with the system's use of the memory region at 0x5F800000UL.
+         This leads to
+         "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings. clisp might crash later!"
+         Later, we see an endless loop or a crash while compiling compiler.lisp. */
+      #define IGNORE_MAPPABLE_ADDRESS_RANGE
+      #define SINGLEMAP_WORKS 0
+    #endif
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(SPARC) /* Solaris/sparc64 with 32-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7E000000UL
+    #define SINGLEMAP_oint_type_shift 25
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
+    #define SINGLEMAP_ADDRESS_BASE 0x80000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* Set garcol_bit_o to 30. */
+    #define SINGLEMAP_garcol_bit_o 30
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(WIN32_NATIVE) && defined(I80386) /* mingw, running on Windows 10 */
+    #define SINGLEMAP_ADDRESS_BASE 0x04000000UL
+    #define SINGLEMAP_TYPE_MASK    0x7B000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE.
+       It is risky to define IGNORE_MAPPABLE_ADDRESS_RANGE on this platform. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1 /* but risky */
+  #endif
+  #ifndef SINGLEMAP_garcol_bit_o
+    #define SINGLEMAP_garcol_bit_o 31
+  #endif
+  #define SINGLEMAP_oint_type_len (32-SINGLEMAP_oint_type_shift)
+  #define SINGLEMAP_oint_type_mask (SINGLEMAP_TYPE_MASK | (1UL<<SINGLEMAP_garcol_bit_o))
+#else
+  /* 64-bit platforms */
+  #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
+    #if 1 /* arbitrary choice */
+      #define SINGLEMAP_ADDRESS_BASE 0x002000000000UL
+      #define SINGLEMAP_TYPE_MASK    0x005F00000000UL
+    #else
+      #define SINGLEMAP_ADDRESS_BASE 0x004000000000UL
+      #define SINGLEMAP_TYPE_MASK    0x003F00000000UL
+    #endif
+    #define SINGLEMAP_oint_type_shift 32
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(DECALPHA) /* Linux/alpha */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x01FC00000000UL
+    #define SINGLEMAP_oint_type_shift 34
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x6000000000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x000007F000000000UL
+    #define SINGLEMAP_oint_type_shift 36
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0x008000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x007E00000000UL
+    #define SINGLEMAP_oint_type_shift 33
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+    #define SINGLEMAP_ADDRESS_BASE 0x010000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3E8000000000UL
+    #define SINGLEMAP_oint_type_shift 39
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x03F800000000UL
+    #define SINGLEMAP_oint_type_shift 35
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x0000010000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x000006F800000000UL
+    #define SINGLEMAP_oint_type_shift 35
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0xFE0000000000UL
+    #define SINGLEMAP_oint_type_shift 41
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_NETBSD) && defined(SPARC64) /* NetBSD/sparc64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x07F000000000UL
+    #define SINGLEMAP_oint_type_shift 36
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_OPENBSD) && defined(AMD64) /* OpenBSD/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x200000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x5F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 2+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x07F0000000000000UL
+    #define SINGLEMAP_oint_type_shift 52
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x5000000000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x0FE0000000000000UL
+    #define SINGLEMAP_oint_type_shift 53
+    /* Set garcol_bit_o to 61. */
+    #define SINGLEMAP_garcol_bit_o 61
+    /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x6000000000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x1FC0000000000000UL
+    #define SINGLEMAP_oint_type_shift 54
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 3+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x00007F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x00007F0000000000UL
+    #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_CYGWIN) && defined(AMD64)
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x03F800000000UL
+    #define SINGLEMAP_oint_type_shift 35
+    /* This configuration does not work: Compilation of compiler.lisp
+       fails with "Cannot map memory to address 0x4800080000". */
+    #define SINGLEMAP_WORKS 0
+  #endif
+  #ifndef SINGLEMAP_garcol_bit_o
+    #define SINGLEMAP_garcol_bit_o 63
+  #endif
+  #define SINGLEMAP_oint_type_len (64-SINGLEMAP_oint_type_shift)
+  #define SINGLEMAP_oint_type_mask (SINGLEMAP_TYPE_MASK | (1UL<<SINGLEMAP_garcol_bit_o))
+#endif
+#if defined(SINGLEMAP_ADDRESS_BASE) || defined(SINGLEMAP_TYPE_MASK) || defined(SINGLEMAP_WORKS)
+  /* Verify that SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift,
+     SINGLEMAP_garcol_bit_o, SINGLEMAP_oint_type_len, SINGLEMAP_oint_type_mask
+     are now defined. */
+  #if !(defined(SINGLEMAP_ADDRESS_BASE) && defined(SINGLEMAP_TYPE_MASK) \
+        && defined(SINGLEMAP_oint_type_shift) \
+        && defined(SINGLEMAP_garcol_bit_o) \
+        && defined(SINGLEMAP_oint_type_len) && defined(SINGLEMAP_oint_type_mask))
+    #error SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift, SINGLEMAP_garcol_bit_o, SINGLEMAP_oint_type_len, SINGLEMAP_oint_type_mask are not defined for this platform!
+  #endif
+  /* Verify that SINGLEMAP_ADDRESS_BASE is a multiple of 0x10000
+     and therefore is guaranteed to be page-aligned. */
+  #if (SINGLEMAP_ADDRESS_BASE & 0xFFFFUL) != 0
+    #error SINGLEMAP_ADDRESS_BASE is not page-aligned!
+  #endif
+  /* Verify that SINGLEMAP_TYPE_MASK is disjoint to SINGLEMAP_ADDRESS_BASE. */
+  #if (SINGLEMAP_TYPE_MASK & SINGLEMAP_ADDRESS_BASE) != 0
+    #error SINGLEMAP_TYPE_MASK is not disjoint to SINGLEMAP_ADDRESS_BASE!
+  #endif
+  /* Verify that SINGLEMAP_TYPE_MASK contains only bits >= SINGLEMAP_oint_type_shift. */
+  #if (SINGLEMAP_TYPE_MASK & ((1UL<<(SINGLEMAP_oint_type_shift))-1UL)) != 0
+    #error SINGLEMAP_TYPE_MASK contains bits < SINGLEMAP_oint_type_shift!
+  #endif
+  /* Verify that SINGLEMAP_TYPE_MASK contains the bit SINGLEMAP_oint_type_shift. */
+  #if (SINGLEMAP_TYPE_MASK & (1UL<<(SINGLEMAP_oint_type_shift))) == 0
+    #error You can increase SINGLEMAP_oint_type_shift!
+  #endif
+#endif
+
+/* Verify the flags that determine the object representation that were defined
+   by the user. */
 
 #if defined(SINGLEMAP_MEMORY)
   /* SINGLEMAP_MEMORY implies TYPECODES. */
@@ -3475,31 +3960,44 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* oint == uintP.
        Type code and address are in the same word. */
     #if defined(SINGLEMAP_MEMORY)
-      /* The type bits are part of the address that we send on the addressbus.
-         Cf. macros pointable_unchecked and pointable_address_unchecked.
-         Therefore we must consider MMAP_FIXED_ADDRESS_HIGHEST_BIT. */
+      /* The parameters are already determined above. */
+      /* Verify that SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift,
+         SINGLEMAP_garcol_bit_o, SINGLEMAP_oint_type_len, SINGLEMAP_oint_type_mask
+         are defined. */
+      #if !(defined(SINGLEMAP_ADDRESS_BASE) && defined(SINGLEMAP_TYPE_MASK) \
+            && defined(SINGLEMAP_oint_type_shift) \
+            && defined(SINGLEMAP_garcol_bit_o) \
+            && defined(SINGLEMAP_oint_type_len) && defined(SINGLEMAP_oint_type_mask))
+        #error SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift, SINGLEMAP_garcol_bit_o, SINGLEMAP_oint_type_len, SINGLEMAP_oint_type_mask are not defined for this platform!
+      #endif
       #if !defined(WIDE_HARD)
         /* 32-bit platforms */
-        #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-        #define oint_type_len (32-oint_type_shift)
-        #define oint_type_mask (-1UL<<oint_type_shift)
-        #define oint_addr_shift 0
-        #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-        #define oint_addr_mask ((1UL<<oint_addr_len)-1)
-        #define oint_data_shift oint_addr_shift
-        #define oint_data_len oint_addr_len
-        #define oint_data_mask oint_addr_mask
-      #else
-        /* 64-bit platforms */
-        #define oint_type_shift (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-        #define oint_type_len (64-oint_type_shift)
-        #define oint_type_mask (-1UL<<oint_type_shift)
-        #define oint_addr_shift 0
-        #define oint_addr_len (MMAP_FIXED_ADDRESS_HIGHEST_BIT-6)
-        #define oint_addr_mask ((1UL<<oint_addr_len)-1)
-        #define oint_data_shift oint_addr_shift
-        #define oint_data_len oint_addr_len
-        #define oint_data_mask oint_addr_mask
+        /* Verify the assumption that MMAP_FIXED_ADDRESS_HIGHEST_BIT is 30. */
+        #if defined(HAVE_WIN32_VM)
+          #undef MMAP_FIXED_ADDRESS_HIGHEST_BIT
+          #define MMAP_FIXED_ADDRESS_HIGHEST_BIT 30
+        #else
+          #if defined(MMAP_FIXED_ADDRESS_HIGHEST_BIT)
+            #if !(MMAP_FIXED_ADDRESS_HIGHEST_BIT == 30)
+              #error Unexpected value of MMAP_FIXED_ADDRESS_HIGHEST_BIT on 32-bit platform!
+            #endif
+          #else
+            #define MMAP_FIXED_ADDRESS_HIGHEST_BIT 30
+          #endif
+        #endif
+      #endif
+      #define oint_type_shift SINGLEMAP_oint_type_shift
+      #define garcol_bit_o SINGLEMAP_garcol_bit_o
+      #define oint_type_len SINGLEMAP_oint_type_len
+      #define oint_type_mask SINGLEMAP_oint_type_mask
+      #define oint_addr_shift 0
+      #define oint_addr_len oint_type_shift
+      #define oint_addr_mask (~oint_type_mask)
+      #define oint_data_shift oint_addr_shift
+      #define oint_data_len oint_addr_len
+      #define oint_data_mask ((1UL<<oint_data_len)-1)
+      #if oint_data_len < 24
+        #error oint_data_len is too small, short-floats need at least 24 data bits!
       #endif
     #else
       #if !defined(WIDE_HARD)
@@ -3830,24 +4328,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %% #if notused
 %%  export_def(addr_shift);
 %% #endif
-
-/* Verify the values w.r.t. the autoconfigured CODE_ADDRESS_RANGE and
- MALLOC_ADDRESS_RANGE values. */
-#if !defined(WIDE_SOFT)
-  #if (CODE_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error oint_addr_mask does not cover CODE_ADDRESS_RANGE !!
-  #endif
-  /* The MALLOC_ADDRESS_RANGE needs to be checked because
-     1) if !defined(SINGLEMAP_MEMORY) && !defined(TRIVIALMAP_MEMORY),
-        Lisp objects reside in memory allocated through mymalloc,
-     2) the STACK is usually allocated through mymalloc (except if
-        SINGLEMAP_MEMORY_STACK), and
-        pointers into the STACK occur in frames (cf. macro framebottomword)
-        and in environments (cf. type environment_t). */
-  #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error oint_addr_mask does not cover MALLOC_ADDRESS_RANGE !!
-  #endif
-#endif
 
 /* Verify the values w.r.t. the earlier configured SINGLEMAP_MEMORY. */
 #if defined(SINGLEMAP_MEMORY)
@@ -4770,79 +5250,185 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  All of them have to be set in tint_allowed_type_mask and thus in tint_type_mask as well
  We distribute them under the assumption that only one bit is missing in tint_type_mask.
  TB6 will be set to -1, if it can't be used. */
-#if ((0xFF & ~tint_allowed_type_mask) == 0)
-  #define TB7 7
-  #define TB6 6
-  #define TB5 5
-  #define TB4 4
-  #define TB3 3
-  #define TB2 2
-  #define TB1 1
-  #define TB0 0
-#elif (oint_type_len==7)
-  #define TB7 6
-  #define TB6 -1
-  #define TB5 5
-  #define TB4 4
-  #define TB3 3
-  #define TB2 2
-  #define TB1 1
-  #define TB0 0
-#else
-  /* Some bits have to be avoided */
-  #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
-  /* tint_avoid must only contain one bit: */
-  #if (tint_avoid & (tint_avoid-1))
-    #error Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!
-  #endif
-  /* tint_avoid consists of exactly one bit that has to be avoided. */
-  #if (tint_avoid > bit(0))
-    #define TB0 0
+#if defined(SINGLEMAP_MEMORY)
+  /* TB7 will be used as garcol_bit.
+     bit(TB7)|SINGLEMAP_ADDRESS_BASE does not need to be a mappable address. */
+  #if defined(garcol_bit_o)
+    #define TB7 (garcol_bit_o-oint_type_shift)
   #else
-    #define TB0 1
-  #endif
-  #if (tint_avoid > bit(1))
-    #define TB1 1
-  #else
-    #define TB1 2
-  #endif
-  #if (tint_avoid > bit(2))
-    #define TB2 2
-  #else
-    #define TB2 3
-  #endif
-  #if (tint_avoid > bit(3))
-    #define TB3 3
-  #else
-    #define TB3 4
-  #endif
-  #if (tint_avoid > bit(4))
-    #define TB4 4
-  #else
-    #define TB4 5
-  #endif
-  #if (tint_avoid > bit(5))
-    #define TB5 5
-  #else
-    #define TB5 6
-  #endif
-  #if ((tint_allowed_type_mask & ~0xFF) == 0)
-    #define TB6 -1
-    #if (tint_avoid > bit(6))
-      #define TB7 6
+    #if ((oint_type_mask >> (oint_type_len-1 + oint_type_shift)) & 1) != 0
+      #define TB7 (oint_type_len-1)
+    #elif ((oint_type_mask >> (oint_type_len-2 + oint_type_shift)) & 1) != 0
+      #define TB7 (oint_type_len-2)
     #else
-      #define TB7 7
+      #error What is the right value for TB7?
     #endif
-  #else
-    #if (tint_avoid > bit(6))
-      #define TB6 6
+  #endif
+  /* The other bits must be allocated in tint_type_mask.
+     Assume tint_type_mask has 6..7 bits and up to 3 "holes". */
+  #if (((tint_type_mask >> 0) & 1) != 0) && (0 != TB7)
+    #define TB0 0
+  #endif
+  #if (((tint_type_mask >> 1) & 1) != 0) && (1 != TB7)
+    #if !defined(TB0)
+      #define TB0 1
     #else
+      #define TB1 1
+    #endif
+  #endif
+  #if (((tint_type_mask >> 2) & 1) != 0) && (2 != TB7)
+    #if !defined(TB0)
+      #define TB0 2
+    #elif !defined(TB1)
+      #define TB1 2
+    #else
+      #define TB2 2
+    #endif
+  #endif
+  #if (((tint_type_mask >> 3) & 1) != 0) && (3 != TB7)
+    #if !defined(TB0)
+      #define TB0 3
+    #elif !defined(TB1)
+      #define TB1 3
+    #elif !defined(TB2)
+      #define TB2 3
+    #else
+      #define TB3 3
+    #endif
+  #endif
+  #if (((tint_type_mask >> 4) & 1) != 0) && (4 != TB7)
+    #if !defined(TB1)
+      #define TB1 4
+    #elif !defined(TB2)
+      #define TB2 4
+    #elif !defined(TB3)
+      #define TB3 4
+    #else
+      #define TB4 4
+    #endif
+  #endif
+  #if (((tint_type_mask >> 5) & 1) != 0) && (5 != TB7)
+    #if !defined(TB2)
+      #define TB2 5
+    #elif !defined(TB3)
+      #define TB3 5
+    #elif !defined(TB4)
+      #define TB4 5
+    #else
+      #define TB5 5
+    #endif
+  #endif
+  #if (((tint_type_mask >> 6) & 1) != 0) && (6 != TB7)
+    #if !defined(TB3)
+      #define TB3 6
+    #elif !defined(TB4)
+      #define TB4 6
+    #elif !defined(TB5)
+      #define TB5 6
+    #else
+      #define TB6 6
+    #endif
+  #endif
+  #if (((tint_type_mask >> 7) & 1) != 0) && (7 != TB7)
+    #if !defined(TB4)
+      #define TB4 7
+    #elif !defined(TB5)
+      #define TB5 7
+    #elif !defined(TB6)
       #define TB6 7
     #endif
-    #if (tint_avoid > bit(7))
-      #define TB7 7
+  #endif
+  #if (((tint_type_mask >> 8) & 1) != 0) && (8 != TB7)
+    #if !defined(TB5)
+      #define TB5 8
+    #elif !defined(TB6)
+      #define TB6 8
+    #endif
+  #endif
+  #if (((tint_type_mask >> 9) & 1) != 0) && (9 != TB7)
+    #if !defined(TB6)
+      #define TB6 9
+    #endif
+  #endif
+  #if !defined(TB6)
+    #define TB6 -1
+  #endif
+#else
+  /* In the normal TYPECODES model, the type bits are packed into 8 bits. */
+  #if ((0xFF & ~tint_allowed_type_mask) == 0)
+    #define TB7 7
+    #define TB6 6
+    #define TB5 5
+    #define TB4 4
+    #define TB3 3
+    #define TB2 2
+    #define TB1 1
+    #define TB0 0
+  #elif (oint_type_len==7)
+    #define TB7 6
+    #define TB6 -1
+    #define TB5 5
+    #define TB4 4
+    #define TB3 3
+    #define TB2 2
+    #define TB1 1
+    #define TB0 0
+  #else
+    /* Some bits have to be avoided */
+    #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
+    /* tint_avoid must only contain one bit: */
+    #if (tint_avoid & (tint_avoid-1))
+      #error Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!
+    #endif
+    /* tint_avoid consists of exactly one bit that has to be avoided. */
+    #if (tint_avoid > bit(0))
+      #define TB0 0
     #else
-      #define TB7 8
+      #define TB0 1
+    #endif
+    #if (tint_avoid > bit(1))
+      #define TB1 1
+    #else
+      #define TB1 2
+    #endif
+    #if (tint_avoid > bit(2))
+      #define TB2 2
+    #else
+      #define TB2 3
+    #endif
+    #if (tint_avoid > bit(3))
+      #define TB3 3
+    #else
+      #define TB3 4
+    #endif
+    #if (tint_avoid > bit(4))
+      #define TB4 4
+    #else
+      #define TB4 5
+    #endif
+    #if (tint_avoid > bit(5))
+      #define TB5 5
+    #else
+      #define TB5 6
+    #endif
+    #if ((tint_allowed_type_mask & ~0xFF) == 0)
+      #define TB6 -1
+      #if (tint_avoid > bit(6))
+        #define TB7 6
+      #else
+        #define TB7 7
+      #endif
+    #else
+      #if (tint_avoid > bit(6))
+        #define TB6 6
+      #else
+        #define TB6 7
+      #endif
+      #if (tint_avoid > bit(7))
+        #define TB7 7
+      #else
+        #define TB7 8
+      #endif
     #endif
   #endif
 #endif
@@ -4908,7 +5494,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define ratio_bit_t      TB3
   #define bignum_bit_t     TB2
 /* in Objects (oint): */
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    /* only set during the garbage collection! */
+  #if !defined(garcol_bit_o)
+    #define garcol_bit_o   (garcol_bit_t+oint_type_shift)    /* only set during the garbage collection! */
+  #else
+    /* Verify garcol_bit_o has the expected value. */
+    #if !(garcol_bit_o == (garcol_bit_t+oint_type_shift))
+      #error garcol_bit_o already defined, but is not consistent with TB7!
+    #endif
+  #endif
   #if (TB6 >= 0)
     #define cons_bit_o     (cons_bit_t+oint_type_shift)      /* only set for cons CONS */
   #endif
@@ -5078,6 +5671,36 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %% #endif
 
 
+#if defined(SINGLEMAP_MEMORY) && 1
+  /* The STACK resides in a singlemap-area as well, Typinfo system_type. */
+  #define SINGLEMAP_MEMORY_STACK
+#endif
+
+
+/* Verify the oint_addr_shift value w.r.t. the autoconfigured CODE_ADDRESS_RANGE
+   and MALLOC_ADDRESS_RANGE values. */
+#if !defined(WIDE_SOFT)
+  /* The CODE_ADDRESS_RANGE needs to be checked because we store code
+     pointers in Lisp objects (cf. macro ThePseudofun).
+     In case of TYPECODES, the typecode() of such pointers must be machine_type,
+     otherwise gc_mark() gets confused and crashes. */
+  #if (CODE_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
+    #error oint_addr_mask does not cover CODE_ADDRESS_RANGE !!
+  #endif
+  /* The MALLOC_ADDRESS_RANGE needs to be checked because
+     1) if !defined(SINGLEMAP_MEMORY) && !defined(TRIVIALMAP_MEMORY),
+        Lisp objects reside in memory allocated through mymalloc,
+     2) if !defined(SINGLEMAP_MEMORY_STACK), the STACK is allocated through
+        mymalloc, and pointers into the STACK occur in frames (cf. macro
+        framebottomword) and in environments (cf. type environment_t). */
+  #if !(defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK))
+    #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
+       #error oint_addr_mask does not cover MALLOC_ADDRESS_RANGE !!
+    #endif
+  #endif
+#endif
+
+
 #ifdef TYPECODES
 
 /* You have to remove the typebits in order to access the components
@@ -5091,18 +5714,25 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     #define pointable_address_unchecked(obj_o)  \
       (((aint)((obj_o) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift)) << addr_shift)
   #else
+    /* If oint_addr_shift=0 and addr_shift=0, you don't have to shift. */
     #define pointable_unchecked(obj)  \
       ((void*)pointable_address_unchecked(as_oint(obj)))
-    /* If oint_addr_shift=0 and addr_shift=0, you don't have to shift. */
-    #if !((tint_type_mask & (addressbus_mask>>oint_type_shift)) == 0)
-      #define pointable_address_unchecked(obj_o)  \
-        ((aint)(obj_o) & ((aint)oint_addr_mask | ~addressbus_mask))
-    #else
-      /* Moreover if oint_type_mask and addressbus_mask are disjoint
-       (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0),
-       no typebits are being sent to the address bus anyway.
-       So there's nothing to be done: */
+    #if defined(SINGLEMAP_MEMORY)
+      /* Through memory mapping, type bits must be sent to the address bus,
+         together with the address. */
       #define pointable_address_unchecked(obj_o)  (aint)(obj_o)
+    #else
+      #if !((tint_type_mask & (addressbus_mask>>oint_type_shift)) == 0)
+        /* The general case. */
+        #define pointable_address_unchecked(obj_o)  \
+          ((aint)(obj_o) & ((aint)oint_addr_mask | ~addressbus_mask))
+      #else
+        /* Moreover if oint_type_mask and addressbus_mask are disjoint
+           (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0),
+           no typebits are being sent to the address bus anyway.
+           So there's nothing to be done: */
+        #define pointable_address_unchecked(obj_o)  (aint)(obj_o)
+      #endif
     #endif
   #endif
   #ifdef DEBUG_GCSAFETY
@@ -5169,11 +5799,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %% #else /* HEAPCODES */
 %%  export_def(pointable_address_unchecked(obj_o));
 %% #endif
-
-#if defined(SINGLEMAP_MEMORY) && (((system_type*1UL << oint_type_shift) & addressbus_mask) == 0)
-  /* The STACK resides in a singlemap-area as well, Typinfo system_type. */
-  #define SINGLEMAP_MEMORY_STACK
-#endif
 
 
 #ifdef oint_symbolflags_shift
@@ -11959,8 +12584,11 @@ extern struct subr_tab_ {
   #endif
   #define L_help_(name)  subr_tab_ptr_as_object(&subr_tab.name)
 #else
-  /* define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0)) */
-  #define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(subr_type))
+  #ifdef SINGLEMAP_MEMORY
+    #define subr_tab_addr  ((struct subr_tab_ *)(type_zero_oint(subr_type)+SINGLEMAP_ADDRESS_BASE))
+  #else
+    #define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(subr_type))
+  #endif
   #define subr_tab  (*subr_tab_addr)
   #define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))
   #define L_help_(name)  subr_tab_ptr_as_object(&subr_tab_addr->name)
@@ -12044,8 +12672,11 @@ extern struct symbol_tab_ {
     #endif
   #endif
 #else
-  /* define symbol_tab_addr ((struct symbol_tab_ *)type_constpointer_object(symbol_type,0)) */
-  #define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(symbol_type))
+  #ifdef SINGLEMAP_MEMORY
+    #define symbol_tab_addr ((struct symbol_tab_ *)(type_zero_oint(symbol_type)+SINGLEMAP_ADDRESS_BASE))
+  #else
+    #define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(symbol_type))
+  #endif
   #define symbol_tab  (*symbol_tab_addr)
   #define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))
   #if 0 /* Some compilers do not allow the above expression */

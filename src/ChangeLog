@@ -1,3 +1,31 @@
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
+	Make SINGLEMAP_MEMORY work reliably on many platforms.
+	* Makefile.devel (build-porting*-spvw_pure_blocks): Don't disable
+	GENERATIONAL_GC when testing this configuration.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*): Define separately for mips o32
+	and mips n32.
+	(SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift,
+	SINGLEMAP_garcol_bit_o, SINGLEMAP_oint_type_len,
+	SINGLEMAP_oint_type_mask, SINGLEMAP_WORKS): Define appropriately for
+	each known platform.
+	(oint_type_*, oint_addr_*, oint_data_*) [SINGLEMAP_MEMORY]: Define based
+	on these parameters.
+	(TB7, ..., TB0) [SINGLEMAP_MEMORY]: Define based on garcol_bit_o and
+	oint_type_mask.
+	(garcol_bit_o): Don't redefine if already defined for SINGLEMAP_MEMORY.
+	(SINGLEMAP_MEMORY_STACK): Define always when SINGLEMAP_MEMORY is
+	defined.
+	(pointable_address_unchecked) [SINGLEMAP_MEMORY]: Ignore
+	addressbus_mask.
+	(subr_tab_addr, symbol_tab_addr) [SINGLEMAP_MEMORY]: Consider
+	SINGLEMAP_ADDRESS_BASE.
+	* spvw.d (init_memory): When we don't need malloc()ed memory at all,
+	don't call mymalloc.
+	If SINGLEMAP_MEMORY && !IGNORE_MAPPABLE_ADDRESS_RANGE, verify that all
+	heaps lie in the mappable address range.
+	Consider SINGLEMAP_ADDRESS_BASE.
+
 2017-10-27  Bruno Haible  <bruno@clisp.org>
 
 	Fix fixnum converter macros on SPARC64.

@@ -451,7 +451,7 @@ build-porting32-gcc-typecodes-spvw_mixed_blocks:
 build-porting32-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force WIDE_SOFT.
@@ -626,7 +626,7 @@ build-porting32-cc-typecodes-spvw_mixed_blocks:
 build-porting32-cc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force WIDE_SOFT.
@@ -783,7 +783,7 @@ build-porting64-gcc-typecodes-spvw_mixed_blocks:
 build-porting64-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
@@ -934,7 +934,7 @@ build-porting64-cc-typecodes-spvw_mixed_blocks:
 build-porting64-cc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSAFETY=3 -DTYPECODES -DSINGLEMAP_MEMORY" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),

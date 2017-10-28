@@ -3101,8 +3101,13 @@ local inline int init_memory (struct argv_initparams *p) {
     if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
     VAROUT(memneed);
    #endif
+   #if defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK)
+    /* No need to call mymalloc at all. */
+    memblock = 0;
+   #else
     while (1) {
-      memblock = (aint)mymalloc(memneed); /* try to allocate memory */
+      /* Try to allocate memory. */
+      memblock = (aint)mymalloc(memneed);
       VAROUT(memneed); VAROUT(memblock);
       if (!((void*)memblock == NULL)) break; /* successful -> OK */
       memneed = floor(memneed,8)*7; /* else try again with 7/8 thereof */
@@ -3135,30 +3140,52 @@ local inline int init_memory (struct argv_initparams *p) {
     }
     /* the memory region [memblock,memblock+memneed-1] is now free,
      and its boundaries are located on page boundaries. */
+   #endif
    #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) /* <==> SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY */
     if ( initmap() <0) return -1;
     #ifdef SINGLEMAP_MEMORY
-    {                           /* pre-initialize all heaps: */
-      var uintL heapnr;
-      for (heapnr=0; heapnr<heapcount; heapnr++) {
-        var Heap* heapptr = &mem.heaps[heapnr];
-        heapptr->heap_limit = (aint)type_zero_oint(heapnr);
-        heapptr->heap_hardlimit = (aint)type_zero_oint(heapnr+1);
-        if ((mem.heaptype[heapnr] >= -1)
-            && prepare_zeromap(&heapptr->heap_limit,
-                               &heapptr->heap_hardlimit,true) <0)
-          return -1;
+     #ifndef IGNORE_MAPPABLE_ADDRESS_RANGE
+      /* Verify that all heaps lie in the mappable address range. */
+      {
+        var uintL heapnr;
+        for (heapnr=0; heapnr<heapcount; heapnr++) {
+          if (mem.heaptype[heapnr] >= -1) {
+            var uintP heap_start_addr = (uintP)(type_zero_oint(heapnr)+SINGLEMAP_ADDRESS_BASE);
+            var uintP heap_end_addr = (uintP)(type_zero_oint(heapnr+1)+SINGLEMAP_ADDRESS_BASE);
+            if (!(heap_start_addr >= MAPPABLE_ADDRESS_RANGE_START
+                  && heap_end_addr-1 <= MAPPABLE_ADDRESS_RANGE_END)) {
+              fprintf(stderr,"Invalid values of SINGLEMAP_ADDRESS_BASE and oint_type_shift: Heap %d = [%p,%p] does not lie in MAPPABLE_ADDRESS_RANGE.\n",
+                      heapnr,(void*)heap_start_addr,(void*)(heap_end_addr-1));
+              return -1;
+            }
+          }
+        }
       }
-    }
-    /* set symbol_tab, subr_tab to address 0:
-     (for this purpose case_symbolflagged must be equivalent to case_symbol!) */
-    #define map_tab(tab,size)                                                \
-      do { var uintM map_len = round_up(size,map_pagesize);                  \
-           if ( zeromap(&tab,map_len) <0) return -1;                         \
-           mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
-      } while(0)
-    map_tab(symbol_tab,sizeof(symbol_tab));
-    map_tab(subr_tab,varobjects_misaligned+total_subr_count*sizeof(subr_t));
+     #endif
+      /* Pre-initialize all heaps. */
+      {
+        var uintL heapnr;
+        for (heapnr=0; heapnr<heapcount; heapnr++) {
+          var Heap* heapptr = &mem.heaps[heapnr];
+          var uintP heap_start_addr = (uintP)(type_zero_oint(heapnr)+SINGLEMAP_ADDRESS_BASE);
+          var uintP heap_end_addr = (uintP)(type_zero_oint(heapnr+1)+SINGLEMAP_ADDRESS_BASE);
+          heapptr->heap_limit = heap_start_addr;
+          heapptr->heap_hardlimit = heap_end_addr;
+          if (mem.heaptype[heapnr] >= -1) {
+            if (prepare_zeromap(&heapptr->heap_limit,&heapptr->heap_hardlimit,true) <0)
+              return -1;
+          }
+        }
+      }
+      /* Set symbol_tab, subr_tab to address SINGLEMAP_ADDRESS_BASE:
+         (for this purpose case_symbolflagged must be equivalent to case_symbol!) */
+      #define map_tab(tab,size)                                                \
+        do { var uintM map_len = round_up(size,map_pagesize);                  \
+             if ( zeromap(&tab,map_len) <0) return -1;                         \
+             mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
+        } while(0)
+      map_tab(symbol_tab,sizeof(symbol_tab));
+      map_tab(subr_tab,varobjects_misaligned+total_subr_count*sizeof(subr_t));
     #endif
     #ifdef TRIVIALMAP_MEMORY
      /* Initialize all heaps as empty.
@@ -3300,8 +3327,14 @@ local inline int init_memory (struct argv_initparams *p) {
       var uintM map_len = round_up(memneed * teile_STACK/teile, map_pagesize);
       /* The stack occupies the interval between 0 and map_len
        for typecode = system_type: */
-      var aint low = (aint)type_zero_oint(system_type);
+      var aint low = (aint)(type_zero_oint(system_type)+SINGLEMAP_ADDRESS_BASE);
       var aint high = low + map_len;
+     #ifndef IGNORE_MAPPABLE_ADDRESS_RANGE
+      if (!(low >= MAPPABLE_ADDRESS_RANGE_START && high-1 <= MAPPABLE_ADDRESS_RANGE_END)) {
+        fprint(stderr,"Invalid values of SINGLEMAP_ADDRESS_BASE and oint_type_shift: STACK area does not lie in MAPPABLE_ADDRESS_RANGE.\n");
+        return -1;
+      }
+     #endif
       if ( prepare_zeromap(&low,&high,true) <0) return -1;
       if ( zeromap((void*)low,map_len) <0) return -1;
      #ifdef STACK_DOWN
