@@ -143,8 +143,17 @@ local char* my_realpath (const char* path, char* resolved_path) {
              (it returns -1,ENOENT or -1,EIO).
              So check for a directory first. */
             var struct stat statbuf;
-            if (lstat(resolved_path,&statbuf) < 0)
-              return NULL; /* error */
+            if (lstat(resolved_path,&statbuf) < 0) {
+              /* We know that /dev/fd on Cygwin is a symlink to /proc/self/fd,
+                 but the lstat() function does not know it: it returns -1,ENOENT.
+                 Override this behaviour. */
+              if (asciz_equal(resolved_path,"/dev/fd")) {
+                statbuf.st_mode = S_IFLNK | (S_IRUSR | S_IWUSR | S_IXUSR);
+              } else {
+                /* Error. */
+                return NULL;
+              }
+            }
             if (S_ISDIR(statbuf.st_mode)) {
               /* directory, not a symbolic link */
               to_ptr[-1] = '/'; /* insert the '/' again */
@@ -155,8 +164,17 @@ local char* my_realpath (const char* path, char* resolved_path) {
             } else
             #endif
               {
-                var int linklen =
-                  readlink(resolved_path,mypath,sizeof(mypath)-1);
+                var int linklen;
+                #ifdef UNIX_CYGWIN
+                /* We know that /dev/fd on Cygwin is a symlink to /proc/self/fd,
+                   but the readlink() function does not know it. */
+                if (asciz_equal(resolved_path,"/dev/fd")) {
+                  memcpy(mypath,"/proc/self/fd",13); linklen = 13;
+                } else
+                #endif
+                {
+                  linklen = readlink(resolved_path,mypath,sizeof(mypath)-1);
+                }
                 if (linklen >=0) { /* was a symbolic link */
                   if (++symlinkcount > MAXSYMLINKS) {
                     errno = ELOOP; return NULL;
@@ -5391,6 +5409,8 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
     }
     --*allowed_links; /* after that, one link less is allowed */
     var uintL linklen = fs->fs_stat.st_size; /* presumed length of the link-content */
+    /* Use a minimum linklen, in order to speed up things when linklen == 0. */
+    if (linklen < 64) { linklen = 64; }
    retry_readlink: {
       var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
       /* read link-content: */

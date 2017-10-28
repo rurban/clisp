@@ -1,5 +1,11 @@
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
+	Make (truename "/dev/fd/1") work on Cygwin.
+	* pathname.d (my_realpath): Add special treatment of /dev/fd on Cygwin.
+	(get_path_info): Optimize number of readlink() calls.
+
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix endless loop in TRUENAME on Cygwin (regression from 2017-03-14).
 	* pathname.d (get_path_info): When retrying readlink(), choose a buffer
 	size that is greater than the previous one.
