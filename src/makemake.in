@@ -1028,7 +1028,14 @@ fi
 # LN_S = command for copying read-only files
 if [ $H_DOS = "true" ] ; then
   LN_S='copy'
-# else see above
+else
+  # Set by configure, above.
+  # On mingw in the Cygwin environment, the built native Windows programs don't
+  # understand the symlinks created by Cygwin's 'ln -s'. Therefore avoid
+  # creating such symlinks.
+  case "$host_os" in
+    mingw*) LN_S=${LN-ln} ;;
+  esac
 fi
 
 # LN_HARD = command for copying files, saving disk space if possible

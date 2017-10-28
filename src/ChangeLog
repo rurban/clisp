@@ -1,5 +1,11 @@
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
+	Don't use symbolic links when building for native Windows.
+	* makemake.in (LN_S): For native Windows, ignore the autoconfigured
+	value.
+
+2017-10-28  Bruno Haible  <bruno@clisp.org>
+
 	Don't assume that (truename (make-stream :output)) works on Windows.
 	* makemake.in (check-script): Don't run unportable test on native
 	Windows.
