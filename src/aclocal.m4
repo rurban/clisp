@@ -29663,6 +29663,7 @@ AC_PREREQ([2.57])
 
 AC_DEFUN([CL_TCPCONN],
 [
+  AC_REQUIRE([gl_SOCKETLIB]) dnl sets LIBSOCKET
   CL_COMPILE_CHECK([IPv4 sockets], [cl_cv_socket_ipv4],
     [#include <sys/types.h>
      #include <sys/socket.h>
@@ -29687,7 +29688,10 @@ AC_DEFUN([CL_TCPCONN],
        AC_DEFINE([HAVE_IPV6])
       ])
   fi
+  cl_save_LIBS="$LIBS"
+  LIBS="$LIBS $LIBSOCKET"
   AC_CHECK_FUNCS([setsockopt getsockopt])
+  LIBS="$cl_save_LIBS"
   AC_CHECK_HEADERS([netinet/tcp.h],,,
     dnl AIX 4 requires <netinet/in.h> to be included before <netinet/tcp.h>.
     [#if HAVE_NETINET_IN_H

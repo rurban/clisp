@@ -3483,6 +3483,9 @@ local void clear_tty_input (Handle handle) {
 #elif defined(UNIX_AIX)
   /* ioctl() on /dev/null produces ENODEV. */
   #define IS_EINVAL_EXTRA  ((errno==ENODEV))
+#elif defined(UNIX_HAIKU)
+  /* ioctl() on /dev/null produces EPERM. */
+  #define IS_EINVAL_EXTRA  ((errno==EPERM))
 #else
   #define IS_EINVAL_EXTRA  0
 #endif
@@ -14779,7 +14782,7 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
  can trigger GC */
 local maygc object handle_pathname (Handle fd) {
   /* Most UNIX platforms have /dev/fd/[012] pseudo-files. */
- #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_HPUX))
+ #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_BEOS) || defined(UNIX_HAIKU))
   var char buf[20];
   begin_system_call();
   sprintf(buf,"/dev/fd/%d",fd);

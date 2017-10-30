@@ -157,7 +157,7 @@
  */
 
 /* this machine: WIN32 or GENERIC_UNIX */
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__)) && !defined(unix)
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__) || defined(__HAIKU__)) && !defined(unix)
   #define unix
 #endif
 #if defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
@@ -326,6 +326,9 @@
   #ifdef __BEOS__
     #define UNIX_BEOS  /* BeOS (UNIXlike) */
   #endif
+  #ifdef __HAIKU__
+    #define UNIX_HAIKU  /* Haiku (a BeOS derivative) */
+  #endif
 #endif
 %% #ifdef WIN32_NATIVE
 %%   puts("#define WIN32_NATIVE");
@@ -412,7 +415,7 @@
    displays CP437, but we convert from ISO-8859-1 to CP437 in the
    low-level output routine full_write(). */
 #endif
-#ifdef UNIX_BEOS
+#if defined(UNIX_BEOS) || defined(UNIX_HAIKU)
   /* The default encoding on BeOS is UTF-8, not ISO 8859-1.
    If compiling with Unicode support, we use it. Else fall back to ASCII. */
   #undef ISOLATIN_CHS
@@ -713,8 +716,8 @@
   #if defined(M68K)
     #define STACK_register "a4" /* highest address register after sp=A7,fp=A6/A5 */
   #endif
-  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
-    /* On BeOS, everything is compiled as PIC, hence %ebx is already booked.
+  #if defined(I80386) && !(defined(UNIX_BEOS) || defined(UNIX_HAIKU)) && !defined(DYNAMIC_MODULES)
+    /* On BeOS and Haiku, everything is compiled as PIC, hence %ebx is already booked.
      If DYNAMIC_MODULES is defined, external modules are compiled as PIC,
      which is why %ebx is already in use. */
     #if (__GNUC__ >= 2) /* The register names have changed */
@@ -1066,7 +1069,7 @@
    _Noreturn        function that will never return (draft C1X)
    maygc            function that can trigger GC */
 #define global
-#define local  static
+/* #define local  static */ /* done below */
 /* #define extern extern */
 #ifdef __cplusplus
   #define extern_C  extern "C"
@@ -1120,6 +1123,11 @@
 #include <errno.h>
 #include <string.h> /* declares strlen() et al */
 #include <noreturn.h>      /* defines _GL_NORETURN_FUNC, _GL_NORETURN_FUNCPTR */
+
+/* Storage-Class-Specifier for identifiers only visible in the file. */
+/* Can't define this earlier, because <sys/types.h> on Haiku uses the
+   identifier 'local'. */
+#define local static
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
@@ -2515,6 +2523,23 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
   #endif
+  #if defined(UNIX_HAIKU) && defined(I80386)
+    /* On Haiku/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL ... 0x02000000UL
+       MALLOC_ADDRESS_RANGE = 0x18000000UL ... 0x19000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL ... 0x02000000UL
+       STACK_ADDRESS_RANGE  = 0x70000000UL ... 0x73000000UL
+       There is room from 0x1A000000UL to 0x60000000UL, but let's keep some
+       distance. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x01000000UL || CODE_ADDRESS_RANGE == 0x02000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x03000000UL
+    #endif
+    #define MAPPABLE_ADDRESS_RANGE_START 0x20000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x5FFFFFFFUL
+  #endif
   #if defined(UNIX_CYGWIN) && defined(I80386)
     /* On Cygwin, running on Windows 10 (64-bit):
        CODE_ADDRESS_RANGE   = 0x00000000UL
@@ -3272,6 +3297,16 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
     #define IGNORE_MAPPABLE_ADDRESS_RANGE
     #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
+    #define SINGLEMAP_TYPE_MASK    0x3F000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 5+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
     #define SINGLEMAP_ADDRESS_BASE 0x80000000UL

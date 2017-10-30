@@ -5565,6 +5565,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term><constant>:BEOS</constant></term>
  <listitem><simpara>if &os; = &beos; (in that case &unix-k; is also present)
 </simpara></listitem></varlistentry>
+<varlistentry><term><constant>:HAIKU</constant></term>
+ <listitem><simpara>if &os; = &haiku; (in that case &unix-k; is also present)
+</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CYGWIN</constant></term>
  <listitem><simpara>if &clisp; is using the &cygwin; &unix; compatibility
   layer on top of &win32; (in that case &unix-k; is also present)
