@@ -1255,6 +1255,19 @@ if [ $XCC_GCC = true ] ; then
   fi
   XCC_GCC_VERSION=`LC_ALL=C $XCC -v 2>&1 | grep version | sed -n -e '$p' | sed -e 's/.*version //g' -e 's/gcc //'`
   # Assume gcc 2.95 or newer.
+  # Diagnostic flags:
+  # Syntax errors at identifiers that are produced by macro expansion
+  # (e.g. at 'local', which expands to 'static') are shown with the
+  # location of the macro only, in gcc 5.x at least, which is confusing.
+  # Use option '-no-integrated-cpp' to provide better syntax error reporting.
+  if [ "$XCC_BRAND" = gcc ] ; then
+    case "$XCC_GCC_VERSION" in
+      2.* | 3.* | 4.[0-7]*) ;;
+      *)
+        XCFLAGS=$XCFLAGS' -no-integrated-cpp'
+        ;;
+    esac
+  fi
   # Warnings flags:
   XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
   if [ $CC_CPLUSPLUS = false ] ; then
