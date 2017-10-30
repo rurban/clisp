@@ -149,11 +149,12 @@
 <!ENTITY amiga '<ulink url="http://www.amiga.org/"><emphasis role="platform">Amiga</emphasis></ulink>'>
 <!ENTITY ascii '<ulink url="https://en.wikipedia.org/wiki/ASCII"><emphasis role="platform">ASCII</emphasis></ulink>'>
 <!ENTITY atari '<ulink url="http://www.atari.org/"><emphasis role="platform">Atari</emphasis></ulink>'>
-<!ENTITY beos '<ulink url="https://www.haiku-os.org/"><emphasis role="platform">BeOS</emphasis></ulink>'>
+<!ENTITY beos '<ulink url="https://en.wikipedia.org/wiki/BeOS"><emphasis role="platform">BeOS</emphasis></ulink>'>
 <!ENTITY bsd '<ulink url="http://www.bsd.org/"><emphasis role="platform">*BSD</emphasis></ulink>'>
 <!ENTITY cygwin '<ulink url="http://cygwin.com/"><emphasis role="platform">Cygwin</emphasis></ulink>'>
 <!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="platform">DOS</emphasis></ulink>'>
 <!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
+<!ENTITY haiku '<ulink url="https://www.haiku-os.org/"><emphasis role="platform">Haiku</emphasis></ulink>'>
 <!ENTITY hurd '<ulink url="http://www.gnu.org/software/hurd/"><emphasis role="platform">Hurd</emphasis></ulink>'>
 <!ENTITY kde '<ulink url="http://www.kde.org/"><emphasis role="platform">KDE</emphasis></ulink>'>
 <!ENTITY linux '<ulink url="https://www.kernel.org/"><emphasis role="platform">Linux</emphasis></ulink>'>

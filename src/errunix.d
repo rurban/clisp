@@ -12,7 +12,7 @@ modexp _Noreturn void OS_error_arg (object etype, object arg);
   #define translate(string)  string
 #endif
 
-local void OS_error_internal (uintC errcode)
+local void OS_error_internal (int errcode)
 {
   /* start error message: */
  #ifdef UNIX
@@ -21,7 +21,7 @@ local void OS_error_internal (uintC errcode)
   write_errorstring(GETTEXT("POSIX library error "));
  #endif
   /* output errno: */
-  write_errorobject(fixnum(errcode));
+  write_errorobject(L_to_I(errcode));
   /* output the error-specific message: */
   var object code = ANSIC_error_code_converter(errcode);
   if (symbolp(code)) { /* known name? */
@@ -47,14 +47,14 @@ LISPFUNNF(strerror,1) {
   VALUES1(asciz_to_string(buffer,O(misc_encoding)));
 }
 global _Noreturn void OS_error (void) {
-  var uintC errcode; /* positive error number */
+  var int errcode; /* error number (can be negative on Haiku) */
   end_system_call(); /* just in case */
   begin_system_call();
   errcode = errno;
   errno = 0; /* reset for the next error */
   end_system_call();
   clr_break_sem_4(); /* no UNIX operation may be active */
-  pushSTACK(fixnum(errcode));
+  pushSTACK(L_to_I(errcode));
   begin_error(); /* start error message */
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     STACK_3 = S(os_error);
@@ -64,14 +64,14 @@ global _Noreturn void OS_error (void) {
 }
 #ifdef UNIX
 global _Noreturn void OS_error_arg (object etype, object arg) {
-  var uintC errcode; /* positive error number */
+  var int errcode; /* error number (can be negative on Haiku) */
   begin_system_call();
   errcode = errno;
   errno = 0; /* reset for the next error */
   end_system_call();
   clr_break_sem_4(); /* no UNIX operation may be active */
   pushSTACK(arg); /* *-ERROR slot */
-  pushSTACK(fixnum(errcode));
+  pushSTACK(L_to_I(errcode));
   begin_error(); /* start error message */
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     STACK_3 = etype;

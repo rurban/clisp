@@ -1,5 +1,29 @@
 2017-10-30  Bruno Haible  <bruno@clisp.org>
 
+	Add support for Haiku.
+	* lispbibl.d (unix): Define on Haiku.
+	(UNIX_HAIKU): New macro.
+	(UTF8_CHS): Define on Haiku.
+	(STACK_register): Treat Haiku like BeOS.
+	(local): Move definition down.
+	(MAPPABLE_ADDRESS_RANGE_*): Define for Haiku.
+	(SINGLEMAP_*): Define for Haiku.
+	* unix.d (ualarm): On Haiku, use past POSIX prototype.
+	* spvw.d (init_object_tab): Add :HAIKU to *features*.
+	* errunix.d (OS_error_internal): Change argument type to 'int', because
+	errno values are negative on Haiku.
+	(OS_error, OS_error_arg): Change type of 'errcode' to 'int'.
+	* stream.d (IS_EINVAL_EXTRA): On Haiku, include EPERM.
+	(handle_pathname): On BeOS and Haiku, return NIL.
+	* makemake.in (check-script): Don't run unportable test on BeOS and
+	Haiku.
+	* m4/tcpconn.m4 (CL_TCPCONN): Require gl_SOCKETLIB. Consider LIBSOCKET
+	when testing for setsockopt and getsockopt.
+	* aclocal.m4, src/configure: Regenerated.
+	* modules/rawsock/configure, modules/rawsock/config.h.in: Likewise.
+
+2017-10-30  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".

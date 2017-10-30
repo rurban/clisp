@@ -141,7 +141,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
   #define HAVE_UALARM
 #endif
 #ifdef HAVE_UALARM
-  #ifdef UNIX_CYGWIN
+  #if defined(UNIX_CYGWIN) || defined(UNIX_HAIKU)
     /* <sys/types.h>: typedef long useconds_t; */
     extern_C useconds_t ualarm (useconds_t value, useconds_t interval);
   #else
