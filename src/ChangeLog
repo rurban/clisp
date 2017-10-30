@@ -1,5 +1,24 @@
 2017-10-30  Bruno Haible  <bruno@clisp.org>
 
+	Fix socket operations on native Windows (regression from 2011-07-19).
+	Since we use the gnulib wrappers for socket operations, we must test
+	errno, not WSAGetLastError().
+	* win32aux.d (lowlevel_fd_read, fd_read, fd_write): Fix documentation.
+	(do_sock_read): Use errno, not WSAGetLastError().
+	(sock_read): Set errno, not WSAGetLastError().
+	(do_sock_write): Use errno, not WSAGetLastError().
+	(sock_write): Set errno, not WSAGetLastError().
+	* stream.d (fd_error_eof_p): Renamed from error_eof_p. Don't test
+	against WSAESHUTDOWN.
+	(low_read_array_unbuffered_handle, low_fill_buffered_handle): Update.
+	(CHECK_INTERRUPT): Test errno, not WSAGetLastError().
+	(sock_error_eof_p): New function.
+	(low_read_unbuffered_socket, low_listen_unbuffered_socket,
+	low_read_array_unbuffered_socket, low_fill_buffered_socket): Invoke
+	sock_error_eof_p instead of error_eof_p.
+
+2017-10-30  Bruno Haible  <bruno@clisp.org>
+
 	Add support for Haiku.
 	* lispbibl.d (unix): Define on Haiku.
 	(UNIX_HAIKU): New macro.

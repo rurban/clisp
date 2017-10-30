@@ -520,8 +520,9 @@ global int fd_read_wont_hang_p (HANDLE fd)
 
 /* A wrapper around ReadFile() that supports different perseverances.
    Return value like read().
-   When the return value is 0, it sets errno to indicate whether EOF has been
-   seen (ERROR_HANDLE_EOF) or whether it is not yet known (ERROR_IO_PENDING). */
+   When the return value is 0, it sets GetLastError() to indicate
+   whether EOF has been seen (ERROR_HANDLE_EOF) or
+   whether it is not yet known (ERROR_IO_PENDING). */
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
 local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
@@ -672,8 +673,9 @@ local inline int fd_write_will_hang_p (HANDLE fd)
 
 /* A wrapper around WriteFile() that supports different perseverances.
    Return value like write().
-   When the return value is 0, it sets errno to indicate whether EOWF has been
-   seen (ERROR_HANDLE_EOF) or whether it is not yet known (ERROR_IO_PENDING). */
+   When the return value is 0, it sets GetLastError() to indicate
+   whether EOWF has been seen (ERROR_HANDLE_EOF) or
+   whether it is not yet known (ERROR_IO_PENDING). */
 modexp ssize_t fd_write
 (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev) {
   if (nbyte == 0) {
@@ -801,8 +803,9 @@ local inline int sock_read_will_hang_p (int fd)
 
 /* A wrapper around recv() that supports different perseverances.
    Return value like read().
-   When the return value is 0, it sets errno to indicate whether EOF has been
-   seen (ENOENT) or whether it is not yet known (EAGAIN). */
+   When the return value is 0, it sets errno (not GetLastError()! not
+   WSAGetLastError()!) to indicate whether EOF has been seen (ENOENT) or
+   whether it is not yet known (EAGAIN). */
 /* Reading from a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
@@ -863,7 +866,7 @@ local DWORD WINAPI do_sock_read (LPVOID arg)
   params->retval = lowlevel_sock_read(params->fd,params->buf,params->nbyte,
                                       params->persev);
   if (params->retval <= 0)
-    params->errcode = WSAGetLastError();
+    params->errcode = errno;
   return 0;
 }
 global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
@@ -877,10 +880,10 @@ global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
   params.errcode = 0;
   if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
     if (params.retval <= 0)
-      WSASetLastError(params.errcode);
+      errno = params.errcode;
     return params.retval;
   } else {
-    WSASetLastError(WSAEINTR); return -1;
+    errno = EINTR; return -1;
   }
 }
 
@@ -912,8 +915,9 @@ local inline int sock_write_will_hang_p (int fd)
 
 /* A wrapper around send() that supports different perseverances.
    Return value like write().
-   When the return value is 0, it sets errno to indicate whether EOWF has been
-   seen (ENOENT) or whether it is not yet known (EAGAIN). */
+   When the return value is 0, it sets errno (not GetLastError()! not
+   WSAGetLastError()!) to indicate whether EOWF has been seen (ENOENT) or
+   whether it is not yet known (EAGAIN). */
 /* Writing to a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
@@ -974,7 +978,7 @@ local DWORD WINAPI do_sock_write (LPVOID arg)
   params->retval = lowlevel_sock_write(params->fd,params->buf,params->nbyte,
                                        params->persev);
   if (params->retval <= 0)
-    params->errcode = WSAGetLastError();
+    params->errcode = errno;
   return 0;
 }
 global int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t persev)
@@ -988,10 +992,10 @@ global int sock_write (SOCKET fd, const void* buf, size_t nbyte, perseverance_t 
   params.errcode = 0;
   if (DoInterruptible(&do_sock_write,(void*)&params,true)) {
     if (params.retval <= 0)
-      WSASetLastError(params.errcode);
+      errno = params.errcode;
     return params.retval;
   } else {
-    WSASetLastError(WSAEINTR); return -1;
+    errno = EINTR; return -1;
   }
 }
 
@@ -1022,10 +1026,10 @@ local DWORD WINAPI do_socket_wait (LPVOID arg) {
       }
       ANSIC_error();
     }
-      end_system_call();
-      if (ret != SOCKET_ERROR && ret != 0) /* success */
-        params->success = true;
-      return 0;
+    end_system_call();
+    if (ret != SOCKET_ERROR && ret != 0) /* success */
+      params->success = true;
+    return 0;
   }
 }
 
