@@ -1,5 +1,14 @@
 2017-10-30  Bruno Haible  <bruno@clisp.org>
 
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* aclocal.m4, src/configure: Regenerated.
+
+2017-10-30  Bruno Haible  <bruno@clisp.org>
+
 	Provide more understandable GCC diagnostics.
 	* makemake.in (XCFLAGS): For gcc >= 4.8, add '-no-integrated-cpp'.
 
