@@ -1,3 +1,8 @@
+2017-10-30  Bruno Haible  <bruno@clisp.org>
+
+	Provide more understandable GCC diagnostics.
+	* makemake.in (XCFLAGS): For gcc >= 4.8, add '-no-integrated-cpp'.
+
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
 	Make (truename "/dev/fd/1") work on Cygwin.
