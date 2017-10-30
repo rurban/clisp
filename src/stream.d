@@ -4983,13 +4983,13 @@ local maygc bool low_clear_input_unbuffered_handle (object stream) {
   return true;
 }
 
-/* return true if the last error indicated an EOF */
-local bool error_eof_p (void) {
+/* Return true if the last error from fd_read()/fd_write() indicates an EOF. */
+local bool fd_error_eof_p (void) {
   var bool ret = false;
   begin_system_call();
  #if defined(WIN32_NATIVE)
   var DWORD err = GetLastError();
-  if (err==ERROR_HANDLE_EOF || err==WSAESHUTDOWN)
+  if (err==ERROR_HANDLE_EOF)
     ret = true;
  #else
   if (errno==ENOENT) /* indicates EOF */
@@ -5031,7 +5031,7 @@ local maygc uintB* low_read_array_unbuffered_handle
    #endif
     OS_error();
   }
-  if (result==0 && error_eof_p())
+  if (result==0 && fd_error_eof_p())
     UnbufferedStream_status(stream) = -1;
   return byteptr+result;
 }
@@ -6164,7 +6164,7 @@ local maygc uintL low_fill_buffered_handle (object stream, perseverance_t persev
   unpin_varobject(BufferedStream_buffer(stream));
   if (result<0)               /* error occurred? */
     OS_filestream_error(stream);
-  if (result==0 && error_eof_p())
+  if (result==0 && fd_error_eof_p())
     BufferedStream_have_eof_p(stream) = true;
   return result;
 }
@@ -13232,28 +13232,47 @@ local void low_close_socket (object stream, object handle, uintB abort) {
   #define low_close_socket  low_close_handle
 #endif
 
-/* Input side
- ---------- */
-
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
 #ifdef WIN32_NATIVE
-  #define CHECK_INTERRUPT                                        \
-    if (WSAGetLastError()==WSAEINTR) /* Break by Ctrl-C ?*/      \
+  #define CHECK_INTERRUPT                       \
+    if (errno==EINTR) /* Break by Ctrl-C ?*/    \
       { end_system_call(); error_interrupt(); }
 #else
   #define CHECK_INTERRUPT
 #endif
 
-#define SYSCALL(result,call)                         \
-  do {                                               \
-    begin_system_call();                             \
-    begin_blocking_call();                           \
-    result = (call);                                 \
-    end_blocking_call();                             \
+#define SYSCALL(result,call)                          \
+  do {                                                \
+    begin_system_call();                              \
+    begin_blocking_call();                            \
+    result = (call);                                  \
+    end_blocking_call();                              \
     if (result<0) { CHECK_INTERRUPT; ANSIC_error(); } \
-    end_system_call();                               \
+    end_system_call();                                \
   } while(0)
+
+#endif
+
+/* Return true if the last error from sock_read()/sock_write() indicates an EOF. */
+local bool sock_error_eof_p (void) {
+  var bool ret = false;
+  begin_system_call();
+ #if defined(WIN32_NATIVE)
+  if (errno==ENOENT || errno==WSAESHUTDOWN) /* indicates EOF */
+    ret = true;
+ #else
+  if (errno==ENOENT) /* indicates EOF */
+    ret = true;
+ #endif
+  end_system_call();
+  return ret;
+}
+
+/* Input side
+ ---------- */
+
+#if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 
 local maygc sintL low_read_unbuffered_socket (object stream) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
@@ -13268,7 +13287,7 @@ local maygc sintL low_read_unbuffered_socket (object stream) {
   SYSCALL(result,sock_read(handle,&b,1,persev_full)); /* try to read a byte */
   stream = popSTACK();
   if (result==0) {
-    ASSERT(error_eof_p()); /* no byte available -> must be EOF */
+    ASSERT(sock_error_eof_p()); /* no byte available -> must be EOF */
     UnbufferedStream_status(stream) = -1; return -1;
   } else {
     return b;
@@ -13315,7 +13334,7 @@ local listen_t low_listen_unbuffered_socket (object stream) {
     }
     end_system_call();
     if (result==0) {
-      ASSERT(error_eof_p());
+      ASSERT(sock_error_eof_p());
       UnbufferedStream_status(stream) = -1; return LISTEN_EOF;
     } else {
       /* Stuff the read byte into the buffer, for next low_read call. */
@@ -13341,7 +13360,7 @@ local maygc uintB* low_read_array_unbuffered_socket
   pushSTACK(stream);
   SYSCALL(result,sock_read(handle,byteptr,len,persev));
   stream = popSTACK();
-  if (result==0 && error_eof_p())
+  if (result==0 && sock_error_eof_p())
     UnbufferedStream_status(stream) = -1;
   return byteptr+result;
 }
@@ -13593,7 +13612,7 @@ local maygc uintL low_fill_buffered_socket (object stream,
   SYSCALL(result,sock_read(handle,buff,strm_buffered_bufflen,persev));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
-  if (result==0 && error_eof_p())
+  if (result==0 && sock_error_eof_p())
     BufferedStream_have_eof_p(stream) = true;
   return result;
 }
@@ -13628,9 +13647,6 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
     error_unwritable(TheSubr(subr_self)->name,stream);
   }
 }
-
-#undef SYSCALL
-#undef CHECK_INTERRUPT
 
 #else
 
