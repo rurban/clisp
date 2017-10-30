@@ -6227,7 +6227,7 @@ dnl until we can assume autoconf 2.64 or newer.
 # this fallback is safe for all earlier autoconf versions.
 m4_define_default([AC_LANG_DEFINES_PROVIDED])
 
-# inet_ntop.m4 serial 19
+# inet_ntop.m4 serial 20
 dnl Copyright (C) 2005-2006, 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -6245,6 +6245,7 @@ AC_DEFUN([gl_FUNC_INET_NTOP],
   dnl Most platforms that provide inet_ntop define it in libc.
   dnl Solaris 8..10 provide inet_ntop in libnsl instead.
   dnl Solaris 2.6..7 provide inet_ntop in libresolv instead.
+  dnl Haiku provides it in -lnetwork.
   dnl Native Windows provides it in -lws2_32 instead, with a declaration in
   dnl <ws2tcpip.h>, and it uses stdcall calling convention, not cdecl
   dnl (hence we cannot use AC_CHECK_FUNCS, AC_SEARCH_LIBS to find it).
@@ -6264,7 +6265,7 @@ AC_DEFUN([gl_FUNC_INET_NTOP],
     fi
   else
     gl_save_LIBS=$LIBS
-    AC_SEARCH_LIBS([inet_ntop], [nsl resolv], [],
+    AC_SEARCH_LIBS([inet_ntop], [nsl resolv network], [],
       [AC_CHECK_FUNCS([inet_ntop])
        if test $ac_cv_func_inet_ntop = no; then
          HAVE_INET_NTOP=0
@@ -6296,7 +6297,7 @@ AC_DEFUN([gl_PREREQ_INET_NTOP], [
   AC_REQUIRE([gl_SOCKET_FAMILIES])
 ])
 
-# inet_pton.m4 serial 17
+# inet_pton.m4 serial 18
 dnl Copyright (C) 2006, 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -6314,6 +6315,7 @@ AC_DEFUN([gl_FUNC_INET_PTON],
   dnl Most platforms that provide inet_pton define it in libc.
   dnl Solaris 8..10 provide inet_pton in libnsl instead.
   dnl Solaris 2.6..7 provide inet_pton in libresolv instead.
+  dnl Haiku provides it in -lnetwork.
   dnl Native Windows provides it in -lws2_32 instead, with a declaration in
   dnl <ws2tcpip.h>, and it uses stdcall calling convention, not cdecl
   dnl (hence we cannot use AC_CHECK_FUNCS, AC_SEARCH_LIBS to find it).
@@ -6333,7 +6335,7 @@ AC_DEFUN([gl_FUNC_INET_PTON],
     fi
   else
     gl_save_LIBS=$LIBS
-    AC_SEARCH_LIBS([inet_pton], [nsl resolv], [],
+    AC_SEARCH_LIBS([inet_pton], [nsl resolv network], [],
       [AC_CHECK_FUNCS([inet_pton])
        if test $ac_cv_func_inet_pton = no; then
          HAVE_INET_PTON=0
@@ -6422,7 +6424,7 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
-# ioctl.m4 serial 4
+# ioctl.m4 serial 5
 dnl Copyright (C) 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -6447,7 +6449,10 @@ AC_DEFUN([gl_FUNC_IOCTL],
       [gl_cv_func_ioctl_posix_signature],
       [AC_COMPILE_IFELSE(
          [AC_LANG_PROGRAM(
-            [[#include <sys/ioctl.h>]],
+            [[#include <sys/ioctl.h>
+              /* On some platforms, ioctl() is declared in <unistd.h>.  */
+              #include <unistd.h>
+            ]],
             [[extern
               #ifdef __cplusplus
               "C"
@@ -8241,7 +8246,7 @@ AC_DEFUN([gl_LOCALCHARSET],
   AC_REQUIRE([gl_GLIBC21])
 ])
 
-# locale-fr.m4 serial 17
+# locale-fr.m4 serial 18
 dnl Copyright (C) 2003, 2005-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8267,8 +8272,14 @@ changequote(,)dnl
 struct tm t;
 char buf[16];
 int main () {
+  /* On BeOS and Haiku, locales are not implemented in libc.  Rather, libintl
+     imitates locale dependent behaviour by looking at the environment
+     variables, and all locales use the UTF-8 encoding.  */
+#if defined __BEOS__ || defined __HAIKU__
+  return 1;
+#else
   /* Check whether the given locale name is recognized by the system.  */
-#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
   /* On native Windows, setlocale(category, "") looks at the system settings,
      not at the environment variables.  Also, when an encoding suffix such
      as ".65001" or ".54936" is specified, it succeeds but sets the LC_CTYPE
@@ -8276,9 +8287,9 @@ int main () {
   if (setlocale (LC_ALL, getenv ("LC_ALL")) == NULL
       || strcmp (setlocale (LC_CTYPE, NULL), "C") == 0)
     return 1;
-#else
+# else
   if (setlocale (LC_ALL, "") == NULL) return 1;
-#endif
+# endif
   /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
      On Mac OS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
      is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
@@ -8287,32 +8298,33 @@ int main () {
      some unit tests fail.
      On MirBSD 10, when an unsupported locale is specified, setlocale()
      succeeds but then nl_langinfo(CODESET) is "UTF-8".  */
-#if HAVE_LANGINFO_CODESET
+# if HAVE_LANGINFO_CODESET
   {
     const char *cs = nl_langinfo (CODESET);
     if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0
         || strcmp (cs, "UTF-8") == 0)
       return 1;
   }
-#endif
-#ifdef __CYGWIN__
+# endif
+# ifdef __CYGWIN__
   /* On Cygwin, avoid locale names without encoding suffix, because the
      locale_charset() function relies on the encoding suffix.  Note that
      LC_ALL is set on the command line.  */
   if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
-#endif
+# endif
   /* Check whether in the abbreviation of the second month, the second
      character (should be U+00E9: LATIN SMALL LETTER E WITH ACUTE) is only
      one byte long. This excludes the UTF-8 encoding.  */
   t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
   if (strftime (buf, sizeof (buf), "%b", &t) < 3 || buf[2] != 'v') return 1;
-#if !defined __BIONIC__ /* Bionic libc's 'struct lconv' is just a dummy.  */
+# if !defined __BIONIC__ /* Bionic libc's 'struct lconv' is just a dummy.  */
   /* Check whether the decimal separator is a comma.
      On NetBSD 3.0 in the fr_FR.ISO8859-1 locale, localeconv()->decimal_point
      are nl_langinfo(RADIXCHAR) are both ".".  */
   if (localeconv () ->decimal_point[0] != ',') return 1;
-#endif
+# endif
   return 0;
+#endif
 }
 changequote([,])dnl
       ])])
@@ -8492,7 +8504,7 @@ changequote([,])dnl
   AC_SUBST([LOCALE_FR_UTF8])
 ])
 
-# locale-ja.m4 serial 12
+# locale-ja.m4 serial 13
 dnl Copyright (C) 2003, 2005-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8519,9 +8531,14 @@ struct tm t;
 char buf[16];
 int main ()
 {
-  const char *p;
+  /* On BeOS and Haiku, locales are not implemented in libc.  Rather, libintl
+     imitates locale dependent behaviour by looking at the environment
+     variables, and all locales use the UTF-8 encoding.  */
+#if defined __BEOS__ || defined __HAIKU__
+  return 1;
+#else
   /* Check whether the given locale name is recognized by the system.  */
-#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
   /* On native Windows, setlocale(category, "") looks at the system settings,
      not at the environment variables.  Also, when an encoding suffix such
      as ".65001" or ".54936" is specified, it succeeds but sets the LC_CTYPE
@@ -8529,9 +8546,9 @@ int main ()
   if (setlocale (LC_ALL, getenv ("LC_ALL")) == NULL
       || strcmp (setlocale (LC_CTYPE, NULL), "C") == 0)
     return 1;
-#else
+# else
   if (setlocale (LC_ALL, "") == NULL) return 1;
-#endif
+# endif
   /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
      On Mac OS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
      is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
@@ -8540,32 +8557,36 @@ int main ()
      some unit tests fail.
      On MirBSD 10, when an unsupported locale is specified, setlocale()
      succeeds but then nl_langinfo(CODESET) is "UTF-8".  */
-#if HAVE_LANGINFO_CODESET
+# if HAVE_LANGINFO_CODESET
   {
     const char *cs = nl_langinfo (CODESET);
     if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0
         || strcmp (cs, "UTF-8") == 0)
       return 1;
   }
-#endif
-#ifdef __CYGWIN__
+# endif
+# ifdef __CYGWIN__
   /* On Cygwin, avoid locale names without encoding suffix, because the
      locale_charset() function relies on the encoding suffix.  Note that
      LC_ALL is set on the command line.  */
   if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
-#endif
+# endif
   /* Check whether MB_CUR_MAX is > 1.  This excludes the dysfunctional locales
      on Cygwin 1.5.x.  */
   if (MB_CUR_MAX == 1)
     return 1;
   /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
      This excludes the UTF-8 encoding (except on MirBSD).  */
-  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
-  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
-  for (p = buf; *p != '\0'; p++)
-    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
-      return 1;
+  {
+    const char *p;
+    t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+    if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+    for (p = buf; *p != '\0'; p++)
+      if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+        return 1;
+  }
   return 0;
+#endif
 }
 changequote([,])dnl
       ])])
@@ -8629,7 +8650,7 @@ changequote([,])dnl
   AC_SUBST([LOCALE_JA])
 ])
 
-# locale-zh.m4 serial 12
+# locale-zh.m4 serial 13
 dnl Copyright (C) 2003, 2005-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -8657,9 +8678,14 @@ struct tm t;
 char buf[16];
 int main ()
 {
-  const char *p;
+  /* On BeOS and Haiku, locales are not implemented in libc.  Rather, libintl
+     imitates locale dependent behaviour by looking at the environment
+     variables, and all locales use the UTF-8 encoding.  */
+#if defined __BEOS__ || defined __HAIKU__
+  return 1;
+#else
   /* Check whether the given locale name is recognized by the system.  */
-#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
   /* On native Windows, setlocale(category, "") looks at the system settings,
      not at the environment variables.  Also, when an encoding suffix such
      as ".65001" or ".54936" is specified, it succeeds but sets the LC_CTYPE
@@ -8667,9 +8693,9 @@ int main ()
   if (setlocale (LC_ALL, getenv ("LC_ALL")) == NULL
       || strcmp (setlocale (LC_CTYPE, NULL), "C") == 0)
     return 1;
-#else
+# else
   if (setlocale (LC_ALL, "") == NULL) return 1;
-#endif
+# endif
   /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
      On Mac OS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
      is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
@@ -8678,32 +8704,36 @@ int main ()
      some unit tests fail.
      On MirBSD 10, when an unsupported locale is specified, setlocale()
      succeeds but then nl_langinfo(CODESET) is "UTF-8".  */
-#if HAVE_LANGINFO_CODESET
+# if HAVE_LANGINFO_CODESET
   {
     const char *cs = nl_langinfo (CODESET);
     if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0
         || strcmp (cs, "UTF-8") == 0)
       return 1;
   }
-#endif
-#ifdef __CYGWIN__
+# endif
+# ifdef __CYGWIN__
   /* On Cygwin, avoid locale names without encoding suffix, because the
      locale_charset() function relies on the encoding suffix.  Note that
      LC_ALL is set on the command line.  */
   if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
-#endif
+# endif
   /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
      This excludes the UTF-8 encoding (except on MirBSD).  */
-  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
-  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
-  for (p = buf; *p != '\0'; p++)
-    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
-      return 1;
+  {
+    const char *p;
+    t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+    if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+    for (p = buf; *p != '\0'; p++)
+      if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+        return 1;
+  }
   /* Check whether a typical GB18030 multibyte sequence is recognized as a
      single wide character.  This excludes the GB2312 and GBK encodings.  */
   if (mblen ("\203\062\332\066", 5) != 4)
     return 1;
   return 0;
+#endif
 }
 changequote([,])dnl
       ])])
