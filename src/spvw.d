@@ -2990,6 +2990,37 @@ local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_compile_files);
 }
 
+/* Compute the set of bits used by the interval [start,end]. */
+local uintP bits_used_by_range (uintP start, uintP end) {
+  /* If start < end, it goes like this:
+     Split start and end (as bit sequences) into a common part
+     (the longest common sequence of bits) and the first bit that differs.
+     Then the result is
+       the common part, OR that different bit, OR all lower bits.
+     For example:
+             start = 0001001 011000000
+             end   = 0001001 101011111
+     => range_mask = 0001001 111111111
+     because    x1 = 0001001 011111111
+     and        x2 = 0001001 100000000
+     are consecutive numbers in the range (start <= x1 < x2 <= end)
+     with x1 | x2 = range_mask.
+     The resulting code is symmetric in start <--> end, therefore works
+     also when start > end. */
+  var uintP diff = start ^ end;
+  diff |= diff >> 1;
+  diff |= diff >> 2;
+  diff |= diff >> 4;
+  diff |= diff >> 8;
+  diff |= diff >> 16;
+  #if (pointer_bitsize > 32)
+  diff |= diff >> 32;
+  #endif
+  var uintP range_bits = start | diff;
+  ASSERT(range_bits == (end | diff));
+  return range_bits;
+}
+
 /* Initialize memory and load the specified memory image.
  Returns 0 if successful, -1 upon error (after printing an error message
  to stderr). */
@@ -3242,34 +3273,8 @@ local inline int init_memory (struct argv_initparams *p) {
         }
       }
      #else /* TYPECODES */
-      /* Compute the set of bits used by the interval [start,end].
-         It goes like this: Split start and end (as bit sequences)
-         into a common part (the longest common sequence of bits)
-         and the first bit that differs. Then the result is
-         the common part, OR that different bit, OR all lower bits.
-         For example:
-                 start = 0001001 011000000
-                 end   = 0001001 101011111
-         => range_mask = 0001001 111111111
-         because    x1 = 0001001 011111111
-         and        x2 = 0001001 100000000
-         are consecutive numbers in the range (start <= x1 < x2 <= end)
-         with x1 | x2 = range_mask. */
-      var uintP range_mask;
-      {
-        var uintP diff = start ^ end;
-        diff |= diff >> 1;
-        diff |= diff >> 2;
-        diff |= diff >> 4;
-        diff |= diff >> 8;
-        diff |= diff >> 16;
-        #if (pointer_bitsize > 32)
-        diff |= diff >> 32;
-        #endif
-        range_mask = start | diff;
-        ASSERT(range_mask == (end | diff));
-      }
       /* Verify that the interval [start,end] is covered by oint_addr_mask. */
+      var uintP range_mask = bits_used_by_range(start,end);
       if ((range_mask & ~(oint_addr_mask>>oint_addr_shift)) != 0) {
         fprintf(stderr,"Wrong choice of oint_addr_mask: %p. It is not consistent with MAPPABLE_ADDRESS_RANGE's bits: %p.\n",
                 (void*)(uintP)(oint_addr_mask>>oint_addr_shift),(void*)range_mask);
@@ -3455,6 +3460,36 @@ local inline int init_memory (struct argv_initparams *p) {
         mem.used_space = 0;
         mem.last_gcend_space = 0;
         mem.gctrigger_space = 0;
+        #endif
+        /* Verify that the range used for STACK is adequate.
+           Pointers into the stack are
+             (1) used as Lisp objects, via make_framepointer, and stored e.g.
+                 in aktenv.var_env,
+             (2) taken from there, they are also stored in the STACK (in
+                 variable-binding frames), see e.g. make_variable_frame.
+           Therefore:
+             - because of (2), the frame_bit_o (= garcol_bit_o) must be zero
+               in STACK pointers, and
+             - because of (1), in TYPECODES model, the typecode must be
+               system_type.
+           This verification must be consistent with the implementation of
+           make_framepointer! */
+        #if !defined(SINGLEMAP_MEMORY_STACK)
+         var uintP STACK_range_mask = bits_used_by_range((uintP)STACK,(uintP)STACK_bound);
+         #if defined(TYPECODES) && !defined(WIDE_SOFT)
+         if ((((oint)(STACK_range_mask >> addr_shift) << oint_addr_shift) & oint_type_mask) != 0) {
+           fprintf(stderr,"STACK range (around %p) contains some bits that are reserved as type bits (bit mask %p).\n",
+                   (void*)STACK,(void*)((oint_type_mask >> oint_addr_shift) << addr_shift));
+           return -1;
+         }
+         #endif
+         #if (frame_bit_o >= 8)
+         if ((((oint)(STACK_range_mask >> addr_shift) << oint_addr_shift) & wbit(frame_bit_o)) != 0) {
+           fprintf(stderr,"STACK range (around %p) contains the bit used to identify frames (bit %d).\n",
+                   (void*)STACK,(int)(frame_bit_o-oint_addr_shift+addr_shift));
+           return -1;
+         }
+         #endif
         #endif
         /* initialize stack: */
         pushSTACK(nullobj); pushSTACK(nullobj); /* two nullpointer as STACK end marker */
