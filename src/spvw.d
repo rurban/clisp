@@ -3135,7 +3135,7 @@ local inline int init_memory (struct argv_initparams *p) {
     if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
     VAROUT(memneed);
    #endif
-   #if defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK)
+   #if (defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK)) || (defined(TRIVIALMAP_MEMORY) && defined(TRIVIALMAP_MEMORY_STACK))
     /* No need to call mymalloc at all. */
     memblock = 0;
    #else
@@ -3290,6 +3290,36 @@ local inline int init_memory (struct argv_initparams *p) {
        fprintf(stderr,"Misaligned MAPPABLE_ADDRESS_RANGE_END: %p\n",(void*)end);
        return -1;
      }
+     #ifdef TRIVIALMAP_MEMORY_STACK
+      /* Allocate at most 1/8, but at most 100000 words, for the STACK. */
+      {
+        var uintP size_for_STACK = (end - start) / 8;
+        if (size_for_STACK > 100000*sizeof(gcv_object_t)) {
+          size_for_STACK = 100000*sizeof(gcv_object_t);
+        }
+        size_for_STACK &= ~(uintP)0xFFFF; /* start must remain a multiple of physpagesize */
+        var aint low = start;
+        start += size_for_STACK;
+        var aint high = start;
+        if ( prepare_zeromap(&low,&high,true) <0) return -1;
+        if ( zeromap((void*)low,size_for_STACK) <0) return -1;
+       #ifdef STACK_DOWN
+        STACK_bound = (gcv_object_t*)low + 0x40; /* 64 pointers additionally safety margin */
+        setSTACK(STACK = (gcv_object_t*)high);   /* initialize STACK */
+       #endif
+       #ifdef STACK_UP
+        setSTACK(STACK = (gcv_object_t*)low); /* initialize STACK */
+        STACK_bound = (gcv_object_t*)high - 0x40; /* 64 pointers additionally safety margin */
+        #endif
+        STACK_start = STACK;
+      }
+      #undef teile_STACK
+      #define teile_STACK 0       /* need no more room for the STACK */
+      #if (teile==0)
+       #undef teile
+       #define teile 1            /* avoid division by 0 */
+      #endif
+     #endif
      #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
       mem.heaps[0].heap_limit = start;
       mem.heaps[1].heap_limit = end+1;
@@ -3398,7 +3428,7 @@ local inline int init_memory (struct argv_initparams *p) {
             }
           #endif
         /* allocate STACK: */
-        #ifdef SINGLEMAP_MEMORY_STACK
+        #if defined(SINGLEMAP_MEMORY_STACK) || defined(TRIVIALMAP_MEMORY_STACK)
         for_STACK = 0;       /* STACK is already allocated elsewhere. */
         #else
         #ifdef STACK_DOWN
@@ -3483,7 +3513,7 @@ local inline int init_memory (struct argv_initparams *p) {
            return -1;
          }
          #endif
-         #if (frame_bit_o >= 8)
+         #if (frame_bit_o >= 16)
          if ((((oint)(STACK_range_mask >> addr_shift) << oint_addr_shift) & wbit(frame_bit_o)) != 0) {
            fprintf(stderr,"STACK range (around %p) contains the bit used to identify frames (bit %d).\n",
                    (void*)STACK,(int)(frame_bit_o-oint_addr_shift+addr_shift));

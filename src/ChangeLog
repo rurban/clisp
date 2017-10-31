@@ -1,3 +1,12 @@
+2017-10-31  Bruno Haible  <bruno@clisp.org>
+
+	Apply TRIVIALMAP's memory allocation also to the STACK area.
+	* lispbibl.d (TRIVIALMAP_MEMORY_STACK): New macro. When it is defined,
+	don't check oint_addr_mask against MALLOC_ADDRESS_RANGE.
+	* spvw.d (init_memory) [TRIVIALMAP_MEMORY_STACK]: Allocate the stack
+	range in [MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END],
+	rather than through mymalloc.
+
 2017-10-30  Bruno Haible  <bruno@clisp.org>
 
 	Add early detection of a problem that would lead to crashes later.
