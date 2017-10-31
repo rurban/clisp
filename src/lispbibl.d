@@ -91,8 +91,9 @@
        Depending on these, there is an automatic determination of
        - SPVW_BLOCKS vs. SPVW_PAGES,
        - SPVW_MIXED vs. SPVW_PURE,
-       - MAP_MEMORY_TABLES.
-       - SINGLEMAP_MEMORY_STACK.
+       - MAP_MEMORY_TABLES,
+       - SINGLEMAP_MEMORY_STACK,
+       - TRIVIALMAP_MEMORY_STACK.
 
      Flags that determine the GC algorithm:
        Whether to use generational GC (quite advanced fiddling with memory page
@@ -5708,6 +5709,13 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define SINGLEMAP_MEMORY_STACK
 #endif
 
+#if defined(TRIVIALMAP_MEMORY) && 1
+  /* The STACK region is allocated through mmap() or similar.
+     This makes it possible to control the bits that are set in a STACK pointer
+     and avoid collisions with frame_bit_o and (if TYPECODES) the type bits. */
+  #define TRIVIALMAP_MEMORY_STACK
+#endif
+
 
 /* Verify the oint_addr_shift value w.r.t. the autoconfigured CODE_ADDRESS_RANGE
    and MALLOC_ADDRESS_RANGE values. */
@@ -5722,10 +5730,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   /* The MALLOC_ADDRESS_RANGE needs to be checked because
      1) if !defined(SINGLEMAP_MEMORY) && !defined(TRIVIALMAP_MEMORY),
         Lisp objects reside in memory allocated through mymalloc,
-     2) if !defined(SINGLEMAP_MEMORY_STACK), the STACK is allocated through
-        mymalloc, and pointers into the STACK occur in frames (cf. macro
-        framebottomword) and in environments (cf. type environment_t). */
-  #if !(defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK))
+     2) if !defined(SINGLEMAP_MEMORY_STACK) && !defined(TRIVIALMAP_MEMORY_STACK),
+        the STACK is allocated through mymalloc, and pointers into the STACK
+        occur in frames (cf. macro framebottomword and function make_variable_frame)
+        and in environments (cf. type environment_t). */
+  #if !((defined(SINGLEMAP_MEMORY) && defined(SINGLEMAP_MEMORY_STACK)) \
+        || (defined(TRIVIALMAP_MEMORY) && defined(TRIVIALMAP_MEMORY_STACK)))
     #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
        #error oint_addr_mask does not cover MALLOC_ADDRESS_RANGE !!
     #endif
