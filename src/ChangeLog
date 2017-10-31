@@ -1,5 +1,12 @@
 2017-10-30  Bruno Haible  <bruno@clisp.org>
 
+	Add early detection of a problem that would lead to crashes later.
+	Seen on Linux/sparc64.
+	* spvw.d (bits_used_by_range): New function.
+	(init_memory): Verify that the range used for STACK is adequate.
+
+2017-10-30  Bruno Haible  <bruno@clisp.org>
+
 	Fix socket operations on native Windows (regression from 2011-07-19).
 	Since we use the gnulib wrappers for socket operations, we must test
 	errno, not WSAGetLastError().
