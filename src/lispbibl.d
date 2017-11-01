@@ -4653,7 +4653,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
         #endif
       #endif
       #define fast_mtypecode
-    #else /* no optimization is possible */
+    #endif
+    #ifndef mtypecode
+      /* no optimization is possible */
+      #undef fast_mtypecode
       #define mtypecode(expr)  typecode(expr)
     #endif
   #endif
