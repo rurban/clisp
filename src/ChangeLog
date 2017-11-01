@@ -1,5 +1,11 @@
 2017-11-01  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure when oint_type_shift has an unusual value.
+	* lispbibl.d (mtypecode): Define a fallback when no optimized definition
+	is possible.
+
+2017-11-01  Bruno Haible  <bruno@clisp.org>
+
 	Fix small problem in 2017-10-28 change.
 	* lispbibl.d (oint_addr_mask): Make sure evaluation in preprocessor
 	directives produces the right value.
