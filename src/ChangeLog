@@ -1,3 +1,9 @@
+2017-11-01  Bruno Haible  <bruno@clisp.org>
+
+	Fix small problem in 2017-10-28 change.
+	* lispbibl.d (oint_addr_mask): Make sure evaluation in preprocessor
+	directives produces the right value.
+
 2017-10-31  Bruno Haible  <bruno@clisp.org>
 
 	Apply TRIVIALMAP's memory allocation also to the STACK area.
