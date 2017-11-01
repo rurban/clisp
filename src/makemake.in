@@ -1392,6 +1392,13 @@ else
   else
     XCFLAGS=${XCFLAGS}' -O'
   fi
+  case "$host_os" in
+    hpux*)
+      # HP's C compiler (HP C B.11.11.24 on hppa) crashes when compiling
+      # stream.d with -g. So remove -g if it was specified.
+      XCFLAGS=`echo " $XCFLAGS " | sed -e 's/ -g //' -e 's/^ *//' -e 's/ *$//'`
+      ;;
+  esac
   XCLFLAGS=''
   if [ $TSYS = sun4 ] ; then
     XCFLAGS=$XCFLAGS' -dalign'

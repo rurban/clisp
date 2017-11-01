@@ -1,5 +1,10 @@
 2017-11-01  Bruno Haible  <bruno@clisp.org>
 
+	Work around HP-UX cc crash.
+	* makemake.in (XCFLAGS): Remove '-g' if we are using HP-UX cc.
+
+2017-11-01  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when oint_type_shift has an unusual value.
 	* lispbibl.d (mtypecode): Define a fallback when no optimized definition
 	is possible.
