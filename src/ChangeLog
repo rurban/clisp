@@ -1,5 +1,11 @@
 2017-11-02  Bruno Haible  <bruno@clisp.org>
 
+	Skip a test that would request more space than available.
+	* tests/lists153.tst: Disable huge allocation tests on 32-bit platforms
+	with TYPECODES.
+
+2017-11-02  Bruno Haible  <bruno@clisp.org>
+
 	Fix a build failure with SINGLEMAP_MEMORY (regression from 2017-11-01).
 	Reported by Don Cohen.
 	* lispbibl.d (oint_addr_mask): Fix big mistake in expression.
