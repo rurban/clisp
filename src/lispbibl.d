@@ -4026,7 +4026,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_addr_shift 0
       #define oint_addr_len oint_type_shift
       /* Not just ~oint_type_mask, because evaluation in preprocessor directives uses intmax_t. */
-      #define oint_addr_mask (bitm(pointer_bitsize) & ~oint_type_mask)
+      #define oint_addr_mask ((bitm(pointer_bitsize)-1) & ~oint_type_mask)
       #define oint_data_shift oint_addr_shift
       #define oint_data_len oint_addr_len
       #define oint_data_mask ((1UL<<oint_data_len)-1)
