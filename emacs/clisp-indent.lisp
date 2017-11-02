@@ -96,8 +96,8 @@
   -
   "decrement")
 
-(define-modify-macro decf (x) -
-  "decrement")
+(define-modify-macro incf (x) +
+  "increment")
 
 (define-setf-expander subseq (seq start end)
   (compute-expansion))
@@ -124,13 +124,13 @@
                 (z t))
   (bar x y z))
 
-(defpackage regexp
-  (:nicknames re)
+(defpackage #:regexp
+  (:nicknames #:re)
   (:documentation
    "POSIX Regular Expressions - matching, compiling, executing.")
-  (:use lisp ffi)
-  (:export match match-start match-end match-string regexp-quote
-           regexp-compile regexp-exec regexp-split with-loop-split))
+  (:use #:lisp #:ffi)
+  (:export #:match #:match-start #:match-end #:match-string #:regexp-quote
+           #:regexp-compile #:regexp-exec #:regexp-split #:with-loop-split))
 
 (defparameter pi
   3.14
@@ -167,6 +167,7 @@
 (defun foo
        (&optional x
         &key y)
+  (list foo x y))
 
 (defvar pi
   3.14
@@ -225,6 +226,10 @@
           (count)
           nil)
   (form1))
+
+(do-something-interesting
+    (iterating this object)
+  (executing this code))
 
 (ecase foo
   ((T)
@@ -406,7 +411,7 @@
 
 (multiple-value-call #'%expand-cons (rest form)
   (second form) nil
-  (%expand-list (cddr form))
+  (%expand-list (cddr form)))
 
 (multiple-value-list
   (floor a b))
@@ -711,11 +716,17 @@
   (form1))
 
 (without-floating-point-underflow
-  (expt 10 x))
+    (expt 10 x))
+
+(with-some-new-context (binding
+                        this variable)
+  (execute)
+  (this)
+  (code))
 
 ;; Package SYSTEM
 constant-eql
-defformat-simple 
+defformat-simple
 ds-slot-default
 ds-slot-initer
 ds-slot-offset
@@ -723,7 +734,7 @@ ds-slot-readonly
 ds-slot-type
 formatter-bind-args
 formatter-bind-terminator
-formatter-bind-terminators 
+formatter-bind-terminators
 macro-expander
 memq
 multiple-value-setf
@@ -734,14 +745,38 @@ spd
 bitsizeof
 c-lines
 cast
-def-c-call-in
-def-c-call-out
-def-c-enum
-def-c-struct
-def-c-type
-def-c-var
-def-call-in
-def-call-out
+
+(def-c-enum perseverance
+  persev_full
+  persev_partial
+  persev_immediate
+  persev_bonus)
+
+(def-c-struct flock
+  (l_type short)
+  (l_whence short)
+  (l_start off_t)
+  (l_len off_t)
+  (l_pid pid_t))
+
+(def-c-type FILE
+  c-pointer)
+
+(def-c-var signgam
+  (:type int))
+
+(def-c-const EPERM
+  (:documentation "Operation not permitted"))
+
+(def-call-in write-string-to-libsvm-output (:arguments (s c-string))
+  (:name "libsvm_print_string")
+  (:return-type nil))
+
+(def-call-out fd-read
+    (:arguments (fd int) (buf (c-ptr (c-array-max char 4096)) :out :alloca)
+                (nbytes size_t) (persev perseverance))
+  (:return-type ssize_t) (:name "fd_read"))
+
 deref
 element
 sizeof
