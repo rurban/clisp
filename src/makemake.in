@@ -2984,12 +2984,14 @@ if [ $CROSS = false ] ; then
   # Check for decent behaviour when stdin is not readable
   # (cf. https://sourceforge.net/p/clisp/bugs/523/)
   case "$host_os" in
-    aix*)
-      # On AIX 7.1, inside 'make' or 'gmake', a command that has stdin with mode
-      # O_RDWR gets the current stdin or tty assigned to stdin instead. This
-      # would make the test hang. 'bash -c' is the workaround. Whereas 'sh -c'
-      # would not help.
-      echotab "bash -c '\$(RUN) -q -M lispinit.mem 0>/dev/null'"
+    aix* | irix*)
+      # On AIX 7.1 and IRIX 6.5, inside 'make' or 'gmake', a command that has
+      # stdin with mode O_RDWR gets the current stdin or tty assigned to stdin
+      # instead. This would make the test hang. 'bash -c' is the workaround.
+      # Whereas 'sh -c' would not help.
+      if type bash >/dev/null 2>/dev/null; then
+        echotab "bash -c '\$(RUN) -q -M lispinit.mem 0>/dev/null'"
+      fi
       ;;
     *)
       echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null"

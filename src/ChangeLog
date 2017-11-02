@@ -1,5 +1,11 @@
 2017-11-02  Bruno Haible  <bruno@clisp.org>
 
+	Fix a "make check" hang on IRIX.
+	* makemake.in (check-script): Work around the AIX peculiarity also on
+	IRIX.
+
+2017-11-02  Bruno Haible  <bruno@clisp.org>
+
 	Support building with 'gmake' instead of 'make'.
 	* configure (MAKE): New variable. Use it instead of hardcoding 'make'.
 	* Makefile.devel (MAKE): Remove variable. All common 'make' programs
