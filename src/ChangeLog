@@ -1,5 +1,11 @@
 2017-11-02  Bruno Haible  <bruno@clisp.org>
 
+	Avoid error on IRIX when stdout is a pipe (regression from 2016-11-11).
+	* stream.d (IS_EINVAL_EXTRA): Handle IRIX.
+	(finish_tty_output): Use IS_EINVAL instead of testing only for EINVAL.
+
+2017-11-02  Bruno Haible  <bruno@clisp.org>
+
 	Skip a test that would request more space than available.
 	* tests/lists153.tst: Disable huge allocation tests on 32-bit platforms
 	with TYPECODES.

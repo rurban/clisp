@@ -3483,6 +3483,9 @@ local void clear_tty_input (Handle handle) {
 #elif defined(UNIX_AIX)
   /* ioctl() on /dev/null produces ENODEV. */
   #define IS_EINVAL_EXTRA  ((errno==ENODEV))
+#elif defined(UNIX_IRIX)
+  /* ioctl() on stdout, when it is a pipe, produces ENOSYS. */
+  #define IS_EINVAL_EXTRA  ((errno==ENOSYS))
 #elif defined(UNIX_HAIKU)
   /* ioctl() on /dev/null produces EPERM. */
   #define IS_EINVAL_EXTRA  ((errno==EPERM))
@@ -3518,7 +3521,7 @@ local void finish_tty_output (Handle handle) {
     var struct termios term_parameters;
     if (!(   ( ioctl(handle,TCGETS,&term_parameters) ==0)
           && ( ioctl(handle,TCSETSW,&term_parameters) ==0))) {
-      if (!((errno==ENOTTY)||(errno==EINVAL)))
+      if (!((errno==ENOTTY)||IS_EINVAL))
         { OS_error(); } /* no TTY: OK, report other Error */
     } else goto ok;
   }
