@@ -1,13 +1,16 @@
-;;; syntax highlighting for CLISP FFI forms
+;;; Syntax highlighting for CLISP FFI forms
 ;;; Load this file from ~/.emacs or ~/.emacs.el
 
 (font-lock-add-keywords
  'lisp-mode
- '(("(\\(def-\\(\\(call\\(\\s_\\|\\sw\\)*\\)\\|\\(c-const\\)\\|\\(c-var\\)\\|\\(c-enum\\|c-struct\\|c-type\\)\\)\\)\\>[ \t'\(]*\\(\\(\\s_\\|\\sw\\)*\\)"
-    (1 font-lock-keyword-face)
-    (8 (cond ((match-beginning 3) font-lock-function-name-face)
-             ((match-beginning 5) font-lock-variable-name-face)
-             (t font-lock-type-face)) nil t))))
+ `((,(concat "(\\(def-\\(?:\\(call-\\(?:in\\|out\\)\\)\\|\\(c-const\\|c-var\\)"
+             "\\|\\(c-enum\\|c-struct\\|c-type\\)\\)\\)\\>"
+             "[ \t\n'\(]+\\(" lisp-mode-symbol-regexp "\\)")
+    (1 'font-lock-keyword-face)
+    (5 (cond ((match-beginning 2) 'font-lock-function-name-face)
+             ((match-beginning 3) 'font-lock-variable-name-face)
+             ((match-beginning 4) 'font-lock-type-face)
+             (t 'error))))))
 
 ;; convert between lisp-style-symbols and ICantReadThis
 
