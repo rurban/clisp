@@ -4,7 +4,9 @@
 
 # Some important programs:
 SHELL = /bin/sh
-MAKE = make
+# Don't set MAKE here. Instead use the value of the environment variable 'MAKE'
+# or, if that is not set, the name of the current program.
+# MAKE = make
 PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc

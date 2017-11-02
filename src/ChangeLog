@@ -1,5 +1,13 @@
 2017-11-02  Bruno Haible  <bruno@clisp.org>
 
+	Support building with 'gmake' instead of 'make'.
+	* configure (MAKE): New variable. Use it instead of hardcoding 'make'.
+	* Makefile.devel (MAKE): Remove variable. All common 'make' programs
+	set MAKE to a reasonable value (the value of the environment variable
+	'MAKE' or the name of the current program) by default.
+
+2017-11-02  Bruno Haible  <bruno@clisp.org>
+
 	Avoid error on IRIX when stdout is a pipe (regression from 2016-11-11).
 	* stream.d (IS_EINVAL_EXTRA): Handle IRIX.
 	(finish_tty_output): Use IS_EINVAL instead of testing only for EINVAL.

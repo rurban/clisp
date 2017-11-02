@@ -697,6 +697,11 @@ Configure findings:
   libsigsegv: ${gl_cv_lib_sigsegv}
 EOF
 
+# The user can set MAKE. In particular, on IRIX, VPATH builds require GNU make.
+if test -z "${MAKE}"; then
+  MAKE=make
+fi
+
 # are any FFI modules requested?
 ffi_modules=''
 for module in ${all_modules}; do
@@ -745,7 +750,7 @@ EOF
   wget ${libsigsegv_url}
   tar xfz ${libsigsegv_targz}
   cd ${libsigsegv_dirname}
-  ./configure${host_arg} --prefix=\${prefix} && make && make check && make install
+  ./configure${host_arg} --prefix=\${prefix} && ${MAKE} && ${MAKE} check && ${MAKE} install
   cd ../..
   rm -f ${DIRNAME}/config.cache
   ./configure --with-libsigsegv-prefix=\${prefix} $*
@@ -785,7 +790,7 @@ set -e
 cd "$ABS_DIRNAME"
 echo "./makemake $makemake_args > Makefile"
 ./makemake $makemake_args > Makefile
-make config.lisp
+${MAKE} config.lisp
 
 if test -z "$do_cbc"; then
   echo
@@ -804,24 +809,24 @@ if test -z "$do_cbc"; then
 EOF
   fi
   cat <<EOF
-    make
+    ${MAKE}
 # CLISP self-test:
-    make check
+    ${MAKE} check
 # Test non-portable features and modules
-    make extracheck mod-check
+    ${MAKE} extracheck mod-check
 EOF
 else
   if [ -n "${edit_config}" ]; then
-    make config.lisp;
-    ${EDITOR:-vi} config.lisp;
+    ${MAKE} config.lisp
+    ${EDITOR:-vi} config.lisp
   fi
   if [ "${STACK_TOO_SMALL}" = 0 ]; then
     set +e; ulimit -s ${STACK_LIMIT} 2>/dev/null; set -e;
   fi
-  make 2>&1 | tee cbcstep2.log
-  make check 2>&1 | tee cbcstep3.log
+  ${MAKE} 2>&1 | tee cbcstep2.log
+  ${MAKE} check 2>&1 | tee cbcstep3.log
   cat <<EOF
 # Now you can test non-portable features and modules:
-    make extracheck mod-check
+    ${MAKE} extracheck mod-check
 EOF
 fi
