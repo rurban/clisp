@@ -1,3 +1,10 @@
+2017-11-03  Bruno Haible  <bruno@clisp.org>
+
+	Avoid assembler or linker errors due to assembly during current testing.
+	This can be removed once ARI_ASM and SP_ASM generally works.
+	* Makefile.devel (build-porting*): In builds with -DSAFETY=3, use also
+	-DNO_ARI_ASM -DNO_SP_ASM.
+
 2017-11-02  Bruno Haible  <bruno@clisp.org>
 
 	Fix a "make check" hang on IRIX.
