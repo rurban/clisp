@@ -1,3 +1,13 @@
+2017-11-05  Bruno Haible  <bruno@clisp.org>
+
+	Tweak mappable address ranges.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_END): Shrink a bit for Linux/mips
+	(o32 and n32 ABIs), for Mac OS X/PowerPC, for Linux/alpha (based on
+	findings with older Linux versions).
+	Update SINGLEMAP_* parameters for Linux/alpha accordingly.
+	Add MAPPABLE_ADDRESS_RANGE_* for FreeBSD/alpha, NetBSD/alpha,
+	OSF/1/alpha (based on older findings).
+
 2017-11-03  Bruno Haible  <bruno@clisp.org>
 
 	Avoid assembler or linker errors due to assembly during current testing.
