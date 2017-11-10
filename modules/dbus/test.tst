@@ -222,12 +222,7 @@ T
 (dbus:dbus_error_is_set *dbus-error*) 0 ; success
 
 (progn (ffi:foreign-free *dbus-error*)
-       (symbol-cleanup '*dbus-error*)
-       (symbol-cleanup '*dbus-conn*)
-       (symbol-cleanup '*dbus-msg*)
        (ffi:foreign-free *dbus-iter*)
-       (symbol-cleanup '*dbus-iter*)
-       (symbol-cleanup '*dbus-args*)
-       (symbol-cleanup '*dbus-pending*)
-       )
-T
+       (symbols-cleanup '(*dbus-error* *dbus-conn* *dbus-msg* *dbus-iter*
+                          *dbus-args* *dbus-pending*)))
+()

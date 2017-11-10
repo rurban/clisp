@@ -482,14 +482,6 @@ NIL
 
 (progn (untrace)
        (setq *trace-output* *error-output*) ; re-enable TRACE, TIME, TIMES
-       (symbol-cleanup '*pari-to-lisp*)
-       (symbol-cleanup '*lisp-to-pari*)
-       (symbol-cleanup 'roundtrip1)
-       (symbol-cleanup 'roundtrip2)
-       (symbol-cleanup 'get-x-ash)
-       (symbol-cleanup 'get-x-ash-neg)
-       (symbol-cleanup 'check-roundtrip)
-       (symbol-cleanup 'id)
-       (symbol-cleanup 'qfi)
-       (symbol-cleanup 'qfr))
-T
+       (symbols-cleanup '(*pari-to-lisp* *lisp-to-pari* roundtrip1 roundtrip2
+                          get-x-ash get-x-ash-neg check-roundtrip id qfi qfr)))
+()

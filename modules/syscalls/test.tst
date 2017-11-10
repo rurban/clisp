@@ -900,11 +900,8 @@ T
 (NIL NIL NIL)
 
 
-(progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
-       (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
-       (symbol-cleanup 'flush-clisp)
-       (symbol-cleanup 'proc-send)
-       (setq *features* (delete :no-stream-lock *features*))
-       (symbol-cleanup 'check-time-date)
-       T)
-T
+(progn
+  (delete-file *tmp1*) (delete-file *tmp2*)
+  (setq *features* (delete :no-stream-lock *features*))
+  (symbols-cleanup '(*tmp1* *tmp2* flush-clisp proc-send check-time-date)))
+()
