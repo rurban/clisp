@@ -879,6 +879,26 @@ T
    (string= l (pathname-name (delete-file l)))))
 (T T T)
 
+;; copy-file merges source file type into the destination
+(defparameter *csv1* "my-tmp-1.csv") *csv1*
+(defparameter *csv2* "my-tmp-2") *csv2*
+(defparameter *csv3* (concatenate 'string *csv2* ".csv")) *csv3*
+(delete-file *csv1*) NIL
+(delete-file *csv2*) NIL
+(delete-file *csv3*) NIL
+(progn
+  (open *csv1* :direction :probe :if-does-not-exist :create)
+  (os:copy-file *csv1* *csv2*)  ; creates *csv3*
+  (list (probe-file *csv2*)
+        (null (delete-file *csv3*))))
+(NIL NIL)
+(progn
+  (os:copy-file (make-pathname :name *csv1*) *csv2*)  ; creates *csv2*
+  (list (null (delete-file *csv1*))
+        (probe-file *csv3*)
+        (null (delete-file *csv2*))))
+(NIL NIL NIL)
+
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
