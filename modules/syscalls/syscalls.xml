@@ -346,7 +346,16 @@
     similar to <command role="unix">cp -p</command>.</simpara>
    <simpara>The meaning and defaults of &if-exists; and
     &if-does-not-exist; are the same as in &open;.</simpara>
- </listitem></varlistentry>
+   <simpara>The actual &dest-r; file created is
+    <code>(&merge-pathnames; &source-r; &dest-r;)</code> so that
+    <code>(&copy-file; "foo" "dir/")</code> creates
+    <filename>"dir/foo"</filename> and
+    <code>(&copy-file; "foo.csv" "bar")</code> creates
+    <filename>"bar.csv"</filename>.
+    If you want to actually copy <filename>"foo.csv"</filename> to
+    <filename>"bar"</filename>, do
+    <code>(&copy-file; (&make-pathname; :name "foo.csv") "bar")</code>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="dup-handle"><term><code>(&dup-handle;
     <replaceable>fd1</replaceable> &optional-amp;
     <replaceable>fd2</replaceable>)</code></term>
