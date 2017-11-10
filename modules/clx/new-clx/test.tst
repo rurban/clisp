@@ -734,28 +734,9 @@ T
       (xlib:display-force-output dpy))))
 NIL
 
-;; cleanup
-(progn
-  (symbol-cleanup '*dpy*)
-  (symbol-cleanup '*font-count*)
-  (symbol-cleanup '*screen*)
-  (symbol-cleanup '*visual*)
-  (symbol-cleanup '*root*)
-  (symbol-cleanup '*colormap*)
-  (symbol-cleanup '*color*)
-  (symbol-cleanup '*font*)
-  (symbol-cleanup '*window*)
-  (symbol-cleanup '*window-position*)
-  (symbol-cleanup 'check-query-best)
-  (symbol-cleanup '*gcontext*)
-  (symbol-cleanup 'c2s)
-  (symbol-cleanup '*access-hosts*)
-  (symbol-cleanup 'check-wm-class)
-  (symbol-cleanup '*rdb-tmp*)
-  (symbol-cleanup '*rdb-dpy*)
-  (symbol-cleanup '*white-color*) (symbol-cleanup '*black-color*)
-  (symbol-cleanup 'create-font-cursor)
-  (symbol-cleanup 'map-windows)
-  (symbol-cleanup 'iter-windows)
-  (symbol-cleanup 'check-timeout))
-T
+(symbols-cleanup
+ '(*dpy* *font-count* *screen* *visual* *root* *colormap* *color* *font*
+   *window* *window-position* check-query-best *gcontext* c2s *access-hosts*
+   check-wm-class *rdb-tmp* *rdb-dpy* *white-color* *black-color*
+   create-font-cursor map-windows iter-windows check-timeout))
+()
