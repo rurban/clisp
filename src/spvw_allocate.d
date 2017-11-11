@@ -134,12 +134,13 @@ local void relax_reserve (uintM need)
 
 #endif
 
-/* determines, if an address lies in the interval [0..2^oint_addr_len-1] : */
-#if defined(WIDE_SOFT) || (oint_addr_len == pointer_bitsize)
+/* Determines whether an address has only bits set that are in oint_addr_mask
+   (or equivalently, whether it has all bits clear that are in oint_type_mask), */
+#if defined(WIDE_SOFT) || (oint_addr_mask == bitm(pointer_bitsize)-1)
   #define pointable_usable_test(a)  true
 #else
   #define pointable_usable_test(a)  \
-    ((((uintP)(a) >> addr_shift) >> oint_addr_len) == 0)
+    ((((uintP)(a) >> addr_shift) & ~oint_addr_mask) == 0)
 #endif
 
 /* fetches memory from the operating system */
@@ -151,15 +152,9 @@ local void* mymalloc (uintM need)
   end_system_call();
   if (addr==NULL)
     return NULL;
-  /* Interval [addr,addr+need-1] must lie in [0..2^oint_addr_len-1] : */
-  {
-    var aint a = (aint)addr;    /* a = lower interval bound */
-    if (pointable_usable_test(a)) {
-      a = round_down(a + need-1,bit(addr_shift)); /* a = upper interval bound */
-      if (pointable_usable_test(a))
-        return addr;
-    }
-  }
+  /* Interval [addr,addr+need-1] must have only bits set that are in oint_addr_mask: */
+  if (pointable_usable_test(bits_used_by_range((aint)addr, round_down((aint)addr + need-1,bit(addr_shift)))))
+    return addr;
   /* we cannot do anything with this piece of memory, return it again: */
   begin_system_call();
   free(addr);
