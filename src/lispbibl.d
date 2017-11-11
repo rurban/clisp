@@ -2202,11 +2202,11 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0xB5FFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(HPPA)
-    /* On Linux/hppa in qemu user-mode emulation (with -static):
+    /* On Linux/hppa in qemu user-mode emulation:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
        MALLOC_ADDRESS_RANGE = 0x00000000UL
-       SHLIB_ADDRESS_RANGE  = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF6000000UL
        STACK_ADDRESS_RANGE  = 0xF6000000UL
        There is room from 0x00000000UL to 0xF6000000UL, but let's keep some
        distance. */
@@ -2243,11 +2243,11 @@ typedef enum {
     #endif
   #endif
   #if defined(UNIX_LINUX) && defined(M68K)
-    /* On Linux/m68k in qemu user-mode emulation (with -static):
+    /* On Linux/m68k in qemu user-mode emulation:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x80000000UL
        MALLOC_ADDRESS_RANGE = 0x80000000UL
-       SHLIB_ADDRESS_RANGE  = 0x80000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF6000000UL
        STACK_ADDRESS_RANGE  = 0xF6000000UL
        There is room from 0x00000000UL to 0x80000000UL, but let's keep some
        distance. */
@@ -3163,7 +3163,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
     #define SINGLEMAP_TYPE_MASK    0x77000000UL
     #define SINGLEMAP_oint_type_shift 24
-    #define SINGLEMAP_WORKS 0 /* crashes even without GENERATIONAL_GC */
+    #define SINGLEMAP_WORKS 1 /* but only without GENERATIONAL_GC */
   #endif
   #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
     #define SINGLEMAP_ADDRESS_BASE 0UL
@@ -3179,7 +3179,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 24
     /* garcol_bit_o must be 30, because bit 31 is set in CODE_ADDRESS_RANGE. */
     #define SINGLEMAP_garcol_bit_o 30
-    #define SINGLEMAP_WORKS 0 /* crashes even without GENERATIONAL_GC */
+    #define SINGLEMAP_WORKS 1 /* but only without GENERATIONAL_GC */
   #endif
   #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
     #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
