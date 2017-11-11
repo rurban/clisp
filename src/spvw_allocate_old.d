@@ -84,15 +84,56 @@ local void relax_reserve (uintM need)
 #endif
 
 /* Determines whether an address has only bits set that are in oint_addr_mask
-   (or equivalently, whether it has all bits clear that are in oint_type_mask), */
-#if defined(WIDE_SOFT) || (oint_addr_mask == bitm(pointer_bitsize)-1)
+   (or equivalently, whether it has all bits clear that are in oint_type_mask). */
+#if defined(WIDE_SOFT)
+  #define pointable_usable_test(a)  true
+#elif defined(ONE_FREE_BIT_HEAPCODES)
+  /* oint_addr_mask is ~(oint)0, i.e. it ignores garcol_bit_o.
+     Therefore this special case. */
+  #define pointable_usable_test(a) \
+    ((((uintP)(a) >> (addr_shift + garcol_bit_o)) & 1) == 0)
+#elif (oint_addr_mask == bitm(pointer_bitsize)-1)
   #define pointable_usable_test(a)  true
 #else
   #define pointable_usable_test(a)  \
     ((((uintP)(a) >> addr_shift) & ~oint_addr_mask) == 0)
 #endif
 
-/* fetches memory from the operating system */
+/* Prints a message about an unsupported return value of malloc(). */
+local void fprint_mymalloc_diagnostic (FILE* out, aint addr)
+{
+  #if defined(TYPECODES)
+  fprintf(out,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
+          addr);
+  #elif defined(ONE_FREE_BIT_HEAPCODES)
+  fprintf(out,GETTEXTL("Return value of malloc() = %lx is not compatible with the choice of %s."),
+          addr, "garcol_bit_o");
+  #else
+  fprintf(out,GETTEXTL("Return value of malloc() = %lx is not supported."),
+          addr);
+  #endif
+}
+
+/* Fetches memory from the operating system, and ensures that it is usable.
+   We use this memory for two purposes:
+     (I) for heap objects,
+     (II) for the STACK.
+   This gives rise to two constraints:
+     (I) In case of TYPECODES: The type bits must be zero in the addresses
+         of this memory block.
+         In case of ONE_FREE_BIT_HEAPCODES: The garcol_bit must be zero
+         in the addresses of this memory block.
+     (II) Pointers into the STACK are
+            (1) used as Lisp objects, via make_framepointer, and stored e.g.
+                in aktenv.var_env,
+            (2) taken from there, they are also stored in the STACK (in
+                variable-binding frames), see e.g. make_variable_frame.
+          Therefore:
+            - because of (2), the frame_bit_o (= garcol_bit_o) must be zero
+              in STACK pointers, and
+            - because of (1), in TYPECODES model, the typecode must be
+              system_type.
+          So, this constraint is implied by the constraint (I). */
 local void* mymalloc (uintM need)
 {
   var void* addr;
@@ -108,8 +149,7 @@ local void* mymalloc (uintM need)
   begin_system_call();
   free(addr);
   fprint(stderr,GETTEXTL("Warning: "));
-  fprintf(stderr,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
-          (aint)addr);
+  fprint_mymalloc_diagnostic(stderr, (aint)addr);
   fprint(stderr,"\n");
   end_system_call();
   return NULL;

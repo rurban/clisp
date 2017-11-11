@@ -1,5 +1,15 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Check the mymalloc return value also when ONE_FREE_BIT_HEAPCODES.
+	* spvw_allocate.d (pointable_usable_test): For ONE_FREE_BIT_HEAPCODES,
+	check against the garcol_bit.
+	(fprint_mymalloc_diagnostic): New function.
+	(mymalloc): Use it.
+	* spvw_allocate_old.d: Likewise.
+	* spvw.d (init_memory): Use fprint_mymalloc_diagnostic.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Find good parameters for using TYPECODES model, for each platform.
 	* lispbibl.d (TRIVIALMAP_MEMORY): Move definition up, before the
 	decision between TYPECODES and HEAPCODES.
