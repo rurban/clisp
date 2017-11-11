@@ -1,5 +1,13 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/x86_64-x32.
+	* Makefile.devel (multibuild-linux-x86_64-32): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Linux/x86_64-x32, enable all optimizations
+	except ASM, ARI_ASM, SP_ASM.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/i386.
 	* Makefile.devel (multibuild-linux-i386): Enable all build variants
 	that work.
