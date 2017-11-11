@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Fix crash on SPARC when oint_addr_mask != 2^oint_addr_len-1.
+	* lispbibl.d (untype) [SPARC]: Make it work also when oint_addr_mask is
+	not 2^oint_addr_len-1. Optimize also for 64-bit SPARC.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Avoid build error "Bogus header_flags -- redefine header_flags!".
 	* lisbibl.d (hfint): Choose hfint depending on oint_type_shift, instead
 	of depending on CPU.
