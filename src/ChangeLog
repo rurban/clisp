@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Avoid build error "Bogus header_flags -- redefine header_flags!".
+	* lisbibl.d (hfint): Choose hfint depending on oint_type_shift, instead
+	of depending on CPU.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation warnings introduced on 2017-11-03.
 	* lispbibl.d (NO_ASM, NO_ARI_ASM, NO_FAST_DISPATCH): Don't redefine if
 	already defined.

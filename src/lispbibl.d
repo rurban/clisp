@@ -6282,7 +6282,7 @@ extern bool inside_gc;
  this first word (except the GC bit, which it temporarily uses).
 
  Type of the header flags: */
-#if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64) && !defined(DEBUG_GCSAFETY)
+#if (oint_type_len<=8) && (oint_type_shift/8 == (oint_type_shift+oint_type_len-1)/8) && !defined(DEBUG_GCSAFETY)
   /* Access to an individual byte is possible */
   #define hfintsize  intBsize
   typedef uintB  hfint;
@@ -6291,7 +6291,7 @@ extern bool inside_gc;
   #define hfintsize  pointer_bitsize
   typedef uintP  hfint;
 #endif
-%% #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64) && !defined(DEBUG_GCSAFETY)
+%% #if (oint_type_len<=8) && (oint_type_shift/8 == (oint_type_shift+oint_type_len-1)/8) && !defined(DEBUG_GCSAFETY)
 %%   emit_typedef("uintB","hfint");
 %% #else
 %%   emit_typedef("uintP","hfint");
