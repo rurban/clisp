@@ -1,5 +1,13 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	New heuristics for deciding which object representation to use.
+	* lispbibl.d (TYPECODES, HEAPCODES): New logic which one to choose by
+	default.
+	(ONE_FREE_BIT_HEAPCODES, KERNELVOID32_HEAPCODES, GENERIC64_HEAPCODES):
+	Likewise.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Avoid known unsupported features on specific platforms.
 	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Cygwin
 	and in a specific case on Linux/m68k.

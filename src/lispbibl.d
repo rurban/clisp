@@ -3668,44 +3668,66 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #if !(defined(TYPECODES) || defined(HEAPCODES))
   /* Heuristic for choosing TYPECODES or HEAPCODES.
      The SINGLEMAP_MEMORY case is already handled above. */
-  #if defined(WIDE_HARD)
-    /* On 64-bit machines:
-       - TYPECODES: There's enough room for type bits, unless the OS allocates
-         memory at addresses >= 0x0100000000000000.
-       - HEAPCODES: Both ONE_FREE_BIT_HEAPCODES and GENERIC64_HEAPCODES have
-         alignment restrictions:
-         ONE_FREE_BIT_HEAPCODES will normally not work if
-         alignof(subr_t) = alignof(long) < 4, but with GCC we can force
-         alignof(subr_t) = 4.
-         GENERIC64_HEAPCODES likewise with alignment 8.
-         Additionally some C functions must be aligned as well, see
-         PSEUDOCODE_ALIGNMENT; this can be harder to achieve.
-       TYPECODES is typically a few percent slower than HEAPCODES.
-       For portability, choose TYPECODES if possible, and HEAPCODES otherwise.
-       Special case: On Linux/s390x, TYPECODES does not work right so far.
-     */
-    #if !defined(NO_ADDRESS_SPACE_ASSUMPTIONS) \
-        && ((CODE_ADDRESS_RANGE >> 56) == 0)   \
-        && ((MALLOC_ADDRESS_RANGE >> 56) == 0) \
-        && ((SHLIB_ADDRESS_RANGE >> 56) == 0)  \
-        && ((STACK_ADDRESS_RANGE >> 56) == 0)  \
-        && !(defined(UNIX_LINUX) && defined(S390_64))
-      #define TYPECODES
-    #else
-      #define HEAPCODES
-    #endif
-  #elif defined(WIDE_SOFT)
+  #if defined(WIDE_SOFT)
     #define TYPECODES
   #else
-    /* On 32-bit machines:
-       - TYPECODES: the resulting limit of 16 MB objects for each type is
-         ridiculous today.
-         Additionally, on most 32-bit platforms, TYPECODES leads to the error
-         "Return value of malloc() = ... is not compatible with type code distribution."
-       - HEAPCODES: needs a per-platform decision whether to use
-         ONE_FREE_BIT_HEAPCODES or KERNELVOID32_HEAPCODES.
-       Choose HEAPCODES always. */
-    #define HEAPCODES
+    #if !defined(WIDE_HARD)
+      /* On 32-bit platforms:
+         - TYPECODES: the resulting limit of 16 MB objects for each type,
+           especially for conses, is ridiculous today.
+         - HEAPCODES: a per-platform decision whether to use
+           ONE_FREE_BIT_HEAPCODES or KERNELVOID32_HEAPCODES can be made
+           (below).
+         - Except that on Linux/arm (with gcc-4.8.4) HEAPCODES produces the error
+           "PSEUDOCODE_ALIGNMENT is not fulfilled", despite -falign-functions=4.
+           It works with gcc-4.9.2.
+         - Similarly on Linux/hppa (with gcc-5.4) HEAPCODES produces the error
+           "PSEUDOCODE_ALIGNMENT is not fulfilled", despite -falign-functions=4.
+         - On Linux/m68k (with gcc-5.4), nearly all HEAPCODES variants crash.
+         Choose HEAPCODES whenever it will work. */
+      #if (defined(UNIX_LINUX) && defined(ARM) && __GNUC__ == 4 && __GNUC_MINOR__ == 8) \
+          || (defined(UNIX_LINUX) && defined(HPPA)) \
+          || (defined(UNIX_LINUX) && defined(M68K))
+        /* On these platforms, HEAPCODES does not work. */
+        #define TYPECODES
+      #else
+        #define HEAPCODES
+      #endif
+    #else
+      /* On 64-bit platforms:
+         - TYPECODES: There's enough room for type bits, unless the OS allocates
+           memory at addresses >= 0x0100000000000000. This correlates with the
+           expression  MMAP_FIXED_ADDRESS_HIGHEST_BIT <= 55. In fact, the highest
+           value of MMAP_FIXED_ADDRESS_HIGHEST_BIT seen so far is 52.
+         - HEAPCODES: Both ONE_FREE_BIT_HEAPCODES and GENERIC64_HEAPCODES have
+           alignment restrictions:
+           ONE_FREE_BIT_HEAPCODES will normally not work if
+           alignof(subr_t) = alignof(long) < 4, but with GCC we can force
+           alignof(subr_t) = 4.
+           GENERIC64_HEAPCODES likewise with alignment 8.
+           Additionally some C functions must be aligned as well, see
+           PSEUDOCODE_ALIGNMENT; this can be harder to achieve.
+         TYPECODES is typically a few percent slower than HEAPCODES.
+         So, use the following choice:
+         - On platforms where compilers other than GCC (or clang, which is like
+           GCC here) may be used, it is hard to fulfil the alignment constraint
+           needed by HEAPCODES. Therefore favour TYPECODES on these platforms.
+           Except where TYPECODES does not work, namely on AIX and Solaris/sparc64.
+         - On platforms where we can assume GCC, both ONE_FREE_BIT_HEAPCODES and
+           GENERIC64_HEAPCODES generally work well, with few exception. The
+           choice between these two is done below. */
+      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
+        /* A compiler other than GCC may be used. */
+        #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
+          /* On these platforms, TYPECODES (without SINGLEMAP_MEMORY) does not work. */
+          #define HEAPCODES
+        #else
+          #define TYPECODES
+        #endif
+      #else
+        #define HEAPCODES
+      #endif
+    #endif
   #endif
 #endif
 %% #ifdef HEAPCODES
@@ -3872,24 +3894,49 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      (but exclude the highest available bit, which is the garcol_bit). */
   #if !(defined(ONE_FREE_BIT_HEAPCODES) || defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64_HEAPCODES))
     /* Choose the appropriate HEAPCODES variant for the machine.
-     On most systems, one of the high bits is suitable as GC bit; here we
-     choose ONE_FREE_BIT_HEAPCODES.
-     On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
-     is used that distributes virtual addresses over the entire address
-     space from 0x00000000 to 0xBFFFFFFF (as a function of its access
-     permissions); here we use KERNELVOID32_HEAPCODES.
-     On OpenBSD 3.8 or newer, starting in 2005, the addresses of mmap and
-     malloc results (and hence also of shared libraries) are randomized;
-     only the code address is fixed around 0x1C000000 and the stack address
-     is around 0xCF000000. In this case, we also use KERNELVOID32_HEAPCODES.
-     On some 64-bit systems, we cannot make assumptions about the virtual
-     addresses. But we know that pointers have alignment 8. */
-    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(AMD64) && defined(UNIX_LINUX) && (pointer_bitsize==32)) || (defined(I80386) && defined(UNIX_OPENBSD)) || (defined(I80386) && defined(UNIX_CYGWIN))
-      #define KERNELVOID32_HEAPCODES
-    #elif defined(S390_64) && defined(UNIX_LINUX)
-      #define GENERIC64_HEAPCODES
+       On 32-bit platforms:
+         - On platforms where compilers other than GCC (or clang, which is like
+           GCC here) may be used, it is hard to fulfil the 8-byte alignment
+           constraint needed for KERNELVOID32_HEAPCODES. Therefore favour
+           ONE_FREE_BIT_HEAPCODES on these platforms.
+         - On platforms where we can assume GCC, KERNELVOID32_HEAPCODES generally
+           works well. There are few exceptions to this rule. (Whereas there are
+           more platforms where ONE_FREE_BIT_HEAPCODES does not work, especially
+           when not using TRIVIALMAP_MEMORY.)
+       On 64-bit platforms:
+         On most platforms, ONE_FREE_BIT_HEAPCODES and GENERIC64_HEAPCODES
+         work equally well. I prefer ONE_FREE_BIT_HEAPCODES because it
+         does not impose alignment restrictions on pointers.
+         The exception are special cases where ONE_FREE_BIT_HEAPCODES is
+         known to not work. */
+    #if !defined(WIDE_HARD)
+      /* 32-bit platforms */
+      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
+        /* A compiler other than GCC may be used. */
+        #define ONE_FREE_BIT_HEAPCODES
+      #elif (defined(UNIX_LINUX) && defined(M68K)) \
+            || (defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) && (_MIPS_SIM == _ABIN32)) \
+            || (defined(UNIX_LINUX) && defined(SPARC)) \
+            || (defined(UNIX_NETBSD) && defined(SPARC)) \
+            || (defined(UNIX_CYGWIN) && defined(I80386))
+        /* On these platforms, KERNELVOID32_HEAPCODES does not work. */
+        #define ONE_FREE_BIT_HEAPCODES
+      #else
+        #define KERNELVOID32_HEAPCODES
+      #endif
     #else
-      #define ONE_FREE_BIT_HEAPCODES
+      /* 64-bit platforms */
+      #if defined(NO_ADDRESS_SPACE_ASSUMPTIONS)
+        /* With GENERIC64_HEAPCODES we don't need to make assumptions about the
+           address range. */
+        #define GENERIC64_HEAPCODES
+      #elif (defined(UNIX_LINUX) && defined(S390_64) && !defined(TRIVIALMAP_MEMORY))
+        /* On these platforms, ONE_FREE_BIT_HEAPCODES does not work. */
+        #define GENERIC64_HEAPCODES
+      #else
+        /* The general case. */
+        #define ONE_FREE_BIT_HEAPCODES
+      #endif
     #endif
   #endif
   #ifdef ONE_FREE_BIT_HEAPCODES
