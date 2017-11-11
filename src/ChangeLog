@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	New option --cbcx that includes "make extracheck".
+	* configure: Accept option --cbcx.
+	* Makefile.devel (build-porting*): Use option --cbcx instead of --cbc.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Prepare for enabling optimizations on a per-platform basis.
 	* makemake.in (enable_portability): Allow three values: no, ifuseful,
 	yes.
