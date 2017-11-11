@@ -3641,7 +3641,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
     && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
     && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
+    && !(defined(UNIX_LINUX) && defined(M68K) && (defined(HEAPCODES) || defined(ONE_FREE_BIT_HEAPCODES))) \
     && !defined(UNIX_HAIKU)                                                    \
+    && !defined(UNIX_CYGWIN)                                                   \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
      It's not really memory-mapping, but a more comfortable way to manage two
@@ -3652,8 +3654,11 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      TRIVIALMAP_MEMORY assumes that one can extend an existing memory region
      by mmapping the pages after it; but this might overwrite some small malloc
      regions that have been put there by the system.
+     Also, it does not work on Linux/m68k when HEAPCODES is requested.
      Also, it does not work well on Haiku, where it sometimes produces messages
-     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument". */
+     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument".
+     Also, it does not work well on Cygwin, where it sometimes produces messages
+     "Cannot map memory to address ...". */
   #ifndef TRIVIALMAP_MEMORY
     #define TRIVIALMAP_MEMORY
   #endif
@@ -5104,6 +5109,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     && /* Not worth spending effort on making it work with                    \
           WIDE_SOFT_LARGEFIXNUM. */                                           \
        !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
+    && /* It does not work on NetBSD 7 (both NetBSD/i386 and NetBSD/sparc). */\
+       !defined(UNIX_NETBSD)                                                  \
+    && /* It does not work in QEMU user-mode. */                              \
+       !((defined(UNIX_LINUX) && defined(HPPA)) || (defined(UNIX_LINUX) && defined(M68K))) \
     && /* Generational GC is tricky stuff. Turn it off at safety 3. */        \
        (SAFETY < 3)                                                           \
     && /* The user can also turn off generational GC explicitly. */           \
