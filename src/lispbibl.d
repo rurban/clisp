@@ -4282,6 +4282,101 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_mask 0x1FFFFFE0UL
       #define garcol_bit_o 0
     #endif
+    /* Here we note whether KERNELVOID32_HEAPCODES actually works,
+       for each 32-bit platform.
+       To determine KERNELVOID32_HEAPCODES_WORKS, run one of
+         make -f Makefile.devel build-porting32-gcc-kernelvoid32_heapcodes
+         make -f Makefile.devel build-porting32-cc-kernelvoid32_heapcodes
+     */
+    #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 with 32-bit x32 ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(ARM) /* Linux/arm */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
+      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+    #endif
+    #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
+      /* Triggers a QEMU bug:
+         "translate-all.c:1925: page_set_flags: Assertion `start < end' failed." */
+      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+    #endif
+    #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
+      #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
+        #define KERNELVOID32_HEAPCODES_WORKS 1
+      #else /* Linux/mips with n32 ABI */
+        #define KERNELVOID32_HEAPCODES_WORKS 0
+      #endif
+    #endif
+    #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(S390) /* Linux/s390x with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_NETBSD) && defined(SPARC) /* NetBSD/sparc */
+      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+    #endif
+    #if defined(UNIX_OPENBSD) && defined(I80386) /* OpenBSD/i386 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_MACOSX) && defined(I80386) /* Mac OS X/x86_64 with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_MACOSX) && defined(POWERPC) /* Mac OS X/PowerPC */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_AIX) && defined(POWERPC) /* AIX/POWER with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with xlc */
+    #endif
+    #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
+      /* PSEUDOCODE_ALIGNMENT is not fulfilled. */
+      #define KERNELVOID32_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
+      /* PSEUDOCODE_ALIGNMENT is not fulfilled. */
+      #define KERNELVOID32_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
+      #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
+        #define KERNELVOID32_HEAPCODES_WORKS 0
+      #else /* IRIX 6.5 with n32 ABI */
+        #define KERNELVOID32_HEAPCODES_WORKS 0
+      #endif
+    #endif
+    #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_SUNOS5) && defined(SPARC) /* Solaris/sparc64 with 32-bit ABI */
+      #define KERNELVOID32_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
+      /* Warns "clisp might crash later" and
+         produces messages "Cannot map memory to address". */
+      #define KERNELVOID32_HEAPCODES_WORKS 0
+    #endif
+    #if defined(WIN32_NATIVE) && defined(I80386) /* mingw, running on Windows 10 */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
   #endif /* KERNELVOID32_HEAPCODES */
   #ifdef GENERIC64_HEAPCODES
     /* GENERIC64A_HEAPCODES is closely modeled on KERNELVOID32A_HEAPCODES.
