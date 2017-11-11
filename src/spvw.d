@@ -3154,8 +3154,7 @@ local inline int init_memory (struct argv_initparams *p) {
       begin_system_call();
       memblock = (aint)malloc(1);
       end_system_call();
-      fprintf(stderr,GETTEXTL("Return value of malloc() = %lx is not compatible with type code distribution."),
-              memblock);
+      fprint_mymalloc_diagnostic(stderr,memblock);
       fprint(stderr,"\n");
       return -1;
     }
