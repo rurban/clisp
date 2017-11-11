@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Record whether GENERIC64C_HEAPCODES works.
+	* lispbibl.d (GENERIC64C_HEAPCODES_WORKS): Define for each 64-bit
+	platform.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Record whether KERNELVOID32_HEAPCODES works.
 	* lispbibl.d (KERNELVOID32_HEAPCODES_WORKS): Define for each 32-bit
 	platform.

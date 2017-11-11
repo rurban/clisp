@@ -4431,6 +4431,73 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_mask 0xFFFFFFFFFFFFFFC0UL
       #define garcol_bit_o 0
     #endif /* GENERIC64C_HEAPCODES */
+    /* Here we note whether GENERIC64C_HEAPCODES actually works,
+       for each 64-bit platform.
+       To determine GENERIC64C_HEAPCODES_WORKS, run one of
+         make -f Makefile.devel build-porting64-gcc-generic64_heapcodes
+         make -f Makefile.devel build-porting64-cc-generic64_heapcodes
+     */
+    #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(DECALPHA) /* Linux/alpha */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_NETBSD) && defined(SPARC64) /* NetBSD/sparc64 */
+      #define GENERIC64C_HEAPCODES_WORKS ?
+    #endif
+    #if defined(UNIX_OPENBSD) && defined(AMD64) /* OpenBSD/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
+      #define GENERIC64C_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with xlc */
+    #endif
+    #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
+      #define GENERIC64C_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
+      #define GENERIC64C_HEAPCODES_WORKS 0
+    #endif
+    #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_CYGWIN) && defined(AMD64) /* Cygwin */
+      /* Produces messages "Cannot map memory to address". */
+      #define GENERIC64C_HEAPCODES_WORKS 0
+    #endif
   #endif /* GENERIC64_HEAPCODES */
   #if defined(WIDE_HARD)
     #define oint_addr_shift 0
