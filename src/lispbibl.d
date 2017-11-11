@@ -3641,15 +3641,19 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
     && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
     && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
+    && !defined(UNIX_HAIKU)                                                    \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
-   It's not really memory-mapping, but a more comfortable way to
-   manage two large memory blocks.
-   But it requires that we know where to map the large memory blocks in the
-   address range. It does not work reliably when address space layout
-   randomization is in effect: TRIVIALMAP_MEMORY assumes that one can extend an
-   existing memory region by mmapping the pages after it; but this might
-   overwrite some small malloc regions that have been put there by the system. */
+     It's not really memory-mapping, but a more comfortable way to manage two
+     large memory blocks.
+     But it requires that we know where to map the large memory blocks in the
+     address range. It does not work reliably when address space layout
+     randomization across the *entire* address space is in effect:
+     TRIVIALMAP_MEMORY assumes that one can extend an existing memory region
+     by mmapping the pages after it; but this might overwrite some small malloc
+     regions that have been put there by the system.
+     Also, it does not work well on Haiku, where it sometimes produces messages
+     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument". */
   #ifndef TRIVIALMAP_MEMORY
     #define TRIVIALMAP_MEMORY
   #endif
@@ -4367,6 +4371,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 0
     #endif
     #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
+      /* Works fine without TRIVIALMAP_MEMORY.
+         With TRIVIALMAP_MEMORY, sometimes we get repeated messages such as
+         "Cannot map memory to address 0x202a8000 ... Invalid Argument" */
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
