@@ -1,5 +1,10 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Tweak support for Haiku.
+	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Haiku.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Record whether GENERIC64C_HEAPCODES works.
 	* lispbibl.d (GENERIC64C_HEAPCODES_WORKS): Define for each 64-bit
 	platform.
