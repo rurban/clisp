@@ -1,5 +1,13 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Avoid known unsupported features on specific platforms.
+	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Cygwin
+	and in a specific case on Linux/m68k.
+	(GENERATIONAL_GC): Don't enable by default on NetBSD, Linux/hppa,
+	Linux/m68k.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Tweak support for Haiku.
 	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Haiku.
 
