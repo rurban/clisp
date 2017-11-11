@@ -1,5 +1,12 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Tweak support for Linux/sparc.
+	* lispbibl.d (CODE_ADDRESS_RANGE) [Linux/sparc]: Force the same value
+	across machines.
+	(SINGLEMAP_*) [Linux/sparc]: Change parameters. But it does not work.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux/m68k.
 	* lispbibl.d (sintW): Emit into clisp.h. It is used by the expansion of
 	macro 'dotimespC'.

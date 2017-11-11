@@ -2308,13 +2308,24 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(SPARC)
-    /* On Linux/sparc64 with 32-bit ABI:
+    /* On Linux 3.2/sparc64 with 32-bit ABI:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
        MALLOC_ADDRESS_RANGE = 0x00000000UL
        SHLIB_ADDRESS_RANGE  = 0x70000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
+       On Linux 4.13/sparc64 with 32-bit ABI:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x70000000UL
+       MALLOC_ADDRESS_RANGE = 0x70000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF7000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
        There is room from 0x01000000UL to 0x70000000UL. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x70000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x70000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x6FFFFFFFUL
   #endif
@@ -2656,13 +2667,13 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0x03FEFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(SPARC64)
-    /* On Linux/sparc64:
+    /* On Linux 3.2/sparc64:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 42
        CODE_ADDRESS_RANGE   = 0x0000000000000000UL or 0x0000010000000000UL
        MALLOC_ADDRESS_RANGE = 0x0000000000000000UL or 0x0000010000000000UL
        SHLIB_ADDRESS_RANGE  = 0xFFFFF80100000000UL
        STACK_ADDRESS_RANGE  = 0x000007FEFF000000UL
-       or
+       On Linux 4.13/sparc64:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 50
        CODE_ADDRESS_RANGE   = 0x0000010000000000UL
        MALLOC_ADDRESS_RANGE = 0x0000010000000000UL
@@ -3208,9 +3219,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
   #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
     #define SINGLEMAP_ADDRESS_BASE 0UL
-    #define SINGLEMAP_TYPE_MASK    0x7E000000UL
-    #define SINGLEMAP_oint_type_shift 25
-    #define SINGLEMAP_WORKS 1
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* Set garcol_bit_o to 27. */
+    #define SINGLEMAP_garcol_bit_o 27
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 4+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
