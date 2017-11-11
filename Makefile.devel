@@ -1051,7 +1051,18 @@ multibuild-linux-x86_64-32: \
 multibuild-linux-arm: multibuild-porting32-gcc # TODO
 
 # Linux/hppa
-multibuild-linux-hppa: multibuild-porting32-gcc # TODO
+multibuild-linux-hppa: \
+  build-porting32-gcc-portability \
+  build-porting32-gcc-safety3 \
+  build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap \
+  build-porting32-gcc-spvw_pure_blocks \
+  build-porting32-gcc-wide \
+  build-porting32-gcc-limited_memory \
+  build-porting32-gcc-old_gc \
+  build-porting32-gcc-multithread_gc \
+  build-porting32-gcc-safety0 \
+  build-porting32-gcc-safety0-optimized \
+  build-porting32-gcc-debug_gcsafety
 
 # Linux/i386
 multibuild-linux-i386: \
