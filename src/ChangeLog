@@ -1,5 +1,26 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Find good parameters for using TYPECODES model, for each platform.
+	* lispbibl.d (TRIVIALMAP_MEMORY): Move definition up, before the
+	decision between TYPECODES and HEAPCODES.
+	(oint_type_*, oint_addr_*, garcol_bit_o): Find appropriate values for
+	TYPECODES, for selected platforms.
+	(TYPECODES_WITH_TRIVIALMAP_WORKS, TYPECODES_WITH_MALLOC_WORKS): Define
+	for each platform.
+	* Makefile.devel (build-porting*-typecodes-spvw_mixed_blocks): Split
+	into build-porting*-typecodes-spvw_mixed_blocks-malloc
+	and build-porting*-typecodes-spvw_mixed_blocks-trivialmap.
+	(build-porting*-one_free_bit_heapcodes): Split into
+	build-porting*-one_free_bit_heapcodes-malloc and
+	build-porting*-one_free_bit_heapcodes-trivialmap, accordingly.
+	(build-porting*-try1_typecodes, build-porting*-try2_typecodes): Remove
+	targets.
+	(build-porting32-*-kernelvoid32_heapcodes,
+	build-porting64-*-generic64_heapcodes): Don't prevent the use of
+	GENERATIONAL_GC.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Update support for Linux/hppa and Linux/m68k.
 	I learned how to use these platforms with dynamic linking, see
 	<https://bugs.launchpad.net/qemu/+bug/1701798/>.
