@@ -53,8 +53,6 @@
        Object representation schemes on 32-bit platforms:
          ONE_FREE_BIT_HEAPCODES
          KERNELVOID32_HEAPCODES
-         TRY_TYPECODES_1  (try to avoid it: limits heap size to 16 MB)
-         TRY_TYPECODES_2  (try to avoid it: limits heap size to 16 MB)
        Specific variants of KERNELVOID32_HEAPCODES on 32-bit platforms:
          KERNELVOID32A_HEAPCODES
          KERNELVOID32B_HEAPCODES
@@ -3633,6 +3631,31 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
 #endif
 
+/* Determine early whether to use TRIVIALMAP_MEMORY, because TRIVIALMAP_MEMORY
+   (and, with it, TRIVIALMAP_MEMORY_STACK) constrain the addresses used for
+   heap objects and for the stack and thus give more freedom for choosing
+   oint_type_shift and oint_type_len.  */
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
+     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
+    && !defined(SINGLEMAP_MEMORY)                                              \
+    && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
+    && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
+    && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
+    && !defined(NO_TRIVIALMAP)
+  /* mmap() allows for a more flexible way of memory management than malloc().
+   It's not really memory-mapping, but a more comfortable way to
+   manage two large memory blocks.
+   But it requires that we know where to map the large memory blocks in the
+   address range. It does not work reliably when address space layout
+   randomization is in effect: TRIVIALMAP_MEMORY assumes that one can extend an
+   existing memory region by mmapping the pages after it; but this might
+   overwrite some small malloc regions that have been put there by the system. */
+  #ifndef TRIVIALMAP_MEMORY
+    #define TRIVIALMAP_MEMORY
+  #endif
+#endif
+
+
 #if !(defined(TYPECODES) || defined(HEAPCODES))
   /* Heuristic for choosing TYPECODES or HEAPCODES.
      The SINGLEMAP_MEMORY case is already handled above. */
@@ -4088,214 +4111,373 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #error oint_data_len is too small, short-floats need at least 24 data bits!
       #endif
     #else
-      #if !defined(WIDE_HARD)
-        /* 32-bit platforms */
-        /* We need to support it only on M68K platforms without new gcc.
-           It worked on the following platforms in the past, and may still work on:
-             (defined(M68K) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-             (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN) && !defined(WIN32_NATIVE))
-             defined(SPARC)
-             defined(MIPS)
-             defined(M88000)
-             (defined(POWERPC) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
-             defined(VAX) */
-        #if (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(POWERPC) && defined(UNIX_MACOSX)) || defined(TRY_TYPECODES_1)
-          /* You can add more platforms here provided that
-             1. you need it,
-             2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
-             3. it works. */
+      #if defined(TRIVIALMAP_MEMORY)
+        /* Due to TRIVIALMAP_MEMORY, heap object and STACK addresses are in
+           [MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END].
+           CODE_ADDRESS_RANGE matters here. */
+        /* To determine TYPECODES_WITH_TRIVIALMAP_WORKS, run one of
+             make -f Makefile.devel build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap
+             make -f Makefile.devel build-porting32-cc-typecodes-spvw_mixed_blocks-trivialmap
+             make -f Makefile.devel build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap
+             make -f Makefile.devel build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap
+         */
+        #if !defined(WIDE_HARD)
+          /* 32-bit platforms */
+          /* Try to accommodate 7 or 8 type bits.
+             But a value of oint_type_shift < 24 is unusable. */
+          #undef MAPPABLE_ADDRESS_RANGE_START
+          #undef MAPPABLE_ADDRESS_RANGE_END
+          #if CODE_ADDRESS_RANGE != 0
+            #if MALLOC_ADDRESS_RANGE != 0 && SHLIB_ADDRESS_RANGE != 0
+              #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #else
+              /* If we use 0x00xxxxxxUL, there is a collision with malloc or shlibs.
+                 If we use CODE_ADDRESS_RANGE + 0x00xxxxxxUL, there is a collision with code.
+                 If we use another location, there is room for at most 5+1 type bits, i.e. we
+                 run into "Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!" */
+              #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+            #endif
+          #endif
+          #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 with 32-bit x32 ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x04000000UL /* 0x04000000UL or 0x08000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+          #endif
+          #if defined(UNIX_LINUX) && defined(ARM) /* Linux/arm */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x04000000UL or 0x10000000UL or 0x20000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0 /* works on some machines but not on others */
+          #endif
+          #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x01000000UL or 0x02000000UL or 0x04000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+          #endif
+          #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+          #endif
+          #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
+            #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
+              #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+            #else /* Linux/mips with n32 ABI */
+              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+            #endif
+          #endif
+          #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_LINUX) && defined(S390) /* Linux/s390x with 32-bit ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+          #endif
+          #if defined(UNIX_NETBSD) && defined(SPARC) /* NetBSD/sparc */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL /* or 0x01000000UL or 0x02000000UL or 0x04000000UL or 0x08000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+          #endif
+          #if defined(UNIX_OPENBSD) && defined(I80386) /* OpenBSD/i386 */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_MACOSX) && defined(I80386) /* Mac OS X/x86_64 with 32-bit ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x20000000UL or 0x40000000UL or 0x80000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_MACOSX) && defined(POWERPC) /* Mac OS X/PowerPC */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x20000000UL or 0x40000000UL or 0x80000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_AIX) && defined(POWERPC) /* AIX/POWER with 32-bit ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
+            /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
+            /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
+            #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
+              #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x01000000UL or 0x02000000UL or 0x04000000UL or 0x20000000UL or 0x40000000UL */
+              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+            #else /* IRIX 6.5 with n32 ABI */
+              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+            #endif
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(SPARC) /* Solaris/sparc64 with 32-bit ABI */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x01000000UL or 0x02000000UL or 0x04000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
+            /* Warns "clisp might crash later" and
+               produces messages "Cannot map memory to address". */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(WIN32_NATIVE) && defined(I80386) /* mingw, running on Windows 10 */
+            #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x04000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0 /* even without GENERATIONAL_GC */
+          #endif
+          #define MAPPABLE_ADDRESS_RANGE_END (MAPPABLE_ADDRESS_RANGE_START | 0x00FFFFFFUL)
           #define oint_type_shift 24
           #define oint_type_len 8
-          #define oint_type_mask (0xFF000000UL & ~(CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE))
           #define oint_addr_shift 0
-          #define oint_addr_len 24
-          #define oint_addr_mask (0x00FFFFFFUL | CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE)
-          #define oint_data_shift 0
-          #define oint_data_len 24
-          #define oint_data_mask 0x00FFFFFFUL
-        #elif 0 || defined(TRY_TYPECODES_2)
-          /* You can add more platforms here provided that
-             1. you need it,
-             2. it works.
-             Bits 31..24 = Typcode, Bits 23..0 = Adress */
-          #define oint_type_shift 24
-          #define oint_type_len 8
-          #define oint_type_mask 0xFF000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 24
-          #define oint_addr_mask 0x00FFFFFFUL
+          #define oint_addr_len oint_type_shift
+          #define oint_addr_mask (MAPPABLE_ADDRESS_RANGE_START | CODE_ADDRESS_RANGE | 0x00FFFFFFUL)
+          /* Not just ~oint_addr_mask, because evaluation in preprocessor directives uses intmax_t. */
+          #define oint_type_mask (0xFFFFFFFFUL & ~oint_addr_mask)
         #else
-          #error TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES.
+          /* 64-bit platforms */
+          #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(DECALPHA) /* Linux/alpha */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
+            #define oint_type_shift 53
+            #define garcol_bit_o 60
+            #define oint_addr_mask 0xE01FFFFFFFFFFFFFUL
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
+            #if 0 /* Does not help for the older machine. */
+              #undef MAPPABLE_ADDRESS_RANGE_START
+              #undef MAPPABLE_ADDRESS_RANGE_END
+              #define MAPPABLE_ADDRESS_RANGE_START 0x0000040000000000UL
+              #define MAPPABLE_ADDRESS_RANGE_END   0x00000403FFFFFFFFUL
+              #define oint_type_shift 34
+              #define garcol_bit_o 41
+              #define oint_addr_mask 0xFFFFFD03FFFFFFFFUL
+            #endif
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0 /* 0 on an older machine (gcc-4.6.3), 1 on newer machines (gcc-6.4, gcc-7.2) */
+          #endif
+          #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_NETBSD) && defined(SPARC64) /* NetBSD/sparc64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS ?
+          #endif
+          #if defined(UNIX_OPENBSD) && defined(AMD64) /* OpenBSD/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
+            #undef MAPPABLE_ADDRESS_RANGE_END
+            #define MAPPABLE_ADDRESS_RANGE_END 0x00FFFFFFFFFFFFFFUL
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
+            /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
+            /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
+            /* Link error: "ld: fatal: relocation error: R_SPARC_H44: file spvw.o: symbol symbol_tab_data: value 0x1000000400 does not fit" */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #if defined(UNIX_CYGWIN) && defined(AMD64) /* Cygwin */
+            /* Produces messages "Cannot map memory to address". */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
+          #endif
+          #define oint_type_len 8
+          #ifndef oint_type_shift
+            #define oint_type_shift 56
+          #endif
+          #define oint_addr_shift 0
+          #define oint_addr_len oint_type_shift
+          #ifndef oint_addr_mask
+            #define oint_addr_mask ((1UL<<oint_addr_len)-1)
+          #endif
+          /* Not just ~oint_addr_mask, because evaluation in preprocessor directives uses intmax_t. */
+          #define oint_type_mask (0xFFFFFFFFFFFFFFFFUL & ~oint_addr_mask)
         #endif
       #else
-        /* 64-bit platforms */
-        #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD))
-          /* UNIX_OSF:
-               Ordinary pointers are in the range 1*2^32..2*2^32.
-               Code address range:    0x000000012xxxxxxx
-               Malloc address range:  0x000000014xxxxxxx
-               Shared libraries:      0x000003FFCxxxxxxx
-             UNIX_LINUX:
-               Code address range:    0x000000012xxxxxxx
-               Malloc address range:  0x000000012xxxxxxx
-                                and:  0x0000015555xxxxxx
-               Shared libraries:      0x0000015555xxxxxx
-               Virtual address limit: 0x0000040000000000
-             UNIX_FREEBSD
-               Code address range:    0x0000000120000000
-               Malloc address range:  0x0000000120000000
-               Shared libraries:      0x0000000160000000
-               Stack address range:   0x0000000011000000
-             UNIX_NETBSD
-               Code address range:    0x0000000120000000
-               Malloc address range:  0x0000000120000000
-               Shared libraries:      0x0000000160000000
-               Stack address range:   0x00000001FF000000 */
-          /* This is the safest.
-             Bits 63..48 = type code, Bits 47..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0xFFFF000000000000UL
+        /* Heap object and STACK addresses are allocated through mymalloc.
+           Therefore CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE matter here. */
+        /* To determine TYPECODES_WITH_MALLOC_WORKS, run one of
+             make -k -f Makefile.devel build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc build-porting32-gcc-typecodes-spvw_mixed_pages
+             make -k -f Makefile.devel build-porting32-cc-typecodes-spvw_mixed_blocks-malloc build-porting32-cc-typecodes-spvw_mixed_pages
+             make -k -f Makefile.devel build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc build-porting64-gcc-typecodes-spvw_mixed_pages
+             make -k -f Makefile.devel build-porting64-cc-typecodes-spvw_mixed_blocks-malloc build-porting64-cc-typecodes-spvw_mixed_pages
+         */
+        #if !defined(WIDE_HARD)
+          /* 32-bit platforms */
+          #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
+            #define oint_type_shift 24
+            #define oint_type_len 8
+            #define oint_type_mask 0xBF000000UL
+            #define oint_addr_shift 0
+            #define oint_addr_len 24
+            #define oint_addr_mask 0x40FFFFFFUL
+            /* Error "Return value of malloc() = 0x40036618 is not compatible with type code distribution." */
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
+            #define oint_type_shift 24
+            #define oint_type_len 8
+            #define oint_type_mask 0xBF000000UL
+            #define oint_addr_shift 0
+            #define oint_addr_len 24
+            #define oint_addr_mask 0x40FFFFFFUL
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          /* It is not worth testing these configurations without TRIVIALMAP_MEMORY.
+             Most of them would fail when starting lisp.run, with the error
+             "Return value of malloc() = ... is not compatible with type code distribution." */
+          #ifndef oint_addr_mask
+            #error "This configuration is not supported without TRIVIALMAP_MEMORY. Add -DTRIVIALMAP_MEMORY to the CFLAGS in the Makefile."
+          #endif
+        #else
+          /* 64-bit platforms */
+          /* Nearly the same as with TRIVIALMAP_MEMORY. */
+          #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(DECALPHA) /* Linux/alpha */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
+            #define oint_type_shift 53
+            #define garcol_bit_o 60
+            #define oint_addr_mask 0xE01FFFFFFFFFFFFFUL
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
+            #if 0 /* Does not help for the older machine. */
+              /* Avoid error
+                 "Return value of malloc() = 00000100004808e0 is not compatible with type code distribution."
+                 as well as
+                 "Return value of malloc() = fffff8010049a010 is not compatible with type code distribution." */
+              #define oint_type_shift 35
+              #define garcol_bit_o 42
+              #define oint_addr_mask 0xFFFFF907FFFFFFFFUL
+            #endif
+            #define TYPECODES_WITH_MALLOC_WORKS 0 /* 0 on an older machine (gcc-4.6.3), 1 on newer machines (gcc-6.4, gcc-7.2) */
+          #endif
+          #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_NETBSD) && defined(SPARC64) /* NetBSD/sparc64 */
+            #define TYPECODES_WITH_MALLOC_WORKS ?
+          #endif
+          #if defined(UNIX_OPENBSD) && defined(AMD64) /* OpenBSD/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
+            #define oint_type_shift 53
+            #define oint_type_len 9
+            #define oint_addr_mask 0xC01FFFFFFFFFFFFFUL
+            #define garcol_bit_o 60
+            /* Error "Return value of malloc() = 800000010005cf10 is not compatible with type code distribution." */
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
+            #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
+            /* Link error: "ld: fatal: relocation error: R_SPARC_H44: file spvw.o: symbol symbol_tab_data: value 0x1000000400 does not fit" */
+            #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_CYGWIN) && defined(AMD64) /* Cygwin */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #ifndef oint_type_shift
+            #define oint_type_shift 56
+          #endif
+          #ifndef oint_type_len
+            #define oint_type_len 8
+          #endif
           #define oint_addr_shift 0
-          #define oint_addr_len 48
-          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
-        #endif
-        #if defined(MIPS64)
-          /* Bits 63..48 = type code, bits 31..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0xFFFF000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 64
-          #define oint_addr_mask 0x00000000FFFFFFFFUL
-          #define oint_data_shift 0
-          #define oint_data_len 48
-          #define oint_data_mask 0x0000FFFFFFFFFFFFUL
-        #endif
-        #if defined(SPARC64)
-          /* Virtual address limit on some systems: -2^43..2^43.
-             This is the safest.
-             Bits 63..48 = type code, bits 47..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0xFFFF000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 48
-          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
-        #endif
-        #if defined(IA64) && defined(UNIX_LINUX)
-          /* Bits 63..61 = region code,
-             bits 60..39 all zero or all one,
-             Virtual address limit: R*2^61..R*2^61+2^39, (R+1)*2^61-2^39..(R+1)*2^61.
-             SHLIB_ADDRESS_RANGE  = 0x2000000000000000UL (region 1)
-             CODE_ADDRESS_RANGE   = 0x4000000000000000UL (region 2)
-             MALLOC_ADDRESS_RANGE = 0x6000000000000000UL (region 3)
-             STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
-             This is the safest.
-             Bits 63..48 = Typcode, Bits 47..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0x1FFF000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 64
-          #define oint_addr_mask 0xE000FFFFFFFFFFFFUL
-          #define oint_data_shift 0
-          #define oint_data_len 48
-          #define oint_data_mask 0x0000FFFFFFFFFFFFUL
-        #endif
-        #if defined(AMD64)
-          /* UNIX_LINUX:
-               CODE_ADDRESS_RANGE     0x0000000000000000UL
-               MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-               SHLIB_ADDRESS_RANGE    0x00000034F5000000UL
-               STACK_ADDRESS_RANGE    0x0000007FBF000000UL
-             UNIX_FREEBSD:
-               CODE_ADDRESS_RANGE     0x0000000000000000UL
-               MALLOC_ADDRESS_RANGE   0x0000000000000000UL
-               SHLIB_ADDRESS_RANGE    0x0000000800000000UL
-               STACK_ADDRESS_RANGE    0x00007FFFFF000000UL
-             UNIX_MACOSX:
-               Virtual address limit: 2^33..2^47.
-               CODE_ADDRESS_RANGE     0x0000000100000000UL
-               MALLOC_ADDRESS_RANGE   0x0000000100000000UL
-               SHLIB_ADDRESS_RANGE    0x00007FFF70000000UL
-               STACK_ADDRESS_RANGE    0x00007FFF5F000000UL
-             Bits 63..48 = type code, Bits 47..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0xFFFF000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 48
-          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
-        #endif
-        #if defined(ARM64) && defined(UNIX_LINUX)
-          /* UNIX_LINUX:
-               CODE_ADDRESS_RANGE     0x0000000000000000UL
-               MALLOC_ADDRESS_RANGE   0x000000000E000000UL (varies, < 2^32)
-               SHLIB_ADDRESS_RANGE    0x0000002000000000UL
-               STACK_ADDRESS_RANGE    0x0000007FF0000000UL
-               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                      0x0000007FFFFFFFFFUL
-             Bits 63..48 = type code, Bits 47..0 = address */
-          #define oint_type_shift 48
-          #define oint_type_len 16
-          #define oint_type_mask 0xFFFF000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 48
-          #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
-        #endif
-        #if defined(POWERPC64) && defined(UNIX_LINUX)
-          /* UNIX_LINUX:
-               CODE_ADDRESS_RANGE     0x0000000010000000UL
-               MALLOC_ADDRESS_RANGE   0x0000010028000000UL (varies a bit)
-               SHLIB_ADDRESS_RANGE    0x00003FFFA0000000UL
-               STACK_ADDRESS_RANGE    0x00003FFFD1000000UL
-               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                      0x00003FFFFFFFFFFFUL
-             Bits 63..56 = type code, Bits 55..0 = address */
-          #define oint_type_shift 56
-          #define oint_type_len 8
-          #define oint_type_mask 0xFF00000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 56
-          #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
-        #endif
-        #if defined(S390_64) && defined(UNIX_LINUX)
-          /* UNIX_LINUX:
-               CODE_ADDRESS_RANGE     0x0000000080000000UL
-               MALLOC_ADDRESS_RANGE   0x0000000081000000UL ... 0x00000000BE000000UL
-               SHLIB_ADDRESS_RANGE    0x000003FFFD000000UL
-               STACK_ADDRESS_RANGE    0x000003FFFF000000UL
-               Virtual address limit (= 2^(MMAP_FIXED_ADDRESS_HIGHEST_BIT+1)-1)
-                                      0x001FFFFFFFFFFFFFUL
-             Bits 63..56 = type code, Bits 55..0 = address */
-          /* FIXME: This parameterization does not actually work. */
-          #define oint_type_shift 56
-          #define oint_type_len 8
-          #define oint_type_mask 0xFF00000000000000UL
-          #define oint_addr_shift 0
-          #define oint_addr_len 56
-          #define oint_addr_mask 0x00FFFFFFFFFFFFFFUL
-          #define oint_data_shift oint_addr_shift
-          #define oint_data_len oint_addr_len
-          #define oint_data_mask oint_addr_mask
+          #define oint_addr_len oint_type_shift
+          #ifndef oint_addr_mask
+            #define oint_addr_mask ((1UL<<oint_addr_len)-1)
+          #endif
+          /* Not just ~oint_addr_mask, because evaluation in preprocessor directives uses intmax_t. */
+          #define oint_type_mask (0xFFFFFFFFFFFFFFFFUL & ~oint_addr_mask)
         #endif
       #endif
+      #define oint_data_shift oint_addr_shift
+      #define oint_data_len oint_addr_len
+      #define oint_data_mask ((1UL<<oint_data_len)-1)
     #endif
   #endif
 #endif
@@ -4425,25 +4607,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #if addr_shift != 0
     #error addr_shift must be 0 with SINGLEMAP_MEMORY !!
   #endif
-#endif
-
-
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
-     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
-    && !defined(SINGLEMAP_MEMORY)                                              \
-    && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
-    && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
-    && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
-    && !defined(NO_TRIVIALMAP)
-  /* mmap() allows for a more flexible way of memory management than malloc().
-   It's not really memory-mapping, but a more comfortable way to
-   manage two large memory blocks.
-   But it requires that we know where to map the large memory blocks in the
-   address range. It does not work reliably when address space layout
-   randomization is in effect: TRIVIALMAP_MEMORY assumes that one can extend an
-   existing memory region by mmapping the pages after it; but this might
-   overwrite some small malloc regions that have been put there by the system. */
-  #define TRIVIALMAP_MEMORY
 #endif
 
 

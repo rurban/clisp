@@ -343,15 +343,15 @@ multibuild-porting32-gcc: \
   build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
-  build-porting32-gcc-one_free_bit_heapcodes \
+  build-porting32-gcc-one_free_bit_heapcodes-malloc \
+  build-porting32-gcc-one_free_bit_heapcodes-trivialmap \
   build-porting32-gcc-kernelvoid32_heapcodes \
-  build-porting32-gcc-try1_typecodes \
-  build-porting32-gcc-try2_typecodes \
   build-porting32-gcc-heapcodes-spvw_pages \
   build-porting32-gcc-typecodes-spvw_pure_pages \
   build-porting32-gcc-typecodes-spvw_mixed_pages \
   build-porting32-gcc-heapcodes-spvw_mixed_blocks \
-  build-porting32-gcc-typecodes-spvw_mixed_blocks \
+  build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc \
+  build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap \
   build-porting32-gcc-spvw_pure_blocks \
   build-porting32-gcc-wide \
   build-porting32-gcc-limited_memory \
@@ -384,32 +384,25 @@ build-porting32-gcc-heapcodes:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force ONE_FREE_BIT_HEAPCODES.
-build-porting32-gcc-one_free_bit_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+build-porting32-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+build-porting32-gcc-one_free_bit_heapcodes-trivialmap:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force KERNELVOID32_HEAPCODES.
 build-porting32-gcc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DKERNELVOID32_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
-
-# Force TRY_TYPECODES_1.
-build-porting32-gcc-try1_typecodes:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTRY_TYPECODES_1" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
-
-# Force TRY_TYPECODES_2.
-build-porting32-gcc-try2_typecodes:
-	$(RMRF) $@
-	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTRY_TYPECODES_2" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DKERNELVOID32_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
@@ -441,12 +434,20 @@ build-porting32-gcc-heapcodes-spvw_mixed_blocks:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
-build-porting32-gcc-typecodes-spvw_mixed_blocks:
+build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
@@ -520,15 +521,15 @@ multibuild-porting32-cc: \
   build-porting32-cc-portability \
   build-porting32-cc-safety3 \
   build-porting32-cc-heapcodes \
-  build-porting32-cc-one_free_bit_heapcodes \
+  build-porting32-cc-one_free_bit_heapcodes-malloc \
+  build-porting32-cc-one_free_bit_heapcodes-trivialmap \
   build-porting32-cc-kernelvoid32_heapcodes \
-  build-porting32-cc-try1_typecodes \
-  build-porting32-cc-try2_typecodes \
   build-porting32-cc-heapcodes-spvw_pages \
   build-porting32-cc-typecodes-spvw_pure_pages \
   build-porting32-cc-typecodes-spvw_mixed_pages \
   build-porting32-cc-heapcodes-spvw_mixed_blocks \
-  build-porting32-cc-typecodes-spvw_mixed_blocks \
+  build-porting32-cc-typecodes-spvw_mixed_blocks-malloc \
+  build-porting32-cc-typecodes-spvw_mixed_blocks-trivialmap \
   build-porting32-cc-spvw_pure_blocks \
   build-porting32-cc-wide \
   build-porting32-cc-limited_memory \
@@ -559,32 +560,25 @@ build-porting32-cc-heapcodes:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force ONE_FREE_BIT_HEAPCODES.
-build-porting32-cc-one_free_bit_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+build-porting32-cc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+build-porting32-cc-one_free_bit_heapcodes-trivialmap:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force KERNELVOID32_HEAPCODES.
 build-porting32-cc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DKERNELVOID32_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
-
-# Force TRY_TYPECODES_1.
-build-porting32-cc-try1_typecodes:
-	$(RMRF) $@
-	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTRY_TYPECODES_1" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
-
-# Force TRY_TYPECODES_2.
-build-porting32-cc-try2_typecodes:
-	$(RMRF) $@
-	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTRY_TYPECODES_2" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DKERNELVOID32_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
@@ -616,12 +610,20 @@ build-porting32-cc-heapcodes-spvw_mixed_blocks:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
-# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
-build-porting32-cc-typecodes-spvw_mixed_blocks:
+build-porting32-cc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting32-cc-typecodes-spvw_mixed_blocks-trivialmap:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
@@ -692,13 +694,15 @@ multibuild-porting64-gcc: \
   build-porting64-gcc-portability \
   build-porting64-gcc-safety3 \
   build-porting64-gcc-heapcodes \
-  build-porting64-gcc-one_free_bit_heapcodes \
+  build-porting64-gcc-one_free_bit_heapcodes-malloc \
+  build-porting64-gcc-one_free_bit_heapcodes-trivialmap \
   build-porting64-gcc-generic64_heapcodes \
   build-porting64-gcc-heapcodes-spvw_pages \
   build-porting64-gcc-typecodes-spvw_pure_pages \
   build-porting64-gcc-typecodes-spvw_mixed_pages \
   build-porting64-gcc-heapcodes-spvw_mixed_blocks \
-  build-porting64-gcc-typecodes-spvw_mixed_blocks \
+  build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc \
+  build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap \
   build-porting64-gcc-spvw_pure_blocks \
   build-porting64-gcc-limited_memory \
   build-porting64-gcc-old_gc \
@@ -730,18 +734,25 @@ build-porting64-gcc-heapcodes:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force ONE_FREE_BIT_HEAPCODES.
-build-porting64-gcc-one_free_bit_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+build-porting64-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+build-porting64-gcc-one_free_bit_heapcodes-trivialmap:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force GENERIC64_HEAPCODES.
 build-porting64-gcc-generic64_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERIC64_HEAPCODES" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DGENERIC64_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
@@ -773,12 +784,20 @@ build-porting64-gcc-heapcodes-spvw_mixed_blocks:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
-build-porting64-gcc-typecodes-spvw_mixed_blocks:
+build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap:
+	$(RMRF) $@
+	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
@@ -845,13 +864,15 @@ multibuild-porting64-cc: \
   build-porting64-cc-portability \
   build-porting64-cc-safety3 \
   build-porting64-cc-heapcodes \
-  build-porting64-cc-one_free_bit_heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes-malloc \
+  build-porting64-cc-one_free_bit_heapcodes-trivialmap \
   build-porting64-cc-generic64_heapcodes \
   build-porting64-cc-heapcodes-spvw_pages \
   build-porting64-cc-typecodes-spvw_pure_pages \
   build-porting64-cc-typecodes-spvw_mixed_pages \
   build-porting64-cc-heapcodes-spvw_mixed_blocks \
-  build-porting64-cc-typecodes-spvw_mixed_blocks \
+  build-porting64-cc-typecodes-spvw_mixed_blocks-malloc \
+  build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap \
   build-porting64-cc-spvw_pure_blocks \
   build-porting64-cc-limited_memory \
   build-porting64-cc-old_gc \
@@ -881,18 +902,25 @@ build-porting64-cc-heapcodes:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force ONE_FREE_BIT_HEAPCODES.
-build-porting64-cc-one_free_bit_heapcodes:
+# Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+build-porting64-cc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+build-porting64-cc-one_free_bit_heapcodes-trivialmap:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force GENERIC64_HEAPCODES.
 build-porting64-cc-generic64_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERIC64_HEAPCODES" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DGENERIC64_HEAPCODES" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
@@ -924,12 +952,20 @@ build-porting64-cc-heapcodes-spvw_mixed_blocks:
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
-# Force TYPECODES with SPVW_MIXED_BLOCKS.
+# Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
-build-porting64-cc-typecodes-spvw_mixed_blocks:
+build-porting64-cc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP" \
+	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
+	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
+
+# Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
+# Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap:
+	$(RMRF) $@
+	CFLAGS="$(MULTIBUILD_CFLAGS)" \
+	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
@@ -985,8 +1021,6 @@ multibuild-linux-x86: \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-heapcodes \
   build-porting32-gcc-kernelvoid32_heapcodes \
-  build-porting32-gcc-try1_typecodes \
-  build-porting32-gcc-try2_typecodes \
   build-porting32-gcc-heapcodes-spvw_pages \
   build-porting32-gcc-heapcodes-spvw_mixed_blocks \
   build-porting32-gcc-wide \
