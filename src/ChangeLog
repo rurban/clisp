@@ -1,5 +1,12 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Update support for Linux/hppa and Linux/m68k.
+	I learned how to use these platforms with dynamic linking, see
+	<https://bugs.launchpad.net/qemu/+bug/1701798/>.
+	* lispbibl.d (SINGLEMAP_WORKS): Update value for Linux/hppa, Linux/m68k.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Tweak support for Linux/sparc.
 	* lispbibl.d (CODE_ADDRESS_RANGE) [Linux/sparc]: Force the same value
 	across machines.
