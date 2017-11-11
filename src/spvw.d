@@ -168,6 +168,40 @@ global break_sems_ break_sems;
 
 local _Noreturn void quit_instantly (int);
 /* --------------------------------------------------------------------------
+                        bit mask computation */
+
+/* Compute the set of bits used by the interval [start,end]. */
+local uintP bits_used_by_range (uintP start, uintP end) {
+  /* If start < end, it goes like this:
+     Split start and end (as bit sequences) into a common part
+     (the longest common sequence of bits) and the first bit that differs.
+     Then the result is
+       the common part, OR that different bit, OR all lower bits.
+     For example:
+             start = 0001001 011000000
+             end   = 0001001 101011111
+     => range_mask = 0001001 111111111
+     because    x1 = 0001001 011111111
+     and        x2 = 0001001 100000000
+     are consecutive numbers in the range (start <= x1 < x2 <= end)
+     with x1 | x2 = range_mask.
+     The resulting code is symmetric in start <--> end, therefore works
+     also when start > end. */
+  var uintP diff = start ^ end;
+  diff |= diff >> 1;
+  diff |= diff >> 2;
+  diff |= diff >> 4;
+  diff |= diff >> 8;
+  diff |= diff >> 16;
+  #if (pointer_bitsize > 32)
+  diff |= diff >> 32;
+  #endif
+  var uintP range_bits = start | diff;
+  ASSERT(range_bits == (end | diff));
+  return range_bits;
+}
+
+/* --------------------------------------------------------------------------
                          memory management, common part */
 
 /* method of the memory management: */
@@ -2988,37 +3022,6 @@ local inline void free_argv_initparams (struct argv_initparams *p) {
 local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_init_files);
   free(p->argv_compile_files);
-}
-
-/* Compute the set of bits used by the interval [start,end]. */
-local uintP bits_used_by_range (uintP start, uintP end) {
-  /* If start < end, it goes like this:
-     Split start and end (as bit sequences) into a common part
-     (the longest common sequence of bits) and the first bit that differs.
-     Then the result is
-       the common part, OR that different bit, OR all lower bits.
-     For example:
-             start = 0001001 011000000
-             end   = 0001001 101011111
-     => range_mask = 0001001 111111111
-     because    x1 = 0001001 011111111
-     and        x2 = 0001001 100000000
-     are consecutive numbers in the range (start <= x1 < x2 <= end)
-     with x1 | x2 = range_mask.
-     The resulting code is symmetric in start <--> end, therefore works
-     also when start > end. */
-  var uintP diff = start ^ end;
-  diff |= diff >> 1;
-  diff |= diff >> 2;
-  diff |= diff >> 4;
-  diff |= diff >> 8;
-  diff |= diff >> 16;
-  #if (pointer_bitsize > 32)
-  diff |= diff >> 32;
-  #endif
-  var uintP range_bits = start | diff;
-  ASSERT(range_bits == (end | diff));
-  return range_bits;
 }
 
 /* Initialize memory and load the specified memory image.

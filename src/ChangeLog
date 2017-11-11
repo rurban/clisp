@@ -1,5 +1,15 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Fix unnecessary error when oint_addr_mask != 2^oint_addr_len-1.
+	* spvw.d (bits_used_by_range): Move up.
+	* spvw_allocate.d (pointable_usable_test): Don't assume that
+	oint_addr_mask == 2^oint_addr_len-1.
+	(mymalloc): Use pointable_usable_test to test the entire returned
+	address range.
+	* spvw_allocate_old.d: Likewise.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix crash on SPARC when oint_addr_mask != 2^oint_addr_len-1.
 	* lispbibl.d (untype) [SPARC]: Make it work also when oint_addr_mask is
 	not 2^oint_addr_len-1. Optimize also for 64-bit SPARC.
