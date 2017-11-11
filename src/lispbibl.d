@@ -4706,14 +4706,19 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    untype(obj) */
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #define untype(expr)  ((expr).u.both.addr)
-  #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
+  #elif !(defined(SPARC) && (oint_addr_mask==bitm(oint_addr_len)-1))
     #define untype(expr)    \
       ((aint)(as_oint(expr) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift))
   #else
-    /* On a SPARC processor long constants are slower than shifts:
-     Possibly, one does not need to use AND here. */
-    #define untype(expr)  \
-      ((aint)((as_oint(expr) << (32-oint_addr_len-oint_addr_shift)) >> (32-oint_addr_len)))
+    /* On a SPARC processor long constants are slower than shifts.
+       Therefore, one does not need to use AND here. */
+    #if (oint_addr_len+oint_addr_shift<=pointer_bitsize)
+      #define untype(expr)  \
+        (((uintP)as_oint(expr) << (pointer_bitsize-oint_addr_len-oint_addr_shift)) >> (pointer_bitsize-oint_addr_len))
+    #else /* oint must be 64 bits wide. */
+      #define untype(expr)  \
+        ((aint)((as_oint(expr) << (64-oint_addr_len-oint_addr_shift)) >> (64-oint_addr_len)))
+    #endif
   #endif
 
   /* Object from type info and address field:
