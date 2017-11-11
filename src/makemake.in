@@ -1892,14 +1892,8 @@ else
       # 64-bit platforms
 
       # Linux/x86_64
-      linux*--x86_64) # TODO
+      linux*--x86_64)
         XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
       # Linux/arm64
