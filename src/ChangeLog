@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Record whether KERNELVOID32_HEAPCODES works.
+	* lispbibl.d (KERNELVOID32_HEAPCODES_WORKS): Define for each 32-bit
+	platform.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Find good parameters for using ONE_FREE_BIT_HEAPCODES, per platform.
 	* lispbibl.d (garcol_bit_o, imm_type_shift, oint_type_*, oint_addr_*):
 	Find appropriate values for ONE_FREE_BIT_HEAPCODES, depending on
