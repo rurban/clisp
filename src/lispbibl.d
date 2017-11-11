@@ -1620,9 +1620,7 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
  and a minumum of storage space. */
 %% sprintf(buf,"sint%d",intBsize); emit_typedef(buf,"sintB");
 %% sprintf(buf,"uint%d",intBsize); emit_typedef(buf,"uintB");
-%% #if notused
 %% sprintf(buf,"sint%d",intWsize); emit_typedef(buf,"sintW");
-%% #endif
 %% sprintf(buf,"uint%d",intWsize); emit_typedef(buf,"uintW");
 %% sprintf(buf,"sint%d",intLsize); emit_typedef(buf,"sintL");
 %% sprintf(buf,"uint%d",intLsize); emit_typedef(buf,"uintL");

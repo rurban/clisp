@@ -1,5 +1,11 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on Linux/m68k.
+	* lispbibl.d (sintW): Emit into clisp.h. It is used by the expansion of
+	macro 'dotimespC'.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Fix unnecessary error when oint_addr_mask != 2^oint_addr_len-1.
 	* spvw.d (bits_used_by_range): Move up.
 	* spvw_allocate.d (pointable_usable_test): Don't assume that
