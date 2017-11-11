@@ -1,5 +1,14 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/i386.
+	* Makefile.devel (multibuild-linux-i386): Enable all build variants
+	that work.
+	(multibuild-linux-x86): Remove target.
+	* makemake.in (XCFLAGS): For Linux/i386, enable all optimizations
+	except ASM, ARI_ASM, SP_ASM.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/x86_64.
 	* Makefile.devel (multibuild-linux-x86_64): Enable all build variants.
 	* makemake.in (XCFLAGS): For Linux/x86_64, enable all optimizations
