@@ -368,63 +368,63 @@ build-porting32-gcc-portability:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting32-gcc-safety3:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES.
 build-porting32-gcc-heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
 build-porting32-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
 build-porting32-gcc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force KERNELVOID32_HEAPCODES.
 build-porting32-gcc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DKERNELVOID32_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
 build-porting32-gcc-heapcodes-spvw_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
 build-porting32-gcc-typecodes-spvw_pure_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
 build-porting32-gcc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_MIXED_BLOCKS.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -432,7 +432,7 @@ build-porting32-gcc-heapcodes-spvw_mixed_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -440,7 +440,7 @@ build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -448,64 +448,64 @@ build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
 build-porting32-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force WIDE_SOFT.
 build-porting32-gcc-wide:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DWIDE" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
 build-porting32-gcc-limited_memory:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-generational_gc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-safety0:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-safety0-optimized:
 	$(RMRF) $@
 	CFLAGS="-O2 -fexpensive-optimizations $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-gcc-debug_gcsafety:
 	$(RMRF) $@
@@ -513,7 +513,7 @@ build-porting32-gcc-debug_gcsafety:
 	CC="$${CXX-g++}" \
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability --with-debug $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability --with-debug $@
 
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
@@ -544,63 +544,63 @@ build-porting32-cc-portability:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting32-cc-safety3:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES.
 build-porting32-cc-heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
 build-porting32-cc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
 build-porting32-cc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force KERNELVOID32_HEAPCODES.
 build-porting32-cc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DKERNELVOID32_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
 build-porting32-cc-heapcodes-spvw_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
 build-porting32-cc-typecodes-spvw_pure_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
 build-porting32-cc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_MIXED_BLOCKS.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -608,7 +608,7 @@ build-porting32-cc-heapcodes-spvw_mixed_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -616,7 +616,7 @@ build-porting32-cc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -624,58 +624,58 @@ build-porting32-cc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
 build-porting32-cc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force WIDE_SOFT.
 build-porting32-cc-wide:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DWIDE" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
 build-porting32-cc-limited_memory:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-cc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-cc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-cc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-cc-generational_gc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 build-porting32-cc-safety0:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Build and test various configurations, in order to fix bootstrapping problems
@@ -718,63 +718,63 @@ build-porting64-gcc-portability:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting64-gcc-safety3:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES.
 build-porting64-gcc-heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
 build-porting64-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
 build-porting64-gcc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force GENERIC64_HEAPCODES.
 build-porting64-gcc-generic64_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DGENERIC64_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
 build-porting64-gcc-heapcodes-spvw_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
 build-porting64-gcc-typecodes-spvw_pure_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
 build-porting64-gcc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_MIXED_BLOCKS.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -782,7 +782,7 @@ build-porting64-gcc-heapcodes-spvw_mixed_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -790,7 +790,7 @@ build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -798,57 +798,57 @@ build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
 build-porting64-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
 build-porting64-gcc-limited_memory:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-generational_gc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-safety0:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-safety0-optimized:
 	$(RMRF) $@
 	CFLAGS="-O2 -fexpensive-optimizations $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-gcc-debug_gcsafety:
 	$(RMRF) $@
@@ -856,7 +856,7 @@ build-porting64-gcc-debug_gcsafety:
 	CC="$${CXX-g++}" \
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability --with-debug $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability --with-debug $@
 
 # Build various configurations. Assumes $CC is not GCC.
 # Put the optimization options into $CC.
@@ -886,63 +886,63 @@ build-porting64-cc-portability:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --enable-portability $@
 
 # Nearly the default. Just with some low-cost safety.
 build-porting64-cc-safety3:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES.
 build-porting64-cc-heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
 build-porting64-cc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DONE_FREE_BIT_HEAPCODES -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
 build-porting64-cc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DONE_FREE_BIT_HEAPCODES -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force GENERIC64_HEAPCODES.
 build-porting64-cc-generic64_heapcodes:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DGENERIC64_HEAPCODES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_PAGES (no use of mmap).
 build-porting64-cc-heapcodes-spvw_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_PURE_PAGES (no use of mmap).
 build-porting64-cc-typecodes-spvw_pure_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DPREFER_PURE_PAGES" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_PAGES (no use of mmap).
 build-porting64-cc-typecodes-spvw_mixed_pages:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force HEAPCODES with SPVW_MIXED_BLOCKS.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -950,7 +950,7 @@ build-porting64-cc-heapcodes-spvw_mixed_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DHEAPCODES -DNO_SINGLEMAP" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -958,7 +958,7 @@ build-porting64-cc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DTYPECODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_VIRTUAL_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
@@ -966,51 +966,51 @@ build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DNO_SINGLEMAP -DTRIVIALMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
 build-porting64-cc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM -DNO_FAST_DISPATCH -DNO_FAST_FLOAT -DNO_FAST_DOUBLE -DNO_ALLOCA -DTYPECODES -DSINGLEMAP_MEMORY" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force SPVW_MIXED_BLOCKS_OPPOSITE with limited memory size (honor -m option),
 build-porting64-cc-limited_memory:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_VIRTUAL_MEMORY -DNO_ADDRESS_SPACE_ASSUMPTIONS" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-cc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-cc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DNO_GENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-cc-generational_gc-old_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC -DOLD_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-cc-generational_gc-multithread_gc:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ARI_ASM -DNO_SP_ASM -DSAFETY=3 -DGENERATIONAL_GC" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 build-porting64-cc-safety0:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="" \
-	  ./configure --cbc $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
+	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Build and test various configurations that are supposed to work on a
@@ -1230,52 +1230,52 @@ multibuild-cygwin-64: multibuild-porting64-gcc # TODO
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DCONS_HEAP_GROWS_UP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-one_free_bit-spvw_mixed_blocks-opposite-fixedmemsize:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-one_free_bit-spvw_mixed_pages:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DONE_FREE_BIT_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-staggered:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DCONS_HEAP_GROWS_UP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DCONS_HEAP_GROWS_DOWN" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-kernelvoid32-spvw_mixed_blocks-opposite-fixedmemsize:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DNO_VIRTUAL_MEMORY -DNO_TRIVIALMAP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-kernelvoid32-spvw_mixed_pages:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DKERNELVOID32_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-spvw_pure_blocks:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DTYPECODES" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 #build-darwin-powerpc-wide:
 #	$(RMRF) $@
 #	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 #	CPPFLAGS="-DWIDE" \
-#	  ./configure --cbc $(MULTIBUILD_OPTIONS) --disable-portability $@
+#	  ./configure --cbcx $(MULTIBUILD_OPTIONS) --disable-portability $@
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

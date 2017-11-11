@@ -48,6 +48,7 @@ options: The following options are recognized:
   --version             print the CLISP version and exit
   --config              unix/INSTALL step 3: configuration only
   --cbc                 unix/INSTALL steps 3-8: Configure, Build, Check
+  --cbcx                Configure, Build, Check, Extra checks
  The following options set installation parameters:
   --srcdir=SRCDIR       sets the source directory to SRCDIR
  The following options are passed to subordinate `configure' scripts:
@@ -212,9 +213,13 @@ do
 
     case "$arg" in
 
-      --cbc | --cb)
+      --cbc)
         do_config=1
         do_cbc=1 ;;
+
+      --cbcx)
+        do_config=1
+        do_cbc=2 ;;
 
       --config | --confi | --conf | --con | --co)
         do_config=1 ;;
@@ -825,8 +830,16 @@ else
   fi
   ${MAKE} 2>&1 | tee cbcstep2.log
   ${MAKE} check 2>&1 | tee cbcstep3.log
-  cat <<EOF
+  if test "$do_cbc" = 2; then
+    ${MAKE} extracheck 2>&1 | tee cbcstep4.log
+    cat <<EOF
+# Now you can test modules:
+    ${MAKE} mod-check
+EOF
+  else
+    cat <<EOF
 # Now you can test non-portable features and modules:
     ${MAKE} extracheck mod-check
 EOF
+  fi
 fi
