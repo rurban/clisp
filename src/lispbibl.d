@@ -490,9 +490,15 @@
   #define SAFETY 0
 #endif
 #if SAFETY >= 3
-  #define NO_ASM
-  #define NO_ARI_ASM
-  #define NO_FAST_DISPATCH
+  #ifndef NO_ASM
+    #define NO_ASM
+  #endif
+  #ifndef NO_ARI_ASM
+    #define NO_ARI_ASM
+  #endif
+  #ifndef NO_FAST_DISPATCH
+    #define NO_FAST_DISPATCH
+  #endif
 #endif
 
 /* We don't support pre-ANSI-C compilers any more. */
