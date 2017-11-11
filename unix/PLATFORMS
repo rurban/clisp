@@ -100,6 +100,93 @@ tools print a memory map (i.e. the virtual memory areas) of a running process:
 The stack address range is printed by these tools, but CLISP does not make
 assumptions about it.
 
+Verifying that all supported configurations work
+------------------------------------------------
+
+There are a number of configurations of the memory management (different
+object representation, different GC algorithms, old_gc vs. multithread_gc,
+etc.). It is useful to verify that all such supported configurations work
+and which configuration cannot be supported on the particular platform,
+so that
+  - you get an overview of which features don't work in any configuration
+    (you can then disable this feature in lispbibl.d),
+  - you can be sure that there are no hidden bugs lurking,
+  - later regressions become apparent quickly.
+
+To do so:
+1) Get at least one configuration to at least build lisp.run without
+   compilation errors (--enable-portability is your best bet for this).
+   Then get an understanding of address space layout (see above).
+2) Add to lispbibl.d platform dependent sections:
+   - A section that defines MAPPABLE_ADDRESS_RANGE_START and
+     MAPPABLE_ADDRESS_RANGE_END.
+   - A section that defines the parameters for SINGLEMAP_MEMORY:
+     SINGLEMAP_ADDRESS_BASE, SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift.
+   - A section that defines the parameters for ONE_FREE_BIT_HEAPCODES:
+     garcol_bit_o.
+   - A section that defines the parameters for TYPECODES_WITH_TRIVIALMAP.
+   - A section that defines the parameters for TYPECODES_WITH_MALLOC.
+3) Build the whole set of variants.
+   This is done through one of the commands
+     make -k -f Makefile.devel multibuild-porting32-gcc
+     make -k -f Makefile.devel multibuild-porting32-cc
+     make -k -f Makefile.devel multibuild-porting64-gcc
+     make -k -f Makefile.devel multibuild-porting64-cc
+   Pick the one that matches your platform bitness (32-bit or 64-bit
+   platform) and your compiler (GCC or compatible, e.g. clang, versus
+   vendor cc).
+   Before doing this, you need to set an environment variable
+   MULTIBUILD_32_OPTIONS (for the 32-bit target) or MULTIBUILD_64_OPTIONS
+   (for the 64-bit target), that contain configuration options, typically
+   --prefix, --with-libsigsegv-prefix, --with-libffcall-prefix options.
+4) Depending on the results, define *_WORKS macros in lispbibl.d:
+   - SINGLEMAP_WORKS, depending on the result of
+     build-porting*-spvw_pure_blocks
+   - HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS, depending on the result of
+     build-porting*-one_free_bit_heapcodes-trivialmap
+   - HEAPCODES1BIT_WITH_MALLOC_WORKS, depending on the result of
+     build-porting*-one_free_bit_heapcodes-malloc
+   - KERNELVOID32_HEAPCODES_WORKS, depending on the result of
+     build-porting32-*-kernelvoid32_heapcodes
+   - GENERIC64C_HEAPCODES_WORKS, depending on the result of
+     build-porting64-*-generic64_heapcodes
+   - TYPECODES_WITH_TRIVIALMAP_WORKS, depending on the result of
+     build-porting*-typecodes-spvw_mixed_blocks-trivialmap
+   - TYPECODES_WITH_MALLOC_WORKS, depending on the result of
+     build-porting64-gcc-typecodes-spvw_pure_pages
+     build-porting64-gcc-typecodes-spvw_mixed_pages
+     build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc
+5) Redo step 3.
+   Inspect all the build-porting*/cbcstep3.log and determine which failures
+   were justified and which were bugs that you can fix.
+   If you could fix bugs, repeat this step.
+6) Add to Makefile.devel a target multibuild-<platform> that contains all
+   configuration targets that should succeed.
+7) Run "make -k -f Makefile.devel multibuild-<platform>" and verify that
+   build-porting*/cbcstep3.log succeeded.
+
+Enabling optimizations that work
+--------------------------------
+
+After you have performed "Verifying that all supported configurations work"
+(see above):
+1) In makemake.in add a section with platform dependent configuration flags.
+   You can start with the flags that get enabled when ${enable_portability}
+   is 'yes'.
+2) Remove at many de-optimization flags from this section as you can.
+   Then run
+     $ rm -rf build-porting*
+     $ make -k -f Makefile.devel multibuild-<platform>
+   If not all these builds succeeded (look at build-porting*/cbcstep3.log
+   again), re-enable some de-optimization flags and repeat this step.
+
+Quick porting
+-------------
+
+If you don't want to go through the (lengthy) process described in the sections
+above, you can alternatively make some educated guess about which configuration
+will likely work out. Here are tips for this approach.
+
 On 64-bit platforms, if you cannot identify a pattern for the address space
 layout, add -DGENERIC64_HEAPCODES -falign-functions=8 to the CFLAGS.
 

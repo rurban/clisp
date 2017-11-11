@@ -1,5 +1,17 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Prepare for enabling optimizations on a per-platform basis.
+	* makemake.in (enable_portability): Allow three values: no, ifuseful,
+	yes.
+	(XCFLAGS): Add flags that disable optimizations that have not yet been
+	verified to work, for each platform.
+	* Makefile.devel (build-porting*): Configure with option
+	--disable-portability.
+	(multibuild-*): New targets, one per platform.
+	* unix/PLATFORMS: Explain the per-platform porting process.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	New heuristics for deciding which object representation to use.
 	* lispbibl.d (TYPECODES, HEAPCODES): New logic which one to choose by
 	default.
