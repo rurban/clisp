@@ -1,5 +1,14 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
+	Find good parameters for using ONE_FREE_BIT_HEAPCODES, per platform.
+	* lispbibl.d (garcol_bit_o, imm_type_shift, oint_type_*, oint_addr_*):
+	Find appropriate values for ONE_FREE_BIT_HEAPCODES, depending on
+	TRIVIALMAP_MEMORY.
+	(HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS, HEAPCODES1BIT_WITH_MALLOC_WORKS):
+	Define for each platform.
+
+2017-11-11  Bruno Haible  <bruno@clisp.org>
+
 	Check the mymalloc return value also when ONE_FREE_BIT_HEAPCODES.
 	* spvw_allocate.d (pointable_usable_test): For ONE_FREE_BIT_HEAPCODES,
 	check against the garcol_bit.

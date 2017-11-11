@@ -3885,58 +3885,370 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
   #ifdef ONE_FREE_BIT_HEAPCODES
     /* The portable case. Assumes only that the GC bit can be chosen. */
-    #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
-      #define LINUX_SPARC_OLD_GLIBC
+    /* To determine HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS, run one of
+         make -f Makefile.devel build-porting32-gcc-one_free_bit_heapcodes-trivialmap
+         make -f Makefile.devel build-porting32-cc-one_free_bit_heapcodes-trivialmap
+         make -f Makefile.devel build-porting64-gcc-one_free_bit_heapcodes-trivialmap
+         make -f Makefile.devel build-porting64-cc-one_free_bit_heapcodes-trivialmap
+       To determine HEAPCODES1BIT_WITH_MALLOC_WORKS, run one of
+         make -f Makefile.devel build-porting32-gcc-one_free_bit_heapcodes-malloc
+         make -f Makefile.devel build-porting32-cc-one_free_bit_heapcodes-malloc
+         make -f Makefile.devel build-porting64-gcc-one_free_bit_heapcodes-malloc
+         make -f Makefile.devel build-porting64-cc-one_free_bit_heapcodes-malloc
+     */
+    #if !defined(WIDE_HARD)
+      /* 32-bit platforms */
+      #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 with 32-bit x32 ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xf6a94080) contains the bit used to identify frames". */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(ARM) /* Linux/arm */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xb6c8a040) contains the bit used to identify frames". */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
+        /* Without -static:
+           Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
+        /* With -static: */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0 /* even without GENERATIONAL_GC */
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xf65ff080) contains the bit used to identify frames". */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* We get the error
+             "STACK range (around 0xf71b2040) contains the bit used to identify frames"
+             or warnings
+             "Return value of malloc() = f71fe008 is not compatible with the choice of garcol_bit_o."
+             The only way to avoid it would be to #define garcol_bit_o 27,
+             but that conflicts with CODE_ADDRESS_RANGE. */
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
+        /* Crashes, regardless of garcol_bit_o and imm_type_shift values. */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0 /* even without GENERATIONAL_GC */
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xf65ff040) contains the bit used to identify frames". */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
+        #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
+          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+        #else /* Linux/mips with n32 ABI */
+          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+        #endif
+      #endif
+      #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xf7860040) contains the bit used to identify frames". */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(S390) /* Linux/s390x with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xf7a9a080) contains the bit used to identify frames" */
+          #define garcol_bit_o 27
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xbb800000) contains the bit used to identify frames". */
+          #define garcol_bit_o 30
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_NETBSD) && defined(SPARC) /* NetBSD/sparc */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xedb00000) contains the bit used to identify frames". */
+          #define garcol_bit_o 28
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_OPENBSD) && defined(I80386) /* OpenBSD/i386 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_MACOSX) && defined(I80386) /* Mac OS X/x86_64 with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_MACOSX) && defined(POWERPC) /* Mac OS X/PowerPC */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_AIX) && defined(POWERPC) /* AIX/POWER with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
+        /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        /* Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
+        /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        /* Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
+        #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
+          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #else /* IRIX 6.5 with n32 ABI */
+          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+        #endif
+      #endif
+      #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_SUNOS5) && defined(SPARC) /* Solaris/sparc64 with 32-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
+        /* Sometimes we get repeated messages such as
+           "Cannot map memory to address 0x202a8000 ... Invalid Argument" */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
+        /* Warns "clisp might crash later" and
+           produces messages "Cannot map memory to address". */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(WIN32_NATIVE) && defined(I80386) /* mingw, running on Windows 10 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #ifndef garcol_bit_o
+        #define garcol_bit_o 31
+      #endif
+      /* Choose imm_type_shift depending on garcol_bit_o. */
+      #if garcol_bit_o >= 30
+        #define imm_type_shift 3
+      #elif garcol_bit_o >= 27 && garcol_bit_o <= 28
+        #define imm_type_shift (garcol_bit_o+1)
+      #else
+        #error No way to define imm_type_shift, satisfying the constraints!
+      #endif
+    #else
+      /* 64-bit platforms */
+      #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(DECALPHA) /* Linux/alpha */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0xfff800010098c080) contains the bit used to identify frames"
+             or
+             "STACK range (around 0xfffff8010049a080) contains the bit used to identify frames". */
+          #define garcol_bit_o 42
+          #define imm_type_shift 3
+          #define oint_data_len 36
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_NETBSD) && defined(SPARC64) /* NetBSD/sparc64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS ?
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS ?
+      #endif
+      #if defined(UNIX_OPENBSD) && defined(AMD64) /* OpenBSD/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
+        /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "STACK range (around 0x8000000100060980) contains the bit used to identify frames". */
+          #define garcol_bit_o 62
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
+        /* Does not work because mmap MAP_FIXED is not supported on this platform. */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
+      #if defined(UNIX_CYGWIN) && defined(AMD64) /* Cygwin */
+        /* Produces messages "Cannot map memory to address". */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
+        /* Crashes. */
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+      #endif
+      #ifndef garcol_bit_o
+        #define garcol_bit_o 63
+      #endif
     #endif
-    #if defined(WIDE_HARD)
-      #define oint_type_shift 0
+    #if 0 /* old */
+      #if (defined(M68K) && defined(UNIX_LINUX)) || (defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)))
+        /* On Sparc-Linux with glibc 2.1 and older:
+           malloc()ed addresses are of the form 0x0....... or 0xe........
+           Bits 31..29 are therefore part of an address and cannot
+           be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
+           Now, the 24 data bits of an immediate value must not intersect the
+           garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
+           as well).
+           On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
+           0xc0....... Bits 31..30 are therefore part of an address and cannot
+           be used as garcol_bit. We therefore have three choices:
+             data bits: bits 26..3, garcol_bit_o = 28/27
+             data bits: bits 27..4, garcol_bit_o = 28/3
+             data bits: bits 28..5, garcol_bit_o = 4/3 */
+        #define garcol_bit_o 28
+        #define imm_type_shift 29
+      #endif
+    #endif
+    /* The first type field consists of bits 2,1,0. */
+    #define oint_type_shift 0
+    /* Immediate objects have a second type field,
+       consisting of the bits imm_type_shift+2,...,imm_type_shift. */
+    #ifndef imm_type_shift
+      #define imm_type_shift 3
+    #endif
+    #if !((imm_type_shift >= 3) && (imm_type_shift+3 <= pointer_bitsize))
+      #error Wrong choice of imm_type_shift!
+    #endif
+    /* Which bits to use for the type of an object. */
+    #if (imm_type_shift == 3)
       #define oint_type_len 8
-      #define oint_type_mask 0x000000000000007FUL
-      #define oint_data_shift 7
-      #define oint_data_len 48
-      #define oint_data_mask 0x007FFFFFFFFFFF80UL
-      #define garcol_bit_o 63
-    #elif !((defined(M68K) && defined(UNIX_LINUX)) || (defined(I80386) && (defined(UNIX_BEOS) || defined(UNIX_NETBSD))) || defined(LINUX_SPARC_OLD_GLIBC))
-      #define oint_type_shift 0
-      #define oint_type_len 8
-      #define oint_type_mask 0x0000007FUL
-      #define oint_data_shift 7
-      #define oint_data_len 24
-      #define oint_data_mask 0x7FFFFF80UL
-      #define garcol_bit_o 31
-    #elif defined(I80386) && (defined(UNIX_BEOS) || defined(UNIX_NETBSD))
-      /* On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
-         is therefore part of an address and cannot be used as garcol_bit.
-         On NetBSD 7, malloc()ed addresses are of the form 0xBB...... Bit 31
-         is therefore part of an address and cannot be used as garcol_bit. */
-      #define oint_type_shift 0
-      #define oint_type_len 8
-      #define oint_type_mask 0x0000003FUL
-      #define oint_data_shift 6
-      #define oint_data_len 24
-      #define oint_data_mask 0x3FFFFFC0UL
-      #define garcol_bit_o 30
-    #elif (defined(M68K) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
-      /* On Sparc-Linux with glibc 2.1 and older:
-       malloc()ed addresses are of the form 0x0....... or 0xe........
-       Bits 31..29 are therefore part of an address and cannot
-       be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
-       Now, the 24 data bits of an immediate value must not intersect the
-       garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
-       as well).
-       On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
-       0xc0....... Bits 31..30 are therefore part of an address and cannot
-       be used as garcol_bit. We therefore have three choices:
-         data bits: bits 26..3, garcol_bit_o = 28/27
-         data bits: bits 27..4, garcol_bit_o = 28/3
-         data bits: bits 28..5, garcol_bit_o = 4/3 */
-      #define oint_type_shift 0
-      #define oint_type_len 32
-      #define oint_type_mask 0xE000000FUL
-      #define oint_data_shift 4
-      #define oint_data_len 24
-      #define oint_data_mask 0x0FFFFFF0UL
-      #define garcol_bit_o 28
+      #define oint_type_mask (bit(6)-1)
+    #else
+      #define oint_type_len pointer_bitsize
+      #define oint_type_mask ((7UL << imm_type_shift) | 7UL)
+    #endif
+    /* Which bits to use for the data of an immediate object. */
+    #ifndef oint_data_len
+      #if (pointer_bitsize==64)
+        #define oint_data_len 48
+      #else
+        #define oint_data_len 24
+      #endif
+    #endif
+    #if (imm_type_shift == 3)
+      #define oint_data_shift 6 /* or 7 */
+    #else
+      #define oint_data_shift 3
+    #endif
+    #define oint_data_mask (bit(oint_data_len+oint_data_shift)-bit(oint_data_shift))
+    /* Some basic checks, */
+    #if !(garcol_bit_o >= oint_data_len+oint_data_shift)
+      #error Incompatible choices of garcol_bit_o and oint_data_len, oint_data_shift!
+    #endif
+    #if !((garcol_bit_o < imm_type_shift) || (garcol_bit_o >= imm_type_shift+3))
+      #error Incompatible choices of garcol_bit_o and imm_type_shift!
+    #endif
+    #if !((oint_data_len+oint_data_shift <= imm_type_shift) || (oint_data_shift >= imm_type_shift+3))
+      #error Incompatible choices of oint_data_shift and imm_type_shift!
+    #endif
+    /* subr_tab (= subr_tab_data) and symbol_tab (= symbol_tab_data) must be at
+       addresses that don't contain the garcol_bit_o, otherwise the GC mark
+       phase crashes because of the GCself pointers in the subrs and symbols. */
+    #if ((CODE_ADDRESS_RANGE >> garcol_bit_o) & 1) != 0
+      #error Wrong choice of garcol_bit_o: it conflicts with CODE_ADDRESS_RANGE!
     #endif
   #endif /* ONE_FREE_BIT_HEAPCODES */
   #ifdef KERNELVOID32_HEAPCODES
@@ -5017,12 +5329,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
       #define cons_bias       3UL  /* mod 8 */
       #define immediate_bias  7UL  /* mod 8 */
 
-    /* Immediate objects have a second type field. */
-      #if defined(LINUX_SPARC_OLD_GLIBC)
-        #define imm_type_shift  29
-      #else
-        #define imm_type_shift  3
-      #endif
+    /* Immediate objects have a second type field,
+       consisting of the bits imm_type_shift+2,...,imm_type_shift. */
 
     /* Distinction between fixnums and bignums. */
       #define bignum_bit_o  1
