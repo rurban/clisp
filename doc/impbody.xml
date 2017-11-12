@@ -570,10 +570,18 @@ NIL
 <section id="decl-min"><title>Minimal Declaration Processing Requirements
   <ulink role="clhs" url="sec_3-3-1"/></title>
 
+<para>The declaration <code>(&dynamic-extent-dec; &var-r; ...)</code> is
+ ignored.</para>
+
 <para>The type declarations <code>(&type-dec; &type-r; &var-r; ...)</code>
  and <code>(&ftype-dec; &type-r; &func-r; ...)</code>
  are ignored by both the interpreter and the compiler.
- Use &check-type; to force type checks.</para></section>
+ Use &check-type; to force type checks.</para>
+
+<formalpara><title>Rationale</title>
+ <para>When these declarations lie and a compiler respects them, the
+  generated code often results in a hard crash (segmentation fault).
+</para></formalpara></section>
 
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
