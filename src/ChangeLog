@@ -1,3 +1,10 @@
+2017-11-12  Bruno Haible  <bruno@clisp.org>
+
+	Fix "Warning: reserving address range" on some Linux/x86_64 systems.
+	Reported by Sam Steingold at https://sourceforge.net/p/clisp/bugs/703/.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*): Tweak values for Linux/x86_64.
+	(SINGLEMAP_TYPE_MASK): Likewise.
+
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on Linux/hppa.

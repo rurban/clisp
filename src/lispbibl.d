@@ -2590,9 +2590,11 @@ typedef enum {
        CODE_ADDRESS_RANGE   = 0x0000000000000000UL
        MALLOC_ADDRESS_RANGE = 0x000000000x000000UL
        SHLIB_ADDRESS_RANGE  = 0x00000034F5000000UL or 0x0000003844000000UL or 0x00007Fxxxx000000UL
+                              or 0x0000002Axx000000UL or 0x0000002Bxx000000UL (in Linux 3.2, when invoked by 'make')
        STACK_ADDRESS_RANGE  = 0x0000007FBF000000UL or 0x00007FFEBF000000UL
-       There is room from 0x010000000000UL to 0x7E0000000000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x010000000000UL
+       There is room from 0x010000000000UL to 0x2A0000000000UL
+       and           from 0x400000000000UL to 0x7E0000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x400000000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x7DFFFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(ARM64)
@@ -3387,8 +3389,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   /* 64-bit platforms */
   #if defined(UNIX_LINUX) && defined(AMD64) /* Linux/x86_64 */
     #define SINGLEMAP_ADDRESS_BASE 0UL
-    #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x5F0000000000UL
     #define SINGLEMAP_oint_type_shift 40
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
     #define SINGLEMAP_WORKS 1
   #endif
   #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
