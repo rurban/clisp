@@ -3,7 +3,18 @@
 ;; Many tests already in alltest.tst, map.tst etc., but
 ;; here we avoid using #+clisp all over the place.
 ;; Jörg Höhle, 2007
-;; Sam Steingold, 2007-2008
+;; Sam Steingold, 2007-2008, 2017
+
+;; completion
+(funcall (ext:make-completion '("a" "abc" "ab")) "ab" 0 2) ("ab" "ab" "abc")
+(funcall (ext:make-completion '("a" "abc" "ab")) "b" 0 1) ()
+(funcall (ext:make-completion '("abz" "abc")) "a" 0 1) ("ab" "abc" "abz")
+(funcall (ext:make-completion '("a" "abc" "ab")) "" 0 0) ("a" "a" "ab" "abc")
+
+(ext:longest-common-prefix '("a" "abc")) "a"
+(ext:longest-common-prefix '("za" "abc")) ""
+(ext:longest-common-prefix '(#*1100 #*100)) #*1
+(ext:longest-common-prefix ()) ERROR
 
 ;(setf if) 5.1.6
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))

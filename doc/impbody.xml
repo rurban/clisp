@@ -3940,7 +3940,60 @@ under the current directory (similar to the <command role="unix">ls
    determined incorrectly.</simpara></warning>
  <para>See also <xref linkend="readline-mod"/>.</para>
 
-<formalpara id="readline-config"><title>Linking against &readline;</title>
+<simplesect id="readline-extend"><title>Extending completion</title>
+
+<formalpara><title>Variable
+  <firstterm><varname>CUSTOM:*COMPLETION*</varname></firstterm></title>
+ <para>The value should be a &function-t; of 3 arguments: &string-r;,
+  &start-r; and &end-r;, which bound the text to be completed.
+  The return value should be the list, whose &first; is the immediate
+  replacement for the already typed text and &rest; is all the possible
+  completions. If no completions are available, return &nil;.</para></formalpara>
+
+<formalpara><title>Function <function>EXT:MAKE-COMPLETION</function></title>
+ <para>Given a &list-t; of all valid inputs, return a valid value for
+  <varname>CUSTOM:*COMPLETION*</varname>.</para></formalpara>
+
+<formalpara><title>Function <function>EXT:LONGEST-COMMON-PREFIX</function></title>
+ <para>Given a &list-t; of &vector-t;s, return the &vector-t; which is
+  their longest common prefix. &vector-t; elements are compared using
+  the &test-k; argument. Useful when writing your own
+  <varname>CUSTOM:*COMPLETION*</varname> functions.</para></formalpara>
+
+<example id="readline-extend-ex"><title>Dialog with user using
+  completion</title>
+<programlisting language="lisp">
+(defun read-user-line (prompt completions)
+  (princ prompt *query-io*)
+  (force-output *query-io*)
+  (let ((custom:*completion* (ext:make-completion completions)))
+    (read-line *query-io*)))
+(read-user-line "??? " '("a" "z123" "z135" "b" "abcd"))
+<computeroutput>??? </computeroutput><userinput>ab TAB</userinput>
+<computeroutput>??? abcd</computeroutput>
+(read-user-line "??? " '("a" "z123" "z135" "b" "abcd"))
+<computeroutput>??? </computeroutput><userinput>TAB TAB</userinput>
+<computeroutput>a abcd b z123 z135</computeroutput>
+<computeroutput>??? </computeroutput><userinput>z TAB</userinput>
+<computeroutput>??? z1</computeroutput><userinput>TAB TAB</userinput>
+<computeroutput>z123 z135</computeroutput>
+</programlisting>
+<para>To force the user to select one of the pre-specified inputs you
+need to do something like this:<programlisting language="lisp">
+(defun read-user-line (prompt)
+  (princ prompt *query-io*)
+  (force-output *query-io*)
+  (read-line *query-io*))
+(defun read-user-option (prompt options)
+  (loop
+    :with custom:*completion* = (ext:make-completion options)
+    :for option = (read-user-line prompt)
+    :when (find option options :text #'string=)
+    :return options
+    :do (format *query-io* "Invalid option ~S, please try again~%" option)))
+</programlisting></para></example></simplesect>
+
+<simplesect id="readline-config"><title>Linking against &readline;</title>
  <para>For &clisp; to use &readline; it has to be detected by
   the &configure; process.<itemizedlist>
    <listitem><para>If you run it as
@@ -3956,7 +4009,7 @@ under the current directory (similar to the <command role="unix">ls
   </simpara></listitem></itemizedlist>
   You can find out whether &readline; has been detected by running
   <screen>&sh-prompt; <command role="unix">grep</command> HAVE_READLINE config.h</screen>
-  in your build directory.</para></formalpara>
+  in your build directory.</para></simplesect>
 </section>
 <!-- #endif -->
 

@@ -2,6 +2,18 @@
 
 (in-package "SYSTEM")
 
+
+(defun ext:longest-common-prefix (vectors &key (test #'eql))
+  "Return the longest common prefix of all vectors in the list."
+  (do ((imax (reduce #'min vectors :key #'length))
+       (i 0 (1+ i)))
+      ((or (= i imax)
+           (let ((e (aref (first vectors) i)))
+             (dolist (v (rest vectors) nil)
+               (unless (funcall test (aref v i) e)
+                 (return t)))))
+       (subseq (first vectors) 0 i))))
+
 ;;-----------------------------------------------------------------------------
 ;; Completing routine for the GNU Readline library.
 ;; Input: string (the input line), and the boundaries of the text to be
@@ -111,7 +123,7 @@
                                   (when case-inverted-p
                                     (setq ret (nstring-invertcase ret)))
                                   (c ret)))))
-                          (delete-duplicates 
+                          (delete-duplicates
                            (map-into return-list #'find-package
                                      return-list))))))
         ;; Now react depending on the list of matching symbols.
@@ -152,16 +164,30 @@
         ;; Sort the return-list.
         (setq return-list (sort return-list #'string<))
         ;; Look for the largest common initial piece.
-        (let ((imax (reduce #'min return-list :key #'length)))
-          (do ((i 0 (1+ i)))
-              ((or (= i imax)
-                   (let ((c (char (first return-list) i)))
-                     (dolist (s (rest return-list) nil)
-                       (unless (funcall char-cmp (char s i) c) (return t)))))
-               (push (subseq (first return-list) 0 i) return-list))))
+        (push (longest-common-prefix return-list :test char-cmp) return-list)
         ;; Reattach prefix consisting of package name and colons.
         (when prefix
           (mapl #'(lambda (l) (setf (car l) (string-concat prefix (car l))))
                 return-list))
         return-list))))
 )
+
+(setq custom::*completion* #'completion)
+
+(defun ext:make-completion (list)
+  "Return a function suitable for `CUSTOM::*COMPLETION*'."
+  (lambda (string start end)
+    (let ((return-list
+           ;; REMOVE-IF may return its list argument,
+           ;; and SORT modifies its argument,
+           ;; so we have to use DELETE-IF+COPY-LIST
+           ;; to ensure that we do not modify the list argument.
+           (delete-if (lambda (s)
+                        (let ((s (string s)))
+                          (string/= s string
+                                    :start1 0 :end1 (min (length s) (- end start))
+                                    :start2 start :end2 end)))
+                      (copy-list list))))
+      (and return-list
+           (cons (longest-common-prefix return-list :test #'char=)
+                 (sort return-list #'string<))))))

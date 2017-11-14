@@ -1,3 +1,16 @@
+2017-11-14  Sam Steingold  <sds@gnu.org>
+
+	Make it easier for users to customize completion.
+	* complete.lisp (ext:longest-common-prefix): Extract from completion.
+	(completion): Use it.
+	(*completion*): Set to #'completion.
+	(ext:make-completion): New function for users.
+	* init.lisp (*completion*): Export from CUSTOM.
+	(make-completion, longest-common-prefix): Export from EXT.
+	* constsym.d: Replace COMPLETION with *COMPLETION*.
+	* spvw.d (init_symbol_values): Define *COMPLETION*.
+	* stream.d (lisp_completion): Use *COMPLETION* instead of COMPLETION.
+
 2017-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix "Warning: reserving address range" on some Linux/x86_64 systems.
@@ -1097,7 +1110,7 @@
 	(note_prefix): New function. Invoke it when a --prefix option is seen.
 	(have_explicit_libsigsegv_args, have_explicit_libffcall_args): New
 	variables. Use them to know whether to augment subdir_configure_args.
-	
+
 2017-08-24  Bruno Haible  <bruno@clisp.org>
 
 	Improve support for portability testing.

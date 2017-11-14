@@ -377,6 +377,7 @@
    structure-copier structure-predicate
    ;; i/o
    read-integer read-float write-integer write-float
+   make-completion longest-common-prefix
    read-byte-lookahead read-byte-will-hang-p read-byte-no-hang
    read-char-will-hang-p
    read-char-sequence write-char-sequence
@@ -396,7 +397,7 @@
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default* *browsers* *browser* *http-proxy*
    *http-log-stream* clhs-root *impnotes-root-default* impnotes-root
-   *saveinitmem-verbose*
+   *saveinitmem-verbose* *completion*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *load-obsolete-action* *suppress-check-redefinition*
    *eq-hashfunction* *eql-hashfunction* *equal-hashfunction*

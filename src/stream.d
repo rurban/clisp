@@ -9232,12 +9232,14 @@ local maygc char** lisp_completion (char* text, int start, int end) {
                                      (const uintB*)text+end);
   }
  #endif
-  /* call (SYS::COMPLETION text start end) : */
+  var object mlist = NIL; /* List of the possibilities */
+  if (!nullpSv(completion)) { /* (funcall CUSTOM:*COMPLETION* text start end) */
   pushSTACK(asciz_to_string(text,O(terminal_encoding)));
   pushSTACK(fixnum((uintL)start));
   pushSTACK(fixnum((uintL)end));
-  funcall(S(completion),3);
-  var object mlist = value1; /* List of the possibilities */
+    funcall(Symbol_value(S(completion)),3);
+    mlist = value1;
+  }
   /* reconstruct List of Simple-Strings in malloc-ed Array from malloc-ed
    Asciz-Strings: */
   if (nullp(mlist)) {
