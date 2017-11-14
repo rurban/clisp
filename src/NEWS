@@ -71,6 +71,9 @@ User visible changes
   (Older versions are, of course, still supported).
   See <http://clisp.org/impnotes/berkeley-db.html> for details.
 
+* The readline-based completion facility is now more customizable.
+  See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#561).
   + Fix SCREEN behavior when the window is resized.
