@@ -1,5 +1,10 @@
 2017-11-14  Sam Steingold  <sds@gnu.org>
 
+	* socket.tst: Make it easier to debug the spurious failure of the
+	bug#587 test.
+
+2017-11-14  Sam Steingold  <sds@gnu.org>
+
 	* ext-clisp.tst: Add tests for ext:make-completion and
 	ext:longest-common-prefix.
 

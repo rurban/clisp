@@ -535,12 +535,16 @@ T
               (write-line (princ-to-string (socket:socket-server-port se)))
               (with-open-stream (so (socket:socket-accept se))
                 (write-line (lisp-implementation-version) so))
-              (socket:socket-server-close se))"))
-                             :input nil :output :stream)))
+              (socket:socket-server-close se))
+"))
+                             :input nil :output :stream))
+        local remote)
     (loop :until (digit-char-p (peek-char nil is)) :do (read-line is))
     (with-open-stream (so (socket:socket-connect (read is) "localhost"
                                                  :timeout 10))
-      (string= (lisp-implementation-version) (read-line so)))))
+      (or (string= (setq local (lisp-implementation-version))
+                   (setq remote (read-line so)))
+          (list :local local :remote remote)))))
 T
 
 (let ((interfaces '(nil "localhost" "0.0.0.0" "127.0.0.1")))
