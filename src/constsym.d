@@ -1562,7 +1562,7 @@ LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",ext) /* variable in STREAM */
 LISPSYM(input_character,"INPUT-CHARACTER",system) /* type for CHARSTRG */
 LISPSYM(input_character_char,"INPUT-CHARACTER-CHAR",system) /* function for CHARSTRG */
 #endif
-LISPSYM(completion,"COMPLETION",system) /* function in STREAM when GNU_READLINE is used */
+LISPSYM(completion,"*COMPLETION*",custom) /* variable in STREAM when GNU_READLINE is used */
 #if defined(GNU_READLINE)
 LISPSYM(conversion_failure,"CONVERSION-FAILURE",system) /* CATCH-tag in STREAM */
 #endif

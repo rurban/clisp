@@ -1794,6 +1794,7 @@ local void init_symbol_values (void) {
    define_variable(S(keyboard_input),);          - *KEYBOARD-INPUT* */
   define_variable(S(default_pathname_defaults),unbound); /* *DEFAULT-PATHNAME-DEFAULTS* */
   /* for IO: */
+  define_variable(S(completion),NIL); /* CUSTOM:*COMPLETION* */
   init_reader();                /* defines the following:
    define_variable(S(read_base),);               - *READ-BASE* := 10
    define_variable(S(read_suppress),);           - *READ-SUPPRESS* := NIL

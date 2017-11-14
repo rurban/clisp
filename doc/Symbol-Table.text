@@ -752,6 +752,12 @@ EXT:CANONICALIZE
 canonicalize
 EXT:EXPAND-FORM
 code-walk
+CUSTOM:*COMPLETION*
+readline-extend
+EXT:LONGEST-COMMON-PREFIX
+readline-extend
+EXT:MAKE-COMPLETION
+readline-extend
 EXT:MODULE-INFO
 modinfo
 SYS::DYNLOAD-MODULES
