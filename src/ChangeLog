@@ -1,5 +1,12 @@
 2017-11-15  Sam Steingold  <sds@gnu.org>
 
+	Improve loop error reporting.
+	* loop.lisp (loop-syntax-error): Accept an optional location
+	argument (nil means end of form).
+	(expand-loop): Pass location to `loop-syntax-error'.
+
+2017-11-15  Sam Steingold  <sds@gnu.org>
+
 	Fix bug#711: do in loop allows more expressions than the standard.
 	* loop.lisp (expand-loop parse-progn): Check that all forms in
 	implicit PROGNs are compound as implied by CLHS.
