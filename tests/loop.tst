@@ -623,8 +623,8 @@ nil
     #'<))
 (1/200 1/100)
 
-(let ((hash-table (make-hash-table)))
-  (setq i 123456789)
+(let ((hash-table (make-hash-table))
+      (i 123456789))
   (setf (gethash 1 hash-table) 100)
   (setf (gethash 2 hash-table) 200)
   (loop for i across '#(1 2 3 4 5 6)
@@ -942,3 +942,6 @@ WARNING
 ((1 2 3.4 1.2 1.3 1.4 2.1 2.2 23 24)
  (5 6 7.8 1.5 1.6 1.7 2.5 2.6 27 28)
  (9 10 1.1 1.8 1.9 2.0 2.9 3.0 31 32))
+
+(symbols-cleanup '(mountain desert))
+()
