@@ -13,51 +13,29 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1-1.html>
 (with-output-to-string (*standard-output*)
   (loop as i from 1 to 5
-        do (print i)))
-"
-1 
-2 
-3 
-4 
-5 "
+        do (princ i)))
+"12345"
 
 (with-output-to-string (*standard-output*)
   (loop for i from 10 downto 1 by 3
-        do (print i)))
-"
-10 
-7 
-4 
-1 "
+        do (princ i)))
+"10741"
 
 (with-output-to-string (*standard-output*)
   (loop as i below 5
-        do (print i)))
-"
-0 
-1 
-2 
-3 
-4 "
+        do (princ i)))
+"01234"
 
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3 4 5)
-        do (print item)))
-"
-1 
-2 
-3 
-4 
-5 "
+        do (princ item)))
+"12345"
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-2-1.html>
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3 4 5) by #'cddr
-        do (print item)))
-"
-1 
-3 
-5 "
+        do (princ item)))
+"135"
 
 (loop for (item . x) (t . fixnum) in '((A . 1) (B . 2) (C . 3))
       unless (eq item 'B) sum x)
@@ -70,19 +48,13 @@
 
 (with-output-to-string (*standard-output*)
   (loop for (item) on '(1 2 3)
-        do (print item)))
-"
-1 
-2 
-3 "
+        do (princ item)))
+"123"
 
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3)
-        do (print item)))
-"
-1 
-2 
-3 "
+        do (princ item)))
+"123"
 
 ;; ON ends on ATOM, not ENDP
 (loop for x on '(1 2 . 3) collect x)
@@ -171,9 +143,8 @@ T
 (with-output-to-string (*standard-output*)
   (loop for i from 1 to 10
         thereis (> i 11)
-        finally (print i)))
-"
-11 "
+        finally (princ i)))
+"11"
 
 (let (everest chocorua sahara)
   (defstruct mountain  height difficulty (why "because it is there"))
@@ -238,9 +209,8 @@ February 17
 (with-output-to-string (*standard-output*)
   (loop for i in '(a b c d) by #'cddr
         collect i into my-list
-        finally (print my-list)))
-"
-(A C) "
+        finally (princ my-list)))
+"(A C)"
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-2.html>
 (loop for x in '((a) (b) ((c)))
@@ -335,19 +305,16 @@ February 17
     (with-output-to-string (*standard-output*)
       (loop for i in numbers-list
             when (oddp i)
-              do (print i)
+              do (princ i)
               and collect i into odd-numbers
               and do (terpri)
               else
               collect i into even-numbers
             finally (setq results (list odd-numbers even-numbers))))
     results))
-("
-3 
-
-1 
-
-7 
+("3
+1
+7
 "
 (3 1 7) (2 4 6 8))
 
@@ -403,60 +370,44 @@ February 17
 ;; inner IF rather than the outer one.
 (with-output-to-string (*standard-output*)
   (loop for x from 0 to 3
-        do (print x)
+        do (princ x)
         if (zerop (mod x 2))
-          do (write-string " a")
+          do (write-string " a ")
           and
           if (zerop (floor x 2))
-            do (write-string " b")
+            do (write-string " b ")
             and
-            do (write-string " c")))
-"
-0  a b c
-1 
-2  a
-3 "
+            do (write-string " c ")))
+"0 a  b  c 12 a 3"
 
 (with-output-to-string (*standard-output*)
   (loop for x from 0 to 3
-        do (print x)
+        do (princ x)
         if (zerop (mod x 2))
-          do (write-string " a")
+          do (write-string " a ")
           and
           if (zerop (floor x 2))
-            do (write-string " b")
+            do (write-string " b ")
             end
           and
-          do (write-string " c")))
-"
-0  a b c
-1 
-2  a c
-3 "
+          do (write-string " c ")))
+"0 a  b  c 12 a  c 3"
 
 (with-output-to-string (*standard-output*)
   (loop for i from 1 to 5
-        do (print i)))
-"
-1 
-2 
-3 
-4 
-5 "
+        do (princ i)))
+"12345"
 
 (with-output-to-string (*standard-output*)
   (loop for i from 1 to 4
-        do (print i)
-           (print (* i i))))
+        do (princ i)
+           (princ (* i i))
+           (terpri)))
+"11
+24
+39
+416
 "
-1 
-1 
-2 
-4 
-3 
-9 
-4 
-16 "
 
 (loop for item in '(1 2 3 a 4 5)
       when (not (numberp item))
@@ -962,8 +913,3 @@ WARNING
 ((1 2 3.4 1.2 1.3 1.4 2.1 2.2 23 24)
  (5 6 7.8 1.5 1.6 1.7 2.5 2.6 27 28)
  (9 10 1.1 1.8 1.9 2.0 2.9 3.0 31 32))
-
-;; local variables:
-;; eval: (make-local-variable 'before-save-hook)
-;; eval: (remove-hook 'before-save-hook 'delete-trailing-whitespace t)
-;; end:
