@@ -3,7 +3,7 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
 ;; Bruno Haible 1991-2004
-;; Sam Steingold 1999-2011
+;; Sam Steingold 1999-2011, 2017
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
@@ -370,23 +370,28 @@
                (T (return)))    ; other
              (setq typedecl (destructure-type pattern typedecl)))
            (values pattern typedecl)))
-       (parse-progn () ;; parses {expr}* and return the list of forms
-         (let ((list nil))
+       (parse-progn (kw) ; parses {compound-form}* and return the list of forms
+         (let ((list nil) form)
            (loop
-            (unless (and (consp body-rest)
-                         (not (loop-keywordp (first body-rest))))
-              (return))
-            (push (pop body-rest) list))
+             (unless (and (consp body-rest)
+                          (not (loop-keywordp (first body-rest))))
+               (return))
+             (setq form (pop body-rest))
+             (when (atom form)
+               (if *loop-ansi*
+                 (loop-syntax-error kw)
+                 (warn (TEXT "~S: non-compound form ~S after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop form (symbol-name kw))))
+             (push form list))
            (nreverse list)))
-       (parse-nonempty-progn (kw) ;; after kw: [CLTS] {expr}+ or [CLTL2] {expr}*
-         (let ((exprs (parse-progn)))
+       (parse-nonempty-progn (kw) ; after kw: [CLHS] {compound-form}+ [CLTL2] {expr}*
+         (let ((exprs (parse-progn kw)))
            (unless exprs
              (if *loop-ansi*
                (loop-syntax-error kw)
                (warn (TEXT "~S: missing forms after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop (symbol-name kw))))
            exprs))
        (parse-unconditional () ;; parse an unconditional
-         ;; unconditional ::= {do | doing} {expr}*
+         ;; unconditional ::= {do | doing} {compound-form}*
          ;; unconditional ::= return expr
          ;; Returns a lisp form or NIL when no unconditional was parsed.
          (let ((kw (next-kw)))

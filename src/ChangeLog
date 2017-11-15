@@ -1,3 +1,9 @@
+2017-11-15  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#711: do in loop allows more expressions than the standard.
+	* loop.lisp (expand-loop parse-progn): Check that all forms in
+	implicit PROGNs are compound as implied by CLHS.
+
 2017-11-14  Sam Steingold  <sds@gnu.org>
 
 	Make it easier for users to customize completion.
