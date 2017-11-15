@@ -899,6 +899,35 @@ NIL
   (warning (w) (princ-error w) 'warning))
 WARNING
 
+#+CLISP
+(let ((*loop-ansi* t))
+  (handler-case (macroexpand '(loop for a in () do (x) (y) z (t)))
+    (source-program-error (c)
+      (princ-error c)
+      (source-program-error-detail c))))
+#+CLISP (DO Z)
+
+#+CLISP
+(handler-case (macroexpand '(loop named "named"))
+  (source-program-error (c)
+    (princ-error c)
+    (source-program-error-detail c)))
+#+CLISP (SYSTEM::NAMED "named")
+
+#+CLISP
+(handler-case (macroexpand '(loop named))
+  (source-program-error (c)
+    (princ-error c)
+    (source-program-error-detail c)))
+#+CLISP (SYSTEM::NAMED NIL)
+
+#+CLISP
+(handler-case (macroexpand '(loop for a in () collect a into #()))
+  (source-program-error (c)
+    (princ-error c)
+    (source-program-error-detail c)))
+#+CLISP (SYSTEM::INTO #())
+
 ;; https://sourceforge.net/p/clisp/bugs/414/: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2
 (loop with nil = (return t) return nil) T

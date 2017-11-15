@@ -44,12 +44,13 @@
 (defvar *whole*)                ; the entire form (LOOP ...)
 
 ;; (loop-syntax-error loop-keyword) reports a syntax error.
-(defun loop-syntax-error (loop-keyword)
+(defun loop-syntax-error (loop-keyword &optional location)
   (error-of-type 'source-program-error
     :form *whole*
-    :detail loop-keyword        ; FIXME: should be something more useful
-    (TEXT "~S: syntax error after ~A in ~S")
-    'loop (symbol-name loop-keyword) *whole*))
+    :detail (list loop-keyword location)
+    (TEXT "~S: syntax error after ~A at ~A in ~S")
+    'loop (symbol-name loop-keyword)
+    (if location (prin1-to-string location) (TEXT "end of form")) *whole*))
 
 ;; destructuring:
 
@@ -379,11 +380,11 @@
              (setq form (pop body-rest))
              (when (atom form)
                (if *loop-ansi*
-                 (loop-syntax-error kw)
+                 (loop-syntax-error kw form)
                  (warn (TEXT "~S: non-compound form ~S after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop form (symbol-name kw))))
              (push form list))
            (nreverse list)))
-       (parse-nonempty-progn (kw) ; after kw: [CLHS] {compound-form}+ [CLTL2] {expr}*
+       (parse-nonempty-progn (kw) ; after kw: [ANSI] {compound-form}+ [CLTL2] {expr}*
          (let ((exprs (parse-progn kw)))
            (unless exprs
              (if *loop-ansi*
@@ -437,7 +438,7 @@
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
                                    (symbolp (setq accuvar (pop body-rest))))
-                        (loop-syntax-error 'into)))
+                        (loop-syntax-error 'into accuvar)))
                     (cond (accuvar ; named acc var -> forward-consing.
                            (cons-forward form accuvar accufuncsym))
                           ((or (eq accufuncsym 'REVAPPEND)
@@ -458,7 +459,7 @@
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
                                    (symbolp (setq accuvar (pop body-rest))))
-                        (loop-syntax-error 'into)))
+                        (loop-syntax-error 'into accuvar)))
                     (unless accuvar
                       (setq accuvar
                             (or accunum-var
@@ -577,7 +578,7 @@
       ; parst: [named name]
       (when (parse-kw-p 'named)
         (unless (and (consp body-rest) (symbolp (first body-rest)))
-          (loop-syntax-error 'named))
+          (loop-syntax-error 'named (first body-rest)))
         (setq block-name (pop body-rest)))
       (loop
         ; main ::= clause | termination | initially | finally |
@@ -637,7 +638,7 @@
                  (push (let ((form (parse-unconditional)))
                          (if form
                            (if *loop-ansi*
-                             (loop-syntax-error 'FINALLY)
+                             (loop-syntax-error 'FINALLY form)
                              (warn (TEXT "~S: loop keyword immediately after ~A: permitted by CLtL2, forbidden by ANSI CL.") 'loop (symbol-name kw)))
                            (setq form `(PROGN ,@(parse-nonempty-progn kw))))
                           form)
@@ -791,7 +792,7 @@
                                  (let ((plural (next-kw)))
                                    (case plural
                                      ((EACH THE))
-                                     (t (loop-syntax-error 'being)))
+                                     (t (loop-syntax-error 'being plural)))
                                    (pop body-rest)
                                    (let ((preposition (next-kw)))
                                      (case preposition
@@ -805,7 +806,7 @@
                                         (when (eq plural 'EACH)
                                           (warn (TEXT "~S: After ~S a singular loop keyword is required, not ~A")
                                                 'loop plural (symbol-name preposition))))
-                                       (t (loop-syntax-error plural)))
+                                       (t (loop-syntax-error plural preposition)))
                                      (pop body-rest)
                                      (case preposition
                                        ((HASH-KEY HASH-KEYS HASH-VALUE HASH-VALUES)
@@ -815,7 +816,7 @@
                                                  ((IN OF) (pop body-rest)
                                                   (parse-form preposition))
                                                  (t (loop-syntax-error
-                                                      preposition)))))
+                                                      preposition (car body-rest))))))
                                           (when (parse-kw-p 'using)
                                             (unless (and (consp body-rest)
                                                          (consp (car body-rest))
@@ -828,7 +829,8 @@
                                                            ((HASH-VALUE HASH-VALUES)
                                                             (case preposition
                                                               ((HASH-KEY HASH-KEYS) t) (t nil)))))
-                                              (loop-syntax-error 'using))
+                                              (loop-syntax-error
+                                                'using (car body-rest)))
                                             (setq other-pattern (second (pop body-rest))))
                                           (let ((state-var (gensym "WHTI-"))
                                                 (nextp-var (gensym "MORE?"))
@@ -902,7 +904,8 @@
                                             :preamble (preamble :start)
                                             :requires-stepbefore seen-endtest))))))))
                                 (t
-                                 (unless (symbolp pattern) (loop-syntax-error kw))
+                                 (unless (symbolp pattern)
+                                   (loop-syntax-error kw pattern))
                                  (unless pattern (setq pattern (gensym "FOR-NUM-")))
                                  ;; ANSI CL 6.1.2.1.1 implies that the
                                  ;; start/end/by clauses can come in any
