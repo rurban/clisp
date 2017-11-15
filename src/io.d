@@ -9507,8 +9507,8 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
  < stream: Stream
  can trigger GC */
 local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
-  /* #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
-   bzw. #.(SYSTEM::%FIND-SUBR 'name) */
+  /* #<SYSTEM-FUNCTION name> or #<ADD-ON-SYSTEM-FUNCTION name>
+   or #.(SYSTEM::%FIND-SUBR 'name) */
   if (!nullpSv(print_readably)) {
     if (nullpSv(read_eval)) {
       pushSTACK(obj);
