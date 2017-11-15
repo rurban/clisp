@@ -819,6 +819,14 @@ nil
     finally (return (list alist blist))))
 ((1 3 5) (2 4 6))
 
+;; https://sourceforge.net/p/clisp/bugs/711/
+(let ((*loop-ansi* t))
+  (macroexpand '(loop :for n :to 2 :do (princ n) :test)))
+ERROR
+(handler-case (macroexpand '(loop :for n :to 2 :do (princ n) :test))
+  (warning (w) (princ-error w) 'warning))
+WARNING
+
 ;; reported by "Thomas F. Burdick" <tfb@OCF.Berkeley.EDU>
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-7-2.html>
 ;; According to the HyperSpec 6.1.2.1.4, in for-as-equals-then, var is
