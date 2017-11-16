@@ -16,6 +16,11 @@
 (ext:longest-common-prefix '(#*1100 #*100)) #*1
 (ext:longest-common-prefix ()) ERROR
 
+(ext:starts-with-p "a" "A") T
+(ext:starts-with-p "ab" "b") NIL
+(ext:starts-with-p "http://clisp.org" "http://") T
+(ext:starts-with-p "FoOb" "Fo0b") NIL
+
 ;(setf if) 5.1.6
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))
 ((2 2 nil) (2 nil 2))

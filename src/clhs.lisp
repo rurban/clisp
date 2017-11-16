@@ -1,11 +1,12 @@
-;;; Sam Steingold 2000-2008, 2010-2011
+;;; Sam Steingold 2000-2008, 2010-2011, 2017
 ;;; Bruno Haible 2017
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL v2+ (http://www.gnu.org/copyleft/gpl.html)
 
 (in-package "EXT")
 
-(export '(clhs clhs-root browse-url open-http with-http-input http-proxy))
+(export '(clhs clhs-root browse-url open-http with-http-input http-proxy
+          starts-with-p))
 
 (in-package "SYSTEM")
 
@@ -70,6 +71,17 @@
 
 ;;; ===================== Reading data from the Internet =====================
 
+(defun starts-with-p (string prefix)
+  "Check whether the string starts with the supplied prefix (case-insensitive)."
+  (string-equal string prefix :end1 (min (length string) (length prefix))))
+#+(or)                          ; not worth it
+(define-compiler-macro starts-with-p (string prefix &whole form)
+  "Inline and pre-compute prefix length."
+  (print (list string prefix form))
+  (if (stringp prefix)
+      `(string-equal ,string ,prefix :end1 (min (length ,string) ,(length prefix)))
+      form))
+
 (defvar *http-log-stream* (make-synonym-stream '*terminal-io*))
 ;;; keep in sync with clocc/cllib/url.lisp
 (defvar *http-proxy* nil
@@ -82,10 +94,8 @@ by HTTP-PROXY.")
 set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (when (or proxy-p (and (null *http-proxy*) proxy-string))
     (check-type proxy-string string)
-    (let* ((start (if (string-equal #1="http://" proxy-string
-                                    :end2 (min (length proxy-string)
-                                               #2=#.(length #1#)))
-                      #2# 0))
+    (let* ((start (if (starts-with-p proxy-string #1="http://")
+                      #.(length #1#) 0))
            (at (position #\@ proxy-string :start start))
            (colon (position #\: proxy-string :start (or at start)))
            (slash (position #\/ proxy-string :start (or colon at start))))
@@ -110,13 +120,12 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
              (when ,(first var) (CLOSE ,(first var) :ABORT T)))))))
 (defun open-http (url &key (if-does-not-exist :error)
                   ((:log *http-log-stream*) *http-log-stream*))
-  (unless (string-equal #1="http://" url
-                        :end2 (min (length url) #2=#.(length #1#)))
+  (unless (starts-with-p url #1="http://")
     (error "~S: ~S is not an HTTP URL" 'open-http url))
   (format *http-log-stream* "~&;; connecting to ~S..." url)
   (force-output *http-log-stream*)
   (http-proxy)
-  (let* ((host-port-end (position #\/ url :start #2#))
+  (let* ((host-port-end (position #\/ url :start #2=#.(length #1#)))
          (port-start (position #\: url :start #2# :end host-port-end))
          (url-host (subseq url #2# (or port-start host-port-end)))
          (host (if *http-proxy* (second *http-proxy*) url-host))
@@ -166,34 +175,31 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
            (return-from open-http nil))))
     (if (>= code 300)        ; redirection
         (loop :for res = (read-line sock)
-          :until (string-equal #3="Location: " res
-                               :end2 (min (length res) #4=#.(length #3#)))
-          :finally (let ((new-url (subseq res #4#)))
+          :until (starts-with-p res #3="Location: ")
+          :finally (let ((new-url (subseq res #.(length #3#))))
                      (format *http-log-stream* " --> ~S~%" new-url)
-                     (unless (string-equal #1# new-url
-                                           :end2 (min (length new-url) #2#))
+                     (unless (starts-with-p new-url #1#)
                        (setq new-url (string-concat #1# host new-url)))
                      (return-from open-http (open-http new-url))))
         ;; drop response headers
         (loop :for line = (read-line sock) :while (plusp (length line)) :do
-          (when (string-equal #5="Content-Length: " line
-                              :end2 (min (length line) #6=#.(length #5#)))
+          (when (starts-with-p line #5="Content-Length: ")
             (format *http-log-stream* "...~:D bytes"
-                    (setq content-length (parse-integer line :start #6#))))
+                    (setq content-length (parse-integer line :start #.(length #5#)))))
           :finally (terpri)))
     (values sock content-length)))
 
 (defun open-url (path &rest options &aux (len (length path)))
-  (cond ((string-equal #1="http://" path :end2 (min len #.(length #1#)))
+  (cond ((starts-with-p path "http://")
          (apply #'open-http path options))
-        ((string-equal #2="file:/" path :end2 (min len #3=#.(length #2#)))
-         ;; Tomas Zellerin writes in bug 1494059:
+        ((starts-with-p path #1="file:/")
+         ;; Tomas Zellerin writes in bug#344:
          ;; I think that proper RFC compliant URL of this kind is
          ;; file://<machine>/<path>, where machine may be the empty string
          ;; for localhost and path should be an absolute path (including
          ;; the leading slash on Unix), but browsers usually do not require
          ;; four slashes in row.
-         (let ((path-beg (position #\/ path :test-not #'eql :start #3#)))
+         (let ((path-beg (position #\/ path :test-not #'eql :start #.(length #1#))))
            ;; we first try stripping all leading slashes to catch things like
            ;; file:///c:/foo/bar and then resort to keeping one leading #\/
            (apply #'open (or #+(or win32 cygwin)

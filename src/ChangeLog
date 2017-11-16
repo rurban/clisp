@@ -1,3 +1,7 @@
+2017-11-16  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp (starts-with-p): Extract and export.
+
 2017-11-15  Sam Steingold  <sds@gnu.org>
 
 	Improve loop error reporting.
