@@ -1,0 +1,126 @@
+The following packages should be installed before GNU clisp is installed
+(runtime dependencies that are also build dependencies):
+
+* GNU libsigsegv
+  + Highly recommended.
+    Needed for catching stack overflows (otherwise a stack overflow may crash
+    the process) and for generational garbage collection.
+  + Homepage:
+    https://www.gnu.org/software/libsigsegv/
+  + Download:
+    https://ftp.gnu.org/gnu/libsigsegv/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libsigsegv-prefix=DIR to 'configure'.
+
+* GNU libffcall
+  + Highly recommended.
+    Needed for the foreign function interface (FFI).
+  + Homepage:
+    https://www.gnu.org/software/libffcall/
+  + Download:
+    https://ftp.gnu.org/gnu/libffcall/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libffcall-prefix=DIR to 'configure'.
+
+* GNU libiconv
+  + Not needed on systems with glibc, on Mac OS X, and NetBSD.
+    But recommended on all other systems.
+    Needed for multibyte character set support (other than UTF-8,
+    for which GNU libiconv is not needed).
+  + Homepage:
+    https://www.gnu.org/software/libiconv/
+  + Download:
+    https://ftp.gnu.org/gnu/libiconv/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libiconv-prefix=DIR to 'configure'.
+
+* libintl, part of GNU gettext
+  + Not needed on systems with glibc.
+    But recommended on all other systems.
+    Needed for localization of messages.
+  + Homepage:
+    https://www.gnu.org/software/gettext/
+  + Download:
+    https://ftp.gnu.org/gnu/gettext/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libintl-prefix=DIR to 'configure'.
+
+* GNU readline
+  + Recommended.
+    Needed for the interactive line-editing in the read-eval-print loop.
+  + Homepage:
+    https://www.gnu.org/software/readline/
+  + Download:
+    https://ftp.gnu.org/gnu/readline/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libreadline-prefix=DIR to 'configure'.
+
+* GNU ncurses (preferred)
+  or libtermcap (discouraged) or a curses library (legacy).
+  + Recommended.
+    Needed for fancy input/output in terminal emulators.
+  + Homepage:
+    https://www.gnu.org/software/ncurses/
+  + Download:
+    https://ftp.gnu.org/gnu/ncurses/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-ncurses-prefix=DIR or --with-libtermcap-prefix to 'configure'.
+
+
+The following packages should be installed when GNU clisp is installed
+(runtime dependencies, but not build dependencies):
+
+None.
+
+
+The following should be installed when GNU clisp is built, but are not
+needed later, once it is installed (build dependencies, but not runtime
+dependencies):
+
+* A C runtime, compiler, linker, etc.
+  + Mandatory. Either the platform's native 'cc', or GCC 2.95 or newer.
+  + GCC Homepage:
+    https://gcc.gnu.org/
+  + Download:
+    https://ftp.gnu.org/gnu/gcc/
+
+* A 'make' utility.
+  + Mandatory. Either the platform's native 'make', or GNU Make 3.79.1 or newer.
+    GNU Make is required on HP-UX and IRIX.
+  + GNU Make Homepage:
+    https://www.gnu.org/software/make/
+  + Download:
+    https://ftp.gnu.org/gnu/make/
+
+* A shell
+  + Mandatory. Either the platform's native 'sh', or Bash.
+  + Homepage:
+    https://www.gnu.org/software/bash/
+  + Download:
+    https://ftp.gnu.org/gnu/bash/
+
+* Core POSIX utilities, including:
+    [ basename cat chgrp chmod chown cp dd echo expand expr
+    false hostname install kill ln ls md5sum mkdir mkfifo
+    mknod mv printenv pwd rm rmdir sleep sort tee test touch
+    true uname
+  + Mandatory. Either the platform's native utilities, or GNU coreutils.
+  + Homepage:
+    https://www.gnu.org/software/coreutils/
+  + Download:
+    https://ftp.gnu.org/gnu/coreutils/
+
+* The comparison utilities 'cmp' and 'diff'.
+  + Mandatory. Either the platform's native utilities, or GNU diffutils.
+  + Homepage:
+    https://www.gnu.org/software/diffutils/
+  + Download:
+    https://ftp.gnu.org/gnu/diffutils/
+
+* Grep.
+  + Mandatory. Either the platform's native grep, or GNU grep.
+  + Homepage:
+    https://www.gnu.org/software/grep/
+  + Download:
+    https://ftp.gnu.org/gnu/grep/
+
