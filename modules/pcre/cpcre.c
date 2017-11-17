@@ -130,7 +130,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key STUDY IGNORE-CASE MULTILINE DOTALL  \
     end_system_call();
     if (error_message != NULL) { /* error */
       STACK_0 = NIL;           /* no PLACE - discard compiled_pattern */
-      pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
+      pushSTACK(asciz_to_string(error_message,Symbol_value(S(utf_8))));
       pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
       check_value(error_condition,"~S(~S): ~S");
       *string = value1;
@@ -247,7 +247,7 @@ static object fullinfo_nametable (pcre *c_pat, pcre_extra *study) {
   if (status < 0) error_pcre(status);
   for (pos = 0; pos < count; pos++, table+=size) {
     pushSTACK(allocate_cons());
-    Car(STACK_0) = asciz_to_string(table+2,GLO(misc_encoding));
+    Car(STACK_0) = asciz_to_string(table+2,Symbol_value(S(utf_8)));
     Cdr(STACK_0) = fixnum((table[0]<<8) + table[1]);
   }
   return listof(count);
@@ -364,7 +364,7 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
   check_pattern(&STACK_1,&c_pat,&study);
 #if defined(HAVE_PCRE_GET_STRINGNUMBER)
  restart_pcre_get_stringnumber:
-  with_string_0(check_string(STACK_0),GLO(misc_encoding),name, {
+  with_string_0(check_string(STACK_0),Symbol_value(S(utf_8)),name, {
       index = pcre_get_stringnumber(c_pat,name);
     });
   if (index>0) VALUES1(fixnum(index));

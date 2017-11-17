@@ -1,5 +1,13 @@
 2017-11-17  Sam Steingold  <sds@gnu.org>
 
+	Use UTF-8 for all PCRE strings.
+	* modules/pcre/cpcre.c (PCRE:PCRE-COMPILE): Use UTF-8 even for
+	error messages.
+	(fullinfo_nametable): Use UTF-8 for pcre_fullinfo().
+	(PCRE:PCRE-NAME-TO-INDEX): Use UTF-8 for pcre_get_stringnumber().
+
+2017-11-17  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp: Use revadd pervasively.
 	Remove a spurious CASE clause.
 
