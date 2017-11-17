@@ -1,6 +1,7 @@
 2017-11-17  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp: Use revadd pervasively.
+	Remove a spurious CASE clause.
 
 2017-11-16  Sam Steingold  <sds@gnu.org>
 
