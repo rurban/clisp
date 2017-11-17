@@ -661,8 +661,8 @@
                                 (setq new-bindings (destructure pattern form)))
                               ; keine Initialisierungsform angegeben.
                               (setq new-bindings (default-bindings (destructure-vars pattern) new-declspecs)))
-                            (setq bindings (revappend new-bindings bindings))
-                            (setq declspecs (revappend new-declspecs declspecs))))
+                            (revadd bindings new-bindings)
+                            (revadd declspecs new-declspecs)))
                         (unless (parse-kw-p 'and) (return))
                         (setq kw 'and))
                       (note-initialization
@@ -753,10 +753,8 @@
                                         (then-form first-form))
                                    (when (parse-kw-p 'then)
                                      (setq then-form (parse-form 'then)))
-                                   (setq bindings
-                                     (revappend (destructure pattern first-form)
-                                                bindings))
-                                   (setq declspecs (revappend new-declspecs declspecs))
+                                   (revadd bindings (destructure pattern first-form))
+                                   (revadd declspecs new-declspecs)
                                    (unless (and (constantp first-form)
                                                 (constantp then-form))
                                      (setq seen-for-as-= t)
@@ -768,7 +766,7 @@
                                      ;; some code from `preamble' +
                                      ;; `stepafter-code' to `stepbefore-code.'
                                      (setq depends-preceding t))
-                                   (setq stepafter (revappend (destructure pattern then-form) stepafter))))
+                                   (revadd stepafter (destructure pattern then-form))))
                                 (ACROSS
                                  (pop body-rest)
                                  (let ((vector-form (parse-form preposition))
@@ -955,7 +953,7 @@
                                            (t (return)))
                                      (setq preposition (next-kw)))
                                    ;; All parsing done, gather the declarations:
-                                   (setq declspecs (revappend new-declspecs declspecs))
+                                   (revadd declspecs new-declspecs)
                                    ;; Determine the direction of iteration:
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
