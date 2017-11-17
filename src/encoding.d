@@ -2517,7 +2517,7 @@ local char *canonicalize_encoding (char *encoding) {
 
 /* The reasonable 1:1 default.
  Rationale: this avoids random encoding errors,
-   e.g., when DIRECTORY is called on startup and the use home dir
+   e.g., when DIRECTORY is called on startup and the user home dir
    contains files with non-ASCII names
  The right default encoding is the one defined by the CLISP
    CODE-CHAR/CHAR-CODE conversion on the first 255 bytes, i.e., ISO-8859-1 */
