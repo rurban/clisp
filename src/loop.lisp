@@ -1062,8 +1062,7 @@
                  (initforms
                    (case name
                      (MULTIPLE-VALUE-BIND `((MULTIPLE-VALUE-SETQ ,@bindings)))
-                     (LET `((SETQ ,@(apply #'append bindings))))
-                     (t '())))
+                     (LET `((SETQ ,@(apply #'append bindings))))))
                  (endtest-forms (li-endtest-forms initialization)))
             (if requires-stepbefore
               ; wegen seen-for-as-= oder AREF nicht optimierbar
