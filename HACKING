@@ -1,0 +1,62 @@
+All you need to know when hacking (modifying) GNU clisp or when building
+it off the hg (mercurial) repository.
+
+
+Requirements
+============
+
+You will need reasonably recent versions of the build tools:
+
+  * A C compiler; for the 'debug_gcsafety' build also a C++ compiler.
+    Such as GNU GCC.
+    + Homepage:
+      http://gcc.gnu.org/
+
+  * GNU automake
+    + Homepage:
+      http://www.gnu.org/software/automake/
+
+  * GNU autoconf
+    + Homepage:
+      http://www.gnu.org/software/autoconf/
+
+  * GNU m4
+    + Homepage:
+      http://www.gnu.org/software/m4/
+
+  * Either an internet connection or a recent copy of GNU gnulib.
+    + Homepage:
+      http://www.gnu.org/software/gnulib/
+
+  * GNU tar (for creating distributable tarballs)
+    + Homepage:
+      http://www.gnu.org/software/tar/
+
+  * GNU Wget
+    + Homepage:
+      https://www.gnu.org/software/wget/
+
+And, of course, the packages listed in the DEPENDENCIES file.
+
+
+Building off the hg repository
+==============================
+
+Start with
+  $ hg clone http://hg.code.sf.net/p/clisp/clisp clisp-clisp
+
+The repository contains a pre-build 'configure' script, therefore
+you can proceed with the usual "./configure" immediately.
+
+Submitting patches
+==================
+
+Patches should be submitted at https://sourceforge.net/p/clisp/patches/ .
+
+To produce a sequence of patch files, you can use a shell command like
+  $ hg export -r first:last -o "%n-%m.diff"
+
+For the style of a ChangeLog entry, see the "Change Logs" section of
+the GNU coding standards:
+
+  http://www.gnu.org/prep/standards/html_node/Change-Logs.html

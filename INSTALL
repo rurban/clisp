@@ -30,8 +30,8 @@ Installation:
       src/configure      auxiliary configuration script
       src/*.in           auxiliary files
       utils/*            auxiliary programs
-      unix/              installing on Unix (including Mac OS/X & mingw)
-      win32msvc/         installing on Win32, using MSVC
+      unix/              installing on Unix
+      INSTALL.windows    installing on Windows
 
 Other:
 
@@ -77,8 +77,7 @@ Installation:
 
 For instruction on how to install CLISP
 * on Unix (including cygwin): see file unix/INSTALL.
-* on Win32 using MinGW: see file unix/INSTALL.
-* on Win32 using MSVC++: see file win32msvc/INSTALL.
+* on Windows: see file INSTALL.windows.
 
 
 Authors:

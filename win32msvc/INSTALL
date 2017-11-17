@@ -1,3 +1,8 @@
+++++++++++++++++++++++++++++++++++++++++++++
+!!! THESE INSTRUCTIONS ARE OBSOLETE      !!!
+!!! Please read INSTALL.windows instead. !!!
+++++++++++++++++++++++++++++++++++++++++++++
+
 Installation on Win32 (WinNT, Win95 et al) using the MSVC
 =========================================================
 development environment, using native system calls

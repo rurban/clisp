@@ -1,3 +1,12 @@
+2017-11-17  Bruno Haible  <bruno@clisp.org>
+
+	Revamp the installation documentation.
+	* INSTALL.windows: New file, mostly borrowed from GNU gettext.
+	* win32msvc/INSTALL: Mark as obsolete.
+	* INSTALL: Mention INSTALL.windows.
+	* DEPENDENCIES: New file.
+	* HACKING: New file.
+
 2017-11-17  Sam Steingold  <sds@gnu.org>
 
 	Use UTF-8 for all PCRE strings.
