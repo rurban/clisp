@@ -1481,15 +1481,15 @@ local void init_subr_tab_1 (void) {
     });
   }
  #ifdef MAP_MEMORY_TABLES
-  {               /* ditto, copy other tables tino the mapped region: */
+  {               /* ditto, copy other tables into the mapped region: */
     var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned);
     var module_t* module;
     main_module.stab = newptr; newptr += subr_count;
     for_modules(all_other_modules,{
-      if (*module->stab_size > 0) {
-        var subr_t* oldptr = module->stab;
-        var uintC count = *module->stab_size;
-        module->stab = newptr;
+      var subr_t* oldptr = module->stab;
+      var uintC count = *module->stab_size;
+      module->stab = newptr;
+      if (count > 0) {
         do { *newptr++ = *oldptr++; } while (--count);
       }
     });
