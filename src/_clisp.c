@@ -174,7 +174,8 @@ int main (int argc, char* argv[])
    * cannot appear within the "#!..." line (because "#!" and "-x" are
    * mutually exclusive).
    * As a workaround against the Solaris/HP-UX problem, we split not
-   * only at normal spaces, but also at hard spaces.
+   * only at normal spaces, but also at hard spaces (in ISO-8859-1 encoding
+   * and in UTF-8 encoding).
    * See <impnotes.html#quickstart>.
    */
   if (argc > 1) {
@@ -182,10 +183,11 @@ int main (int argc, char* argv[])
     { char* arg = argv[1];
       int inword = 0;
       while (*arg != '\0') {
-        int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
+        int utf8_hard_space_p = (*arg == (char)0xC2 && arg[1] == (char)0xA0);
+        int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0 || utf8_hard_space_p);
         if (!inword && !spacep) wordcount++;
         inword = !spacep;
-        arg++;
+        arg += 1 + utf8_hard_space_p;
       }
     }
     {int old_argc = argc;
@@ -201,14 +203,15 @@ int main (int argc, char* argv[])
        char* arg = *old_argv++;
        int inword = 0;
        while (*arg != '\0') {
-         int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
+         int utf8_hard_space_p = (*arg == (char)0xC2 && arg[1] == (char)0xA0);
+         int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0 || utf8_hard_space_p);
          if (!inword) {
            if (!spacep) { *new_argv++ = arg; }
          } else {
            if (spacep) { *arg = '\0'; }
          }
          inword = !spacep;
-         arg++;
+         arg += 1 + utf8_hard_space_p;
        }
      }
      { /* Copy argv[2..argc-1] unmodified. */
