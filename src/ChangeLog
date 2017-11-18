@@ -1,3 +1,14 @@
+2017-11-18  Bruno Haible  <bruno@clisp.org>
+
+	Allow file names with spaces to be passed as first argument to 'clisp'.
+	Reported by Jean Louis <bugs@gnu.support>
+	at <https://sourceforge.net/p/clisp/bugs/699/>.
+	* _clisp.c: Disable the argv[1] splitting hack unless SHEBANG_SUPPORT
+	is defined.
+	* _distmakefile: Install a program 'clisp!' next to 'clisp'.
+	* makemake.in (install-bin): Likewise.
+	(uninstall-bin): Unstill 'clisp!'.
+
 2017-11-17  Bruno Haible  <bruno@clisp.org>
 
 	Revamp the installation documentation.
