@@ -1,5 +1,16 @@
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
+	Fix initialization of modules in SINGLEMAP_MEMORY model.
+	Reported by Jean Louis <bugs@gnu.support>
+	at <https://sourceforge.net/p/clisp/bugs/713/>.
+	* utils/modprep.lisp (print-tables-2): Emit statements that store the
+	keyword vectors of the SUBRs in their heap-allocated location, not in
+	their preliminary location.
+	* spvw.d (init_subr_tab_1): Set module->stab also if the module has no
+	SUBRs. (Just a no-op.)
+
+2017-11-18  Bruno Haible  <bruno@clisp.org>
+
 	Allow clisp! scripts to have file names with spaces.
 	* _clisp.c: Don't split argv[1] if it looks like a file name.
 

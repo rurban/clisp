@@ -2,6 +2,7 @@
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
 ;;; Copyright (C) 2003-2011, 2016 by Sam Steingold [lisp]
+;;; Copyright (C) 2017 Bruno Haible
 ;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.
@@ -1149,12 +1150,14 @@ commas and parentheses."
 
 (defun print-tables-2 (out)
   "Output the tables at the end of the file"
-  (let ((subr-tab-initdata
-         (ext:string-concat "module__" *module-name* "__subr_tab_initdata"))
-        (subr-tab
-         (ext:string-concat "module__" *module-name* "__subr_tab")))
+  (let* ((subr-tab-initdata
+          (ext:string-concat "module__" *module-name* "__subr_tab_initdata"))
+         (subr-tab
+          (ext:string-concat "module__" *module-name* "__subr_tab"))
+         (subr-tab-type
+          (ext:string-concat "struct " subr-tab "_t")))
     (newline out) (newline out)
-    (formatln out "struct ~A_t ~A" subr-tab subr-tab)
+    (formatln out "~A ~A" subr-tab-type subr-tab)
     (formatln out "  #if defined(HEAPCODES) && (alignment_long < varobject_alignment) && defined(__GNUC__)")
     (formatln out "    __attribute__ ((aligned (varobject_alignment)))")
     (formatln out "  #endif")
@@ -1169,7 +1172,7 @@ commas and parentheses."
           (format out "  LISPFUN_F~A" (fundef-lispfun fd sig)))))
     (formatln out "  0")
     (formatln out "};")
-    (formatln out "uintC ~A_size = (sizeof(struct ~A_t)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" subr-tab subr-tab)
+    (formatln out "uintC ~A_size = (sizeof(~A)-varobjects_misaligned-sizeof(int))/sizeof(subr_t);" subr-tab subr-tab-type)
     (newline out)
     (formatln out "struct ~A_t {" subr-tab-initdata)
     (loop :for fd :across *fundefs*
@@ -1196,8 +1199,8 @@ commas and parentheses."
           (with-conditional (out (signature-cond-stack sig))
             (dolist (kw (signature-keywords sig))
               (formatln out "  pushSTACK(~A);" (objdef-object kw)))
-            (format out "  ~A._~A.keywords = vectorof(~D);" subr-tab tag
-                    (length (signature-keywords sig)))))))
+            (format out "  ((~A*)((char*)module->stab-varobjects_misaligned))->_~A.keywords = vectorof(~D);"
+                    subr-tab-type tag (length (signature-keywords sig)))))))
     (loop :for vi :across *varinits*
       :do (with-conditional (out (vector (varinit-condition vi)))
             (format out "  O(~A) = (~A);" (varinit-tag vi) (varinit-init vi))))
