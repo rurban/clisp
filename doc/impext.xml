@@ -5139,11 +5139,15 @@ spawning threads, multithreading should work fine.</simpara></warning>
  <para>&clisp; can be used as a script interpreter under the following
  conditions:
 <itemizedlist>
-<listitem><simpara>The &interp-r; must be the full pathname of &clisp;.
- The recommended path is <filename>/usr/local/bin/clisp</filename>,
+<listitem><simpara>The &interp-r; must be the full pathname of
+ <filename>clisp!</filename>. <filename>clisp!</filename> is a variant
+ of the &clisp-cmd; program that includes special support for being
+ used as a script interpreter; otherwise <filename>clisp!</filename>
+ behaves just like &clisp-cmd;.
+ The recommended path is <filename>/usr/local/bin/clisp!</filename>,
  and if &clisp; is actually installed elsewhere, making
- <filename>/usr/local/bin/clisp</filename> be a symbolic link to the
- real &clisp;.</simpara></listitem>
+ <filename>/usr/local/bin/clisp!</filename> be a symbolic link to the
+ real <filename>clisp!</filename>.</simpara></listitem>
 <listitem><simpara>The &interp-r; must be a real executable, not a script.
  Unfortunately, in the binary distributions of &clisp; on Solaris,
  &clisp-cmd; is a shell script because a &c-lang; compiler cannot be
@@ -5154,7 +5158,6 @@ spawning threads, multithreading should work fine.</simpara></warning>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
    <itemizedlist>
-     <listitem><simpara>max. 32 characters on SunOS 4,</simpara></listitem>
      <listitem><simpara>max. 80 characters on HP-UX,</simpara></listitem>
      <listitem><simpara>max. 127 characters on &linux;.</simpara></listitem>
    </itemizedlist>

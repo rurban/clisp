@@ -61,7 +61,7 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-all : base/lisp$(lexe) full/lisp$(lexe) clisp
+all : base/lisp$(lexe) full/lisp$(lexe) clisp clisp!
 
 #ifndef UNIX_BINARY_DISTRIB
 base/lisp$(lexe) : @@BASE_FILES@@
@@ -74,9 +74,13 @@ full/lisp$(lexe) : @@FULL_FILES@@
 #ifdef UNIX_BINARY_DISTRIB
 clisp: force
 	./hardcode -DLISPLIBDIR="`pwd`" -DLOCALEDIR="`pwd`/locale" clisp clisp
+clisp!: force
+	./hardcode -DLISPLIBDIR="`pwd`" -DLOCALEDIR="`pwd`/locale" 'clisp!' 'clisp!'
 #else /* new executable */
 clisp: src/clisp.c
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"'`pwd`'"' -DLOCALEDIR='"'`pwd`/locale'"' src/clisp.c -o clisp
+clisp!: src/clisp.c
+	$(CC) $(CFLAGS) -DLISPLIBDIR='"'`pwd`'"' -DLOCALEDIR='"'`pwd`/locale'"' -DSHEBANG_SUPPORT src/clisp.c -o 'clisp!'
 #endif
 
 install : install-bin install-man install-doc
@@ -98,8 +102,10 @@ install-bin : all force
 	if [ ! -d $(bindir) ] ; then mkdir $(bindir) ; fi
 #ifdef UNIX_BINARY_DISTRIB
 	./hardcode -DLISPLIBDIR='$(lisplibdir)' -DLOCALEDIR='$(localedir)' clisp $(bindir)/clisp
+	./hardcode -DLISPLIBDIR='$(lisplibdir)' -DLOCALEDIR='$(localedir)' 'clisp!' $(bindir)/'clisp!'
 #else /* new executable */
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' src/clisp.c -o $(bindir)/clisp
+	$(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' -DSHEBANG_SUPPORT src/clisp.c -o $(bindir)/'clisp!'
 #endif
 
 install-man : doc/clisp.1 doc/clisp.html force
@@ -131,6 +137,7 @@ uninstall : force
 	(files=`find locale -type f -print`; cd $(localedir) && rm -f $${files})
 #endif
 	rm -f $(bindir)/clisp
+	rm -f $(bindir)/'clisp!'
 	rm -f $(mandir)/man1/clisp.1
 	rm -f $(htmldir)/clisp.html
 	rm -f $(dvidir)/clisp.dvi

@@ -4235,6 +4235,7 @@ if [ $CROSS = false ] ; then
     test -n "$USE_GETTEXT" && \
       echotab "cd po && \$(MAKE) install DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' -DSHEBANG_SUPPORT clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/'clisp!'"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
@@ -4311,8 +4312,10 @@ if [ $CROSS = false ] ; then
     if [ ${HSYSOS} = cygwin ]; then
       echotab "\$(RM) \$(DESTDIR)\$(docdir)/Cygwin/clisp-\$(VERSION).README"
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp.exe"
+      echotab "\$(RM) \$(DESTDIR)\$(bindir)/'clisp!.exe'"
     else
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
+      echotab "\$(RM) \$(DESTDIR)\$(bindir)/'clisp!'"
     fi
     echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp-link"
     test -n "$USE_GETTEXT" && \
