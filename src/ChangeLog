@@ -1,5 +1,11 @@
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
+	Allow UTF-8 encoded hard space in first argument of clisp! invocation.
+	* _clisp.c: Treat UTF-8 encoded hard space like ISO-8859-1 encoded hard
+	space.
+
+2017-11-18  Bruno Haible  <bruno@clisp.org>
+
 	Allow file names with spaces to be passed as first argument to 'clisp'.
 	Reported by Jean Louis <bugs@gnu.support>
 	at <https://sourceforge.net/p/clisp/bugs/699/>.
