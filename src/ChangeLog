@@ -1,5 +1,10 @@
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
+	Allow clisp! scripts to have file names with spaces.
+	* _clisp.c: Don't split argv[1] if it looks like a file name.
+
+2017-11-18  Bruno Haible  <bruno@clisp.org>
+
 	Allow UTF-8 encoded hard space in first argument of clisp! invocation.
 	* _clisp.c: Treat UTF-8 encoded hard space like ISO-8859-1 encoded hard
 	space.

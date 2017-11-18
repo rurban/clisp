@@ -173,12 +173,15 @@ int main (int argc, char* argv[])
    * cannot appear as argv[1] (because "-x" must precede it), and it
    * cannot appear within the "#!..." line (because "#!" and "-x" are
    * mutually exclusive).
+   * Also, don't split argv[1] into pieces if it is the filename of the
+   * script. To determine this, look whether argv[1] is an option versus
+   * a filename.
    * As a workaround against the Solaris/HP-UX problem, we split not
    * only at normal spaces, but also at hard spaces (in ISO-8859-1 encoding
    * and in UTF-8 encoding).
    * See <impnotes.html#quickstart>.
    */
-  if (argc > 1) {
+  if (argc > 1 && argv[1][0] == '-') {
     int wordcount = 0; /* number of pieces in argv[1] */
     { char* arg = argv[1];
       int inword = 0;
