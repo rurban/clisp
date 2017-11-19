@@ -10,6 +10,8 @@
 #   umgewandelt werden (zero-extend, "srl reg,0,reg").
 #   Ergebnisse vom Typ sint8, sint16, sint32 müssen vor Rückgabe zu sint64
 #   umgewandelt werden (sign-extend, "sra reg,0,reg").
+# Global register usage:
+#   - see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
 # Einstellungen: intCsize=32, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
@@ -45,7 +47,7 @@
 
         .seg "text"
 
-        .global C(asm_mulu16_),C(asm_mulu32_),C(asm__get_g1),C(asm_mulu32_unchecked)
+        .global C(asm_mulu16_),C(asm_mulu32_64),C(asm_mulu32_unchecked)
         .global C(asm_divu_6432_3232_),C(asm_divu_3216_1616_)
         .global C(asm_copy_loop_up),C(asm_copy_loop_down),C(asm_fill_loop_up),C(asm_fill_loop_down)
         .global C(asm_clear_loop_up),C(asm_clear_loop_down)
@@ -68,24 +70,20 @@
 
 # extern uint32 asm_mulu16_ (uint16 arg1, uint16 arg2);
 # result := arg1*arg2.
-C(asm_mulu16_:) # Input in %o0,%o1, Output in %o0
-        umul %o0,%o1,%o2
-        retl
-       _ srl %o2,0,%o0
-
-# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
-# 2^32*hi+lo := arg1*arg2.
-C(asm_mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
-        umul %o0,%o1,%o2
-        rd %y,%g1
-        retl
-       _ srl %o2,0,%o0
-
-# extern uint32 asm__get_g1 (void);
-# Returns %g1.
-C(asm__get_g1:)
+C(asm_mulu16_:) # Input in %o0,%o1, verändert %g1, Output in %o0
+        umul %o0,%o1,%g1
         retl
        _ srl %g1,0,%o0
+
+# extern uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
+# result := arg1*arg2.
+C(asm_mulu32_64:) # Input in %o0,%o1, verändert %g1, Output in %o0
+        umul %o0,%o1,%g1
+        rd %y,%o1
+        srl %g1,0,%o0
+        sllx %o1,32,%o1
+        retl
+       _ or %o0,%o1,%o0
 
 # extern uint32 asm_mulu32_unchecked (uint32 x, uint32 y);
 # result := arg1*arg2 < 2^32.
@@ -94,22 +92,24 @@ C(asm_mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
         retl
        _ srl %o2,0,%o0
 
-# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern uint64 [struct { uint32 q; uint32 r; }] asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); -> 2^32*r+q
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
-C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
+C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0
         wr %o0,%g0,%y
         udiv %o1,%o2,%o0        # x durch y dividieren, %o0 := q
         umul %o0,%o2,%g1        # %g1 := (q*y) mod 2^32
-        sub %o1,%g1,%g1         # %g1 := (xlo-q*y) mod 2^32 = r
+        sub %o1,%g1,%o1         # %o1 := (xlo-q*y) mod 2^32 = r
+        srl %o0,0,%o0
+        sllx %o1,32,%o1
         retl
-       _ srl %o0,0,%o0
+       _ or %o0,%o1,%o0
 
-# extern struct { uint16 q; uint16 r; } asm_divu_3216_1616_ (uint32 x, uint16 y);
+# extern uint32 [struct { uint16 q; uint16 r; }] asm_divu_3216_1616_ (uint32 x, uint16 y); -> 2^16*r+q
 # x = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^16*y .
 C(asm_divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
         wr %g0,%g0,%y
         udiv %o0,%o1,%o2        # dividieren, Quotient nach %o2
-#if 0 # Who says that %y has some meaningful contents after `udiv' ??
+#if 0 # Who says that %y has some meaningful contents after 'udiv' ??
         rd %y,%g1               # Rest aus %y
 #else
         umul %o2,%o1,%g1        # %g1 := (q*y) mod 2^32
