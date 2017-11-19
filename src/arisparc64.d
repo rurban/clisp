@@ -45,58 +45,58 @@
 
         .seg "text"
 
-        .global C(mulu16_),C(mulu32_),C(_get_g1),C(mulu32_unchecked)
-        .global C(divu_6432_3232_),C(divu_3216_1616_)
-        .global C(copy_loop_up),C(copy_loop_down),C(fill_loop_up),C(fill_loop_down)
-        .global C(clear_loop_up),C(clear_loop_down)
-        .global C(or_loop_up),C(xor_loop_up),C(and_loop_up),C(eqv_loop_up)
-        .global C(nand_loop_up),C(nor_loop_up),C(andc2_loop_up),C(orc2_loop_up)
-        .global C(not_loop_up)
-        .global C(and_test_loop_up),C(test_loop_up),C(compare_loop_up)
-        .global C(add_loop_down),C(addto_loop_down),C(inc_loop_down)
-        .global C(sub_loop_down),C(subx_loop_down),C(subfrom_loop_down),C(dec_loop_down)
-        .global C(neg_loop_down)
-        .global C(shift1left_loop_down),C(shiftleft_loop_down),C(shiftleftcopy_loop_down)
-        .global C(shift1right_loop_up),C(shiftright_loop_up),C(shiftrightsigned_loop_up),C(shiftrightcopy_loop_up)
-        .global C(mulusmall_loop_down),C(mulu_loop_down),C(muluadd_loop_down),C(mulusub_loop_down)
-        .global C(divu_loop_up),C(divucopy_loop_up)
+        .global C(asm_mulu16_),C(asm_mulu32_),C(asm__get_g1),C(asm_mulu32_unchecked)
+        .global C(asm_divu_6432_3232_),C(asm_divu_3216_1616_)
+        .global C(asm_copy_loop_up),C(asm_copy_loop_down),C(asm_fill_loop_up),C(asm_fill_loop_down)
+        .global C(asm_clear_loop_up),C(asm_clear_loop_down)
+        .global C(asm_or_loop_up),C(asm_xor_loop_up),C(asm_and_loop_up),C(asm_eqv_loop_up)
+        .global C(asm_nand_loop_up),C(asm_nor_loop_up),C(asm_andc2_loop_up),C(asm_orc2_loop_up)
+        .global C(asm_not_loop_up)
+        .global C(asm_and_test_loop_up),C(asm_test_loop_up),C(asm_compare_loop_up)
+        .global C(asm_add_loop_down),C(asm_addto_loop_down),C(asm_inc_loop_down)
+        .global C(asm_sub_loop_down),C(asm_subx_loop_down),C(asm_subfrom_loop_down),C(asm_dec_loop_down)
+        .global C(asm_neg_loop_down)
+        .global C(asm_shift1left_loop_down),C(asm_shiftleft_loop_down),C(asm_shiftleftcopy_loop_down)
+        .global C(asm_shift1right_loop_up),C(asm_shiftright_loop_up),C(asm_shiftrightsigned_loop_up),C(asm_shiftrightcopy_loop_up)
+        .global C(asm_mulusmall_loop_down),C(asm_mulu_loop_down),C(asm_muluadd_loop_down),C(asm_mulusub_loop_down)
+        .global C(asm_divu_loop_up),C(asm_divucopy_loop_up)
 
 #define LOOP_TYPE  1    # 1: Standard-Schleifen
                         # 2: Schleifen ohne Pointer, nur mit Zähler
 #define STANDARD_LOOPS  (LOOP_TYPE==1)
 #define COUNTER_LOOPS  (LOOP_TYPE==2)
 
-# extern uint32 mulu16_ (uint16 arg1, uint16 arg2);
+# extern uint32 asm_mulu16_ (uint16 arg1, uint16 arg2);
 # result := arg1*arg2.
-C(mulu16_:) # Input in %o0,%o1, Output in %o0
+C(asm_mulu16_:) # Input in %o0,%o1, Output in %o0
         umul %o0,%o1,%o2
         retl
        _ srl %o2,0,%o0
 
-# extern struct { uint32 lo; uint32 hi; } mulu32_ (uint32 arg1, uint32 arg2);
+# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
-C(mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
+C(asm_mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
         umul %o0,%o1,%o2
         rd %y,%g1
         retl
        _ srl %o2,0,%o0
 
-# extern uint32 _get_g1 (void);
+# extern uint32 asm__get_g1 (void);
 # Returns %g1.
-C(_get_g1:)
+C(asm__get_g1:)
         retl
        _ srl %g1,0,%o0
 
-# extern uint32 mulu32_unchecked (uint32 x, uint32 y);
+# extern uint32 asm_mulu32_unchecked (uint32 x, uint32 y);
 # result := arg1*arg2 < 2^32.
-C(mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
+C(asm_mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
         umul %o0,%o1,%o2
         retl
        _ srl %o2,0,%o0
 
-# extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
-C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
+C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
         wr %o0,%g0,%y
         udiv %o1,%o2,%o0        # x durch y dividieren, %o0 := q
         umul %o0,%o2,%g1        # %g1 := (q*y) mod 2^32
@@ -104,9 +104,9 @@ C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
         retl
        _ srl %o0,0,%o0
 
-# extern struct { uint16 q; uint16 r; } divu_3216_1616_ (uint32 x, uint16 y);
+# extern struct { uint16 q; uint16 r; } asm_divu_3216_1616_ (uint32 x, uint16 y);
 # x = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^16*y .
-C(divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
+C(asm_divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
         wr %g0,%g0,%y
         udiv %o0,%o1,%o2        # dividieren, Quotient nach %o2
 #if 0 # Who says that %y has some meaningful contents after `udiv' ??
@@ -120,8 +120,8 @@ C(divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
         retl
        _ srl %o0,0,%o0
 
-# extern uintD* copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
-C(copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -151,8 +151,8 @@ C(copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ add %o1,4,%o0
 #endif
 
-# extern uintD* copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -181,8 +181,8 @@ C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
        _ mov %o1,%o0
 #endif
 
-# extern uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler);
-C(fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_fill_loop_up (uintD* destptr, uintC count, uintD filler);
+C(asm_fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -208,8 +208,8 @@ C(fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ add %o0,4,%o0
 #endif
 
-# extern uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler);
-C(fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_fill_loop_down (uintD* destptr, uintC count, uintD filler);
+C(asm_fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -233,8 +233,8 @@ C(fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
        _ nop
 #endif
 
-# extern uintD* clear_loop_up (uintD* destptr, uintC count);
-C(clear_loop_up:) # Input in %o0,%o1, Output in %o0
+# extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
+C(asm_clear_loop_up:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -260,8 +260,8 @@ C(clear_loop_up:) # Input in %o0,%o1, Output in %o0
        _ add %o0,4,%o0
 #endif
 
-# extern uintD* clear_loop_down (uintD* destptr, uintC count);
-C(clear_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
+C(asm_clear_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -285,8 +285,8 @@ C(clear_loop_down:) # Input in %o0,%o1, Output in %o0
        _ nop
 #endif
 
-# extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(or_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_or_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -320,8 +320,8 @@ C(or_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(xor_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_xor_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -355,8 +355,8 @@ C(xor_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_and_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -390,8 +390,8 @@ C(and_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(eqv_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_eqv_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -425,8 +425,8 @@ C(eqv_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nand_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_nand_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -462,8 +462,8 @@ C(nand_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nor_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_nor_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -499,8 +499,8 @@ C(nor_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(andc2_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_andc2_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -534,8 +534,8 @@ C(andc2_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(orc2_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_orc2_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -569,8 +569,8 @@ C(orc2_loop_up:) # Input in %o0,%o1,%o2
        _ nop
 #endif
 
-# extern void not_loop_up (uintD* xptr, uintC count);
-C(not_loop_up:) # Input in %o0,%o1
+# extern void asm_not_loop_up (uintD* xptr, uintC count);
+C(asm_not_loop_up:) # Input in %o0,%o1
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -600,8 +600,8 @@ C(not_loop_up:) # Input in %o0,%o1
        _ nop
 #endif
 
-# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -639,8 +639,8 @@ C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ mov 1,%o0
 #endif
 
-# extern bool test_loop_up (uintD* ptr, uintC count);
-C(test_loop_up:) # Input in %o0,%o1, Output in %o0
+# extern bool asm_test_loop_up (uintD* ptr, uintC count);
+C(asm_test_loop_up:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -673,8 +673,8 @@ C(test_loop_up:) # Input in %o0,%o1, Output in %o0
        _ mov 1,%o0
 #endif
 
-# extern signean compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern signean asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -718,8 +718,8 @@ C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ sra %o0,0,%o0          # sign-extend %o0
 #endif
 
-# extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+C(asm_add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -759,8 +759,8 @@ C(add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
        _ mov %g1,%o0
 #endif
 
-# extern uintD addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -799,8 +799,8 @@ C(addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
        _ mov %o5,%o0
 #endif
 
-# extern uintD inc_loop_down (uintD* ptr, uintC count);
-C(inc_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
+C(asm_inc_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -836,8 +836,8 @@ C(inc_loop_down:) # Input in %o0,%o1, Output in %o0
        _ mov 0,%o0
 #endif
 
-# extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+C(asm_sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -877,8 +877,8 @@ C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
        _ srl %g1,0,%o0
 #endif
 
-# extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-C(subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in %o0
+# extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
+C(asm_subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -918,8 +918,8 @@ C(subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in %o0
        _ srl %g1,0,%o0
 #endif
 
-# extern uintD subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
@@ -958,8 +958,8 @@ C(subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
        _ srl %o5,0,%o0
 #endif
 
-# extern uintD dec_loop_down (uintD* ptr, uintC count);
-C(dec_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
+C(asm_dec_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -995,8 +995,8 @@ C(dec_loop_down:) # Input in %o0,%o1, Output in %o0
        _ mov 0,%o0
 #endif
 
-# extern uintD neg_loop_down (uintD* ptr, uintC count);
-C(neg_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_neg_loop_down (uintD* ptr, uintC count);
+C(asm_neg_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         # erstes Digit /=0 suchen:
@@ -1058,8 +1058,8 @@ C(neg_loop_down:) # Input in %o0,%o1, Output in %o0
        _ srl %o0,0,%o0
 #endif
 
-# extern uintD shift1left_loop_down (uintD* ptr, uintC count);
-C(shift1left_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
+C(asm_shift1left_loop_down:) # Input in %o0,%o1, Output in %o0
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
        _ mov 0,%o3              # Carry := 0
@@ -1074,8 +1074,8 @@ C(shift1left_loop_down:) # Input in %o0,%o1, Output in %o0
 2:      retl
        _ mov %o3,%o0
 
-# extern uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
-C(shiftleft_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
+# extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
+C(asm_shiftleft_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
        _ srl %o3,0,%o3          # zero-extend carry
@@ -1090,8 +1090,8 @@ C(shiftleft_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 2:      retl
        _ mov %o3,%o0
 
-# extern uintD shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
-C(shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
+# extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
+C(asm_shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
        _ mov 0,%o4              # Carry := 0
@@ -1107,8 +1107,8 @@ C(shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 2:      retl
        _ mov %o4,%o0
 
-# extern uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
-C(shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
+C(asm_shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #ifdef SLOWER
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -1140,8 +1140,8 @@ C(shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ mov %o2,%o0
 #endif
 
-# extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
+# extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
+C(asm_shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
 #ifdef SLOWER
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -1176,8 +1176,8 @@ C(shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
        _ mov %o3,%o0
 #endif
 
-# extern uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
+# extern uintD asm_shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
+C(asm_shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
 #ifdef SLOWER
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         mov 32,%g1
@@ -1223,8 +1223,8 @@ C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %
        _ mov %o3,%o0
 #endif
 
-# extern uintD shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
-C(shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1,%g2, Output in %o0
+# extern uintD asm_shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
+C(asm_shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1,%g2, Output in %o0
 #ifdef SLOWER
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         sub %g0,%o3,%g1         # 64-i (mod 64)
@@ -1261,8 +1261,8 @@ C(shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1,%g2, O
        _ mov %g2,%o0
 #endif
 
-# extern uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
-C(mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
+# extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
+C(asm_mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = len
         brz,pn %o2,2f
        _ sub %o1,4,%o1
@@ -1295,8 +1295,8 @@ C(mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 2:      retl
        _ srl %o3,0,%o0
 
-# extern void mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1
+# extern void asm_mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
@@ -1313,8 +1313,8 @@ C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1
         retl
        _ st %o4,[%o2-4]         # letzten Carry ablegen
 
-# extern uintD muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
+# extern uintD asm_muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
@@ -1334,8 +1334,8 @@ C(muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in 
         retl
        _ srl %o4,0,%o0          # letzter Carry
 
-# extern uintD mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
+# extern uintD asm_mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
@@ -1355,8 +1355,8 @@ C(mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in 
         retl
        _ srl %o4,0,%o0          # letzter Carry
 
-# extern uintD divu_loop_up (uintD digit, uintD* ptr, uintC len);
-C(divu_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
+# extern uintD asm_divu_loop_up (uintD digit, uintD* ptr, uintC len);
+C(asm_divu_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = len
         brz,pn %o2,2f
        _ mov 0,%o3              # Rest
@@ -1374,8 +1374,8 @@ C(divu_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
 2:      retl
        _ srl %o3,0,%o0          # Rest als Ergebnis
 
-# extern uintD divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(divucopy_loop_up:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_divucopy_loop_up:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         brz,pn %o3,2f
        _ mov 0,%o4              # Rest

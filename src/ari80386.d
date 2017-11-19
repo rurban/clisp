@@ -82,53 +82,53 @@
 
             .text
 
-            .globl C(copy_loop_up)
-            .globl C(copy_loop_down)
-            .globl C(fill_loop_up)
-            .globl C(fill_loop_down)
-            .globl C(clear_loop_up)
-            .globl C(clear_loop_down)
-            .globl C(or_loop_up)
-            .globl C(xor_loop_up)
-            .globl C(and_loop_up)
-            .globl C(eqv_loop_up)
-            .globl C(nand_loop_up)
-            .globl C(nor_loop_up)
-            .globl C(andc2_loop_up)
-            .globl C(orc2_loop_up)
-            .globl C(not_loop_up)
-            .globl C(and_test_loop_up)
-            .globl C(test_loop_up)
-            .globl C(compare_loop_up)
-            .globl C(add_loop_down)
-            .globl C(addto_loop_down)
-            .globl C(inc_loop_down)
-            .globl C(sub_loop_down)
-            .globl C(subx_loop_down)
-            .globl C(subfrom_loop_down)
-            .globl C(dec_loop_down)
-            .globl C(neg_loop_down)
-            .globl C(shift1left_loop_down)
-            .globl C(shiftleft_loop_down)
-            .globl C(shiftleftcopy_loop_down)
-            .globl C(shift1right_loop_up)
-            .globl C(shiftright_loop_up)
-            .globl C(shiftrightsigned_loop_up)
-            .globl C(shiftrightcopy_loop_up)
-            .globl C(mulusmall_loop_down)
-            .globl C(mulu_loop_down)
-            .globl C(muluadd_loop_down)
-            .globl C(mulusub_loop_down)
-            .globl C(divu_loop_up)
-            .globl C(divucopy_loop_up)
+            .globl C(asm_copy_loop_up)
+            .globl C(asm_copy_loop_down)
+            .globl C(asm_fill_loop_up)
+            .globl C(asm_fill_loop_down)
+            .globl C(asm_clear_loop_up)
+            .globl C(asm_clear_loop_down)
+            .globl C(asm_or_loop_up)
+            .globl C(asm_xor_loop_up)
+            .globl C(asm_and_loop_up)
+            .globl C(asm_eqv_loop_up)
+            .globl C(asm_nand_loop_up)
+            .globl C(asm_nor_loop_up)
+            .globl C(asm_andc2_loop_up)
+            .globl C(asm_orc2_loop_up)
+            .globl C(asm_not_loop_up)
+            .globl C(asm_and_test_loop_up)
+            .globl C(asm_test_loop_up)
+            .globl C(asm_compare_loop_up)
+            .globl C(asm_add_loop_down)
+            .globl C(asm_addto_loop_down)
+            .globl C(asm_inc_loop_down)
+            .globl C(asm_sub_loop_down)
+            .globl C(asm_subx_loop_down)
+            .globl C(asm_subfrom_loop_down)
+            .globl C(asm_dec_loop_down)
+            .globl C(asm_neg_loop_down)
+            .globl C(asm_shift1left_loop_down)
+            .globl C(asm_shiftleft_loop_down)
+            .globl C(asm_shiftleftcopy_loop_down)
+            .globl C(asm_shift1right_loop_up)
+            .globl C(asm_shiftright_loop_up)
+            .globl C(asm_shiftrightsigned_loop_up)
+            .globl C(asm_shiftrightcopy_loop_up)
+            .globl C(asm_mulusmall_loop_down)
+            .globl C(asm_mulu_loop_down)
+            .globl C(asm_muluadd_loop_down)
+            .globl C(asm_mulusub_loop_down)
+            .globl C(asm_divu_loop_up)
+            .globl C(asm_divucopy_loop_up)
 
 #if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
-# extern struct { uint32 lo; uint32 hi; } mulu32_ (uint32 arg1, uint32 arg2);
+# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
             ALIGN
-            .globl C(mulu32_)
-C(mulu32_:)
+            .globl C(asm_mulu32_)
+C(asm_mulu32_:)
             movl    4(%esp),%eax    # arg1
             mull    8(%esp)         # %edx|%eax := arg1 * arg2
             movl    %edx,C(mulu32_high) # %edx = hi abspeichern
@@ -138,11 +138,11 @@ C(mulu32_:)
 
 #if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
 
-# extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
             ALIGN
-            .globl C(divu_6432_3232_)
-C(divu_6432_3232_:)
+            .globl C(asm_divu_6432_3232_)
+C(asm_divu_6432_3232_:)
             movl    4(%esp),%edx
             movl    8(%esp),%eax
             divl    12(%esp)       # x = %edx|%eax durch dividieren
@@ -151,9 +151,9 @@ C(divu_6432_3232_:)
 
 #endif
 
-# extern uintD* copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
+# extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
             ALIGN
-C(copy_loop_up:)
+C(asm_copy_loop_up:)
             movl    %edi,%edx       # %edi retten
             movl    %esi,%eax       # %esi retten
             movl    4(%esp),%esi    # %esi = sourceptr
@@ -167,9 +167,9 @@ C(copy_loop_up:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern uintD* copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+# extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
             ALIGN
-C(copy_loop_down:)
+C(asm_copy_loop_down:)
             movl    %edi,%edx       # %edi retten
             movl    %esi,%eax       # %esi retten
             movl    4(%esp),%esi    # %esi = sourceptr
@@ -185,9 +185,9 @@ C(copy_loop_down:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler);
+# extern uintD* asm_fill_loop_up (uintD* destptr, uintC count, uintD filler);
             ALIGN
-C(fill_loop_up:)
+C(asm_fill_loop_up:)
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -199,9 +199,9 @@ C(fill_loop_up:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler);
+# extern uintD* asm_fill_loop_down (uintD* destptr, uintC count, uintD filler);
             ALIGN
-C(fill_loop_down:)
+C(asm_fill_loop_down:)
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -214,9 +214,9 @@ C(fill_loop_down:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern uintD* clear_loop_up (uintD* destptr, uintC count);
+# extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
             ALIGN
-C(clear_loop_up:)
+C(asm_clear_loop_up:)
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -228,9 +228,9 @@ C(clear_loop_up:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern uintD* clear_loop_down (uintD* destptr, uintC count);
+# extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
             ALIGN
-C(clear_loop_down:)
+C(asm_clear_loop_down:)
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -243,9 +243,9 @@ C(clear_loop_down:)
             movl    %edx,%edi       # %edi zurück
             ret
 
-# extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(or_loop_up:)
+C(asm_or_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -260,9 +260,9 @@ L(olu1:)      movl    (%edx,%esi),%eax # *yptr
 L(olu2:)    popl    %esi            # %esi zurück
             ret
 
-# extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(xor_loop_up:)
+C(asm_xor_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -277,9 +277,9 @@ L(xlu1:)      movl    (%edx,%esi),%eax # *yptr
 L(xlu2:)    popl    %esi            # %esi zurück
             ret
 
-# extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(and_loop_up:)
+C(asm_and_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -294,9 +294,9 @@ L(alu1:)      movl    (%edx,%esi),%eax # *yptr
 L(alu2:)    popl    %esi            # %esi zurück
             ret
 
-# extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(eqv_loop_up:)
+C(asm_eqv_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -313,9 +313,9 @@ L(elu1:)      movl    (%edx),%eax      # *xptr
 L(elu2:)    popl    %esi            # %esi zurück
             ret
 
-# extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(nand_loop_up:)
+C(asm_nand_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -332,9 +332,9 @@ L(nalu1:)     movl    (%edx),%eax      # *xptr
 L(nalu2:)   popl    %esi            # %esi zurück
             ret
 
-# extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(nor_loop_up:)
+C(asm_nor_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -351,9 +351,9 @@ L(nolu1:)     movl    (%edx),%eax      # *xptr
 L(nolu2:)   popl    %esi            # %esi zurück
             ret
 
-# extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(andc2_loop_up:)
+C(asm_andc2_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -369,9 +369,9 @@ L(aclu1:)     movl    (%edx,%esi),%eax # *yptr
 L(aclu2:)   popl    %esi            # %esi zurück
             ret
 
-# extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(orc2_loop_up:)
+C(asm_orc2_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -387,9 +387,9 @@ L(oclu1:)     movl    (%edx,%esi),%eax # *yptr
 L(oclu2:)   popl    %esi            # %esi zurück
             ret
 
-# extern void not_loop_up (uintD* xptr, uintC count);
+# extern void asm_not_loop_up (uintD* xptr, uintC count);
             ALIGN
-C(not_loop_up:)
+C(asm_not_loop_up:)
             movl    4(%esp),%edx    # %edx = xptr
             movl    8(%esp),%ecx    # %ecx = count
             jecxz   L(nlu2)         # %ecx = 0 ?
@@ -400,9 +400,9 @@ L(nlu1:)      notl    (%edx)           # ~= *xptr
               jnz     L(nlu1)
 L(nlu2:)    ret
 
-# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(and_test_loop_up:)
+C(asm_and_test_loop_up:)
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
@@ -419,9 +419,9 @@ L(atlu2:)   xorl    %eax,%eax       # Ergebnis 0
 L(atlu3:)   popl    %esi            # %esi zurück
             ret
 
-# extern bool test_loop_up (uintD* ptr, uintC count);
+# extern bool asm_test_loop_up (uintD* ptr, uintC count);
             ALIGN
-C(test_loop_up:)
+C(asm_test_loop_up:)
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = ptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -437,9 +437,9 @@ C(test_loop_up:)
 L(tlu1:)    movl    %edx,%edi       # %edi zurück
             ret
 
-# extern signean compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern signean asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
             ALIGN
-C(compare_loop_up:)
+C(asm_compare_loop_up:)
             movl    %esi,%edx       # %esi retten
             movl    %edi,%eax       # %edi retten
             movl    4(%esp),%esi    # %esi = xptr
@@ -462,9 +462,9 @@ C(compare_loop_up:)
 L(cmlu1:)   sbbl    %eax,%eax       # Ergebnis -1 (falls C) oder 0 (falls NC)
             ret
 
-# extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+# extern uintD asm_add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
             ALIGN
-C(add_loop_down:)
+C(asm_add_loop_down:)
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
@@ -486,9 +486,9 @@ L(ald2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
             popl    %esi           # %esi zurück
             ret
 
-# extern uintD addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+# extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
             ALIGN
-C(addto_loop_down:)
+C(asm_addto_loop_down:)
             pushl   %edi            # %edi retten
             movl    8(%esp),%edx    # %edx = sourceptr
             movl    12(%esp),%edi   # %edi = destptr
@@ -505,9 +505,9 @@ L(atld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD inc_loop_down (uintD* ptr, uintC count);
+# extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
             ALIGN
-C(inc_loop_down:)
+C(asm_inc_loop_down:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             jecxz   L(ild2)         # %ecx = 0 ?
@@ -521,9 +521,9 @@ L(ild2:)    movl    $1,%eax         # Ergebnis := 1
 L(ild3:)    xorl    %eax,%eax       # Ergebnis := 0
             ret
 
-# extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+# extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
             ALIGN
-C(sub_loop_down:)
+C(asm_sub_loop_down:)
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
@@ -545,9 +545,9 @@ L(sld2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
             popl    %esi           # %esi zurück
             ret
 
-# extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
+# extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
             ALIGN
-C(subx_loop_down:)
+C(asm_subx_loop_down:)
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
@@ -575,9 +575,9 @@ L(sxld2:)   movl    28(%esp),%eax  # Ergebnis := carry
             popl    %esi           # %esi zurück
             ret
 
-# extern uintD subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+# extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
             ALIGN
-C(subfrom_loop_down:)
+C(asm_subfrom_loop_down:)
             pushl   %edi            # %edi retten
             movl    8(%esp),%edx    # %edx = sourceptr
             movl    12(%esp),%edi   # %edi = destptr
@@ -594,9 +594,9 @@ L(sfld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD dec_loop_down (uintD* ptr, uintC count);
+# extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
             ALIGN
-C(dec_loop_down:)
+C(asm_dec_loop_down:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             jecxz   L(dld2)         # %ecx = 0 ?
@@ -610,9 +610,9 @@ L(dld2:)    movl    $-1,%eax        # Ergebnis := -1
 L(dld3:)    xorl    %eax,%eax       # Ergebnis := 0
             ret
 
-# extern uintD neg_loop_down (uintD* ptr, uintC count);
+# extern uintD asm_neg_loop_down (uintD* ptr, uintC count);
             ALIGN
-C(neg_loop_down:)
+C(asm_neg_loop_down:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             # erstes Digit /=0 suchen:
@@ -636,9 +636,9 @@ L(nld4:)      leal    -4(%edx),%edx
 L(nld5:)    movl    $-1,%eax        # Ergebnis := -1
             ret
 
-# extern uintD shift1left_loop_down (uintD* ptr, uintC count);
+# extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
             ALIGN
-C(shift1left_loop_down:)
+C(asm_shift1left_loop_down:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
@@ -651,9 +651,9 @@ L(s1lld1:)    leal    -4(%edx),%edx   # ptr--
 L(s1lld2:)  sbbl    %eax,%eax       # Ergebnis := - Carry
             ret
 
-# extern uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
+# extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
             ALIGN
-C(shiftleft_loop_down:)
+C(asm_shiftleft_loop_down:)
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
@@ -697,9 +697,9 @@ L(slld4:)   movl    24(%esp),%eax   # %eax := carry
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
+# extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
             ALIGN
-C(shiftleftcopy_loop_down:)
+C(asm_shiftleftcopy_loop_down:)
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -748,9 +748,9 @@ L(slcld4:)  xorl    %eax,%eax       # %eax := 0
             popl    %esi            # %esi zurück
             ret
 
-# extern uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
+# extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
             ALIGN
-C(shift1right_loop_up:)
+C(asm_shift1right_loop_up:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             movl    12(%esp),%eax   # %eax = carry (0 oder -1)
@@ -763,9 +763,9 @@ L(s1rld1:)    rcrl    $1,(%edx)       # *ptr und Carry um 1 Bit rechts rotieren
 L(s1rld2:)  sbbl    %eax,%eax       # Ergebnis := - Carry
 L(s1rld3:)  ret
 
-# extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
+# extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
             ALIGN
-C(shiftright_loop_up:)
+C(asm_shiftright_loop_up:)
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
@@ -807,9 +807,9 @@ L(srlu4:)   xorl    %eax,%eax       # %eax := 0
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
+# extern uintD asm_shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
             ALIGN
-C(shiftrightsigned_loop_up:)
+C(asm_shiftrightsigned_loop_up:)
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
@@ -844,9 +844,9 @@ L(srslu3:)  xorl    %eax,%eax       # %eax := 0
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
+# extern uintD asm_shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
             ALIGN
-C(shiftrightcopy_loop_up:)
+C(asm_shiftrightcopy_loop_up:)
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -889,9 +889,9 @@ L(srcld3:)  shll    %cl,%eax        # %eax um 32-i Bits nach links shiften
             popl    %esi            # %esi zurück
             ret
 
-# extern uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
+# extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
             ALIGN
-C(mulusmall_loop_down:)
+C(asm_mulusmall_loop_down:)
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -918,9 +918,9 @@ L(msld2:)   movl    %ebp,%eax       # Ergebnis := letzter Übertrag
             popl    %ebp            # %ebp zurück
             ret
 
-# extern void mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+# extern void asm_mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
             ALIGN
-C(mulu_loop_down:)
+C(asm_mulu_loop_down:)
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -949,9 +949,9 @@ L(muld1:)     movl    (%esi,%ecx,4),%eax # *sourceptr
             popl    %ebp            # %ebp zurück
             ret
 
-# extern uintD muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+# extern uintD asm_muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
             ALIGN
-C(muluadd_loop_down:)
+C(asm_muluadd_loop_down:)
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -981,9 +981,9 @@ L(muald1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
             popl    %ebp            # %ebp zurück
             ret
 
-# extern uintD mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+# extern uintD asm_mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
             ALIGN
-C(mulusub_loop_down:)
+C(asm_mulusub_loop_down:)
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -1013,9 +1013,9 @@ L(musld1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
             popl    %ebp            # %ebp zurück
             ret
 
-# extern uintD divu_loop_up (uintD digit, uintD* ptr, uintC len);
+# extern uintD asm_divu_loop_up (uintD digit, uintD* ptr, uintC len);
             ALIGN
-C(divu_loop_up:)
+C(asm_divu_loop_up:)
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%ebx   # %ebx = digit
@@ -1034,9 +1034,9 @@ L(dlu2:)    movl    %edx,%eax       # Ergebnis := letzter Rest
             popl    %edi            # %edi zurück
             ret
 
-# extern uintD divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+# extern uintD asm_divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
             ALIGN
-C(divucopy_loop_up:)
+C(asm_divucopy_loop_up:)
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
             pushl   %ebx            # %ebx retten
