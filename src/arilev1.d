@@ -187,7 +187,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #                   as macroexpanded inline assembler routines.
 #                   Very efficient.
 
-#if (defined(SPARC) || defined(I80386) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM)
+#if (defined(SPARC) || defined(I80386) || defined(MIPS) || defined(ARM)) && !defined(NO_ARI_ASM)
   # diese Assembler beherrsche ich
   #if (defined(GNU) && defined(WANT_LOOP_INLINE))
     # der GNU-Compiler kann Inline-Assembler
@@ -237,9 +237,6 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
       #else
         #include "arimips.c"
       #endif
-    #endif
-    #if defined(VAX)
-      #include "arivaxunix.c"
     #endif
     #if defined(ARM)
       #include "ariarm.c"
