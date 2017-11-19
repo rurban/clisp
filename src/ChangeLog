@@ -1,5 +1,11 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on Linux/s390x with HEAPCODES.
+	* lispbibl.d: On Linux/s390x, prefer GENERIC64_HEAPCODES over
+	ONE_FREE_BIT_HEAPCODES always.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Don't use a global register variable as return value for SPARC64.
 	* arisparc64.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
 	in %o0.
