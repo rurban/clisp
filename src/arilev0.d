@@ -200,12 +200,12 @@
            hi_assignment _hi; lo_assignment _lo;            \
          })
     #elif defined(SPARC) && !defined(NO_ARI_ASM)
-      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
-      #define mulu32(x,y,hi_assignment,lo_assignment)  \
-        ({ lo_assignment asm_mulu32_(x,y); # extern in Assembler \
-          {var register uint32 _hi __asm__("%g1");          \
-           hi_assignment _hi;                                \
-         }})
+      extern_C uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2); # extern in Assembler
+      #define mulu32(x,y,hi_assignment,lo_assignment)      \
+        ({ var register uint64 _prod = asm_mulu32_64(x,y); \
+           hi_assignment (uint32)(_prod>>32);              \
+           lo_assignment (uint32)(_prod);                  \
+         })
     #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM)
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ var register uint64 _prod = (uint64)(x) * (uint64)(y); \
@@ -217,39 +217,49 @@
   #ifndef mulu32
     # Use this function if you are not interested in the high part:
     # extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
-    #define mulu32(x,y,hi_assignment,lo_assignment)  \
-      { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
-      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
-      #define mulu32_ asm_mulu32_
-      #if defined(SPARC) || defined(SPARC64)
-        #define mulu32_high  (uint32)(asm__get_g1()) # Rückgabe im Register %g1
-      #elif defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In arihppa.d ist mulu32_high bereits definiert.
-        global uint32 mulu32_high;
-      #endif
+    #if defined(SPARC) && !defined(SPARC64) && !defined(NO_ARI_ASM)
+       extern_C uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2); # extern in Assembler
+       #define mulu32(x,y,hi_assignment,lo_assignment)  \
+         { var uint64 _prod_from_mulu32 = asm_mulu32_64(x,y); \
+           hi_assignment (uint32)(_prod_from_mulu32>>32);     \
+           lo_assignment (uint32)(_prod_from_mulu32);         \
+         }
+       #define mulu32_(x,y) ((uint32)asm_mulu32_64(x,y))
     #else
-      extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2);
-      #ifdef LISPARIT
-      global uint32 mulu32_high;
-      global uint32 mulu32_ (uint32 x, uint32 y) {
-        var uint16 x1 = high16(x);
-        var uint16 x0 = low16(x);
-        var uint16 y1 = high16(y);
-        var uint16 y0 = low16(y);
-        var uint32 hi = mulu16(x1,y1); # obere Portion
-        var uint32 lo = mulu16(x0,y0); # untere Portion
-        {
-          var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
-          hi += high16(mid); mid = highlow32_0(low16(mid));
-          lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+      #define mulu32(x,y,hi_assignment,lo_assignment)  \
+        { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
+      #if (defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
+        extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
+        #define mulu32_ asm_mulu32_
+        #if defined(SPARC64)
+          #define mulu32_high  (uint32)(asm__get_g1()) # Rückgabe im Register %g1
+        #elif defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In arihppa.d ist mulu32_high bereits definiert.
+          global uint32 mulu32_high;
+        #endif
+      #else
+        extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2);
+        #ifdef LISPARIT
+        global uint32 mulu32_high;
+        global uint32 mulu32_ (uint32 x, uint32 y) {
+          var uint16 x1 = high16(x);
+          var uint16 x0 = low16(x);
+          var uint16 y1 = high16(y);
+          var uint16 y0 = low16(y);
+          var uint32 hi = mulu16(x1,y1); # obere Portion
+          var uint32 lo = mulu16(x0,y0); # untere Portion
+          {
+            var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
+            hi += high16(mid); mid = highlow32_0(low16(mid));
+            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+          }
+          {
+            var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
+            hi += high16(mid); mid = highlow32_0(low16(mid));
+            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+          }
+          mulu32_high = hi; return lo;
         }
-        {
-          var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
-          hi += high16(mid); mid = highlow32_0(low16(mid));
-          lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
-        }
-        mulu32_high = hi; return lo;
-      }
+        #endif
       #endif
     #endif
   #endif
@@ -314,13 +324,16 @@
                   );                                      \
            highlow64(_hi,_lo);                            \
          })
-    #elif defined(SPARC) && !defined(NO_ARI_ASM)
+    #elif defined(SPARC64) && !defined(NO_ARI_ASM)
       extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
       #define mulu32_64(x,y)  \
         ({ var register uint32 _lo = asm_mulu32_(x,y); # extern in Assembler \
            var register uint32 _hi __asm__("%g1");                       \
            highlow64(_hi,_lo);                                           \
          })
+    #elif defined(SPARC) && !defined(NO_ARI_ASM)
+      extern_C uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
+      #define mulu32_64 asm_mulu32_64
     #endif
   #endif
   #ifndef mulu32_64
@@ -692,7 +705,7 @@
           q_assignment (uint32)__q;     \
           r_assignment (uint32)__r;     \
          })
-    #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
+    #elif defined(SPARC64) && !defined(NO_ARI_ASM)
       extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({ var uint32 _q = asm_divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
@@ -700,6 +713,14 @@
            q_assignment _q; r_assignment _r;                                   \
          })
       #define divu_6432_3232_ asm_divu_6432_3232_
+    #elif defined(SPARC) && !defined(NO_ARI_ASM)
+      extern_C uint64 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+      #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
+        ({ var uint64 _qr = asm_divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
+           q_assignment (uint32)_qr; r_assignment (uint32)(_qr>>32);              \
+         })
+      #define divu_6432_3232_(xhi,xlo,y) \
+        ((uint32)asm_divu_6432_3232_(xhi,xlo,y))
     #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
       extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
@@ -741,13 +762,24 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC64) || defined(ARM) || defined(I80386)) && !defined(NO_ARI_ASM)
       extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # extern in Assembler
       #define divu_6432_3232_ asm_divu_6432_3232_
-      #if defined(SPARC) || defined(SPARC64)
+      #if defined(SPARC64)
         #define divu_32_rest  (uint32)(asm__get_g1()) # Rückgabe im Register %g1
       #elif defined(LISPARIT)
         global uint32 divu_32_rest;
+      #endif
+    #elif defined(SPARC) && !defined(NO_ARI_ASM)
+      extern_C uint64 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # extern in Assembler
+      extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+      #ifdef LISPARIT
+      global uint32 divu_32_rest;
+      global uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y) {
+        var uint64 qr = asm_divu_6432_3232_(xhi,xlo,y);
+        divu_32_rest = (uint32)(qr>>32);
+        return (uint32)qr;
+      }
       #endif
     #else
       extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);

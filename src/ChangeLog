@@ -1,5 +1,17 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Don't use a global register variable as return value for SPARC.
+	Fixes bug <https://sourceforge.net/p/clisp/bugs/542/>.
+	* arisparc.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
+	in %o1,%o0, not %o0,%g1.
+	(asm_divu_6432_3232_): Return 64 bits in %o1,%o0, not %o0,%g1.
+	(asm_divu_loop_up, asm_divucopy_loop_up): Update accordingly.
+	(asm__get_g1): Remove function.
+	* arilev0.d (mulu32, mulu32_, mulu32_64, divu_6432_3232,
+	divu_6432_3232_) [SPARC && !SPARC64]: Update accordingly.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Optimize arisparc.d also with Sun C and also for SPARCv9.
 	* arisparc.d (sparcv8): Set also with Sun "cc -xarch=v8". Set also when
 	compiling for SPARC v9, not v8.

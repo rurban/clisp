@@ -2,6 +2,11 @@
 # Prozessor: SPARC
 # Compiler: GNU-C oder SUN-C
 # Parameter-Übergabe: in Registern %o0-%o5.
+# Return value:
+#   - 1 word: in register %o0;
+#   - for a 'long long' return type: in registers %o0 (high 32 bits), %o1 (low 32 bits).
+# Global register usage:
+#   - see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
 # Einstellungen: intCsize=32, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
@@ -38,7 +43,7 @@
 
         .seg "text"
 
-        .global C(asm_mulu16_),C(asm_mulu32_),C(asm__get_g1),C(asm_mulu32_unchecked)
+        .global C(asm_mulu16_),C(asm_mulu32_64),C(asm_mulu32_unchecked)
         .global C(asm_divu_6432_3232_),C(asm_divu_3216_1616_)
         .global C(asm_copy_loop_up),C(asm_copy_loop_down),C(asm_fill_loop_up),C(asm_fill_loop_down)
         .global C(asm_clear_loop_up),C(asm_clear_loop_down)
@@ -98,13 +103,13 @@ C(asm_mulu16_:) # Input in %o0,%o1, Output in %o0
        _ or      %o2,%o0,%o0
 #endif
 
-# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
+# extern uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
-C(asm_mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
+C(asm_mulu32_64:) # Input in %o0,%o1, Output in %o0=hi,%o1=lo
 #ifdef sparcv8
-        umul    %o0,%o1,%o0
+        umul    %o0,%o1,%o1
         retl
-       _ rd      %y,%g1
+       _ rd      %y,%o0
 #else
         mov     %o1,%y
         sra     %o0,31,%o3      # Wartetakt, nötig z.B. für SUN SPARCstation IPC
@@ -143,16 +148,10 @@ C(asm_mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
         mulscc  %o2,%o0,%o2
         mulscc  %o2,%g0,%o2
         and     %o3,%o1,%o3     # %o3 = (0 falls %o0>=0, %o1 falls %o0<0)
-        add     %o2,%o3,%g1     # hi
+        add     %o2,%o3,%o0     # hi
         retl
-       _ rd      %y,%o0         # lo
+       _ rd      %y,%o1         # lo
 #endif
-
-# extern long asm__get_g1 (void);
-# Returns %g1.
-C(asm__get_g1:)
-        retl
-       _ mov %g1,%o0
 
 # extern uint32 asm_mulu32_unchecked (uint32 x, uint32 y);
 # result := arg1*arg2 < 2^32.
@@ -220,19 +219,19 @@ Ll01:   # arg1 >= arg2, also kann man arg2 < 2^16 annehmen.
        _ or      %o2,%o0,%o0
 #endif
 
-# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern uint64 [struct { uint32 q; uint32 r; }] asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); -> 2^32*r+q
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
-C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
+C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0=r,%o1=q
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
         wr      %o0,%g0,%y
         nop                     # wait 1 | Necessary for certain sparcv8
         nop                     # wait 2 | processors such as Ross Hypersparc,
-        nop                     # wait 3 | but not for most of the others.
-        udiv    %o1,%o2,%o0     # x durch y dividieren, %o0 := q
-        umul    %o0,%o2,%g1     # %g1 := (q*y) mod 2^32
+        mov     %o1,%o0         # wait 3 | but not for most of the others.
+        udiv    %o1,%o2,%o1     # x durch y dividieren, %o1 := q
+        umul    %o1,%o2,%o2     # %o2 := (q*y) mod 2^32
         retl
-       _ sub     %o1,%g1,%g1    # %g1 := (xlo-q*y) mod 2^32 = r
+       _ sub     %o0,%o2,%o0    # %o0 := (xlo-q*y) mod 2^32 = r
 #else
         # %o0 = xhi, %o1 = xlo, %o2 = y
 # Divisions-Einzelschritte:
@@ -311,22 +310,21 @@ La32:   SB0()                   # %o0 = x mod (2*y')
        _ subcc   %o0,%o2,%o3
         subcc   %o3,%o2,%o0     # muss der Quotient nochmals erhöht werden?
         bcs     Ll03
-       _ mov     %o3,%g1
+       _ nop
         # Quotient 2 mal erhöhen, Rest %o0
-        mov     %o0,%g1
         retl
-       _ add     %o1,2,%o0
+       _ add     %o1,2,%o1
 Ll02:   # kein Additions-Überlauf.
         # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
         bcs     Ll04            # %o0 < %o2 -> Rest %o0 und Quotient %o1 OK
-       _ mov     %o3,%g1
+       _ nop
 Ll03:   # Quotient %o1 erhöhen, Rest = %o0-%o2 = %o3
+        add     %o1,1,%o1
         retl
-       _ add     %o1,1,%o0
+       _ mov     %o3,%o0
 Ll04:   # Quotient %o1 und Rest %o0 OK
-        mov     %o0,%g1
         retl
-       _ mov     %o1,%o0
+       _ nop
 # Parallelschiene zu La01..La32:
 Lb01:   SB1(); SA1(La02)
 Lb02:   SB1(); SA1(La03)
@@ -372,22 +370,21 @@ Lb32:   SB1()                   # %o3 = x mod (2*y')
        _ subcc   %o3,%o2,%o0
         subcc   %o0,%o2,%o3     # muss der Quotient nochmals erhöht werden?
         bcs     Ll06
-       _ mov     %o0,%g1
+       _ nop
         # Quotient 2 mal erhöhen, Rest %o3
-        mov     %o3,%g1
+        add     %o1,2,%o1
         retl
-       _ add     %o1,2,%o0
+       _ mov     %o3,%o0
 Ll05:   # kein Additions-Überlauf.
         # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
         bcs     Ll07            # %o3 < %o2 -> Rest %o3 und Quotient %o1 OK
-       _ mov     %o0,%g1
+       _ nop
 Ll06:   # Quotient %o1 erhöhen, Rest = %o3-%o2 = %o0
         retl
-       _ add     %o1,1,%o0
+       _ add     %o1,1,%o1
 Ll07:   # Quotient %o1 und Rest %o3 OK
-        mov     %o3,%g1
         retl
-       _ mov     %o1,%o0
+       _ mov     %o3,%o0
 Lsmalldiv: # Division durch y < 2^31
         addcc   %o1,%o1,%o1
 Lc00:   SB0(); SA0(Ld01)        # Bit 31 des Quotienten bestimmen
@@ -422,9 +419,8 @@ Lc28:   SB0(); SA0(Ld29)        # Bit 3 des Quotienten bestimmen
 Lc29:   SB0(); SA0(Ld30)        # Bit 2 des Quotienten bestimmen
 Lc30:   SB0(); SA0(Ld31)        # Bit 1 des Quotienten bestimmen
 Lc31:   SB0(); SA0(Ld32)        # Bit 0 des Quotienten bestimmen
-Lc32:   mov     %o0,%g1         # Rest aus %o0 in %g1 abspeichern
-        retl
-       _ xor     %o1,-1,%o0     # Quotient nach %o0
+Lc32:   retl
+       _ xor     %o1,-1,%o1     # Quotient nach %o1, Rest in %o0
 # Parallelschiene zu Lc01..Lc32:
 Ld01:   SB1(); SA1(Lc02)
 Ld02:   SB1(); SA1(Lc03)
@@ -457,9 +453,9 @@ Ld28:   SB1(); SA1(Lc29)
 Ld29:   SB1(); SA1(Lc30)
 Ld30:   SB1(); SA1(Lc31)
 Ld31:   SB1(); SA1(Lc32)
-Ld32:   mov     %o3,%g1         # Rest aus %o3 in %g1 abspeichern
+Ld32:   mov     %o3,%o0         # Rest aus %o3 in %o0 abspeichern
         retl
-       _ xor     %o1,-1,%o0     # Quotient nach %o0
+       _ xor     %o1,-1,%o1     # Quotient nach %o1
 Levendiv: # Division durch gerades y.
         # x/2 durch y/2 dividieren, Quotient OK, Rest evtl. mit 2 multiplizieren.
         # Es ist schon %o2 = y/2.
@@ -499,9 +495,8 @@ Le29:   SB0(); SA0(Lf30)        # Bit 2 des Quotienten bestimmen
 Le30:   SB0(); SA0(Lf31)        # Bit 1 des Quotienten bestimmen
 Le31:   SB0(); SA0(Lf32)        # Bit 0 des Quotienten bestimmen
 Le32:   SB0()                   # Bit 0 des Restes bestimmen
-        mov     %o0,%g1         # Rest aus %o0 in %g1 abspeichern
         retl
-       _ xor     %o1,-1,%o0     # Quotient nach %o0
+       _ xor     %o1,-1,%o1     # Quotient nach %o1, Rest in %o0
 # Parallelschiene zu Le01..Le32:
 Lf01:   SB1(); SA1(Le02)
 Lf02:   SB1(); SA1(Le03)
@@ -535,14 +530,14 @@ Lf29:   SB1(); SA1(Le30)
 Lf30:   SB1(); SA1(Le31)
 Lf31:   SB1(); SA1(Le32)
 Lf32:   SB1()
-        mov     %o3,%g1         # Rest aus %o0 in %g1 abspeichern
+        mov     %o3,%o0         # Rest aus %o3 in %o0 abspeichern
         retl
-       _ xor     %o1,-1,%o0     # Quotient nach %o0
+       _ xor     %o1,-1,%o1     # Quotient nach %o1
 #endif
 
-# extern struct { uint16 q; uint16 r; } asm_divu_3216_1616_ (uint32 x, uint16 y);
+# extern uint32 [struct { uint16 q; uint16 r; }] asm_divu_3216_1616_ (uint32 x, uint16 y); -> 2^16*r+q
 # x = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^16*y .
-C(asm_divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
+C(asm_divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient: 2^16*r+q).
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
         wr      %g0,%g0,%y
@@ -2236,16 +2231,15 @@ C(asm_divu_loop_up:) # Input in %i0,%i1,%i2, Output in %i0
         save %sp,-96,%sp
         andcc %i2,%i2,%g0
         be Ll92
-       _ mov 0,%g1                 # Rest
-Ll91:     mov %g1,%o0              # Rest als High-Digit
-          ld [%i1],%o1             # nächstes Digit als Low-Digit
+       _ mov 0,%o0                 # Rest
+Ll91:     ld [%i1],%o1             # Rest als High-Digit, nächstes Digit als Low-Digit
           call C(asm_divu_6432_3232_) # zusammen durch digit dividieren
          _ mov %i0,%o2
-          st %o0,[%i1]             # Quotient ablegen, Rest in %g1
+          st %o1,[%i1]             # Quotient ablegen, Rest in %g1
           subcc %i2,1,%i2
           bne Ll91
          _ add %i1,4,%i1
-Ll92:   mov %g1,%i0                # Rest als Ergebnis
+Ll92:   mov %o0,%i0                # Rest als Ergebnis
         ret
        _ restore
 
@@ -2254,17 +2248,16 @@ C(asm_divucopy_loop_up:) # Input in %i0,%i1,%i2,%i3, Output in %i0
         save %sp,-96,%sp
         andcc %i3,%i3,%g0
         be Ll94
-       _ mov 0,%g1                 # Rest
-Ll93:     mov %g1,%o0              # Rest als High-Digit
-          ld [%i1],%o1             # nächstes Digit als Low-Digit
+       _ mov 0,%o0                 # Rest
+Ll93:     ld [%i1],%o1             # Rest als High-Digit, nächstes Digit als Low-Digit
           call C(asm_divu_6432_3232_) # zusammen durch digit dividieren
          _ mov %i0,%o2
-          st %o0,[%i2]             # Quotient ablegen, Rest in %g1
+          st %o1,[%i2]             # Quotient ablegen, Rest in %g1
           add %i1,4,%i1
           subcc %i3,1,%i3
           bne Ll93
          _ add %i2,4,%i2
-Ll94:   mov %g1,%i0                # Rest als Ergebnis
+Ll94:   mov %o0,%i0                # Rest als Ergebnis
         ret
        _ restore
 
