@@ -1,5 +1,11 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Improve SYS::ADDRESS-OF in SINGLEMAP_MEMORY model.
+	* misc.d (SYS::ADDRESS-OF): In SINGLEMAP_MEMORY model, don't mask out
+	the type bits.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on Linux/s390x with HEAPCODES.
 	* lispbibl.d: On Linux/s390x, prefer GENERIC64_HEAPCODES over
 	ONE_FREE_BIT_HEAPCODES always.

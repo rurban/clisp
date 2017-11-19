@@ -354,20 +354,16 @@ LISPFUNNF(identity,1)
 LISPFUNN(address_of,1)
 { /* (SYS::ADDRESS-OF object) return the address of the object */
   var object arg = popSTACK();
-  #ifdef TYPECODES
-   #if defined(WIDE_HARD)
-    VALUES1(UQ_to_I(untype(arg)));
-   #elif defined(WIDE_SOFT)
-    VALUES1(UL_to_I(untype(arg)));
-   #else
-    VALUES1(UL_to_I(as_oint(arg)));
-   #endif
-  #else /* HEAPCODES */
-   #if defined(WIDE)
-    VALUES1(UQ_to_I(as_oint(arg)));
-   #else
-    VALUES1(UL_to_I(as_oint(arg)));
-   #endif
+  var aint addr;
+  #if defined(TYPECODES) && !defined(SINGLEMAP_MEMORY)
+    addr = untype(arg);
+  #else
+    addr = as_oint(arg);
+  #endif
+  #if defined(WIDE_HARD)
+    VALUES1(UQ_to_I(addr));
+  #else
+    VALUES1(UL_to_I(addr));
   #endif
 }
 
