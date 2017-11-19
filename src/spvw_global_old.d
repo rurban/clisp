@@ -367,7 +367,7 @@ local void check_gc_consistency (void)
       fprintf(stderr,"\ninconsistent page at address 0x%lx\n",page);
       abort();
     }
-    if (page->page_end + page->page_room
+    if (page->page_end - mem.heaps[heapnr].misaligned + page->page_room
         != round_down(page->m_start + page->m_length,
                       varobject_alignment)) {
       fprintf(stderr,"\ninconsistent page at address 0x%lx\n",page);
@@ -383,8 +383,8 @@ local void check_gc_consistency_2 (void)
     if ((sintM)page->page_room < 0) {
       fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
     }
-    if (page->page_end + page->page_room -
-        (page->page_start - page_start0(page))
+    if (page->page_end + page->page_room
+        - (page->page_start - page_start0(page))
         != round_down(page->m_start + page->m_length,
                       varobject_alignment)) {
       fprintf(stderr,"\ninconsistent page at address 0x%lx\n",page);
