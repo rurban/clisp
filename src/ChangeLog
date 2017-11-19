@@ -1,5 +1,11 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Optimize arisparc.d also with Sun C and also for SPARCv9.
+	* arisparc.d (sparcv8): Set also with Sun "cc -xarch=v8". Set also when
+	compiling for SPARC v9, not v8.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Allow adding -DNO_ARI_ASM to the Makefile, without reconfiguring.
 	This fixes a link error (conflict between ari*.o and lisparit.o).
 	It is simpler to prefix all functions defined in assembly-language with

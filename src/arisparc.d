@@ -18,7 +18,7 @@
 
 #else
 
-#if defined(sparc_v8) || defined(__sparc_v8) || defined(__sparc_v8__)
+#if defined(__sparcv8) || defined(__sparc_v8__) || defined(__sparcv9) || defined(__sparc_v9__)
   #define sparcv8
 #endif
 
