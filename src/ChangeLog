@@ -1,5 +1,12 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Make it easier to test the optimizations in arilev0.d and ari*.d.
+	* Makefile.devel (build-porting*-ari-asm, build-porting*-arilev0-asm):
+	New targets.
+	(multibuild-linux-hppa, multibuild-linux-i386): Depend on them.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Improve SYS::ADDRESS-OF in SINGLEMAP_MEMORY model.
 	* misc.d (SYS::ADDRESS-OF): In SINGLEMAP_MEMORY model, don't mask out
 	the type bits.
