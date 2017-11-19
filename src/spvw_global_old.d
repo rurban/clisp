@@ -359,9 +359,10 @@ local void check_avl_consistency (void)
   #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
 local void check_gc_consistency (void)
 {
-  for_each_page(page, if ((sintM)page->page_room < 0) {
-    fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
-  }
+  for_each_page(page,
+    if ((sintM)page->page_room < 0) {
+      fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
+    }
     if (page->page_start != page_start0(page) + mem.heaps[heapnr].misaligned) {
       fprintf(stderr,"\ninconsistent page at address 0x%lx\n",page);
       abort();
@@ -378,9 +379,10 @@ local void check_gc_consistency (void)
   #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
 local void check_gc_consistency_2 (void)
 {
-  for_each_page(page, if ((sintM)page->page_room < 0) {
-    fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
-  }
+  for_each_page(page,
+    if ((sintM)page->page_room < 0) {
+      fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
+    }
     if (page->page_end + page->page_room -
         (page->page_start - page_start0(page))
         != round_down(page->m_start + page->m_length,
