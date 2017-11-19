@@ -198,16 +198,12 @@
  POWERPC == the IBM RS/6000 and PowerPC processor family
  I80386 == all processors of the Intel 8086 series, starting at 80386,
            nowadays called IA32
- VAX == the VAX processor
  ARM == the ARM processor
  DECALPHA == the DEC Alpha superchip
  IA64 == the Intel IA-64 latecomer chip
  AMD64 == the AMD hammer chip
  S390 == the IBM S/390 processor */
   /* 32-bit processors: */
-  #if defined(__vax__)
-    #define VAX
-  #endif
   #if defined(m68k) || defined(__m68k__)
     #define M68K
   #endif
@@ -358,7 +354,7 @@
     #define pointer_bitsize 64
   #endif
   #define alignment_long 4
-  #if defined(I80386) || defined(VAX) || defined(ARM) || defined(DECALPHA)
+  #if defined(I80386) || defined(ARM) || defined(DECALPHA)
     #define short_little_endian
     #define long_little_endian
   #endif
@@ -1641,7 +1637,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
 
 /* From here on 'uintXY' and 'sintXY' mean unsigned or signed integer types,
  with word sizes X or Y (X,Y=B,W,L). */
-#if defined(M68K) || defined(VAX)
+#if defined(M68K)
   /* The 68000 offers good processing of uintB and uintW, especially
    DBRA-commands for uintW. */
   #define intBWsize intBsize
@@ -1866,7 +1862,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(VAX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -5964,9 +5960,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    1. at alignof(long), alignof(double) (matters only if FAST_DOUBLE),
    2. at the definition of BIGGEST_ALIGNMENT and BIGGEST_FIELD_ALIGNMENT in
       gcc-5.4.0/gcc/config/<cpu>/<cpu>.h, divided by 8. */
-#if defined(VAX) /* ?? gcc/config/vax/vax.h sagt: Alignment = 4 */
-  #define varobject_alignment  1
-#endif
 #if defined(M68K)
   #if addr_shift!=0
     #define varobject_alignment  bit(addr_shift)  /* because of the condensed distribution of typecodes */
@@ -11575,9 +11568,6 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef I80386
     #define SP_register "%esp"
-  #endif
-  #ifdef VAX
-    #define SP_register "sp"
   #endif
   #ifdef IA64
     #define SP_register "r12"

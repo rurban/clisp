@@ -1,3 +1,12 @@
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
+	Remove support for VAX processors.
+	It was never actually used or tested.
+	* lispbibl.d (VAX): Remove definition. Don't test for VAX.
+	* arilev0.d: Don't test for VAX.
+	* arilev1.d: Likewise.
+	* arivaxunix.d: Remove file.
+
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Fix initialization of modules in SINGLEMAP_MEMORY model.

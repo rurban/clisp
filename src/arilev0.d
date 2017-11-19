@@ -216,7 +216,7 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64)) || defined(VAX)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
       # mulu32_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1

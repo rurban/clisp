@@ -361,10 +361,6 @@
 <varlistentry><term><filename role="clisp-cvs">src/arihppa.d</filename></term>
  <listitem><simpara>written in HPPA-1.0 assembler
 </simpara></listitem></varlistentry>
-<varlistentry>
- <term><filename role="clisp-cvs">src/arivaxunix.d</filename></term>
- <listitem><simpara>written in VAX assembler, Unix assembler syntax
-</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/ariarm.d</filename></term>
  <listitem><simpara>written in ARM assembler
 </simpara></listitem></varlistentry>
