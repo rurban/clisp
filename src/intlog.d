@@ -862,13 +862,6 @@ local maygc object I_logcount_I (object x)
       size_assignment (32-zero_counter);                                \
     }
  #endif
-#elif defined(GNU) && defined(M88000) && !defined(NO_ASM)
-  #define integerlength32(digit,size_assignment)                        \
-    {                                                                   \
-      var uintL one_position; /* position of the leading 1 */           \
-      __asm__("ff1 %0,%1" : "=r" (one_position) : "r" ((uint32)(digit)) ); \
-      size_assignment (1+one_position);                                 \
-    }
 #elif defined(GNU) && defined(__ibm032__) && !defined(NO_ASM) /* RT/ROMP */
   #define integerlength32(digit,size_assignment)        \
     {                                                   \
