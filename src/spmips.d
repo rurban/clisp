@@ -2,11 +2,12 @@
 
         .text
 
-#    extern void* getSP (void);
-        .globl getSP
+#    extern void* asm_getSP (void);
+        .globl asm_getSP
         .align 2
-        .ent getSP
-getSP:  move $2,$sp   # get stack pointer
+        .ent asm_getSP
+asm_getSP:
+        move $2,$sp   # get stack pointer
         j $31         # return
-        .end getSP
+        .end asm_getSP
 

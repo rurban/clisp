@@ -1,5 +1,14 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Allow adding -DNO_SP_ASM to the Makefile, without reconfiguring.
+	This fixes a link error (conflict between sp*.o and spvw.o).
+	* sp68000.d, sp80386.d, spmips.d, spsparc.d, spsparc64.d: Prefix all
+	external symbols with 'asm_'.
+	* lispbibl.d (getSP, setSP): Reference the external functions prefixed
+	with 'asm_'.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Fix a crash if KERNELVOID32_HEAPCODES && SPVW_PAGES && DEBUG_SPVW.
 	* spvw_global.d (check_gc_consistency): Take varobjects_misaligned
 	into account.
