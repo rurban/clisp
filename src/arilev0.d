@@ -558,7 +558,7 @@
           : "r" (__x), "r" (__y));   \
         (uint32)__q;                 \
        })
-  #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || (defined(HPPA_DIV_WORKS) && !defined(HPPA64))
+  #elif defined(SPARC) || defined(SPARC64) || defined(I80386)
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
       divu_6432_3232(0,x,y,_EMA_ q_assignment,_EMA_ r_assignment)
     #define divu_3232_3232_(x,y) divu_6432_3232_(0,x,y)
@@ -711,7 +711,7 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
-    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM) && !(defined(HPPA_DIV_WORKS) && !defined(HPPA64))
+    #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment) \
         ({var uint32 __xhi = (xhi);                           \
           var uint32 __xlo = (xlo);                           \
@@ -727,7 +727,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || (defined(HPPA_DIV_WORKS) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386)) && !defined(NO_ARI_ASM)
       # divu_6432_3232_ extern in Assembler
       #if defined(SPARC) || defined(SPARC64)
         #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
