@@ -6,14 +6,14 @@ Important notes
   Set CUSTOM:*LOAD-OBSOLETE-ACTION* to :COMPILE to automate this.
   See <http://clisp.org/impnotes/loadfile.html> for details.
 
-User visible changes
---------------------
-
 * If you have scripts that start with '#!/usr/local/bin/clisp' (or similar)
   and two or more options in the first line, you now need to use
   '#!/usr/local/bin/clisp!' instead of '#!/usr/local/bin/clisp'.
   The clisp executable no longer implements the special processing of such
   options in #! lines; only the clisp! executable does.
+
+User visible changes
+--------------------
 
 * Redefinition warnings are now of type STYLE-WARNING.
   Some CLOS warnings are now of type STYLE-WARNING.
