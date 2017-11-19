@@ -1,5 +1,15 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Don't use a global register variable as return value for SPARC64.
+	* arisparc64.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
+	in %o0.
+	(asm_divu_6432_3232_): Return 64 bits in %o0.
+	(asm__get_g1): Remove function.
+	* arilev0.d (mulu32, mulu32_, mulu32_64, divu_6432_3232,
+	divu_6432_3232_) [SPARC64]: Update accordingly.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Don't use a global register variable as return value for SPARC.
 	Fixes bug <https://sourceforge.net/p/clisp/bugs/542/>.
 	* arisparc.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
