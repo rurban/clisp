@@ -194,7 +194,6 @@
  SPARC == the Sun SPARC processor
  HPPA == all processors of the HP Precision Architecture
  MIPS == all processors of the MIPS series
- M88000 == all processors of the Motorola 88000 series
  POWERPC == the IBM RS/6000 and PowerPC processor family
  I80386 == all processors of the Intel 8086 series, starting at 80386,
            nowadays called IA32
@@ -206,9 +205,6 @@
   /* 32-bit processors: */
   #if defined(m68k) || defined(__m68k__)
     #define M68K
-  #endif
-  #if defined(m88000) || defined(__m88k__)
-    #define M88000
   #endif
   /* Processors with 32-bit and 64-bit instruction sets: */
   #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386) \
@@ -546,7 +542,7 @@
   #define BIG_ENDIAN_P  0
 #endif
 #if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
-  /* M68K, SPARC, HPPA, MIPSEB, M88000, POWERPC, S390, ...:
+  /* M68K, SPARC, HPPA, MIPSEB, POWERPC, S390, ...:
    High Byte is the lowest, Low Byte is a higher adress (easier to read) */
   #if defined(BIG_ENDIAN_P)
     #error Bogus BIG_ENDIAN_P!
@@ -568,7 +564,7 @@
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
+#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(POWERPC) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__m88k__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
   /* When using gcc on i386, this assumes that -malign-functions has not been
    used to specify an alignment smaller than 4 bytes. */
   #define C_CODE_ALIGNMENT  4
@@ -693,7 +689,6 @@
  SPARC (gcc2)  fixed    fixed     fixed    used
  MIPS
  HPPA          save     save      save     save
- M88000        save     save      save
  ARM           save
  DECALPHA      save     save      save
  IA64
@@ -733,9 +728,6 @@
   #if defined(HPPA) && (__GNUC__*100 + __GNUC_MINOR__ >= 2*100+7) /* gcc versions earlier than 2.7 had bugs */
     #define STACK_register  "%r10"  /* one of the general registers %r5..%r18 */
   #endif
-  #if defined(M88000)
-    #define STACK_register  "%r14"  /* one of the general registers %r14..%r25 */
-  #endif
   #if defined(ARM)
     #define STACK_register  "%r8"   /* one of the general registers %r4..%r8 */
   #endif
@@ -758,10 +750,6 @@
     #define mv_count_register  "%r11"  /* one of the general registers %r5..%r18 */
     #define NEED_temp_mv_count
   #endif
-  #if defined(M88000)
-    #define mv_count_register  "%r15" /* one of the general registers %r14..%r25 */
-    #define NEED_temp_mv_count
-  #endif
   #if defined(DECALPHA)
     #define mv_count_register  "$10"  /* one of the general registers $9..$14 */
     #define NEED_temp_mv_count
@@ -776,10 +764,6 @@
     #endif
     #if defined(HPPA)
       #define value1_register  "%r12"  /* one of the general registers %r5..%r18 */
-      #define NEED_temp_value1
-    #endif
-    #if defined(M88000)
-      #define value1_register  "%r16"  /* one of the general registers %r14..%r25 */
       #define NEED_temp_value1
     #endif
     #if defined(DECALPHA)
@@ -814,7 +798,7 @@
     register long back_trace_reg __asm__(back_trace_register);
   #endif
   /* Saving "save" registers. */
-  #if (defined(I80386) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)) && (defined(STACK_register) || defined(mv_count_register) || defined(value1_register) || defined(back_trace_register))
+  #if (defined(I80386) || defined(HPPA) || defined(ARM) || defined(DECALPHA) || defined(S390)) && (defined(STACK_register) || defined(mv_count_register) || defined(value1_register) || defined(back_trace_register))
     #define HAVE_SAVED_REGISTERS
     struct registers {
       #ifdef STACK_register
@@ -1643,7 +1627,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intBWsize intBsize
   #define intWLsize intWsize
   #define intBWLsize intBsize
-#elif defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(S390)
+#elif defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(S390)
   /* The Sparc-processor computes rather badly with uintB and uintW.
    Other 32-Bit-processoren have similar weaknesses. */
   #define intBWsize intWsize
@@ -1862,7 +1846,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -5970,7 +5954,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if defined(I80386) || defined(POWERPC) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)
@@ -11554,9 +11538,6 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef MIPS
     #define SP_register "$sp"  /* $sp = $29 */
   #endif
-  #ifdef M88000
-    #define SP_register "%r31"  /* %sp = %r31 */
-  #endif
   #ifdef POWERPC
     #define SP_register "r1"
   #endif
@@ -11603,9 +11584,6 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef MIPS
     #define ASM_get_SP_register(resultvar)  ("move\t%0,$sp" : "=r" (resultvar) : )
-  #endif
-  #ifdef M88000
-    #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
   #endif
   #ifdef POWERPC
     #define ASM_get_SP_register(resultvar)  ("mr %0,r1" : "=r" (resultvar) : )
@@ -11682,7 +11660,7 @@ All other long words on the LISP-Stack are LISP-objects.
   extern void* getSP (void);
   #define NEED_OWN_GETSP
 #endif
-#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
   #define SP_DOWN /* SP grows downward */
   #define SPoffset 0 /* top-of-SP ist *(SP+SPoffset) */
 #endif

@@ -1,5 +1,12 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Remove support for M88000 processors.
+	* lispbibl.d (M88000): Remove definition. Don't test for M88000.
+	* intlog.d (integerlength32): Remove special optimization for M88000.
+	* makemake.in (XCFLAGS): Remove special handling of m88k, convex CPUs.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for VAX processors.
 	It was never actually used or tested.
 	* lispbibl.d (VAX): Remove definition. Don't test for VAX.

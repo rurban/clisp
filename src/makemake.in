@@ -1314,7 +1314,7 @@ if [ $XCC_GCC = true ] ; then
     fi
     # For platforms that use global register variables...
     case "$cpu" in
-      m68k | i386 | sparc | sparc64 | hppa | m88k | arm | alpha* | convex | s390*)
+      m68k | i386 | sparc | sparc64 | hppa | arm | alpha* | s390*)
         if [ $CROSS = false ] ; then
           case "$XCC_GCC_VERSION" in
             3.1*)
