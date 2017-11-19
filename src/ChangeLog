@@ -1,5 +1,11 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused assembly-language code.
+	* arihppa.d: Remove unused code.
+	* arilev0.d: Remove HPPA_DIV_WORKS conditionals.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Allow adding -DNO_SP_ASM to the Makefile, without reconfiguring.
 	This fixes a link error (conflict between sp*.o and spvw.o).
 	* sp68000.d, sp80386.d, spmips.d, spsparc.d, spsparc64.d: Prefix all
