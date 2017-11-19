@@ -3914,8 +3914,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         /* With GENERIC64_HEAPCODES we don't need to make assumptions about the
            address range. */
         #define GENERIC64_HEAPCODES
-      #elif (defined(UNIX_LINUX) && defined(S390_64) && !defined(TRIVIALMAP_MEMORY))
-        /* On these platforms, ONE_FREE_BIT_HEAPCODES does not work. */
+      #elif (defined(UNIX_LINUX) && defined(S390_64))
+        /* On these platforms, ONE_FREE_BIT_HEAPCODES does not generally work. */
         #define GENERIC64_HEAPCODES
       #else
         /* The general case. */
@@ -4146,7 +4146,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
-        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only with(!) GENERATIONAL_GC */
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
       #endif
       #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
