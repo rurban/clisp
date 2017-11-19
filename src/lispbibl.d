@@ -11652,7 +11652,9 @@ All other long words on the LISP-Stack are LISP-objects.
 #elif (defined(M68K) || defined(SPARC) || defined(MIPS) || (defined(I80386) && !defined(UNIX_MACOSX))) && !defined(NO_SP_ASM)
   /* access functions extern, in assembler */
   #define SP  getSP
-  extern_C void* SP (void);
+  #define getSP asm_getSP
+  extern_C void* getSP (void);
+  #define setSP asm_setSP
   extern_C void setSP (void* adresse);
 #else
   /* access function portable in C */

@@ -9,12 +9,12 @@
 
         .seg "text"
 
-        .global getSP
-        .global _getSP
+        .global asm_getSP
+        .global _asm_getSP
 
-#    extern void* getSP (void);
-getSP:
-_getSP: retl
+#    extern void* asm_getSP (void);
+asm_getSP:
+_asm_getSP: retl
        _ mov %sp,%o0
 
 #if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__

@@ -23,11 +23,11 @@
 
         .text
 
-        .globl C(getSP)
+        .globl C(asm_getSP)
 
-#    extern void* getSP (void);
+#    extern void* asm_getSP (void);
         ALIGN
-C(getSP:)
+C(asm_getSP:)
         leal    4(%esp),%eax    # aktueller Wert von ESP + 4 wegen Unterprogrammaufruf
         ret
 
