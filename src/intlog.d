@@ -827,8 +827,8 @@ local maygc object I_logcount_I (object x)
     }
 #elif (defined(HPPA) && !defined(HPPA64)) && !defined(NO_ARI_ASM)
   #define integerlength32(digit,size_assignment)  \
-    size_assignment length32(digit);
-  extern_C uintL length32 (uintL digit); /* extern in assembler */
+    size_assignment asm_length32(digit);
+  extern_C uintL asm_length32 (uintL digit); /* extern in assembler */
 /* The others are in gcc/longlong.h : */
 #elif defined(GNU) && (defined(__a29k__) || defined(___AM29K__)) && !defined(NO_ASM)
   #define integerlength32(digit,size_assignment)                        \

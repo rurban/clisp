@@ -1,5 +1,26 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
+	Allow adding -DNO_ARI_ASM to the Makefile, without reconfiguring.
+	This fixes a link error (conflict between ari*.o and lisparit.o).
+	It is simpler to prefix all functions defined in assembly-language with
+	'asm_' than to #define selected function names with '_generic' suffix
+	if they are defined in C.
+	* ari80386.d, ariarm.d, arihppa.d, arimips*.d, arisparc*.d: Prefix the
+	names of all exported functions with 'asm_'.
+	* arilev0.d: Remove all *_ -> _generic redirects.
+	(mulu16): Use asm_mulu16_ instead of mulu16_.
+	(mulu32, mulu32_64): Use asm_mulu32_ instead of mulu32_, asm__get_g1
+	instead of _get_g1.
+	(mulu32_unchecked): Use asm_mulu32_unchecked instead of
+	mulu32_unchecked.
+	(divu_3216_1616): Use asm_divu_3216_1616_ instead of divu_3216_1616_.
+	(divu_6432_3232): Use asm_divu_6432_3232_ instead of divu_6432_3232_.
+	* arilev1e.d: Redirect *_loop_* -> asm_*_loop_* at the preprocessor
+	level.
+	* intlog.d (integerlength32): Use asm_length32 instead of length32.
+
+2017-11-19  Bruno Haible  <bruno@clisp.org>
+
 	Remove unused assembly-language code.
 	* arihppa.d: Remove unused code.
 	* arilev0.d: Remove HPPA_DIV_WORKS conditionals.

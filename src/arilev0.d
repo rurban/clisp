@@ -109,8 +109,8 @@
     #endif
   #else
     #if (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
-      extern_C uint32 mulu16_ (uint16 arg1, uint16 arg2); # extern in Assembler
-      #define mulu16  mulu16_
+      extern_C uint32 asm_mulu16_ (uint16 arg1, uint16 arg2); # extern in Assembler
+      #define mulu16 asm_mulu16_
     #endif
   #endif
   #ifndef mulu16
@@ -139,7 +139,6 @@
 # mulu32(arg1,arg2,hi=,lo=);
 # > arg1, arg2 : zwei 32-Bit-Zahlen
 # < 2^32*hi+lo : eine 64-Bit-Zahl
-  extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
   extern uint32 mulu32_high;                          # -> High-Teil
   #if defined(GNU) || defined(INTEL)
     #ifdef M68K
@@ -164,8 +163,9 @@
            lo_assignment _lo;                                            \
          })
     #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
+      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
-        ({ lo_assignment mulu32_(x,y); # extern in Assembler \
+        ({ lo_assignment asm_mulu32_(x,y); # extern in Assembler \
           {var register uint32 _hi __asm__("%r1"/*"%a2"*/); \
            hi_assignment _hi;                                \
          }})
@@ -200,8 +200,9 @@
            hi_assignment _hi; lo_assignment _lo;            \
          })
     #elif defined(SPARC) && !defined(NO_ARI_ASM)
+      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
-        ({ lo_assignment mulu32_(x,y); # extern in Assembler \
+        ({ lo_assignment asm_mulu32_(x,y); # extern in Assembler \
           {var register uint32 _hi __asm__("%g1");          \
            hi_assignment _hi;                                \
          }})
@@ -214,17 +215,19 @@
     #endif
   #endif
   #ifndef mulu32
+    # Use this function if you are not interested in the high part:
+    # extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
     #define mulu32(x,y,hi_assignment,lo_assignment)  \
       { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
     #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
-      # mulu32_ extern in Assembler
+      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
+      #define mulu32_ asm_mulu32_
       #if defined(SPARC) || defined(SPARC64)
-        #define mulu32_high  (uint32)(_get_g1()) # Rückgabe im Register %g1
+        #define mulu32_high  (uint32)(asm__get_g1()) # Rückgabe im Register %g1
       #elif defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In arihppa.d ist mulu32_high bereits definiert.
         global uint32 mulu32_high;
       #endif
     #else
-      #define mulu32_ mulu32_generic # generic fallback code in C
       extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2);
       #ifdef LISPARIT
       global uint32 mulu32_high;
@@ -266,7 +269,8 @@
          (uint32)_result;                                     \
        })
   #elif defined(SPARC) && !defined(NO_ARI_ASM)
-    extern_C uint32 mulu32_unchecked (uint32 x, uint32 y); # extern in Assembler
+    extern_C uint32 asm_mulu32_unchecked (uint32 x, uint32 y); # extern in Assembler
+    #define mulu32_unchecked asm_mulu32_unchecked
   #else
     # Wir können dafür auch die Bibliotheksroutine des C-Compilers nehmen:
     #define mulu32_unchecked(x,y)  ((uint32)((uint32)(x)*(uint32)(y)))
@@ -311,8 +315,9 @@
            highlow64(_hi,_lo);                            \
          })
     #elif defined(SPARC) && !defined(NO_ARI_ASM)
+      extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
       #define mulu32_64(x,y)  \
-        ({ var register uint32 _lo = mulu32_(x,y); # extern in Assembler \
+        ({ var register uint32 _lo = asm_mulu32_(x,y); # extern in Assembler \
            var register uint32 _hi __asm__("%g1");                       \
            highlow64(_hi,_lo);                                           \
          })
@@ -350,10 +355,12 @@
 # < uint16 r: x mod y
 # < x = q*y+r
   #if defined(SPARC) && !defined(NO_ARI_ASM)
-    extern_C uint32 divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q, Rest r
+    extern_C uint32 asm_divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q, Rest r
   #else
-    extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q
-    extern uint16 divu_16_rest;                           # -> Rest r
+    #if defined(ARM) && !defined(NO_ARI_ASM)
+      extern_C uint16 asm_divu_3216_1616_ (uint32 x, uint16 y); # -> Quotient q
+    #endif
+    extern uint16 divu_16_rest;                                 # -> Rest r
   #endif
   #if defined(GNU) || defined(INTEL)
     #if defined(SPARC64) && !defined(NO_ASM)
@@ -374,7 +381,7 @@
          })
     #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
+        ({ var uint32 __qr = asm_divu_3216_1616_(x,y); # extern in Assembler \
            q_assignment low16(__qr);  \
            r_assignment high16(__qr); \
          })
@@ -393,7 +400,7 @@
          })
     #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        { var uint32 _q = divu_3216_1616_(x,y); # extern in Assembler \
+        { var uint32 _q = asm_divu_3216_1616_(x,y); # extern in Assembler \
           var register uint32 _r __asm__("%r1"/*"%a2"*/);             \
           q_assignment _q; r_assignment _r;                             \
         }
@@ -410,30 +417,30 @@
   #ifndef divu_3216_1616
     #if (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        { var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
+        { var uint32 __qr = asm_divu_3216_1616_(x,y); # extern in Assembler \
           q_assignment low16(__qr);  \
           r_assignment high16(__qr); \
         }
-    #elif defined(ARM) && !defined(NO_ARI_ASM)
-      #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        { q_assignment divu_3216_1616_(x,y); # extern in Assembler \
-          r_assignment divu_16_rest;                               \
-        }
+    #else
       #ifdef LISPARIT
       global uint16 divu_16_rest;
       #endif
-    #else
-      #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        { q_assignment divu_3216_1616_(x,y); r_assignment divu_16_rest; }
-      #define divu_3216_1616_ divu_3216_1616_generic # generic fallback code in C
-      extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y);
-      #ifdef LISPARIT
-      global uint16 divu_16_rest;
-      global uint16 divu_3216_1616_ (uint32 x, uint16 y) {
-        var uint16 q = floor(x,(uint32)y);
-        divu_16_rest = x - (uint32)q * (uint32)y;
-        return q;
-      }
+      #if defined(ARM) && !defined(NO_ARI_ASM)
+        #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
+          { q_assignment asm_divu_3216_1616_(x,y); # extern in Assembler \
+            r_assignment divu_16_rest;                               \
+          }
+      #else
+        #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
+          { q_assignment divu_3216_1616_(x,y); r_assignment divu_16_rest; }
+        extern_C uint16 divu_3216_1616_ (uint32 x, uint16 y);
+        #ifdef LISPARIT
+        global uint16 divu_3216_1616_ (uint32 x, uint16 y) {
+          var uint16 q = floor(x,(uint32)y);
+          divu_16_rest = x - (uint32)q * (uint32)y;
+          return q;
+        }
+        #endif
       #endif
     #endif
   #endif
@@ -447,7 +454,6 @@
 # < uint32 q: floor(x/y)
 # < uint16 r: x mod y
 # < x = q*y+r
-  extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y); # -> Quotient q
   extern uint16 divu_16_rest;                           # -> Rest r
   #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define divu_3216_3216(x,y,q_assignment,r_assignment)  \
@@ -500,12 +506,14 @@
         }
     #endif
   #else
+    # Use this function if you are not interested in the remainder:
+    # extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y); # -> Quotient q
     #define divu_3216_3216(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_3216_3216_(x,y); r_assignment divu_16_rest; }
     #if 0 && !defined(NO_ARI_ASM)
-      # divu_3216_3216_ extern in Assembler
+      # asm_divu_3216_3216_ extern in Assembler
+      #define divu_3216_3216_ asm_divu_3216_3216_
     #else
-      #define divu_3216_3216_ divu_3216_3216_generic # generic fallback code in C
       extern_C uint32 divu_3216_3216_ (uint32 x, uint16 y);
       #ifdef LISPARIT
       global uint32 divu_3216_3216_ (uint32 x, uint16 y) {
@@ -529,7 +537,8 @@
 # < uint32 q: floor(x/y)
 # < uint32 r: x mod y
 # < x = q*y+r
-  extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y); # -> Quotient q
+# Use this function if you are not interested in the remainder:
+# extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                           # -> Rest r
   #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
@@ -639,9 +648,9 @@
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_3232_3232_(x,y); r_assignment divu_32_rest; }
     #if 0 && !defined(NO_ARI_ASM)
-      # divu_3232_3232_ extern in Assembler
+      # asm_divu_3232_3232_ extern in Assembler
+      #define divu_3232_3232_ asm_divu_3232_3232_
     #else
-      #define divu_3232_3232_ divu_3232_3232_generic # generic fallback code in C
       extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y);
       #ifdef LISPARIT
       global uint32 divu_3232_3232_ (uint32 x, uint32 y) {
@@ -662,7 +671,8 @@
 # < uint32 q: floor(x/y)
 # < uint32 r: x mod y
 # < x = q*y+r
-  extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # -> Quotient q
+# Use this function if you are not interested in the remainder:
+# extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                                         # -> Rest r
   #if defined(GNU) || defined(INTEL)
     #if defined(SPARC64) && !defined(NO_ASM)
@@ -683,17 +693,21 @@
           r_assignment (uint32)__r;     \
          })
     #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
+      extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
-        ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
+        ({ var uint32 _q = asm_divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%g1");                            \
            q_assignment _q; r_assignment _r;                                   \
          })
+      #define divu_6432_3232_ asm_divu_6432_3232_
     #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
+      extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
-        ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
+        ({ var uint32 _q = asm_divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%r1"/*"%a2"*/);                   \
            q_assignment _q; r_assignment _r;                                   \
          })
+      #define divu_6432_3232_ asm_divu_6432_3232_
     #elif defined(I80386) && !defined(NO_ASM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({var uint32 __xhi = (xhi);  \
@@ -709,8 +723,6 @@
           q_assignment __q;           \
           r_assignment __r;           \
          })
-      #define divu_6432_3232_(xhi,xlo,y) \
-        ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
     #elif defined(HAVE_LONG_LONG_INT) && !defined(ARM)
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment) \
         ({var uint32 __xhi = (xhi);                           \
@@ -720,6 +732,8 @@
           var uint32 __q = floor(__x,(uint64)__y);            \
           q_assignment __q; r_assignment __xlo - __q * __y;     \
          })
+    #endif
+    #if defined(divu_6432_3232) && !defined(divu_6432_3232_)
       #define divu_6432_3232_(xhi,xlo,y) \
         ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
     #endif
@@ -728,14 +742,14 @@
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
     #if (defined(SPARC) || defined(SPARC64) || defined(ARM) || defined(I80386)) && !defined(NO_ARI_ASM)
-      # divu_6432_3232_ extern in Assembler
+      extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # extern in Assembler
+      #define divu_6432_3232_ asm_divu_6432_3232_
       #if defined(SPARC) || defined(SPARC64)
-        #define divu_32_rest  (uint32)(_get_g1()) # Rückgabe im Register %g1
+        #define divu_32_rest  (uint32)(asm__get_g1()) # Rückgabe im Register %g1
       #elif defined(LISPARIT)
         global uint32 divu_32_rest;
       #endif
     #else
-      #define divu_6432_3232_ divu_6432_3232_generic # generic fallback code in C
       extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #ifdef LISPARIT
       # Methode:
@@ -860,7 +874,6 @@
 # < uint64 q: floor(x/y)
 # < uint32 r: x mod y
 # < x = q*y+r
-  extern_C uint64 divu_6432_6432_ (uint64 x, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                           # -> Rest r
   #if 1
     # Methode: (beta = 2^32)
@@ -898,9 +911,9 @@
     #define divu_6432_6432(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_6432_(x,y); r_assignment divu_32_rest; }
     #if 0 && !defined(NO_ARI_ASM)
-      # divu_6432_6432_ extern in Assembler
+      # asm_divu_6432_6432_ extern in Assembler
+      #define divu_6432_6432_ asm_divu_6432_6432_
     #else
-      #define divu_6432_6432_ divu_6432_6432_generic # generic fallback code in C
       extern_C uint64 divu_6432_6432_ (uint64 x, uint32 y);
       #ifdef LISPARIT
       global uint64 divu_6432_6432_ (uint64 x, uint32 y) {
@@ -924,7 +937,6 @@
 # < uint64 q: floor(x/y)
 # < uint64 r: x mod y
 # < x = q*y+r
-  extern_C uint64 divu_6464_6464_ (uint64 x, uint64 y); # -> Quotient q
   extern uint64 divu_64_rest;                           # -> Rest r
   #if 1
     # Methode: (beta = 2^n = 2^32, n = 32)
@@ -992,9 +1004,9 @@
     #define divu_6464_6464(x,y,q_assignment,r_assignment)  \
       { q_assignment divu_6464_6464_(x,y); r_assignment divu_64_rest; }
     #if 0 && !defined(NO_ARI_ASM)
-      # divu_6464_6464_ extern in Assembler
+      # asm_divu_6464_6464_ extern in Assembler
+      #define divu_6464_6464_ asm_divu_6464_6464_
     #else
-      #define divu_6464_6464_ divu_6464_6464_generic # generic fallback code in C
       extern_C uint64 divu_6464_6464_ (uint64 x, uint64 y);
       #ifdef LISPARIT
       global uint64 divu_6464_6464_ (uint64 x, uint64 y) {

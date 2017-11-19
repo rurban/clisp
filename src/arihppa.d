@@ -22,10 +22,10 @@ mulu32_high     .WORD           /* 8 byte room */
                 .WORD
 
                 .CODE
-                .EXPORT mulu32_
-/* extern struct { uint32 lo; uint32 hi; } mulu32_ (uint32 arg1, uint32 arg2);
+                .EXPORT asm_mulu32_
+/* extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
    2^32*hi+lo := arg1*arg2. */
-mulu32_         .PROC
+asm_mulu32_     .PROC
                 .CALLINFO
                 .ENTER  /* input in %arg0,%arg1, Output in %ret0,mulu32_high */
                 LDIL    L'mulu32_high-$global$,%r1
@@ -46,9 +46,9 @@ mulu32_         .PROC
 
 
                 .CODE
-                .EXPORT length32
+                .EXPORT asm_length32
 /* returns integer-size (>=1, <=32) of the argument /=0. */
-                .label length32
+                .label asm_length32
                 .PROC
                 .CALLINFO
                 .ENTRY          /* input in %arg0, output in %ret0 */

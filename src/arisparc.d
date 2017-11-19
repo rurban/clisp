@@ -38,21 +38,21 @@
 
         .seg "text"
 
-        .global C(mulu16_),C(mulu32_),C(_get_g1),C(mulu32_unchecked)
-        .global C(divu_6432_3232_),C(divu_3216_1616_)
-        .global C(copy_loop_up),C(copy_loop_down),C(fill_loop_up),C(fill_loop_down)
-        .global C(clear_loop_up),C(clear_loop_down)
-        .global C(or_loop_up),C(xor_loop_up),C(and_loop_up),C(eqv_loop_up)
-        .global C(nand_loop_up),C(nor_loop_up),C(andc2_loop_up),C(orc2_loop_up)
-        .global C(not_loop_up)
-        .global C(and_test_loop_up),C(test_loop_up),C(compare_loop_up)
-        .global C(add_loop_down),C(addto_loop_down),C(inc_loop_down)
-        .global C(sub_loop_down),C(subx_loop_down),C(subfrom_loop_down),C(dec_loop_down)
-        .global C(neg_loop_down)
-        .global C(shift1left_loop_down),C(shiftleft_loop_down),C(shiftleftcopy_loop_down)
-        .global C(shift1right_loop_up),C(shiftright_loop_up),C(shiftrightsigned_loop_up),C(shiftrightcopy_loop_up)
-        .global C(mulusmall_loop_down),C(mulu_loop_down),C(muluadd_loop_down),C(mulusub_loop_down)
-        .global C(divu_loop_up),C(divucopy_loop_up)
+        .global C(asm_mulu16_),C(asm_mulu32_),C(asm__get_g1),C(asm_mulu32_unchecked)
+        .global C(asm_divu_6432_3232_),C(asm_divu_3216_1616_)
+        .global C(asm_copy_loop_up),C(asm_copy_loop_down),C(asm_fill_loop_up),C(asm_fill_loop_down)
+        .global C(asm_clear_loop_up),C(asm_clear_loop_down)
+        .global C(asm_or_loop_up),C(asm_xor_loop_up),C(asm_and_loop_up),C(asm_eqv_loop_up)
+        .global C(asm_nand_loop_up),C(asm_nor_loop_up),C(asm_andc2_loop_up),C(asm_orc2_loop_up)
+        .global C(asm_not_loop_up)
+        .global C(asm_and_test_loop_up),C(asm_test_loop_up),C(asm_compare_loop_up)
+        .global C(asm_add_loop_down),C(asm_addto_loop_down),C(asm_inc_loop_down)
+        .global C(asm_sub_loop_down),C(asm_subx_loop_down),C(asm_subfrom_loop_down),C(asm_dec_loop_down)
+        .global C(asm_neg_loop_down)
+        .global C(asm_shift1left_loop_down),C(asm_shiftleft_loop_down),C(asm_shiftleftcopy_loop_down)
+        .global C(asm_shift1right_loop_up),C(asm_shiftright_loop_up),C(asm_shiftrightsigned_loop_up),C(asm_shiftrightcopy_loop_up)
+        .global C(asm_mulusmall_loop_down),C(asm_mulu_loop_down),C(asm_muluadd_loop_down),C(asm_mulusub_loop_down)
+        .global C(asm_divu_loop_up),C(asm_divucopy_loop_up)
 
 #define LOOP_TYPE  1    # 1: Standard-Schleifen
                         # 2: Schleifen ohne Pointer, nur mit Zähler
@@ -62,9 +62,9 @@
 #define UNROLLED_LOOPS  (LOOP_TYPE==3)
 #define MULU32_INLINE  1  # 1: mulu32-Aufrufe inline in die Schleifen
 
-# extern uint32 mulu16_ (uint16 arg1, uint16 arg2);
+# extern uint32 asm_mulu16_ (uint16 arg1, uint16 arg2);
 # result := arg1*arg2.
-C(mulu16_:) # Input in %o0,%o1, Output in %o0
+C(asm_mulu16_:) # Input in %o0,%o1, Output in %o0
 #ifdef sparcv8
         umul    %o0,%o1,%o0
         retl
@@ -98,9 +98,9 @@ C(mulu16_:) # Input in %o0,%o1, Output in %o0
        _ or      %o2,%o0,%o0
 #endif
 
-# extern struct { uint32 lo; uint32 hi; } mulu32_ (uint32 arg1, uint32 arg2);
+# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
-C(mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
+C(asm_mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
 #ifdef sparcv8
         umul    %o0,%o1,%o0
         retl
@@ -148,15 +148,15 @@ C(mulu32_:) # Input in %o0,%o1, Output in %o0,%g1
        _ rd      %y,%o0         # lo
 #endif
 
-# extern long _get_g1 (void);
+# extern long asm__get_g1 (void);
 # Returns %g1.
-C(_get_g1:)
+C(asm__get_g1:)
         retl
        _ mov %g1,%o0
 
-# extern uint32 mulu32_unchecked (uint32 x, uint32 y);
+# extern uint32 asm_mulu32_unchecked (uint32 x, uint32 y);
 # result := arg1*arg2 < 2^32.
-C(mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
+C(asm_mulu32_unchecked:) # Input in %o0,%o1, Output in %o0
 #ifdef sparcv8
         umul    %o0,%o1,%o0
         retl
@@ -220,9 +220,9 @@ Ll01:   # arg1 >= arg2, also kann man arg2 < 2^16 annehmen.
        _ or      %o2,%o0,%o0
 #endif
 
-# extern struct { uint32 q; uint32 r; } divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
-C(divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
+C(asm_divu_6432_3232_:) # Input in %o0,%o1,%o2, Output in %o0,%g1
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
         wr      %o0,%g0,%y
@@ -540,9 +540,9 @@ Lf32:   SB1()
        _ xor     %o1,-1,%o0     # Quotient nach %o0
 #endif
 
-# extern struct { uint16 q; uint16 r; } divu_3216_1616_ (uint32 x, uint16 y);
+# extern struct { uint16 q; uint16 r; } asm_divu_3216_1616_ (uint32 x, uint16 y);
 # x = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^16*y .
-C(divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
+C(asm_divu_3216_1616_:) # Input in %o0,%o1, Output in %o0 (Rest und Quotient).
 #if defined(sparcv8)
         # Problem: Is udiv worth using (gmp-2.0.2 doesn't use it) ??
         wr      %g0,%g0,%y
@@ -621,8 +621,8 @@ Lh16:   # Noch 2*y addieren:
        _ add %o0,%o1,%o0
 #endif
 
-# extern uintD* copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
-C(copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll09
@@ -651,8 +651,8 @@ Ll09:   retl
        _ add %o1,4,%o0
 #endif
 
-# extern uintD* copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll11
@@ -681,8 +681,8 @@ Ll11:   retl
        _ mov %o1,%o0
 #endif
 
-# extern uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler);
-C(fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_fill_loop_up (uintD* destptr, uintC count, uintD filler);
+C(asm_fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll13
@@ -707,8 +707,8 @@ Ll13:   retl
        _ add %o0,4,%o0
 #endif
 
-# extern uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler);
-C(fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD* asm_fill_loop_down (uintD* destptr, uintC count, uintD filler);
+C(asm_fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll15
@@ -732,8 +732,8 @@ Ll15:   retl
        _ nop
 #endif
 
-# extern uintD* clear_loop_up (uintD* destptr, uintC count);
-C(clear_loop_up:) # Input in %o0,%o1, Output in %o0
+# extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
+C(asm_clear_loop_up:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll17
@@ -758,8 +758,8 @@ Ll17:   retl
        _ add %o0,4,%o0
 #endif
 
-# extern uintD* clear_loop_down (uintD* destptr, uintC count);
-C(clear_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
+C(asm_clear_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll19
@@ -783,8 +783,8 @@ Ll19:   retl
        _ nop
 #endif
 
-# extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(or_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_or_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll21
@@ -817,8 +817,8 @@ Ll21:   retl
        _ nop
 #endif
 
-# extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(xor_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_xor_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll23
@@ -851,8 +851,8 @@ Ll23:   retl
        _ nop
 #endif
 
-# extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_and_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll25
@@ -885,8 +885,8 @@ Ll25:   retl
        _ nop
 #endif
 
-# extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(eqv_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_eqv_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll27
@@ -919,8 +919,8 @@ Ll27:   retl
        _ nop
 #endif
 
-# extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nand_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_nand_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll29
@@ -955,8 +955,8 @@ Ll29:   retl
        _ nop
 #endif
 
-# extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nor_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_nor_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll31
@@ -991,8 +991,8 @@ Ll31:   retl
        _ nop
 #endif
 
-# extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(andc2_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_andc2_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll33
@@ -1025,8 +1025,8 @@ Ll33:   retl
        _ nop
 #endif
 
-# extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(orc2_loop_up:) # Input in %o0,%o1,%o2
+# extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_orc2_loop_up:) # Input in %o0,%o1,%o2
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll35
@@ -1059,8 +1059,8 @@ Ll35:   retl
        _ nop
 #endif
 
-# extern void not_loop_up (uintD* xptr, uintC count);
-C(not_loop_up:) # Input in %o0,%o1
+# extern void asm_not_loop_up (uintD* xptr, uintC count);
+C(asm_not_loop_up:) # Input in %o0,%o1
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll37
@@ -1089,8 +1089,8 @@ Ll37:   retl
        _ nop
 #endif
 
-# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll39
@@ -1127,8 +1127,8 @@ Ll40:   retl
        _ mov 1,%o0
 #endif
 
-# extern bool test_loop_up (uintD* ptr, uintC count);
-C(test_loop_up:) # Input in %o0,%o1, Output in %o0
+# extern bool asm_test_loop_up (uintD* ptr, uintC count);
+C(asm_test_loop_up:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll42
@@ -1162,8 +1162,8 @@ Ll43:   retl
        _ mov 1,%o0
 #endif
 
-# extern signean compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern signean asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
+C(asm_compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll45
@@ -1210,8 +1210,8 @@ Ll47:   retl
        _ mov -1,%o0
 #endif
 
-# extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+C(asm_add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o3,%o3,%g0
         be Ll49
@@ -1259,9 +1259,9 @@ Ll49:   retl
         sub %o1,%o5,%o1         # %o1 = &sourceptr2[-(count mod 8)]
         sub %o2,%o5,%o2         # %o2 = &destptr[-(count mod 8)]
         sll %o4,4,%o4
-        set _add_loop_down+176,%o5
+        set _asm_add_loop_down+176,%o5
         sub %o5,%o4,%o5
-        jmp %o5                 # Sprung nach _add_loop_down+4*(12+4*8-4*(count mod 8))
+        jmp %o5                 # Sprung nach _asm_add_loop_down+4*(12+4*8-4*(count mod 8))
        _ subcc %g0,%g0,%g0      # carry löschen
 Ll48:     subcc %g0,%g1,%g0     # carry
           ld [%o0+28],%o4       # source1-digit
@@ -1306,8 +1306,8 @@ Ll48:     subcc %g0,%g1,%g0     # carry
        _ mov %g1,%o0
 #endif
 
-# extern uintD addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll51
@@ -1353,9 +1353,9 @@ Ll51:   retl
         sub %o0,%o4,%o0         # %o0 = &sourceptr[-(count mod 8)]
         sub %o1,%o4,%o1         # %o1 = &destptr[-(count mod 8)]
         sll %o3,4,%o3
-        set _addto_loop_down+172,%o4
+        set _asm_addto_loop_down+172,%o4
         sub %o4,%o3,%o4
-        jmp %o4                 # Sprung nach _addto_loop_down+4*(11+4*8-4*(count mod 8))
+        jmp %o4                 # Sprung nach _asm_addto_loop_down+4*(11+4*8-4*(count mod 8))
        _ subcc %g0,%g0,%g0      # carry löschen
 Ll50:     subcc %g0,%o5,%g0     # carry
           ld [%o0+28],%o3       # source-digit
@@ -1399,8 +1399,8 @@ Ll50:     subcc %g0,%o5,%g0     # carry
        _ mov %o5,%o0
 #endif
 
-# extern uintD inc_loop_down (uintD* ptr, uintC count);
-C(inc_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
+C(asm_inc_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll53
@@ -1436,8 +1436,8 @@ Ll54:   retl
        _ mov 0,%o0
 #endif
 
-# extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
+C(asm_sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o3,%o3,%g0
         be Ll56
@@ -1485,9 +1485,9 @@ Ll56:   retl
         sub %o1,%o5,%o1         # %o1 = &sourceptr2[-(count mod 8)]
         sub %o2,%o5,%o2         # %o2 = &destptr[-(count mod 8)]
         sll %o4,4,%o4
-        set _sub_loop_down+176,%o5
+        set _asm_sub_loop_down+176,%o5
         sub %o5,%o4,%o5
-        jmp %o5                 # Sprung nach _sub_loop_down+4*(12+4*8-4*(count mod 8))
+        jmp %o5                 # Sprung nach _asm_sub_loop_down+4*(12+4*8-4*(count mod 8))
        _ subcc %g0,%g0,%g0      # carry löschen
 Ll55:     subcc %g0,%g1,%g0     # carry
           ld [%o0+28],%o4       # source1-digit
@@ -1532,8 +1532,8 @@ Ll55:     subcc %g0,%g1,%g0     # carry
        _ mov %g1,%o0
 #endif
 
-# extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-C(subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in %o0
+# extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
+C(asm_subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o3,%o3,%g0
         be Ll58
@@ -1581,9 +1581,9 @@ Ll58:   retl
         sub %o1,%g1,%o1         # %o1 = &sourceptr2[-(count mod 8)]
         sub %o2,%g1,%o2         # %o2 = &destptr[-(count mod 8)]
         sll %o5,4,%o5
-        set _subx_loop_down+176,%g1
+        set _asm_subx_loop_down+176,%g1
         sub %g1,%o5,%g1
-        jmp %g1                 # Sprung nach _subx_loop_down+4*(12+4*8-4*(count mod 8))
+        jmp %g1                 # Sprung nach _asm_subx_loop_down+4*(12+4*8-4*(count mod 8))
        _ subcc %g0,%o4,%g0      # carry initialisieren
 Ll57:     subcc %g0,%g1,%g0     # carry
           ld [%o0+28],%o4       # source1-digit
@@ -1628,8 +1628,8 @@ Ll57:     subcc %g0,%g1,%g0     # carry
        _ mov %g1,%o0
 #endif
 
-# extern uintD subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-C(subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
+C(asm_subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
         be Ll60
@@ -1675,9 +1675,9 @@ Ll60:   retl
         sub %o0,%o4,%o0         # %o0 = &sourceptr[-(count mod 8)]
         sub %o1,%o4,%o1         # %o1 = &destptr[-(count mod 8)]
         sll %o3,4,%o3
-        set _subfrom_loop_down+172,%o4
+        set _asm_subfrom_loop_down+172,%o4
         sub %o4,%o3,%o4
-        jmp %o4                 # Sprung nach _subfrom_loop_down+4*(11+4*8-4*(count mod 8))
+        jmp %o4                 # Sprung nach _asm_subfrom_loop_down+4*(11+4*8-4*(count mod 8))
        _ subcc %g0,%g0,%g0      # carry löschen
 Ll59:     subcc %g0,%o5,%g0     # carry
           ld [%o0+28],%o3       # source-digit
@@ -1721,8 +1721,8 @@ Ll59:     subcc %g0,%o5,%g0     # carry
        _ mov %o5,%o0
 #endif
 
-# extern uintD dec_loop_down (uintD* ptr, uintC count);
-C(dec_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
+C(asm_dec_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0
         be Ll62
@@ -1758,8 +1758,8 @@ Ll63:   retl
        _ mov 0,%o0
 #endif
 
-# extern uintD neg_loop_down (uintD* ptr, uintC count);
-C(neg_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_neg_loop_down (uintD* ptr, uintC count);
+C(asm_neg_loop_down:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         # erstes Digit /=0 suchen:
         andcc %o1,%o1,%g0
@@ -1819,8 +1819,8 @@ Ll68:   retl
        _ mov -1,%o0
 #endif
 
-# extern uintD shift1left_loop_down (uintD* ptr, uintC count);
-C(shift1left_loop_down:) # Input in %o0,%o1, Output in %o0
+# extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
+C(asm_shift1left_loop_down:) # Input in %o0,%o1, Output in %o0
         andcc %o1,%o1,%g0
         be Ll70
        _ mov 0,%o3              # Carry := 0
@@ -1836,8 +1836,8 @@ Ll69:     ld [%o0],%o2          # Digit
 Ll70:   retl
        _ mov %o3,%o0
 
-# extern uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
-C(shiftleft_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
+# extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
+C(asm_shiftleft_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
         andcc %o1,%o1,%g0
         be Ll72
        _ sub %g0,%o2,%g1        # 32-i (mod 32)
@@ -1853,8 +1853,8 @@ Ll71:     ld [%o0],%o4          # Digit
 Ll72:   retl
        _ mov %o3,%o0
 
-# extern uintD shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
-C(shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
+# extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
+C(asm_shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1,%g2, Output in %o0
         andcc %o2,%o2,%g0
         be Ll74
        _ mov 0,%o4              # Carry := 0
@@ -1872,8 +1872,8 @@ Ll73:     ld [%o0],%o5          # Digit
 Ll74:   retl
        _ mov %o4,%o0
 
-# extern uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
-C(shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
+# extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
+C(asm_shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
         andcc %o1,%o1,%g0
         be Ll76
        _ sll %o2,31,%o2         # Carry
@@ -1888,8 +1888,8 @@ Ll75:     ld [%o0],%o3          # Digit
 Ll76:   retl
        _ mov %o2,%o0
 
-# extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
+# extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
+C(asm_shiftright_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
         andcc %o1,%o1,%g0
         be Ll78
        _ or %g0,%g0,%o3         # Carry := 0
@@ -1905,8 +1905,8 @@ Ll77:     ld [%o0],%o4          # Digit
 Ll78:   retl
        _ mov %o3,%o0
 
-# extern uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
+# extern uintD asm_shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
+C(asm_shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, verändert %g1, Output in %o0
         ld [%o0],%o4            # erstes Digit
         sub %g0,%o2,%g1         # 32-i (mod 32)
         sra %o4,%o2,%o5         # shiften
@@ -1926,8 +1926,8 @@ Ll79:     ld [%o0],%o4          # Digit
 Ll80:   retl
        _ mov %o3,%o0
 
-# extern uintD shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
-C(shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1,%g2, Output in %o0
+# extern uintD asm_shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
+C(asm_shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1,%g2, Output in %o0
         sub %g0,%o3,%g1         # 32-i (mod 32)
         andcc %o2,%o2,%g0
         be Ll82
@@ -1944,8 +1944,8 @@ Ll81:     ld [%o0],%o4          # Digit
 Ll82:   retl
        _ mov %g2,%o0
 
-# extern uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
-C(mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
+# extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
+C(asm_mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
         andcc %o2,%o2,%g0
         be Ll85
        _ sub %o1,4,%o1
@@ -1978,9 +1978,9 @@ Ll84:     rd %y,%o4
 Ll85:   retl
        _ mov %o3,%o0
 
-# extern void mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+# extern void asm_mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
 #if !MULU32_INLINE
-C(mulu_loop_down:) # Input in %i0,%i1,%i2,%i3
+C(asm_mulu_loop_down:) # Input in %i0,%i1,%i2,%i3
         save %sp,-96,%sp
         mov 0,%l0               # Carry
 Ll86:     sub %i1,4,%i1
@@ -1997,7 +1997,7 @@ Ll86:     sub %i1,4,%i1
         ret
        _ restore
 #else
-C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1
+C(asm_mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1
         mov 0,%o4               # Carry
 Ll87:     ld [%o1-4],%g1        # nächstes Digit
           # mit digit multiplizieren: %o0 * %g1 -> %o5|%g1
@@ -2057,8 +2057,8 @@ Ll88:     rd      %y,%g1
        _ st %o4,[%o2-4]         # letzten Carry ablegen
 #endif
 
-# extern uintD muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(muluadd_loop_down:) # Input in %i0,%i1,%i2,%i3, Output in %i0
+# extern uintD asm_muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_muluadd_loop_down:) # Input in %i0,%i1,%i2,%i3, Output in %i0
 #if !MULU32_INLINE
         save %sp,-96,%sp
         mov 0,%l0               # Carry
@@ -2144,8 +2144,8 @@ Ll89:     ld [%i1-4],%o1        # nächstes source-Digit
        _ restore
 #endif
 
-# extern uintD mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(mulusub_loop_down:) # Input in %i0,%i1,%i2,%i3, Output in %i0
+# extern uintD asm_mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_mulusub_loop_down:) # Input in %i0,%i1,%i2,%i3, Output in %i0
 #if !MULU32_INLINE
         save %sp,-96,%sp
         mov 0,%l0               # Carry
@@ -2231,15 +2231,15 @@ Ll90:     ld [%i1-4],%o1        # nächstes source-Digit
        _ restore
 #endif
 
-# extern uintD divu_loop_up (uintD digit, uintD* ptr, uintC len);
-C(divu_loop_up:) # Input in %i0,%i1,%i2, Output in %i0
+# extern uintD asm_divu_loop_up (uintD digit, uintD* ptr, uintC len);
+C(asm_divu_loop_up:) # Input in %i0,%i1,%i2, Output in %i0
         save %sp,-96,%sp
         andcc %i2,%i2,%g0
         be Ll92
        _ mov 0,%g1                 # Rest
 Ll91:     mov %g1,%o0              # Rest als High-Digit
           ld [%i1],%o1             # nächstes Digit als Low-Digit
-          call C(divu_6432_3232_)  # zusammen durch digit dividieren
+          call C(asm_divu_6432_3232_) # zusammen durch digit dividieren
          _ mov %i0,%o2
           st %o0,[%i1]             # Quotient ablegen, Rest in %g1
           subcc %i2,1,%i2
@@ -2249,15 +2249,15 @@ Ll92:   mov %g1,%i0                # Rest als Ergebnis
         ret
        _ restore
 
-# extern uintD divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(divucopy_loop_up:) # Input in %i0,%i1,%i2,%i3, Output in %i0
+# extern uintD asm_divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
+C(asm_divucopy_loop_up:) # Input in %i0,%i1,%i2,%i3, Output in %i0
         save %sp,-96,%sp
         andcc %i3,%i3,%g0
         be Ll94
        _ mov 0,%g1                 # Rest
 Ll93:     mov %g1,%o0              # Rest als High-Digit
           ld [%i1],%o1             # nächstes Digit als Low-Digit
-          call C(divu_6432_3232_)  # zusammen durch digit dividieren
+          call C(asm_divu_6432_3232_) # zusammen durch digit dividieren
          _ mov %i0,%o2
           st %o0,[%i2]             # Quotient ablegen, Rest in %g1
           add %i1,4,%i1
