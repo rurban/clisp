@@ -8,8 +8,8 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
 	Improve SYS::ADDRESS-OF in SINGLEMAP_MEMORY model.
-	* misc.d (SYS::ADDRESS-OF): In SINGLEMAP_MEMORY model, don't mask out
-	the type bits.
+	* misc.d (SYS::ADDRESS-OF): In SINGLEMAP_MEMORY model, do not mask
+	out the type bits.
 
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
@@ -19,9 +19,9 @@
 
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
-	Don't use a global register variable as return value for SPARC64.
-	* arisparc64.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
-	in %o0.
+	Do not use a global register variable as return value for SPARC64.
+	* arisparc64.d (asm_mulu32_64): Renamed from asm_mulu32_.
+	Return 64 bits in %o0.
 	(asm_divu_6432_3232_): Return 64 bits in %o0.
 	(asm__get_g1): Remove function.
 	* arilev0.d (mulu32, mulu32_, mulu32_64, divu_6432_3232,
@@ -29,8 +29,7 @@
 
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
-	Don't use a global register variable as return value for SPARC.
-	Fixes bug <https://sourceforge.net/p/clisp/bugs/542/>.
+	Fix bug#542: Do not use a global register variable as return value for SPARC.
 	* arisparc.d (asm_mulu32_64): Renamed from asm_mulu32_. Return 64 bits
 	in %o1,%o0, not %o0,%g1.
 	(asm_divu_6432_3232_): Return 64 bits in %o1,%o0, not %o0,%g1.
@@ -91,7 +90,7 @@
 2017-11-19  Bruno Haible  <bruno@clisp.org>
 
 	Remove support for M88000 processors.
-	* lispbibl.d (M88000): Remove definition. Don't test for M88000.
+	* lispbibl.d (M88000): Remove definition. Do not test for M88000.
 	* intlog.d (integerlength32): Remove special optimization for M88000.
 	* makemake.in (XCFLAGS): Remove special handling of m88k, convex CPUs.
 
@@ -99,16 +98,15 @@
 
 	Remove support for VAX processors.
 	It was never actually used or tested.
-	* lispbibl.d (VAX): Remove definition. Don't test for VAX.
-	* arilev0.d: Don't test for VAX.
+	* lispbibl.d (VAX): Remove definition. Do not test for VAX.
+	* arilev0.d: Do not test for VAX.
 	* arilev1.d: Likewise.
 	* arivaxunix.d: Remove file.
 
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Fix initialization of modules in SINGLEMAP_MEMORY model.
-	Reported by Jean Louis <bugs@gnu.support>
-	at <https://sourceforge.net/p/clisp/bugs/713/>.
+	Reported by Jean Louis <bugs@gnu.support> in bug#713.
 	* utils/modprep.lisp (print-tables-2): Emit statements that store the
 	keyword vectors of the SUBRs in their heap-allocated location, not in
 	their preliminary location.
@@ -118,7 +116,7 @@
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Allow clisp! scripts to have file names with spaces.
-	* _clisp.c: Don't split argv[1] if it looks like a file name.
+	* _clisp.c: Do not split argv[1] if it looks like a file name.
 
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
@@ -129,8 +127,7 @@
 2017-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Allow file names with spaces to be passed as first argument to 'clisp'.
-	Reported by Jean Louis <bugs@gnu.support>
-	at <https://sourceforge.net/p/clisp/bugs/699/>.
+	Reported by Jean Louis <bugs@gnu.support> in bug#699.
 	* _clisp.c: Disable the argv[1] splitting hack unless SHEBANG_SUPPORT
 	is defined.
 	* _distmakefile: Install a program 'clisp!' next to 'clisp'.
@@ -172,7 +169,7 @@
 
 2017-11-15  Sam Steingold  <sds@gnu.org>
 
-	Fix bug#711: do in loop allows more expressions than the standard.
+	Fix bug#711: DO in loop allows more expressions than the standard.
 	* loop.lisp (expand-loop parse-progn): Check that all forms in
 	implicit PROGNs are compound as implied by CLHS.
 
@@ -192,7 +189,7 @@
 2017-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Fix "Warning: reserving address range" on some Linux/x86_64 systems.
-	Reported by Sam Steingold at https://sourceforge.net/p/clisp/bugs/703/.
+	Reported by Sam Steingold in bug#703.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*): Tweak values for Linux/x86_64.
 	(SINGLEMAP_TYPE_MASK): Likewise.
 
@@ -257,15 +254,15 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Avoid known unsupported features on specific platforms.
-	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Cygwin
+	* lispbibl.d (TRIVIALMAP_MEMORY): Do not enable by default on Cygwin
 	and in a specific case on Linux/m68k.
-	(GENERATIONAL_GC): Don't enable by default on NetBSD, Linux/hppa,
+	(GENERATIONAL_GC): Do not enable by default on NetBSD, Linux/hppa,
 	Linux/m68k.
 
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Tweak support for Haiku.
-	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable by default on Haiku.
+	* lispbibl.d (TRIVIALMAP_MEMORY): Do not enable by default on Haiku.
 
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
@@ -315,8 +312,8 @@
 	build-porting*-one_free_bit_heapcodes-trivialmap, accordingly.
 	(build-porting*-try1_typecodes, build-porting*-try2_typecodes): Remove
 	targets.
-	(build-porting32-*-kernelvoid32_heapcodes,
-	build-porting64-*-generic64_heapcodes): Don't prevent the use of
+	(build-porting32-*-kernelvoid32_heapcodes)
+	(build-porting64-*-generic64_heapcodes): Do not prevent the use of
 	GENERATIONAL_GC.
 
 2017-11-11  Bruno Haible  <bruno@clisp.org>
@@ -343,7 +340,7 @@
 
 	Fix unnecessary error when oint_addr_mask != 2^oint_addr_len-1.
 	* spvw.d (bits_used_by_range): Move up.
-	* spvw_allocate.d (pointable_usable_test): Don't assume that
+	* spvw_allocate.d (pointable_usable_test): Do not assume that
 	oint_addr_mask == 2^oint_addr_len-1.
 	(mymalloc): Use pointable_usable_test to test the entire returned
 	address range.
@@ -364,7 +361,7 @@
 2017-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation warnings introduced on 2017-11-03.
-	* lispbibl.d (NO_ASM, NO_ARI_ASM, NO_FAST_DISPATCH): Don't redefine if
+	* lispbibl.d (NO_ASM, NO_ARI_ASM, NO_FAST_DISPATCH): Do not redefine if
 	already defined.
 
 2017-11-05  Bruno Haible  <bruno@clisp.org>
@@ -437,7 +434,7 @@
 
 	Apply TRIVIALMAP's memory allocation also to the STACK area.
 	* lispbibl.d (TRIVIALMAP_MEMORY_STACK): New macro. When it is defined,
-	don't check oint_addr_mask against MALLOC_ADDRESS_RANGE.
+	do not check oint_addr_mask against MALLOC_ADDRESS_RANGE.
 	* spvw.d (init_memory) [TRIVIALMAP_MEMORY_STACK]: Allocate the stack
 	range in [MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END],
 	rather than through mymalloc.
@@ -459,7 +456,7 @@
 	(sock_read): Set errno, not WSAGetLastError().
 	(do_sock_write): Use errno, not WSAGetLastError().
 	(sock_write): Set errno, not WSAGetLastError().
-	* stream.d (fd_error_eof_p): Renamed from error_eof_p. Don't test
+	* stream.d (fd_error_eof_p): Renamed from error_eof_p. Do not test
 	against WSAESHUTDOWN.
 	(low_read_array_unbuffered_handle, low_fill_buffered_handle): Update.
 	(CHECK_INTERRUPT): Test errno, not WSAGetLastError().
@@ -485,7 +482,7 @@
 	(OS_error, OS_error_arg): Change type of 'errcode' to 'int'.
 	* stream.d (IS_EINVAL_EXTRA): On Haiku, include EPERM.
 	(handle_pathname): On BeOS and Haiku, return NIL.
-	* makemake.in (check-script): Don't run unportable test on BeOS and
+	* makemake.in (check-script): Do not run unportable test on BeOS and
 	Haiku.
 	* m4/tcpconn.m4 (CL_TCPCONN): Require gl_SOCKETLIB. Consider LIBSOCKET
 	when testing for setsockopt and getsockopt.
@@ -520,14 +517,14 @@
 
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
-	Don't use symbolic links when building for native Windows.
+	Do not use symbolic links when building for native Windows.
 	* makemake.in (LN_S): For native Windows, ignore the autoconfigured
 	value.
 
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
-	Don't assume that (truename (make-stream :output)) works on Windows.
-	* makemake.in (check-script): Don't run unportable test on native
+	Do not assume that (truename (make-stream :output)) works on Windows.
+	* makemake.in (check-script): Do not run unportable test on native
 	Windows.
 
 2017-10-28  Bruno Haible  <bruno@clisp.org>
@@ -542,13 +539,13 @@
 	Use SINGLEMAP_MEMORY by default on most 64-bit platforms.
 	* lispbibl.d: Revise decision whether to use SINGLEMAP_MEMORY: Ignore
 	MMAP_FIXED_ADDRESS_HIGHEST_BIT (since the SINGLEMAP_* parameters handle
-	this more precisely). Don't disable it on Linux/s390x (where it actually
-	works). Don't disable it in MULTITHREAD mode.
+	this more precisely). Do not disable it on Linux/s390x (where it actually
+	works). Do not disable it in MULTITHREAD mode.
 
 2017-10-28  Bruno Haible  <bruno@clisp.org>
 
 	Make SINGLEMAP_MEMORY work reliably on many platforms.
-	* Makefile.devel (build-porting*-spvw_pure_blocks): Don't disable
+	* Makefile.devel (build-porting*-spvw_pure_blocks): Do not disable
 	GENERATIONAL_GC when testing this configuration.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*): Define separately for mips o32
 	and mips n32.
@@ -560,15 +557,15 @@
 	on these parameters.
 	(TB7, ..., TB0) [SINGLEMAP_MEMORY]: Define based on garcol_bit_o and
 	oint_type_mask.
-	(garcol_bit_o): Don't redefine if already defined for SINGLEMAP_MEMORY.
+	(garcol_bit_o): Do not redefine if already defined for SINGLEMAP_MEMORY.
 	(SINGLEMAP_MEMORY_STACK): Define always when SINGLEMAP_MEMORY is
 	defined.
 	(pointable_address_unchecked) [SINGLEMAP_MEMORY]: Ignore
 	addressbus_mask.
 	(subr_tab_addr, symbol_tab_addr) [SINGLEMAP_MEMORY]: Consider
 	SINGLEMAP_ADDRESS_BASE.
-	* spvw.d (init_memory): When we don't need malloc()ed memory at all,
-	don't call mymalloc.
+	* spvw.d (init_memory): When we do not need malloc()ed memory at all,
+	do not call mymalloc.
 	If SINGLEMAP_MEMORY && !IGNORE_MAPPABLE_ADDRESS_RANGE, verify that all
 	heaps lie in the mappable address range.
 	Consider SINGLEMAP_ADDRESS_BASE.
@@ -619,9 +616,9 @@
 
 2017-10-24  Bruno Haible  <bruno@clisp.org>
 
-	Don't assume that /dev/fd[012] exists on AIX and HP-UX.
+	Do not assume that /dev/fd[012] exists on AIX and HP-UX.
 	* stream.d (handle_pathname): On AIX and HP-UX, return NIL.
-	* makemake.in (check-script): Don't run unportable test on AIX and
+	* makemake.in (check-script): Do not run unportable test on AIX and
 	HP-UX.
 
 2017-10-24  Bruno Haible  <bruno@clisp.org>
@@ -645,17 +642,17 @@
 2017-10-23  Bruno Haible  <bruno@clisp.org>
 
 	Make intparam.c compile with g++ >= 6.
-	Reported by Sam Steingold at <https://sourceforge.net/p/clisp/bugs/709>.
-	* intparam.c (main9, get_stack_direction): Don't use the C keyword
+	Reported by Sam Steingold in bug#709.
+	* intparam.c (main9, get_stack_direction): Do not use the C keyword
 	'auto'.
 
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
 	Avoid link errors when passing -DNO_ARI_ASM or -DNO_SP_ASM in CPPFLAGS.
 	* makemake.in (ARI_ASMD, ARI_ASMS): Test whether XCFLAGS or XCPPFLAGS
-	contains -DNO_ARI_ASM. Don't test for --enable-portability directly.
+	contains -DNO_ARI_ASM. Do not test for --enable-portability directly.
 	(SP_ASMS, SP_ASMD): Test whether XCFLAGS or XCPPFLAGS contains
-	-DNO_SP_ASM. Don't test for --enable-portability directly.
+	-DNO_SP_ASM. Do not test for --enable-portability directly.
 
 2017-10-22  Bruno Haible  <bruno@clisp.org>
 
@@ -686,7 +683,7 @@
 
 	Avoid redefinition warnings.
 	* lispbibl.d (TYPECODES, KERNELVOID32_HEAPCODES, GENERIC64_HEAPCODES,
-	HEAPCODES, SINGLEMAP_MEMORY, GENERATIONAL_GC): Don't define if already
+	HEAPCODES, SINGLEMAP_MEMORY, GENERATIONAL_GC): Do not define if already
 	defined.
 
 2017-10-19  Bruno Haible  <bruno@clisp.org>
@@ -747,7 +744,7 @@
 2017-10-16  Bruno Haible  <bruno@clisp.org>
 
 	Avoid another risky optimization when --enable-portability is enabled.
-	* lispbibl.d: When NO_SYMBOLFLAGS is defined, don't use symbolflags.
+	* lispbibl.d: When NO_SYMBOLFLAGS is defined, do not use symbolflags.
 	* makemake.in (XCFLAGS): Add -DNO_SYMBOLFLAGS if --enable-portability
 	is specified.
 
@@ -766,8 +763,8 @@
 2017-10-15  Bruno Haible  <bruno@clisp.org>
 
 	Avoid another dangerous code when --enable-portability is enabled.
-	* eval.d (closure_register, byteptr_register): Don't define if NO_ASM is
-	defined.
+	* eval.d (closure_register, byteptr_register): Do not define if
+	NO_ASM is defined.
 
 2017-10-15  Bruno Haible  <bruno@clisp.org>
 
@@ -777,7 +774,7 @@
 2017-10-14  Bruno Haible  <bruno@clisp.org>
 
 	Use only mappable addresses in TRIVIALMAP_MEMORY.
-	* lispbibl.d (TRIVIALMAP_MEMORY): Don't enable if
+	* lispbibl.d (TRIVIALMAP_MEMORY): Do not enable if
 	MAPPABLE_ADDRESS_RANGE_START or MAPPABLE_ADDRESS_RANGE_END are not
 	defined.
 	* spvw.d (init_memory) [TRIVIALMAP_MEMORY]: Obey
@@ -857,7 +854,7 @@
 	* lispbibl.d (UNIX_GNU_FREEBSD, UNIX_IRIX): New macros.
 	(MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END): Define for
 	many platforms.
-	(ADDRESS_RANGE_RANDOMIZED): Don't define on OpenBSD.
+	(ADDRESS_RANGE_RANDOMIZED): Do not define on OpenBSD.
 
 2017-10-08  Bruno Haible  <bruno@clisp.org>
 
@@ -925,9 +922,9 @@
 2017-10-07  Bruno Haible  <bruno@clisp.org>
 
 	Remove support for Sun-4 machines prior to Sun-4m.
-	* m4/mmap.m4 (CL_MMAP): Don't define HAVE_MMAP_DEVZERO_SUN4_29.
+	* m4/mmap.m4 (CL_MMAP): Do not define HAVE_MMAP_DEVZERO_SUN4_29.
 	* configure.in: Update comment.
-	* makemake.in (XCFLAGS): Don't define SUN4_29.
+	* makemake.in (XCFLAGS): Do not define SUN4_29.
 	* lispbibl.d: Remove tests of SUN4_29.
 	* unix.d: Simplify accordingly.
 	* spvw.d (init_memory): Remove SUN4_29 special case.
@@ -953,7 +950,7 @@
 
 	Fix compilation error on NetBSD 8 beta.
 	* unix.d (vadvise): Assume it is declared in <sys/vadvise.h>.
-	* configure.in: Don't invoke CL_VADVISE. Just check for vadvise instead.
+	* configure.in: Do not invoke CL_VADVISE. Just check for vadvise instead.
 	* m4/vadvise.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
@@ -988,7 +985,7 @@
 	HAVE_SYS_TERMIO_H, HAVE_TERMIO_H, HAVE_SGTTY_H are not defined either.
 	* m4/ioctl.m4 (CL_IOCTL): Likewise.
 	* stream.d: Remove code for UNIX_TERM_TERMIO and UNIX_TERM_SGTTY.
-	* m4/termios.m4 (CL_TERM): Don't test for termio.h, sys/termio.h,
+	* m4/termios.m4 (CL_TERM): Do not test for termio.h, sys/termio.h,
 	sgtty.h.
 	* configure.in: Update comment.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
@@ -999,7 +996,7 @@
 	* unix.d: Assume that HAVE_TERMIOS_H implies HAVE_TCGETATTR and
 	HAVE_TCSAFLUSH.
 	* m4/ioctl.m4 (CL_IOCTL): Likewise.
-	* m4/termios.m4 (CL_TERM): Don't test for tcgetattr and TCSAFLUSH.
+	* m4/termios.m4 (CL_TERM): Do not test for tcgetattr and TCSAFLUSH.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
 2017-10-05  Bruno Haible  <bruno@clisp.org>
@@ -1007,17 +1004,17 @@
 	Modernize: Assume that <sys/ptem.h> is not needed for 'struct winsize'.
 	'struct winsize' is found in <sys/ioctl.h> on all current platforms.
 	* unix.d: Assume WINSIZE_NEED_SYS_PTEM_H is not defined.
-	* m4/termios.m4 (CL_TERM): Don't test for <sys/ptem.h>.
+	* m4/termios.m4 (CL_TERM): Do not test for <sys/ptem.h>.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
 	Modernize: Assume that getpagesize() exists on all Unix platforms.
-	* spvw_mmap.d (mmap_init_pagesize): Don't use SHMLBA nor Solaris 2.4
-	fallbacks.
-	* unix.d: Don't include <sys/ipc.h>, <sys/shm.h>, <sys/sysmacros.h>,
-	<sys/vmmac.h>.
-	* configure.in: Don't invoke CL_SHM_H, CL_SHM.
+	* spvw_mmap.d (mmap_init_pagesize): Do not use SHMLBA nor Solaris
+	2.4 fallbacks.
+	* unix.d: Do not include <sys/ipc.h>, <sys/shm.h>,
+	<sys/sysmacros.h>, <sys/vmmac.h>.
+	* configure.in: Do not invoke CL_SHM_H, CL_SHM.
 	* m4/shm.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
@@ -1030,16 +1027,16 @@
 
 	Modernize: Assume that getrusage() is properly declared.
 	* unix.d (getrusage): Remove declaration.
-	* m4/rusage.m4 (CL_RUSAGE): Don't define RUSAGE_WHO_T.
+	* m4/rusage.m4 (CL_RUSAGE): Do not define RUSAGE_WHO_T.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 	* modules/*/configure, modules/*/config.h.in: Regenerated.
 
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
 	Remove unused code in Autoconf macros.
-	* configure.in: Don't invoke CL_RLIMIT. Instead, check for getrlimit.
-	* modules/syscalls/configure.in: Don't invoke CL_RLIMIT. Instead, check
-	for getrlimit, setrlimit, and determine sizeof(rlim_t).
+	* configure.in: Do not invoke CL_RLIMIT. Instead, check for getrlimit.
+	* modules/syscalls/configure.in: Do not invoke CL_RLIMIT. Instead,
+	check for getrlimit, setrlimit, and determine sizeof(rlim_t).
 	* src/m4/rlimit.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 	* modules/*/configure, modules/*/config.h.in: Regenerated.
@@ -1047,7 +1044,7 @@
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
 	Remove unused autoconf test.
-	* configure.in: Don't invoke CL_MSYNC.
+	* configure.in: Do not invoke CL_MSYNC.
 	* m4/msync.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
@@ -1065,14 +1062,14 @@
 	* m4/mmap.m4 (CL_MMAP): Use 'char*' instead of 'caddr_t'.
 	* stream.d (clear_tty_input, finish_tty_output, clear_tty_output): Use
 	'char*' instead of 'CADDR_T'.
-	* configure.in: Don't invoke CL_CADDR_T.
+	* configure.in: Do not invoke CL_CADDR_T.
 	* m4/caddr_t.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
 2017-10-05  Bruno Haible  <bruno@clisp.org>
 
 	Remove unused code in Autoconf macros.
-	* m4/ioctl.m4 (CL_IOCTL): Don't define IOCTL_REQUEST_T, IOCTL_DOTS,
+	* m4/ioctl.m4 (CL_IOCTL): Do not define IOCTL_REQUEST_T, IOCTL_DOTS,
 	IOCTL_ARGUMENT_T.
 	* configure.in: Update comment.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
@@ -1089,7 +1086,7 @@
 	Remove workaround against ancient systems with old waitpid declaration.
 	* unix.d (waitpid, wait2): Use pid_t instead of PID_T.
 	* unixaux.d (wait2): Likewise.
-	* configure.in: Don't invoke CL_WAITPID.
+	* configure.in: Do not invoke CL_WAITPID.
 	* m4/waitpid.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
@@ -1097,7 +1094,7 @@
 
 	Remove workaround against ancient systems with hidden ELOOP macro.
 	* pathname.d (realpath, get_path_info): Use ELOOP, not ELOOP_VALUE.
-	* configure.in: Don't invoke CL_ELOOP.
+	* configure.in: Do not invoke CL_ELOOP.
 	* m4/eloop.m4: Remove file.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
 
@@ -1106,7 +1103,7 @@
 	Remove workaround against ancient Cygwin bug (not known to gnulib).
 	* pathname.d (directory_search_scandir): Use closedir, not CLOSEDIR.
 	* unix.d (CLOSEDIR): Remove macro.
-	* configure.in: Don't invoke CL_CLOSEDIR.
+	* configure.in: Do not invoke CL_CLOSEDIR.
 	* m4/closedir.m4: Remove file.
 	* m4/filecharset.m4: Update.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
@@ -1122,7 +1119,7 @@
 2017-10-03  Bruno Haible  <bruno@clisp.org>
 
 	Remove unused autoconf test.
-	* src/configure.in: Don't invoke CL_SHM_RMID.
+	* src/configure.in: Do not invoke CL_SHM_RMID.
 	* src/m4/shm-rmid.m4: Remove file.
 	* src/m4/shm.m4 (CL_SHM): Update.
 	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
@@ -1142,10 +1139,10 @@
 2017-10-01  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on glibc systems where iconv converters are missing.
-	* constsym.d: Don't define many charset symbols if HAVE_GOOD_ICONV is
+	* constsym.d: Do not define many charset symbols if HAVE_GOOD_ICONV is
 	not set.
 	* encoding.d: Remove verification that HAVE_GOOD_ICONV is set.
-	(init_encodings_2): Don't assume that HAVE_GOOD_ICONV is set.
+	(init_encodings_2): Do not assume that HAVE_GOOD_ICONV is set.
 	(encoding_from_name): Update accordingly.
 
 2017-09-30  Bruno Haible  <bruno@clisp.org>
@@ -1162,13 +1159,13 @@
 
 	configure: Fix build failure on IRIX when CC is set and not GCC
 	(regression from 2011-05-17).
-	* configure: Don't invoke $CC -dumpmachine when $CC does not contain
-	'gcc'.
+	* configure: Do not invoke $CC -dumpmachine when $CC does not
+	contain 'gcc'.
 
 2017-09-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on many platforms (regression from 2017-09-24).
-	* lispbibl.d (Stream): Don't use INNARDS_OF_GCV_OBJECT if it is not
+	* lispbibl.d (Stream): Do not use INNARDS_OF_GCV_OBJECT if it is not
 	defined.
 
 2017-09-29  Bruno Haible  <bruno@clisp.org>
@@ -1200,8 +1197,8 @@
 
 	Fix build failure on Linux/mipseb with WIDE_SOFT.
 	This fixes a problem of the 2017-05-29 change.
-	Based on work by Sébastien Villemot <sebastien@debian.org>, reported in
-	<https://sourceforge.net/p/clisp/bugs/705/>.
+	Based on work by Sébastien Villemot <sebastien@debian.org>,
+	reported in bug#705.
 	* lispbibl.d (Stream): Put strmflags and strmtype inside a union.
 	(strmflags, strmtype): Define as macros.
 	(allocate_stream, var_stream): Rename parameters.
@@ -1570,7 +1567,7 @@
 
 2017-06-14  Bruno Haible  <bruno@clisp.org>
 
-	Don't declare the need for an executable stack on Linux and FreeBSD.
+	Do not declare the need for an executable stack on Linux and FreeBSD.
 	For explanations, see
 	<https://git.savannah.gnu.org/gitweb/?p=libffcall.git;a=blob_plain;f=porting-tools/execstack/README>.
 	* ari80386.d, sp80386.d: Add GNU-stack note.
@@ -1607,7 +1604,7 @@
 
 2017-05-30  Bruno Haible  <bruno@clisp.org>
 
-	Don't publish impnotes.html for the moment.
+	Do not publish impnotes.html for the moment.
 	* doc/Makefile (DIST): Set to empty.
 
 2017-05-29  Bruno Haible  <bruno@clisp.org>
@@ -1620,7 +1617,7 @@
 	Thus, the fact of storing strmtype in the same place as the rectype
 	causes an strmtype to be interpreted as a rectype.
 	* lispbibl.d (Rectype_Stream): Define always.
-	(Stream): Don't try to save space when case_stream is defined.
+	(Stream): Do not try to save space when case_stream is defined.
 	(allocate_stream): Define as a function always.
 	* spvw_typealloc.d (allocate_stream): Likewise.
 
@@ -1669,12 +1666,12 @@
 
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
-	Don't put arbitrary C function pointers onto the STACK.
+	Do not put arbitrary C function pointers onto the STACK.
 	* list.d (sublis_assoc): Add pcall_test argument. Use it instead of
 	assuming to find this C function in the STACK.
 	(sublis, nsublis): Add pcall_test argument.
-	(SUBLIS, NSUBLIS): Don't invoke make_machine_code. Put a dummy onto the
-	STACK instead.
+	(SUBLIS, NSUBLIS): Do not invoke make_machine_code.
+	Put a dummy onto the STACK instead.
 
 2017-05-27  Bruno Haible  <bruno@clisp.org>
 
@@ -1706,7 +1703,7 @@
 	* spvw_update.d (update_STACKs): Likewise.
 	* eval.d (invoke_handlers): Distinguish CHANDLER frames and HANDLER
 	frames through the frame info.
-	(nest_env): Don't assume that NESTED_ITAGBODY_frame_info and
+	(nest_env): Do not assume that NESTED_ITAGBODY_frame_info and
 	ITAGBODY_frame_info differ by just bit(nested_bit_t).
 	* io.d (signal_reader_error): Fix comment.
 	(read_internal): Update.
@@ -1878,8 +1875,8 @@
 
 2017-05-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* lispbibl.d: (MULTITHREAD): Don't use SINGLEMAP_MEMORY model. Fixed
-	lisp stack address is the issue.
+	* lispbibl.d: (MULTITHREAD): Do not use SINGLEMAP_MEMORY model.
+	Fixed lisp stack address is the issue.
 
 2017-05-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
@@ -2030,7 +2027,7 @@
 
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
-	Don't generate a broken Makefile when using the option --host/--build.
+	Do not generate a broken Makefile when using the option --host/--build.
 	Rationale:
 	- clisp cannot be cross-built anyway (because of the memory image).
 	  The earlier use-case of "makemake cross ..." of ca. 1993 was when
@@ -2039,7 +2036,7 @@
 	  (${host}-gcc, ${host}-ld, ${host}-ar, etc.)
 	- --host is frequently used in builds on Windows (e.g.
 	  --build=i686-pc-cygwin --host=i686-w64-mingw32).
-	* configure: Don't pass 'cross' to makemake.
+	* configure: Do not pass 'cross' to makemake.
 
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
@@ -2057,7 +2054,7 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
 	Fix alignment issues on IA64 and with GENERIC64C_HEAPCODES.
-	* lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): Don't redefine.
+	* lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): Do not redefine.
 	(PSEUDODATA_ALIGNMENT, log2_PSEUDODATA_ALIGNMENT): New macros.
 	(PSEUDOCODE_ALIGNMENT, log2_PSEUDOCODE_ALIGNMENT): New macros.
 	(make_machine_code): Adjust for GENERIC64C_HEAPCODES.
@@ -2074,7 +2071,7 @@
 2017-03-19  Bruno Haible  <bruno@clisp.org>
 
 	Fix an autoconf test crash on IA64.
-	* m4/mmap.m4: On IA64, don't try to mmap at the address where the
+	* m4/mmap.m4: On IA64, do not try to mmap at the address where the
 	executable sits.
 
 2017-03-19  Bruno Haible  <bruno@clisp.org>
@@ -2125,7 +2122,7 @@
 
 2017-03-17  Bruno Haible  <bruno@clisp.org>
 
-	Don't test unportable features in "make check".
+	Do not test unportable features in "make check".
 	* makemake.in: Generate a new target 'extracheck'. Let 'extracheck', not
 	'check', depend on 'check-exec-image'.
 
@@ -2181,14 +2178,14 @@
 
 2017-03-16  Bruno Haible  <bruno@clisp.org>
 
-	Don't rely on unportable 'test file1 -nt file2' primitive.
+	Do not rely on unportable 'test file1 -nt file2' primitive.
 	Fixes a build failure on OpenBSD.
 	* Makefile.devel (GNULIB_CORE): Add stat-time, timespec.
 	* utils/newer.c: New file.
-	* makemake.in: Don't emit a '.SHELL' line.
+	* makemake.in: Do not emit a '.SHELL' line.
 	(UTILS): Add 'newer'.
 	Use the 'newer' program instead of a 'newer()' shell function.
-	* configure.in: Don't invoke CL_TEST_NT.
+	* configure.in: Do not invoke CL_TEST_NT.
 	* m4/test.m4: Remove file.
 	* gllib/*: Update from gnulib.
 	* glm4/*: Likewise.
@@ -2208,7 +2205,7 @@
 
 2017-03-15  Bruno Haible  <bruno@clisp.org>
 
-	Don't treat all non-GCC compilers like SUNWspro cc.
+	Do not treat all non-GCC compilers like SUNWspro cc.
 	* makemake.in: Fix the test of the CC_SUNPRO variable.
 
 2017-03-15  Bruno Haible  <bruno@clisp.org>
@@ -2311,14 +2308,14 @@
 
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
-	Don't attempt to use SINGLEMAP_MEMORY on OpenBSD/x86_64.
-	* lispbibl.d (SINGLEMAP_MEMORY): Don't define if
+	Do not attempt to use SINGLEMAP_MEMORY on OpenBSD/x86_64.
+	* lispbibl.d (SINGLEMAP_MEMORY): Do not define if
 	ADDRESS_RANGE_RANDOMIZED is defined.
 
 2017-03-11  Bruno Haible  <bruno@clisp.org>
 
 	Add support for generational GC on OpenBSD/x86.
-	* lispbibl.d (ADDRESS_RANGE_RANDOMIZED): Don't define for 32-bit
+	* lispbibl.d (ADDRESS_RANGE_RANDOMIZED): Do not define for 32-bit
 	OpenBSD.
 	* spvw.d (init_memory): For 32-bit OpenBSD, use the address range
 	0x90000000..0xC8000000.
@@ -2446,8 +2443,8 @@
 2017-03-09  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure with DEBUG_GCSAFETY.
-	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Don't
-	define if DEBUG_GCSAFETY && SINGLEMAP_MEMORY.
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Do
+	not define if DEBUG_GCSAFETY && SINGLEMAP_MEMORY.
 
 2017-03-09  Bruno Haible  <bruno@clisp.org>
 
@@ -2495,8 +2492,8 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
 	New heuristic for choosing between TYPECODES and HEAPCODES.
-	* lispbibl.d (TYPECODES): Don't define on 64-bit platforms for which
-	the address ranges don't fit. Don't defined on 32-bit platforms at all.
+	* lispbibl.d (TYPECODES): Do not define on 64-bit platforms for which
+	the address ranges do not fit. Do not defined on 32-bit platforms at all.
 	Specific platforms might need specific adjustment.
 
 2017-03-05  Bruno Haible  <bruno@clisp.org>
@@ -2513,14 +2510,14 @@
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failures with AIX make.
-	* makemake.in (gllib): Don't use a directory name as a target name.
-	(clean-subdirs, disclean-subdirs): Don't use $(MAKE) with option -C.
+	* makemake.in (gllib): Do not use a directory name as a target name.
+	(clean-subdirs, disclean-subdirs): Do not use $(MAKE) with option -C.
 
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
 	Fix autoconf test failure on Solaris.
-	* m4/address.m4 (CL_ADDRESS_RANGE): Don't redeclare printf. Assume
-	ANSI C when redeclaring tmpnam.
+	* m4/address.m4 (CL_ADDRESS_RANGE): Do not redeclare printf.
+	Assume ANSI C when redeclaring tmpnam.
 	* aclocal.m4, src/configure: Regenerated.
 
 2017-03-05  Bruno Haible  <bruno@clisp.org>
@@ -2531,7 +2528,7 @@
 
 2017-03-05  Bruno Haible  <bruno@clisp.org>
 
-	Don't choose SINGLEMAP_MEMORY with wrong oint_type_len, oint_addr_len.
+	Do not choose SINGLEMAP_MEMORY with wrong oint_type_len, oint_addr_len.
 	(Regression from 2017-02-28.)
 	* lispbibl.d: Move definitions of HEAPCODES, TYPECODES, WIDE_STRUCT,
 	WIDE_ENDIANNESS, OBJECT_STRUCT, CHART_STRUCT down. Move definition of
@@ -2603,9 +2600,9 @@
 	Make it possible to avoid any hand-maintained assembler code.
 	* spsparc.d, spsparc64.d (_get_g1): Move from here ...
 	* arisparc.d, arisparc64.d: ... to here.
-	* arilev0.d: If NO_ARI_ASM is defined, don't reference symbols in the
+	* arilev0.d: If NO_ARI_ASM is defined, do not reference symbols in the
 	assembly-language ari*.d.
-	* lispbibl.d: If NO_SP_ASM is defined, don't reference symbols in the
+	* lispbibl.d: If NO_SP_ASM is defined, do not reference symbols in the
 	assembly-language sp*.d.
 
 2017-03-02  Bruno Haible  <bruno@clisp.org>
@@ -2626,7 +2623,7 @@
 	* pseudofun.d (*PSEUDO_F, *PSEUDO_G): New macros.
 	* spvw.d (verify_code_alignment, error_code_alignment): Take a C string
 	as second argument instead of a symbol.
-	(init_symbol_functions): Don't invoke verify_code_alignment here.
+	(init_symbol_functions): Do not invoke verify_code_alignment here.
 	(init_memory): Invoke verify_code_alignment here.
 	* makemake.in (FALIGNFLAGS): New variable. Use it in the compilation of
 	specific files.
@@ -2644,7 +2641,7 @@
 
 	Simplify macrology: Remove MAP_MEMORY macro.
 	Earlier MAP_MEMORY was SINGLEMAP_MEMORY || MULTIMAP_MEMORY, but since
-	2008-07-06 we don't have MULTIMAP_MEMORY any more. It is confusing that
+	2008-07-06 we do not have MULTIMAP_MEMORY any more. It is confusing that
 	MAP_MEMORY is not implied by TRIVIALMAP_MEMORY.
 	* lispbibl.d (MAP_MEMORY): Remove macro. Use SINGLEMAP_MEMORY instead.
 	* spvw_fault.d, spvw_garcol.d, spvw_garcol_old.d: Use SINGLEMAP_MEMORY
@@ -2657,7 +2654,7 @@
 	MMAP_FIXED_ADDRESS_HIGHEST_BIT.
 	* lispbibl.d (oint_type_len, oint_addr_len, etc.): If SINGLEMAP_MEMORY
 	is defined, define them according to MMAP_FIXED_ADDRESS_HIGHEST_BIT.
-	(tint, aint, saint): Don't require oint_type_len, oint_addr_len to be
+	(tint, aint, saint): Do not require oint_type_len, oint_addr_len to be
 	literal constants.
 	(SINGLEMAP_MEMORY): Define according to MMAP_FIXED_ADDRESS_HIGHEST_BIT
 	and some address ranges.
@@ -2728,7 +2725,7 @@
 
 	Fix build failures on Solaris 10 with gcc.
 	* configure: On Solaris, force CONFIG_SHELL to bash.
-	* intparam.c: Don't define _POSIX_SOURCE.
+	* intparam.c: Do not define _POSIX_SOURCE.
 
 2017-02-26  Bruno Haible  <bruno@clisp.org>
 
@@ -2740,7 +2737,7 @@
 
 	Fix bug#680: build failure when using --elispdir option.
 	* configure: Pass --elispdir option and argument only to makemake.
-	Reported by Alex D in <https://sourceforge.net/p/clisp/bugs/680/>.
+	Reported by Alex D.
 
 2017-02-25  Bruno Haible  <bruno@clisp.org>
 
@@ -2849,14 +2846,14 @@
 
 	Fix clang warning "flag '-falign-functions=4' is not supported".
 	* makemake.in (XCC_BRAND): New variable.
-	(XCFLAGS): Don't use -falign-functions=4 with clang.
+	(XCFLAGS): Do not use -falign-functions=4 with clang.
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure with clang.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register,
-	SP_register): Don't define for clang.
-	(restartf_t): Don't use _Noreturn on a function type, except with GCC.
+	SP_register): Do not define for clang.
+	(restartf_t): Do not use _Noreturn on a function type, except with GCC.
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
@@ -2891,14 +2888,14 @@
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
 	maint: Fix conflict between fix-perms.sh and gnulib import.
-	* utils/fix-perms.sh: Don't clobber the permissions of
+	* utils/fix-perms.sh: Do not clobber the permissions of
 	gllib/uniname/gen-uninames.lisp.
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
 	Fix build failure on Linux with musl libc.
-	* unix.d: Don't include <asm/page.h>. Instead, assume SHMLBA is defined
-	in <sys/shm.h>.
+	* unix.d: Do not include <asm/page.h>. Instead, assume SHMLBA is
+	defined in <sys/shm.h>.
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
@@ -2922,7 +2919,7 @@
 	* makemake.in (LIBSIGSEGV): Use @LIBSIGSEGV@, not @LTLIBSIGSEGV@.
 	Rationale: While @LIBSIGSEGV@ contains -Wl,-rpath options,
 	@LTLIBSIGSEGV@ contains -R options, which are meant for the libtool
-	script. But we don't invoke the libtool script for linking.
+	script. But we do not invoke the libtool script for linking.
 
 2017-02-19  Bruno Haible  <bruno@clisp.org>
 
@@ -2941,7 +2938,7 @@
 2017-01-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix build problem on 32-bit platforms, introduced on 2016-11-13.
-	* dfloat.d (DF_DF_mult_DF): Don't use bitQ() to test a bit of an uintD.
+	* dfloat.d (DF_DF_mult_DF): Do not use bitQ() to test a bit of an uintD.
 	Reported by Jerry James <loganjerry@gmail.com> in
 	<https://sourceforge.net/p/clisp/mailman/message/35632512/>.
 
@@ -2967,7 +2964,7 @@
 	* lispbibl.d (WIDE_HARD): Define depending on long_bitsize and
 	pointer_bitsize, not on preprocessor defines like __x86_64__.
 	(LINUX_NOEXEC_HEAPCODES): Pick as default memory model on Linux/x32.
-	Don't forbid SINGLEMAP_MEMORY on Linux/x32.
+	Do not forbid SINGLEMAP_MEMORY on Linux/x32.
 
 2016-11-13  Bruno Haible  <bruno@clisp.org>
 
@@ -3138,8 +3135,8 @@
 	* lispbibl.d (machinep) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]:
 	Define in such a way that machine pointers only need to be aligned
 	mod 4.
-	(C_CODE_ALIGNMENT) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]: Don't
-	redefine to 8.
+	(C_CODE_ALIGNMENT) [GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES]:
+	Do not redefine to 8.
 	(LINUX_NOEXEC_HEAPCODES, GENERIC64A_HEAPCODES, GENERIC64B_HEAPCODES):
 	Update comments.
 
@@ -3444,7 +3441,7 @@
 
 2013-01-06  Bruno Haible  <bruno@clisp.org>
 
-	* pathname.d (unix_user_pwd): Don't use getlogin().
+	* pathname.d (unix_user_pwd): Do not use getlogin().
 	Reported by Alberto Riva <alb@chip.org> in
 	<http://article.gmane.org/gmane.lisp.clisp.general:13995>
 	<https://sourceforge.net/p/clisp/mailman/message/30303970/>
@@ -3617,7 +3614,7 @@
 
 2012-02-13  Bruno Haible  <bruno@clisp.org>
 
-	* clos-genfun2b.lisp (compute-dispatch): Don't blindly assume that
+	* clos-genfun2b.lisp (compute-dispatch): Do not blindly assume that
 	(bc-and-not class test-class) is non-nil; test it explicitly.
 	[bug#628]
 
@@ -8039,7 +8036,7 @@
 
 2009-08-07  Bruno Haible  <bruno@clisp.org>
 
-	* configure: Don't leave abazonk files when $exex_prefix and $prefix
+	* configure: Do not leave abazonk files when $exex_prefix and $prefix
 	are different.
 
 2009-08-07  Sam Steingold  <sds@gnu.org>
@@ -13180,7 +13177,7 @@
 
 	* makemake.in (interpreted.mem, halfcompiled.mem): Depend on
 	config.lisp.
-	(clean5): Don't remove config.lisp.
+	(clean5): Do not remove config.lisp.
 	(clean6): Remove config.lisp.
 
 2008-07-15  Bruno Haible  <bruno@clisp.org>
@@ -13190,7 +13187,7 @@
 
 2008-07-15  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (clean4): Don't remove all the $SUBDIRS but only the
+	* makemake.in (clean4): Do not remove all the $SUBDIRS but only the
 	built files inside them.
 
 2008-07-15  Sam Steingold  <sds@gnu.org>
@@ -13395,7 +13392,7 @@
 	It cannot compete with SINGLEMAP_MEMORY because it
 	1. consumes a lot more memory for page tables, and
 	2. hampers swapping in kernels without reverse mapping pointers.
-	* lispbibl.d (MULTIMAP_MEMORY_VIA_SHM, MULTIMAP_MEMORY): Don't define.
+	* lispbibl.d (MULTIMAP_MEMORY_VIA_SHM, MULTIMAP_MEMORY): Do not define.
 	* spvw.d (canonaddr, canon): Remove macros.
 	(MULTIMAP_MEMORY_SYMBOL_TAB): Remove macro.
 	(init_memory, main): Update.
@@ -13431,14 +13428,14 @@
 	1. periodically flushes the working memory to disk,
 	2. consumes a lot more memory for page tables, and
 	3. hampers swapping in kernels without reverse mapping pointers.
-	* lispbibl.d (MULTIMAP_MEMORY_VIA_FILE): Don't define.
-	* spvw.d (usage): Don't mention option -t.
+	* lispbibl.d (MULTIMAP_MEMORY_VIA_FILE): Do not define.
+	* spvw.d (usage): Do not mention option -t.
 	(argv_initparams): Remove argv_tmpdir field.
-	(parse_options): Don't recognize option -t.
+	(parse_options): Do not recognize option -t.
 	(init_memory): Update.
 	* spvw_multimap.d [MULTIMAP_MEMORY_VIA_FILE]: Remove code.
-	* unix.d: Don't undefine HAVE_MSYNC.
-	Don't include headers for statvfs or statfs.
+	* unix.d: Do not undefine HAVE_MSYNC.
+	Do not include headers for statvfs or statfs.
 	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_FILE.
 	* m4/stat.m4 (CL_STAT): Move tests for statvfs, statfs...
 	* modules/syscalls/configure.in: ... to here.
@@ -13815,7 +13812,7 @@
 	* configure.in: Remove AC_HEADER_TIME invocation. Instead simply test
 	for <time.h> and <sys/time.h>.
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Likewise.
-	* unix.d: Don't test TIME_WITH_SYS_TIME. Assume <time.h> and
+	* unix.d: Do not test TIME_WITH_SYS_TIME. Assume <time.h> and
 	<sys/time.h> are compatible.
 	* modules/berkeley-db/bdb.c: Likewise.
 	* modules/clx/new-clx/clx.f: Likewise.
@@ -13868,7 +13865,7 @@
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* m4/siginterrupt.m4 (CL_SIGINTERRUPT): Don't test for sigvec.
+	* m4/siginterrupt.m4 (CL_SIGINTERRUPT): Do not test for sigvec.
 	* unixaux.d (siginterrupt): Remove sigvec based emulation.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
@@ -13908,10 +13905,10 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* configure.in: Remove CL_OFFSETOF invocation.
-	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): Don't require CL_OFFSETOF.
+	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): Do not require CL_OFFSETOF.
 	Include <stddef.h> always.
 	* lispbibl.d: Include <stddef.h> always.
-	(offsetof): Don't redefine, use if it is defined.
+	(offsetof): Do not redefine, use if it is defined.
 	* m4/offsetof.m4: Remove file.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
@@ -13941,7 +13938,7 @@
 
 	* nls_nextstep.c: Remove file.
 	* pseudofun.d (nls_nextstep_table): Remove.
-	* encoding.d: Don't include nls_nextstep.c.
+	* encoding.d: Do not include nls_nextstep.c.
 	(nls_tables): Remove nls_nextstep_table.
 	* constsym.d: Update.
 	* makemake.in (NLS_INCLUDES): Remove nls_nextstep.
@@ -13974,7 +13971,7 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* m4/closedir.m4 (CL_CLOSEDIR): Remove check for the prototype.
-	Don't define RETCLOSEDIRTYPE any more.
+	Do not define RETCLOSEDIRTYPE any more.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
@@ -14013,7 +14010,7 @@
 	* lispbibl.d: Assume STDC_HEADERS.
 	* stream.d: Likewise.
 	* unix.d: Likewise.
-	* win32.d: Don't set STDC_HEADERS.
+	* win32.d: Do not set STDC_HEADERS.
 	* malloc/gmalloc.c: Assume ANSI C or C++, STDC_HEADERS, memmove.
 	* unix/sigsegv.c: Assume STDC_HEADERS.
 	* modules/pcre/cpcre.c: Assume STDC_HEADERS.
@@ -15159,7 +15156,7 @@
 
 	fix bug#428 part 2.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register)
-	(back_trace_register): Don't define for gcc-4.2 and newer when
+	(back_trace_register): Do not define for gcc-4.2 and newer when
 	USE_GCC_REGISTER_VARIABLES is not defined.
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
@@ -15687,7 +15684,7 @@
 
 2008-01-13  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in: Don't use $(MAKE) -C.
+	* makemake.in: Do not use $(MAKE) -C.
 
 2008-01-13  Sam Steingold  <sds@gnu.org>
 
@@ -17648,7 +17645,7 @@
 
 2007-05-20  Bruno Haible  <bruno@clisp.org>
 
-	* unix.d [UNIX_LINUX && UNIX_GNU]: Don't include <asm/page.h>.
+	* unix.d [UNIX_LINUX && UNIX_GNU]: Do not include <asm/page.h>.
 	* lispbibl.d (UNIX_GNU): Move definition down.
 	Reported by Ulrich Müller <ulm@gentoo.org>.
 
@@ -19237,7 +19234,7 @@
 
 	Complete Sam's 2005-11-21 patch.
 	* clos-class3.lisp (defclass): Verify that a slot's :ALLOCATION value
-	is a symbol. Don't treat the symbol NIL specially.
+	is a symbol. Do not treat the symbol NIL specially.
 
 2006-04-10  Bruno Haible  <bruno@clisp.org>
 
@@ -19278,7 +19275,7 @@
 
 2006-03-06  Bruno Haible  <bruno@clisp.org>
 
-	* backquote.lisp (bq-append): Don't optimize if form1 has the
+	* backquote.lisp (bq-append): Do not optimize if form1 has the
 	shape (QUOTE (SYS::UNQUOTE ...)). Fixes bug#272.
 	Based on proposed fix by Matthew Cross <mcross@irobot.com>.
 
@@ -21458,7 +21455,7 @@
 
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (MODULES): Don't use with_module_* variables any more.
+	* makemake.in (MODULES): Do not use with_module_* variables any more.
 
 2005-09-01  Sam Steingold  <sds@gnu.org>
 
@@ -22417,7 +22414,7 @@
 	* m4/alloca.m4: New file, from gnulib.
 	* m4/restrict.m4: New file, from gnulib.
 	* modules/regexp/configure.in: Invoke 'restrict' and 'alloca'
-	requisites. Set ALLOCA to empty if we don't need it.
+	requisites. Set ALLOCA to empty if we do not need it.
 	* modules/regexp/Makefile.in (ALLOCA_H): New variable.
 	(DISTRIBFILES): Add alloca.o if needed.
 	(all): Depend on alloca.o if needed.
@@ -22473,7 +22470,7 @@
 2005-06-04  Bruno Haible  <bruno@clisp.org>
 
 	Remove warnings emitted by gcc -Wstrict-prototypes.
-	* unix.d (errno): Don't declare. Assume <errno.h> does it.
+	* unix.d (errno): Do not declare. Assume <errno.h> does it.
 	* spvw.d (print_banner): Define with void argument list.
 	* stream.d (get_col): Likewise.
 	* pathname.d (fix_parse_namestring_dot_file, nullfile)
@@ -22492,7 +22489,7 @@
 	cstombs instead of cstombs_f.
 	* encoding.d (cslen_f, cslen_ff, cstombs_f, cstombs_ff): Remove
 	functions.
-	* genclisph.d (main): Don't emit cslen_f, cslen_ff, cstombs_f,
+	* genclisph.d (main): Do not emit cslen_f, cslen_ff, cstombs_f,
 	cstombs_ff.
 	* modules/syscalls/calls.c (LispToPropVariant, PropSpecSetStr)
 	(with_string_0w): Use cslen instead of cslen_f, cstombs instead of
@@ -22512,7 +22509,7 @@
 
 2005-06-06  Bruno Haible  <bruno@clisp.org>
 
-	* spvw_language.d (init_language): When argv_localedir is NULL, don't
+	* spvw_language.d (init_language): When argv_localedir is NULL, do not
 	use any message catalogs, not even those in the default location
 	/usr/share/locale.
 
@@ -22607,7 +22604,7 @@
 
 2005-06-03  Bruno Haible  <bruno@clisp.org>
 
-	* spvw.d (main_actions): Don't increase argv_verbose.
+	* spvw.d (main_actions): Do not increase argv_verbose.
 	Reported by David Tolpin <dvd@davidashen.net>.
 
 2005-06-03  Bruno Haible  <bruno@clisp.org>
@@ -22672,7 +22669,7 @@
 2005-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Fix a bug of DEBUG_GCSAFETY with modules.
-	* genclisph.d (main): In nonimmprobe, don't optimize away inside_gc.
+	* genclisph.d (main): In nonimmprobe, do not optimize away inside_gc.
 	Needed because gcv_object_t::gcv_object_t uses nonimmprobe, and all
 	definitions of gcv_object_t::gcv_object_t must be equivalent, because
 	the linker picks one of them at random.
@@ -22736,13 +22733,13 @@
 
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (XCFLAGS): Don't force HEAPCODES when DEBUG_GCSAFETY is
+	* makemake.in (XCFLAGS): Do not force HEAPCODES when DEBUG_GCSAFETY is
 	used.
 
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
 	Fix a bug introduced on 2002-02-22.
-	* spvw_language.d (init_language): Don't set O(current_language).
+	* spvw_language.d (init_language): Do not set O(current_language).
 	Fixes a crash in TYPECODES && MAP_MEMORY && DEBUG_GCSAFETY builds.
 	It is forbidden to work with 'object's before init_memory().
 
@@ -22757,7 +22754,7 @@
 	(nonimmprobe): Use pointable_address_unchecked.
 	(hfintsize, hfint): Use a full word if DEBUG_GCSAFETY. When using a
 	full word, use an uintP, not an uintL.
-	(VAROBJECT_HEADER) [TYPECODES]: If DEBUG_GCSAFETY, don't wrap _GCself
+	(VAROBJECT_HEADER) [TYPECODES]: If DEBUG_GCSAFETY, do not wrap _GCself
 	in a union.
 	(GCself, header_flags) [TYPECODES]: Define differently if
 	DEBUG_GCSAFETY.
@@ -22794,7 +22791,7 @@
 	Fix compilation with g++ 3.3/3.4 if TYPECODES && OBJECT_STRUCT
 	&& !DEBUG_GCSAFETY.
 	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB):
-	Don't define if OBJECT_STRUCT and g++ 3.3/3.4.
+	Do not define if OBJECT_STRUCT and g++ 3.3/3.4.
 
 2005-05-28  Bruno Haible  <bruno@clisp.org>
 
@@ -23097,14 +23094,14 @@
 	Support for 48-bit wide fixnums.
 	* lispbibl.d (WIDE_SOFT): Set if WIDE_SOFT_LARGEFIXNUM is set.
 	(dotimesV, dotimespV): New macros.
-	(WIDE_STRUCT): Don't define if WIDE_SOFT_LARGEFIXNUM.
+	(WIDE_STRUCT): Do not define if WIDE_SOFT_LARGEFIXNUM.
 	(oint_data_len): Increase from 32 to 40 or 48 where possible.
 	(oint_data_mask): Update accordingly.
 	(oint_type_len, oint_addr_len) [WIDE_SOFT]: Define differently if
 	WIDE_SOFT_LARGEFIXNUM is set.
 	(intVsize): New macro.
 	(uintV, sintV): New types.
-	(GENERATIONAL_GC): Don't define if WIDE_SOFT_LARGEFIXNUM is set.
+	(GENERATIONAL_GC): Do not define if WIDE_SOFT_LARGEFIXNUM is set.
 	(vbit, vbitm, vbit_test, minus_vbit): New macros.
 	(Fixnum_minus1): Use vbit* macros.
 	(posfixnum_to_V): Rename from posfixnum_to_L. Return an uintV value.
@@ -23829,7 +23826,7 @@
 
 	* genclisph.d (main): Emit check_array etc. conditionally, not if
 	COMPILE_STANDALONE is defined. Needed to avoid link errors with
-	compilers that don't eliminate inline functions.
+	compilers that do not eliminate inline functions.
 
 2005-04-21  Bruno Haible  <bruno@clisp.org>
 
@@ -24305,9 +24302,9 @@
 	* makemake.in (clisp): Set ENABLE_RELOCATABLE.
 	* _clisp.c: Use ENABLE_RELOCATABLE to determine whether to call
 	find_executable.
-	(room_from_lisplibdir, room_for_localedir): Don't define when
+	(room_from_lisplibdir, room_for_localedir): Do not define when
 	ENABLE_RELOCATABLE is given.
-	(main): If find_executable fails, exit with code 1, not -1. Don't
+	(main): If find_executable fails, exit with code 1, not -1. Do not
 	pollute Unix code with backslash handling. Perform a single memory
 	allocation instead of two.
 
@@ -24488,7 +24485,7 @@
 
 2005-03-14  Bruno Haible  <bruno@clisp.org>
 
-	* debug.d (read_form): Don't delete input until EOL if the last char
+	* debug.d (read_form): Do not delete input until EOL if the last char
 	read from the stream was a newline. This fixes a multiline paste
 	problem on MacOS X.
 
@@ -24626,7 +24623,7 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* modules/regexp/configure.in: Invoke AM_GNU_GETTEXT.
-	* modules/regexp/regex.c: Don't include clisp.h.
+	* modules/regexp/regex.c: Do not include clisp.h.
 
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
@@ -24688,7 +24685,7 @@
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* modules/syscalls/calls.c: Assume limits.h exists.
-	* modules/syscalls/configure.in: Don't test whether limits.h exists.
+	* modules/syscalls/configure.in: Do not test whether limits.h exists.
 
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
@@ -24985,7 +24982,7 @@
 2005-02-24  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (ALL_LINGUAS): Look for configure.in in the right
-	directory. Update default value. Don't enclose default value in
+	directory. Update default value. Do not enclose default value in
 	double-quotes.
 
 2005-02-22  Sam Steingold  <sds@gnu.org>
@@ -25027,13 +25024,13 @@
 	(R_ln_R): Avoid computing 0*ln(2).
 	(R_cosh_sinh_R_R): Small optim.
 	(R_tanh_R): New function, extracted from N_tanh_N.
-	* comptran.d (N_exp_N): Don't use F_extend2_F to extend b's precision;
+	* comptran.d (N_exp_N): Do not use F_extend2_F to extend b's precision;
 	instead let R_cos_sin_R_R do it. Let R_exp_R increase the precision
 	always. Avoid unjustified contagion warnings.
-	(N_log_N): Don't use F_extend2_F to extend the precision; instead use
+	(N_log_N): Do not use F_extend2_F to extend the precision; instead use
 	F_extend_F. Small optim.
 	(N_N_expt_N): Compute the needed precision correctly. Fix bug
-	introduced on 2002-09-11: Don't waste time if x is a very long float
+	introduced on 2002-09-11: Do not waste time if x is a very long float
 	and y is a short float.
 	(N_sin_N): Fix bug introduced on 2002-09-11: If (realpart x) is the
 	exact 0, return a complex number with realpart exact 0. Avoid
@@ -25070,7 +25067,7 @@
 
 2005-02-18  Bruno Haible  <bruno@clisp.org>
 
-	* utils/modprep.lisp (new-checker): Don't make the first enum element
+	* utils/modprep.lisp (new-checker): Do not make the first enum element
 	the default.
 	* i18n/gettext.c (check_locale_category): Use LC_MESSAGES as default.
 	* berkeley-db/bdb.c: Make all DEFCHECKER defaults explicit.
@@ -25135,21 +25132,21 @@
 	PACKAGE_STRING, PACKAGE_BUGREPORT ourselves.
 	* makemake.in (version): Remove variable.
 	(VERSION): Define using the PACKAGE_VERSION, not the src/VERSION file.
-	(Makefile): Don't depend on VERSION.
+	(Makefile): Do not depend on VERSION.
 	(config.status): Depend on version.sh.
 	(VERSION): Remove rule.
-	(clisp.html, clisp.1, clisp-1.html): Don't depend on VERSION.
+	(clisp.html, clisp.1, clisp-1.html): Do not depend on VERSION.
 	(install-doc): Use the VERSION variable from this Makefile.
 	(TOPDIR): Define using the PACKAGE_VERSION, not the src/VERSION file.
 	(distrib): Use the VERSION variable from this Makefile.
-	(clean7): Don't remove VERSION.
-	* configure: Use version.sh, not VERSION. Don't symlink VERSION.
+	(clean7): Do not remove VERSION.
+	* configure: Use version.sh, not VERSION. Do not symlink VERSION.
 	* Makefile.devel (all): Remove src/VERSION.
 	(src/VERSION): Remove rule.
 	(src/version.h): Generate from version.sh, not using src/configure.
 	(VER): Define using version.sh.
-	(src-distrib): Don't depend on src/VERSION.
-	(src--distrib): Don't touch src/VERSION.
+	(src-distrib): Do not depend on src/VERSION.
+	(src--distrib): Do not touch src/VERSION.
 	* po/po_header: Use version.sh, not VERSION.
 	* po/Makefile.devel (clisp.pot, en.po, clisplow.pot): Depend on
 	version.sh, not VERSION.
@@ -25199,7 +25196,7 @@
 
 2005-02-15  Bruno Haible  <bruno@clisp.org>
 
-	* error.d (write_errorstring): Undo 2004-12-24 change: Don't call
+	* error.d (write_errorstring): Undo 2004-12-24 change: Do not call
 	elastic_newline here.
 	(end_error): Call elastic_newline here.
 
@@ -25239,7 +25236,7 @@
 
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
-	* utils/modprep.lisp (print-tables-1): For DEFCHECKER, don't do a
+	* utils/modprep.lisp (print-tables-1): For DEFCHECKER, do not do a
 	unbound to 0 conversion and a 0 to NIL conversion.
 
 2005-02-13  Bruno Haible  <bruno@clisp.org>
@@ -25293,7 +25290,7 @@
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Generate references to CAR,
 	CDR, SVREF with *denv*.
 	(c-VAR, c-FUNCTION): Update.
-	(simplify): Don't drop (CAR), (CDR), (SVREF) in non-for-value position
+	(simplify): Do not drop (CAR), (CDR), (SVREF) in non-for-value position
 	if SAFETY = 3.
 	Found by Paul Dietz's ansi-tests test suite.
 
@@ -25318,7 +25315,7 @@
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Generate a SYMBOL-FUNCTION
 	instruction with reference to *denv*.
 	(c-FUNCTION): Likewise with null environment.
-	(simplify): Don't drop (SYMBOL-FUNCTION) in non-for-value position if
+	(simplify): Do not drop (SYMBOL-FUNCTION) in non-for-value position if
 	SAFETY = 3.
 	Found by Paul Dietz's ansi-tests test suite.
 
@@ -25352,7 +25349,7 @@
 
 2005-02-10  Bruno Haible  <bruno@clisp.org>
 
-	* compiler.lisp (declared-optimize): Revert last patch: Don't use POP.
+	* compiler.lisp (declared-optimize): Revert last patch: Do not use POP.
 
 2005-02-09  Sam Steingold  <sds@gnu.org>
 
@@ -25666,7 +25663,7 @@
 	* intelem.d (udigits_to_I): Remove function.
 	* socket.d (string_to_addr1): Call LEbytes_to_UI instead of
 	udigits_to_I.
-	* genclisph.d (main): Don't emit udigits_to_I declaration.
+	* genclisph.d (main): Do not emit udigits_to_I declaration.
 
 2005-01-28  Bruno Haible  <bruno@clisp.org>
 
@@ -25678,10 +25675,10 @@
 	* stream.d (bitbuff_iu_I): Use LESbvector_to_UI.
 	(bitbuff_is_I): Use LESbvector_to_I.
 	(bitbuff_ixu_sub): Remove bytesize argument. Use UI_to_LEbytes.
-	Don't call ASSERT_wr_int here.
+	Do not call ASSERT_wr_int here.
 	(wr_by_ixu_sub): Call ASSERT_wr_int here. Update.
 	(bitbuff_ixs_sub): Remove bytesize argument. Use I_to_LEbytes.
-	Don't call ASSERT_wr_int here.
+	Do not call ASSERT_wr_int here.
 	(wr_by_ixs_sub): Call ASSERT_wr_int here. Update.
 	(WRITE-INTEGER): Update.
 	* genclisph.d (main): Emit declarations for LEbytes_to_UI,
@@ -25700,7 +25697,7 @@
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
-	* clos-methcomb2.lisp (build-effective-method-function-form): Don't
+	* clos-methcomb2.lisp (build-effective-method-function-form): Do not
 	use the single method's fast-function as effective-method if the
 	effective-method must also do keyword argument checking or if the
 	method occurs among the duplicates set of the method-combination.
@@ -25854,7 +25851,7 @@
 
 2005-01-25  Bruno Haible  <bruno@clisp.org>
 
-	* i18n/configure.in: Don't test for locale.h and setlocale.
+	* i18n/configure.in: Do not test for locale.h and setlocale.
 	* i18n/gettext.c: Assume <string.h>, <locale.h>, setlocale() exist.
 
 2005-01-24  Bruno Haible  <bruno@clisp.org>
@@ -25865,7 +25862,7 @@
 	(wr_ch_array_unbuffered_dos, wr_ch_buffered_unix)
 	(wr_ch_array_buffered_unix, wr_ch_buffered_mac)
 	(wr_ch_array_buffered_mac, wr_ch_buffered_dos)
-	(wr_ch_array_buffered_dos): Don't assume that when the input of
+	(wr_ch_array_buffered_dos): Do not assume that when the input of
 	Encoding_wcstombs is nonempty, the output is nonempty as well.
 	For example, glibc converts #\U000E0000 to an empty multibyte
 	sequence for most encodings.
@@ -25892,7 +25889,7 @@
 
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
-	* i18n/gettext.c (do_gettext, do_ngettext): Don't define if
+	* i18n/gettext.c (do_gettext, do_ngettext): Do not define if
 	GNU_GETTEXT is not defined. Needed for platforms without gettext().
 	* makemake.in (BASE_MODULES): Add i18n always.
 
@@ -26029,7 +26026,7 @@
 
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
-	* condition.lisp (appease-cerror): Don't convert the error message
+	* condition.lisp (appease-cerror): Do not convert the error message
 	to a string before signaling it, as this leads to ugly output.
 	Example: (appease-cerrors
 	           (cerror "foo" "bar ~S"
@@ -26178,7 +26175,7 @@
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (maybe-continue): For a restart that requires user
-	interaction, don't duplicate the break-loop's functionality; let the
+	interaction, do not duplicate the break-loop's functionality; let the
 	break-loop do it.
 
 2005-01-17  John Hinsdale  <hin@alma.com>
@@ -26281,7 +26278,7 @@
 	(all): Depend on both 'boot' and 'base'.
 	(boot): New target, like old 'base'.
 	(base): New target, similar to 'full'.
-	(distmakefile): Don't replace BASE_LIBS and BASE_FILES.
+	(distmakefile): Do not replace BASE_LIBS and BASE_FILES.
 	(distrib): Treat 'base' like 'full'. Replace BASE_LIBS and BASE_FILES
 	in distmakefile here.
 	(clean1): Remove boot.
@@ -26289,7 +26286,7 @@
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
-	* condition.lisp (maybe-continue): Don't call exitunconditionally.
+	* condition.lisp (maybe-continue): Do not call exitunconditionally.
 	Instead, decline the condition. Fixes bug introduced on 2002-04-22.
 
 2005-01-11  Sam Steingold  <sds@gnu.org>
@@ -26361,14 +26358,14 @@
 	--includedir, --datadir, --localedir, --docdir, --mandir, --htmldir,
 	--dvidir, --psdir, --pdfdir, for consistency with other GNU programs.
 	* makemake.in: Likewise.
-	(PREFIX): On Unix, don't ignore @prefix@.
-	(EXEC_PREFIX): On Unix, don't ignore @exec_prefix@.
-	(bindir, BINDIR): New variables. On Unix, don't ignore @bindir@.
-	(libdir, LIBDIR): New variables. On Unix, don't ignore @libdir@.
-	(includedir, INCLUDEDIR): New variables. On Unix, don't ignore
+	(PREFIX): On Unix, do not ignore @prefix@.
+	(EXEC_PREFIX): On Unix, do not ignore @exec_prefix@.
+	(bindir, BINDIR): New variables. On Unix, do not ignore @bindir@.
+	(libdir, LIBDIR): New variables. On Unix, do not ignore @libdir@.
+	(includedir, INCLUDEDIR): New variables. On Unix, do not ignore
 	@includedir@.
 	(datadir, DATADIR, localedir, LOCALEDIR): New variables. On Unix,
-	don't ignore @datadir@.
+	do not ignore @datadir@.
 	(docdir): Remove variable.
 	(docdir): New variable, rename from lispdocdir.
 	(SRCDOCDIR): Rename from DOCDIR.
@@ -26521,7 +26518,7 @@
 	symbol-macro handling.
 	(interpret_bytecode_): Update.
 	* control.d (SYS::%SYMBOL-VALUE): Remove function.
-	(SYMBOL-VALUE, SET): Don't test for symbol-macro. Access the value cell
+	(SYMBOL-VALUE, SET): Do not test for symbol-macro. Access the value cell
 	always.
 	(make_variable_frame): constant_var_p now implies special_var_p.
 	Update.
@@ -26571,7 +26568,7 @@
 
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
-	* debug.d (print_back_trace, print_stackitem): Don't print a newline at
+	* debug.d (print_back_trace, print_stackitem): Do not print a newline at
 	the beginning.
 	(SYS::DESCRIBE-FRAME, show_stack): Print the newlines here instead.
 	Use fresh-line at the beginning and elastic-newline at the end.
@@ -26658,12 +26655,12 @@
 
 2004-11-04  Bruno Haible  <bruno@clisp.org>
 
-	* inspect.lisp (inspect-frontend@inspection@:tty): Don't print a
+	* inspect.lisp (inspect-frontend@inspection@:tty): Do not print a
 	blank line before the output of the :e and :m commands.
 
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
-	* edit.lisp (ed): Don't start the file with a blank line. Don't
+	* edit.lisp (ed): Do not start the file with a blank line. Do not
 	print a blank line; instead print a newline after each function name.
 
 2004-12-24  Bruno Haible  <bruno@clisp.org>
@@ -26996,15 +26993,15 @@
 	* places.lisp (occurs-in-p, commuting-forms-p)
 	(simple-occurrence-in-basic-block-p, optimized-wrap-let*)
 	(optimized-wrap-multiple-value-bind): New functions.
-	(push): Don't use simple-assignment-p, subst-in-form, sublis-in-form.
+	(push): Do not use simple-assignment-p, subst-in-form, sublis-in-form.
 	Instead use optimized-wrap-let*.
 	(pop): Likewise.
 	(pushnew): Likewise.
-	(remf): Don't use simple-assignment-p, subst-in-form. Instead simplify
+	(remf): Do not use simple-assignment-p, subst-in-form. Instead simplify
 	differently in all cases.
-	(define-modify-macro): Don't use simple-assignment-p, subst-in-form.
+	(define-modify-macro): Do not use simple-assignment-p, subst-in-form.
 	Instead use optimized-wrap-let*.
-	(setf): Fix condition leading to error message. Don't use subst-in-form.
+	(setf): Fix condition leading to error message. Do not use subst-in-form.
 	Instead use optimized-wrap-let*.
 
 2004-12-23  Sam Steingold  <sds@gnu.org>
@@ -27135,7 +27132,7 @@
 
 	Make calls to EXT:SPECIAL-VARIABLE-P compilable and usable in macro-
 	expanders.
-	* eval.d (EXT:SPECIAL-VARIABLE-P): Don't accept T and venv vectors as
+	* eval.d (EXT:SPECIAL-VARIABLE-P): Do not accept T and venv vectors as
 	environment. Instead, accept macroexpansion environments.
 	* compiler.lisp (ext:special-variable-p): Remove compiler macro.
 
@@ -27185,7 +27182,7 @@
 2004-12-18  Bruno Haible  <bruno@clisp.org>
 
 	* modules/clx/mit-clx/dependent.lisp (current-process): Return nil.
-	(get-host-name): Don't always signal an error.
+	(get-host-name): Do not always signal an error.
 
 2004-12-18  Bruno Haible  <bruno@clisp.org>
 
@@ -27231,9 +27228,9 @@
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
 	Avoid warnings on glibc systems.
-	* intparam.c: Don't include stdlib.h.
+	* intparam.c: Do not include stdlib.h.
 	(main): Provide the exit code through return, not exit.
-	* floatparam.c: Don't include stdlib.h.
+	* floatparam.c: Do not include stdlib.h.
 	(main): Provide the exit code through return, not exit.
 
 2004-12-09  Bruno Haible  <bruno@clisp.org>
@@ -27423,7 +27420,7 @@
 
 2004-11-28  Bruno Haible  <bruno@clisp.org>
 
-	Don't recursively compile-file modules that have already been loaded.
+	Do not recursively compile-file modules that have already been loaded.
 	* compiler.lisp (c-REQUIRE): Look for the module in both *modules* and
 	*compiled-modules*, not just *compiled-modules*.
 
@@ -27453,7 +27450,7 @@
 
 	Make DEBUG_GCSAFETY work with GENERATIONAL_GC && MORRIS_GC.
 	* lispbibl.d (inside_gc): New declaration.
-	(nonimmprobe, nonimmsubrp): Don't access memory if inside_gc.
+	(nonimmprobe, nonimmsubrp): Do not access memory if inside_gc.
 	* spvw_global.d (inside_gc): New variable.
 	* spvw_garcol.d (gar_col_normal, gar_col_compact): Set and reset
 	inside_gc.
@@ -27908,7 +27905,7 @@
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
-	* hashtabl.d (check_weak): DON'T USE LOCAL VARIABLES OF TYPE
+	* hashtabl.d (check_weak): DO NOT USE LOCAL VARIABLES OF TYPE
 	gcv_object_t.
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
@@ -27981,7 +27978,7 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (SYS::MAKE-SOCKET-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT):
-	Don't declare variables earlier than needed. (Deprecated BSD style.)
+	Do not declare variables earlier than needed. (Deprecated BSD style.)
 
 2004-12-04  Bruno Haible  <bruno@clisp.org>
 
@@ -28002,20 +27999,20 @@
 	* modules/clx/new-clx/clx.f (pop_display): Add a cast.
 	(get_font_info_and_display): Likewise.
 	(make_visual_info): Use field name 'c_class' in C++ mode.
-	(XLIB:SCREEN-DEPTHS): Don't use 'template' as an identifier.
-	(XLIB:CREATE-WINDOW): Don't use 'class' as an identifier.
+	(XLIB:SCREEN-DEPTHS): Do not use 'template' as an identifier.
+	(XLIB:CREATE-WINDOW): Do not use 'class' as an identifier.
 	(XLIB:WINDOW-CLASS): Use field name 'c_class' in C++ mode.
 	(handle_image_z, XLIB:PUT-IMAGE): Add a cast.
 	(XLIB:DISCARD-FONT-INFO, XLIB:SET-FONT-PATH): Likewise.
-	(XLIB:GET-PROPERTY): Don't use 'delete' as an identifier.
+	(XLIB:GET-PROPERTY): Do not use 'delete' as an identifier.
 	(DEF_EVENT COLORMAP-NOTIFY): Use field name 'c_new' in C++ mode.
 	(XLIB:PROCESS-EVENT): Add a cast.
 	(grasp): New function, extracted out of encode_event.
 	(encode_event): Update.
 	(XLIB:QUERY-KEYMAP): Add casts.
-	(XVisualIDToVisual): Don't use 'template' as an identifier.
+	(XVisualIDToVisual): Do not use 'template' as an identifier.
 	* modules/queens/queens.c (queens): Use ANSI C declaration syntax.
-	Don't use 'try' as an identifier.
+	Do not use 'try' as an identifier.
 	* modules/rawsock/rawsock.c (RAWSOCK:MAKE-SOCKADDR): Add a cast.
 	* modules/syscalls/calls.c (POSIX::CONFSTR): Add a cast.
 	(POSIX::CONVERT-MODE): Move error-signaling code out of inner block.
@@ -28090,7 +28087,7 @@
 
 2004-11-20  Bruno Haible  <bruno@clisp.org>
 
-	Don't bypass the finalize-inheritance generic function.
+	Do not bypass the finalize-inheritance generic function.
 	* clos-class2.lisp (class-pretty): New function.
 	* clos-class3.lisp (shared-initialize-<semi-standard-class>): Call
 	finalizable-p and finalize-inheritance instead of finalize-class.
@@ -28205,18 +28202,18 @@
 	<misdesigned-forward-referenced-class> instead of
 	<forward-referenced-class>.
 	* clos-class6.lisp (class-name@forward-reference-to-class): Rename
-	from class-name@forward-referenced-class. Don't use class-classname.
+	from class-name@forward-referenced-class. Do not use class-classname.
 	(class-direct-subclasses-table): Make it work also for objects that are
 	not of type <potential-class>.
 	(class-direct-subclasses@forward-reference-to-class): Rename from
 	class-direct-subclasses@forward-referenced-class.
 	(class-direct-superclasses@forward-reference-to-class): Rename from
-	class-direct-superclasses@forward-referenced-class. Don't use
+	class-direct-superclasses@forward-referenced-class. Do not use
 	class-classname.
 	(class-direct-slots@forward-reference-to-class): Rename from
-	class-direct-slots@forward-referenced-class. Don't use class-classname.
+	class-direct-slots@forward-referenced-class. Do not use class-classname.
 	(class-direct-default-initargs@forward-reference-to-class): Rename
-	from class-direct-default-initargs@forward-referenced-class. Don't use
+	from class-direct-default-initargs@forward-referenced-class. Do not use
 	class-classname.
 	(class-finalized-p@forward-reference-to-class): Rename from
 	class-finalized-p@forward-referenced-class.
@@ -28336,7 +28333,7 @@
 
 	Use forward-referenced-class instances instead of symbols in the
 	direct-superclasses list.
-	* clos-class1.lisp (shared-initialize-<defined-class>): Don't accept
+	* clos-class1.lisp (shared-initialize-<defined-class>): Do not accept
 	symbols in the direct-superclasses list any more.
 	* clos-class2.lisp (<forward-referenced-class>): New variable.
 	((setf find-class)): When replacing a forward-referenced class, move
@@ -28355,8 +28352,8 @@
 2004-11-22  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (low_read_unbuffered_handle): Use full_read instead of read.
-	Don't interpret EINTR on Unix as being a consequence of SIGINT.
-	(low_write_unbuffered_handle): Use full_write instead of write. Don't
+	Do not interpret EINTR on Unix as being a consequence of SIGINT.
+	(low_write_unbuffered_handle): Use full_write instead of write. Do not
 	interpret EINTR on Unix as being a consequence of SIGINT.
 
 2004-11-22  Sam Steingold  <sds@gnu.org>
@@ -28593,7 +28590,7 @@
 
 2004-11-08  Bruno Haible  <bruno@clisp.org>
 
-	Don't call initialize-instance for dummy generic-function instances.
+	Do not call initialize-instance for dummy generic-function instances.
 	* clos-genfun2b.lisp (allocate-generic-function-instance)
 	(make-generic-function-prototype): New functions.
 	* clos-genfun3.lisp (analyze-defgeneric): Use
@@ -28793,8 +28790,8 @@
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (low_fill_buffered_handle): Don't call listen_handle;
-	fd_read cares about the perseverance. Don't set
+	* stream.d (low_fill_buffered_handle): Do not call listen_handle;
+	fd_read cares about the perseverance. Do not set
 	BufferedStream_have_eof_p twice.
 	(buffered_nextbyte): Simplify.
 
@@ -28805,8 +28802,8 @@
 	* clos-methcomb2.lisp (compute-effective-method-as-function-form):
 	Add an argument and bind *method-combination-arguments* here.
 	* clos-genfun2b.lisp (compute-applicable-methods-effective-method)
-	(compute-applicable-methods-effective-method-for-set): Don't check
-	against empty method list. Don't bind *method-combination-arguments*.
+	(compute-applicable-methods-effective-method-for-set): Do not check
+	against empty method list. Do not bind *method-combination-arguments*.
 	Instead, pass the arguments to compute-effective-method-as-function.
 	(compute-effective-method-as-function): Add args argument, pass it
 	to compute-effective-method-as-function-form. Remove method-combination
@@ -28883,10 +28880,10 @@
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (low_read_array_unbuffered_handle): Don't call
+	* stream.d (low_read_array_unbuffered_handle): Do not call
 	low_listen_unbuffered_handle; the perseverance is now completely
 	handled by fd_read.
-	(low_read_array_unbuffered_socket): Don't call
+	(low_read_array_unbuffered_socket): Do not call
 	low_listen_unbuffered_socket; the perseverance is now completely
 	handled by sock_read.
 
@@ -28904,7 +28901,7 @@
 	(sys::preliminary-p): New function.
 	(sys::fbound-string): Return nil for preliminary functions and for
 	preliminary macros.
-	(sys::remove-old-definitions): Accept an optional argument. Don't call
+	(sys::remove-old-definitions): Accept an optional argument. Do not call
 	sys::check-redefinition when defining a preliminary entity.
 	(global-in-fenv-p, warn, eval-when-compile): Define as preliminary.
 	(sys::predefmacro, sys::predefun): New macros.
@@ -29076,7 +29073,7 @@
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* unixaux.d (read_helper, write_helper, sock_read, sock_write):
-	Prefer poll or select over O_NONBLOCK. Don't call fcntl F_GETFL if
+	Prefer poll or select over O_NONBLOCK. Do not call fcntl F_GETFL if
 	persev != persev_immediate && persev != persev_bonus.
 	Do nothing if nbyte==0.
 	* win32aux.d (read_helper_low, write_helper): Do nothing if nbyte==0.
@@ -29164,10 +29161,10 @@
 	(sock_write): Take a perseverance argument instead of a no_hang
 	argument.
 	* unixaux.d (read_helper): Take a perseverance argument instead of a
-	no_hang argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Don't
+	no_hang argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Do not
 	forget to call END_NO_BLOCK in case of an error.
 	(write_helper): Take a perseverance argument instead of a no_hang
-	argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Don't cast a
+	argument. Bug fixes: Handle EWOULDBLOCK like EAGAIN. Do not cast a
 	negative int to a size_t.
 	(sock_read): Add a perseverance argument.
 	(sock_write): Take a perseverance argument instead of a no_hang
@@ -29281,7 +29278,7 @@
 	* io.d (structure_reader): Expect a vector of size = 4.
 	* defstruct.lisp (find-structure-slot-initfunction): New function.
 	(defstruct): Use it to recover the initfunctions, not svref on the
-	defstruct-description. Don't put the initfunctions into the
+	defstruct-description. Do not put the initfunctions into the
 	defstruct-description.
 
 2004-11-01  Sam Steingold  <sds@gnu.org>
@@ -29309,7 +29306,7 @@
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
-	* init.lisp (load): Don't "return-from load" because defun doesn't
+	* init.lisp (load): Do not "return-from load" because defun doesn't
 	establish a block when init.lisp is loaded interpreted.
 
 2004-10-31  Bruno Haible  <bruno@clisp.org>
@@ -29327,7 +29324,7 @@
 
 	Prefer poll() over select() when both exist and poll() is not worse.
 	* m4/select.m4 (CL_SELECT): Test whether select() works on regular
-	files. Don't test for poll here conditionally.
+	files. Do not test for poll here conditionally.
 	* m4/poll.m4: New file.
 	* configure.in: Invoke CL_POLL.
 	* unixconf.h.in: Regenerated.
@@ -29359,7 +29356,7 @@
 
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class3.lisp (shared-initialize-<structure-class>): Don't use
+	* clos-class3.lisp (shared-initialize-<structure-class>): Do not use
 	the superclass' slots unmodified, since the initform may be different
 	in the class being defined than in the superclass.
 	* defstruct.lisp (defstruct): Create direct-slot-definitions also for
@@ -29443,7 +29440,7 @@
 	* clos-class3.lisp (define-structure-class): Remove redundant code.
 	* defstruct.lisp (ds-make-constructor-body, ds-make-boa-constructor)
 	(ds-make-keyword-constructor, ds-make-readers, ds-make-writers)
-	(defstruct): For type = T, all slots are "real"; don't call
+	(defstruct): For type = T, all slots are "real"; do not call
 	ds-real-slot-p in this case.
 
 2004-10-16  Bruno Haible  <bruno@clisp.org>
@@ -29829,7 +29826,7 @@
 	(*<structure-class>-instance-size*): Increment.
 	* clos-class3.lisp (make-instance-<structure-class>)
 	(shared-initialize-<structure-class>): Add kconstructor argument.
-	(define-structure-class): Accept four more arguments. Don't access the
+	(define-structure-class): Accept four more arguments. Do not access the
 	defstruct-description.
 	* clos-class4.lisp (shared-initialize@structure-class): Add
 	kconstructor argument.
@@ -29857,7 +29854,7 @@
 	steps, and pass fast-function instead of initfunction initarg, using
 	method-function-initargs.
 	* clos-method2.lisp (analyze-method-description): Return the
-	function lambda as a separate value. Don't produce an initfunction
+	function lambda as a separate value. Do not produce an initfunction
 	initarg.
 	* clos-genfun3.lisp (defmethod): Pass three arguments to do-defmethod.
 	(do-defmethod): Accept three arguments. Create method in two steps.
@@ -29927,7 +29924,7 @@
 
 2004-10-14  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class3.lisp (shared-initialize-<structure-class>): Don't make
+	* clos-class3.lisp (shared-initialize-<structure-class>): Do not make
 	side-effects on empty-ht and on all other structure-class instances.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
@@ -29977,7 +29974,7 @@
 	(initialize-instance-<method>): New function.
 	(standard-method): Remove from-defgeneric slot.
 	(initialize-instance-<standard-method>): Refer to
-	initialize-instance-<method>. Don't initialize from-defgeneric.
+	initialize-instance-<method>. Do not initialize from-defgeneric.
 	* clos-genfun2.lisp (std-remove-method)
 	(reinitialize-instance-<generic-function>): Update.
 	* clos-method3.lisp (initialize-instance@method): New method.
@@ -30116,7 +30113,7 @@
 
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (XCFLAGS): Don't add -fsingle when using a C++ compiler.
+	* makemake.in (XCFLAGS): Do not add -fsingle when using a C++ compiler.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
@@ -30232,7 +30229,7 @@
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
-	* .gdbinit: Don't always execute the "base" command. It made it
+	* .gdbinit: Do not always execute the "base" command. It made it
 	impossible to attach to an already running lisp.run process.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
@@ -30247,7 +30244,7 @@
 
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class3.lisp (reinitialize-instance-<class>): Don't force a
+	* clos-class3.lisp (reinitialize-instance-<class>): Do not force a
 	class to be unfinalized if finalization already succeeded.
 
 2004-10-09  Bruno Haible  <bruno@clisp.org>
@@ -30272,7 +30269,7 @@
 
 2004-10-07  Bruno Haible  <bruno@clisp.org>
 
-	* debug.d (read_form): Don't use ls_avail_p to test whether the
+	* debug.d (read_form): Do not use ls_avail_p to test whether the
 	input stream is interactive, since the clear_input call has been
 	remove on 2003-01-21.
 
@@ -30393,7 +30390,7 @@
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
-	* modules/syscalls/calls.c (POSIX::MKNOD): Don't use two popSTACK()s
+	* modules/syscalls/calls.c (POSIX::MKNOD): Do not use two popSTACK()s
 	in the same expression, as it has undefined behaviour.
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
@@ -30403,7 +30400,7 @@
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
-	* modules/syscalls/calls.c (POSIX::CONFSTR): Don't use alloca.
+	* modules/syscalls/calls.c (POSIX::CONFSTR): Do not use alloca.
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
@@ -30413,18 +30410,18 @@
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
-	* syscalls/calls.c: Don't set Solaris specific flags just temporarily
-	for a few includes. We don't control their effect.
+	* syscalls/calls.c: Do not set Solaris specific flags just temporarily
+	for a few includes. We do not control their effect.
 	* syscalls/Makefile.in (CPPFLAGS): Add Solaris specific flags here.
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
-	* utils/modprep.lisp: Don't print modprep's timings.
+	* utils/modprep.lisp: Do not print modprep's timings.
 	(modprep): Print a filename using ~A, not ~S.
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
-	* utils/modprep.lisp (print-tables-1): Don't export the ..._table_size
+	* utils/modprep.lisp (print-tables-1): Do not export the ..._table_size
 	variables.
 
 2004-10-03  Bruno Haible  <bruno@clisp.org>
@@ -30462,7 +30459,7 @@
 
 	* fill-out.lisp (stream-start-s-expression, stream-end-s-expression):
 	No need for EVAL-WHEN (COMPILE).
-	* format.lisp (formatter-main-1): Don't call STREAM-START-S-EXPRESSION
+	* format.lisp (formatter-main-1): Do not call STREAM-START-S-EXPRESSION
 	and STREAM-END-S-EXPRESSION twice when the ~S code dispatches to
 	DO-FORMAT-S-EXPRESSION.
 
@@ -30542,7 +30539,7 @@
 	(convert-direct-slots): Do slot option checking here.
 	* clos-slotdef2.lisp (initialize-instance@direct-slot-definition):
 	Accept defclass-form argument.
-	* clos-slotdef3.lisp (slot-equal-using-class): Don't constrain the
+	* clos-slotdef3.lisp (slot-equal-using-class): Do not constrain the
 	direct-slot-definition subclass.
 	* clos-class3.lisp (defclass): Accept slot options that depend on the
 	direct-slot-definition class. Remove the slot option checking from
@@ -30599,7 +30596,7 @@
 	default-initarg for the fixed-slot-locations slot.
 	(*<standard-class>-valid-initialization-keywords*)
 	(*<standard-class>-default-initargs*): New constants.
-	* clos-class3.lisp (defclass): Don't special-case :fixed-slot-locations
+	* clos-class3.lisp (defclass): Do not special-case :fixed-slot-locations
 	option. Use *<standard-class>-valid-initialization-keywords*,
 	*<standard-class>-default-initargs*.
 
@@ -30700,7 +30697,7 @@
 
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
-	* format.lisp (format-character): Don't string-capitalize the
+	* format.lisp (format-character): Do not string-capitalize the
 	character name.
 
 2004-09-18  Bruno Haible  <bruno@clisp.org>
@@ -30931,7 +30928,7 @@
 
 	* condition.lisp (print-condition): Change from generic function to
 	plain function. Call print-object.
-	(print-object@condition): Don't call print-condition. Instead inline
+	(print-object@condition): Do not call print-condition. Instead inline
 	its earlier definition.
 	(define-condition): Change the macroexpansion to define a method on
 	print-object, not on print-condition.
@@ -31197,7 +31194,7 @@
 
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
-	* spvw.d (parse_options): Don't do destructive side effects on argv[].
+	* spvw.d (parse_options): Do not do destructive side effects on argv[].
 	(main_actions): Update.
 
 2004-08-31  Bruno Haible <bruno@clisp.org>
@@ -31226,7 +31223,7 @@
 	* spvw.d (usage): Remove documentation of option -s.
 	(struct argv_initparams): Remove argv_stackneed.
 	(parse_options): Drop support for option -s.
-	(main): Don't reserve space for SP. Don't call setSP.
+	(main): Do not reserve space for SP. Do not call setSP.
 
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
@@ -31407,7 +31404,7 @@
 	(shared-initialize-<standard-generic-function>): During redefinition,
 	check the new signature and the new method-combination against the
 	existing methods. At the end, call finalize-fast-gf.
-	(make-fast-gf): Don't call finalize-fast-gf here.
+	(make-fast-gf): Do not call finalize-fast-gf here.
 	* clos-genfun3.lisp (check-signature-congruence)
 	(check-method-qualifiers, invalid-method-qualifiers-error): Moved to
 	clos-genfun2.lisp.
@@ -31466,7 +31463,7 @@
 2004-08-28  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (rd_by_aux_icx_buffered): Fill exactly the required number
-	of bytes in the bitbuffer; don't clobber the header word of the next
+	of bytes in the bitbuffer; do not clobber the header word of the next
 	object in memory. Fixes a bug introduced on 2001-06-27. Also introduce
 	a more efficient loop for the case that doesn't require shifting.
 	Found by the ansi-tests on MacOS X.
@@ -32360,7 +32357,7 @@
 	* savemem.lisp (%saveinitmem): Use typep instead of generic-function-p.
 	* type.lisp (GENERIC-FUNCTION, STANDARD-GENERIC-FUNCTION): No longer
 	atomic types.
-	* clos-genfun2.lisp (compute-dispatch): Don't declare
+	* clos-genfun2.lisp (compute-dispatch): Do not declare
 	GENERIC-FUNCTION-P inline.
 	* clos-method2.lisp (analyze-method-description): Use typep-class
 	instead of generic-function-p.
@@ -32378,7 +32375,7 @@
 2004-06-19  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (SYS::CLOSURE-CODEVEC): Return the code vector itself,
-	don't convert it to a list.
+	do not convert it to a list.
 	* compiler.lisp (signature): Convert the code vector to a list here.
 
 2004-08-05  Sam Steingold  <sds@gnu.org>
@@ -32414,8 +32411,8 @@
 	* subtypep.lisp (STANDARD-OBJECT, type-category): Remove special casing
 	of GENERIC-FUNCTION and STANDARD-GENERIC-FUNCTION.
 	(canonicalize-type): Convert FUNCTION to a class.
-	* clos-class3.lisp: Don't pass <standard-generic-function> to %defclos.
-	(<generic-function>, <standard-generic-function>): Don't initialize as
+	* clos-class3.lisp: Do not pass <standard-generic-function> to %defclos.
+	(<generic-function>, <standard-generic-function>): Do not initialize as
 	built-in classes.
 	* clos-genfun1.lisp (generic-function): New class.
 	(<generic-function>): New variable.
@@ -32518,7 +32515,7 @@
 	(closure_flags): Rename from cclosure_flags.
 	(Closure_flags): Rename from Cclosure_flags.
 	(Cclosure_seclass): Shift by 4 bits.
-	(Cclosure_set_seclass): Likewise. Don't replace the entire
+	(Cclosure_set_seclass): Likewise. Do not replace the entire
 	record_flags.
 	(closflags_instance_B, closure_instancep, Closure_instancep): New
 	macros.
@@ -32721,10 +32718,10 @@
 	functions.
 	(effective-method-code-bricks): Use callable-method-form-p. Generate
 	different code for CALL-METHOD on methods with slow calling convention.
-	(build-effective-method-function-form): Don't optimize CALL-METHOD
+	(build-effective-method-function-form): Do not optimize CALL-METHOD
 	on methods with slow calling convention.
 	* clos-genfun3.lisp (std-add-method): Store the initfunction's
-	result in the fast-function. Don't use the initfunction if there is
+	result in the fast-function. Do not use the initfunction if there is
 	a slow function.
 	* clos-class3.lisp (install-class-direct-accessors): Update.
 	* clos-class5.lisp (shared-initialize, reinitialize-instance)
@@ -32798,8 +32795,8 @@
 
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
-	* clos-method1.lisp (print-object-<standard-method>): Don't signal an
-	error if the method is not yet initialized.
+	* clos-method1.lisp (print-object-<standard-method>): Do not
+	signal an error if the method is not yet initialized.
 
 2004-07-28  Sam Steingold  <sds@gnu.org>
 
@@ -32851,7 +32848,7 @@
 	(shared-initialize, reinitialize-instance, initialize-instance)
 	(allocate-instance, make-instance): Pass :specializers argument,
 	instead of :parameter-specializers argument.
-	* clos-class6.lisp (class-name): Don't undefine temporarily.
+	* clos-class6.lisp (class-name): Do not undefine temporarily.
 	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
 	Update.
 	(same-specializers-p): Just compare with EQ.
@@ -32860,7 +32857,7 @@
 	* clos-genfun3.lisp (methods-agree-p): Update.
 	(std-find-method): Update. Convert (EQL object) lists to specializers.
 	* clos-genfun4.lisp (*allow-making-generic*): New variable.
-	(do-defgeneric): Don't signal an error if *allow-making-generic* is
+	(do-defgeneric): Do not signal an error if *allow-making-generic* is
 	true.
 	* clos-genfun5.lisp (dispatching-arg-p): Update.
 	(dispatching-arg-type): Update.
@@ -33053,9 +33050,9 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
 	Implement (SETF CLASS-NAME) as the MOP says.
-	* clos-class3.lisp (ensure-class-using-class-<t>): Don't pass :name
+	* clos-class3.lisp (ensure-class-using-class-<t>): Do not pass :name
 	initializer to reinitialize-instance.
-	(reinitialize-instance-<class>): Accept :name argument. Don't call
+	(reinitialize-instance-<class>): Accept :name argument. Do not call
 	install-class-direct-accessors when not needed.
 	* clos-class6.lisp ((setf class-name)): Call reinitialize-instance.
 
@@ -33075,7 +33072,7 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
 	Move install-class-direct-accessors call to initialize-instance.
-	* clos-class3.lisp (ensure-class-using-class-<t>): Don't call
+	* clos-class3.lisp (ensure-class-using-class-<t>): Do not call
 	install-class-direct-accessors after making a new class.
 	(initialize-instance-<built-in-class>)
 	(initialize-instance-<structure-class>)
@@ -33116,7 +33113,7 @@
 	(standard-class): Remove direct-accessors slot.
 	(class-direct-accessors): Now belongs to slotted-class.
 	(shared-initialize-<slotted-class>): Initialize direct-accessors slot.
-	* clos-class3.lisp (shared-initialize-<standard-class>): Don't
+	* clos-class3.lisp (shared-initialize-<standard-class>): Do not
 	initialize direct-accessors slot here.
 	* clos-class6.lisp (class-direct-accessors): Now belongs to
 	slotted-class.
@@ -33316,7 +33313,7 @@
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Move the definition of accessor methods from DEFCLASS to ENSURE-CLASS.
-	* clos-class3.lisp (defclass): Don't generate accessor-def-forms.
+	* clos-class3.lisp (defclass): Do not generate accessor-def-forms.
 	(ensure-class): Generate accessors here, for all direct slots.
 
 2004-07-14  John Hinsdale <hin@alma.com>
@@ -33372,7 +33369,7 @@
 
 	* intelem.d (UDS_to_I, DS_to_I): Make global.
 	* lispbibl.d (UDS_to_I, DS_to_I): New declarations,
-	* genclisph.d (main): Declare UDS_to_I, DS_to_I. Don't declare
+	* genclisph.d (main): Declare UDS_to_I, DS_to_I. Do not declare
 	allocate_bignum.
 
 2004-07-12  Sam Steingold  <sds@gnu.org>
@@ -33531,7 +33528,7 @@
 	(standard-method-combination-expander): Return two values now, instead
 	of the entire function-form.
 	(compute-short-form-effective-method-form): Likewise. Simplify.
-	(short-form-method-combination-expander): Don't call
+	(short-form-method-combination-expander): Do not call
 	compute-effective-method-function on the result.
 	(long-form-method-combination-expander): Likewise.
 	(define-method-combination): Update.
@@ -33630,7 +33627,7 @@
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb1.lisp (method-combination): Reorder slots.
-	* clos-methcomb2.lisp (define-method-combination): Don't set
+	* clos-methcomb2.lisp (define-method-combination): Do not set
 	:identity-with-one-argument with long-form method-combination.
 
 2004-06-08  Bruno Haible  <bruno@clisp.org>
@@ -33658,7 +33655,7 @@
 	CLASS-SLOTS, CLASS-DIRECT-DEFAULT-INITARGS, CLASS-DEFAULT-INITARGS,
 	VALIDATE-SUPERCLASS.
 	Load clos-metaobject1, clos-class1, clos-class2, clos-class3.
-	* type.lisp (def-atomic-type): Don't remove the macro after use.
+	* type.lisp (def-atomic-type): Do not remove the macro after use.
 	* clos-package.lisp: Export the symbols CLASS, BUILT-IN-CLASS,
 	STRUCTURE-CLASS, STANDARD-CLASS, CLASS-NAME, CLASS-DIRECT-SUPERCLASSES,
 	CLASS-PRECEDENCE-LIST, CLASS-DIRECT-SUBCLASSES, CLASS-DIRECT-SLOTS,
@@ -33675,7 +33672,7 @@
 	Moved to clos-class1.lisp.
 	(%defclos): Pass 3 class-versions and <class>.
 	(ensure-class): Tweaks for bootstrapping. When redefining a metaobject
-	class, warn but don't obsolete the instances. Before changing a member
+	class, warn but do not obsolete the instances. Before changing a member
 	of the class-precedence-list from symbol to class, call
 	check-allowed-superclass. Update defaulting of direct-superclasses.
 	(add-default-superclass): Remove function.
@@ -33684,7 +33681,7 @@
 	(std-compute-slots): Remove second argument. Use class-direct-slots
 	for all kinds of superclasses.
 	(make-instance-<built-in-class>): Rename from
-	make-instance-built-in-class. Don't call check-metaclass-mix here.
+	make-instance-built-in-class. Do not call check-metaclass-mix here.
 	Use allocate-metaobject-instance.
 	(initialize-instance-<built-in-class>): Rename from
 	initialize-instance-built-in-class. Call check-metaclass-mix here.
@@ -33706,7 +33703,7 @@
 	(finalize-inheritance-standard-class): Use sys::%unbound.
 	(make-instances-obsolete-standard-class-nonrecursive): For metaobject
 	classes, just warn.
-	(update-subclasses-for-redefined-class): Don't call
+	(update-subclasses-for-redefined-class): Do not call
 	add-default-superclass.
 	(update-subclasses-for-redefined-class-nonrecursive): Likewise.
 	(list-all-finalized-subclasses): Likewise.
@@ -33716,11 +33713,11 @@
 	(clos::undefine-structure-class): Remove preliminary functions.
 	(structure-object): Remove definition, now done in clos-class3.lisp.
 	* clos.lisp: Load clos-class[456] instead of clos-class[235].
-	* clos-slotdef2.lisp: Don't use #'make-instance here.
+	* clos-slotdef2.lisp: Do not use #'make-instance here.
 	* clos-stablehash2.lisp (<standard-stablehash>): Move definition to
 	clos-class3.lisp.
 	(structure-stablehash): Moved to here.
-	* clos-specializer2.lisp: Don't use #'make-instance here.
+	* clos-specializer2.lisp: Do not use #'make-instance here.
 	* clos-class4.lisp: New file.
 	* clos-class5.lisp (class-name, (setf class-name)): Move to
 	clos-class6.lisp.
@@ -33804,7 +33801,7 @@
 	* clos-method2.lisp (compute-effective-method-as-function): Convert
 	result from a form to a function.
 	* clos-methcomb2.lisp (compute-effective-method-function)
-	(standard-method-combination-expander): Don't do the conversion here.
+	(standard-method-combination-expander): Do not do the conversion here.
 
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
@@ -33972,7 +33969,7 @@
 	* clos-methcomb2.lisp (standard-method-combination-expander)
 	(short-form-method-combination-expander)
 	(long-form-method-combination-expander): Add methods argument, remove
-	args argument. Don't do the method selection here.
+	args argument. Do not do the method selection here.
 	(define-method-combination): Update.
 
 2004-05-16  Bruno Haible  <bruno@clisp.org>
@@ -34024,7 +34021,7 @@
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
-	* clos-methcomb2.lisp (coerce-to-method-combination): Don't need to
+	* clos-methcomb2.lisp (coerce-to-method-combination): Do not need to
 	clone the method-combination if there are no options.
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
@@ -34134,7 +34131,7 @@
 	variables instead of on a property list. Emit code to call
 	MISSING-REQUIRED-METHOD and INVALID-METHOD-SORT-ORDER-ERROR.
 	(define-method-combination): Improved syntax checking. Improved error
-	messages. Use sys::parse-body. In the long-form combination, don't pass
+	messages. Use sys::parse-body. In the long-form combination, do not pass
 	:qualifiers. Keep gf-variable and user-gf-variable distinct, so that
 	the user cannot accidentally change the value of the gf-variable.
 	(do-define-method-combination): Rename from %define-method-combination.
@@ -34291,7 +34288,7 @@
 	* clos-methcomb3.lisp: Remove file.
 	* clos-methcomb4.lisp: Remove file.
 	* clos-methcomb5.lisp: Remove file.
-	* clos.lisp: Don't load them any more.
+	* clos.lisp: Do not load them any more.
 	* makemake.in (LPARTS): Remove clos-methcomb3, clos-methcomb4,
 	clos-methcomb5.
 	* po/Makefile.devel (LISPSOURCES): Likewise.
@@ -34535,7 +34532,7 @@
 	* spvw_weak.d (weak_hashed_alist_update_one, weak_hashed_alist_update):
 	New functions.
 	(weak_clean_dead): Call weak_hashed_alist_update when appropriate.
-	* hashtabl.d (hash_lookup_builtin, hash_lookup_user): Don't test
+	* hashtabl.d (hash_lookup_builtin, hash_lookup_user): Do not test
 	whether the key/value pair has been garbage-collected.
 
 2004-06-06  Sam Steingold  <sds@gnu.org>
@@ -34597,7 +34594,7 @@
 	the old to the new kvtable.
 	(CLOS::CLASS-TUPLE-GETHASH): Update.
 	* io.d (pr_kvtable): Update. Optimize a loop invariant.
-	* predtype.d (hash_table_equalp): Update. Don't pass nullobj to equalp.
+	* predtype.d (hash_table_equalp): Update. Do not pass nullobj to equalp.
 	* spvw_debug.d (nobject_out1): Update.
 	* spvw_weak.d (weak_clean_dead): For WeakHashedAlist, return true.
 
@@ -34643,7 +34640,7 @@
 	Many improvements to BACKQUOTE.
 	* backquote.lisp (BQ-NCONCABLE): Remove macro. Now cleaned up by the
 	macroexpander.
-	(bq-expand): Don't test *backquote-optimize* any more. Call
+	(bq-expand): Do not test *backquote-optimize* any more. Call
 	bq-append-multiple.
 	(bq-transform): Call bq-list.
 	(*backquote-optimize-cons*, *backquote-optimize-list*)
@@ -34781,7 +34778,7 @@
 	(hash_table_weak_type): ht_kvtable is now a Rectype_WeakHashedAlist_*.
 	(allocate_kvt): Allocate a vector with 3*maxcount entries, or a
 	WeakHashedAlist.
-	(prepare_resize): Don't allocate an ntable any more.
+	(prepare_resize): Do not allocate an ntable any more.
 	(resize): Fill extended kvtable instead of ntable.
 	(clrhash, MAPHASH, HASH-TABLE-COUNT): Update.
 	(SYS::HASH-TABLE-ITERATE): Update.
@@ -34959,7 +34956,7 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
 	Make it possible to simulate microcomputer memory management on Unix.
-	* lispbibl.d (VIRTUAL_MEMORY): Don't define if NO_VIRTUAL_MEMORY is
+	* lispbibl.d (VIRTUAL_MEMORY): Do not define if NO_VIRTUAL_MEMORY is
 	defined.
 
 2004-05-21  Bruno Haible  <bruno@clisp.org>
@@ -35063,7 +35060,7 @@
 	(if_recordp): Remove handling of Rectype_WeakKVT.
 	(weakkvtp): Remove macro.
 	(allocate_weakkvt): Remove declaration.
-	* spvw.d (main): Don't initialize O(all_weakkvtables).
+	* spvw.d (main): Do not initialize O(all_weakkvtables).
 	* spvw_garcol.d (gar_col_normal): Remove obsolete and broken handling
 	of weakkvt objects.
 	* spvw_gcmark.d (gc_mark): Remove handling of Rectype_WeakKVT.
@@ -35323,7 +35320,7 @@
 	account.
 	* spvw_garcol.d (gar_col_normal): If GENERATIONAL_GC, let generation 1
 	respect varobjects_misaligned.
-	(gc_compact_heap): Don't set a page's page_start and page_end before
+	(gc_compact_heap): Do not set a page's page_start and page_end before
 	it is moved to the free_pages pool.
 	* spvw_genera1.d (build_old_generation_cache): Allow for the
 	possibility that heap_gen0_start has varobjects_misaligned.
@@ -35370,7 +35367,7 @@
 	GCself and type, flags and length.
 	* spvw.d (init_subr_tab_1, init_other_modules_1, init_module_2)
 	(dynload_modules): Also initialize the subrs' GCself.
-	* spvw_update.d (update_subr_tab): Don't use subr_const_offset.
+	* spvw_update.d (update_subr_tab): Do not use subr_const_offset.
 	* spvw_garcol.d (gc_markphase): Treat subrs like constsyms.
 	(alive): The mark bit is now at the beginning of the Subr.
 	(unmark_fixed_varobjects): Unmark the constsyms and subrs, even if
@@ -35483,7 +35480,7 @@
 	a proper name.
 	* lispbibl.d (Class): Add documentation field.
 	* clos-class2.lisp (class): Add documentation slot.
-	(ensure-class): Don't call sys::%set-documentation.
+	(ensure-class): Do not call sys::%set-documentation.
 	(initialize-instance-standard-class, initialize-instance-built-in-class)
 	(initialize-instance-structure-class): Initialize the documentation
 	slot.
@@ -35545,7 +35542,7 @@
 
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class5.lisp (change-class): Don't copy the values of slots that
+	* clos-class5.lisp (change-class): Do not copy the values of slots that
 	are shared in the new class.
 
 2004-04-25  Bruno Haible  <bruno@clisp.org>
@@ -35567,7 +35564,7 @@
 2004-05-16  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (NO_ARI_ASM): Define if SAFETY==3.
-	(begin_arith_call, end_arith_call): Don't test SAFETY any more.
+	(begin_arith_call, end_arith_call): Do not test SAFETY any more.
 	* arilev1.d (LOOP_INLINE_ASM, LOOP_EXTERN_ASM): Likewise.
 
 2004-05-16  Sam Steingold  <sds@gnu.org>
@@ -35702,12 +35699,12 @@
 	(allocate_lrecord): New declaration.
 	(allocate_srecord, allocate_xrecord): Update.
 	* spvw_multimap.d (MM_TYPECASES): Handle lrecords as well.
-	* spvw_global.d (init_mem_heaptypes): Don't handle weakkvt specially.
+	* spvw_global.d (init_mem_heaptypes): Do not handle weakkvt specially.
 	* spvw_objsize.d (size_lrecord): New macro.
-	(objsize): Handle lrecords as well. Don't handle weakkvt specially.
+	(objsize): Handle lrecords as well. Do not handle weakkvt specially.
 	(objsize_sxrecord): Rename from objsize_record.
 	(objsize_lrecord): New function.
-	(init_objsize_table): Handle lrecords as well. Don't handle weakkvt
+	(init_objsize_table): Handle lrecords as well. Do not handle weakkvt
 	specially.
 	* spvw_update.d (do_update_sxrecord): Rename from do_update_record.
 	(do_update_lrecord): New macro.
@@ -35718,9 +35715,9 @@
 	(down_lrecord, up_lrecord): New macros.
 	(down_sxrecord): Rename from down_record.
 	(up_sxrecord): Rename from up_record.
-	(gc_mark): Handle lrecords as well. Don't handle weakkvt specially.
+	(gc_mark): Handle lrecords as well. Do not handle weakkvt specially.
 	* spvw_genera1.d (walk_area_record): Handle lrecords as well.
-	(walk_area): Don't handle weakkvt specially.
+	(walk_area): Do not handle weakkvt specially.
 	(build_old_generation_cache): Likewise. Handle lrecords as well.
 	* spvw_typealloc.d (allocate_weakkvt_low): Use lrecord_type
 	instead of lrecord_type.
@@ -35948,7 +35945,7 @@
 	unintelligible. Avoid add-backquote and add-unquote. Use new
 	slot-definition-* accessors.
 	* clos-class2.lisp (replace-class-version): New function.
-	(defclass): Don't put :ACCESSORS into the slot specifiers for
+	(defclass): Do not put :ACCESSORS into the slot specifiers for
 	ensure-class. Use make-initfunction-form and put :INITFORM instead of
 	:INITER into the slot-specifiers. Use make-initfunction-form also for
 	the :DIRECT-DEFAULT-INITARGS argument.
@@ -35967,7 +35964,7 @@
 	Use only the initfunction instead of the initer.
 	(std-compute-slots): Works on direct-slot-definition instances now,
 	instead of plists. Create effective-slot-definition instances, instead
-	of slotdef instances. Don't lose the type and documentation of each
+	of slotdef instances. Do not lose the type and documentation of each
 	slot. Rework the initform/initfunction handling. Call the MOP function
 	effective-slot-definition-class.
 	(std-layout-slots): Use new slot-definition-* accessors.
@@ -36085,7 +36082,7 @@
 	* clos-class0.lisp: New file.
 	* init.lisp: Load it.
 	* clos-class2.lisp (class-version): Move away to clos-class0.lisp.
-	* clos-class4.lisp (print-object): Undefine first. Don't use TYPEP
+	* clos-class4.lisp (print-object): Undefine first. Do not use TYPEP
 	on class-version.
 	* clos.lisp: After clos-class5.lisp, set *classes-finished* and then
 	only load clos-class4.lisp.
@@ -36112,7 +36109,7 @@
 
 2004-04-18  Bruno Haible  <bruno@clisp.org>
 
-	* clos-class5.lisp (class-prototype): Don't mark the class as being
+	* clos-class5.lisp (class-prototype): Do not mark the class as being
 	instantiated.
 
 2004-05-03  Sam Steingold  <sds@gnu.org>
@@ -36251,7 +36248,7 @@
 	(weakkvt_length): New macro.
 	(Weakkvt_length): Use it.
 	(Record_nonweak_length): New macro.
-	* spvw_update.d (do_update_record): Don't use update_weak_pointers
+	* spvw_update.d (do_update_record): Do not use update_weak_pointers
 	any more.
 	(update_weakpointer, update_weakpointers, update_weakpointers_mod):
 	Remove macros.
@@ -36274,12 +36271,12 @@
 	* spvw_update.d (do_update_record): Depending on update_weak_pointers,
 	update also the hidden pointers of Weakpointer and WeakKVT objects.
 	* spvw_garcol.d (gar_col_normal): Define update_weak_pointers to false.
-	(gar_col_compact): Don't call update_weakpointers_mod,
+	(gar_col_compact): Do not call update_weakpointers_mod,
 	update_weakkvtables_mod. Instead, define update_weak_pointers to true.
 	(move_conses): Call update_weakpointers instead of
 	update_weakpointers_mod, update_weakkvtables instead of
 	update_weakkvtables_mod. Define update_weak_pointers to false.
-	* spvw_memfile.d (savemem): Don't call update_weakpointers,
+	* spvw_memfile.d (savemem): Do not call update_weakpointers,
 	update_weakkvtables. Instead, define update_weak_pointers to true.
 	(loadmem_from_handle): Likewise.
 
@@ -36443,7 +36440,7 @@
 	(standard-class): Add it here instead.
 	(finalize-instance-standard-class): Access class-direct-subclasses only
 	if the superclass is a standard-class.
-	(initialize-instance-built-in-class): Don't add this class to the
+	(initialize-instance-built-in-class): Do not add this class to the
 	class-direct-subclasses of the superclaass.
 	(initialize-instance-structure-class): Likewise.
 
@@ -36546,10 +36543,10 @@
 	(update_instance): Take a second argument.
 	(instance_valid_p): Look at class-version instead of id field.
 	(instance_update): Take a second argument.
-	(instanceof): Don't call instance_update. Update.
+	(instanceof): Do not call instance_update. Update.
 	* spvw_garcol.d (gc_sweep1_instance_forward): Use the class_version
 	field for the forward pointer.
-	* record.d (class_of): Don't call instance_update if the instance is
+	* record.d (class_of): Do not call instance_update if the instance is
 	already being update.
 	(CLOS::ALLOCATE-STD-INSTANCE): Set the class-version field instead of
 	class and id fields.
@@ -36562,7 +36559,7 @@
 	pointer, instead of creating a chain of forward pointers.
 	(update_instance): Take a second argument. Completely rewritten.
 	(CLOS::%MAKE-INSTANCE): Invoke the local class_of instead of CLASS-OF.
-	* hashtabl.d (sxhash_atom): Don't call instance_update. Update.
+	* hashtabl.d (sxhash_atom): Do not call instance_update. Update.
 	* predtype.d (TYPE-OF, CLOS:CLASS-OF): Likewise.
 	(heap_statistics_mapper): Update.
 	* stream.d (stream_get_read_eval, stream_set_read_eval): Call
@@ -36581,7 +36578,7 @@
 	slot. When clearing the precedence-list, clear the all-superclasses
 	table as well.
 	(finalize-instance-standard-class): Default instance-size is now 1,
-	not 2. The shared-slots are now stored in the class-version. Don't
+	not 2. The shared-slots are now stored in the class-version. Do not
 	erase the values of shared slots that remain shared.
 	(std-layout-slots): Let the cons point to the class-version, not to
 	the class.
@@ -36601,7 +36598,7 @@
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 
 	* pathname.d (file_namestring_parts, namestring_correctly_parseable_p):
-	Don't lose support for platforms which have versions in the filesystem.
+	Do not lose support for platforms which have versions in the filesystem.
 
 	* stream.d (handle_to_stream): Fix begin/end_system_call() calls.
 
@@ -36940,8 +36937,8 @@
 
 2004-04-16  Bruno Haible  <bruno@clisp.org>
 
-	* disassem.lisp (disassemble-machine-code): On Cygwin, don't use the
-	live process.
+	* disassem.lisp (disassemble-machine-code): On Cygwin, do not use
+	the live process.
 
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
@@ -37168,7 +37165,7 @@
 
 	Make DEFSTRUCT :INITIAL-OFFSET option work correctly even in structure
 	types with no slots.
-	* defstruct.lisp (ds-make-constructor-body): Don't use the optimized
+	* defstruct.lisp (ds-make-constructor-body): Do not use the optimized
 	simple case if there are trailing NILs, due to :initial-offset.
 	(ds-make-pred): Replace name-offset argument with slotlist and size
 	arguments. Check the names of the :INCLUDEd structures as well. Use
@@ -37257,16 +37254,16 @@
 
 	* clos-slots2.lisp (slot-unbound): Quote the slot-name in the place.
 
-	* clos-class2.lisp (DEFCLASS): Don't emit code to FIND-CLASS the
+	* clos-class2.lisp (DEFCLASS): Do not emit code to FIND-CLASS the
 	direct superclasses.
 	(ensure-class): Call FIND-CLASS on the direct superclasses here.
-	Call FIND-CLASS also on the old direct superclasses. Don't create a
+	Call FIND-CLASS also on the old direct superclasses. Do not create a
 	new class object if the class exists but has not yet been finalized.
 
 	* clos-class2.lisp (*finalizing-now*): Remove variable.
 	(class-finalize): Pass the finalizing-now stack as optional argument.
 
-	* clos-class5.lisp (make-instances-obsolete): Don't do anything if the
+	* clos-class5.lisp (make-instances-obsolete): Do not do anything if the
 	class is not yet finalized. Return the argument unmodified, even if
 	it's a symbol.
 
@@ -37355,7 +37352,7 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
 	ANSI CL compliance.
-	* clos.lisp (ensure-class): Don't modify the old class if it doesn't
+	* clos.lisp (ensure-class): Do not modify the old class if it doesn't
 	have a "proper name".
 
 2004-03-27  Bruno Haible  <bruno@clisp.org>
@@ -37466,7 +37463,7 @@
 	(LISPSOURCES_POT): New rule.
 	(MSGEN): New variable.
 	(en.po): Use msgen.
-	* clisp-xgettext (main): Don't write a *.en file.
+	* clisp-xgettext (main): Do not write a *.en file.
 
 	Modernize PO file header.
 	* po/po_header.txt: Add license clause and Report-Msgid-Bugs-To field.
@@ -37541,7 +37538,7 @@
 
 2004-03-26  Bruno Haible  <bruno@clisp.org>
 
-	* init.lisp (%expand-form EVAL-WHEN): Don't look whether COMPILE is
+	* init.lisp (%expand-form EVAL-WHEN): Do not look whether COMPILE is
 	among the situations. Ignore the forms if EVAL/:EXECUTE is not among
 	the situations.
 
@@ -37619,9 +37616,9 @@
 2004-03-23  Bruno Haible  <bruno@clisp.org>
 
 	Drop *print-symbols-long*.
-	* spvw.d (init_symbol_values): Don't initialize *print-symbols-long*.
+	* spvw.d (init_symbol_values): Do not initialize *print-symbols-long*.
 	* io.d (pr_symbol): Look at *print-readably*, not *print-symbols-long*.
-	* defs2.lisp (with-standard-io-syntax): Don't bind *print-symbols-long*.
+	* defs2.lisp (with-standard-io-syntax): Do not bind *print-symbols-long*.
 	* compiler.lisp (c-write-lib, compile-toplevel-form): Likewise.
 
 2004-03-23  Sam Steingold  <sds@gnu.org>
@@ -37630,8 +37627,8 @@
 
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
-	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Don't require CL_MALLOC. Don't
-	declare malloc().
+	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Do not require CL_MALLOC.
+	Do not declare malloc().
 	* m4/malloc.m4: Remove file.
 	* m4/free.m4: Remove file.
 	* m4/shmget.m4: Remove file.
@@ -37664,7 +37661,7 @@
 
 	* stream.d (MAKE-STRING-OUTPUT-STREAM): For element type NIL, create
 	an nil-vector of length 0, not 50.
-	(get_output_stream_string): Don't use stringp to test for nil-vector.
+	(get_output_stream_string): Do not use stringp to test for nil-vector.
 	(SYS::BUILT-IN-STREAM-ELEMENT-TYPE): Likewise.
 
 2004-03-22  Sam Steingold  <sds@gnu.org>
@@ -37823,7 +37820,7 @@
 	(hashcode4_vector): Likewise.
 	* io.d (string_printf): Handle strings of element type NIL.
 	(write_string): Signal an error when the string has element type NIL.
-	(pr_symbol_part): Don't SstringDispatch if the string's length is 0.
+	(pr_symbol_part): Do not SstringDispatch if the string's length is 0.
 	(pr_sstring_ab): Likewise.
 	(pr_string): Handle strings of element type NIL.
 	(UNREADABLE_START, UNREADABLE_END): Nop.
@@ -37831,17 +37828,17 @@
 	(pr_nilvector): New function.
 	* stream.d (wr_ch_array_terminal3): Update.
 	(read_line): Handle strings of element type NIL.
-	* pathname.d (split_name_type): Don't SstringDispatch if the string's
+	* pathname.d (split_name_type): Do not SstringDispatch if the string's
 	length is 0.
 	(PARSE-NAMESTRING): Likewise. Update.
 	* spvw_typealloc.d (reallocate_small_string): Update.
 	* spvw_debug.d (string_out): Handle strings of element type NIL.
 	* encoding.d (string_to_asciz_): Handle strings of element type NIL.
-	* package.d (string_hashcode): Don't SstringDispatch if the string's
+	* package.d (string_hashcode): Do not SstringDispatch if the string's
 	length is 0.
 	* type.lisp (canonicalize-type): In STRING and SIMPLE-STRING, the
 	element-type can be CHARACTER, BASE-CHAR or NIL, not just CHARACTER.
-	* describe.lisp (describe-object): Don't show string details for
+	* describe.lisp (describe-object): Do not show string details for
 	strings of element type NIL.
 
 2004-03-19  Sam Steingold  <sds@gnu.org>
@@ -38096,7 +38093,7 @@
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
-	* m4/install.m4 (CL_PROG_INSTALL): Don't use installbsd at all.
+	* m4/install.m4 (CL_PROG_INSTALL): Do not use installbsd at all.
 	Needed on AIX 4 and AIX 5.
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
@@ -38124,7 +38121,7 @@
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (NULL): Don't define on AIX.
+	* lispbibl.d (NULL): Do not define on AIX.
 	Needed on AIX with xlc.
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
@@ -38135,7 +38132,7 @@
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (XCC_UNUSABLE_CPP): Don't use gcc-cccp on AIX != 4.2.
+	* makemake.in (XCC_UNUSABLE_CPP): Do not use gcc-cccp on AIX != 4.2.
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
@@ -38251,7 +38248,7 @@
 	* makemake.in (txt, genclisph.o, clisp-test-lispbibl): Define
 	COMPILE_STANDALONE.
 	Needed to avoid dependencies to fehler_notreached() etc. with C
-	compilers that don't have 'inline' (such as Solaris cc), and on
+	compilers that do not have 'inline' (such as Solaris cc), and on
 	NetBSD, BeOS, Woe32 with gettext >= 0.13 because <libintl.h> can
 	remap printf() to libintl_printf().
 
@@ -38339,12 +38336,12 @@
 
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
-	* arisparc.d: Don't use the gas syntax for labels (1b, 1f). Needed
+	* arisparc.d: Do not use the gas syntax for labels (1b, 1f). Needed
 	for building with Solaris cc.
 
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
-	Don't use features unique to GCC. Needed for Solaris cc, HP-UX cc and
+	Do not use features unique to GCC. Needed for Solaris cc, HP-UX cc and
 	IRIX cc.
 	* stream.d (key_ascii, key_special): Use portable initializer syntax.
 	(add_keybinding): Rename from keybinding. Change argument type from
@@ -38408,7 +38405,7 @@
 
 	* Makefile.devel (potfiles): Set the CLISP environment variable for
 	po/Makefile.devel.
-	(src--distrib): Don't create clisp-$(VERSION)-potfiles.tar.bz2.
+	(src--distrib): Do not create clisp-$(VERSION)-potfiles.tar.bz2.
 	* po/Makefile.devel (DSOURCES): Remove rexx.
 	(LISPSOURCES): Add international, threads, deprecated. Remove rexx1.
 
@@ -38426,7 +38423,7 @@
 
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (arimips.o): Don't use the assembler explicitly on Linux.
+	* makemake.in (arimips.o): Do not use the assembler explicitly on Linux.
 	Reported by Will Newton <will@misconception.org.uk>.
 
 2004-03-08  Will Newton <will@misconception.org.uk>
@@ -38489,7 +38486,7 @@
 	compute-method-partition-lambda. Provide a second lambda form as a
 	second value. Use symbol CLOS::METHD instead of CL:METHOD.
 	(define-method-combination): Initialize the two new method-combination
-	slots. Don't use (COMPILE NIL ...) on code that comes partially from
+	slots. Do not use (COMPILE NIL ...) on code that comes partially from
 	the user.
 	(compute-effective-method-function): Style improvement.
 	(compute-short-form-effective-method-form): Remove first argument.
@@ -38501,7 +38498,7 @@
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Use 'extern' instead of 'global'.
-	(check_real): Don't declare as inline.
+	(check_real): Do not declare as inline.
 	* lisparit.d (check_real): Likewise.
 
 2004-03-06  Sam Steingold  <sds@gnu.org>
@@ -38532,12 +38529,12 @@
 	(newinsert): Take a 24-bit size as argument.
 	(rehash_symtab): Bump the max to 2^24-1.
 	(symtab_lookup, symtab_find, symtab_insert, symtab_delete):
-	Don't cast the size to uintW.
+	Do not cast the size to uintW.
 
 2004-03-04  Bruno Haible  <bruno@clisp.org>
 	    Sam Steingold  <sds@gnu.org>
 
-	* package.d (string_hashcode): Don't ignore the 17th and following
+	* package.d (string_hashcode): Do not ignore the 17th and following
 	characters. Use + instead of |, to maintain statistical
 	equidistribution.
 
@@ -38568,7 +38565,7 @@
 
 2004-03-01  Bruno Haible  <bruno@clisp.org>
 
-	* spvw_garcol.d (move_aligned_p1_p2): Don't use the *p++ form with
+	* spvw_garcol.d (move_aligned_p1_p2): Do not use the *p++ form with
 	GCC 3 any more.
 	Reported by Will Newton <will@misconception.org.uk>.
 
@@ -38657,13 +38654,13 @@
 
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
-	* makemake.in (XCFLAGS): Don't use -O2 with current gcc on x86_64.
+	* makemake.in (XCFLAGS): Do not use -O2 with current gcc on x86_64.
 
 2004-02-26  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (oint_type_*, oint_addr_*, oint_data_*) [AMD64]: Define
 	appropriately for Linux/x86_64.
-	(SINGLEMAP_MEMORY, MULTIMAP_MEMORY) [AMD64 Linux]: Don't define on this
+	(SINGLEMAP_MEMORY, MULTIMAP_MEMORY) [AMD64 Linux]: Do not define on this
 	platform.
 	* spvw.d (main): Limit the mmap()ed addresses to 36 bits.
 
@@ -38711,7 +38708,7 @@
 2004-02-25  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (XCPPFLAGS): New variable.
-	(XCFLAGS): Don't add the value of XCPPFLAGS here.
+	(XCFLAGS): Do not add the value of XCPPFLAGS here.
 	(MODULE_CPPFLAGS_VAR): New variable.
 	(all .c compilation rules): Use CPPFLAGS before CFLAGS.
 	* clisp-link.in: Use CPPFLAGS variable that is read from 'makevars'.
@@ -38760,7 +38757,7 @@
 
 2004-02-24  Bruno Haible  <bruno@clisp.org>
 
-	* m4/readline.m4 (CL_READLINE): Don't use AC_SEARCH_LIBS. Instead,
+	* m4/readline.m4 (CL_READLINE): Do not use AC_SEARCH_LIBS. Instead,
 	use the value of LIBREADLINE, as determined by AC_LIB_LINKFLAGS_BODY.
 
 2004-02-24  Bruno Haible  <bruno@clisp.org>
@@ -38905,7 +38902,7 @@
 	(make_storagevector): For eltype==Atype_NIL, just return NIL.
 	(MAKE-ARRAY): For eltype==Atype_NIL, return a vector of type
 	vector_type, not just the storage vector.
-	* io.d (pr_vector): Don't call array_element_type if the array's
+	* io.d (pr_vector): Do not call array_element_type if the array's
 	element type is known to be NIL.
 	(pr_array): Likewise.
 	(pr_orecord): Remove handling of Rectype_nilvector, Rectype_Snilvector.
@@ -39313,7 +39310,7 @@
 	(signal-missing-load-form): New function.
 	(make-load-form): Add the methods that must exist according to CLHS.
 	(make-init-form): Ignore only errors coming from make-load-form,
-	not just any method-call-error. Don't warn for other errors, instead
+	not just any method-call-error. Do not warn for other errors, instead
 	pass them on to the caller.
 
 2004-01-18  Bruno Haible  <bruno@clisp.org>
@@ -39569,7 +39566,7 @@
 2004-01-06  Bruno Haible  <bruno@clisp.org>
 
 	Assume that <sys/mman.h> declares mmap() in a POSIX compliant way.
-	* m4/mmap.m4 (CL_MMAP): Don't define RETMMAPTYPE, MMAP_ADDR_T,
+	* m4/mmap.m4 (CL_MMAP): Do not define RETMMAPTYPE, MMAP_ADDR_T,
 	MMAP_SIZE_T.
 	* unix.d (MMAP_ADDR_T, MMAP_SIZE_T, RETMMAPTYPE): Remove macros. Use
 	void* and size_t instead.
@@ -39888,7 +39885,7 @@
 
 2003-10-28  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (CHART_STRUCT): Don't define when using g++ 3.3.x.
+	* lispbibl.d (CHART_STRUCT): Do not define when using g++ 3.3.x.
 
 2003-10-27  Bruno Haible  <bruno@clisp.org>
 
@@ -39977,7 +39974,7 @@
 	definitions.
 	(convert): Split 'object' and 'chart' initializations outside macro
 	definitions.
-	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Don't
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Do not
 	define when using g++ 3.3 with DEBUG_GCSAFETY.
 	* intmal.d (FN_fak_I): Convert fakul_table to a table of uintL.
 
@@ -39988,7 +39985,7 @@
 
 2003-10-25  Bruno Haible  <bruno@clisp.org>
 
-	Portability to Solaris cc. Don't assume more than ANSI C.
+	Portability to Solaris cc. Do not assume more than ANSI C.
 	* lispbibl.d (with_saved_back_trace): Use ANSI C syntax for
 	initializing a 'struct backtrace_t' on the stack.
 	* spvw.d (main): Likewise.
@@ -39997,7 +39994,7 @@
 2003-10-25  Bruno Haible  <bruno@clisp.org>
 
 	Restore the behaviour of "make init" and "make allc".
-	* makemake.in (init): Don't depend on modprep.fas.
+	* makemake.in (init): Do not depend on modprep.fas.
 	(clean3): Clean modprep.fas here...
 	(clean5): ... not here.
 
@@ -40193,10 +40190,10 @@
 
 2003-10-02  Bruno Haible  <bruno@clisp.org>
 
-	* utils/ansidecl.d (main): Don't miss to return an error code if the
+	* utils/ansidecl.d (main): Do not miss to return an error code if the
 	last write on stdout fails.
 	* utils/ccmp2c.c (main): Likewise.
-	* utils/comment5.c (main): Don't miss to return an error code if the
+	* utils/comment5.c (main): Do not miss to return an error code if the
 	last write to outfile fails.
 	* utils/varbrace.d (main): Likewise.
 
@@ -40209,7 +40206,7 @@
 	* m4/read-write.m4: Remove file.
 	* m4/shmat.m4: Remove file.
 	* m4/shm-rmid.m4 (CL_SHM_RMID): Use void* instead of RETSHMATTYPE.
-	* m4/shm.m4 (CL_SHM): Don't require CL_SHMAT.
+	* m4/shm.m4 (CL_SHM): Do not require CL_SHMAT.
 	* m4/signal.m4 (CL_SIGPROCMASK): Remove macro.
 	* m4/stat.m4 (CL_FSTAT, CL_STAT): Remove macros.
 	(CL_LSTAT): Remove prototype check.
@@ -40253,7 +40250,7 @@
 	Lisp object if sizeof(off_t) > 4.
 	(directory_search_hashcode): Use UQ_to_I to convert st_ino to a Lisp
 	object if sizeof(ino_t) > 4.
-	* spvw_memfile.d (loadmem_from_handle): Don't cast down st_size to
+	* spvw_memfile.d (loadmem_from_handle): Do not cast down st_size to
 	32 bits.
 
 2003-09-30  John Hinsdale  <hin@alma.com>
@@ -40394,9 +40391,9 @@
 2003-09-13  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Fix msvc distrib
-	* makemake.in: don't incude rules unexecutable by msvc nmake
+	* makemake.in: do not incude rules unexecutable by msvc nmake
 	(makemake, unixconf.h, Makefile, config.status, VERSION)
-	Don't create base and full directories for msvc distrib
+	Do not create base and full directories for msvc distrib
 	Call it differently (clisp-x.xx-msvc-win32.zip)
 	Use find -exec for chmod to avoid problems in cygwin
 	Call rm -rf directly (RMRF=-del, inappropriate)
@@ -40497,7 +40494,7 @@
 	* pathname.d (handle_dup): use new macros.
 	(init_launch_streamarg, make_launch_pipe) [UNIX || RISCOS]:
 	new helper functions.
-	(LAUNCH) [UNIX || RISCOS]: use all of it, don't do HANDLE=NULL
+	(LAUNCH) [UNIX || RISCOS]: use all of it, do not do HANDLE=NULL
 	according to Sam's suggestion.
 
 2003-08-30  John Hinsdale  <hin@alma.com>
@@ -40766,7 +40763,7 @@
 
 	regexp module does not use FFI - 25% speedup
 	* modules/regexp/preload.lisp: new file
-	* modules/regexp/link.sh.in: preload it, don't look for regexp.c
+	* modules/regexp/link.sh.in: preload it, do not look for regexp.c
 	* modules/regexp/regexp.lisp: remove FFI forms
 	* modules/regexp/regexi.c (REGEXP-COMPILE, REGEXP-EXEC)
 	(REGEXP-FREE): implement here
@@ -41485,7 +41482,7 @@
 
 	Solve problems with CLHS and INSPECT on win32
 	* clhs.lisp (BROWSE-URL): use EXT::LAUNCH on win32.
-	* runprog.lisp (run-shell-command): don't try to use #\&
+	* runprog.lisp (run-shell-command): do not try to use #\&
 	on win32.
 
 2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
@@ -43007,13 +43004,13 @@
 	* avl.d (AVL(AVLID,delete1)): legalize goto for CC=g++
 	* spvw_garcol.d (free_some_unused_pages): explicit typecast
 	* spvw_allocate.d (make_space_gc): modern definition, explicit typecast
-	* lispbibl.d: don't define setjmp, longjmp as  _setjmp, _longjmp
+	* lispbibl.d: do not define setjmp, longjmp as  _setjmp, _longjmp
 	* spvw_memfile (offset_pages_t): new type
 	(loadmem_from handle): use it in explicit typecast
 
 2003-01-16  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (allocate_weakkvt): DON'T USE LOCAL VARIABLES OF TYPE
+	* lispbibl.d (allocate_weakkvt): DO NOT USE LOCAL VARIABLES OF TYPE
 	gcv_object_t.
 	* hashtabl.d (prepare_resize): Likewise.
 	* spvw_typealloc.d (allocate_weakkvt_low, allocate_weakkvt): Likewise.
@@ -43419,7 +43416,7 @@
 	* lisparit.d (init_arith): Depend on IMMEDIATE_FFLOAT.
 	* predtype.d (eql): Depend on IMMEDIATE_FFLOAT.
 	(enum_hs_single_float, heap_statistics_mapper): Likewise.
-	* eval.d (closure_register): Don't undefine if WIDE_AUXI.
+	* eval.d (closure_register): Do not undefine if WIDE_AUXI.
 	* genclisph.d (main): Update.
 
 2002-12-16  Sam Steingold  <sds@gnu.org>
@@ -43633,9 +43630,9 @@
 	* eval.d (nest_env): Change argument and return type to
 	gcv_environment_t*.
 	(get_closure): Change argument type to gcv_environment_t*.
-	Don't mix environment_t and gcv_environment_t.
+	Do not mix environment_t and gcv_environment_t.
 	(eval, eval_applyhook): Update.
-	* control.d (compile_eval_form): Don't mix environment_t and
+	* control.d (compile_eval_form): Do not mix environment_t and
 	gcv_environment_t.
 	(EVALHOOK, APPLYHOOK): Likewise.
 	* debug.d (same_env_as): Likewise.
@@ -43702,7 +43699,7 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (gcv_object_t): New type.
-	(kvtable_data): Don't confuse object and void*.
+	(kvtable_data): Do not confuse object and void*.
 	(copy_mem_b, copy_mem_o): Use const.
 	* genclisph.d (main): Emit gcv_object_t type.
 	* affi.d, array.d, charstrg.d, comptran.d, constobj.d, control.d:
@@ -44230,8 +44227,8 @@
 
 	Directory shortcuts on win32.
 	* pathname.d (FullName): save final slash, respect it.
-	(resolve_shell_shortcut): don't call IShellLink->Resolve
-	don't need to substitute missing target with any other file.
+	(resolve_shell_shortcut): do not call IShellLink->Resolve
+	do not need to substitute missing target with any other file.
 	Try to use description field on missing symlinks.
 	(shell_shortcut_target_t): resolve result enumeration.
 	(resolve_shell_shortcut_more): new function - resolve links
@@ -44775,8 +44772,8 @@
 	(FILES, LIBS): Remove libsigsegv.a.
 	(EVERY_INCLUDES_H): Remove sigsegv.h.
 	(sigsegv.h, libsigsegv.a): Remove rules.
-	(clean1, clean4): Don't remove libsigsegv.a, sigsegv.h, sigsegv.
-	* lispbibl.d: Don't include sigsegv.h if NO_SIGSEGV is defined.
+	(clean1, clean4): Do not remove libsigsegv.a, sigsegv.h, sigsegv.
+	* lispbibl.d: Do not include sigsegv.h if NO_SIGSEGV is defined.
 	* Makefile.devel (SOURCES4): Remove sigsegv.
 	(CONFIGURES): Remove sigsegv/configure.
 	(configures): Remove dependency on sigsegv/autoconf/aclocal.m4.
@@ -45827,9 +45824,9 @@
 	as Joerg likes, now tests for given event, not only for read.
 	(interruptible_socket_wait): parameters changed to struct.
 	* socket.d (ioctl) [WIN32]: define on win32 as ioctlsocket.
-	(bindlisten_via_ip): don't lingerize socket (seems working,
+	(bindlisten_via_ip): do not lingerize socket (seems working,
 	need to test).
-	(connect_via_ip): don't lingerize. Fix for win32 (may affect
+	(connect_via_ip): do not lingerize. Fix for win32 (may affect
 	UNIX behavior too).
 	* stream.d (socket_server_wait): use rename
 	interruptible_socket_wait.
@@ -45967,7 +45964,7 @@
 
 2002-05-28  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (setSP, FAST_SP) [I80386]: Don't define when using
+	* lispbibl.d (setSP, FAST_SP) [I80386]: Do not define when using
 	gcc-3.1.
 
 2002-05-26  Bruno Haible  <bruno@clisp.org>
@@ -45984,7 +45981,7 @@
 
 	Finish 1998-02-11 patch.
 	* m4/cc-ansi.m4: Remove file.
-	* m4/address.m4 (CL_ADDRESS_RANGE): Don't require CL_CC_ANSI.
+	* m4/address.m4 (CL_ADDRESS_RANGE): Do not require CL_CC_ANSI.
 	* configure.in (CL_CC_ANSI): Remove call.
 	* makemake.in: Remove CC_ANSI handling.
 	* Makefile.devel (acorn/makefile.cc): Pass second argument 'cc' to
@@ -46012,7 +46009,7 @@
 	(GEORGIAN-ACADEMY, GEORGIAN-PS, TIS-620, CP1133, VISCII, TCVN, UTF-16)
 	(UTF-7): Also enable on glibc-2.2.
 	(ISO-2022-JP-2): Also enable on glibc-2.3.
-	* encoding.d: Don't include nls_cp1255.c and nls_cp1258.c.
+	* encoding.d: Do not include nls_cp1255.c and nls_cp1258.c.
 	(nls_tables): Remove nls_cp1255_table, nls_cp1258_table.
 	(iconv_first_sym, iconv_last_sym, iconv_num_encodings): Also define
 	on glibc-2.2.
@@ -46025,7 +46022,7 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (HAVE_GOOD_ICONV): Define if good iconv available.
-	(HAVE_ICONV): Don't undefine this.
+	(HAVE_ICONV): Do not undefine this.
 	* encoding.d: Test HAVE_GOOD_ICONV instead of GNU_LIBICONV ||
 	HAVE_ICONV.
 	* pseudofun.d: Likewise.
@@ -46034,7 +46031,7 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
 	Fix "make distclean".
-	* makemake.in (OBSOLETE): Don't add linkkit.
+	* makemake.in (OBSOLETE): Do not add linkkit.
 	(install-bin): Use RMRF variable.
 	(distrib): Likewise.
 	(clean0): rm -rf linkkit.
@@ -46057,7 +46054,7 @@
 	(Rectype_Imm_SmallSstring): Remove enumeration values.
 	(char_int_len): Define to 24 instead of 16.
 	(char_int_limit): Define to 0x110000 instead of 0x10000.
-	(HAVE_SMALL_SSTRING): Don't define if NO_SMALL_SSTRING is specified.
+	(HAVE_SMALL_SSTRING): Do not define if NO_SMALL_SSTRING is specified.
 	(small_char_int_len, small_char_int_limit, small_char_code_limit):
 	Remove macros.
 	(scint): Remove type.
@@ -46101,7 +46098,7 @@
 	(elt_copy_Char_T): Update SstringDispatch invocation.
 	(elt_copy_T_Char): Handle 3 different simple-string types.
 	(elt_copy_Char_Char): Likewise.
-	(elt_move_Char): Update SstringDispatch invocation. Don't inline
+	(elt_move_Char): Update SstringDispatch invocation. Do not inline
 	elt_copy_Char_Char.
 	(elt_fill): Update SstringDispatch invocation.
 	(elt_reverse): Handle 3 different simple-string types.
@@ -46522,7 +46519,7 @@
 2002-05-20  Bruno Haible  <bruno@clisp.org>
 
 	* charstrg.d (CHAR, SYSTEM::STORE-CHAR): Correct checking of validity
-	of index. Don't use unpack_string here.
+	of index. Do not use unpack_string here.
 	(unpack_string): Remove function.
 	(unpack_string_ro): Inline old unpack_string.
 	(unpack_string_rw): Call unpack_string_ro, not unpack_string.
@@ -46530,7 +46527,7 @@
 2002-05-20  Bruno Haible  <bruno@clisp.org>
 
 	Remove gcc-3.0.4 warning.
-	* eval.d (LD, LR): Don't use CONCAT to paste strings; juxtaposing the
+	* eval.d (LD, LR): Do not use CONCAT to paste strings; juxtaposing the
 	strings is sufficient.
 
 2002-05-19  Sam Steingold  <sds@gnu.org>
@@ -46610,7 +46607,7 @@
 
 	* configure.in: Move the AM_ICONV invocation before AM_GNU_GETTEXT.
 
-	Don't forget that 3000 students were murdered by the government
+	Do not forget that 3000 students were murdered by the government
 	of the "People's Republic of China" in June 1989!
 
 2002-05-14  Sam Steingold  <sds@gnu.org>
@@ -46632,7 +46629,7 @@
 	(USE_LIBCHARSET, XCL_CHARSETLIB): New variables.
 	(GETTEXTLIB): Remove variable.
 	(USE_GETTEXT, XCL_GETTEXTLIB): Assume external libintl.
-	(EVERY_INCLUDES_H): Don't include libintl.h and iconv.h, they are
+	(EVERY_INCLUDES_H): Do not include libintl.h and iconv.h, they are
 	external now. Instead include libcharset.h.
 	(${GETTEXTLIB}, libintl.a, libintl.h): Remove targets.
 	(iconv.h, libiconv.a): Remove targets.
@@ -48415,7 +48412,7 @@
 	* autoconf/aclocal.m4 (CL_STRLEN): When checking for the return type,
 	prefer size_t over int. Avoids icc warning.
 	* lispbibl.d (INTEL): New macro.
-	(NULL): Don't define if INTEL. Avoids icc warning.
+	(NULL): Do not define if INTEL. Avoids icc warning.
 	(ASM_get_SP_register, SP, setSP): Use same asm based statement
 	expression when using Intel icc as when using gcc.
 	* genclisph.d (main): Likewise.
@@ -48426,7 +48423,7 @@
 	* eval.d (LD, LR, U_operand, S_operand): Likewise.
 	* int2adic.d (D_D_mal2adic_D): Likewise.
 	* intlog.d (integerlength16, integerlength32, ord2_32): Likewise.
-	* ari80386.d (mulu32_): Don't define when using Intel icc.
+	* ari80386.d (mulu32_): Do not define when using Intel icc.
 	(divu_6432_3232_): Likewise.
 
 2001-11-14  Sam Steingold  <sds@gnu.org>
@@ -48597,7 +48594,7 @@
 	init terminal encoding to OEM code page
 	* win32aux.d (OEM2ANSI_table, ANSI2OEM_table) [UNICODE]: drop
 	(init_win32): ditto
-	(lowlevel_full_read, full_write) [UNICODE]: don't translate
+	(lowlevel_full_read, full_write) [UNICODE]: do not translate
 
 2001-10-05  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
@@ -49044,7 +49041,7 @@
 	(CL_AS_UNDERSCORE): Avoid stupid autoconf-2.52 error "possibly
 	undefined macro: AS_UNDERSCORE".
 	(CL_CONFIG_SUBDIRS): Rewritten.
-	(CL_CANONICAL_HOST): Call AC_CANONICAL_HOST. Don't cache the result,
+	(CL_CANONICAL_HOST): Call AC_CANONICAL_HOST. Do not cache the result,
 	AC_CANONICAL_HOST does it itself. Add $SHELL in front of
 	$ac_config_guess and $ac_config_sub.
 	(CL_VOID): Define return_void to empty.
@@ -49067,7 +49064,7 @@
 	work around an autoconf-2.52 bug.
 	* configure: Pass --cache-file=config.cache to the main configure, to
 	force a cache file. Needed for grepping cl_cv_prog_cc_cplusplus and
-	also for speed. Don't pass --cache-file=../config.cache to gettext's
+	also for speed. Do not pass --cache-file=../config.cache to gettext's
 	configure because it uses different CPPFLAGS and LDFLAGS (needed so
 	that gettext gets HAVE_ICONV right).
 
@@ -49452,7 +49449,7 @@
 
 2001-08-04  Bruno Haible  <haible@clisp.cons.org>
 
-	* eval.d (check_for_illegal_keywords): Don't signal an error for
+	* eval.d (check_for_illegal_keywords): Do not signal an error for
 	((LAMBDA (&KEY X) X) :X 1 :ALLOW-OTHER-KEYS NIL :ALLOW-OTHER-KEYS NIL)
 
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
@@ -49481,7 +49478,7 @@
 	(sec_usec): Fix declaration so that "ansidecl" recognizes it.
 	(make_terminal_io): Pass a real direction_t to make_file_stream.
 	(init_streamvars): Pass a real direction_t to make_unbuffered_stream.
-	* io.d (pr_stream): Don't use input_stream_p, output_stream_p.
+	* io.d (pr_stream): Do not use input_stream_p, output_stream_p.
 	* unix.d (getpid): Declare only once.
 	* socket.d (errno): Remove superfluous declaration.
 	* misc.d (clisp_setenv): Cast malloc return value.
@@ -49489,7 +49486,7 @@
 	always initialized.
 	* pathname.d (open_file): Bracify so that 'goto ergebnis_NIL' doesn't
 	jump into uninitialized variables.
-	* spvw_garcol.d (move_aligned_p1_p2): Don't use the gcc extension if
+	* spvw_garcol.d (move_aligned_p1_p2): Do not use the gcc extension if
 	compiling in C++ mode.
 	* stdbool.h.in (_Bool): Define differently in C++ mode.
 
@@ -49842,15 +49839,15 @@
 2001-06-25  Bruno Haible  <haible@clisp.cons.org>
 
 	* condition.lisp (handler-case): After signaling a warning for
-	duplicated :NO-ERROR clause, don't treat it like a regular clause.
+	duplicated :NO-ERROR clause, do not treat it like a regular clause.
 
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
 
 	Back out unneeded 2001-04-06 patch.
 	* makemake.in (NLS_INCLUDES): Set to empty if not using unicode.
-	* encoding.d: When not UNICODE, don't include "nls_ascii.c" and don't
-	define nls_ascii_table and nls_tables.
-	* pseudofun.d: When not UNICODE, don't relocate nls_ascii_table.
+	* encoding.d: When not UNICODE, do not include "nls_ascii.c" and
+	do not define nls_ascii_table and nls_tables.
+	* pseudofun.d: When not UNICODE, do not relocate nls_ascii_table.
 
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
 
@@ -49861,7 +49858,7 @@
 
 2001-06-16  Bruno Haible  <haible@clisp.cons.org>
 
-	* list.d (up2_test): Don't go through funcall() if the test function
+	* list.d (up2_test): Do not go through funcall() if the test function
 	is #'eq, #'eql or #'equal.
 	(up_test): Likewise.
 	(funcall_key): New macro.
@@ -50716,7 +50713,7 @@
 	mapping.
 	(exitunconditionally): New function.
 	(exitonerror): Use it.
-	(exit-on-error): Don't bind *BREAK-DRIVER*, as that impacts saved
+	(exit-on-error): Do not bind *BREAK-DRIVER*, as that impacts saved
 	memory images. Instead, establish a handler for INTERRUPT-CONDITION.
 	Generalize the normal handler from ERROR to SERIOUS-CONDITION.
 	(batchmode-break-driver): Remove function.
@@ -50901,12 +50898,12 @@
 	  libiconv-1.5.
 	(iconv): Define as macro, to cast second argument.
 	(iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs)
-	(iconv_range, ChannelStream_init): Don't call iconv_init.
+	(iconv_range, ChannelStream_init): Do not call iconv_init.
 
 2001-02-04  Sam Steingold  <sds@gnu.org>
 	    Bruno Haible  <haible@clisp.cons.org>
 
-	* pathname.d (whole_namestring): Don't set subr_self.
+	* pathname.d (whole_namestring): Do not set subr_self.
 	(file_namestring): New function.
 	(FILE-NAMESTRING): Simplification: Call file_namestring.
 	(ENOUGH-NAMESTRING): Set subr_self before calling whole_namestring.
@@ -50934,7 +50931,7 @@
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
-	* pathname.d (translate_directory): Don't choke if 'subst' doesn't
+	* pathname.d (translate_directory): Do not choke if 'subst' doesn't
 	  specify any pieces for the directory.
 
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
@@ -50953,11 +50950,11 @@
 	(host_namestring_parts): Use "\\\\" instead of twice "\\".
 	(directory_namestring): Include the host namestring parts.
 	(MERGE-PATHNAMES): If pathname's host is NIL but pathname's device
-	  is non-NIL, on Win32, don't take the defaults' host+device.
+	  is non-NIL, on Win32, do not take the defaults' host+device.
 	(MAKE-PATHNAME): If pathname's host and device are both non-NIL on
 	  Win32, signal an error.
 	(use_default_dir) [OS2, WIN32]: If the pathname already has a host:
-	  1. Don't insert the default drive. 2. Resolve :RELATIVE to
+	  1. Do not insert the default drive. 2. Resolve :RELATIVE to
 	  :ABSOLUTE.
 	(assure_dir_exists): Include host_namestring_parts.
 	(directory_exists): Likewise.
@@ -51141,7 +51138,7 @@
 
 2000-12-19  Bruno Haible  <haible@clisp.cons.org>
 
-	* time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Don't produce time_t values
+	* time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Do not produce time_t values
 	  >= 2^31.
 
 2000-12-13  Sam Steingold  <sds@gnu.org>
@@ -51262,7 +51259,7 @@
 2000-11-15  Bruno Haible  <haible@clisp.cons.org>
 
 	* makemake.in: If TSYS=win32msvc, introduce a Makefile variable MFLAGS.
-	(lisp.exe): Don't use /MD flag; use MFLAGS instead.
+	(lisp.exe): Do not use /MD flag; use MFLAGS instead.
 
 2000-11-14  Bruno Haible  <haible@clisp.cons.org>
 
@@ -51340,8 +51337,8 @@
 
 2000-10-22  Bruno Haible  <haible@clisp.cons.org>
 
-	* spvw.d (print_banner): Don't use non-ASCII argument of gettext.
-	* spvw_global.d (check_gc_consistency): Don't use non-ASCII error
+	* spvw.d (print_banner): Do not use non-ASCII argument of gettext.
+	* spvw_global.d (check_gc_consistency): Do not use non-ASCII error
 	message.
 
 2000-10-09  Bruno Haible  <haible@clisp.cons.org>
@@ -51469,7 +51466,7 @@
 
 2000-09-01  Bruno Haible  <haible@clisp.cons.org>
 
-	* eval.d (interpret_bytecode_): Don't produce "testb %edx,%edx" or
+	* eval.d (interpret_bytecode_): Do not produce "testb %edx,%edx" or
 	"testb %eax,%eax" any more.
 
 2000-08-19  Bruno Haible  <haible@clisp.cons.org>
@@ -51491,7 +51488,7 @@
 	* pathname.d (parse_logical_host_prefix): Rename from logical_host.
 	(string_logical_path_p): Remove function.
 	(parse_namestring): Integrate it here. When recognizing a logical
-	host, don't overwrite the :host argument.
+	host, do not overwrite the :host argument.
 
 	ANSI CL wants (PATHNAME (OPEN filename ...)) to return filename if
 	filename is a logical pathname.
@@ -51586,12 +51583,12 @@
 	(interpreted.mem, lispinit.mem, lispinit2.mem): On BeOS, copy the
 	executable before running it (workaround BeOS kernel bug).
 
-	* unix.d (sock_read, sock_write, closesocket): Don't #define on BeOS.
+	* unix.d (sock_read, sock_write, closesocket): Do not #define on BeOS.
 	* unixaux.d (sock_read, sock_write): New functions.
-	* stream.d (low_listen_unbuffered_handle): On BeOS, don't use select
+	* stream.d (low_listen_unbuffered_handle): On BeOS, do not use select
 	on file handles. Use O_NONBLOCK as a preferred alternative to
 	O_NDELAY.
-	(rd_ch_keyboard): On BeOS, don't use select on file handles.
+	(rd_ch_keyboard): On BeOS, do not use select on file handles.
 	(low_close_socket, low_read_unbuffered_socket):
 	(low_listen_unbuffered_socket, low_clear_input_unbuffered_socket):
 	(low_read_array_unbuffered_socket, low_write_unbuffered_socket):
@@ -51672,7 +51669,7 @@
 
 	* constobj.d (O(version)): Bump version number.
 	(O(old_version)): Remove.
-	* misc.d (SYSTEM::VERSION): Don't test for O(old_version) any more.
+	* misc.d (SYSTEM::VERSION): Do not test for O(old_version) any more.
 	* control.d (SYS::OLD-MACRO-FUNCTION): Remove function.
 	* pathname.d (SYS::OLD-OPEN): Remove function.
 	* record.d (CLOS::OLD-%ALLOCATE-INSTANCE): Remove function.
@@ -51687,7 +51684,7 @@
 
 	* pathname.d (MERGE-PATHNAMES): New variable called_from_make_pathname.
 	  Accept unbound slot values in this case.
-	(MAKE-PATHNAME): If a :DEFAULTS argument is given, don't fill in
+	(MAKE-PATHNAME): If a :DEFAULTS argument is given, do not fill in
 	  default values. Call MERGE-PATHNAMES with magic arguments
 	  :wild #'make-pathname.
 
@@ -51712,7 +51709,7 @@
 	(TOUCH): On Win32, permit touch to fail.
 	(iconv.h, iconv.lib): Fix win32 rules.
 	(lisp${LEXE}): Depend on ${XCL_ICONVLIB}.
-	(impnotes.html, clisp.html): On Win32, don't use sed.
+	(impnotes.html, clisp.html): On Win32, do not use sed.
 	(distrib): On Win32, postprocess impnotes.html and clisp.html.
 
 2000-05-23  Bruno Haible  <haible@clisp.cons.org>
@@ -51860,10 +51857,10 @@
 	* stream.d (finish_tty_output, force_tty_output): Ignore errno value
 	  after calling fsync() on BeOS.
 
-	* lispbibl.d (STACK_register): Don't define on BeOS.
+	* lispbibl.d (STACK_register): Do not define on BeOS.
 	(oint_type_*, oint_data_*): Define differently on BeOS.
 
-	* socket.d (SERVENT_TO_STACK, LISP:SOCKET-SERVICE-PORT): Don't define
+	* socket.d (SERVENT_TO_STACK, LISP:SOCKET-SERVICE-PORT): Do not define
 	  if UNIX_BEOS. BeOS5 lacks getservent() and getservbyport().
 	* spvw.d (main): On BeOS, add :BEOS to *features*.
 	* beossock.lisp: New file.
@@ -51887,7 +51884,7 @@
 	* lndir (link): If "ln" fails, try "cp -p".
 	* makemake.in (HLN): Rename from LN. Use @HLN@ instead of @LN@.
 	(LN_S): Rename from LN.
-	(init): Don't create linkkit.
+	(init): Do not create linkkit.
 	(linkkit): New rule.
 	(modular): Depend on linkkit.
 	(UnicodeData.txt): cd into directory before linking.
@@ -52001,14 +51998,14 @@
 	* unixconf.h.in (HAVE_STRERROR): New macro.
 	* unix.d (strerror): New declaration.
 	* lispbibl.d (init_errormsg_table): Remove declaration.
-	* errunix.d (sys_nerr, sys_errlist): Don't declare if HAVE_STRERROR.
+	* errunix.d (sys_nerr, sys_errlist): Do not declare if HAVE_STRERROR.
 	(strerror) [!HAVE_STRERROR]: New function.
 	(errormsg_table): Remove variable.
 	(init_errormsg_table): Remove function.
 	(get_errormsg): New function.
 	(OS_error_internal, errno_out): Use get_errormsg instead of
 	  errormsg_table.
-	* spvw.d (main): Don't call init_errormsg_table.
+	* spvw.d (main): Do not call init_errormsg_table.
 
 2000-03-14  Sam Steingold  <sds@gnu.org>
 
@@ -52035,11 +52032,11 @@
 
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* compiler.lsp (compile-file): Don't pass a third argument to the
+	* compiler.lsp (compile-file): Do not pass a third argument to the
 	  "~%~D error~:P, ~D warning~:P" format string.
 
-	* lisparit.d: Don't use invalid syntax "## ".
-	* posixmath.d: Don't use invalid syntax "## ".
+	* lisparit.d: Do not use invalid syntax "## ".
+	* posixmath.d: Do not use invalid syntax "## ".
 	(POSIX:BOGOMIPS): Set mv_count after computing value1, not before.
 
 	* clhs.lsp: The code lives in package SYSTEM, not LISP.
@@ -52195,7 +52192,7 @@
 
 2000-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* makemake.in: Don't install emacs/*.el any more.
+	* makemake.in: Do not install emacs/*.el any more.
 
 2000-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -52295,7 +52292,7 @@
 
 1999-12-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* pathname.d (translate_version): Don't access Car(*subst) before
+	* pathname.d (translate_version): Do not access Car(*subst) before
 	  checking whether consp(*subst).
 
 1999-12-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -52417,7 +52414,7 @@
 
 	* stream.d (iconv_mbstowcs, iconv_wcstombs): When called from a
 	  stream, and when valid data is followed by invalid data (EILSEQ),
-	  return the converted valid data and don't signal an error yet.
+	  return the converted valid data and do not signal an error yet.
 
 1999-11-30  Sam Steingold  <sds@gnu.org>
 
@@ -52436,7 +52433,7 @@
 	  arrays.
 	(char_width, CHAR-WIDTH, STRING-WIDTH): New functions.
 	* stream.d (wr_ss_lpos): Call char_width instead of graphic_char_p.
-	  Don't assume every character increases the line position by 1.
+	  Do not assume every character increases the line position by 1.
 	(write_char): Likewise.
 	* io.d (pphelp_string_width): New function.
 	(justify_end_eng, justify_end_weit): Use pphelp_string_width instead
@@ -52480,7 +52477,7 @@
 
 1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* modules/clx/mit-clx/clx.lsp (base-char): Don't redefine in CLISP.
+	* modules/clx/mit-clx/clx.lsp (base-char): Do not redefine in CLISP.
 
 1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -52623,18 +52620,18 @@
 	  are now always simple.
 	(array_element_type): Update.
 	(BIT, SBIT): Likewise.
-	(bit_up): Simplify: Array_type_bvector now implies Atype_Bit. Don't
+	(bit_up): Simplify: Array_type_bvector now implies Atype_Bit. Do not
 	  set arrayflags_notbytep_bit.
 	(VECTOR-PUSH-EXTEND): Use allocate_bit_vector in place of
 	  allocate_byte_vector.
 	(allocate_bit_vector_0): Update.
-	(make_ssstring): Don't set arrayflags_notbytep_bit.
+	(make_ssstring): Do not set arrayflags_notbytep_bit.
 	(make_ssbvector): Create an 8Bit vector.
 	(ssbvector_push_extend): Update.
 	(make_storagevector): Use allocate_bit_vector in place of
 	  allocate_byte_vector.
 	(test_displaced): Update.
-	(MAKE-ARRAY): Update. Don't set arrayflags_notbytep_bit.
+	(MAKE-ARRAY): Update. Do not set arrayflags_notbytep_bit.
 	(reshape): Update.
 	(SYS::MAKE-BIT-VECTOR): Update.
 	* eval.d (get_closure): Create an 8Bit vector.
@@ -52669,13 +52666,13 @@
 	(enum_hs_byte_vector): Remove enum item.
 	(heap_statistics_mapper): Update. Treat sb2vector etc. and ob2vector
 	  etc. and Rectype_Sb2vector etc. and Rectype_ob2vector etc.
-	* init.lsp: Export simple-2bit-vector etc. and 2bit-vector etc. Don't
+	* init.lsp: Export simple-2bit-vector etc. and 2bit-vector etc. Do not
 	  export BYTE-VECTOR.
 	* sequence.d (get_seq_type): Update.
 	(READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): Remove ->data indirection
 	  for storage vectors.
 	* io.d (allocate_syntax_table): Allocate an 8Bit-vector.
-	(init_reader): Don't set arrayflags_notbytep_bit.
+	(init_reader): Do not set arrayflags_notbytep_bit.
 	(test_dots, read_internal, uninterned_reader): Assume an 8bit-vector.
 	(bit_vector_reader, array_reader, structure_reader, closure_reader):
 	  Update.
@@ -52704,7 +52701,7 @@
 	Make the TYPECODES model more extensible.
 	* lispbibl.d (SUN4_29_1, SUN4_29_2, ACORN_1, ACORN_2, UNIX_SYSV_UHC_2):
 	  Remove definitions.
-	(TYPECODES): Don't define if we can force alignof(subr_) = 4.
+	(TYPECODES): Do not define if we can force alignof(subr_) = 4.
 	(oint_type_mask, oint_addr_mask): Remove most old, hand-determined
 	  definitions.
 	(TB7, ..., TB0): Never define TB5 to -1.
@@ -52735,12 +52732,12 @@
 	(divu_3216_1616, divu_3232_3232, divu_6432_3232, divu_32_rest)
 	(isqrt_64_32): Like for SPARC, also for SPARC64.
 	* intlog.d (integerlength8, integerlength16, integerlength32, ord2_32):
-	  Don't use SPARC32 version for SPARC64.
+	  Do not use SPARC32 version for SPARC64.
 
 1999-10-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* utils/unicode/Makefile: Add nls_jisx0201.c to the targets.
-	  In the iso-8859-* tables, don't make 0x80..0x9F invalid.
+	  In the iso-8859-* tables, do not make 0x80..0x9F invalid.
 	  Generate nls_koi8_r.c from the ftp.unicode.org table.
 	* encoding.d: Include nls_jisx0201.c.
 	(nls_tables): Add nls_jisx0201_table.
@@ -52882,40 +52879,40 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	Assume size_t, pid_t, uid_t, gid_t, off_t are defined.
-	* aclocal.m4 (CL_GETPWUID): Don't depend on AC_TYPE_UID_T.
-	(CL_MMAP): Don't depend on AC_TYPE_SIZE_T, AC_TYPE_OFF_T.
-	* configure.in: Don't call AC_TYPE_SIZE_T, AC_TYPE_PID_T,
+	* aclocal.m4 (CL_GETPWUID): Do not depend on AC_TYPE_UID_T.
+	(CL_MMAP): Do not depend on AC_TYPE_SIZE_T, AC_TYPE_OFF_T.
+	* configure.in: Do not call AC_TYPE_SIZE_T, AC_TYPE_PID_T,
 	  AC_TYPE_UID_T, AC_TYPE_OFF_T.
-	* unixconf.h.in: Don't define size_t, pid_t, uid_t, off_t.
+	* unixconf.h.in: Do not define size_t, pid_t, uid_t, off_t.
 
 	No compiler expands __builtin_strcmp inline.
 	* aclocal.m4 (CL_BUILTIN_STRCMP): Remove.
-	* configure.in: Don't call CL_BUILTIN_STRCMP.
-	* unixconf.h.in: Don't define HAVE_BUILTIN_STRCMP.
-	* lispbibl.d (asciz_equal): Don't define as a macro.
+	* configure.in: Do not call CL_BUILTIN_STRCMP.
+	* unixconf.h.in: Do not define HAVE_BUILTIN_STRCMP.
+	* lispbibl.d (asciz_equal): Do not define as a macro.
 	* spvw.d (asciz_equal): Define as a function always.
 
 	Assume clock_t is defined.
 	* aclocal.m4 (CL_CLOCK_T): Remove.
-	* configure.in: Don't call CL_CLOCK_T.
-	* unixconf.h.in: Don't define CLOCK_T.
+	* configure.in: Do not call CL_CLOCK_T.
+	* unixconf.h.in: Do not define CLOCK_T.
 	* acorn.d: Likewise.
 	* time.d (get_run_time): Use clock_t instead of CLOCK_T.
 
 	Assume mode_t is defined.
-	* aclocal.m4 (CL_MKDIR): Don't determine MODE_T, use mode_t instead.
-	(CL_OPEN): Use mode_t instead of MODE_T. Don't depend on CL_MKDIR.
-	* unixconf.h.in: Don't define MODE_T.
+	* aclocal.m4 (CL_MKDIR): Do not determine MODE_T, use mode_t instead.
+	(CL_OPEN): Use mode_t instead of MODE_T. Do not depend on CL_MKDIR.
+	* unixconf.h.in: Do not define MODE_T.
 	* unix.d: Use mode_t instead of MODE_T.
 	* unixaux.d (nonintr_open): Likewise.
 
 	Assume ISC and Minix are dead.
-	* configure.in: Don't call AC_ISC_POSIX and AC_MINIX.
-	* unixconf.h.in: Don't define _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX.
+	* configure.in: Do not call AC_ISC_POSIX and AC_MINIX.
+	* unixconf.h.in: Do not define _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX.
 
 	Assume rename() is available.
-	* aclocal.m4 (CL_RENAME): Don't test for rename.
-	* unixconf.h.in: Don't define HAVE_RENAME.
+	* aclocal.m4 (CL_RENAME): Do not test for rename.
+	* unixconf.h.in: Do not define HAVE_RENAME.
 	* unix.d: Assume rename exists.
 	* unixaux.d (rename): Remove function.
 
@@ -52934,32 +52931,32 @@
 	(CL_SHM_RMID, CL_DYNLOAD, CL_ICONV, CL_FILECHARSET):
 	  Assume <stdlib.h> exists.
 	(CL_STDLIB_H): Remove.
-	* configure.in: Don't call CL_STDLIB_H.
-	* unixconf.h.in: Don't define HAVE_STDLIB_H.
+	* configure.in: Do not call CL_STDLIB_H.
+	* unixconf.h.in: Do not define HAVE_STDLIB_H.
 
 	Assume <stddef.h> exists.
 	* aclocal.m4 (CL_STDDEF_H): Remove.
-	* configure.in: Don't call CL_STDDEF_H.
-	* unixconf.h.in: Don't define HAVE_STDDEF_H.
+	* configure.in: Do not call CL_STDDEF_H.
+	* unixconf.h.in: Do not define HAVE_STDDEF_H.
 
 	Assume waitpid() is available.
-	* aclocal.m4 (CL_WAITPID): Don't test for waitpid or <sys/wait.h>.
+	* aclocal.m4 (CL_WAITPID): Do not test for waitpid or <sys/wait.h>.
 	* unix.d: Assume waitpid exists.
 	* unixaux.d (wait2): Likewise.
 	* sigcld.d (end_want_sigcld): Likewise.
-	* unixconf.h.in: Don't define HAVE_WAITPID and HAVE_SYS_WAIT_H.
+	* unixconf.h.in: Do not define HAVE_WAITPID and HAVE_SYS_WAIT_H.
 
 	Assume memset() is available.
-	* aclocal.m4 (CL_MEMSET): Don't test for memset.
+	* aclocal.m4 (CL_MEMSET): Do not test for memset.
 	(CL_SIGACTION_REINSTALL, CL_SIGACTION_UNBLOCK): Assume memset exists.
 	* spvw.d: Likewise.
 	* unix.d: Likewise.
 	* unixaux.d (install_signal_handler): Likewise.
-	* unixconf.h.in: Don't define HAVE_MEMSET.
+	* unixconf.h.in: Do not define HAVE_MEMSET.
 	* win32.d: Likewise.
 
 	* configure.in: Remove AC_C_CONST call.
-	* unixconf.h.in (const): Don't define.
+	* unixconf.h.in (const): Do not define.
 
 	* aclocal.m4 (CL_RAISE): Fix harmless typo.
 
@@ -52989,12 +52986,12 @@
 
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* modules/clx/new-clx/demos/qix.lsp (draw-qix): Don't ignore nlines.
+	* modules/clx/new-clx/demos/qix.lsp (draw-qix): Do not ignore nlines.
 	  Improve herald message.
 
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* pathname.d (PARSE-NAMESTRING): Don't make strong assumptions about
+	* pathname.d (PARSE-NAMESTRING): Do not make strong assumptions about
 	  the algorithm employed by nreconc. Fixes a bug parsing "~/foo/".
 
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53052,8 +53049,8 @@
 1999-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* makemake.in (distrib): If BINARY_DISTRIB is defined, distribute
-	  clisp-link, linkkit, lisp.a etc. nevertheless, because we don't know
-	  whether the user has a C compiler or not.
+	clisp-link, linkkit, lisp.a etc. nevertheless, because we do not
+	know whether the user has a C compiler or not.
 
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -53107,7 +53104,7 @@
 	* makemake.in: If TSYS = sun4 and not compiling with GNU C, assume
 	  SunPRO C. Drop dependencies and rules for cc_sparc.il.
 	* cc_sparc.il: Remove file.
-	* FILES.1: Don't mention cc_sparc.il.
+	* FILES.1: Do not mention cc_sparc.il.
 
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -53150,7 +53147,7 @@
 
 	* stream.d (low_clear_input_unbuffered_handle) [WIN32]: Set the
 	  ignore_next_LF flag after eating a CR.
-	(clear_input_unbuffered) [WIN32]: Don't reset the ignore_next_LF
+	(clear_input_unbuffered) [WIN32]: Do not reset the ignore_next_LF
 	  flag.
 
 1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53166,7 +53163,7 @@
 
 1999-07-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	Don't access objects in memory through `oint*' pointers.
+	Do not access objects in memory through `oint*' pointers.
 	* spvw_mark.d (mark, unmark, marked): Use as_object/as_oint
 	  conversions instead of oint* memory access.
 	* spvw_update.d (update_STACKs): Use as_oint conversion instead of
@@ -53213,7 +53210,7 @@
 
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* lispbibl.d (GENERATIONAL_GC): Don't define on IRIX.
+	* lispbibl.d (GENERATIONAL_GC): Do not define on IRIX.
 
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -53231,7 +53228,7 @@
 
 1999-06-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	Don't use Unicode API on Win32. It does not work on Win95.
+	Do not use Unicode API on Win32. It does not work on Win95.
 	* lispbibl.d, win32.d, spvw.d, spvw_debug.d, spvw_language.d,
 	  spvw_memfile.d, encoding.d, charstrg.d, pathname.d, stream.d,
 	  misc.d, error.d, errwin32.d, win32aux.d: Revert most of 1999-06-20
@@ -53367,7 +53364,7 @@
 
 1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	Don't force building clisp.dvi on non-Unix OSes.
+	Do not force building clisp.dvi on non-Unix OSes.
 	* makemake.in (MANUALS): Remove clisp.dvi.
 	(manual): Add it, on Unix only.
 	(manualx): Add it, on non-Unix only.
@@ -53396,7 +53393,7 @@
 
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* socket.d (inet_addr): Don't declare on WIN32.
+	* socket.d (inet_addr): Do not declare on WIN32.
 	(setsockopt): Remove second declaration.
 	(SOCKET-SERVICE-PORT): On WIN32, use a replacement for getservent().
 
@@ -53415,7 +53412,7 @@
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* stream.d (strm_keyboard_len): Define as strm_len, not 0.
-	(make_keyboard_stream): Don't add strm_len to strm_keyboard_len, it
+	(make_keyboard_stream): Do not add strm_len to strm_keyboard_len, it
 	  is already included.
 
 1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53624,7 +53621,7 @@
 
 1999-06-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* init.lsp (defun): Don't use get-funname-symbol, to avoid
+	* init.lsp (defun): Do not use get-funname-symbol, to avoid
 	  bootstrapping problems.
 
 1999-06-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53637,7 +53634,7 @@
 	Make DEFUN behave the same way w.r.t. inlining, whether executing
 	compiled or interpreted.
 	* compiler.lsp (compile-form-in-toplevel-environment): New function.
-	* init.lsp (load): Call it, don't pass nil as %denv% to compile-form.
+	* init.lsp (load): Call it, do not pass nil as %denv% to compile-form.
 	(defun): Save the lambdabody for inline compilation also when
 	  running interpreted.
 
@@ -53708,7 +53705,7 @@
 
 1999-06-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* cfgwin32.lsp (clhs-root): Don't signal an error if value not defined
+	* cfgwin32.lsp (clhs-root): Do not signal an error if value not defined
 	  in registry.
 
 1999-06-04  Sam Steingold  <sds@goems.com>
@@ -53721,11 +53718,11 @@
 
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* trace.lsp (untrace1): Don't use replace-in-fenv here either.
+	* trace.lsp (untrace1): Do not use replace-in-fenv here either.
 
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* makemake.in (READLINELIB): Don't pass option "-r" to $(MAKE) for
+	* makemake.in (READLINELIB): Do not pass option "-r" to $(MAKE) for
 	  building in subdirectory. It doesn't work with Irix 6.5 `make'
 	  because readline/Makefile.in uses implicit rules.
 
@@ -53762,7 +53759,7 @@
 
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* makemake.in (CFILES): Don't include $UNICODE_INCLUDES $NLS_INCLUDES.
+	* makemake.in (CFILES): Do not include $UNICODE_INCLUDES $NLS_INCLUDES.
 	(init): Instead, add them to the `init' target.
 
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53779,7 +53776,7 @@
 
 	* asmi386.hh (DECLARE_FUNCTION): New macro.
 	(INSN2MOVX): Fix bug with ANSI C preprocessors.
-	(ALIGN): Don't put parentheses. For Solaris/x86.
+	(ALIGN): Do not put parentheses. For Solaris/x86.
 	* asmi386.sh: Introduce C(...) macro calls. Recognize more jumps.
 	  Introduce DECLARE_FUNCTION(...) macro calls.
 
@@ -53837,7 +53834,7 @@
 	  --with-unicode.
 	(XCFLAGS, UNICODE_INCLUDES, NLS_INCLUDES): Test $with_nounicode
 	  instead of $with_unicode.
-	* configure: Don't pass --with-unicode to makemake.
+	* configure: Do not pass --with-unicode to makemake.
 	* Makefile.devel (*/makefile*): Create without --with-unicode.
 
 1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53855,7 +53852,7 @@
 
 1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* makemake.in (clean1, clean2): Don't remove wlisp* and wsuite*.
+	* makemake.in (clean1, clean2): Do not remove wlisp* and wsuite*.
 
 1999-05-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -53868,7 +53865,7 @@
 	* makemake.in (GROFF): New variable.
 	(htmldir, dvidir): New Makefile variables.
 	(ROFF_MAN, ROFF_DVI): Set if $GROFF is nonempty.
-	(ROFF_DVI): Don't define if $GROFF is empty.
+	(ROFF_DVI): Do not define if $GROFF is empty.
 	(clisp.dvi): Create if and only if $GROFF is nonempty.
 	(MANUALS): Include clisp.dvi if and only if $GROFF is nonempty.
 	(installdirs): Create $(htmldir) and $(dvidir) instead of
@@ -53891,7 +53888,7 @@
 
 1999-05-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* macros2.lsp (check-type): Don't quote the string argument.
+	* macros2.lsp (check-type): Do not quote the string argument.
 	* conditio.lsp (check-type): Likewise.
 
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -53926,7 +53923,7 @@
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	Make modules.o part of every linking set, including `base'.
-	* makemake.in (lisp.a): Don't include modules.o.
+	* makemake.in (lisp.a): Do not include modules.o.
 	(modular): Depend on modules.o.
 	(base): Link over modules.o.
 	(distmakefile): Add modules.o to the BASE_LIBS and BASE_FILES
@@ -53940,11 +53937,11 @@
 
 1999-05-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* makemake.in (distmakefile): Don't set $wlibs, not needed any more.
+	* makemake.in (distmakefile): Do not set $wlibs, not needed any more.
 
 1999-05-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* spvw.d (initmem): Don't call SYS::SET-ANSI (no need, doesn't work).
+	* spvw.d (initmem): Do not call SYS::SET-ANSI (no need, doesn't work).
 
 1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -53975,7 +53972,7 @@
 
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* spvw.d (init_symbol_values): Don't call a function here, too early.
+	* spvw.d (init_symbol_values): Do not call a function here, too early.
 	(initmem): Call SYS::SET-ANSI here.
 
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -54041,7 +54038,7 @@
 	(__const): Define as const, not empty.
 	* unix.d: Include <sys/time.h> before <sys/resource.h>. Treat
 	  UNIX_RHAPSODY like UNIX_NEXTSTEP.
-	* intlog.d (integerlength32): Don't use the cntlz instruction on
+	* intlog.d (integerlength32): Do not use the cntlz instruction on
 	  UNIX_RHAPSODY.
 
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -54066,7 +54063,7 @@
 	(near_SP_overflow) [UNIX]: New declaration.
 	* spvw.d (near_SP_overflow): New function.
 	* spvw_fault.d (handle_fault): Add `verbose' argument. If it is 1,
-	  don't print error messages.
+	  do not print error messages.
 	* spvw_sigsegv.d (sigsegv_handler): Add `serious' argument.
 	(stackoverflow_handler): Add `scp' argument. Bring back STACK to
 	  a sane value.
@@ -54134,7 +54131,7 @@
 	(stream-read-byte-sequence, stream-write-byte)
 	(stream-write-byte-sequence): New generic functions.
 	* describe.lsp (describe-object): Call open-stream-p, since
-	  input-stream-p and output-stream-p don't tell whether a stream is
+	  input-stream-p and output-stream-p do not tell whether a stream is
 	  open.
 
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -54159,12 +54156,12 @@
 
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* clos.lsp (install-dispatch): Don't assume the preliminary function
-	  has a VENV. Generic functions without any method don't have one.
+	* clos.lsp (install-dispatch): Do not assume the preliminary function
+	  has a VENV. Generic functions without any method do not have one.
 
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* init.lsp (cerror): Don't go into an interactive reploop if
+	* init.lsp (cerror): Do not go into an interactive reploop if
 	  *break-driver* is not yet set. This permits typing (load "init.lsp")
 	  in an interactive lisp.run.
 
@@ -54267,7 +54264,7 @@
 
 	* clos.lsp (*allow-mixing-metaclasses*): New variable.
 	(initialize-instance-standard-class, make-instance-built-in-class)
-	(initialize-instance-structure-class): Don't check the metaclass
+	(initialize-instance-structure-class): Do not check the metaclass
 	  of the direct superclasses if *allow-mixing-metaclasses* is true.
 
 1999-04-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -54306,35 +54303,35 @@
 	* stream.d (wr_ss_Pseudofun): Remove type definition.
 	(wr_ss): Remove macro.
 	(wr_ss_dummy, wr_ss_dummy_nogc): Remove functions.
-	(close_dummys): Don't set strm_wr_ss field.
+	(close_dummys): Do not set strm_wr_ss field.
 	(wr_ss_synonym): Remove function.
-	(make_synonym_stream): Don't set strm_wr_ss field.
+	(make_synonym_stream): Do not set strm_wr_ss field.
 	(wr_ch_array_broad): Optimize.
 	(wr_ss_broad): Remove function.
-	(make_broadcast_stream): Don't set strm_wr_ss field.
+	(make_broadcast_stream): Do not set strm_wr_ss field.
 	(make_concatenated_stream): Likewise.
 	(wr_ss_twoway): Remove function.
-	(make_twoway_stream, make_echo_stream): Don't set strm_wr_ss field.
+	(make_twoway_stream, make_echo_stream): Do not set strm_wr_ss field.
 	(MAKE-STRING-INPUT-STREAM): Likewise.
 	(wr_ss_str_out): Remove function.
-	(make_string_output_stream): Don't set strm_wr_ss field.
+	(make_string_output_stream): Do not set strm_wr_ss field.
 	(SYSTEM::MAKE-STRING-PUSH-STREAM): Likewise.
 	(wr_ss_pphelp): Remove function.
-	(make_pphelp_stream): Don't set strm_wr_ss field.
+	(make_pphelp_stream): Do not set strm_wr_ss field.
 	(MAKE-BUFFERED-INPUT-STREAM, MAKE-BUFFERED-OUTPUT-STREAM): Likewise.
 	(wr_ch_array_generic): Rename from wr_ss_generic.
-	(MAKE-GENERIC-STREAM): Don't set strm_wr_ss field.
+	(MAKE-GENERIC-STREAM): Do not set strm_wr_ss field.
 	(wr_ss_unbuffered_unix, wr_ss_unbuffered_mac, wr_ss_unbuffered_dos):
 	  Remove functions.
-	(fill_pseudofuns_unbuffered): Don't set strm_wr_ss field.
+	(fill_pseudofuns_unbuffered): Do not set strm_wr_ss field.
 	(wr_ss_buffered_unix, wr_ss_buffered_mac, wr_ss_buffered_dos):
 	  Remove functions.
-	(fill_pseudofuns_buffered): Don't set strm_wr_ss field.
+	(fill_pseudofuns_buffered): Do not set strm_wr_ss field.
 	(make_keyboard_stream, make_terminal_stream_): Likewise.
 	(wr_ch_array_terminal1): Rename from wr_ss_terminal1.
 	(wr_ch_array_terminal2): Rename from wr_ss_terminal2.
 	(wr_ch_array_terminal3): Rename from wr_ss_terminal3
-	(make_terminal_stream_): Don't set strm_wr_ss field.
+	(make_terminal_stream_): Do not set strm_wr_ss field.
 	(MAKE-WINDOW, make_printer_stream, make_socket_stream): Likewise.
 	* pseudofun.d: Update.
 
@@ -54633,7 +54630,7 @@
 	* spvw_language.d (language_deutsch, language_francais): Define only
 	  if GNU_GETTEXT.
 	(init_languages_from): Treat de and fr only if GNU_GETTEXT.
-	(init_language) [!GNU_GETTEXT]: Don't treat de and fr.
+	(init_language) [!GNU_GETTEXT]: Do not treat de and fr.
 
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -54694,7 +54691,7 @@
 	(XLIB:QUERY-EXTENSION): Use misc_encoding.
 	(XPM:READ-FILE-TO-PIXMAP): Use pathname_encoding.
 	* modules/postgresql642/postgresql.lsp: Comments.
-	Don't need to include <stdio.h>.
+	Do not need to include <stdio.h>.
 	(PGnotify): Use foreign type ffi:character, not ffi:char.
 	(pqbool): Use foreign type ffi:char, not ffi:character.
 	* modules/postgresql642sql.lsp (sql-error): Condition type is
@@ -54705,7 +54702,7 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* _README: Refer to _README.en unconditionally.
-	* makemake.in: Don't refer to `README.en'. `README' is enough.
+	* makemake.in: Do not refer to `README.en'. `README' is enough.
 
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -54761,8 +54758,8 @@
 
 	* socket.d (atoi): Remove declaration.
 	(SERVENT_TO_STACK): Add `tmp' local variable.
-	(SOCKET-SERVICE-PORT): Don't accept symbols, only strings and
-	  integers, as service-name. Don't call fehler_string_integer for
+	(SOCKET-SERVICE-PORT): Do not accept symbols, only strings and
+	  integers, as service-name. Do not call fehler_string_integer for
 	  non-fixnums. Use with_string_0 instead of TheAsciz(string_to_asciz(.
 	  Fix placement of begin_system_call()/end_system_call().
 	* subr.d: Keep in sync.
@@ -54802,7 +54799,7 @@
 	  only around the necessary code. Update translations. Terminate
 	  sentence with a dot.
 	(describe-object PACKAGE): Keep "." internationalizable. Update
-	  translations. Don't sort L if all we need is its length.
+	  translations. Do not sort L if all we need is its length.
 	(describe): Update translations.
 	(apropos-list): Reindent.
 
@@ -55000,12 +54997,12 @@
 	* intparam.d (main7): Use %lX instead of %X for a `long'.
 	(main8): Adapt for C++.
 
-	* configure: Don't configure in readline subdir if compiling
+	* configure: Do not configure in readline subdir if compiling
 	  in C++ mode.
 
 	* utils/modprep.d: Define `inline' to empty when compiling with
 	  "gcc -ansi -pedantic".
-	(String_equalsIgnoreCase): Don't use `isascii', it is not portable.
+	(String_equalsIgnoreCase): Do not use `isascii', it is not portable.
 
 	* io.d (unicode_attribute, graphic_char_p): Remove the macros. The
 	  global definition in charstrg.d is sufficient.
@@ -55119,7 +55116,7 @@
 	* stream.d (iconv_mblen): Optimize and make consistent with
 	  iconv_mbstowcs.
 	(iconv_wcslen): Optimize and make consistent with iconv_wcstombs.
-	(iconv_wcstombs): Don't loop until outsize==0. The caller may have
+	(iconv_wcstombs): Do not loop until outsize==0. The caller may have
 	  given a larger buffer than necessary.
 	(iconv_range): New function.
 	* pseudofun.d: Update.
@@ -55159,7 +55156,7 @@
 
 1999-03-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* format.lsp (format-character): Don't print the name of printable
+	* format.lsp (format-character): Do not print the name of printable
 	  characters.
 
 1999-03-12  Sam Steingold  <sds@gnu.org>
@@ -55186,7 +55183,7 @@
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* stream.d (FILE-STRING-LENGTH): Depend on the stream's encoding.
-	  Don't look at the strm_wr_ch pointer.
+	  Do not look at the strm_wr_ch pointer.
 
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -55198,7 +55195,7 @@
 	Fix a bug: clear-input did not kill the EOF condition in terminal2
 	and terminal3 streams.
 	* stream.d (clear_input_keyboard): Use ls_avail_p.
-	(clear_input_terminal2): Call clear_input_unbuffered, don't call
+	(clear_input_terminal2): Call clear_input_unbuffered, do not call
 	  clear_tty_input directly. Use ls_avail_p.
 	(clear_input_terminal3): Likewise.
 
@@ -55268,12 +55265,12 @@
 	  large enough for IPv6. Change the `truename' field into an array,
 	  so it does not need to point to static or temporary data.
 	(MAXHOSTNAMELEN): Define.
-	* win32.d: Define HAVE_IPV4, don't define HAVE_IPV6.
+	* win32.d: Define HAVE_IPV4, do not define HAVE_IPV6.
 	* stream.d (publish_host_data): Test hd.truename for being "", not
 	  NULL. Allocate the temporary string on the stack, instead of malloc.
 	* misc.d (MACHINE-INSTANCE): Moved to socket.d.
-	* socket.d: Don't define UNIXCONN, TCPCONN, SOCKET_STREAMS here.
-	  Don't define MAXHOSTNAMELEN here.
+	* socket.d: Do not define UNIXCONN, TCPCONN, SOCKET_STREAMS here.
+	  Do not define MAXHOSTNAMELEN here.
 	(get_hostname): New macro.
 	(ipv4_ntop, ipv6_ntop): New macros.
 	(MACHINE-INSTANCE): Moved here from socket.d. Consider h->h_addrtype
@@ -55295,22 +55292,22 @@
 	(fill_hostname): Remove function, obsoleted by ipv4_ntop.
 	(sockaddr_max): New type.
 	(socket_getlocalname_aux): New function, taken out of
-	  socket_getlocalname. Don't need to bzero() the result. Support IPv6.
+	  socket_getlocalname. Do not need to bzero() the result. Support IPv6.
 	(socket_getlocalname): Use socket_getlocalname_aux. Return the true
 	  host name instead of "localhost".
-	(socket_getpeername): Don't need to bzero() the result. Support IPv6.
+	(socket_getpeername): Do not need to bzero() the result. Support IPv6.
 	  If truename unknown, return it as "" instead of NULL.
 	(bindlisten_via_ip): New function, taken out of create_server_socket.
 	  Close the socket in case of failure.
 	(create_server_socket): Use with_hostname and bindlisten_via_ip.
-	  Don't need to bzero() the addr. Use the true host name instead of
+	  Do not need to bzero() the addr. Use the true host name instead of
 	  "localhost". After calling getsockname(), support IPv6. Make the
-	  final getsockname() after listen(), not before. Don't need to
+	  final getsockname() after listen(), not before. Do not need to
 	  bzero() the result.
 	(accept_connection): Support IPv6.
 	(connect_via_ip): New function, taken out of create_client_socket.
 	  If connect() fails, save errno during closesocket.
-	(create_client_socket): Don't need to bzero() the sockaddr. Use
+	(create_client_socket): Do not need to bzero() the sockaddr. Use
 	  with_hostname and connect_via_ip.
 
 1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -55345,7 +55342,7 @@
 	* configure: Optionally pass/recommend --with-no-termcap-ncurses for
 	  makemake.
 	* makemake.in (XCFLAGS): Optionally add -DNO_TERMCAP_NCURSES.
-	* lispbibl.d: If NO_TERMCAP_NCURSES is defined, don't define KEYBOARD
+	* lispbibl.d: If NO_TERMCAP_NCURSES is defined, do not define KEYBOARD
 	  and SCREEN.
 	* spvw_sigwinch.d (update_linelength): Respect NO_TERMCAP_NCURSES.
 
@@ -55364,26 +55361,26 @@
 	* graph.d: Remove file.
 	* gettext/po/Makefile.devel (DSOURCES): Remove graph.
 	* unix.d (geteuid, setreuid): Remove declarations.
-	* makemake.in (LIBS): Don't add -lgraph and -lvideo on EMX.
+	* makemake.in (LIBS): Do not add -lgraph and -lvideo on EMX.
 	(CPARTS): Remove graph.
-	(lisp.exe rule): Don't use emx options -aim or -acmi.
+	(lisp.exe rule): Do not use emx options -aim or -acmi.
 	* lispbibl.d (GRAPHICS, GRAPHICS_SWITCH): Remove definitions.
 	(switch_text_mode): Remove declaration.
-	* spvw.d (main): Don't drop setuid-root privilege. Don't call
+	* spvw.d (main): Do not drop setuid-root privilege. Do not call
 	  switch_text_mode.
 	* stream.d (low_read_unbuffered_handle, low_listen_unbuffered_handle)
 	(low_read_array_unbuffered_handle, low_write_unbuffered_handle)
 	(low_write_array_unbuffered_handle, rd_ch_terminal2)
-	(rd_ch_terminal3, out_char): Don't call switch_text_mode.
+	(rd_ch_terminal3, out_char): Do not call switch_text_mode.
 
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* configure: Don't tell the user to do "cd .".
+	* configure: Do not tell the user to do "cd .".
 
 1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* graph.d (GRAPHICS_X, GRAPHICS_SUN): Remove unfinished code.
-	* makemake.in: Don't link with ${X_LIBS}, but keep the Makefile
+	* makemake.in: Do not link with ${X_LIBS}, but keep the Makefile
 	  variable for possible future use.
 	* clisp-link.in: Likewise.
 
@@ -55502,13 +55499,13 @@
 	(name_char): Accept #\Uxxxx as a name for any Unicode character.
 	* io.d (char_reader): Remove #\Uxxxx recognition code, now done by
 	  `name_char'.
-	(pr_character): For graphic standard characters, don't look up the
+	(pr_character): For graphic standard characters, do not look up the
 	  name.
 
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	Improve error checking in parse-namestring.
-	* pathname.d (legal_namechar): Don't accept Unicode characters which
+	* pathname.d (legal_namechar): Do not accept Unicode characters which
 	  are not 1 byte in the pathname_encoding.
 
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
@@ -55845,13 +55842,13 @@
 	(strm_channel_extrafields_struct): bitsize is now unconditional.
 	(close_ichannel, close_ochannel): Test for bitsize > 0.
 	(make_unbuffered_stream): Set ChannelStream_bitsize in all cases.
-	  Don't set strmflags_i...
+	  Do not set strmflags_i...
 	(position_file_i_buffered): Dispatch on bitsize, not flags.
 	(logical_position_file_start, logical_position_file)
 	(logical_position_file_end): Likewise.
 	(fill_pseudofuns_buffered): Likewise.
 	(make_buffered_stream): Set ChannelStream_bitsize in all cases.
-	  Don't set strmflags_i...
+	  Do not set strmflags_i...
 	(buffered_flush_everything): Dispatch on bitsize, not flags.
 	(closed_buffered): Test for bitsize > 0.
 	(SYSTEM::SET-STREAM-ELEMENT-TYPE): Simplify accordingly.
@@ -55869,7 +55866,7 @@
 	* charstrg.d (SYSTEM::BASE-CHAR-P): Define only when needed.
 	* spvw.d (init_object_tab): Add :BASE-CHAR=CHARACTER to *features*.
 	* io.d: Update.
-	* defs2.lsp (dispatch-reader): Don't use base-char-p and
+	* defs2.lsp (dispatch-reader): Do not use base-char-p and
 	  base-char-code-limit.
 	(designator): Depend upon :BASE-CHAR=CHARACTER.
 	(base-char-designator-p): Define only when needed.
@@ -55938,7 +55935,7 @@
 	  Symlink them.
 	(depends): Add $UNICODE_INCLUDES for charstrg. Add $NLS_INCLUDES for
 	  encoding.
-	* lispbibl.d (CHART_STRUCT): Don't define on m68k and arm CPUs.
+	* lispbibl.d (CHART_STRUCT): Do not define on m68k and arm CPUs.
 	(char_int_len): Define as 16 for UNICODE.
 	(Encoding) [UNICODE]: Add more fields.
 	(encoding_length): Change value.
@@ -56239,7 +56236,7 @@
 	(FILE-STRING-LENGTH): Update.
 	* pseudofun.d: Update.
 	* pathname.d (open_file): Change calling convention.
-	(OPEN): Don't check the :external-format argument here.
+	(OPEN): Do not check the :external-format argument here.
 	* places.lsp (stream-external-format): New defsetf.
 	* macros2.lsp (with-output-to-printer, make-printer-stream): Accept
 	  a :external-format argument.
@@ -56501,7 +56498,7 @@
 	  make_buffered_stream. Deal with buffered, handle_regular,
 	  handle_fresh. Support :APPEND for unbuffered streams as well.
 	(finish_output_file): Call fsync or close/open on regular files only.
-	  If no repositioning is needed, don't call position_b_file.
+	  If no repositioning is needed, do not call position_b_file.
 	(close_file): Call HandleStreamLow_close(stream).
 	(strm_pipe_in_other, strm_pipe_out_other): Remove macros.
 	(strm_pipe_other): New macro.
@@ -56655,9 +56652,9 @@
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* stream.d (make_buffered_stream): Rename from make_unbuffered_stream.
-	  Change the calling convention. Don't call isatty. Don't store the
-	  strm_field1/strm_field2 values. Don't call HandleStream_input_init,
-	  HandleStream_output_init here. Don't add the stream to O(open_files).
+	  Change the calling convention. Do not call isatty. Do not store the
+	  strm_field1/strm_field2 values. Do not call HandleStream_input_init,
+	  HandleStream_output_init here. Do not add the stream to O(open_files).
 	(make_file_stream): Update. Call isatty only for :INPUT or :IO
 	  streams. Store the strm_field1/strm_field2 values here. Call
 	  HandleStream_input_init, HandleStream_output_init here. Add the
@@ -56772,7 +56769,7 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	Optimize read-byte and write-byte for integer streams of type ia.
-	* stream.d (read_byte_array_b_file): Don't update the position.
+	* stream.d (read_byte_array_b_file): Do not update the position.
 	(write_byte_array_b_file): Likewise.
 	(wr_ch_array_ch_file): Increment the position here.
 	(rd_by_iu_I, rd_by_is_I): Assume the bitbuffer contents is in little
@@ -56983,7 +56980,7 @@
 	  :element-type argument here.
 	(make_terminal_io, init_streamvars): Update.
 	* pathname.d (open_file): Change calling convention.
-	(OPEN): Update. Don't check the :element-type argument here.
+	(OPEN): Update. Do not check the :element-type argument here.
 
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -57375,7 +57372,7 @@
 	  simple-bit-vectors, not strings.
 	* genclisph.d (TheAsciz): Update.
 	* spvw.d (string_to_asciz): Allocate a bit vector, not a string.
-	* pathname.d (EXECUTE): Update, don't call string_concat.
+	* pathname.d (EXECUTE): Update, do not call string_concat.
 	* stream.d (rd_ch_terminal3): Update.
 	(finish_output_file): Use with_sstring_0 instead of TheAsciz.
 	(MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM)
@@ -57425,7 +57422,7 @@
 	  change.
 	(SHELL): Use with_sstring_0 instead of TheAsciz.
 
-	* pathname.d (PARSE-NAMESTRING): Don't create an ASCIZ string in the
+	* pathname.d (PARSE-NAMESTRING): Do not create an ASCIZ string in the
 	  heap. Use macro with_sstring_0 instead of TheAsciz.
 	(OSdirnamestring): Rename from OSnamestring.
 	(assure_dir_exists, change_default, directory_exists)
@@ -57449,7 +57446,7 @@
 
 1999-01-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* unix.d: Don't declare memset if it's a macro.
+	* unix.d: Do not declare memset if it's a macro.
 	* spvw.d: Likewise.
 	* socket.d: Likewise.
 
@@ -57474,7 +57471,7 @@
 	Fix a compilation problem on new glibc2 systems.
 	* aclocal.m4 (CL_FPU_CONTROL): Check for fpu_control_t too.
 	* unixconf.h.in (HAVE_FPU_CONTROL_T): New macro.
-	* spvw.d (main): Don't call __setfpucw if the control word can be
+	* spvw.d (main): Do not call __setfpucw if the control word can be
 	  initialized statically.
 	* unixaux.d: Initialize the control word statically if possible.
 
@@ -57738,7 +57735,7 @@
 
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
-	* makemake.in: Don't remove full/* for DOS,OS/2, as it doesn't exist.
+	* makemake.in: Do not remove full/* for DOS,OS/2, as it doesn't exist.
 	  On Unix, create the full/ directory during `make installdirs'.
 
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
@@ -57865,8 +57862,8 @@
 
 1998-12-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* configure: Don't lndir modules/CVS over to src/CVS.
-	* configure: Don't pass the --fsstnd argument to src/configure.
+	* configure: Do not lndir modules/CVS over to src/CVS.
+	* configure: Do not pass the --fsstnd argument to src/configure.
 
 1998-12-11  Sam Steingold  <sds@goems.com>
 
@@ -58008,7 +58005,7 @@
 	* compiler.lsp (c-typep-alist1): Add STRING-CHAR.
 	(c-typep-alist2): Remove STRING-CHAR.
 	* defs2.lsp (dispatch-reader): Test for CHARACTER, not STRING-CHAR.
-	(read-sequence, write-sequence): Don't test for STRING-CHAR, that's
+	(read-sequence, write-sequence): Do not test for STRING-CHAR, that's
 	  not a used stream element type any more.
 	(designator): Use char-code-limit instead of char-int-limit.
 	  Remove definition of type (DESIGNATOR STRING-CHAR).
@@ -58037,7 +58034,7 @@
 	(bitnamekw_*): Remove bitnames.
 	* charstrg.d (charname_table_extra): Remove definition.
 	(charname_table_codes): Remove extra characters.
-	(name_char): Don't test for extra characters.
+	(name_char): Do not test for extra characters.
 	(CHAR-BITS, CHAR-FONT, MAKE-CHAR): Remove functions.
 	(test_font_arg, test_bits_arg, test_bitname_arg): Remove.
 	(CODE-CHAR, DIGIT-CHAR): Remove the optional font and bits arguments.
@@ -58059,7 +58056,7 @@
 	(char-control-bit, char-meta-bit, char-super-bit, char-hyper-bit):
 	  Moved to xcharin.lsp.
 	* init.lsp: Load xcharin.
-	* defs3.lsp: Don't export COMMON, STRING-CHAR, CHAR-FONT-LIMIT,
+	* defs3.lsp: Do not export COMMON, STRING-CHAR, CHAR-FONT-LIMIT,
 	  CHAR-BITS-LIMIT, CHAR-CONTROL-BIT, CHAR-META-BIT, CHAR-SUPER-BIT,
 	  CHAR-HYPER-BIT, STRING-CHAR-P, CHAR-BITS, CHAR-FONT, MAKE-CHAR,
 	  INT-CHAR, CHAR-BIT, SET-CHAR-BIT.
@@ -58143,7 +58140,7 @@
 
 	* makemake.in: Keep "-norc" out of the localeflags.
 	* user1.lsp (load-rc-file): Use `load'. Filename is OS dependent.
-	(help): Don't mention Ctrl-D, it's Ctrl-Z on DOS, OS/2, Win32.
+	(help): Do not mention Ctrl-D, it's Ctrl-Z on DOS, OS/2, Win32.
 	* _clisp.1: Update accordingly.
 
 1998-10-28  Sam Steingold  <sds@goems.com>
@@ -58196,7 +58193,7 @@
 	  bit.
 	(SYSTEM::STRING-INPUT-STREAM-INDEX): Test the bit.
 	(SYSTEM::BUFFERED-INPUT-STREAM-INDEX): Likewise.
-	(pk_ch_generic): Simplify. Don't check for a character any more.
+	(pk_ch_generic): Simplify. Do not check for a character any more.
 	(stream_listen): Test the bit.
 	(clear_input): Clear the bit.
 	(read_schar_array): Test and clear the bit.
@@ -58250,7 +58247,7 @@
 1998-10-14  Leigh Smith  <leigh@antechinus.cs.uwa.oz.au>
 
 	* makemake.in (echol): Use `cat', not `printf'.
-	(echoline): Don't access $3 and $4 inside the loop.
+	(echoline): Do not access $3 and $4 inside the loop.
 
 1998-10-12  Sam Steingold  <sds@goems.com>
 
@@ -58264,7 +58261,7 @@
 
 1998-10-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* stream.d (rd_ch_terminal3): Don't need to put newlines into the
+	* stream.d (rd_ch_terminal3): Do not need to put newlines into the
 	  prompt string when using newnewreadline.
 	(xmalloc, xrealloc): Change declaration when using newnewreadline.
 
@@ -58368,11 +58365,11 @@
 1998-09-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* spvw.d (init_object_tab): Put only keywords into *features*.
-	* clos.lsp: Likewise. Don't export CLOS.
-	* compiler.lsp: Likewise. Don't export COMPILER.
+	* clos.lsp: Likewise. Do not export CLOS.
+	* compiler.lsp: Likewise. Do not export COMPILER.
 	* loop.lsp: Likewise.
-	* editor.lsp: Likewise. Don't export EDITOR.
-	* init.lsp: Don't import/export the contents of *features*.
+	* editor.lsp: Likewise. Do not export EDITOR.
+	* init.lsp: Do not import/export the contents of *features*.
 	* io.d (interpret_feature): Search in *features* by EQ.
 	(feature): Bind *package*.
 
@@ -58414,16 +58411,16 @@
 
 	* places.lsp: Fix German and French messages, broken by last patch.
 	(define-setf-expander, get-setf-expansion): Change format of
-	  SYSTEM::SETF-EXPANDER property list entry. Don't call
+	  SYSTEM::SETF-EXPANDER property list entry. Do not call
 	  FUNCTION-SIGNATURE.
 	(PUSH): Rewrite. Do not call COPY-TREE.
 	(POP): Rewrite. Do not call COPY-TREE. Be sure to fetch the CARs
 	  before the CDRs.
 	(PUSHNEW): Rewrite. Do not call COPY-TREE.
-	(SETF): Don't nreverse bindlist.
-	(SHIFTF, ROTATEF): Don't call NREVERSE on some unknown piece of code.
+	(SETF): Do not nreverse bindlist.
+	(SHIFTF, ROTATEF): Do not call NREVERSE on some unknown piece of code.
 	(SETF THE): Fix totally broken code.
-	* defs3.lsp: Don't export `get-setf-method',
+	* defs3.lsp: Do not export `get-setf-method',
 	  `get-setf-method-multiple-value', `define-setf-method' any more.
 
 1998-07-29  Sam Steingold  <sds@goems.com>
@@ -58626,7 +58623,7 @@
 	(shmsave, close_shmid, open_mapid, map_mapid, close_mapid, multimap1)
 	(done_mapid, exitmap, multimap): Move out.
 	(main): Call init_map_pagesize() and use map_pagesize.
-	(main): Don't close zero_fd, it might be needed in the case of
+	(main): Do not close zero_fd, it might be needed in the case of
 	  DYNAMIC_MODULES.
 	* makemake.in (SPVW_INCLUDES): Adjust.
 
@@ -58713,7 +58710,7 @@
 
 1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* lispbibl.d: Don't use CPU registers when compiling for MULTITHREAD,
+	* lispbibl.d: Do not use CPU registers when compiling for MULTITHREAD,
 	  for the moment.
 	(SP_register, ASM_get_SP_register): Define.
 	(SP): Use it.
@@ -58874,7 +58871,7 @@
 
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* conditio.lsp (coerce-to-condition): Don't signal an error if
+	* conditio.lsp (coerce-to-condition): Do not signal an error if
 	  there are arguments and the caller is CERROR.
 
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -58885,7 +58882,7 @@
 
 1998-06-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* user2.lsp (describe): Don't mention STRUCTURE-OBJECT as type of
+	* user2.lsp (describe): Do not mention STRUCTURE-OBJECT as type of
 	  all structure objects.
 
 1998-06-06  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -58929,7 +58926,7 @@
 
 	* format.lsp (FORMAT-CALL-USER-FUNCTION): Rename from FORMAT-SLASH.
 	(format-parse-cs): Integrate format-get-symbol. Tweak error
-	  messages. Use *common-lisp-user-package*. Don't push a symbol
+	  messages. Use *common-lisp-user-package*. Do not push a symbol
 	  directly on csd-parm-list.
 
 1998-06-02  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -58940,7 +58937,7 @@
 1998-06-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* configure: Always pass --with-included-gettext to gettext/configure.
-	 (Because some users have libintl.a installed and some don't,
+	 (Because some users have libintl.a installed and some do not,
 	  therefore the fact that libintl.a is present must be ignored.)
 
 1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -59033,7 +59030,7 @@
 
 1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* acspecific.m4 (AC_PROG_CXX): Don't add "-O" to $CXX if it is
+	* acspecific.m4 (AC_PROG_CXX): Do not add "-O" to $CXX if it is
 	  already present.
 
 1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -59113,7 +59110,7 @@
 
 1998-05-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* defs3.lsp: Don't export COMMONP and COMPILER-LET.
+	* defs3.lsp: Do not export COMMONP and COMPILER-LET.
 
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
@@ -59196,7 +59193,7 @@
 
 1998-08-12  Bruno Haible  <haible@ilog.fr>
 
-	* lispbibl.d (NO_TYPECODES): Don't define if alignment_long < 4.
+	* lispbibl.d (NO_TYPECODES): Do not define if alignment_long < 4.
 
 1998-08-09  Bruno Haible  <haible@ilog.fr>
 
@@ -59230,7 +59227,7 @@
 
 1998-08-05  Bruno Haible  <haible@ilog.fr>
 
-	* debug.d (SYS::%ROOM): Don't assume that the byte counts fit into
+	* debug.d (SYS::%ROOM): Do not assume that the byte counts fit into
 	  fixnums.
 
 1998-08-05  Jörg Höhle  <hoehle@zeus.gmd.de>
@@ -59245,7 +59242,7 @@
 
 1998-08-03  Bruno Haible  <haible@ilog.fr>
 
-	* makemake.in (NOASM): Don't define on Solaris/x86.
+	* makemake.in (NOASM): Do not define on Solaris/x86.
 	(ASM_FILTER): Fix so it works on Solaris/x86.
 
 1998-08-01  Bruno Haible  <haible@ilog.fr>
@@ -59269,11 +59266,11 @@
 
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
-	* clx/mit-clx/package.lsp: Shadow BOOLEAN and don't export it.
+	* clx/mit-clx/package.lsp: Shadow BOOLEAN and do not export it.
 
 1998-07-31  Bruno Haible  <haible@ilog.fr>
 
-	* control.d (make_variable_frame): Don't call Car(NIL).
+	* control.d (make_variable_frame): Do not call Car(NIL).
 
 1998-07-16  Sam Steingold  <sds@goems.com>
 
@@ -59293,7 +59290,7 @@
 
 1998-07-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* eval.d (get_closure): Don't call augment_decl_env with argument NIL.
+	* eval.d (get_closure): Do not call augment_decl_env with argument NIL.
 
 1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -59315,12 +59312,12 @@
 	* lispbibl.d (keyword_bit_t, keyword_bit_f, keyword_bit_hf): Remove.
 	(keywordp): Rewrite.
 	* spvw.d (case_symbolwithflags): Remove cases with keyword_bit.
-	* package.d (make_present): Don't set keyword_bit.
+	* package.d (make_present): Do not set keyword_bit.
 
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
 	* lispbibl.d: Define NO_TYPECODES by default for 32-bit machines.
-	* configure: Don't pass option --with-wide to makemake.
+	* configure: Do not pass option --with-wide to makemake.
 	* makemake.in: Drop support for --with-wide.
 	* clisp-link.in: Likewise.
 	* _distmakefile: Likewise.
@@ -59376,7 +59373,7 @@
 	(memdump_reloc_header): Add support for relocation Fsubr code
 	  addresses.
 	(savemem): Likewise.
-	(loadmem_aktualisiere): Don't look in old_fsubr_tab when updating
+	(loadmem_aktualisiere): Do not look in old_fsubr_tab when updating
 	  a machine pointer.
 	(loadmem_aktualisiere_fsubr): New function.
 	(loadmem_from_handle): During aktualisiere_varobjects or during
@@ -59750,7 +59747,7 @@
 
 	* lispbibl.d: Document that any of the type test macros can cause
 	  multiple evaluation of their argument.
-	* predtype.d: Don't do type tests directly on popSTACK().
+	* predtype.d: Do not do type tests directly on popSTACK().
 
 	* lispbibl.d (allocate_closure, allocate_cclosure_copy): New macros.
 	* eval.d (get_closure, interpret_bytecode_): Use them.
@@ -59834,7 +59831,7 @@
 	(gc_mark, walk_area, alive, gc_morris2, gc_morris3): Use case_pair.
 	(aktualisiere, main, loadmem_aktualisiere): Likewise.
 	(make_ratio, make_complex): Implement if SPVW_MIXED.
-	(subst, subst_circ_mark, subst_circ_unmark): Don't use case_record.
+	(subst, subst_circ_mark, subst_circ_unmark): Do not use case_record.
 	* predtype.d (enum_hs_ratio, enum_hs_complex): Now unconditional.
 	(heap_statistics_mapper): Update.
 	* constobj.d: Update.
@@ -59878,7 +59875,7 @@
 
 1998-05-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* socket.d: Don't declare connect() when using glibc2.
+	* socket.d: Do not declare connect() when using glibc2.
 	* aclocal.m4 (CL_TCPCONN): Allow setsockopt to be declared with
 	  socklen_t = unsigned int.
 
@@ -60030,7 +60027,7 @@
 
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* defs3.lsp: Don't export *evalhook*, *applyhook*, evalhook, applyhook.
+	* defs3.lsp: Do not export *evalhook*, *applyhook*, evalhook, applyhook.
 
 1998-04-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
@@ -60148,11 +60145,11 @@
 	  ends with (RETGF) and needs only one value.
 	* clos.lsp (analyze-method-description): Add check for
 	  CALL-NEXT-METHOD called with arguments.
-	(slow-funcall-gf): Return the effective method, don't call it.
+	(slow-funcall-gf): Return the effective method, do not call it.
 	(finalize-fast-gf): No need to pass the arguments to
 	  initial-funcall-gf.
-	(initial-funcall-gf): Just return the gf, don't apply it to the args.
-	(compute-dispatch): Return the effective method, don't call it.
+	(initial-funcall-gf): Just return the gf, do not apply it to the args.
+	(compute-dispatch): Return the effective method, do not call it.
 	(%call-next-method): New function.
 
 1998-04-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -60282,7 +60279,7 @@
 
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* compiler.lsp (EQL=EQ): Don't use fixnump.
+	* compiler.lsp (EQL=EQ): Do not use fixnump.
 
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
@@ -60357,19 +60354,19 @@
 	  Change all references.
 	* lispbibl.d (strm_file_name, strm_file_truename): Both can be a
 	  pathname or NIL.
-	* io.d (pr_stream): Don't print strm_file_name if it is NIL.
+	* io.d (pr_stream): Do not print strm_file_name if it is NIL.
 	* pathname.d (test_file_stream_named): New function.
 	(parse-namestring, truename, probe-file, delete-file, rename-file)
 	(open, file-write-date, file-author): Call test_file_stream_named.
 	* stream.d (regular_handle_p): Move function outside #if.
 	(b_file_finish_flush): Adapt for unnamed file streams.
 	(fehler_position_beyond_EOF, make_file_stream): Likewise.
-	(b_file_full_flush): Don't call lseek if the stream is write-only.
+	(b_file_full_flush): Do not call lseek if the stream is write-only.
 	(b_file_half_flush): Likewise.
-	(b_file_nextbyte): Don't read buffer if the stream is write-only.
+	(b_file_nextbyte): Do not read buffer if the stream is write-only.
 	(position_b_file, position_file_end): Likewise.
 	(make_file_stream): Unnamed output stream are write-only.
-	(finish_output_file): For unnamed streams, don't close the handle.
+	(finish_output_file): For unnamed streams, do not close the handle.
 	(make_terminal_io): New function.
 	(init_streamvars): Call it.
 
@@ -60381,7 +60378,7 @@
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* spvw.d: Define MULTIMAP_MEMORY_SYMBOL_TAB if
-	  MULTIMAP_MEMORY && MAP_MEMORY_TABLES. But don't multimap the subr_tab
+	  MULTIMAP_MEMORY && MAP_MEMORY_TABLES. But do not multimap the subr_tab
 	  - wouldn't work in the case of dynamic loading.
 
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -60398,7 +60395,7 @@
 
 	* clos.lsp (*dynamically-modifiable-generic-function-names*): New
 	  variable.
-	(warn-if-gf-already-called): Don't warn if gf is listed in it.
+	(warn-if-gf-already-called): Do not warn if gf is listed in it.
 
 1998-02-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
@@ -60409,7 +60406,7 @@
 1998-02-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* lispbibl.d (GNU_GETTEXT): Support gettext with IBMPC_CHS as well.
-	(INIT_SYMBOL_TAB): Don't define for EMUNIX.
+	(INIT_SYMBOL_TAB): Do not define for EMUNIX.
 	* gettext/intl/Makefile.dos: New file.
 	* dos/gtconfig.h: New file.
 	* dos/gtobjects: New file.
@@ -60424,9 +60421,9 @@
 	* makemake.in: Support gettext on DOS, OS/2 platforms with EMX.
 	(EMX): Link with emxl.exe, not emx.exe.
 	  Do not strip lisp.exe.
-	* dos/convert.bax, os2/convert.bax: Don't convert binary files
+	* dos/convert.bax, os2/convert.bax: Do not convert binary files
 	  like *.gif.
-	* dos/delx.bat, os2/delx.cmd: Remove more things. Don't descend into
+	* dos/delx.bat, os2/delx.cmd: Remove more things. Do not descend into
 	  src/readline or src/newreadline - these directories may not exist.
 	* Makefile.devel (dos--distrib, os2--distrib): Copy lispinit.mem,
 	  not compiled.mem. Copy the *.mo files. Copy the translated READMEs.
@@ -60441,7 +60438,7 @@
 	* stream.d (finish_tty_output, force_tty_output, listen_handle)
 	(kbhit, getch, clear_window, delete_window_line, init_term): Likewise.
 	(make_pipe_input_stream, make_pipe_output_stream)
-	(make_pipe_io_stream): Don't use FILE_PID any more.
+	(make_pipe_io_stream): Do not use FILE_PID any more.
 	* os2/popenrw.c: Likewise.
 	* error.d (begin_error, tast_break): Remove support for EMX
 	  versions < 0.9c.
@@ -60505,7 +60502,7 @@
 	* sp80386.d (C): Likewise.
 	* arisparc.d (C): Likewise.
 	* asmi386.hh (C, L): Likewise.
-	* configure.in: Don't call AC_PROG_GCC_TRADITIONAL, CL_CC_NEED_DEELIF,
+	* configure.in: Do not call AC_PROG_GCC_TRADITIONAL, CL_CC_NEED_DEELIF,
 	  CL_CC_NEED_DEERROR, CL_CC_NEED_MERGESTRINGS any more.
 	* makemake.in: Drop support for oldcc. Assume CC_NEED_DEELIF,
 	  CC_NEED_DEERROR, CC_NEED_MERGESTRINGS to be false. Assume CC_ANSI
@@ -60518,7 +60515,7 @@
 	* makemake.in (--with-module-stdwin): Remove option.
 	* Makefile.devel (SOURCES4): No need any more to exclude stdwin.
 	(CONFIGURES): Remove modules/stdwin/configure.
-	(src--distrib): Don't create clispsrc-stdwin.tar.gz.
+	(src--distrib): Do not create clispsrc-stdwin.tar.gz.
 
 1998-02-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
@@ -60559,7 +60556,7 @@
 
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* pathname.d (init_pathnames): Don't expect that getlogin() sets
+	* pathname.d (init_pathnames): Do not expect that getlogin() sets
 	  errno when it fails.
 
 1998-02-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
@@ -60632,8 +60629,8 @@
 
 1997-12-13  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-	* eval.d (unwind): Fix a compilation warning in WIDE mode: don't cast
-	  directly from oint to a pointer.
+	* eval.d (unwind): Fix a compilation warning in WIDE mode: do not
+	cast directly from oint to a pointer.
 
 1997-12-11  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
