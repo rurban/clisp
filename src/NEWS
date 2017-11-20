@@ -10,7 +10,8 @@ Important notes
   and two or more options in the first line, you now need to use
   '#!/usr/local/bin/clisp!' instead of '#!/usr/local/bin/clisp'.
   The clisp executable no longer implements the special processing of such
-  options in #! lines; only the clisp! executable does.
+  options in #! lines; only the clisp! executable does.  This fixes bug#699,
+  see <https://clisp.sourceforge.io/impnotes/quickstart.html#quickstart-unix>.
 
 User visible changes
 --------------------

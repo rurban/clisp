@@ -107,6 +107,7 @@
 platform-independent &bytecode; which can be executed more efficiently.</para>
 <para>Invoked with &opt-x;, executes the specified lisp expressions.</para>
 <para>Invoked with &opt-lf;, runs the specified lisp file.</para>
+<para>Batch mode activates the &opt-q; option.</para>
 </refsection>
 
 </refsection>

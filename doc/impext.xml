@@ -5135,19 +5135,15 @@ spawning threads, multithreading should work fine.</simpara></warning>
  and using <command role="unix">chmod</command> to make the file
  executable.</para>
 
-<formalpara><title>OS Requirements</title>
+<simplesect id="script-req"><title>OS Requirements</title>
  <para>&clisp; can be used as a script interpreter under the following
  conditions:
 <itemizedlist>
-<listitem><simpara>The &interp-r; must be the full pathname of
- <filename>clisp!</filename>. <filename>clisp!</filename> is a variant
- of the &clisp-cmd; program that includes special support for being
- used as a script interpreter; otherwise <filename>clisp!</filename>
- behaves just like &clisp-cmd;.
- The recommended path is <filename>/usr/local/bin/clisp!</filename>,
+<listitem><simpara>The &interp-r; must be the full pathname of &clisp-cmd;
+ The recommended path is <filename>/usr/local/bin/clisp</filename>,
  and if &clisp; is actually installed elsewhere, making
- <filename>/usr/local/bin/clisp!</filename> be a symbolic link to the
- real <filename>clisp!</filename>.</simpara></listitem>
+ <filename>/usr/local/bin/clisp</filename> be a symbolic link to the
+ real &clisp-cmd;.</simpara></listitem>
 <listitem><simpara>The &interp-r; must be a real executable, not a script.
  Unfortunately, in the binary distributions of &clisp; on Solaris,
  &clisp-cmd; is a shell script because a &c-lang; compiler cannot be
@@ -5173,9 +5169,51 @@ spawning threads, multithreading should work fine.</simpara></warning>
  spaces</ulink> instead of normal spaces.  (But the separator between
  &interp-r; and &interp-args; must still be a normal space!) &clisp;
  will split the &interp-args; both at no-break spaces and at normal spaces.
-</simpara></listitem></itemizedlist></para></formalpara>
+</simpara></listitem></itemizedlist></para></simplesect>
 
-<formalpara id="script-exec"><title>Script execution</title>
+<simplesect id="script-spaces"><title>Script names with spaces.</title>
+<para>The &unix;
+ <ulink url="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</ulink>
+ <ulink url="https://en.wikipedia.org/wiki/Interpreter_directive">interpreter
+ directive</ulink> consists of &one-e; &interp-r; path and &one-e;
+ &interp-args; string.  This means that if the script
+ <filename>"my-script.lisp"</filename> starts with
+ <screen>#!/usr/local/bin/clisp &opt-C; &opt-M; my-image.mem &opt-L; French</screen>
+ the OS will pass &clisp-cmd; the &two-e; arguments:
+ <orderedlist><listitem><simpara><literal>"-C -M my-image.mem -L
+ French"</literal></simpara></listitem>
+ <listitem><simpara><literal>"my-script.lisp</literal></simpara>
+ </listitem></orderedlist>
+ instead of <emphasis>six</emphasis> arguments:<orderedlist>
+ <listitem><simpara><literal>"-C"</literal></simpara></listitem>
+ <listitem><simpara><literal>"-M"</literal></simpara></listitem>
+ <listitem><simpara><literal>"my-image.mem"</literal></simpara></listitem>
+ <listitem><simpara><literal>"-L"</literal></simpara></listitem>
+ <listitem><simpara><literal>"French"</literal></simpara></listitem>
+ <listitem><simpara><literal>"my-script.lisp"</literal></simpara></listitem>
+</orderedlist> that the similar command line would generate.</para>
+<para><emphasis role="strong">This means that &clisp-cmd; has to split
+ its first argument on spaces.</emphasis></para>
+<para>However, this approach leads to &two-e; problems when the script
+ name contains spaces, e.g., <filename>"my script.lisp"</filename>:
+ <orderedlist><listitem><simpara>When &interp-args; is empty</simpara></listitem>
+  <listitem><para>When the script is invoked from the command line:
+  <screen>&sh-prompt; &clisp-cmd; "my script.lisp"</screen></para>
+ </listitem></orderedlist>
+ In both cases &clisp-cmd; will split its &one-e; argument
+ <literal>"my script.lisp"</literal> into &two-e;:
+ <orderedlist><listitem><simpara><literal>"my"</literal></simpara></listitem>
+ <listitem><simpara><literal>"script.lisp"</literal></simpara></listitem>
+ </orderedlist></para>
+<para>The simple workaround is to pass the &opt-q; argument (which is
+ the default in &batch-mode;) when dealing with scripts:<orderedlist>
+  <listitem><para>Start your scripts named with spaces with
+   <screen>#!/usr/local/bin/clisp -q</screen></para></listitem>
+  <listitem><para>Pass &opt-q; when running such scripts:
+   <screen>&sh-prompt; &clisp-cmd; -q "my script.lisp"</screen></para>
+</listitem></orderedlist></para></simplesect>
+
+<simplesect id="script-exec"><title>Script execution</title>
 <para><itemizedlist><listitem><simpara>The &script; should contain Lisp
    forms, except in the <literal>#!</literal> line.</simpara></listitem>
   <listitem><simpara>The file is loaded normally, through the function
@@ -5197,9 +5235,9 @@ spawning threads, multithreading should work fine.</simpara></warning>
    (using &exit-on-error;).</simpara></listitem>
   <listitem><simpara>If you wish the script's contents to be compiled
     during loading, add &opt-C; to the &interp-args;.
-</simpara></listitem></itemizedlist></para></formalpara>
+</simpara></listitem></itemizedlist></para></simplesect>
 
-<formalpara id="script-bad"><title>If nothing works</title>
+<simplesect id="script-bad"><title>If nothing works</title>
 <para>Another, quite inferior, alternative is to put the following into a file:
 <programlisting language="shell">
 #!&sh;
@@ -5211,7 +5249,7 @@ EOF
 </programlisting>
 The problem with this approach is that the return values of each form
 will be printed to &standard-output-var;.
-Another problem is that no user input will be available.</para></formalpara>
+Another problem is that no user input will be available.</para></simplesect>
 </section>
 <!-- #endif -->
 
