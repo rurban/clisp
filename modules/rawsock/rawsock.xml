@@ -321,8 +321,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    for &arp;), i.e., the first 14 bytes of &buf-r; are ignored by these
    functions.</simpara>
   <simpara>A typical packet you send is both &ip; and &tcp; and thus
-   has two checksums, so you would want to call <emphasis>two</emphasis>
-   functions.</simpara></listitem></varlistentry>
+   has two checksums, so you would want to call &two-e; functions.
+</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r;
    <replaceable>ifname</replaceable> &addr-r; &key-amp;
    <replaceable>promisc</replaceable>

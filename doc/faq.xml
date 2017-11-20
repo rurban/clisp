@@ -691,9 +691,9 @@ The way to figure that out is to use <command>hg bisect</command>.
 
 <qandaentry id="faq-stack"><question id="faq-stack-q"><simpara>How do I
    avoid stack overflow?</simpara></question>
-<answer><para>&clisp; has <link linkend="vm"><emphasis>two</emphasis>
-   stacks</link>, the <quote>program stack</quote> and the <quote>lisp
-   stack</quote>, and both may occasionally overflow.</para></answer>
+<answer><para>&clisp; has <link linkend="vm">&two-e; stacks</link>, the
+  <quote>program stack</quote> and the <quote>lisp stack</quote>,
+  and both may occasionally overflow.</para></answer>
 <answer><label>Generic</label><itemizedlist>
   <listitem><simpara>You will always get a stack overflow when you try
     to print a <ulink url="clhs/glo">circular</ulink> object (&list-t;,
