@@ -5183,8 +5183,8 @@ spawning threads, multithreading should work fine.</simpara></warning>
  <orderedlist><listitem><simpara><literal>"-C -M my-image.mem -L
  French"</literal></simpara></listitem>
  <listitem><simpara><literal>"my-script.lisp</literal></simpara>
- </listitem></orderedlist>
- instead of <emphasis>six</emphasis> arguments:<orderedlist>
+ </listitem></orderedlist> instead of the
+ <emphasis role="strong">six</emphasis> arguments:<orderedlist>
  <listitem><simpara><literal>"-C"</literal></simpara></listitem>
  <listitem><simpara><literal>"-M"</literal></simpara></listitem>
  <listitem><simpara><literal>"my-image.mem"</literal></simpara></listitem>
@@ -5209,7 +5209,8 @@ spawning threads, multithreading should work fine.</simpara></warning>
  the default in &batch-mode;) when dealing with scripts:<orderedlist>
   <listitem><para>Start your scripts named with spaces with
    <screen>#!/usr/local/bin/clisp -q</screen></para></listitem>
-  <listitem><para>Pass &opt-q; when running such scripts:
+  <listitem><para>Pass &opt-q; when running such scripts explicitly from
+   the command line:
    <screen>&sh-prompt; &clisp-cmd; -q "my script.lisp"</screen></para>
 </listitem></orderedlist></para></simplesect>
 
