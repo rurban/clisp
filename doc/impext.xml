@@ -5171,7 +5171,8 @@ spawning threads, multithreading should work fine.</simpara></warning>
  will split the &interp-args; both at no-break spaces and at normal spaces.
 </simpara></listitem></itemizedlist></para></simplesect>
 
-<simplesect id="script-arg-split"><title>Handling &interp-args;.</title>
+<simplesect id="script-arg-split"><title>How &clisp-cmd; handles
+ &interp-args;.</title>
 <formalpara id="script-shebang"><title>Shebang</title><para>The &unix;
  <ulink url="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</ulink>
  <ulink url="https://en.wikipedia.org/wiki/Interpreter_directive">interpreter
@@ -5211,9 +5212,10 @@ spawning threads, multithreading should work fine.</simpara></warning>
  <listitem><simpara><literal>"dash.lisp"</literal></simpara></listitem>
  </orderedlist> and will fail.
  There are two workarounds to this problem:<orderedlist>
- <listitem><simpara>Do &not-e; use dash as the first character in the
- file name. &clisp-cmd; is &not-e; the only command that will have problems.
- </simpara></listitem><listitem><para>Pass the relative path on the
+ <listitem><para>Do &not-e; use dash as the first character in the file name.
+  &clisp-cmd; is &not-e; the only command that will have problems. Rename them:
+  <screen>&sh-prompt; mv "./-leading dash.lisp" "something sensible.lisp"</screen>
+ </para></listitem><listitem><para>Pass the relative path on the
  command line:<screen>&sh-prompt; &clisp-cmd; "./-leading dash.lisp" args</screen>
 </para></listitem></orderedlist></para></formalpara></simplesect>
 
