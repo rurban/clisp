@@ -5171,18 +5171,18 @@ spawning threads, multithreading should work fine.</simpara></warning>
  will split the &interp-args; both at no-break spaces and at normal spaces.
 </simpara></listitem></itemizedlist></para></simplesect>
 
-<simplesect id="script-spaces"><title>Script names with spaces.</title>
-<para>The &unix;
+<simplesect id="script-arg-split"><title>Handling &interp-args;.</title>
+<formalpara id="script-shebang"><title>Shebang</title><para>The &unix;
  <ulink url="https://en.wikipedia.org/wiki/Shebang_(Unix)">Shebang</ulink>
  <ulink url="https://en.wikipedia.org/wiki/Interpreter_directive">interpreter
  directive</ulink> consists of &one-e; &interp-r; path and &one-e;
  &interp-args; string.  This means that if the script
  <filename>"my-script.lisp"</filename> starts with
  <screen>#!/usr/local/bin/clisp &opt-C; &opt-M; my-image.mem &opt-L; French</screen>
- the OS will pass &clisp-cmd; the &two-e; arguments:
+ the OS will pass &clisp-cmd; the following &two-e; arguments:
  <orderedlist><listitem><simpara><literal>"-C -M my-image.mem -L
  French"</literal></simpara></listitem>
- <listitem><simpara><literal>"my-script.lisp</literal></simpara>
+ <listitem><simpara><literal>"./my-script.lisp"</literal></simpara>
  </listitem></orderedlist> instead of the
  <emphasis role="strong">six</emphasis> arguments:<orderedlist>
  <listitem><simpara><literal>"-C"</literal></simpara></listitem>
@@ -5190,29 +5190,32 @@ spawning threads, multithreading should work fine.</simpara></warning>
  <listitem><simpara><literal>"my-image.mem"</literal></simpara></listitem>
  <listitem><simpara><literal>"-L"</literal></simpara></listitem>
  <listitem><simpara><literal>"French"</literal></simpara></listitem>
- <listitem><simpara><literal>"my-script.lisp"</literal></simpara></listitem>
-</orderedlist> that the similar command line would generate.</para>
-<para><emphasis role="strong">This means that &clisp-cmd; has to split
- its first argument on spaces.</emphasis></para>
-<para>However, this approach leads to &two-e; problems when the script
- name contains spaces, e.g., <filename>"my script.lisp"</filename>:
- <orderedlist><listitem><simpara>When &interp-args; is empty</simpara></listitem>
-  <listitem><para>When the script is invoked from the command line:
-  <screen>&sh-prompt; &clisp-cmd; "my script.lisp"</screen></para>
- </listitem></orderedlist>
- In both cases &clisp-cmd; will split its &one-e; argument
- <literal>"my script.lisp"</literal> into &two-e;:
- <orderedlist><listitem><simpara><literal>"my"</literal></simpara></listitem>
- <listitem><simpara><literal>"script.lisp"</literal></simpara></listitem>
- </orderedlist></para>
-<para>The simple workaround is to pass the &opt-q; argument (which is
- the default in &batch-mode;) when dealing with scripts:<orderedlist>
-  <listitem><para>Start your scripts named with spaces with
-   <screen>#!/usr/local/bin/clisp -q</screen></para></listitem>
-  <listitem><para>Pass &opt-q; when running such scripts explicitly from
-   the command line:
-   <screen>&sh-prompt; &clisp-cmd; -q "my script.lisp"</screen></para>
-</listitem></orderedlist></para></simplesect>
+ <listitem><simpara><literal>"./my-script.lisp"</literal></simpara></listitem>
+</orderedlist> that the similar command line would generate.</para></formalpara>
+<formalpara id="script-split"><title>Argument Splitting</title>
+<para><emphasis>This means that &clisp-cmd; <emphasis role="strong">may</emphasis>
+ need to split its first argument on spaces.</emphasis> In fact, &clisp-cmd;
+ does split its first argument when it starts with a dash.</para></formalpara>
+<formalpara id="script-dash"><title>Scripts named with a leading dash</title>
+<para>When executing a script named, say, <filename>-leading dash.lisp</filename>:
+ <screen>&sh-prompt; "-leading dash.lisp" maybe with args</screen>
+ &clisp-cmd; receives as its first argument either an absolute path
+ <filename>"/home/you/bin/-leading dash.lisp"</filename> or a relative path
+ <filename>"./-leading dash.lisp"</filename> - either way it does &not-e;
+ start with a dash and thus will &not-e; be split.
+ If, however, the script is run like this:
+ <screen>&sh-prompt; &clisp-cmd; "-leading dash.lisp" args</screen>
+ the file name argument <literal>"-leading dash.lisp"</literal>
+ <emphasis>will be split</emphasis> into &two-e; arguments
+ <orderedlist><listitem><simpara><literal>"-leading"</literal></simpara></listitem>
+ <listitem><simpara><literal>"dash.lisp"</literal></simpara></listitem>
+ </orderedlist> and will fail.
+ There are two workarounds to this problem:<orderedlist>
+ <listitem><simpara>Do &not-e; use dash as the first character in the
+ file name. &clisp-cmd; is &not-e; the only command that will have problems.
+ </simpara></listitem><listitem><para>Pass the relative path on the
+ command line:<screen>&sh-prompt; &clisp-cmd; "./-leading dash.lisp" args</screen>
+</para></listitem></orderedlist></para></formalpara></simplesect>
 
 <simplesect id="script-exec"><title>Script execution</title>
 <para><itemizedlist><listitem><simpara>The &script; should contain Lisp
