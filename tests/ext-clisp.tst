@@ -22,7 +22,7 @@
 (ext:starts-with-p "FoOb" "Fo0b") NIL
 
 ;; search-file
-(let* ((dir (make-pathname :directory '(:relative "foo" "bar" "baz"))) sr
+(let* ((dir (make-pathname :directory '(:relative "foo" "bar" "baz"))) sr1 sr2
        (*load-paths* (list (make-pathname :directory (append (subseq (pathname-directory dir) 0 2) '(:wild-inferiors)))))
        (file (merge-pathnames dir "quux")))
   (list (multiple-value-bind (pathspec created) (ensure-directories-exist dir)
@@ -30,16 +30,19 @@
         ;; create test file
         (not (probe-file (open file :direction :probe :if-does-not-exist :create)))
         ;; search: find 1 file
-        (length (setq sr (sys::search-file (pathname-name file))))
+        (length (setq sr1 (sys::search-file (pathname-name file))))
+        (length (setq sr2 (sys::search-file
+                           (make-pathname :name (pathname-name file)))))
         ;; the file found is the correct one
-        (or (equal (first sr) (truename file))
-            (list sr file (truename file)))
+        (or (equal sr1 sr2) (list sr1 sr2))
+        (or (equal (first sr1) (truename file))
+            (list sr1 file (truename file)))
         ;; clean-up
-        (delete-file file)
+        (not (delete-file file))
         (loop for d on (reverse (rest (pathname-directory dir)))
           collect (delete-directory
                    (make-pathname :directory (cons :relative (reverse d)))))))
-((T T) NIL 1 T T (T T T))
+((T T) NIL 1 1 T T NIL (T T T))
 
 ;(setf if) 5.1.6
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))
