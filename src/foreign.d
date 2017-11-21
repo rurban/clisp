@@ -1034,11 +1034,12 @@ modexp maygc void register_foreign_inttype
 LISPFUNNF(parse_foreign_inttype,2) { /* "size_t" --> FFI:UINT64 */
   var bool errorp = !nullp(STACK_0);
   var object inttype = gethash(STACK_1,O(foreign_inttype_table),false);
-  if (eq(inttype,nullobj))
+  if (eq(inttype,nullobj)) {
     if (errorp)
       error(error_condition,GETTEXT("No foreign int type named ~S"));
     else
       inttype = Fixnum_0;       /* no such type */
+  }
   VALUES1(inttype);
   skipSTACK(2);
 }
