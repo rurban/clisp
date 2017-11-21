@@ -1,5 +1,12 @@
 2017-11-21  Sam Steingold  <sds@gnu.org>
 
+	Avoid gcc/clang warnings -Wformat
+	* spvw_global.d (check_gc_consistency, check_gc_consistency_2):
+	Cast format arguments to (unsigned long).
+	* spvw_sigsegv.d (print_mem_stats): Likewise.
+
+2017-11-21  Sam Steingold  <sds@gnu.org>
+
 	Avoid gcc/clang warnings -Wunused-parameter
 	* encoding.d (base64_mbstowcs, base64_wcslen, base64_wcstombs)
 	(base64_range, all_range, bmp_range, uni16be_mbstowcs)
