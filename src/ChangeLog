@@ -1,5 +1,17 @@
 2017-11-21  Sam Steingold  <sds@gnu.org>
 
+	Avoid gcc/clang warnings -Wunused-parameter
+	* encoding.d (base64_mbstowcs, base64_wcslen, base64_wcstombs)
+	(base64_range, all_range, bmp_range, uni16be_mbstowcs)
+	(uni16le_mbstowcs, uni16be_wcstombs, uni16le_wcstombs)
+	(uni32be_mbstowcs, uni32le_mbstowcs, uni32_wcslen)
+	(uni32be_wcstombs, utf8_mblen, utf8_mbstowcs, utf8_wcslen)
+	(java_wcstombs, java_mblen, java_mbstowcs, java_wcslen, nls_mblen)
+	(nls_asciiext_mblen, nls_wcslen, nls_asciiext_wcslen):
+	Use (void) to mark unused parameters.
+
+2017-11-21  Sam Steingold  <sds@gnu.org>
+
 	Avoid gcc/clang warnings -Wdangling-else (missed by #pragma).
 	* foreign.d (PARSE-FOREIGN-INTTYPE): Add braces.
 	* flo_rest.d, intelem.d (IF_LENGTH): Likewise.
