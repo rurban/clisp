@@ -157,7 +157,6 @@ int main (int argc, char* argv[])
   lisplibdir = LISPLIBDIR;
   localedir = LOCALEDIR;
 # endif
-# ifdef SHEBANG_SUPPORT
   /*
    * Script execution on Unix is implemented like this:
    * - The basename/fullname of the interpreter is put into argv[0].
@@ -227,7 +226,6 @@ int main (int argc, char* argv[])
   /*
    * Done with script interpreter argument handling.
    */
-# endif
   { char** argptr = &argv[1];
     char** argptr_limit = &argv[argc];
     enum { for_exec, for_init, for_compile } argv_for = for_exec;

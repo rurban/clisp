@@ -6,13 +6,6 @@ Important notes
   Set CUSTOM:*LOAD-OBSOLETE-ACTION* to :COMPILE to automate this.
   See <http://clisp.org/impnotes/loadfile.html> for details.
 
-* If you have scripts that start with '#!/usr/local/bin/clisp' (or similar)
-  and two or more options in the first line, you now need to use
-  '#!/usr/local/bin/clisp!' instead of '#!/usr/local/bin/clisp'.
-  The clisp executable no longer implements the special processing of such
-  options in #! lines; only the clisp! executable does.  This fixes bug#699,
-  see <https://clisp.sourceforge.io/impnotes/quickstart.html#quickstart-unix>.
-
 User visible changes
 --------------------
 
@@ -125,6 +118,7 @@ User visible changes
   + Do not raise the CLOS:GF-ALREADY-CALLED-WARNING on Gray streams.
   + Improve consistency in declaration handling (bug#702).
   + Package locks are checked by DECLARATION and DEFTYPE (bug#701).
+  + Allow spaces in file names of clisp scripts (bug #699).
 
 
 2.49 (2010-07-07)
