@@ -3,7 +3,7 @@
 ;; Many tests already in alltest.tst, map.tst etc., but
 ;; here we avoid using #+clisp all over the place.
 ;; Jörg Höhle, 2007
-;; Sam Steingold, 2007-2008, 2017
+;; Sam Steingold, 2007-2008, 2010-2011, 2016-2017
 
 ;; completion
 (funcall (ext:make-completion '("a" "abc" "ab")) "ab" 0 2) ("ab" "ab" "abc")
@@ -20,6 +20,26 @@
 (ext:starts-with-p "ab" "b") NIL
 (ext:starts-with-p "http://clisp.org" "http://") T
 (ext:starts-with-p "FoOb" "Fo0b") NIL
+
+;; search-file
+(let* ((dir (make-pathname :directory '(:relative "foo" "bar" "baz"))) sr
+       (*load-paths* (list (make-pathname :directory (append (subseq (pathname-directory dir) 0 2) '(:wild-inferiors)))))
+       (file (merge-pathnames dir "quux")))
+  (list (multiple-value-bind (pathspec created) (ensure-directories-exist dir)
+          (list (or (equal pathspec dir) (list pathspec dir)) created))
+        ;; create test file
+        (not (probe-file (open file :direction :probe :if-does-not-exist :create)))
+        ;; search: find 1 file
+        (length (setq sr (sys::search-file (pathname-name file))))
+        ;; the file found is the correct one
+        (or (equal (first sr) (truename file))
+            (list sr file (truename file)))
+        ;; clean-up
+        (delete-file file)
+        (loop for d on (reverse (rest (pathname-directory dir)))
+          collect (delete-directory
+                   (make-pathname :directory (cons :relative (reverse d)))))))
+((T T) NIL 1 T T (T T T))
 
 ;(setf if) 5.1.6
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))
