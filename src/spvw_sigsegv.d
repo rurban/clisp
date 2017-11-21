@@ -22,7 +22,7 @@ local void install_stackoverflow_handler (uintL size);
 local void print_mem_stats (void) {
   var timescore_t tm;
   get_running_times(&tm);
-  fprintf(stderr,GETTEXTL("GC count: %lu"),tm.gccount);
+  fprintf(stderr,GETTEXTL("GC count: %lu"),(unsigned long)tm.gccount);
   fprint(stderr,"\n");
   fprint(stderr,GETTEXTL("Space collected by GC:"));
  #if defined(intQsize)
