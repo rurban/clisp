@@ -3608,7 +3608,11 @@ local inline void main_actions (struct argv_actions *p) {
   /* print greeting: */
   if (!nullpSv(quiet)                    /* SYS::*QUIET* /= NIL ? */
       || p->argv_execute_file != NULL) { /* batch-mode ? */
-    /* prevents the greeting */
+    /* Prevents the greeting.
+       One might argue for argv_verbose-- instead of capping it at 1
+       for the sake of script debugging with "clisp -v -v -v script.lisp".
+       However, one can debug with "clisp -v -v -v -i script.lisp" even better
+       because you get the REPL at the end in addition to verbosity. */
     if (p->argv_verbose > 1)
       p->argv_verbose = 1;
   }
