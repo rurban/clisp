@@ -1,8 +1,14 @@
+2017-11-21  Sam Steingold  <sds@gnu.org>
+
+	Avoid gcc/clang warnings -Wdangling-else (missed by #pragma).
+	* foreign.d (PARSE-FOREIGN-INTTYPE): Add braces.
+	* flo_rest.d, intelem.d (IF_LENGTH): Likewise.
+
 2017-11-20  Bruno Haible  <bruno@clisp.org>
 
 	Revert introduction of installed program 'clisp!' (no longer needed).
-	* _clisp.c: Don't test SHEBANG_SUPPORT.
-	* _distmakefile: Don't install 'clisp!'.
+	* _clisp.c: Do not test SHEBANG_SUPPORT.
+	* _distmakefile: Do not install 'clisp!'.
 	* makemake.in: Likewise.
 	* NEWS: Bug#699 is fixed without breaking backward compatibility.
 
