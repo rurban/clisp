@@ -115,10 +115,10 @@ User visible changes
   + PCRE-EXEC returns character positions instead of byte positions.
   + Fix COMPILE-FILE-PATHNAME logical pathname handling (bug#677).
   + Streams returned by MAKE-STREAM may be passed to TRUENAME (bug#679).
-  + Do not raise the CLOS:GF-ALREADY-CALLED-WARNING on Gray streams.
+  + Do not signal the CLOS:GF-ALREADY-CALLED-WARNING on Gray streams.
   + Improve consistency in declaration handling (bug#702).
   + Package locks are checked by DECLARATION and DEFTYPE (bug#701).
-  + Allow spaces in file names of clisp scripts (bug #699).
+  + Allow spaces in file names of clisp scripts (bug#699).
 
 
 2.49 (2010-07-07)
