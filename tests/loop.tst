@@ -536,16 +536,20 @@ February 17
       collect char)
 (#\E #\r #\r #\o #\r)
 
-(let ((hash-table (make-hash-table)))
-  (setf (gethash 1 hash-table) 100)
-  (setf (gethash 2 hash-table) 200)
-  (sort
-    (loop for key being each hash-key in hash-table using (hash-value val)
-          for key+1 = (1+ key)
-          do (assert (= 100 (/ val key)))
-          collect (list key key+1 val))
-    #'<
-    :key #'car))
+(defun make-ht (alist)
+  (let ((hash-table (make-hash-table)))
+    (dolist (pair alist hash-table)
+      (setf (gethash (car pair) hash-table) (cdr pair)))))
+MAKE-HT
+
+(sort
+ (loop for key being each hash-key
+   in (make-ht '((1 . 100) (2 . 200))) using (hash-value val)
+   for key+1 = (1+ key)
+   do (assert (= 100 (/ val key)))
+   collect (list key key+1 val))
+ #'<
+ :key #'car)
 ((1 2 100) (2 3 200))
 
 (loop for i across '#(1 2 3 4)
@@ -587,51 +591,40 @@ nil
       collect y)
 nil
 
-(let ((hash-table (make-hash-table)))
-  (setf (gethash 1 hash-table) 100)
-  (setf (gethash 2 hash-table) 200)
-  (sort
-    (loop for x = t
-          for key being each hash-key in hash-table using (hash-value val)
-          for key+1 = (1+ key)
-          for z = t
-          collect (list key key+1 val))
-    #'<
-    :key #'car))
+(sort
+ (loop for x = t
+   for key being each hash-key
+   in (make-ht '((1 . 100) (2 . 200))) using (hash-value val)
+   for key+1 = (1+ key)
+   for z = t
+   collect (list key key+1 val))
+ #'<
+ :key #'car)
 ((1 2 100) (2 3 200))
 
 (loop for i from 1 to 0
       collect i)
 nil
 
-(let ((hash-table (make-hash-table)))
-  (setf (gethash 1 hash-table) 100)
-  (setf (gethash 2 hash-table) 200)
-  (sort
-    (loop for val being each hash-value in hash-table
-          collect val)
-    #'<))
+(sort
+ (loop for val being each hash-value in (make-ht '((1 . 100) (2 . 200)))
+   collect val)
+ #'<)
 (100 200)
 
-(let ((hash-table (make-hash-table)))
-  (setf (gethash 1 hash-table) 100)
-  (setf (gethash 2 hash-table) 200)
-  (sort
-    (loop for val being each hash-value in hash-table
-          for deriv-val = (/ 1 val)
-          collect deriv-val)
-    #'<))
+(sort
+ (loop for val being each hash-value in (make-ht '((1 . 100) (2 . 200)))
+   for deriv-val = (/ 1 val)
+   collect deriv-val)
+ #'<)
 (1/200 1/100)
 
-(let ((hash-table (make-hash-table))
-      (i 123456789))
-  (setf (gethash 1 hash-table) 100)
-  (setf (gethash 2 hash-table) 200)
+(let ((i 123456789))
   (loop for i across '#(1 2 3 4 5 6)
         collect i)
   (loop for i in '(1 2 3 4 5 6)
         collect i)
-  (loop for i being each hash-key of hash-table
+  (loop for i being each hash-key of (make-ht '((1 . 100) (2 . 200)))
         collect i)
   (loop for i being each present-symbol of *package*
         collect i)
@@ -873,8 +866,7 @@ NIL
 "a1b"
 
 ;; https://sourceforge.net/p/clisp/bugs/585/
-(let ((ht (make-hash-table)))
-  (setf (gethash 1 ht) 2)
+(let ((ht (make-ht '((1 . 2)))))
   (list (loop for k being the hash-keys of ht as v being the
           hash-values of ht count t)
         (loop for k being the hash-keys of ht as v being the
@@ -885,8 +877,7 @@ NIL
           being the hash-values of ht count t)))
 (1 1 1 1)
 
-(let ((ht (make-hash-table)))
-  (setf (gethash 1 ht) 2)
+(let ((ht (make-ht '((1 . 2)))))
   (list (loop for k being the hash-keys of ht using (hash-values v) count t)
         (loop for k being the hash-keys of ht using (hash-values v)
           with ut = 3 count t)
@@ -943,5 +934,5 @@ WARNING
  (5 6 7.8 1.5 1.6 1.7 2.5 2.6 27 28)
  (9 10 1.1 1.8 1.9 2.0 2.9 3.0 31 32))
 
-(symbols-cleanup '(mountain desert))
+(symbols-cleanup '(mountain desert make-ht))
 ()
