@@ -885,6 +885,33 @@ NIL
           using (hash-values v) count t)))
 (1 1 1)
 
+;; https://sourceforge.net/p/clisp/bugs/375/
+(let ((vars '(1 2 3)))
+  (loop for vars on vars collect vars))
+((1 2 3) (2 3) (3))
+
+(let ((vars '(1 2 3)))
+  (loop for i from 0 to 10 for vars on vars collect vars))
+((1 2 3) (2 3) (3))
+
+(let ((x '(1 2 3)) (y '(a b c)) (z #(7 8 9)))
+  (loop repeat 100
+    for x on x
+    for y in y
+    for z across z
+    collect (list x y z)))
+(((1 2 3) a 7)
+ ((2 3) b 8)
+ ((3) c 9))
+
+(let ((a (make-ht '((10 . 100) (20 . 200) (30 . 300)))))
+  (sort
+   (loop repeat 100
+     for a being the hash-keys of a
+     collect a)
+   #'<))
+(10 20 30)
+
 ;; https://sourceforge.net/p/clisp/bugs/604/
 (handler-case (macroexpand '(loop repeat 0 for E = 7 then A finally (return E)))
   (warning (w) (princ-error w) 'warning))
