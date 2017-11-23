@@ -238,6 +238,7 @@
         (*nullvar* nil)
         (*last-it* nil)
         (var-list nil)          ; all variables seen so far
+        (start-bindings nil)    ; bindings for start forms
         (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
         (accuvar-tailvar-alist nil) ; alist of (accu-var . tail-var)
         (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
@@ -712,8 +713,10 @@
                                 ((IN ON)
                                  (pop body-rest)
                                  (let ((start-form (parse-form preposition))
+                                       (start-var (gensym "START-"))
                                        (step-function-form '(FUNCTION CDR))
                                        (step-function-var nil))
+                                   (push `(,start-var ,start-form) start-bindings)
                                    (when (parse-kw-p 'by)
                                      (setq step-function-form (parse-form 'by))
                                      (unless (and (function-form-p step-function-form)
@@ -722,7 +725,7 @@
                                    (let ((var (if (and pattern (symbolp pattern)
                                                        (eq preposition 'ON))
                                                   pattern (gensym "LIST-"))))
-                                     (push `(,var ,start-form) bindings)
+                                     (push `(,var ,start-var) bindings)
                                      (when step-function-var
                                        (push `(,step-function-var ,step-function-form)
                                              bindings))
@@ -770,9 +773,11 @@
                                 (ACROSS
                                  (pop body-rest)
                                  (let ((vector-form (parse-form preposition))
+                                       (start-var (gensym "START-"))
                                        (vector-var (gensym "VECTOR-"))
                                        (index-var (gensym "INDEX-")))
-                                   (push `(,vector-var ,vector-form) bindings)
+                                   (push `(,start-var ,vector-form) start-bindings)
+                                   (push `(,vector-var ,start-var) bindings)
                                    (push `(,index-var 0) bindings)
                                    (note-initialization
                                     (make-endtest `(WHEN (>= ,index-var (LENGTH ,vector-var)) (LOOP-FINISH))))
@@ -814,7 +819,9 @@
                                                  ((IN OF) (pop body-rest)
                                                   (parse-form preposition))
                                                  (t (loop-syntax-error
-                                                      preposition (car body-rest))))))
+                                                      preposition (car body-rest)))))
+                                              (start-var (gensym "START-")))
+                                          (push `(,start-var ,form) start-bindings)
                                           (when (parse-kw-p 'using)
                                             (unless (and (consp body-rest)
                                                          (consp (car body-rest))
@@ -838,7 +845,7 @@
                                                 (case preposition
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
                                                   ((HASH-VALUE HASH-VALUES) (values nextvalue-var nextkey-var)))
-                                              (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
+                                              (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,start-var)) bindings)
                                               (note-initialization
                                                (make-loop-init
                                                 :specform 'MULTIPLE-VALUE-BIND
@@ -1036,14 +1043,20 @@
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,(caar results)) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
-      (let ((initializations1
-             (unless (zerop (length *helpvars*))
-               ;; `*helpvars*' must be bound first thing
-               (list (make-loop-init
-                      :specform 'LET
-                      :preamble (preamble :start)
-                      :bindings
-                      (map 'list #'(lambda (var) `(,var NIL)) *helpvars*))))))
+      (let ((initializations1 ()))
+        (unless (zerop (length *helpvars*)) ; `*helpvars*' must be bound first thing
+          (push (make-loop-init
+                 :specform 'LET
+                 :preamble (preamble :start)
+                 :bindings
+                 (map 'list #'(lambda (var) `(,var NIL)) *helpvars*))
+                initializations1))
+        (when start-bindings
+          (push (make-loop-init
+                 :specform 'LET
+                 :preamble (preamble :start)
+                 :bindings (nreverse start-bindings))
+                initializations1))
         ; `depends-preceding' backpropagation:
         (let ((later-depend nil))
           (dolist (initialization initializations)
@@ -1052,7 +1065,6 @@
               (setq later-depend t))))
         (dolist (initialization (nreverse initializations))
           (let* ((everytime (li-everytime initialization))
-                 (requires-stepbefore (li-requires-stepbefore initialization))
                  (name (li-specform initialization))
                  (bindings (li-bindings initialization))
                  (declarations (li-declspecs initialization))
@@ -1064,7 +1076,7 @@
                      (MULTIPLE-VALUE-BIND `((MULTIPLE-VALUE-SETQ ,@bindings)))
                      (LET `((SETQ ,@(apply #'append bindings))))))
                  (endtest-forms (li-endtest-forms initialization)))
-            (if requires-stepbefore
+            (if (li-requires-stepbefore initialization)
               ; wegen seen-for-as-= oder AREF nicht optimierbar
               (progn
                 (push
