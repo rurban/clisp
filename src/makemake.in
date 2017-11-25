@@ -2297,32 +2297,32 @@ case " ${XCPPFLAGS} ${XCFLAGS} " in
   *" -DNO_ARI_ASM "*) ;;
   *)
     if [ "$cpu" = sparc ] ; then
-      ARI_ASMD=$ARI_ASMD' arisparc'
-      ARI_ASMS=$ARI_ASMS' arisparc'
+      ARI_ASMD=$ARI_ASMD' ari_asm_sparc'
+      ARI_ASMS=$ARI_ASMS' ari_asm_sparc'
     fi
     if [ "$cpu" = sparc64 ] ; then
-      ARI_ASMD=$ARI_ASMD' arisparc64'
-      ARI_ASMS=$ARI_ASMS' arisparc64'
+      ARI_ASMD=$ARI_ASMD' ari_asm_sparc64'
+      ARI_ASMS=$ARI_ASMS' ari_asm_sparc64'
     fi
     if [ "$cpu" = mips ] ; then
-      ARI_ASMD=$ARI_ASMD' arimips'
-      ARI_ASMS=$ARI_ASMS' arimips'
+      ARI_ASMD=$ARI_ASMD' ari_asm_mips'
+      ARI_ASMS=$ARI_ASMS' ari_asm_mips'
     fi
     if [ "$cpu" = mips64 ] ; then
-      ARI_ASMD=$ARI_ASMD' arimips64'
-      ARI_ASMS=$ARI_ASMS' arimips64'
+      ARI_ASMD=$ARI_ASMD' ari_asm_mips64'
+      ARI_ASMS=$ARI_ASMS' ari_asm_mips64'
     fi
     if [ "$cpu" = i386 ] ; then
-      ARI_ASMD=$ARI_ASMD' ari80386'
-      ARI_ASMS=$ARI_ASMS' ari80386'
+      ARI_ASMD=$ARI_ASMD' ari_asm_i386'
+      ARI_ASMS=$ARI_ASMS' ari_asm_i386'
     fi
     if [ "$cpu" = hppa ] ; then
-      ARI_ASMD=$ARI_ASMD' arihppa'
-      ARI_ASMS=$ARI_ASMS' arihppa'
+      ARI_ASMD=$ARI_ASMD' ari_asm_hppa'
+      ARI_ASMS=$ARI_ASMS' ari_asm_hppa'
     fi
     if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
-      ARI_ASMD=$ARI_ASMD' ariarm'
-      ARI_ASMS=$ARI_ASMS' ariarm'
+      ARI_ASMD=$ARI_ASMD' ari_asm_arm'
+      ARI_ASMS=$ARI_ASMS' ari_asm_arm'
     fi
     ;;
 esac
@@ -3044,7 +3044,7 @@ if [ $TSYS != win32msvc ] ; then
     fi
   fi
   for f in $ARI_ASMS $SP_ASMS ; do
-    # The preprocessor barfs on arihppa: "unterminated character constant".
+    # The preprocessor barfs on ari_asm_hppa: "unterminated character constant".
     # We ignore this:
     case $f in
       *hppa) g='-' ;;
@@ -3209,10 +3209,10 @@ for f in $ARI_ASMS $SP_ASMS ; do
   else
     echol "${f}${TOBJ} : ${f}.s"
     # Call the assembler, preferrably through the C compiler:
-    if [ $f = arihppa ] ; then
-      # Only the native as groks the .SHORTDATA statements in arihppa.d
+    if [ $f = ari_asm_hppa ] ; then
+      # Only the native as groks the .SHORTDATA statements in ari_asm_hppa.d
       echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
-    elif [ $f = arimips -a "$TSYSOS" != linux ] ; then
+    elif [ $f = ari_asm_mips -a "$TSYSOS" != linux ] ; then
       # Avoid problem during incremental linking of lisp.o.
       echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
     elif [ $XCC_GCC = true ] ; then

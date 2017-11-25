@@ -162,7 +162,7 @@
            hi_assignment _hi;                                            \
            lo_assignment _lo;                                            \
          })
-    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ari_asm_arm.d
       extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2);
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ lo_assignment asm_mulu32_(x,y); # extern in Assembler \
@@ -231,7 +231,7 @@
       #if (defined(ARM) || defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
         extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
         #define mulu32_ asm_mulu32_
-        #if defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In arihppa.d ist mulu32_high bereits definiert.
+        #if defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In ari_asm_hppa.d ist mulu32_high bereits definiert.
           global uint32 mulu32_high;
         #endif
       #else
@@ -402,7 +402,7 @@
           q_assignment __q;       \
           r_assignment __r;       \
          })
-    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ari_asm_arm.d
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
         { var uint32 _q = asm_divu_3216_1616_(x,y); # extern in Assembler \
           var register uint32 _r __asm__("%r1"/*"%a2"*/);             \
@@ -704,7 +704,7 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         ((uint32)asm_divu_6432_3232_(xhi,xlo,y))
-    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ariarm.d
+    #elif defined(ARM) && 0 && !defined(NO_ARI_ASM) # see comment ari_asm_arm.d
       extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
         ({ var uint32 _q = asm_divu_6432_3232_(xhi,xlo,y); # extern in Assembler \

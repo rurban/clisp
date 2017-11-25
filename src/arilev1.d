@@ -223,23 +223,23 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
     #define INCLUDED_FROM_C
     #if defined(SPARC)
       #if defined(SPARC64)
-        #include "arisparc64.c"
+        #include "ari_asm_sparc64.c"
       #else
-        #include "arisparc.c"
+        #include "ari_asm_sparc.c"
       #endif
     #endif
     #if defined(I80386)
-      #include "ari80386.c"
+      #include "ari_asm_i386.c"
     #endif
     #if defined(MIPS)
       #if defined(MIPS64)
-        #include "arimips64.c"
+        #include "ari_asm_mips64.c"
       #else
-        #include "arimips.c"
+        #include "ari_asm_mips.c"
       #endif
     #endif
     #if defined(ARM)
-      #include "ariarm.c"
+      #include "ari_asm_arm.c"
     #endif
     #undef INCLUDED_FROM_C
   # Die Extern-Deklarationen:
