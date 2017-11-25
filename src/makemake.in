@@ -2286,7 +2286,7 @@ LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intby
 LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
 LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 
-EXTRA_CPARTS='noreadline'
+EXTRA_CPARTS='arilev1_asm_proto noreadline'
 
 DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph $EXTRA_CPARTS"
 
@@ -3103,7 +3103,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   test $f = encoding && depends=$depends''$NLS_INCLUDES
   test $f = error && depends=$depends' '$ERROR_INCLUDES
-  test $f = lisparit && depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
+  test $f = lisparit -o $f = arilev1_asm_proto && depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
   test $f = genclisph && depends=$depends' gen.lispbibl'
   for g in $depends ; do
     dependsc=$dependsc' '$g'.c'
@@ -3150,6 +3150,10 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = eval -a "${with_jitc}" = lightning ]; then
     flags2=$flags2' -Wno-unused' # should be gone - eventually...
+  fi
+  if [ $f = arilev1_asm_proto -a $XCC_GCC = true ]; then
+    # We don't want debugging information in arilev1_asm_proto.s.
+    flags2=$flags2' -g0 -fno-dwarf2-cfi-asm'
   fi
   # Files that define C functions that are used as argument of make_machine_code
   # (such as the PSEUDOFUNs) need to make sure to align them properly for the
