@@ -4246,7 +4246,7 @@ local _Noreturn void quit_instantly (int exitcode)
 
 /* leave LISP-interpreter
  quit();
- > final_exitcode: 0 on normal exit, 1 on abort */
+ > final_exitcode: 0 for normal, 1 for abnormal end of program, -signum for signal */
 global int final_exitcode = 0;
 global bool quit_on_signal_in_progress = false;
 local int quit_retry = 0;

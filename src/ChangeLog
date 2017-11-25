@@ -1,5 +1,10 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	Fix comment (regression from 2008-01-15).
+	* spvw.d (quit): Note the meaning of a negative final_exitcode.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	Provide a starting point for ari_asm_* development.
 	* arilev1c.d: Use 'maybe_local' instead of 'local'.
 	* arilev1.d (LOOP_STATIC_C): Renamed from LOOP_EXTERN_C.
