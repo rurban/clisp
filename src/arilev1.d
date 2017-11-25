@@ -178,6 +178,9 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 # For the innermost loops there are four possible implementations:
 # LOOP_EXTERN_C     All loops as extern C compiled functions.
 #                   Portable, but possibly inefficient.
+# LOOP_STATIC_C     All loops as C compiled functions in the same compilation
+#                   unit. Optimizing compilers may inline them.
+#                   Portable, but possibly inefficient.
 # LOOP_INLINE_C     Loops that don't return a value (or with GNU C: all loops)
 #                   as C macros.
 #                   Portable, but possibly inefficient.
@@ -187,7 +190,9 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #                   as macroexpanded inline assembler routines.
 #                   Very efficient.
 
-#if (defined(SPARC) || defined(I80386) || defined(MIPS) || defined(ARM)) && !defined(NO_ARI_ASM)
+#if defined(ARILEV1_EXTERN)
+  #define LOOP_EXTERN_C
+#elif (defined(SPARC) || defined(I80386) || defined(MIPS) || defined(ARM)) && !defined(NO_ARI_ASM)
   # diese Assembler beherrsche ich
   #if (defined(GNU) && defined(WANT_LOOP_INLINE))
     # der GNU-Compiler kann Inline-Assembler
@@ -200,7 +205,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
   # sonst die portable Lösung
   #if (defined(DECALPHA) && defined(GNU) && (intDsize==32) && defined(HAVE_DD))
     # GCC-2.7.2-Bug umgehen
-    #define LOOP_EXTERN_C
+    #define LOOP_STATIC_C
   #else
     #define LOOP_INLINE_C
   #endif
@@ -208,8 +213,17 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 
 #ifdef LOOP_EXTERN_C
+  #define maybe_local
   # Die Definitionen samt portablem C-Code:
   #include "arilev1c.c"
+  #undef maybe_local
+#endif
+
+#ifdef LOOP_STATIC_C
+  #define maybe_local local
+  # Die Definitionen samt portablem C-Code:
+  #include "arilev1c.c"
+  #undef maybe_local
 #endif
 
 # Die Inline-Macros

@@ -4,7 +4,7 @@
 # destptr = copy_loop_up(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits aufwärts von sourceptr nach destptr
 # und liefert das neue destptr.
-  local uintD* copy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count)
+  maybe_local uintD* copy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count)
   {
     while (count != 0) {
       *destptr++ = *sourceptr++; count--;
@@ -16,7 +16,7 @@
 # destptr = copy_loop_down(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits abwärts von sourceptr nach destptr
 # und liefert das neue destptr.
-  local uintD* copy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
+  maybe_local uintD* copy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
   {
     while (count != 0) {
       *--destptr = *--sourceptr; count--;
@@ -28,7 +28,7 @@
 # destptr = fill_loop_up(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler aufwärts nach destptr
 # und liefert das neue destptr.
-  local uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler)
+  maybe_local uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler)
   {
     while (count != 0) {
       *destptr++ = filler; count--;
@@ -40,7 +40,7 @@
 # destptr = fill_loop_down(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler abwärts nach destptr
 # und liefert das neue destptr.
-  local uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler)
+  maybe_local uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler)
   {
     while (count != 0) {
       *--destptr = filler; count--;
@@ -52,7 +52,7 @@
 # destptr = clear_loop_up(destptr,count);
 # löscht count (uintC>=0) Digits aufwärts ab destptr
 # und liefert das neue destptr.
-  local uintD* clear_loop_up (uintD* destptr, uintC count)
+  maybe_local uintD* clear_loop_up (uintD* destptr, uintC count)
   {
     while (count != 0) {
       *destptr++ = 0; count--;
@@ -64,7 +64,7 @@
 # destptr = clear_loop_down(destptr,count);
 # löscht count (uintC>=0) Digits abwärts ab destptr
 # und liefert das neue destptr.
-  local uintD* clear_loop_down (uintD* destptr, uintC count)
+  maybe_local uintD* clear_loop_down (uintD* destptr, uintC count)
   {
     while (count != 0) {
       *--destptr = 0; count--;
@@ -76,7 +76,7 @@
 # or_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch OR.
-  local void or_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void or_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       *xptr++ |= *yptr++; count--;
@@ -87,7 +87,7 @@
 # xor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch XOR.
-  local void xor_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void xor_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       *xptr++ ^= *yptr++; count--;
@@ -98,7 +98,7 @@
 # and_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch AND.
-  local void and_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void and_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       *xptr++ &= *yptr++; count--;
@@ -109,7 +109,7 @@
 # eqv_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch EQV (NOT XOR).
-  local void eqv_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void eqv_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       var uintD temp = ~ (*xptr ^ *yptr++);
@@ -122,7 +122,7 @@
 # nand_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NAND (NOT AND).
-  local void nand_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void nand_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       var uintD temp = ~ (*xptr & *yptr++);
@@ -135,7 +135,7 @@
 # nor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NOR (NOT OR).
-  local void nor_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void nor_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       var uintD temp = ~ (*xptr | *yptr++);
@@ -148,7 +148,7 @@
 # andc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ANDC2 (AND NOT).
-  local void andc2_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void andc2_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       *xptr++ &= ~(*yptr++); count--;
@@ -159,7 +159,7 @@
 # orc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ORC2 (OR NOT).
-  local void orc2_loop_up (uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local void orc2_loop_up (uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       *xptr++ |= ~(*yptr++); count--;
@@ -170,7 +170,7 @@
 # not_loop_up(xptr,count);
 # verknüpft count (uintC>0) Digits aufwärts ab xptr mit Ziel ab xptr
 # durch NOT.
-  local void not_loop_up (uintD* xptr, uintC count)
+  maybe_local void not_loop_up (uintD* xptr, uintC count)
   {
     do {
       var uintD temp = ~ (*xptr);
@@ -183,7 +183,7 @@
 # and_test_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr durch AND
 # und testet, ob sich dabei ein Digit /=0 ergibt. Ergebnis /=0, falls ja.
-  local /*bool*/int and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local /*bool*/int and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       if (*xptr++ & *yptr++)
@@ -197,7 +197,7 @@
 # test_loop_up(ptr,count)
 # testet count (uintC>=0) Digits aufwärts ab ptr, ob darunter eines /=0 ist.
 # Ergebnis /=0, falls ja.
-  local /*bool*/int test_loop_up (const uintD* ptr, uintC count)
+  maybe_local /*bool*/int test_loop_up (const uintD* ptr, uintC count)
   {
     while (count != 0) {
       if (*ptr++)
@@ -213,7 +213,7 @@
 # insgesamt count Digits, und liefert 0 falls alle gleich sind,
 # +1 falls zuerst ein xptr[i]>yptr[i] ist,
 # -1 falls zuerst ein xptr[i]<yptr[i] ist.
-  local signean compare_loop_up (const uintD* xptr, const uintD* yptr, uintC count)
+  maybe_local signean compare_loop_up (const uintD* xptr, const uintD* yptr, uintC count)
   {
     while (count != 0) {
       if (!(*xptr++ == *yptr++))
@@ -228,7 +228,7 @@
 # übertrag = add_loop_down(sourceptr1,sourceptr2,destptr,count);
 # addiert count (uintC>=0) Digits abwärts von sourceptr1, von sourceptr2
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
-  local uintD add_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count)
+  maybe_local uintD add_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count)
   {
     var uintD carry = 0;
     while (count != 0) {
@@ -255,7 +255,7 @@
 # übertrag = addto_loop_down(sourceptr,destptr,count);
 # addiert count (uintC>=0) Digits abwärts von sourceptr, von destptr
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
-  local uintD addto_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
+  maybe_local uintD addto_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
   {
     var uintD carry = 0;
     while (count != 0) {
@@ -282,7 +282,7 @@
 # übertrag = inc_loop_down(ptr,count);
 # incrementiert count (uintC>=0) Digits abwärts von ptr, so lange bis kein
 # Übertrag mehr auftritt und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
-  local uintD inc_loop_down (uintD* ptr, uintC count)
+  maybe_local uintD inc_loop_down (uintD* ptr, uintC count)
   {
     while (count != 0) {
       if (!( ++(*--ptr) == 0 ))
@@ -296,7 +296,7 @@
 # übertrag = sub_loop_down(sourceptr1,sourceptr2,destptr,count);
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr1, von sourceptr2
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was -1 bedeutet).
-  local uintD sub_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count)
+  maybe_local uintD sub_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count)
   {
     var uintD carry = 0;
     while (count != 0) {
@@ -324,7 +324,7 @@
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr1 und addiert
 # einen Carry (0 oder -1), von sourceptr2 abwärts nach destptr und
 # liefert den Übertrag (0 oder /=0, was -1 bedeutet).
-  local uintD subx_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count, uintD carry)
+  maybe_local uintD subx_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count, uintD carry)
   {
     while (count != 0) {
       var uintD source1 = *--sourceptr1;
@@ -351,7 +351,7 @@
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr, von destptr
 # abwärts nach destptr (dest := dest - source)
 # und liefert den Übertrag (0 oder /=0, was -1 bedeutet).
-  local uintD subfrom_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
+  maybe_local uintD subfrom_loop_down (const uintD* sourceptr, uintD* destptr, uintC count)
   {
     var uintD carry = 0;
     while (count != 0) {
@@ -378,7 +378,7 @@
 # übertrag = dec_loop_down(ptr,count);
 # decrementiert count (uintC>=0) Digits abwärts von ptr, so lange bis kein
 # Übertrag mehr auftritt und liefert den Übertrag (0 oder -1).
-  local uintD dec_loop_down (uintD* ptr, uintC count)
+  maybe_local uintD dec_loop_down (uintD* ptr, uintC count)
   {
     while (count != 0) {
       if (!( (*--ptr)-- == 0 ))
@@ -392,7 +392,7 @@
 # übertrag = neg_loop_down(ptr,count);
 # negiert count (uintC>=0) Digits abwärts von ptr,
 # und liefert den Übertrag (0 oder -1).
-  local uintD neg_loop_down (uintD* ptr, uintC count)
+  maybe_local uintD neg_loop_down (uintD* ptr, uintC count)
   {
     # erstes Digit /=0 suchen:
     while (count != 0) {
@@ -415,7 +415,7 @@
 # übertrag = shift1left_loop_down(ptr,count);
 # schiebt count (uintC>=0) Digits abwärts von ptr um 1 Bit nach links,
 # und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
-  local uintD shift1left_loop_down (uintD* ptr, uintC count)
+  maybe_local uintD shift1left_loop_down (uintD* ptr, uintC count)
   {
   #if HAVE_DD
     var uintDD accu = 0;
@@ -442,7 +442,7 @@
 # schiebt count (uintC>=0) Digits abwärts von ptr um i Bits (0<i<intDsize)
 # nach links, schiebt dabei die i Bits aus übertrag_init rechts rein,
 # und liefert den Übertrag (was links rauskommt, >=0, <2^i).
-  local uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry)
+  maybe_local uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry)
   {
   #if HAVE_DD
     var uintDD accu = (uintDD)carry;
@@ -470,7 +470,7 @@
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach links,
 # wobei ganz rechts mit i Nullbits aufgefüllt wird,
 # und liefert den Übertrag (was links rauskommt, >=0, <2^i).
-  local uintD shiftleftcopy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count, uintC i)
+  maybe_local uintD shiftleftcopy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count, uintC i)
   {
   #if HAVE_DD
     var uintDD accu = 0;
@@ -498,7 +498,7 @@
 # schiebt count (uintC>=0) Digits aufwärts von ptr um 1 Bit nach rechts,
 # wobei links das Bit übertrag_init (sollte =0 oder =-1 sein) hineingeschoben
 # wird, und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
-  local uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry)
+  maybe_local uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry)
   {
   #if HAVE_DD
     var uintDD accu = (sintDD)(sintD)carry & ((uintDD)1 << (2*intDsize-1)); # 0 oder bit(2*intDsize-1)
@@ -525,7 +525,7 @@
 # schiebt count (uintC>=0) Digits aufwärts von ptr um i Bits (0<i<intDsize)
 # nach rechts, wobei links Nullen eingeschoben werden,
 # und liefert den Übertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
-  local uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i)
+  maybe_local uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i)
   {
   #if HAVE_DD
     var uintDD accu = 0;
@@ -555,7 +555,7 @@
 # schiebt count (uintC>0) Digits aufwärts von ptr um i Bits (0<i<intDsize)
 # nach rechts, wobei links das MSBit ver-i-facht wird,
 # und liefert den Übertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
-  local uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i)
+  maybe_local uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i)
   {
   #if HAVE_DD
     var uintDD accu = # Übertrag mit i Vorzeichenbits initialisieren
@@ -593,7 +593,7 @@
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach rechts, wobei carry
 # (sozusagen als sourceptr[-1]) die i Bits ganz links bestimmt,
 # und liefert den Übertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
-  local uintD shiftrightcopy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry)
+  maybe_local uintD shiftrightcopy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry)
   {
   #if HAVE_DD
     var uintDD accu = # Übertrag mit carry initialisieren
@@ -625,7 +625,7 @@
 # multipliziert die UDS  ptr[-len..-1]  mit digit (>=2, <=36),
 # addiert dabei newdigit (>=0, <digit) zur letzten Ziffer,
 # und liefert den Carry (>=0, <digit).
-  local uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit)
+  maybe_local uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit)
   {
   #if HAVE_DD
     var uintDD carry = newdigit;
@@ -662,7 +662,7 @@
 # multipliziert die UDS  sourceptr[-len..-1]  (len>0)
 # mit dem einzelnen  digit
 # und legt das Ergebnis in der UDS  destptr[-len-1..-1]  ab.
-  local void mulu_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
+  maybe_local void mulu_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
   {
   #if HAVE_DD
     var uintDD carry = 0;
@@ -699,7 +699,7 @@
 # multipliziert die UDS  sourceptr[-len..-1]  (len>0)
 # mit dem einzelnen digit, legt das Ergebnis in der UDS  destptr[-len..-1]
 # ab und liefert den weiteren Übertrag.
-  local uintD muluadd_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
+  maybe_local uintD muluadd_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
   {
   #if HAVE_DD
     var uintDD carry = 0;
@@ -742,7 +742,7 @@
 # multipliziert die UDS  sourceptr[-len..-1]  (len>0)  mit dem einzelnen
 # digit, subtrahiert das Ergebnis von der UDS  destptr[-len..-1]  und liefert
 # den weiteren Übertrag (>=0, evtl. von destptr[-len-1] zu subtrahieren).
-  local uintD mulusub_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
+  maybe_local uintD mulusub_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
   {
   #if HAVE_DD
     var uintDD carry = 0;
@@ -785,7 +785,7 @@
 # divu_loop_up(digit,ptr,len)
 # dividiert die UDS  ptr[0..len-1] durch digit,
 # legt das Ergebnis in derselben UDS ab, und liefert den Rest (>=0, <digit).
-  local uintD divu_loop_up (uintD digit, uintD* ptr, uintC len)
+  maybe_local uintD divu_loop_up (uintD digit, uintD* ptr, uintC len)
   {
   #if HAVE_DD
     var uintD rest = 0;
@@ -811,7 +811,7 @@
 # dividiert die UDS  sourceptr[0..len-1]  durch digit,
 # legt das Ergebnis in der UDS  destptr[0..len-1]  ab,
 # und liefert den Rest (>=0, <digit).
-  local uintD divucopy_loop_up (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
+  maybe_local uintD divucopy_loop_up (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len)
   {
   #if HAVE_DD
     var uintD rest = 0;
