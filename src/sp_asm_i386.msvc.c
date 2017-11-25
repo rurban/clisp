@@ -23,11 +23,11 @@
 
         TEXT()
 
-        GLOBL(C(getSP))
+        GLOBL(C(asm_getSP))
 
 
         ALIGN
-FUNBEGIN(getSP)
+FUNBEGIN(asm_getSP)
         INSN2(lea,l	,X4 MEM_DISP(esp,4),R(eax))
         ret
 FUNEND()

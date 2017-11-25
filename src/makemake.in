@@ -2333,20 +2333,20 @@ case " ${XCPPFLAGS} ${XCFLAGS} " in
   *" -DNO_SP_ASM "*) ;;
   *)
     if [ "$cpu" = m68k ] ; then
-      SP_ASMD=$SP_ASMD' sp68000'
-      SP_ASMS=$SP_ASMS' sp68000'
+      SP_ASMD=$SP_ASMD' sp_asm_m68k'
+      SP_ASMS=$SP_ASMS' sp_asm_m68k'
     fi
     if [ "$cpu" = sparc -o "$cpu" = sparc64 ] ; then
-      SP_ASMD=$SP_ASMD" sp${cpu}"
-      SP_ASMS=$SP_ASMS" sp${cpu}"
+      SP_ASMD=$SP_ASMD" sp_asm_${cpu}"
+      SP_ASMS=$SP_ASMS" sp_asm_${cpu}"
     fi
     if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
-      SP_ASMD=$SP_ASMD' spmips'
-      SP_ASMS=$SP_ASMS' spmips'
+      SP_ASMD=$SP_ASMD' sp_asm_mips'
+      SP_ASMS=$SP_ASMS' sp_asm_mips'
     fi
     if [ "$cpu" = i386 ] ; then
-      SP_ASMD=$SP_ASMD' sp80386'
-      SP_ASMS=$SP_ASMS' sp80386'
+      SP_ASMD=$SP_ASMD' sp_asm_i386'
+      SP_ASMS=$SP_ASMS' sp_asm_i386'
     fi
     ;;
 esac
