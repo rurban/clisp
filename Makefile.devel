@@ -516,7 +516,7 @@ build-porting32-gcc-debug_gcsafety:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability --with-debug $@
 
 # This build is only useful to test the assembly-language code ari*.d.
-build-porting32-gcc-ari-asm:
+build-porting32-gcc-ari_asm:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM" \
@@ -692,7 +692,7 @@ build-porting32-cc-safety0:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # This build is only useful to test the assembly-language code ari*.d.
-build-porting32-cc-ari-asm:
+build-porting32-cc-ari_asm:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM" \
@@ -880,7 +880,7 @@ build-porting64-gcc-debug_gcsafety:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability --with-debug $@
 
 # This build is only useful to test the assembly-language code ari*.d.
-build-porting64-gcc-ari-asm:
+build-porting64-gcc-ari_asm:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM" \
@@ -1048,7 +1048,7 @@ build-porting64-cc-safety0:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # This build is only useful to test the assembly-language code ari*.d.
-build-porting64-cc-ari-asm:
+build-porting64-cc-ari_asm:
 	$(RMRF) $@
 	CFLAGS="$(MULTIBUILD_CFLAGS)" \
 	CPPFLAGS="-DNO_ASM" \
@@ -1105,7 +1105,7 @@ multibuild-linux-hppa: \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized \
   build-porting32-gcc-debug_gcsafety \
-  build-porting32-gcc-ari-asm
+  build-porting32-gcc-ari_asm
 
 # Linux/i386
 multibuild-linux-i386: \
@@ -1126,7 +1126,7 @@ multibuild-linux-i386: \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized \
   build-porting32-gcc-debug_gcsafety \
-  build-porting32-gcc-ari-asm \
+  build-porting32-gcc-ari_asm \
   build-porting32-gcc-arilev0-asm
 
 # Linux/m68k

@@ -1,5 +1,11 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	More systematic Makefile.devel target naming.
+	* Makefile.devel (build-porting*-ari_asm): Renamed from
+	build-porting*-ari-asm.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	More systematic naming of ari* assembly-language files.
 	* ari_asm_i386.d: Renamed from ari80386.d.
 	* ari_asm_arm.d: Renamed from ariarm.d.
