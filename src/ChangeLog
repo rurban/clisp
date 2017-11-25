@@ -1,5 +1,11 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure of build-porting32-gcc-arilev0-asm on Linux/sparc.
+	* makemake.in: When compiling eval.c with GCC for sparc, reduce
+	optimizations.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to use '-nextgc-factor 0.001' with GENERATIONAL_GC.
 	* spvw.d (main): Move install_segv_handler invocation from here...
 	(init_memory): ... to here.
