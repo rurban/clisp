@@ -41,7 +41,7 @@ all : build-prerequisites makefiles potfiles htmldoc
 
 build-prerequisites : check-configures fixperms                             \
 			src/version.h                                       \
-			src/asmi386.h src/ari80386.msvc.c src/sp_asm_i386.msvc.c
+			src/asmi386.h src/ari_asm_i386.msvc.c src/sp_asm_i386.msvc.c
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create the configure files.
@@ -111,8 +111,8 @@ src/version.h: version.sh
 src/asmi386.h : src/asmi386.hh
 	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
 
-src/ari80386.msvc.c : src/ari80386.d src/asmi386.sh
-	src/asmi386.sh -no-C < src/ari80386.d > src/ari80386.msvc.c
+src/ari_asm_i386.msvc.c : src/ari_asm_i386.d src/asmi386.sh
+	src/asmi386.sh -no-C < src/ari_asm_i386.d > src/ari_asm_i386.msvc.c
 
 src/sp_asm_i386.msvc.c : src/sp_asm_i386.d src/asmi386.sh
 	src/asmi386.sh -no-C < src/sp_asm_i386.d > src/sp_asm_i386.msvc.c

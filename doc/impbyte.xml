@@ -342,26 +342,26 @@
 <section id="src-ari-asm"><title>External routines for the arithmetic
   system, written in assembly language</title>
 <variablelist>
-<varlistentry><term><filename role="clisp-cvs">src/arisparc.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_sparc.d</filename></term>
  <listitem><simpara>written in SPARC assembler
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">src/arisparc64.d</filename></term>
+ <term><filename role="clisp-cvs">src/ari_asm_sparc64.d</filename></term>
  <listitem><simpara>written in 64-bit SPARC assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/ari80386.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_i386.d</filename></term>
  <listitem><simpara>written in i386/i486 assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/arimips.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_mips.d</filename></term>
  <listitem><simpara>written in MIPS assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/arimips64.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_mips64.d</filename></term>
  <listitem><simpara>written in 64-bit MIPS assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/arihppa.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_hppa.d</filename></term>
  <listitem><simpara>written in HPPA-1.0 assembler
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/ariarm.d</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/ari_asm_arm.d</filename></term>
  <listitem><simpara>written in ARM assembler
 </simpara></listitem></varlistentry>
 </variablelist></section>

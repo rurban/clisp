@@ -1,11 +1,27 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	More systematic naming of ari* assembly-language files.
+	* ari_asm_i386.d: Renamed from ari80386.d.
+	* ari_asm_arm.d: Renamed from ariarm.d.
+	* ari_asm_hppa.d: Renamed from arihppa.d.
+	* ari_asm_mips.d: Renamed from arimips.d.
+	* ari_asm_mips64.d: Renamed from arimips64.d.
+	* ari_asm_sparc.d: Renamed from arisparc.d.
+	* ari_asm_sparc64.d: Renamed from arisparc64.d.
+	* arilev1.d: Update accordingly.
+	* makemake.in (ARI_ASMD, ARI_ASMS): Likewise.
+	* Makefile.devel (src/ari_asm_i386.msvc.c): Renamed from
+	src/ari80i386.msvc.c.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	More systematic naming of sp* assembly-language files.
 	* sp_asm_m68k.d: Renamed from sp68000.d.
 	* sp_asm_sparc.d: Renamed from spsparc.d.
 	* sp_asm_sparc64.d: Renamed from spsparc64.d.
 	* sp_asm_mips.d: Renamed from spmips.d.
 	* sp_asm_i386.d: Renamed from sp80386.d.
+	* makemake.in (SP_ASMD, SP_ASMS): Update accordingly.
 	* Makefile.devel (src/sp_asm_i386.msvc.c): Renamed from
 	src/sp80i386.msvc.c.
 
