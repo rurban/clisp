@@ -1,5 +1,10 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	Modernize: Convert source code from K&R C to ANSI C.
+	* arilev1c.d: Convert to ANSI C.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	More systematic Makefile.devel target naming.
 	* Makefile.devel (build-porting*-ari_asm): Renamed from
 	build-porting*-ari-asm.
