@@ -3529,12 +3529,6 @@ local inline int init_memory (struct argv_initparams *p) {
       }
     }
   }
-#if defined(MULTITHREAD)
-  /* initialize the THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
-     calculated STACK size */
-  Symbol_value(S(default_value_stack_size)) =
-    uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
-#endif
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintM stack_size =
@@ -3562,6 +3556,16 @@ local inline int init_memory (struct argv_initparams *p) {
  #endif
   init_subr_tab_1();            /* initialize subr_tab */
   markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
+ #if defined(GENERATIONAL_GC)
+  /* install Page-Fault-Handler: */
+  install_segv_handler();
+ #endif
+ #if defined(MULTITHREAD)
+  /* initialize the THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
+     calculated STACK size */
+  Symbol_value(S(default_value_stack_size)) =
+    uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
+ #endif
   if (p->argv_memfile)
     loadmem(p->argv_memfile);   /* load memory file */
   else if (!loadmem_from_executable())
@@ -4103,10 +4107,6 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   install_async_signal_handlers();
 #endif
- #if defined(GENERATIONAL_GC)
-  /* install Page-Fault-Handler: */
-  install_segv_handler();
- #endif
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   install_sigpipe_handler();
  #endif
