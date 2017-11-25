@@ -4627,12 +4627,6 @@ local void fill_terminating_signals_mask(sigset_t *mask)
 #ifdef SIGQUIT
   sigaddset(mask,SIGQUIT);
 #endif
-#ifdef SIGILL
-  sigaddset(mask,SIGILL);
-#endif
-#ifdef SIGABRT
-  sigaddset(mask,SIGABRT);
-#endif
 #ifdef SIGKILL
   sigaddset(mask,SIGKILL);
 #endif

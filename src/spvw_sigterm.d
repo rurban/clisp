@@ -15,19 +15,16 @@ local void install_sigterm_handler (void);
 #if defined(HAVE_SIGNALS)
 
 local void set_sigterm_handler (signal_handler_t handler) {
-  /* Iterate over those signals whose default action exits. */
+  /* Iterate over those signals whose default action exits.
+     But do not install handlers for SIGABRT, SIGILL, SIGFPE, because these
+     signals indicate bugs, and a handler would make post-mortem debugging
+     (via core dump file) impossible. */
 #ifdef SIGHUP
   /* maybe ignore? No, use nohup instead */
   SIGNAL(SIGHUP,handler);
 #endif
 #ifdef SIGQUIT
   SIGNAL(SIGQUIT,handler);
-#endif
-#ifdef SIGILL
-  SIGNAL(SIGILL,handler);
-#endif
-#ifdef SIGABRT
-  SIGNAL(SIGABRT,handler);
 #endif
 #ifdef SIGKILL
   SIGNAL(SIGKILL,handler);

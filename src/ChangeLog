@@ -1,5 +1,12 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	Don't install signal handlers for SIGABRT and SIGILL.
+	* spvw_sigterm.d (set_sigterm_handler): Don't install a handler for
+	SIGABRT or SIGILL.
+	* spvw.d (fill_terminating_signals_mask): Update accordingly.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	Fix comment (regression from 2008-01-15).
 	* spvw.d (quit): Note the meaning of a negative final_exitcode.
 
