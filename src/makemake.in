@@ -3136,6 +3136,10 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     # gcc-2.96 on Linux/ia64 miscompiles eval.d when -O is used.
     flags2=$flags2' -O0'
   fi
+  if [ $f = eval -a "$cpu" = sparc -a $XCC_GCC = true ] ; then
+    # gcc-7.2.0 on Linux/sparc appears to miscompile eval.d when -O2 is used.
+    flags2=$flags2' -O1'
+  fi
   if [ $f = eval -a "$cpu" = sparc64 -a $XCC_GCC = true ] ; then
     # gcc-4.6.3 on Linux/sparc64 miscompiles eval.d when -O is used.
     flags2=$flags2' -O0'
