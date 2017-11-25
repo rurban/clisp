@@ -1,5 +1,17 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	Add a facility for checking and debugging the ari_asm_* code.
+	* arilev1.d: When DEBUG_ARI_ASM is defined, select LOOP_DEBUG_ASM and
+	include arilev1dbg.c.
+	* arilev1c.d: Apply C() macro to the name of each function.
+	* arilev1dbg.d: New file.
+	* makemake.in (LISPARIT_INCLUDES): Add it.
+	* Makefile.devel (build-porting*-debug_ari_asm): New targets.
+	(multibuild-linux-hppa, multibuild-linux-i386): Depend on
+	build-porting32-gcc-debug_ari_asm.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	Don't install signal handlers for SIGABRT and SIGILL.
 	* spvw_sigterm.d (set_sigterm_handler): Don't install a handler for
 	SIGABRT or SIGILL.

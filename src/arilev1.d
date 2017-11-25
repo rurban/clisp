@@ -175,7 +175,7 @@
 typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 
-# For the innermost loops there are four possible implementations:
+# For the innermost loops there are six possible implementations:
 # LOOP_EXTERN_C     All loops as extern C compiled functions.
 #                   Portable, but possibly inefficient.
 # LOOP_STATIC_C     All loops as C compiled functions in the same compilation
@@ -186,6 +186,10 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #                   Portable, but possibly inefficient.
 # LOOP_EXTERN_ASM   All loops as external assembler functions.
 #                   More efficient, but still a function call overhead.
+# LOOP_DEBUG_ASM    All loops as wrappers around the external assembler
+#                   functions that verify the results of each function call.
+#                   Neither portable nor efficient.
+#                   Use for debugging of the external assembler functions.
 # LOOP_INLINE_ASM   Loops that don't return a value (or with GNU C: all loops)
 #                   as macroexpanded inline assembler routines.
 #                   Very efficient.
@@ -197,6 +201,9 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
   #if (defined(GNU) && defined(WANT_LOOP_INLINE))
     # der GNU-Compiler kann Inline-Assembler
     #define LOOP_INLINE_ASM
+  #elif defined(DEBUG_ARI_ASM)
+    # Use wrapper definitions.
+    #define LOOP_DEBUG_ASM
   #else
     # sonst mit externen Routinen arbeiten
     #define LOOP_EXTERN_ASM
@@ -214,15 +221,19 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 #ifdef LOOP_EXTERN_C
   #define maybe_local
+  #define C(symbol) symbol
   # Die Definitionen samt portablem C-Code:
   #include "arilev1c.c"
+  #undef C
   #undef maybe_local
 #endif
 
 #ifdef LOOP_STATIC_C
   #define maybe_local local
+  #define C(symbol) symbol
   # Die Definitionen samt portablem C-Code:
   #include "arilev1c.c"
+  #undef C
   #undef maybe_local
 #endif
 
@@ -232,7 +243,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
   #define LOOP_EXTERN_ASM  # stattdessen extern in Assembler
 #endif
 
-#ifdef LOOP_EXTERN_ASM
+#if defined(LOOP_EXTERN_ASM) || defined(LOOP_DEBUG_ASM)
   # Die Assembler-Definitionen:
     #define INCLUDED_FROM_C
     #if defined(SPARC)
@@ -258,6 +269,16 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
     #undef INCLUDED_FROM_C
   # Die Extern-Deklarationen:
     #include "arilev1e.c"
+  #ifdef LOOP_DEBUG_ASM
+    # The portable definitions, under a different name:
+    #define maybe_local local
+    #define C(symbol) portable_##symbol
+    #include "arilev1c.c"
+    #undef C
+    #undef maybe_local
+    # The wrapper definitions:
+    #include "arilev1dbg.c"
+  #endif
   # Die nicht in Assembler geschriebenen Teile nehmen wir vom portablen C-Code:
     #define LOOP_INLINE_C
 #endif
