@@ -1,5 +1,16 @@
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
+	More systematic naming of sp* assembly-language files.
+	* sp_asm_m68k.d: Renamed from sp68000.d.
+	* sp_asm_sparc.d: Renamed from spsparc.d.
+	* sp_asm_sparc64.d: Renamed from spsparc64.d.
+	* sp_asm_mips.d: Renamed from spmips.d.
+	* sp_asm_i386.d: Renamed from sp80386.d.
+	* Makefile.devel (src/sp_asm_i386.msvc.c): Renamed from
+	src/sp80i386.msvc.c.
+
+2017-11-25  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure of build-porting32-gcc-arilev0-asm on Linux/sparc.
 	* makemake.in: When compiling eval.c with GCC for sparc, reduce
 	optimizations.
