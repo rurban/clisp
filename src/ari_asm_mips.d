@@ -2,13 +2,22 @@
 # Prozessor: MIPS
 # Endianness: irrelevant
 # Compiler: GNU-C oder ...
-# Parameter-Übergabe:
-#   o32: in Registern $4,$5,$6,$7, und auf dem Stack 16($sp),...
-#   n32: in Registern $4,$5,$6,$7,$8,$9,$10,$11, und auf dem Stack 4($sp),...
-# Rückgabewert: in Register $2
-# Einstellungen: intCsize=32, intDsize=32.
-# Besonderheiten: Nach jedem Ladebefehl ein Wartetakt nötig, bevor der
-#   geholte Wert benutzt werden darf.
+# Parameter passing conventions:
+#   Arguments:
+#     o32: in registers $4,$5,$6,$7, and on the stack 16($sp),...
+#     n32: in registers $4,$5,$6,$7,$8,$9,$10,$11, and on the stack 4($sp),...
+#   Return value register:
+#     o32: $2 for a single word, $2,$3 for a 'long long'.
+#     n32: $2
+#   Call-used registers (do not have to be preserved across function calls):
+#     $2..$15, $24
+# Settings: intCsize=32, intDsize=32.
+# Particularities:
+#   After every load instruction a wait cycle is necessary, before the
+#   fetched values may be used.
+#   After branches and jumps, there is a delay slot. The assembler fills
+#   it by pulling some instruction from before the jump (unless we use
+#   the pseudo-op '.set noreorder' to disable this instruction reordering).
 
 #ifdef INCLUDED_FROM_C
 

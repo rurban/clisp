@@ -2,7 +2,13 @@
  * External routines for ARILEV1.D
  * Processor: HPPA, because of XMPYU only on HPPA 1.1 (like HP9000/720)
  * Compiler: GNU-C or HP-C
- * Parameter Passing: in registers %arg0,%arg1,%arg2, return value in %ret0.
+ * Parameter passing conventions:
+ *   Argument registers:
+ *     %arg0,%arg1,%arg2,%arg3 (= %r26,%r25,%r24,%r23)
+ *   Return value register:
+ *     %ret0 = %r28 for a single word, %r28,%r29 for a 'long long'.
+ *   Call-used registers (do not have to be preserved across function calls):
+ *     %r1, %r19..%r26, %r28..%r29, %r31
  * Settings: intCsize=32, intDsize=32.
  */
 

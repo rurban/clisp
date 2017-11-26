@@ -1,18 +1,24 @@
 # Externe Routinen zu ARILEV1.D
 # Prozessor: SPARC 64-bit
 # Compiler: GNU-C oder ...
-# Parameter-Übergabe: in Registern %o0-%o5.
-#   Argumente vom Typ uint8, uint16, uint32 sind bereits vom Aufrufer zu
-#   uint64 umgewandelt worden (zero-extend, "srl reg,0,reg").
-#   Argumente vom Typ sint8, sint16, sint32 sind bereits vom Aufrufer zu
-#   sint64 umgewandelt worden (sign-extend, "sra reg,0,reg").
-#   Ergebnisse vom Typ uint8, uint16, uint32 müssen vor Rückgabe zu uint64
-#   umgewandelt werden (zero-extend, "srl reg,0,reg").
-#   Ergebnisse vom Typ sint8, sint16, sint32 müssen vor Rückgabe zu sint64
-#   umgewandelt werden (sign-extend, "sra reg,0,reg").
-# Global register usage:
-#   - see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
-# Einstellungen: intCsize=32, intDsize=32.
+# Parameter passing conventions:
+#   Argument registers:
+#     %o0..%o5
+#   Arguments of type uint8, uint16, uint32 have already been converted to
+#   uint64 by the caller (zero-extend, "srl reg,0,reg").
+#   Arguments of type sint8, sint16, sint32 have already been converted to
+#   sint64 by the caller (sign-extend, "sra reg,0,reg").
+#   Return value register:
+#     %o0
+#   Return values of type uint8, uint16, uint32 must be converted to uint64
+#   before returning (zero-extend, "srl %o0,0,%o0").
+#   Return values of type sint8, sint16, sint32 must be converted to sint64
+#   before returning (sign-extend, "sra %o0,0,%o0").
+#   Call-used registers (do not have to be preserved across function calls):
+#     %o0..%o5, %g1..%g5
+#   Global register usage:
+#     see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
+# Settings: intCsize=32, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
 
