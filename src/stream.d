@@ -4756,7 +4756,14 @@ local maygc sintL low_read_unbuffered_handle (object stream) {
     }
     end_system_call();
     #endif
-    OS_error();
+    if (errno == EIO && TheStream(stream)->strmtype==strmtype_terminal) {
+      /* An EIO error is seen when the clisp process escapes into
+         background execution, when started under gdb and gdb reports a
+         "problem internal to GDB". We need to silence this, otherwise it
+         runs into an infinite recursion. */
+      result = 0;
+    } else
+      OS_error();
   }
   if (result==0) { /* no byte available -> must be EOF */
     UnbufferedStream_status(stream) = -1; return -1;
