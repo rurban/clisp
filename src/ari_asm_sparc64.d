@@ -315,7 +315,7 @@ C(asm_or_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           or %o4,%o3,%o3        # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -350,7 +350,7 @@ C(asm_xor_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           xor %o4,%o3,%o3       # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -385,7 +385,7 @@ C(asm_and_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           and %o4,%o3,%o3       # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -420,7 +420,7 @@ C(asm_eqv_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           xnor %o4,%o3,%o3      # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -457,7 +457,7 @@ C(asm_nand_loop_up:) # Input in %o0,%o1,%o2
           and %o4,%o3,%o3       # beide verknüpfen
           xor %o3,-1,%o3
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -494,7 +494,7 @@ C(asm_nor_loop_up:) # Input in %o0,%o1,%o2
           or %o4,%o3,%o3        # beide verknüpfen
           xor %o3,-1,%o3
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -529,7 +529,7 @@ C(asm_andc2_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           andn %o4,%o3,%o3      # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -564,7 +564,7 @@ C(asm_orc2_loop_up:) # Input in %o0,%o1,%o2
           ld [%o0+%o2],%o4      # noch ein Digit holen
           orn %o4,%o3,%o3       # beide verknüpfen
           bne,pt %xcc,1b
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 2:      retl
        _ nop
 #endif
@@ -730,6 +730,7 @@ C(asm_add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
           lduw [%o1],%o5        # source2-digit, zero-extend
           add %g1,%o4,%g1       # zum Carry addieren
           add %g1,%o5,%g1       # zum Carry addieren
+          sub %o2,4,%o2
           st %g1,[%o2]          # Digit ablegen
           subcc %o3,1,%o3
           bne,pt %xcc,1b
@@ -741,18 +742,16 @@ C(asm_add_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
        _ mov %g0,%g1            # Carry := 0
-        sub %o0,4,%o0
-        sub %o1,4,%o1
         sllx %o3,2,%o3          # %o3 = 4*count
-        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count-1]
-        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count-1]
+        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count]
+        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count]
         sub %o2,%o3,%o2         # %o2 = &destptr[-count]
-1:        lduw [%o0+%o3],%o4    # source1-digit, zero-extend
+1:        subcc %o3,4,%o3
+          lduw [%o0+%o3],%o4    # source1-digit, zero-extend
           lduw [%o1+%o3],%o5    # source2-digit, zero-extend
           add %g1,%o4,%g1       # zum Carry addieren
           add %g1,%o5,%g1       # zum Carry addieren
           st %g1,[%o2+%o3]      # Digit ablegen
-          subcc %o3,4,%o3
           bne,pt %xcc,1b
          _ srlx %g1,32,%g1      # neuer Carry
 2:      retl
@@ -782,17 +781,15 @@ C(asm_addto_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
        _ mov %g0,%o5            # Carry := 0
-        sub %o0,4,%o0
-        sub %o1,4,%o1
         sllx %o2,2,%o2          # %o2 = 4*count
-        sub %o0,%o2,%o0         # %o0 = &sourceptr[-count-1]
-        sub %o1,%o2,%o1         # %o1 = &destptr[-count-1]
-1:        lduw [%o0+%o2],%o3    # source-digit, zero-extend
+        sub %o0,%o2,%o0         # %o0 = &sourceptr[-count]
+        sub %o1,%o2,%o1         # %o1 = &destptr[-count]
+1:        subcc %o2,4,%o2
+          lduw [%o0+%o2],%o3    # source-digit, zero-extend
           lduw [%o1+%o2],%o4    # dest-digit, zero-extend
           add %o5,%o3,%o5       # zum Carry addieren
           add %o5,%o4,%o5       # zum Carry addieren
           st %o5,[%o1+%o2]      # Digit ablegen
-          subcc %o2,4,%o2
           bne,pt %xcc,1b
          _ srlx %o5,32,%o5      # neuer Carry
 2:      retl
@@ -859,18 +856,16 @@ C(asm_sub_loop_down:) # Input in %o0,%o1,%o2,%o3, verändert %g1, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
        _ mov %g0,%g1            # Carry := 0
-        sub %o0,4,%o0
-        sub %o1,4,%o1
         sllx %o3,2,%o3          # %o3 = 4*count
-        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count-1]
-        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count-1]
+        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count]
+        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count]
         sub %o2,%o3,%o2         # %o2 = &destptr[-count]
-1:        lduw [%o0+%o3],%o4    # source1-digit, zero-extend
+1:        subcc %o3,4,%o3
+          lduw [%o0+%o3],%o4    # source1-digit, zero-extend
           lduw [%o1+%o3],%o5    # source2-digit, zero-extend
           add %g1,%o4,%g1       # zum Carry addieren
           sub %g1,%o5,%g1       # vom Carry subtrahieren
           st %g1,[%o2+%o3]      # Digit ablegen
-          subcc %o3,4,%o3
           bne,pt %xcc,1b
          _ srax %g1,32,%g1      # neuer Carry
 2:      retl
@@ -889,6 +884,7 @@ C(asm_subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in
           lduw [%o1],%o5        # source2-digit, zero-extend
           add %g1,%o4,%g1       # zum Carry addieren
           sub %g1,%o5,%g1       # vom Carry subtrahieren
+          sub %o2,4,%o2
           st %g1,[%o2]          # Digit ablegen
           subcc %o3,1,%o3
           bne,pt %xcc,1b
@@ -900,18 +896,16 @@ C(asm_subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, verändert %g1, Output in
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
        _ sra %o4,0,%g1          # Carry, sign-extend
-        sub %o0,4,%o0
-        sub %o1,4,%o1
         sllx %o3,2,%o3          # %o3 = 4*count
-        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count-1]
-        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count-1]
+        sub %o0,%o3,%o0         # %o0 = &sourceptr1[-count]
+        sub %o1,%o3,%o1         # %o1 = &sourceptr2[-count]
         sub %o2,%o3,%o2         # %o2 = &destptr[-count]
-1:        lduw [%o0+%o3],%o4    # source1-digit, zero-extend
+1:        subcc %o3,4,%o3
+          lduw [%o0+%o3],%o4    # source1-digit, zero-extend
           lduw [%o1+%o3],%o5    # source2-digit, zero-extend
           add %g1,%o4,%g1       # zum Carry addieren
           sub %g1,%o5,%g1       # vom Carry subtrahieren
           st %g1,[%o2+%o3]      # Digit ablegen
-          subcc %o3,4,%o3
           bne,pt %xcc,1b
          _ srax %g1,32,%g1      # neuer Carry
 2:      retl
@@ -924,12 +918,12 @@ C(asm_subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
        _ mov %g0,%o5            # Carry := 0
-1:        sub %o0,4,%o0
-          lduw [%o0],%o3        # source-digit, zero-extend
-          sub %o1,4,%o1
+1:        sub %o1,4,%o1
           lduw [%o1],%o4        # dest-digit, zero-extend
-          add %o5,%o3,%o5       # zum Carry addieren
-          sub %o5,%o4,%o5       # vom Carry subtrahieren
+          sub %o0,4,%o0
+          lduw [%o0],%o3        # source-digit, zero-extend
+          add %o5,%o4,%o5       # zum Carry addieren
+          sub %o5,%o3,%o5       # vom Carry subtrahieren
           st %o5,[%o1]          # Digit ablegen
           subcc %o2,1,%o2
           bne,pt %xcc,1b
@@ -941,17 +935,15 @@ C(asm_subfrom_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         brz,pn %o2,2f
        _ mov %g0,%o5            # Carry := 0
-        sub %o0,4,%o0
-        sub %o1,4,%o1
         sllx %o2,2,%o2          # %o2 = 4*count
-        sub %o0,%o2,%o0         # %o0 = &sourceptr[-count-1]
-        sub %o1,%o2,%o1         # %o1 = &destptr[-count-1]
-1:        lduw [%o0+%o2],%o3    # source-digit, zero-extend
+        sub %o0,%o2,%o0         # %o0 = &sourceptr[-count]
+        sub %o1,%o2,%o1         # %o1 = &destptr[-count]
+1:        subcc %o2,4,%o2
           lduw [%o1+%o2],%o4    # dest-digit, zero-extend
-          add %o5,%o3,%o5       # zum Carry addieren
-          sub %o5,%o4,%o5       # vom Carry subtrahieren
+          lduw [%o0+%o2],%o3    # source-digit, zero-extend
+          add %o5,%o4,%o5       # zum Carry addieren
+          sub %o5,%o3,%o5       # vom Carry subtrahieren
           st %o5,[%o1+%o2]      # Digit ablegen
-          subcc %o2,4,%o2
           bne,pt %xcc,1b
          _ srax %o5,32,%o5      # neuer Carry
 2:      retl
@@ -1048,9 +1040,9 @@ C(asm_neg_loop_down:) # Input in %o0,%o1, Output in %o0
         be,pn %xcc,5f
        _ nop
           ld [%o0+%o1],%o2
-4:        xor %o2,-1,%o2
+4:        subcc %o1,4,%o1
+          xor %o2,-1,%o2
           st %o2,[%o0+%o1]
-          subcc %o1,4,%o1
           bne,a,pt %xcc,4b
          __ ld [%o0+%o1],%o2
 5:      mov -1,%o0
@@ -1098,7 +1090,7 @@ C(asm_shiftleftcopy_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 1:        sub %o0,4,%o0
           lduw [%o0],%o5        # Digit, zero-extend
           subcc %o2,1,%o2
-          sllx %o5,%o2,%o5      # shiften
+          sllx %o5,%o3,%o5      # shiften
           or %o4,%o5,%o4        # zum Carry addieren
           sub %o1,4,%o1
           st %o4,[%o1]          # Digit ablegen

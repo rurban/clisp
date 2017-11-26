@@ -1,5 +1,20 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix bugs in ari_asm for sparc64.
+	* ari_asm_sparc64.d (asm_or_loop_up, asm_xor_loop_up, asm_and_loop_up,
+	asm_eqv_loop_up, asm_nand_loop_up, asm_nor_loop_up, asm_andc2_loop_up,
+	asm_orc2_loop_up) [COUNTER_LOOPS]: Write into xptr[], not into yptr[].
+	(asm_add_loop_down): Write result into the right location.
+	(asm_addto_loop_down) [COUNTER_LOOPS]: Optimize.
+	(asm_sub_loop_down) [COUNTER_LOOPS]: Write result into the right
+	location.
+	(asm_subx_loop_down): Write result into the right location.
+	(asm_subfrom_loop_down): Produce dest-source, not source-dest.
+	(asm_shiftleftcopy_loop_down): Use correct register.
+	(asm_neg_loop_down) [COUNTER_LOOPS]: Optimize.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix bugs in the COUNTER_LOOPS implementation of ari_asm for SPARC.
 	* ari_asm_sparc.d (asm_or_loop_up, asm_xor_loop_up, asm_and_loop_up,
 	asm_eqv_loop_up, asm_nand_loop_up, asm_nor_loop_up, asm_andc2_loop_up,
