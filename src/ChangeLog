@@ -1,5 +1,12 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix a bug in the optimizations for SPARC64.
+	* arilev0.d (divu_3216_1616, divu_3216_3216): Use a temporary variable
+	of type uint32, not uint16, to force a zero-extend before the asm-coded
+	instructions.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix bugs in ari_asm for sparc64.
 	* ari_asm_sparc64.d (asm_or_loop_up, asm_xor_loop_up, asm_and_loop_up,
 	asm_eqv_loop_up, asm_nand_loop_up, asm_nor_loop_up, asm_andc2_loop_up,
