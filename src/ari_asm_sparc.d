@@ -61,7 +61,7 @@
 
 #define LOOP_TYPE  1    # 1: Standard-Schleifen
                         # 2: Schleifen ohne Pointer, nur mit Zähler
-                        # 3: entrollte Schleifen
+                        # 3: entrollte Schleifen (untested)
 #define STANDARD_LOOPS  (LOOP_TYPE==1)
 #define COUNTER_LOOPS  (LOOP_TYPE==2)
 #define UNROLLED_LOOPS  (LOOP_TYPE==3)
@@ -807,7 +807,7 @@ Ll20:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           or %o4,%o3,%o3        # beide verknüpfen
           bne Ll20
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll21:   retl
        _ nop
 #endif
@@ -841,7 +841,7 @@ Ll22:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           xor %o4,%o3,%o3       # beide verknüpfen
           bne Ll22
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll23:   retl
        _ nop
 #endif
@@ -875,7 +875,7 @@ Ll24:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           and %o4,%o3,%o3       # beide verknüpfen
           bne Ll24
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll25:   retl
        _ nop
 #endif
@@ -909,7 +909,7 @@ Ll26:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           xnor %o4,%o3,%o3      # beide verknüpfen
           bne Ll26
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll27:   retl
        _ nop
 #endif
@@ -945,7 +945,7 @@ Ll28:     ld [%o1+%o2],%o3      # nächstes Digit holen
           and %o4,%o3,%o3       # beide verknüpfen
           xor %o3,-1,%o3
           bne Ll28
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll29:   retl
        _ nop
 #endif
@@ -981,7 +981,7 @@ Ll30:     ld [%o1+%o2],%o3      # nächstes Digit holen
           or %o4,%o3,%o3        # beide verknüpfen
           xor %o3,-1,%o3
           bne Ll30
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll31:   retl
        _ nop
 #endif
@@ -1015,7 +1015,7 @@ Ll32:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           andn %o4,%o3,%o3      # beide verknüpfen
           bne Ll32
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll33:   retl
        _ nop
 #endif
@@ -1049,7 +1049,7 @@ Ll34:     ld [%o1+%o2],%o3      # nächstes Digit holen
           ld [%o0+%o2],%o4      # noch ein Digit holen
           orn %o4,%o3,%o3       # beide verknüpfen
           bne Ll34
-         _ st %o3,[%o1+%o2]     # Digit ablegen
+         _ st %o3,[%o0+%o2]     # Digit ablegen
 Ll35:   retl
        _ nop
 #endif

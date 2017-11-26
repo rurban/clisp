@@ -1,5 +1,12 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Fix bugs in the COUNTER_LOOPS implementation of ari_asm for SPARC.
+	* ari_asm_sparc.d (asm_or_loop_up, asm_xor_loop_up, asm_and_loop_up,
+	asm_eqv_loop_up, asm_nand_loop_up, asm_nor_loop_up, asm_andc2_loop_up,
+	asm_orc2_loop_up): Write into xptr[], not into yptr[].
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix bug in ari_asm for mips64.
 	* ari_asm_mips64.d (asm_subx_loop_down): Expect the 5th argument in $8,
 	not on the stack.
