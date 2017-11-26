@@ -2,7 +2,7 @@
  bugfixes (c) Copyright 1996 B. Haible
  external routines for arilev1.d
  Processor: ARM in APCS mode
- Assembler-Syntax: ObjAsm under RISC OS, GAS otherwise
+ Assembler-Syntax: GAS
  Parameter passing conventions, per APCS:
    Argument registers:
      r0..r3
@@ -24,48 +24,6 @@
   #define ADDSUB_LOOPS
   #define SHIFT_LOOPS
   #define MUL_LOOPS
-
-#else
-
-
-#ifdef __riscos
-
-/* ObjAsm syntax */
-
-a1      RN      0
-a2      RN      1
-a3      RN      2
-a4      RN      3
-v1      RN      4
-v2      RN      5
-v3      RN      6
-v4      RN      7
-v5      RN      8
-v6      RN      9
-sl      RN      10
-fp      RN      11
-ip      RN      12
-sp      RN      13
-lr      RN      14
-pc      RN      15
-
-f0      FN      0
-f1      FN      1
-f2      FN      2
-f3      FN      3
-f4      FN      4
-f5      FN      5
-f6      FN      6
-f7      FN      7
-
-#define C(x) x
-#define EXPORT(x) EXPORT x
-/* The leading underscore will be munged away by asmfilter.sed. */
-#define GLABEL(x) _##x
-#define LABEL(x) _##x
-
-
-        AREA    |C$$code|,CODE,READONLY
 
 #else
 
@@ -93,10 +51,8 @@ pc      .req    r15
 #define EXPORT(x) .global x
 #define GLABEL(x)  x:
 #define LABEL(x)  x:
-#define RRX rrx
 #define END
 	.text
-#endif
 
 
 #if defined(__arm7m__) || defined(__arm8__) || defined(__arm9__) || defined(__strongarm__)
@@ -120,26 +76,6 @@ pc      .req    r15
   #define DIVU_32_REST
 #endif
 
-#ifdef __riscos
-
-#ifdef MULU32_HIGH
-ptr_mulu32_high
-        IMPORT  mulu32_high
-        DCD     mulu32_high
-#endif
-#ifdef DIVU_16_REST
-ptr_divu_16_rest
-        IMPORT  divu_16_rest
-        DCD     divu_16_rest
-#endif
-#ifdef DIVU_32_REST
-ptr_divu_32_rest
-        IMPORT  divu_32_rest
-        DCD     divu_32_rest
-#endif
-
-#else
-
 #ifdef MULU32_HIGH
 ptr_mulu32_high:
         .word   mulu32_high
@@ -154,8 +90,6 @@ ptr_divu_16_rest:
 ptr_divu_32_rest:
         .word   divu_32_rest
         .align  0
-#endif
-
 #endif
 
 
@@ -1630,17 +1564,17 @@ GLABEL(asm_shift1right_loop_up)
         ANDS    a3,a2,#1               /* multiple of 2 words ? */
         BEQ     asm_shift1right_loop_up_l1 /* yup, so branch */
         LDR     a4,[a1]                /* shift right the first word */
-        MOVS    a4,a4,RRX
+        MOVS    a4,a4,rrx
         STR     a4,[a1],#4
 LABEL(asm_shift1right_loop_up_l1)
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
-        MOVEQ   a1,a4,RRX       /* if zero set result to C (a4 is 0) */
+        MOVEQ   a1,a4,rrx       /* if zero set result to C (a4 is 0) */
         MOVEQS  pc,lr           /* and return */
         ANDS    a3,a4,#3        /* multiple of 4 words ? */
         BEQ     asm_shift1right_loop_up_l3 /* yup, so branch */
         LDMIA   a1,{a2,a3}             /* load 2 words in one go */
-        MOVS    a2,a2,RRX              /* shift right the two words */
-        MOVS    a3,a3,RRX
+        MOVS    a2,a2,rrx              /* shift right the two words */
+        MOVS    a3,a3,rrx
         STMIA   a1!,{a2,a3}     /* store 2 results */
         BICS    a4,a4,#2        /* decrement counter by 2 */
         ADCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
@@ -1649,15 +1583,15 @@ LABEL(asm_shift1right_loop_up_l3)   /* now a multiple of 4 words */
         STMFD   sp!,{lr}        /* save work regs */
 LABEL(asm_shift1right_loop_up_l2)
         LDMIA   a1,{a2,a3,ip,lr} /* load 4 words in one go */
-        MOVS    a2,a2,RRX        /* shift right the four words */
-        MOVS    a3,a3,RRX
-        MOVS    ip,ip,RRX
-        MOVS    lr,lr,RRX
+        MOVS    a2,a2,rrx        /* shift right the four words */
+        MOVS    a3,a3,rrx
+        MOVS    ip,ip,rrx
+        MOVS    lr,lr,rrx
         STMIA   a1!,{a2,a3,ip,lr}      /* store 4 results */
         SUB     a4,a4,#4               /* decrement counter by 4 */
         TEQ     a4,#0                  /* are we done ? */
         BNE     asm_shift1right_loop_up_l2 /* if count non-zero then loop */
-        MOV     a1,a4,RRX       /* set result to Carry (a4 is 0) */
+        MOV     a1,a4,rrx       /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{pc}^       /* restore work regs and return 1 */
 
 /* extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);

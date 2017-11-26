@@ -1,5 +1,10 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Simplify ari_asm for ARM.
+	* ari_asm_arm.d: Remove support for RISC OS syntax.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Add comments.
 	* ari_asm_*.d: Add comments about the ABIs. Info taken from libffcall.
 
