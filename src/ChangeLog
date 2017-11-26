@@ -1,3 +1,9 @@
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug in ari_asm for mips64.
+	* ari_asm_mips64.d (asm_subx_loop_down): Expect the 5th argument in $8,
+	not on the stack.
+
 2017-11-25  Bruno Haible  <bruno@clisp.org>
 
 	Add a facility for checking and debugging the ari_asm_* code.

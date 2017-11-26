@@ -2,7 +2,7 @@
 # Prozessor: MIPS 64-bit
 # Endianness: irrelevant
 # Compiler: GNU-C oder ...
-# Parameter-Übergabe: in Registern $4,$5,$6,$7, und auf dem Stack 16($sp),...
+# Parameter-Übergabe: in Registern $4,$5,$6,$7,$8,$9,$10,$11
 # Rückgabewert: in Register $2
 # Einstellungen: intCsize=32, intDsize=32.
 # Besonderheiten: Nach jedem Ladebefehl ein Wartetakt nötig, bevor der
@@ -461,10 +461,9 @@ sld4:     subu $12,$13          # dest = source1 - source2
 
 # extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
         .align 2
-        .ent asm_subx_loop_down # Input in $4,$5,$6,$7, Output in $2
+        .ent asm_subx_loop_down # Input in $4,$5,$6,$7,$8, Output in $2
 asm_subx_loop_down:
-        lw $12,16($sp)          # carry
-        bnez $12,sxld5          # !(carry==0) ?
+        bnez $8,sxld5           # !(carry==0) ?
         b sxld2
 sxld1:    # kein Carry
           dsubu $4,4            # sourceptr1--
