@@ -369,17 +369,17 @@
   #if defined(GNU) || defined(INTEL)
     #if defined(SPARC64) && !defined(NO_ASM)
       #define divu_3216_1616(x,y,q_assignment,r_assignment)  \
-        ({var uint32 __x = (x);        \
-          var uint16 __y = (y);        \
-          var uint64 __q;              \
-          var uint64 __r;              \
-          __asm__ __volatile__ (       \
-            "wr %%g0,%%g0,%%y\n\t"     \
-            "udiv %2,%3,%0\n\t"        \
-            "umul %0,%3,%1\n\t"        \
-            "sub %2,%1,%1"             \
-            : "=&r" (__q), "=&r" (__r) \
-            : "r" (__x), "r" (__y));   \
+        ({var uint32 __x = (x);         \
+          var uint32 __y = (uint16)(y); \
+          var uint64 __q;               \
+          var uint64 __r;               \
+          __asm__ __volatile__ (        \
+            "wr %%g0,%%g0,%%y\n\t"      \
+            "udiv %2,%3,%0\n\t"         \
+            "umul %0,%3,%1\n\t"         \
+            "sub %2,%1,%1"              \
+            : "=&r" (__q), "=&r" (__r)  \
+            : "r" (__x), "r" (__y));    \
           q_assignment (uint16)__q;     \
           r_assignment (uint16)__r;     \
          })
@@ -461,17 +461,17 @@
   extern uint16 divu_16_rest;                           # -> Rest r
   #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define divu_3216_3216(x,y,q_assignment,r_assignment)  \
-      ({var uint32 __x = (x);        \
-        var uint16 __y = (y);        \
-        var uint64 __q;              \
-        var uint64 __r;              \
-        __asm__ __volatile__ (       \
-          "wr %%g0,%%g0,%%y\n\t"     \
-          "udiv %2,%3,%0\n\t"        \
-          "umul %0,%3,%1\n\t"        \
-          "sub %2,%1,%1"             \
-          : "=&r" (__q), "=&r" (__r) \
-          : "r" (__x), "r" (__y));   \
+      ({var uint32 __x = (x);         \
+        var uint32 __y = (uint16)(y); \
+        var uint64 __q;               \
+        var uint64 __r;               \
+        __asm__ __volatile__ (        \
+          "wr %%g0,%%g0,%%y\n\t"      \
+          "udiv %2,%3,%0\n\t"         \
+          "umul %0,%3,%1\n\t"         \
+          "sub %2,%1,%1"              \
+          : "=&r" (__q), "=&r" (__r)  \
+          : "r" (__x), "r" (__y));    \
         q_assignment (uint32)__q;     \
         r_assignment (uint16)__r;     \
        })
