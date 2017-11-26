@@ -1,5 +1,12 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Disable generational GC on Linux/mips*.
+	Generational GC on Linux/mips* works in QEMU-based virtual machines,
+	but not on EdgeRouter Pro (Cavium Octeon II) hardware.
+	* lispbibl.d (GENERATIONAL_GC): Don't enable on Linux/mips*.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Fix a bug in the optimizations for SPARC64.
 	* arilev0.d (divu_3216_1616, divu_3216_3216): Use a temporary variable
 	of type uint32, not uint16, to force a zero-extend before the asm-coded

@@ -5140,6 +5140,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     && /* Not worth spending effort on making it work with                    \
           WIDE_SOFT_LARGEFIXNUM. */                                           \
        !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
+    && /* It does not work on EdgeRouter Pro (Cavium Octeon II) hardware. */  \
+       !(defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)))           \
     && /* It does not work on NetBSD 7 (both NetBSD/i386 and NetBSD/sparc). */\
        !defined(UNIX_NETBSD)                                                  \
     && /* It does not work in QEMU user-mode. */                              \
