@@ -1,5 +1,11 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	Avoid an infinite recursion when clisp is started under a broken gdb.
+	* stream.d (low_read_unbuffered_handle): Don't signal an EIO error
+	from the TERMINAL-STREAM.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Disable generational GC on Linux/mips*.
 	Generational GC on Linux/mips* works in QEMU-based virtual machines,
 	but not on EdgeRouter Pro (Cavium Octeon II) hardware.
