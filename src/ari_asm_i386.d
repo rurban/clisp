@@ -2,10 +2,14 @@
 # Prozessor: 80386 im native mode
 # Assembler-Syntax: GNU oder SUN, Moves von links nach rechts
 # Compiler: GNU-C oder SUN-C
-# Parameter-Übergabe: auf dem Stack 4(%esp),8(%esp),...
-# Register: %eax,%edx,%ecx dürfen stets verändert werden, alles andere retten.
-# Ergebnis-Übergabe: in %eax
-# Einstellungen: intCsize=32, intDsize=32.
+# Parameter passing conventions:
+#   Argument registers:
+#     none, all arguments are passed on the stack 4(%esp),8(%esp),...
+#   Return value register:
+#     %eax for a single word, %eax,%edx for a 'long long'.
+#   Call-used registers (do not have to be preserved across function calls):
+#     %eax,%edx,%ecx
+# Settings: intCsize=32, intDsize=32.
 
 # Bruno Haible 1992-2001, 2017
 # Zum Teil abgeschrieben von Bernhard Degels "v-i386.s"

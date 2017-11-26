@@ -3,9 +3,14 @@
  external routines for arilev1.d
  Processor: ARM in APCS mode
  Assembler-Syntax: ObjAsm under RISC OS, GAS otherwise
- Assumptions: intCsize=32, intDsize=32.
- Parameter passing conventions: APCS means that registers a1-a4 and ip
-   do not have to be preserved across function calls.
+ Parameter passing conventions, per APCS:
+   Argument registers:
+     r0..r3
+   Return value register:
+     r0 for a single word, r0,r1 for a 'long long'.
+   Call-used registers (do not have to be preserved across function calls):
+     r0..r3, r12 (= a1..a4, ip)
+ Settings: intCsize=32, intDsize=32.
  Note: A sequence of up to 4 conditional instructions is used in preference
    to a branch. */
 
