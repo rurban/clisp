@@ -255,8 +255,8 @@
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
       #if defined(MIPS) && !defined(NO_ARI_ASM)
-        extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
-        #define mulu32_ asm_mulu32_
+        extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2, uint32* hi_ptr); # extern in Assembler
+        #define mulu32_(x,y) asm_mulu32_(x,y,&mulu32_high)
         #if defined(LISPARIT)
           global uint32 mulu32_high;
         #endif

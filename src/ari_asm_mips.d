@@ -70,16 +70,16 @@
 
 #ifndef __GNUC__ /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
-# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
+# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2, uint32* hi_ptr);
 # 2^32*hi+lo := arg1*arg2.
         .globl asm_mulu32_
         .align 2
-        .ent asm_mulu32_ # Input in $4,$5, Output in $2,mulu32_high
+        .ent asm_mulu32_ # Input in $4,$5,$6, Output in $2
 asm_mulu32_:
         multu $5,$4             # arg1 * arg2
-        mfhi $6                 # hi
+        mfhi $3                 # hi
         mflo $2                 # lo
-        sw $6,mulu32_high       # hi abspeichern # Adressierung?? Deklaration??
+        sw $3,($6)              # hi abspeichern
         j $31                   # return
         .end asm_mulu32_
 

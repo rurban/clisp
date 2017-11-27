@@ -1,5 +1,13 @@
 2017-11-27  Bruno Haible  <bruno@clisp.org>
 
+	ari_asm for mips: Don't use a global variable as return value.
+	* ari_asm_mips.d (asm_mulu32_): Accept a pointer argument for where to
+	store the high part of the result.
+	* ari_asm_mips64.d (asm_mulu32_): Likewise.
+	* arilev0.d (mulu32_) [MIPS]: Pass a pointer to asm_mulu32_.
+
+2017-11-27  Bruno Haible  <bruno@clisp.org>
+
 	ari_asm for i386: Don't use a global variable as return value.
 	* ari_asm_i386.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
 	access mulu32_high.
