@@ -10,6 +10,10 @@
 
 
 
+
+
+
+
 #ifdef INCLUDED_FROM_C
 
   #define COPY_LOOPS
@@ -28,8 +32,6 @@
     #include "asmi386.h"
     #undef ALIGN
     #define ALIGN
-    extern unsigned long mulu32_high;
-    extern unsigned long divu_32_rest;
   #else
     #ifdef ASM_UNDERSCORE
       #define C(entrypoint) _##entrypoint
@@ -82,56 +84,55 @@
 
             TEXT()
 
-            GLOBL(C(copy_loop_up))
-            GLOBL(C(copy_loop_down))
-            GLOBL(C(fill_loop_up))
-            GLOBL(C(fill_loop_down))
-            GLOBL(C(clear_loop_up))
-            GLOBL(C(clear_loop_down))
-            GLOBL(C(or_loop_up))
-            GLOBL(C(xor_loop_up))
-            GLOBL(C(and_loop_up))
-            GLOBL(C(eqv_loop_up))
-            GLOBL(C(nand_loop_up))
-            GLOBL(C(nor_loop_up))
-            GLOBL(C(andc2_loop_up))
-            GLOBL(C(orc2_loop_up))
-            GLOBL(C(not_loop_up))
-            GLOBL(C(and_test_loop_up))
-            GLOBL(C(test_loop_up))
-            GLOBL(C(compare_loop_up))
-            GLOBL(C(add_loop_down))
-            GLOBL(C(addto_loop_down))
-            GLOBL(C(inc_loop_down))
-            GLOBL(C(sub_loop_down))
-            GLOBL(C(subx_loop_down))
-            GLOBL(C(subfrom_loop_down))
-            GLOBL(C(dec_loop_down))
-            GLOBL(C(neg_loop_down))
-            GLOBL(C(shift1left_loop_down))
-            GLOBL(C(shiftleft_loop_down))
-            GLOBL(C(shiftleftcopy_loop_down))
-            GLOBL(C(shift1right_loop_up))
-            GLOBL(C(shiftright_loop_up))
-            GLOBL(C(shiftrightsigned_loop_up))
-            GLOBL(C(shiftrightcopy_loop_up))
-            GLOBL(C(mulusmall_loop_down))
-            GLOBL(C(mulu_loop_down))
-            GLOBL(C(muluadd_loop_down))
-            GLOBL(C(mulusub_loop_down))
-            GLOBL(C(divu_loop_up))
-            GLOBL(C(divucopy_loop_up))
+            GLOBL(C(asm_copy_loop_up))
+            GLOBL(C(asm_copy_loop_down))
+            GLOBL(C(asm_fill_loop_up))
+            GLOBL(C(asm_fill_loop_down))
+            GLOBL(C(asm_clear_loop_up))
+            GLOBL(C(asm_clear_loop_down))
+            GLOBL(C(asm_or_loop_up))
+            GLOBL(C(asm_xor_loop_up))
+            GLOBL(C(asm_and_loop_up))
+            GLOBL(C(asm_eqv_loop_up))
+            GLOBL(C(asm_nand_loop_up))
+            GLOBL(C(asm_nor_loop_up))
+            GLOBL(C(asm_andc2_loop_up))
+            GLOBL(C(asm_orc2_loop_up))
+            GLOBL(C(asm_not_loop_up))
+            GLOBL(C(asm_and_test_loop_up))
+            GLOBL(C(asm_test_loop_up))
+            GLOBL(C(asm_compare_loop_up))
+            GLOBL(C(asm_add_loop_down))
+            GLOBL(C(asm_addto_loop_down))
+            GLOBL(C(asm_inc_loop_down))
+            GLOBL(C(asm_sub_loop_down))
+            GLOBL(C(asm_subx_loop_down))
+            GLOBL(C(asm_subfrom_loop_down))
+            GLOBL(C(asm_dec_loop_down))
+            GLOBL(C(asm_neg_loop_down))
+            GLOBL(C(asm_shift1left_loop_down))
+            GLOBL(C(asm_shiftleft_loop_down))
+            GLOBL(C(asm_shiftleftcopy_loop_down))
+            GLOBL(C(asm_shift1right_loop_up))
+            GLOBL(C(asm_shiftright_loop_up))
+            GLOBL(C(asm_shiftrightsigned_loop_up))
+            GLOBL(C(asm_shiftrightcopy_loop_up))
+            GLOBL(C(asm_mulusmall_loop_down))
+            GLOBL(C(asm_mulu_loop_down))
+            GLOBL(C(asm_muluadd_loop_down))
+            GLOBL(C(asm_mulusub_loop_down))
+            GLOBL(C(asm_divu_loop_up))
+            GLOBL(C(asm_divucopy_loop_up))
 
 #if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
 
 
             ALIGN
-            GLOBL(C(mulu32_))
-FUNBEGIN(mulu32_)
+            GLOBL(C(asm_mulu32_64))
+FUNBEGIN(asm_mulu32_64)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(eax))
             INSN1(mul,l	,X4 MEM_DISP(esp,8))
-            INSN2(mov,l	,R(edx),C(mulu32_high))
             ret
 FUNEND()
 
@@ -142,12 +143,11 @@ FUNEND()
 
 
             ALIGN
-            GLOBL(C(divu_6432_3232_))
-FUNBEGIN(divu_6432_3232_)
+            GLOBL(C(asm_divu_6432_3232_))
+FUNBEGIN(asm_divu_6432_3232_)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(eax))
             INSN1(div,l	,X4 MEM_DISP(esp,12))
-            INSN2(mov,l	,R(edx),C(divu_32_rest))
             ret
 FUNEND()
 
@@ -155,7 +155,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(copy_loop_up)
+FUNBEGIN(asm_copy_loop_up)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,R(esi),R(eax))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(esi))
@@ -172,7 +172,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(copy_loop_down)
+FUNBEGIN(asm_copy_loop_down)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,R(esi),R(eax))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(esi))
@@ -191,7 +191,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(fill_loop_up)
+FUNBEGIN(asm_fill_loop_up)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
@@ -206,7 +206,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(fill_loop_down)
+FUNBEGIN(asm_fill_loop_down)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
@@ -222,7 +222,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(clear_loop_up)
+FUNBEGIN(asm_clear_loop_up)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
@@ -237,7 +237,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(clear_loop_down)
+FUNBEGIN(asm_clear_loop_down)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
@@ -253,7 +253,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(or_loop_up)
+FUNBEGIN(asm_or_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -271,7 +271,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(xor_loop_up)
+FUNBEGIN(asm_xor_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -289,7 +289,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(and_loop_up)
+FUNBEGIN(asm_and_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -307,7 +307,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(eqv_loop_up)
+FUNBEGIN(asm_eqv_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -327,7 +327,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(nand_loop_up)
+FUNBEGIN(asm_nand_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -347,7 +347,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(nor_loop_up)
+FUNBEGIN(asm_nor_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -367,7 +367,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(andc2_loop_up)
+FUNBEGIN(asm_andc2_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -386,7 +386,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(orc2_loop_up)
+FUNBEGIN(asm_orc2_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -405,7 +405,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(not_loop_up)
+FUNBEGIN(asm_not_loop_up)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
             jecxz   L(nlu2)
@@ -419,7 +419,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(and_test_loop_up)
+FUNBEGIN(asm_and_test_loop_up)
             INSN1(push,l	,R(esi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(esi))
@@ -439,7 +439,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(test_loop_up)
+FUNBEGIN(asm_test_loop_up)
             INSN2(mov,l	,R(edi),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
@@ -458,7 +458,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(compare_loop_up)
+FUNBEGIN(asm_compare_loop_up)
             INSN2(mov,l	,R(esi),R(edx))
             INSN2(mov,l	,R(edi),R(eax))
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(esi))
@@ -484,7 +484,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(add_loop_down)
+FUNBEGIN(asm_add_loop_down)
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
@@ -509,7 +509,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(addto_loop_down)
+FUNBEGIN(asm_addto_loop_down)
             INSN1(push,l	,R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edi))
@@ -529,7 +529,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(inc_loop_down)
+FUNBEGIN(asm_inc_loop_down)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
             jecxz   L(ild2)
@@ -546,7 +546,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(sub_loop_down)
+FUNBEGIN(asm_sub_loop_down)
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
@@ -571,7 +571,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(subx_loop_down)
+FUNBEGIN(asm_subx_loop_down)
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edx))
@@ -602,7 +602,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(subfrom_loop_down)
+FUNBEGIN(asm_subfrom_loop_down)
             INSN1(push,l	,R(edi))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edi))
@@ -622,7 +622,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(dec_loop_down)
+FUNBEGIN(asm_dec_loop_down)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
             jecxz   L(dld2)
@@ -639,7 +639,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(neg_loop_down)
+FUNBEGIN(asm_neg_loop_down)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
 
@@ -666,7 +666,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shift1left_loop_down)
+FUNBEGIN(asm_shift1left_loop_down)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
             INSN2(or,l	,R(ecx),R(ecx))
@@ -682,7 +682,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shiftleft_loop_down)
+FUNBEGIN(asm_shiftleft_loop_down)
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edi))
@@ -729,7 +729,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shiftleftcopy_loop_down)
+FUNBEGIN(asm_shiftleftcopy_loop_down)
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
@@ -781,7 +781,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shift1right_loop_up)
+FUNBEGIN(asm_shift1right_loop_up)
             INSN2(mov,l	,X4 MEM_DISP(esp,4),R(edx))
             INSN2(mov,l	,X4 MEM_DISP(esp,8),R(ecx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(eax))
@@ -797,7 +797,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shiftright_loop_up)
+FUNBEGIN(asm_shiftright_loop_up)
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edi))
@@ -842,7 +842,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shiftrightsigned_loop_up)
+FUNBEGIN(asm_shiftrightsigned_loop_up)
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(edi))
@@ -880,7 +880,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(shiftrightcopy_loop_up)
+FUNBEGIN(asm_shiftrightcopy_loop_up)
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
@@ -926,7 +926,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(mulusmall_loop_down)
+FUNBEGIN(asm_mulusmall_loop_down)
             INSN1(push,l	,R(ebp))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
@@ -956,7 +956,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(mulu_loop_down)
+FUNBEGIN(asm_mulu_loop_down)
             INSN1(push,l	,R(ebp))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(esi))
@@ -988,7 +988,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(muluadd_loop_down)
+FUNBEGIN(asm_muluadd_loop_down)
             INSN1(push,l	,R(ebp))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(esi))
@@ -1021,7 +1021,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(mulusub_loop_down)
+FUNBEGIN(asm_mulusub_loop_down)
             INSN1(push,l	,R(ebp))
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(esi))
@@ -1054,7 +1054,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(divu_loop_up)
+FUNBEGIN(asm_divu_loop_up)
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(ebx))
             INSN2(mov,l	,X4 MEM_DISP(esp,12),R(ebx))
@@ -1076,7 +1076,7 @@ FUNEND()
 
 
             ALIGN
-FUNBEGIN(divucopy_loop_up)
+FUNBEGIN(asm_divucopy_loop_up)
             INSN1(push,l	,R(edi))
             INSN1(push,l	,R(esi))
             INSN1(push,l	,R(ebx))
@@ -1105,5 +1105,4 @@ FUNEND()
 #endif
 
 #endif
-
 

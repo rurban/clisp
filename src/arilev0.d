@@ -235,7 +235,7 @@
   #ifndef mulu32
     # Use this function if you are not interested in the high part:
     # extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
-    #if (defined(SPARC) || defined(SPARC64) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
+    #if (defined(I80386) || defined(SPARC) || defined(SPARC64) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
       extern_C uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2); # extern in Assembler
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         { var uint64 _prod_from_mulu32 = asm_mulu32_64(x,y); \
@@ -254,7 +254,7 @@
     #else
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-      #if (defined(I80386) || defined(MIPS)) && !defined(NO_ARI_ASM)
+      #if defined(MIPS) && !defined(NO_ARI_ASM)
         extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
         #define mulu32_ asm_mulu32_
         #if defined(LISPARIT)
@@ -769,13 +769,7 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment)  \
       { q_assignment divu_6432_3232_(xhi,xlo,y); r_assignment divu_32_rest; }
-    #if defined(I80386) && !defined(NO_ARI_ASM)
-      extern_C uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # extern in Assembler
-      #define divu_6432_3232_ asm_divu_6432_3232_
-      #ifdef LISPARIT
-        global uint32 divu_32_rest;
-      #endif
-    #elif (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
+    #if (defined(I80386) || defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
       extern_C uint64 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); # extern in Assembler
       extern_C uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
       #ifdef LISPARIT
