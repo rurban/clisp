@@ -142,8 +142,7 @@ GLABEL(asm_divu_3216_1616_)
         MOV     a1,a1,LSR#16   /* and back down again */
         MOVS    pc, lr
 
-/* extern uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); | -> Quotient q
- extern uint32 divu_32_rest;                                       | -> Rest r
+/* extern uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); | -> Quotient q, Rest r
        see arilev0 for algorithm
        entry
                a1 = xhi (dividend)
