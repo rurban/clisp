@@ -235,7 +235,7 @@
   #ifndef mulu32
     # Use this function if you are not interested in the high part:
     # extern_C uint32 mulu32_ (uint32 arg1, uint32 arg2); # -> Low-Teil
-    #if (defined(SPARC) || defined(SPARC64)) && !defined(NO_ARI_ASM)
+    #if (defined(SPARC) || defined(SPARC64) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
       extern_C uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2); # extern in Assembler
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         { var uint64 _prod_from_mulu32 = asm_mulu32_64(x,y); \
@@ -254,10 +254,10 @@
     #else
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         { lo_assignment mulu32_(x,y); hi_assignment mulu32_high; }
-      #if (defined(I80386) || defined(MIPS) || (defined(HPPA) && !defined(HPPA64))) && !defined(NO_ARI_ASM)
+      #if (defined(I80386) || defined(MIPS)) && !defined(NO_ARI_ASM)
         extern_C uint32 asm_mulu32_ (uint32 arg1, uint32 arg2); # extern in Assembler
         #define mulu32_ asm_mulu32_
-        #if defined(LISPARIT) && !(defined(HPPA) && !defined(HPPA64)) # In ari_asm_hppa.d ist mulu32_high bereits definiert.
+        #if defined(LISPARIT)
           global uint32 mulu32_high;
         #endif
       #else
