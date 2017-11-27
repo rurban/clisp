@@ -1,5 +1,10 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	ari_asm for HPPA: Fix build failure with the GNU assembler.
+	* ari_asm_hppa.d: Use pseudo-ops that GNU as understands.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	ari_asm for ARM: Don't use a global variable as return value.
 	* ari_asm_arm.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
 	access mulu32_high.

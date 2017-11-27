@@ -24,16 +24,18 @@
                 .IMPORT $global$,DATA
                 .EXPORT mulu32_high
                 .ALIGN 8
-mulu32_high     .WORD           /* 8 byte room */
+                .LABEL mulu32_high
+                .WORD           /* 8 byte room */
                 .WORD
 
                 .CODE
                 .EXPORT asm_mulu32_
 /* extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
    2^32*hi+lo := arg1*arg2. */
-asm_mulu32_     .PROC
+                .LABEL asm_mulu32_
+                .PROC
                 .CALLINFO
-                .ENTER  /* input in %arg0,%arg1, Output in %ret0,mulu32_high */
+                .ENTRY  /* input in %arg0,%arg1, Output in %ret0,mulu32_high */
                 LDIL    L'mulu32_high-$global$,%r1
                 LDO     R'mulu32_high-$global$(%r1),%r1
                                                 /* %r1 = &x */
@@ -44,7 +46,9 @@ asm_mulu32_     .PROC
                 XMPYU   %fr4,%fr5,%fr6          /* multiply both */
                 FSTDS   %fr6,0(%r1)             /* store result (64 bit) */
                 LDWS    4(%r1),%ret0            /* low 32 bits as result */
-                .LEAVE
+                BV      0(%r2)                  /* Return */
+                NOP
+                .EXIT
                 .PROCEND
 
 #endif
@@ -54,7 +58,7 @@ asm_mulu32_     .PROC
                 .CODE
                 .EXPORT asm_length32
 /* returns integer-size (>=1, <=32) of the argument /=0. */
-                .label asm_length32
+                .LABEL asm_length32
                 .PROC
                 .CALLINFO
                 .ENTRY          /* input in %arg0, output in %ret0 */
