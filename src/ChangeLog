@@ -1,5 +1,16 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	ari_asm for ARM: Don't use a global variable as return value.
+	* ari_asm_arm.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
+	access mulu32_high.
+	(asm_divu_3216_1616_): Don't access divu_16_rest.
+	(asm_divu_6432_3232_): Don't access divu_32_rest.
+	* arilev0.d (retval64_r0, retval64_r1): New macros.
+	(mulu32, mulu32_, divu_3216_1616, divu_6432_3232, divu_6432_3232_)
+	[ARM]: Get a 2x32-bit result from the registers r0,r1.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	Simplify ari_asm for ARM.
 	* ari_asm_arm.d: Remove support for RISC OS syntax.
 
