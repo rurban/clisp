@@ -1,9 +1,20 @@
+2017-11-27  Bruno Haible  <bruno@clisp.org>
+
+	ari_asm for i386: Don't use a global variable as return value.
+	* ari_asm_i386.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
+	access mulu32_high.
+	(asm_divu_6432_3232_): Don't access divu_32_rest.
+	* arilev0.d (mulu32, mulu32_, divu_6432_3232_) [I80386]: Get a 64-bit
+	result from the registers.
+	* ari_asm_i386.msvc.c: Regenerated.
+
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
 	ari_asm for HPPA: Don't use a global variable as return value.
 	* ari_asm_hppa.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
 	access mulu32_high.
-	* arilev0.d (mulu32, mulu32_): Get a 64-bit result from the registers.
+	* arilev0.d (mulu32, mulu32_) [HPPA]: Get a 64-bit result from the
+	registers.
 
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 

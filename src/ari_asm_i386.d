@@ -32,8 +32,6 @@
     #include "asmi386.h"
     #undef ALIGN
     #define ALIGN
-    extern unsigned long mulu32_high;
-    extern unsigned long divu_32_rest;
   #else
     #ifdef ASM_UNDERSCORE
       #define C(entrypoint) _##entrypoint
@@ -128,30 +126,28 @@
 
 #if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
 
-# extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
+# extern uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
             ALIGN
-            .globl C(asm_mulu32_)
-C(asm_mulu32_:)
+            .globl C(asm_mulu32_64)
+C(asm_mulu32_64:)
             movl    4(%esp),%eax    # arg1
             mull    8(%esp)         # %edx|%eax := arg1 * arg2
-            movl    %edx,C(mulu32_high) # %edx = hi abspeichern
-            ret                     # %eax = lo als Ergebnis
+            ret                     # %edx,%eax = 2^32*hi+lo als Ergebnis
 
 #endif
 
 #if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
 
-# extern struct { uint32 q; uint32 r; } asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
+# extern uint64 [struct { uint32 q; uint32 r; }] asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
             ALIGN
             .globl C(asm_divu_6432_3232_)
-C(asm_divu_6432_3232_:)
+C(asm_divu_6432_3232_:)            # Output in %eax=q, %edx=r
             movl    4(%esp),%edx
             movl    8(%esp),%eax
             divl    12(%esp)       # x = %edx|%eax durch dividieren
-            movl    %edx,C(divu_32_rest) # Rest %edx = r abspeichern
-            ret                    # Quotient %eax = q als Ergebnis
+            ret                    # Quotient %eax = q, Rest %edx = r als Ergebnis
 
 #endif
 
