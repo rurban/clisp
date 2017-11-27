@@ -20,39 +20,28 @@
 
 #ifndef __GNUC__ /* with GNU-C we do mulu32() as macro, that multiplies inline */
 
-                .SHORTDATA
-                .IMPORT $global$,DATA
-                .EXPORT mulu32_high
-                .ALIGN 8
-                .LABEL mulu32_high
-                .WORD           /* 8 byte room */
-                .WORD
-
                 .CODE
-                .EXPORT asm_mulu32_
-/* extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2);
+                .EXPORT asm_mulu32_64
+/* extern struct uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
    2^32*hi+lo := arg1*arg2. */
-                .LABEL asm_mulu32_
+                .LABEL asm_mulu32_64
                 .PROC
                 .CALLINFO
-                .ENTRY  /* input in %arg0,%arg1, Output in %ret0,mulu32_high */
-                LDIL    L'mulu32_high-$global$,%r1
-                LDO     R'mulu32_high-$global$(%r1),%r1
-                                                /* %r1 = &x */
-                STW     %arg0,0(%r1)            /* store x abspeichern */
-                FLDWS   0(%r1),%fr4             /* and load into coprocessor */
-                STW     %arg1,0(%r1)            /* store y */
-                FLDWS   0(%r1),%fr5             /* and load into coprocessor */
+                .ENTRY  /* input in %arg0,%arg1, Output in %ret0=hi,%ret1=lo */
+                STW     %arg0,-16(%sp)          /* store x */
+                FLDWS   -16(%sp),%fr4           /* and load into coprocessor */
+                STW     %arg1,-16(%sp)          /* store y */
+                FLDWS   -16(%sp),%fr5           /* and load into coprocessor */
                 XMPYU   %fr4,%fr5,%fr6          /* multiply both */
-                FSTDS   %fr6,0(%r1)             /* store result (64 bit) */
-                LDWS    4(%r1),%ret0            /* low 32 bits as result */
+                FSTDS   %fr6,-16(%sp)           /* store result (64 bit) */
+                LDW     -16(%sp),%ret0          /* high 32 bits as result */
+                LDW     -12(%sp),%ret1          /* low 32 bits as result */
                 BV      0(%r2)                  /* Return */
                 NOP
                 .EXIT
                 .PROCEND
 
 #endif
-
 
 
                 .CODE

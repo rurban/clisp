@@ -1,5 +1,12 @@
 2017-11-26  Bruno Haible  <bruno@clisp.org>
 
+	ari_asm for HPPA: Don't use a global variable as return value.
+	* ari_asm_hppa.d (asm_mulu32_64): Renamed from asm_mulu32_. Don't
+	access mulu32_high.
+	* arilev0.d (mulu32, mulu32_): Get a 64-bit result from the registers.
+
+2017-11-26  Bruno Haible  <bruno@clisp.org>
+
 	ari_asm for HPPA: Fix build failure with the GNU assembler.
 	* ari_asm_hppa.d: Use pseudo-ops that GNU as understands.
 
