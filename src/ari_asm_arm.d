@@ -61,49 +61,16 @@ pc      .req    r15
 #endif
 
 
-#if defined(__GNUC__) && 0
-  /* With GNU C, we would like to pass the second return value in a2, don't
-   need a global variable. Unfortunately, the current Acorn gcc crashes if
-   we declare an appropriate local register variable with __asm__.
-   It would be possible to declare the functions as returning a 64-bit
-   result, but given the quality of gcc code dealing with 64-bit entities
-   and the subtleties of 64-bit returns values (passed in register or in
-   memory?) we now let it be. */
-#else
-  /* Use three global variables. */
-  #define MULU32_HIGH
-  #define DIVU_16_REST
-  #define DIVU_32_REST
-#endif
-
-#ifdef MULU32_HIGH
-ptr_mulu32_high:
-        .word   mulu32_high
-        .align  0
-#endif
-#ifdef DIVU_16_REST
-ptr_divu_16_rest:
-        .word   divu_16_rest
-        .align  0
-#endif
-#ifdef DIVU_32_REST
-ptr_divu_32_rest:
-        .word   divu_32_rest
-        .align  0
-#endif
-
-
-/* extern uint32 asm_mulu32_ (uint32 x, uint32 y);
+/* extern uint64 asm_mulu32_64 (uint32 x, uint32 y);
        entry
                a1 = x
                a2 = y
        exit
                a1 = low32(x*y)
                a2 = high32(x*y)
-               mulu32_high = high32(x*y)
                a3,a4,ip destroyed */
-        EXPORT(asm_mulu32_)
-GLABEL(asm_mulu32_)
+        EXPORT(asm_mulu32_64)
+GLABEL(asm_mulu32_64)
 #ifdef HAVE_umull
         MOV     a3,a2
         UMULL   a1,a2,a3,a1
@@ -122,10 +89,6 @@ GLABEL(asm_mulu32_)
         ADDS    a1,a4,a2,LSL #16 /* x is now bottom 32 bits of result */
         ADC     a2,a3,a2,LSR #16 /* hi is top 32 bits */
 #endif
-#ifdef MULU32_HIGH
-        LDR     a3,[pc,#ptr_mulu32_high-.-8]
-        STR     a2,[a3,#0]
-#endif
         MOVS    pc,lr
 
 /* extern uint16 asm_divu_3216_1616_ (uint32 x, uint16 y);
@@ -135,7 +98,6 @@ GLABEL(asm_mulu32_)
        exit
                a1 = q = floor(x/y)
                a2 = r = x-q*y
-               divu_16_rest = r = x-q*y
                a3 destroyed */
         EXPORT(asm_divu_3216_1616_)
 GLABEL(asm_divu_3216_1616_)
@@ -178,10 +140,6 @@ GLABEL(asm_divu_3216_1616_)
         ADC     a1,a1,a1       /* move last bit of quotient in */
         MOV     a1,a1,LSL#16   /* AND out top 16 bits by shifting up */
         MOV     a1,a1,LSR#16   /* and back down again */
-#ifdef DIVU_16_REST
-        LDR     a3,[pc,#ptr_divu_16_rest-.-8] /* save rest so can be picked up later */
-        STR     a2,[a3,#0]      /* the result is 16 bits */
-#endif
         MOVS    pc, lr
 
 /* extern uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); | -> Quotient q
@@ -213,10 +171,6 @@ GLABEL(asm_divu_6432_3232_)
         MOV     a2, v1
         BL      C(asm_divu_3216_1616_)
         ORR     a1, a1, v3, ASL #16 /* = highlow32(q1,q0) */
-#ifdef DIVU_32_REST
-        LDR     a4,[pc,#ptr_divu_32_rest-.-8]
-        STR     a2,[a4,#0]      /* divu_32_rest = remainder */
-#endif
         LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
 
 LABEL(divu_6432_3232_l1)
@@ -281,10 +235,6 @@ LABEL(divu_6432_3232_l1)
         SUBCS   v4, v4, v1          /*       r -= y } */
         MOV     a2, v4, LSR v3      /* remainder = r >> s */
         ORR     a1, a1, v6, ASL #16 /* return highlow32(q1,q0) */
-#ifdef DIVU_32_REST
-        LDR     a3,[pc,#ptr_divu_32_rest-.-8]
-        STR     a2,[a3,#0]          /* divu_32_rest = remainder */
-#endif
         LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
 
 /* extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
