@@ -649,7 +649,6 @@
 (def-call-out calloc (:arguments (nmemb size_t) (size size_t))
   (:return-type c-pointer))
 (def-call-out free (:arguments (ptr c-pointer)) (:return-type nil))
-(def-call-out cfree (:arguments (ptr c-pointer)) (:return-type nil))
 (def-call-out valloc (:arguments (size size_t)) (:return-type c-pointer))
 
 (def-call-out abort (:arguments) (:return-type nil))
