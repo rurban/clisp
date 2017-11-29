@@ -34,6 +34,15 @@ The following packages should be installed before GNU clisp is installed
   + If it is installed in a nonstandard directory, pass the option
     --with-libiconv-prefix=DIR to 'configure'.
 
+* GNU libunistring
+  + If not pre-installed, some code will be statically linked into CLISP.
+  + Homepage:
+    https://www.gnu.org/software/libunistring/
+  + Download:
+    https://ftp.gnu.org/gnu/libunistring/
+  + If it is installed in a nonstandard directory, pass the option
+    --with-libunistring-prefix=DIR to 'configure'.  
+
 * libintl, part of GNU gettext
   + Not needed on systems with glibc.
     But recommended on all other systems.

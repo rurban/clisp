@@ -1,3 +1,13 @@
+2017-11-29  Sam Steingold  <sds@gnu.org>
+
+	An attempt to fix bug#719: get libunistring-optional from gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported
+	build-prerequisites".
+	* Makefile.devel (GNULIB_CORE): Add libunistring-optional.
+	* configure.in: call gl_LIBUNISTRING_OPTIONAL.
+	* gllib/*, glm4/*: Update from gnulib.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+
 2017-11-28  Sam Steingold  <sds@gnu.org>
 
 	DEF-CALL-OUT now accepts the :GUARD argument.

@@ -81,6 +81,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module hard-locale:
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
+  # Code from module iconv:
   # Code from module include_next:
   # Code from module inet_ntop:
   # Code from module inet_pton:
@@ -90,6 +91,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module libsigsegv:
+  # Code from module libunistring-optional:
   # Code from module limits-h:
   # Code from module link-follow:
   # Code from module listen:
@@ -143,6 +145,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module socklen:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdalign:
   # Code from module stdbool:
   # Code from module stddef:
@@ -307,6 +310,9 @@ AC_DEFUN([gl_INIT],
   gl_GNU_MAKE
   gl_HARD_LOCALE
   AC_REQUIRE([gl_HOST_CPU_C_ABI])
+  AM_ICONV
+  m4_ifdef([gl_ICONV_MODULE_INDICATOR],
+    [gl_ICONV_MODULE_INDICATOR([iconv])])
   gl_FUNC_INET_NTOP
   if test $HAVE_INET_NTOP = 0 || test $REPLACE_INET_NTOP = 1; then
     AC_LIBOBJ([inet_ntop])
@@ -327,6 +333,7 @@ AC_DEFUN([gl_INIT],
   gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
   gl_LIBSIGSEGV
+  gl_LIBUNISTRING_OPTIONAL
   gl_LIMITS_H
   gl_FUNC_LINK_FOLLOWS_SYMLINK
   AC_REQUIRE([gl_HEADER_SYS_SOCKET])
@@ -525,6 +532,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   gl_STDALIGN_H
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -623,11 +632,11 @@ AC_DEFUN([gl_INIT],
   fi
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
   gl_LIBUNISTRING_LIBHEADER([0.9.5], [uniname.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniname/uniname])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniname/uniname])
   gl_UNISTD_H
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniwidth/width])
   gl_FUNC_UNSETENV
   if test $HAVE_UNSETENV = 0 || test $REPLACE_UNSETENV = 1; then
     AC_LIBOBJ([unsetenv])
@@ -831,6 +840,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/intprops.h
   lib/ioctl.c
   lib/langinfo.in.h
+  lib/libunistring.valgrind
   lib/limits.in.h
   lib/listen.c
   lib/localcharset.c
@@ -889,6 +899,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-time.c
+  lib/stat-time.h
   lib/stat-w32.c
   lib/stat-w32.h
   lib/stat.c
@@ -1003,6 +1015,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-prefix.m4
   m4/libsigsegv.m4
   m4/libunistring-base.m4
+  m4/libunistring-optional.m4
+  m4/libunistring.m4
   m4/limits-h.m4
   m4/link-follow.m4
   m4/localcharset.m4
@@ -1055,6 +1069,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/socklen.m4
   m4/sockpfaf.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdalign.m4
   m4/stdbool.m4
