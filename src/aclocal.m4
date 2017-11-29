@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.15.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.15 -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -20,7 +20,7 @@ You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically 'autoreconf'.])])
 
-# Copyright (C) 2002-2017 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -35,7 +35,7 @@ AC_DEFUN([AM_AUTOMAKE_VERSION],
 [am__api_version='1.15'
 dnl Some users find AM_AUTOMAKE_VERSION and mistake it for a way to
 dnl require some minimum version.  Point them to the right macro.
-m4_if([$1], [1.15.1], [],
+m4_if([$1], [1.15], [],
       [AC_FATAL([Do not call $0, use AM_INIT_AUTOMAKE([$1]).])])dnl
 ])
 
@@ -51,14 +51,14 @@ m4_define([_AM_AUTOCONF_VERSION], [])
 # Call AM_AUTOMAKE_VERSION and AM_AUTOMAKE_VERSION so they can be traced.
 # This function is AC_REQUIREd by AM_INIT_AUTOMAKE.
 AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
-[AM_AUTOMAKE_VERSION([1.15.1])dnl
+[AM_AUTOMAKE_VERSION([1.15])dnl
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
 _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
 
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -110,7 +110,7 @@ am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 # AM_CONDITIONAL                                            -*- Autoconf -*-
 
-# Copyright (C) 1997-2017 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -141,7 +141,7 @@ AC_CONFIG_COMMANDS_PRE(
 Usually this means the macro was only invoked conditionally.]])
 fi])])
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -332,7 +332,7 @@ _AM_SUBST_NOTMAKE([am__nodep])dnl
 
 # Generate code to set up dependency tracking.              -*- Autoconf -*-
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -408,7 +408,7 @@ AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 
 # Do all the work for Automake.                             -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -605,7 +605,7 @@ for _am_header in $config_headers :; do
 done
 echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_count])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -626,7 +626,7 @@ if test x"${install_sh+set}" != xset; then
 fi
 AC_SUBST([install_sh])])
 
-# Copyright (C) 2003-2017 Free Software Foundation, Inc.
+# Copyright (C) 2003-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -647,7 +647,7 @@ AC_SUBST([am__leading_dot])])
 
 # Check to see how 'make' treats includes.	            -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -697,7 +697,7 @@ rm -f confinc confmf
 
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
-# Copyright (C) 1997-2017 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -736,7 +736,7 @@ fi
 
 # Helper functions for option handling.                     -*- Autoconf -*-
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -765,7 +765,7 @@ AC_DEFUN([_AM_SET_OPTIONS],
 AC_DEFUN([_AM_IF_OPTION],
 [m4_ifset(_AM_MANGLE_OPTION([$1]), [$2], [$3])])
 
-# Copyright (C) 1999-2017 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -812,7 +812,7 @@ AC_LANG_POP([C])])
 # For backward compatibility.
 AC_DEFUN_ONCE([AM_PROG_CC_C_O], [AC_REQUIRE([AC_PROG_CC])])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -831,7 +831,7 @@ AC_DEFUN([AM_RUN_LOG],
 
 # Check to make sure that the build environment is sane.    -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -912,7 +912,7 @@ AC_CONFIG_COMMANDS_PRE(
 rm -f conftest.file
 ])
 
-# Copyright (C) 2009-2017 Free Software Foundation, Inc.
+# Copyright (C) 2009-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -972,7 +972,7 @@ AC_SUBST([AM_BACKSLASH])dnl
 _AM_SUBST_NOTMAKE([AM_BACKSLASH])dnl
 ])
 
-# Copyright (C) 2001-2017 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1000,7 +1000,7 @@ fi
 INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 AC_SUBST([INSTALL_STRIP_PROGRAM])])
 
-# Copyright (C) 2006-2017 Free Software Foundation, Inc.
+# Copyright (C) 2006-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1019,7 +1019,7 @@ AC_DEFUN([AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE($@)])
 
 # Check how to create a tarball.                            -*- Autoconf -*-
 
-# Copyright (C) 2004-2017 Free Software Foundation, Inc.
+# Copyright (C) 2004-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1346,7 +1346,7 @@ AC_DEFUN([gl_FUNC_ALLOCA],
 AC_DEFUN([gl_PREREQ_ALLOCA], [:])
 
 # This works around a bug in autoconf <= 2.68.
-# See <https://lists.gnu.org/archive/html/bug-gnulib/2011-06/msg00277.html>.
+# See <https://lists.gnu.org/r/bug-gnulib/2011-06/msg00277.html>.
 
 m4_version_prereq([2.69], [] ,[
 
@@ -2423,7 +2423,7 @@ AC_DEFUN([gl_EXTERN_INLINE],
 [/* Please see the Gnulib manual for how to use these macros.
 
    Suppress extern inline with HP-UX cc, as it appears to be broken; see
-   <https://lists.gnu.org/archive/html/bug-texinfo/2013-02/msg00030.html>.
+   <https://lists.gnu.org/r/bug-texinfo/2013-02/msg00030.html>.
 
    Suppress extern inline with Sun C in standards-conformance mode, as it
    mishandles inline functions that call each other.  E.g., for 'inline void f
@@ -2440,13 +2440,13 @@ AC_DEFUN([gl_EXTERN_INLINE],
    from calling static functions.  This bug is known to occur on:
 
      OS X 10.8 and earlier; see:
-     https://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html
+     https://lists.gnu.org/r/bug-gnulib/2012-12/msg00023.html
 
      DragonFly; see
      http://muscles.dragonflybsd.org/bulk/bleeding-edge-potential/latest-per-pkg/ah-tty-0.3.12.log
 
      FreeBSD; see:
-     https://lists.gnu.org/archive/html/bug-gnulib/2014-07/msg00104.html
+     https://lists.gnu.org/r/bug-gnulib/2014-07/msg00104.html
 
    OS X 10.9 has a macro __header_inline indicating the bug is fixed for C and
    for clang but remains for g++; see <https://trac.macports.org/ticket/41033>.
@@ -4041,13 +4041,13 @@ m4_ifndef([AS_VAR_IF],
 # This is like AC_PROG_CC_C99, except that
 # - AC_PROG_CC_C99 did not exist in Autoconf versions < 2.60,
 # - AC_PROG_CC_C99 does not mix well with AC_PROG_CC_STDC
-#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00367.html>,
+#   <https://lists.gnu.org/r/bug-gnulib/2011-09/msg00367.html>,
 #   but many more packages use AC_PROG_CC_STDC than AC_PROG_CC_C99
-#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00441.html>.
+#   <https://lists.gnu.org/r/bug-gnulib/2011-09/msg00441.html>.
 # Remaining problems:
 # - When AC_PROG_CC_STDC is invoked twice, it adds the C99 enabling options
 #   to CC twice
-#   <https://lists.gnu.org/archive/html/bug-gnulib/2011-09/msg00431.html>.
+#   <https://lists.gnu.org/r/bug-gnulib/2011-09/msg00431.html>.
 # - AC_PROG_CC_STDC is likely to change now that C11 is an ISO standard.
 AC_DEFUN([gl_PROG_CC_C99],
 [
@@ -4362,6 +4362,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module hard-locale:
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
+  # Code from module iconv:
   # Code from module include_next:
   # Code from module inet_ntop:
   # Code from module inet_pton:
@@ -4371,6 +4372,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module libsigsegv:
+  # Code from module libunistring-optional:
   # Code from module limits-h:
   # Code from module link-follow:
   # Code from module listen:
@@ -4424,6 +4426,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module socklen:
   # Code from module ssize_t:
   # Code from module stat:
+  # Code from module stat-time:
   # Code from module stdalign:
   # Code from module stdbool:
   # Code from module stddef:
@@ -4588,6 +4591,9 @@ AC_DEFUN([gl_INIT],
   gl_GNU_MAKE
   gl_HARD_LOCALE
   AC_REQUIRE([gl_HOST_CPU_C_ABI])
+  AM_ICONV
+  m4_ifdef([gl_ICONV_MODULE_INDICATOR],
+    [gl_ICONV_MODULE_INDICATOR([iconv])])
   gl_FUNC_INET_NTOP
   if test $HAVE_INET_NTOP = 0 || test $REPLACE_INET_NTOP = 1; then
     AC_LIBOBJ([inet_ntop])
@@ -4608,6 +4614,7 @@ AC_DEFUN([gl_INIT],
   gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
   gl_LIBSIGSEGV
+  gl_LIBUNISTRING_OPTIONAL
   gl_LIMITS_H
   gl_FUNC_LINK_FOLLOWS_SYMLINK
   AC_REQUIRE([gl_HEADER_SYS_SOCKET])
@@ -4806,6 +4813,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STAT
   fi
   gl_SYS_STAT_MODULE_INDICATOR([stat])
+  gl_STAT_TIME
+  gl_STAT_BIRTHTIME
   gl_STDALIGN_H
   AM_STDBOOL_H
   gl_STDDEF_H
@@ -4904,11 +4913,11 @@ AC_DEFUN([gl_INIT],
   fi
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
   gl_LIBUNISTRING_LIBHEADER([0.9.5], [uniname.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniname/uniname])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniname/uniname])
   gl_UNISTD_H
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
-  gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
+  gl_LIBUNISTRING_MODULE([0.9.8], [uniwidth/width])
   gl_FUNC_UNSETENV
   if test $HAVE_UNSETENV = 0 || test $REPLACE_UNSETENV = 1; then
     AC_LIBOBJ([unsetenv])
@@ -5112,6 +5121,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/intprops.h
   lib/ioctl.c
   lib/langinfo.in.h
+  lib/libunistring.valgrind
   lib/limits.in.h
   lib/listen.c
   lib/localcharset.c
@@ -5170,6 +5180,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/socket.c
   lib/sockets.c
   lib/sockets.h
+  lib/stat-time.c
+  lib/stat-time.h
   lib/stat-w32.c
   lib/stat-w32.h
   lib/stat.c
@@ -5284,6 +5296,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-prefix.m4
   m4/libsigsegv.m4
   m4/libunistring-base.m4
+  m4/libunistring-optional.m4
+  m4/libunistring.m4
   m4/limits-h.m4
   m4/link-follow.m4
   m4/localcharset.m4
@@ -5336,6 +5350,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/socklen.m4
   m4/sockpfaf.m4
   m4/ssize_t.m4
+  m4/stat-time.m4
   m4/stat.m4
   m4/stdalign.m4
   m4/stdbool.m4
@@ -5393,7 +5408,7 @@ AC_DEFUN([gl_HARD_LOCALE],
   :
 ])
 
-# host-cpu-c-abi.m4 serial 7
+# host-cpu-c-abi.m4 serial 8
 dnl Copyright (C) 2002-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5463,14 +5478,23 @@ changequote([,])dnl
          #   with native Windows (mingw, MSVC).
          # - 64-bit instruction set, 32-bit pointers, 32-bit 'long': x86_64-x32.
          # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': i386.
-         AC_EGREP_CPP([yes],
-           [#if defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_AMD64
-            yes
-            #endif],
-           [AC_EGREP_CPP([yes],
-              [#if defined __ILP32__ || defined _ILP32
-               yes
-               #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#if (defined __x86_64__ || defined __amd64__ \
+                     || defined _M_X64 || defined _M_AMD64)
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
+           [AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE(
+                 [[#if defined __ILP32__ || defined _ILP32
+                    int ok;
+                   #else
+                    error fail
+                   #endif
+                 ]])],
               [gl_cv_host_cpu_c_abi=x86_64-x32],
               [gl_cv_host_cpu_c_abi=x86_64])],
            [gl_cv_host_cpu_c_abi=i386])
@@ -5489,14 +5513,22 @@ changequote([,])dnl
          # - aarch64 instruction set, 64-bit pointers, 64-bit 'long': arm64.
          # - aarch64 instruction set, 32-bit pointers, 32-bit 'long': arm64-ilp32.
          # - 32-bit instruction set, 32-bit pointers, 32-bit 'long': arm or armhf.
-         AC_EGREP_CPP([yes],
-           [#if defined __aarch64__
-            yes
-            #endif],
-           [AC_EGREP_CPP([yes],
-              [#if defined __ILP32__ || defined _ILP32
-               yes
-               #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#ifdef __aarch64__
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
+           [AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE(
+                [[#if defined __ILP32__ || defined _ILP32
+                   int ok;
+                  #else
+                   error fail
+                  #endif
+                ]])],
               [gl_cv_host_cpu_c_abi=arm64-ilp32],
               [gl_cv_host_cpu_c_abi=arm64])],
            [# Don't distinguish little-endian and big-endian arm, since they
@@ -5525,10 +5557,14 @@ changequote([,])dnl
        hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
          # On hppa, the C compiler may be generating 32-bit code or 64-bit
          # code. In the latter case, it defines _LP64 and __LP64__.
-         AC_EGREP_CPP([yes],
-           [#if defined(__LP64__)
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#ifdef __LP64__
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
            [gl_cv_host_cpu_c_abi=hppa64],
            [gl_cv_host_cpu_c_abi=hppa])
          ;;
@@ -5536,10 +5572,14 @@ changequote([,])dnl
        ia64* )
          # On ia64 on HP-UX, the C compiler may be generating 64-bit code or
          # 32-bit code. In the latter case, it defines _ILP32.
-         AC_EGREP_CPP([yes],
-           [#if defined _ILP32
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#ifdef _ILP32
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
            [gl_cv_host_cpu_c_abi=ia64-ilp32],
            [gl_cv_host_cpu_c_abi=ia64])
          ;;
@@ -5547,19 +5587,27 @@ changequote([,])dnl
        mips* )
          # We should also check for (_MIPS_SZPTR == 64), but gcc keeps this
          # at 32.
-         AC_EGREP_CPP([yes],
-           [#if defined _MIPS_SZLONG && (_MIPS_SZLONG == 64)
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#if defined _MIPS_SZLONG && (_MIPS_SZLONG == 64)
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
            [gl_cv_host_cpu_c_abi=mips64],
            [# In the n32 ABI, _ABIN32 is defined, _ABIO32 is not defined (but
             # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIN32.
             # In the 32 ABI, _ABIO32 is defined, _ABIN32 is not defined (but
             # may later get defined by <sgidefs.h>), and _MIPS_SIM == _ABIO32.
-            AC_EGREP_CPP([yes],
-              [#if (_MIPS_SIM == _ABIN32)
-               yes
-               #endif],
+            AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE(
+                 [[#if (_MIPS_SIM == _ABIN32)
+                    int ok;
+                   #else
+                    error fail
+                   #endif
+                 ]])],
               [gl_cv_host_cpu_c_abi=mipsn32],
               [gl_cv_host_cpu_c_abi=mips])])
          ;;
@@ -5571,16 +5619,24 @@ changequote([,])dnl
          # On powerpc64 systems, the C compiler may still be generating
          # 32-bit code. And on powerpc-ibm-aix systems, the C compiler may
          # be generating 64-bit code.
-         AC_EGREP_CPP([yes],
-           [#if defined __powerpc64__ || defined _ARCH_PPC64
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#if defined __powerpc64__ || defined _ARCH_PPC64
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
            [# On powerpc64, there are two ABIs on Linux: The AIX compatible
             # one and the ELFv2 one. The latter defines _CALL_ELF=2.
-            AC_EGREP_CPP([yes],
-              [#if defined _CALL_ELF && _CALL_ELF == 2
-               yes
-               #endif],
+            AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE(
+                 [[#if defined _CALL_ELF && _CALL_ELF == 2
+                    int ok;
+                   #else
+                    error fail
+                   #endif
+                 ]])],
               [gl_cv_host_cpu_c_abi=powerpc64-elfv2],
               [gl_cv_host_cpu_c_abi=powerpc64])
            ],
@@ -5594,10 +5650,14 @@ changequote([,])dnl
        s390* )
          # On s390x, the C compiler may be generating 64-bit (= s390x) code
          # or 31-bit (= s390) code.
-         AC_EGREP_CPP([yes],
-           [#if defined(__LP64__) || defined(__s390x__)
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#if defined __LP64__ || defined __s390x__
+                  int ok;
+                #else
+                  error fail
+                #endif
+              ]])],
            [gl_cv_host_cpu_c_abi=s390x],
            [gl_cv_host_cpu_c_abi=s390])
          ;;
@@ -5605,10 +5665,14 @@ changequote([,])dnl
        sparc | sparc64 )
          # UltraSPARCs running Linux have `uname -m` = "sparc64", but the
          # C compiler still generates 32-bit code.
-         AC_EGREP_CPP([yes],
-           [#if defined __sparcv9 || defined __arch64__
-            yes
-            #endif],
+         AC_COMPILE_IFELSE(
+           [AC_LANG_SOURCE(
+              [[#if defined __sparcv9 || defined __arch64__
+                 int ok;
+                #else
+                 error fail
+                #endif
+              ]])],
            [gl_cv_host_cpu_c_abi=sparc64],
            [gl_cv_host_cpu_c_abi=sparc])
          ;;
@@ -6737,7 +6801,7 @@ AC_DEFUN([gl_LARGEFILE],
   esac
 ])
 
-# lib-ld.m4 serial 8
+# lib-ld.m4 serial 9
 dnl Copyright (C) 1996-2003, 2009-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -6859,11 +6923,14 @@ else
     fi
     case $host in
       *-*-aix*)
-        AC_EGREP_CPP([yes],
-          [#if defined __powerpc64__ || defined _ARCH_PPC64
-           yes
-           #endif
-          ],
+        AC_COMPILE_IFELSE(
+          [AC_LANG_SOURCE(
+             [[#if defined __powerpc64__ || defined _ARCH_PPC64
+                int ok;
+               #else
+                error fail
+               #endif
+             ]])],
           [# The compiler produces 64-bit code. Add option '-b64' so that the
            # linker groks 64-bit object files.
            case "$acl_cv_path_LD " in
@@ -6873,10 +6940,14 @@ else
           ], [])
         ;;
       sparc64-*-netbsd*)
-        AC_EGREP_CPP([yes],
-          [#if defined __sparcv9 || defined __arch64__
-           yes
-           #endif],
+        AC_COMPILE_IFELSE(
+          [AC_LANG_SOURCE(
+             [[#if defined __sparcv9 || defined __arch64__
+                int ok;
+               #else
+                error fail
+               #endif
+             ]])],
           [],
           [# The compiler produces 32-bit code. Add option '-m elf32_sparc'
            # so that the linker groks 32-bit object files.
@@ -7677,7 +7748,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_FROM_LIBS],
   AC_SUBST([$1])
 ])
 
-# lib-prefix.m4 serial 9
+# lib-prefix.m4 serial 11
 dnl Copyright (C) 2001-2005, 2008-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -7867,11 +7938,16 @@ AC_DEFUN([AC_LIB_PREPARE_MULTILIB],
          dnl But we want to recognize the sparcv9 or amd64 subdirectory also if the
          dnl symlink is missing, so we set acl_libdirstem2 too.
          AC_CACHE_CHECK([for 64-bit host], [gl_cv_solaris_64bit],
-           [AC_EGREP_CPP([sixtyfour bits], [
-#ifdef _LP64
-sixtyfour bits
-#endif
-              ], [gl_cv_solaris_64bit=yes], [gl_cv_solaris_64bit=no])
+           [AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE(
+                 [[#ifdef _LP64
+                    int ok;
+                   #else
+                    error fail
+                   #endif
+                 ]])],
+              [gl_cv_solaris_64bit=yes],
+              [gl_cv_solaris_64bit=no])
            ])
          if test $gl_cv_solaris_64bit = yes; then
            acl_libdirstem=lib/64
@@ -8086,6 +8162,180 @@ AC_DEFUN([gl_LIBUNISTRING_VERSION_CMP],
 dnl gl_LIBUNISTRING_ARG_OR_ZERO([ARG], [ORIG]) expands to ARG if it is not the
 dnl same as ORIG, otherwise to 0.
 m4_define([gl_LIBUNISTRING_ARG_OR_ZERO], [m4_if([$1], [$2], [0], [$1])])
+
+# libunistring-optional.m4 serial 1
+dnl Copyright (C) 2010-2017 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl gl_LIBUNISTRING_OPTIONAL
+dnl Searches for an installed libunistring or uses the included source code
+dnl parts.
+dnl If found, it sets and AC_SUBSTs HAVE_LIBUNISTRING=yes and the LIBUNISTRING
+dnl and LTLIBUNISTRING variables and augments the CPPFLAGS variable, and
+dnl #defines HAVE_LIBUNISTRING to 1. Otherwise, it sets and AC_SUBSTs
+dnl HAVE_LIBUNISTRING=no and LIBUNISTRING and LTLIBUNISTRING to empty.
+
+AC_DEFUN([gl_LIBUNISTRING_OPTIONAL],
+[
+  dnl gl_LIBUNISTRING does a couple of extra things if this macro is used.
+  AC_REQUIRE([gl_LIBUNISTRING])
+
+  AC_MSG_CHECKING([whether to use the included libunistring])
+  AC_MSG_RESULT([$gl_libunistring_use_included])
+])
+
+# libunistring.m4 serial 11
+dnl Copyright (C) 2009-2017 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl gl_LIBUNISTRING
+dnl Searches for an installed libunistring.
+dnl If found, it sets and AC_SUBSTs HAVE_LIBUNISTRING=yes and the LIBUNISTRING
+dnl and LTLIBUNISTRING variables, sets the LIBUNISTRING_VERSION variable, and
+dnl augments the CPPFLAGS variable, and #defines HAVE_LIBUNISTRING to 1.
+dnl Otherwise, it sets and AC_SUBSTs HAVE_LIBUNISTRING=no and LIBUNISTRING and
+dnl LTLIBUNISTRING to empty.
+
+dnl Define gl_LIBUNISTRING using AC_DEFUN_ONCE for Autoconf >= 2.64, in order
+dnl to avoid warnings like
+dnl "warning: AC_REQUIRE: `gl_LIBUNISTRING' was expanded before it was required".
+dnl This is tricky because of the way 'aclocal' is implemented:
+dnl - It requires defining an auxiliary macro whose name ends in AC_DEFUN.
+dnl   Otherwise aclocal's initial scan pass would miss the macro definition.
+dnl - It requires a line break inside the AC_DEFUN_ONCE and AC_DEFUN expansions.
+dnl   Otherwise aclocal would emit many "Use of uninitialized value $1"
+dnl   warnings.
+m4_define([gl_libunistring_AC_DEFUN],
+  m4_version_prereq([2.64],
+    [[AC_DEFUN_ONCE(
+        [$1], [$2])]],
+    [m4_ifdef([gl_00GNULIB],
+       [[AC_DEFUN_ONCE(
+           [$1], [$2])]],
+       [[AC_DEFUN(
+           [$1], [$2])]])]))
+gl_libunistring_AC_DEFUN([gl_LIBUNISTRING],
+[
+  AC_BEFORE([$0], [gl_LIBUNISTRING_MODULE])
+  AC_BEFORE([$0], [gl_LIBUNISTRING_LIBHEADER])
+  AC_BEFORE([$0], [gl_LIBUNISTRING_LIB_PREPARE])
+
+  m4_ifdef([gl_LIBUNISTRING_OPTIONAL],
+    [
+      AC_MSG_CHECKING([whether included libunistring is requested])
+      AC_ARG_WITH([included-libunistring],
+        [  --with-included-libunistring  use the libunistring parts included here],
+        [gl_libunistring_force_included=$withval],
+        [gl_libunistring_force_included=no])
+      AC_MSG_RESULT([$gl_libunistring_force_included])
+      gl_libunistring_use_included="$gl_libunistring_force_included"
+      if test "$gl_libunistring_use_included" = yes; then
+        dnl Assume that libunistring is not installed until some other macro
+        dnl explicitly invokes gl_LIBUNISTRING_CORE.
+        if test -z "$HAVE_LIBUNISTRING"; then
+          HAVE_LIBUNISTRING=no
+        fi
+        LIBUNISTRING=
+        LTLIBUNISTRING=
+      else
+        gl_LIBUNISTRING_CORE
+        if test $HAVE_LIBUNISTRING = no; then
+          gl_libunistring_use_included=yes
+          LIBUNISTRING=
+          LTLIBUNISTRING=
+        fi
+      fi
+    ],
+    [gl_LIBUNISTRING_CORE])
+])
+
+AC_DEFUN([gl_LIBUNISTRING_CORE],
+[
+  AC_REQUIRE([AM_ICONV])
+  if test -n "$LIBICONV"; then
+    dnl First, try to link without -liconv. libunistring often depends on
+    dnl libiconv, but we don't know (and often don't need to know) where
+    dnl libiconv is installed.
+    AC_LIB_HAVE_LINKFLAGS([unistring], [],
+      [#include <uniconv.h>], [u8_strconv_from_locale((char*)0);],
+      [no, trying again together with libiconv])
+    if test "$ac_cv_libunistring" != yes; then
+      dnl Second try, with -liconv.
+      dnl We have to erase the cached result of the first AC_LIB_HAVE_LINKFLAGS
+      dnl invocation, otherwise the second one will not be run.
+      unset ac_cv_libunistring
+      glus_save_LIBS="$LIBS"
+      LIBS="$LIBS $LIBICONV"
+      AC_LIB_HAVE_LINKFLAGS([unistring], [],
+        [#include <uniconv.h>], [u8_strconv_from_locale((char*)0);],
+        [no, consider installing GNU libunistring])
+      if test -n "$LIBUNISTRING"; then
+        LIBUNISTRING="$LIBUNISTRING $LIBICONV"
+        LTLIBUNISTRING="$LTLIBUNISTRING $LTLIBICONV"
+      fi
+      LIBS="$glus_save_LIBS"
+    fi
+  else
+    AC_LIB_HAVE_LINKFLAGS([unistring], [],
+      [#include <uniconv.h>], [u8_strconv_from_locale((char*)0);],
+      [no, consider installing GNU libunistring])
+  fi
+  if test $HAVE_LIBUNISTRING = yes; then
+    dnl Determine the installed version.
+    AC_CACHE_CHECK([for libunistring version], [gl_cv_libunistring_version],
+      [AC_COMPUTE_INT([gl_libunistring_hexversion],
+                      [_LIBUNISTRING_VERSION],
+                      [#include <unistring/version.h>])
+       dnl Versions <= 0.9.3 had a hexversion of 0x0009.
+       dnl Use other tests to distinguish them.
+       if test $gl_libunistring_hexversion = 9; then
+         dnl Version 0.9.2 introduced the header <unistring/cdefs.h>.
+         AC_COMPILE_IFELSE(
+           [AC_LANG_PROGRAM([[#include <unistring/cdefs.h>]], [[]])],
+           [gl_cv_libunistring_version092=true],
+           [gl_cv_libunistring_version092=false])
+         if $gl_cv_libunistring_version092; then
+           dnl Version 0.9.3 changed a comment in <unistr.h>.
+           gl_ABSOLUTE_HEADER_ONE([unistr.h])
+           if test -n "$gl_cv_absolute_unistr_h" \
+              && grep 'Copy no more than N units of SRC to DEST.  Return a pointer' $gl_cv_absolute_unistr_h > /dev/null; then
+             dnl Detected version 0.9.3.
+             gl_libunistring_hexversion=2307
+           else
+             dnl Detected version 0.9.2.
+             gl_libunistring_hexversion=2306
+           fi
+         else
+           dnl Version 0.9.1 introduced the type casing_suffix_context_t.
+           AC_COMPILE_IFELSE(
+             [AC_LANG_PROGRAM(
+                [[#include <unicase.h>
+                  casing_suffix_context_t ct;]],
+                [[]])],
+             [gl_cv_libunistring_version091=true],
+             [gl_cv_libunistring_version091=false])
+           if $gl_cv_libunistring_version091; then
+             dnl Detected version 0.9.1.
+             gl_libunistring_hexversion=2305
+           else
+             dnl Detected version 0.9.
+             gl_libunistring_hexversion=2304
+           fi
+         fi
+       fi
+       dnl Transform into the usual major.minor.subminor notation.
+       gl_libunistring_major=`expr $gl_libunistring_hexversion / 65536`
+       gl_libunistring_minor=`expr $gl_libunistring_hexversion / 256 % 256`
+       gl_libunistring_subminor=`expr $gl_libunistring_hexversion % 256`
+       gl_cv_libunistring_version="$gl_libunistring_major.$gl_libunistring_minor.$gl_libunistring_subminor"
+      ])
+    LIBUNISTRING_VERSION="$gl_cv_libunistring_version"
+  fi
+])
 
 dnl Check whether limits.h has needed features.
 
@@ -9120,7 +9370,7 @@ AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
               | (ullmax / ull) | (ullmax % ull));]])
 ])
 
-# serial 29
+# serial 30
 
 # Copyright (C) 1997-2001, 2003-2017 Free Software Foundation, Inc.
 #
@@ -9132,14 +9382,15 @@ dnl From Jim Meyering.
 
 AC_DEFUN([gl_FUNC_LSTAT],
 [
+  AC_REQUIRE([AC_CANONICAL_HOST])
   AC_REQUIRE([gl_SYS_STAT_H_DEFAULTS])
   dnl If lstat does not exist, the replacement <sys/stat.h> does
   dnl "#define lstat stat", and lstat.c is a no-op.
   AC_CHECK_FUNCS_ONCE([lstat])
   if test $ac_cv_func_lstat = yes; then
     AC_REQUIRE([gl_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK])
-    case "$gl_cv_func_lstat_dereferences_slashed_symlink" in
-      *no)
+    case $host_os,$gl_cv_func_lstat_dereferences_slashed_symlink in
+      solaris* | *no)
         REPLACE_LSTAT=1
         ;;
     esac
@@ -12377,7 +12628,7 @@ AC_DEFUN([gl_REGEX],
               result |= 16;
 
             /* Catch a bug reported by Vin Shelton in
-               https://lists.gnu.org/archive/html/bug-coreutils/2007-06/msg00089.html
+               https://lists.gnu.org/r/bug-coreutils/2007-06/msg00089.html
                */
             re_set_syntax (RE_SYNTAX_POSIX_BASIC
                            & ~RE_CONTEXT_INVALID_DUP
@@ -13133,7 +13384,91 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
   fi
 ])
 
-# serial 12
+# Checks for stat-related time functions.
+
+# Copyright (C) 1998-1999, 2001, 2003, 2005-2007, 2009-2017 Free Software
+# Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+dnl From Paul Eggert.
+
+# st_atim.tv_nsec - Linux, Solaris, Cygwin
+# st_atimespec.tv_nsec - FreeBSD, NetBSD, if ! defined _POSIX_SOURCE
+# st_atimensec - FreeBSD, NetBSD, if defined _POSIX_SOURCE
+# st_atim.st__tim.tv_nsec - UnixWare (at least 2.1.2 through 7.1)
+
+# st_birthtimespec - FreeBSD, NetBSD (hidden on OpenBSD 3.9, anyway)
+# st_birthtim - Cygwin 1.7.0+
+
+AC_DEFUN([gl_STAT_TIME],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_HEADERS_ONCE([sys/time.h])
+
+  AC_CHECK_MEMBERS([struct stat.st_atim.tv_nsec],
+    [AC_CACHE_CHECK([whether struct stat.st_atim is of type struct timespec],
+       [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec],
+       [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+          [[
+            #include <sys/types.h>
+            #include <sys/stat.h>
+            #if HAVE_SYS_TIME_H
+            # include <sys/time.h>
+            #endif
+            #include <time.h>
+            struct timespec ts;
+            struct stat st;
+          ]],
+          [[
+            st.st_atim = ts;
+          ]])],
+          [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec=yes],
+          [ac_cv_typeof_struct_stat_st_atim_is_struct_timespec=no])])
+     if test $ac_cv_typeof_struct_stat_st_atim_is_struct_timespec = yes; then
+       AC_DEFINE([TYPEOF_STRUCT_STAT_ST_ATIM_IS_STRUCT_TIMESPEC], [1],
+         [Define to 1 if the type of the st_atim member of a struct stat is
+          struct timespec.])
+     fi],
+    [AC_CHECK_MEMBERS([struct stat.st_atimespec.tv_nsec], [],
+       [AC_CHECK_MEMBERS([struct stat.st_atimensec], [],
+          [AC_CHECK_MEMBERS([struct stat.st_atim.st__tim.tv_nsec], [], [],
+             [#include <sys/types.h>
+              #include <sys/stat.h>])],
+          [#include <sys/types.h>
+           #include <sys/stat.h>])],
+       [#include <sys/types.h>
+        #include <sys/stat.h>])],
+    [#include <sys/types.h>
+     #include <sys/stat.h>])
+])
+
+# Check for st_birthtime, a feature from UFS2 (FreeBSD, NetBSD, OpenBSD, etc.)
+# and NTFS (Cygwin).
+# There was a time when this field was named st_createtime (21 June
+# 2002 to 16 July 2002) But that window is very small and applied only
+# to development code, so systems still using that configuration are
+# not supported.  See revisions 1.10 and 1.11 of FreeBSD's
+# src/sys/ufs/ufs/dinode.h.
+#
+AC_DEFUN([gl_STAT_BIRTHTIME],
+[
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_CHECK_HEADERS_ONCE([sys/time.h])
+  AC_CHECK_MEMBERS([struct stat.st_birthtimespec.tv_nsec], [],
+    [AC_CHECK_MEMBERS([struct stat.st_birthtimensec], [],
+      [AC_CHECK_MEMBERS([struct stat.st_birthtim.tv_nsec], [], [],
+         [#include <sys/types.h>
+          #include <sys/stat.h>])],
+       [#include <sys/types.h>
+        #include <sys/stat.h>])],
+    [#include <sys/types.h>
+     #include <sys/stat.h>])
+])
+
+# serial 13
 
 # Copyright (C) 2009-2017 Free Software Foundation, Inc.
 #
@@ -13190,6 +13525,11 @@ AC_DEFUN([gl_FUNC_STAT],
           REPLACE_STAT=1
           AC_DEFINE([REPLACE_FUNC_STAT_FILE], [1], [Define to 1 if stat needs
             help when passed a file name with a trailing slash]);;
+      esac
+      case $host_os in
+        dnl Solaris stat can return a negative tv_nsec.
+        solaris*)
+          REPLACE_FSTAT=1 ;;
       esac
       ;;
   esac
@@ -13349,7 +13689,7 @@ AC_DEFUN([AC_CHECK_HEADER_STDBOOL],
              char p[-1 - (Bool) 0 < 0 && -1 - (bool) 0 < 0 ? 1 : -1];
              /* Catch a bug in an HP-UX C compiler.  See
                 https://gcc.gnu.org/ml/gcc-patches/2003-12/msg02303.html
-                https://lists.gnu.org/archive/html/bug-coreutils/2005-11/msg00161.html
+                https://lists.gnu.org/r/bug-coreutils/2005-11/msg00161.html
               */
              Bool q = true;
              Bool *pq = &q;
@@ -15260,7 +15600,7 @@ AC_DEFUN([gl_SYS_TYPES_H_DEFAULTS],
 ])
 
 # This works around a buggy version in autoconf <= 2.69.
-# See <https://lists.gnu.org/archive/html/autoconf/2016-08/msg00014.html>
+# See <https://lists.gnu.org/r/autoconf/2016-08/msg00014.html>
 
 m4_version_prereq([2.70], [], [
 
@@ -15599,7 +15939,7 @@ int main ()
         #
         # If -pthread works, prefer it to -lpthread, since Ubuntu 14.04
         # needs -pthread for some reason.  See:
-        # https://lists.gnu.org/archive/html/bug-gnulib/2014-09/msg00023.html
+        # https://lists.gnu.org/r/bug-gnulib/2014-09/msg00023.html
         save_LIBS=$LIBS
         for gl_pthread in '' '-pthread'; do
           LIBS="$LIBS $gl_pthread"
@@ -16195,7 +16535,7 @@ AC_DEFUN([gl_PREREQ_UNAME], [
   :
 ])
 
-# unistd_h.m4 serial 70
+# unistd_h.m4 serial 71
 dnl Copyright (C) 2006-2017 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -16356,6 +16696,7 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   REPLACE_CLOSE=0;        AC_SUBST([REPLACE_CLOSE])
   REPLACE_DUP=0;          AC_SUBST([REPLACE_DUP])
   REPLACE_DUP2=0;         AC_SUBST([REPLACE_DUP2])
+  REPLACE_FACCESSAT=0;    AC_SUBST([REPLACE_FACCESSAT])
   REPLACE_FCHOWNAT=0;     AC_SUBST([REPLACE_FCHOWNAT])
   REPLACE_FTRUNCATE=0;    AC_SUBST([REPLACE_FTRUNCATE])
   REPLACE_GETCWD=0;       AC_SUBST([REPLACE_GETCWD])
