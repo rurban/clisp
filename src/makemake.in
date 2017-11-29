@@ -3745,6 +3745,7 @@ if [ $CROSS = false ] ; then
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: clisp${TEXE} base"
     echotab "IMPNOTES=\"${MYIMPROOT}\" ./clisp ${someflags} -x '(sys::ensure-impnotes-map t)'"
+    echotab "CLHSROOT=\"${HSDEFAULT}\" ./clisp ${someflags} -x '(sys::ensure-clhs-map)'"
     echol
   fi
 

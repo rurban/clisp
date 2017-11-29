@@ -1,5 +1,9 @@
 2017-11-29  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-doc): Also test sys::ensure-clhs-map.
+
+2017-11-29  Sam Steingold  <sds@gnu.org>
+
 	An attempt to fix bug#719: get libunistring-optional from gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported
 	build-prerequisites".
