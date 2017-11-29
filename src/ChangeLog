@@ -1,3 +1,15 @@
+2017-11-28  Sam Steingold  <sds@gnu.org>
+
+	DEF-CALL-OUT now accepts the :GUARD argument.
+	* foreign1.lisp (finalize-coutput-file): 4th element in function
+	record in *function-list* is its guard.
+	(def-call-out): Accept :guard, defaulting to *foreign-guard*, pass
+	it to ...
+	(note-c-fun): Save guard to *function-list*.
+	* modules/bindings/glibc/linux.lisp (canonicalize_file_name)
+	(euidaccess, get_current_dir_name, group_member, fcloseall):
+	Uncomment and guard with "defined(__USE_GNU)".
+
 2017-11-27  Bruno Haible  <bruno@clisp.org>
 
 	ari_asm for mips: Don't use a global variable as return value.

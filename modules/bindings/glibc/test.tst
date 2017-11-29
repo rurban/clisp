@@ -5,6 +5,16 @@
 (progn (require "linux") T) T
 (listp (show (multiple-value-list (ext:module-info "linux" t)) :pretty t)) T
 
+(stringp (show (linux:get-domain-name))) T
+(stringp (show (linux:get-host-name))) T
+
+;; usually __USE_GNU is defined, so this should work:
+(let* ((d (linux:get_current_dir_name))
+       (c (linux:canonicalize_file_name (concatenate 'string d "/."))))
+  (or (string= d c)
+      (list :cur-dir d :canonical c)))
+T
+
 (defparameter *d* (show (linux:opendir "."))) *D*
 (linux:dirent64-d_name (show (linux:readdir64 *d*))) "."
 (linux:dirent64-d_name (show (linux:readdir64 *d*))) ".."

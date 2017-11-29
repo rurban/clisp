@@ -686,9 +686,8 @@
 (def-call-out system? (:arguments (null c-string))
   (:return-type boolean) (:name "system"))
 
-; You can uncomment this if your compiler sets __USE_GNU
-; (def-call-out canonicalize_file_name (:arguments (name c-string))
-;  (:return-type c-string :malloc-free))
+(def-call-out canonicalize_file_name (:arguments (name c-string))
+  (:return-type c-string :malloc-free) (:guard "defined(__USE_GNU)"))
 
 (def-call-out realpath
     (:arguments (name c-string)
@@ -1040,9 +1039,8 @@
 (def-call-out access (:arguments (name c-string) (type int))
   (:return-type int))
 
-; You can uncomment this if your compiler sets __USE_GNU
-; (def-call-out euidaccess (:arguments (name c-string) (type int))
-;   (:return-type int))
+(def-call-out euidaccess (:arguments (name c-string) (type int))
+  (:return-type int) (:guard "defined(__USE_GNU)"))
 
 (defconstant SEEK_SET 0)
 (defconstant SEEK_CUR 1)
@@ -1093,9 +1091,8 @@
 ;(def-call-out getcwd (:arguments (buf c-string :out) (size size_t)) ; ??
 ;  (:return-type c-string))
 
-; You can uncomment this if your compiler sets __USE_GNU
-; (def-call-out get_current_dir_name (:arguments)
-;   (:return-type c-string :malloc-free))
+(def-call-out get_current_dir_name (:arguments)
+  (:return-type c-string :malloc-free) (:guard "defined(__USE_GNU)"))
 
 ;(def-call-out getwd (:arguments (buf c-string :out)) ; ??
 ;  (:return-type c-string))
@@ -1323,8 +1320,8 @@
 ;    (:arguments (size int) (list (c-ptr (c-array gid_t ??)) :out)) ; ??
 ;  (:return-type int))
 
-; You can uncomment this if your compiler sets __USE_GNU
-; (def-call-out group_member (:arguments (gid gid_t)) (:return-type boolean))
+(def-call-out group_member (:arguments (gid gid_t)) (:return-type boolean)
+   (:guard "defined(__USE_GNU)"))
 (def-call-out setuid (:arguments (uid uid_t)) (:return-type int))
 (def-call-out setreuid (:arguments (ruid uid_t) (euid uid_t))
   (:return-type int))
@@ -1821,8 +1818,8 @@
   (:return-type c-string :malloc-free))
 (def-call-out ungetc (:arguments (c int) (fp FILE))
   (:return-type int))
-; You can uncomment this if your compiler sets __USE_GNU
-; (def-call-out fcloseall (:arguments) (:return-type int))
+(def-call-out fcloseall (:arguments) (:return-type int)
+  (:guard "defined(__USE_GNU)"))
 (def-call-out fdopen (:arguments (fildes int) (mode c-string))
   (:return-type c-pointer))
 (def-call-out fileno (:arguments (fp FILE)) (:return-type int))
@@ -1900,11 +1897,11 @@ typedef __off64_t clisp_dirent_off_t;
   (:return-type (c-ptr-null dirent)))
 (def-call-out readdir64 (:arguments (dirp c-pointer))
   (:return-type (c-ptr-null dirent64)))
-(def-call-out readdir_r
+(def-call-out readdir_r                 ; deprecated
     (:arguments (dirp c-pointer) (entry (c-ptr dirent) :out :alloca)
                 (result (c-ptr (c-ptr dirent)) :out :alloca)) ; ??
   (:return-type int))
-(def-call-out readdir64_r
+(def-call-out readdir64_r               ; deprecated
     (:arguments (dirp c-pointer) (entry (c-ptr dirent64) :out :alloca)
                 (result (c-ptr (c-ptr dirent64)) :out :alloca)) ; ??
   (:return-type int))

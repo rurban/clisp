@@ -45,6 +45,8 @@ User visible changes
   See <http://clisp.org/impnotes/socket.html#so-handles> for details.
 
 * FFI now converts REALs to FLOATs automatically as necessary.
+  DEF-CALL-OUT now accepts the :GUARD argument.
+  See <http://clisp.org/impnotes/dffi.html#def-call-out> for details.
 
 * On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
   be changed because Mac OS X pathnames are UTF-8 strings, not byte sequences.

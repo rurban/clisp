@@ -805,14 +805,17 @@
                 c-name (to-c-string c-name) (third variable) (first variable))
         (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
     (dolist (function *function-list*)
-      (let ((c-name (first function)))
-        (when *foreign-guard*
-          (format *coutput-stream* "# if defined(HAVE_~A)~%"
-                  (string-upcase c-name)))
+      (let ((c-name (first function))
+            (guard (fourth function)))
+        (when guard
+          (format *coutput-stream* "# if ~A~%"
+                  (if (eq guard t)
+                      (format nil "defined(HAVE_~A)" (string-upcase c-name))
+                      guard)))
         (format *coutput-stream*
                 "  register_foreign_function((void*)&~A,~A,~D);~%"
                 c-name (to-c-string c-name) (svref (second function) 3))
-        (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
+        (when guard (format *coutput-stream* "# endif~%"))))
     (maphash (lambda (type fun-vec)
                (declare (ignore type))
                (let ((c-name (to-c-name (car fun-vec))))
@@ -1083,7 +1086,7 @@
 (defmacro DEF-CALL-OUT (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist
-          (parse-options options '(:name :arguments :return-type :language
+          (parse-options options '(:name :arguments :return-type :language :guard
                                    :built-in :library :version :documentation)
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
@@ -1095,6 +1098,7 @@
          (version (second (assoc :version alist)))
          (c-name (foreign-name name (assoc :name alist)))
          (built-in (second (assoc :built-in alist)))
+         (guard (get-assoc :guard alist '*foreign-guard*))
          ;; Maximize sharing in .fas file, reuse options
          ;; parse-c-function ignores unknown options, e.g. :name
          (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
@@ -1102,7 +1106,7 @@
                   ',c-name ,ctype ',properties ,library ,version NIL)))
        (EXT:COMPILER-LET ((,def ,ctype))
          (EVAL-WHEN (COMPILE)
-           (UNLESS ,LIBRARY (NOTE-C-FUN ',c-name ,def ',built-in)))
+           (UNLESS ,LIBRARY (NOTE-C-FUN ',c-name ,def ',built-in ,guard)))
          (SYSTEM::EVAL-WHEN-COMPILE
            (SYSTEM::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
        (WHEN ,def                       ; found library function
@@ -1110,10 +1114,10 @@
          (SYSTEM::%PUTD ',name ,def))
        ',name)))
 
-(defun note-c-fun (c-name ctype built-in) ; not ABI, compile-time only
+(defun note-c-fun (c-name ctype built-in guard) ; not ABI, compile-time only
   (when (system::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name ctype built-in)
+    (push (list c-name ctype built-in guard)
           *function-list*)))
 
 (defun count-inarguments (arg-vector)
