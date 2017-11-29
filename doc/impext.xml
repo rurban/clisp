@@ -2846,6 +2846,21 @@ or just evaluates the appropriate form in the &repl;.</para>
  <listitem><simpara>Specifies the (optional) symbol version in the library
    (therefore, if &version-k; is supplied, &library-k; must also be supplied).
 </simpara></listitem></varlistentry>
+<varlistentry><term><code>(:GUARD <replaceable>guard</replaceable>)</code></term>
+ <listitem><para>Specifies how to wrap the &c-lang; code in the &cpp;
+ conditionals for portability and defaults to &ffi-guard;:<variablelist>
+  <varlistentry><term>&nil;</term><listitem>
+   <simpara>Do nothing</simpara></listitem></varlistentry>
+  <varlistentry><term>&t;</term><listitem><simpara>Rely on &autoconf;
+   feature detection as described in <xref linkend="ffi-guard"/>.
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>anything else</term><listitem><para>Use as is, e.g., in
+   <filename role="clisp-cvs">modules/bindings/glibc/linux.lisp</filename>:
+<programlisting language="lisp">
+(def-call-out canonicalize_file_name (:arguments (name c-string))
+  (:return-type c-string :malloc-free) (:guard "defined(__USE_GNU)"))
+</programlisting></para></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &function-doc; documentation.
 </simpara></listitem></varlistentry></variablelist>
