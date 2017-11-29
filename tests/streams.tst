@@ -7,8 +7,15 @@
 #+LISPWORKS "#<Broadcast stream to ()>"
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
-;; make sure that DESCRIBE does not try to look up CLHS documentation
-#+clisp (defun custom:clhs-root () nil) #+clisp ext:clhs-root
+;; make sure that DESCRIBE does not try to look up CLHS & IMPNOTES documentation
+#+clisp
+(progn
+  (defparameter saved-clhs-root #'custom:clhs-root)
+  (defun custom:clhs-root () nil)
+  (defparameter saved-impnotes-root #'custom:impnotes-root)
+  (defun custom:impnotes-root () nil)
+  NIL)
+#+clisp NIL
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
@@ -1274,7 +1281,15 @@ T
 (let ((*reopen-open-file* nil)) ; stdout can be a file, it will be detected!
   (with-open-file (copy s :direction :output) (streamp copy))) T
 
+#+clisp
+(progn
+  (setf (fdefinition 'custom:clhs-root) saved-clhs-root
+        (fdefinition 'custom:impnotes-root) saved-impnotes-root)
+  (list (stringp (custom:clhs-root)) (stringp (custom:impnotes-root))))
+#+clisp (T T)
+
 (symbols-cleanup '(s s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 b1 b2 c1 c2 c3 c4 inptw sy
+                   saved-clhs-root saved-impnotes-root
                    tw ec str1 strgstream os os1 is es s50 s49 *my-indent-level*))
 ()
 (setq *print-length* nil)
