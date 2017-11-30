@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2011,2016
+;;; Sam Steingold 1999-2011,2016-2017
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -378,21 +378,6 @@
          (error (SYS::TEXT "service does not exist: ~A/~A")
                 service-name protocol)))))
 )
-(without-package-lock ("SOCKET")
-  (sys::deprecate (intern "SOCKET-SERVICE-PORT" "SOCKET") 'service
-                  (lambda (&optional sn pr)
-                    (let ((ret (service sn pr)))
-                      (if (listp ret)
-                          (mapcar (lambda (se)
-                                    (vector (service-name se)
-                                            (service-aliases se)
-                                            (service-port se)
-                                            (service-proto se)))
-                                  ret)
-                          (values (service-name ret) (service-aliases ret)
-                                  (service-port ret) (service-proto ret)))))))
-(without-package-lock ("EXT")
-  (export (find-symbol "SOCKET-SERVICE-PORT" "SOCKET") "EXT"))
 
 ;;;--------------------------------------------------------------------------
 (defmacro with-subprocesses (&body body)
