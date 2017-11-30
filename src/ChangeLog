@@ -1,5 +1,10 @@
 2017-11-29  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (finalize-coutput-file): Do not output unnecessary
+	prototypes, but output code to avoid the -Wunused-parameter warning.
+
+2017-11-29  Sam Steingold  <sds@gnu.org>
+
 	Remove old deprecated features.
 	(5+ years after the first release in which it became deprecated)
 	* modules/syscalls/posix.lisp (socket-service-port): Remove.
