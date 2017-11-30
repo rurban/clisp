@@ -76,6 +76,14 @@ User visible changes
 * The readline-based completion facility is now more customizable.
   See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
 
+* Some old functions that have been deprecated for 10+ years have been removed:
+      SOCKET-SERVER-PORT: use SERVICE instead,
+      TYPE-EXPAND-1: use TYPE-EXPAND instead,
+      FOREIGN-ADDRESS-NULL: use NULL instead,
+      DELETE-DIR: use DELETE-DIRECTORY instead,
+      MAKE-DIR: use MAKE-DIRECTORY instead,
+      RENAME-DIR: use RENAME-DIRECTORY instead.
+
 * Bug fixes:
   + Fix documentation strings handling for structs (bug#561).
   + Fix SCREEN behavior when the window is resized.
