@@ -1,3 +1,13 @@
+2017-12-01  Sam Steingold  <sds@gnu.org>
+
+	Fix bug#659: update the pari module to PARI/GP 2.9.3
+	* modules/pari/cpari.c (clisp_out, clisp_err): PariOUT no longer
+	has the 4th field "die", instead set cb_pari_err_recover to...
+	(clisp_err_recover): New function.
+	* modules/pari/pari.lisp: Drop removed/Update renamed objects.
+	(convert-to-pari@vector): Use #(...) for Vecsmall (immediate long[]).
+	(convert-from-pari-vector): Handle Vecsmall.
+
 2017-11-30  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* modules/i18n/gettext.c: CLISP_UNICODE is always defined in

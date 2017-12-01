@@ -130,6 +130,7 @@ User visible changes
   + Improve consistency in declaration handling (bug#702).
   + Package locks are checked by DECLARATION and DEFTYPE (bug#701).
   + Allow spaces in file names of clisp scripts (bug#699).
+  + Update PARI interface to support upstream version 2.9.3 (bug#659).
 
 
 2.49 (2010-07-07)
