@@ -1,3 +1,8 @@
+2017-11-30  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* modules/i18n/gettext.c: CLISP_UNICODE is always defined in
+	modules, so use #if, not #ifdef.
+
 2017-11-29  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (finalize-coutput-file): Do not output unnecessary
