@@ -7,7 +7,7 @@
 
 (format t "~&Version: ~S~%" pari:pari-version) NIL
 
-(progn
+(without-package-lock ("PARI")
   (defparameter *pari-to-lisp* (make-hash-table))
   (defparameter *lisp-to-pari* (make-hash-table))
   (setq *trace-output* (make-broadcast-stream)) ; suppress TRACE output
@@ -44,15 +44,63 @@ CHECK-ROUNDTRIP
 (check-roundtrip 1000 #'get-x-ash #'roundtrip2) ()
 (check-roundtrip 1000 #'get-x-ash-neg #'roundtrip2) ()
 
+;; generic conversion
+(defun roundtrip-1 (x)
+  (pari:pari-to-lisp
+   (read-from-string
+    (format nil "#Z\"~A\"" (pari::%write-to-string
+                            (pari::convert-to-pari x))))))
+ROUNDTRIP-1
+(roundtrip-1 #(1 2 3)) #(1 2 3)
+(roundtrip-1 #(:row 1 2 3)) #(:row 1 2 3)
+(roundtrip-1 #(:col 1 2 3)) #(:col 1 2 3)
+(defun roundtrip-2 (x)
+  (read-from-string
+   (format nil "#Z\"~A\"" (pari::%write-to-string
+                           (pari::convert-to-pari
+                            (pari:pari-to-lisp x))))))
+ROUNDTRIP-2
+(pari:equal? (roundtrip-2 #Z"Vecsmall([1,2])") #Z"Vecsmall([1,2])") T
+(pari:equal? (roundtrip-2 #Z"[1,2]") #Z"[1,2]") T
+(pari:equal? (roundtrip-2 #Z"[1;2]") #Z"[1;2]") T
+
+(defparameter mycol #Z"[1;2;3]") mycol
+(pari:sizeword mycol) 15
+(pari:sizebyte mycol) 120
+(pari::%write-to-string-pretty (pari::convert-to-pari mycol))
+"
+[1]
+
+[2]
+
+[3]
+"
+(pari::%write-to-string-TeX (pari::convert-to-pari mycol))
+"\\pmatrix{
+ 1\\cr
+ 2\\cr
+ 3\\cr
+ }"
+
+(defparameter myrow #Z"[1,2,3]") myrow
+(pari:sizeword myrow) 13
+(pari:sizebyte myrow) 104
+(pari::%write-to-string-pretty (pari::convert-to-pari myrow))
+"[1, 2, 3]"
+(pari::%write-to-string-TeX (pari::convert-to-pari myrow))
+"\\pmatrix{ 1&2&3\\cr}
+"
+
 (defparameter id (pari:identity-matrix 3)) ID
 (pari:equal? id #Z"[1,0,0;0,1,0;0,0,1]") T
+(pari:equal? id (pari:diagonal #Z"[1,1,1]")) T
 (pari:matrix-rank id) 3
 (pari:equal? id (pari:matrix-transpose id)) T
 (pari:equal? id (pari:adjoint-matrix id)) T
 (pari:equal? (pari:matrix-kernel id) #Z"[;]") T
 (pari:equal? id (pari:matrix-image id)) T
 (pari:equal? id (pari:norm id)) T
-(pari:equal? (pari:matrix-image-complement id) #Z"[]") T
+(pari:equal? (pari:matrix-image-complement id) #Z"Vecsmall([])") T
 (pari:equal? id (pari:matrix-supplement id)) T
 (pari:equal? id (pari:matrix-eigenvectors id)) T
 (pari:equal? id (pari:matrix-to-hessenberg-form id)) T
@@ -60,9 +108,9 @@ CHECK-ROUNDTRIP
 (pari:equal? (pari:l2-norm id) #Z"3") T
 (pari:equal? (pari:pari-trace id) #Z"3") T
 (pari:equal? (pari:pari-concatenate 1 2) #Z"[1,2]") T
-(pari:equal? (pari:vector-extract id 1) #Z"[1;0;0]") T
+(pari:equal? (pari:matrix-extract id 1 nil) #Z"[1;0;0]") T
 (pari:equal? (pari:matrix-extract id 7 7) id) T
-(pari:equal? (pari:matrix-extract id #(1 2 3) #(1 2 3)) id) T
+(pari:equal? (pari:matrix-extract id #(:row 1 2 3) #(:row 1 2 3)) id) T
 (pari:equal? (pari:matrix-solve id #Z"[1;2;3]") #Z"[1;2;3]") T
 (pari:equal? (pari:matrix-solve #Z"[1,1,1;0,1,1;0,0,1]" #Z"[1;2;3]")
              #Z"[-1;-1;3]") T
@@ -70,7 +118,8 @@ CHECK-ROUNDTRIP
 (pari:equal? id (pari:symmetric-matrix-sqred id)) T
 (pari:equal? (pari:symmetric-matrix-signature id) #Z"[3,0]") T
 (pari:equal? (pari:symmetric-matrix-sqred #Z"[2,1;1,2]") #Z"[2,1/2;0,3/2]") T
-(pari:equal? (pari:matrix-indexrank #Z"[2,1;1,2]") #Z"[[1,2],[1,2]]") T
+(pari:equal? (pari:matrix-indexrank #Z"[2,1;1,2]")
+             #Z"[Vecsmall([1, 2]), Vecsmall([1, 2])]") T
 (pari:equal? (pari:symmetric-matrix-perfection id) #Z"3") T
 (pari:pari-to-lisp (pari:matrix-determinant #2A((1 2) (3 4)))) -2
 (pari:pari-to-lisp (pari:matrix-solve #2A((1 2) (3 4)) nil))
@@ -82,16 +131,17 @@ CHECK-ROUNDTRIP
 #2A((2 1) (1 2))
 
 (pari:pari-to-lisp (pari:matrix-indexrank id))
-#(:ROW #(:ROW 1 2 3) #(:ROW 1 2 3))
+#(:ROW #(1 2 3) #(1 2 3))
 (pari:pari-to-lisp (pari:matrix-indexrank #2A((1 2) (2 4))))
-#(:ROW #(:ROW 1) #(:ROW 1))
+#(:ROW #(1) #(1))
 (let* ((mx #2A((1 2 3) (2 4 6) (1 2 8)))
        (ir (pari:pari-to-lisp (pari:matrix-indexrank mx))))
   (list ir (pari:pari-to-lisp (pari:matrix-extract
                                mx (aref ir 1) (aref ir 2)))))
-(#(:ROW #(:ROW 1 3) #(:ROW 1 3)) #2A((1 3) (1 8)))
+(#(:ROW #(1 3) #(1 3)) #2A((1 3) (1 8)))
 
-(pari:pari-to-lisp (pari:square (pari:pari-sqrt #C(0 1))))  #C(0 1)
+(pari:pari-to-lisp (pari:square (pari:pari-sqrt #C(0 1))))
+#C(0 0.99999999999999999995L0)
 (pari:pari-to-lisp (pari:pari-sqrt #C(1 2)))
 #C(1.2720196495140689642L0 0.78615137775742328604L0)
 (pari:pari-to-lisp (pari:pari-sqrt #C(1 1)))
@@ -148,6 +198,30 @@ CHECK-ROUNDTRIP
 (pari:bigomega 144) 6
 (pari:omega 144) 2
 
+(pari:square-free? 0) NIL
+(pari:square-free? 1) T
+(pari:square-free? 9) NIL
+(pari:square-free? 10) T
+(pari:square-free? #Z"x^5") NIL
+(pari:square-free? #Z"x^2+1") T
+(pari:square-free? #Z"x^3+2*x^2+x") NIL
+
+(pari:square? 0) T
+(pari:square? 1) T
+(pari:square? 4) T
+(pari:square? 10) NIL
+(pari:square? #Z"x^2") T
+(pari:square? #Z"x^2+1") NIL
+(pari:square? #Z"x^2+2*x+1") T
+
+(pari:pari-to-lisp (pari:stirling 5 2)) -50
+(pari:pari-to-lisp (pari:stirling 5 3 :flag 1)) 35
+(pari:pari-to-lisp (pari:stirling 10 6 :flag 2)) 22827
+
+(pari:pari-to-lisp (pari:moebius-mu 2)) -1
+(pari:pari-to-lisp (pari:moebius-mu 6)) 1
+(pari:pari-to-lisp (pari:moebius-mu 16)) 0
+
 (pari:pari-to-lisp (pari:resultant-vector 40 60)) #(:ROW 1/40 0 1)
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
@@ -189,8 +263,8 @@ CHECK-ROUNDTRIP
     #S(PARI:pari-integermod :MODULUS 12 :REP 5)))
 (pari:pari-to-lisp (pari:structure-of-z/n* 24))
 #(:ROW 8 #(:ROW 2 2 2)
-  #(:ROW #S(PARI:pari-integermod :MODULUS 24 :REP 13)
-    #S(PARI:pari-integermod :MODULUS 24 :REP 19)
+  #(:ROW #S(PARI:pari-integermod :MODULUS 24 :REP 7)
+    #S(PARI:pari-integermod :MODULUS 24 :REP 13)
     #S(PARI:pari-integermod :MODULUS 24 :REP 17)))
 
 (pari:pari-to-lisp (pari:chinese-lift
@@ -242,30 +316,30 @@ CHECK-ROUNDTRIP
 (pari:pari-to-lisp (pari:content (pari:legendre-polynomial 9)))  1/128
 (pari:pari-to-lisp (pari:content (pari:legendre-polynomial 10)))  1/256
 
-(pari:equal? (pari:tchebychev-polynomial 0) #Z"1") T
-(pari:equal? (pari:tchebychev-polynomial 1) #Z"x") T
-(pari:equal? (pari:tchebychev-polynomial 2) #Z"2*x^2 - 1") T
-(pari:equal? (pari:tchebychev-polynomial 3) #Z"4*x^3 - 3*x") T
-(pari:equal? (pari:tchebychev-polynomial 4) #Z"8*x^4 - 8*x^2 + 1") T
-(pari:equal? (pari:tchebychev-polynomial 5) #Z"16*x^5 - 20*x^3 + 5*x") T
-(let ((tchebychev6 (pari:tchebychev-polynomial 6)))
-  (multiple-value-bind (primpart content) (pari:primitive-part tchebychev6)
-    (list (pari:equal? primpart tchebychev6)
-          (pari:equal? primpart (pari:primpart tchebychev6))
+(pari:equal? (pari:chebyshev-polynomial 0) #Z"1") T
+(pari:equal? (pari:chebyshev-polynomial 1) #Z"x") T
+(pari:equal? (pari:chebyshev-polynomial 2) #Z"2*x^2 - 1") T
+(pari:equal? (pari:chebyshev-polynomial 3) #Z"4*x^3 - 3*x") T
+(pari:equal? (pari:chebyshev-polynomial 4) #Z"8*x^4 - 8*x^2 + 1") T
+(pari:equal? (pari:chebyshev-polynomial 5) #Z"16*x^5 - 20*x^3 + 5*x") T
+(let ((chebyshev6 (pari:chebyshev-polynomial 6)))
+  (multiple-value-bind (primpart content) (pari:primitive-part chebyshev6)
+    (list (pari:equal? primpart chebyshev6)
+          (pari:equal? primpart (pari:primpart chebyshev6))
           (pari:pari-to-lisp content))))
 (T T NIL)                       ; NIL means 1
-(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 7)))  1
-(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 8)))  1
-(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 9)))  1
-(pari:pari-to-lisp (pari:content (pari:tchebychev-polynomial 10))) 1
-(pari:irreducible? (pari:tchebychev-polynomial 8))  T
-(pari:irreducible? (pari:tchebychev-polynomial 16)) T
-(pari:irreducible? (pari:tchebychev-polynomial 32)) T
-(pari:irreducible? (pari:tchebychev-polynomial 64)) T
+(pari:pari-to-lisp (pari:content (pari:chebyshev-polynomial 7)))  1
+(pari:pari-to-lisp (pari:content (pari:chebyshev-polynomial 8)))  1
+(pari:pari-to-lisp (pari:content (pari:chebyshev-polynomial 9)))  1
+(pari:pari-to-lisp (pari:content (pari:chebyshev-polynomial 10))) 1
+(pari:irreducible? (pari:chebyshev-polynomial 8))  T
+(pari:irreducible? (pari:chebyshev-polynomial 16)) T
+(pari:irreducible? (pari:chebyshev-polynomial 32)) T
+(pari:irreducible? (pari:chebyshev-polynomial 64)) T
 
 (pari:pari-to-lisp (pari:factor #z"x^3"))
 #2A((#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1)) 3))
-(pari:pari-to-lisp (pari:factor (pari:tchebychev-polynomial 11)))
+(pari:pari-to-lisp (pari:factor (pari:chebyshev-polynomial 11)))
 #2A((#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1)) 1)
     (#S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS
         #(-11 0 220 0 -1232 0 2816 0 -2816 0 1024)) 1))
@@ -315,13 +389,27 @@ CHECK-ROUNDTRIP
     (1 364 11011 33880 11011 364 1 0)
     (1 1093 99463 925771 925771 99463 1093 1))
 
-(pari:pari-to-lisp (pari:permutation 10 3)) #(:ROW 10 9 8 7 6 5 4 1 3 2)
-(pari:pari-to-lisp (pari:permutation-number #(:ROW 10 9 8 7 6 5 4 1 3 2))) 3
-(pari:pari-to-lisp (pari:permutation 9 30)) #(:ROW 9 8 7 6 3 5 4 2 1)
-(pari:pari-to-lisp (pari:permutation-number #(:ROW 9 8 7 6 3 5 4 2 1))) 30
+(pari:pari-to-lisp (pari:permutation 10 3628795)) #(:ROW 10 9 8 7 6 5 4 1 3 2)
+(pari:pari-to-lisp (pari:permutation-number #(:ROW 10 9 8 7 6 5 4 1 3 2))) 3628795
+(pari:pari-to-lisp (pari:permutation 9 362831)) #(:ROW 9 8 7 6 3 5 4 2 1)
+(pari:pari-to-lisp (pari:permutation-number #(:ROW 9 8 7 6 3 5 4 2 1))) 362831
 
-(pari:set-random-seed 10) 10
-(pari:get-random-seed) 10
+(pari:eql-0? 0) T
+(pari:eql-0? 0.0) NIL
+(pari:eql-0? 1) NIL
+(pari:bigint? #Z"0") NIL
+(pari:bigint? #Z"1") NIL
+(pari:bigint? #Z"10") NIL
+
+(let ((seed (pari:pari-to-lisp (pari:get-random-seed))))
+  (show (integer-length seed))
+  (list (multiple-value-list (pari:set-random-seed 100))
+        (pari:bigint? seed)
+        (and (= seed (pari:pari-to-lisp (pari:get-random-seed)))
+             seed)))
+(NIL T NIL)
+(<= 0 (pari:pari-to-lisp (pari:get-random-int 10)) 9) T
+(< 0 (pari:pari-to-lisp (pari:get-random-real)) 1) T
 
 (integerp (show (pari:getstack))) T
 (integerp (show (pari:gettime))) T
@@ -329,10 +417,10 @@ CHECK-ROUNDTRIP
 
 (integerp (show (pari:maxprime))) T
 
-(pari:pari-to-lisp (pari:tchebychev-polynomial 4))
+(pari:pari-to-lisp (pari:chebyshev-polynomial 4))
 #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 0 -8 0 8))
 
-(pari:pari-to-lisp (pari:tchebychev-polynomial 40))
+(pari:pari-to-lisp (pari:chebyshev-polynomial 40))
 #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS
    #(1 0 -800 0 106400 0 -5617920 0 156900480 0 -2677768192 0 30429184000
      0 -243433472000 0 1424085811200 0 -6254808268800 0 21002987765760 0
@@ -341,10 +429,10 @@ CHECK-ROUNDTRIP
      0 -5497558138880 0 549755813888))
 
 (pari:pari-to-lisp (pari:complex-roots #z"x^2+1"))
-#(:COL #C(0 1.0L0) #C(0 -1.0L0))
+#(:COL #C(0 -1.0L0) #C(0 1.0L0))
 (pari:pari-to-lisp (pari:symmetric-powers #z"x^2+1" 4))
 #(:COL 2 0 -2 0 2)
-(pari:pari-to-lisp (pari:symmetric-powers (pari:tchebychev-polynomial 30) 30))
+(pari:pari-to-lisp (pari:symmetric-powers (pari:chebyshev-polynomial 30) 30))
 #(:COL 30 0 15 0 45/4 0 75/8 0 525/64 0 945/128 0 3465/512 0 6435/1024 0
   96525/16384 0 182325/32768 0 692835/131072 0 1322685/262144 0
   10140585/2097152 0 19501125/4194304 0 75218625/16777216 0 145422675/33554432)
@@ -352,9 +440,23 @@ CHECK-ROUNDTRIP
 #(:COL 12 0 132/23 0 15444/3703 0 5477076/1618211 0 12809498724/4429043507 0
   259405490124/101868000661 0 9262490692392036/4050984782285987)
 
-(let ((order (pari:variable-order #())))
+(let ((order (pari:variables nil)))
   (list (pari:pari-to-lisp order) (princ-to-string order)))
-(#(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))) "#Z\"[x]\"")
+(#(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))
+   #S(PARI:pari-poly :S 1 :VARNO 1 :COEFFS #(0 1)))
+  "#Z\"[x, y]\"")
+(pari:pari-to-lisp (pari:variables #Z"z^7"))
+#(:ROW #S(PARI:pari-poly :S 1 :VARNO 10 :COEFFS #(0 1)))
+(pari:pari-to-lisp (pari:variables #Z"z^7+y"))
+#(:ROW #S(PARI:pari-poly :S 1 :VARNO 1 :COEFFS #(0 1))
+  #S(PARI:pari-poly :S 1 :VARNO 10 :COEFFS #(0 1)))
+(pari:pari-to-lisp (pari:variables nil))
+#(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))
+   #S(PARI:pari-poly :S 1 :VARNO 1 :COEFFS #(0 1))
+  #S(PARI:pari-poly :S 1 :VARNO 10 :COEFFS #(0 1)))
+
+(pari:equal? (pari:variable-numbers #Z"x") #Z"Vecsmall([0])") T
+(pari:pari-to-lisp (pari:variable-numbers #Z"y^2")) #(1)
 
 (pari:pari-to-lisp (pari:bernoulli-vector 9))
 #(:ROW 1 1/6 -1/30 1/42 -1/30 5/66 -691/2730 7/6 -3617/510 43867/798)
@@ -366,10 +468,19 @@ CHECK-ROUNDTRIP
 (pari:pari-sign 1f0) 1
 (pari:pari-sign -1d0) -1
 
-(pari:pari-to-lisp (pari:vector-index-sort #(10 40 30 20))) #(:ROW 1 4 3 2)
-(pari:pari-to-lisp (pari:vector-sort #(10 40 30 20))) #(:ROW 10 20 30 40)
-(pari:pari-to-lisp (pari:vector-sort-key #(#(1 10) #(2 40) #(3 30) #(4 20)) 2))
+(pari:pari-to-lisp (pari:vector-sort #(:ROW 10 40 30 20))) #(:ROW 10 20 30 40)
+(pari:pari-to-lisp (pari:vector-sort #(:ROW 10 40 30 20) :flag 1)) #(1 4 3 2)
+(pari:pari-to-lisp (pari:vector-sort
+                    #(:ROW #(:ROW 1 10) #(:ROW 2 40) #(:ROW 3 30) #(:ROW 4 20))
+                    :cmpf 2))
 #(:ROW #(:ROW 1 10) #(:ROW 4 20) #(:ROW 3 30) #(:ROW 2 40))
+(pari:pari-to-lisp (pari:vector-sort #(:COL 1 2 3 4 3 2 1) :flag (logior 4 8)))
+#(:COL 4 3 2 1)
+(pari:pari-to-lisp (pari:vector-sort
+                    #(:ROW #(:ROW 1 10 #(0)) #(:ROW 2 40 #(1))
+                      #(:ROW 3 20 #(2)) #(:ROW 0 20 #(3)))
+                    :cmpf #(2 1) :flag 8))
+#(:ROW #(:ROW 1 10 #(0)) #(:ROW 0 20 #(3)) #(:ROW 3 20 #(2)) #(:ROW 2 40 #(1)))
 
 pari:pari-real-precision  19
 (length (prin1-to-string (pari:pari-to-lisp (pari:pari-pi))))  23
@@ -404,13 +515,13 @@ pari:pari-real-precision  19
 #S(PARI:pari-ratfun :NUMER #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(24))
    :DENOM #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 5 10 10 5 1)))
 (pari:pari-to-lisp (pari:integral #Z"-6/(x^4 + 4*x^3 + 6*x^2 + 4*x + 1)"))
-#S(PARI:pari-ratfun :NUMER #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(2))
+#S(PARI:pari-ratfun :NUMER 2
    :DENOM #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 3 3 1)))
 (pari:pari-to-lisp (pari:integral #Z"2/(x^3 + 3*x^2 + 3*x + 1)"))
-#S(PARI:pari-ratfun :NUMER #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-1))
+#S(PARI:pari-ratfun :NUMER -1
    :DENOM #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 2 1)))
 (pari:pari-to-lisp (pari:integral #Z"-1/(x^2 + 2*x + 1)"))
-#S(PARI:pari-ratfun :NUMER #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1))
+#S(PARI:pari-ratfun :NUMER 1
    :DENOM #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(1 1)))
 
 (pari:pari-to-lisp (pari:taylor-expansion #Z"1/(1+x)^2" :precdl 7))
@@ -439,7 +550,7 @@ pari:pari-real-precision  19
 #S(PARI:pari-quadratic :REALPART 13163331 :IMAGPART 1216040
    :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 -1 1)))
 (pari:pari-to-lisp (pari:quadratic-regulator 5)) 0.4812118250596034475L0
-(pari:pari-to-lisp (pari:quadratic-regulator 512)) 7.0509886961563442015L0
+(pari:pari-to-lisp (pari:quadratic-regulator 512)) 7.0509886961563442024L0
 (pari:pari-to-lisp (pari:quad-minimal-polynomial 513))
 #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 -1 1))
 (pari:pari-to-lisp (pari:quad-minimal-polynomial 512))
@@ -451,16 +562,21 @@ pari:pari-real-precision  19
 (pari:pari-to-lisp (pari:quad-discriminant 513)) 57
 
 (defparameter qfi (show (pari:pari-to-lisp (pari:make-imag-qf 1 2 3)))) QFI
-(pari:pari-to-lisp (pari:qfi-composition qfi))
+(pari:sizeword qfi) 13
+(pari:sizebyte qfi) 104
+(pari:pari-to-lisp (pari:compose-imag-qf qfi qfi))
 #S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
 (pari:pari-to-lisp (pari:reduce-imag-qf qfi))
 #S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
-(pari:square? qfi) T
 (defparameter qfr (show (pari:pari-to-lisp (pari:make-real-qf 1 2 3 0.0)))) QFR
-;; PARI stack overflows (pari:pari-to-lisp (pari:qfr-composition qfr))
+(pari:sizeword qfr) 16
+(pari:sizebyte qfr) 128
+;; https://pari.math.u-bordeaux.fr/pub/pari/manuals/2.9.0/libpari.pdf:
+;;   Unfortunately, t_QFRs are very inefficient, and are only provided
+;;   for backward compatibility.
+;; PARI stack overflows (pari:pari-to-lisp (pari:compose-real-qf qfr qfr))
 ;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf qfr))
 ;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf-one-step qfr))
-(pari:square? qfr) T
 
 ;; done, print type conversion statistics
 (let ((alist (sort (ext:with-collect (co)
@@ -480,8 +596,9 @@ pari:pari-real-precision  19
     (show-coverage "PARI --> LISP" *pari-to-lisp*)))
 NIL
 
-(progn (untrace)
+(progn (without-package-lock ("PARI") (untrace))
        (setq *trace-output* *error-output*) ; re-enable TRACE, TIME, TIMES
        (symbols-cleanup '(*pari-to-lisp* *lisp-to-pari* roundtrip1 roundtrip2
+                          roundtrip-1 roundtrip-2 mycol myrow
                           get-x-ash get-x-ash-neg check-roundtrip id qfi qfr)))
 ()

@@ -1,7 +1,12 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
-;; Copyright (C) 2004-2010 Sam Steingold
+;; Copyright (C) 2004-2010, 2017 Sam Steingold
 ;; This is free software, distributed under the GNU GPL v2+
+
+;; See file COMPAT in the top-level PARI distribution for object renamings.
+;; http://pari.math.u-bordeaux.fr/cgi-bin/gitweb.cgi?p=pari.git;a=blob_plain;f=COMPAT;hb=HEAD
+;; at gp prompt: whatnow(old-function-name), ?function-name
+;; https://pari.math.u-bordeaux.fr/dochtml/html-stable/
 
 (defpackage "PARI"
   (:modern t)
@@ -26,15 +31,11 @@
 ;; (defun pari-err-puts (s) (write-string s *pari-error-output*))
 ;; (defun pari-err-flush ()
 ;;   (write-string (get-output-stream-string *pari-error-output*) *error-output*))
-;; (defun pari-err-die ()
-;;   (error "PARI ~A" (get-output-stream-string *pari-error-output*)))
-;; (def-call-in pari-err-putc (:name "clispErrPutc")
+;; (def-call-in pari-err-putc (:name "clisp_err_putc")
 ;;   (:return-type nil) (:arguments (c character)))
-;; (def-call-in pari-err-puts (:name "clispErrPuts")
+;; (def-call-in pari-err-puts (:name "clisp_err_puts")
 ;;   (:return-type nil) (:arguments (s c-string :in :malloc-free)))
-;; (def-call-in pari-err-flush (:name "clispErrFlush")
-;;   (:return-type nil) (:arguments))
-;; (def-call-in pari-err-die (:name "clispErrDie")
+;; (def-call-in pari-err-flush (:name "clisp_err_flush")
 ;;   (:return-type nil) (:arguments))
 
 ;;; Declare all the pari types, variables, functions, ...
@@ -80,6 +81,7 @@
   (REAL 2)
   (INTMOD 3)
   (FRAC 4)
+  (FFELT 5)
   (COMPLEX 6)
   (PADIC 7)
   (QUAD 8)
@@ -94,7 +96,10 @@
   (MAT 19)
   (LIST 20)
   (STR 21)
-  (VECSMALL 22))
+  (VECSMALL 22)
+  (CLOSURE 23)
+  (ERROR 24)
+  (INFINITY 25))
 
 ;; <parigen.h>
 
@@ -107,14 +112,16 @@
 ;; <paristio.h>
 
 ;; typedef struct entree {
-;;   char *name;
+;;   const char *name;
 ;;   ulong valence;
 ;;   void *value;
 ;;   long menu;
-;;   char *code;
+;;   const char *code;
+;;   const char *help;
+;;   void *pvalue;
+;;   long arity;
+;;   ulong hash;
 ;;   struct entree *next;
-;;   char *help;
-;;   void *args;
 ;; } entree;
 (def-c-struct entree
   (name c-string)
@@ -122,9 +129,11 @@
   (value c-pointer)
   (menu long)
   (code c-string)
-  (next (c-pointer entree))     ; (c-ptr-null entree)
   (help c-string)
-  (args c-pointer))
+  (pvalue c-pointer)
+  (arity long)
+  (hash ulong)
+  (next (c-pointer entree)))    ; (c-ptr-null entree)
 
 (defun next-entree (e) (foreign-value (entree-next e)))
 (export 'next-entree)
@@ -134,6 +143,20 @@
 
 ;; typedef ulong pari_sp;
 (def-c-type pari_sp ulong)
+
+;; struct pari_mainstack {
+;;   pari_sp top, bot, vbot;
+;;   size_t size, rsize, vsize, memused;
+;; };
+(def-c-struct mainstack
+  (top pari_sp)
+  (bot pari_sp)
+  (vbot pari_sp)
+  (size size_t)
+  (rsize size_t)
+  (vsize size_t)
+  (memused size_t))
+(def-c-var pari-mainstack (:name "pari_mainstack") (:type (c-pointer mainstack)))
 
 (defun bits2digits (bits) (values (floor (* #.(log 2 10) bits))))
 (defun digits2bits (digits) (values (ceiling (* #.(log 10 2) digits))))
@@ -156,52 +179,35 @@ t.e., this is the memory size for the real return value in ulong words.")
 (def-c-var pari-series-precision (:name "precdl") (:type ulong))
 (export '(pari-series-precision pari-real-precision))
 
-;; extern  long    lontyp[];
-
-;; extern  long    quitting_pari;
-;; extern  jmp_buf environnement;
-;; extern  FILE    *outfile, *logfile, *infile, *errfile;
-
-;; extern  ulong    avma,bot,top;
+;; extern THREAD pari_sp avma;
 (def-c-var pari-avma (:name "avma") (:type pari_sp))
-(def-c-var pari-top  (:name "top")  (:type pari_sp))
-(def-c-var pari-bot  (:name "bot")  (:type pari_sp))
 
 ;; <paricom.h>
-(def-c-var pari-pi    (:name "gpi")    (:type pari-gen) (:read-only t))
-(def-c-var pari-euler (:name "geuler") (:type pari-gen) (:read-only t))
 (def-c-var pari-bernzone (:name "bernzone") (:type pari-gen) (:read-only t))
 
 (def-c-var pari-1    (:name "gen_1") (:type pari-gen) (:read-only t))
 (def-c-var pari-2    (:name "gen_2") (:type pari-gen) (:read-only t))
 (def-c-var pari-1/2  (:name "ghalf") (:type pari-gen) (:read-only t))
-(def-c-var pari-i    (:name "gi")    (:type pari-gen) (:read-only t))
 (def-c-var pari-0    (:name "gen_0") (:type pari-gen) (:read-only t))
 (def-c-var pari--1   (:name "gen_m1") (:type pari-gen) (:read-only t))
+(def-c-var pari--2   (:name "gen_m2") (:type pari-gen) (:read-only t))
 (def-c-var pari-nil  (:name "gnil")  (:type pari-gen) (:read-only t))
 
-;; extern  GEN *pol_1,*pol_x;
-(def-c-var pari-poly-1 (:name "pol_1") (:type (c-ptr pari-gen)) (:read-only t))
-(def-c-var pari-poly-x (:name "pol_x")  (:type (c-ptr pari-gen)) (:read-only t))
 ;; extern  GEN primetab;
 (def-c-var primetab (:type pari-gen) (:read-only t))
-;; extern  long *ordvar;
-(def-c-var ordvar (:type (c-ptr long)) (:read-only t))
-;; extern  GEN polvar;
-(def-c-var polvar (:type pari-gen) (:read-only t))
 
 ;; extern  byteptr diffptr;
 (def-c-var diffptr (:type byteptr) (:read-only t))
 
 (def-c-const MAXVARN)
 ;; extern entree **varentries;
-(def-c-var varentries (:type (c-pointer (c-ptr-null entree))) (:read-only t))
-(defun varentry (i)
-  (assert (< i MAXVARN) (i)
-          "~S: index ~:D is too large (max ~:D)" 'varentry i MAXVARN)
-  (let ((e (offset varentries (* i #.(sizeof '(c-pointer (c-ptr-null entree))))
-                   '(c-pointer (c-ptr-null entree)))))
-    (and e (foreign-value e))))
+;?(def-c-var varentries (:type (c-pointer (c-ptr-null entree))) (:read-only t))
+;; (defun varentry (i)
+;;   (assert (< i MAXVARN) (i)
+;;           "~S: index ~:D is too large (max ~:D)" 'varentry i MAXVARN)
+;;   (let ((e (offset varentries (* i #.(sizeof '(c-pointer (c-ptr-null entree))))
+;;                    '(c-pointer (c-ptr-null entree)))))
+;;     (and e (foreign-value e))))
 
 ;; extern int new_galois_format;
 (def-c-var new_galois_format (:type int))
@@ -213,9 +219,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 (def-c-var debuglevel (:name "DEBUGLEVEL") (:type ulong))
 (def-c-var debugmem (:name "DEBUGMEM") (:type ulong))
 
-(def-c-const VERYBIGINT)
-(def-c-const BIGINT)
-
 ;; entree *is_entry(char *s);
 (def-call-out is_entry (:arguments (s c-string))
   (:return-type (c-ptr-null entree)))
@@ -223,8 +226,7 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; this optimization is not necessary, it just saves some memory.
 ;; also, get_entry_doc is called while loading pari.fas,
 ;; so it cannot be moved to cpari.c
-(c-lines "char* get_entry_doc (char* s);~%") ; prototype
-(c-lines "char* get_entry_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:e->help; }~%")
+(c-lines "char* get_entry_doc (char* s) { entree *e = is_entry(s); return e==NULL?NULL:(char*)e->help; }~%")
 (def-call-out get_entry_doc (:arguments (s c-string)) (:return-type c-string))
 
 (defun get-pari-docstring (str name)
@@ -248,17 +250,26 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;;; /* init.c */
 
-;; long allocatemoremem(size_t newsize);
-(def-call-out allocatemoremem (:arguments (newsize size_t)) (:return-type long))
-(defun allocatemem (&optional (newsize 0)) (allocatemoremem newsize))
+;; --- should we really export these?
+;; void paristack_newrsize(ulong newsize);
+(def-call-out paristack_newrsize (:arguments (newsize ulong)) (:return-type nil))
+;; void paristack_resize(ulong newsize);
+(def-call-out paristack_resize (:arguments (newsize ulong)) (:return-type nil))
+;; void paristack_setsize(size_t rsize, size_t vsize);
+(def-call-out paristack_setsize (:arguments (rsize size_t) (vsize size_t))
+  (:return-type nil))
+;; void parivstack_resize(ulong newsize);
+(def-call-out parivstack_resize (:arguments (newsize ulong)) (:return-type nil))
+;; void parivstack_reset(void);
+(def-call-out parivstack_reset (:arguments) (:return-type nil))
 
 (c-lines "#include \"cpari.h\"~%")
 (def-call-out pari-init (:name "init_for_clisp")
   (:arguments (parisize long) (maxprime long)) (:return-type nil))
 (def-call-out pari-fini (:name "pari_close")
   (:arguments) (:return-type nil))
-(export '(pari-init pari-fini allocatemem))
-(c-lines :init-always "init_for_clisp(4000000,500000);~%")
+(export '(pari-init pari-fini))
+(c-lines :init-always "init_for_clisp(8000000,500000);~%")
 (c-lines :fini "pari_close();~%")
 
 
@@ -417,9 +428,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN gtrans(GEN x);
 (pari-call-out matrix-transpose "gtrans" (x) "trans")
-;; GEN gscalmat(GEN x, long n);
-(pari-call-out scalar-matrix "gscalmat" (x (n long)) "?")
-;; GEN gscalsmat(long x, long n);
+;; GEN scalarmat(GEN x, long n);
+(pari-call-out scalar-matrix "scalarmat" (x (n long)) "?")
 ;; GEN gaddmat(GEN x, GEN y);
 ;; GEN gaddsmat(long s, GEN y);
 ;; GEN inverseimage(GEN mat, GEN y);
@@ -464,9 +474,9 @@ t.e., this is the memory size for the real return value in ulong words.")
   (x (varno long :in :none 0) (py (c-ptr pari-gen) :out :alloca)) "?")
 ;; GEN adj(GEN x);
 (pari-call-out adjoint-matrix "adj" (x))
-;; GEN caradj0(GEN x, long v);
-(pari-call-out characteristic-polynomial "caradj0"
-  (x (varno long :in :none 0)) "char")
+;; GEN charpoly0(GEN x, long v,long flag);
+(pari-call-out characteristic-polynomial "charpoly0"
+  (x (varno long :in :none 0) (flag long :in :none 5)))
 ;; GEN gtrace(GEN x);
 (pari-call-out pari-trace "gtrace" (x))
 ;; GEN quicktrace(GEN x,GEN sym);
@@ -486,10 +496,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN concat(GEN x, GEN y);
 (pari-call-out pari-concatenate "concat" (x y))
 
-;; GEN extract(GEN x, GEN l);
-(pari-call-out vector-extract "extract" (x l))
-;; GEN matextract(GEN x, GEN l1, GEN l2);
-(pari-call-out matrix-extract "matextract" (x l1 l2))
+;; GEN diagonal(GEN x);
+(pari-call-out diagonal "diagonal" (x))
+;; GEN extract0(GEN x, GEN l1, GEN l2);
+(pari-call-out matrix-extract "extract0" (x l1 l2))
+(sys::deprecate 'vector-extract 'matrix-extract
+                (lambda (x l) (matrix-extract x l nil)))
 ;; GEN gtomat(GEN x);
 (pari-call-out convert-to-matrix "gtomat" (x) "mat")
 ;; GEN invmulmat(GEN a, GEN b);
@@ -498,29 +510,25 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN invmatreel(GEN a);
 ;;(pari-call-out matrix-invert-inexact "invmatreel" (a) "matinvr")
 
-;; GEN sqred(GEN a);
-(pari-call-out symmetric-matrix-sqred "sqred" (a))
-;; GEN sqred1(GEN a);
-;; GEN sqred2(GEN a, long flg);
-;; GEN sqred3(GEN a);
-;; GEN signat(GEN a);
-(pari-call-out symmetric-matrix-signature "signat" (a))
+;; GEN qfgaussred(GEN a);
+(pari-call-out symmetric-matrix-sqred "qfgaussred" (a))
+;; GEN qfsign(GEN a);
+(pari-call-out symmetric-matrix-signature "qfsign" (a))
 ;; GEN jacobi(GEN a, long prec);
 (pari-call-out-prec symmetric-matrix-eigenstuff "jacobi" (a))
-;; GEN matrixqz(GEN x, GEN pp);
-(pari-call-out matrix-qz "matrixqz" (x pp))
-;; GEN matrixqz2(GEN x);
-(pari-call-out matrix-qz2 "matrixqz2" (x))
-;; GEN matrixqz3(GEN x);
-(pari-call-out matrix-qz3 "matrixqz3" (x))
+;; GEN matrixqz0(GEN x, GEN pp);
+(pari-call-out matrix-qz "matrixqz0" (x pp))
+;; GEN QM_minors_coprime(GEN x, GEN pp);
+(pari-call-out QM-minors-coprime "QM_minors_coprime" (x pp))
+;; GEN QM_ImZ_hnf(GEN x);
+(pari-call-out QM-ImZ-hnf "QM_ImZ_hnf" (x))
+;; GEN QM_ImQ_hnf(GEN x);
+(pari-call-out QM-ImQ-hnf "QM_ImQ_hnf" (x))
 
 ;; GEN indexrank(GEN x);
 (pari-call-out matrix-indexrank "indexrank" (x))
-;; GEN kerint(GEN x);
-(pari-call-out matrix-kernel-integral-reduced "kerint" (x))
-;; GEN kerint1(GEN x);
-(pari-call-out matrix-kernel-integral-reduced-1 "kerint1" (x))
-;; GEN kerint2(GEN x);
+;; GEN matkerint0(GEN x,long flag);
+(pari-call-out matrix-kernel-integral-reduced "matkerint0" (x (flag long)))
 ;; GEN intersect(GEN x, GEN y);
 (pari-call-out matrix-subspace-intersection "intersect" (x y))
 ;; GEN deplin(GEN x);
@@ -552,8 +560,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;;; /* arith.c */
 
-;; GEN racine(GEN a);
-(pari-call-out pari-isqrt "racine" (a) "isqrt")
+;; GEN sqrtint(GEN a);
+(pari-call-out pari-isqrt "sqrtint" (a) "isqrt")
 ;; GEN mpfact(long n);
 (pari-call-out factorial-integer "mpfact" ((n long)) "!")
 ;; GEN mpfactr(long n, long prec);
@@ -591,14 +599,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN primes(long n);
 (pari-call-out first-n-primes "primes" ((n long)))
-;; GEN phi(GEN n);
-(pari-call-out euler-phi "phi" (n))
+;; GEN eulerphi(GEN n);
+(pari-call-out euler-phi "eulerphi" (n))
 ;; GEN Z_factor(GEN n);
 ;; GEN auxdecomp(GEN n, long all);
-;; GEN smallfact(GEN n);
-(pari-call-out factor-small "smallfact" (n))
-;; GEN boundfact(GEN n, long lim);
-(pari-call-out factor-bounded "boundfact" (n (lim long)))
+;; GEN factor(GEN n, long lim);
+(pari-call-out factor-bounded "factor" (n (lim long)))
 
 ;; GEN sumdiv(GEN n);
 (pari-call-out sum-divisors "sumdiv" (n) "sigma")
@@ -610,8 +616,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out binaire "binaire" (x) "binaire")
 ;; GEN order(GEN x);
 (pari-call-out order "order" (x))
-;; GEN gener(GEN m);
-(pari-call-out primitive-root "gener" (m) "primroot")
+;; GEN znprimroot(GEN m);
+(pari-call-out primitive-root "znprimroot" (m) "primroot")
 ;; GEN znstar(GEN x);
 (pari-call-out structure-of-z/n* "znstar" (x))
 ;; GEN divisors(GEN n);
@@ -621,24 +627,23 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out quadratic-class-number "classno" (x))
 ;; GEN classno2(GEN x);
 ;; GEN hclassno(GEN x);
-;; GEN fundunit(GEN x);
-(pari-call-out quadratic-unit "fundunit" (x) "unit")
-;; GEN regula(GEN x, long prec);
-(pari-call-out-prec quadratic-regulator "regula" (x))
+;; GEN quadunit(GEN x);
+(pari-call-out quadratic-unit "quadunit" (x) "unit")
+;; GEN quadregulator(GEN x, long prec);
+(pari-call-out-prec quadratic-regulator "quadregulator" (x))
 
-;; GEN compimag(GEN x, GEN y);
-(pari-call-out compose-imag-qf "compimag" (x y))
 ;; GEN qfi(GEN x, GEN y, GEN z);
 (pari-call-out make-imag-qf "qfi" (x y z))
+;; GEN qficomp(GEN x, GEN y);
+(pari-call-out compose-imag-qf "qficomp" (x y))
+;; GEN redimag(GEN x);
+(pari-call-out reduce-imag-qf "redimag" (x))
 ;; GEN qfr(GEN x, GEN y, GEN z, GEN d);
 (pari-call-out make-real-qf "qfr" (x y z d))
-;; GEN compreal(GEN x, GEN y);
+;; GEN qfrcomp(GEN x, GEN y);
+(pari-call-out compose-real-qf "qfrcomp" (x y))
 ;; GEN redreal(GEN x);
 (pari-call-out reduce-real-qf "redreal" (x))
-;; GEN sqcompreal(GEN x);
-(pari-call-out qfr-composition "sqcompreal" (x))
-;; GEN sqcompimag(GEN x);
-(pari-call-out qfi-composition "sqcompimag" (x))
 
 ;; GEN rhoreal(GEN x);
 (pari-call-out reduce-real-qf-one-step "rhoreal" (x))
@@ -646,8 +651,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out reduce-real-qf-no-d-one-step "rhorealnod" (x isqrtD))
 ;; GEN redrealnod(GEN x, GEN isqrtD);
 (pari-call-out reduce-real-qf-no-d "redrealnod" (x isqrtD))
-;; GEN redimag(GEN x);
-(pari-call-out reduce-imag-qf "redimag" (x))
 
 ;; GEN primeform(GEN x, GEN p, long prec);
 (pari-call-out-prec prime-form "primeform" (x p) "pf")
@@ -659,30 +662,24 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN nupow(GEN x, GEN n);
 (pari-call-out shanks-power-imag-qf "nupow" (x n))
 
-;; GEN comprealraw(GEN x, GEN y);
-(pari-call-out compose-real-qf-raw "comprealraw" (x y))
-;; GEN powrealraw(GEN x, long n, long prec);
-(pari-call-out-prec power-real-qf-raw "powrealraw" (x (n long)))
+;; GEN qfbpowraw(GEN x, long n);
+(pari-call-out power-real-qf-raw "qfbpowraw" (x (n long)))
 
 ;; GEN gkronecker(GEN x, GEN y);
 ;; GEN gkrogs(GEN x, long y);
 ;; GEN gissquare(GEN x);
-(pari-call-out (square? pari-bool) "gissquare" (x) "issquare")
+(pari-call-out (gsquare? pari-bool) "gissquare" (x) "issquare")
+;; long issquare(GEN x);
+(pari-call-out (square? boolean) "issquare" (x))
 ;; GEN gissquarerem(GEN x, GEN *pt);
 
 ;; GEN gisprime(GEN x, long flag);
 (pari-call-out (prime? pari-bool) "gisprime" (x (flag long)) "isprime")
-;; GEN gispseudoprime(GEN x);
+;; GEN gispseudoprime(GEN x);z,
 (pari-call-out (pseudo-prime? pari-bool) "gispseudoprime" (x (flag long)) "ispsp")
-;; GEN gissquarefree(GEN x);
-(pari-call-out (square-free? pari-bool) "gissquarefree" (x) "issqfree")
-;; GEN gisfundamental(GEN x);
-(pari-call-out (fundamental-discriminant? pari-bool) "gisfundamental"
-  (x) "isfund")
 ;; GEN gbittest(GEN x, GEN n);
 
 ;; GEN gpseudopremier(GEN n, GEN a);
-;; GEN gmillerrabin(GEN n, long k);
 ;; GEN gmu(GEN n);
 
 ;; GEN gomega(GEN n);
@@ -695,14 +692,14 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN kross(long x, long y);
 ;; GEN kro8(GEN x, GEN y);
 
-;; long mu(GEN n);
-(pari-call-out (moebius-mu long) "mu" (n))
+;; long moebius(GEN n);
+(pari-call-out (moebius-mu long) "moebius" (n))
 ;; long omega(GEN n);
 (pari-call-out (omega long) "omega" (n))
 ;; long bigomega(GEN n);
 (pari-call-out (bigomega long) "bigomega" (n))
-;; GEN hil(GEN x, GEN y, GEN p);
-(pari-call-out (hilbert-symbol long) "hil" (x y p) "hil")
+;; GEN hilbert(GEN x, GEN y, GEN p);
+(pari-call-out (hilbert-symbol long) "hilbert" (x y p) "hilbert symbol")
 
 ;; int carreparfait(GEN x);
 ;; GEN carrecomplet(GEN x, GEN *pt);
@@ -710,7 +707,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; long isprime(GEN x);
 ;; GEN ispsp(GEN x);
-;; GEN issquarefree(GEN x);
+;; long issquarefree(GEN x);
+(pari-call-out (square-free? boolean) "issquarefree" (x))
 ;; GEN isfundamental(GEN x);
 ;; GEN Fp_sqrt(GEN a, GEN p, GEN *pr);
 
@@ -727,16 +725,10 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;;; /* base.c */
 
-;; GEN base(GEN x, GEN *y);
-(pari-call-out nf-basis "base" (x (y (c-ptr pari-gen) :out :alloca)) "basis")
-;; GEN smallbase(GEN x, GEN *y);
-(pari-call-out nf-basis-small "smallbase"
-  (x (y (c-ptr pari-gen) :out :alloca)) "smallbasis")
-;; GEN discf(GEN x);
-(pari-call-out nf-field-discriminant "discf" (x))
-;; GEN smalldiscf(GEN x);
-(pari-call-out nf-field-discriminant-small "smalldiscf" (x))
-;; GEN discf2(GEN x);
+;; GEN nfbasis(GEN x, GEN *y, GEN p);
+(pari-call-out nf-basis "nfbasis" (x (y (c-ptr pari-gen) :out :alloca) p) "basis")
+;; GEN nfdisc(GEN x);
+(pari-call-out nf-field-discriminant "nfdisc" (x))
 
 ;; GEN hnf(GEN x);
 (pari-call-out matrix-to-hnf "hnf" (x) "hermite")
@@ -754,18 +746,15 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN smith2(GEN x);
 (pari-call-out matrix-elementary-divisors-transforms "smith2" (x))
 
-;; GEN factoredbase(GEN x, GEN p, GEN *y);
-(pari-call-out nf-basis-factored "factoredbase"
-  (x p (y (c-ptr pari-gen) :out :alloca)) "factoredbasis")
-;; GEN factoreddiscf(GEN x, GEN p);
-(pari-call-out nf-field-discriminant-factored "factoreddiscf" (x p))
 ;; GEN allbase(GEN x, long code, GEN *y);
-;; GEN galois(GEN x, long prec);
-(pari-call-out-prec nf-galois-group "galois" (x))
-;; GEN initalg(GEN x, long prec);
-(pari-call-out-prec nf-initalg "initalg" (x))
-;; GEN initalgred(GEN x, long prec);
-(pari-call-out-prec nf-initalg-reduced "initalgred" (x))
+;; GEN galois_group(GEN gal);
+(pari-call-out nf-galois-group "galois_group" (gal))
+;; GEN nfinit(GEN x, long prec);
+(pari-call-out-prec nf-init "nfinit" (x))
+;; GEN nfinitred(GEN x, long prec);
+(pari-call-out-prec nf-init-reduced "nfinitred" (x))
+;; GEN nfinitred2(GEN x, long prec);
+(pari-call-out-prec nf-init-reduced-2 "nfinitred2" (x))
 
 ;; GEN tschirnhaus(GEN x);
 (pari-call-out nf-tschirnhausen-transformation "tschirnhaus" (x))
@@ -775,15 +764,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out-prec nf-galois-conjugates "galoisconj" (nf))
 ;; GEN galoisconj0(GEN nf, long flag, GEN d, long prec);
 (pari-call-out-prec nf-galois-conjugates-0 "galoisconj0" (nf (flag long) d))
-;; GEN galoisconj2(GEN x, long nbmax, long prec);
-(pari-call-out-prec nf-galois-conjugates-2 "galoisconj2" (nf (nbmax long)))
-;; GEN galoisconj4(GEN T, GEN den, long flag, long karma);
-(pari-call-out nf-galois-conjugates-4 "galoisconj4"
-  (x den (flag long) (karma long)))
-(pari-call-out-prec nf-initalg-reduced-2 "initalgred2" (x))
 
-;; GEN primedec(GEN nf,GEN p);
-(pari-call-out nf-prime-decomposition "primedec" (nf p))
+;; GEN idealprimedec(GEN nf,GEN p);
+(pari-call-out nf-prime-decomposition "idealprimedec" (nf p))
 ;; GEN idealmul(GEN nf,GEN ix,GEN iy);
 (pari-call-out ideal-multiply "idealmul" (nf ix iy))
 ;; GEN idealmulred(GEN nf, GEN ix, GEN iy, long prec);
@@ -811,12 +794,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN ideallllredpart2(GEN nf,GEN arch,GEN z,long prec);
 
-;; GEN element_mul(GEN nf,GEN x,GEN y);
-(pari-call-out nf-element-multiply "element_mul" (nf x y) "nfmul")
-;; GEN element_sqr(GEN nf,GEN x);
-;; GEN element_pow(GEN nf,GEN x,GEN k);
-(pari-call-out nf-element-power "element_pow" (nf x k) "nfpow")
-;; GEN element_mulvec(GEN nf, GEN x, GEN v);
+;; GEN nfmul(GEN nf,GEN x,GEN y);
+(pari-call-out nf-element-multiply "nfmul" (nf x y) "nfmul")
+;; GEN nfsqr(GEN nf,GEN x);
+(pari-call-out nf-element-sqr "nfsqr" (nf x) "nfsqr")
+;; GEN nfpow(GEN nf,GEN x,GEN k);
+(pari-call-out nf-element-power "nfpow" (nf x k) "nfpow")
 
 ;; GEN rootsof1(GEN x);
 (pari-call-out nf-roots-of-unity "rootsof1" (x))
@@ -848,11 +831,7 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN idealintersect(GEN nf, GEN x, GEN y);
 (pari-call-out ideal-intersection "idealintersect" (nf x y))
-;; GEN principalideal(GEN nf, GEN a);
-(pari-call-out nf-principal-ideal "principalideal" (nf a))
 
-;; GEN principalidele(GEN nf, GEN a);
-(pari-call-out nf-principal-idele "principalidele" (nf a))
 ;; GEN idealdivexact(GEN nf, GEN x, GEN y);
 (pari-call-out ideal-divide-exact "idealdivexact" (nf x y))
 ;; GEN idealnorm(GEN nf, GEN x);
@@ -883,12 +862,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out nf-alg-to-basis "algtobasis" (nf x))
 
 ;; GEN weakhermite(GEN nf, GEN x);
-;; GEN nfhermite(GEN nf, GEN x);
-(pari-call-out nf-pseudo-to-hnf "nfhermite" (nf x))
-;; GEN nfhermitemod(GEN nf, GEN x, GEN detmat);
-(pari-call-out nf-pseudo-to-hnf-mod "nfhermitemod" (nf x detmat))
-;; GEN nfsmith(GEN nf, GEN x);
-(pari-call-out nf-smith-normal-form "nfsmith" (nf x))
+;; GEN nfhnf(GEN nf, GEN x);
+(pari-call-out nf-pseudo-to-hnf "nfhnf" (nf x))
+;; GEN nfhnfmod(GEN nf, GEN x, GEN detmat);
+(pari-call-out nf-pseudo-to-hnf-mod "nfhnfmod" (nf x detmat))
+;; GEN nfsnf(GEN nf, GEN x);
+(pari-call-out nf-smith-normal-form "nfsnf" (nf x))
 
 ;; GEN nfdiveuc(GEN nf, GEN a, GEN b);
 (pari-call-out nf-element-euclidean-divide "nfdiveuc" (nf a b))
@@ -896,15 +875,16 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out nf-element-euclidean-divmod "nfdivrem" (nf a b))
 ;; GEN nfmod(GEN nf, GEN a, GEN b);
 (pari-call-out nf-element-mod "nfmod" (nf a b))
-;; GEN element_div(GEN nf, GEN x, GEN y);
-(pari-call-out nf-element-divide "element_div" (nf x y) "nfdiv")
-;; GEN element_inv(GEN nf, GEN x);
+;; GEN nfdiv(GEN nf, GEN x, GEN y);
+(pari-call-out nf-element-divide "nfdiv" (nf x y) "nfdiv")
+;; GEN nfinv(GEN nf, GEN x);
+(pari-call-out nf-element-inverse "nfinv" (nf x) "nfinv")
 
 ;; GEN nfdetint(GEN nf,GEN pseudo);
 (pari-call-out nf-determinant-multiple "nfdetint" (nf pseudo))
 
-;; GEN element_reduce(GEN nf, GEN x, GEN ideal);
-(pari-call-out nf-element-mod-ideal "element_reduce" (nf x ideal) "nfreduce")
+;; GEN nfreduce(GEN nf, GEN x, GEN ideal);
+(pari-call-out nf-element-mod-ideal "nfreduce" (nf x ideal) "nfreduce")
 
 ;; GEN checknf(GEN nf);
 ;; GEN differente(GEN nf, GEN premiers);
@@ -914,9 +894,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN isideal(GEN nf,GEN x);
 (pari-call-out (nf-ideal? boolean) "isideal" (nf x))
 
-;; long element_val(GEN nf, GEN x, GEN vp);
-(pari-call-out (nf-element-valuation long) "element_val" (nf x vp) "nfval")
-;; GEN element_val2(GEN nf, GEN x, GEN d, GEN vp);
+;; long nfval(GEN nf, GEN x, GEN vp);
+(pari-call-out (nf-element-valuation long) "nfval" (nf x vp) "nfval")
 
 ;; long    rnfisfree(GEN bnf, GEN order);
 (pari-call-out (rnf-free? boolean) "rnfisfree" (bnf order))
@@ -947,14 +926,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN compositum(GEN pol1, GEN pol2);
 (pari-call-out nf-compositum "compositum" (pol1 pol2))
 
-;; GEN initzeta(GEN pol, long prec);
-(pari-call-out-prec nf-initzeta "initzeta" (pol))
-;; GEN gzetak(GEN nfz, GEN s, long prec);
-(pari-call-out-prec nf-zeta-value "gzetak" (nfz s (flag long)) "zetak")
-;; GEN glambdak(GEN nfz, GEN s, long prec);
-(pari-call-out-prec nf-lambda-value "glambdak" (nfz s) "lambdak")
-;; GEN gzetakall(GEN nfz, GEN s, long flag, long prec);
-
 ;; GEN nfreducemodpr(GEN nf, GEN x, GEN prhall);
 ;; GEN element_divmodpr(GEN nf, GEN x, GEN y, GEN prhall);
 ;; GEN element_powmodpr(GEN nf, GEN x, GEN k, GEN prhall);
@@ -970,12 +941,12 @@ t.e., this is the memory size for the real return value in ulong words.")
   (x (varno long :in :none (get-varno x))
      (precdl long :in :none pari-series-precision))
   "taylor")
-;; GEN legendre(long n, long v);
-(pari-call-out legendre-polynomial "legendre"
-  ((n long) (varno long :in :none (get-varno n))))
-;; GEN tchebi(long n, long v);
-(pari-call-out tchebychev-polynomial "tchebi"
-  ((n long) (varno long :in :none (get-varno n))))
+;; GEN pollegendre(long n, long v);
+(pari-call-out legendre-polynomial "pollegendre"
+  ((n long) (varno long :in :none 0)))
+;; GEN polchebyshev(long n, long kind, long v);
+(pari-call-out chebyshev-polynomial "polchebyshev"
+  ((n long) (kind long :in :none 1) (varno long :in :none 0)))
 ;; GEN mathilbert(long n);
 (pari-call-out hilbert-matrix "mathilbert" ((n long)) "mathilbert")
 ;; GEN matqpascal(long n, GEN q);
@@ -1023,10 +994,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN binomial(GEN x, long k);
 (pari-call-out binomial-coefficient "binomial" (x (k long)))
 ;; GEN gscal(GEN x, GEN y);
-;; GEN cyclo(long n);
-(pari-call-out cyclotomic-polynomial "cyclo" ((n long)) "polcyclo")
-;; GEN vecsort(GEN x, GEN k);
-(pari-call-out vector-sort-key "vecsort" (x k))
+;; GEN polcyclo(long n);
+(pari-call-out cyclotomic-polynomial "polcyclo"
+  ((n long) (varno long :in :none (get-varno n))) "polcyclo")
 
 ;; GEN lindep(GEN x, long prec);
 (pari-call-out-prec vector-find-linear-dependence "lindep" (x))
@@ -1036,22 +1006,29 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN algdep(GEN x, long n, long prec);
 (pari-call-out-prec find-algebraic-dependence "algdep" (x (n long)))
 ;; GEN algdep2(GEN x, long n, long bit);
-;; GEN changevar(GEN x, GEN y);
-(pari-call-out change-variables "changevar" (x y))
-;; GEN ordred(GEN x, long prec);
-(pari-call-out-prec nf-ordred "ordred" (x))
+;; GEN gsubstvec(GEN x, GEN v, GEN y);
+(pari-call-out change-variables "gsubstvec" (x v y))
+;; GEN polredbest(GEN x, long flag);
+(pari-call-out polynomial-reduction "polredbest" (x (flag long)))
 
 ;; GEN polrecip(GEN x);
 (pari-call-out reciprocal-polynomial "polrecip" (x) "recip")
-;; GEN reorder(GEN x);
-(pari-call-out variable-order "reorder" (x))
+;; GEN variables_vecsmall(GEN x);
+(pari-call-out variable-numbers "variables_vecsmall" (x))
+;; GEN variables_vec(GEN x);
+(pari-call-out variables "variables_vec" (x))
 
-;; GEN sort(GEN x);
-(pari-call-out vector-sort "sort" (x))
-;; GEN lexsort(GEN x);
-(pari-call-out vector-lexsort "lexsort" (x))
-;; GEN indexsort(GEN x);
-(pari-call-out vector-index-sort "indexsort" (x) "indsort")
+;; GEN vecsort0(GEN x, GEN k, long flag);
+;; Flag:
+;; 1: indirect sorting, return the permutation instead of the permuted vector
+;; 2: use lexcmp instead of gcmp
+;; 4: use descending instead of ascending order
+;; 8: remove duplicate entries
+(pari-call-out vector-sort "vecsort0"
+  (x (cmpf pari-gen :in :none nil) (flag long :in :none 0)) "vecsort")
+
+;; GEN stirling(long n, long m, long flag);
+(pari-call-out stirling "stirling" ((n long) (m long) (flag long :in :none 1)))
 
 ;; GEN polsym(GEN x, long n);
 (pari-call-out symmetric-powers "polsym" (x (n long)))
@@ -1090,10 +1067,15 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN setserieslength(long n);
 ;(pari-call-out (set-series-precision long) "setserieslength" ((n long)))
 
-;; long setrand(long seed);
-(pari-call-out (set-random-seed long) "setrand" ((seed long)))
-;; long getrand(void);
-(pari-call-out (get-random-seed long) "getrand" ())
+;; void setrand(GEN seed);
+(pari-call-out (set-random-seed nil) "setrand" (seed))
+;; GEN getrand(void);
+(pari-call-out get-random-seed "getrand" ())
+;; GEN randomi(GEN x);
+(pari-call-out get-random-int "randomi" (x))
+;; GEN randomr(long prec);
+(pari-call-out-prec get-random-real "randomr" ())
+
 ;; long getstack(void);
 (pari-call-out (getstack long) "getstack" ())
 ;; long gettime(void);
@@ -1189,55 +1171,18 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;;; /* buch1.c et buch2.c */
 
-;; GEN buchimag(GEN D, GEN gcbach, GEN gcbach2, GEN gCO);
-(pari-call-out buchimag "buchimag" (d c c2 (co pari-gen :in :none 5)))
-
-;; GEN buchreal(GEN D, GEN gsens, GEN gcbach, GEN gcbach2, GEN gRELSUP, long prec);
-(pari-call-out-prec buchreal "buchreal"
-  (d narrow? c c2 (relsup pari-gen :in :none 5)))
-
-;; GEN buchall(GEN P, GEN gcbach, GEN gcbach2, GEN gRELSUP, GEN gborne, long nbrelpid, long minsfb, long flun, long prec);
-(pari-call-out-prec nf-buchall "buchall"
-   (p c c2 nrel borne (nrpid long) (minsfb long) (flun long)) nil)
-
-(defmacro def-buch-variant (name flun gp-name)
-  (let* ((pari-name (make-pari-name 'nf-buchall))
-         (type 'pari-gen)
-         (args `(p (c pari-gen :in :none 0.3) (c2 pari-gen :in :none c)
-                   (nrel pari-gen :in :none 5) (borne pari-gen :in :none 1)
-                   (nrpid long :in :none 4) (minsfb long :in :none 3)
-                   (flun long :in :none ,flun)
-                   (prec log :in :none pari-real-precision-words))))
-    `(progn
-       ,(make-defun name pari-name type args)
-       ,(make-documentation name gp-name args))))
-;; #define buchgen(P,gcbach,gcbach2,prec) buchall(P,gcbach,gcbach2,stoi(5);
-;; GEN gzero,4,3,0,prec)
-(def-buch-variant nf-buchgen 0 "buchgen")
-
-;; #define buchgenfu(P,gcbach,gcbach2,prec) buchall(P,gcbach,gcbach2,stoi(5);
-;; GEN gzero,4,3,2,prec)
-(def-buch-variant nf-buchgenfu 2 "buchgenfu")
-
-;; #define buchinit(P,gcbach,gcbach2,prec) buchall(P,gcbach,gcbach2,stoi(5);
-;; GEN gzero,4,3,-1,prec)
-(def-buch-variant nf-buchinit -1 "buchinit")
-
-;; #define buchinitfu(P,gcbach,gcbach2,prec) buchall(P,gcbach,gcbach2,stoi(5);
-;; GEN gzero,4,3,-2,prec)
-(def-buch-variant nf-buchinitfu -2 "buchinitfu")
+;; GEN Buchall(GEN P, long flag, long prec);
+(pari-call-out nf-buchall "Buchall" (p (flag long)) "Buchall")
 
 ;; GEN isprincipal(GEN bignf, GEN x);
-;; GEN isprincipalgen(GEN bignf, GEN x);
 (pari-call-out ideal-class "isprincipal" (bignf x))
+;; GEN isprincipalgen(GEN bignf, GEN x);
 (pari-call-out ideal-class-more "isprincipalgen" (bignf x))
 
 ;; GEN isunit(GEN bignf, GEN x);
 (pari-call-out nf-unit-in-basis "isunit" (bnf x))
 ;; GEN signunits(GEN bignf);
 (pari-call-out nf-unit-signs "signunits" (bignf))
-;; GEN buchfu(GEN bignf);
-(pari-call-out nf-buchfu "buchfu" (bignf))
 ;; GEN buchnarrow(GEN bignf);
 (pari-call-out nf-buchnarrow "buchnarrow" (bignf))
 
@@ -1251,17 +1196,14 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN ghell2(GEN e, GEN a, long prec);
 ;; GEN ghell3(GEN e, GEN a, long prec);
 
-;; GEN initell(GEN x, long prec);
-(pari-call-out-prec ell-init "initell" (x))
-;; GEN initell2(GEN x, long prec);
-;; GEN smallinitell(GEN x);
-(pari-call-out ell-init-small "smallinitell" (x))
+;; GEN ellinit(GEN x, long prec);
+(pari-call-out-prec ell-init "ellinit" (x))
 ;; GEN zell(GEN e, GEN z, long prec);
 (pari-call-out-prec ell-xy-to-z "zell" (e z))
-;; GEN coordch(GEN e, GEN ch);
-(pari-call-out ell-change-coordinates "coordch" (e ch) "chell")
-;; GEN pointch(GEN x, GEN ch);
-(pari-call-out ell-change-point-coordinates "pointch" (x ch) "chptell")
+;; GEN ellchangecurve(GEN e, GEN ch);
+(pari-call-out ell-change-coordinates "ellchangecurve" (e ch) "ellchangecurve")
+;; GEN ellchangepoint(GEN x, GEN ch);
+(pari-call-out ell-change-point-coordinates "ellchangepoint" (x ch) "ellchangepoint")
 
 ;; GEN addell(GEN e, GEN z1, GEN z2);
 (pari-call-out ell-add "addell" (e z1 z2))
@@ -1275,12 +1217,10 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN bilhell(GEN e, GEN z1, GEN z2, long prec);
 (pari-call-out-prec ell-height-pairing "bilhell" (e z1 z2))
 
-;; GEN ordell(GEN e, GEN x, long prec);
-(pari-call-out-prec ell-y-coordinates "ordell" (e x))
-;; GEN apell(GEN e, GEN pl);
-(pari-call-out ell-l-series-p "apell" (e p))
-;; GEN apell1(GEN e, GEN p);
-;; GEN apell2(GEN e, GEN p);
+;; GEN ellordinate(GEN e, GEN x, long prec);
+(pari-call-out-prec ell-y-coordinates "ellordinate" (e x))
+;; GEN ellap(GEN e, GEN pl);
+(pari-call-out ell-l-series-p "ellap" (e p))
 
 ;; GEN anell(GEN e, long n);
 (pari-call-out ell-l-series "anell" (e (n long)))
@@ -1302,8 +1242,8 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN orderell(GEN e, GEN p);
 (pari-call-out ell-order "orderell" (e p))
-;; GEN torsell(GEN e);
-(pari-call-out ell-torsion-group "torsell" (e))
+;; GEN elltors(GEN e);
+(pari-call-out ell-torsion-group "elltors" (e))
 
 ;; int oncurve(GEN e, GEN z);
 (pari-call-out (ell-on-curve? boolean) "oncurve" (e z) "isoncurve")
@@ -1331,8 +1271,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; void pariflush(void);
 ;; #endif /* CLISP_MODULE */
 
-;; char* GENtostr(GEN x);
-(pari-call-out (write-to-string c-string :malloc-free) "GENtostr" (x) nil)
+;; char* GENtostr(GEN x); --- uses f_PRETTYMAT, cannot be read back
+(pari-call-out (write-to-string-pretty c-string :malloc-free) "GENtostr" (x) nil)
+;; char* GENtostr_raw(GEN x);
+(pari-call-out (write-to-string c-string :none) "GENtostr_raw" (x) nil)
+;; char* GENtoTeXstr(GEN x);
+(pari-call-out (write-to-string-TeX c-string :malloc-free) "GENtoTeXstr" (x) nil)
 
 ;; void fprintferr(char* pat, ...);
 ;; void flusherr();
@@ -1459,10 +1403,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN gne(GEN x, GEN y);
 (pari-call-out (pari/= pari-bool) "gne" (x y) "!=")
 
-;; GEN gand(GEN x, GEN y);
-(pari-call-out (pari-and pari-bool) "gand" (x y) "&&")
-;; GEN gor(GEN x, GEN y);
-(pari-call-out (pari-or pari-bool) "gor" (x y) "||")
 ;; GEN glength(GEN x);
 (pari-call-out pari-length "glength" (x) "length")
 ;; GEN matsize(GEN x);
@@ -1474,12 +1414,13 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN gtopoly(GEN x, long v);
 (pari-call-out convert-to-polynomial-reverse "gtopoly"
-  (x (varno long :in :none 0)) "poly")
+  (x (varno long :in :none (get-varno x))) "poly")
 ;; GEN gtopolyrev(GEN x, long v);
 (pari-call-out convert-to-polynomial "gtopolyrev"
-  (x (varno long :in :none 0)) "polyrev")
+  (x (varno long :in :none (get-varno x))) "polyrev")
 ;; GEN gtoser(GEN x, long v);
-(pari-call-out convert-to-pws "gtoser" (x (varno long :in :none 0)) "series")
+(pari-call-out convert-to-pws "gtoser"
+  (x (varno long :in :none (get-varno x))) "series")
 ;; GEN gtovec(GEN x);
 (pari-call-out convert-to-vector "gtovec" (x) "vec")
 ;; GEN dbltor(double x);
@@ -1514,9 +1455,9 @@ t.e., this is the memory size for the real return value in ulong words.")
 (pari-call-out (one? boolean) "gcmp1" (x) "?")
 ;; GEN gcmp_1(GEN x);
 (pari-call-out (minus-one? boolean) "gcmp_1" (x) "?")
-;; GEN gcmp(GEN x, GEN y);
+;; int gcmp(GEN x, GEN y);
 (pari-call-out (compare boolean) "gcmp" (x y) "?")
-;; GEN lexcmp(GEN x, GEN y);
+;; int lexcmp(GEN x, GEN y);
 (pari-call-out (compare-lex boolean) "lexcmp" (x y) "lex")
 ;; GEN gequal(GEN x, GEN y);
 (pari-call-out (equal? boolean) "gequal" (x y) "==")
@@ -1525,30 +1466,32 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; int gsigne(GEN x);
 (pari-call-out (pari-sign int) "gsigne" (x) "sign")
 
-;; int gvar(GEN x);
-(pari-call-out (varno int) "gvar" (x) "?")
-;; GEN gvar2(GEN x);
-;; GEN tdeg(GEN x);
+;; long gvar(GEN x);
+(pari-call-out (varno long) "gvar" (x) "?")
+;; long gvar2(GEN x);
 ;; long precision(GEN x);
 (pari-call-out (precision long) "precision" (x))
 ;; GEN gprecision(GEN x);
 ;; GEN ismonome(GEN x);
 ;; GEN iscomplex(GEN x);
-;; GEN isexactzero(GEN g);
+;; int isexactzero(GEN g);
 (pari-call-out (eql-0? boolean) "isexactzero" (g))
+;; INLINE int is_bigint(GEN n);
+(pari-call-out (bigint? boolean) "is_bigint" (n))
 
 (defun get-varno (x)
   (let ((vn (%varno (convert-to-pari x))))
-    (if (= vn BIGINT) 0 vn)))
+    (if (bigint? vn) 0 vn)))
 
 ;; long padicprec(GEN x, GEN p);
 (pari-call-out (get-padic-precision long) "padicprec" (x p))
 
 ;; long opgs2(int (*f) (GEN, GEN), GEN y, long s);
 
-;; long taille(GEN x);
-;; GEN taille2(GEN x);
-(pari-call-out (pari-bytesize long) "taille2" (x) "bytesize")
+;; long gsizeword(GEN x);
+(pari-call-out (sizeword long) "gsizeword" (x) "?")
+;; long gsizebyte(GEN x);
+(pari-call-out (sizebyte long) "gsizebyte" (x) "sizebyte")
 ;; GEN gexpo(GEN x);
 ;; GEN gtolong(GEN x);
 ;; GEN ggval(GEN x, GEN p);
@@ -1612,24 +1555,19 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN decpol(GEN x, long klim);
 ;; GEN factor(GEN x);
 (pari-call-out factor "factor" (x))
-;; GEN gisirreducible(GEN x);
-(pari-call-out (irreducible? pari-bool) "gisirreducible" (x) "isirreducible")
+;; long isirreducible(GEN x);
+(pari-call-out (irreducible? boolean) "isirreducible" (x))
 
-;; GEN factpol(GEN x, long klim, long hint);
-(pari-call-out factor-poly-hensel "factpol" (x (klim long) (hint long)))
-;; GEN factpol2(GEN x, long klim);
-;;(pari-call-out factor-poly-complex "factpol2" (x (klim long)) "?")
 ;; GEN simplefactmod(GEN f, GEN p);
 (pari-call-out factor-degrees "simplefactmod" (f p))
 ;; GEN factcantor(GEN x, GEN p);
 (pari-call-out factor-cantor-zassenhaus "factcantor" (x p))
 
-;; GEN subres(GEN x, GEN y);
-(c-lines "GEN subres0 (GEN x, GEN y);~%") ; prototype
-(c-lines "GEN subres0 (GEN x, GEN y) { return subres(x,y); }~%")
-(pari-call-out resultant "subres0" (x y) "resultant")
-;; GEN discsr(GEN x);
-(pari-call-out discriminant "discsr" (x) "disc")
+;; GEN poldisc0(GEN x, long v);
+(pari-call-out discriminant "poldisc0"
+  (x (varno long :in :none (get-varno x))) "poldisc")
+;; GEN resultant(GEN x, GEN y);
+(pari-call-out resultant "resultant" (x y) "resultant")
 ;; GEN quadpoly(GEN x);
 (pari-call-out quad-minimal-polynomial "quadpoly" (x))
 ;; GEN quadgen(GEN x);
@@ -1667,7 +1605,6 @@ t.e., this is the memory size for the real return value in ulong words.")
   (x p (prec long)) "factorpadic")
 ;; GEN nilordpadic(GEN p,long r,GEN fx,long mf,GEN gx);
 ;; GEN Decomppadic(GEN p,long r,GEN f,long mf,GEN theta,GEN chi,GEN nu);
-;; GEN squarefree(GEN f);
 
 ;; long sturmpart(GEN x, GEN a, GEN b);
 (pari-call-out (count-real-roots-between long) "sturmpart" (x a b))
@@ -1685,7 +1622,7 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; int issimplefield(GEN x);
 ;; GEN isinexactfield(GEN x);
 
-;;; /* trans.c */
+;;; /* trans1.c */
 
 ;; GEN greal(GEN x);
 (pari-call-out pari-realpart "greal" (x) "real")
@@ -1701,18 +1638,21 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; GEN gsqrt(GEN x, long prec);
 (pari-call-out-prec pari-sqrt "gsqrt" (x) "sqrt")
 
+;; GEN mpeuler(long prec);
+(pari-call-out-prec pari-euler "mpeuler" () "euler")
+
+;; GEN mpcatalan(long prec);
+(pari-call-out-prec pari-catalan "mpcatalan" () "catalan")
+
 ;; GEN gexp(GEN x, long prec);
 (pari-call-out-prec pari-exp "gexp" (x) "exp")
+
+;; GEN mpexpm1(GEN x);
+;; GEN mpexp(GEN x);
 
 ;; GEN mplog(GEN x);
 ;; GEN glog(GEN x, long prec);
 (pari-call-out-prec pari-log "glog" (x) "log")
-
-;; GEN mpexp1(GEN x);
-;; GEN mpexp(GEN x);
-
-;; GEN mplog(GEN q);
-;; GEN glog(GEN x, long prec);
 
 ;; GEN mpsc1(GEN x, long *ptmod8);
 ;; GEN mpcos(GEN x);
@@ -1813,17 +1753,12 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN mpeuler(long prec);
 (pari-call-out-prec euler "mpeuler" () "euler")
-;; GEN polylog(long m, GEN x, long prec);
+;; GEN gpolylog(long m, GEN x, long prec);
 (pari-call-out-prec polylog "gpolylog" ((m long) x) "polylog")
 ;; GEN dilog(GEN x, long prec);
 (pari-call-out-prec dilog "dilog" (x))
-;; GEN polylogd(long m, GEN x, long prec);
-(pari-call-out-prec polylog-d "polylogd" ((m long) x))
-;; GEN polylogdold(long m, GEN x, long prec);
-(pari-call-out-prec polylog-d-old "polylogdold" ((m long) x))
-;; GEN polylogp(long m, GEN x, long prec);
-(pari-call-out-prec polylog-p "polylogp" ((m long) x))
-;; GEN gpolylog(long m, GEN x, long prec);
+;; GEN polylog0(long m, GEN x, long flag, long prec);
+(pari-call-out-prec polylog0 "polylog0" ((m long) x (flag long)))
 
 ;; GEN theta(GEN q, GEN z, long prec);
 ;; GEN thetanullk(GEN q, long k, long prec);
@@ -1871,6 +1806,22 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; GEN gerepilc(GEN l, GEN p, GEN q);
 ;; void gerepilemany(long ltop, GEN* const gptr[], long nptr);
+
+;;; /* pariinl.h */
+
+;; INLINE GEN bnf_get_fu(GEN bnf);
+(pari-call-out bnf-get-fu "bnf_get_fu" (bnf))
+
+;; INLINE GEN gen_I(void);
+(pari-call-out pari-I "gen_I" () "complex i")
+
+;; INLINE GEN pol_0(long v);
+(pari-call-out pari-poly-0 "pol_0" ((v long)))
+;; INLINE GEN pol_1(long v);
+(pari-call-out pari-poly-1 "pol_1" ((v long)))
+;; INLINE GEN pol_x(long v);
+(pari-call-out pari-poly-x "pol_x" ((v long)))
+
 
 ;;; mpdefs.h
 
@@ -2005,7 +1956,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   (:return-type pari-gen)
   (:arguments (x long) (y long)))
 
-;;; /* mp.c ou mp.s */
+;;; /* mp.c */
 
 ;; GEN gerepile(long l, long p, GEN q);
 ;; GEN icopy(GEN x);
@@ -2024,7 +1975,8 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defun pari-make-object (vec typecode)
   (let* ((len (length vec)) (obj (pari-cgetg (1+ len) typecode)))
     (setf (memory-as obj (parse-c-type `(c-array ulong ,len))
-                     #,(sizeof 'c-pointer)) vec)
+                     #,(sizeof 'c-pointer))
+          vec)
     obj))
 
 ;;; Define some CLISP analogs for pari types
@@ -2110,6 +2062,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defmethod convert-to-pari ((x (eql -1)))
   pari--1)
 
+(defmethod convert-to-pari ((x (eql -2)))
+  pari--2)
+
 (defun extract-mantissa (vec len val)
   (do ((i len (1- i))
        (y val (ash y #,(- (bitsizeof 'ulong)))))
@@ -2193,7 +2148,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (define-pari-class pari-complex (realpart imagpart))
 
 (defmethod convert-to-pari ((x (eql #C(0 1))))
-  pari-i)
+  (pari::%pari-I))
 
 (defmethod convert-to-pari ((x complex))
   (let ((obj (pari-cgetg 3 COMPLEX)))
@@ -2304,28 +2259,36 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 (define-pari QFI pari-imag-qf (a b c))
 
-;; VEC=17, COL=18: (row and column) vectors -- represented by CLISP vectors
+;; VEC=17, COL=18, VECSMALL=22: vectors -- represented by CLISP vectors
 ;; #(:row v1 v2 ... vn) <---> row vector
 ;; #(:col v1 v2 ... vn) <---> column vector
-;; #(v1 v2 ... vn)       ---> row vector
+;; #(v1 v2 ... vn)      <---> vector of small (long) integers
 (defmethod convert-to-pari ((x vector))
-  (let (shift typecode)
-    (case (or (zerop (length x)) (svref x 0))
-      (:row (setq shift 0 typecode VEC))
-      (:col (setq shift 0 typecode COL))
-      (t (setq shift 1 typecode VEC)))
-    (do* ((length (length x)) (obj (pari-cgetg (+ length shift) typecode))
-          (i (- 1 shift) (1+ i)))
-         ((= i length) obj)
-      (pari-set-component obj (+ i shift) (convert-to-pari (svref x i))))))
+  (let* ((len (length x)) (vecsmall-p nil)
+         (obj (case (or (zerop len) (svref x 0))
+                (:row (pari-cgetg len VEC))
+                (:col (pari-cgetg len COL))
+                (t (setq vecsmall-p t)
+                   (pari-cgetg (1+ len) VECSMALL)))))
+    (if vecsmall-p
+        (setf (memory-as obj (parse-c-type `(c-array long ,len))
+                         (sizeof 'c-pointer))
+              x)
+        (do ((i 1 (1+ i)))
+            ((= i len))
+          (pari-set-component obj i (convert-to-pari (svref x i)))))
+    obj))
 
-(defun convert-from-pari-vector (ptr type)
-  (let* ((len (1- (pari-length-raw ptr)))
-         (vec (make-array (1+ len))))
-    (setf (svref vec 0) type)
-    (do ((i len (1- i)))
-        ((eql i 0) vec)
-      (setf (svref vec i) (convert-from-pari (%component ptr i))))))
+(defun convert-from-pari-vector (ptr &optional type)
+  (let ((len (1- (pari-length-raw ptr))))
+    (if type                    ; row or col
+        (let ((vec (make-array (1+ len))))
+          (setf (svref vec 0) type)
+          (do ((i len (1- i)))
+              ((eql i 0) vec)
+            (setf (svref vec i) (convert-from-pari (%component ptr i)))))
+        (memory-as ptr (parse-c-type `(c-array long ,len))
+                   (sizeof 'c-pointer)))))
 
 ;; MAT=19: matrices -- represented by CLISP 2-dim arrays
 
@@ -2375,6 +2338,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (17 (convert-from-pari-vector ptr :row))
     (18 (convert-from-pari-vector ptr :col))
     (19 (convert-from-pari-MAT ptr))
+    (22 (convert-from-pari-vector ptr))
     (t (error "~S: Pari type ~D is not yet implemented as a CLISP type."
               'convert-from-pari (pari-type-raw ptr)))))
 
