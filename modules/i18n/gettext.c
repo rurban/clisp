@@ -13,7 +13,7 @@
 #include <langinfo.h>
 #include <limits.h>            /* for CHAR_MAX */
 
-#ifdef CLISP_UNICODE
+#if CLISP_UNICODE
 # define if_UNICODE(statement)  statement
 #else
 # define if_UNICODE(statement)  /*nothing*/
@@ -36,7 +36,7 @@ static inline object do_gettext (const char* msgid,
     translated_msg = "";  /* Don't return the catalog's header entry. */
   } else {
     begin_blocking_system_call();
-#  ifdef CLISP_UNICODE
+#  if CLISP_UNICODE
     if (domain != NULL)
       bind_textdomain_codeset(domain,"UTF-8");
 #  endif
@@ -51,7 +51,7 @@ static inline object do_ngettext (const char* msgid, const char* msgid_plural,
 {
   const char* translated_msg;
   begin_blocking_system_call();
-# ifdef CLISP_UNICODE
+# if CLISP_UNICODE
   if (domain != NULL)
     bind_textdomain_codeset(domain,"UTF-8");
 # endif
