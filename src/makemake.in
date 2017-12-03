@@ -8,7 +8,7 @@ CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Simple usage:
 #        ./makemake [--with-PACKAGE] > Makefile
 
-HSDEFAULT="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec"
+HSDEFAULT="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/"
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
 fail () { echo "$0: $*" >&2; exit 1; }
@@ -480,15 +480,11 @@ EOF
     --hyperspec=*)
       arg=`echol "$1" | sed 's/-*hyperspec=//'`
       case "$arg" in
-        */FrontMatter/index.html ) arg=`echo "$arg" | sed -e 's,/FrontMatter/index.html$,,'` ;;
-        */FrontMatter/ )           arg=`echo "$arg" | sed -e 's,/FrontMatter/$,,'` ;;
-        */FrontMatter )            arg=`echo "$arg" | sed -e 's,/FrontMatter$,,'` ;;
-        */ )                       arg=`echo "$arg" | sed -e 's,/*$,,'` ;;
-        * ) ;;
+        */FrontMatter* ) arg=`echo "$arg" | sed -e 's,FrontMatter.*$,,'` ;;
       esac
       case "$arg" in
         *://*) hyperspec="$arg" ;;
-        /*) if test -d "$arg" -a -d "$arg/FrontMatter" ; then
+        /*) if test -d "$arg" -a -d "${arg}FrontMatter" ; then
               hyperspec="file:${arg}"
             else
               echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
@@ -497,7 +493,7 @@ EOF
         *)  case "$arg" in
               file:*) arg=`echo "$arg" | sed -e 's,^file:,,'` ;;
             esac
-            if test -d "$arg" -a -d "$arg/FrontMatter" ; then
+            if test -d "$arg" -a -d "${arg}FrontMatter" ; then
               hyperspec="file:"`cd "$arg" > /dev/null && pwd`
             else
               echo "makemake: --hyperspec=${arg} argument ignored, does not point to the Common Lisp HyperSpec" 1>&2
@@ -510,9 +506,10 @@ EOF
   esac
 done
 
-# Remove trailing slash from hyperspec URL.
+# Ensure trailing slash in hyperspec URL.
 case "$hyperspec" in
-  */) hyperspec=`echo "$hyperspec" | sed -e 's,/$,,'` ;;
+  */)  ;;
+  *) hyperspec=${hyperspec}/ ;;
 esac
 
 # HSYS, HSYSOS = host system
@@ -3359,7 +3356,7 @@ echol "config.lisp : ${SRCDIR}${CONFIG}.lisp"
 echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp config.lisp"
 if [ $TOS = unix ] ; then
   echotab "chmod +w config.lisp"
-  echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> config.lisp"
+  echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> config.lisp"
   if [ ${TSYSOS} = cygwin ]; then
     # maybe convert the cygwin cygdrive pathnames
     # http://article.gmane.org/gmane.os.cygwin:67868
@@ -3743,9 +3740,11 @@ if [ $CROSS = false ] ; then
         }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
+    echol "IMPNOTES = \"${MYIMPROOT}\""
+    echol "CLHSROOT = \"${hyperspec}\""
     echol "check-doc: clisp${TEXE} base"
-    echotab "IMPNOTES=\"${MYIMPROOT}\" ./clisp ${someflags} -x '(sys::ensure-impnotes-map t)'"
-    echotab "CLHSROOT=\"${HSDEFAULT}\" ./clisp ${someflags} -x '(sys::ensure-clhs-map)'"
+    echotab 'IMPNOTES=$(IMPNOTES) ./clisp'" ${someflags} -x '(sys::ensure-impnotes-map t)'"
+    echotab 'CLHSROOT=$(CLHSROOT) ./clisp'" ${someflags} -x '(sys::ensure-clhs-map)'"
     echol
   fi
 
@@ -4085,7 +4084,7 @@ for f in $TXT_FILES ; do
   # *-1.html is for chunked impnotes and does not depend on user hyperspec
   test \( $f = clisp.html -o $f = clisp-link.html \) \
        -a "${HSDEFAULT}" != "${hyperspec}" && \
-    line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
+    line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT},=${QQUOT}${hyperspec},${ARGQ}"
   test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
   echotab "${line} > ${f}"
