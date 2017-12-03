@@ -1,3 +1,9 @@
+2017-12-03  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (check-doc): Respect command line options like
+	make check-doc IMPNOTES=../doc/html/ CLHSROOT=http://clhs.lisp.se/
+	(note the trailing slash!)
+
 2017-12-01  Sam Steingold  <sds@gnu.org>
 
 	Fix bug#659: update the pari module to PARI/GP 2.9.3
