@@ -1,5 +1,11 @@
 2017-12-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* modules/regexp/regexi.c (REGEXP-COMPILE, REGEXP-EXEC) [UNICODE]:
+	Use UTF-8 to communicate with gnulib/regexp, but keep
+	O(misc_encoding) for locale-dependent error messages.
+
+2017-12-04  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* modules/regexp/regexi.c (REGEXP-EXEC): Compute character string
 	index based on the current O(misc_encoding).
 
