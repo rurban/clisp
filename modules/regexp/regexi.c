@@ -29,7 +29,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
   regex_t* re;
  restart_regcomp:
   re = (regex_t*)clisp_malloc(sizeof(regex_t));
-  with_string_0(pattern,GLO(misc_encoding),patternz, {
+  with_string_0(pattern,Symbol_value(S(utf_8)),patternz, {
     begin_system_call();
     status = regcomp(re,patternz,cflags);
     end_system_call();
@@ -117,7 +117,7 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     /* Don't use alloca for sizes > BUFSIZ, it's not safe! */
     ret = (regmatch_t*)clisp_malloc(ret_buffer_size);
   }
-  with_string_0(string,GLO(misc_encoding),stringz, {
+  with_string_0(string,Symbol_value(S(utf_8)),stringz, {
     begin_system_call();
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
     end_system_call();
@@ -133,8 +133,8 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
       if (rettype != ret_bool)
         for (re_count = 0; re_count <= re->re_nsub; re_count++)
           if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
-            pushSTACK(posfixnum(start+Encoding_mblen(GLO(misc_encoding))(GLO(misc_encoding),stringz,stringz+ret[re_count].rm_so)));
-            pushSTACK(posfixnum(start+Encoding_mblen(GLO(misc_encoding))(GLO(misc_encoding),stringz,stringz+ret[re_count].rm_eo)));
+            pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_so)));
+            pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_eo)));
             funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
           } else pushSTACK(NIL);
       switch (rettype) {
