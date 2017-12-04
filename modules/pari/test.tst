@@ -167,6 +167,14 @@ ROUNDTRIP-2
 #(:ROW 0 1 1 2 1 2 1 4 3 13 5 1 1 8 1 2 4 1 1 41)
 (pari:pari-to-lisp (pari:continued-fraction (exp 1l0)))
 #(:ROW 2 1 2 1 1 4 1 1 6 1 1 8 1 1 10 1 1 12 1 1 14 2)
+(defparameter picf (pari:continued-fraction (pari:pari-pi :prec 30) :nmax 30)) PICF
+(pari:pari-to-lisp picf)
+#(:ROW 3 7 15 1 292 1 1 1 2 1 3 1 14 2 1 1 2 2 2 2 1 84 2 1 1 15 3 13 1 4)
+(pari:pari-to-lisp (pari:continued-fraction-pnqn picf :n 3))
+#2A((3 22 333 355) (1 7 106 113))
+(pari:pari-to-lisp (pari:continued-fraction-pnqn picf :n 7))
+#2A((3 22 333 355 103993 104348 208341 312689)
+    (1 7 106 113 33102 33215 66317 99532))
 
 (pari:equal? (pari:fibonacci 10) #Z"55") T
 (pari:pari-to-lisp (pari:fibonacci 100))  354224848179261915075
@@ -191,8 +199,8 @@ ROUNDTRIP-2
 (pari:pari-to-lisp (pari:sum-divisors 28)) 56
 (pari:pari-to-lisp (pari:factor #Z"120"))  #2A((2 3) (3 1) (5 1))
 (pari:pari-to-lisp (pari:factor #Z"144"))  #2A((2 4) (3 2))
-(pari:prime? 139 0) T
-(pari:pseudo-prime? 140 0) NIL
+(pari:prime? 139) T
+(pari:pseudo-prime? 140) NIL
 (pari:bigomega 12) 3
 (pari:omega 12) 2
 (pari:bigomega 144) 6
@@ -222,7 +230,7 @@ ROUNDTRIP-2
 (pari:pari-to-lisp (pari:moebius-mu 6)) 1
 (pari:pari-to-lisp (pari:moebius-mu 16)) 0
 
-(pari:pari-to-lisp (pari:resultant-vector 40 60)) #(:ROW 1/40 0 1)
+(pari:pari-to-lisp (pari:resultant-ext 40 60)) #(:ROW 1/40 0 1)
 
 (pari:equal? (pari:primitive-root #Z"7") #Z"Mod(3,7)") T
 (pari:equal? (pari:primitive-root #Z"104729") #Z"Mod(12,104729)") T
@@ -355,7 +363,7 @@ ROUNDTRIP-2
     (1/6 1/7 1/8 1/9 1/10 1/11 1/12)
     (1/7 1/8 1/9 1/10 1/11 1/12 1/13))
 
-(pari:pari-to-lisp (pari:pascal-triangle 10 nil))
+(pari:pari-to-lisp (pari:pascal-triangle 10))
 #2A((1 0 0 0 0 0 0 0 0 0 0)
     (1 1 0 0 0 0 0 0 0 0 0)
     (1 2 1 0 0 0 0 0 0 0 0)
@@ -367,7 +375,7 @@ ROUNDTRIP-2
     (1 8 28 56 70 56 28 8 1 0 0)
     (1 9 36 84 126 126 84 36 9 1 0)
     (1 10 45 120 210 252 210 120 45 10 1))
-(pari:pari-to-lisp (pari:pascal-triangle 10 2))
+(pari:pari-to-lisp (pari:pascal-triangle 10 :q 2))
 #2A((1 0 0 0 0 0 0 0 0 0 0)
     (1 1 0 0 0 0 0 0 0 0 0)
     (1 3 1 0 0 0 0 0 0 0 0)
@@ -379,7 +387,7 @@ ROUNDTRIP-2
     (1 255 10795 97155 200787 97155 10795 255 1 0 0)
     (1 511 43435 788035 3309747 3309747 788035 43435 511 1 0)
     (1 1023 174251 6347715 53743987 109221651 53743987 6347715 174251 1023 1))
-(pari:pari-to-lisp (pari:pascal-triangle 7 3))
+(pari:pari-to-lisp (pari:pascal-triangle 7 :q 3))
 #2A((1 0 0 0 0 0 0 0)
     (1 1 0 0 0 0 0 0)
     (1 4 1 0 0 0 0 0)
@@ -566,7 +574,7 @@ pari:pari-real-precision  19
 (pari:sizebyte qfi) 104
 (pari:pari-to-lisp (pari:compose-imag-qf qfi qfi))
 #S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
-(pari:pari-to-lisp (pari:reduce-imag-qf qfi))
+(pari:pari-to-lisp (pari:quadratic-reduce qfi))
 #S(PARI:pari-imag-qf :A 1 :B 0 :C 2)
 (defparameter qfr (show (pari:pari-to-lisp (pari:make-real-qf 1 2 3 0.0)))) QFR
 (pari:sizeword qfr) 16
@@ -575,8 +583,60 @@ pari:pari-real-precision  19
 ;;   Unfortunately, t_QFRs are very inefficient, and are only provided
 ;;   for backward compatibility.
 ;; PARI stack overflows (pari:pari-to-lisp (pari:compose-real-qf qfr qfr))
-;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf qfr))
-;; PARI stack overflows (pari:pari-to-lisp (pari:reduce-real-qf-one-step qfr))
+;; PARI stack overflows (pari:pari-to-lisp (pari:quadratic-reduce qfr))
+(pari:pari-to-lisp (pari:quadratic-reduce qfr :flag 3))
+#S(PARI:pari-real-qf :A 3 :B -2 :C -12297829382473034411 :D 0)
+
+;; check which functions have proper doc
+(let ((pari-type-names (make-hash-table))
+      (pari-type-functions (make-hash-table))
+      (undocumented ()) (no-gp ()) (exported 0))
+  (flet ((note (sym ht) (when sym (setf (gethash sym ht) sym))))
+    (do-external-symbols (es "PARI")
+      (let ((cl (find-class es nil)))
+        (when cl
+          (note es pari-type-names)
+          (note (clos::class-kconstructor cl) pari-type-functions)
+          (note (clos::class-copier cl) pari-type-functions)
+          (note (clos::class-predicate cl) pari-type-functions)
+          (dolist (slot (class-direct-slots cl))
+            (dolist (reader (slot-definition-readers slot))
+              (note reader pari-type-functions)))))))
+  ;; (values pari-type-names pari-type-functions)
+  (format t "~:D types, ~:D related functions~%"
+          (hash-table-count pari-type-names)
+          (hash-table-count pari-type-functions))
+  (do-external-symbols (es "PARI")
+    (let ((gp-name (documentation es 'pari::gp)))
+      (incf exported)
+      (if gp-name
+          (unless (pari::get_entry_doc gp-name) ; missing for obsolete functions
+            (push es undocumented)
+            (format t "no gp doc for ~S ~S~%" es gp-name))
+          (when (and (fboundp es) (not (gethash es pari-type-functions)))
+            (push es no-gp)
+            (format t "no pari function for ~S~%" es)))))
+  (format t "~:D exported symbols, ~:D undocumented, ~:D without pari function~%"
+          exported (length undocumented) (length no-gp))
+  (list (sort no-gp #'string-lessp)
+        (sort undocumented #'string-lessp)))
+((PARI:count-real-roots PARI:next-entree PARI:pari-fini PARI:pari-init
+  PARI:pari-real-precision PARI:pari-to-lisp PARI:vector-extract)
+ ;; This list should ideally contain only operators like * and ==
+ ;; and tests like bigint? and complex?
+ ;; All other functions might be accessing obsolescent functionality.
+ (PARI:bigint? PARI:binaire PARI:bnf-get-fu
+  PARI:characteristic-polynomial-and-adjoint-matrix PARI:complex?
+  PARI:compose-imag-qf PARI:compose-real-qf
+  PARI:eql-0? PARI:equal? PARI:factorial-integer PARI:ideal-split-one-n
+  PARI:invert PARI:maxprime PARI:minus-one? PARI:nf-buchall
+  PARI:nf-element-inverse PARI:nf-element-sqr PARI:nf-galois-group PARI:one?
+  PARI:pari* PARI:pari+ PARI:pari- PARI:pari-divround
+  PARI:pari-expt PARI:pari-expt-integer PARI:pari-I PARI:pari-minus
+  PARI:pari-poly-0 PARI:pari-poly-1 PARI:pari-poly-x
+  PARI:pari/ PARI:pari/= PARI:pari< PARI:pari<= PARI:pari= PARI:pari> PARI:pari>=
+  PARI:primitive-part PARI:primpart PARI:quotient PARI:quotient-and-mod
+  PARI:scalar-matrix PARI:shanks-double-imag-qf PARI:sizeword PARI:varno PARI:zero?))
 
 ;; done, print type conversion statistics
 (let ((alist (sort (ext:with-collect (co)
@@ -599,6 +659,6 @@ NIL
 (progn (without-package-lock ("PARI") (untrace))
        (setq *trace-output* *error-output*) ; re-enable TRACE, TIME, TIMES
        (symbols-cleanup '(*pari-to-lisp* *lisp-to-pari* roundtrip1 roundtrip2
-                          roundtrip-1 roundtrip-2 mycol myrow
+                          roundtrip-1 roundtrip-2 mycol myrow picf
                           get-x-ash get-x-ash-neg check-roundtrip id qfi qfr)))
 ()

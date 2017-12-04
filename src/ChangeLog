@@ -1,3 +1,8 @@
+2017-12-04  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp: General cleanup.
+	"465 exported symbols, 46 undocumented, 7 without pari function"
+
 2017-12-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-doc): Respect command line options like
