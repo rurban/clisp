@@ -121,34 +121,34 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     begin_system_call();
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
     end_system_call();
+    if (status) {
+      switch (rettype) {
+        case ret_values: VALUES0; break;        /* VALUES => no values */
+        case ret_list:   VALUES1(NIL); break;   /* LIST => () */
+        case ret_vector: VALUES1(`#()`); break; /* VECTOR => #() */
+        case ret_bool:   VALUES1(NIL); break;   /* BOOLEAN => NIL */
+      }
+    } else {
+      uintL re_count;
+      if (rettype != ret_bool)
+        for (re_count = 0; re_count <= re->re_nsub; re_count++)
+          if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
+            pushSTACK(posfixnum(start+Encoding_mblen(GLO(misc_encoding))(GLO(misc_encoding),stringz,stringz+ret[re_count].rm_so)));
+            pushSTACK(posfixnum(start+Encoding_mblen(GLO(misc_encoding))(GLO(misc_encoding),stringz,stringz+ret[re_count].rm_eo)));
+            funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
+          } else pushSTACK(NIL);
+      switch (rettype) {
+        case ret_values:
+          if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
+            STACK_to_mv(re_count);
+            break;
+          } /* else FALLTHROUGH */
+        case ret_list:   VALUES1(listof(re_count)); break;
+        case ret_vector: VALUES1(vectorof(re_count)); break;
+        case ret_bool:   VALUES1(T); break;
+      }
+    }
   });
-  if (status) {
-    switch (rettype) {
-      case ret_values: VALUES0; break;        /* VALUES => no values */
-      case ret_list:   VALUES1(NIL); break;   /* LIST => () */
-      case ret_vector: VALUES1(`#()`); break; /* VECTOR => #() */
-      case ret_bool:   VALUES1(NIL); break;   /* BOOLEAN => NIL */
-    }
-  } else {
-    uintL re_count;
-    if (rettype != ret_bool)
-      for (re_count = 0; re_count <= re->re_nsub; re_count++)
-        if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
-          pushSTACK(posfixnum(start+ret[re_count].rm_so));
-          pushSTACK(posfixnum(start+ret[re_count].rm_eo));
-          funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
-        } else pushSTACK(NIL);
-    switch (rettype) {
-      case ret_values:
-        if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
-          STACK_to_mv(re_count);
-          break;
-        } /* else FALLTHROUGH */
-      case ret_list:   VALUES1(listof(re_count)); break;
-      case ret_vector: VALUES1(vectorof(re_count)); break;
-      case ret_bool:   VALUES1(T); break;
-    }
-  }
   if (ret_buffer_size > BUFSIZ) {
     /* buffer allocated using malloc, needs to be free'd */
     begin_system_call();
