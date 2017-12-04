@@ -1,5 +1,10 @@
 2017-12-04  Sam Steingold  <sds@gnu.org>
 
+	* configure: Ensure exit on a pipe sub-command failure (regression
+	since 2017-02-26) by using bash/ksh/zsh-specific "set -o pipefail".
+
+2017-12-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/pari/pari.lisp: General cleanup.
 	"465 exported symbols, 46 undocumented, 7 without pari function"
 
