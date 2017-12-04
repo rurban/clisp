@@ -1,5 +1,10 @@
 2017-12-04  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: Move gl_EARLY before AC_LIB_PROG_LD to avoid aclocal
+	warning: AC_COMPILE_IFELSE was called before AC_USE_SYSTEM_EXTENSIONS
+
+2017-12-04  Sam Steingold  <sds@gnu.org>
+
 	* configure: Ensure exit on a pipe sub-command failure (regression
 	since 2017-02-26) by using bash/ksh/zsh-specific "set -o pipefail".
 
