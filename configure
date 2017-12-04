@@ -790,6 +790,9 @@ stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
 set +e;
 test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt ${STACK_LIMIT}; }
 STACK_TOO_SMALL=$?      # 0=true => need to reset; 1=false => big enough
+# Ensure exit on failure in pipes (... | tee ...) below.
+# This works with bash, ksh and zsh.
+set -o pipefail 2>/dev/null
 set -e
 
 cd "$ABS_DIRNAME"
