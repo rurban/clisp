@@ -130,13 +130,14 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
       }
     } else {
       uintL re_count;
-      if (rettype != ret_bool)
+      if (rettype != ret_bool) {
         for (re_count = 0; re_count <= re->re_nsub; re_count++)
           if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
             pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_so)));
             pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_eo)));
             funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
           } else pushSTACK(NIL);
+      }
       switch (rettype) {
         case ret_values:
           if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
