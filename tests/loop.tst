@@ -946,6 +946,18 @@ WARNING
     (source-program-error-detail c)))
 #+CLISP (SYSTEM::INTO #())
 
+(defun find-in-tree (tree atom)
+  (and (consp tree)
+       (if (eq atom (car tree))
+           tree
+           (or (find-in-tree (car tree) atom)
+               (find-in-tree (cdr tree) atom)))))
+FIND-IN-TREE
+(find-in-tree (macroexpand-1 '(loop for (i j k) of-type (fixnum nil float)
+                                across #()))
+              'DECLARE)
+(DECLARE (TYPE FIXNUM I) (TYPE FLOAT K))
+
 ;; https://sourceforge.net/p/clisp/bugs/414/: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2
 (loop with nil = (return t) return nil) T
