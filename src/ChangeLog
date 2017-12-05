@@ -1,3 +1,8 @@
+2017-12-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* loop.lisp (destructure-type): In LOOP destructuring, type NIL
+	originally meant: "Skip type declaration for this variable" (patch#53).
+
 2017-12-05  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-2): Do not output unnecessary

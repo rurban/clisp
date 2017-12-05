@@ -82,6 +82,7 @@
   (let ((declspecs '()))
     (labels ((accumulate (pattern type)
                (cond ((null pattern))
+                     ((null type))
                      ((atom pattern)
                        (push `(TYPE ,type ,pattern) declspecs))
                      ((consp type)
