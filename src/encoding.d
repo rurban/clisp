@@ -1,7 +1,7 @@
 /*
  * Encodings (character sets and conversions) for CLISP
  * Bruno Haible 1998-2008, 2017
- * Sam Steingold 1998-2009, 2011
+ * Sam Steingold 1998-2009, 2011, 2017
  */
 
 #include "lispbibl.c"
@@ -2595,7 +2595,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
   unused name; unused context;
   pushSTACK(unbound);           /* :charset */
  #endif /* ENABLE_UNICODE */
- #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
+ #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0) && !defined(UNIX_CYGWIN))
   pushSTACK(S(Kdos));           /* :line-terminator */
  #else
   pushSTACK(S(Kunix));          /* :line-terminator */

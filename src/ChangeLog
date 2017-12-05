@@ -1,3 +1,8 @@
+2017-12-05  Ken Brown  <kbrown@cornell.edu>
+
+	* encoding.d (encoding_from_name) [UNIX_CYGWIN]: Use Unix line
+	endings (patch#47).
+
 2017-12-04  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* modules/regexp/regexi.c (REGEXP-COMPILE, REGEXP-EXEC) [UNICODE]:
