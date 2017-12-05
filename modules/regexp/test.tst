@@ -561,3 +561,25 @@ yz")
 
 ;; https://sourceforge.net/p/clisp/bugs/287/
 (regexp:regexp-split "|" "a|b" :extended t) error
+
+;; https://sourceforge.net/p/clisp/bugs/691/
+(defparameter latitude "6° 45' 22.90\"    S") latitude
+(defparameter longitude "35° 7' 23.60\"  E")  longitude
+#+unicode
+(letf ((custom:*misc-encoding* charset:utf-8))
+  (show custom:*misc-encoding*)
+  (list (regexp:regexp-split " " latitude)
+        (regexp:regexp-split " " longitude)))
+#+unicode
+(("6°" "45'" "22.90\"" "" "" "" "S")
+ ("35°" "7'" "23.60\"" "" "E"))
+
+(letf ((custom:*misc-encoding* charset:iso-8859-1))
+  (show custom:*misc-encoding*)
+  (list (regexp:regexp-split " " latitude)
+        (regexp:regexp-split " " longitude)))
+(("6°" "45'" "22.90\"" "" "" "" "S")
+ ("35°" "7'" "23.60\"" "" "E"))
+
+(symbols-cleanup '(*saved-locale* latitude longitude))
+()
