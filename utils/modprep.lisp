@@ -1,7 +1,7 @@
 ;;; MODPREP - CLISP module preprocessor
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
-;;; Copyright (C) 2003-2011, 2016 by Sam Steingold [lisp]
+;;; Copyright (C) 2003-2011, 2016-2017 by Sam Steingold [lisp]
 ;;; Copyright (C) 2017 Bruno Haible
 ;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
@@ -1189,10 +1189,9 @@ commas and parentheses."
                         (fundef-name fd)))))
     (formatln out "  0")
     (formatln out "};") (newline out)
-    ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
-    (formatln out "void ~A (module_t* module);" *init-1-name*)
     (formatln out "void ~A (module_t* module)" *init-1-name*)
     (formatln out "{")
+    (formatln out "  (void)module; /* avoid -Wunused-parameter */")
     (loop :for fd :across *fundefs* :for tag = (fundef-tag fd) :do
       (loop :for sig :in (fundef-signatures fd) :do
         (when (eq '&key (signature-rest sig))
@@ -1207,17 +1206,15 @@ commas and parentheses."
     (formatln out "}")
     (when *init-2-name*         ; no init2 => define a dummy
       (newline out)
-      ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
-      (formatln out "void ~A (module_t* module);" *init-2-name*)
       (formatln out "void ~A (module_t* module)" *init-2-name*)
       (formatln out "{")
+      (formatln out "  (void)module; /* avoid -Wunused-parameter */")
       (formatln out "}"))
     (when *fini-name*           ; no fini-func => define a dummy
       (newline out)
-      ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
-      (formatln out "void ~A (module_t* module);" *fini-name*)
       (formatln out "void ~A (module_t* module)" *fini-name*)
       (formatln out "{")
+      (formatln out "  (void)module; /* avoid -Wunused-parameter */")
       (formatln out "}"))))
 
 (defun output-all (out input-file &optional *lines* &aux (*lineno* 1))
