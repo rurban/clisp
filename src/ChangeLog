@@ -1,5 +1,10 @@
 2017-12-06  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (handle_fault_range) [!(GENERATIONAL_GC & SPVW_MIXED)]:
+	Expand non-trivially to avoid -Wunused-parameter.
+
+2017-12-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (LIBS): Add LIBUNISTRING like LIBSIGSEGV. Fix bug#719.
 
 2017-12-06  Sam Steingold  <sds@gnu.org>

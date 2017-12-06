@@ -13567,7 +13567,7 @@ extern struct object_tab_ {
 %% #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
 %% exportF(bool,handle_fault_range,(int prot, aint start_address, aint end_address));
 %% #else
-%% puts("#define handle_fault_range(p,s,e)");
+%% puts("#define handle_fault_range(p,s,e) ((void)(p),(void)(s),(void)(e))");
 %% #endif
 
 
