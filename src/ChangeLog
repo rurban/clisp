@@ -1,5 +1,9 @@
 2017-12-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LIBS): Add LIBUNISTRING like LIBSIGSEGV. Fix bug#719.
+
+2017-12-06  Sam Steingold  <sds@gnu.org>
+
 	Make sure the Darwin foo.dSYM directories are removed by clean et al.
 	* makemake.in (exefiles, EXERM): New variables.
 	Used throughout to ensure removal of .dSYM. Cf. patch#50.
