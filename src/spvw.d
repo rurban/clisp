@@ -241,7 +241,7 @@ local int dump_process_memory_map_callback (void *data,
                                             uintptr_t start, uintptr_t end,
                                             unsigned int flags)
 {
-  (void)flags;
+  unused(flags);
   fprintf((FILE*)data,"  0x%lx - 0x%lx\n",
           (unsigned long)start, (unsigned long)(end-1));
   return 0; /* continue */
@@ -3018,7 +3018,7 @@ local inline int parse_options (int argc, const char* const* argv,
 
 /* Delete command-line options. */
 local inline void free_argv_initparams (struct argv_initparams *p) {
-  (void)p;
+  unused(p);
 }
 local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_init_files);

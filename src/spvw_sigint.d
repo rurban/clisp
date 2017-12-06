@@ -74,7 +74,7 @@ local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
  Signal-Handler for signal SIGINT: */
 #ifdef PENDING_INTERRUPTS
 local void interrupt_handler (int sig) { /* sig = SIGINT */
-  (void)sig;
+  unused(sig);
   inc_break_sem_5();
   signal_acknowledge(SIGINT,&interrupt_handler);
   if (!interrupt_pending) { /* is an interrupt pending -> nothing to do */

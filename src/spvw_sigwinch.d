@@ -80,7 +80,7 @@ local void update_linelength (void) {
 
 /* signal-handler for signal SIGWINCH: */
 local void sigwinch_handler (int sig) { /* sig = SIGWINCH */
-  (void)sig;
+  unused(sig);
   inc_break_sem_5();
   signal_acknowledge(SIGWINCH,&sigwinch_handler);
   update_linelength();

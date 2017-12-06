@@ -2001,7 +2001,7 @@ local uint_bitpack_t bitpack_orc1 (uint_bitpack_t x, uint_bitpack_t y)
 local uint_bitpack_t bitpack_orc2 (uint_bitpack_t x, uint_bitpack_t y)
 { return x|(~y); }
 local uint_bitpack_t bitpack_not (uint_bitpack_t x, uint_bitpack_t y)
-{ return ~x; }
+{ unused(y); return ~x; }
 
 LISPFUN(bit_and,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-AND bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */

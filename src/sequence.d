@@ -1360,6 +1360,7 @@ local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
 /* Helper function for MAP: */
 local bool boolop_nothing (object pred_result)
 {
+  unused(pred_result);
   return false; /* never return if inside */
 }
 
@@ -3361,6 +3362,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
  can trigger GC */
 local maygc object nsubstitute_fe_help (gcv_object_t* stackptr, uintV bvl,
                                         uintV dl) {
+  unused(dl);
   {
     pushSTACK(*(stackptr STACKop 0)); /* sequence */
     pushSTACK(*(stackptr STACKop -2)); /* start */

@@ -1843,9 +1843,9 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
   }
 #else
  #ifdef SPVW_PURE
-  (void)heapnr; (void)holes;
+  unused(heapnr); unused(holes);
  #else
-  (void)holes;
+  unused(holes);
  #endif
 #endif
 }
@@ -3065,7 +3065,7 @@ global maygc void gar_col(int level)
  #if defined(USE_JITC)
   gc_drop_jitc = (level==1);
  #else
-  (void)level;
+  unused(level);
  #endif
   with_gc_statistics(&do_gar_col);     /* GC and statistics */
  #if defined(USE_JITC)

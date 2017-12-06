@@ -37,7 +37,7 @@ global void disable_sigpipe (void);
 /* Signal handler for SIGPIPE: */
 local void sigpipe_handler (int sig)
 {
-  (void)sig;                    /* == SIGPIPE */
+  unused(sig);                  /* == SIGPIPE */
   signal_acknowledge(SIGPIPE,&sigpipe_handler);
 #if defined(MULTITHREAD) && defined(UNIX_MACOSX) && defined(HAVE_LIBSIGSEGV)
  /* NB: patch

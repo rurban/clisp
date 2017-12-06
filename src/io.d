@@ -1644,7 +1644,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
  condition. */
 local void signal_reader_error (void* sp, gcv_object_t* frame, object label,
                                 object condition) {
-  (void)sp; (void)label;
+  unused(sp); unused(label);
   /* Fetch the stream. It was in STACK_0 before the frame was established. */
   var gcv_object_t* FRAME = frame;
   FRAME = topofframe(FRAME_(0));
@@ -6199,6 +6199,7 @@ local /*maygc*/ bool level_check (const gcv_object_t* stream_) {
  < stream: stream
  changes STACK */
 local void level_end (const gcv_object_t* stream_) {
+  unused(stream_);
   dynamic_unbind(S(prin_level));
 }
 

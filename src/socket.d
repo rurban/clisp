@@ -240,7 +240,7 @@ local int string_to_addr1 (const void* addr, size_t addrlen, int family, void* r
   *(object*)ret = (addrlen
                    ? data_to_sb8vector(addr,addrlen)
                    : asciz_to_string((const char*)addr,O(misc_encoding)));
-  (void)family; /* ignore */
+  unused(family);
   return 0;
 }
 

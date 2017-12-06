@@ -759,6 +759,7 @@ static void handle_opening_token (const Token* token)
 
 static inline void handle_closing_token (const Token* token)
 {
+  (void)token;
   open_braces.count--;
 }
 

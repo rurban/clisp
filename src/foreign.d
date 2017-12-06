@@ -575,7 +575,7 @@ local void *find_name_version (void *handle, const char *name,
 #ifdef HAVE_DLVSYM
   ret = dlvsym(handle,name,ver);
 #else
-  unused(ver); unused(name);
+  unused(handle); unused(name); unused(ver);
 #endif
   return ret;
 }
@@ -2152,9 +2152,11 @@ local void walk_foreign_pointers (object fvd, void* data,
 global void free_foreign (object fvd, void* data);
 local void free_walk_pre (object fvd, void** pdata, struct walk_foreign *walk)
 {
+  unused(fvd); unused(pdata); unused(walk);
 }
 local void free_walk_post (object fvd, void** pdata, struct walk_foreign *walk)
 {
+  unused(fvd); unused(walk);
   begin_system_call();
   free(*pdata);
   end_system_call();
@@ -2163,6 +2165,7 @@ local void free_walk_post (object fvd, void** pdata, struct walk_foreign *walk)
 local void free_walk_function (object fvd, void** pdata,
                                struct walk_foreign *walk)
 {
+  unused(fvd); unused(walk);
   free_foreign_callin(*pdata);
   *pdata = NULL; /* for safety */
 }
@@ -2412,6 +2415,7 @@ local void count_walk_pre (object fvd, object obj, struct walk_lisp *walk)
 }
 local void count_walk_post (object fvd, object obj, struct walk_lisp *walk)
 {
+  unused(fvd); unused(obj); unused(walk);
 }
 local maygc void convert_to_foreign_needs (object fvd, object obj,
                                            struct foreign_layout *sas)
@@ -2907,6 +2911,7 @@ modexp maygc void convert_to_foreign
     can trigger GC */
 local void* allocaing (void* old_data, uintL size, uintL alignment,
                        void** allocaing_room_pointer) {
+  unused(old_data);
   *allocaing_room_pointer = (void*)(((uintP)*allocaing_room_pointer
                                      + alignment-1) & -(long)alignment);
   var void* result = *allocaing_room_pointer;
@@ -2921,7 +2926,10 @@ local void* allocaing (void* old_data, uintL size, uintL alignment,
  can trigger GC */
 modexp void* mallocing (void* old_data, uintL size, uintL alignment,
                         void** state)
-{ return clisp_malloc(size); }
+{
+  unused(old_data); unused(alignment); unused(state);
+  return clisp_malloc(size);
+}
 
 /* Convert Lisp data to foreign data.
  The foreign data storage is reused.
@@ -2930,7 +2938,10 @@ modexp void* mallocing (void* old_data, uintL size, uintL alignment,
  can trigger GC */
 modexp void* nomalloc (void* old_data, uintL size, uintL alignment,
                        void** state)
-{ return old_data; }
+{
+  unused(size); unused(alignment); unused(state);
+  return old_data;
+}
 
 
 /* ====================== Accessing foreign variables ====================== */

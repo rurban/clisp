@@ -378,7 +378,7 @@ local maygc bool delete_file_if_exists_obj (object namestring) {
  > STACK_0: pathname */
 local maygc inline void delete_file_before_rename (char* pathstring) {
  #if defined(UNIX)          /* rename() on Unix does it automatically */
-  (void)pathstring;
+  unused(pathstring);
  #else
   delete_file_if_exists(pathstring);
  #endif
@@ -2075,7 +2075,7 @@ local maygc object parse_as_logical (object obj) {
    condition. */
 local void signal_type_error (void* sp, gcv_object_t* frame, object label,
                               object condition) {
-  (void)sp; (void)label;
+  unused(sp); unused(label);
   /* Fetch the thing. It was in STACK_0 before the frame was established. */
   var gcv_object_t* FRAME = frame;
   FRAME = topofframe(FRAME_(0));
@@ -2275,7 +2275,7 @@ local maygc object coerce_pathname (object obj) {
   } while(0)
 
 local uintC subdir_namestring_parts (object path,bool logicalp) {
-  (void)logicalp;
+  unused(logicalp);
   var object subdir = Car(path);
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   SUBDIR_PUSHSTACK(subdir); return 1;
@@ -3617,7 +3617,7 @@ local bool has_device_wildcards (object pathname) {
   /* check device: = :WILD ? */
   return eq(ThePathname(pathname)->pathname_device,S(Kwild));
  #else
-  (void)pathname;
+  unused(pathname);
   return false;
  #endif
 }
@@ -3823,7 +3823,7 @@ local bool directory_match (object pattern, object sample, bool logical);
 local bool nametype_match (object pattern, object sample, bool logical);
 local bool version_match (object pattern, object sample, bool logical);
 local bool host_match (object pattern, object sample, bool logical)
-{ (void)logical;
+{ unused(logical);
   if (nullp(pattern)) return true;
   return equal(pattern,sample);
 }
@@ -3843,12 +3843,12 @@ local bool device_match (object pattern, object sample, bool logical) {
   return equal(pattern,sample);
   #endif
  #else
-  (void)pattern; (void)sample; (void)logical;
+  unused(pattern); unused(sample); unused(logical);
   return true;
  #endif
 }
 local bool nametype_match_aux (object pattern, object sample, bool logical)
-{ (void)logical;
+{ unused(logical);
   if (eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   if (nullp(pattern)) {
@@ -3862,7 +3862,7 @@ local bool nametype_match_aux (object pattern, object sample, bool logical)
   return wildcard_match(pattern,sample);
 }
 local bool subdir_match (object pattern, object sample, bool logical)
-{ (void)logical;
+{ unused(logical);
   if (eq(pattern,sample)) return true;
   if (eq(pattern,S(Kwild))) return true;
   if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
@@ -3916,7 +3916,7 @@ local bool nametype_match (object pattern, object sample, bool logical) {
   return nametype_match_aux(pattern,sample,logical);
 }
 local bool version_match (object pattern, object sample, bool logical)
-{ (void)logical;
+{ unused(logical);
   SDOUT("version_match:",pattern);
   SDOUT("version_match:",sample);
   if (!boundp(sample)) return true;
@@ -4163,7 +4163,7 @@ local maygc void device_diff (object pattern, object sample, bool logical,
   #endif
   push_solution_with(S(Kdevice));
  #else /* HAS_DEVICE */
-  (void)pattern; (void)sample;
+  unused(pattern); unused(sample);
   push_solution();
  #endif
 }
@@ -4297,7 +4297,7 @@ local maygc void nametype_diff (object pattern, object sample, bool logical,
 }
 local maygc void version_diff (object pattern, object sample, bool logical,
                                const gcv_object_t* previous, gcv_object_t* solutions)
-{ (void)logical;
+{ unused(logical);
   DEBUG_DIFF(version_diff);
   if (!boundp(sample)) { push_solution_with(pattern); return; }
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
@@ -4442,7 +4442,7 @@ local maygc object translate_device (gcv_object_t* subst, object pattern,
   if (eq(Car(*subst),S(Kdevice)))
     *subst = Cdr(*subst);
  #else  /* HAS_DEVICE */
-  (void)subst; (void)logical;
+  unused(subst); unused(logical);
  #endif
   return pattern;
 }
@@ -4559,7 +4559,7 @@ local maygc object translate_nametype (gcv_object_t* subst, object pattern,
 }
 local object translate_version (gcv_object_t* subst, object pattern,
                                 bool logical)
-{ (void)logical;
+{ unused(logical);
   DEBUG_TRAN(translate_version);
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
     var object erg = Car(*subst);
@@ -7000,7 +7000,7 @@ local bool running_handle_directory_encoding_error = false;
 #endif
 local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 (void *sp, gcv_object_t* frame, object label, object condition) {
-  (void)sp; (void)label;
+  unused(sp); unused(label);
   /* avoid nested handle_directory_encoding_error calls */
   if (running_handle_directory_encoding_error) return;
   else running_handle_directory_encoding_error = true;
@@ -8479,7 +8479,7 @@ local Handle nullfile (void) {
 
 /* obtaining a pipe handle */
 local void mkpipe (Handle * hin, bool dummy1, Handle * hout, bool dummy2) {
-  (void)dummy1; (void)dummy2;
+  unused(dummy1); unused(dummy2);
   var int handles[2];
   begin_system_call();
   if (pipe(handles)) OS_error();
