@@ -151,7 +151,7 @@ global uintL base64_mblen (object encoding, const uintB* src,
 global void base64_mbstowcs (object encoding, object stream,
                              const uintB* *srcp, const uintB* srcend,
                              chart* *destp, chart* destend) {
-  (void)stream; (void)destend;
+  unused(stream); unused(destend);
   *destp += base64_to_chars(enc_eol_to_le(TheEncoding(encoding)->enc_eol),
                             *srcp,srcend,*destp);
   *srcp = srcend;
@@ -222,7 +222,7 @@ local uintL base64_to_bytes (const chart *src, const chart* srcend,
 
 global uintL base64_wcslen (object encoding, const chart* src,
                             const chart* srcend) {
-  (void)encoding;
+  unused(encoding);
   var const chart *error_p = NULL;
   return base64_to_bytes(src,srcend,NULL,&error_p)
     + (error_p ? 1 : 0);        /* space for errors */
@@ -231,7 +231,7 @@ global uintL base64_wcslen (object encoding, const chart* src,
 global void base64_wcstombs (object encoding, object stream,
                              const chart* *srcp, const chart* srcend,
                              uintB* *destp, uintB* destend) {
-  (void)encoding; (void)stream; (void)destend;
+  unused(encoding); unused(stream); unused(destend);
   var const chart *error_p = NULL;
   *destp += base64_to_bytes(*srcp,srcend,*destp,&error_p);
   if (error_p) {
@@ -256,7 +256,7 @@ global void base64_wcstombs (object encoding, object stream,
 
 global object base64_range (object encoding, uintL start, uintL end,
                             uintL maxintervals) {
-  (void)encoding;
+  unused(encoding);
   var uintL count = 0; /* number of intervals already on the STACK */
   if (end >= sizeof(table_base64)) end = sizeof(table_base64) - 1;
   for (;start <= end && count < maxintervals; count++) {
@@ -324,7 +324,7 @@ local void handle_incomplete (object encoding, chart* *destp, chart* destend) {
 /* The range function for an encoding covering all of Unicode. */
 global object all_range (object encoding, uintL start, uintL end,
                          uintL maxintervals) {
-  (void)encoding;
+  unused(encoding);
   var uintL count = 0;
   if (maxintervals > 0) {
     pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
@@ -336,7 +336,7 @@ global object all_range (object encoding, uintL start, uintL end,
 /* The range function for an encoding covering the BMP of Unicode. */
 global object bmp_range (object encoding, uintL start, uintL end,
                          uintL maxintervals) {
-  (void)encoding;
+  unused(encoding);
   var uintL count = 0;
   if (maxintervals > 0 && start < 0x10000) {
     if (end >= 0x10000)
@@ -390,7 +390,7 @@ global uintL uni16_mblen (object encoding, const uintB* src,
 global void uni16be_mbstowcs (object encoding, object stream,
                               const uintB* *srcp, const uintB* srcend,
                               chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
@@ -412,7 +412,7 @@ global void uni16be_mbstowcs (object encoding, object stream,
 global void uni16le_mbstowcs (object encoding, object stream,
                               const uintB* *srcp, const uintB* srcend,
                               chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
@@ -460,7 +460,7 @@ global uintL uni16_wcslen (object encoding, const chart* src,
 global void uni16be_wcstombs (object encoding, object stream,
                               const chart* *srcp, const chart* srcend,
                               uintB* *destp, uintB* destend) {
-  (void)stream;
+  unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL scount = srcend-src;
@@ -497,7 +497,7 @@ global void uni16be_wcstombs (object encoding, object stream,
 global void uni16le_wcstombs (object encoding, object stream,
                               const chart* *srcp, const chart* srcend,
                               uintB* *destp, uintB* destend) {
-  (void)stream;
+  unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL scount = srcend-src;
@@ -623,7 +623,7 @@ global uintL uni32le_mblen (object encoding, const uintB* src,
 global void uni32be_mbstowcs (object encoding, object stream,
                               const uintB* *srcp, const uintB* srcend,
                               chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
@@ -657,7 +657,7 @@ global void uni32be_mbstowcs (object encoding, object stream,
 global void uni32le_mbstowcs (object encoding, object stream,
                               const uintB* *srcp, const uintB* srcend,
                               chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
@@ -692,14 +692,14 @@ global void uni32le_mbstowcs (object encoding, object stream,
 
 global uintL uni32_wcslen (object encoding, const chart* src,
                            const chart* srcend) {
-  (void)encoding;
+  unused(encoding);
   return (srcend-src)*4;
 }
 
 global void uni32be_wcstombs (object encoding, object stream,
                               const chart* *srcp, const chart* srcend,
                               uintB* *destp, uintB* destend) {
-  (void)encoding; (void)stream;
+  unused(encoding); unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL count = floor(destend-dest,4);
@@ -720,7 +720,7 @@ global void uni32be_wcstombs (object encoding, object stream,
 global void uni32le_wcstombs (object encoding, object stream,
                               const chart* *srcp, const chart* srcend,
                               uintB* *destp, uintB* destend) {
-  (void)encoding; (void)stream;
+  unused(encoding); unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL count = floor(destend-dest,4);
@@ -932,7 +932,7 @@ global uintL utf8_mblen (object encoding, const uintB* src,
 global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
                            const uintB* srcend, chart* *destp,
                            chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   while (src < srcend) {
@@ -1033,7 +1033,7 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
 
 global uintL utf8_wcslen (object encoding, const chart* src,
                           const chart* srcend) {
-  (void)encoding;
+  unused(encoding);
   var uintL destlen = 0;
   while (src < srcend) {
     var cint ch = as_cint(*src++);
@@ -1045,7 +1045,7 @@ global uintL utf8_wcslen (object encoding, const chart* src,
 global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
                            const chart* srcend, uintB* *destp,
                            uintB* destend) {
-  (void)encoding; (void)stream;
+  unused(encoding); unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   while (src < srcend) {
@@ -1103,7 +1103,7 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
 
 global uintL java_mblen (object encoding, const uintB* src,
                          const uintB* srcend) {
-  (void)encoding;
+  unused(encoding);
   var uintL count = 0;
   while (src < srcend) {
     var uintB c;
@@ -1236,7 +1236,7 @@ global uintL java_mblen (object encoding, const uintB* src,
 global void java_mbstowcs (object encoding, object stream, const uintB* *srcp,
                            const uintB* srcend, chart* *destp,
                            chart* destend) {
-  (void)encoding; (void)stream;
+  unused(encoding); unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   while (src < srcend) {
@@ -1377,7 +1377,7 @@ global void java_mbstowcs (object encoding, object stream, const uintB* *srcp,
 
 global uintL java_wcslen (object encoding, const chart* src,
                           const chart* srcend) {
-  (void)encoding;
+  unused(encoding);
   var uintL destlen = 0;
   while (src < srcend) {
     var cint ch = as_cint(*src++);
@@ -1389,7 +1389,7 @@ global uintL java_wcslen (object encoding, const chart* src,
 global void java_wcstombs (object encoding, object stream, const chart* *srcp,
                            const chart* srcend, uintB* *destp,
                            uintB* destend) {
-  (void)encoding; (void)stream;
+  unused(encoding); unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   while (src < srcend) {
@@ -1678,7 +1678,7 @@ global uintL nls_mblen (object encoding, const uintB* src,
 
 global void nls_mbstowcs (object encoding, object stream, const uintB* *srcp,
                           const uintB* srcend, chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL count = destend-dest;
@@ -1734,7 +1734,7 @@ global uintL nls_asciiext_mblen (object encoding, const uintB* src,
 global void nls_asciiext_mbstowcs (object encoding, object stream,
                                    const uintB* *srcp, const uintB* srcend,
                                    chart* *destp, chart* destend) {
-  (void)stream;
+  unused(stream);
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL count = destend-dest;
@@ -1806,7 +1806,7 @@ global uintL nls_wcslen (object encoding, const chart* src,
 global void nls_wcstombs (object encoding, object stream,
                           const chart* *srcp, const chart* srcend,
                           uintB* *destp, uintB* destend) {
-  (void)stream;
+  unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL scount = srcend-src;
@@ -1882,7 +1882,7 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
 global void nls_asciiext_wcstombs (object encoding, object stream,
                                    const chart* *srcp, const chart* srcend,
                                    uintB* *destp, uintB* destend) {
-  (void)stream;
+  unused(stream);
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   var uintL scount = srcend-src;

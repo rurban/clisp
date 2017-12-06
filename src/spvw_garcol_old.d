@@ -2429,7 +2429,7 @@ global maygc void gar_col(int level)
  #if defined(USE_JITC)
   gc_drop_jitc = (level==1);
  #else
-  (void)level;
+  unused(level);
  #endif
   with_gc_statistics(&do_gar_col);     /* GC and statistics */
  #if defined(USE_JITC)

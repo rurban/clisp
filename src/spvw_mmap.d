@@ -145,7 +145,7 @@ local int is_large_range_unmapped_callback (void *data,
                                             uintptr_t start, uintptr_t end,
                                             unsigned int flags)
 {
-  (void)flags;
+  unused(flags);
   var struct is_large_range_unmapped_locals* locals =
     (struct is_large_range_unmapped_locals*) data;
   if (!(start > locals->map_end-1 || locals->map_start > end-1)) {
@@ -489,7 +489,7 @@ local int mmap_init (void)
 
 local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
 {
-  (void)shrinkp;
+  unused(shrinkp);
   /* Warn before reserving an address range that contains existing memory
      mappings. We don't actually shrink the range [*map_addr,*map_endaddr)
      here. */

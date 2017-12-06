@@ -54,6 +54,7 @@ local internal_time_t realstart_time; /* real time at start of LISP session */
    > thread object (always nullobj w/o threads) */
 local inline object thread_from_arg(object obj) {
 #ifndef MULTITHREAD
+  unused(obj);
   return nullobj;
 #else
   return missingp(obj) ? nullobj :
@@ -133,6 +134,8 @@ global bool get_thread_run_time (internal_time_t* runtime, object thread)
     return false; /* no RUSAGE_THREAD  */
   #endif
   }
+#else
+  unused(thread);
 #endif
   begin_system_call();
   if (!( getrusage(who,&rusage) ==0)) { OS_error(); }

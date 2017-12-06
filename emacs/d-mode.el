@@ -178,7 +178,7 @@ The point should be on the prototype and the definition should follow."
                  "loop" "inline" "NULL" "nullobj" "maygc" "per_thread"
                  "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
-                 "dotimesW" "_Noreturn" "return_Values"
+                 "dotimesW" "_Noreturn" "return_Values" "unused"
                  "SstringDispatch" "SstringCase")
                'words)))
 

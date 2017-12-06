@@ -282,7 +282,7 @@ local uintL rd_by_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
                                uintL start, uintL len, perseverance_t persev)
 {
-  (void)bytearray_; (void)start; (void)len; (void)persev;
+  unused(bytearray_); unused(start); unused(len); unused(persev);
   error_illegal_streamop(S(read_byte),*stream_);
 }
 
@@ -312,7 +312,7 @@ local maygc uintL rd_by_array_dummy (const gcv_object_t* stream_,
 
 local void wr_by_error (object stream, object obj)
 {
-  (void)obj;
+  unused(obj);
   error_illegal_streamop(S(write_byte),stream);
 }
 
@@ -320,7 +320,7 @@ local void wr_by_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
                               uintL start, uintL len, perseverance_t persev)
 {
-  (void)bytearray_; (void)start; (void)len; (void)persev;
+  unused(bytearray_); unused(start); unused(len); unused(persev);
   error_illegal_streamop(S(write_byte),*stream_);
 }
 
@@ -354,7 +354,7 @@ local uintL rd_ch_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* chararray_,
                                uintL start, uintL len)
 {
-  (void)chararray_; (void)start; (void)len;
+  unused(chararray_); unused(start); unused(len);
   error_illegal_streamop(S(read_char),*stream_);
 }
 
@@ -377,7 +377,7 @@ local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
 
 local void wr_ch_error (const gcv_object_t* stream_, object obj)
 {
-  (void)obj;
+  unused(obj);
   error_illegal_streamop(S(write_char),*stream_);
 }
 
@@ -385,7 +385,7 @@ local void wr_ch_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* chararray_,
                               uintL start, uintL len)
 {
-  (void)chararray_; (void)start; (void)len;
+  unused(chararray_); unused(start); unused(len);
   error_illegal_streamop(S(write_char),*stream_);
 }
 
@@ -2972,7 +2972,7 @@ local bool running_handle_close_errors = false;
 #endif
 local void handle_close_errors (void* sp, gcv_object_t* frame, object label,
                                 object condition) {
-  (void)sp; (void)label; (void)condition;
+  unused(sp); unused(label); unused(condition);
   if (running_handle_close_errors) return;
   else running_handle_close_errors = true;
   unwind_upto(frame);
@@ -5484,7 +5484,7 @@ local void low_clear_output_unbuffered_handle (object stream) {
  Writes the Bitbuffer-Content to the File. */
 local maygc void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
                                           uintL bytesize) {
-  (void)bitsize;
+  unused(bitsize);
   var uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,
@@ -7515,7 +7515,7 @@ local maygc listen_t listen_byte_ia8_buffered (object stream) {
 local maygc void wr_by_aux_ia_buffered (object stream, uintL bitsize,
                                         uintL bytesize)
 {
-  (void)bitsize;
+  unused(bitsize);
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   pushSTACK(stream);
   var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
@@ -7559,7 +7559,7 @@ local maygc void wr_by_aux_ia_buffered (object stream, uintL bitsize,
 local maygc void wr_by_aux_ib_buffered (object stream, uintL bitsize,
                                         uintL bytesize)
 {
-  (void)bytesize;
+  unused(bytesize);
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   pushSTACK(stream);
   var uintL bitshift = BufferedStream_bitindex(stream);
@@ -7591,7 +7591,7 @@ local maygc void wr_by_aux_ib_buffered (object stream, uintL bitsize,
  Writes the Bitbuffer-Content to the File. */
 local maygc void wr_by_aux_ic_buffered (object stream, uintL bitsize,
                                         uintL bytesize) {
-  (void)bytesize;
+  unused(bytesize);
   pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   pushSTACK(stream);
   var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
@@ -9221,7 +9221,7 @@ LISPFUNN(make_keyboard_stream,0) {
 /* Function to ignore unconvertible symbols. */
 local void lisp_completion_ignore (void* sp, gcv_object_t* frame, object label,
                                    object condition) {
-  (void)sp; (void)frame; (void)label; (void)condition;
+  unused(sp); unused(frame); unused(label); unused(condition);
   /* (THROW 'SYS::CONVERSION-FAILURE NIL): */
   VALUES1(NIL);
   throw_to(S(conversion_failure));
@@ -9578,6 +9578,7 @@ local bool want_filename_completion;
 local char** lisp_completion_matches (READLINE_CONST char* text,
                                       int start, int end)
 { /* text[0..end-start-1] = the_line[start..end-1] */
+  unused(text);
   if (((start>=2)
        && (rl_line_buffer[start-2]=='#')
        && (rl_line_buffer[start-1]== '\"'))
@@ -10806,7 +10807,7 @@ local void out_cap1string (const char* s, int arg) {
   local uintC cost_counter; /* counter */
 /* Function, that does not write, but only counts: */
 local void count_char (char c) {
-  (void)c;
+  unused(c);
   cost_counter++;
 }
 
@@ -12218,7 +12219,7 @@ local void end_term (uintB abort) {
   if (NLcap[0] == '\n')
     term_nlunraw(abort);
  #else
-  (void)abort;
+  unused(abort);
  #endif
 }
 
@@ -12324,7 +12325,7 @@ LISPFUNN(make_window,0) {
 
 /* Closes a Window-Stream. */
 local void close_window (object stream, uintB abort) {
-  (void)stream;
+  unused(stream);
   begin_system_call();
   end_term(abort);
   end_system_call();
@@ -12848,11 +12849,11 @@ local maygc const uintB* low_write_array_unbuffered_pipe
 #endif
 
 local void low_finish_output_unbuffered_pipe (object stream) /* do nothing */
-{ (void)stream; }
+{ unused(stream); }
 local void low_force_output_unbuffered_pipe (object stream) /* do nothing */
-{ (void)stream; }
+{ unused(stream); }
 local void low_clear_output_unbuffered_pipe (object stream) /* do nothing */
-{ (void)stream; }
+{ unused(stream); }
 
 /* make, init, and register pipe stream object
  > buffered
@@ -13682,7 +13683,7 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
 
 /* Hack for avoiding that the handle is closed twice. */
 local void low_close_socket_nop (object stream, object handle, uintB abort) {
-  (void)stream; (void)handle; (void)abort;
+  unused(stream); unused(handle); unused(abort);
 }
 
 /* Creates a socket stream.

@@ -1,5 +1,14 @@
 2017-12-06  Sam Steingold  <sds@gnu.org>
 
+	* emacs/d-mode.el (d-extra-keywords): Add "unused".
+	* array.d, encoding.d, foreign.d, funarg.d, io.d, pathname.d,
+	* sequence.d, socket.d, spvw.d, spvw_garcol.d, spvw_garcol_old.d,
+	* spvw_mmap.d, spvw_sigint.d, spvw_sigpipe.d, spvw_sigsegv.d,
+	* spvw_sigwinch.d, stream.d, time.d, gctrigger.c: Code cleanup:
+	use "unused(V)" instead of "(void)V".
+
+2017-12-06  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (handle_fault_range) [!(GENERATIONAL_GC & SPVW_MIXED)]:
 	Expand non-trivially to avoid -Wunused-parameter.
 

@@ -36,19 +36,19 @@ global maygc bool call_test (const gcv_object_t* fun,
 /* special case the most frequent cases: */
 global maygc bool call_test_eq (const gcv_object_t* fun,
                                 object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 1),L(eq)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 1),L(eq)))*/;
   return eq(arg2,arg1); }
 global maygc bool call_test_eql (const gcv_object_t* fun,
                                  object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 1),L(eql)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 1),L(eql)))*/;
   return eql(arg2,arg1); }
 global maygc bool call_test_equal (const gcv_object_t* fun,
                                    object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 1),L(equal)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 1),L(equal)))*/;
   return equal(arg2,arg1); }
 global maygc bool call_test_equalp (const gcv_object_t* fun,
                                     object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 1),L(equalp)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 1),L(equalp)))*/;
   return equalp(arg2,arg1); }
 
 /* Subroutine to compute the test :TEST-NOT
@@ -68,32 +68,32 @@ global maygc bool call_test_not (const gcv_object_t* fun,
 /* special case the most frequent cases: */
 global maygc bool call_test_not_eq (const gcv_object_t* fun,
                                     object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 0),L(eq)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 0),L(eq)))*/;
   return !eq(arg2,arg1); }
 global maygc bool call_test_not_eql (const gcv_object_t* fun,
                                      object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 0),L(eql)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 0),L(eql)))*/;
   return !eql(arg2,arg1); }
 global maygc bool call_test_not_equal (const gcv_object_t* fun,
                                        object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 0),L(equal)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 0),L(equal)))*/;
   return !equal(arg2,arg1); }
 global maygc bool call_test_not_equalp (const gcv_object_t* fun,
                                         object arg1, object arg2)
-{ (void)fun/*ASSERT(eq(*(fun STACKop 0),L(equalp)))*/;
+{ unused(fun)/*ASSERT(eq(*(fun STACKop 0),L(equalp)))*/;
   return !equalp(arg2,arg1); }
 
 /* for -IF and -IF-NOT functions */
 global maygc bool call_if (const gcv_object_t* stackptr,
                            object arg1, object arg2) {
-  (void)arg1;         /* unused */
+  unused(arg1);
   /* Per CLTL p. 247 call (funcall predicate arg2): */
   pushSTACK(arg2); funcall(*(stackptr STACKop 1),1);
   return !nullp(value1);
 }
 global maygc bool call_if_not (const gcv_object_t* stackptr,
                                object arg1, object arg2) {
-  (void)arg1;   /* unused */
+  unused(arg1);
   /* Per CLTL p. 247 call (not (funcall predicate arg2)): */
   pushSTACK(arg2); funcall(*(stackptr STACKop 1),1);
   return nullp(value1);
@@ -146,4 +146,3 @@ global funarg_t* check_test_args (gcv_object_t* stackptr) {
     }
   return &call_test_not;
 }
-
