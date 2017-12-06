@@ -550,6 +550,7 @@ LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
 INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
 LIBICONV='@LIBICONV@'               # either '-liconv' or ''
 LIBSIGSEGV='@LIBSIGSEGV@'           # '-lsigsegv -L/usr/local/lib' or ''
+LIBUNISTRING='@LIBUNISTRING@'       # '-lunistring ...' or ''
 LIBSOCKET='@LIBSOCKET@'             # '-lnet' or '-lsocket' or '-lws2_32' or ''
 X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
 X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
@@ -1097,22 +1098,24 @@ if [ "$TSYSOS" = osf1 ] ; then
   # On OSF/1 4.0, libtool adds -lc, but this -lc flag causes link errors when
   # comes anywhere except at the end of the link command line, complaining
   # about _OtsDivide32, __lc_ctype and others.
-  LIBICONV=`echo " $LIBICONV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
-  LIBINTL=`echo " $LIBINTL " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
-  LIBSIGSEGV=`echo " $LIBSIGSEGV " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
-  LIBSOCKET=`echo " $LIBSOCKET " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'`
+  remove_lc () { echo " $1 " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'; }
+  LIBICONV=$(remove_lc " $LIBICONV ")
+  LIBINTL=$(remove_lc " $LIBINTL ")
+  LIBSIGSEGV=$(remove_lc " $LIBSIGSEGV ")
+  LIBUNISTRING=$(remove_lc " $LIBUNISTRING ")
+  LIBSOCKET=$(remove_lc " $LIBSOCKET ")
 fi
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
+  LIBS=$LIBS" $LIBICONV $LIBSIGSEGV $LIBUNISTRING"
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
-    LIBS=$LIBS' -luser32 -lole32 -loleaut32 -luuid '$LIBICONV' '$LIBSIGSEGV
+    LIBS=$LIBS" -luser32 -lole32 -loleaut32 -luuid $LIBICONV $LIBSIGSEGV $LIBUNISTRING"
   else
     if [ $TSYS = win32msvc ] ; then
-      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib '$LIBSIGSEGV
+      LIBS=$LIBS" user32.lib ws2_32.lib advapi32.lib $LIBSIGSEGV $LIBUNISTRING"
     fi
     LIBS=$LIBS' ole32.lib shell32.lib'
   fi
