@@ -1,3 +1,9 @@
+2017-12-06  Sam Steingold  <sds@gnu.org>
+
+	Make sure the Darwin foo.dSYM directories are removed by clean et al.
+	* makemake.in (exefiles, EXERM): New variables.
+	Used throughout to ensure removal of .dSYM. Cf. patch#50.
+
 2017-12-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* loop.lisp (destructure-type): In LOOP destructuring, type NIL
