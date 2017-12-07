@@ -2318,7 +2318,7 @@ DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://opengroup.org/onlinepubs/9699919799/functions/mknod.html */
   object md = popSTACK();
-  object tp = popSTACK()
+  object tp = popSTACK();
   mode_t mode = check_chmod_mode_of_list(md) | mknod_type_check(tp);
   int ret;
   STACK_0 = physical_namestring(STACK_0);
