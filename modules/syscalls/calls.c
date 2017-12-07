@@ -2317,8 +2317,9 @@ DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://opengroup.org/onlinepubs/9699919799/functions/mknod.html */
-  mode_t mode = check_chmod_mode_of_list(popSTACK())
-      | mknod_type_check(popSTACK());
+  object md = popSTACK();
+  object tp = popSTACK()
+  mode_t mode = check_chmod_mode_of_list(md) | mknod_type_check(tp);
   int ret;
   STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {

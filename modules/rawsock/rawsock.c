@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2012
+ * Sam Steingold 2004-2012, 2017
  * Bruno Haible 2004-2008
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <string.h>            /* for memcpy(3) */
+#include <string.h>            /* for memset(3) */
 #include <stddef.h>            /* for offsetof */
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -889,12 +889,15 @@ static void call_getaddrinfo (const char* nd,const char* sv,
 }
 DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
       PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED :ALL ADDRCONFIG) {
-  struct addrinfo hints = {addrinfo_flags(),
-                           check_socket_domain(popSTACK()),
-                           check_socket_type(popSTACK()),
-                           get_socket_protocol(popSTACK()),
-                           0,NULL,NULL,NULL};
+  struct addrinfo hints;
   struct addrinfo *ret = NULL, *tmp;
+  begin_system_call();
+  memset(&hints,0,sizeof(hints));
+  end_system_call();
+  hints.ai_flags = addrinfo_flags();
+  hints.ai_family = check_socket_domain(popSTACK());
+  hints.ai_socktype = check_socket_type(popSTACK());
+  hints.ai_protocol = get_socket_protocol(popSTACK());
   int valcount = 0;
   if (missingp(STACK_0)) {
     if (missingp(STACK_1))

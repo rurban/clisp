@@ -1,3 +1,13 @@
+2017-12-07  Jerry James  <loganjerry@gmail.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	Avoid -Wunsequenced / -Wsequence-point warnings (subsumes patch#54).
+	* modules/clx/new-clx/clx.f (STANDARD_XID_OBJECT_LOOK)
+	(STANDARD_PTR_OBJECT_LOOK): Avoid multiple popSTACK()s in a single
+	expression by creating a separate statement for each.
+	* modules/rawsock/rawsock.c (RAWSOCK:GETADDRINFO): Likewise.
+	* modules/syscalls/calls.c (POSIX:MKNOD): Likewise.
+
 2017-12-06  Sam Steingold  <sds@gnu.org>
 
 	* emacs/d-mode.el (d-extra-keywords): Add "unused".
