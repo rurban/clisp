@@ -1152,7 +1152,7 @@
   #endif
   typedef unsigned char  UBYTE;
 #else
-  #error No 8 bit integer type? -- Which Interger-type has 8 Bit?
+  #error No 8 bit integer type? -- Which Integer-type has 8 Bit?
 #endif
 #if (short_bitsize==16)
   typedef short          SWORD;
