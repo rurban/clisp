@@ -32,6 +32,8 @@
 extern char **environ;
 #endif
 
+#include <stdlib.h>             /* for malloc() */
+
 /* For strchr(), strncmp() and friends */
 #include <string.h>
 
