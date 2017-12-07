@@ -2,7 +2,7 @@
 ;; Test CLISP specific extensions (typically in package EXT)
 ;; Many tests already in alltest.tst, map.tst etc., but
 ;; here we avoid using #+clisp all over the place.
-;; Jörg Höhle, 2007
+;; Jörg Höhle, 2007, 2017
 ;; Sam Steingold, 2007-2008, 2010-2011, 2016-2017
 
 ;; completion
@@ -474,7 +474,7 @@ T
 (handler-case
     (letf ((*current-language* 'french))
       (list (string= "À bientôt!" (sys::text "Bye."))
-            (eq *current-language* 'FRANÇAIS)))
+            (string= *current-language* "FRANÇAIS")))
   (error (e) (princ-error e) '(T T)))
 #+:gettext (T T)
 
@@ -482,7 +482,7 @@ T
 (handler-case
     (letf ((*current-language* 'russian))
       (list (string= "До свидания! Не поминайте лихом!" (sys::text "Bye."))
-            (eq *current-language* 'РУССКИЙ)))
+            (string= *current-language* "РУССКИЙ")))
   (error (e) (princ-error e) '(T T)))
 #+:gettext (T T)
 

@@ -1,3 +1,10 @@
+2017-12-07  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Fix --without-unicode tests.
+	* streamslong.tst [UNICODE]: CHARSET:UTF-8 only exists in #+UNICODE builds.
+	* ext-clisp.tst [UNICODE]: Avoid literal symbols with UTF-8 names not
+	readable in a locale where codes 128 upto 128+32 may be control codes.
+
 2017-11-29  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst [clisp]: Disable both CLHS and IMPNOTES so that

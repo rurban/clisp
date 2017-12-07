@@ -319,11 +319,11 @@ nil
        (dolist (b '(nil t))
          (with-open-stream (out (ext:make-pipe-output-stream
                                  (format nil "/bin/cat > ~A" file)
-                                 :external-format charset:utf-8 :buffered b))
+                                  #+:UNICODE :external-format #+:UNICODE charset:utf-8 :buffered b))
            (loop for i below 1000 do (print i out)))
          (sleep 1)              ; let cat terminate
          (with-open-file (in file :direction :input
-                             :external-format charset:utf-8)
+                             #+:UNICODE :external-format #+:UNICODE charset:utf-8)
            (loop for i below 1000 do (assert (= i (read in))))))
     (delete-file file)))
 #+(and CLISP UNIX) NIL
