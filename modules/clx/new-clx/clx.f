@@ -1722,7 +1722,9 @@ static void general_lookup (object type)
   DEFUN(XLIB:##L##-ID,xxx)                                              \
     { VALUES1(make_uint29((XID)get_##c (popSTACK()))); }                \
   DEFUN(XLIB:##L##-EQUAL,xxx yyy)                                       \
-    { VALUES_IF(get_##c (popSTACK()) == get_##c (popSTACK())); }        \
+    { object xxx = popSTACK();                                          \
+      object yyy = popSTACK();                                          \
+      VALUES_IF(get_##c(xxx) == get_##c(yyy)); }                        \
   DEFUN(XLIB:LOOKUP-##L,display xxx)                                    \
     { general_lookup (`XLIB::##L##`); }
 
@@ -1739,7 +1741,9 @@ static void general_lookup (object type)
   DEFUN(XLIB:##L##-P,xxx)                                               \
     { VALUES_IF(c##_p (popSTACK())); }                                  \
   DEFUN(XLIB:##L##-EQUAL,xxx yyy)                                       \
-    { VALUES_IF(get_##c (popSTACK()) == get_##c (popSTACK())); }
+    { object xxx = popSTACK();                                          \
+      object yyy = popSTACK();                                          \
+      VALUES_IF(get_##c(xxx) == get_##c(yyy)); }
 
 
 /* -----------------------------------------------------------------------
