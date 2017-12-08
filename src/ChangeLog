@@ -1,3 +1,11 @@
+2017-12-08  Sam Steingold  <sds@gnu.org>
+
+	Ensure that all positional args are in *ARGS* when compiling.
+	* spvw.d (push_to_args): Extract from ...
+	(main_actions): Call push_to_args() on argv_execute_args when
+	compiling in addition to when scripting
+	* makemake.in (check-script): Test that.
+
 2017-12-07  Jerry James  <loganjerry@gmail.com>
 	    Sam Steingold  <sds@gnu.org>
 

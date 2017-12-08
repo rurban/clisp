@@ -3607,6 +3607,16 @@ local void maygc run_hooks (object hooks) {
   setSTACK(STACK = top_of_frame); /* drop hooks & skip driver-frame */
 }
 
+/* (push arg *args*)
+ can trigger GC */
+local void maygc push_to_args(const char *s) {
+  pushSTACK(asciz_to_string(s,O(misc_encoding)));
+  var object new_cons = allocate_cons();
+  Car(new_cons) = popSTACK();
+  Cdr(new_cons) = Symbol_value(S(args));
+  Symbol_value(S(args)) = new_cons;
+}
+
 /* Perform the main actions as specified by the command-line arguments. */
 local inline void main_actions (struct argv_actions *p) {
   /* print greeting: */
@@ -3631,6 +3641,9 @@ local inline void main_actions (struct argv_actions *p) {
     while (--count);
     Symbol_value(S(args)) = listof(p->argv_execute_arg_count);
   } else Symbol_value(S(args)) = NIL;
+  if (p->argv_execute_file != NULL && p->argv_compile) {
+    push_to_args(p->argv_execute_file); /* compiling: (push exec-file *args*) */
+  }
   if ((p->argv_memfile == NULL) && (p->argv_expr_count == 0)) {
     /* warning for beginners */
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); /* auf *STANDARD-OUTPUT* */
@@ -3889,11 +3902,7 @@ local inline void main_actions (struct argv_actions *p) {
     if (!p->argv_repl)
       return;
   } else if (p->argv_execute_file) { /* !scripting => (push exec-file *args*) */
-    pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
-    var object new_cons = allocate_cons();
-    Car(new_cons) = popSTACK();
-    Cdr(new_cons) = Symbol_value(S(args));
-    Symbol_value(S(args)) = new_cons;
+    push_to_args(p->argv_execute_file);
   }
   if (p->argv_expr_count) {
     /* set *STANDARD-INPUT* to a stream, that produces argv_exprs: */
