@@ -101,7 +101,6 @@ User visible changes
     avoid destructuring null patterns (bug#414);
     detect incomplete FOR clauses (bug#572);
     check whether DO clauses are compound forms (bug#711);
-    better handle variable reuse: `... FOR x ON x ...` (bug#375);
     warn on REPEAT before FOR (bug#604).
   + Fix SOCKET-CONNECT with non-0 timeout (bug#587).
   + Reduce consing in HANDLER-BIND et al (bug#582).
