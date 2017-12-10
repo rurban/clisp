@@ -725,6 +725,7 @@ nil
 
 ;;; Tests from ANSI CL section 6.1.2.1.1.
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1.html>
+;; <http://clhs.lisp.se/Body/06_abaa.htm>
 (let ((x 1)) (loop for i from x by (incf x) to 10 collect i))
 (1 3 5 7 9)
 
@@ -805,6 +806,7 @@ WARNING
   collect (list x y))
 ((1 NIL) (2 1) (3 2) (4 3) (5 4) (6 5) (7 6) (8 7) (9 8) (10 9))
 
+;; https://sourceforge.net/p/clisp/mailman/message/36135304/
 ;; not really required, but many people want to access
 ;; iteration variables in the finally clauses
 (loop for x in '(1 2 3) for y in '(4 5 6) sum (* x y) into z
@@ -892,7 +894,8 @@ NIL
 
 (let ((vars '(1 2 3)))
   (loop for i from 0 to 10 for vars on vars collect vars))
-((1 2 3) (2 3) (3))
+#+CLISP NIL
+#-CLISP ((1 2 3) (2 3) (3))
 
 (let ((x '(1 2 3)) (y '(a b c)) (z #(7 8 9)))
   (loop repeat 100
@@ -900,9 +903,16 @@ NIL
     for y in y
     for z across z
     collect (list x y z)))
+#+CLISP NIL
+#-CLISP
 (((1 2 3) a 7)
  ((2 3) b 8)
  ((3) c 9))
+
+(let ((x '((1 2 3) (1 2))))     ; ?!
+  (loop repeat 3 for x in x for y in x collect y))
+#+(OR CLISP SBCL) NIL
+#+EXPECTED-BEHAVIOR (1 2)
 
 (let ((a (make-ht '((10 . 100) (20 . 200) (30 . 300)))))
   (sort
@@ -910,7 +920,59 @@ NIL
      for a being the hash-keys of a
      collect a)
    #'<))
-(10 20 30)
+#+CLISP ERROR
+#-CLISP (10 20 30)
+
+;; https://sourceforge.net/p/clisp/bugs/667/
+(loop for c from 0 to 1 for i on '(1 2 3 4 5) finally (return i))
+#+CLISP (3 4 5)
+#-CLISP (2 3 4 5)
+(loop for c from 0 to 1 for i = '(1 2 3 4 5) then (cdr i) finally (return i))
+(2 3 4 5)
+
+;; https://sourceforge.net/p/clisp/mailman/message/36135509/
+(let (res)
+  (list
+   (with-output-to-string (*standard-output*)
+     (setq res
+           (loop for x across "abc" and z on (list 1)
+             do (princ x) finally (return (cons x z)))))
+   res))
+("a" (#\b))
+(let (res)
+  (list
+   (with-output-to-string (*standard-output*)
+     (setq res
+           (loop for x across "abc" for z on (list 1)
+             do (princ x) finally (return (cons x z)))))
+   res))
+("a" (#\b))
+(loop for x across #((1 2 3) (4 5 6) (7 8 9))
+  and z = nil then x finally (return (list :x x :z z)))
+#+CLISP (:X (7 8 9) :Z (7 8 9))
+#-CLISP (:X (7 8 9) :Z (4 5 6))
+(loop for x across #((1 2 3) (4 5 6) (7 8 9))
+  for z = nil then x finally (return (list :x x :z z)))
+(:X (7 8 9) :Z (7 8 9))
+
+(loop for c from 0 to 1 for (first . rest) on '(1 2 3 4 5)
+  finally (return (list :first first :rest rest)))
+(:FIRST 2 :REST (3 4 5))
+
+(loop for c from 0 to 1 for list on '(1 2 3 4 5) for (first . rest) = list
+  finally (return (list :list list :first first :rest rest)))
+(:LIST (2 3 4 5) :FIRST 2 :REST (3 4 5))
+
+;; http://clhs.lisp.se/Issues/iss222_w.htm
+(let ((list '(1 2 3)))
+  (loop for list = list then (cdr list)
+    until (null list)
+    collect (car list)))
+#+(OR CLISP SBCL) NIL
+#+EXPECTED-BEHAVIOR (1 2 3)
+
+;; https://sourceforge.net/p/clisp/bugs/721/
+(loop with v = #(1 2) for x across v sum x) 3
 
 ;; https://sourceforge.net/p/clisp/bugs/604/
 (handler-case (macroexpand '(loop repeat 0 for E = 7 then A finally (return E)))
@@ -953,10 +1015,11 @@ WARNING
            (or (find-in-tree (car tree) atom)
                (find-in-tree (cdr tree) atom)))))
 FIND-IN-TREE
+#+CLISP       ; other lisps may have additional declarations for gensyms
 (find-in-tree (macroexpand-1 '(loop for (i j k) of-type (fixnum nil float)
                                 across #()))
               'DECLARE)
-(DECLARE (TYPE FIXNUM I) (TYPE FLOAT K))
+#+CLISP (DECLARE (TYPE FIXNUM I) (TYPE FLOAT K))
 
 ;; https://sourceforge.net/p/clisp/bugs/414/: unnecessary bindings
 (loop for nil on '(1 2 . 3) count t) 2
