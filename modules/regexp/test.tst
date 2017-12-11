@@ -581,5 +581,11 @@ yz")
 (("6°" "45'" "22.90\"" "" "" "" "S")
  ("35°" "7'" "23.60\"" "" "E"))
 
+(regexp:regexp-split " *, *" "a, b,c ,d,f" :start 3 :end 6)
+("b" "c")
+
+(regexp:regexp-split " *, *" "a, b,c ,d,f" :start 3 :end 3)
+("")
+
 (symbols-cleanup '(*saved-locale* latitude longitude))
 ()
