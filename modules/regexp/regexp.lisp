@@ -1,6 +1,6 @@
 ;; Module for regular expression searching/matching in CLISP
 ;; Bruno Haible 14.4.1995, 18.4.1995 -- 2003
-;; Sam Steingold 1999-10-28 -- 2009
+;; Sam Steingold 1999-10-28 -- 2009, 2011, 2017
 
 (defpackage "REGEXP"
   (:documentation
@@ -105,10 +105,11 @@ Return a list of substrings of STRINGS."
                                       :ignore-case ignore-case
                                       :newline newline :nosub nosub)
               pattern)
+    :and stop = (or end (length string))
     :for match = (regexp-exec compiled string :start start :end end
                                               :notbol notbol :noteol noteol)
     :collect
-      (make-array (- (if match (match-start match) (length string)) start)
+      (make-array (- (if match (match-start match) stop) start)
                   :element-type 'character
                   :displaced-to string
                   :displaced-index-offset start)
