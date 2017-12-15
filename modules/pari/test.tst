@@ -443,10 +443,7 @@ ROUNDTRIP-2
 (NIL T NIL)
 (<= 0 (pari:pari-to-lisp (pari:random_ :|n| 10)) 9) T
 (< 0 (pari:pari-to-lisp (pari:random_ :|n| 1.0)) 1) T
-(gethash
- (pari::pari-type-raw (pari::pari-object-internal-pointer (show (pari:random_))))
- (get 'pari:pari-typecode 'ffi:def-c-enum))
-PARI:INT
+(pari:pari-type (show (pari:random_))) PARI:INT
 
 (integerp (show (pari:getstack))) T
 (integerp (show (pari:gettime))) T
@@ -702,7 +699,7 @@ pari:pari-real-precision  19
   (list (sort no-gp #'string-lessp)
         (sort undocumented #'string-lessp)))
 ((PARI:gerepile PARI:maxprime PARI:next-entree PARI:pari-fini PARI:pari-init
-  PARI:pari-real-precision PARI:pari-to-lisp)
+  PARI:pari-real-precision PARI:pari-to-lisp PARI:pari-type)
  ;; This list should ideally contain only operators like * and ==
  ;; and tests like bigint? and complex?
  ;; All other functions might be accessing obsolescent functionality.

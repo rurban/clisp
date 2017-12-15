@@ -921,6 +921,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 
 ;;; Conversion from pari -- dispatch
 
+(defun pari-type-raw-to-symbol (type-code)
+  (gethash type-code (get 'pari-typecode 'ffi:def-c-enum)))
+
 (defun convert-from-pari (ptr)
   "Converts an internal pari object to a CLISP object"
   (case (pari-type-raw ptr)
@@ -941,8 +944,9 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (18 (convert-from-pari-vector ptr :col))
     (19 (convert-from-pari-MAT ptr))
     (22 (convert-from-pari-vector ptr))
-    (t (error "~S: Pari type ~D is not yet implemented as a CLISP type."
-              'convert-from-pari (pari-type-raw ptr)))))
+    (t (error "~S: Pari type ~D(~S) is not yet implemented as a CLISP type."
+              'convert-from-pari (pari-type-raw ptr)
+              (pari-type-raw-to-symbol (pari-type-raw ptr))))))
 
 (defun convert-to-boolean (ptr)
   (case (convert-from-pari ptr)
@@ -951,7 +955,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (t (error "Pari predicate returned ~S instead of 0 or 1."
               (convert-from-pari ptr)))))
 
-(export 'pari-to-lisp)
+(export '(pari-to-lisp pari-type))
 (defgeneric pari-to-lisp (x))
 
 (defmethod pari-to-lisp ((x pari-object)) x)
@@ -961,6 +965,14 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 (defmethod pari-to-lisp ((x array)) x)
 (defmethod pari-to-lisp ((x null)) x)
 
+(defun pari-type (obj)
+  (let ((type-code
+         (pari-type-raw
+          (if (pari-object-p obj)
+              (pari-object-internal-pointer obj)
+              (foreign-address obj)))))
+    (or (pari-type-raw-to-symbol type-code)
+        (format nil "unknown-typecode-~S" type-code))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; generate bindings at compile time from /usr/share/pari/pari.desc
