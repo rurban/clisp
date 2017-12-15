@@ -790,9 +790,6 @@ stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
 set +e;
 test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt ${STACK_LIMIT}; }
 STACK_TOO_SMALL=$?      # 0=true => need to reset; 1=false => big enough
-# Ensure exit on failure in pipes (... | tee ...) below.
-# This works with bash, ksh and zsh.
-set -o pipefail 2>/dev/null
 set -e
 
 cd "$ABS_DIRNAME"
@@ -831,10 +828,15 @@ else
   if [ "${STACK_TOO_SMALL}" = 0 ]; then
     set +e; ulimit -s ${STACK_LIMIT} 2>/dev/null; set -e;
   fi
-  ${MAKE} 2>&1 | tee cbcstep2.log
-  ${MAKE} check 2>&1 | tee cbcstep3.log
+  { ${MAKE} && { echo "===> ${MAKE} SUCCEEDED"; exit 0; } || echo "===> ${MAKE} FAILED"; } 2>&1 | tee cbcstep2.log
+  { ${MAKE} check && { echo "===> ${MAKE} check SUCCEEDED"; exit 0; } || echo "===> ${MAKE} check FAILED"; } 2>&1 | tee cbcstep3.log
   if test "$do_cbc" = 2; then
-    ${MAKE} extracheck 2>&1 | tee cbcstep4.log
+    { ${MAKE} extracheck && { echo "===> ${MAKE} extracheck SUCCEEDED"; exit 0; } || echo "===> ${MAKE} extracheck FAILED"; } 2>&1 | tee cbcstep4.log
+  fi
+  # Fail if one of the commands "make" or "make check" failed. "make extracheck" is allowed to fail.
+  sed -n -e '$p' cbcstep2.log | grep ' SUCCEEDED$' >/dev/null || exit 1
+  sed -n -e '$p' cbcstep3.log | grep ' SUCCEEDED$' >/dev/null || exit 1
+  if test "$do_cbc" = 2; then
     cat <<EOF
 # Now you can test modules:
     ${MAKE} mod-check
