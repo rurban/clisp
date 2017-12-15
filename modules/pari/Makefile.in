@@ -6,6 +6,8 @@ PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
+prefix = @LIBPARI_PREFIX@
+DATADIR = @datadir@
 
 LN = @LN@
 LN_S = @LN_S@
@@ -19,14 +21,17 @@ ALL_CFLAGS = $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
 
 GENERATED = pari.o cpari.o pari.fas preload.lisp
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
-	$(srcdir)/pari.lisp $(srcdir)/README
+	$(srcdir)/pari.lisp $(srcdir)/desc2lisp.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module
 clisp-module : $(GENERATED)
 
-pari.fas pari.c : $(srcdir)/pari.lisp
-	$(CLISP) -c $(srcdir)/pari.lisp -o ./
+desc2lisp.fas : $(srcdir)/desc2lisp.lisp
+	$(CLISP) -c $(srcdir)/desc2lisp.lisp -o ./
+
+pari.fas pari.c : $(srcdir)/pari.lisp desc2lisp.fas
+	$(CLISP) -i desc2lisp -c $(srcdir)/pari.lisp -o ./ $(DATADIR)
 
 pari.o : pari.c config.h
 	$(CC) $(ALL_CFLAGS) -c pari.c
@@ -47,4 +52,3 @@ clean : force
 distclean : clean
 
 force :
-
