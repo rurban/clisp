@@ -919,6 +919,29 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
               (setf (aref arr i j)
                     (convert-from-pari (%component col (1+ i)))))))))))
 
+;; INFINITY=25: +oo - (+ INFINITY), -oo - (- INFINITY)
+
+;; INLINE GEN mkmoo(void);
+(def-call-out mkmoo (:return-type pari-gen) (:arguments))
+;; INLINE GEN mkoo(void);
+(def-call-out mkoo (:return-type pari-gen) (:arguments))
+
+(defmethod convert-to-pari ((x cons))
+  (or (and (null (cddr x))
+           (eq 'INFINITY (second x))
+           (case (first x)
+             (+ (mkoo))
+             (- (mkmoo))))
+      (error "~S: Invalid list ~S" 'convert-to-pari x)))
+
+;; INLINE long inf_get_sign(GEN x);
+(def-call-out inf_get_sign (:return-type long) (:arguments (x pari-gen)))
+
+(defun convert-from-pari-INFINITY (ptr)
+  (ecase (inf_get_sign ptr)
+    (1 '(+ INFINITY))
+    (-1 '(- INFINITY))))
+
 ;;; Conversion from pari -- dispatch
 
 (defun pari-type-raw-to-symbol (type-code)
@@ -944,6 +967,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
     (18 (convert-from-pari-vector ptr :col))
     (19 (convert-from-pari-MAT ptr))
     (22 (convert-from-pari-vector ptr))
+    (25 (convert-from-pari-INFINITY ptr))
     (t (error "~S: Pari type ~D(~S) is not yet implemented as a CLISP type."
               'convert-from-pari (pari-type-raw ptr)
               (pari-type-raw-to-symbol (pari-type-raw ptr))))))

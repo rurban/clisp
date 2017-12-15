@@ -1,5 +1,9 @@
 2017-12-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp: Convert to and from INFINITY (+oo and -oo)
+
+2017-12-15  Sam Steingold  <sds@gnu.org>
+
 	Most of the PARI interface functions are generated automatically.
 	* modules/pari/desc2lisp.lisp: New file, read
 	$datadir/pari/pari.desc and emi pari-call-out forms.
