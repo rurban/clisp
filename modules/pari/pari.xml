@@ -19,8 +19,27 @@ return PARI objects, which can be converted to lisp using the
 <para>See <filename role="clisp-cvs">modules/pari/test.tst</filename>
  for sample usage.</para>
 
+<simplesect id="pari-desc"><title>Available functionality</title>
+<para>The module interfaces to most of the functions available in GP,
+by parsing the file <filename>${prefix}/share/pari/pari.desc</filename>,
+see <filename role="clisp-cvs">modules/pari/desc2lisp.lisp</filename>.</para>
+<para>Lisp functions are normally named the same as the GP functions
+they correspond to or the PARI functions they call, e.g.: <itemizedlist>
+<listitem><simpara><function>para:quadpoly</function> corresponds to the
+eponymous GP function and calls the <function>quadpoly0</function>
+PARI function</simpara></listitem>
+<listitem><simpara><function>para:issmall</function> calls the PARI
+function <function>issmall</function> which has no GP
+analogue</simpara></listitem>
+<listitem><simpara><function>para:random_</function> (note the
+<literal>_</literal> suffix to avoid clash with the &ansi-cl; &random;)
+corresponds to the GP function <function>random</function> and calls the
+<function>genrand</function> PARI function.</simpara></listitem></itemizedlist>
+
+</simplesect>
+
 <simplesect id="pari-ext"><title>Extending the module</title>
-<para>Not all PARI functions have a corresponding lisp function yet, but one
+<para>Not all PARI functions have a corresponding Lisp function, but one can
 remedy that with just a few lines: <programlisting language="lisp">
 (&default-foreign-library; "libpari.so") ; or pari.dll on &win32;
 (pari:pari-call-out (matrix-rank ffi:long) "rank" (x))<lineannotation>long rank(GEN x);</lineannotation>
@@ -28,7 +47,7 @@ remedy that with just a few lines: <programlisting language="lisp">
 (pari:pari-call-out-prec pari-arctan "gatan" (x))<lineannotation>GEN gatan(GEN x, long prec);</lineannotation>
 (pari:pari-call-out (equal? boolean) "gequal" (x y))<lineannotation>GEN gequal(GEN x, GEN y);</lineannotation>
 </programlisting>
-(Actually, these four functions are already present in the module.)
+(Actually, these four functions are already interfaced to by the module.)
 Please feel free to submit additions for
  <filename role="clisp-cvs">modules/pari/pari.lisp</filename>
  and <filename role="clisp-cvs">modules/pari/test.tst</filename>.</para>
@@ -40,12 +59,12 @@ which specifies the default precision in decimal digits:
 <programlisting language="lisp">
 pari:pari-real-precision
 <computeroutput>19</computeroutput>
-(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi))))
+(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:Pi))))
 <computeroutput>23</computeroutput>
 </programlisting>
 One can also pass the precision parameter explicitly:
 <programlisting language="lisp">
-(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:pari-pi :prec 38))))
+(&length; (&prin1-to-string; (pari:pari-to-lisp (pari:Pi :prec 38))))
 <computeroutput>41</computeroutput>
 </programlisting>
 Note that the <emphasis>actual</emphasis> precision is determined by the

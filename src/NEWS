@@ -73,6 +73,10 @@ User visible changes
   (Older versions are, of course, still supported).
   See <http://clisp.org/impnotes/berkeley-db.html> for details.
 
+* Module pari now supports PARI 2.9.3 and most of the interface
+  functions are generated automatically.
+  See <http://clisp.org/impnotes/pari.html> for details.
+
 * The readline-based completion facility is now more customizable.
   See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
 
@@ -129,7 +133,6 @@ User visible changes
   + Improve consistency in declaration handling (bug#702).
   + Package locks are checked by DECLARATION and DEFTYPE (bug#701).
   + Allow spaces in file names of clisp scripts (bug#699).
-  + Update PARI interface to support upstream version 2.9.3 (bug#659).
   + Better UNICODE handling in the regexp module (bug#691).
 
 

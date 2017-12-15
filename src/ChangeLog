@@ -1,3 +1,11 @@
+2017-12-15  Sam Steingold  <sds@gnu.org>
+
+	Most of the PARI interface functions are generated automatically.
+	* modules/pari/desc2lisp.lisp: New file, read
+	$datadir/pari/pari.desc and emi pari-call-out forms.
+	* modules/pari/pari.lisp: Remove most of pari-call-out forms and
+	use desc2lisp to interface to most of the GP functions.
+
 2017-12-15  Bruno Haible  <bruno@clisp.org>
 
 	Fix configure failure with some shells (regression from 2017-12-04).
