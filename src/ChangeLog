@@ -1,3 +1,10 @@
+2017-12-15  Bruno Haible  <bruno@clisp.org>
+
+	Fix configure failure with some shells (regression from 2017-12-04).
+	Reported by Blake McBride <blake@mcbride.name>.
+	* configure: Don't use unportable 'pipefail' shell feature. Use
+	explicit failure test for the ${MAKE} commands instead.
+
 2017-12-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexp.lisp (regexp-split): Respect the :END argument.
