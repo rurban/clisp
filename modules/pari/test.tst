@@ -609,9 +609,9 @@ pari:pari-real-precision  19
 
 (pari:gequal (pari:subst_ #Z"x^2+1" -1 #Z"y") #Z"x^2 + 1") T
 (pari:gequal (pari:subst_ #Z"x^2+1" 0 #Z"y") #Z"y^2 + 1") T
-(pari:pari-to-lisp (pari:serprec #Z"x + O(y^2)" 0)) (+ INFINITY)
+(pari:pari-to-lisp (pari:serprec #Z"x + O(y^2)" 0)) (+ PARI:INFINITY)
 (pari:pari-to-lisp (pari:serprec #Z"x + O(y^2)" 1)) 2
-(pari:gequal (pari:serprec #Z"x + O(y^2)" -1) (pari:-_ '(- INFINITY))) T
+(pari:gequal (pari:serprec #Z"x + O(y^2)" -1) (pari:-_ '(- PARI:INFINITY))) T
 
 ;; clear the stack
 (progn (show pari:pari-avma) (setq pari:pari-avma (show ltop)) nil) NIL
