@@ -637,11 +637,16 @@ pari:pari-real-precision  19
 #S(PARI:pari-real-qf :A 3 :B 5 :C -1 :D 0)
 
 (pari:polsturm #Z"x^2-1") 2
+(pari:polsturm #Z"x^2-1" :b -2) 0
+(pari:polsturm #Z"x^2-1" :a 2) 0
+(pari:polsturm #Z"x^2-1" :a -2) 2
+(pari:polsturm #Z"x^2-1" :b 2) 2
 (pari:polsturm #Z"x^2-1" :a 0) 1
 (pari:polsturm #Z"x^2-1" :b 0) 1
-;; interval is [b;a] !
-(pari:polsturm #Z"x^2-1" :a 0 :b 2) 0
-(pari:polsturm #Z"x^2-1" :b 0 :a 2) 1
+(pari:polsturm #Z"x^2-1" :a 0 :b 2) 1
+(pari:polsturm #Z"x^2-1" :b 0 :a 2) 0
+(stringp (documentation 'pari:polsturm 'function)) T
+(stringp (documentation 'pari:qfbred 'function)) T
 
 ;; check that no functionality is duplicated
 (let ((gp2l (make-hash-table :test 'equal)) bad)
@@ -694,15 +699,14 @@ pari:pari-real-precision  19
           (when (and (fboundp es) (not (gethash es pari-type-functions)))
             (push es no-gp)
             (format t "no pari function for ~S~%" es)))))
-  (format t "~:D exported symbols, ~:D undocumented, ~:D without pari function~%"
+  (format t "~:D exported symbols, ~:D undocumented, ~:D without GP function~%"
           exported (length undocumented) (length no-gp))
   (list (sort no-gp #'string-lessp)
         (sort undocumented #'string-lessp)))
+;; def-call-out, defun, defgeneric &c
 ((PARI:gerepile PARI:maxprime PARI:next-entree PARI:pari-fini PARI:pari-init
   PARI:pari-real-precision PARI:pari-to-lisp PARI:pari-type)
- ;; This list should ideally contain only operators like * and ==
- ;; and tests like bigint? and complex?
- ;; All other functions might be accessing obsolescent functionality.
+ ;; pari-call-out functions without GP counterparts
  (PARI:bigint? PARI:galois_group PARI:idealaddmultoone
   PARI:iscomplex PARI:isexactzero PARI:isinexact PARI:isinexactreal
   PARI:isint PARI:isrationalzero PARI:isrationalzeroscalar PARI:issmall
