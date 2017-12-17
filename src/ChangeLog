@@ -1,3 +1,10 @@
+2017-12-17  Sam Steingold  <sds@gnu.org>
+
+	* modules/pari/pari.lisp (make-documentation): Set doc instead of
+	expanding into a form that does it.
+	(polsturm): Redefine with better keyword args, preserving the doc
+	using make-documentation.
+
 2017-12-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp: Convert to and from INFINITY (+oo and -oo)

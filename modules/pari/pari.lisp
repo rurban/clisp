@@ -362,15 +362,15 @@ t.e., this is the memory size for the real return value in ulong words.")
                                    (t tv)))
                              all-values temp-vars)))))))))
   (defun make-documentation (name gp-name args)
-    `(let ((docstring (get-pari-docstring ,gp-name ',name))
-           (docstr2 ,(format nil "Syntax: (~S~{ ~S~})~%"
-                             name (convert-to-lambdalist args))))
-       (setf (documentation ',name 'function)
-             (if docstring
-                 (format nil "~A~%~A" docstring docstr2)
-                 docstr2)
-             (documentation ',name 'pari::gp)
-             ,gp-name))))
+    (let ((docstring (get-pari-docstring gp-name name))
+          (docstr2 (format nil "Syntax: (~S~{ ~S~})~%"
+                           name (convert-to-lambdalist args))))
+      (setf (documentation name 'function)
+            (if docstring
+                (format nil "~A~%~A" docstring docstr2)
+                docstr2)
+            (documentation name 'pari::gp)
+            gp-name))))
 
 ;;; The macro pari-call-out declares the pari functions to CLISP.
 ;;; Its syntax is
@@ -411,7 +411,7 @@ t.e., this is the memory size for the real return value in ulong words.")
          (:arguments ,@(mapcar #'make-arg-spec args)))
        ,@(when gp-name
            `(,(make-defun name pari-name type args)
-             ,(make-documentation name gp-name args)))
+              (make-documentation ',name ,gp-name ',args)))
        ',pari-name)))
 
 ;;; pari-call-out-prec has the same syntax as pari-call-out; it additionally
@@ -1008,6 +1008,17 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
                 (ext:string-concat (first ext:*args*) "/pari/pari.desc")))))
 (process-desc-file)
 
+;;; redefine poorly defined functions
+
+;; generated: (defun polsturm (c &key (b nil) (a nil)) ...)
+;; since [a,b] is the interval, the order matters
+(eval-when (:compile-toplevel)  ; avoid redefinition warning
+  (ext:without-package-lock ("SYS")
+    (setq sys::*known-functions*
+          (delete 'polsturm sys::*known-functions* :key #'car))))
+(defun polsturm (p &key (a nil) (b nil))
+  (%polsturm (convert-to-pari p) (convert-to-pari a) (convert-to-pari b)))
+(make-documentation 'polsturm "polsturm" '(p &key (a nil) (b nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; PARI functions not present in GP (pari.desc)
@@ -1066,8 +1077,8 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
 ;;; variants mentioned in pari.desc without their own entry
 
 ;; GEN caradj(GEN x, long v, GEN *py);
-(pari-call-out caradj "caradj"
-  (x (varno long :in :none 0) (pt (c-ptr pari-gen) :out :alloca)) "charpoly")
+(pari-call-out caradj "caradj"  ; charpoly + matadjoint
+  (x (varno long :in :none -1) (pt (c-ptr pari-gen) :out :alloca)) "charpoly")
 ;; GEN ellrandom(GEN e);
 (pari-call-out ellrandom "ellrandom" (e) "random")
 ;; GEN ffrandom(GEN ff);
