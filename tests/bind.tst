@@ -301,7 +301,6 @@ ERROR
         (foo 'bar))))
   (testfn))
 ERROR
-(symbol-cleanup 'symbol-type-fn) T
 
 ;; The scope of a "free" declaration in DO* contains the step-forms.
 (block done
@@ -439,3 +438,7 @@ nil
     (locally (declare (special x))
       x)))
 :SPECIAL
+
+(symbols-cleanup '(*global-var-for-bind.tst* chk-type *symbol-type*
+                   testfn symbol-type-fn bind-test-function-1))
+()
