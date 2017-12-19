@@ -1,3 +1,7 @@
+2017-12-19  Sam Steingold  <sds@gnu.org>
+
+	* bind.tst: Cleanup all defs.
+
 2017-12-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	Fix --without-unicode tests.
