@@ -1,5 +1,10 @@
 2017-12-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/pari.lisp (make-arg-spec): Downcase keyword args to
+	avoid having to write (pari:random_ :|n| 10).
+
+2017-12-20  Sam Steingold  <sds@gnu.org>
+
 	Finish rfe#21: add :GUARD argument to DEF-C-VAR.
 	* foreign1.lisp (with-guard): New macro.
 	(finalize-coutput-file): Use it for constants, types, variables,

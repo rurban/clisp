@@ -286,7 +286,11 @@ t.e., this is the memory size for the real return value in ulong words.")
         (2 `(,@arg :in :none))
         (3 `(,@arg :none))
         (4 arg)
-        (t `(,(first arg) ,(second arg) ,(third arg) ,(fourth arg))))))
+        ;; avoid lower case keyword args like :|n|
+        ;; modify arg destructively here - affects
+        ;; convert-to-lambdalist, convert-to-arglist, make-defun
+        (t `(,(setf (first arg) (intern (string-downcase (first arg))))
+             ,(second arg) ,(third arg) ,(fourth arg))))))
   (defun make-pari-name (sym)
     (intern (ext:string-concat "%" (symbol-name sym)) (find-package "PARI")))
   (defun convert-to-lambdalist (args)
