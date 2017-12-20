@@ -45,7 +45,7 @@ User visible changes
   See <http://clisp.org/impnotes/socket.html#so-handles> for details.
 
 * FFI now converts REALs to FLOATs automatically as necessary.
-  DEF-CALL-OUT now accepts the :GUARD argument.
+  DEF-CALL-OUT and DEF-C-VAR now accept the :GUARD argument (rfe#21).
   See <http://clisp.org/impnotes/dffi.html#def-call-out> for details.
 
 * On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
