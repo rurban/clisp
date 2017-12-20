@@ -162,9 +162,9 @@ ROUNDTRIP-2
 
 (pari:gequal (pari:-_ (pari:I)) (pari:conj (pari:I))) T
 
-(pari:gequal (pari:bestappr (pari:Pi) :|b| #Z"100") #Z"22/7") T
+(pari:gequal (pari:bestappr (pari:Pi) :b #Z"100") #Z"22/7") T
 (pari:gequal (pari:contfrac #Z"22/7") #Z"[3,7]") T
-(pari:gequal (pari:bestappr (pari:Pi) :|b| #Z"10000") #Z"355/113") T
+(pari:gequal (pari:bestappr (pari:Pi) :b #Z"10000") #Z"355/113") T
 (pari:gequal (pari:contfrac #Z"355/113") #Z"[3,7,16]") T
 (pari:pari-to-lisp (pari:contfrac (pari:Pi)))
 #(:ROW 3 7 15 1 292 1 1 1 2 1 3 1 14 2 1 1 2 2)
@@ -441,8 +441,8 @@ ROUNDTRIP-2
         (and (= seed (pari:pari-to-lisp (pari:getrand)))
              seed)))
 (NIL T NIL)
-(<= 0 (pari:pari-to-lisp (pari:random_ :|n| 10)) 9) T
-(< 0 (pari:pari-to-lisp (pari:random_ :|n| 1.0)) 1) T
+(<= 0 (pari:pari-to-lisp (pari:random_ :n 10)) 9) T
+(< 0 (pari:pari-to-lisp (pari:random_ :n 1.0)) 1) T
 (pari:pari-type (show (pari:random_))) PARI:INT
 
 (integerp (show (pari:getstack))) T
