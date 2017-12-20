@@ -697,6 +697,14 @@
                              :c-name (to-module-name module-name))))
     (format *coutput-stream* "extern gcv_object_t module__~A__object_tab[];~%"
             *c-name*)))
+(defmacro with-guard ((guard how) &body body)
+  (let ((g (gensym "GUARD-")))
+    `(let ((,g ,guard))
+       (when ,g
+         (format *coutput-stream* "# if ~A~%"
+                 (if (eq ,g t) ,how ,g)))
+       ,@body
+       (when ,g (format *coutput-stream* "# endif~%")))))
 (defun finalize-coutput-file ()
   (when *ffi-module*
     (format *coutput-stream* "~%subr_t module__~A__subr_tab[1];~%~
@@ -736,12 +744,9 @@
                          c-decl c-decl)
                  (dotimes (num (length vec))
                    (destructuring-bind (const . guard) (aref vec num)
-                     (when guard
-                       (format *coutput-stream* "#  if ~A~%" guard))
-                     (format *coutput-stream* "    case ~D: return ~A;~%"
-                             num const)
-                     (when guard
-                       (format *coutput-stream* "#  endif~%"))))
+                     (with-guard (guard guard)
+                       (format *coutput-stream* "    case ~D: return ~A;~%"
+                               num const))))
                  (format *coutput-stream* "    default: *definedp=0; return 0;
   }~%}~%")))
              *constant-table*)
@@ -782,11 +787,9 @@
                  (when (and (stringp spec) (not (gethash spec done))
                             (eq 0 (parse-foreign-inttype spec nil)))
                    (setf (gethash spec done) spec)
-                   (when *foreign-guard*
-                     (format *coutput-stream* "# if HAVE_~A~%"
-                             (string-upcase spec)))
-                   (format *coutput-stream* "  register_foreign_inttype(~S,sizeof(~A),(~A)-1<=(~A)0);~%" spec spec spec spec)
-                   (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
+                   (with-guard (*foreign-guard*
+                                (string-concat "HAVE_" (string-upcase spec)))
+                     (format *coutput-stream* "  register_foreign_inttype(~S,sizeof(~A),(~A)-1<=(~A)0);~%" spec spec spec spec))))
                *c-type-table*))
     (format *coutput-stream*
             "}~2%void module__~A__init_function_2 (module_t* module)~%~
@@ -794,25 +797,18 @@
              *c-name* *init-always*)
     (dolist (variable *variable-list*)
       (let ((c-name (first variable)))
-        (when *foreign-guard*
-          (format *coutput-stream* "# if HAVE_DECL_~A~%"
-                  (string-upcase c-name)))
-        (format *coutput-stream*
-                "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
-                c-name (to-c-string c-name) (third variable) (first variable))
-        (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
+        (with-guard ((fourth variable)
+                     (string-concat "HAVE_DECL_" (string-upcase c-name)))
+          (format *coutput-stream*
+                  "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
+                  c-name (to-c-string c-name) (third variable) (first variable)))))
     (dolist (function *function-list*)
-      (let ((c-name (first function))
-            (guard (fourth function)))
-        (when guard
-          (format *coutput-stream* "# if ~A~%"
-                  (if (eq guard t)
-                      (format nil "defined(HAVE_~A)" (string-upcase c-name))
-                      guard)))
-        (format *coutput-stream*
-                "  register_foreign_function((void*)&~A,~A,~D);~%"
-                c-name (to-c-string c-name) (svref (second function) 3))
-        (when guard (format *coutput-stream* "# endif~%"))))
+      (let ((c-name (first function)))
+        (with-guard ((fourth function)
+                     (format nil "defined(HAVE_~A)" (string-upcase c-name)))
+          (format *coutput-stream*
+                  "  register_foreign_function((void*)&~A,~A,~D);~%"
+                  c-name (to-c-string c-name) (svref (second function) 3)))))
     (maphash (lambda (type fun-vec)
                (declare (ignore type))
                (let ((c-name (to-c-name (car fun-vec))))
@@ -941,10 +937,9 @@
                 'def-c-const name c-name)
           (sys::%unbound)))))
 
-(defmacro DEF-C-VAR (&whole whole-form
-                     name &rest options)
+(defmacro DEF-C-VAR (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options '(:name :type :read-only :alloc
+  (let* ((alist (parse-options options '(:name :type :read-only :alloc :guard
                                          :library :version :documentation)
                                whole-form))
          (doc (assoc ':documentation alist))
@@ -963,6 +958,7 @@
                          (:NONE 0)
                          (:MALLOC-FREE fv-flag-malloc-free))
                        0))))
+         (guard (get-assoc :guard alist '*foreign-guard*))
          (library (get-assoc :library alist '*foreign-library*))
          (version (second (assoc :version alist)))
          #|
@@ -984,7 +980,7 @@
        (DEFINE-SYMBOL-MACRO ,name (,getter-function-name))
        |#
        (EVAL-WHEN (COMPILE)
-         (UNLESS ,LIBRARY (NOTE-C-VAR ',c-name ',type ',flags)))
+         (UNLESS ,LIBRARY (NOTE-C-VAR ',c-name ',type ',flags ,guard)))
        (when ,def
          (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE ,def)
          ,@(when doc `((SETF (DOCUMENTATION ',name 'VARIABLE) ',(second doc))))
@@ -992,10 +988,11 @@
              (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE)))))
        ',name)))
 
-(defun note-c-var (c-name type flags) ; ABI
+(defun note-c-var (c-name type flags guard) ; not ABI, compile-time only
   (when (system::prepare-coutput-file)
     (prepare-module)
-    (push (list c-name (parse-c-type type) flags) *variable-list*)))
+    (push (list c-name (parse-c-type type) flags guard)
+          *variable-list*)))
 
 (defsetf foreign-value set-foreign-value) ; ABI
 ;(defsetf foreign-pointer set-foreign-pointer) ; no, incompatible with SETF
