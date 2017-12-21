@@ -486,7 +486,7 @@ ROUNDTRIP-2
   #S(PARI:pari-poly :S 1 :VARNO 10 :COEFFS #(0 1)))
 (pari:pari-to-lisp (pari:variables :x nil))
 #(:ROW #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(0 1))
-   #S(PARI:pari-poly :S 1 :VARNO 1 :COEFFS #(0 1))
+  #S(PARI:pari-poly :S 1 :VARNO 1 :COEFFS #(0 1))
   #S(PARI:pari-poly :S 1 :VARNO 10 :COEFFS #(0 1)))
 
 (pari:gequal (pari:variable-numbers #Z"x") #Z"Vecsmall([0])") T
@@ -584,6 +584,7 @@ pari:pari-real-precision  19
 (pari:pari-to-lisp (pari:quadunit 513))
 #S(PARI:pari-quadratic :REALPART 13163331 :IMAGPART 1216040
    :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-128 -1 1)))
+(pari:quadunit 9) ERROR
 (pari:pari-to-lisp (pari:quadregulator 5)) 0.4812118250596034475L0
 (pari:pari-to-lisp (pari:quadregulator 512)) 7.0509886961563442024L0
 (pari:pari-to-lisp (pari:quadpoly 513))
@@ -721,14 +722,13 @@ pari:pari-real-precision  19
                                (unless re (return))
                                (co (cons kk vv))))))
                    #'< :key #'car)))
-  (flet ((show-coverage (title table)
-           (format t "~A:~%" title)
-           (dolist (pair alist)
-             (format t " ~3D ~8A   ~:D~%" (car pair) (cdr pair)
-                     (gethash (car pair) table)))))
-    (format t "~&Type Conversion Coverage~%")
-    (show-coverage "LISP --> PARI" *lisp-to-pari*)
-    (show-coverage "PARI --> LISP" *pari-to-lisp*)))
+  (format t "~&Type Conversion Coverage:~%code   name    LISP->PARI  PARI->LISP~%")
+  (dolist (pair alist)
+    (let ((l2p (gethash (car pair) *lisp-to-pari*))
+          (p2l (gethash (car pair) *pari-to-lisp*)))
+      (format t " ~3D ~8A ~11:D ~11:D~@[~A~]~%" (car pair) (cdr pair)
+              l2p p2l (and (or l2p p2l) (or (null l2p) (null p2l))
+                           "      One-sided test!")))))
 NIL
 
 (progn (without-package-lock ("PARI") (untrace))
