@@ -43,7 +43,7 @@
       'make-load-form class object)))
 
 (defgeneric make-load-form (object &optional environment)
-  ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_make-load-form.html>
+  ;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/stagenfun_make-load-form.html>
   ;; "The methods specialized on standard-object, structure-object, and
   ;;  condition all signal an error of type error."
   (declare (dynamically-modifiable))

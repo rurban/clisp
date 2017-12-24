@@ -11217,7 +11217,7 @@ The function make-closure is required.
          (*c-listing-output* nil)
          (*c-error-output* *error-output*))
      ;; clean up from the outer `with-compilation-unit':
-     ;; <http://www.lisp.org/HyperSpec/Body/mac_with-compilation-unit.html>
+     ;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/mac_with-compilation-unit.html>
      ;; [CLHS]: If nested dynamically only the outer call to
      ;; `with-compilation-unit' has any effect unless the value associated
      ;; with `:override' is true, in which case warnings are deferred only

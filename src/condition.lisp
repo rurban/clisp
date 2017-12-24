@@ -64,7 +64,7 @@
 
 ;; 29.3.18. Printing Conditions when *print-escape*
 ;;          and *print-readably* are NIL.
-;; <http://www.lisp.org/HyperSpec/Body/sec_9-1-3.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_9-1-3.html>
 (definternational print-condition-format
   (t ENGLISH))
 (deflocalized print-condition-format ENGLISH
@@ -85,7 +85,7 @@
     (print-condition condition out)))
 
 ;;; 29.4.5. Defining Conditions
-;;; <http://www.lisp.org/HyperSpec/Body/sec_9-1-2.html>
+;;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_9-1-2.html>
 ;; DEFINE-CONDITION, CLtL2 p. 898
 (defmacro define-condition (&whole whole-form
                             name parent-types slot-specs &rest options)
@@ -1868,7 +1868,7 @@ Returns the added or removed method(s)."
        (unwind-protect (progn ,@body)
          (set-global-handler ,handlers nil)))))
 
-;;; <http://www.lisp.org/HyperSpec/Body/dec_type.html>:
+;;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/dec_type.html>:
 ;;;   A symbol cannot be both the name of a type and the name of a
 ;;;   declaration. Defining a symbol as the name of a class, structure,
 ;;;   condition, or type, when the symbol has been declared as a

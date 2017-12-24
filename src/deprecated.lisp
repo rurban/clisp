@@ -18,13 +18,13 @@
   symbol)
 
 ;; ------------------------------------------------
-;; http://www.lisp.org/HyperSpec/Issues/iss321.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss321.html
 ;; `special-form-p' -- renamed to `special-operator-p'
 
 (deprecate 'ext::special-form-p 'special-operator-p)
 
 ;; ------------------------------------------------
-;; http://www.lisp.org/HyperSpec/Issues/iss308.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss308.html
 ;; `get-setf-method-multiple-value' -- renamed to `get-setf-expansion'
 ;; `define-setf-method' -- renamed to `define-setf-expander'
 

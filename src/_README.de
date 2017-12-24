@@ -33,7 +33,7 @@ und per WWW einsehbar unter
 
 Für Experten: Dieses Standardwerk hat sich zu einem ANSI-Standard
 weiterentwickelt, der ausnahmsweise kostenlos erhältlich ist von
-  http://www.lisp.org/HyperSpec/FrontMatter/
+  http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/FrontMatter/
 
 LISP liegt in einer interaktiven Umgebung vor, d.h. man gibt Formen ein, die
 dann sofort ausgewertet werden. So kann man Variablen inspizieren, Funktionen

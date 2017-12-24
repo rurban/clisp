@@ -1,7 +1,7 @@
 ;; ANSI CL Loop
 ;; (LOOP {loop-clause}*), CLtL2 p. 163,709-747
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
-;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/mac_loop.html>
 ;; Bruno Haible 1991-2004
 ;; Sam Steingold 1999-2011, 2017
 
@@ -294,7 +294,7 @@
                    (t `(SETF ,tailvar (LAST (SETF ,accuvar
                                                   ,incrementvar)))))))))
        (compatible-p (kw1 kw2)
-         ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
+         ;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3.html>
          (let ((ht #,(make-hash-table
                       :warn-if-needs-rehash-after-gc t
                       :test 'stablehash-eq
