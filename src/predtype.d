@@ -869,7 +869,7 @@ local bool elt_compare (object dv1, uintL index1,
   }
 }
 /* test for hash table equality under EQUALP:
-   <http://www.lisp.org/HyperSpec/Body/fun_equalp.html>
+   <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_equalp.html>
  EQUALP descends hash-tables by first comparing the count of entries and
  the :test function; if those are the same, it compares the keys of the
  tables using the :test function and then the values of the matching
@@ -1732,10 +1732,10 @@ LISPFUNNR(type_of,1)
       { value1 = S(system_internal); break; }
    #endif
       /* due to the rule 1 in
-         <http://www.lisp.org/HyperSpec/Body/fun_type-of.html>,
+         <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_type-of.html>,
          we must have (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
          for all "built-in types" Y as listed in table 4-2 in
-         <http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html>
+         <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_4-2-3.html>
          if X is a FIXNUM or a BIGNUM and Y is UNSIGNED-BYTE,
          this means that TYPE-OF must distinguish between positive
          and negative integers: */

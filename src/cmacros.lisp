@@ -1,7 +1,7 @@
 ;;; CLISP Compiler Macros
 ;;; Sam Steingold 2001-05-09
 ;;; Bruno Haible 2005
-;;; CLHS 3.2.2.1 http://www.lisp.org/HyperSpec/Body/sec_3-2-2-1.html
+;;; CLHS 3.2.2.1 http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_3-2-2-1.html
 
 (in-package "SYSTEM")
 

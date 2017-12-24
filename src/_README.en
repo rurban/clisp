@@ -35,7 +35,7 @@ and can be viewed through WWW under
 For experts: This standard text has emerged into an ANSI standard, which
 you can get free of charge from
 
-  http://www.lisp.org/HyperSpec/FrontMatter/
+  http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/FrontMatter/
 
 LISP is run in an interactive environment. You input forms, and they will be
 evaluated at once. Thus you can inspect variables, call functions with given

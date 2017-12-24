@@ -2084,7 +2084,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       var object fun = TheSvector(info)->data[2];
       /* save the instance in case INITIALIZE-INSTANCE returns junk
          see 7.1.7 "Definitions of Make-Instance and Initialize-Instance"
-         http://www.lisp.org/HyperSpec/Body/sec_7-1-7.html */
+         http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_7-1-7.html */
       pushSTACK(value1);
       if (argcount>0) { /* (rotatef STACK_0 ... STACK_(2*argcount)) */
         var uintC count;

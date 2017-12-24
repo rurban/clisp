@@ -34,7 +34,7 @@ y puede consultarse a través de WWW en:
 Nota para los expertos: Este texto estandar se ha convertido en un
 estándar ANSI, que puede obtenerse <<<exceptionally>>> sin cargo alguno en:
 
-  http://www.lisp.org/HyperSpec/FrontMatter/
+  http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/FrontMatter/
 
 LISP se ejecuta en un entorno interactivo. Usted introduce formas, que
 serán evaluadas de inmediato. Por lo tanto, puede inspeccionar

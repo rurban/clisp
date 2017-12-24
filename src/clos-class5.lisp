@@ -627,7 +627,7 @@
 (defun initial-make-instance (class &rest initargs)
   (multiple-value-bind (valid-keywords ai-ef)
       (make-instance-table-entry1 class)
-    ;; http://www.lisp.org/HyperSpec/Body/sec_7-1-2.html
+    ;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_7-1-2.html
     ;; 7.1.2 Declaring the Validity of Initialization Arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords))

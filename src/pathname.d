@@ -841,7 +841,7 @@ local maygc object test_default_pathname (object defaults) {
     return coerce_xpathname(defaults);
 }
 
-/* <http://www.lisp.org/HyperSpec/Body/sec_19-2-3.html>:
+/* <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-2-3.html>:
  "for functions that manipulate or inquire about files in the file system,
   the pathname argument to such a function is merged with
   *DEFAULT-PATHNAME-DEFAULTS* before accessing the file system"
@@ -1250,7 +1250,7 @@ local maygc object simplify_directory (object dir) {
   DOUT("simplify_directory:> ",dir);
   return dir;
  error_absolute_up:
-  /* <http://www.lisp.org/HyperSpec/Body/sec_19-2-2-4-3.html> */
+  /* <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-2-2-4-3.html> */
   pushSTACK(O(empty_string)); /* FILE-ERROR slot PATHNAME */
   pushSTACK(dir); pushSTACK(S(Kdirectory));
   pushSTACK(TheSubr(subr_self)->name);
@@ -1292,7 +1292,7 @@ local maygc uintL parse_logical_pathnamestring (zustand z) {
    "foo:;bar;baz.zot" is a  :RELATIVE logical pathname while
    "foo:/bar/baz.zot" is an :ABSOLUTE physical pathname.
    see "19.3.1.1.3 The Directory part of a Logical Pathname Namestring"
-   http://www.lisp.org/HyperSpec/Body/sec_19-3-1-1-3.html */
+   http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-3-1-1-3.html */
   if (Z_AT_SLASH(z,lslashp,STACK_2)) {
     Z_SHIFT(z,1);
     Car(STACK_0) = S(Krelative);
@@ -2025,7 +2025,7 @@ LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case))) {
 LISPFUN(pathnamedevice,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
   if (logpathnamep(pathname)) {
-    /* http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html */
+    /* http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-3-2-1.html */
     value1 = S(Kunspecific);
   } else
    #if HAS_DEVICE
@@ -2407,7 +2407,7 @@ local maygc uintC nametype_namestring_parts (object name, object type, object ve
     pushSTACK(O(dot_string)); /* "." */
     stringcount++; /* and count */
     if (eq(version,S(Knewest)))
-      /* http://www.lisp.org/HyperSpec/Body/sec_19-3-1.html */
+      /* http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-3-1.html */
       pushSTACK(Symbol_name(S(Knewest))); /* :NEWEST -> "NEWEST" */
     else if (eq(version,S(Kwild)))
       pushSTACK(O(wild_string));

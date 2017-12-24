@@ -1755,7 +1755,7 @@ LISPFUNNR(broadcast_stream_streams,1)
 
 /* (car (last (broadcast_stream stream)))
  this is necessary for issue 021
- <http://www.lisp.org/HyperSpec/Issues/iss021.html> */
+ <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss021.html> */
 local object broadcast_stream_last (object stream)
 {
   var object stream_list = TheStream(stream)->strm_broad_list;
@@ -17363,7 +17363,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
       case strmtype_broad:      /* Broadcast-Stream: */
         stream = broadcast_stream_last(stream);
         if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM? */
-          /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+          /* http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/syscla_broadcast-stream.html */
           VALUES1(Fixnum_0); break;
         }
         goto restart_file_position;
@@ -17536,7 +17536,7 @@ LISPFUNNR(file_length,1)
   var object stream = STACK_0;
   stream = check_open_file_stream(stream,false); /* check stream */
   if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
-    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+    /* http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/syscla_broadcast-stream.html */
     skipSTACK(1);
     VALUES1(Fixnum_0); return;
   }
@@ -17566,7 +17566,7 @@ LISPFUNN(file_string_length,2)
   var object obj = STACK_0;
   skipSTACK(2);
   if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
-    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+    /* http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/syscla_broadcast-stream.html */
     VALUES1(Fixnum_1); return;
   }
   if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
