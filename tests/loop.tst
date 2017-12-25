@@ -912,7 +912,15 @@ NIL
 (let ((x '((1 2 3) (1 2))))     ; ?!
   (loop repeat 3 for x in x for y in x collect y))
 #+(OR CLISP SBCL) NIL
-#+EXPECTED-BEHAVIOR (1 2)
+#+CORRECT-BEHAVIOR (1 2)
+
+(let ((x '(a b c d)) y)
+  (list (loop repeat 2 for x in x
+          collect x
+          finally (setq y x))
+        y))
+#+CLISP (NIL NIL)
+#+CORRECT-BEHAVIOR ((A B) C)
 
 (let ((a (make-ht '((10 . 100) (20 . 200) (30 . 300)))))
   (sort
@@ -969,7 +977,7 @@ NIL
     until (null list)
     collect (car list)))
 #+(OR CLISP SBCL) NIL
-#+EXPECTED-BEHAVIOR (1 2 3)
+#+CORRECT-BEHAVIOR (1 2 3)
 
 ;; https://sourceforge.net/p/clisp/bugs/721/
 (loop with v = #(1 2) for x across v sum x) 3
