@@ -1,3 +1,7 @@
+2017-12-29  Bruno Haible  <bruno@clisp.org>
+
+	* loop.lisp: Translate and improve comments.
+
 2017-12-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (make-arg-spec): Downcase keyword args to
