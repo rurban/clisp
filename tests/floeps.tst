@@ -1,7 +1,7 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; test floating point epsilons
 ;; (c) 2002 Sam Steingold <sds@gnu.org>
-;; http://www.lisp.org/HyperSpec/Body/convar_short-_tive-epsilon.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/convar_short-_tive-epsilon.html
 ;; adapted from code by Stefan Kain <smk@users.sourceforge.net>
 
 (defun test-pos-epsilon (<EPSILON>)

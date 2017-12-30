@@ -2,8 +2,8 @@
 
 ;;; this works with both
 ;;; * the "long file name" version released by Harlequin and available
-;;;   at the ALU (Association of Lisp Users) web site as
-;;;   <http://www.lisp.org/HyperSpec/FrontMatter/> and
+;;;   at the MIT web site as
+;;;   <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/FrontMatter/> and
 ;;; * the "8.3 file name" version released later by Xanalys and available at
 ;;;   <http://www.xanalys.com/software_tools/reference/HyperSpec/>
 ;;;   and downloadable as

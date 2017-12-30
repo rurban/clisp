@@ -699,7 +699,7 @@ T
                             (prin1-to-string (make-symbol st))))))
 t
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss273-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss273-writeup.html>
 (with-output-to-string (*standard-output*)
   (LET ((RESULT '()) (TABWIDTH 12))
     (DOLIST (SYMBOL '(|x| |FoObAr| |fOo|))
@@ -718,7 +718,7 @@ t
  |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
  |fOo|      |fOo|       |fOo|       fOo         foo         foo"
 
-;; <http://www.lisp.org/HyperSpec/Body/var_stread-suppressst.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/var_stread-suppressst.html>
 (let ((*read-suppress* t))
   (mapcar #'read-from-string
           '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2"
@@ -726,7 +726,7 @@ t
             "#*ABC" "#\\GARBAGE" "#RALPHA" "#3R444")))
 (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss288-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss288-writeup.html>
 (let ((*read-suppress* t))
   (mapcar #'read-from-string
           '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2")))
@@ -764,7 +764,7 @@ MY-PPRINT-LOGICAL
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
 ;; https://sourceforge.net/p/clisp/bugs/337/
-;; http://www.lisp.org/HyperSpec/Body/fun_pprint-dispatch.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_pprint-dispatch.html
 (with-output-to-string (s) (print-object 42 s)) "42"
 (string= (with-output-to-string (s)
            (let ((*print-pretty* t))

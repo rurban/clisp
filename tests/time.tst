@@ -1,10 +1,10 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; check universal time functions
-;; <http://www.lisp.org/HyperSpec/Body/sec_25-1-4.html>
-;; <http://www.lisp.org/HyperSpec/Body/sec_25-1-4-1.html>
-;; <http://www.lisp.org/HyperSpec/Body/sec_25-1-4-2.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_25-1-4.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_25-1-4-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_25-1-4-2.html>
 
-;; from <http://www.lisp.org/HyperSpec/Body/fun_encode-universal-time.html>
+;; from <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_encode-universal-time.html>
 (encode-universal-time 0 0 0 1 1 1900 0) 0
 (encode-universal-time 0 0 1 4 7 1976 5) 2414296800
 

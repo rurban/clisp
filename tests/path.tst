@@ -812,7 +812,7 @@ T
    (directory (ext:string-concat f "/*"))))
 #+clisp (NIL NIL)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_19-3-2-1.html>
 (pathname-device (logical-pathname "FOO:"))
 :UNSPECIFIC
 

@@ -340,7 +340,7 @@ pack11::y
    (multiple-value-list (read-from-string "READ-FROM-STRING"))))
 (READ-FROM-STRING 16)
 
-;; http://www.lisp.org/HyperSpec/Issues/iss194-writeup.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss194-writeup.html
 (let ((tmp-sym (make-symbol "FOO"))
       (old-sym (find-symbol "FOO" "PACK11")))
   (when old-sym (unintern old-sym "PACK11"))

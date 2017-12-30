@@ -203,7 +203,7 @@ A1
 #+(or CLISP CMU SBCL LUCID OpenMCL LISPWORKS) (I (UU) UU) ; X ein Blatt, Y aus der Aliste
 #-(or XCL CLISP AKCL ECL CMU SBCL LUCID ALLEGRO OpenMCL LISPWORKS) UNKNOWN
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_subliscm_nsublis.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_subliscm_nsublis.html>
 (sublis '((x . 100) (z . zprime))
         '(plus x (minus g z x p) 4 . x))
 (PLUS 100 (MINUS G ZPRIME 100 P) 4 . 100)

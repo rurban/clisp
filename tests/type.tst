@@ -407,10 +407,10 @@ NIL
 (multiple-value-list (subtypep '(integer 1 2) '(real (1) 2)))  (nil t)
 (multiple-value-list (subtypep '(mod 10) '(or (mod 10) (mod 10))))  (t t)
 
-;; http://www.lisp.org/HyperSpec/Body/fun_type-of.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_type-of.html
 ;; mandates that (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
 ;; for all "built-in types" Y as listed in table 4-2 in
-;; http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_4-2-3.html
 (defun typeof-typep-subtype (x y)
   (list (type-of x) (typep x y) (subtypep (type-of x) y)))
 TYPEOF-TYPEP-SUBTYPE
@@ -626,7 +626,7 @@ otherwise
 (typecase 'foo (otherwise :wrong) (symbol :right) (t :wrong2))
 :right
 
-;; <http://www.lisp.org/HyperSpec/Body/speope_the.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_the.html>
 (the fixnum (+ 5 7)) 12
 (multiple-value-list (the (values) (truncate 3.2 2))) (1 1.2)
 (multiple-value-list (the integer (truncate 3.2 2)))  (1 1.2)
@@ -801,7 +801,7 @@ NIL
 (typep (byte 1 2) 'BYTE) T
 (etypecase (byte 1 2) (integer 'integer) (byte t) (list 'list)) t
 
-;; http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_4-2-3.html
 ;; for some reason, BYTE is missing from table 4-2.
 (mapcan (lambda (type) (and (typep 0 type) (list type)))
         '(array atom base-char base-string bignum bit bit-vector
@@ -828,7 +828,7 @@ NIL
 (ATOM BIT FIXNUM INTEGER NUMBER RATIONAL REAL SIGNED-BYTE T UNSIGNED-BYTE)
 
 
-;;; http://www.lisp.org/HyperSpec/Body/dec_type.html
+;;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/dec_type.html
 ;;;   A symbol cannot be both the name of a type and the name of a
 ;;;   declaration. Defining a symbol as the name of a class, structure,
 ;;;   condition, or type, when the symbol has been declared as a

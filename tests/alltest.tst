@@ -589,14 +589,14 @@ NIL
 (funcall (compile nil (lambda (x) (flet ((foo (y) (+ y 1))) (foo (* 2 x))))) 3)
 7
 
-;; <http://www.lisp.org/HyperSpec/Body/speope_progv.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_progv.html>
 (let ((not-a-globally-special-var 3))
   (progv '(not-a-globally-special-var) '(4)
     (list not-a-globally-special-var
           (symbol-value 'not-a-globally-special-var))))
 (3 4)
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_funcall.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_funcall.html>
 (flet ((cons (x y) `(kons ,x ,y)))
   (let ((cons (symbol-function '+)))
     (funcall #'cons
@@ -2477,7 +2477,7 @@ ICE-CREAM-FACTORY
 )
 (VANILLA CHOCOLATE STRAWBERRY MANGO)
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss111-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss111-writeup.html>
 (progn
   (defvar *x* 'global-x)
   (let ((y 'local-y))

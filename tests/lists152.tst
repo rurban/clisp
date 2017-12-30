@@ -785,7 +785,7 @@ NIL
 (butlast '#1=(1 2 3 . #1#) 3)
 ERROR
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_revappendcm_nreconc.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_revappendcm_nreconc.html>
 (let ((list-1 (list 1 2 3))
       (list-2 (list 'a 'b 'c)))
   (list (revappend list-1 list-2)
@@ -815,7 +815,7 @@ A   ;degenerate case
         (equal list-2 '(a b c))))
 ((3 2 1 A B C) NIL T)
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_nconc.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_nconc.html>
 (nconc)
 NIL
 
@@ -855,7 +855,7 @@ foo     (A B C D E F G H I J K L M)
 bar     (F G H I J K L M)
 baz     (K L M)
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_append.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_append.html>
 (append '(a b c) '(d e f) '() '(g))
 (A B C D E F G)
 

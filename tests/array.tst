@@ -710,7 +710,7 @@ error
 (setq nil-vec nil nil-arr nil)
 nil
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_adjust-array.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_adjust-array.html>
 (adjustable-array-p
  (setq ada (adjust-array
             (make-array '(2 3)

@@ -19,7 +19,7 @@
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
-;; Note that CLHS <http://www.lisp.org/HyperSpec/Body/sec_21-1-3.html>
+;; Note that CLHS <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_21-1-3.html>
 ;; 21.1.3 "Stream Arguments to Standardized Functions"
 ;; says that INPUT-STREAM-P &c do not operate on closed streams while
 ;; the comp.lang.lisp thread "CLOSE and OUTPUT-STREAM-P"
@@ -1073,7 +1073,7 @@ T
     (WRITE-CHAR #\x *S*) (WRITE-CHAR #\y SS)))
 "abxy"
 
-;; <http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/syscla_broadcast-stream.html>
 (stream-external-format (make-broadcast-stream))   :default
 (file-length (make-broadcast-stream))              0
 (file-position (make-broadcast-stream))            0

@@ -45,7 +45,7 @@ nil
 (loop for size from 2 to 40 do (bin-stream-test :size size :type 'signed-byte))
 nil
 
-;; <http://www.lisp.org/HyperSpec/Body/fun_file-position.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_file-position.html>
 (let ((noticed '()) file-written)
   (flet ((notice (x) (push x noticed) x))
     (unwind-protect (progn

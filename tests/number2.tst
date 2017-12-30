@@ -438,7 +438,7 @@ NIL
                 (loop :for x :from (/ pi -2) :by pi :downto -10 :collect x)))
 NIL
 
-;; http://www.lisp.org/HyperSpec/Body/fun_boole.html#boole
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_boole.html#boole
 ;; The order of the values in this `table' are such that
 ;; (logand (boole (aref boole-n-vector n) #b0101 #b0011) #b1111) => n
 (let ((boole-n-vector

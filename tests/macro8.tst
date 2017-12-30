@@ -346,7 +346,7 @@ m
         (%m :allow-other-keys nil :c 1 :b 2 :a 3)))
 ((NIL NIL NIL) (1 NIL NIL) (NIL NIL NIL) (NIL NIL NIL) (3 2 1) (3 2 1) (3 2 1))
 
-;;; <http://www.lisp.org/HyperSpec/Body/fun_macroexpa_acroexpand-1.html>
+;;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_macroexpa_acroexpand-1.html>
 (defmacro alpha (x y) `(beta ,x ,y))   ALPHA
 (defmacro beta (x y) `(gamma ,x ,y))   BETA
 (defmacro delta (x y) `(gamma ,x ,y))  DELTA
@@ -438,7 +438,7 @@ FEXPAND-1
       (mexpand a-sm))))
 (A-SM NIL)
 
-;; <http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_fletcm_scm_macrolet.html>
 ;; The macro-expansion functions defined by macrolet are defined in the
 ;; lexical environment in which the macrolet form appears
 (symbol-macrolet ((foo 12))
@@ -460,7 +460,7 @@ FEXPAND-1
   (funcall f))
 5
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_3-2-2-3.html> does _not_ force
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_3-2-2-3.html> does _not_ force
 ;; programs to provide definitions for symbol-macros in the compile-time
 ;; environment. If a symbol is a symbol-macro in the run-time environment
 ;; only, CLHS 3.2.2.3 requires either an error or to treat the symbol-macro
@@ -568,7 +568,7 @@ MY-MAC
 (macroexpand '(my-mac :a 1))   (1 T)
 (macroexpand '(my-mac))        (T NIL)
 
-;; <http://www.lisp.org/HyperSpec/Body/mac_defmacro.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/mac_defmacro.html>
 (defmacro dm1a (&whole x) `',x) dm1a
 (macroexpand '(dm1a))           '(DM1A)
 
