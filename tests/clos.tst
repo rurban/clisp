@@ -549,7 +549,7 @@ FOO
 #+SBCL (unintern 'copy-foo) #+SBCL t
 #+SBCL (unintern 'make-foo) #+SBCL t
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss215-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss215-writeup.html>
 (progn
   (defclass pos ()
     ((x :initarg :x :reader pos-x)
@@ -598,7 +598,7 @@ FOO
                        (slot-value *foo* 'children)))))
 (T T T)
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss237-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss237-writeup.html>
 (progn
   (defparameter *initform-executed-counter* 0)
   (defstruct foo (slot-1 (incf *initform-executed-counter*)))
@@ -682,7 +682,7 @@ FOO
 (2 1)
 
 ;; change-class
-;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/stagenfun_change-class.html>
 (progn
   (defclass abstract-position () ())
   (defclass x-y-position (abstract-position)
@@ -816,7 +816,7 @@ T
 (T T T T NIL NIL)
 
 ;; update-instance-for-redefined-class
-;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
   (defclass abstract-position () ())
   (defclass x-y-position (abstract-position)
@@ -1606,7 +1606,7 @@ ERROR
 
 
 ;;; ensure-generic-function
-;;; <http://www.lisp.org/HyperSpec/Body/fun_ensure-ge_ric-function.html>
+;;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/fun_ensure-ge_ric-function.html>
 (ensure-generic-function 'car) error
 (ensure-generic-function 'defclass) error
 (ensure-generic-function 'tagbody) error

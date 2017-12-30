@@ -10,7 +10,7 @@
       collect (list x y))
 ((1 NIL) (2 1) (3 2) (4 3) (5 4) (6 5) (7 6) (8 7) (9 8))
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-1-1.html>
 (with-output-to-string (*standard-output*)
   (loop as i from 1 to 5
         do (princ i)))
@@ -31,7 +31,7 @@
         do (princ item)))
 "12345"
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-2-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-2-1.html>
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3 4 5) by #'cddr
         do (princ item)))
@@ -41,7 +41,7 @@
       unless (eq item 'B) sum x)
 4
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-3-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-3-1.html>
 (loop for sublist on '(a b c d)
       collect sublist)
 ((A B C D) (B C D) (C D) (D))
@@ -70,7 +70,7 @@
       collect j)
 (0 1 2 3 4)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-4-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-4-1.html>
 (loop for item = 1 then (+ item 10)
       repeat 5
       collect item)
@@ -80,7 +80,7 @@
       collect char)
 (#\H #\e #\l #\l #\o)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-4-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-4-1.html>
 (with-output-to-string (*standard-output*)
   (loop repeat 3
         do (write-line "What I say three times is true")))
@@ -119,7 +119,7 @@ T
       thereis (when (> i 10) i))
 11
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-4-2.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-4-2.html>
 (with-output-to-string (*standard-output*)
   (loop for i from 0 to 10
         always (< i 9)
@@ -177,7 +177,7 @@ February 17
       count i)
 3
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3.html>
 (loop for name in '(fred sue alice joe june)
       for kids in '((bob ken) () () (kris sunshine) ())
       collect name
@@ -198,7 +198,7 @@ February 17
   WHEN (EQL (MOD X 5) 2) COLLECT X INTO FOO FINALLY (RETURN FOO))
 (2 5 7 10 12 15 17 20)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3-1.html>
 (loop for i in '(bird 3 4 turtle (1 . 4) horse cat)
       when (symbolp i) collect i)
 (BIRD TURTLE HORSE CAT)
@@ -212,7 +212,7 @@ February 17
         finally (princ my-list)))
 "(A C)"
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-2.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3-2.html>
 (loop for x in '((a) (b) ((c)))
       append x)
 (A B (C))
@@ -232,12 +232,12 @@ February 17
 (LOOP FOR X IN '(A B C D E) NCONC (CONS X 'FOO))
 (A B C D E . FOO)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-3.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3-3.html>
 (loop for i in '(a b nil c nil d e)
       count i)
 5
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-5.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3-5.html>
 (loop for i fixnum in '(1 2 3 4 5)
       sum i)
 15
@@ -247,7 +247,7 @@ February 17
         sum (* 2.0 v)))
 22.4
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-4.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3-4.html>
 (loop for i in '(2 1 5 3 4)
       maximize i)
 5
@@ -267,8 +267,8 @@ February 17
         finally (return result)))
 1
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-2.html>
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-2-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-2.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-2-1.html>
 (loop with a = 1
       with b = (+ a 2)
       with c = (+ b 3)
@@ -299,7 +299,7 @@ February 17
       return (format nil "~A ~A ~A" a b c))
 "0.0 0.0 0.0"
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-8-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-8-1.html>
 (let ((numbers-list '(3 2 4 6 1 7 8)) (results nil))
   (cons
     (with-output-to-string (*standard-output*)
@@ -724,7 +724,7 @@ nil
 (2 2 2 2)
 
 ;;; Tests from ANSI CL section 6.1.2.1.1.
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-1.html>
 ;; <http://clhs.lisp.se/Body/06_abaa.htm>
 (let ((x 1)) (loop for i from x by (incf x) to 10 collect i))
 (1 3 5 7 9)
@@ -742,7 +742,7 @@ nil
 (progn (delete-package "LOOP-TEST") t)
 T
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-7-1.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-2-1-7-1.html>
 ;; package defaults to *package*
 (unwind-protect
      (let ((*package* (make-package "LOOP-TEST-PACKAGE-1")))
@@ -773,7 +773,7 @@ ERROR
 WARNING
 
 ;; reported by "Thomas F. Burdick" <tfb@OCF.Berkeley.EDU>
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-7-2.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-7-2.html>
 ;; According to the HyperSpec 6.1.2.1.4, in for-as-equals-then, var is
 ;; initialized to the result of evaluating form1.  6.1.7.2 says that
 ;; initially clauses are evaluated in the loop prologue, which precedes all
@@ -784,7 +784,7 @@ WARNING
   :until (>= w 100) :collect w)
 (2 6 15 38)
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-8.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-8.html>
 (let ((i 0))                    ; no loop keywords are used
   (loop (incf i) (if (= i 3) (return i))))
 3
@@ -826,7 +826,7 @@ WARNING
 (LOOP FOR NIL ON NIL DO (RETURN T))
 NIL
 
-;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-3.html>
 (handler-case (macroexpand '(loop :for i :from 1 :to 20 :sum i :maximize i))
   (program-error (c) (princ-error c) (values '(correct program-error))))
 (correct program-error)

@@ -89,7 +89,7 @@ T
 (T 12)
 
 ;; circular keys (ht cannot be inside the key, see
-;; http://www.lisp.org/HyperSpec/Body/sec_18-1-2.html)
+;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_18-1-2.html)
 (let ((ht (make-hash-table :test 'equal)) (l '#1=(1 2 . #1#)))
   (setf (gethash l ht) 42)
   (gethash l ht))

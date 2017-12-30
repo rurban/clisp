@@ -142,7 +142,7 @@ T
 (constantp '((setf cons) 3 4))
 NIL
 
-;; <http://www.lisp.org/HyperSpec/Issues/iss146-writeup.html>
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Issues/iss146-writeup.html>
 (let ((src "eval20-tst.lisp") (zz (cons 1 2)))
   (defun setf-foo (u v) (setf (car u) v))
   (with-open-file (s src :direction :output
@@ -224,7 +224,7 @@ NIL
     (list (let ((y 25)) (makunbound 'y) (list (symbol-value 'y) y)) y)))
 ((251 25) 1)
 
-;;; http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html
+;;; http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_fletcm_scm_macrolet.html
 (flet ((flet1 (n) (+ n n)))
   (flet ((flet1 (n) (+ 2 (flet1 n))))
     (flet1 2)))
