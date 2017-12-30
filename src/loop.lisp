@@ -222,13 +222,6 @@
               ,form))))
   form)
 
-;; (wrap-unwind-protect protect-forms form) wraps an UNWIND-PROTECT around
-;; form, and returns the new form.
-(defun wrap-unwind-protect (protect-forms form)
-  (if protect-forms
-    `(unwind-protect ,form ,@protect-forms)
-    form))
-
 ;; Variable containing the last test result, called "it".
 (defvar *last-it*)
 ;; Flag whether this variable is used.
@@ -303,8 +296,6 @@
              ((NCONC NCONCING APPEND APPENDING)
               (unless (eq (loop-keywordp (caddr rest)) 'INTO)
                 (return nil))))))
-        ; Cleanup forms.
-        (protect-forms '())
         ; An alist of (value-form . (clause-list)).
         (results nil))
     (labels
@@ -1236,7 +1227,6 @@
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
              ,(wrap-initializations initializations1
-               (wrap-unwind-protect protect-forms
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
                      ,@(if preamble (nreverse (mapcar #'cdr preamble)))
@@ -1251,7 +1241,7 @@
                                accu-vars-nreverse)
                      (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN)
                                   '(GO END-LOOP)))
-                       ,@(nreverse finally-code))))))))))))
+                       ,@(nreverse finally-code)))))))))))
 
 ;; The macro itself:
 (defmacro loop (&whole whole &body body)

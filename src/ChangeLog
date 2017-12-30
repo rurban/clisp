@@ -1,5 +1,11 @@
 2017-12-29  Bruno Haible  <bruno@clisp.org>
 
+	Remove unused code.
+	* loop.lisp (wrap-unwind-protect): Remove function.
+	(expand-loop): Don't use it.
+
+2017-12-29  Bruno Haible  <bruno@clisp.org>
+
 	* loop.lisp: Translate and improve comments.
 
 2017-12-20  Sam Steingold  <sds@gnu.org>
