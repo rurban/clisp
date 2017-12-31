@@ -1,5 +1,12 @@
 2017-12-29  Bruno Haible  <bruno@clisp.org>
 
+	Don't create a circular tree when recovering from continuable error
+	(bug from 2003-05-20).
+	* control.d (make_variable_frame): Store the corrected symbol in the
+	source program.
+
+2017-12-29  Bruno Haible  <bruno@clisp.org>
+
 	Remove unused code.
 	* loop.lisp (wrap-unwind-protect): Remove function.
 	(expand-loop): Don't use it.

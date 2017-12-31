@@ -472,7 +472,7 @@ local /*maygc*/ void make_variable_frame
               pushSTACK(declarations); pushSTACK(declspecs); /* save */
               pushSTACK(declspec);                           /* save */
               declsym = check_symbol_special(declsym,caller);
-              declspec = popSTACK(); Car(declspec) = declspec;   /* restore */
+              declspec = popSTACK(); Car(declspec) = declsym;    /* restore */
               declspecs = popSTACK(); declarations = popSTACK(); /* restore */
               varspecs = popSTACK(); caller = popSTACK();        /* restore */
               value2 = popSTACK(); value1 = popSTACK();          /* restore */
