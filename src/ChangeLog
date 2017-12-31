@@ -1,3 +1,38 @@
+2017-12-31  Bruno Haible  <bruno@clisp.org>
+
+	Support new declaration SYS::IMPLEMENTATION-DEPENDENT.
+	* lispbibl.d (impdependent): New macro.
+	(sym_macrop): Mark as maygc.
+	(check_symbol_in_declaration): Renamed from check_symbol_special. Add
+	decl_identifier argument.
+	* constsym.d: Add SYS::IMPLEMENTATION-DEPENDENT.
+	* constobj.d (O(printstring_implementation_dependent)): Add.
+	(O(declaration_types)): Add SYS::IMPLEMENTATION-DEPENDENT to the known
+	declarations.
+	* io.d (pr_system): Handle impdependent.
+	* spvw_debug.d (nobject_out1): Likewise.
+	* error.d (check_symbol_in_declaration): Renamed from
+	check_symbol_special. Add decl_identifier argument.
+	* control.d (specdecled_): Ignore the bindings with "value"
+	impdependent.
+	(make_variable_frame): Handle SYS::IMPLEMENTATION-DEPENDENT
+	declarations.
+	* eval.d (warn_impdependent): New function.
+	(symbol_env_search): Invoke warn_impdependent when encountering
+	impdependent.
+	(sym_value, sym_macrop): Mark as maygc.
+	(setq, macroexp0, get_closure): Update.
+	* compiler.lisp (impdependent): New variable.
+	(venv-search): Emit warning about implementation-dependent variable
+	references.
+	(process-declarations): Return additional value: the impdependent
+	symbols.
+	(*impdependents*): New variable.
+	(push-specials-impdependents): Renamed from push-specials. Update *venv*
+	also for the impdependent symbols.
+	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND, c-FLET,
+	c-LABELS, c-MACROLET, c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Update.
+
 2017-12-29  Bruno Haible  <bruno@clisp.org>
 
 	Don't create a circular tree when recovering from continuable error

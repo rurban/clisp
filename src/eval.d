@@ -479,7 +479,7 @@ global /*maygc*/ void unwind (void)
             if (frame_info & bit(fun_bit_t)) {
               /* for functions: do nothing */
             } else {
-              /* VAR_FRAME, bindingptr iterates over the bindungs */
+              /* VAR_FRAME, bindingptr iterates over the bindings */
               var gcv_object_t* frame_end = STACKpointable(new_STACK);
               var gcv_object_t* bindingptr = &STACK_(frame_bindings); /* start of the variable-/functionbindings */
               while (bindingptr != frame_end) {
@@ -814,8 +814,19 @@ global bool funnamep (object obj) {
   return false;
 }
 
-/* UP: find whether the symbol is bound in the environment */
-local inline gcv_object_t* symbol_env_search (object sym, object venv)
+/* Warns about implementation-dependent reference to a symbol.
+   warn_impdependent(sym);
+   > sym: a symbol
+   can trigger GC */
+local maygc void warn_impdependent (object sym) {
+  pushSTACK(NIL); pushSTACK(sym);
+  STACK_1 = CLSTEXT("Reference to ~S is implementation-dependent, per ANSI CL 6.1.1.4.");
+  funcall(S(warn),2);
+}
+
+/* UP: find whether the symbol is bound in the environment
+   can trigger GC */
+local maygc inline gcv_object_t* symbol_env_search (object sym, object venv)
 {
   /* Does the binding at bindptr bind the symbol sym? */
 #ifdef NO_symbolflags
@@ -835,8 +846,13 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
     if (count > 0) {
       var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
       do {
-        if (binds_sym_p(bindingsptr)) /* right symbol & active & static? */
-          return bindingsptr STACKop varframe_binding_value;
+        if (binds_sym_p(bindingsptr)) { /* right symbol & active & static? */
+          if (eq(*(bindingsptr STACKop varframe_binding_value),impdependent)) {
+            pushSTACK(sym); warn_impdependent(sym); sym = popSTACK();
+          } else {
+            return bindingsptr STACKop varframe_binding_value;
+          }
+        }
         bindingsptr skipSTACKop varframe_binding_size; /* no: next binding */
       } while (--count);
     }
@@ -854,7 +870,11 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
           if (from_inside_macrolet && !eq(*(ptr+1),specdecl)
               && !symbolmacrop(*(ptr+1)))
             goto macrolet_error;
-          return ptr+1;
+          if (eq(*(ptr+1),impdependent)) {
+            pushSTACK(sym); warn_impdependent(sym); sym = popSTACK();
+          } else {
+            return ptr+1;
+          }
         }
         ptr += 2; /* next binding */
       });
@@ -873,6 +893,10 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
   return NULL;
 #undef binds_sym_p
  macrolet_error:
+  /* <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_fletcm_scm_macrolet.html#macrolet>
+     "the consequences are undefined if the local macro definitions reference
+      any local variable or function bindings that are visible in that lexical
+      environment." */
   pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(macrolet)); pushSTACK(sym);
   error(program_error,
@@ -913,14 +937,17 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
  > venv: a Variable- and Symbolmacro-Environment
  < symbolmacro: symbol-macro definition, or nullobj if not a symbol-macro
  < result: value of the symbol in this environment, or
-           nullobj if a symbol-macro */
-local gcv_object_t sym_value (object sym, object env, object* symbolmacro_)
+           nullobj if a symbol-macro
+ can trigger GC */
+local maygc gcv_object_t sym_value (object sym, object env, object* symbolmacro_)
 {
   if (special_var_p(TheSymbol(sym))) {
     /* Constants and symbols declared special have only global values. */
     goto global_value;
   } else {
+    pushSTACK(sym);
     var gcv_object_t* binding = symbol_env_search(sym,env);
+    sym = popSTACK();
     if (binding != NULL) {
       var object val = *binding;
       if (eq(val,specdecl))
@@ -952,8 +979,9 @@ local gcv_object_t sym_value (object sym, object env, object* symbolmacro_)
 /* UP: determines, if a Symbol is a Macro in the current environment.
  sym_macrop(symbol)
  > symbol: Symbol
- < result: true if sym is a Symbol-Macro */
-global bool sym_macrop (object sym) {
+ < result: true if sym is a Symbol-Macro
+ can trigger GC */
+global maygc bool sym_macrop (object sym) {
   var object symbolmacro;
   sym_value(sym,aktenv.var_env,&symbolmacro);
   return !eq(symbolmacro,nullobj);
@@ -967,6 +995,7 @@ global bool sym_macrop (object sym) {
  can trigger GC */
 global maygc object setq (object sym, object value)
 {
+  pushSTACK(value); pushSTACK(sym);
   if (special_var_p(TheSymbol(sym))) {
     /* Constants and symbols declared special have only global values. */
     goto global_value;
@@ -977,13 +1006,13 @@ global maygc object setq (object sym, object value)
       if (eq(val,specdecl))
         goto global_value;
       ASSERT(!symbolmacrop(val));
-      return *binding = value;
+      skipSTACK(1);
+      return *binding = popSTACK();
     }
-    ASSERT(!symmacro_var_p(TheSymbol(sym)));
+    ASSERT(!symmacro_var_p(TheSymbol(STACK_0)));
   }
  global_value: /* the global (dynamic) value of the Symbol */
-  pushSTACK(value); pushSTACK(sym);
-  symbol_value_check_lock(S(setq),sym);
+  symbol_value_check_lock(S(setq),STACK_0);
   Symbol_value(STACK_0) = STACK_1;
   skipSTACK(1);
   return popSTACK();
@@ -1057,6 +1086,10 @@ global object sym_function (object sym, object env)
     value = unbound;
   return value;
  macrolet_error:
+  /* <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/speope_fletcm_scm_macrolet.html#macrolet>
+     "the consequences are undefined if the local macro definitions reference
+      any local variable or function bindings that are visible in that lexical
+      environment." */
   pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(macrolet)); pushSTACK(sym);
   error(source_program_error,
@@ -1509,13 +1542,16 @@ global maygc void macroexp0 (object form, object env)
       }
     }
   } else if (symbolp(form)) {
+    pushSTACK(form);
     var object symbolmacro;
     var object val = sym_value(form,TheSvector(env)->data[0],&symbolmacro);
     if (!eq(symbolmacro,nullobj)) { /* found Symbol-Macro? */
       /* yes -> expand */
+      skipSTACK(1);
       value1 = TheSymbolmacro(symbolmacro)->symbolmacro_expansion; value2 = T;
       return;
     }
+    form = popSTACK();
   }
   /* else, don't expand: */
   value1 = form; value2 = NIL;
@@ -1902,7 +1938,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
           if (!symbolp(sym)) {
             pushSTACK(declarations); pushSTACK(declspec); /* save */
             pushSTACK(declspecrest);
-            sym = check_symbol_special(sym,S(function));
+            sym = check_symbol_in_declaration(sym,S(special),S(function));
             declspecrest = popSTACK(); Car(declspecrest) = sym;
             declspec = popSTACK(); declarations = popSTACK(); /* restore */
           }
@@ -2514,7 +2550,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     }
     /* VAR_ENV of closure becomes NEXT_ENV in frame: */
     pushSTACK(TheIclosure(closure)->clos_var_env);
-    pushSTACK(fake_gcv_object(var_count)); /* var_count bindungs, all still un-nested */
+    pushSTACK(fake_gcv_object(var_count)); /* var_count bindings, all still un-nested */
     finish_frame(VAR);
   }
   /* STACK now points below the variable-binding-frame.

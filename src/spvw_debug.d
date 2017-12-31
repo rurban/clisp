@@ -240,6 +240,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
   else if (eq(obj,nullobj))   fprint(out,"#<NULLOBJ>");
   else if (eq(obj,disabled))  string_out(out,O(printstring_disabled_pointer));
   else if (eq(obj,specdecl))  string_out(out,O(printstring_special_reference));
+  else if (eq(obj,impdependent)) string_out(out,O(printstring_implementation_dependent));
   else if (eq(obj,eof_value)) string_out(out,O(printstring_eof));
   else if (eq(obj,dot_value)) string_out(out,O(printstring_dot));
 #if defined(DYNAMIC_FFI)

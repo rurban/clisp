@@ -107,6 +107,7 @@ LISPSYM(or,"OR",lisp)
 /* ---------- EVAL ---------- */
 LISPSYM(funtabref,"%FUNTABREF",system)
 LISPSYM(subr_info,"SUBR-INFO",system)
+LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",ext)
 LISPSYM(add_implicit_block,"ADD-IMPLICIT-BLOCK",system)
 LISPSYM(function_block_name,"FUNCTION-BLOCK-NAME",system)
 /* ---------- ARRAY ---------- */
@@ -1045,7 +1046,6 @@ LISPSYM(symbol_plist,"SYMBOL-PLIST",lisp)
 LISPSYM(symbol_name,"SYMBOL-NAME",lisp)
 LISPSYM(cs_symbol_name,"SYMBOL-NAME",cs_lisp)
 LISPSYM(keywordp,"KEYWORDP",lisp)
-LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",ext)
 LISPSYM(gensym,"GENSYM",lisp)
 LISPSYM(gentemp,"GENTEMP",lisp)
 LISPSYM(plist,"PLIST",system) /* type in type.lisp */
@@ -1711,7 +1711,8 @@ LISPSYM(LLaux,"&AUX",lisp) /* lambda list marker in EVAL */
 LISPSYM(LLbody,"&BODY",lisp) /* lambda list marker in EVAL */
 LISPSYM(macro,"MACRO",system) /* marker in EVAL, type in PREDTYPE */
 LISPSYM(special,"SPECIAL",lisp) /* declaration-specifier in EVAL */
-LISPSYM(notspecial,"NOTSPECIAL",ext) /* declaration-specifier in EVAL */
+LISPSYM(notspecial,"NOTSPECIAL",ext) /* declaration-specifier in CONTROL */
+LISPSYM(implementation_dependent,"IMPLEMENTATION-DEPENDENT",system) /* declaration-specifier in CONTROL */
 LISPSYM(source,"SOURCE",system) /* declaration-specifier in EVAL */
 LISPSYM(optimize,"OPTIMIZE",lisp) /* declaration-specifier in EVAL */
 LISPSYM(declaration,"DECLARATION",lisp) /* declaration-specifier in EVAL */

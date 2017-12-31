@@ -8502,6 +8502,8 @@ local maygc void pr_system (const gcv_object_t* stream_, object obj) {
       write_sstring_case(stream_,O(printstring_unbound));
     else if (eq(obj,specdecl))  /* #<SPECIAL REFERENCE> */
       write_sstring_case(stream_,O(printstring_special_reference));
+    else if (eq(obj,impdependent))  /* #<IMPLEMENTATION-DEPENDENT> */
+      write_sstring_case(stream_,O(printstring_implementation_dependent));
     else if (eq(obj,disabled))  /* #<DISABLED POINTER> */
       write_sstring_case(stream_,O(printstring_disabled_pointer));
     else if (eq(obj,dot_value)) /* #<DOT> */

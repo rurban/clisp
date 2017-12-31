@@ -1,6 +1,6 @@
 /*
  * Special Forms, Control Structures, Evaluator Related Stuff for CLISP
- * Bruno Haible 1990-2005, 2016
+ * Bruno Haible 1990-2005, 2016-2017
  * Sam Steingold 1998-2009, 2011
  * German comments translated into English: Stefan Kain 2002-09-28
  */
@@ -415,26 +415,25 @@ local maygc object check_varspec (object varspec, object caller) {
  or NULL if no such binding is found */
 global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
                                   uintL spec_count) {
+  spec_pointer = STACKpointable(spec_pointer);
   do {
-    spec_pointer skipSTACKop -1; /* NEXT */
-   #ifdef NO_symbolflags
-    if (eq(NEXT(spec_pointer),symbol)) {
-      if (eq(NEXT(spec_pointer),Fixnum_0))
-        return &Before(spec_pointer);
-    } else {
-      (void)NEXT(spec_pointer);
-    }
-   #else
-    if (eq(NEXT(spec_pointer),symbol_without_flags(symbol)))
-      return &Before(spec_pointer);
-   #endif
+    spec_pointer skipSTACKop -varframe_binding_size;
+    if (
+        #ifdef NO_symbolflags
+         eq(*(spec_pointer STACKop varframe_binding_sym),symbol)
+         && eq(*(spec_pointer STACKop varframe_binding_mark),Fixnum_0)
+        #else
+         eq(*(spec_pointer STACKop varframe_binding_sym),symbol_without_flags(symbol))
+        #endif
+        && eq(*(spec_pointer STACKop varframe_binding_value),specdecl))
+      return spec_pointer STACKop varframe_binding_mark;
   } while (--spec_count);
   return NULL;
 }
 
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Analyzes the variables and declarations, builds up a variable binding-
- frame and extends VENV and poss. also DENV by a frame.
+ frame and extends VENV and possibly also DENV by a frame.
  make_variable_frame(caller,varspecs,&bind_ptr,&bind_count,&spec_ptr,&spec_count)
  > object caller: Caller, a symbol
  > object varspecs: list of variable-specifiers
@@ -455,49 +454,61 @@ local /*maygc*/ void make_variable_frame
   var object declarations = value2;
   { /* build up variable binding frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
-    /* first store the special-declared variables from
-       declarations in the stack: */
+    /* First. store the special-declared and impdependent-declared
+       variables from declarations in the stack: */
     var gcv_object_t* spec_pointer = args_end_pointer;
     var uintL spec_count = 0; /* number of SPECIAL-references */
     {
       var object declspecs = declarations;
       while (consp(declspecs)) {
         var object declspec = Car(declspecs); /* next declaration */
-        if (consp(declspec) && eq(Car(declspec),S(special))) { /* (SPECIAL ) */
-          while (consp( declspec = Cdr(declspec) )) {
-            var object declsym = Car(declspec); /* next special item */
-            if (!symbolp(declsym)) { /* should be a symbol */
-              pushSTACK(value1); pushSTACK(value2);          /* save */
-              pushSTACK(caller); pushSTACK(varspecs);        /* save */
-              pushSTACK(declarations); pushSTACK(declspecs); /* save */
-              pushSTACK(declspec);                           /* save */
-              declsym = check_symbol_special(declsym,caller);
-              declspec = popSTACK(); Car(declspec) = declsym;    /* restore */
-              declspecs = popSTACK(); declarations = popSTACK(); /* restore */
-              varspecs = popSTACK(); caller = popSTACK();        /* restore */
-              value2 = popSTACK(); value1 = popSTACK();          /* restore */
+        if (consp(declspec)) {
+          var object decl_identifier = Car(declspec);
+          if (eq(decl_identifier,S(special)) || eq(decl_identifier,S(implementation_dependent))) { /* (SPECIAL ) or (SYS::IMPLEMENTATION-DEPENDENT ) */
+            while (consp( declspec = Cdr(declspec) )) {
+              var object declsym = Car(declspec); /* next declared item */
+              if (!symbolp(declsym)) { /* should be a symbol */
+                pushSTACK(value1); pushSTACK(value2);          /* save */
+                pushSTACK(caller); pushSTACK(varspecs);        /* save */
+                pushSTACK(declarations); pushSTACK(declspecs); /* save */
+                pushSTACK(decl_identifier);                    /* save */
+                pushSTACK(declspec);                           /* save */
+                declsym = check_symbol_in_declaration(declsym,Car(declspec),caller);
+                declspec = popSTACK();                             /* restore */
+                Car(declspec) = declsym;
+                decl_identifier = popSTACK();                      /* restore */
+                declspecs = popSTACK(); declarations = popSTACK(); /* restore */
+                varspecs = popSTACK(); caller = popSTACK();        /* restore */
+                value2 = popSTACK(); value1 = popSTACK();          /* restore */
+              }
+              if (eq(decl_identifier,S(special))) {
+                /* store special-declared symbol in stack: */
+                pushSTACK(specdecl); /* #<SPECDECL> as "value" */
+                pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
+               #if defined(MULTITHREAD)
+                /* this is locally declared special variable. make it per thread
+                   if not already.*/
+                if (TheSymbol(declsym)->tls_index == SYMBOL_TLS_INDEX_NONE) {
+                  /* this call is may gc now */
+                  pushSTACK(value1); pushSTACK(value2);            /* save */
+                  pushSTACK(caller); pushSTACK(varspecs);          /* save */
+                  pushSTACK(declarations); pushSTACK(declspecs);   /* save */
+                  pushSTACK(decl_identifier); pushSTACK(declspec); /* save */
+                  add_per_thread_special_var(declsym);
+                  declspec = popSTACK(); decl_identifier = popSTACK(); /* restore */
+                  declspecs = popSTACK(); declarations = popSTACK();   /* restore */
+                  varspecs = popSTACK(); caller = popSTACK();          /* restore */
+                  value2 = popSTACK(); value1 = popSTACK();            /* restore */
+                }
+               #endif
+              } else if (eq(decl_identifier,S(implementation_dependent))) {
+                /* store impdependent-declared symbol in stack: */
+                pushSTACK(impdependent); /* #<IMPLEMENTATION-DEPENDENT> as "value" */
+                pushSTACK_symbolwithflags(declsym,active_bit_o); /* Symbol active */
+              }
+              check_STACK();
+              spec_count++;
             }
-            /* store special-declared symbol in stack: */
-            pushSTACK(specdecl); /* SPECDECL as "value" */
-            pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
-          #if defined(MULTITHREAD)
-            /* this is locally declared special variable. make it per thread
-               if not already.*/
-            if (TheSymbol(declsym)->tls_index == SYMBOL_TLS_INDEX_NONE) {
-              /* this call is may gc now */
-              pushSTACK(value1); pushSTACK(value2);          /* save */
-              pushSTACK(caller); pushSTACK(varspecs);        /* save */
-              pushSTACK(declarations); pushSTACK(declspecs); /* save */
-              pushSTACK(declspec);                           /* save */
-              add_per_thread_special_var(declsym);
-              declspec = popSTACK();
-              declspecs = popSTACK(); declarations = popSTACK(); /* restore */
-              varspecs = popSTACK(); caller = popSTACK();        /* restore */
-              value2 = popSTACK(); value1 = popSTACK();          /* restore */
-            }
-          #endif
-            check_STACK();
-            spec_count++;
           }
         }
         declspecs = Cdr(declspecs);
