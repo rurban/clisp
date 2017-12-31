@@ -1,5 +1,77 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
+
+;; <http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Body/sec_6-1-1-4.html>
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-arithmetic.
+
+(handler-case
+  (let ((i 2))
+    (loop  for i from 1 below 20 by i  collect i))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((j 5))
+    (loop  for i from 1 to j  for j from 11 to 20  collect (list i j)))
+  (warning (w) (princ-to-string w)))
+"Reference to J is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-in-list.
+
+(handler-case
+  (let ((i 2))
+    (loop  for a in (list i i)  for i from 1 to 2  collect a))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((j #'cdr))
+    (loop  for i in '(a b c) by j  for j in (list #'cddr #'cddr #'cddr)  collect (prog1 i j)))
+  (warning (w) (princ-to-string w)))
+"Reference to J is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-on-list.
+
+(handler-case
+  (let ((i 2))
+    (loop  for a on (list i i)  for i from 1 to 2  collect a))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((j (list #'cdr)))
+    (loop  for i on '(a b c) by (car j)  for j on (list #'cddr #'cddr #'cddr)  collect (prog1 i j)))
+  (warning (w) (princ-to-string w)))
+"Reference to J is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-across.
+
+(handler-case
+  (let ((i 2))
+    (loop  for a across (vector i i)  for i from 1 to 2  collect a))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-hash.
+
+(handler-case
+  (let ((i 2))
+    (loop  for k being each hash-key of (let ((ht (make-hash-table))) (setf (gethash i ht) t) ht)
+           for i from 1 to 2  collect k))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; Verify ANSI CL 6.1.1.4 warning for for-as-package.
+
+(handler-case
+  (let ((i 2))
+    (loop  for s being each external-symbol of (find-package (if (= i 1) "COMMON-LISP" "COMMON-LISP-USER"))
+           for i from 1 to 2  collect s))
+  (warning (w) (princ-to-string w)))
+"Reference to I is implementation-dependent, per ANSI CL 6.1.1.4."
+
+
 (loop for x from 1 to 9
       for y = nil then x
       collect (list x y))

@@ -1,5 +1,13 @@
 2017-12-31  Bruno Haible  <bruno@clisp.org>
 
+	Emit a warning when LOOP is used with unportable syntax.
+	* loop.lisp (loop-initialization): Add member 'impdependent-declspec'.
+	(expand-loop): Wrap selected initialization forms in LOCALLY with a
+	SYS::IMPLEMENTATION-DEPENDENT declaration for variables that are not
+	guaranteed to be visible.
+
+2017-12-31  Bruno Haible  <bruno@clisp.org>
+
 	Support new declaration SYS::IMPLEMENTATION-DEPENDENT.
 	* lispbibl.d (impdependent): New macro.
 	(sym_macrop): Mark as maygc.

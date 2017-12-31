@@ -80,6 +80,9 @@ User visible changes
 * The readline-based completion facility is now more customizable.
   See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
 
+* Use of the LOOP macro with a syntax that has an implementation-dependent
+  interpretation (cf. ANSI CL 6.1.1.4) now triggers a warning.
+
 * Some old functions that have been deprecated for 10+ years have been removed:
       SOCKET-SERVER-PORT: use SERVICE instead,
       TYPE-EXPAND-1: use TYPE-EXPAND instead,
