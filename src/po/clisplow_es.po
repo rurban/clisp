@@ -1,83 +1,50 @@
-# #-#-#-#-#  es1.po (GNU clisp 1996-03-31)  #-#-#-#-#
-# Mensajes en espaÒol para GNU CLISP.
-# Copyright (C) 1996 Free Software Foundation, Inc.
-# Carlos Linares LÛpez <clinares@delicias.dia.fi.upm.es>, 1997.
+# Mensajes en espa√±ol para GNU clisp 2.49.60
+# Copyright (C) 2017 Free Software Foundation, Inc.
+# This file is distributed under the same license as the clisp package.
+# Carlos Linares L√≥pez <clinares@delicias.dia.fi.upm.es>, 1997.
+# Santiago Vila Doncel
+# Leonardo Saras√∫a Garc√≠a
+# Francisco Javier Serrador <serrador@tecknolabs.com>\n
 #
-# Han contribuido a esta traducciÛn:
+# Han contribuido a esta traducci√≥n:
 #
-# cll - Carlos Linares LÛpez 	(TraducciÛn)
-# sv  - Santiago Vila Doncel	(RevisiÛn)
-# lsg - Leonardo Saras˙a GarcÌa	(TraducciÛn y RevisiÛn)
+# cll - Carlos Linares L√≥pez 	(Traducci√≥n)
+# sv  - Santiago Vila Doncel	(Revisi√≥n)
+# lsg - Leonardo Saras√∫a Garc√≠a	(Traducci√≥n y Revisi√≥n)
 #
 # Agradecimientos especiales a:
 #
 # Bruno Haible
-# Marcus Daniels
-# 					(Programadores de CLisp)
+# Marcus Daniels	(Programadores de CLisp)
+# Enrique Melero	(Coordinador de Spanish GNU)
 #
-# Enrique Melero
-# 				    (Coordinador de Spanish GNU)
+# Por haber atendido siempre mis preguntas y por mostrar tanto inter√©s
+# en esta traducci√≥n.
 #
-# Por haber atendido siempre mis preguntas y por mostrar tanto interÈs
-# en esta traducciÛn.
+# Much√≠simas gracias, Leo. Te debo la cerveza m√°s grande del mundo, ...
 #
 # Asimismo, quisiera expresar mi agradecimiento a las siguientes
 # personas, por responder pacientemente todas mis preguntas: Joerg
-# Hoehle (traductor de la versiÛn francesa) y Juan Jordana.
+# Hoehle (traductor de la versi√≥n francesa) y Juan Jordana.
 #
-# Por ˙ltimo, a toda la lista de Spanish GNU Translation Team
-# (es@li.org) por sus sugerencias.
+# Por √∫ltimo, a toda la lista de Spanish GNU Translation Team
+# (es@es.li.org) por sus sugerencias.
 #
 # NOTAS.
 #
-# * Los mensajes en los que se han realizado anotaciones de interÈs,
+# * Los mensajes en los que se han realizado anotaciones de inter√©s,
 # bien porque haya alguna duda, bien porque contenga notas importantes
 # relativas a las traducciones tienen la palabra `Duda:' al principio de
 # su comentario.
 #
-# * Por favor, si alguien realiza alguna modificaciÛn a este archivo que
+# * Por favor, si alguien realiza alguna modificaci√≥n a este archivo que
 # ponga sus iniciales al final del comentario explicando el cambio y el
-# motivo. Si su nombre no est· en esta cabecera que lo aÒada poniendo
+# motivo. Si su nombre no est√° en esta cabecera que lo a√±ada poniendo
 # las iniciales.
 #
-# * Todas las lÌneas que comienzan con #~ son mensajes obsoletos que no
-# hace falta revisar. En cualquier caso, intentarÈ normalmente
+# * Todas las l√≠neas que comienzan con #~S son mensajes obsoletos que no
+# hace falta revisar. En cualquier caso, intentar√© normalmente
 # eliminarlas.
-#
-# $Id$
-# $Log$
-# Revision 1.36  2009/07/28 17:10:52  sds
-# regenerated for 2.48 (2009-07-28)
-#
-# Revision 1.35  2009/06/15 19:58:27  sds
-# regenerated for 2.47++ (2009-06-15)
-#
-# Revision 1.34  2008/07/02 15:28:51  sds
-# regenerated for 2.46 (2008-07-02)
-#
-# Revision 1.33  2008/05/15 14:14:18  sds
-# 2.45 final
-#
-# Revision 1.32  2008/05/14 16:09:23  sds
-# regenerated for 2.45 (2008-05-15)
-#
-# Revision 1.31  2008/05/09 18:00:58  sds
-# regenerated
-#
-# Revision 1.30  2008/05/06 20:56:45  sds
-# regenerated
-#
-# Revision 1.29  2008/05/02 19:14:31  sds
-# regenerated
-#
-# Revision 1.28  2008/01/29 19:39:59  sds
-# regenerated for 2.44
-#
-# Revision 1.27  2007/11/18 16:24:00  sds
-# regenerated for 2.43
-#
-# Revision 1.26  2007/11/02 18:43:11  sds
-# 2.43
 #
 # Revision 1.25  2007/10/12 19:24:51  sds
 # regenerated for 2.41.1 pretest
@@ -86,7 +53,7 @@
 # clisp 2.41 release (Friday the 13th!)
 #
 # Revision 1.23  2006/10/01 16:13:06  sds
-# 2.40 (2006-09-23)
+# regenerated for 2.40 (2006-09-23)
 #
 # Revision 1.22  2006/07/14 15:45:47  sds
 # regenerated for 2.39
@@ -154,286 +121,82 @@
 # Revision 1.1  2002/05/18 14:27:46  sds
 # kill src/gettext; POs are now in src/po
 #
-# Revision 1.12  1998/09/07 18:21:38  clinares
-# TraducciÛn de todos los mensajes para la versiÛn del 29-8-1998. Estos
-# cambios, sin embargo, ser·n publicados en alguna nueva versiÛn de
-# septiembre de este mismo aÒo.
-#
-# Revision 1.9  1997/09/18 13:36:38  clinares
-# He incluÌdo nuevas modificaciones de Leo Saras˙a.
-#
-# Entre las m·s representativas est· el hecho de haber modificado
-# `trama' por `marco' y `# macro car·cter' por `macro car·cter
-# secundario'. Nuevamente gracias, Leo, ...
-#
-# Revision 1.8  1997/09/05 17:23:30  clinares
-# He introducido todas las modificaciones propuestas por Santiago Vila a
-# la versiÛn 1.6. Adem·s, las he adaptado para el nuevo .pot que se
-# empleÛ en la versiÛn 1.7.
-#
-# Entre los cambios m·s importantes est·: `command' es `orden', no
-# `comando'; `warning' es, preferiblemente, `atenciÛn' y, en otro caso,
-# propongo que sea `advertencia', en vez de `aviso'.
-#
-# Revision 1.7  1997/09/03 17:51:44  clinares
-# He modificado la traducciÛn de las directivas ~P, puesto que nunca se
-# escribir·n versiones en espaÒol de ellas, ya que el est·ndar Common
-# Lisp - The Language es muy especÌfico: solo en inglÈs. Ni en alem·n,
-# ni francÈs, ni espaÒol, ...
-#
-# Adem·s, he adaptado los cambios del POT de la versiÛn 1.6
-# (POT-Creation-Date: 1997-05-04) a la ˙ltima versiÛn que existe
-# actualmente (POT-Creation-Date: 1997-09-02). Para ello, he traducido 9
-# mensajes nuevos, he corregido los mensajes difusos y he borrado todos
-# los obsoletos.
-#
-# Revision 1.6  1997/08/30 14:04:08  clinares
-# El 100% de los mensajes est·n traducidos :)
-# En total, 9 meses de trabajo (es decir, aha sido un parto!! :)
-#
-# Revision 1.5  1997/08/27 00:48:46  clinares
-# Esta es la traducciÛn que resulta de programar todos los cambios
-# propuestos por lsg (Leonardo Saras˙a GarcÌa). En total, aalrededor de
-# 800 lÌneas!!, ahÌ es nada :)
-#
-# MuchÌsimas gracias, Leo. Te debo la cerveza m·s grande del mundo, ...
-#
-# ------------------------------------------------------------------
-# msgfmt --statistics -c -v -o /dev/null /home/clinares/GNU/clisp.po
-# 1406 mensajes traducidos.
-# ------------------------------------------------------------------
-#
-# #-#-#-#-#  es2.po (GNU clisp 1996-03-31)  #-#-#-#-#
-# Mensajes en espaÒol para GNU CLISP.
-# Copyright (C) 1996 Free Software Foundation, Inc.
-# Carlos Linares LÛpez <clinares@delicias.dia.fi.upm.es>, 1997.
-#
-# Han contribuido a esta traducciÛn:
-#
-# cll - Carlos Linares LÛpez 	(TraducciÛn)
-# sv  - Santiago Vila Doncel	(RevisiÛn)
-# lsg - Leonardo Saras˙a GarcÌa	(TraducciÛn y RevisiÛn)
-#
-# Agradecimientos especiales a:
-#
-# Bruno Haible
-# Marcus Daniels
-# 					(Programadores de CLisp)
-#
-# Enrique Melero
-# 				    (Coordinador de Spanish GNU)
-#
-# Por haber atendido siempre mis preguntas y por mostrar tanto interÈs
-# en esta traducciÛn.
-#
-# Asimismo, quisiera expresar mi agradecimiento a las siguientes
-# personas, por responder pacientemente todas mis preguntas: Joerg
-# Hoehle (traductor de la versiÛn francesa) y Juan Jordana.
-#
-# Por ˙ltimo, a toda la lista de Spanish GNU Translation Team
-# (es@li.org) por sus sugerencias.
-#
-# NOTAS.
-#
-# * Los mensajes en los que se han realizado anotaciones de interÈs,
-# bien porque haya alguna duda, bien porque contenga notas importantes
-# relativas a las traducciones tienen la palabra `Duda:' al principio de
-# su comentario.
-#
-# * Por favor, si alguien realiza alguna modificaciÛn a este archivo que
-# ponga sus iniciales al final del comentario explicando el cambio y el
-# motivo. Si su nombre no est· en esta cabecera que lo aÒada poniendo
-# las iniciales.
-#
-# * Todas las lÌneas que comienzan con #~S son mensajes obsoletos que no
-# hace falta revisar. En cualquier caso, intentarÈ normalmente
-# eliminarlas.
-#
-# $Id$
-# $Log$
-# Revision 1.36  2009/07/28 17:10:52  sds
-# regenerated for 2.48 (2009-07-28)
-#
-# Revision 1.35  2009/06/15 19:58:27  sds
-# regenerated for 2.47++ (2009-06-15)
-#
-# Revision 1.34  2008/07/02 15:28:51  sds
-# regenerated for 2.46 (2008-07-02)
-#
-# Revision 1.33  2008/05/15 14:14:18  sds
-# 2.45 final
-#
-# Revision 1.32  2008/05/14 16:09:23  sds
-# regenerated for 2.45 (2008-05-15)
-#
-# Revision 1.31  2008/05/09 18:00:58  sds
-# regenerated
-#
-# Revision 1.30  2008/05/06 20:56:45  sds
-# regenerated
-#
-# Revision 1.29  2008/05/02 19:14:31  sds
-# regenerated
-#
-# Revision 1.28  2008/01/29 19:39:59  sds
-# regenerated for 2.44
-#
-# Revision 1.27  2007/11/18 16:24:00  sds
-# regenerated for 2.43
-#
-# Revision 1.26  2007/11/02 18:43:11  sds
-# 2.43
-#
-# Revision 1.25  2007/10/12 19:24:51  sds
-# regenerated for 2.41.1 pretest
-#
-# Revision 1.24  2006/10/13 04:10:53  sds
-# clisp 2.41 release (Friday the 13th!)
-#
-# Revision 1.23  2006/10/01 16:13:06  sds
-# 2.40 (2006-09-23)
-#
-# Revision 1.22  2006/07/14 15:45:47  sds
-# regenerated for 2.39
-#
-# Revision 1.21  2006/01/24 15:55:42  sds
-# regenerated for clisp 2.38 release
-#
-# Revision 1.20  2006/01/02 17:09:36  sds
-# regenerated for 2.37 (2006-01-02)
-#
-# Revision 1.19  2005/12/04 22:37:32  sds
-# regenerated for clisp 2.36 release
-#
-# Revision 1.18  2005/08/29 18:18:56  sds
-# regenerated
-#
-# Revision 1.17  2005/08/28 16:27:17  sds
-# regenerated
-#
-# Revision 1.16  2005/07/20 23:58:29  sds
-# clisp 2.34 (2005-07-20)
-#
-# Revision 1.15  2005/07/13 19:11:34  sds
-# regenerated for 2.33.84
-#
-# Revision 1.14  2005/07/06 17:05:52  sds
-# regenerated
-#
-# Revision 1.13  2005/06/27 15:30:42  sds
-# regenerated
-#
-# Revision 1.12  2005/03/17 23:14:48  sds
-# regenerated
-#
-# Revision 1.11  2005/02/16 22:30:56  haible
-# Regenerated.
-#
-# Revision 1.10  2004/12/10 16:11:18  sds
-# GNU CLISP 2.33.80 (2004-11-27)
-#
-# Revision 1.9  2004/03/31 12:48:41  haible
-# Update after change of format string convention: '~' -> '~S', '$' -> '~C'.
-#
-# Revision 1.8  2004/03/31 12:07:14  haible
-# msgmerged.
-#
-# Revision 1.7  2004/03/31 11:52:39  haible
-# Update for removal of leading and trailing newlines.
-#
-# Revision 1.6  2004/03/30 20:38:21  haible
-# msgmerged.
-#
-# Revision 1.5  2004/03/17 20:47:07  sds
-# regenerated for 2.33
-#
-# Revision 1.4  2004/03/14 17:27:54  sds
-# regenerated for 2.32.94
-#
-# Revision 1.3  2004/03/12 19:22:47  sds
-# regenerated for 2.32.93
-#
-# Revision 1.2  2002/09/13 15:00:36  sds
-# regenerated for 2.30
-#
 # Revision 1.1  2002/05/18 14:27:46  sds
 # kill src/gettext; POs are now in src/po
 #
-# Revision 1.12  1998/09/07 18:21:38  clinares
-# TraducciÛn de todos los mensajes para la versiÛn del 29-8-1998. Estos
-# cambios, sin embargo, ser·n publicados en alguna nueva versiÛn de
-# septiembre de este mismo aÒo.
+# Revision 1.10  1998/09/07 18:21:38  clinares
+# Traducci√≥n de todos los mensajes para la versi√≥n del 29-8-1998. Estos
+# cambios, sin embargo, ser√°n publicados en alguna nueva versi√≥n de
+# septiembre de este mismo a√±o.
 #
 # Revision 1.9  1997/09/18 13:36:38  clinares
-# He incluÌdo nuevas modificaciones de Leo Saras˙a.
+# He inclu√≠do nuevas modificaciones de Leo Saras√∫a.
 #
-# Entre las m·s representativas est· el hecho de haber modificado
-# `trama' por `marco' y `# macro car·cter' por `macro car·cter
+# Entre las m√°s representativas est√° el hecho de haber modificado
+# `trama' por `marco' y `# macro car√°cter' por `macro car√°cter
 # secundario'. Nuevamente gracias, Leo, ...
 #
 # Revision 1.8  1997/09/05 17:23:30  clinares
 # He introducido todas las modificaciones propuestas por Santiago Vila a
-# la versiÛn 1.6. Adem·s, las he adaptado para el nuevo .pot que se
-# empleÛ en la versiÛn 1.7.
+# la versi√≥n 1.6. Adem√°s, las he adaptado para el nuevo .pot que se
+# emple√≥ en la versi√≥n 1.7.
 #
-# Entre los cambios m·s importantes est·: `command' es `orden', no
-# `comando'; `warning' es, preferiblemente, `atenciÛn' y, en otro caso,
+# Entre los cambios m√°s importantes est√°: `command' es `orden', no
+# `comando'; `warning' es, preferiblemente, `atenci√≥n' y, en otro caso,
 # propongo que sea `advertencia', en vez de `aviso'.
 #
 # Revision 1.7  1997/09/03 17:51:44  clinares
-# He modificado la traducciÛn de las directivas ~SP, puesto que nunca se
-# escribir·n versiones en espaÒol de ellas, ya que el est·ndar Common
-# Lisp - The Language es muy especÌfico: solo en inglÈs. Ni en alem·n,
-# ni francÈs, ni espaÒol, ...
+# He modificado la traducci√≥n de las directivas ~SP, puesto que nunca se
+# escribir√°n versiones en espa√±ol de ellas, ya que el est√°ndar Common
+# Lisp - The Language es muy espec√≠fico: solo en ingl√©s. Ni en alem√°n,
+# ni franc√©s, ni espa√±ol, ...
 #
-# Adem·s, he adaptado los cambios del POT de la versiÛn 1.6
-# (POT-Creation-Date: 1997-05-04) a la ˙ltima versiÛn que existe
+# Adem√°s, he adaptado los cambios del POT de la versi√≥n 1.6
+# (POT-Creation-Date: 1997-05-04) a la √∫ltima versi√≥n que existe
 # actualmente (POT-Creation-Date: 1997-09-02). Para ello, he traducido 9
 # mensajes nuevos, he corregido los mensajes difusos y he borrado todos
 # los obsoletos.
 #
 # Revision 1.6  1997/08/30 14:04:08  clinares
-# El 100% de los mensajes est·n traducidos :)
+# El 100% de los mensajes est√°n traducidos :)
 # En total, 9 meses de trabajo (es decir, aha sido un parto!! :)
 #
 # Revision 1.5  1997/08/27 00:48:46  clinares
-# Esta es la traducciÛn que resulta de programar todos los cambios
-# propuestos por lsg (Leonardo Saras˙a GarcÌa). En total, aalrededor de
-# 800 lÌneas!!, ahÌ es nada :)
+# Esta es la traducci√≥n que resulta de programar todos los cambios
+# propuestos por lsg (Leonardo Saras√∫a Garc√≠a). En total, aalrededor de
+# 800 l√≠neas!!, ah√≠ es nada :)
 #
-# MuchÌsimas gracias, Leo. Te debo la cerveza m·s grande del mundo, ...
-#
-# ------------------------------------------------------------------
-# msgfmt --statistics -c -v -o /dev/null /home/clinares/GNU/clisp.po
-# 1406 mensajes traducidos.
-# ------------------------------------------------------------------
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GNU clisp 1996-03-31\n"
+"Project-Id-Version: GNU clisp 2.49.60\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2017-06-25 11:29:03+0200\n"
-"PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
-"Last-Translator: Carlos Linares LÛpez <clinares@delicias.dia.fi.upm.es>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2017-12-26 17:22+0100\n"
+"Last-Translator: Francisco Javier Serrador <serrador@tecknolabs.com>\n"
+"Language-Team: Spanish <es@tp.org.es>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 # "*** - desbordamiento de la pila del programa - REINICIALIZANDO" - lsg
 #
-# En mi opiniÛn, RESET debe traducirse como un imperativo - cll
+# En mi opini√≥n, RESET debe traducirse como un imperativo - cll
 #
 #: spvw.d:909
 msgid "*** - Program stack overflow. RESET"
-msgstr "*** - Desbordamiento de la pila del programa. REINICIE"
+msgstr "*** - Sobredesbordamiento de la pila del programa. REINICIE"
 
-# ° Toma puntilloso que soy! Lisp deberÌa escribirse con may˙scula.
+# ¬° Toma puntilloso que soy! Lisp deber√≠a escribirse con may√∫scula.
 # "*** - desbordamiento de la pila de Lisp - REINICIALIZANDO" - lsg
 #
 # No, no, nada de REINICIALIZANDO. Debe ser un imperativo: REINICIE.
-# Por ejemplo, si durante una sesiÛn con CLisp haces:
+# Por ejemplo, si durante una sesi√≥n con CLisp haces:
 #
 # > (defun foo (a) (foo (1- a)))
 # FOO
@@ -442,23 +205,23 @@ msgstr "*** - Desbordamiento de la pila del programa. REINICIE"
 # *** - Desbordamiento de la pila de Lisp. REINICIE
 # >
 #
-# ..., pero el intÈrprete se queda esperando a que t˙ sigas tecleando,
-# es decir, Èl solo no se pone a reiniciar nada, ...
+# ..., pero el int√©rprete se queda esperando a que t√∫ sigas tecleando,
+# es decir, √©l solo no se pone a reiniciar nada, ...
 #
-# Por otra parte, tienes toda la razÛn, Lisp debe ir con may˙sculas :) - cll
+# Por otra parte, tienes toda la raz√≥n, Lisp debe ir con may√∫sculas :) - cll
 #
 #: spvw.d:924
 msgid "*** - Lisp stack overflow. RESET"
-msgstr "*** - Desbordamiento de la pila de Lisp. REINICIE"
+msgstr "*** - Sobredesbordamiento de la pila de Lisp. REINICIE"
 
-# ﬂøTipo de argumento?? sv
+# √ü¬øTipo de argumento?? sv
 #
-# Claro, "tipo de argumento", es decir, "seg˙n sea el argumento". De
-# todos modos, este mensaje est· pendiente de remodelaciÛn. Ya he puesto
+# Claro, "tipo de argumento", es decir, "seg√∫n sea el argumento". De
+# todos modos, este mensaje est√° pendiente de remodelaci√≥n. Ya he puesto
 # un mensaje en la lista de clisp y en cuanto me respondan tal vez lo
 # modifique. - cll
 #
-# En la lista de CLisp, Bruno Haible explicaba asÌ quÈ es "FSUBR" y
+# En la lista de CLisp, Bruno Haible explicaba as√≠ qu√© es "FSUBR" y
 # "SUBR":
 #
 # -----------------------
@@ -466,7 +229,7 @@ msgstr "*** - Desbordamiento de la pila de Lisp. REINICIE"
 # SUBR means "built-in/system function".
 # -----------------------
 #
-# Por su parte, Joerg Hoehle explicaba: (atenciÛn al segundo p·rrafo)
+# Por su parte, Joerg Hoehle explicaba: (atenci√≥n al segundo p√°rrafo)
 #
 # -----------------------
 # They related to very old implementations of Lisp.  IIRC, SUBR
@@ -484,22 +247,23 @@ msgstr "*** - Desbordamiento de la pila de Lisp. REINICIE"
 # parameters, &rest present and &key symbols).
 # -----------------------
 #
-# A tenor de lo que se dice en la ˙ltima de las frases, considero que la
-# traducciÛn actual (inspirada en la francesa) est· bien, øsugerencias? - cll
+# A tenor de lo que se dice en la √∫ltima de las frases, considero que la
+# traducci√≥n actual (inspirada en la francesa) est√° bien, ¬øsugerencias? - cll
 #
 #: spvw.d:1190
-#, fuzzy
 msgid "Unknown FSUBR signature: %d %d %d\n"
-msgstr "Tipo de argumento desconocido para SUBR\n"
+msgstr ""
+"Firma desconocida FSUBR: %d %d %d\n"
+"\n"
 
-# ﬂøTipo de argumento?? sv
+# √ü¬øTipo de argumento?? sv
 #
-# Claro, "tipo de argumento", es decir, "seg˙n sea el argumento". De
-# todos modos, este mensaje est· pendiente de remodelaciÛn. Ya he puesto
+# Claro, "tipo de argumento", es decir, "seg√∫n sea el argumento". De
+# todos modos, este mensaje est√° pendiente de remodelaci√≥n. Ya he puesto
 # un mensaje en la lista de clisp y en cuanto me respondan tal vez lo
 # modifique. - cll
 #
-# En la lista de CLisp, Bruno Haible explicaba asÌ quÈ es "FSUBR" y
+# En la lista de CLisp, Bruno Haible explicaba as√≠ qu√© es "FSUBR" y
 # "SUBR":
 #
 # -----------------------
@@ -507,7 +271,7 @@ msgstr "Tipo de argumento desconocido para SUBR\n"
 # SUBR means "built-in/system function".
 # -----------------------
 #
-# Por su parte, Joerg Hoehle explicaba: (atenciÛn al segundo p·rrafo)
+# Por su parte, Joerg Hoehle explicaba: (atenci√≥n al segundo p√°rrafo)
 #
 # -----------------------
 # They related to very old implementations of Lisp.  IIRC, SUBR
@@ -525,62 +289,59 @@ msgstr "Tipo de argumento desconocido para SUBR\n"
 # parameters, &rest present and &key symbols).
 # -----------------------
 #
-# A tenor de lo que se dice en la ˙ltima de las frases, considero que la
-# traducciÛn actual (inspirada en la francesa) est· bien, øsugerencias? - cll
+# A tenor de lo que se dice en la √∫ltima de las frases, considero que la
+# traducci√≥n actual (inspirada en la francesa) est√° bien, ¬øsugerencias? - cll
 #
 #: spvw.d:1298
-#, fuzzy
 msgid "Unknown SUBR signature: %d %d %d %d"
-msgstr "Tipo de argumento desconocido para SUBR\n"
+msgstr "Firma desconocida SUBR: %d %d %d %d"
 
 #
-# "el mÛdulo `%s' necesita el paquete %s.\n"
+# "el m√≥dulo `%s' necesita el paquete %s.\n"
 #
-# Me parece m·s natural en espaÒol, aunque gramaticalmente no estaba
+# Me parece m√°s natural en espa√±ol, aunque gramaticalmente no estaba
 # mal. - lsg
 #
-# Pues si, tienes toda la razÛn del mundo - cll
+# Pues si, tienes toda la raz√≥n del mundo - cll
 #
 #: spvw.d:2022
-#, fuzzy
 msgid "module '%s' requires package %s.\n"
-msgstr "el mÛdulo `%s' necesita el paquete %s.\n"
+msgstr "un m√≥dulo ‚Äú%s‚Äù requiere un paquete %s.\n"
 
 #
-# "el mÛdulo `%s' necesita el paquete %s.\n"
+# "el m√≥dulo `%s' necesita el paquete %s.\n"
 #
-# Me parece m·s natural en espaÒol, aunque gramaticalmente no estaba
+# Me parece m√°s natural en espa√±ol, aunque gramaticalmente no estaba
 # mal. - lsg
 #
-# Pues si, tienes toda la razÛn del mundo - cll
+# Pues si, tienes toda la raz√≥n del mundo - cll
 #
 #: spvw.d:2032
-#, fuzzy
 msgid "module '%s' redefines symbol "
-msgstr "el mÛdulo `%s' necesita el paquete %s.\n"
+msgstr "un m√≥dulo ‚Äú%s‚Äù redefine un s√≠mbolo "
 
 #: spvw.d:2034
-#, fuzzy
 msgid " in the locked package "
-msgstr "un paquete borrado."
+msgstr " dentro del paquete bloqueado "
 
-# Sugerencia: definiciÛn de macro. sv
+# Sugerencia: definici√≥n de macro. sv
 #
-# Hmmm, ..., lo de macro definiciÛn es bastante tÌpico en inform·tica
-# (ya sabes, ...) Sin embargo, en Lisp se suele decir definiciÛn de
-# macro, tal y como t˙ propones, ..., pues vale, °sugerencia
+# Hmmm, ..., lo de macro definici√≥n es bastante t√≠pico en inform√°tica
+# (ya sabes, ...) Sin embargo, en Lisp se suele decir definici√≥n de
+# macro, tal y como t√∫ propones, ..., pues vale, ¬°sugerencia
 # completamente aceptada! cll
 #
 #: spvw.d:2036
-#, fuzzy
 msgid ""
 "\n"
 "old definition: "
-msgstr " con definiciÛn de macro"
+msgstr ""
+"\n"
+"definici√≥n anterior: "
 
 #: spvw.d:2073
 msgid "is an ANSI Common Lisp implementation."
-msgstr ""
+msgstr "es una implementaci√≥n ANSI Common Lisp."
 
 #: spvw.d:2075
 msgid ""
@@ -588,6 +349,9 @@ msgid ""
 "To create a normal image \"myclisp\", please do\n"
 "%s --clisp-x '(ext:saveinitmem \"myclisp\" :executable t :init-function nil)'\n"
 msgstr ""
+"Esta imagen no procesa los argumentos de l√≠neas de √≥rdenes usuales.\n"
+"Para crear una imagen com√∫n ‚Äúmyclisp‚Äù, por favor haga\n"
+"%s --clisp-x '(ext:saveinitmem \"myclisp\" :executable t :init-function nil)'\n"
 
 #: spvw.d:2080
 msgid ""
@@ -596,66 +360,70 @@ msgid ""
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 msgstr ""
+"Empleo:  %s [opciones] [lispfile [argumento ...]]\n"
+" Cuando 'lispfile' est√° dado, cargado y '*ARGS*' establecido\n"
+" para la lista de cadenas de argumentos. En otro caso, se\n"
+" introduce un bucle read-eval-print.\n"
 
 #: spvw.d:2084
 msgid "Informative output:"
-msgstr ""
+msgstr "Salida informativa:"
 
 #: spvw.d:2085
 msgid " -h, --help    - print this help and exit"
-msgstr ""
+msgstr "  -h,  --help    - ense√±a esta ayuda y finaliza"
 
 #: spvw.d:2086
 msgid " --version     - print the version information"
-msgstr ""
+msgstr " --version       - ense√±a la informaci√≥n de la versi√≥n"
 
 #: spvw.d:2087
 msgid " --license     - print the licensing information"
-msgstr ""
+msgstr " --license \t- ense√±a la informaci√≥n de la licencia"
 
 #: spvw.d:2088
 msgid " -help-image   - print image-specific help and exit"
-msgstr ""
+msgstr " -help-image  - ense√±a la ayuda de imagen espec√≠fica y termina"
 
 #: spvw.d:2089
 msgid "Memory image selection:"
-msgstr ""
+msgstr "Seleccione la imagen de memoria:"
 
 #: spvw.d:2090
 msgid " -B lisplibdir - set the installation directory"
-msgstr ""
+msgstr " -B lisplibdir - establece el directorio de la instalaci√≥n"
 
 #: spvw.d:2092
 msgid " -K linkingset - use this executable and memory image"
-msgstr ""
+msgstr " -K linkingset - emplee este ejecutable y memoria de imagen"
 
 #: spvw.d:2094
 msgid " -M memfile    - use this memory image"
-msgstr ""
+msgstr " -M fichmem   - emplee esta imagen de memoria"
 
 #: spvw.d:2095
 msgid " -m size       - memory size (size = nB or nKB or nMB)"
-msgstr ""
+msgstr " -m tama√±o   - tama√±o de memoria (tama√±o = nB o nKB o nMB)"
 
 #: spvw.d:2096
 msgid "Internationalization:"
-msgstr ""
+msgstr "Internacionalizaci√≥n:"
 
 #: spvw.d:2097
 msgid " -L language   - set user language"
-msgstr ""
+msgstr " -L idioma      - establece el idioma del usuario"
 
 #: spvw.d:2098
 msgid " -N nlsdir     - NLS catalog directory"
-msgstr ""
+msgstr "-N nlsdir       - directorio de catalogo NLS"
 
 #: spvw.d:2099
 msgid " -Edomain encoding - set encoding"
-msgstr ""
+msgstr " -Edomain codificaci√≥n - establece la codificaci√≥n"
 
 #: spvw.d:2100
 msgid "Interoperability:"
-msgstr ""
+msgstr "Interoperatividad:"
 
 #: spvw.d:2101
 msgid ""
@@ -663,190 +431,186 @@ msgid ""
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*"
 msgstr ""
+" -q, --quiet, --silent, -v, --verbose - nivel verboso:\n"
+"      afecta banderas, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
+"     y *LOAD-PRINT*/*COMPILE-PRINT*"
 
 #: spvw.d:2104
 msgid " -w            - wait for a keypress after program termination"
-msgstr ""
+msgstr " -w            - espera para una pulsaci√≥n de tecla despu√©s de terminar el programa"
 
 #: spvw.d:2105
 msgid " -I            - be ILISP-friendly"
-msgstr ""
+msgstr " -l             - ser ILISP-compatible"
 
 #: spvw.d:2106
 msgid " -disable-readline - do not use the gnu readline library"
-msgstr ""
+msgstr " -disable-readline - no emplear la biblioteca readline de gnu"
 
 #: spvw.d:2107
 msgid "Startup actions:"
-msgstr ""
+msgstr "Operaciones de inicio:"
 
 #: spvw.d:2108
 msgid " -ansi         - more ANSI CL compliance"
-msgstr ""
+msgstr " -ansi        - m√°s compatibilidad con ANSI CL"
 
 #: spvw.d:2109
 msgid " -traditional  - traditional (undoes -ansi)"
-msgstr ""
+msgstr " -traditional  - tradicional (deshace -ansi)"
 
 #: spvw.d:2110
 msgid " -modern       - start in a case-sensitive lowercase-preferring package"
-msgstr ""
+msgstr " -modern        - comienza en un paquete may√∫sculas distinguibles prefiriendo min√∫sculas"
 
 #: spvw.d:2111
 msgid " -p package    - start in the package"
-msgstr ""
+msgstr " -p paquete     - comienza en el paquete"
 
 #: spvw.d:2112
 msgid " -C            - set *LOAD-COMPILING* to T"
-msgstr ""
+msgstr " -C            - establece *LOAD-COMPILING* a T"
 
 #: spvw.d:2113
 msgid " -norc         - do not load the user ~/.clisprc file"
-msgstr ""
+msgstr " -norc         - no cargar el fichero del usuario ~/.clisprc"
 
 #: spvw.d:2114
 msgid " -lp dir       - add dir to *LOAD-PATHS* (can be repeated)"
-msgstr ""
+msgstr " -lp dir       - a√±adir directorio a *LOAD-PATHS* (puede repetirse)"
 
 #: spvw.d:2115
 msgid " -i file       - load initfile (can be repeated)"
-msgstr ""
+msgstr " -i file       - carga fichero de inicializaci√≥n initfile (puede repetirse)"
 
 #: spvw.d:2116
-#, fuzzy
 msgid "Actions:"
-msgstr "funciÛn"
+msgstr "Acciones:"
 
 #: spvw.d:2117
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile"
-msgstr ""
+msgstr " -c [-l] ficherolisp [-o ficherosalida] - complila fichero de lisp"
 
 #: spvw.d:2118
 msgid " -x expressions - execute the expressions, then exit"
-msgstr ""
+msgstr " -x expresiones - ejecuta las expresiones, despu√©s termina"
 
 #: spvw.d:2119
 msgid " Depending on the image, positional arguments can mean:"
-msgstr ""
+msgstr " Dependiendo en la imagen, argumentos posicionales pueden significar:"
 
 #: spvw.d:2120
 msgid "   lispscript [argument ...] - load script, then exit"
-msgstr ""
+msgstr "    listscript [argumento ...] - carga script, despu√©s termina"
 
 #: spvw.d:2121
 msgid "   [argument ...]            - run the init-function"
-msgstr ""
+msgstr "   [argumento ...]           - ejecuta la funci√≥n init-function"
 
 #: spvw.d:2122
 msgid "  arguments are placed in EXT:*ARGS* as strings."
-msgstr ""
+msgstr "  argumentos son colocados en EXT:*ARGS* como cadenas."
 
 #: spvw.d:2123
 msgid "These actions put CLISP into a batch mode, which is overridden by"
-msgstr ""
+msgstr "Estas acciones ponen a CLISP dentro de un modo de batch, el cual es sobreconducido por"
 
 #: spvw.d:2124
 msgid " -on-error action - action can be one of debug, exit, abort, appease"
-msgstr ""
+msgstr " -on-error acci√≥n - acci√≥n puede ser una de depuraci√≥n, salida, aborto, agrego"
 
 #: spvw.d:2125
 msgid " -repl            - enter the interactive read-eval-print loop when done"
-msgstr ""
+msgstr " -repl            - introduce el bucle interactivo read-eval-print cuando termine"
 
 #: spvw.d:2126
 msgid "Default action is an interactive read-eval-print loop."
-msgstr ""
+msgstr "Operaci√≥n predeterminada es un bucle interactivo read-eval-print."
 
 #: spvw.d:2135
 msgid "%s: use '-h' for help"
-msgstr ""
+msgstr "%s: emplee ‚Äò-h‚Äô para ayuda                         Escribe esta ayuda, despu√©s finaliza"
 
-# øPor quÈ no inv·lido? La palabra existe.
-# Un dÌa os tengo que enviar un trozo de "1984" de Orwell,
-# que habla de "neolengua", el ˙nico idioma del mundo que tiene
-# cada vez menos palabras, en vez de m·s... sv
+# ¬øPor qu√© no inv√°lido? La palabra existe.
+# Un d√≠a os tengo que enviar un trozo de "1984" de Orwell,
+# que habla de "neolengua", el √∫nico idioma del mundo que tiene
+# cada vez menos palabras, en vez de m√°s... sv
 #
-# a°Por supuestÌsimo!!! Tienes toda la razÛn del mundo. De hecho, si
-# echas un ojo al resto de los mensajes ver·s que yo siempre he
-# traducido "invalid" por "inv·lido" salvo en tres ocasiones: en dos
-# preferÌ la expresiÛn "no es correcto" y en la otra lo dejÈ como "no es
-# v·lido" en vez de "no v·lido" que, adem·s, suena horrible.
+# a¬°Por supuest√≠simo!!! Tienes toda la raz√≥n del mundo. De hecho, si
+# echas un ojo al resto de los mensajes ver√°s que yo siempre he
+# traducido "invalid" por "inv√°lido" salvo en tres ocasiones: en dos
+# prefer√≠ la expresi√≥n "no es correcto" y en la otra lo dej√© como "no es
+# v√°lido" en vez de "no v√°lido" que, adem√°s, suena horrible.
 #
-# A propÛsito del trozo de "1984", venga, ya estoy esperando :) - cll
+# A prop√≥sito del trozo de "1984", venga, ya estoy esperando :) - cll
 #
 #: spvw.d:2139
-#, fuzzy
 msgid "invalid argument"
-msgstr "Argumento inv·lido"
+msgstr "argumento no v√°lido"
 
 #: spvw.d:2450
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
-msgstr "Sintaxis de %s: nnnnnnn or nnnnKB or nMB"
+msgstr "Sintaxis de %s: nnnnnnn o nnnnKB o nMB"
 
 #: spvw.d:2456
 msgid "warning: %s %lu too small, using %lu instead"
-msgstr ""
+msgstr "advertencia: %s %lu demasiado peque√±o, empleando %lu en su lugar"
 
 #: spvw.d:2462
 msgid "warning: %s %lu too large, using %lu instead"
-msgstr ""
+msgstr "advertencia: %s %lu demasiado largo, empleando en su lugar %lu"
 
 #: spvw.d:2618
 msgid "memory size"
-msgstr "tamaÒo de memoria"
+msgstr "tama√±o de memoria"
 
 #: spvw.d:2644
 msgid "multiple -B"
-msgstr ""
+msgstr "-B m√∫ltiple"
 
 #: spvw.d:2652
-#, fuzzy
 msgid "This option requires an argument"
-msgstr "~S argumentos obligatorios"
+msgstr "Esta opci√≥n requiere un argumento"
 
 #: spvw.d:2689
-#, fuzzy
 msgid "-E requires an argument"
-msgstr "~S argumentos obligatorios"
+msgstr "-E requiere un argumento"
 
 #: spvw.d:2924
 msgid "-l without -c is invalid"
-msgstr ""
+msgstr "-l sin -c no es v√°lido"
 
 # Duda: En este mensaje, el primer "~S" se sustituye por el nombre de una
-# funciÛn y el segundo "~S" sobre el nombre de un flujo (stream). Por
-# eso, este mensaje quedarÌa, mas o menos, de la manera:
+# funci√≥n y el segundo "~S" sobre el nombre de un flujo (stream). Por
+# eso, este mensaje quedar√≠a, mas o menos, de la manera:
 #
-# <funciÛn> no es posible sobre el flujo <flujo>
+# <funci√≥n> no es posible sobre el flujo <flujo>
 #
-# øos gusta o lo encontrais raro?
+# ¬øos gusta o lo encontrais raro?
 #
 #: spvw.d:2930
-#, fuzzy
 msgid "-x with -c is invalid"
-msgstr "~S no es posible sobre el flujo ~S"
+msgstr "-x con -c es no v√°lido"
 
 #: spvw.d:2935
 msgid "-x with lisp-file is invalid"
-msgstr ""
+msgstr "-x con fichero-lisp no es v√°lido"
 
 #: spvw.d:3079
-#, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "El valor devuelto por malloc() = %x no es compatible con la distribuciÛn del cÛdigo de tipo."
+msgstr "Valor devuelto por malloc() = %lx no es compatible con la distribuci√≥n del c√≥digo de tipo."
 
 # solo es con acento.
-# "sÛlo %d bytes disponibles\n" - lsg
+# "s√≥lo %d bytes disponibles\n" - lsg
 #
-# aMadre mÌa!! Tienes toda la razÛn del mundo - cll :)
+# aMadre m√≠a!! Tienes toda la raz√≥n del mundo - cll :)
 #
 #: spvw.d:3086
-#, fuzzy
 msgid "Only %ld bytes available."
-msgstr "SÛlo quedan %d bytes disponibles."
+msgstr "S√≥lo quedan %ld bytes disponibles."
 
-# Duda: Imagino que SP es el "Stack Pointer". Pero entonces, øa qu
-# viene decir "SP stack"? øSe referir·n con ello a la pila del sistema?
+# Duda: Imagino que SP es el "Stack Pointer". Pero entonces, ¬øa qu
+# viene decir "SP stack"? ¬øSe referir√°n con ello a la pila del sistema?
 # - cll
 #
 #: spvw.d:3321
@@ -854,9 +618,8 @@ msgid "Could not determine the end of the SP stack!"
 msgstr "No fue posible determinar el final de la pila SP!"
 
 #: spvw.d:4060
-#, fuzzy
 msgid "%s: Not enough memory for Lisp."
-msgstr "No hay memoria suficiente para Lisp."
+msgstr "%s: no hay memoria suficiente para Lisp."
 
 # "*** - Memoria virtual agotada. REINICIALIZACION " - lsg
 #
@@ -868,7 +631,7 @@ msgstr "*** - Memoria virtual agotada. REINICIE"
 
 # "*** - Memoria agotada. REINICIALIZACION " - lsg
 #
-# M·s de lo mismo - cll
+# M√°s de lo mismo - cll
 #
 #: spvw_alloca.d:50
 msgid "*** - Memory exhausted. RESET"
@@ -876,149 +639,143 @@ msgstr "*** - Memoria agotada. REINICIE"
 
 #: spvw_mmap.d:105
 msgid "Warning: overwriting existing memory mappings in the address range 0x%lx...0x%lx. clisp will likely crash soon!!\n"
-msgstr ""
+msgstr "Advertencia: sobrescribiendo desglose de memoria en el rango de direcci√≥n 0x%lx...0x%lx. ¬°¬°clisp explotar√° pronto!!\n"
 
 #: spvw_mmap.d:161
 msgid "Warning: reserving address range 0x%lx...0x%lx that contains memory mappings. clisp might crash later!\n"
-msgstr ""
+msgstr "Advertencia: reservando rango de direcciones 0x%lx...0x%lx que contiene distribuciones de memoria. clisp puede romperse m√°s tarde!\n"
 
-# No me gusta demasiado lo de mapear, pero quÈ se le va a hacer, salvo
-# aÒadir el acento que faltaba. ;-)
+# No me gusta demasiado lo de mapear, pero qu√© se le va a hacer, salvo
+# a√±adir el acento que faltaba. ;-)
 #
-# "no se puede mapear la memoria a la direcciÛn 0x%x ." - lsg
+# "no se puede mapear la memoria a la direcci√≥n 0x%x ." - lsg
 #
 # Al final, siguiendo las recomendaciones de la lista "spanglish.txt",
 # he preferido traducir `map' por `asignar'.
 #
-# Y desde luego, respecto del acento tienes toda la razÛn del mundo - cll
+# Y desde luego, respecto del acento tienes toda la raz√≥n del mundo - cll
 #
 #: spvw_mmap.d:203 spvw_mmap.d:323 spvw_mmap.d:496
-#, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "No se puede asignar la memoria a la direcciÛn 0x%x ."
+msgstr "No se puede asignar la memoria a la direcci√≥n 0x%lx ."
 
-# No me gusta demasiado lo de mapear, pero quÈ se le va a hacer, salvo
-# aÒadir el acento que faltaba. ;-)
+# No me gusta demasiado lo de mapear, pero qu√© se le va a hacer, salvo
+# a√±adir el acento que faltaba. ;-)
 #
-# "no se puede mapear la memoria a la direcciÛn 0x%x ." - lsg
+# "no se puede mapear la memoria a la direcci√≥n 0x%x ." - lsg
 #
 # Al final, siguiendo las recomendaciones de la lista "spanglish.txt",
 # he preferido traducir `map' por `asignar'.
 #
-# Y desde luego, respecto del acento tienes toda la razÛn del mundo - cll
+# Y desde luego, respecto del acento tienes toda la raz√≥n del mundo - cll
 #
 #: spvw_mmap.d:296
-#, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "No se puede reservar el rango de direcciones a 0x%x ."
+msgstr "No se puede reservar el rango de direcciones en 0x%lx ."
 
-# No me gusta demasiado lo de mapear, pero quÈ se le va a hacer, salvo
-# aÒadir el acento que faltaba. ;-)
+# No me gusta demasiado lo de mapear, pero qu√© se le va a hacer, salvo
+# a√±adir el acento que faltaba. ;-)
 #
-# "no se puede mapear la memoria a la direcciÛn 0x%x ." - lsg
+# "no se puede mapear la memoria a la direcci√≥n 0x%x ." - lsg
 #
 # Al final, siguiendo las recomendaciones de la lista "spanglish.txt",
 # he preferido traducir `map' por `asignar'.
 #
-# Y desde luego, respecto del acento tienes toda la razÛn del mundo - cll
+# Y desde luego, respecto del acento tienes toda la raz√≥n del mundo - cll
 #
 #: spvw_mmap.d:306
-#, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "No se puede reservar el rango de direcciones 0x%x-0x%x ."
+msgstr "No se puede reservar el rango de direcciones 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:350
 msgid "CreateFileMapping() failed."
-msgstr "CreateFileMapping() fallÛ."
+msgstr "CreateFileMapping() fall√≥."
 
 #: spvw_mmap.d:358
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
-msgstr "MapViewOfFileEx(direcciÛn=0x%x,segmento=0x%x) fallÛ."
+msgstr "MapViewOfFileEx(direcci√≥n=0x%x,segmento=0x%x) fall√≥."
 
 #: spvw_mmap.d:364
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
-msgstr "MapViewOfFileEx() devolviÛ 0x%x en vez de 0x%x."
+msgstr "MapViewOfFileEx() devolvi√≥ 0x%x en vez de 0x%x."
 
 #: spvw_mmap.d:379
 msgid "VirtualFree() failed."
-msgstr "VirtualFree() fallÛ."
+msgstr "VirtualFree() fallado."
 
 #: spvw_mmap.d:393
 msgid "VirtualProtect() failed."
-msgstr "VirtualProtect() fallÛ."
+msgstr "VirtualProtect() fallado."
 
 #: spvw_mmap.d:460
-#, fuzzy
 msgid "Cannot open <%s>."
-msgstr "No se puede abrir %s."
+msgstr "No se puede abrir <%s>."
 
 #: spvw_fault.d:285
-#, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect() fallÛ."
+msgstr "mprotect(0x%lx,%d,%d) fallado."
 
 #: spvw_sigsegv.d:25
 msgid "GC count: %lu"
-msgstr ""
+msgstr "Contado GC: %lu"
 
+# collect ‚Üí recoger
 #: spvw_sigsegv.d:27
 msgid "Space collected by GC:"
-msgstr ""
+msgstr "Espacio recogido por GC:"
 
 #: spvw_sigsegv.d:41
 msgid "Run time:"
-msgstr ""
+msgstr "Tiempo de ejecuci√≥n:"
 
 #: spvw_sigsegv.d:43
 msgid "Real time:"
-msgstr ""
+msgstr "Hora real:"
 
 #: spvw_sigsegv.d:45
 msgid "GC time:"
-msgstr ""
+msgstr "Tiempo GC:"
 
 #: spvw_sigsegv.d:48
 msgid "Permanently allocated: %lu bytes."
-msgstr ""
+msgstr "Permanentemente asignados: %lu bytes."
 
 #: spvw_sigsegv.d:51
 msgid "Currently in use: %lu bytes."
-msgstr ""
+msgstr "Actualmente empleados: %lu bytes."
 
 #: spvw_sigsegv.d:54
 msgid "Free space: %lu bytes."
-msgstr ""
+msgstr "Espacio libre: %lu bytes."
 
-# "SIGSEGV no puede ser subsanado. DirecciÛn del error =3D 0x%x.\n" - lsg
+# "SIGSEGV no puede ser subsanado. Direcci√≥n del error =3D 0x%x.\n" - lsg
 #
-# Si, me gusta m·s tu traducciÛn. Yo habÌa puesto:
+# Si, me gusta m√°s tu traducci√≥n. Yo hab√≠a puesto:
 #
-# "No se puede evitar SIGSEGV. DirecciÛn de fallo = 0x%x.\n"
+# "No se puede evitar SIGSEGV. Direcci√≥n de fallo = 0x%x.\n"
 #
 # Pero el caso es que un SIGSEGV no tiene porque evitarse puesto que es
-# una seÒal que, para cuando sale este mensaje, ya se ha recibido. El
+# una se√±al que, para cuando sale este mensaje, ya se ha recibido. El
 # problema ---realmente--- es que no fue posible "subsanar" la
-# seÒal. Muy bien - cll
+# se√±al. Muy bien - cll
 #
-# De todas formas, prefiero ponerlo al revÈs ("No se puede subsanar" en
+# De todas formas, prefiero ponerlo al rev√©s ("No se puede subsanar" en
 # vez de "... no puede ser subsanado"). Por otra parte, en vez de
 # "error" prefiero "fallo" puesto que eso es exactamente de lo que se
 # trata. No de un error por algo que alguien hizo mal, sino de un fallo
 # del sistema, ... - cll
 #
 #: spvw_sigsegv.d:65
-#, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "No se puede subsanar SIGSEGV. DirecciÛn de fallo = 0x%x."
+msgstr "SIGSEGV no se puede subsanar Direcci√≥n de fallo = 0x%lx."
 
 #: spvw_sigsegv.d:180
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
-msgstr "Escenario Apollo 13: FallÛ la manipulaciÛn del desbordamiento de pila. a° Nos estrellaremos en el siguiente desbordamiento de pila !!!"
+msgstr "Escenario Apollo 13: Fall√≥ la manipulaci√≥n del desbordamiento de pila. a¬° Nos estrellaremos en el siguiente desbordamiento de pila !!!"
 
 #: spvw_garcol.d:2563 spvw_garcol_old.d:1981
-#, fuzzy
 msgid "munmap() failed."
-msgstr "munmap() fallÛ."
+msgstr "munmap() fallado."
 
 #
 # "*** - no queda espacio para almacenar objetos LISP - REINICIALIZANDO" - lsg
@@ -1027,46 +784,42 @@ msgstr "munmap() fallÛ."
 #
 #: spvw_allocate.d:103
 msgid "*** - No more room for LISP objects: RESET"
-msgstr "*** - No queda espacio para almacenar m·s objetos LISP: REINICIE"
+msgstr "*** - No queda espacio para almacenar m√°s objetos LISP: REINICIE"
 
 #: spvw_allocate.d:314 spvw_allocate.d:373 spvw_allocate.d:456
 msgid "Trying to make room through a GC..."
-msgstr "Intentando obtener m·s espacio a travÈs de un GC ..."
+msgstr "Intentando obtener m√°s espacio a trav√©s de un GC ..."
 
 #
-# "error del sistema operativo al cargar el fichero de inicializaciÛn `%s'\n" - lsg
+# "error del sistema operativo al cargar el fichero de inicializaci√≥n `%s'\n" - lsg
 #
-# AsÌ dicho parece que la culpa ha sido la carga del fichero de
-# inicializaciÛn, cuando en realidad, el mensaje dice "durante". El
+# As√≠ dicho parece que la culpa ha sido la carga del fichero de
+# inicializaci√≥n, cuando en realidad, el mensaje dice "durante". El
 # error puede haber sido algo distinto de la carga. Por ejemplo, la
 # carga puede ser correcta pero puede no cargarse en memoria (se me
-# ocurre asÌ de pronto), o cualquier otra cosa. Por eso prefiero la
-# traducciÛn:
+# ocurre as√≠ de pronto), o cualquier otra cosa. Por eso prefiero la
+# traducci√≥n:
 #
-# "error del sistema operativo durante la carga del fichero de inicializaciÛn `%s'\n"
+# "error del sistema operativo durante la carga del fichero de inicializaci√≥n `%s'\n"
 #
 # - cll
 #
 #: spvw_memfile.d:991 spvw_memfile.d:1847
-#, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
-msgstr "error del sistema operativo durante la carga del fichero de inicializaciÛn `%s'\n"
+msgstr "%s: error del sistema operativo durante la carga del fichero de inicializaci√≥n `%s'"
 
 #: spvw_memfile.d:1512
-#, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
-msgstr "No puedo escribir el fichero de inicializaciÛn en memoria."
+msgstr "%s: No puedo asignar el fichero de inicializaci√≥n ‚Äò%s‚Äô dentro de memoria."
 
 #: spvw_memfile.d:1852
-#, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
-msgstr "el fichero de inicializaciÛn no fue creado con esta versiÛn de LISP"
+msgstr "%s: fichero de inicializaci√≥n ‚Äò%s‚Äô no ha sido creado con esta versi√≥n de tiempo de ejecuci√≥n CLISP"
 
 #: spvw_memfile.d:1856
-#, fuzzy
 msgid "%s: not enough memory for initialization"
-msgstr "no hay memoria suficiente para la inicializaciÛn"
+msgstr "%s: no hay memoria suficiente para inicializaci√≥n."
 
 #: spvw_memfile.d:1906
 msgid "%s: 'image size' method failed, but found image header at %d\n"
-msgstr ""
+msgstr "%s: m√©todo de 'tama√±o de imagen' ha fallado, pero ha encontrado una cabecera de imagen en %d\n"

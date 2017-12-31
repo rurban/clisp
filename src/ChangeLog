@@ -1,5 +1,11 @@
 2017-12-31  Bruno Haible  <bruno@clisp.org>
 
+	Update Spanish translation.
+	* po/es.po: Update from Francisco Javier Serrador.
+	* po/es.gmo, po/clisplow_es.*: Regenerated.
+
+2017-12-31  Bruno Haible  <bruno@clisp.org>
+
 	Emit a warning when LOOP is used with unportable syntax.
 	* loop.lisp (loop-initialization): Add member 'impdependent-declspec'.
 	(expand-loop): Wrap selected initialization forms in LOCALLY with a
