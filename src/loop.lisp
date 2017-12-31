@@ -181,6 +181,9 @@
   bindings           ; for LET: list of bindings,
                      ; for MULTIPLE-VALUE-BIND: varlist and form
   declspecs          ; list of declspecs
+  impdependent-declspec ; A cons (SYS::IMPLEMENTATION-DEPENDENT ...)
+                        ; where the list of variables gets filled in later,
+                        ; or NIL.
   (endtest-forms nil) ; more forms to be inserted after the declarations,
                       ; within the tagbody.
   ;; Properties of this initialization.
@@ -764,13 +767,22 @@
                     ;;                   {in | of} expr
                     (let ((bindings nil)
                           (declspecs nil)
+                          (impdep-declspec nil)
                           (initializations nil)
                           (stepafter nil)
                           (old-seen-endtest seen-endtest)
                           ;; remember the _CURRENT_ location in preamble
                           (preamble-entry (new-preamble :start))
                           (depends-preceding nil))
-                      (flet ((note-initialization (initialization)
+                      (flet (;; Wrap an initform in a
+                             ;; (LOCALLY (DECLARE (SYS::IMPLEMENTATION-DEPENDENT ...)) ...)
+                             ;; so that the user gets warned about implementation-dependent
+                             ;; symbol references, per ANSI CL 6.1.1.4.
+                             (wrap-with-impdep (form)
+                               (unless impdep-declspec
+                                 (setq impdep-declspec (list 'SYS::IMPLEMENTATION-DEPENDENT)))
+                               (setq form `(LOCALLY (DECLARE ,impdep-declspec) ,form)))
+                             (note-initialization (initialization)
                                ;; supersedes the outer definition!
                                ;; Calls to note-initialization must temporarily be suspended.
                                (when (li-endtest-forms initialization)
@@ -794,8 +806,12 @@
                                                        (eq preposition 'ON))
                                                 pattern
                                                 (gensym "LIST-"))))
+                                     (unless (constantp start-form)
+                                       (setq start-form (wrap-with-impdep start-form)))
                                      (push `(,var ,start-form) bindings)
                                      (when step-function-var
+                                       (unless (constantp step-function-form)
+                                         (setq step-function-form (wrap-with-impdep step-function-form)))
                                        (push `(,step-function-var ,step-function-form)
                                              bindings))
                                      (note-initialization
@@ -845,6 +861,8 @@
                                  (let ((vector-form (parse-form preposition))
                                        (vector-var (gensym "VECTOR-"))
                                        (index-var (gensym "INDEX-")))
+                                   (unless (constantp vector-form)
+                                     (setq vector-form (wrap-with-impdep vector-form)))
                                    (push `(,vector-var ,vector-form) bindings)
                                    (push `(,index-var 0) bindings)
                                    (note-initialization
@@ -911,6 +929,8 @@
                                                 (case preposition
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
                                                   ((HASH-VALUE HASH-VALUES) (values nextvalue-var nextkey-var)))
+                                              (unless (constantp form)
+                                                (setq form (wrap-with-impdep form)))
                                               (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
                                               (note-initialization
                                                (make-loop-init
@@ -954,6 +974,8 @@
                                                  ((IN OF) (pop body-rest)
                                                   (parse-form preposition))
                                                  (t '*package*))))
+                                          (unless (or (constantp form) (eq form '*package*))
+                                            (setq form (wrap-with-impdep form)))
                                           (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
                                                 bindings)
                                           (note-initialization
@@ -999,6 +1021,8 @@
                                             (setq step-start-p dir)
                                             (pop body-rest)
                                             (setq step-start-form (parse-form preposition))
+                                            (unless (constantp step-start-form)
+                                              (setq step-start-form (wrap-with-impdep step-start-form)))
                                             (push `(,pattern ,step-start-form) bindings))
                                            ((and (not step-end-p)
                                                  (setq dir (case preposition
@@ -1011,6 +1035,7 @@
                                             (pop body-rest)
                                             (setq step-end-form (parse-form preposition))
                                             (unless (constantp step-end-form)
+                                              (setq step-end-form (wrap-with-impdep step-end-form))
                                               (let ((step-end-var (gensym "LIMIT-")))
                                                 (push `(,step-end-var ,step-end-form) bindings)
                                                 (setq step-end-form step-end-var))))
@@ -1020,6 +1045,7 @@
                                             (pop body-rest)
                                             (setq step-by-form (parse-form 'by))
                                             (unless (constantp step-by-form)
+                                              (setq step-by-form (wrap-with-impdep step-by-form))
                                               (let ((step-by-var (gensym "BY-")))
                                                 (push `(,step-by-var ,step-by-form) bindings)
                                                 (setq step-by-form step-by-var))))
@@ -1089,6 +1115,7 @@
                           :specform 'LET
                           :bindings (nreverse bindings)
                           :declspecs (nreverse declspecs)
+                          :impdependent-declspec impdep-declspec
                           :everytime nil
                           :requires-stepbefore old-seen-endtest
                           :preamble preamble-entry
@@ -1109,7 +1136,15 @@
           *whole* results))
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,(caar results)) finally-code))
-      ; Work through initializations and optimize:
+      ;; Assign the right set of variables in the declspecs built up
+      ;; by wrap-with-impdep.
+      (let ((impdependent-vars '()))
+        (dolist (initialization initializations)
+          (revadd impdependent-vars (li-vars initialization))
+          (let ((impdep-declspec (li-impdependent-declspec initialization)))
+            (when impdep-declspec
+              (setf (cdr impdep-declspec) impdependent-vars)))))
+      ;; Work through initializations and optimize:
       (let ((initializations1
              (unless (zerop (length *helpvars*))
                ;; *helpvars* must be bound first thing
