@@ -1058,18 +1058,18 @@ global maygc object check_symbol_non_constant_replacement
   return obj;
 }
 
-/* UP: signal an error if a non-symbol was declared special
+/* UP: signal an error if a non-symbol was declared (e.g. SPECIAL)
  returns the symbol
  can trigger GC */
-global maygc object check_symbol_special (object obj, object caller) {
+global maygc object check_symbol_in_declaration (object obj, object decl_identifier, object caller) {
   while (!symbolp(obj)) {
-    pushSTACK(caller);
+    pushSTACK(decl_identifier); pushSTACK(caller);
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-    pushSTACK(S(special)); pushSTACK(obj); pushSTACK(caller);
+    pushSTACK(decl_identifier); pushSTACK(obj); pushSTACK(caller);
     check_value(source_program_error,
                 GETTEXT("~S: ~S is not a symbol, cannot be declared ~S"));
-    caller = popSTACK();
+    caller = popSTACK(); decl_identifier = popSTACK();
     obj = value1;
   }
   return obj;

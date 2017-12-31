@@ -13764,8 +13764,9 @@ variable-binding frame, or NIL  (which means an empty lexical
 environment) or a vector that is built as follows:
 The vector contains n bindings and has the length 2n+1. The elements are
 n-times each variable (a symbol) and  the value that belongs to it ("value" can
-be #<SPECDECL> as well, and then the variable has to be referenced dynamically)
-and as last element the predecessor environment.
+be #<SPECDECL> as well, and then the variable has to be referenced dynamically,
+or it can be #<IMPLEMENTATION-DEPENDENT>, then a warning is emitted during
+lookup) and as last element the predecessor environment.
 
 The functions- and macro-environment
 ------------------------------------
@@ -13961,7 +13962,7 @@ parameters, then the AUX-variables).
 The symbols contain the following marker bits on the stack: ACTIVE_BIT, is
 set, if the binding is active, DYNAM_BIT is set, if the binding is
 dynamic. (Dynamic references are marked as lexical with
-the special value #SPECDECL!).
+the special value #<SPECDECL>!).
 NEXT_ENV is next upper variables-environment.
 m is a long-word, 0 <= m <= n, and stands for the number of bindings that
 have not yet been put into a vector by NEST-operations. Thus
@@ -14849,6 +14850,9 @@ extern  gcv_environment_t aktenv;
 /* Value to mark specially declared references */
 #define specdecl  make_system(0xECDECDUL)
 
+/* Value to mark implementation-dependent references */
+#define impdependent  make_system(0xDE6114UL)
+
 /* Handling Frames:
  A local variable FRAME contains the value of STACK after
  creating a Frame. Then you can access with FRAME_(n) just like
@@ -15211,8 +15215,9 @@ extern bool funnamep (object obj);
 /* UP: Determines, whether a Symbol is a Macro in the current Environment.
  sym_macrop(symbol)
  > symbol: Symbol
- < result: true if sym is a Symbol-Macro */
-extern bool sym_macrop (object sym);
+ < result: true if sym is a Symbol-Macro
+ can trigger GC */
+extern maygc bool sym_macrop (object sym);
 /* is used by CONTROL */
 
 /* UP: Sets the value of a Symbol in the current Environment.
@@ -15477,7 +15482,7 @@ extern gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
     *spec = SET_BIT(*spec,active_bit_o); /* activate binding */ \
  } while(0)
 
-/* activate all SPECDECL declarations */
+/* activate all SPECDECL and IMPDEPENDENT declarations */
 extern void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count);
 /* used by CONTROL, EVAL */
 
@@ -17335,10 +17340,10 @@ static inline maygc object check_symbol_non_constant (object obj, object caller)
 #endif
 /* used by EVAL, CONTROL */
 
-/* UP: signal an error if a non-symbol was declared special
+/* UP: signal an error if a non-symbol was declared (e.g. SPECIAL)
  returns the symbol
  can trigger GC */
-extern maygc object check_symbol_special (object obj, object caller);
+extern maygc object check_symbol_in_declaration (object obj, object decl_identifier, object caller);
 /* used by EVAL, CONTROL */
 
 /* UP: make sure that the symbol does not name a global symbol-macro

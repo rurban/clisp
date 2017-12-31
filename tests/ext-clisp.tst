@@ -4,6 +4,7 @@
 ;; here we avoid using #+clisp all over the place.
 ;; Jörg Höhle, 2007, 2017
 ;; Sam Steingold, 2007-2008, 2010-2011, 2016-2017
+;; Bruno Haible, 2017
 
 ;; completion
 (funcall (ext:make-completion '("a" "abc" "ab")) "ab" 0 2) ("ab" "ab" "abc")
@@ -286,6 +287,127 @@ ERROR
     (list y (funcall fy))))
 (2 2) ; SETF is used, no LET at all
 
+;;; sys::implementation-dependent
+
+;; sys::implementation-dependent in interpreted forms
+
+(let ((x 1))
+  (locally (declare (sys::implementation-dependent x))
+    x))
+1
+
+(let ((x 1))
+  (locally (declare (sys::implementation-dependent x))
+    t))
+T
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      x))
+  (warning (w) (princ-to-string w)))
+"Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      (setq x 2)))
+  (warning (w) (princ-to-string w)))
+"Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      (multiple-value-setq (x) 2)))
+  (warning (w) (princ-to-string w)))
+"Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; sys::implementation-dependent in environments created by the interpreter
+;; and referenced by compiled code
+
+(defun anonymize-compiled-form-gensym (s)
+  (let ((i (search "COMPILED-FORM-" s)))
+    (if i
+      (let* ((j (+ i 14))
+             (k (position-if-not #'digit-char-p s :start j)))
+        (concatenate 'string (subseq s 0 j) (subseq s k)))
+      s)))
+ANONYMIZE-COMPILED-FORM-GENSYM
+
+(let ((x 1))
+  (locally (declare (sys::implementation-dependent x))
+    (locally (declare (compile))
+      x)))
+1
+
+(let ((x 1))
+  (locally (declare (sys::implementation-dependent x))
+    (locally (declare (compile))
+      t)))
+T
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      (locally (declare (compile))
+        x)))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      (locally (declare (compile))
+        (setq x 2))))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      (locally (declare (compile))
+        (multiple-value-setq (x) 2))))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+;; sys::implementation-dependent in compiled code
+
+(locally (declare (compile))
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      x)))
+1
+
+(locally (declare (compile))
+  (let ((x 1))
+    (locally (declare (sys::implementation-dependent x))
+      t)))
+T
+
+(handler-case
+  (locally (declare (compile))
+    (let ((x 1))
+      (locally (declare (sys::implementation-dependent x))
+        x)))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (locally (declare (compile))
+    (let ((x 1))
+      (locally (declare (sys::implementation-dependent x))
+        (setq x 2))))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
+(handler-case
+  (locally (declare (compile))
+    (let ((x 1))
+      (locally (declare (sys::implementation-dependent x))
+        (multiple-value-setq (x) 2))))
+  (warning (w) (anonymize-compiled-form-gensym (princ-to-string w))))
+"in #:COMPILED-FORM- : Reference to X is implementation-dependent, per ANSI CL 6.1.1.4."
+
 ;21.3 read-char-will-hang-p etc.
 
 ;make-buffered-input-stream
@@ -491,5 +613,5 @@ T
         (eq *current-language* 'ENGLISH)))
 (T T)
 
-(symbols-cleanup '(check-load test-dohash *s1* *s2* *s3* *s4*))
+(symbols-cleanup '(anonymize-compiled-form-gensym check-load test-dohash *s1* *s2* *s3* *s4*))
 ()

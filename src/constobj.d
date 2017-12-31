@@ -1,6 +1,6 @@
 /*
  * list of all objects known to the C-program ("program-constants")
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2005, 2009, 2017
  * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2002-02-20
 
@@ -522,6 +522,7 @@
   LISPOBJ_S(printstring_unbound,"#<UNBOUND>")
   LISPOBJ_S(printstring_unbound_readably,"#.(SYS::%UNBOUND)")
   LISPOBJ_S(printstring_special_reference,"#<SPECIAL REFERENCE>")
+  LISPOBJ_S(printstring_implementation_dependent,"#<IMPLEMENTATION-DEPENDENT>")
   LISPOBJ_S(printstring_disabled_pointer,"#<DISABLED POINTER>")
   LISPOBJ_S(printstring_dot,"#<DOT>")
   LISPOBJ_S(printstring_eof,"#<END OF FILE>")
@@ -665,7 +666,7 @@
    toplevel-declaration-environment: */
   LISPOBJ(top_decl_env,"(NIL)") /* list of O(declaration_types) (is initialized later) */
   /* decl-spec with list of declaration-types to be recognized: */
-  LISPOBJ(declaration_types,"(DECLARATION OPTIMIZE DECLARATION CLOS::DYNAMICALLY-MODIFIABLE)")
+  LISPOBJ(declaration_types,"(DECLARATION OPTIMIZE DECLARATION CLOS::DYNAMICALLY-MODIFIABLE SYS::IMPLEMENTATION-DEPENDENT)")
 /* for DEBUG.D: */
   LISPOBJ_S(newline_string,NLstring)
   /* prompts: */
