@@ -1,6 +1,6 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
- * Bruno Haible 1990-2011, 2016-2017
+ * Bruno Haible 1990-2011, 2016-2018
  * Sam Steingold 1998-2013, 2016-2017
  * German comments translated into English: Stefan Kain 2002-03-24
 
@@ -2278,11 +2278,11 @@ local void print_banner (void)
   char banner0_line0[100];
   char banner0_line1[100];
   const char * const banner1[] = {
-   "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
+   "Copyright (c) Bruno Haible, Michael Stoll 1992-1993\n",
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997\n",
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998\n",
    "Copyright (c) Bruno Haible, Sam Steingold 1999-2000\n",
-   "Copyright (c) Sam Steingold, Bruno Haible 2001-2010\n",
+   "Copyright (c) Sam Steingold, Bruno Haible 2001-2018\n",
   };
   var int candles = 0;
   var uintL offset = (posfixnum_to_V(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
