@@ -1,3 +1,9 @@
+2018-01-01  Bruno Haible  <bruno@clisp.org>
+
+	Modernization: Use improvements from gnulib and libffcall.
+	* m4/as-underscore.m4: Replace with version from GNU libffcall.
+	* aclocal.m4, src/configure, src/config.h.in, gllib/*: Regenerated.
+
 2017-12-31  Bruno Haible  <bruno@clisp.org>
 
 	Update Spanish translation.
