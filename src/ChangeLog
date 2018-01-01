@@ -1,5 +1,12 @@
 2018-01-01  Bruno Haible  <bruno@clisp.org>
 
+	Tweak mappable address range for Linux/x86_64.
+	Reported by Sam Steingold in bug#718.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*, SINGLEMAP_*) [UNIX_LINUX &&
+	AMD64]: Define differently.
+
+2018-01-01  Bruno Haible  <bruno@clisp.org>
+
 	Modernization: Use improvements from gnulib and libffcall.
 	* m4/as-underscore.m4: Replace with version from GNU libffcall.
 	* aclocal.m4, src/configure, src/config.h.in, gllib/*: Regenerated.
