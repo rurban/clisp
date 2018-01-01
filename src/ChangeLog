@@ -1,5 +1,11 @@
 2018-01-01  Bruno Haible  <bruno@clisp.org>
 
+	Bump copyright year.
+	* COPYRIGHT: Bump year.
+	* spvw.d (print_banner): Likewise.
+
+2018-01-01  Bruno Haible  <bruno@clisp.org>
+
 	Tweak mappable address range for Linux/x86_64.
 	Reported by Sam Steingold in bug#718.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*, SINGLEMAP_*) [UNIX_LINUX &&
