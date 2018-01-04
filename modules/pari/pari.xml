@@ -35,8 +35,7 @@ analogue</simpara></listitem>
 <literal>_</literal> suffix to avoid clash with the &ansi-cl; &random;)
 corresponds to the GP function <function>random</function> and calls the
 <function>genrand</function> PARI function.</simpara></listitem></itemizedlist>
-
-</simplesect>
+</para></simplesect>
 
 <simplesect id="pari-ext"><title>Extending the module</title>
 <para>Not all PARI functions have a corresponding Lisp function, but one can
