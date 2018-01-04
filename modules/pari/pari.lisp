@@ -426,6 +426,10 @@ t.e., this is the memory size for the real return value in ulong words.")
                    (when prec-p (setq prec (pari-real-precision-words prec)))))
      ,gp-name))
 
+;; note that there is NO read/print consistency (e.g., for t_QUAD)
+;; https://pari.math.u-bordeaux.fr/archives/pari-users-1712/msg00019.html
+;; https://pari.math.u-bordeaux.fr/archives/pari-users-1712/msg00028.html
+;; http://thread.gmane.org/gmane.comp.mathematics.pari.user/3452
 ;; GEN gp_read_str(char *t);
 (def-call-out %read-from-string (:name "gp_read_str")
   (:return-type pari-gen) (:arguments (str c-string)))
