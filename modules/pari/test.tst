@@ -575,6 +575,15 @@ pari:pari-real-precision  19
 #S(PARI:pari-pws :S 1 :VARNO 0 :EXPO 1 :COEFFS
    #(1 0 1/6 0 3/40 0 5/112 0 35/1152 0 63/2816 0 231/13312 0 143/10240 0))
 
+;; NO read/print consistency for t_QUAD
+;; (pari:gequal (pari:quadunit 5) #Z"w") T
+;; (pari:pari-to-lisp #Z"w")
+;; #S(PARI:pari-quadratic :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-1 -1 1))
+;;                        :REALPART 0 :IMAGPART 1)
+;; (pari:gequal (pari:quadunit 8) #Z"1 + w") T
+;; (pari:pari-to-lisp #Z"1 + w")
+;; #S(PARI:pari-quadratic :POLY #S(PARI:pari-poly :s 1 :varno 0 :coeffs #(-2 0 1))
+;;    :REALPART 1 :IMAGPART 1)
 (pari:pari-to-lisp (pari:quadunit 17))
 #S(PARI:pari-quadratic :POLY #S(PARI:pari-poly :S 1 :VARNO 0 :COEFFS #(-4 -1 1))
    :REALPART 3 :IMAGPART 2)
@@ -613,6 +622,11 @@ pari:pari-real-precision  19
 (pari:pari-to-lisp (pari:serprec #Z"x + O(y^2)" 0)) (+ PARI:INFINITY)
 (pari:pari-to-lisp (pari:serprec #Z"x + O(y^2)" 1)) 2
 (pari:gequal (pari:serprec #Z"x + O(y^2)" -1) (pari:-_ '(- PARI:INFINITY))) T
+
+(pari:pari-to-lisp (pari:bitprecision 1)) (+ PARI:INFINITY)
+(pari:gequal 1 (pari:bitprecision 1 :n 100)) T
+(pari:pari-to-lisp (pari:bitprecision (pari:Pi))) 64
+(pari:gequal (pari:bitprecision (pari:Pi) :n 200) (pari:Pi)) T
 
 ;; clear the stack
 (progn (show pari:pari-avma) (setq pari:pari-avma (show ltop)) nil) NIL
