@@ -459,7 +459,8 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
 #  endif  /* HAVE_GDBM_SETOPT */
     case GDBM_DEFAULT_VALUE_TYPE: v = GDBM_SLOT_VAL; goto gdbm_setopt_slot;
     case GDBM_DEFAULT_KEY_TYPE: v = GDBM_SLOT_KEY; gdbm_setopt_slot:
-      TheStructure(STACK_2)->recdata[v] = fixnum(check_data_type(STACK_0));
+      value1 = fixnum(check_data_type(STACK_0));
+      TheStructure(STACK_2)->recdata[v] = value1;
       VALUES0;
       break;
     default: NOTREACHED;
