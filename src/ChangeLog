@@ -47,12 +47,12 @@
 	Support new declaration SYS::IMPLEMENTATION-DEPENDENT.
 	* lispbibl.d (impdependent): New macro.
 	(sym_macrop): Mark as maygc.
-	(check_symbol_in_declaration): Renamed from check_symbol_special. Add
-	decl_identifier argument.
+	(check_symbol_in_declaration): Renamed from check_symbol_special.
+	Add decl_identifier argument.
 	* constsym.d: Add SYS::IMPLEMENTATION-DEPENDENT.
 	* constobj.d (O(printstring_implementation_dependent)): Add.
-	(O(declaration_types)): Add SYS::IMPLEMENTATION-DEPENDENT to the known
-	declarations.
+	(O(declaration_types)): Add SYS::IMPLEMENTATION-DEPENDENT to the
+	known declarations.
 	* io.d (pr_system): Handle impdependent.
 	* spvw_debug.d (nobject_out1): Likewise.
 	* error.d (check_symbol_in_declaration): Renamed from
@@ -72,10 +72,10 @@
 	(process-declarations): Return additional value: the impdependent
 	symbols.
 	(*impdependents*): New variable.
-	(push-specials-impdependents): Renamed from push-specials. Update *venv*
-	also for the impdependent symbols.
-	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND, c-FLET,
-	c-LABELS, c-MACROLET, c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Update.
+	(push-specials-impdependents): Renamed from push-specials.
+	Update *VENV* also for the impdependent symbols.
+	(c-LAMBDABODY, c-LET/LET*, c-LOCALLY, c-MULTIPLE-VALUE-BIND, c-FLET)
+	(c-LABELS, c-MACROLET, c-SYMBOL-MACROLET, c-FUNCALL-INLINE): Update.
 
 2017-12-29  Bruno Haible  <bruno@clisp.org>
 
