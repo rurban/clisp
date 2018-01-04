@@ -1,5 +1,9 @@
 2018-01-04  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (open-url): Remove an unused variable.
+
+2018-01-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c (error_gdbm): Fix declaration for gdbm 1.14.
 	(open_gdbm): No need to cast error_gdbm.
 	(GDBM:GDBM-COUNT): New function.

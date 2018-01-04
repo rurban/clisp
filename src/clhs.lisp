@@ -189,7 +189,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           :finally (terpri)))
     (values sock content-length)))
 
-(defun open-url (path &rest options &aux (len (length path)))
+(defun open-url (path &rest options)
   (cond ((starts-with-p path "http://")
          (apply #'open-http path options))
         ((starts-with-p path #1="file:/")
