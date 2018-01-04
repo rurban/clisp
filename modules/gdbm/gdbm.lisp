@@ -14,7 +14,7 @@
            #:gdbm-open #:gdbm-open-p #:gdbm-close #:do-db #:with-open-db
            #:gdbm-store #:gdbm-fetch #:gdbm-delete #:gdbm-exists
            #:gdbm-firstkey #:gdbm-nextkey #:gdbm-file-size
-           #:gdbm-reorganize #:gdbm-sync #:gdbm-setopt))
+           #:gdbm-reorganize #:gdbm-sync #:gdbm-setopt #:gdbm-count))
 (in-package "GDBM")
 
 (pushnew :gdbm *features*)
