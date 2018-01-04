@@ -2,7 +2,7 @@
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
  * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
- * Copyright (C) 2007-2008, 2010-2012  Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2007-2008, 2010-2012, 2018  Sam Steingold <sds@gnu.org>
  * This is Free Software, distributed under the GNU GPL v2+
  */
 
@@ -66,7 +66,7 @@ DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            READER-CANT-REORGANIZE UNKNOWN-UPDATE ITEM-NOT-FOUND              \
            REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET     \
            OPT-ILLEGAL)
-static _Noreturn void error_gdbm (char *fatal_message) {
+static _Noreturn void error_gdbm (const char *fatal_message) {
   end_blocking_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
@@ -125,8 +125,7 @@ static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
 static object open_gdbm (object path, int bsize, int rw, int mode) {
   GDBM_FILE gdbm;
   with_string_0(path, GLO(pathname_encoding), name, {
-      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode,
-                               (void (*)(void))error_gdbm));
+      SYSCALL(gdbm = gdbm_open(name, bsize, rw, mode, error_gdbm));
     });
   if (gdbm == NULL) error_gdbm(NULL);
   return allocate_fpointer(gdbm);
