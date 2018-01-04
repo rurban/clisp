@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for Gdbm
 dnl Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
-dnl Copyright (C) 2007-2009  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2007-2009, 2018  Sam Steingold <sds@gnu.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.57)
@@ -29,7 +29,7 @@ if test "$ac_cv_search_gdbm_open" = "no"; then
 fi
 AC_CHECK_FUNCS(gdbm_open gdbm_close gdbm_fdesc gdbm_store gdbm_fetch dnl
 gdbm_delete gdbm_firstkey gdbm_nextkey gdbm_reorganize gdbm_sync dnl
-gdbm_exists gdbm_setopt)
+gdbm_exists gdbm_setopt gdbm_count)
 
 BOLD_MSG([Gdbm (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

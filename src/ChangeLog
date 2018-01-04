@@ -2,6 +2,8 @@
 
 	* modules/gdbm/gdbm.c (error_gdbm): Fix declaration for gdbm 1.14.
 	(open_gdbm): No need to cast error_gdbm.
+	(GDBM:GDBM-COUNT): New function.
+	* modules/gdbm/gdbm.lisp: Export it.
 
 2018-01-01  Bruno Haible  <bruno@clisp.org>
 

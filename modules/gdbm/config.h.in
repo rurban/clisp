@@ -78,6 +78,9 @@
 /* Define to 1 if you have the `gdbm_close' function. */
 #undef HAVE_GDBM_CLOSE
 
+/* Define to 1 if you have the `gdbm_count' function. */
+#undef HAVE_GDBM_COUNT
+
 /* Define to 1 if you have the `gdbm_delete' function. */
 #undef HAVE_GDBM_DELETE
 

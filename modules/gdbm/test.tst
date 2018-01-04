@@ -26,6 +26,7 @@
 (gdbm:gdbm-setopt *db* :cachesize 1024) NIL
 
 (gdbm:do-db (key *db*) :count key) 0
+(gdbm:gdbm-count *db*) 0
 
 (handler-case (gdbm:gdbm-setopt *db* :cachesize 1024)
   (gdbm:gdbm-error (condition)
@@ -95,30 +96,36 @@
 (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open *db* :default-key-type 'string))) T
 
 (gdbm:do-db (key *db*) :count key) 4
+(gdbm:gdbm-count *db*) 4
 
 (multiple-value-list (gdbm:gdbm-delete *db* "key1")) NIL
 
 (gdbm:do-db (key *db*) :count key) 3
+(gdbm:gdbm-count *db*) 3
 
 (gdbm:gdbm-sync *db*) NIL
 
 (listp (show (gdbm:do-db (key *db*) :collect (gdbm:gdbm-file-size *db*)))) T
 
-(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
+(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0)
+      (bnum (gdbm:gdbm-count *db*)) (anum 0))
   (loop :for i :from 0 :to 1000 :do
     (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
   (gdbm:gdbm-sync *db*)
-  (setf asize (gdbm:gdbm-file-size *db*))
-  (format t "~&File size: ~:D --> ~:D~%" bsize asize)
+  (setf asize (gdbm:gdbm-file-size *db*)
+        anum (gdbm:gdbm-count *db*))
+  (format t "~&File size: ~:DB/~:D --> ~:DB/~:D~%" bsize bnum asize anum)
   (> asize bsize)) T
 
-(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0))
+(let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0)
+      (bnum (gdbm:gdbm-count *db*)) (anum 0))
   (loop :for i :from 0 :to 500 :do
       (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
-  #-:CYGWIN (gdbm:gdbm-reorganize *db*)
-  (setf asize (gdbm:gdbm-file-size *db*))
-  (format t "~&~:D --> ~:D~%" bsize asize)
+  (gdbm:gdbm-reorganize *db*)
+  (setf asize (gdbm:gdbm-file-size *db*)
+        anum (gdbm:gdbm-count *db*))
+  (format t "~&File size: ~:DB/~:D --> ~:DB/~:D~%" bsize bnum asize anum)
   (< asize bsize)) T
 
 (gdbm:gdbm-close *db*) T

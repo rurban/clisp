@@ -423,6 +423,19 @@ DEFUN(GDBM:GDBM-EXISTS, dbf key)
 }
 #endif  /* HAVE_GDBM_EXISTS */
 
+#if defined(HAVE_GDBM_COUNT)
+DEFUN(GDBM:GDBM-COUNT, dbf)
+{
+  GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,true);
+  unsigned long long int count; /* gdbm_count_t */
+  int status;
+  SYSCALL(status = gdbm_count(dbf, &count));
+  if (status) error_gdbm(NULL);
+  VALUES1(uint64_to_I(count));
+  skipSTACK(1);                 /* cleanup */
+}
+#endif  /* HAVE_GDBM_COUNT */
+
 DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
            CENTFREE COALESCEBLKS DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
 DEFUN(GDBM:GDBM-SETOPT, dbf option value)

@@ -5153,7 +5153,7 @@ fi
 if test "$ac_cv_search_gdbm_open" = "no"; then
   as_fn_error $? "cannot find Gdbm library" "$LINENO" 5
 fi
-for ac_func in gdbm_open gdbm_close gdbm_fdesc gdbm_store gdbm_fetch gdbm_delete gdbm_firstkey gdbm_nextkey gdbm_reorganize gdbm_sync gdbm_exists gdbm_setopt
+for ac_func in gdbm_open gdbm_close gdbm_fdesc gdbm_store gdbm_fetch gdbm_delete gdbm_firstkey gdbm_nextkey gdbm_reorganize gdbm_sync gdbm_exists gdbm_setopt gdbm_count
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
