@@ -1,5 +1,10 @@
 2018-01-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/gdbm/gdbm.c (gdbm_open_flags): DEFFLAGSET, not DEFCHECKER.
+	(GDBM-OPEN): Support all the current open flags.
+
+2018-01-04  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (open-url): Remove an unused variable.
 
 2018-01-04  Sam Steingold  <sds@gnu.org>

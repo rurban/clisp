@@ -133,15 +133,17 @@ static object open_gdbm (object path, int bsize, int rw, int mode) {
 
 DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
            READER WRITER WRCREAT NEWDB)
-DEFCHECKER(gdbm_open_option, default=0, prefix=GDBM, SYNC NOLOCK FAST)
+DEFFLAGSET(gdbm_open_flags, GDBM_FAST GDBM_SYNC GDBM_NOLOCK GDBM_NOMMAP \
+           GDBM_CLOEXEC GDBM_BSEXACT)
 #if defined(HAVE_GDBM_OPEN)
-DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE OPTION MODE   \
-      DEFAULT-KEY-TYPE DEFAULT-VALUE-TYPE)
+DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE \
+      FAST SYNC NOLOCK NOMMAP CLOEXEC BSEXACT \
+      MODE DEFAULT-KEY-TYPE DEFAULT-VALUE-TYPE)
 {
   gdbm_data_t default_value_type = check_data_type(popSTACK());
   gdbm_data_t default_key_type = check_data_type(popSTACK());
   int mode = check_uint_defaulted(popSTACK(), 0644);
-  int rw_opt1 = gdbm_open_option(popSTACK());
+  int rw_opt1 = gdbm_open_flags();
   int rw_opt2 = gdbm_open_read_write(popSTACK());
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(popSTACK(), 512);

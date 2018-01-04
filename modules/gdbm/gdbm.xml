@@ -14,21 +14,16 @@
  <varlistentry id="gdbm-version"><term><code>(GDBM:GDBM-VERSION)</code></term>
   <listitem><para>Return the version string.</para></listitem></varlistentry>
  <varlistentry id="gdbm-open"><term><code>(GDBM:GDBM-OPEN &filename-r;
-    &key-amp; :BLOCKSIZE :READ-WRITE :OPTION :MODE :DEFAULT-KEY-TYPE
-    :DEFAULT-VALUE-TYPE)</code></term>
+    &key-amp; :BLOCKSIZE :READ-WRITE :FAST :SYNC :NOLOCK :NOMMAP :CLOEXEC :BSEXACT
+    :MODE :DEFAULT-KEY-TYPE :DEFAULT-VALUE-TYPE)</code></term>
   <listitem><para>Open &filename-r; database file.
     The return value is a <type>GDBM</type> structure.
     <constant>:READ-WRITE</constant> can have one of following values:
     <simplelist><member>&reader-k;</member><member>&writer-k;</member>
      <member><constant>:WRCREAT</constant></member>
      <member><constant>:NEWDB</constant></member>
-    </simplelist>
-    and <constant>:OPTION</constant> is one of
-    <simplelist>
-     <member><constant>:SYNC</constant></member>
-     <member><constant>:NOLOCK</constant></member>
-     <member><constant>:FAST</constant></member>
-   </simplelist></para><para>&clisp; can store and retrieve values of the
+   </simplelist></para>
+   <para>&clisp; can store and retrieve values of the
     following types:<simplelist><member>&string-t;</member>
      <member>&vector-t; (meaning anything that can be &coerce;d to
       &ubyte-vec;)</member>
@@ -132,6 +127,10 @@
   <term><code>(GDBM:GDBM-FILE-SIZE &db-r;)</code></term>
   <listitem><simpara>Return the underlying file size using
     <function role="unix">lseek</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="gdbm-count">
+  <term><code>(GDBM:GDBM-COUNT &db-r;)</code></term>
+  <listitem><simpara>Return the number of records in the database.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-do-db">
   <term><code>(GDBM:DO-DB (&key-r; &db-r; &rest-amp; &options-r;)
     &body-amp; &body-r;)</code></term>
