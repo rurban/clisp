@@ -779,12 +779,12 @@
         (format *coutput-stream* ");~%")))
     (format *coutput-stream*
             ;; avoid -Wmissing-declarations
-            "~%void module__~A__init_function_1 (module_t* module);~%~
-            ~%void module__~A__init_function_2 (module_t* module);~%~
-            ~%void module__~A__fini_function (module_t* module);~%~
+            "~%void module__~A__init_function_1 (module_t* module);~
+            ~%void module__~A__init_function_2 (module_t* module);~
+            ~%void module__~A__fini_function (module_t* module);~
             ~2%void module__~A__init_function_1 (module_t* module)~%~
             {~%  (void)module; /* avoid -Wunused-parameter */~%~{~%  ~A~}~%"
-            *c-name* *init-once*)
+            *c-name* *c-name* *c-name* *c-name* *init-once*)
     (let ((done (make-hash-table :test 'equal)))
       (maphash (lambda (type spec)
                  (declare (ignore type))
