@@ -44,13 +44,10 @@ typedef enum {
 } gdbm_data_t;
 
 /* must be distinct from all gdbm_setopt options */
-#ifdef GDBM_COALESCEBLKS
-# define GDBM_SETOPT_MAX_OPT  GDBM_COALESCEBLKS
-#else
-# define GDBM_SETOPT_MAX_OPT  10
-#endif
-#define GDBM_DEFAULT_VALUE_TYPE (GDBM_SETOPT_MAX_OPT+1)
-#define GDBM_DEFAULT_KEY_TYPE   (GDBM_SETOPT_MAX_OPT+2)
+#define GDBM_GETDEFAULT_VALUE_TYPE -1
+#define GDBM_SETDEFAULT_VALUE_TYPE GDBM_GETDEFAULT_VALUE_TYPE
+#define GDBM_GETDEFAULT_KEY_TYPE   -2
+#define GDBM_SETDEFAULT_KEY_TYPE   GDBM_GETDEFAULT_KEY_TYPE
 
 DEFMODULE(gdbm,"GDBM");
 
@@ -61,11 +58,13 @@ DEFCHECKER(check_data_type, default=GDBM_DATA_NOTYPE, enum=gdbm_data_t, \
            CL::INTEGER CL::SINGLE-FLOAT CL::DOUBLE-FLOAT)
 DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            BLOCK-SIZE-ERROR FILE-OPEN-ERROR FILE-WRITE-ERROR FILE-SEEK-ERROR \
-           FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER    \
-           CANT-BE-WRITER READER-CANT-DELETE READER-CANT-STORE               \
-           READER-CANT-REORGANIZE UNKNOWN-UPDATE ITEM-NOT-FOUND              \
-           REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET     \
-           OPT-ILLEGAL)
+           FILE-READ-ERROR BAD-MAGIC-NUMBER EMPTY-DATABASE CANT-BE-READER \
+           CANT-BE-WRITER READER-CANT-DELETE READER-CANT-STORE          \
+           READER-CANT-REORGANIZE UNKNOWN-ERROR ITEM-NOT-FOUND          \
+           REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET \
+           OPT-ILLEGAL BYTE-SWAPPED BAD-FILE-OFFSET BAD-OPEN-FLAGS      \
+           FILE-STAT-ERROR FILE-EOF NO-DBNAME ERR-FILE-OWNER ERR-FILE-MODE \
+           NEED-RECOVERY BACKUP-FAILED DIR-OVERFLOW)
 static _Noreturn void error_gdbm (const char *fatal_message) {
   end_blocking_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
@@ -133,17 +132,16 @@ static object open_gdbm (object path, int bsize, int rw, int mode) {
 
 DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
            READER WRITER WRCREAT NEWDB)
-DEFFLAGSET(gdbm_open_flags, GDBM_FAST GDBM_SYNC GDBM_NOLOCK GDBM_NOMMAP \
-           GDBM_CLOEXEC GDBM_BSEXACT)
+DEFCHECKER(gdbm_open_flags, prefix=GDBM, bitmasks=both, \
+           FAST SYNC NOLOCK NOMMAP CLOEXEC BSEXACT)
 #if defined(HAVE_GDBM_OPEN)
 DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE \
-      FAST SYNC NOLOCK NOMMAP CLOEXEC BSEXACT \
-      MODE DEFAULT-KEY-TYPE DEFAULT-VALUE-TYPE)
+      OPTIONS MODE DEFAULT-KEY-TYPE DEFAULT-VALUE-TYPE)
 {
   gdbm_data_t default_value_type = check_data_type(popSTACK());
   gdbm_data_t default_key_type = check_data_type(popSTACK());
   int mode = check_uint_defaulted(popSTACK(), 0644);
-  int rw_opt1 = gdbm_open_flags();
+  int rw_opt1 = gdbm_open_flags_of_list(popSTACK());
   int rw_opt2 = gdbm_open_read_write(popSTACK());
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(popSTACK(), 512);
@@ -169,17 +167,6 @@ DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE \
   VALUES1(popSTACK());      /* restore */
 }
 #endif  /* HAVE_GDBM_OPEN */
-
-DEFUN(GDBM:GDBM-DEFAULT-KEY-TYPE, dbf) {
-  gdbm_data_t key = GDBM_DATA_NOTYPE;
-  (void)check_gdbm(&STACK_0,&key,NULL,false); skipSTACK(1);
-  VALUES1(check_data_type_reverse(key));
-}
-DEFUN(GDBM:GDBM-DEFAULT-VALUE-TYPE, dbf) {
-  gdbm_data_t val = GDBM_DATA_NOTYPE;
-  (void)check_gdbm(&STACK_0,NULL,&val,false); skipSTACK(1);
-  VALUES1(check_data_type_reverse(val));
-}
 
 #if defined(HAVE_GDBM_CLOSE)
 DEFUN(GDBM:GDBM-CLOSE, dbf)
@@ -438,32 +425,120 @@ DEFUN(GDBM:GDBM-COUNT, dbf)
 }
 #endif  /* HAVE_GDBM_COUNT */
 
-DEFCHECKER(gdbm_setopt_option, prefix=GDBM, CACHESIZE FASTMODE SYNCMODE \
-           CENTFREE COALESCEBLKS DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
-DEFUN(GDBM:GDBM-SETOPT, dbf option value)
+DEFCHECKER(gdbm_getopt_option, prefix=GDBM_GET, delim=, default=,   \
+           FLAGS MMAP CACHESIZE SYNCMODE CENTFREE                   \
+           COALESCEBLKS MAXMAPSIZE DBNAME BLOCKSIZE                 \
+           DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
+DEFUN(GDBM:GDBM-OPT, dbf option)
+{
+  gdbm_data_t key = GDBM_DATA_NOTYPE;
+  gdbm_data_t val = GDBM_DATA_NOTYPE;
+  GDBM_FILE dbf = check_gdbm(&STACK_1,&key,&val,true);
+  int option = gdbm_getopt_option(STACK_0);
+  switch (option) {
+    case GDBM_GETDEFAULT_KEY_TYPE:
+      VALUES1(check_data_type_reverse(key));
+      break;
+    case GDBM_GETDEFAULT_VALUE_TYPE:
+      VALUES1(check_data_type_reverse(val));
+      break;
+    default:
+#    if defined(HAVE_GDBM_SETOPT)
+      switch (option) {
+#      ifdef GDBM_GETFLAGS
+        case GDBM_GETFLAGS: {
+          int v;
+          CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+          STACK_0 = gdbm_open_read_write_reverse(v & GDBM_OPENMASK);
+          value1 = gdbm_open_flags_to_list(v & ~GDBM_OPENMASK);
+          STACK_1 = value1;
+          value1 = allocate_cons();
+          Car(value1) = STACK_0;
+          Cdr(value1) = STACK_1;
+          mv_count = 1;
+        } break;
+#      endif
+#      if defined(GDBM_GETCACHESIZE) && defined(GDBM_GETMAXMAPSIZE)
+        case GDBM_GETCACHESIZE: case GDBM_GETMAXMAPSIZE: {
+          size_t v;
+          CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+          VALUES1(size_to_I(v));
+        } break;
+#      endif
+#      ifdef GDBM_GETBLOCKSIZE
+        case GDBM_GETBLOCKSIZE: {
+          int v;
+          CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+          VALUES1(sint_to_I(v));
+        } break;
+#      endif
+#      if defined(GDBM_GETMMAP) && defined(GDBM_GETCENTFREE) && defined(GDBM_GETCENTFREE) && defined(GDBM_GETCOALESCEBLKS)
+        case GDBM_GETMMAP: case GDBM_GETSYNCMODE:
+        case GDBM_GETCENTFREE: case GDBM_GETCOALESCEBLKS: {
+          int v;
+          CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+          VALUES_IF(v);
+        } break;
+#      endif
+#      ifdef GDBM_GETDBNAME
+        case GDBM_GETDBNAME: {
+          char *v;
+          CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+          VALUES1(asciz_to_string(v,GLO(pathname_encoding)));
+          begin_system_call(); free(v); end_system_call();
+        } break;
+#      endif
+        default: NOTREACHED;
+      }
+#    else
+      NOTREACHED;
+#    endif  /* HAVE_GDBM_SETOPT */
+  }
+  skipSTACK(2);
+}
+
+DEFCHECKER(gdbm_setopt_option, prefix=GDBM_SET, delim=, default=,   \
+           CACHESIZE SYNCMODE CENTFREE COALESCEBLKS MAXMAPSIZE MMAP \
+           DEFAULT-VALUE-TYPE DEFAULT-KEY-TYPE)
+DEFUN(GDBM::%SET-GDBM-OPT, dbf option value)
 {
   GDBM_FILE dbf = check_gdbm(&STACK_2,NULL,NULL,true);
   int option = gdbm_setopt_option(STACK_1);
   int v;
   switch (option) {
-#  if defined(HAVE_GDBM_SETOPT)
-    case GDBM_CACHESIZE:
-      v = I_to_sint(check_sint(STACK_0));
-      goto gdbm_setopt_common;
-    case GDBM_FASTMODE: case GDBM_SYNCMODE:
-    case GDBM_CENTFREE: case GDBM_COALESCEBLKS:
-      v = nullp(STACK_0) ? 0 : 1; break;
-    gdbm_setopt_common:
-      CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(int)));
-      break;
-#  endif  /* HAVE_GDBM_SETOPT */
-    case GDBM_DEFAULT_VALUE_TYPE: v = GDBM_SLOT_VAL; goto gdbm_setopt_slot;
-    case GDBM_DEFAULT_KEY_TYPE: v = GDBM_SLOT_KEY; gdbm_setopt_slot:
+    case GDBM_SETDEFAULT_VALUE_TYPE: v = GDBM_SLOT_VAL; goto gdbm_setopt_slot;
+    case GDBM_SETDEFAULT_KEY_TYPE: v = GDBM_SLOT_KEY; gdbm_setopt_slot:
       value1 = fixnum(check_data_type(STACK_0));
       TheStructure(STACK_2)->recdata[v] = value1;
-      VALUES0;
       break;
+# if defined(HAVE_GDBM_SETOPT)
+#  ifdef GDBM_SETCACHESIZE
+    case GDBM_SETCACHESIZE:
+#  endif
+#  ifdef GDBM_SETMAXMAPSIZE
+    case GDBM_SETMAXMAPSIZE:
+#  endif
+      v = I_to_sint(check_sint(STACK_0));
+      goto gdbm_setopt_common;
+#  ifdef GDBM_SETSYNCMODE
+    case GDBM_SETSYNCMODE:
+#  endif
+#  ifdef GDBM_SETMMAP
+    case GDBM_SETMMAP:
+#  endif
+#  ifdef GDBM_SETCENTFREE
+    case GDBM_SETCENTFREE:
+#  endif
+#  ifdef GDBM_SETCOALESCEBLKS
+    case GDBM_SETCOALESCEBLKS:
+#  endif
+      v = !nullp(STACK_0);
+    gdbm_setopt_common:
+      CHECK_RUN(gdbm_setopt(dbf, option, &v, sizeof(v)));
+      break;
+# endif
     default: NOTREACHED;
   }
+  VALUES1(STACK_0);
   skipSTACK(3);
 }

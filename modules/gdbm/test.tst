@@ -5,43 +5,76 @@
 (list (null (require "gdbm"))) (#-GDBM NIL #+GDBM T)
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
-(defvar *db* nil) *DB*
-
 (stringp (show (gdbm:gdbm-version))) T
 
-(handler-case
-    (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open "///" :read-write :newdb)))
+(handler-case (gdbm:gdbm-open "///" :read-write :newdb)
   (gdbm:gdbm-error (condition)
     (list (gdbm:gdbm-error-code condition)
           (gdbm:gdbm-error-message condition))))
 (:FILE-OPEN-ERROR "File open error")
 
-(gdbm:gdbm-p (setf *db* (show (gdbm:gdbm-open "test.db" :read-write :newdb)
-                              :pretty t))) T
+(defparameter *db*
+  (gdbm:gdbm-open "test.db" :read-write :newdb
+                  :mode (os:convert-mode '(:RUSR :WUSR))
+                  :options '(:sync))) *DB*
+(gdbm:gdbm-p (show *db* :pretty t)) T
+(gdbm:gdbm-open-p *db*) T
 
-(stringp (gdbm:gdbm-path *db*)) T
-
+(stringp (show (gdbm:gdbm-path *db*))) T
 (integerp (show (gdbm:gdbm-file-size *db*))) T
 
-(gdbm:gdbm-setopt *db* :cachesize 1024) NIL
+(handler-case (setf (gdbm:gdbm-opt *db* :cachesize) 1024)
+  (type-error (c) (princ-error c) 1024)) 1024
+(handler-case (gdbm:gdbm-opt *db* :cachesize)
+  (type-error (c) (princ-error c) 1024)) 1024
+
+(handler-case (gdbm:gdbm-opt *db* :flags)
+  (type-error (c) (princ-error c) '(:NEWDB :SYNC))) (:NEWDB :SYNC)
+(handler-case (setf (gdbm:gdbm-opt *db* :syncmode) nil)
+  (type-error (c) (princ-error c) nil)) NIL
+(handler-case (gdbm:gdbm-opt *db* :syncmode)
+  (type-error (c) (princ-error c) nil)) NIL
+(handler-case (gdbm:gdbm-opt *db* :flags)
+  (type-error (c) (princ-error c) '(:NEWDB))) (:NEWDB)
+(handler-case (setf (gdbm:gdbm-opt *db* :syncmode) t)
+  (type-error (c) (princ-error c) t)) T
+(handler-case (gdbm:gdbm-opt *db* :syncmode)
+  (type-error (c) (princ-error c) t)) T
+
+(handler-case (gdbm:gdbm-opt *db* :flags)
+  (type-error (c) (princ-error c) '(:NEWDB :SYNC))) (:NEWDB :SYNC)
+(handler-case (gdbm:gdbm-opt *db* :mmap)
+  (type-error (c) (princ-error c) t)) T
+(handler-case (gdbm:gdbm-opt *db* :centfree)
+  (type-error (c) (princ-error c) t)) T
+(handler-case (gdbm:gdbm-opt *db* :coalesceblks)
+  (type-error (c) (princ-error c) nil)) NIL
+(handler-case (integerp (show (gdbm:gdbm-opt *db* :maxmapsize)))
+  (type-error (c) (princ-error c) t)) T
+(handler-case (equal (namestring (truename (gdbm:gdbm-path *db*)))
+                     (gdbm:gdbm-opt *db* :dbname))
+  (type-error (c) (princ-error c) t)) T
+(handler-case (gdbm:gdbm-opt *db* :blocksize)
+  (type-error (c) (princ-error c) 512)) 512
 
 (gdbm:do-db (key *db*) :count key) 0
-(gdbm:gdbm-count *db*) 0
+(if (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*) 0) 0
 
-(handler-case (gdbm:gdbm-setopt *db* :cachesize 1024)
+(handler-case (setf (gdbm:gdbm-opt *db* :cachesize) 1024)
   (gdbm:gdbm-error (condition)
     (list (gdbm:gdbm-error-code condition)
-          (gdbm:gdbm-error-message condition))))
+          (gdbm:gdbm-error-message condition)))
+  (type-error (c) (princ-error c) '(:OPT-ALREADY-SET "Option already set")))
 (:OPT-ALREADY-SET "Option already set")
 
 (multiple-value-list (gdbm:gdbm-store *db* "key1" "value1")) NIL
 
 (handler-bind ((type-error (lambda (c) (princ-error c) (use-value *db*))))
-  (gdbm:gdbm-setopt nil :default-value-type 'integer)) NIL
-(gdbm:gdbm-default-value-type *db*) INTEGER
-(gdbm:gdbm-setopt *db* :default-value-type 'string) NIL
-(gdbm:gdbm-default-value-type *db*) STRING
-(gdbm:gdbm-default-key-type *db*) NIL
+  (setf (gdbm:gdbm-opt nil :default-value-type) 'integer)) INTEGER
+(gdbm:gdbm-opt *db* :default-value-type) INTEGER
+(setf (gdbm:gdbm-opt *db* :default-value-type) 'string) STRING
+(gdbm:gdbm-opt *db* :default-value-type) STRING
+(gdbm:gdbm-opt *db* :default-key-type) NIL
 
 (gdbm:gdbm-fetch *db* "key1") "value1"
 
@@ -96,35 +129,35 @@
 (gdbm:gdbm-p (setf *db* (gdbm:gdbm-open *db* :default-key-type 'string))) T
 
 (gdbm:do-db (key *db*) :count key) 4
-(gdbm:gdbm-count *db*) 4
+(if (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*) 4) 4
 
 (multiple-value-list (gdbm:gdbm-delete *db* "key1")) NIL
 
 (gdbm:do-db (key *db*) :count key) 3
-(gdbm:gdbm-count *db*) 3
+(if (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*) 3) 3
 
 (gdbm:gdbm-sync *db*) NIL
 
 (listp (show (gdbm:do-db (key *db*) :collect (gdbm:gdbm-file-size *db*)))) T
 
 (let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0)
-      (bnum (gdbm:gdbm-count *db*)) (anum 0))
+      (bnum (and (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*))) (anum 0))
   (loop :for i :from 0 :to 1000 :do
     (gdbm:gdbm-store *db* (format nil "key~A" i) (format nil "value~A" i)))
   (gdbm:gdbm-sync *db*)
   (setf asize (gdbm:gdbm-file-size *db*)
-        anum (gdbm:gdbm-count *db*))
+        anum (and (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*)))
   (format t "~&File size: ~:DB/~:D --> ~:DB/~:D~%" bsize bnum asize anum)
   (> asize bsize)) T
 
 (let ((bsize (gdbm:gdbm-file-size *db*)) (asize 0)
-      (bnum (gdbm:gdbm-count *db*)) (anum 0))
+      (bnum (and (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*))) (anum 0))
   (loop :for i :from 0 :to 500 :do
       (gdbm:gdbm-delete *db* (format nil "key~A" i)))
   (gdbm:gdbm-sync *db*)
   (gdbm:gdbm-reorganize *db*)
   (setf asize (gdbm:gdbm-file-size *db*)
-        anum (gdbm:gdbm-count *db*))
+        anum (and (fboundp 'gdbm:gdbm-count) (gdbm:gdbm-count *db*)))
   (format t "~&File size: ~:DB/~:D --> ~:DB/~:D~%" bsize bnum asize anum)
   (< asize bsize)) T
 
