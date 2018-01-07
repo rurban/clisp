@@ -599,6 +599,9 @@
 <!ENTITY wait '<link linkend="wait"><function>POSIX:WAIT</function></link>'>
 <!ENTITY with-subprocesses '<link linkend="with-subprocesses"><function>POSIX:WITH-SUBPROCESSES</function></link>'>
 
+<!-- *** gdbm *** -->
+<!ENTITY gdbm-open '<link linkend="gdbm-open"><function>GDBM:GDBM-OPEN</function></link>'>
+
 <!-- *** netica *** -->
 <!ENTITY netica-link '<ulink url="http://norsys.com/netica_c_api.htm">Netica C API</ulink>'>
 

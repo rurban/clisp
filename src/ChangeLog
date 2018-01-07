@@ -1,3 +1,14 @@
+2018-01-07  Sam Steingold  <sds@gnu.org>
+
+	Modernize GDBM interface.
+	* modules/gdbm/gdbm.c (check_gdbm_errno): Add more error codes.
+	(gdbm_open_flags): DEFCHECKER(bitmasks=both).
+	(GDBM-OPEN): Restore :OPTIONS.
+	(GDBM-DEFAULT-KEY-TYPE, GDBM-DEFAULT-VALUE-TYPE): Remove,
+	use GDBM-OPT instead.
+	(GDBM-OPT, %SET-GDBM-OPT): Replace GDBM-SETOPT.
+	* modules/gdbm/gdbm.lisp (GDBM-OPT): Add defsetf.
+
 2018-01-06  Sam Steingold  <sds@gnu.org>
 
 	Restore the code to avoid -Wmissing-declarations.
