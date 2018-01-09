@@ -88,7 +88,7 @@ asm_mulu32_64:
         ADDS    a1,a4,a2,LSL #16 /* x is now bottom 32 bits of result */
         ADC     a2,a3,a2,LSR #16 /* hi is top 32 bits */
 %%endif
-        MOVS    pc,lr
+        BX      lr
         .size asm_mulu32_64,.-asm_mulu32_64
 
 /* extern uint16 asm_divu_3216_1616_ (uint32 x, uint16 y);
@@ -142,7 +142,7 @@ asm_divu_3216_1616_:
         ADC     a1,a1,a1       /* move last bit of quotient in */
         MOV     a1,a1,LSL#16   /* AND out top 16 bits by shifting up */
         MOV     a1,a1,LSR#16   /* and back down again */
-        MOVS    pc, lr
+        BX      lr
         .size asm_divu_3216_1616_,.-asm_divu_3216_1616_
 
 /* extern uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); | -> Quotient q, Rest r
@@ -266,7 +266,7 @@ asm_copy_loop_up:
 .Lasm_copy_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a2           /* return addr of last word stored */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
 .Lasm_copy_loop_up_l2:
         LDMIA   a1!,{a3,v1,ip,lr} /* copy 4 words in one go */
@@ -303,7 +303,7 @@ asm_copy_loop_down:
 .Lasm_copy_loop_down_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a2           /* return addr of last word stored */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
 .Lasm_copy_loop_down_l2:
         LDMDB   a1!,{a3,v1,ip,lr} /* copy 4 words in one go */
@@ -350,7 +350,7 @@ asm_fill_loop_up:
         STRGT   a3,[a1],#4
 .Lasm_fill_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
         MOV     v1,a3           /* copy filler to three other */
         MOV     ip,a3           /* registers */
@@ -398,7 +398,7 @@ asm_fill_loop_down:
         STRGT   a3,[a1,#-4]!
 .Lasm_fill_loop_down_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
         MOV     v1,a3           /* copy filler to three other */
         MOV     ip,a3           /* registers */
@@ -441,7 +441,7 @@ asm_or_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_or_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_or_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -486,7 +486,7 @@ asm_xor_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_xor_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_xor_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -531,7 +531,7 @@ asm_and_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_and_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_and_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -580,7 +580,7 @@ asm_eqv_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_eqv_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_eqv_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -633,7 +633,7 @@ asm_nand_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_nand_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_nand_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -686,7 +686,7 @@ asm_nor_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_nor_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_nor_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -735,7 +735,7 @@ asm_andc2_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_andc2_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_andc2_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -784,7 +784,7 @@ asm_orc2_loop_up:
         STRGT   ip,[a1],#4
 .Lasm_orc2_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_orc2_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
@@ -829,7 +829,7 @@ asm_not_loop_up:
         STRGT   a3,[a1],#4
 .Lasm_not_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{lr}        /* save work regs */
 .Lasm_not_loop_up_l2:
         LDMIA   a1,{a2,a3,ip,lr} /* load 4 words in one go,NO writeback */
@@ -862,13 +862,13 @@ asm_and_test_loop_up:
         LDR     ip,[a1],#4      /* to align the total to a multiple */
         TST     ip,a4           /* of 4 words */
         MOVNE   a1,#1           /* return true if AND_TEST ok */
-        MOVNES  pc,lr
+        BXNE    lr
         BCC     .Lasm_and_test_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1],#4
         TSTGE   ip,a4
         MOVNE   a1,#1
-        MOVNES  pc,lr
+        BXNE    lr
         ANDS    a4,a3,#3
         CMP     a4,#2
         BLE     .Lasm_and_test_loop_up_l1 /* better to branch than skip instrs. */
@@ -876,11 +876,11 @@ asm_and_test_loop_up:
         LDRGT   ip,[a1],#4
         TSTGT   ip,a4
         MOVNE   a1,#1
-        MOVNES  pc,lr
+        BXNE    lr
 .Lasm_and_test_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* return false */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
         MOV     v6,a1           /* move xptr to v6 */
         MOV     a1,#1           /* set result to true */
@@ -915,21 +915,21 @@ asm_test_loop_up:
         BEQ     .Lasm_test_loop_up_l1 /* yup, so branch */
         LDR     a4,[ip],#4      /* TEST the first 1-3 words */
         TEQ     a4,#0           /* align the total to a multiple of 4 */
-        MOVNES  pc,lr           /* return true if AND_TEST ok */
+        BXNE    lr              /* return true if AND_TEST ok */
         CMP     a3,#2
         BLT     .Lasm_test_loop_up_l1 /* need to branch 'cos PSR set */
         LDRGE   a4,[ip],#4      /* when checking against zero */
         TEQGE   a4,#0
-        MOVNES  pc,lr
+        BXNE    lr
         CMP     a3,#2
         BLE     .Lasm_test_loop_up_l1 /* need to branch 'cos PSR set */
         LDRGT   a4,[ip],#4      /* when checking against zero */
         TEQGT   a4,#0
-        MOVNES  pc,lr
+        BXNE    lr
 .Lasm_test_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* return false */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
 .Lasm_test_loop_up_l2:
         LDMIA   ip!,{a2,a3,v1,lr} /* load 4 words in one go */
@@ -966,7 +966,7 @@ asm_compare_loop_up:
         CMP     ip,a4           /* of 4 words */
         MVNLO   a1,#0           /* x < y -> -1 */
         MOVHI   a1,#1           /* x > y -> +1 */
-        MOVNES  pc,lr           /* and return result if not equal */
+        BXNE    lr              /* and return result if not equal */
         ANDS    a4,a3,#3
         CMP     a4,#2
         BLT     .Lasm_compare_loop_up_l1 /* need to branch 'cos PSR used */
@@ -975,7 +975,7 @@ asm_compare_loop_up:
         CMP     ip,a4
         MVNLO   a1,#0
         MOVHI   a1,#1
-        MOVNES  pc,lr
+        BXNE    lr
         ANDS    a4,a3,#3
         CMP     a4,#2
         BLE     .Lasm_compare_loop_up_l1 /* need to branch 'cos PSR used */
@@ -984,11 +984,11 @@ asm_compare_loop_up:
         CMP     ip,a4
         MVNLO   a1,#0
         MOVHI   a1,#1
-        MOVNES  pc,lr
+        BXNE    lr
 .Lasm_compare_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* xptr[] == yptr[] -> 0 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
         MOV     v6,a1           /* move xptr to v6 */
         MOV     a1,#1           /* set result to +1 */
@@ -1065,7 +1065,7 @@ asm_add_loop_down:
 .Lasm_add_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no adds, so C = 0 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         CMN     a4,#0           /* clear carry bit */
         STMFD   sp!,{v6,lr}
 .Lasm_add_loop_down_l3:
@@ -1103,11 +1103,11 @@ asm_inc_loop_down:
         ADDS    a4,a4,#1        /* align the total to a multiple of 2 */
         STR     a4,[a1]
         MOVNE   a1,#0           /* set result to 0 */
-        MOVNES  pc,lr           /* return 0 if non-zero result */
+        BXNE    lr              /* return 0 if non-zero result */
 .Lasm_inc_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MOVEQ   a1,#1           /* return 1 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         MOV     ip,a1           /* move ptr to ip */
         MOV     a1,#0           /* set result to 0 */
         ANDS    a3,a4,#3
@@ -1116,10 +1116,10 @@ asm_inc_loop_down:
         ADDS    a3,a3,#1        /* INC the two words */
         ADDEQS  a2,a2,#1        /* stopping when first word non-zero */
         STMDB   ip!,{a2,a3}     /* store 2 results */
-        MOVNES  pc,lr           /* return 0 if any result non-zero */
+        BXNE    lr              /* return 0 if any result non-zero */
         SUBS    a4,a4,#2        /* decrement counter by 2 */
         MOVEQ   a1,#1           /* if finished loop then */
-        MOVEQS  pc,lr           /* return 1 */
+        BXEQ    lr              /* return 1 */
 .Lasm_inc_loop_down_l3:         /* now a multiple of 4 words */
         STMFD   sp!,{v1,lr}     /* save work regs */
 .Lasm_inc_loop_down_l2:
@@ -1180,7 +1180,7 @@ asm_sub_loop_down:
 .Lasm_sub_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no subtracts, so C = 0 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         CMP     a4,#0           /* set carry bit, since a4 > 0 */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
 .Lasm_sub_loop_down_l2:
@@ -1246,7 +1246,7 @@ asm_subx_loop_down:
 .Lasm_subx_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
 .Lasm_subx_loop_down_l2:
         LDMDB   a2!,{v1,v2,v3,ip} /* load 4 words in one go */
@@ -1306,7 +1306,7 @@ asm_subfrom_loop_down:
 .Lasm_subfrom_loop_down_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no subtracts, so C = 0 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         CMP     a4,#0           /* set carry bit, since a4 > 0 */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
 .Lasm_subfrom_loop_down_l2:
@@ -1342,11 +1342,11 @@ asm_dec_loop_down:
         SUBS    a4,a4,#1        /* align the total to a multiple of 2 */
         STR     a4,[a1]
         MOVCS   a1,#0           /* set result to 0 */
-        MOVCSS  pc,lr           /* return 0 if non-zero result */
+        BXCS    lr              /* return 0 if non-zero result */
 .Lasm_dec_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MVNEQ   a1,#0           /* return -1 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         MOV     ip,a1           /* move ptr to ip */
         MOV     a1,#0           /* set result to 0 */
         ANDS    a3,a4,#3
@@ -1355,10 +1355,10 @@ asm_dec_loop_down:
         SUBS    a3,a3,#1        /* DEC the two words */
         SUBCCS  a2,a2,#1        /* stopping when first word non-zero */
         STMDB   ip!,{a2,a3}     /* store 2 results */
-        MOVCSS  pc,lr           /* return 0 if any result non-zero */
+        BXCS    lr              /* return 0 if any result non-zero */
         SUBS    a4,a4,#2        /* decrement counter by 2 */
         MVNEQ   a1,#0           /* if finished loop then */
-        MOVEQS  pc,lr           /* return -1 */
+        BXEQ    lr              /* return -1 */
 .Lasm_dec_loop_down_l3:         /* now a multiple of 4 words */
         STMFD   sp!,{v1,lr}     /* save work regs */
 .Lasm_dec_loop_down_l2:
@@ -1389,7 +1389,7 @@ asm_dec_loop_down:
 asm_neg_loop_down:
         CMP     a2,#0           /* count = 0 ? */
         MOVEQ   a1,#0           /* yup, so return 0 */
-        MOVEQS  pc,lr
+        BXEQ    lr
 .Lasm_neg_loop_down_l1:          /* skip all the zero words first */
         LDR     a3,[a1,#-4]!     /* compare words against zero */
         CMP     a3,#0            /* downwards in memory */
@@ -1397,13 +1397,13 @@ asm_neg_loop_down:
         SUBS    a2,a2,#1         /* reduce count of words */
         BNE     .Lasm_neg_loop_down_l1 /* more ?, so loop */
         MOV     a1,#0            /* return 0 */
-        MOVS    pc,lr
+        BX      lr
 .Lasm_neg_loop_down_l2:
         RSB     a3,a3,#0        /* first non-zero word = -word */
         STR     a3,[a1]
         SUBS    a2,a2,#1
         MVNEQ   a1,#0           /* done ? -> return -1 */
-        MOVEQS  pc,lr
+        BXEQ    lr
                                         /* now NOT rest of the words */
         ANDS    a3,a2,#3                /* multiple of 4 words ? */
         BEQ     .Lasm_neg_loop_down_l3  /* yup, so branch */
@@ -1421,7 +1421,7 @@ asm_neg_loop_down:
 .Lasm_neg_loop_down_l3:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MVNEQ   a1,#0           /* set result to -1 */
-        MOVEQS  pc,lr           /* if zero then we're done */
+        BXEQ    lr              /* if zero then we're done */
         STMFD   sp!,{lr}        /* save work regs */
 .Lasm_neg_loop_down_l4:
         LDMDB   a1,{a2,a3,ip,lr} /* load 4 words in one go,NO writeback */
@@ -1456,7 +1456,7 @@ asm_shift1left_loop_down:
 .Lasm_shift1left_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         ADCEQ   a1,a4,a4        /* if zero set result to C (a4 is 0) */
-        MOVEQS  pc,lr           /* and return */
+        BXEQ    lr              /* and return */
         ANDS    a3,a4,#3        /* multiple of 4 words ? */
         BEQ     .Lasm_shift1left_loop_down_l3 /* yup, so branch */
         LDMDB   a1,{a2,a3}              /* load 2 words in one go */
@@ -1465,7 +1465,7 @@ asm_shift1left_loop_down:
         STMDB   a1!,{a2,a3}     /* store 2 results */
         BICS    a4,a4,#2        /* decrement counter by 2 */
         ADCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
-        MOVEQS  pc,lr           /* and return */
+        BXEQ    lr              /* and return */
 .Lasm_shift1left_loop_down_l3:  /* now a multiple of 4 words */
         STMFD   sp!,{lr}        /* save work regs */
 .Lasm_shift1left_loop_down_l2:
@@ -1610,7 +1610,7 @@ asm_shift1right_loop_up:
 .Lasm_shift1right_loop_up_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MOVEQ   a1,a4,rrx       /* if zero set result to C (a4 is 0) */
-        MOVEQS  pc,lr           /* and return */
+        BXEQ    lr              /* and return */
         ANDS    a3,a4,#3        /* multiple of 4 words ? */
         BEQ     .Lasm_shift1right_loop_up_l3 /* yup, so branch */
         LDMIA   a1,{a2,a3}             /* load 2 words in one go */
@@ -1619,7 +1619,7 @@ asm_shift1right_loop_up:
         STMIA   a1!,{a2,a3}     /* store 2 results */
         BICS    a4,a4,#2        /* decrement counter by 2 */
         ADCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
-        MOVEQS  pc,lr           /* and return */
+        BXEQ    lr              /* and return */
 .Lasm_shift1right_loop_up_l3:   /* now a multiple of 4 words */
         STMFD   sp!,{lr}        /* save work regs */
 .Lasm_shift1right_loop_up_l2:
@@ -1789,7 +1789,7 @@ asm_shiftrightcopy_loop_up:
         ADDCS   v2,v2,#0x10000   /* carry from above add */
         ADDS    v1,v4,ip,LSL #16 /* x is now bottom 32 bits of result */
         ADC     ip,v2,ip,LSR #16 /* hi is top 32 bits */
-        MOVS    pc,lr
+        BX      lr
 %%endif  /* HAVE_umull */
 
 /* extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
@@ -1807,7 +1807,7 @@ asm_shiftrightcopy_loop_up:
 asm_mulusmall_loop_down:
         CMP     a3,#0
         MOVEQ   a1,a4
-        MOVEQS  pc,lr
+        BXEQ    lr
 %%ifdef HAVE_umull
         STMFD   sp!,{v1,lr}
 .Lasm_mulusmall_loop_down_l1:
