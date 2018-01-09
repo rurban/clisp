@@ -11,7 +11,7 @@
 #     %eax,%edx,%ecx
 # Settings: intCsize=32, intDsize=32.
 
-# Bruno Haible 1992-2001, 2017
+# Bruno Haible 1992-2001, 2017-2018
 # Zum Teil abgeschrieben von Bernhard Degels "v-i386.s"
 
 #ifdef INCLUDED_FROM_C
@@ -28,132 +28,101 @@
 
 #else
 
-  #ifdef _MSC_VER
-    #include "asmi386.h"
-    #undef ALIGN
-    #define ALIGN
-  #else
-    #ifdef ASM_UNDERSCORE
-      #define C(entrypoint) _##entrypoint
-    #else
-      #define C(entrypoint) entrypoint
-    #endif
-    #ifdef ASM_UNDERSCORE
-      #define L(label) L##label
-    #else
-      #define L(label) .L##label
-    #endif
-    #if defined(ASM_UNDERSCORE) || defined(COHERENT) /* defined(__EMX__) || defined(__GO32__) || defined(linux) || defined(__386BSD__) || defined(__NetBSD__) || defined(COHERENT) || ... */
-      # GNU-Assembler oder MWC-Assembler
-      #define repz     repe
-      #define shcl     %cl,
-    #else /* defined(sun) || ... */
-      # SUN-Assembler oder Consensys-Assembler
-      #define jecxz    orl %ecx,%ecx ; jz
-      #define shcl
-    #endif
-    # Alignment. Note that some assemblers need ".align 3,0x90" whereas other
-    # assemblers don't like this syntax. So we put in the "nop"s by hand.
-    #if defined(ASM_UNDERSCORE) && !(defined(__CYGWIN__) || defined(__MINGW32__))
-      # BSD syntax assembler
-      #define ALIGN  .align 3
-    #else
-      # ELF syntax assembler
-      #define ALIGN  .align 8
-    #endif
-  #endif
-  #if defined(__EMX__)
+  !!if defined(__EMX__)
     # Direction-Flag ist defaultmäßig gelöscht
-    #define dir0start
-    #define dir0end
-    #define dir1start  std
-    #define dir1end    cld
-  #elif 1
+    !!define dir0start
+    !!define dir0end
+    !!define dir1start  std
+    !!define dir1end    cld
+  !!elif 1
     # Wir gehen auf Nummer sicher.
-    #define dir0start  cld
-    #define dir0end
-    #define dir1start  std
-    #define dir1end    cld
-  #else
+    !!define dir0start  cld
+    !!define dir0end
+    !!define dir1start  std
+    !!define dir1end    cld
+  !!else
     # Direction-Flag darf nach Belieben modifiziert werden
-    #define dir0start  cld
-    #define dir0end
-    #define dir1start  std
-    #define dir1end
-  #endif
+    !!define dir0start  cld
+    !!define dir0end
+    !!define dir1start  std
+    !!define dir1end
+  !!endif
 
             .text
 
-            .globl C(asm_copy_loop_up)
-            .globl C(asm_copy_loop_down)
-            .globl C(asm_fill_loop_up)
-            .globl C(asm_fill_loop_down)
-            .globl C(asm_clear_loop_up)
-            .globl C(asm_clear_loop_down)
-            .globl C(asm_or_loop_up)
-            .globl C(asm_xor_loop_up)
-            .globl C(asm_and_loop_up)
-            .globl C(asm_eqv_loop_up)
-            .globl C(asm_nand_loop_up)
-            .globl C(asm_nor_loop_up)
-            .globl C(asm_andc2_loop_up)
-            .globl C(asm_orc2_loop_up)
-            .globl C(asm_not_loop_up)
-            .globl C(asm_and_test_loop_up)
-            .globl C(asm_test_loop_up)
-            .globl C(asm_compare_loop_up)
-            .globl C(asm_add_loop_down)
-            .globl C(asm_addto_loop_down)
-            .globl C(asm_inc_loop_down)
-            .globl C(asm_sub_loop_down)
-            .globl C(asm_subx_loop_down)
-            .globl C(asm_subfrom_loop_down)
-            .globl C(asm_dec_loop_down)
-            .globl C(asm_neg_loop_down)
-            .globl C(asm_shift1left_loop_down)
-            .globl C(asm_shiftleft_loop_down)
-            .globl C(asm_shiftleftcopy_loop_down)
-            .globl C(asm_shift1right_loop_up)
-            .globl C(asm_shiftright_loop_up)
-            .globl C(asm_shiftrightsigned_loop_up)
-            .globl C(asm_shiftrightcopy_loop_up)
-            .globl C(asm_mulusmall_loop_down)
-            .globl C(asm_mulu_loop_down)
-            .globl C(asm_muluadd_loop_down)
-            .globl C(asm_mulusub_loop_down)
-            .globl C(asm_divu_loop_up)
-            .globl C(asm_divucopy_loop_up)
+            .globl asm_mulu32_64
+            .globl asm_divu_6432_3232_
+            .globl asm_copy_loop_up
+            .globl asm_copy_loop_down
+            .globl asm_fill_loop_up
+            .globl asm_fill_loop_down
+            .globl asm_clear_loop_up
+            .globl asm_clear_loop_down
+            .globl asm_or_loop_up
+            .globl asm_xor_loop_up
+            .globl asm_and_loop_up
+            .globl asm_eqv_loop_up
+            .globl asm_nand_loop_up
+            .globl asm_nor_loop_up
+            .globl asm_andc2_loop_up
+            .globl asm_orc2_loop_up
+            .globl asm_not_loop_up
+            .globl asm_and_test_loop_up
+            .globl asm_test_loop_up
+            .globl asm_compare_loop_up
+            .globl asm_add_loop_down
+            .globl asm_addto_loop_down
+            .globl asm_inc_loop_down
+            .globl asm_sub_loop_down
+            .globl asm_subx_loop_down
+            .globl asm_subfrom_loop_down
+            .globl asm_dec_loop_down
+            .globl asm_neg_loop_down
+            .globl asm_shift1left_loop_down
+            .globl asm_shiftleft_loop_down
+            .globl asm_shiftleftcopy_loop_down
+            .globl asm_shift1right_loop_up
+            .globl asm_shiftright_loop_up
+            .globl asm_shiftrightsigned_loop_up
+            .globl asm_shiftrightcopy_loop_up
+            .globl asm_mulusmall_loop_down
+            .globl asm_mulu_loop_down
+            .globl asm_muluadd_loop_down
+            .globl asm_mulusub_loop_down
+            .globl asm_divu_loop_up
+            .globl asm_divucopy_loop_up
 
-#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
-
+/* Note: When using GNU C or the INTEL compiler, this function is not used,
+   because we implement mulu32() as a macro that multiplies inline.  */
 # extern uint64 asm_mulu32_64 (uint32 arg1, uint32 arg2);
 # 2^32*hi+lo := arg1*arg2.
-            ALIGN
-            .globl C(asm_mulu32_64)
-C(asm_mulu32_64:)
+            .p2align 2,,3
+            .type asm_mulu32_64,@function
+asm_mulu32_64:
             movl    4(%esp),%eax    # arg1
             mull    8(%esp)         # %edx|%eax := arg1 * arg2
             ret                     # %edx,%eax = 2^32*hi+lo als Ergebnis
+.Lendof_asm_mulu32_64:
+            .size asm_mulu32_64,.Lendof_asm_mulu32_64-asm_mulu32_64
 
-#endif
-
-#if !(defined(__GNUC__) || defined(__INTEL_COMPILER)) /* mit GNU-C machen wir divu_6432_3232() als Macro, der inline dividiert */
-
+/* Note: When using GNU C or the INTEL compiler, this function is not used,
+   because we implement divu_6432_3232() as a macro that divides inline.  */
 # extern uint64 [struct { uint32 q; uint32 r; }] asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
 # x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
-            ALIGN
-            .globl C(asm_divu_6432_3232_)
-C(asm_divu_6432_3232_:)            # Output in %eax=q, %edx=r
+            .p2align 2,,3
+            .type asm_divu_6432_3232_,@function
+asm_divu_6432_3232_:               # Output in %eax=q, %edx=r
             movl    4(%esp),%edx
             movl    8(%esp),%eax
             divl    12(%esp)       # x = %edx|%eax durch dividieren
             ret                    # Quotient %eax = q, Rest %edx = r als Ergebnis
-
-#endif
+.Lendof_asm_divu_6432_3232_:
+            .size asm_divu_6432_3232_,.Lendof_asm_divu_6432_3232_-asm_divu_6432_3232_
 
 # extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
-            ALIGN
-C(asm_copy_loop_up:)
+            .p2align 2,,3
+            .type asm_copy_loop_up,@function
+asm_copy_loop_up:
             movl    %edi,%edx       # %edi retten
             movl    %esi,%eax       # %esi retten
             movl    4(%esp),%esi    # %esi = sourceptr
@@ -166,10 +135,13 @@ C(asm_copy_loop_up:)
             movl    %edi,%eax       # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_copy_loop_up:
+            .size asm_copy_loop_up,.Lendof_asm_copy_loop_up-asm_copy_loop_up
 
 # extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-            ALIGN
-C(asm_copy_loop_down:)
+            .p2align 2,,3
+            .type asm_copy_loop_down,@function
+asm_copy_loop_down:
             movl    %edi,%edx       # %edi retten
             movl    %esi,%eax       # %esi retten
             movl    4(%esp),%esi    # %esi = sourceptr
@@ -184,10 +156,13 @@ C(asm_copy_loop_down:)
             leal    4(%edi),%eax    # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_copy_loop_down:
+            .size asm_copy_loop_down,.Lendof_asm_copy_loop_down-asm_copy_loop_down
 
 # extern uintD* asm_fill_loop_up (uintD* destptr, uintC count, uintD filler);
-            ALIGN
-C(asm_fill_loop_up:)
+            .p2align 2,,3
+            .type asm_fill_loop_up,@function
+asm_fill_loop_up:
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -198,10 +173,13 @@ C(asm_fill_loop_up:)
             movl    %edi,%eax       # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_fill_loop_up:
+            .size asm_fill_loop_up,.Lendof_asm_fill_loop_up-asm_fill_loop_up
 
 # extern uintD* asm_fill_loop_down (uintD* destptr, uintC count, uintD filler);
-            ALIGN
-C(asm_fill_loop_down:)
+            .p2align 2,,3
+            .type asm_fill_loop_down,@function
+asm_fill_loop_down:
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -213,10 +191,13 @@ C(asm_fill_loop_down:)
             leal    4(%edi),%eax    # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_fill_loop_down:
+            .size asm_fill_loop_down,.Lendof_asm_fill_loop_down-asm_fill_loop_down
 
 # extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
-            ALIGN
-C(asm_clear_loop_up:)
+            .p2align 2,,3
+            .type asm_clear_loop_up,@function
+asm_clear_loop_up:
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -227,10 +208,13 @@ C(asm_clear_loop_up:)
             movl    %edi,%eax       # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_clear_loop_up:
+            .size asm_clear_loop_up,.Lendof_asm_clear_loop_up-asm_clear_loop_up
 
 # extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
-            ALIGN
-C(asm_clear_loop_down:)
+            .p2align 2,,3
+            .type asm_clear_loop_down,@function
+asm_clear_loop_down:
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = destptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -242,186 +226,219 @@ C(asm_clear_loop_down:)
             leal    4(%edi),%eax    # %edi als Ergebnis
             movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_clear_loop_down:
+            .size asm_clear_loop_down,.Lendof_asm_clear_loop_down-asm_clear_loop_down
 
 # extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_or_loop_up:)
+            .p2align 2,,3
+            .type asm_or_loop_up,@function
+asm_or_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(olu2)         # %ecx = 0 ?
-L(olu1:)      movl    (%edx,%esi),%eax # *yptr
+            jecxz   .Lolu2          # %ecx = 0 ?
+.Lolu1:       movl    (%edx,%esi),%eax # *yptr
               orl     %eax,(%edx)      # *xptr |= ...
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(olu1)
-L(olu2:)    popl    %esi            # %esi zurück
+              jnz     .Lolu1
+.Lolu2:     popl    %esi            # %esi zurück
             ret
+.Lendof_asm_or_loop_up:
+            .size asm_or_loop_up,.Lendof_asm_or_loop_up-asm_or_loop_up
 
 # extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_xor_loop_up:)
+            .p2align 2,,3
+            .type asm_xor_loop_up,@function
+asm_xor_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(xlu2)         # %ecx = 0 ?
-L(xlu1:)      movl    (%edx,%esi),%eax # *yptr
+            jecxz   .Lxlu2          # %ecx = 0 ?
+.Lxlu1:       movl    (%edx,%esi),%eax # *yptr
               xorl    %eax,(%edx)      # *xptr ^= ...
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(xlu1)
-L(xlu2:)    popl    %esi            # %esi zurück
+              jnz     .Lxlu1
+.Lxlu2:     popl    %esi            # %esi zurück
             ret
+.Lendof_asm_xor_loop_up:
+            .size asm_xor_loop_up,.Lendof_asm_xor_loop_up-asm_xor_loop_up
 
 # extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_and_loop_up:)
+            .p2align 2,,3
+            .type asm_and_loop_up,@function
+asm_and_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(alu2)         # %ecx = 0 ?
-L(alu1:)      movl    (%edx,%esi),%eax # *yptr
+            jecxz   .Lalu2          # %ecx = 0 ?
+.Lalu1:       movl    (%edx,%esi),%eax # *yptr
               andl    %eax,(%edx)      # *xptr &= ...
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(alu1)
-L(alu2:)    popl    %esi            # %esi zurück
+              jnz     .Lalu1
+.Lalu2:     popl    %esi            # %esi zurück
             ret
+.Lendof_asm_and_loop_up:
+            .size asm_and_loop_up,.Lendof_asm_and_loop_up-asm_and_loop_up
 
 # extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_eqv_loop_up:)
+            .p2align 2,,3
+            .type asm_eqv_loop_up,@function
+asm_eqv_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(elu2)         # %ecx = 0 ?
-L(elu1:)      movl    (%edx),%eax      # *xptr
+            jecxz   .Lelu2          # %ecx = 0 ?
+.Lelu1:       movl    (%edx),%eax      # *xptr
               xorl    (%edx,%esi),%eax # ^ *yptr
               notl    %eax             # ~(...)
               movl    %eax,(%edx)      # =: *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(elu1)
-L(elu2:)    popl    %esi            # %esi zurück
+              jnz     .Lelu1
+.Lelu2:     popl    %esi            # %esi zurück
             ret
+.Lendof_asm_eqv_loop_up:
+            .size asm_eqv_loop_up,.Lendof_asm_eqv_loop_up-asm_eqv_loop_up
 
 # extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_nand_loop_up:)
+            .p2align 2,,3
+            .type asm_nand_loop_up,@function
+asm_nand_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(nalu2)        # %ecx = 0 ?
-L(nalu1:)     movl    (%edx),%eax      # *xptr
+            jecxz   .Lnalu2         # %ecx = 0 ?
+.Lnalu1:      movl    (%edx),%eax      # *xptr
               andl    (%edx,%esi),%eax # & *yptr
               notl    %eax             # ~(...)
               movl    %eax,(%edx)      # =: *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(nalu1)
-L(nalu2:)   popl    %esi            # %esi zurück
+              jnz     .Lnalu1
+.Lnalu2:    popl    %esi            # %esi zurück
             ret
+.Lendof_asm_nand_loop_up:
+            .size asm_nand_loop_up,.Lendof_asm_nand_loop_up-asm_nand_loop_up
 
 # extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_nor_loop_up:)
+            .p2align 2,,3
+            .type asm_nor_loop_up,@function
+asm_nor_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(nolu2)        # %ecx = 0 ?
-L(nolu1:)     movl    (%edx),%eax      # *xptr
+            jecxz   .Lnolu2         # %ecx = 0 ?
+.Lnolu1:      movl    (%edx),%eax      # *xptr
               orl     (%edx,%esi),%eax # | *yptr
               notl    %eax             # ~(...)
               movl    %eax,(%edx)      # =: *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(nolu1)
-L(nolu2:)   popl    %esi            # %esi zurück
+              jnz     .Lnolu1
+.Lnolu2:    popl    %esi            # %esi zurück
             ret
+.Lendof_asm_nor_loop_up:
+            .size asm_nor_loop_up,.Lendof_asm_nor_loop_up-asm_nor_loop_up
 
 # extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_andc2_loop_up:)
+            .p2align 2,,3
+            .type asm_andc2_loop_up,@function
+asm_andc2_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(aclu2)        # %ecx = 0 ?
-L(aclu1:)     movl    (%edx,%esi),%eax # *yptr
+            jecxz   .Laclu2         # %ecx = 0 ?
+.Laclu1:      movl    (%edx,%esi),%eax # *yptr
               notl    %eax             # ~ *yptr
               andl    %eax,(%edx)      # *xptr &= ...
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(aclu1)
-L(aclu2:)   popl    %esi            # %esi zurück
+              jnz     .Laclu1
+.Laclu2:    popl    %esi            # %esi zurück
             ret
+.Lendof_asm_andc2_loop_up:
+            .size asm_andc2_loop_up,.Lendof_asm_andc2_loop_up-asm_andc2_loop_up
 
 # extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_orc2_loop_up:)
+            .p2align 2,,3
+            .type asm_orc2_loop_up,@function
+asm_orc2_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edx,%esi
-            jecxz   L(oclu2)        # %ecx = 0 ?
-L(oclu1:)     movl    (%edx,%esi),%eax # *yptr
+            jecxz   .Loclu2         # %ecx = 0 ?
+.Loclu1:      movl    (%edx,%esi),%eax # *yptr
               notl    %eax             # ~ *yptr
               orl     %eax,(%edx)      # *xptr |= ...
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(oclu1)
-L(oclu2:)   popl    %esi            # %esi zurück
+              jnz     .Loclu1
+.Loclu2:    popl    %esi            # %esi zurück
             ret
+.Lendof_asm_orc2_loop_up:
+            .size asm_orc2_loop_up,.Lendof_asm_orc2_loop_up-asm_orc2_loop_up
 
 # extern void asm_not_loop_up (uintD* xptr, uintC count);
-            ALIGN
-C(asm_not_loop_up:)
+            .p2align 2,,3
+            .type asm_not_loop_up,@function
+asm_not_loop_up:
             movl    4(%esp),%edx    # %edx = xptr
             movl    8(%esp),%ecx    # %ecx = count
-            jecxz   L(nlu2)         # %ecx = 0 ?
+            jecxz   .Lnlu2          # %ecx = 0 ?
             nop ; nop ; nop ; nop ; nop ; nop
-L(nlu1:)      notl    (%edx)           # ~= *xptr
+.Lnlu1:       notl    (%edx)           # ~= *xptr
               leal    4(%edx),%edx     # xptr++
               decl    %ecx
-              jnz     L(nlu1)
-L(nlu2:)    ret
+              jnz     .Lnlu1
+.Lnlu2:     ret
+.Lendof_asm_not_loop_up:
+            .size asm_not_loop_up,.Lendof_asm_not_loop_up-asm_not_loop_up
 
 # extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_and_test_loop_up:)
+            .p2align 2,,3
+            .type asm_and_test_loop_up,@function
+asm_and_test_loop_up:
             pushl   %esi            # %esi retten
             movl    8(%esp),%edx    # %edx = xptr
             movl    12(%esp),%esi   # %esi = yptr
             movl    16(%esp),%ecx   # %ecx = count
-            jecxz   L(atlu2)        # %ecx = 0 ?
+            jecxz   .Latlu2         # %ecx = 0 ?
             subl    %edx,%esi
-L(atlu1:)     movl    (%edx,%esi),%eax # *yptr
+.Latlu1:      movl    (%edx,%esi),%eax # *yptr
               andl    (%edx),%eax      # *xptr & ...
-              jnz     L(atlu3)
+              jnz     .Latlu3
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
-              jnz     L(atlu1)
-L(atlu2:)   xorl    %eax,%eax       # Ergebnis 0
-L(atlu3:)   popl    %esi            # %esi zurück
+              jnz     .Latlu1
+.Latlu2:    xorl    %eax,%eax       # Ergebnis 0
+.Latlu3:    popl    %esi            # %esi zurück
             ret
+.Lendof_asm_and_test_loop_up:
+            .size asm_and_test_loop_up,.Lendof_asm_and_test_loop_up-asm_and_test_loop_up
 
 # extern bool asm_test_loop_up (uintD* ptr, uintC count);
-            ALIGN
-C(asm_test_loop_up:)
+            .p2align 2,,3
+            .type asm_test_loop_up,@function
+asm_test_loop_up:
             movl    %edi,%edx       # %edi retten
             movl    4(%esp),%edi    # %edi = ptr
             movl    8(%esp),%ecx    # %ecx = count
@@ -432,14 +449,17 @@ C(asm_test_loop_up:)
                                     # und weiterschleifen, falls Z, d.h. (%edi)=0.
             dir0end
             # Noch ist %eax = 0.
-            jz      L(tlu1)         # alles =0 -> Ergebnis 0
+            jz      .Ltlu1          # alles =0 -> Ergebnis 0
             incl    %eax            # Ergebnis 1
-L(tlu1:)    movl    %edx,%edi       # %edi zurück
+.Ltlu1:     movl    %edx,%edi       # %edi zurück
             ret
+.Lendof_asm_test_loop_up:
+            .size asm_test_loop_up,.Lendof_asm_test_loop_up-asm_test_loop_up
 
 # extern signean asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
-            ALIGN
-C(asm_compare_loop_up:)
+            .p2align 2,,3
+            .type asm_compare_loop_up,@function
+asm_compare_loop_up:
             movl    %esi,%edx       # %esi retten
             movl    %edi,%eax       # %edi retten
             movl    4(%esp),%esi    # %esi = xptr
@@ -456,15 +476,18 @@ C(asm_compare_loop_up:)
             # NZ,NC -> schließlich (%esi)-(%edi) > 0 -> x>y -> Ergebnis +1
             movl    %eax,%edi       # %edi zurück
             movl    %edx,%esi       # %esi zurück
-            jbe     L(cmlu1)        # "be" = Z oder C
+            jbe     .Lcmlu1         # "be" = Z oder C
             movl    $1,%eax         # Ergebnis +1
             ret
-L(cmlu1:)   sbbl    %eax,%eax       # Ergebnis -1 (falls C) oder 0 (falls NC)
+.Lcmlu1:    sbbl    %eax,%eax       # Ergebnis -1 (falls C) oder 0 (falls NC)
             ret
+.Lendof_asm_compare_loop_up:
+            .size asm_compare_loop_up,.Lendof_asm_compare_loop_up-asm_compare_loop_up
 
 # extern uintD asm_add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-            ALIGN
-C(asm_add_loop_down:)
+            .p2align 2,,3
+            .type asm_add_loop_down,@function
+asm_add_loop_down:
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
@@ -474,56 +497,65 @@ C(asm_add_loop_down:)
             subl    %edi,%edx
             subl    %edi,%esi
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
-            jz      L(ald2)
-L(ald1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
+            jz      .Lald2
+.Lald1:       leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr1
               adcl    (%esi,%edi),%eax # + *sourceptr2 + carry
               movl    %eax,(%edi)     # =: *destptr, neuen Carry behalten
               decl    %ecx
-              jnz     L(ald1)
-L(ald2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
+              jnz     .Lald1
+.Lald2:     sbbl    %eax,%eax      # Ergebnis := - Carry
             popl    %edi           # %edi zurück
             popl    %esi           # %esi zurück
             ret
+.Lendof_asm_add_loop_down:
+            .size asm_add_loop_down,.Lendof_asm_add_loop_down-asm_add_loop_down
 
 # extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-            ALIGN
-C(asm_addto_loop_down:)
+            .p2align 2,,3
+            .type asm_addto_loop_down,@function
+asm_addto_loop_down:
             pushl   %edi            # %edi retten
             movl    8(%esp),%edx    # %edx = sourceptr
             movl    12(%esp),%edi   # %edi = destptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
-            jz      L(atld2)
-L(atld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
+            jz      .Latld2
+.Latld1:      leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr
               adcl    %eax,(%edi)     # + *destptr + carry =: *destptr, neuer Carry
               decl    %ecx
-              jnz     L(atld1)
-L(atld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
+              jnz     .Latld1
+.Latld2:    sbbl    %eax,%eax       # Ergebnis := - Carry
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_addto_loop_down:
+            .size asm_addto_loop_down,.Lendof_asm_addto_loop_down-asm_addto_loop_down
 
 # extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
-            ALIGN
-C(asm_inc_loop_down:)
+            .p2align 2,,3
+            .type asm_inc_loop_down,@function
+asm_inc_loop_down:
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
-            jecxz   L(ild2)         # %ecx = 0 ?
-L(ild1:)      leal    -4(%edx),%edx
+            jecxz   .Lild2          # %ecx = 0 ?
+.Lild1:       leal    -4(%edx),%edx
               addl    $1,(%edx)       # (*ptr)++
-              jnc     L(ild3)         # kein Carry -> fertig
+              jnc     .Lild3          # kein Carry -> fertig
               decl    %ecx
-              jnz     L(ild1)
-L(ild2:)    movl    $1,%eax         # Ergebnis := 1
+              jnz     .Lild1
+.Lild2:     movl    $1,%eax         # Ergebnis := 1
             ret
-L(ild3:)    xorl    %eax,%eax       # Ergebnis := 0
+.Lild3:     xorl    %eax,%eax       # Ergebnis := 0
             ret
+.Lendof_asm_inc_loop_down:
+            .size asm_inc_loop_down,.Lendof_asm_inc_loop_down-asm_inc_loop_down
 
 # extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-            ALIGN
-C(asm_sub_loop_down:)
+            .p2align 2,,3
+            .type asm_sub_loop_down,@function
+asm_sub_loop_down:
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
@@ -533,134 +565,152 @@ C(asm_sub_loop_down:)
             subl    %edi,%edx
             subl    %edi,%esi
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
-            jz      L(sld2)
-L(sld1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
+            jz      .Lsld2
+.Lsld1:       leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr1
               sbbl    (%esi,%edi),%eax # - *sourceptr2 - carry
               movl    %eax,(%edi)     # =: *destptr, neuen Carry behalten
               decl    %ecx
-              jnz     L(sld1)
-L(sld2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
+              jnz     .Lsld1
+.Lsld2:     sbbl    %eax,%eax      # Ergebnis := - Carry
             popl    %edi           # %edi zurück
             popl    %esi           # %esi zurück
             ret
+.Lendof_asm_sub_loop_down:
+            .size asm_sub_loop_down,.Lendof_asm_sub_loop_down-asm_sub_loop_down
 
 # extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-            ALIGN
-C(asm_subx_loop_down:)
+            .p2align 2,,3
+            .type asm_subx_loop_down,@function
+asm_subx_loop_down:
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             movl    12(%esp),%edx   # %edx = sourceptr1
             movl    16(%esp),%esi   # %esi = sourceptr2
             movl    20(%esp),%edi   # %edi = destptr
             movl    24(%esp),%ecx   # %ecx = count
-            jecxz   L(sxld2)        # %ecx = 0 ?
+            jecxz   .Lsxld2         # %ecx = 0 ?
             subl    %edi,%edx
             subl    %edi,%esi
             movl    28(%esp),%eax   # carry, 0 oder -1
             addl    %eax,%eax       # Bit 31 davon in den Carry
             nop ; nop
-L(sxld1:)     leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
+.Lsxld1:      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr1
               sbbl    (%esi,%edi),%eax # - *sourceptr2 - carry
               movl    %eax,(%edi)     # =: *destptr, neuen Carry behalten
               decl    %ecx
-              jnz     L(sxld1)
+              jnz     .Lsxld1
             sbbl    %eax,%eax      # Ergebnis := - Carry
             popl    %edi           # %edi zurück
             popl    %esi           # %esi zurück
             ret
-L(sxld2:)   movl    28(%esp),%eax  # Ergebnis := carry
+.Lsxld2:    movl    28(%esp),%eax  # Ergebnis := carry
             popl    %edi           # %edi zurück
             popl    %esi           # %esi zurück
             ret
+.Lendof_asm_subx_loop_down:
+            .size asm_subx_loop_down,.Lendof_asm_subx_loop_down-asm_subx_loop_down
 
 # extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
-            ALIGN
-C(asm_subfrom_loop_down:)
+            .p2align 2,,3
+            .type asm_subfrom_loop_down,@function
+asm_subfrom_loop_down:
             pushl   %edi            # %edi retten
             movl    8(%esp),%edx    # %edx = sourceptr
             movl    12(%esp),%edi   # %edi = destptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
-            jz      L(sfld2)
-L(sfld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
+            jz      .Lsfld2
+.Lsfld1:      leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr
               sbbl    %eax,(%edi)     # *destptr - *sourceptr - carry =: *destptr, neuer Carry
               decl    %ecx
-              jnz     L(sfld1)
-L(sfld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
+              jnz     .Lsfld1
+.Lsfld2:    sbbl    %eax,%eax       # Ergebnis := - Carry
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_subfrom_loop_down:
+            .size asm_subfrom_loop_down,.Lendof_asm_subfrom_loop_down-asm_subfrom_loop_down
 
 # extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
-            ALIGN
-C(asm_dec_loop_down:)
+            .p2align 2,,3
+            .type asm_dec_loop_down,@function
+asm_dec_loop_down:
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
-            jecxz   L(dld2)         # %ecx = 0 ?
-L(dld1:)      leal    -4(%edx),%edx
+            jecxz   .Ldld2          # %ecx = 0 ?
+.Ldld1:       leal    -4(%edx),%edx
               subl    $1,(%edx)       # (*ptr)--
-              jnc     L(dld3)         # kein Carry -> fertig
+              jnc     .Ldld3          # kein Carry -> fertig
               decl    %ecx
-              jnz     L(dld1)
-L(dld2:)    movl    $-1,%eax        # Ergebnis := -1
+              jnz     .Ldld1
+.Ldld2:     movl    $-1,%eax        # Ergebnis := -1
             ret
-L(dld3:)    xorl    %eax,%eax       # Ergebnis := 0
+.Ldld3:     xorl    %eax,%eax       # Ergebnis := 0
             ret
+.Lendof_asm_dec_loop_down:
+            .size asm_dec_loop_down,.Lendof_asm_dec_loop_down-asm_dec_loop_down
 
 # extern uintD asm_neg_loop_down (uintD* ptr, uintC count);
-            ALIGN
-C(asm_neg_loop_down:)
+            .p2align 2,,3
+            .type asm_neg_loop_down,@function
+asm_neg_loop_down:
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             # erstes Digit /=0 suchen:
-            jecxz   L(nld2)         # %ecx = 0 ?
-L(nld1:)      leal    -4(%edx),%edx
+            jecxz   .Lnld2          # %ecx = 0 ?
+.Lnld1:       leal    -4(%edx),%edx
               negl    (%edx)
-              jnz     L(nld3)
+              jnz     .Lnld3
               decl    %ecx
-              jnz     L(nld1)
-L(nld2:)    xorl    %eax,%eax       # Ergebnis := 0
+              jnz     .Lnld1
+.Lnld2:     xorl    %eax,%eax       # Ergebnis := 0
             ret
             nop ; nop ; nop ; nop ; nop ; nop
-L(nld3:)    # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
+.Lnld3:     # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
             # alle anderen Digits invertieren:
             decl    %ecx
-            jz      L(nld5)
-L(nld4:)      leal    -4(%edx),%edx
+            jz      .Lnld5
+.Lnld4:       leal    -4(%edx),%edx
               notl    (%edx)
               decl    %ecx
-              jnz     L(nld4)
-L(nld5:)    movl    $-1,%eax        # Ergebnis := -1
+              jnz     .Lnld4
+.Lnld5:     movl    $-1,%eax        # Ergebnis := -1
             ret
+.Lendof_asm_neg_loop_down:
+            .size asm_neg_loop_down,.Lendof_asm_neg_loop_down-asm_neg_loop_down
 
 # extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
-            ALIGN
-C(asm_shift1left_loop_down:)
+            .p2align 2,,3
+            .type asm_shift1left_loop_down,@function
+asm_shift1left_loop_down:
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
-            jz      L(s1lld2)
+            jz      .Ls1lld2
             nop ; nop ; nop ; nop
-L(s1lld1:)    leal    -4(%edx),%edx   # ptr--
+.Ls1lld1:     leal    -4(%edx),%edx   # ptr--
               rcll    $1,(%edx)       # *ptr und Carry um 1 Bit links rotieren
               decl    %ecx
-              jnz     L(s1lld1)
-L(s1lld2:)  sbbl    %eax,%eax       # Ergebnis := - Carry
+              jnz     .Ls1lld1
+.Ls1lld2:   sbbl    %eax,%eax       # Ergebnis := - Carry
             ret
+.Lendof_asm_shift1left_loop_down:
+            .size asm_shift1left_loop_down,.Lendof_asm_shift1left_loop_down-asm_shift1left_loop_down
 
 # extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
-            ALIGN
-C(asm_shiftleft_loop_down:)
+            .p2align 2,,3
+            .type asm_shiftleft_loop_down,@function
+asm_shiftleft_loop_down:
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
             movl    16(%esp),%edx   # %edx = count
             movl    20(%esp),%ecx   # %cl = i
             orl     %edx,%edx       # count = 0 ?
-            jz      L(slld4)
+            jz      .Lslld4
             # erstes Digit shiften:
             leal    -4(%edi),%edi
             movl    (%edi),%eax     # Digit in %eax halten
@@ -670,36 +720,39 @@ C(asm_shiftleft_loop_down:)
             movl    %ebx,(%edi)     # und wieder ablegen
             # Letztes Digit in %eax.
             decl    %edx
-            jz      L(slld2)
+            jz      .Lslld2
             nop ; nop ; nop ; nop
-L(slld1:)     # weiteres Digit shiften:
+.Lslld1:      # weiteres Digit shiften:
               leal    -4(%edi),%edi
               movl    (%edi),%ebx
-              shldl   shcl %eax,(%edi) # (%edi) um %cl=i Bits links shiften, %eax von rechts reinshiften
+              shldl   %cl,%eax,(%edi) # (%edi) um %cl=i Bits links shiften, %eax von rechts reinshiften
               # Letztes Digit in %ebx.
               decl    %edx
-              jz      L(slld3)
+              jz      .Lslld3
               # weiteres Digit shiften:
               leal    -4(%edi),%edi
               movl    (%edi),%eax
-              shldl   shcl %ebx,(%edi) # (%edi) um %cl=i Bits links shiften, %ebx von rechts reinshiften
+              shldl   %cl,%ebx,(%edi) # (%edi) um %cl=i Bits links shiften, %ebx von rechts reinshiften
               # Letztes Digit in %eax.
               decl    %edx
-              jnz     L(slld1)
-L(slld2:)   movl    %eax,%ebx
-L(slld3:)   xorl    %eax,%eax       # %eax := 0
-            shldl   shcl %ebx,%eax  # %eax := höchste %cl=i Bits von %ebx
+              jnz     .Lslld1
+.Lslld2:    movl    %eax,%ebx
+.Lslld3:    xorl    %eax,%eax       # %eax := 0
+            shldl   %cl,%ebx,%eax   # %eax := höchste %cl=i Bits von %ebx
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
-L(slld4:)   movl    24(%esp),%eax   # %eax := carry
+.Lslld4:    movl    24(%esp),%eax   # %eax := carry
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_shiftleft_loop_down:
+            .size asm_shiftleft_loop_down,.Lendof_asm_shiftleft_loop_down-asm_shiftleft_loop_down
 
 # extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
-            ALIGN
-C(asm_shiftleftcopy_loop_down:)
+            .p2align 2,,3
+            .type asm_shiftleftcopy_loop_down,@function
+asm_shiftleftcopy_loop_down:
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -708,7 +761,7 @@ C(asm_shiftleftcopy_loop_down:)
             movl    24(%esp),%edx   # count
             movl    28(%esp),%ecx   # %cl = i
             orl     %edx,%edx       # count = 0 ?
-            jz      L(slcld4)
+            jz      .Lslcld4
             subl    %edi,%esi
             # erstes Digit shiften:
             leal    -4(%edi),%edi   # sourceptr--, destptr--
@@ -719,60 +772,66 @@ C(asm_shiftleftcopy_loop_down:)
             # Letztes Digit in %ebx.
             negb    %cl             # %cl = 32-i
             decl    %edx
-            jz      L(slcld2)
-L(slcld1:)    # weiteres Digit shiften:
+            jz      .Lslcld2
+.Lslcld1:     # weiteres Digit shiften:
               leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edi,%esi),%eax # nächstes Digit nach %eax
-              shrdl   shcl %eax,%ebx  # %ebx um %cl=32-i Bits rechts shiften, %eax von links reinshiften
+              shrdl   %cl,%eax,%ebx   # %ebx um %cl=32-i Bits rechts shiften, %eax von links reinshiften
               movl    %ebx,(%edi)     # %ebx als *destptr ablegen
               # Letztes Digit in %eax.
               decl    %edx
-              jz      L(slcld3)
+              jz      .Lslcld3
               # weiteres Digit shiften:
               leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edi,%esi),%ebx # nächstes Digit nach %ebx
-              shrdl   shcl %ebx,%eax  # %eax um %cl=32-i Bits rechts shiften, %ebx von links reinshiften
+              shrdl   %cl,%ebx,%eax   # %eax um %cl=32-i Bits rechts shiften, %ebx von links reinshiften
               movl    %eax,(%edi)     # %eax als *destptr ablegen
               # Letztes Digit in %ebx.
               decl    %edx
-              jnz     L(slcld1)
-L(slcld2:)  movl    %ebx,%eax
-L(slcld3:)  shrl    %cl,%eax        # %eax um 32-i Bits nach rechts shiften
+              jnz     .Lslcld1
+.Lslcld2:   movl    %ebx,%eax
+.Lslcld3:   shrl    %cl,%eax        # %eax um 32-i Bits nach rechts shiften
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             popl    %esi            # %esi zurück
             ret
-L(slcld4:)  xorl    %eax,%eax       # %eax := 0
+.Lslcld4:   xorl    %eax,%eax       # %eax := 0
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             popl    %esi            # %esi zurück
             ret
+.Lendof_asm_shiftleftcopy_loop_down:
+            .size asm_shiftleftcopy_loop_down,.Lendof_asm_shiftleftcopy_loop_down-asm_shiftleftcopy_loop_down
 
 # extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
-            ALIGN
-C(asm_shift1right_loop_up:)
+            .p2align 2,,3
+            .type asm_shift1right_loop_up,@function
+asm_shift1right_loop_up:
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
             movl    12(%esp),%eax   # %eax = carry (0 oder -1)
-            jecxz   L(s1rld3)       # %ecx = 0 ?
+            jecxz   .Ls1rld3        # %ecx = 0 ?
             addl    %eax,%eax       # Carry := Bit 31 von carry
-L(s1rld1:)    rcrl    $1,(%edx)       # *ptr und Carry um 1 Bit rechts rotieren
+.Ls1rld1:     rcrl    $1,(%edx)       # *ptr und Carry um 1 Bit rechts rotieren
               leal    4(%edx),%edx    # ptr++
               decl    %ecx
-              jnz     L(s1rld1)
-L(s1rld2:)  sbbl    %eax,%eax       # Ergebnis := - Carry
-L(s1rld3:)  ret
+              jnz     .Ls1rld1
+.Ls1rld2:   sbbl    %eax,%eax       # Ergebnis := - Carry
+.Ls1rld3:   ret
+.Lendof_asm_shift1right_loop_up:
+            .size asm_shift1right_loop_up,.Lendof_asm_shift1right_loop_up-asm_shift1right_loop_up
 
 # extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
-            ALIGN
-C(asm_shiftright_loop_up:)
+            .p2align 2,,3
+            .type asm_shiftright_loop_up,@function
+asm_shiftright_loop_up:
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
             movl    16(%esp),%edx   # %edx = count
             movl    20(%esp),%ecx   # %cl = i
             orl     %edx,%edx       # count = 0 ?
-            jz      L(srlu4)
+            jz      .Lsrlu4
             # erstes Digit shiften:
             movl    (%edi),%eax     # Digit in %eax halten
             movl    %eax,%ebx       # und in %ebx rechnen:
@@ -780,36 +839,39 @@ C(asm_shiftright_loop_up:)
             movl    %ebx,(%edi)     # und wieder ablegen
             # Letztes Digit in %eax.
             decl    %edx
-            jz      L(srlu2)
+            jz      .Lsrlu2
             nop ; nop ; nop
-L(srlu1:)     # weiteres Digit shiften:
+.Lsrlu1:      # weiteres Digit shiften:
               leal    4(%edi),%edi
               movl    (%edi),%ebx
-              shrdl   shcl %eax,(%edi) # (%edi) um %cl=i Bits rechts shiften, %eax von links reinshiften
+              shrdl   %cl,%eax,(%edi) # (%edi) um %cl=i Bits rechts shiften, %eax von links reinshiften
               # Letztes Digit in %ebx.
               decl    %edx
-              jz      L(srlu3)
+              jz      .Lsrlu3
               # weiteres Digit shiften:
               leal    4(%edi),%edi
               movl    (%edi),%eax
-              shrdl   shcl %ebx,(%edi) # (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften
+              shrdl   %cl,%ebx,(%edi) # (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften
               # Letztes Digit in %eax.
               decl    %edx
-              jnz     L(srlu1)
-L(srlu2:)   movl    %eax,%ebx
-L(srlu3:)   xorl    %eax,%eax       # %eax := 0
-            shrdl   shcl %ebx,%eax  # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
+              jnz     .Lsrlu1
+.Lsrlu2:    movl    %eax,%ebx
+.Lsrlu3:    xorl    %eax,%eax       # %eax := 0
+            shrdl   %cl,%ebx,%eax   # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
-L(srlu4:)   xorl    %eax,%eax       # %eax := 0
+.Lsrlu4:    xorl    %eax,%eax       # %eax := 0
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_shiftright_loop_up:
+            .size asm_shiftright_loop_up,.Lendof_asm_shiftright_loop_up-asm_shiftright_loop_up
 
 # extern uintD asm_shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
-            ALIGN
-C(asm_shiftrightsigned_loop_up:)
+            .p2align 2,,3
+            .type asm_shiftrightsigned_loop_up,@function
+asm_shiftrightsigned_loop_up:
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%edi   # %edi = ptr
@@ -822,31 +884,34 @@ C(asm_shiftrightsigned_loop_up:)
             movl    %ebx,(%edi)     # und wieder ablegen
             # Letztes Digit in %eax.
             decl    %edx
-            jz      L(srslu2)
-L(srslu1:)    # weiteres Digit shiften:
+            jz      .Lsrslu2
+.Lsrslu1:     # weiteres Digit shiften:
               leal    4(%edi),%edi
               movl    (%edi),%ebx
-              shrdl   shcl %eax,(%edi) # (%edi) um %cl=i Bits rechts shiften, %eax von links reinshiften
+              shrdl   %cl,%eax,(%edi) # (%edi) um %cl=i Bits rechts shiften, %eax von links reinshiften
               # Letztes Digit in %ebx.
               decl    %edx
-              jz      L(srslu3)
+              jz      .Lsrslu3
               # weiteres Digit shiften:
               leal    4(%edi),%edi
               movl    (%edi),%eax
-              shrdl   shcl %ebx,(%edi) # (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften
+              shrdl   %cl,%ebx,(%edi) # (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften
               # Letztes Digit in %eax.
               decl    %edx
-              jnz     L(srslu1)
-L(srslu2:)  movl    %eax,%ebx
-L(srslu3:)  xorl    %eax,%eax       # %eax := 0
-            shrdl   shcl %ebx,%eax  # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
+              jnz     .Lsrslu1
+.Lsrslu2:   movl    %eax,%ebx
+.Lsrslu3:   xorl    %eax,%eax       # %eax := 0
+            shrdl   %cl,%ebx,%eax   # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_shiftrightsigned_loop_up:
+            .size asm_shiftrightsigned_loop_up,.Lendof_asm_shiftrightsigned_loop_up-asm_shiftrightsigned_loop_up
 
 # extern uintD asm_shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
-            ALIGN
-C(asm_shiftrightcopy_loop_up:)
+            .p2align 2,,3
+            .type asm_shiftrightcopy_loop_up,@function
+asm_shiftrightcopy_loop_up:
             pushl   %esi            # %esi retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -857,41 +922,44 @@ C(asm_shiftrightcopy_loop_up:)
             negb    %cl             # 32-i
             movl    32(%esp),%eax   # %eax = carry
             orl     %edx,%edx       # count = 0 ?
-            jz      L(srcld3)
+            jz      .Lsrcld3
             subl    %edi,%esi
             # erstes Digit shiften:
             movl    (%edi,%esi),%ebx # *sourceptr in %ebx halten
-            shldl   shcl %ebx,%eax  # carry um %cl=32-i Bits links shiften, dabei *sourceptr rein
+            shldl   %cl,%ebx,%eax   # carry um %cl=32-i Bits links shiften, dabei *sourceptr rein
             movl    %eax,(%edi)     # und als *destptr ablegen
             # Letztes Digit in %ebx.
             decl    %edx
-            jz      L(srcld2)
-L(srcld1:)    # weiteres Digit shiften:
+            jz      .Lsrcld2
+.Lsrcld1:     # weiteres Digit shiften:
               leal    4(%edi),%edi    # sourceptr++, destptr++
               movl    (%edi,%esi),%eax # nächstes Digit nach %eax
-              shldl   shcl %eax,%ebx  # %ebx um %cl=32-i Bits links shiften, %eax von rechts reinshiften
+              shldl   %cl,%eax,%ebx   # %ebx um %cl=32-i Bits links shiften, %eax von rechts reinshiften
               movl    %ebx,(%edi)     # %ebx als *destptr ablegen
               # Letztes Digit in %eax.
               decl    %edx
-              jz      L(srcld3)
+              jz      .Lsrcld3
               # weiteres Digit shiften:
               leal    4(%edi),%edi    # sourceptr++, destptr++
               movl    (%edi,%esi),%ebx # nächstes Digit nach %ebx
-              shldl   shcl %ebx,%eax  # %eax um %cl=32-i Bits links shiften, %ebx von rechts reinshiften
+              shldl   %cl,%ebx,%eax   # %eax um %cl=32-i Bits links shiften, %ebx von rechts reinshiften
               movl    %eax,(%edi)     # %eax als *destptr ablegen
               # Letztes Digit in %ebx.
               decl    %edx
-              jnz     L(srcld1)
-L(srcld2:)  movl    %ebx,%eax
-L(srcld3:)  shll    %cl,%eax        # %eax um 32-i Bits nach links shiften
+              jnz     .Lsrcld1
+.Lsrcld2:   movl    %ebx,%eax
+.Lsrcld3:   shll    %cl,%eax        # %eax um 32-i Bits nach links shiften
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             popl    %esi            # %esi zurück
             ret
+.Lendof_asm_shiftrightcopy_loop_up:
+            .size asm_shiftrightcopy_loop_up,.Lendof_asm_shiftrightcopy_loop_up-asm_shiftrightcopy_loop_up
 
 # extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
-            ALIGN
-C(asm_mulusmall_loop_down:)
+            .p2align 2,,3
+            .type asm_mulusmall_loop_down,@function
+asm_mulusmall_loop_down:
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
@@ -901,26 +969,29 @@ C(asm_mulusmall_loop_down:)
             movl    28(%esp),%ebp   # %ebp = carry := newdigit
             movl    %ecx,%eax
             negl    %eax            # %eax = -len
-            jz      L(msld2)
+            jz      .Lmsld2
             leal    -4(%edi,%eax,4),%edi # %edi = &ptr[-1-len]
             nop ; nop ; nop
-L(msld1:)     movl    (%edi,%ecx,4),%eax # *ptr
+.Lmsld1:      movl    (%edi,%ecx,4),%eax # *ptr
               mull    %ebx               # %edx|%eax := digit * *ptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
               adcl    %edx,%ebp          # Übertrag zum High-Teil %edx dazu, gibt neuen carry
               movl    %eax,(%edi,%ecx,4) # Low-Teil als *ptr ablegen
               decl    %ecx               # count--, ptr--
-              jnz     L(msld1)
-L(msld2:)   movl    %ebp,%eax       # Ergebnis := letzter Übertrag
+              jnz     .Lmsld1
+.Lmsld2:    movl    %ebp,%eax       # Ergebnis := letzter Übertrag
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             popl    %ebp            # %ebp zurück
             ret
+.Lendof_asm_mulusmall_loop_down:
+            .size asm_mulusmall_loop_down,.Lendof_asm_mulusmall_loop_down-asm_mulusmall_loop_down
 
 # extern void asm_mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-            ALIGN
-C(asm_mulu_loop_down:)
+            .p2align 2,,3
+            .type asm_mulu_loop_down,@function
+asm_mulu_loop_down:
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -934,24 +1005,27 @@ C(asm_mulu_loop_down:)
             leal    (%esi,%eax,4),%esi # %esi = &sourceptr[-1-len]
             leal    (%edi,%eax,4),%edi # %edi = &destptr[-1-len]
             xorl    %ebp,%ebp       # %epb = carry := 0
-L(muld1:)     movl    (%esi,%ecx,4),%eax # *sourceptr
+.Lmuld1:      movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
               adcl    %edx,%ebp          # Übertrag zum High-Teil %edx dazu, gibt neuen carry
               movl    %eax,(%edi,%ecx,4) # Low-Teil als *destptr ablegen
               decl    %ecx               # count--, sourceptr--, destptr--
-              jnz     L(muld1)
+              jnz     .Lmuld1
             movl    %ebp,(%edi)     # letzten Übertrag ablegen
             popl    %ebx            # %ebx zurück
             popl    %esi            # %esi zurück
             popl    %edi            # %edi zurück
             popl    %ebp            # %ebp zurück
             ret
+.Lendof_asm_mulu_loop_down:
+            .size asm_mulu_loop_down,.Lendof_asm_mulu_loop_down-asm_mulu_loop_down
 
 # extern uintD asm_muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-            ALIGN
-C(asm_muluadd_loop_down:)
+            .p2align 2,,3
+            .type asm_muluadd_loop_down,@function
+asm_muluadd_loop_down:
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -965,7 +1039,7 @@ C(asm_muluadd_loop_down:)
             leal    (%esi,%eax,4),%esi # %esi = &sourceptr[-1-len]
             leal    (%edi,%eax,4),%edi # %edi = &destptr[-1-len]
             xorl    %ebp,%ebp       # %epb = carry := 0
-L(muald1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
+.Lmuald1:     movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
@@ -973,17 +1047,20 @@ L(muald1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
               addl    %eax,(%edi,%ecx,4) # Low-Teil zu *destptr addieren
               adcl    %edx,%ebp          # zweiten Übertrag zu %edx addieren, gibt neuen carry
               decl    %ecx               # count--, sourceptr--, destptr--
-              jnz     L(muald1)
+              jnz     .Lmuald1
             movl    %ebp,%eax       # Ergebnis := letzter Übertrag
             popl    %ebx            # %ebx zurück
             popl    %esi            # %esi zurück
             popl    %edi            # %edi zurück
             popl    %ebp            # %ebp zurück
             ret
+.Lendof_asm_muluadd_loop_down:
+            .size asm_muluadd_loop_down,.Lendof_asm_muluadd_loop_down-asm_muluadd_loop_down
 
 # extern uintD asm_mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-            ALIGN
-C(asm_mulusub_loop_down:)
+            .p2align 2,,3
+            .type asm_mulusub_loop_down,@function
+asm_mulusub_loop_down:
             pushl   %ebp            # %ebp retten
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
@@ -997,7 +1074,7 @@ C(asm_mulusub_loop_down:)
             leal    (%esi,%eax,4),%esi # %esi = &sourceptr[-1-len]
             leal    (%edi,%eax,4),%edi # %edi = &destptr[-1-len]
             xorl    %ebp,%ebp       # %epb = carry := 0
-L(musld1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
+.Lmusld1:     movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
@@ -1005,38 +1082,44 @@ L(musld1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
               subl    %eax,(%edi,%ecx,4) # Low-Teil von *destptr subtrahieren
               adcl    %edx,%ebp          # zweiten Übertrag zu %edx addieren, gibt neuen carry
               decl    %ecx               # count--, sourceptr--, destptr--
-              jnz     L(musld1)
+              jnz     .Lmusld1
             movl    %ebp,%eax       # Ergebnis := letzter Übertrag
             popl    %ebx            # %ebx zurück
             popl    %esi            # %esi zurück
             popl    %edi            # %edi zurück
             popl    %ebp            # %ebp zurück
             ret
+.Lendof_asm_mulusub_loop_down:
+            .size asm_mulusub_loop_down,.Lendof_asm_mulusub_loop_down-asm_mulusub_loop_down
 
 # extern uintD asm_divu_loop_up (uintD digit, uintD* ptr, uintC len);
-            ALIGN
-C(asm_divu_loop_up:)
+            .p2align 2,,3
+            .type asm_divu_loop_up,@function
+asm_divu_loop_up:
             pushl   %edi            # %edi retten
             pushl   %ebx            # %ebx retten
             movl    12(%esp),%ebx   # %ebx = digit
             movl    16(%esp),%edi   # %edi = ptr
             movl    20(%esp),%ecx   # %ecx = len
             xorl    %edx,%edx       # %edx = Rest := 0
-            jecxz   L(dlu2)         # %ecx = 0 ?
-L(dlu1:)      movl    (%edi),%eax     # nächstes Digit *ptr
+            jecxz   .Ldlu2          # %ecx = 0 ?
+.Ldlu1:       movl    (%edi),%eax     # nächstes Digit *ptr
               divl    %ebx            # Division von %edx|%eax durch %ebx
               movl    %eax,(%edi)     # Quotient %eax ablegen, Rest in %edx behalten
               leal    4(%edi),%edi    # ptr++
               decl    %ecx
-              jnz     L(dlu1)
-L(dlu2:)    movl    %edx,%eax       # Ergebnis := letzter Rest
+              jnz     .Ldlu1
+.Ldlu2:     movl    %edx,%eax       # Ergebnis := letzter Rest
             popl    %ebx            # %ebx zurück
             popl    %edi            # %edi zurück
             ret
+.Lendof_asm_divu_loop_up:
+            .size asm_divu_loop_up,.Lendof_asm_divu_loop_up-asm_divu_loop_up
 
 # extern uintD asm_divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-            ALIGN
-C(asm_divucopy_loop_up:)
+            .p2align 2,,3
+            .type asm_divucopy_loop_up,@function
+asm_divucopy_loop_up:
             pushl   %edi            # %edi retten
             pushl   %esi            # %esi retten
             pushl   %ebx            # %ebx retten
@@ -1045,22 +1128,20 @@ C(asm_divucopy_loop_up:)
             movl    24(%esp),%edi   # %edi = destptr
             movl    28(%esp),%ecx   # %ecx = len
             xorl    %edx,%edx       # %edx = Rest := 0
-            jecxz   L(dclu2)        # %ecx = 0 ?
+            jecxz   .Ldclu2         # %ecx = 0 ?
             subl    %edi,%esi
-L(dclu1:)     movl    (%esi,%edi),%eax # nächstes Digit *ptr
+.Ldclu1:      movl    (%esi,%edi),%eax # nächstes Digit *ptr
               divl    %ebx            # Division von %edx|%eax durch %ebx
               movl    %eax,(%edi)     # Quotient %eax ablegen, Rest in %edx behalten
               leal    4(%edi),%edi    # sourceptr++, destptr++
               decl    %ecx
-              jnz     L(dclu1)
-L(dclu2:)   movl    %edx,%eax       # Ergebnis := letzter Rest
+              jnz     .Ldclu1
+.Ldclu2:    movl    %edx,%eax       # Ergebnis := letzter Rest
             popl    %ebx            # %ebx zurück
             popl    %esi            # %esi zurück
             popl    %edi            # %edi zurück
             ret
-
-#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
-            .section .note.GNU-stack,"",@progbits
-#endif
+.Lendof_asm_divucopy_loop_up:
+            .size asm_divucopy_loop_up,.Lendof_asm_divucopy_loop_up-asm_divucopy_loop_up
 
 #endif

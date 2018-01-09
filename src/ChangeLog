@@ -1,5 +1,49 @@
 2018-01-09  Bruno Haible  <bruno@clisp.org>
 
+	Modernize syntax transformation of assembly-language files.
+	* src/ari_asm_arm.d: Convert to Linux/arm syntax, with %% preprocessor
+	directives. Remove GNU-stack note.
+	* src/ari_asm_hppa.d: Convert to Linux/hppa syntax. Remove GNU-stack
+	note.
+	* src/ari_asm_i386.d, src/sp_asm_i386.d: Convert to Linux/i386 syntax.
+	Remove GNU-stack note.
+	* src/sp_asm_m68k.d: Convert to Linux/m68k syntax. Remove GNU-stack
+	note.
+	* src/ari_asm_mips.d, src/sp_asm_mips.d: Convert to Linux/mips syntax,
+	with %% preprocessor directives.
+	* src/ari_asm_mips64.d: Convert to Linux/mips64 syntax, with %%
+	preprocessor directives.
+	* src/ari_asm_sparc.d, src/sp_asm_sparc.d: Convert to Linux/sparc
+	syntax, with %% preprocessor directives. Remove GNU-stack note.
+	* src/ari_asm_sparc64.d, src/sp_asm_sparc64.d: Convert to Linux/sparc64
+	syntax, with %% preprocessor directives. Remove GNU-stack note.
+	* utils/comment5.sed: New file.
+	* src/asm-arm.sh, src/asm-arm.h: New files, from GNU libffcall.
+	* src/asm-hppa.sh, src/asm-hppa.h: New files, from GNU libffcall.
+	* src/asm-i386.sh, src/asm-i386.h: New files, from GNU libffcall.
+	* src/asmi386.sh, src/asmi386.hh, src/asmi386.h: Remove files.
+	* src/asm-m68k.sh, src/asm-m68k.h: New files, from GNU libffcall.
+	* src/asm-mips.sh, src/asm-mips.h: New files, from GNU libffcall.
+	* src/asm-sparc.sh, src/asm-sparc.h: New files, from GNU libffcall.
+	* src/noexecstack.h: New file, from GNU libffcall.
+	* src/noexecstack-arm.h: Likewise.
+	* Makefile.devel (src/ari_asm_*-macro.c, src/sp_asm_*-macro.c): New
+	rules.
+	(src/asmi386.h, src/ari_asm_i386.msvc.c, src/sp_asm_i386.msvc.c):
+	Remove rules.
+	(build-prerequisites): Update.
+	* makemake.in (SED): Emit new variable.
+	(ASMFLAGS): Don't use K&R mode of SunPRO C.
+	Generate .s file of assembly-language file by processing *-macro.c, in
+	a way similar to GNU libffcall.
+	With MSVC, generate .obj file of assembly-language file by compiling
+	*-macro.c.
+	* src/ari_asm_*-macro.c, src/sp_asm_*-macro.c: New generated files.
+	* src/ari_asm_i386.msvc.c, src/sp_asm_i386.msvc.c: Remove generated
+	files.
+
+2018-01-09  Bruno Haible  <bruno@clisp.org>
+
 	build: Revisit 'cpu' variable.
 	* makemake.in (cpu): Simplify fallback code that should never run.
 	(XCFLAGS): Treat $cpu = armhf like $cpu = arm.

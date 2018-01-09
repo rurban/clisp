@@ -42,6 +42,13 @@
  <warning><para>The use of &sh;-style comments is deprecated.</para></warning>
 </listitem></varlistentry>
 <varlistentry>
+ <term><filename role="clisp-cvs">utils/comment5.sed</filename></term>
+<listitem><simpara>A GNU <command>sed</command> script that converts
+  &sh;-style comments (lines starting with <literal>"# "</literal>) to
+  &c-lang;-style comments (<literal>/**/</literal>). Functionally equivalent
+  to <filename role="clisp-cvs">utils/comment5.c</filename>.</simpara>
+</listitem></varlistentry>
+<varlistentry>
  <term><filename role="clisp-cvs">utils/varbrace.c</filename></term>
 <listitem><simpara>Add braces to &c-lang; source code, so that variable
   declarations (introduced with the pseudo-keyword <literal>var</literal>)
@@ -392,12 +399,21 @@
 <section id="src-asm-misc"><title>Other assembly language stuff</title>
 
 <variablelist>
-<varlistentry><term><filename role="clisp-cvs">src/asmi386.sh</filename></term>
- <listitem><simpara>converts i386 assembler from MIT syntax to a macro syntax
+<varlistentry><term><filename role="clisp-cvs">src/asm-i386.sh</filename></term>
+ <listitem><simpara>converts i386 assembler from Linux/i386 format (with MIT
+   syntax) to a macro syntax
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename role="clisp-cvs">src/asmi386.hh</filename></term>
+<varlistentry><term><filename role="clisp-cvs">src/asm-i386.h</filename></term>
  <listitem><simpara>expands i386 assembler in macro syntax to either MIT
    or Intel syntax</simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">src/noexecstack.h</filename></term>
+ <listitem><simpara>Ensures that a hand-written assembly-language file does
+   not force an executable stack in the process that executes. This is needed
+   because the GNU binutils developers, when adding some security feature
+   in 2005, favoured backward compatibility of already built object files, at
+   the detriment of programmers who write assembly-language. For more details, see
+   <ulink url="https://git.savannah.gnu.org/gitweb/?p=libffcall.git;a=blob;f=porting-tools/execstack/README">the
+     notes in GNU libffcall</ulink>.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 

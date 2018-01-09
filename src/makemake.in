@@ -1081,6 +1081,9 @@ TOUCH='touch'
 # GREP = command for filtering text according to regular expressions
 GREP='grep'
 
+# SED = command for filtering text according to a script
+SED='sed'
+
 # RANLIB = command for finishing libraries
 if [ -z "${RANLIB}" ] ; then RANLIB='ranlib'; fi
 
@@ -2348,9 +2351,13 @@ case " ${XCPPFLAGS} ${XCFLAGS} " in
       SP_ASMD=$SP_ASMD' sp_asm_m68k'
       SP_ASMS=$SP_ASMS' sp_asm_m68k'
     fi
-    if [ "$cpu" = sparc -o "$cpu" = sparc64 ] ; then
-      SP_ASMD=$SP_ASMD" sp_asm_${cpu}"
-      SP_ASMS=$SP_ASMS" sp_asm_${cpu}"
+    if [ "$cpu" = sparc ] ; then
+      SP_ASMD=$SP_ASMD" sp_asm_sparc"
+      SP_ASMS=$SP_ASMS" sp_asm_sparc"
+    fi
+    if [ "$cpu" = sparc64 ] ; then
+      SP_ASMD=$SP_ASMD" sp_asm_sparc64"
+      SP_ASMS=$SP_ASMS" sp_asm_sparc64"
     fi
     if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
       SP_ASMD=$SP_ASMD' sp_asm_mips'
@@ -2634,6 +2641,7 @@ echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 echol "GREP = ${GREP}"
+echol "SED = ${SED}"
 echol "AR = ${AR}"
 echol "RANLIB = ${RANLIB}"
 echol
@@ -3034,36 +3042,64 @@ if [ $TSYS != win32msvc ] ; then
   else
     ASMFLAGS=''
   fi
-  if "$XCC_SUNPRO" ; then
-    # SUNPRO cc preprocessor does too much checking in ANSI C mode, choose K&R mode
-    ASMFLAGS="$ASMFLAGS"' -Xs'
-  fi
-  if [ $XCC_GCC = false ] ; then
-    # Remove the line number information etc. and convert "% ecx" back to "%ecx"
-    # and ". align" to ".align" and ". Lxxx" to ".Lxxx":
-    ASM_FILTER=" | \$(GREP) -v '^#' | \$(GREP) -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\\. ,.,g'"
-  else
-    if [ $AS_UNDERSCORE = false ] ; then
-      # These are the less modern assemblers or SYSV assemblers.
-      # Remove the line number information etc.
-      ASM_FILTER=" | \$(GREP) -v '^#'"
-    else
-      ASM_FILTER=''
-    fi
-    if [ "$cpu" = m68k ] ; then
-      # SunOS 4.0 "as" doesn't understand ! comments.
-      ASM_FILTER="$ASM_FILTER | sed -e 's,!.*\$\$,,'"
-    fi
-  fi
+  # The assembly-language syntax processing is CPU specific.
+  # Makefile.devel uses asm-${asmsyntax}.sh and asm-${asmsyntax}.h (if present).
+  # Keep this computation of asmsyntax consistent with Makefile.devel!
+  case "$cpu" in
+    arm | armhf | arm64)
+      asmsyntax=arm ;;
+    mips | mipsn32 | mips64)
+      asmsyntax=mips ;;
+    powerpc | powerpc64 | powerpc64-elfv2)
+      asmsyntax=powerpc ;;
+    s390 | s390x)
+      asmsyntax=s390 ;;
+    sparc | sparc64)
+      asmsyntax=sparc ;;
+    *)
+      asmsyntax="$cpu" ;;
+  esac
   for f in $ARI_ASMS $SP_ASMS ; do
     # The preprocessor barfs on ari_asm_hppa: "unterminated character constant".
-    # We ignore this:
-    case $f in
-      *hppa) g='-' ;;
-      *)     g='' ;;
+    # This gets ignored, because it occurs in a pipe.
+    echol "${f}.s : ${SRCDIR}${f}-macro.c"
+    # Preprocess, then remove the line number information etc. and convert
+    # "% ecx" back to "%ecx" and ". align" to ".align" and ". Lxxx" to ".Lxxx":
+    case "$asmsyntax" in
+      i386 | x86_64 | sparc)
+        # Use "- <" because the Sun Studio 11 compiler should not assume C syntax of the input.
+        cpp_from='- < '
+        ;;
+      *)
+        cpp_from=''
+        ;;
     esac
-    echol "${f}.s : ${f}.c"
-    echotab "${g}${XCPP}${ASMFLAGS} ${f}.c${ASM_FILTER} > ${f}.s"
+    case "$asmsyntax" in
+      arm)
+        asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,//,@,g' -e 's,\\\$\$,#,g'"
+        ;;
+      hppa)
+        asmfilter2="\$(SED) -e \"s,!,',g\""
+        ;;
+      i386 | x86_64)
+        asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,\\. ,.,g' -e 's,@ ,@,g' -e 's,//.*\$\$,,' -e 's/##//g'"
+        ;;
+      m68k)
+        if [ $AS_UNDERSCORE = true ] ; then
+          final_sed_invocation="\$(SED) -e 's/\\\$\$//g'"
+        else
+          final_sed_invocation="\$(SED) -e 's/\\\$\$/%/g'"
+        fi
+        asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,//.*\$\$,,' | ${final_sed_invocation}"
+        ;;
+      sparc)
+        asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,\\. ,.,g' -e 's,//.*\$\$,,' -e 's,\\\$\$,#,g' -e 's,# ,#,g'"
+        ;;
+      *)
+        asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,//.*\$\$,,'"
+        ;;
+    esac
+    echotab "${XCPP}${ASMFLAGS} -I${SRCDIR} ${cpp_from}${SRCDIR}${f}-macro.c | \$(GREP) -v '^ *#line' | \$(GREP) -v '^#' | ${asmfilter2} > ${f}.s"
     echol
   done
 fi
@@ -3206,21 +3242,28 @@ fi
 
 for f in $ARI_ASMS $SP_ASMS ; do
   if [ $TSYS = win32msvc ] ; then
-    echol "${f}.i : ${f}.msvc.c"
-    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${f}.msvc.c > ${f}.i"
+    echol "${f}.i : ${SRCDIR}${f}-macro.c"
+    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i"
     echol
-    echol "${f}.s : ${f}.msvc.c"
-    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${f}.msvc.c > ${f}.i.c"
-    echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
-    echotab "\$(RM) ${f}.i${TOBJ}"
-    echotab "\$(RM) ${f}.i.c"
+    echol "${f}.s : ${SRCDIR}${f}-macro.c"
+    if false; then # old
+      echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
+      echotab "\$(RM) ${f}.i${TOBJ}"
+      echotab "\$(RM) ${f}.i.c"
+    else
+      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /FAs /Fa${f}.s"
+      echotab "\$(RM) ${f}-macro${TOBJ}"
+    fi
     echol
-    echol "${f}${TOBJ} : ${f}.msvc.c"
-    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${f}.msvc.c > ${f}.i.c"
-    echotab "${XCC} ${XCFLAGS} -c ${f}.i.c"
-    echotab "\$(RM) ${f}${TOBJ}"
-    echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
-    echotab "\$(RM) ${f}.i.c"
+    echol "${f}${TOBJ} : ${SRCDIR}${f}-macro.c"
+    if false; then # old
+      echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /Fo${f}${TOBJ}"
+      echotab "\$(RM) ${f}.i.c"
+    else
+      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /Fo${f}${TOBJ}"
+    fi
     echol
   else
     echol "${f}${TOBJ} : ${f}.s"

@@ -1,5 +1,20 @@
 // Assembly language support for i386 CPU.
-// Bruno Haible 21.6.1997
+// Bruno Haible 1997-06-21
+
+// Copyright (C) 1997-2018 Bruno Haible <bruno@clisp.org>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // An assembly language file for the i386/i486/i586/i686/786 CPUs:
 // On Unix, it is preprocessed and then assembled. NB: This file requires
@@ -17,7 +32,7 @@
 //    #include "config.h"
 //    #endif
 // 2. include this file.
-//    #include "asmi386.h"
+//    #include "asm-i386.h"
 // 3. define all assembly language code.
 
 // The three different assembler syntaxes for this CPU are a MAJOR annoyance.
@@ -88,7 +103,7 @@
 //           This expands to an instruction with two operands. In our notation,
 //           `src' comes first and `dst' second, but they are reversed when
 //           expanding to Intel syntax.
-//   INSN2MOVX(mnemonic,size_suffix,src,dst)
+//   INSN2MOVXL(mnemonic,size_suffix,src,dst)
 //           This expands to an instruction with two operands, of type
 //           movsbl/movzbl, which in some syntaxes requires a second suffix.
 //   INSN2SHCL(mnemonic,size_suffix,src,dst)
@@ -105,6 +120,8 @@
 //           Switch to the code section.
 //   ALIGN(log)
 //           Align to 2^log bytes.
+//   P2ALIGN(log,max)
+//           Align to 2^log bytes, but insert at most max bytes.
 //   GLOBL(name)
 //           Declare `name' to be a global symbol.
 //   DECLARE_FUNCTION(name)
@@ -113,8 +130,8 @@
 //           which symbols are functions.
 //   FUNBEGIN(name)
 //           Start the assembly language code for the C function `name'.
-//   FUNEND()
-//           End the assembly language code for a function.
+//   FUNEND(name,size_expression)
+//           End the assembly language code for the C function 'name'.
 
 // Define the C(name) and L(label) macros.
 #ifdef _MSC_VER
@@ -134,6 +151,9 @@
 // BSD_SYNTAX for GNU assembler version 2.
 // ELF_SYNTAX for SVR4 and Solaris assemblers.
 // INTEL_SYNTAX for MS assembler.
+// Note: INTEL_SYNTAX is not the same syntax as produced by "gcc masm=intel"
+// as there are syntactic differences between that syntax and the one accepted
+// by the MS assembler (for R, MEM_DISP, P2ALIGN, FUNBEGIN, FUNEND etc.).
 #ifdef _MSC_VER
 #define INTEL_SYNTAX
 #else
@@ -149,7 +169,7 @@
 
 #if defined (BSD_SYNTAX) || defined (ELF_SYNTAX)
 #define R(r) %r
-#define NUM(n) $##n
+#define NUM(n) $ n
 #define ADDR(a) $##a
 #define X1
 #define X2
@@ -165,12 +185,15 @@
 #define INSNCONC(mnemonic,size_suffix)mnemonic##size_suffix
 #define INSN1(mnemonic,size_suffix,dst)INSNCONC(mnemonic,size_suffix) dst
 #define INSN2(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) src,dst
-#define INSN2MOVX(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix##l) src,dst
-#if defined(BSD_SYNTAX) || defined(COHERENT)
+#define INSN2MOVXL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix##l) src,dst
+#if defined(__SVR4) /* Solaris */
+#define INSN2SHCL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) src,dst
+#else
 #define INSN2SHCL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) R(cl),src,dst
+#endif
+#if defined(BSD_SYNTAX) || defined(COHERENT)
 #define REPZ repe ;
 #else
-#define INSN2SHCL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,size_suffix) src,dst
 #define REPZ repz ;
 #endif
 #define REP rep ;
@@ -179,6 +202,11 @@
 #endif
 #if defined(ELF_SYNTAX) || defined(__CYGWIN__) || defined(__MINGW32__)
 #define ALIGN(log) .align 1<<log
+#endif
+#if defined(__SVR4) /* Solaris */
+#define P2ALIGN(log,max) .align 1<<log
+#else
+#define P2ALIGN(log,max) .p2align log,,max
 #endif
 #endif
 #ifdef INTEL_SYNTAX
@@ -199,7 +227,7 @@
 #define INSNCONC(mnemonic,suffix)mnemonic##suffix
 #define INSN1(mnemonic,size_suffix,dst)mnemonic dst
 #define INSN2(mnemonic,size_suffix,src,dst)mnemonic dst,src
-#define INSN2MOVX(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,x) dst,src
+#define INSN2MOVXL(mnemonic,size_suffix,src,dst)INSNCONC(mnemonic,x) dst,src
 #define INSN2SHCL(mnemonic,size_suffix,src,dst)mnemonic dst,src,R(cl)
 #define REPZ repz
 #define REP rep
@@ -210,10 +238,14 @@
 #ifdef _MSC_VER
 // No pseudo-ops available in MS inline assembler.
 #define ALIGN(log)
+#define P2ALIGN(log,max)
 #else
 #define ALIGN(log) .align log
+#define P2ALIGN(log,max) .align log
 #endif
 #endif
+
+#define _
 
 #ifdef _MSC_VER
 // No pseudo-ops available in MS inline assembler.
@@ -231,7 +263,7 @@
 // Define the DECLARE_FUNCTION(name) macro.
 #ifdef _MSC_VER
 #define DECLARE_FUNCTION(name)
-#elif defined(__svr4__) || defined(__ELF__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__ROSE__) || defined(_SEQUENT_) || defined(DGUX) || defined(_SCO_COFF) || defined(_SCO_ELF)
+#elif defined(__SVR4) || defined(__ELF__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__ROSE__) || defined(_SEQUENT_) || defined(DGUX) || defined(_SCO_COFF) || defined(_SCO_ELF)
 #define DECLARE_FUNCTION(name) .type C(name),@function
 #else
 #define DECLARE_FUNCTION(name)
@@ -244,13 +276,15 @@
 // and those registers among %ebx,%esi,%edi which occur in the asm code
 // if optimization is enabled).
 #define FUNBEGIN(name) __declspec(naked) void name () { __asm {
-#define FUNEND()                                      }       }
+#define FUNEND(name,size_expression)                  }       }
 #else
-#define FUNBEGIN(name) C(name##:)
-#define FUNEND()
+#define FUNBEGIN(name) C(name):
+#if defined(BSD_SYNTAX)
+#define FUNEND(name,size_expression)
+#else
+#define FUNEND(name,size_expression) .size C(name),.-C(name)
 #endif
-
-#define _
+#endif
 
 // Here we go!
 
