@@ -1,3 +1,9 @@
+2018-01-09  Bruno Haible  <bruno@clisp.org>
+
+	build: Revisit 'cpu' variable.
+	* makemake.in (cpu): Simplify fallback code that should never run.
+	(XCFLAGS): Treat $cpu = armhf like $cpu = arm.
+
 2018-01-07  Sam Steingold  <sds@gnu.org>
 
 	Modernize GDBM interface.
