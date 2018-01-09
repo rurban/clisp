@@ -1,5 +1,11 @@
 2018-01-09  Bruno Haible  <bruno@clisp.org>
 
+	ari_asm for ARM: Avoid warning about deprecated instruction.
+	* ari_asm_arm.d: Use CMP instead of CMPS instruction.
+	* ari_asm_arm-macro.c: Regenerated.
+
+2018-01-09  Bruno Haible  <bruno@clisp.org>
+
 	Modernize syntax transformation of assembly-language files.
 	* src/ari_asm_arm.d: Convert to Linux/arm syntax, with %% preprocessor
 	directives. Remove GNU-stack note.

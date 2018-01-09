@@ -115,7 +115,7 @@ L(divu_6432_3232_l1):
         ADDEQ v3, v3, $1
         MOVEQ v1, v1, ASL $1
 
-        CMPS v3, $0
+        CMP v3, $0
         MOVNE a2, a1, ASL v3
         RSBNE a1, v3, $32
         ORRNE a1, a2, v2, LSR a1
@@ -1061,12 +1061,12 @@ L(asm_dec_loop_down_l2):
         .align 2
         .type asm_neg_loop_down,%function
 FUNBEGIN(asm_neg_loop_down)
-        CMPS a2,$0
+        CMP a2,$0
         MOVEQ a1,$0
         MOVEQS pc,lr
 L(asm_neg_loop_down_l1):
         LDR a3,[a1,$-4]!
-        CMPS a3,$0
+        CMP a3,$0
         BNE L(asm_neg_loop_down_l2)
         SUBS a2,a2,$1
         BNE L(asm_neg_loop_down_l1)
