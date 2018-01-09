@@ -195,7 +195,7 @@ asm_divu_6432_3232_:
         ADDEQ   v3, v3, #1
         MOVEQ   v1, v1, ASL #1
 
-        CMPS    v3, #0
+        CMP     v3, #0
         MOVNE   a2, a1, ASL v3     /* if (!(s==0)) */
         RSBNE   a1, v3, #32        /*   { xhi = (xhi << s) */
         ORRNE   a1, a2, v2, LSR a1 /*         | (xlo >> (32-s)); */
@@ -1387,12 +1387,12 @@ asm_dec_loop_down:
         .align 2
         .type asm_neg_loop_down,%function
 asm_neg_loop_down:
-        CMPS    a2,#0           /* count = 0 ? */
+        CMP     a2,#0           /* count = 0 ? */
         MOVEQ   a1,#0           /* yup, so return 0 */
         MOVEQS  pc,lr
 .Lasm_neg_loop_down_l1:          /* skip all the zero words first */
         LDR     a3,[a1,#-4]!     /* compare words against zero */
-        CMPS    a3,#0            /* downwards in memory */
+        CMP     a3,#0            /* downwards in memory */
         BNE     .Lasm_neg_loop_down_l2 /* non-zero, so negate rest of words */
         SUBS    a2,a2,#1         /* reduce count of words */
         BNE     .Lasm_neg_loop_down_l1 /* more ?, so loop */
