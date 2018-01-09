@@ -95,7 +95,7 @@ FUNBEGIN(asm_divu_6432_3232_)
         MOV a2, v1
         BL asm_divu_3216_1616_
         ORR a1, a1, v3, ASL $16
-        LDMFD sp!, {v1,v2,v3,v4,v5,v6,pc}^
+        LDMFD sp!, {v1,v2,v3,v4,v5,v6,pc}
 
 L(divu_6432_3232_l1):
         MOV v3, $0
@@ -159,7 +159,7 @@ L(divu_6432_3232_l1):
         SUBCS v4, v4, v1
         MOV a2, v4, LSR v3
         ORR a1, a1, v6, ASL $16
-        LDMFD sp!, {v1,v2,v3,v4,v5,v6,pc}^
+        LDMFD sp!, {v1,v2,v3,v4,v5,v6,pc}
         FUNEND(asm_divu_6432_3232_)
         .global C(asm_copy_loop_up)
         .align 2
@@ -187,7 +187,7 @@ L(asm_copy_loop_up_l2):
         STMGEIA a2!,{a3,v1,ip,lr}
         BGT L(asm_copy_loop_up_l2)
         MOV a1,a2
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_copy_loop_up)
         .global C(asm_copy_loop_down)
         .align 2
@@ -215,7 +215,7 @@ L(asm_copy_loop_down_l2):
         STMGEDB a2!,{a3,v1,ip,lr}
         BGT L(asm_copy_loop_down_l2)
         MOV a1,a2
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_copy_loop_down)
         .global C(asm_clear_loop_up)
         .align 2
@@ -244,7 +244,7 @@ L(asm_fill_loop_up_l2):
         SUBS a4,a4,$8
         STMGEIA a1!,{a3,v1,ip,lr}
         BGT L(asm_fill_loop_up_l2)
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_clear_loop_up)
         .global C(asm_clear_loop_down)
         .align 2
@@ -273,7 +273,7 @@ L(asm_fill_loop_down_l2):
         SUBS a4,a4,$8
         STMGEDB a1!,{a3,v1,ip,lr}
         BGT L(asm_fill_loop_down_l2)
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_clear_loop_down)
         .global C(asm_or_loop_up)
         .align 2
@@ -309,7 +309,7 @@ L(asm_or_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_or_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_or_loop_up)
         .global C(asm_xor_loop_up)
         .align 2
@@ -345,7 +345,7 @@ L(asm_xor_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_xor_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_xor_loop_up)
         .global C(asm_and_loop_up)
         .align 2
@@ -381,7 +381,7 @@ L(asm_and_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_and_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_and_loop_up)
         .global C(asm_eqv_loop_up)
         .align 2
@@ -425,7 +425,7 @@ L(asm_eqv_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_eqv_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_eqv_loop_up)
         .global C(asm_nand_loop_up)
         .align 2
@@ -469,7 +469,7 @@ L(asm_nand_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_nand_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_nand_loop_up)
         .global C(asm_nor_loop_up)
         .align 2
@@ -513,7 +513,7 @@ L(asm_nor_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_nor_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_nor_loop_up)
         .global C(asm_andc2_loop_up)
         .align 2
@@ -549,7 +549,7 @@ L(asm_andc2_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_andc2_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_andc2_loop_up)
         .global C(asm_orc2_loop_up)
         .align 2
@@ -593,7 +593,7 @@ L(asm_orc2_loop_up_l2):
         STMIA a1!,{v3,v4,v5,lr}
         SUBS a4,a4,$4
         BGT L(asm_orc2_loop_up_l2)
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_orc2_loop_up)
         .global C(asm_not_loop_up)
         .align 2
@@ -625,7 +625,7 @@ L(asm_not_loop_up_l2):
         STMIA a1!,{a2,a3,ip,lr}
         SUBS a4,a4,$4
         BGT L(asm_not_loop_up_l2)
-        LDMFD sp!,{pc}^
+        LDMFD sp!,{pc}
         FUNEND(asm_not_loop_up)
         .global C(asm_and_test_loop_up)
         .align 2
@@ -667,11 +667,11 @@ L(asm_and_test_loop_up_l2):
         TSTEQ v4,v1
         TSTEQ v5,v2
         TSTEQ lr,ip
-        LDMNEFD sp!,{v1-v6,pc}^
+        LDMNEFD sp!,{v1-v6,pc}
         SUBS a4,a4,$4
         BGT L(asm_and_test_loop_up_l2)
         MOV a1,$0
-        LDMFD sp!,{v1-v6,pc}^
+        LDMFD sp!,{v1-v6,pc}
         FUNEND(asm_and_test_loop_up)
         .global C(asm_test_loop_up)
         .align 2
@@ -705,11 +705,11 @@ L(asm_test_loop_up_l2):
         TEQEQ a3,$0
         TEQEQ v1,$0
         TEQEQ lr,$0
-        LDMNEFD sp!,{v1,pc}^
+        LDMNEFD sp!,{v1,pc}
         SUBS a4,a4,$4
         BGT L(asm_test_loop_up_l2)
         MOV a1,$0
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_test_loop_up)
         .global C(asm_compare_loop_up)
         .align 2
@@ -756,11 +756,11 @@ L(asm_compare_loop_up_l2):
         CMPEQ v5,v2
         CMPEQ lr,ip
         MVNLO a1,$0
-        LDMNEFD sp!,{v1-v6,pc}^
+        LDMNEFD sp!,{v1-v6,pc}
         SUBS a4,a4,$4
         BGT L(asm_compare_loop_up_l2)
         MOV a1,$0
-        LDMFD sp!,{v1-v6,pc}^
+        LDMFD sp!,{v1-v6,pc}
         FUNEND(asm_compare_loop_up)
         .global C(asm_addto_loop_down)
         .align 2
@@ -795,7 +795,7 @@ L(asm_add_loop_down_l0):
         BICS a4,a4,$3
         BNE L(asm_add_loop_down_l3)
         ADCEQ a1,a4,a4
-        LDMEQFD sp!,{v6,pc}^
+        LDMEQFD sp!,{v6,pc}
 L(asm_add_loop_down_l1):
         BICS a4,a4,$3
         MOVEQ a1,$0
@@ -816,7 +816,7 @@ L(asm_add_loop_down_l2):
         TEQ a4,$0
         BNE L(asm_add_loop_down_l2)
         ADC a1,a4,a4
-        LDMFD sp!,{v1-v6,pc}^
+        LDMFD sp!,{v1-v6,pc}
         FUNEND(asm_addto_loop_down)
         .global C(asm_inc_loop_down)
         .align 2
@@ -854,11 +854,11 @@ L(asm_inc_loop_down_l2):
         ADDEQS a3,a3,$1
         ADDEQS a2,a2,$1
         STMDB ip!,{a2,a3,v1,lr}
-        LDMNEFD sp!,{v1,pc}^
+        LDMNEFD sp!,{v1,pc}
         SUBS a4,a4,$4
         BGT L(asm_inc_loop_down_l2)
         MOV a1,$1
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_inc_loop_down)
         .global C(asm_sub_loop_down)
         .align 2
@@ -876,7 +876,7 @@ FUNBEGIN(asm_sub_loop_down)
 L(asm_sub_loop_down_l4):
         BICS a4,a4,$3
         SBCEQ a1,a4,a4
-        LDMEQFD sp!,{v6,pc}^
+        LDMEQFD sp!,{v6,pc}
         STMFD sp!,{v1-v5}
         B L(asm_sub_loop_down_l2)
 L(asm_sub_loop_down_l0):
@@ -909,7 +909,7 @@ L(asm_sub_loop_down_l2):
         TEQ a4,$0
         BNE L(asm_sub_loop_down_l2)
         SBC a1,a4,a4
-        LDMFD sp!,{v1-v6,pc}^
+        LDMFD sp!,{v1-v6,pc}
         FUNEND(asm_sub_loop_down)
         .global C(asm_subx_loop_down)
         .align 2
@@ -930,7 +930,7 @@ L(asm_subx_loop_down_lsub):
 L(asm_subx_loop_down_l4):
         BICS a4,a4,$3
         SBCEQ a1,a4,a4
-        LDMEQFD sp!,{v6,pc}^
+        LDMEQFD sp!,{v6,pc}
         STMFD sp!,{v1-v5}
         B L(asm_subx_loop_down_l2)
 L(asm_subx_loop_down_l0):
@@ -962,7 +962,7 @@ L(asm_subx_loop_down_l2):
         TEQ a4,$0
         BNE L(asm_subx_loop_down_l2)
         SBC a1,a4,a4
-        LDMFD sp!,{v1-v6,pc}^
+        LDMFD sp!,{v1-v6,pc}
         FUNEND(asm_subx_loop_down)
         .global C(asm_subfrom_loop_down)
         .align 2
@@ -980,7 +980,7 @@ FUNBEGIN(asm_subfrom_loop_down)
 L(asm_subfrom_loop_down_l4):
         BICS a4,a3,$3
         SBCEQ a1,a4,a4
-        LDMEQFD sp!,{pc}^
+        LDMEQFD sp!,{pc}
         STMFD sp!,{v1-v5}
         B L(asm_subfrom_loop_down_l2)
 L(asm_subfrom_loop_down_l0):
@@ -1013,7 +1013,7 @@ L(asm_subfrom_loop_down_l2):
         TEQ a4,$0
         BNE L(asm_subfrom_loop_down_l2)
         SBC a1,a4,a4
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
         FUNEND(asm_subfrom_loop_down)
         .global C(asm_dec_loop_down)
         .align 2
@@ -1051,11 +1051,11 @@ L(asm_dec_loop_down_l2):
         SUBCCS a3,a3,$1
         SUBCCS a2,a2,$1
         STMDB ip!,{a2,a3,v1,lr}
-        LDMCSFD sp!,{v1,pc}^
+        LDMCSFD sp!,{v1,pc}
         SUBS a4,a4,$4
         BGT L(asm_dec_loop_down_l2)
         MVN a1,$0
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
         FUNEND(asm_dec_loop_down)
         .global C(asm_neg_loop_down)
         .align 2
@@ -1107,7 +1107,7 @@ L(asm_neg_loop_down_l4):
         SUBS a4,a4,$4
         BGT L(asm_neg_loop_down_l4)
         MVN a1,$0
-        LDMFD sp!,{pc}^
+        LDMFD sp!,{pc}
         FUNEND(asm_neg_loop_down)
         .global C(asm_shift1left_loop_down)
         .align 2
@@ -1145,7 +1145,7 @@ L(asm_shift1left_loop_down_l2):
         TEQ a4,$0
         BNE L(asm_shift1left_loop_down_l2)
         ADC a1,a4,a4
-        LDMFD sp!,{pc}^
+        LDMFD sp!,{pc}
         FUNEND(asm_shift1left_loop_down)
         .global C(asm_shiftleft_loop_down)
         .align 2
@@ -1172,7 +1172,7 @@ FUNBEGIN(asm_shiftleft_loop_down)
 L(asm_shiftleft_loop_down_l1):
         BICS ip,a2,$3
         MOVEQ a1,a4
-        LDMEQFD sp!,{v6,pc}^
+        LDMEQFD sp!,{v6,pc}
         STMFD sp!,{v1-v3}
 L(asm_shiftleft_loop_down_l2):
         LDMDB a1,{a2,v1,v2,v3}
@@ -1188,7 +1188,7 @@ L(asm_shiftleft_loop_down_l2):
         SUBS ip,ip,$4
         BGT L(asm_shiftleft_loop_down_l2)
         MOV a1,a4
-        LDMFD sp!,{v1-v3,v6,pc}^
+        LDMFD sp!,{v1-v3,v6,pc}
         FUNEND(asm_shiftleft_loop_down)
         .global C(asm_shiftleftcopy_loop_down)
         .align 2
@@ -1216,7 +1216,7 @@ FUNBEGIN(asm_shiftleftcopy_loop_down)
 L(asm_shiftleftcopy_loop_down_l1):
         BICS ip,a3,$3
         MOVEQ a1,v5
-        LDMEQFD sp!,{v5,v6,pc}^
+        LDMEQFD sp!,{v5,v6,pc}
         STMFD sp!,{v1-v3}
 L(asm_shiftleftcopy_loop_down_l2):
         LDMDB a1!,{a3,v1,v2,v3}
@@ -1232,7 +1232,7 @@ L(asm_shiftleftcopy_loop_down_l2):
         SUBS ip,ip,$4
         BGT L(asm_shiftleftcopy_loop_down_l2)
         MOV a1,v5
-        LDMFD sp!,{v1-v3,v5,v6,pc}^
+        LDMFD sp!,{v1-v3,v5,v6,pc}
         FUNEND(asm_shiftleftcopy_loop_down)
         .global C(asm_shift1right_loop_up)
         .align 2
@@ -1270,7 +1270,7 @@ L(asm_shift1right_loop_up_l2):
         TEQ a4,$0
         BNE L(asm_shift1right_loop_up_l2)
         MOV a1,a4,rrx
-        LDMFD sp!,{pc}^
+        LDMFD sp!,{pc}
         FUNEND(asm_shift1right_loop_up)
         .global C(asm_shiftright_loop_up)
         .align 2
@@ -1299,7 +1299,7 @@ L(asm_shiftright_loop_up_l0):
 L(asm_shiftright_loop_up_l1):
         BICS ip,a2,$3
         MOVEQ a1,a4
-        LDMEQFD sp!,{v6,pc}^
+        LDMEQFD sp!,{v6,pc}
         STMFD sp!,{v1-v3}
 L(asm_shiftright_loop_up_l2):
         LDMIA a1,{v1,v2,v3,lr}
@@ -1315,7 +1315,7 @@ L(asm_shiftright_loop_up_l2):
         SUBS ip,ip,$4
         BGT L(asm_shiftright_loop_up_l2)
         MOV a1,a4
-        LDMFD sp!,{v1-v3,v6,pc}^
+        LDMFD sp!,{v1-v3,v6,pc}
         .global C(asm_shiftrightsigned_loop_up)
         .align 2
         .type asm_shiftrightsigned_loop_up,%function
@@ -1355,7 +1355,7 @@ L(asm_shiftrightcopy_loop_up_l0):
 L(asm_shiftrightcopy_loop_up_l1):
         BICS ip,a3,$3
         MOVEQ a1,v5
-        LDMEQFD sp!,{v5,v6,pc}^
+        LDMEQFD sp!,{v5,v6,pc}
         STMFD sp!,{v1-v3}
 L(asm_shiftrightcopy_loop_up_l2):
         LDMIA a1!,{v1,v2,v3,lr}
@@ -1371,7 +1371,7 @@ L(asm_shiftrightcopy_loop_up_l2):
         SUBS ip,ip,$4
         BGT L(asm_shiftrightcopy_loop_up_l2)
         MOV a1,v5
-        LDMFD sp!,{v1-v3,v5,v6,pc}^
+        LDMFD sp!,{v1-v3,v5,v6,pc}
         FUNEND(asm_shiftrightcopy_loop_up)
 
 #ifndef HAVE_umull
@@ -1409,7 +1409,7 @@ L(asm_mulusmall_loop_down_l1):
         SUBS a3,a3,$1
         BNE L(asm_mulusmall_loop_down_l1)
         MOV a1,a4
-        LDMFD sp!,{v1,pc}^
+        LDMFD sp!,{v1,pc}
 #else
         STMFD sp!,{v1-v2,lr}
 L(asm_mulusmall_loop_down_l1):
@@ -1431,7 +1431,7 @@ L(asm_mulusmall_loop_down_l1):
         SUBS a3,a3,$1
         BNE L(asm_mulusmall_loop_down_l1)
         MOV a1,a4
-        LDMFD sp!,{v1-v2,pc}^
+        LDMFD sp!,{v1-v2,pc}
 #endif
         FUNEND(asm_mulusmall_loop_down)
         .global C(asm_mulu_loop_down)
@@ -1450,7 +1450,7 @@ L(asm_mulu_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_mulu_loop_down_l1)
         STR v5,[a3,$-4]!
-        LDMFD sp!,{v1,v5,pc}^
+        LDMFD sp!,{v1,v5,pc}
 #else
         STMFD sp!,{v1-v5,lr}
         MOV v5,$0
@@ -1463,7 +1463,7 @@ L(asm_mulu_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_mulu_loop_down_l1)
         STR v5,[a3,$-4]!
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
 #endif
         FUNEND(asm_mulu_loop_down)
         .global C(asm_muluadd_loop_down)
@@ -1485,7 +1485,7 @@ L(asm_muluadd_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_muluadd_loop_down_l1)
         MOV a1,v5
-        LDMFD sp!,{v1,v5,pc}^
+        LDMFD sp!,{v1,v5,pc}
 #else
         STMFD sp!,{v1-v5,lr}
         MOV v5,$0
@@ -1501,7 +1501,7 @@ L(asm_muluadd_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_muluadd_loop_down_l1)
         MOV a1,v5
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
 #endif
         FUNEND(asm_muluadd_loop_down)
         .global C(asm_mulusub_loop_down)
@@ -1523,7 +1523,7 @@ L(asm_mulusub_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_mulusub_loop_down_l1)
         MOV a1,v5
-        LDMFD sp!,{v1,v5,pc}^
+        LDMFD sp!,{v1,v5,pc}
 #else
         STMFD sp!,{v1-v5,lr}
         MOV v5,$0
@@ -1539,7 +1539,7 @@ L(asm_mulusub_loop_down_l1):
         SUBS a4,a4,$1
         BNE L(asm_mulusub_loop_down_l1)
         MOV a1,v5
-        LDMFD sp!,{v1-v5,pc}^
+        LDMFD sp!,{v1-v5,pc}
 #endif
         FUNEND(asm_mulusub_loop_down)
 #if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__

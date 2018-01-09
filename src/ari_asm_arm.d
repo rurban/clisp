@@ -175,7 +175,7 @@ asm_divu_6432_3232_:
         MOV     a2, v1
         BL      asm_divu_3216_1616_
         ORR     a1, a1, v3, ASL #16 /* = highlow32(q1,q0) */
-        LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
+        LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}
 
 .Ldivu_6432_3232_l1:
         MOV     v3, #0          /* s = 0 */
@@ -239,7 +239,7 @@ asm_divu_6432_3232_:
         SUBCS   v4, v4, v1          /*       r -= y } */
         MOV     a2, v4, LSR v3      /* remainder = r >> s */
         ORR     a1, a1, v6, ASL #16 /* return highlow32(q1,q0) */
-        LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
+        LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}
         .size asm_divu_6432_3232_,.-asm_divu_6432_3232_
 
 /* extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
@@ -276,7 +276,7 @@ asm_copy_loop_up:
         STMGEIA a2!,{a3,v1,ip,lr} /* 4 more words */
         BGT     .Lasm_copy_loop_up_l2 /* and loop */
         MOV     a1,a2             /* return addr of last word stored */
-        LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        LDMFD   sp!,{v1,pc}       /* restore work regs and return */
         .size asm_copy_loop_up,.-asm_copy_loop_up
 
 /* extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -313,7 +313,7 @@ asm_copy_loop_down:
         STMGEDB a2!,{a3,v1,ip,lr} /* 4 more words */
         BGT     .Lasm_copy_loop_down_l2 /* and loop */
         MOV     a1,a2             /* return addr of last word stored */
-        LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        LDMFD   sp!,{v1,pc}       /* restore work regs and return */
         .size asm_copy_loop_down,.-asm_copy_loop_down
 
 /* extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
@@ -360,7 +360,7 @@ asm_fill_loop_up:
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         STMGEIA a1!,{a3,v1,ip,lr} /* if count still positive then store 4 */
         BGT     .Lasm_fill_loop_up_l2 /* more and loop */
-        LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        LDMFD   sp!,{v1,pc}       /* restore work regs and return */
         .size asm_clear_loop_up,.-asm_clear_loop_up
 
 
@@ -408,7 +408,7 @@ asm_fill_loop_down:
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         STMGEDB a1!,{a3,v1,ip,lr} /* if count still positive then store 4 */
         BGT     .Lasm_fill_loop_down_l2 /* more and loop */
-        LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        LDMFD   sp!,{v1,pc}       /* restore work regs and return */
         .size asm_clear_loop_down,.-asm_clear_loop_down
 
 /* extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -453,7 +453,7 @@ asm_or_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_or_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_or_loop_up,.-asm_or_loop_up
 
 /* extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -498,7 +498,7 @@ asm_xor_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_xor_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_xor_loop_up,.-asm_xor_loop_up
 
 /* extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -543,7 +543,7 @@ asm_and_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_and_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_and_loop_up,.-asm_and_loop_up
 
 /* extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -596,7 +596,7 @@ asm_eqv_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_eqv_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_eqv_loop_up,.-asm_eqv_loop_up
 
 /* extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -649,7 +649,7 @@ asm_nand_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_nand_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_nand_loop_up,.-asm_nand_loop_up
 
 /* extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -702,7 +702,7 @@ asm_nor_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_nor_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_nor_loop_up,.-asm_nor_loop_up
 
 /* extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -747,7 +747,7 @@ asm_andc2_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_andc2_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^  /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}   /* restore work regs and return */
         .size asm_andc2_loop_up,.-asm_andc2_loop_up
 
 /* extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -800,7 +800,7 @@ asm_orc2_loop_up:
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_orc2_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}  /* restore work regs and return */
         .size asm_orc2_loop_up,.-asm_orc2_loop_up
 
 /* extern void asm_not_loop_up (uintD* xptr, uintC count);
@@ -840,7 +840,7 @@ asm_not_loop_up:
         STMIA   a1!,{a2,a3,ip,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_not_loop_up_l2 /* if count still positive then loop */
-        LDMFD   sp!,{pc}^       /* restore work regs and return */
+        LDMFD   sp!,{pc}        /* restore work regs and return */
         .size asm_not_loop_up,.-asm_not_loop_up
 
 /* extern void asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -891,11 +891,11 @@ asm_and_test_loop_up:
         TSTEQ   v4,v1
         TSTEQ   v5,v2
         TSTEQ   lr,ip
-        LDMNEFD sp!,{v1-v6,pc}^
+        LDMNEFD sp!,{v1-v6,pc}
         SUBS    a4,a4,#4            /* decrement counter by 4 */
         BGT     .Lasm_and_test_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
-        LDMFD   sp!,{v1-v6,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v6,pc}  /* restore work regs and return */
         .size asm_and_test_loop_up,.-asm_and_test_loop_up
 
 /* extern void asm_test_loop_up (uintD* xptr, uintC count);
@@ -937,11 +937,11 @@ asm_test_loop_up:
         TEQEQ   a3,#0
         TEQEQ   v1,#0
         TEQEQ   lr,#0
-        LDMNEFD sp!,{v1,pc}^
+        LDMNEFD sp!,{v1,pc}
         SUBS    a4,a4,#4        /* decrement counter by 4 */
         BGT     .Lasm_test_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
-        LDMFD   sp!,{v1,pc}^    /* restore work regs and return */
+        LDMFD   sp!,{v1,pc}     /* restore work regs and return */
         .size asm_test_loop_up,.-asm_test_loop_up
 
 /* extern void asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -1000,11 +1000,11 @@ asm_compare_loop_up:
         CMPEQ   v5,v2
         CMPEQ   lr,ip
         MVNLO   a1,#0           /* x < y -> -1 (a1 already holds +1) */
-        LDMNEFD sp!,{v1-v6,pc}^
+        LDMNEFD sp!,{v1-v6,pc}
         SUBS    a4,a4,#4           /* decrement counter by 4 */
         BGT     .Lasm_compare_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
-        LDMFD   sp!,{v1-v6,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v6,pc}  /* restore work regs and return */
         .size asm_compare_loop_up,.-asm_compare_loop_up
 
 /* extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -1061,7 +1061,7 @@ asm_add_loop_down:
         BICS    a4,a4,#3         /* set counter to multiple of 4 */
         BNE     .Lasm_add_loop_down_l3 /* branch if more adds to do */
         ADCEQ   a1,a4,a4         /* set result to Carry (a4 is 0) */
-        LDMEQFD sp!,{v6,pc}^     /* and return */
+        LDMEQFD sp!,{v6,pc}      /* and return */
 .Lasm_add_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no adds, so C = 0 */
@@ -1082,7 +1082,7 @@ asm_add_loop_down:
         TEQ     a4,#0           /* are we done ? */
         BNE     .Lasm_add_loop_down_l2 /* if count non-zero then loop */
         ADC     a1,a4,a4         /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{v1-v6,pc}^  /* restore work regs and return */
+        LDMFD   sp!,{v1-v6,pc}   /* restore work regs and return */
         .size asm_addto_loop_down,.-asm_addto_loop_down
 
 /* extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
@@ -1129,11 +1129,11 @@ asm_inc_loop_down:
         ADDEQS  a3,a3,#1
         ADDEQS  a2,a2,#1
         STMDB   ip!,{a2,a3,v1,lr} /* store 4 results */
-        LDMNEFD sp!,{v1,pc}^      /* return 0 if any result non-zero */
+        LDMNEFD sp!,{v1,pc}       /* return 0 if any result non-zero */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_inc_loop_down_l2 /* if count still positive then loop */
         MOV     a1,#1
-        LDMFD   sp!,{v1,pc}^    /* restore work regs and return 1 */
+        LDMFD   sp!,{v1,pc}     /* restore work regs and return 1 */
         .size asm_inc_loop_down,.-asm_inc_loop_down
 
 /* extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
@@ -1162,7 +1162,7 @@ asm_sub_loop_down:
 .Lasm_sub_loop_down_l4:     /* drop through for better instr. timings */
         BICS    a4,a4,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
-        LDMEQFD sp!,{v6,pc}^     /* and return */
+        LDMEQFD sp!,{v6,pc}      /* and return */
         STMFD   sp!,{v1-v5}      /* save work regs */
         B       .Lasm_sub_loop_down_l2 /* branch if more subtracts to do */
 .Lasm_sub_loop_down_l0:
@@ -1195,7 +1195,7 @@ asm_sub_loop_down:
         TEQ     a4,#0           /* are we done ? */
         BNE     .Lasm_sub_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4         /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{v1-v6,pc}^  /* restore work regs and return */
+        LDMFD   sp!,{v1-v6,pc}   /* restore work regs and return */
         .size asm_sub_loop_down,.-asm_sub_loop_down
 
 /* extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
@@ -1228,7 +1228,7 @@ asm_subx_loop_down:
 .Lasm_subx_loop_down_l4:    /* drop through for better instr. timings */
         BICS    a4,a4,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
-        LDMEQFD sp!,{v6,pc}^      /* and return */
+        LDMEQFD sp!,{v6,pc}       /* and return */
         STMFD   sp!,{v1-v5}       /* save work regs */
         B       .Lasm_subx_loop_down_l2 /* branch if more subtracts to do */
 .Lasm_subx_loop_down_l0:
@@ -1260,7 +1260,7 @@ asm_subx_loop_down:
         TEQ     a4,#0           /* are we done ? */
         BNE     .Lasm_subx_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4          /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{v1-v6,pc}^   /* restore work regs and return */
+        LDMFD   sp!,{v1-v6,pc}    /* restore work regs and return */
         .size asm_subx_loop_down,.-asm_subx_loop_down
 
 /* extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -1288,7 +1288,7 @@ asm_subfrom_loop_down:
 .Lasm_subfrom_loop_down_l4: /* drop through for better instr. timings */
         BICS    a4,a3,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
-        LDMEQFD sp!,{pc}^   /* and return */
+        LDMEQFD sp!,{pc}    /* and return */
         STMFD   sp!,{v1-v5} /* save work regs */
         B       .Lasm_subfrom_loop_down_l2 /* branch if more subtracts to do */
 .Lasm_subfrom_loop_down_l0:
@@ -1321,7 +1321,7 @@ asm_subfrom_loop_down:
         TEQ     a4,#0           /* are we done ? */
         BNE     .Lasm_subfrom_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4             /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{v1-v5,pc}^      /* restore work regs and return */
+        LDMFD   sp!,{v1-v5,pc}       /* restore work regs and return */
         .size asm_subfrom_loop_down,.-asm_subfrom_loop_down
 
 /* extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
@@ -1368,11 +1368,11 @@ asm_dec_loop_down:
         SUBCCS  a3,a3,#1
         SUBCCS  a2,a2,#1
         STMDB   ip!,{a2,a3,v1,lr} /* store 4 results */
-        LDMCSFD sp!,{v1,pc}^      /* return 0 if any carry */
+        LDMCSFD sp!,{v1,pc}       /* return 0 if any carry */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_dec_loop_down_l2 /* if count still positive then loop */
         MVN     a1,#0
-        LDMFD   sp!,{v1,pc}^    /* restore work regs and return -1 */
+        LDMFD   sp!,{v1,pc}     /* restore work regs and return -1 */
         .size asm_dec_loop_down,.-asm_dec_loop_down
 
 /* extern void asm_neg_loop_down (uintD* ptr, uintC count);
@@ -1433,7 +1433,7 @@ asm_neg_loop_down:
         SUBS    a4,a4,#4          /* decrement counter by 4 */
         BGT     .Lasm_neg_loop_down_l4 /* if count still positive then loop */
         MVN     a1,#0            /* set result to -1 */
-        LDMFD   sp!,{pc}^        /* restore work regs and return -1 */
+        LDMFD   sp!,{pc}         /* restore work regs and return -1 */
         .size asm_neg_loop_down,.-asm_neg_loop_down
 
 /* extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
@@ -1479,7 +1479,7 @@ asm_shift1left_loop_down:
         TEQ     a4,#0                   /* are we done ? */
         BNE     .Lasm_shift1left_loop_down_l2 /* if count non-zero then loop */
         ADC     a1,a4,a4        /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{pc}^       /* restore work regs and return 1 */
+        LDMFD   sp!,{pc}        /* restore work regs and return 1 */
         .size asm_shift1left_loop_down,.-asm_shift1left_loop_down
 
 /* extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
@@ -1516,7 +1516,7 @@ asm_shiftleft_loop_down:
 .Lasm_shiftleft_loop_down_l1:
         BICS    ip,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a4           /* if zero then we're done */
-        LDMEQFD sp!,{v6,pc}^    /* so return last shift out */
+        LDMEQFD sp!,{v6,pc}     /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
 .Lasm_shiftleft_loop_down_l2:
         LDMDB   a1,{a2,v1,v2,v3} /* load 4 words in one go */
@@ -1532,7 +1532,7 @@ asm_shiftleft_loop_down:
         SUBS    ip,ip,#4               /* decrement counter by 4 */
         BGT     .Lasm_shiftleft_loop_down_l2 /* if count still positive then loop */
         MOV     a1,a4                  /* result = last shift out */
-        LDMFD   sp!,{v1-v3,v6,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v3,v6,pc}  /* restore work regs and return */
         .size asm_shiftleft_loop_down,.-asm_shiftleft_loop_down
 
 /* extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
@@ -1570,7 +1570,7 @@ asm_shiftleftcopy_loop_down:
 .Lasm_shiftleftcopy_loop_down_l1:
         BICS    ip,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,v5           /* if zero then we're done */
-        LDMEQFD sp!,{v5,v6,pc}^ /* so return last shift out */
+        LDMEQFD sp!,{v5,v6,pc}  /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
 .Lasm_shiftleftcopy_loop_down_l2:
         LDMDB   a1!,{a3,v1,v2,v3} /* load 4 words in one go */
@@ -1586,7 +1586,7 @@ asm_shiftleftcopy_loop_down:
         SUBS    ip,ip,#4                   /* decrement counter by 4 */
         BGT     .Lasm_shiftleftcopy_loop_down_l2 /* if count still positive then loop */
         MOV     a1,v5                      /* result = last shift out */
-        LDMFD   sp!,{v1-v3,v5,v6,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v3,v5,v6,pc}  /* restore work regs and return */
         .size asm_shiftleftcopy_loop_down,.-asm_shiftleftcopy_loop_down
 
 /* extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
@@ -1633,7 +1633,7 @@ asm_shift1right_loop_up:
         TEQ     a4,#0                  /* are we done ? */
         BNE     .Lasm_shift1right_loop_up_l2 /* if count non-zero then loop */
         MOV     a1,a4,rrx       /* set result to Carry (a4 is 0) */
-        LDMFD   sp!,{pc}^       /* restore work regs and return 1 */
+        LDMFD   sp!,{pc}        /* restore work regs and return 1 */
         .size asm_shift1right_loop_up,.-asm_shift1right_loop_up
 
 /* extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
@@ -1671,7 +1671,7 @@ asm_shiftright_loop_up:
 .Lasm_shiftright_loop_up_l1:
         BICS    ip,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a4           /* if zero then we're done */
-        LDMEQFD sp!,{v6,pc}^    /* so return last shift out */
+        LDMEQFD sp!,{v6,pc}     /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
 .Lasm_shiftright_loop_up_l2:
         LDMIA   a1,{v1,v2,v3,lr} /* load 4 words in one go */
@@ -1687,7 +1687,7 @@ asm_shiftright_loop_up:
         SUBS    ip,ip,#4              /* decrement counter by 4 */
         BGT     .Lasm_shiftright_loop_up_l2 /* if count still positive then loop */
         MOV     a1,a4                 /* result = last shift out */
-        LDMFD   sp!,{v1-v3,v6,pc}^    /* restore work regs and return */
+        LDMFD   sp!,{v1-v3,v6,pc}     /* restore work regs and return */
 
 /* extern uintD asm_shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
        entry
@@ -1747,7 +1747,7 @@ asm_shiftrightcopy_loop_up:
 .Lasm_shiftrightcopy_loop_up_l1:
         BICS    ip,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,v5           /* if zero then we're done */
-        LDMEQFD sp!,{v5,v6,pc}^ /* so return last shift out */
+        LDMEQFD sp!,{v5,v6,pc}  /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
 .Lasm_shiftrightcopy_loop_up_l2:
         LDMIA   a1!,{v1,v2,v3,lr} /* load 4 words in one go */
@@ -1763,7 +1763,7 @@ asm_shiftrightcopy_loop_up:
         SUBS    ip,ip,#4                  /* decrement counter by 4 */
         BGT     .Lasm_shiftrightcopy_loop_up_l2 /* if count still positive then loop */
         MOV     a1,v5                     /* result = last shift out */
-        LDMFD   sp!,{v1-v3,v5,v6,pc}^ /* restore work regs and return */
+        LDMFD   sp!,{v1-v3,v5,v6,pc}  /* restore work regs and return */
         .size asm_shiftrightcopy_loop_up,.-asm_shiftrightcopy_loop_up
 
 %%ifndef HAVE_umull
@@ -1819,7 +1819,7 @@ asm_mulusmall_loop_down:
         SUBS    a3,a3,#1       /* len-- */
         BNE     .Lasm_mulusmall_loop_down_l1 /* until len==0 */
         MOV     a1,a4                  /* return carry */
-        LDMFD   sp!,{v1,pc}^
+        LDMFD   sp!,{v1,pc}
 %%else
         STMFD   sp!,{v1-v2,lr}
 .Lasm_mulusmall_loop_down_l1:
@@ -1841,7 +1841,7 @@ asm_mulusmall_loop_down:
         SUBS    a3,a3,#1       /* len-- */
         BNE     .Lasm_mulusmall_loop_down_l1 /* until len==0 */
         MOV     a1,a4                  /* return carry */
-        LDMFD   sp!,{v1-v2,pc}^
+        LDMFD   sp!,{v1-v2,pc}
 %%endif
         .size asm_mulusmall_loop_down,.-asm_mulusmall_loop_down
 
@@ -1869,7 +1869,7 @@ asm_mulu_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_mulu_loop_down_l1 /* until len==0 */
         STR     v5,[a3,#-4]!      /* *--destptr = carry */
-        LDMFD   sp!,{v1,v5,pc}^
+        LDMFD   sp!,{v1,v5,pc}
 %%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
@@ -1882,7 +1882,7 @@ asm_mulu_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_mulu_loop_down_l1 /* until len==0 */
         STR     v5,[a3,#-4]!      /* *--destptr = carry */
-        LDMFD   sp!,{v1-v5,pc}^
+        LDMFD   sp!,{v1-v5,pc}
 %%endif
         .size asm_mulu_loop_down,.-asm_mulu_loop_down
 
@@ -1913,7 +1913,7 @@ asm_muluadd_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_muluadd_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
-        LDMFD   sp!,{v1,v5,pc}^
+        LDMFD   sp!,{v1,v5,pc}
 %%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
@@ -1929,7 +1929,7 @@ asm_muluadd_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_muluadd_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
-        LDMFD   sp!,{v1-v5,pc}^
+        LDMFD   sp!,{v1-v5,pc}
 %%endif
         .size asm_muluadd_loop_down,.-asm_muluadd_loop_down
 
@@ -1960,7 +1960,7 @@ asm_mulusub_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_mulusub_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
-        LDMFD   sp!,{v1,v5,pc}^
+        LDMFD   sp!,{v1,v5,pc}
 %%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
@@ -1976,7 +1976,7 @@ asm_mulusub_loop_down:
         SUBS    a4,a4,#1       /* len-- */
         BNE     .Lasm_mulusub_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
-        LDMFD   sp!,{v1-v5,pc}^
+        LDMFD   sp!,{v1-v5,pc}
 %%endif
         .size asm_mulusub_loop_down,.-asm_mulusub_loop_down
 
