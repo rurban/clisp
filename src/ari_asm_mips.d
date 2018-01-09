@@ -30,17 +30,9 @@
 
 #else
 
-# Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
-# identification (-mips[12] or -mips[34]). But -n32 is commonly used together
-# with -mips3, and it's easier to test the CPU identification.
-#if __mips >= 3
-  #define ABI_N32 1
-#else
-  #define ABI_O32 1
-#endif
-
         .text
 
+        .globl asm_mulu32_
         .globl asm_copy_loop_up
         .globl asm_copy_loop_down
         .globl asm_fill_loop_up
@@ -68,13 +60,13 @@
         .globl asm_dec_loop_down
         .globl asm_neg_loop_down
 
-#ifndef __GNUC__ /* mit GNU-C machen wir mulu32() als Macro, der inline multipliziert */
-
+/* Note: When using GNU C, this function is not used, because we implement
+   mulu32() as a macro that multiplies inline.  */
 # extern struct { uint32 lo; uint32 hi; } asm_mulu32_ (uint32 arg1, uint32 arg2, uint32* hi_ptr);
 # 2^32*hi+lo := arg1*arg2.
-        .globl asm_mulu32_
         .align 2
         .ent asm_mulu32_ # Input in $4,$5,$6, Output in $2
+        .type asm_mulu32_,@function
 asm_mulu32_:
         multu $5,$4             # arg1 * arg2
         mfhi $3                 # hi
@@ -83,18 +75,17 @@ asm_mulu32_:
         j $31                   # return
         .end asm_mulu32_
 
-#endif
-
 # extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
         .align 2
         .ent asm_copy_loop_up # Input in $4,$5,$6, Output in $2
-colu1:    lw $12,($4)           # d = *sourceptr
+        .type asm_copy_loop_up,@function
+$Lcolu1:  lw $12,($4)           # d = *sourceptr
           addu $4,4             # sourceptr++
           sw $12,($5)           # *destptr = d
           addu $5,4             # destptr++
           subu $6,1             # count--
 asm_copy_loop_up:
-          bnez $6,colu1         # until (count==0)
+          bnez $6,$Lcolu1       # until (count==0)
         move $2,$5              # destptr
         j $31                   # return
         .end asm_copy_loop_up
@@ -102,13 +93,14 @@ asm_copy_loop_up:
 # extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
         .align 2
         .ent asm_copy_loop_down # Input in $4,$5,$6, Output in $2
-cold1:    subu $4,4             # sourceptr--
+        .type asm_copy_loop_down,@function
+$Lcold1:  subu $4,4             # sourceptr--
           lw $12,($4)           # d = *sourceptr
           subu $5,4             # destptr--
           sw $12,($5)           # *destptr = d
           subu $6,1             # count--
 asm_copy_loop_down:
-          bnez $6,cold1         # until (count==0)
+          bnez $6,$Lcold1       # until (count==0)
         move $2,$5              # destptr
         j $31                   # return
         .end asm_copy_loop_down
@@ -116,11 +108,12 @@ asm_copy_loop_down:
 # extern uintD* asm_fill_loop_up (uintD* destptr, uintC count, uintD filler);
         .align 2
         .ent asm_fill_loop_up # Input in $4,$5,$6, Output in $2
-flu1:     sw $6,($4)            # *destptr = filler
+        .type asm_fill_loop_up,@function
+$Lflu1:   sw $6,($4)            # *destptr = filler
           addu $4,4             # destptr++
           subu $5,1             # count--
 asm_fill_loop_up:
-          bnez $5,flu1          # until (count==0)
+          bnez $5,$Lflu1        # until (count==0)
         move $2,$4              # destptr
         j $31                   # return
         .end asm_fill_loop_up
@@ -128,11 +121,12 @@ asm_fill_loop_up:
 # extern uintD* asm_fill_loop_down (uintD* destptr, uintC count, uintD filler);
         .align 2
         .ent asm_fill_loop_down # Input in $4,$5,$6, Output in $2
-fld1:     subu $4,4             # destptr--
+        .type asm_fill_loop_down,@function
+$Lfld1:   subu $4,4             # destptr--
           sw $6,($4)            # *destptr = filler
           subu $5,1             # count--
 asm_fill_loop_down:
-          bnez $5,fld1          # until (count==0)
+          bnez $5,$Lfld1        # until (count==0)
         move $2,$4              # destptr
         j $31                   # return
         .end asm_fill_loop_down
@@ -140,11 +134,12 @@ asm_fill_loop_down:
 # extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
         .align 2
         .ent asm_clear_loop_up # Input in $4,$5, Output in $2
-cllu1:    sw $0,($4)            # *destptr = 0
+        .type asm_clear_loop_up,@function
+$Lcllu1:  sw $0,($4)            # *destptr = 0
           addu $4,4             # destptr++
           subu $5,1             # count--
 asm_clear_loop_up:
-          bnez $5,cllu1         # until (count==0)
+          bnez $5,$Lcllu1       # until (count==0)
         move $2,$4              # destptr
         j $31                   # return
         .end asm_clear_loop_up
@@ -152,11 +147,12 @@ asm_clear_loop_up:
 # extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
         .align 2
         .ent asm_clear_loop_down # Input in $4,$5, Output in $2
-clld1:    subu $4,4             # destptr--
+        .type asm_clear_loop_down,@function
+$Lclld1:  subu $4,4             # destptr--
           sw $0,($4)            # *destptr = 0
           subu $5,1             # count--
 asm_clear_loop_down:
-          bnez $5,clld1         # until (count==0)
+          bnez $5,$Lclld1       # until (count==0)
         move $2,$4              # destptr
         j $31                   # return
         .end asm_clear_loop_down
@@ -164,7 +160,8 @@ asm_clear_loop_down:
 # extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_or_loop_up # Input in $4,$5,$6
-olu1:     lw $12,($4)           # x = *xptr
+        .type asm_or_loop_up,@function
+$Lolu1:   lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           or $12,$13            # x |= y
@@ -172,14 +169,15 @@ olu1:     lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_or_loop_up:
-          bnez $6,olu1          # until (count==0)
+          bnez $6,$Lolu1        # until (count==0)
         j $31                   # return
         .end asm_or_loop_up
 
 # extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_xor_loop_up # Input in $4,$5,$6
-xlu1:     lw $12,($4)           # x = *xptr
+        .type asm_xor_loop_up,@function
+$Lxlu1:   lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           xor $12,$13           # x ^= y
@@ -187,14 +185,15 @@ xlu1:     lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_xor_loop_up:
-          bnez $6,xlu1          # until (count==0)
+          bnez $6,$Lxlu1        # until (count==0)
         j $31                   # return
         .end asm_xor_loop_up
 
 # extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_and_loop_up # Input in $4,$5,$6
-alu1:     lw $12,($4)           # x = *xptr
+        .type asm_and_loop_up,@function
+$Lalu1:   lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           and $12,$13           # x &= y
@@ -202,14 +201,15 @@ alu1:     lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_and_loop_up:
-          bnez $6,alu1          # until (count==0)
+          bnez $6,$Lalu1        # until (count==0)
         j $31                   # return
         .end asm_and_loop_up
 
 # extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_eqv_loop_up # Input in $4,$5,$6
-nxlu1:    lw $12,($4)           # x = *xptr
+        .type asm_eqv_loop_up,@function
+$Lnxlu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           xor $12,$13           # x ^= y
@@ -218,14 +218,15 @@ nxlu1:    lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_eqv_loop_up:
-          bnez $6,nxlu1         # until (count==0)
+          bnez $6,$Lnxlu1       # until (count==0)
         j $31                   # return
         .end asm_eqv_loop_up
 
 # extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_nand_loop_up # Input in $4,$5,$6
-nalu1:    lw $12,($4)           # x = *xptr
+        .type asm_nand_loop_up,@function
+$Lnalu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           and $12,$13           # x &= y        # Gibt es 'nand $12,$13' ??
@@ -234,14 +235,15 @@ nalu1:    lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_nand_loop_up:
-          bnez $6,nalu1         # until (count==0)
+          bnez $6,$Lnalu1       # until (count==0)
         j $31                   # return
         .end asm_nand_loop_up
 
 # extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_nor_loop_up # Input in $4,$5,$6
-nolu1:    lw $12,($4)           # x = *xptr
+        .type asm_nor_loop_up,@function
+$Lnolu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           nor $12,$13           # x = ~(x|y)
@@ -249,14 +251,15 @@ nolu1:    lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_nor_loop_up:
-          bnez $6,nolu1         # until (count==0)
+          bnez $6,$Lnolu1       # until (count==0)
         j $31                   # return
         .end asm_nor_loop_up
 
 # extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_andc2_loop_up # Input in $4,$5,$6
-aclu1:    lw $12,($4)           # x = *xptr
+        .type asm_andc2_loop_up,@function
+$Laclu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           nor $13,$0            # y = ~y
@@ -265,14 +268,15 @@ aclu1:    lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_andc2_loop_up:
-          bnez $6,aclu1         # until (count==0)
+          bnez $6,$Laclu1       # until (count==0)
         j $31                   # return
         .end asm_andc2_loop_up
 
 # extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_orc2_loop_up # Input in $4,$5,$6
-oclu1:    lw $12,($4)           # x = *xptr
+        .type asm_orc2_loop_up,@function
+$Loclu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           nor $13,$0            # y = ~y
@@ -281,80 +285,85 @@ oclu1:    lw $12,($4)           # x = *xptr
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_orc2_loop_up:
-          bnez $6,oclu1         # until (count==0)
+          bnez $6,$Loclu1       # until (count==0)
         j $31                   # return
         .end asm_orc2_loop_up
 
 # extern void asm_not_loop_up (uintD* xptr, uintC count);
         .align 2
         .ent asm_not_loop_up # Input in $4,$5
-nlu1:     lw $12,($4)           # x = *xptr
+        .type asm_not_loop_up,@function
+$Lnlu1:   lw $12,($4)           # x = *xptr
           subu $5,1             # count--
           nor $12,$0            # x = ~x
           sw $12,($4)           # *xptr = x
           addu $4,4             # xptr++
 asm_not_loop_up:
-          bnez $5,nlu1          # until (count==0)
+          bnez $5,$Lnlu1        # until (count==0)
         j $31                   # return
         .end asm_not_loop_up
 
 # extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_and_test_loop_up # Input in $4,$5,$6
-atlu1:    lw $12,($4)           # x = *xptr
+        .type asm_and_test_loop_up,@function
+$Latlu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
           and $12,$13           # x &= y
-          bnez $12,atlu3        # if (x) ...
+          bnez $12,$Latlu3      # if (x) ...
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_and_test_loop_up:
-          bnez $6,atlu1         # until (count==0)
+          bnez $6,$Latlu1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-atlu3:  li $2,1                 # 1
+$Latlu3:li $2,1                 # 1
         j $31                   # return
         .end asm_and_test_loop_up
 
 # extern bool asm_test_loop_up (uintD* ptr, uintC count);
         .align 2
         .ent asm_test_loop_up # Input in $4,$5
-tlu1:     lw $12,($4)           # x = *ptr
+        .type asm_test_loop_up,@function
+$Ltlu1:   lw $12,($4)           # x = *ptr
           addu $4,4             # ptr++
-          bnez $12,tlu3
+          bnez $12,$Ltlu3
           subu $5,1             # count--
 asm_test_loop_up:
-          bnez $5,tlu1          # until (count==0)
+          bnez $5,$Ltlu1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-tlu3:   li $2,1                 # 1
+$Ltlu3: li $2,1                 # 1
         j $31                   # return
         .end asm_test_loop_up
 
 # extern signean asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_compare_loop_up # Input in $4,$5,$6
-cmlu1:    lw $12,($4)           # x = *xptr
+        .type asm_compare_loop_up,@function
+$Lcmlu1:  lw $12,($4)           # x = *xptr
           lw $13,($5)           # y = *yptr
           addu $5,4             # yptr++
-          bne $12,$13,cmlu3     # if (!(x==y)) ...
+          bne $12,$13,$Lcmlu3   # if (!(x==y)) ...
           addu $4,4             # xptr++
           subu $6,1             # count--
 asm_compare_loop_up:
-          bnez $6,cmlu1         # until (count==0)
+          bnez $6,$Lcmlu1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-cmlu3:  bltu $12,$13,cmlu4      # if (x<y) ...
+$Lcmlu3:bltu $12,$13,$Lcmlu4    # if (x<y) ...
         li $2,1                 # 1
         j $31                   # return
-cmlu4:  li $2,-1                # -1
+$Lcmlu4:li $2,-1                # -1
         j $31                   # return
         .end asm_compare_loop_up
 
 # extern uintD asm_add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
         .align 2
         .ent asm_add_loop_down # Input in $4,$5,$6,$7, Output in $2
-ald1:     # kein Carry
+        .type asm_add_loop_down,@function
+$Lald1:   # kein Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
@@ -362,14 +371,14 @@ ald1:     # kein Carry
           subu $6,4             # destptr--
           addu $12,$13          # dest = source1 + source2
           sw $12,($6)           # *destptr = dest
-          bltu $12,$13,ald4     # if (dest < source2) [also Carry] ...
-ald2:
+          bltu $12,$13,$Lald4   # if (dest < source2) [also Carry] ...
+$Lald2:
           subu $7,1             # count--
 asm_add_loop_down:
-          bnez $7,ald1          # until (count==0)
+          bnez $7,$Lald1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-ald3:   # Hier Carry
+$Lald3: # Hier Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
@@ -378,9 +387,9 @@ ald3:   # Hier Carry
           addu $12,$13          # dest = source1 + source2
           addu $12,1            #        + 1
           sw $12,($6)           # *destptr = dest
-          bgtu $12,$13,ald2     # if (dest > source2) [also kein Carry] ...
-ald4:     subu $7,1             # count--
-          bnez $7,ald3          # until (count==0)
+          bgtu $12,$13,$Lald2   # if (dest > source2) [also kein Carry] ...
+$Lald4:   subu $7,1             # count--
+          bnez $7,$Lald3        # until (count==0)
         li $2,1                 # 1
         j $31                   # return
         .end asm_add_loop_down
@@ -388,7 +397,8 @@ ald4:     subu $7,1             # count--
 # extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
         .align 2
         .ent asm_addto_loop_down # Input in $4,$5,$6, Output in $2
-atld1:    # kein Carry
+        .type asm_addto_loop_down,@function
+$Latld1:  # kein Carry
           subu $4,4             # sourceptr--
           subu $5,4             # destptr--
           lw $12,($4)           # source1 = *sourceptr
@@ -396,12 +406,12 @@ atld1:    # kein Carry
           subu $6,1             # count--
           addu $12,$13          # dest = source1 + source2
           sw $12,($5)           # *destptr = dest
-          bltu $12,$13,atld4    # if (dest < source2) [also Carry] ...
+          bltu $12,$13,$Latld4  # if (dest < source2) [also Carry] ...
 asm_addto_loop_down:
-atld2:    bnez $6,atld1         # until (count==0)
+$Latld2:  bnez $6,$Latld1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-atld3:  # Hier Carry
+$Latld3:# Hier Carry
           subu $4,4             # sourceptr--
           subu $5,4             # destptr--
           lw $12,($4)           # source1 = *sourceptr
@@ -410,8 +420,8 @@ atld3:  # Hier Carry
           addu $12,$13          # dest = source1 + source2
           addu $12,1            #        + 1
           sw $12,($5)           # *destptr = dest
-          bgtu $12,$13,atld2    # if (dest > source2) [also kein Carry] ...
-atld4:    bnez $6,atld3         # until (count==0)
+          bgtu $12,$13,$Latld2  # if (dest > source2) [also kein Carry] ...
+$Latld4:  bnez $6,$Latld3       # until (count==0)
         li $2,1                 # 1
         j $31                   # return
         .end asm_addto_loop_down
@@ -419,62 +429,64 @@ atld4:    bnez $6,atld3         # until (count==0)
 # extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
         .align 2
         .ent asm_inc_loop_down # Input in $4,$5, Output in $2
-ild1:     subu $4,4             # ptr--
+        .type asm_inc_loop_down,@function
+$Lild1:   subu $4,4             # ptr--
           lw $12,($4)           # x = *ptr
           subu $5,1             # count--
           addu $12,1            # x++;
           sw $12,($4)           # *ptr = x
-          bnez $12,ild3         # if (!(x==0)) ...
+          bnez $12,$Lild3       # if (!(x==0)) ...
 asm_inc_loop_down:
-          bnez $5,ild1          # until (count==0)
+          bnez $5,$Lild1        # until (count==0)
         li $2,1                 # 1
         j $31                   # return
-ild3:   move $2,$0              # 0
+$Lild3: move $2,$0              # 0
         j $31                   # return
         .end asm_inc_loop_down
 
 # extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
         .align 2
         .ent asm_sub_loop_down # Input in $4,$5,$6,$7, Output in $2
-sld1:     # kein Carry
+        .type asm_sub_loop_down,@function
+$Lsld1:   # kein Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
           lw $13,($5)           # source2 = *sourceptr2
           subu $6,4             # destptr--
-          bltu $12,$13,sld2     # if (source1 < source2) [also Carry] ...
+          bltu $12,$13,$Lsld2   # if (source1 < source2) [also Carry] ...
           subu $12,$13          # dest = source1 - source2
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
 asm_sub_loop_down:
-          bnez $7,sld1          # until (count==0)
+          bnez $7,$Lsld1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-sld2:     subu $12,$13          # dest = source1 - source2
+$Lsld2:   subu $12,$13          # dest = source1 - source2
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-          bnez $7,sld3          # until (count==0)
+          bnez $7,$Lsld3        # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sld3:   # Hier Carry
+$Lsld3: # Hier Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
           lw $13,($5)           # source2 = *sourceptr2
           subu $6,4             # destptr--
-          bgtu $12,$13,sld4     # if (source1 > source2) [also kein Carry] ...
+          bgtu $12,$13,$Lsld4   # if (source1 > source2) [also kein Carry] ...
           subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-          bnez $7,sld3          # until (count==0)
+          bnez $7,$Lsld3        # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sld4:     subu $12,$13          # dest = source1 - source2
+$Lsld4:   subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-          bnez $7,sld1          # until (count==0)
+          bnez $7,$Lsld1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
         .end asm_sub_loop_down
@@ -482,52 +494,53 @@ sld4:     subu $12,$13          # dest = source1 - source2
 # extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
         .align 2
         .ent asm_subx_loop_down # Input in $4,$5,$6,$7,$8, Output in $2
+        .type asm_subx_loop_down,@function
 asm_subx_loop_down:
-#if ABI_N32
+%%if _MIPS_SIM == _ABIN32
         move $12,$8             # carry
-#else
+%%else
         lw $12,16($sp)          # carry
-#endif
-        bnez $12,sxld5          # !(carry==0) ?
-        b sxld2
-sxld1:    # kein Carry
+%%endif
+        bnez $12,$Lsxld5        # !(carry==0) ?
+        b $Lsxld2
+$Lsxld1:  # kein Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
           lw $13,($5)           # source2 = *sourceptr2
           subu $6,4             # destptr--
-          bltu $12,$13,sxld3    # if (source1 < source2) [also Carry] ...
+          bltu $12,$13,$Lsxld3  # if (source1 < source2) [also Carry] ...
           subu $12,$13          # dest = source1 - source2
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-sxld2:    bnez $7,sxld1         # until (count==0)
+$Lsxld2:  bnez $7,$Lsxld1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-sxld3:    subu $12,$13          # dest = source1 - source2
+$Lsxld3:  subu $12,$13          # dest = source1 - source2
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-          bnez $7,sxld4         # until (count==0)
+          bnez $7,$Lsxld4       # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sxld4:  # Hier Carry
+$Lsxld4:# Hier Carry
           subu $4,4             # sourceptr1--
           subu $5,4             # sourceptr2--
           lw $12,($4)           # source1 = *sourceptr1
           lw $13,($5)           # source2 = *sourceptr2
           subu $6,4             # destptr--
-          bgtu $12,$13,sxld6    # if (source1 > source2) [also kein Carry] ...
+          bgtu $12,$13,$Lsxld6  # if (source1 > source2) [also kein Carry] ...
           subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-sxld5:    bnez $7,sxld4         # until (count==0)
+$Lsxld5:  bnez $7,$Lsxld4       # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sxld6:    subu $12,$13          # dest = source1 - source2
+$Lsxld6:  subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($6)           # *destptr = dest
           subu $7,1             # count--
-          bnez $7,sxld1         # until (count==0)
+          bnez $7,$Lsxld1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
         .end asm_subx_loop_down
@@ -535,41 +548,42 @@ sxld6:    subu $12,$13          # dest = source1 - source2
 # extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
         .align 2
         .ent asm_subfrom_loop_down # Input in $4,$5,$6,$7, Output in $2
-sfld1:    # kein Carry
+        .type asm_subfrom_loop_down,@function
+$Lsfld1:  # kein Carry
           subu $4,4             # sourceptr--
           subu $5,4             # destptr--
           lw $12,($5)           # source1 = *destptr
           lw $13,($4)           # source2 = *sourceptr
           subu $6,1             # count--
-          bltu $12,$13,sfld2    # if (source1 < source2) [also Carry] ...
+          bltu $12,$13,$Lsfld2  # if (source1 < source2) [also Carry] ...
           subu $12,$13          # dest = source1 - source2
           sw $12,($5)           # *destptr = dest
 asm_subfrom_loop_down:
-          bnez $6,sfld1         # until (count==0)
+          bnez $6,$Lsfld1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-sfld2:    subu $12,$13          # dest = source1 - source2
+$Lsfld2:  subu $12,$13          # dest = source1 - source2
           sw $12,($5)           # *destptr = dest
-          bnez $6,sfld3         # until (count==0)
+          bnez $6,$Lsfld3       # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sfld3:  # Hier Carry
+$Lsfld3:# Hier Carry
           subu $4,4             # sourceptr--
           subu $5,4             # destptr--
           lw $12,($5)           # source1 = *destptr
           lw $13,($4)           # source2 = *sourceptr
           subu $6,1             # count--
-          bgtu $12,$13,sfld4    # if (source1 > source2) [also kein Carry] ...
+          bgtu $12,$13,$Lsfld4  # if (source1 > source2) [also kein Carry] ...
           subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($5)           # *destptr = dest
-          bnez $6,sfld3         # until (count==0)
+          bnez $6,$Lsfld3       # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-sfld4:    subu $12,$13          # dest = source1 - source2
+$Lsfld4:  subu $12,$13          # dest = source1 - source2
           subu $12,1            #        - 1
           sw $12,($5)           # *destptr = dest
-          bnez $6,sfld1         # until (count==0)
+          bnez $6,$Lsfld1       # until (count==0)
         move $2,$0              # 0
         j $31                   # return
         .end asm_subfrom_loop_down
@@ -577,17 +591,18 @@ sfld4:    subu $12,$13          # dest = source1 - source2
 # extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
         .align 2
         .ent asm_dec_loop_down # Input in $4,$5, Output in $2
-dld1:     subu $4,4             # ptr--
+        .type asm_dec_loop_down,@function
+$Ldld1:   subu $4,4             # ptr--
           lw $12,($4)           # x = *ptr
           subu $5,1             # count--
-          bnez $12,dld3         # if (!(x==0)) ...
+          bnez $12,$Ldld3       # if (!(x==0)) ...
           subu $12,1            # x--;
           sw $12,($4)           # *ptr = x
 asm_dec_loop_down:
-          bnez $5,dld1          # until (count==0)
+          bnez $5,$Ldld1        # until (count==0)
         li $2,-1                # -1
         j $31                   # return
-dld3:   subu $12,1              # x--;
+$Ldld3: subu $12,1              # x--;
         sw $12,($4)             # *ptr = x
         move $2,$0              # 0
         j $31                   # return
@@ -596,27 +611,28 @@ dld3:   subu $12,1              # x--;
 # extern uintD asm_neg_loop_down (uintD* ptr, uintC count);
         .align 2
         .ent asm_neg_loop_down # Input in $4,$5, Output in $2
+        .type asm_neg_loop_down,@function
         # erstes Digit /=0 suchen:
-nld1:     subu $4,4             # ptr--
+$Lnld1:   subu $4,4             # ptr--
           lw $12,($4)           # x = *ptr
           subu $5,1             # count--
-          bnez $12,nld3         # if (!(x==0)) ...
+          bnez $12,$Lnld3       # if (!(x==0)) ...
 asm_neg_loop_down:
-          bnez $5,nld1          # until (count==0)
+          bnez $5,$Lnld1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-nld3:   # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
+$Lnld3: # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
         # 1 Digit negieren:
         subu $12,$0,$12         # x = -x
         sw $12,($4)             # *ptr = x
         # alle anderen Digits invertieren:
-        b nld5
-nld4:     subu $4,4             # xptr--
+        b $Lnld5
+$Lnld4:   subu $4,4             # xptr--
           lw $12,($4)           # x = *xptr
           subu $5,1             # count--
           nor $12,$0            # x = ~x
           sw $12,($4)           # *xptr = x
-nld5:     bnez $5,nld4          # until (count==0)
+$Lnld5:   bnez $5,$Lnld4        # until (count==0)
         li $2,-1                # -1
         j $31                   # return
         .end asm_neg_loop_down

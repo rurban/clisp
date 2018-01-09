@@ -1,4 +1,4 @@
-/* ariarm.d (c) Copyright 1994, 1997 P.J.Burwood
+/* (c) Copyright 1994, 1997 P.J.Burwood
  bugfixes (c) Copyright 1996 B. Haible
  external routines for arilev1.d
  Processor: ARM in APCS mode
@@ -29,6 +29,7 @@
 
 /* GAS syntax */
 
+#if 0 /* Avoid warnings "Warning: ignoring attempt to redefine built-in register" */
 a1      .req    r0
 a2      .req    r1
 a3      .req    r2
@@ -46,19 +47,15 @@ ip      .req    r12
 sp      .req    r13
 lr      .req    r14
 pc      .req    r15
-
-#define C(x) x
-#define EXPORT(x) .global x
-#define GLABEL(x)  x:
-#define LABEL(x)  x:
-#define END
-	.text
-
-
-#if defined(__arm7m__) || defined(__arm8__) || defined(__arm9__) || defined(__strongarm__)
-  /* ARM7M and later have 32x32 -> 64 multiplies which execute in 2-4 clocks. */
-  #define HAVE_umull
 #endif
+
+        .text
+
+
+%%if defined(__arm7m__) || defined(__arm8__) || defined(__arm9__) || defined(__strongarm__)
+  /* ARM7M and later have 32x32 -> 64 multiplies which execute in 2-4 clocks. */
+  %%define HAVE_umull
+%%endif
 
 
 /* extern uint64 asm_mulu32_64 (uint32 x, uint32 y);
@@ -69,12 +66,14 @@ pc      .req    r15
                a1 = low32(x*y)
                a2 = high32(x*y)
                a3,a4,ip destroyed */
-        EXPORT(asm_mulu32_64)
-GLABEL(asm_mulu32_64)
-#ifdef HAVE_umull
+        .global asm_mulu32_64
+        .align 2
+        .type asm_mulu32_64,%function
+asm_mulu32_64:
+%%ifdef HAVE_umull
         MOV     a3,a2
         UMULL   a1,a2,a3,a1
-#else
+%%else
         MOV     ip,a1,LSR #16    /* temp := top half of x */
         MOV     a3,a2,LSR #16    /* hi := top half of y */
         BIC     a1,a1,ip,LSL #16 /* x  := bottom half of x */
@@ -88,8 +87,9 @@ GLABEL(asm_mulu32_64)
         ADDCS   a3,a3,#0x10000   /* carry from above add */
         ADDS    a1,a4,a2,LSL #16 /* x is now bottom 32 bits of result */
         ADC     a2,a3,a2,LSR #16 /* hi is top 32 bits */
-#endif
+%%endif
         MOVS    pc,lr
+        .size asm_mulu32_64,.-asm_mulu32_64
 
 /* extern uint16 asm_divu_3216_1616_ (uint32 x, uint16 y);
        entry
@@ -99,8 +99,10 @@ GLABEL(asm_mulu32_64)
                a1 = q = floor(x/y)
                a2 = r = x-q*y
                a3 destroyed */
-        EXPORT(asm_divu_3216_1616_)
-GLABEL(asm_divu_3216_1616_)
+        .global asm_divu_3216_1616_
+        .align 2
+        .type asm_divu_3216_1616_,%function
+asm_divu_3216_1616_:
         MOV     a2,a2,LSL#15    /* multiply divisor by 2^15 */
         RSB     a2,a2,#0        /* negate divisor */
         ADDS    a1,a2,a1        /* dividend = dividend + -divisor/2 */
@@ -141,6 +143,7 @@ GLABEL(asm_divu_3216_1616_)
         MOV     a1,a1,LSL#16   /* AND out top 16 bits by shifting up */
         MOV     a1,a1,LSR#16   /* and back down again */
         MOVS    pc, lr
+        .size asm_divu_3216_1616_,.-asm_divu_3216_1616_
 
 /* extern uint32 asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y); | -> Quotient q, Rest r
        see arilev0 for algorithm
@@ -152,27 +155,29 @@ GLABEL(asm_divu_3216_1616_)
                a1 = 32 bit quotient
                a2 = 32 bit remainder
                a3, a4 destroyed */
-        EXPORT(asm_divu_6432_3232_)
-GLABEL(asm_divu_6432_3232_)
+        .global asm_divu_6432_3232_
+        .align 2
+        .type asm_divu_6432_3232_,%function
+asm_divu_6432_3232_:
         STMFD   sp!, {v1,v2,v3,v4,v5,v6,lr}
         MOV     v2, a2          /* = xlo */
         MOV     v1, a3          /* = y */
         CMP     a3, #0x10000    /* y <= (uint32)(bit(16)-1) */
-        BCS     divu_6432_3232_l1
+        BCS     .Ldivu_6432_3232_l1
         MOV     a2, v2, LSR #16
         ORR     a1, a2, a1, ASL #16 /* = highlow32(low16(xhi),high16(xlo)) */
         MOV     a2, v1
-        BL      C(asm_divu_3216_1616_)
+        BL      asm_divu_3216_1616_
         MOV     v3, a1          /* = q1 */
         MOV     a1, v2, ASL #16
         MOV     a1, a1, LSR #16
         ORR     a1, a1, a2, ASL #16 /* = highlow32(r1,low16(xlo)) */
         MOV     a2, v1
-        BL      C(asm_divu_3216_1616_)
+        BL      asm_divu_3216_1616_
         ORR     a1, a1, v3, ASL #16 /* = highlow32(q1,q0) */
         LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
 
-LABEL(divu_6432_3232_l1)
+.Ldivu_6432_3232_l1:
         MOV     v3, #0          /* s = 0 */
         MOVS    a4, v1, LSR #16 /* while ((sint32)y >= 0) */
         ADDEQ   v3, v3, #16     /*   { y = y<<1; s++; } */
@@ -200,7 +205,7 @@ LABEL(divu_6432_3232_l1)
         MOVEQ   v4, a1, ASL #16    /* r16 = low16(xhi) * 2^16 */
         MOVEQ   a1, a1, LSR #16    /* q1 = high16(xhi) */
         MOVNE   a2, v5
-        BLNE    C(asm_divu_3216_1616_) /* divu_3216_1616(xhi,y1_1, q1=,r16=) */
+        BLNE    asm_divu_3216_1616_ /* divu_3216_1616(xhi,y1_1, q1=,r16=) */
         MOVNE   v4, a2, ASL #16    /* r16 = r16 * 2^16 */
         ORR     v4, v4, v2, LSR #16 /* r = highlow32(r16,high16(xlo)) */
         MOV     a4, v1, ASL #16     /* tmp = mulu16(low16(y),q1) */
@@ -218,7 +223,7 @@ LABEL(divu_6432_3232_l1)
         MOVEQ   v4, a1, ASL #16     /*    { r16 = low16(r) * 2^16 */
         MOVEQ   a1, a1, LSR #16     /*      q0  = high16(r) } */
         MOVNE   a2, v5
-        BLNE    C(asm_divu_3216_1616_) /* divu_3216_1616(r,y1_1, q0=,r16=) */
+        BLNE    asm_divu_3216_1616_ /* divu_3216_1616(r,y1_1, q0=,r16=) */
         MOVNE   v4, a2, ASL #16     /* r16 = r16 * 2^16 */
         MOV     v2, v2, ASL #16
         ORR     v4, v4, v2, LSR #16 /* r = highlow32(r16,low16(xlo)) */
@@ -235,6 +240,7 @@ LABEL(divu_6432_3232_l1)
         MOV     a2, v4, LSR v3      /* remainder = r >> s */
         ORR     a1, a1, v6, ASL #16 /* return highlow32(q1,q0) */
         LDMFD   sp!, {v1,v2,v3,v4,v5,v6,pc}^
+        .size asm_divu_6432_3232_,.-asm_divu_6432_3232_
 
 /* extern uintD* asm_copy_loop_up (uintD* sourceptr, uintD* destptr, uintC count);
        entry
@@ -244,10 +250,12 @@ LABEL(divu_6432_3232_l1)
        exit
                a1 = address of last word stored + 1
                a2 - a4, ip destroyed */
-        EXPORT(asm_copy_loop_up)          /* word aligned copy loop up */
-GLABEL(asm_copy_loop_up)
+        .global asm_copy_loop_up          /* word aligned copy loop up */
+        .align 2
+        .type asm_copy_loop_up,%function
+asm_copy_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_copy_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_copy_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* copy the first 1-3 words */
         LDR     a4,[a1],#4      /* to align the total to a multiple */
         STR     a4,[a2],#4      /* of 4 words */
@@ -255,20 +263,21 @@ GLABEL(asm_copy_loop_up)
         STRGE   a4,[a2],#4
         LDRGT   a4,[a1],#4
         STRGT   a4,[a2],#4
-LABEL(asm_copy_loop_up_l1)
+.Lasm_copy_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a2           /* return addr of last word stored */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
-LABEL(asm_copy_loop_up_l2)
+.Lasm_copy_loop_up_l2:
         LDMIA   a1!,{a3,v1,ip,lr} /* copy 4 words in one go */
         STMIA   a2!,{a3,v1,ip,lr}
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         LDMGEIA a1!,{a3,v1,ip,lr} /* if count still positive then copy */
         STMGEIA a2!,{a3,v1,ip,lr} /* 4 more words */
-        BGT     asm_copy_loop_up_l2   /* and loop */
+        BGT     .Lasm_copy_loop_up_l2 /* and loop */
         MOV     a1,a2             /* return addr of last word stored */
         LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        .size asm_copy_loop_up,.-asm_copy_loop_up
 
 /* extern uintD* asm_copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
        entry
@@ -278,10 +287,12 @@ LABEL(asm_copy_loop_up_l2)
        exit
                a1 = address of last word stored
                a2 - a4, ip destroyed */
-        EXPORT(asm_copy_loop_down)        /* word aligned copy loop down */
-GLABEL(asm_copy_loop_down)
+        .global asm_copy_loop_down        /* word aligned copy loop down */
+        .align 2
+        .type asm_copy_loop_down,%function
+asm_copy_loop_down:
         ANDS    a4,a3,#3          /* multiple of 4 words ? */
-        BEQ     asm_copy_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_copy_loop_down_l1 /* yup, so branch */
         CMP     a4,#2             /* copy the first 1-3 words */
         LDR     a4,[a1,#-4]!      /* to align the total to a multiple */
         STR     a4,[a2,#-4]!      /* of 4 words */
@@ -289,20 +300,21 @@ GLABEL(asm_copy_loop_down)
         STRGE   a4,[a2,#-4]!
         LDRGT   a4,[a1,#-4]!
         STRGT   a4,[a2,#-4]!
-LABEL(asm_copy_loop_down_l1)
+.Lasm_copy_loop_down_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a2           /* return addr of last word stored */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
-LABEL(asm_copy_loop_down_l2)
+.Lasm_copy_loop_down_l2:
         LDMDB   a1!,{a3,v1,ip,lr} /* copy 4 words in one go */
         STMDB   a2!,{a3,v1,ip,lr}
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         LDMGEDB a1!,{a3,v1,ip,lr} /* if count still positive then copy */
         STMGEDB a2!,{a3,v1,ip,lr} /* 4 more words */
-        BGT     asm_copy_loop_down_l2 /* and loop */
+        BGT     .Lasm_copy_loop_down_l2 /* and loop */
         MOV     a1,a2             /* return addr of last word stored */
         LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        .size asm_copy_loop_down,.-asm_copy_loop_down
 
 /* extern uintD* asm_clear_loop_up (uintD* destptr, uintC count);
        entry
@@ -311,8 +323,10 @@ LABEL(asm_copy_loop_down_l2)
        exit
                a1 = address of last word stored + 1
                a2 - a4, ip destroyed */
-        EXPORT(asm_clear_loop_up)         /* word aligned clear loop up */
-GLABEL(asm_clear_loop_up)
+        .global asm_clear_loop_up         /* word aligned clear loop up */
+        .align 2
+        .type asm_clear_loop_up,%function
+asm_clear_loop_up:
         MOV     a3,#0           /* set filler to 0 */
                                         /* and drop into asm_fill_loop_up */
 
@@ -324,27 +338,30 @@ GLABEL(asm_clear_loop_up)
        exit
                a1 = address of last word stored + 1
                a2 - a4, ip destroyed */
-        EXPORT(asm_fill_loop_up)          /* word aligned fill loop up */
-GLABEL(asm_fill_loop_up)
+        .global asm_fill_loop_up          /* word aligned fill loop up */
+        .align 2
+        .type asm_fill_loop_up,%function
+asm_fill_loop_up:
         ANDS    a4,a2,#3        /* multiple of 4 words ? */
-        BEQ     asm_fill_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_fill_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* store the first 1-3 words */
         STR     a3,[a1],#4      /* to align the total to a multiple */
         STRGE   a3,[a1],#4      /* of 4 words */
         STRGT   a3,[a1],#4
-LABEL(asm_fill_loop_up_l1)
+.Lasm_fill_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
         MOV     v1,a3           /* copy filler to three other */
         MOV     ip,a3           /* registers */
         MOV     lr,a3
-LABEL(asm_fill_loop_up_l2)
+.Lasm_fill_loop_up_l2:
         STMIA   a1!,{a3,v1,ip,lr} /* store 4 fillers in one go */
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         STMGEIA a1!,{a3,v1,ip,lr} /* if count still positive then store 4 */
-        BGT     asm_fill_loop_up_l2   /* more and loop */
+        BGT     .Lasm_fill_loop_up_l2 /* more and loop */
         LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        .size asm_clear_loop_up,.-asm_clear_loop_up
 
 
 /* extern uintD* asm_clear_loop_down (uintD* destptr, uintC count);
@@ -354,8 +371,10 @@ LABEL(asm_fill_loop_up_l2)
        exit
                a1 = address of last word stored + 1
                a2 - a4, ip destroyed */
-        EXPORT(asm_clear_loop_down)       /* word aligned clear loop down */
-GLABEL(asm_clear_loop_down)
+        .global asm_clear_loop_down       /* word aligned clear loop down */
+        .align 2
+        .type asm_clear_loop_down,%function
+asm_clear_loop_down:
         MOV     a3,#0                 /* set filler to 0 */
                                       /* and drop into asm_fill_loop_down */
 
@@ -367,27 +386,30 @@ GLABEL(asm_clear_loop_down)
        exit
                a1 = address of last word stored
                a2 - a4, ip destroyed */
-        EXPORT(asm_fill_loop_down)        /* word aligned fill loop down */
-GLABEL(asm_fill_loop_down)
+        .global asm_fill_loop_down        /* word aligned fill loop down */
+        .align 2
+        .type asm_fill_loop_down,%function
+asm_fill_loop_down:
         ANDS    a4,a2,#3          /* multiple of 4 words ? */
-        BEQ     asm_fill_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_fill_loop_down_l1 /* yup, so branch */
         CMP     a4,#2             /* store the first 1-3 words */
         STR     a3,[a1,#-4]!      /* to align the total to a multiple */
         STRGE   a3,[a1,#-4]!      /* of 4 words */
         STRGT   a3,[a1,#-4]!
-LABEL(asm_fill_loop_down_l1)
+.Lasm_fill_loop_down_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
         MOV     v1,a3           /* copy filler to three other */
         MOV     ip,a3           /* registers */
         MOV     lr,a3
-LABEL(asm_fill_loop_down_l2)
+.Lasm_fill_loop_down_l2:
         STMDB   a1!,{a3,v1,ip,lr} /* store 4 fillers in one go */
         SUBS    a4,a4,#8          /* decrement counter by 8 */
         STMGEDB a1!,{a3,v1,ip,lr} /* if count still positive then store 4 */
-        BGT     asm_fill_loop_down_l2 /* more and loop */
+        BGT     .Lasm_fill_loop_down_l2 /* more and loop */
         LDMFD   sp!,{v1,pc}^      /* restore work regs and return */
+        .size asm_clear_loop_down,.-asm_clear_loop_down
 
 /* extern void asm_or_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -397,16 +419,18 @@ LABEL(asm_fill_loop_down_l2)
        exit
                xptr |= yptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_or_loop_up)            /* word aligned or loop up */
-GLABEL(asm_or_loop_up)
+        .global asm_or_loop_up            /* word aligned or loop up */
+        .align 2
+        .type asm_or_loop_up,%function
+asm_or_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_or_loop_up_l1   /* yup, so branch */
+        BEQ     .Lasm_or_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* OR the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         ORR     ip,ip,a4
         STR     ip,[a1],#4
-        BLT     asm_or_loop_up_l1   /* better to branch than skip instrs. */
+        BLT     .Lasm_or_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         ORRGE   ip,ip,a4
@@ -415,11 +439,11 @@ GLABEL(asm_or_loop_up)
         LDRGT   ip,[a1]
         ORRGT   ip,ip,a4
         STRGT   ip,[a1],#4
-LABEL(asm_or_loop_up_l1)
+.Lasm_or_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_or_loop_up_l2)
+.Lasm_or_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         ORR     v3,v3,a3          /* OR the four words */
@@ -428,8 +452,9 @@ LABEL(asm_or_loop_up_l2)
         ORR     lr,lr,ip
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_or_loop_up_l2   /* if count still positive then loop */
+        BGT     .Lasm_or_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_or_loop_up,.-asm_or_loop_up
 
 /* extern void asm_xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -439,16 +464,18 @@ LABEL(asm_or_loop_up_l2)
        exit
                xptr ^= yptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_xor_loop_up)           /* word aligned xor loop up */
-GLABEL(asm_xor_loop_up)
+        .global asm_xor_loop_up           /* word aligned xor loop up */
+        .align 2
+        .type asm_xor_loop_up,%function
+asm_xor_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_xor_loop_up_l1  /* yup, so branch */
+        BEQ     .Lasm_xor_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* XOR the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         EOR     ip,ip,a4
         STR     ip,[a1],#4
-        BLT     asm_xor_loop_up_l1  /* better to branch than skip instrs. */
+        BLT     .Lasm_xor_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         EORGE   ip,ip,a4
@@ -457,11 +484,11 @@ GLABEL(asm_xor_loop_up)
         LDRGT   ip,[a1]
         EORGT   ip,ip,a4
         STRGT   ip,[a1],#4
-LABEL(asm_xor_loop_up_l1)
+.Lasm_xor_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_xor_loop_up_l2)
+.Lasm_xor_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         EOR     v3,v3,a3          /* XOR the four words */
@@ -470,8 +497,9 @@ LABEL(asm_xor_loop_up_l2)
         EOR     lr,lr,ip
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_xor_loop_up_l2  /* if count still positive then loop */
+        BGT     .Lasm_xor_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_xor_loop_up,.-asm_xor_loop_up
 
 /* extern void asm_and_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -481,16 +509,18 @@ LABEL(asm_xor_loop_up_l2)
        exit
                xptr &= yptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_and_loop_up)           /* word aligned and loop up */
-GLABEL(asm_and_loop_up)
+        .global asm_and_loop_up           /* word aligned and loop up */
+        .align 2
+        .type asm_and_loop_up,%function
+asm_and_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_and_loop_up_l1  /* yup, so branch */
+        BEQ     .Lasm_and_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* AND the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         AND     ip,ip,a4
         STR     ip,[a1],#4
-        BLT     asm_and_loop_up_l1  /* better to branch than skip instrs. */
+        BLT     .Lasm_and_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         ANDGE   ip,ip,a4
@@ -499,11 +529,11 @@ GLABEL(asm_and_loop_up)
         LDRGT   ip,[a1]
         ANDGT   ip,ip,a4
         STRGT   ip,[a1],#4
-LABEL(asm_and_loop_up_l1)
+.Lasm_and_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_and_loop_up_l2)
+.Lasm_and_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         AND     v3,v3,a3          /* AND the four words */
@@ -512,8 +542,9 @@ LABEL(asm_and_loop_up_l2)
         AND     lr,lr,ip
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_and_loop_up_l2  /* if count still positive then loop */
+        BGT     .Lasm_and_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_and_loop_up,.-asm_and_loop_up
 
 /* extern void asm_eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -523,33 +554,35 @@ LABEL(asm_and_loop_up_l2)
        exit
                xptr = ~(xptr ^ yptr) for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_eqv_loop_up)           /* word aligned eqv loop up */
-GLABEL(asm_eqv_loop_up)
+        .global asm_eqv_loop_up           /* word aligned eqv loop up */
+        .align 2
+        .type asm_eqv_loop_up,%function
+asm_eqv_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_eqv_loop_up_l1  /* yup, so branch */
+        BEQ     .Lasm_eqv_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* EQV the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         EOR     ip,ip,a4
         MVN     ip,ip
         STR     ip,[a1],#4
-        BLT     asm_eqv_loop_up_l1  /* better to branch than skip instrs. */
+        BLT     .Lasm_eqv_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         EORGE   ip,ip,a4
         MVNGE   ip,ip
         STRGE   ip,[a1],#4
-        BLE     asm_eqv_loop_up_l1  /* better to branch than skip instrs. */
+        BLE     .Lasm_eqv_loop_up_l1 /* better to branch than skip instrs. */
         LDRGT   a4,[a2],#4
         LDRGT   ip,[a1]
         EORGT   ip,ip,a4
         MVNGT   ip,ip
         STRGT   ip,[a1],#4
-LABEL(asm_eqv_loop_up_l1)
+.Lasm_eqv_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_eqv_loop_up_l2)
+.Lasm_eqv_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         EOR     v3,v3,a3          /* EVQ the four words */
@@ -562,8 +595,9 @@ LABEL(asm_eqv_loop_up_l2)
         MVN     lr,lr
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_eqv_loop_up_l2  /* if count still positive then loop */
+        BGT     .Lasm_eqv_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_eqv_loop_up,.-asm_eqv_loop_up
 
 /* extern void asm_nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -573,33 +607,35 @@ LABEL(asm_eqv_loop_up_l2)
        exit
                xptr = ~(xptr & yptr) for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_nand_loop_up)          /* word aligned nand loop up */
-GLABEL(asm_nand_loop_up)
+        .global asm_nand_loop_up          /* word aligned nand loop up */
+        .align 2
+        .type asm_nand_loop_up,%function
+asm_nand_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_nand_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_nand_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* NAND the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         AND     ip,ip,a4
         MVN     ip,ip
         STR     ip,[a1],#4
-        BLT     asm_nand_loop_up_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_nand_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         ANDGE   ip,ip,a4
         MVNGE   ip,ip
         STRGE   ip,[a1],#4
-        BLE     asm_nand_loop_up_l1 /* better to branch than skip instrs. */
+        BLE     .Lasm_nand_loop_up_l1 /* better to branch than skip instrs. */
         LDRGT   a4,[a2],#4
         LDRGT   ip,[a1]
         ANDGT   ip,ip,a4
         MVNGT   ip,ip
         STRGT   ip,[a1],#4
-LABEL(asm_nand_loop_up_l1)
+.Lasm_nand_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_nand_loop_up_l2)
+.Lasm_nand_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         AND     v3,v3,a3          /* NAND the four words */
@@ -612,8 +648,9 @@ LABEL(asm_nand_loop_up_l2)
         MVN     lr,lr
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_nand_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_nand_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_nand_loop_up,.-asm_nand_loop_up
 
 /* extern void asm_nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -623,33 +660,35 @@ LABEL(asm_nand_loop_up_l2)
        exit
                xptr = ~(xptr | yptr) for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_nor_loop_up)           /* word aligned nor loop up */
-GLABEL(asm_nor_loop_up)
+        .global asm_nor_loop_up           /* word aligned nor loop up */
+        .align 2
+        .type asm_nor_loop_up,%function
+asm_nor_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_nor_loop_up_l1  /* yup, so branch */
+        BEQ     .Lasm_nor_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* NOR the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         ORR     ip,ip,a4
         MVN     ip,ip
         STR     ip,[a1],#4
-        BLT     asm_nor_loop_up_l1  /* better to branch than skip instrs. */
+        BLT     .Lasm_nor_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         ORRGE   ip,ip,a4
         MVNGE   ip,ip
         STRGE   ip,[a1],#4
-        BLE     asm_nor_loop_up_l1  /* better to branch than skip instrs. */
+        BLE     .Lasm_nor_loop_up_l1 /* better to branch than skip instrs. */
         LDRGT   a4,[a2],#4
         LDRGT   ip,[a1]
         ORRGT   ip,ip,a4
         MVNGT   ip,ip
         STRGT   ip,[a1],#4
-LABEL(asm_nor_loop_up_l1)
+.Lasm_nor_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_nor_loop_up_l2)
+.Lasm_nor_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         ORR     v3,v3,a3          /* NOR the four words */
@@ -662,8 +701,9 @@ LABEL(asm_nor_loop_up_l2)
         MVN     lr,lr
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_nor_loop_up_l2  /* if count still positive then loop */
+        BGT     .Lasm_nor_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_nor_loop_up,.-asm_nor_loop_up
 
 /* extern void asm_andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -673,16 +713,18 @@ LABEL(asm_nor_loop_up_l2)
        exit
                xptr = xptr & ~yptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_andc2_loop_up)         /* word aligned andc2 loop up */
-GLABEL(asm_andc2_loop_up)
+        .global asm_andc2_loop_up         /* word aligned andc2 loop up */
+        .align 2
+        .type asm_andc2_loop_up,%function
+asm_andc2_loop_up:
         ANDS    a4,a3,#3         /* multiple of 4 words ? */
-        BEQ     asm_andc2_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_andc2_loop_up_l1 /* yup, so branch */
         CMP     a4,#2            /* ANDC2 the first 1-3 words */
         LDR     a4,[a2],#4       /* to align the total to a multiple */
         LDR     ip,[a1]          /* of 4 words */
         BIC     ip,ip,a4
         STR     ip,[a1],#4
-        BLT     asm_andc2_loop_up_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_andc2_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         BICGE   ip,ip,a4
@@ -691,11 +733,11 @@ GLABEL(asm_andc2_loop_up)
         LDRGT   ip,[a1]
         BICGT   ip,ip,a4
         STRGT   ip,[a1],#4
-LABEL(asm_andc2_loop_up_l1)
+.Lasm_andc2_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_andc2_loop_up_l2)
+.Lasm_andc2_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         BIC     v3,v3,a3          /* ANDC2 the four words */
@@ -704,8 +746,9 @@ LABEL(asm_andc2_loop_up_l2)
         BIC     lr,lr,ip
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_andc2_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_andc2_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^  /* restore work regs and return */
+        .size asm_andc2_loop_up,.-asm_andc2_loop_up
 
 /* extern void asm_orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -715,33 +758,35 @@ LABEL(asm_andc2_loop_up_l2)
        exit
                xptr = xptr | ~yptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_orc2_loop_up)          /* word aligned orc2 loop up */
-GLABEL(asm_orc2_loop_up)
+        .global asm_orc2_loop_up          /* word aligned orc2 loop up */
+        .align 2
+        .type asm_orc2_loop_up,%function
+asm_orc2_loop_up:
         ANDS    a4,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_orc2_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_orc2_loop_up_l1 /* yup, so branch */
         CMP     a4,#2           /* ORC2 the first 1-3 words */
         LDR     a4,[a2],#4      /* to align the total to a multiple */
         LDR     ip,[a1]         /* of 4 words */
         MVN     a4,a4
         ORR     ip,ip,a4
         STR     ip,[a1],#4
-        BLT     asm_orc2_loop_up_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_orc2_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1]
         MVNGE   a4,a4
         ORRGE   ip,ip,a4
         STRGE   ip,[a1],#4
-        BLE     asm_orc2_loop_up_l1 /* better to branch than skip instrs. */
+        BLE     .Lasm_orc2_loop_up_l1 /* better to branch than skip instrs. */
         LDRGT   a4,[a2],#4
         LDRGT   ip,[a1]
         MVNGT   a4,a4
         ORRGT   ip,ip,a4
         STRGT   ip,[a1],#4
-LABEL(asm_orc2_loop_up_l1)
+.Lasm_orc2_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_orc2_loop_up_l2)
+.Lasm_orc2_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   a1,{v3,v4,v5,lr}  /* load target words */
         MVN     a3,a3             /* ORC2 the four words */
@@ -754,8 +799,9 @@ LABEL(asm_orc2_loop_up_l2)
         ORR     lr,lr,ip
         STMIA   a1!,{v3,v4,v5,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_orc2_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_orc2_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{v1-v5,pc}^ /* restore work regs and return */
+        .size asm_orc2_loop_up,.-asm_orc2_loop_up
 
 /* extern void asm_not_loop_up (uintD* xptr, uintC count);
        entry
@@ -764,26 +810,28 @@ LABEL(asm_orc2_loop_up_l2)
        exit
                xptr = ~xptr for count words
                a1 - a4, ip destroyed */
-        EXPORT(asm_not_loop_up)           /* word aligned not loop up */
-GLABEL(asm_not_loop_up)
+        .global asm_not_loop_up           /* word aligned not loop up */
+        .align 2
+        .type asm_not_loop_up,%function
+asm_not_loop_up:
         ANDS    a3,a2,#3        /* multiple of 4 words ? */
-        BEQ     asm_not_loop_up_l1  /* yup, so branch */
+        BEQ     .Lasm_not_loop_up_l1 /* yup, so branch */
         CMP     a3,#2           /* NOT the first 1-3 words */
         LDR     a3,[a1]         /* to align the total to a multiple */
         MVN     a3,a3           /* of 4 words */
         STR     a3,[a1],#4
-        BLT     asm_not_loop_up_l1  /* better to branch than skip instrs. */
+        BLT     .Lasm_not_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a3,[a1]
         MVNGE   a3,a3
         STRGE   a3,[a1],#4
         LDRGT   a3,[a1]
         MVNGT   a3,a3
         STRGT   a3,[a1],#4
-LABEL(asm_not_loop_up_l1)
+.Lasm_not_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{lr}        /* save work regs */
-LABEL(asm_not_loop_up_l2)
+.Lasm_not_loop_up_l2:
         LDMIA   a1,{a2,a3,ip,lr} /* load 4 words in one go,NO writeback */
         MVN     a2,a2            /* NOT the four words */
         MVN     a3,a3
@@ -791,8 +839,9 @@ LABEL(asm_not_loop_up_l2)
         MVN     lr,lr
         STMIA   a1!,{a2,a3,ip,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_not_loop_up_l2  /* if count still positive then loop */
+        BGT     .Lasm_not_loop_up_l2 /* if count still positive then loop */
         LDMFD   sp!,{pc}^       /* restore work regs and return */
+        .size asm_not_loop_up,.-asm_not_loop_up
 
 /* extern void asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -802,17 +851,19 @@ LABEL(asm_not_loop_up_l2)
        exit
                a1 = true if any words ANDed together are non-zero else false
                a2 - a4, ip destroyed */
-        EXPORT(asm_and_test_loop_up) /* word aligned and_test loop up */
-GLABEL(asm_and_test_loop_up)
+        .global asm_and_test_loop_up /* word aligned and_test loop up */
+        .align 2
+        .type asm_and_test_loop_up,%function
+asm_and_test_loop_up:
         ANDS    a4,a3,#3            /* multiple of 4 words ? */
-        BEQ     asm_and_test_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_and_test_loop_up_l1 /* yup, so branch */
         CMP     a4,#2
         LDR     a4,[a2],#4      /* AND_TEST the first 1-3 words */
         LDR     ip,[a1],#4      /* to align the total to a multiple */
         TST     ip,a4           /* of 4 words */
         MOVNE   a1,#1           /* return true if AND_TEST ok */
         MOVNES  pc,lr
-        BCC     asm_and_test_loop_up_l1 /* better to branch than skip instrs. */
+        BCC     .Lasm_and_test_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   a4,[a2],#4
         LDRGE   ip,[a1],#4
         TSTGE   ip,a4
@@ -820,20 +871,20 @@ GLABEL(asm_and_test_loop_up)
         MOVNES  pc,lr
         ANDS    a4,a3,#3
         CMP     a4,#2
-        BLE     asm_and_test_loop_up_l1 /* better to branch than skip instrs. */
+        BLE     .Lasm_and_test_loop_up_l1 /* better to branch than skip instrs. */
         LDRGT   a4,[a2],#4
         LDRGT   ip,[a1],#4
         TSTGT   ip,a4
         MOVNE   a1,#1
         MOVNES  pc,lr
-LABEL(asm_and_test_loop_up_l1)
+.Lasm_and_test_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* return false */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
         MOV     v6,a1           /* move xptr to v6 */
         MOV     a1,#1           /* set result to true */
-LABEL(asm_and_test_loop_up_l2)
+.Lasm_and_test_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   v6!,{v3,v4,v5,lr} /* load target words */
         TST     v3,a3             /* AND_TEST the four words */
@@ -842,9 +893,10 @@ LABEL(asm_and_test_loop_up_l2)
         TSTEQ   lr,ip
         LDMNEFD sp!,{v1-v6,pc}^
         SUBS    a4,a4,#4            /* decrement counter by 4 */
-        BGT     asm_and_test_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_and_test_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
         LDMFD   sp!,{v1-v6,pc}^ /* restore work regs and return */
+        .size asm_and_test_loop_up,.-asm_and_test_loop_up
 
 /* extern void asm_test_loop_up (uintD* xptr, uintC count);
        entry
@@ -853,31 +905,33 @@ LABEL(asm_and_test_loop_up_l2)
        exit
                a1 = true if any words are non-zero else false
                a2 - a4, ip destroyed */
-        EXPORT(asm_test_loop_up)          /* word aligned test loop up */
-GLABEL(asm_test_loop_up)
+        .global asm_test_loop_up          /* word aligned test loop up */
+        .align 2
+        .type asm_test_loop_up,%function
+asm_test_loop_up:
         MOV     ip,a1           /* move xptr to ip */
         MOV     a1,#1           /* set result to true */
         ANDS    a3,a2,#3        /* multiple of 4 words ? */
-        BEQ     asm_test_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_test_loop_up_l1 /* yup, so branch */
         LDR     a4,[ip],#4      /* TEST the first 1-3 words */
         TEQ     a4,#0           /* align the total to a multiple of 4 */
         MOVNES  pc,lr           /* return true if AND_TEST ok */
         CMP     a3,#2
-        BLT     asm_test_loop_up_l1 /* need to branch 'cos PSR set */
+        BLT     .Lasm_test_loop_up_l1 /* need to branch 'cos PSR set */
         LDRGE   a4,[ip],#4      /* when checking against zero */
         TEQGE   a4,#0
         MOVNES  pc,lr
         CMP     a3,#2
-        BLE     asm_test_loop_up_l1 /* need to branch 'cos PSR set */
+        BLE     .Lasm_test_loop_up_l1 /* need to branch 'cos PSR set */
         LDRGT   a4,[ip],#4      /* when checking against zero */
         TEQGT   a4,#0
         MOVNES  pc,lr
-LABEL(asm_test_loop_up_l1)
+.Lasm_test_loop_up_l1:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* return false */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1,lr}     /* save work regs */
-LABEL(asm_test_loop_up_l2)
+.Lasm_test_loop_up_l2:
         LDMIA   ip!,{a2,a3,v1,lr} /* load 4 words in one go */
         TEQ     a2,#0             /* TEST the four words */
         TEQEQ   a3,#0
@@ -885,9 +939,10 @@ LABEL(asm_test_loop_up_l2)
         TEQEQ   lr,#0
         LDMNEFD sp!,{v1,pc}^
         SUBS    a4,a4,#4        /* decrement counter by 4 */
-        BGT     asm_test_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_test_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
         LDMFD   sp!,{v1,pc}^    /* restore work regs and return */
+        .size asm_test_loop_up,.-asm_test_loop_up
 
 /* extern void asm_compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
        entry
@@ -900,10 +955,12 @@ LABEL(asm_test_loop_up_l2)
                     -1 if xptr[i] < yptr[i]
                      0 otherwise
                a2 - a4, ip destroyed */
-        EXPORT(asm_compare_loop_up)       /* word aligned compare loop up */
-GLABEL(asm_compare_loop_up)
+        .global asm_compare_loop_up       /* word aligned compare loop up */
+        .align 2
+        .type asm_compare_loop_up,%function
+asm_compare_loop_up:
         ANDS    a4,a3,#3           /* multiple of 4 words ? */
-        BEQ     asm_compare_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_compare_loop_up_l1 /* yup, so branch */
         LDR     a4,[a2],#4         /* COMPARE the first 1-3 words */
         LDR     ip,[a1],#4      /* to align the total to a multiple */
         CMP     ip,a4           /* of 4 words */
@@ -912,7 +969,7 @@ GLABEL(asm_compare_loop_up)
         MOVNES  pc,lr           /* and return result if not equal */
         ANDS    a4,a3,#3
         CMP     a4,#2
-        BLT     asm_compare_loop_up_l1 /* need to branch 'cos PSR used */
+        BLT     .Lasm_compare_loop_up_l1 /* need to branch 'cos PSR used */
         LDR     a4,[a2],#4
         LDR     ip,[a1],#4
         CMP     ip,a4
@@ -921,21 +978,21 @@ GLABEL(asm_compare_loop_up)
         MOVNES  pc,lr
         ANDS    a4,a3,#3
         CMP     a4,#2
-        BLE     asm_compare_loop_up_l1 /* need to branch 'cos PSR used */
+        BLE     .Lasm_compare_loop_up_l1 /* need to branch 'cos PSR used */
         LDR     a4,[a2],#4
         LDR     ip,[a1],#4
         CMP     ip,a4
         MVNLO   a1,#0
         MOVHI   a1,#1
         MOVNES  pc,lr
-LABEL(asm_compare_loop_up_l1)
+.Lasm_compare_loop_up_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* xptr[] == yptr[] -> 0 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
         MOV     v6,a1           /* move xptr to v6 */
         MOV     a1,#1           /* set result to +1 */
-LABEL(asm_compare_loop_up_l2)
+.Lasm_compare_loop_up_l2:
         LDMIA   a2!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMIA   v6!,{v3,v4,v5,lr} /* load test words */
         CMP     v3,a3             /* COMPARE the four words */
@@ -945,9 +1002,10 @@ LABEL(asm_compare_loop_up_l2)
         MVNLO   a1,#0           /* x < y -> -1 (a1 already holds +1) */
         LDMNEFD sp!,{v1-v6,pc}^
         SUBS    a4,a4,#4           /* decrement counter by 4 */
-        BGT     asm_compare_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_compare_loop_up_l2 /* if count still positive then loop */
         MOV     a1,#0
         LDMFD   sp!,{v1-v6,pc}^ /* restore work regs and return */
+        .size asm_compare_loop_up,.-asm_compare_loop_up
 
 /* extern uintD asm_addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
        entry
@@ -958,8 +1016,10 @@ LABEL(asm_compare_loop_up_l2)
                destptr[] = sourceptr[] + destptr[]
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_addto_loop_down)       /* word aligned addto loop down */
-GLABEL(asm_addto_loop_down)
+        .global asm_addto_loop_down       /* word aligned addto loop down */
+        .align 2
+        .type asm_addto_loop_down,%function
+asm_addto_loop_down:
                 MOV     a4,a3   /* set regs for a call */
                 MOV     a3,a2   /* to asm_add_loop_down */
                                         /* and drop into asm_add_loop_down */
@@ -974,41 +1034,43 @@ GLABEL(asm_addto_loop_down)
                destptr[] = sourceptr1[] + sourceptr2[]
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_add_loop_down)         /* word aligned add loop down */
-GLABEL(asm_add_loop_down)
+        .global asm_add_loop_down         /* word aligned add loop down */
+        .align 2
+        .type asm_add_loop_down,%function
+asm_add_loop_down:
         ANDS    ip,a4,#3         /* multiple of 4 words ? */
-        BEQ     asm_add_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_add_loop_down_l1 /* yup, so branch */
         STMFD   sp!,{v6,lr}
         LDR     v6,[a2,#-4]!    /* add the first 1-3 words */
         LDR     lr,[a1,#-4]!    /* to align the total to a multiple */
         ADDS    lr,lr,v6        /* of 4 words */
         STR     lr,[a3,#-4]!
         TEQ     ip,#1
-        BEQ     asm_add_loop_down_l0 /* need to branch 'cos PSR used */
+        BEQ     .Lasm_add_loop_down_l0 /* need to branch 'cos PSR used */
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         ADCS    lr,lr,v6
         STR     lr,[a3,#-4]!
         TEQ     ip,#2
-        BEQ     asm_add_loop_down_l0 /* need to branch 'cos PSR used */
+        BEQ     .Lasm_add_loop_down_l0 /* need to branch 'cos PSR used */
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         ADCS    lr,lr,v6
         STR     lr,[a3,#-4]!
-LABEL(asm_add_loop_down_l0)          /* at least one add has happened */
+.Lasm_add_loop_down_l0:          /* at least one add has happened */
         BICS    a4,a4,#3         /* set counter to multiple of 4 */
-        BNE     asm_add_loop_down_l3 /* branch if more adds to do */
+        BNE     .Lasm_add_loop_down_l3 /* branch if more adds to do */
         ADCEQ   a1,a4,a4         /* set result to Carry (a4 is 0) */
         LDMEQFD sp!,{v6,pc}^     /* and return */
-LABEL(asm_add_loop_down_l1)
+.Lasm_add_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no adds, so C = 0 */
         MOVEQS  pc,lr           /* if zero then we're done */
         CMN     a4,#0           /* clear carry bit */
         STMFD   sp!,{v6,lr}
-LABEL(asm_add_loop_down_l3)
+.Lasm_add_loop_down_l3:
         STMFD   sp!,{v1-v5}     /* save work regs */
-LABEL(asm_add_loop_down_l2)
+.Lasm_add_loop_down_l2:
         LDMDB   a2!,{v1,v2,v3,ip} /* load 4 words in one go */
         LDMDB   a1!,{v4,v5,v6,lr} /* and from source2 */
         ADCS    lr,lr,ip          /* add the four words with carry */
@@ -1018,9 +1080,10 @@ LABEL(asm_add_loop_down_l2)
         STMDB   a3!,{v4,v5,v6,lr} /* store 4 results */
         SUB     a4,a4,#4        /* decrement counter by 4, preserve C */
         TEQ     a4,#0           /* are we done ? */
-        BNE     asm_add_loop_down_l2 /* if count non-zero then loop */
+        BNE     .Lasm_add_loop_down_l2 /* if count non-zero then loop */
         ADC     a1,a4,a4         /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{v1-v6,pc}^  /* restore work regs and return */
+        .size asm_addto_loop_down,.-asm_addto_loop_down
 
 /* extern uintD asm_inc_loop_down (uintD* ptr, uintC count);
        entry
@@ -1030,23 +1093,25 @@ LABEL(asm_add_loop_down_l2)
                a1 = 0 if any words are non-zero after increment else 1
                       stop incrementing when first word becomes non-zero
                a2 - a4, ip destroyed */
-        EXPORT(asm_inc_loop_down)         /* word aligned inc loop down */
-GLABEL(asm_inc_loop_down)
+        .global asm_inc_loop_down         /* word aligned inc loop down */
+        .align 2
+        .type asm_inc_loop_down,%function
+asm_inc_loop_down:
         ANDS    a3,a2,#1         /* multiple of 2 words ? */
-        BEQ     asm_inc_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_inc_loop_down_l1 /* yup, so branch */
         LDR     a4,[a1,#-4]!     /* INC the first word */
         ADDS    a4,a4,#1        /* align the total to a multiple of 2 */
         STR     a4,[a1]
         MOVNE   a1,#0           /* set result to 0 */
         MOVNES  pc,lr           /* return 0 if non-zero result */
-LABEL(asm_inc_loop_down_l1)
+.Lasm_inc_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MOVEQ   a1,#1           /* return 1 */
         MOVEQS  pc,lr           /* if zero then we're done */
         MOV     ip,a1           /* move ptr to ip */
         MOV     a1,#0           /* set result to 0 */
         ANDS    a3,a4,#3
-        BEQ     asm_inc_loop_down_l3
+        BEQ     .Lasm_inc_loop_down_l3
         LDMDB   ip,{a2,a3}      /* load 2 words in one go */
         ADDS    a3,a3,#1        /* INC the two words */
         ADDEQS  a2,a2,#1        /* stopping when first word non-zero */
@@ -1055,9 +1120,9 @@ LABEL(asm_inc_loop_down_l1)
         SUBS    a4,a4,#2        /* decrement counter by 2 */
         MOVEQ   a1,#1           /* if finished loop then */
         MOVEQS  pc,lr           /* return 1 */
-LABEL(asm_inc_loop_down_l3)         /* now a multiple of 4 words */
+.Lasm_inc_loop_down_l3:         /* now a multiple of 4 words */
         STMFD   sp!,{v1,lr}     /* save work regs */
-LABEL(asm_inc_loop_down_l2)
+.Lasm_inc_loop_down_l2:
         LDMDB   ip,{a2,a3,v1,lr} /* load 4 words in one go */
         ADDS    lr,lr,#1         /* INC the four words */
         ADDEQS  v1,v1,#1         /* stopping when first word non-zero */
@@ -1066,9 +1131,10 @@ LABEL(asm_inc_loop_down_l2)
         STMDB   ip!,{a2,a3,v1,lr} /* store 4 results */
         LDMNEFD sp!,{v1,pc}^      /* return 0 if any result non-zero */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_inc_loop_down_l2 /* if count still positive then loop */
+        BGT     .Lasm_inc_loop_down_l2 /* if count still positive then loop */
         MOV     a1,#1
         LDMFD   sp!,{v1,pc}^    /* restore work regs and return 1 */
+        .size asm_inc_loop_down,.-asm_inc_loop_down
 
 /* extern uintD asm_sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
        entry
@@ -1080,42 +1146,44 @@ LABEL(asm_inc_loop_down_l2)
                destptr[] = sourceptr1[] -  sourceptr2[]
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_sub_loop_down)         /* word aligned sub loop down */
-GLABEL(asm_sub_loop_down)
+        .global asm_sub_loop_down         /* word aligned sub loop down */
+        .align 2
+        .type asm_sub_loop_down,%function
+asm_sub_loop_down:
         ANDS    ip,a4,#3         /* multiple of 4 words ? */
-        BEQ     asm_sub_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_sub_loop_down_l1 /* yup, so branch */
         STMFD   sp!,{v6,lr}
         LDR     v6,[a2,#-4]!    /* subtract the first 1-3 words */
         LDR     lr,[a1,#-4]!    /* to align the total to a multiple */
         SUBS    lr,lr,v6        /* of 4 words */
         STR     lr,[a3,#-4]!
         TEQ     ip,#1
-        BNE     asm_sub_loop_down_l0 /* branch if more than one subtract */
-LABEL(asm_sub_loop_down_l4)     /* drop through for better instr. timings */
+        BNE     .Lasm_sub_loop_down_l0 /* branch if more than one subtract */
+.Lasm_sub_loop_down_l4:     /* drop through for better instr. timings */
         BICS    a4,a4,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
         LDMEQFD sp!,{v6,pc}^     /* and return */
         STMFD   sp!,{v1-v5}      /* save work regs */
-        B       asm_sub_loop_down_l2 /* branch if more subtracts to do */
-LABEL(asm_sub_loop_down_l0)
+        B       .Lasm_sub_loop_down_l2 /* branch if more subtracts to do */
+.Lasm_sub_loop_down_l0:
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         SBCS    lr,lr,v6
         STR     lr,[a3,#-4]!
         TEQ     ip,#2
-        BEQ     asm_sub_loop_down_l4 /* need to branch 'cos PSR used */
+        BEQ     .Lasm_sub_loop_down_l4 /* need to branch 'cos PSR used */
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         SBCS    lr,lr,v6
         STR     lr,[a3,#-4]!
-        B       asm_sub_loop_down_l4
-LABEL(asm_sub_loop_down_l1)
+        B       .Lasm_sub_loop_down_l4
+.Lasm_sub_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no subtracts, so C = 0 */
         MOVEQS  pc,lr           /* if zero then we're done */
         CMP     a4,#0           /* set carry bit, since a4 > 0 */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
-LABEL(asm_sub_loop_down_l2)
+.Lasm_sub_loop_down_l2:
         LDMDB   a2!,{v1,v2,v3,ip} /* load 4 words in one go */
         LDMDB   a1!,{v4,v5,v6,lr} /* and from source2 */
         SBCS    lr,lr,ip        /* subtract the four words with carry */
@@ -1125,9 +1193,10 @@ LABEL(asm_sub_loop_down_l2)
         STMDB   a3!,{v4,v5,v6,lr} /* store 4 results */
         SUB     a4,a4,#4        /* decrement counter by 4, preserve C */
         TEQ     a4,#0           /* are we done ? */
-        BNE     asm_sub_loop_down_l2 /* if count non-zero then loop */
+        BNE     .Lasm_sub_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4         /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{v1-v6,pc}^  /* restore work regs and return */
+        .size asm_sub_loop_down,.-asm_sub_loop_down
 
 /* extern uintD asm_subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
        entry
@@ -1140,44 +1209,46 @@ LABEL(asm_sub_loop_down_l2)
                destptr[] = sourceptr1[] -  sourceptr2[]
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_subx_loop_down)        /* word aligned xsub loop down */
-GLABEL(asm_subx_loop_down)
+        .global asm_subx_loop_down        /* word aligned xsub loop down */
+        .align 2
+        .type asm_subx_loop_down,%function
+asm_subx_loop_down:
         LDR     ip,[sp]         /* get starting value of carry */
-LABEL(asm_subx_loop_down_lsub)
+.Lasm_subx_loop_down_lsub:
         RSBS    ip,ip,#0          /* set carry in PSR */
         ANDS    ip,a4,#3          /* multiple of 4 words ? */
-        BEQ     asm_subx_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_subx_loop_down_l1 /* yup, so branch */
         STMFD   sp!,{v6,lr}
         LDR     v6,[a2,#-4]!    /* subtract the first 1-3 words */
         LDR     lr,[a1,#-4]!    /* to align the total to a multiple */
         SBCS    lr,lr,v6        /* of 4 words */
         STR     lr,[a3,#-4]!
         TEQ     ip,#1
-        BNE     asm_subx_loop_down_l0 /* branch if more than one subtract */
-LABEL(asm_subx_loop_down_l4)    /* drop through for better instr. timings */
+        BNE     .Lasm_subx_loop_down_l0 /* branch if more than one subtract */
+.Lasm_subx_loop_down_l4:    /* drop through for better instr. timings */
         BICS    a4,a4,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
         LDMEQFD sp!,{v6,pc}^      /* and return */
         STMFD   sp!,{v1-v5}       /* save work regs */
-        B       asm_subx_loop_down_l2 /* branch if more subtracts to do */
-LABEL(asm_subx_loop_down_l0)
+        B       .Lasm_subx_loop_down_l2 /* branch if more subtracts to do */
+.Lasm_subx_loop_down_l0:
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         SBCS    lr,lr,v6
         STR     lr,[a3,#-4]!
         TEQ     ip,#2
-        BEQ     asm_subx_loop_down_l4 /* need to branch 'cos PSR used */
+        BEQ     .Lasm_subx_loop_down_l4 /* need to branch 'cos PSR used */
         LDR     v6,[a2,#-4]!
         LDR     lr,[a1,#-4]!
         SBCS    lr,lr,v6
         STR     lr,[a3,#-4]!
-        B       asm_subx_loop_down_l4
-LABEL(asm_subx_loop_down_l1)
+        B       .Lasm_subx_loop_down_l4
+.Lasm_subx_loop_down_l1:
         BICS    a4,a4,#3        /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{v1-v6,lr}  /* save work regs */
-LABEL(asm_subx_loop_down_l2)
+.Lasm_subx_loop_down_l2:
         LDMDB   a2!,{v1,v2,v3,ip} /* load 4 words in one go */
         LDMDB   a1!,{v4,v5,v6,lr} /* and from source2 */
         SBCS    lr,lr,ip        /* subtract the four words with carry */
@@ -1187,9 +1258,10 @@ LABEL(asm_subx_loop_down_l2)
         STMDB   a3!,{v4,v5,v6,lr} /* store 4 results */
         SUB     a4,a4,#4        /* decrement counter by 4, preserve C */
         TEQ     a4,#0           /* are we done ? */
-        BNE     asm_subx_loop_down_l2 /* if count non-zero then loop */
+        BNE     .Lasm_subx_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4          /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{v1-v6,pc}^   /* restore work regs and return */
+        .size asm_subx_loop_down,.-asm_subx_loop_down
 
 /* extern uintD asm_subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
        entry
@@ -1200,42 +1272,44 @@ LABEL(asm_subx_loop_down_l2)
                destptr[] = destptr[] - sourceptr[]
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_subfrom_loop_down) /* word aligned subfrom loop down */
-GLABEL(asm_subfrom_loop_down)
+        .global asm_subfrom_loop_down /* word aligned subfrom loop down */
+        .align 2
+        .type asm_subfrom_loop_down,%function
+asm_subfrom_loop_down:
         ANDS    ip,a3,#3             /* multiple of 4 words ? */
-        BEQ     asm_subfrom_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_subfrom_loop_down_l1 /* yup, so branch */
         STMFD   sp!,{lr}
         LDR     a4,[a1,#-4]!    /* subtract the first 1-3 words */
         LDR     lr,[a2,#-4]!    /* to align the total to a multiple */
         SUBS    lr,lr,a4        /* of 4 words */
         STR     lr,[a2]
         TEQ     ip,#1
-        BNE     asm_subfrom_loop_down_l0 /* branch if more than one subtract */
-LABEL(asm_subfrom_loop_down_l4) /* drop through for better instr. timings */
+        BNE     .Lasm_subfrom_loop_down_l0 /* branch if more than one subtract */
+.Lasm_subfrom_loop_down_l4: /* drop through for better instr. timings */
         BICS    a4,a3,#3    /* set counter to multiple of 4 */
         SBCEQ   a1,a4,a4    /* set result to Carry (a4 is 0) */
         LDMEQFD sp!,{pc}^   /* and return */
         STMFD   sp!,{v1-v5} /* save work regs */
-        B       asm_subfrom_loop_down_l2 /* branch if more subtracts to do */
-LABEL(asm_subfrom_loop_down_l0)
+        B       .Lasm_subfrom_loop_down_l2 /* branch if more subtracts to do */
+.Lasm_subfrom_loop_down_l0:
         LDR     a4,[a1,#-4]!
         LDR     lr,[a2,#-4]!
         SBCS    lr,lr,a4
         STR     lr,[a2]
         TEQ     ip,#2
-        BEQ     asm_subfrom_loop_down_l4 /* need to branch 'cos PSR used */
+        BEQ     .Lasm_subfrom_loop_down_l4 /* need to branch 'cos PSR used */
         LDR     a4,[a1,#-4]!
         LDR     lr,[a2,#-4]!
         SBCS    lr,lr,a4
         STR     lr,[a2]
-        B       asm_subfrom_loop_down_l4
-LABEL(asm_subfrom_loop_down_l1)
+        B       .Lasm_subfrom_loop_down_l4
+.Lasm_subfrom_loop_down_l1:
         BICS    a4,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,#0           /* no subtracts, so C = 0 */
         MOVEQS  pc,lr           /* if zero then we're done */
         CMP     a4,#0           /* set carry bit, since a4 > 0 */
         STMFD   sp!,{v1-v5,lr}  /* save work regs */
-LABEL(asm_subfrom_loop_down_l2)
+.Lasm_subfrom_loop_down_l2:
         LDMDB   a1!,{a3,v1,v2,ip} /* load 4 words in one go */
         LDMDB   a2,{v3,v4,v5,lr}  /* and from destptr */
         SBCS    lr,lr,ip        /* subtract the four words with carry */
@@ -1245,9 +1319,10 @@ LABEL(asm_subfrom_loop_down_l2)
         STMDB   a2!,{v3,v4,v5,lr} /* store 4 results */
         SUB     a4,a4,#4        /* decrement counter by 4, preserve C */
         TEQ     a4,#0           /* are we done ? */
-        BNE     asm_subfrom_loop_down_l2 /* if count non-zero then loop */
+        BNE     .Lasm_subfrom_loop_down_l2 /* if count non-zero then loop */
         SBC     a1,a4,a4             /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{v1-v5,pc}^      /* restore work regs and return */
+        .size asm_subfrom_loop_down,.-asm_subfrom_loop_down
 
 /* extern uintD asm_dec_loop_down (uintD* ptr, uintC count);
        entry
@@ -1257,23 +1332,25 @@ LABEL(asm_subfrom_loop_down_l2)
                a1 = 0 if any words are non-zero before decrement else -1
                       stop decrementing when first word is non-zero
                a2 - a4, ip destroyed */
-        EXPORT(asm_dec_loop_down)         /* word aligned dec loop down */
-GLABEL(asm_dec_loop_down)
+        .global asm_dec_loop_down         /* word aligned dec loop down */
+        .align 2
+        .type asm_dec_loop_down,%function
+asm_dec_loop_down:
         ANDS    a3,a2,#1         /* multiple of 2 words ? */
-        BEQ     asm_dec_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_dec_loop_down_l1 /* yup, so branch */
         LDR     a4,[a1,#-4]!     /* DEC the first word */
         SUBS    a4,a4,#1        /* align the total to a multiple of 2 */
         STR     a4,[a1]
         MOVCS   a1,#0           /* set result to 0 */
         MOVCSS  pc,lr           /* return 0 if non-zero result */
-LABEL(asm_dec_loop_down_l1)
+.Lasm_dec_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MVNEQ   a1,#0           /* return -1 */
         MOVEQS  pc,lr           /* if zero then we're done */
         MOV     ip,a1           /* move ptr to ip */
         MOV     a1,#0           /* set result to 0 */
         ANDS    a3,a4,#3
-        BEQ     asm_dec_loop_down_l3
+        BEQ     .Lasm_dec_loop_down_l3
         LDMDB   ip,{a2,a3}      /* load 2 words in one go */
         SUBS    a3,a3,#1        /* DEC the two words */
         SUBCCS  a2,a2,#1        /* stopping when first word non-zero */
@@ -1282,9 +1359,9 @@ LABEL(asm_dec_loop_down_l1)
         SUBS    a4,a4,#2        /* decrement counter by 2 */
         MVNEQ   a1,#0           /* if finished loop then */
         MOVEQS  pc,lr           /* return -1 */
-LABEL(asm_dec_loop_down_l3)         /* now a multiple of 4 words */
+.Lasm_dec_loop_down_l3:         /* now a multiple of 4 words */
         STMFD   sp!,{v1,lr}     /* save work regs */
-LABEL(asm_dec_loop_down_l2)
+.Lasm_dec_loop_down_l2:
         LDMDB   ip,{a2,a3,v1,lr} /* load 4 words in one go */
         SUBS    lr,lr,#1         /* DEC the four words */
         SUBCCS  v1,v1,#1         /* stopping when first word non-zero */
@@ -1293,9 +1370,10 @@ LABEL(asm_dec_loop_down_l2)
         STMDB   ip!,{a2,a3,v1,lr} /* store 4 results */
         LDMCSFD sp!,{v1,pc}^      /* return 0 if any carry */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_dec_loop_down_l2 /* if count still positive then loop */
+        BGT     .Lasm_dec_loop_down_l2 /* if count still positive then loop */
         MVN     a1,#0
         LDMFD   sp!,{v1,pc}^    /* restore work regs and return -1 */
+        .size asm_dec_loop_down,.-asm_dec_loop_down
 
 /* extern void asm_neg_loop_down (uintD* ptr, uintC count);
        entry
@@ -1305,20 +1383,22 @@ LABEL(asm_dec_loop_down_l2)
                ptr[] = -ptr[] for count words
                a1 = last carry
                a2 - a4, ip destroyed */
-        EXPORT(asm_neg_loop_down)         /* word aligned neg loop down */
-GLABEL(asm_neg_loop_down)
+        .global asm_neg_loop_down         /* word aligned neg loop down */
+        .align 2
+        .type asm_neg_loop_down,%function
+asm_neg_loop_down:
         CMPS    a2,#0           /* count = 0 ? */
         MOVEQ   a1,#0           /* yup, so return 0 */
         MOVEQS  pc,lr
-LABEL(asm_neg_loop_down_l1)          /* skip all the zero words first */
+.Lasm_neg_loop_down_l1:          /* skip all the zero words first */
         LDR     a3,[a1,#-4]!     /* compare words against zero */
         CMPS    a3,#0            /* downwards in memory */
-        BNE     asm_neg_loop_down_l2 /* non-zero, so negate rest of words */
+        BNE     .Lasm_neg_loop_down_l2 /* non-zero, so negate rest of words */
         SUBS    a2,a2,#1         /* reduce count of words */
-        BNE     asm_neg_loop_down_l1 /* more ?, so loop */
+        BNE     .Lasm_neg_loop_down_l1 /* more ?, so loop */
         MOV     a1,#0            /* return 0 */
         MOVS    pc,lr
-LABEL(asm_neg_loop_down_l2)
+.Lasm_neg_loop_down_l2:
         RSB     a3,a3,#0        /* first non-zero word = -word */
         STR     a3,[a1]
         SUBS    a2,a2,#1
@@ -1326,24 +1406,24 @@ LABEL(asm_neg_loop_down_l2)
         MOVEQS  pc,lr
                                         /* now NOT rest of the words */
         ANDS    a3,a2,#3                /* multiple of 4 words ? */
-        BEQ     asm_neg_loop_down_l3        /* yup, so branch */
+        BEQ     .Lasm_neg_loop_down_l3  /* yup, so branch */
         CMP     a3,#2                   /* NOT the first 1-3 words */
         LDR     a3,[a1,#-4]!    /* to align the total to a multiple */
         MVN     a3,a3           /* of 4 words */
         STR     a3,[a1]
-        BLT     asm_neg_loop_down_l3 /* better to branch than skip instrs. */
+        BLT     .Lasm_neg_loop_down_l3 /* better to branch than skip instrs. */
         LDRGE   a3,[a1,#-4]!
         MVNGE   a3,a3
         STRGE   a3,[a1]
         LDRGT   a3,[a1,#-4]!
         MVNGT   a3,a3
         STRGT   a3,[a1]
-LABEL(asm_neg_loop_down_l3)
+.Lasm_neg_loop_down_l3:
         BICS    a4,a2,#3        /* set counter to multiple of 4 */
         MVNEQ   a1,#0           /* set result to -1 */
         MOVEQS  pc,lr           /* if zero then we're done */
         STMFD   sp!,{lr}        /* save work regs */
-LABEL(asm_neg_loop_down_l4)
+.Lasm_neg_loop_down_l4:
         LDMDB   a1,{a2,a3,ip,lr} /* load 4 words in one go,NO writeback */
         MVN     a2,a2            /* NOT the four words */
         MVN     a3,a3
@@ -1351,9 +1431,10 @@ LABEL(asm_neg_loop_down_l4)
         MVN     lr,lr
         STMDB   a1!,{a2,a3,ip,lr} /* store 4 results */
         SUBS    a4,a4,#4          /* decrement counter by 4 */
-        BGT     asm_neg_loop_down_l4 /* if count still positive then loop */
+        BGT     .Lasm_neg_loop_down_l4 /* if count still positive then loop */
         MVN     a1,#0            /* set result to -1 */
         LDMFD   sp!,{pc}^        /* restore work regs and return -1 */
+        .size asm_neg_loop_down,.-asm_neg_loop_down
 
 /* extern uintD asm_shift1left_loop_down (uintD* ptr, uintC count);
        entry
@@ -1362,20 +1443,22 @@ LABEL(asm_neg_loop_down_l4)
        exit
                a1 = carry out from last shift left
                a2 - a4, ip destroyed */
-        EXPORT(asm_shift1left_loop_down) /* word aligned shift1left loop down */
-GLABEL(asm_shift1left_loop_down)
+        .global asm_shift1left_loop_down /* word aligned shift1left loop down */
+        .align 2
+        .type asm_shift1left_loop_down,%function
+asm_shift1left_loop_down:
         CMN     a1,#0           /* clear carry bit, since a1 > 0 */
         ANDS    a3,a2,#1        /* multiple of 2 words ? */
-        BEQ     asm_shift1left_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_shift1left_loop_down_l1 /* yup, so branch */
         LDR     a4,[a1,#-4]!            /* shift left the first word */
         ADDS    a4,a4,a4
         STR     a4,[a1]
-LABEL(asm_shift1left_loop_down_l1)
+.Lasm_shift1left_loop_down_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         ADCEQ   a1,a4,a4        /* if zero set result to C (a4 is 0) */
         MOVEQS  pc,lr           /* and return */
         ANDS    a3,a4,#3        /* multiple of 4 words ? */
-        BEQ     asm_shift1left_loop_down_l3 /* yup, so branch */
+        BEQ     .Lasm_shift1left_loop_down_l3 /* yup, so branch */
         LDMDB   a1,{a2,a3}              /* load 2 words in one go */
         ADCS    a3,a3,a3                /* shift left the two words */
         ADCS    a2,a2,a2
@@ -1383,9 +1466,9 @@ LABEL(asm_shift1left_loop_down_l1)
         BICS    a4,a4,#2        /* decrement counter by 2 */
         ADCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
         MOVEQS  pc,lr           /* and return */
-LABEL(asm_shift1left_loop_down_l3)  /* now a multiple of 4 words */
+.Lasm_shift1left_loop_down_l3:  /* now a multiple of 4 words */
         STMFD   sp!,{lr}        /* save work regs */
-LABEL(asm_shift1left_loop_down_l2)
+.Lasm_shift1left_loop_down_l2:
         LDMDB   a1,{a2,a3,ip,lr} /* load 4 words in one go */
         ADCS    lr,lr,lr         /* shift left the four words */
         ADCS    ip,ip,ip
@@ -1394,9 +1477,10 @@ LABEL(asm_shift1left_loop_down_l2)
         STMDB   a1!,{a2,a3,ip,lr}       /* store 4 results */
         SUB     a4,a4,#4                /* decrement counter by 4 */
         TEQ     a4,#0                   /* are we done ? */
-        BNE     asm_shift1left_loop_down_l2 /* if count non-zero then loop */
+        BNE     .Lasm_shift1left_loop_down_l2 /* if count non-zero then loop */
         ADC     a1,a4,a4        /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{pc}^       /* restore work regs and return 1 */
+        .size asm_shift1left_loop_down,.-asm_shift1left_loop_down
 
 /* extern uintD asm_shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
        entry
@@ -1407,18 +1491,20 @@ LABEL(asm_shift1left_loop_down_l2)
        exit
                a1 = shift out from last shift left
                a2 - a4, ip destroyed */
-        EXPORT(asm_shiftleft_loop_down) /* word aligned shiftleft loop down */
-GLABEL(asm_shiftleft_loop_down)
+        .global asm_shiftleft_loop_down /* word aligned shiftleft loop down */
+        .align 2
+        .type asm_shiftleft_loop_down,%function
+asm_shiftleft_loop_down:
         STMFD   sp!,{v6,lr}
         RSB     v6,a3,#32       /* size of complementary right shift */
         ANDS    ip,a2,#3        /* multiple of 4 words ? */
-        BEQ     asm_shiftleft_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_shiftleft_loop_down_l1 /* yup, so branch */
         LDR     lr,[a1,#-4]!    /* shiftleft the first 1-3 words */
         ORR     a4,a4,lr,ASL a3 /* to align the total to a multiple */
         STR     a4,[a1,#0]      /* of 4 words */
         MOV     a4,lr,LSR v6
         CMP     ip,#2
-        BLT     asm_shiftleft_loop_down_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_shiftleft_loop_down_l1 /* better to branch than skip instrs. */
         LDRGE   lr,[a1,#-4]!
         ORRGE   a4,a4,lr,ASL a3
         STRGE   a4,[a1,#0]
@@ -1427,12 +1513,12 @@ GLABEL(asm_shiftleft_loop_down)
         ORRGT   a4,a4,lr,ASL a3
         STRGT   a4,[a1,#0]
         MOVGT   a4,lr,LSR v6
-LABEL(asm_shiftleft_loop_down_l1)
+.Lasm_shiftleft_loop_down_l1:
         BICS    ip,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a4           /* if zero then we're done */
         LDMEQFD sp!,{v6,pc}^    /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
-LABEL(asm_shiftleft_loop_down_l2)
+.Lasm_shiftleft_loop_down_l2:
         LDMDB   a1,{a2,v1,v2,v3} /* load 4 words in one go */
         ORR     lr,a4,v3,ASL a3  /* shiftleft the four words */
         MOV     a4,v3,LSR v6     /* keep carry in a4 */
@@ -1444,9 +1530,10 @@ LABEL(asm_shiftleft_loop_down_l2)
         MOV     a4,a2,LSR v6
         STMDB   a1!,{v1,v2,v3,lr}      /* store 4 results */
         SUBS    ip,ip,#4               /* decrement counter by 4 */
-        BGT     asm_shiftleft_loop_down_l2 /* if count still positive then loop */
+        BGT     .Lasm_shiftleft_loop_down_l2 /* if count still positive then loop */
         MOV     a1,a4                  /* result = last shift out */
         LDMFD   sp!,{v1-v3,v6,pc}^ /* restore work regs and return */
+        .size asm_shiftleft_loop_down,.-asm_shiftleft_loop_down
 
 /* extern uintD asm_shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
        entry
@@ -1457,19 +1544,21 @@ LABEL(asm_shiftleft_loop_down_l2)
        exit
                a1 = shift out from last shift left
                a2 - a4, ip destroyed */
-        EXPORT(asm_shiftleftcopy_loop_down) /* word aligned shiftleftcopy loop down */
-GLABEL(asm_shiftleftcopy_loop_down)
+        .global asm_shiftleftcopy_loop_down /* word aligned shiftleftcopy loop down */
+        .align 2
+        .type asm_shiftleftcopy_loop_down,%function
+asm_shiftleftcopy_loop_down:
         STMFD   sp!,{v5,v6,lr}
         MOV     v5,#0           /* initial shift carry */
         RSB     v6,a4,#32       /* size of complementary right shift */
         ANDS    ip,a3,#3        /* multiple of 4 words ? */
-        BEQ     asm_shiftleftcopy_loop_down_l1 /* yup, so branch */
+        BEQ     .Lasm_shiftleftcopy_loop_down_l1 /* yup, so branch */
         LDR     lr,[a1,#-4]!    /* shiftleft the first 1-3 words */
         ORR     v5,v5,lr,ASL a4 /* to align the total to a multiple */
         STR     v5,[a2,#-4]!    /* of 4 words */
         MOV     v5,lr,LSR v6
         CMP     ip,#2
-        BLT     asm_shiftleftcopy_loop_down_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_shiftleftcopy_loop_down_l1 /* better to branch than skip instrs. */
         LDRGE   lr,[a1,#-4]!
         ORRGE   v5,v5,lr,ASL a4
         STRGE   v5,[a2,#-4]!
@@ -1478,12 +1567,12 @@ GLABEL(asm_shiftleftcopy_loop_down)
         ORRGT   v5,v5,lr,ASL a4
         STRGT   v5,[a2,#-4]!
         MOVGT   v5,lr,LSR v6
-LABEL(asm_shiftleftcopy_loop_down_l1)
+.Lasm_shiftleftcopy_loop_down_l1:
         BICS    ip,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,v5           /* if zero then we're done */
         LDMEQFD sp!,{v5,v6,pc}^ /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
-LABEL(asm_shiftleftcopy_loop_down_l2)
+.Lasm_shiftleftcopy_loop_down_l2:
         LDMDB   a1!,{a3,v1,v2,v3} /* load 4 words in one go */
         ORR     lr,v5,v3,ASL a4   /* shiftleft the four words */
         MOV     v5,v3,LSR v6      /* keep carry in v5 */
@@ -1495,9 +1584,10 @@ LABEL(asm_shiftleftcopy_loop_down_l2)
         MOV     v5,a3,LSR v6
         STMDB   a2!,{v1,v2,v3,lr}          /* store 4 results */
         SUBS    ip,ip,#4                   /* decrement counter by 4 */
-        BGT     asm_shiftleftcopy_loop_down_l2 /* if count still positive then loop */
+        BGT     .Lasm_shiftleftcopy_loop_down_l2 /* if count still positive then loop */
         MOV     a1,v5                      /* result = last shift out */
         LDMFD   sp!,{v1-v3,v5,v6,pc}^ /* restore work regs and return */
+        .size asm_shiftleftcopy_loop_down,.-asm_shiftleftcopy_loop_down
 
 /* extern uintD asm_shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
        entry
@@ -1507,20 +1597,22 @@ LABEL(asm_shiftleftcopy_loop_down_l2)
        exit
                a1 = carry out from last shift right
                a2 - a4, ip destroyed */
-        EXPORT(asm_shift1right_loop_up) /* word aligned shift1right loop up */
-GLABEL(asm_shift1right_loop_up)
+        .global asm_shift1right_loop_up /* word aligned shift1right loop up */
+        .align 2
+        .type asm_shift1right_loop_up,%function
+asm_shift1right_loop_up:
         MOVS    a3,a3,LSR #1           /* set carry */
         ANDS    a3,a2,#1               /* multiple of 2 words ? */
-        BEQ     asm_shift1right_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_shift1right_loop_up_l1 /* yup, so branch */
         LDR     a4,[a1]                /* shift right the first word */
         MOVS    a4,a4,rrx
         STR     a4,[a1],#4
-LABEL(asm_shift1right_loop_up_l1)
+.Lasm_shift1right_loop_up_l1:
         BICS    a4,a2,#1        /* set counter to multiple of 2 */
         MOVEQ   a1,a4,rrx       /* if zero set result to C (a4 is 0) */
         MOVEQS  pc,lr           /* and return */
         ANDS    a3,a4,#3        /* multiple of 4 words ? */
-        BEQ     asm_shift1right_loop_up_l3 /* yup, so branch */
+        BEQ     .Lasm_shift1right_loop_up_l3 /* yup, so branch */
         LDMIA   a1,{a2,a3}             /* load 2 words in one go */
         MOVS    a2,a2,rrx              /* shift right the two words */
         MOVS    a3,a3,rrx
@@ -1528,9 +1620,9 @@ LABEL(asm_shift1right_loop_up_l1)
         BICS    a4,a4,#2        /* decrement counter by 2 */
         ADCEQ   a1,a4,a4        /* set result to Carry (a4 is 0) */
         MOVEQS  pc,lr           /* and return */
-LABEL(asm_shift1right_loop_up_l3)   /* now a multiple of 4 words */
+.Lasm_shift1right_loop_up_l3:   /* now a multiple of 4 words */
         STMFD   sp!,{lr}        /* save work regs */
-LABEL(asm_shift1right_loop_up_l2)
+.Lasm_shift1right_loop_up_l2:
         LDMIA   a1,{a2,a3,ip,lr} /* load 4 words in one go */
         MOVS    a2,a2,rrx        /* shift right the four words */
         MOVS    a3,a3,rrx
@@ -1539,9 +1631,10 @@ LABEL(asm_shift1right_loop_up_l2)
         STMIA   a1!,{a2,a3,ip,lr}      /* store 4 results */
         SUB     a4,a4,#4               /* decrement counter by 4 */
         TEQ     a4,#0                  /* are we done ? */
-        BNE     asm_shift1right_loop_up_l2 /* if count non-zero then loop */
+        BNE     .Lasm_shift1right_loop_up_l2 /* if count non-zero then loop */
         MOV     a1,a4,rrx       /* set result to Carry (a4 is 0) */
         LDMFD   sp!,{pc}^       /* restore work regs and return 1 */
+        .size asm_shift1right_loop_up,.-asm_shift1right_loop_up
 
 /* extern uintD asm_shiftright_loop_up (uintD* ptr, uintC count, uintC i);
        entry
@@ -1551,20 +1644,22 @@ LABEL(asm_shift1right_loop_up_l2)
        exit
                a1 = shift out from last shift right
                a2 - a4, ip destroyed */
-        EXPORT(asm_shiftright_loop_up) /* word aligned shiftright loop up */
-GLABEL(asm_shiftright_loop_up)
+        .global asm_shiftright_loop_up /* word aligned shiftright loop up */
+        .align 2
+        .type asm_shiftright_loop_up,%function
+asm_shiftright_loop_up:
         STMFD   sp!,{v6,lr}
         MOV     a4,#0           /* initial shift carry */
         RSB     v6,a3,#32       /* size of complementary left shift */
-LABEL(asm_shiftright_loop_up_l0)
+.Lasm_shiftright_loop_up_l0:
         ANDS    ip,a2,#3              /* multiple of 4 words ? */
-        BEQ     asm_shiftright_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_shiftright_loop_up_l1 /* yup, so branch */
         LDR     lr,[a1]         /* shiftright the first 1-3 words */
         ORR     a4,a4,lr,LSR a3 /* to align the total to a multiple */
         STR     a4,[a1],#4      /* of 4 words */
         MOV     a4,lr,ASL v6
         CMP     ip,#2
-        BLT     asm_shiftright_loop_up_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_shiftright_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   lr,[a1]
         ORRGE   a4,a4,lr,LSR a3
         STRGE   a4,[a1],#4
@@ -1573,12 +1668,12 @@ LABEL(asm_shiftright_loop_up_l0)
         ORRGT   a4,a4,lr,LSR a3
         STRGT   a4,[a1],#4
         MOVGT   a4,lr,ASL v6
-LABEL(asm_shiftright_loop_up_l1)
+.Lasm_shiftright_loop_up_l1:
         BICS    ip,a2,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,a4           /* if zero then we're done */
         LDMEQFD sp!,{v6,pc}^    /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
-LABEL(asm_shiftright_loop_up_l2)
+.Lasm_shiftright_loop_up_l2:
         LDMIA   a1,{v1,v2,v3,lr} /* load 4 words in one go */
         ORR     a2,a4,v1,LSR a3  /* shiftright the four words */
         MOV     a4,v1,ASL v6     /* keep carry in a4 */
@@ -1590,7 +1685,7 @@ LABEL(asm_shiftright_loop_up_l2)
         MOV     a4,lr,ASL v6
         STMIA   a1!,{a2,v1,v2,v3}     /* store 4 results */
         SUBS    ip,ip,#4              /* decrement counter by 4 */
-        BGT     asm_shiftright_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_shiftright_loop_up_l2 /* if count still positive then loop */
         MOV     a1,a4                 /* result = last shift out */
         LDMFD   sp!,{v1-v3,v6,pc}^    /* restore work regs and return */
 
@@ -1602,14 +1697,17 @@ LABEL(asm_shiftright_loop_up_l2)
        exit
                a1 = shift out from last shift right
                a2 - a4, ip destroyed */
-        EXPORT(asm_shiftrightsigned_loop_up) /* word aligned shiftrightsigned loop up */
-GLABEL(asm_shiftrightsigned_loop_up)
+        .global asm_shiftrightsigned_loop_up /* word aligned shiftrightsigned loop up */
+        .align 2
+        .type asm_shiftrightsigned_loop_up,%function
+asm_shiftrightsigned_loop_up:
         STMFD   sp!,{v6,lr}
         RSB     v6,a3,#32       /* size of complementary left shift */
         LDR     lr,[a1]         /* setup carry for first shift. */
         MOV     a4,lr,ASR #31   /* this is the sign extended bits */
         AND     a4,a4,a4,LSL v6 /* 31->(32-i) of the first word */
-        B       asm_shiftright_loop_up_l0 /* use right shift code now */
+        B       .Lasm_shiftright_loop_up_l0 /* use right shift code now */
+        .size asm_shiftright_loop_up,.-asm_shiftright_loop_up
 
 /* extern uintD asm_shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
        entry
@@ -1621,21 +1719,23 @@ GLABEL(asm_shiftrightsigned_loop_up)
        exit
                a1 = shift out from last shift right
                a2 - a4, ip destroyed */
-        EXPORT(asm_shiftrightcopy_loop_up) /* word aligned shiftrightcopy loop up */
-GLABEL(asm_shiftrightcopy_loop_up)
+        .global asm_shiftrightcopy_loop_up /* word aligned shiftrightcopy loop up */
+        .align 2
+        .type asm_shiftrightcopy_loop_up,%function
+asm_shiftrightcopy_loop_up:
         STMFD   sp!,{v5,v6,lr}
         LDR     v5,[sp,#12]     /* initial shift carry */
         RSB     v6,a4,#32       /* size of complementary left shift */
         MOV     v5,v5,ASL v6
-LABEL(asm_shiftrightcopy_loop_up_l0)
+.Lasm_shiftrightcopy_loop_up_l0:
         ANDS    ip,a3,#3                  /* multiple of 4 words ? */
-        BEQ     asm_shiftrightcopy_loop_up_l1 /* yup, so branch */
+        BEQ     .Lasm_shiftrightcopy_loop_up_l1 /* yup, so branch */
         LDR     lr,[a1],#4      /* shiftright the first 1-3 words */
         ORR     v5,v5,lr,LSR a4 /* to align the total to a multiple */
         STR     v5,[a2],#4      /* of 4 words */
         MOV     v5,lr,ASL v6
         CMP     ip,#2
-        BLT     asm_shiftrightcopy_loop_up_l1 /* better to branch than skip instrs. */
+        BLT     .Lasm_shiftrightcopy_loop_up_l1 /* better to branch than skip instrs. */
         LDRGE   lr,[a1],#4
         ORRGE   v5,v5,lr,LSR a4
         STRGE   v5,[a2],#4
@@ -1644,12 +1744,12 @@ LABEL(asm_shiftrightcopy_loop_up_l0)
         ORRGT   v5,v5,lr,LSR a4
         STRGT   v5,[a2],#4
         MOVGT   v5,lr,ASL v6
-LABEL(asm_shiftrightcopy_loop_up_l1)
+.Lasm_shiftrightcopy_loop_up_l1:
         BICS    ip,a3,#3        /* set counter to multiple of 4 */
         MOVEQ   a1,v5           /* if zero then we're done */
         LDMEQFD sp!,{v5,v6,pc}^ /* so return last shift out */
         STMFD   sp!,{v1-v3}     /* save work regs */
-LABEL(asm_shiftrightcopy_loop_up_l2)
+.Lasm_shiftrightcopy_loop_up_l2:
         LDMIA   a1!,{v1,v2,v3,lr} /* load 4 words in one go */
         ORR     a3,v5,v1,LSR a4   /* shiftright the four words */
         MOV     v5,v1,ASL v6      /* keep carry in v5 */
@@ -1661,11 +1761,12 @@ LABEL(asm_shiftrightcopy_loop_up_l2)
         MOV     v5,lr,ASL v6
         STMIA   a2!,{a3,v1,v2,v3}         /* store 4 results */
         SUBS    ip,ip,#4                  /* decrement counter by 4 */
-        BGT     asm_shiftrightcopy_loop_up_l2 /* if count still positive then loop */
+        BGT     .Lasm_shiftrightcopy_loop_up_l2 /* if count still positive then loop */
         MOV     a1,v5                     /* result = last shift out */
         LDMFD   sp!,{v1-v3,v5,v6,pc}^ /* restore work regs and return */
+        .size asm_shiftrightcopy_loop_up,.-asm_shiftrightcopy_loop_up
 
-#ifndef HAVE_umull
+%%ifndef HAVE_umull
 /* mulu32_64_vregs
        entry
                a1 = x
@@ -1674,7 +1775,7 @@ LABEL(asm_shiftrightcopy_loop_up_l2)
                v1 = low32(x*y)
                ip = high32(x*y)
                v2,v3,v4 destroyed */
-LABEL(mulu32_64_vregs)
+.Lmulu32_64_vregs:
         MOV     v1,a1,LSR #16    /* temp := top half of x */
         MOV     v2,ip,LSR #16    /* hi := top half of y */
         BIC     v3,a1,v1,LSL #16 /* x  := bottom half of x */
@@ -1689,7 +1790,7 @@ LABEL(mulu32_64_vregs)
         ADDS    v1,v4,ip,LSL #16 /* x is now bottom 32 bits of result */
         ADC     ip,v2,ip,LSR #16 /* hi is top 32 bits */
         MOVS    pc,lr
-#endif  /* HAVE_umull */
+%%endif  /* HAVE_umull */
 
 /* extern uintD asm_mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
        entry
@@ -1700,29 +1801,31 @@ LABEL(mulu32_64_vregs)
        exit
                a1 = final carry of multiply
                a2 - a4, ip destroyed */
-        EXPORT(asm_mulusmall_loop_down)
-GLABEL(asm_mulusmall_loop_down)
+        .global asm_mulusmall_loop_down
+        .align 2
+        .type asm_mulusmall_loop_down,%function
+asm_mulusmall_loop_down:
         CMP     a3,#0
         MOVEQ   a1,a4
         MOVEQS  pc,lr
-#ifdef HAVE_umull
+%%ifdef HAVE_umull
         STMFD   sp!,{v1,lr}
-LABEL(asm_mulusmall_loop_down_l1)
+.Lasm_mulusmall_loop_down_l1:
         LDR     ip,[a2,#-4]!
         UMULL   v1,ip,a1,ip     /* muluD(digit,*--ptr,hi=,lo=) */
         ADDS    v1,v1,a4        /* lo += carry */
         ADC     a4,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a2,#0]     /* *ptr = lo */
         SUBS    a3,a3,#1       /* len-- */
-        BNE     asm_mulusmall_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulusmall_loop_down_l1 /* until len==0 */
         MOV     a1,a4                  /* return carry */
         LDMFD   sp!,{v1,pc}^
-#else
+%%else
         STMFD   sp!,{v1-v2,lr}
-LABEL(asm_mulusmall_loop_down_l1)
+.Lasm_mulusmall_loop_down_l1:
         LDR     ip,[a2,#-4]!
 
-/*       BL      mulu32_64_vregs         / * muluD(digit,*--ptr,hi=,lo=) */
+/*       BL      .Lmulu32_64_vregs       / * muluD(digit,*--ptr,hi=,lo=) */
 /* replaced by multiplication of a small x = a1 and a big y = ip : */
         MOV     v1,ip,LSR #16    /* top half of y */
         BIC     ip,ip,v1,LSL #16 /* bottom half of y */
@@ -1736,10 +1839,11 @@ LABEL(asm_mulusmall_loop_down_l1)
         ADC     a4,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a2,#0]     /* *ptr = lo */
         SUBS    a3,a3,#1       /* len-- */
-        BNE     asm_mulusmall_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulusmall_loop_down_l1 /* until len==0 */
         MOV     a1,a4                  /* return carry */
         LDMFD   sp!,{v1-v2,pc}^
-#endif
+%%endif
+        .size asm_mulusmall_loop_down,.-asm_mulusmall_loop_down
 
 /* extern void asm_mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
        entry
@@ -1749,35 +1853,38 @@ LABEL(asm_mulusmall_loop_down_l1)
                a4 = count of words to be multiplied down
        exit
                a1 - a4, ip destroyed */
-        EXPORT(asm_mulu_loop_down)
-GLABEL(asm_mulu_loop_down)
-#ifdef HAVE_umull
+        .global asm_mulu_loop_down
+        .align 2
+        .type asm_mulu_loop_down,%function
+asm_mulu_loop_down:
+%%ifdef HAVE_umull
         STMFD   sp!,{v1,v5,lr}
         MOV     v5,#0
-LABEL(asm_mulu_loop_down_l1)
+.Lasm_mulu_loop_down_l1:
         LDR     ip,[a2,#-4]!
         UMULL   v1,ip,a1,ip     /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
         ADC     v5,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a3,#-4]!   /* *--destptr = lo */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_mulu_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulu_loop_down_l1 /* until len==0 */
         STR     v5,[a3,#-4]!      /* *--destptr = carry */
         LDMFD   sp!,{v1,v5,pc}^
-#else
+%%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
-LABEL(asm_mulu_loop_down_l1)
+.Lasm_mulu_loop_down_l1:
         LDR     ip,[a2,#-4]!
-        BL      mulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
+        BL      .Lmulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
         ADC     v5,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a3,#-4]!   /* *--destptr = lo */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_mulu_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulu_loop_down_l1 /* until len==0 */
         STR     v5,[a3,#-4]!      /* *--destptr = carry */
         LDMFD   sp!,{v1-v5,pc}^
-#endif
+%%endif
+        .size asm_mulu_loop_down,.-asm_mulu_loop_down
 
 /* extern void asm_muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
        entry
@@ -1787,12 +1894,14 @@ LABEL(asm_mulu_loop_down_l1)
                a4 = count of words to be multiplied added down
        exit
                a1 - a4, ip destroyed */
-        EXPORT(asm_muluadd_loop_down)
-GLABEL(asm_muluadd_loop_down)
-#ifdef HAVE_umull
+        .global asm_muluadd_loop_down
+        .align 2
+        .type asm_muluadd_loop_down,%function
+asm_muluadd_loop_down:
+%%ifdef HAVE_umull
         STMFD   sp!,{v1,v5,lr}
         MOV     v5,#0
-LABEL(asm_muluadd_loop_down_l1)
+.Lasm_muluadd_loop_down_l1:
         LDR     ip,[a2,#-4]!
         UMULL   v1,ip,a1,ip     /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
@@ -1802,15 +1911,15 @@ LABEL(asm_muluadd_loop_down_l1)
         ADC     v5,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a3,#0]     /* *destptr = lo */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_muluadd_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_muluadd_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
         LDMFD   sp!,{v1,v5,pc}^
-#else
+%%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
-LABEL(asm_muluadd_loop_down_l1)
+.Lasm_muluadd_loop_down_l1:
         LDR     ip,[a2,#-4]!
-        BL      mulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
+        BL      .Lmulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
         ADCCS   ip,ip,#0        /* if (lo<carry) { hi += 1 }; */
         LDR     v5,[a3,#-4]!    /* carry = *--destptr */
@@ -1818,10 +1927,11 @@ LABEL(asm_muluadd_loop_down_l1)
         ADC     v5,ip,#0       /* if (lo<carry) { hi += 1 }; carry=hi */
         STR     v1,[a3,#0]     /* *destptr = lo */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_muluadd_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_muluadd_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
         LDMFD   sp!,{v1-v5,pc}^
-#endif
+%%endif
+        .size asm_muluadd_loop_down,.-asm_muluadd_loop_down
 
 /* extern void asm_mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
        entry
@@ -1831,12 +1941,14 @@ LABEL(asm_muluadd_loop_down_l1)
                a4 = count of words to be multiplied subtracted down
        exit
                a1 - a4, ip destroyed */
-        EXPORT(asm_mulusub_loop_down)
-GLABEL(asm_mulusub_loop_down)
-#ifdef HAVE_umull
+        .global asm_mulusub_loop_down
+        .align 2
+        .type asm_mulusub_loop_down,%function
+asm_mulusub_loop_down:
+%%ifdef HAVE_umull
         STMFD   sp!,{v1,v5,lr}
         MOV     v5,#0
-LABEL(asm_mulusub_loop_down_l1)
+.Lasm_mulusub_loop_down_l1:
         LDR     ip,[a2,#-4]!
         UMULL   v1,ip,a1,ip     /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
@@ -1846,15 +1958,15 @@ LABEL(asm_mulusub_loop_down_l1)
         STR     ip,[a3,#0]      /* *destptr = carry - lo */
         ADDCC   v5,v5,#1       /* if (carry<lo) { hi += 1 }; carry=hi */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_mulusub_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulusub_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
         LDMFD   sp!,{v1,v5,pc}^
-#else
+%%else
         STMFD   sp!,{v1-v5,lr}
         MOV     v5,#0
-LABEL(asm_mulusub_loop_down_l1)
+.Lasm_mulusub_loop_down_l1:
         LDR     ip,[a2,#-4]!
-        BL      mulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
+        BL      .Lmulu32_64_vregs /* muluD(digit,*--sourceptr,hi=,lo=) */
         ADDS    v1,v1,v5        /* lo += carry */
         ADC     v5,ip,#0        /* if (lo<carry) { hi += 1 }; */
         LDR     ip,[a3,#-4]!    /* carry = *--destptr */
@@ -1862,15 +1974,10 @@ LABEL(asm_mulusub_loop_down_l1)
         STR     ip,[a3,#0]      /* *destptr = carry - lo */
         ADDCC   v5,v5,#1       /* if (carry<lo) { hi += 1 }; carry=hi */
         SUBS    a4,a4,#1       /* len-- */
-        BNE     asm_mulusub_loop_down_l1 /* until len==0 */
+        BNE     .Lasm_mulusub_loop_down_l1 /* until len==0 */
         MOV     a1,v5                /* return carry */
         LDMFD   sp!,{v1-v5,pc}^
-#endif
-
-#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
-        .section .note.GNU-stack,"",%progbits
-#endif
-
-        END
+%%endif
+        .size asm_mulusub_loop_down,.-asm_mulusub_loop_down
 
 #endif

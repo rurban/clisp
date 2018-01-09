@@ -7,6 +7,7 @@ SHELL = /bin/sh
 # Don't set MAKE here. Instead use the value of the environment variable 'MAKE'
 # or, if that is not set, the name of the current program.
 # MAKE = make
+CPP = gcc -E
 PERL = perl
 GROFF = nroff -man
 # GROFF = groff -mandoc
@@ -39,9 +40,16 @@ all : build-prerequisites makefiles potfiles htmldoc
 # ------------------------------------------------------------------------------
 # Create files that are necessary for building CLISP.
 
-build-prerequisites : check-configures fixperms                             \
-			src/version.h                                       \
-			src/asmi386.h src/ari_asm_i386.msvc.c src/sp_asm_i386.msvc.c
+build-prerequisites : check-configures fixperms                              \
+                      src/version.h                                          \
+                      src/ari_asm_arm-macro.c                                \
+                      src/ari_asm_hppa-macro.c                               \
+                      src/ari_asm_i386-macro.c    src/sp_asm_i386-macro.c    \
+                                                  src/sp_asm_m68k-macro.c    \
+                      src/ari_asm_mips-macro.c    src/sp_asm_mips-macro.c    \
+                      src/ari_asm_mips64-macro.c                             \
+                      src/ari_asm_sparc-macro.c   src/sp_asm_sparc-macro.c   \
+                      src/ari_asm_sparc64-macro.c src/sp_asm_sparc64-macro.c
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create the configure files.
@@ -107,15 +115,205 @@ src/version.h: version.sh
 	} > src/version.h
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Translate Linux assembler syntax to portable (macro-ized) assembler syntax.
 
-src/asmi386.h : src/asmi386.hh
-	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
+src/ari_asm_alpha-macro.c : src/ari_asm_alpha.d src/asm-alpha.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_alpha.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_alpha-linux.s \
+	  && { ./asm-alpha.sh < ari_asm_alpha-linux.s; cat noexecstack.h; } > ari_asm_alpha-macro.c \
+	  && rm -f ari_asm_alpha-linux.s
+src/sp_asm_alpha-macro.c : src/sp_asm_alpha.d src/asm-alpha.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_alpha.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_alpha-linux.s \
+	  && { ./asm-alpha.sh < sp_asm_alpha-linux.s; cat noexecstack.h; } > sp_asm_alpha-macro.c \
+	  && rm -f sp_asm_alpha-linux.s
 
-src/ari_asm_i386.msvc.c : src/ari_asm_i386.d src/asmi386.sh
-	src/asmi386.sh -no-C < src/ari_asm_i386.d > src/ari_asm_i386.msvc.c
+src/ari_asm_arm-macro.c : src/ari_asm_arm.d src/asm-arm.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_arm.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_arm-linux.s \
+	  && { echo '#include "asm-arm.h"'; ./asm-arm.sh < ari_asm_arm-linux.s | sed -e 's,%%,#,g'; cat noexecstack-arm.h; } > ari_asm_arm-macro.c \
+	  && rm -f ari_asm_arm-linux.s
+src/sp_asm_arm-macro.c : src/sp_asm_arm.d src/asm-arm.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_arm.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_arm-linux.s \
+	  && { echo '#include "asm-arm.h"'; ./asm-arm.sh < sp_asm_arm-linux.s | sed -e 's,%%,#,g'; cat noexecstack-arm.h; } > sp_asm_arm-macro.c \
+	  && rm -f sp_asm_arm-linux.s
 
-src/sp_asm_i386.msvc.c : src/sp_asm_i386.d src/asmi386.sh
-	src/asmi386.sh -no-C < src/sp_asm_i386.d > src/sp_asm_i386.msvc.c
+src/ari_asm_arm64-macro.c : src/ari_asm_arm64.d src/asm-arm.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_arm64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_arm64-linux.s \
+	  && { echo '#include "asm-arm.h"'; ./asm-arm.sh < ari_asm_arm64-linux.s; cat noexecstack-arm.h; } > ari_asm_arm64-macro.c \
+	  && rm -f ari_asm_arm64-linux.s
+src/sp_asm_arm64-macro.c : src/sp_asm_arm64.d src/asm-arm.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_arm64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_arm64-linux.s \
+	  && { echo '#include "asm-arm.h"'; ./asm-arm.sh < sp_asm_arm64-linux.s; cat noexecstack-arm.h; } > sp_asm_arm64-macro.c \
+	  && rm -f sp_asm_arm64-linux.s
+
+src/ari_asm_hppa-macro.c : src/ari_asm_hppa.d src/asm-hppa.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_hppa.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_hppa-linux.s \
+	  && { echo '#include "asm-hppa.h"'; ./asm-hppa.sh < ari_asm_hppa-linux.s; cat noexecstack.h; } > ari_asm_hppa-macro.c \
+	  && rm -f ari_asm_hppa-linux.s
+src/sp_asm_hppa-macro.c : src/sp_asm_hppa.d src/asm-hppa.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_hppa.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_hppa-linux.s \
+	  && { echo '#include "asm-hppa.h"'; ./asm-hppa.sh < sp_asm_hppa-linux.s; cat noexecstack.h; } > sp_asm_hppa-macro.c \
+	  && rm -f sp_asm_hppa-linux.s
+
+src/ari_asm_hppa64-macro.c : src/ari_asm_hppa64.d src/asm-hppa64.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_hppa64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_hppa64-linux.s \
+	  && { echo '#include "asm-hppa64.h"'; ./asm-hppa64.sh < ari_asm_hppa64-linux.s; cat noexecstack.h; } > ari_asm_hppa64-macro.c \
+	  && rm -f ari_asm_hppa64-linux.s
+src/sp_asm_hppa64-macro.c : src/sp_asm_hppa64.d src/asm-hppa64.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_hppa64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_hppa64-linux.s \
+	  && { echo '#include "asm-hppa64.h"'; ./asm-hppa64.sh < sp_asm_hppa64-linux.s; cat noexecstack.h; } > sp_asm_hppa64-macro.c \
+	  && rm -f sp_asm_hppa64-linux.s
+
+src/ari_asm_i386-macro.c : src/ari_asm_i386.d src/asm-i386.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_i386.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_i386-linux.s \
+	  && { echo '#include "asm-i386.h"'; sed -e '/\.align.*,0x90$$/d' < ari_asm_i386-linux.s | ./asm-i386.sh | sed -e 's,!!,#,g'; cat noexecstack.h; } > ari_asm_i386-macro.c \
+	  && rm -f ari_asm_i386-linux.s
+src/sp_asm_i386-macro.c : src/sp_asm_i386.d src/asm-i386.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_i386.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_i386-linux.s \
+	  && { echo '#include "asm-i386.h"'; sed -e '/\.align.*,0x90$$/d' < sp_asm_i386-linux.s | ./asm-i386.sh | sed -e 's,!!,#,g'; cat noexecstack.h; } > sp_asm_i386-macro.c \
+	  && rm -f sp_asm_i386-linux.s
+
+src/ari_asm_ia64-macro.c : src/ari_asm_ia64.d
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_ia64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_ia64-linux.s \
+	  && cat ari_asm_ia64-linux.s noexecstack.h > ari_asm_ia64-macro.c \
+	  && rm -f ari_asm_ia64-linux.s
+src/sp_asm_ia64-macro.c : src/sp_asm_ia64.d
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_ia64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_ia64-linux.s \
+	  && cat sp_asm_ia64-linux.s noexecstack.h > sp_asm_ia64-macro.c \
+	  && rm -f sp_asm_ia64-linux.s
+
+src/ari_asm_m68k-macro.c : src/ari_asm_m68k.d src/asm-m68k.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_m68k.d | sed -e 's,!,//,g' | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' -e 's,//,!,g' > ari_asm_m68k-linux.s \
+	  && { echo '#include "asm-m68k.h"'; ./asm-m68k.sh motorola < ari_asm_m68k-linux.s; cat noexecstack.h; } > ari_asm_m68k-macro.c \
+	  && rm -f ari_asm_m68k-linux.s
+src/sp_asm_m68k-macro.c : src/sp_asm_m68k.d src/asm-m68k.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_m68k.d | sed -e 's,!,//,g' | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' -e 's,//,!,g' > sp_asm_m68k-linux.s \
+	  && { echo '#include "asm-m68k.h"'; ./asm-m68k.sh motorola < sp_asm_m68k-linux.s; cat noexecstack.h; } > sp_asm_m68k-macro.c \
+	  && rm -f sp_asm_m68k-linux.s
+
+src/ari_asm_mips-macro.c : src/ari_asm_mips.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_mips.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_mips-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < ari_asm_mips-linux.s | sed -e 's,%%,#,g'; } > ari_asm_mips-macro.c \
+	  && rm -f ari_asm_mips-linux.s
+src/sp_asm_mips-macro.c : src/sp_asm_mips.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_mips.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_mips-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < sp_asm_mips-linux.s | sed -e 's,%%,#,g'; } > sp_asm_mips-macro.c \
+	  && rm -f sp_asm_mips-linux.s
+
+src/ari_asm_mipsn32-macro.c : src/ari_asm_mipsn32.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_mipsn32.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_mipsn32-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < ari_asm_mipsn32-linux.s | sed -e 's,%%,#,g'; } > ari_asm_mipsn32-macro.c \
+	  && rm -f ari_asm_mipsn32-linux.s
+src/sp_asm_mipsn32-macro.c : src/sp_asm_mipsn32.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_mipsn32.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_mipsn32-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < sp_asm_mipsn32-linux.s | sed -e 's,%%,#,g'; } > sp_asm_mipsn32-macro.c \
+	  && rm -f sp_asm_mipsn32-linux.s
+
+src/ari_asm_mips64-macro.c : src/ari_asm_mips64.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_mips64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_mips64-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < ari_asm_mips64-linux.s | sed -e 's,%%,#,g'; } > ari_asm_mips64-macro.c \
+	  && rm -f ari_asm_mips64-linux.s
+src/sp_asm_mips64-macro.c : src/sp_asm_mips64.d src/asm-mips.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_mips64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_mips64-linux.s \
+	  && { echo '#include "asm-mips.h"'; ./asm-mips.sh < sp_asm_mips64-linux.s | sed -e 's,%%,#,g'; } > sp_asm_mips64-macro.c \
+	  && rm -f sp_asm_mips64-linux.s
+
+src/ari_asm_powerpc-macro.c : src/ari_asm_powerpc.d src/asm-powerpc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_powerpc.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_powerpc-linux.s \
+	  && { ./asm-powerpc.sh < ari_asm_powerpc-linux.s; cat noexecstack.h; } > ari_asm_powerpc-macro.c \
+	  && rm -f ari_asm_powerpc-linux.s
+src/sp_asm_powerpc-macro.c : src/sp_asm_powerpc.d src/asm-powerpc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_powerpc.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_powerpc-linux.s \
+	  && { ./asm-powerpc.sh < sp_asm_powerpc-linux.s; cat noexecstack.h; } > sp_asm_powerpc-macro.c \
+	  && rm -f sp_asm_powerpc-linux.s
+
+src/ari_asm_powerpc64-macro.c : src/ari_asm_powerpc64.d src/asm-powerpc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_powerpc64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_powerpc64-linux.s \
+	  && { ./asm-powerpc.sh < ari_asm_powerpc64-linux.s; cat noexecstack.h; } > ari_asm_powerpc64-macro.c \
+	  && rm -f ari_asm_powerpc64-linux.s
+src/sp_asm_powerpc64-macro.c : src/sp_asm_powerpc64.d src/asm-powerpc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_powerpc64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_powerpc64-linux.s \
+	  && { ./asm-powerpc.sh < sp_asm_powerpc64-linux.s; cat noexecstack.h; } > sp_asm_powerpc64-macro.c \
+	  && rm -f sp_asm_powerpc64-linux.s
+
+src/ari_asm_s390-macro.c : src/ari_asm_s390.d src/asm-s390.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_s390.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_s390-linux.s \
+	  && { ./asm-s390.sh < ari_asm_s390-linux.s; cat noexecstack.h; } > ari_asm_s390-macro.c \
+	  && rm -f ari_asm_s390-linux.s
+src/sp_asm_s390-macro.c : src/sp_asm_s390.d src/asm-s390.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_s390.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_s390-linux.s \
+	  && { ./asm-s390.sh < sp_asm_s390-linux.s; cat noexecstack.h; } > sp_asm_s390-macro.c \
+	  && rm -f sp_asm_s390-linux.s
+
+src/ari_asm_s390x-macro.c : src/ari_asm_s390x.d src/asm-s390.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_s390x.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_s390x-linux.s \
+	  && { ./asm-s390.sh < ari_asm_s390x-linux.s; cat noexecstack.h; } > ari_asm_s390x-macro.c \
+	  && rm -f ari_asm_s390x-linux.s
+src/sp_asm_s390x-macro.c : src/sp_asm_s390x.d src/asm-s390.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_s390x.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_s390x-linux.s \
+	  && { ./asm-s390.sh < sp_asm_s390x-linux.s; cat noexecstack.h; } > sp_asm_s390x-macro.c \
+	  && rm -f sp_asm_s390x-linux.s
+
+src/ari_asm_sparc-macro.c : src/ari_asm_sparc.d src/asm-sparc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_sparc.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_sparc-linux.s \
+	  && { echo '#include "asm-sparc.h"'; ./asm-sparc.sh < ari_asm_sparc-linux.s | sed -e 's,%%,#,g'; cat noexecstack.h; } > ari_asm_sparc-macro.c \
+	  && rm -f ari_asm_sparc-linux.s
+src/sp_asm_sparc-macro.c : src/sp_asm_sparc.d src/asm-sparc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_sparc.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_sparc-linux.s \
+	  && { echo '#include "asm-sparc.h"'; ./asm-sparc.sh < sp_asm_sparc-linux.s | sed -e 's,%%,#,g'; cat noexecstack.h; } > sp_asm_sparc-macro.c \
+	  && rm -f sp_asm_sparc-linux.s
+
+src/ari_asm_sparc64-macro.c : src/ari_asm_sparc64.d src/asm-sparc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_sparc64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_sparc64-linux.s \
+	  && { echo '#include "asm-sparc.h"'; ./asm-sparc.sh < ari_asm_sparc64-linux.s | sed -e 's,%%,#,g'; cat noexecstack.h; } > ari_asm_sparc64-macro.c \
+	  && rm -f ari_asm_sparc64-linux.s
+src/sp_asm_sparc64-macro.c : src/sp_asm_sparc64.d src/asm-sparc.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_sparc64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_sparc64-linux.s \
+	  && { echo '#include "asm-sparc.h"'; ./asm-sparc.sh < sp_asm_sparc64-linux.s | sed -e 's,%%,#,g'; cat noexecstack.h; } > sp_asm_sparc64-macro.c \
+	  && rm -f sp_asm_sparc64-linux.s
+
+src/ari_asm_x86_64-macro.c : src/ari_asm_x86_64.d src/asm-x86_64.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed ari_asm_x86_64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > ari_asm_x86_64-linux.s \
+	  && { echo '#include "asm-x86_64.h"'; ./asm-x86_64.sh < ari_asm_x86_64-linux.s; cat noexecstack.h; } > ari_asm_x86_64-macro.c \
+	  && rm -f ari_asm_x86_64-linux.s
+src/sp_asm_x86_64-macro.c : src/sp_asm_x86_64.d src/asm-x86_64.sh
+	cd src \
+	  && sed -f ../utils/comment5.sed sp_asm_x86_64.d | $(CPP) - | grep -v '^#' | grep -v '^ *#line' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > sp_asm_x86_64-linux.s \
+	  && { echo '#include "asm-x86_64.h"'; ./asm-x86_64.sh < sp_asm_x86_64-linux.s; cat noexecstack.h; } > sp_asm_x86_64-macro.c \
+	  && rm -f sp_asm_x86_64-linux.s
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -7,17 +7,16 @@
   #define ret   jmp %i7+8    # return from subroutine
   #define retl  jmp %o7+8    # return from leaf subroutine (no save/restore)
 
-        .seg "text"
+        .section ".text"
 
         .global asm_getSP
-        .global _asm_getSP
 
 #    extern void* asm_getSP (void);
+        .align 4
+        .type asm_getSP,#function
 asm_getSP:
-_asm_getSP: retl
+        retl
        _ mov %sp,%o0
-
-#if defined __linux__ || defined __FreeBSD__ || defined __FreeBSD_kernel__ || defined __DragonFly__
-        .section .note.GNU-stack,"",@progbits
-#endif
+.Lendof_asm_getSP:
+        .size asm_getSP,.Lendof_asm_getSP-asm_getSP
 

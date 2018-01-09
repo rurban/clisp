@@ -6,6 +6,7 @@
         .globl asm_getSP
         .align 2
         .ent asm_getSP
+        .type asm_getSP,@function
 asm_getSP:
         move $2,$sp   # get stack pointer
         j $31         # return
