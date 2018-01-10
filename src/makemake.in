@@ -1890,7 +1890,7 @@ else
 
       # Linux/x86_64
       linux*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/arm64
