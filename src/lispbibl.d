@@ -3977,7 +3977,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
              The only way to avoid it would be to #define garcol_bit_o 27,
              but that conflicts with CODE_ADDRESS_RANGE. */
         #endif
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0 /* sometimes 0, sometimes 1 */
       #endif
       #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
         /* Crashes, regardless of garcol_bit_o and imm_type_shift values. */

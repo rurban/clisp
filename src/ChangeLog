@@ -1,5 +1,14 @@
 2018-01-10  Bruno Haible  <bruno@clisp.org>
 
+	Enable more optimizations on Linux/i386.
+	* makemake.in (XCFLAGS): For Linux/i386, enable all optimizations
+	except ASM.
+	* Makefile.devel (multibuild-linux-i386): Don't depend on
+	build-porting32-gcc-ari_asm and build-porting32-gcc-arilev0-asm, since
+	build-porting32-gcc-safety0 tests both of these optimizations now.
+
+2018-01-10  Bruno Haible  <bruno@clisp.org>
+
 	Enable more optimizations on Linux/x86_64.
 	* makemake.in (XCFLAGS): For Linux/x86_64, enable all optimizations
 	except ASM.

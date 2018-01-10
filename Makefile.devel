@@ -1353,9 +1353,7 @@ multibuild-linux-i386: \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized \
   build-porting32-gcc-debug_gcsafety \
-  build-porting32-gcc-ari_asm \
-  build-porting32-gcc-debug_ari_asm \
-  build-porting32-gcc-arilev0-asm
+  build-porting32-gcc-debug_ari_asm
 
 # Linux/m68k
 multibuild-linux-m68k: multibuild-porting32-gcc # TODO
