@@ -33,63 +33,88 @@ Important notes
 User visible changes
 --------------------
 
+Incompatible changes
+....................
+
+* On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
+  be changed because Mac OS X pathnames are UTF-8 strings, not byte sequences.
+  See <http://clisp.org/impnotes/encoding.html#path-enc> for details.
+
+* Module WILDCARD has been removed.
+  Functions WILDCARD:MATCH and WILDCARD:WILDCARD-MATCHER are deprecated
+  in favor of POSIX:FNMATCH and POSIX:FNMATCH-MATCHER.
+  See <http://clisp.org/impnotes/syscalls.html#wildcard> for details.
+
+* Module REGEXP:
+
+  + Function REGEXP:REGEXP-EXEC no longer accepts :BOOLEAN argument; use
+    :RETURN-TYPE 'BOOLEAN instead.
+    See <http://clisp.org/impnotes/regexp.html#re-regexp-exec> for details.
+
+* Module RAWSOCK:
+
+  + Function RAWSOCK:CONVERT-ADDRESS now returns byte vectors instead of
+    integers.
+    See <http://clisp.org/impnotes/rawsock.html#rawsock-convert-address>
+    for details.
+
+Improvements
+............
+
+* Mixing &OPTIONAL and &KEY in the same lambda list is a bad design
+  and now triggers a STYLE-WARNING during compilation.
+  See <http://clisp.org/impnotes/compilation.html#key-optional> for details.
+
 * Redefinition warnings are now of type STYLE-WARNING.
   Some CLOS warnings are now of type STYLE-WARNING.
   See <http://clisp.org/impnotes/evaluation.html#suppress-check-redef>
   and <http://clisp.org/impnotes/mop-clisp.html#mop-clisp-warn>
   for details.
 
+* FFI now converts REALs to FLOATs automatically as necessary.
+
+New customizations
+..................
+
 * New user variable CUSTOM:*MODULE-PROVIDER-FUNCTIONS* allows user to
   influence behavior of REQUIRE.
   See <http://clisp.org/impnotes/require.html#module-providers> for details.
 
-* New module ASDF (based on the upstream version 3.2.0) provides a system
-  definition facility. See <http://clisp.org/impnotes/asdf.html> for details.
+* The readline-based completion facility is now more customizable.
+  See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
+
+New features
+............
 
 * New declaration DYNAMICALLY-MODIFIABLE disables GF-ALREADY-CALLED-WARNING.
   See <http://clisp.org/impnotes/mop-clisp.html#mop-clisp-gf-dynamically-modifiable>
   for details.
 
-* New function POSIX:FILE-TREE-WALK calls nftw().
-  See <http://clisp.org/impnotes/syscalls.html#file-tree-walk> for details.
-
-* New function POSIX:GETDATE calls getdate().
-  See <http://clisp.org/impnotes/syscalls.html#getdate> for details.
-
-* New macro POSIX:WITH-SUBPROCESSES temporarily enables SIGCLD so that
-  functions POSIX:WAIT, LINUX:wait and LINUX:waitpid work (bug#592).
-  See <http://clisp.org/impnotes/syscalls.html#with-subprocesses> for details.
-
-* Function POSIX:USAGE now accept an optional argument and returns a
-  single value.
-  See <http://clisp.org/impnotes/syscalls.html#usage> for details.
-
 * Function EXT:STREAM-HANDLES returns the OS file handles for the stream.
   It has been present since 2.36 in package SOCKET but was not documented.
   See <http://clisp.org/impnotes/socket.html#so-handles> for details.
 
-* FFI now converts REALs to FLOATs automatically as necessary.
+Modules
+.......
 
-* On Max OS X the value of *PATHNAME-ENCODING* is set to UTF-8 and cannot
-  be changed because Mac OS X pathnames are UTF-8 strings, not byte sequences.
-  See <http://clisp.org/impnotes/encoding.html#path-enc> for details.
+* New module ASDF (based on the upstream version 3.2.0) provides a system
+  definition facility. See <http://clisp.org/impnotes/asdf.html> for details.
 
-* Mixing &OPTIONAL and &KEY in the same lambda list is a bad design
-  and now triggers a STYLE-WARNING during compilation.
-  See <http://clisp.org/impnotes/compilation.html#key-optional> for details.
+* Module SYSCALLS:
 
-* Module wildcard has been removed.
-  Functions WILDCARD:MATCH and WILDCARD:WILDCARD-MATCHER are deprecated
-  in favor of POSIX:FNMATCH and POSIX:FNMATCH-MATCHER.
-  See <http://clisp.org/impnotes/syscalls.html#wildcard> for details.
+  + New function POSIX:FILE-TREE-WALK calls nftw().
+    See <http://clisp.org/impnotes/syscalls.html#file-tree-walk> for details.
 
-* Function REGEXP:REGEXP-EXEC no longer accepts :BOOLEAN argument; use
-  :RETURN-TYPE 'BOOLEAN instead.
-  See <http://clisp.org/impnotes/regexp.html#re-regexp-exec> for details.
+  + New function POSIX:GETDATE calls getdate().
+    See <http://clisp.org/impnotes/syscalls.html#getdate> for details.
 
-* Function RAWSOCK:CONVERT-ADDRESS now returns byte vectors instead of integers.
-  See <http://clisp.org/impnotes/rawsock.html#rawsock-convert-address>
-  for details.
+  + New macro POSIX:WITH-SUBPROCESSES temporarily enables SIGCLD so that
+    functions POSIX:WAIT, LINUX:wait and LINUX:waitpid work (bug#592).
+    See <http://clisp.org/impnotes/syscalls.html#with-subprocesses> for details.
+
+  + Function POSIX:USAGE now accept an optional argument and returns a
+    single value.
+    See <http://clisp.org/impnotes/syscalls.html#usage> for details.
 
 * Module berkeley-db now supports Berkeley-DB 5.1.
   (Older versions are, of course, still supported).
@@ -99,10 +124,9 @@ User visible changes
   functions are generated automatically.
   See <http://clisp.org/impnotes/pari.html> for details.
 
-* The readline-based completion facility is now more customizable.
-  See <http://clisp.org/impnotes/terminal.html#readline-extend> for details.
+Bug fixes
+.........
 
-* Bug fixes:
   + Fix documentation strings handling for structs (bug#561).
   + Fix SCREEN behavior when the window is resized.
   + Pass the top-level configure arguments --build= & --host=
