@@ -1,3 +1,9 @@
+2018-01-10  Bruno Haible  <bruno@clisp.org>
+
+	Enable more optimizations on Linux/x86_64.
+	* makemake.in (XCFLAGS): For Linux/x86_64, enable all optimizations
+	except ASM.
+
 2018-01-09  Bruno Haible  <bruno@clisp.org>
 
 	ari_asm for ARM: Avoid use of privileged instructions.
