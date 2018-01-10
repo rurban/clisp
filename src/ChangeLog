@@ -1,5 +1,14 @@
 2018-01-10  Bruno Haible  <bruno@clisp.org>
 
+	Enable more optimizations on Linux/hppa.
+	* makemake.in (XCFLAGS): For Linux/hppa, enable all optimizations
+	except ASM.
+	* Makefile.devel (multibuild-linux-hppa): Don't depend on
+	build-porting32-gcc-ari_asm, since build-porting32-gcc-safety0 tests
+	this optimization now.
+
+2018-01-10  Bruno Haible  <bruno@clisp.org>
+
 	Enable more optimizations on Linux/x86_64-x32.
 	* makemake.in (XCFLAGS): For Linux/x86_64-x32, enable all optimizations
 	except ASM.
