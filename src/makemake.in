@@ -1603,7 +1603,7 @@ else
 
       # Linux/hppa
       linux*--hppa)
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/i386

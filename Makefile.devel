@@ -1331,7 +1331,6 @@ multibuild-linux-hppa: \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized \
   build-porting32-gcc-debug_gcsafety \
-  build-porting32-gcc-ari_asm \
   build-porting32-gcc-debug_ari_asm
 
 # Linux/i386
