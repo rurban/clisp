@@ -1608,7 +1608,7 @@ else
 
       # Linux/i386
       linux*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/m68k
