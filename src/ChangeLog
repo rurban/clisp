@@ -1,5 +1,11 @@
 2018-01-10  Bruno Haible  <bruno@clisp.org>
 
+	Enable more optimizations on Linux/x86_64-x32.
+	* makemake.in (XCFLAGS): For Linux/x86_64-x32, enable all optimizations
+	except ASM.
+
+2018-01-10  Bruno Haible  <bruno@clisp.org>
+
 	Enable more optimizations on Linux/i386.
 	* makemake.in (XCFLAGS): For Linux/i386, enable all optimizations
 	except ASM.
