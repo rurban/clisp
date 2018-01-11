@@ -1,5 +1,13 @@
 2018-01-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/powerpc64.
+	* Makefile.devel (multibuild-linux-powerpc64): Enable all build
+	variants.
+	* makemake.in (XCFLAGS): For Linux/powerpc64, enable all optimizations
+	except ASM.
+
+2018-01-11  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/powerpc.
 	* Makefile.devel (multibuild-linux-powerpc): Enable all build variants
 	that work.
