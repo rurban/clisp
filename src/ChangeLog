@@ -1,5 +1,13 @@
 2018-01-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/arm.
+	* Makefile.devel (multibuild-linux-arm): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Linux/arm, enable all optimizations
+	except ASM.
+
+2018-01-11  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/m68k.
 	* Makefile.devel (multibuild-linux-m68k): Enable all build variants
 	that are intended to work.
