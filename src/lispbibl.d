@@ -4862,10 +4862,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         /* Heap object and STACK addresses are allocated through mymalloc.
            Therefore CODE_ADDRESS_RANGE and MALLOC_ADDRESS_RANGE matter here. */
         /* To determine TYPECODES_WITH_MALLOC_WORKS, run one of
-             make -k -f Makefile.devel build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc build-porting32-gcc-typecodes-spvw_mixed_pages
-             make -k -f Makefile.devel build-porting32-cc-typecodes-spvw_mixed_blocks-malloc build-porting32-cc-typecodes-spvw_mixed_pages
-             make -k -f Makefile.devel build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc build-porting64-gcc-typecodes-spvw_mixed_pages
-             make -k -f Makefile.devel build-porting64-cc-typecodes-spvw_mixed_blocks-malloc build-porting64-cc-typecodes-spvw_mixed_pages
+             make -k -f Makefile.devel build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc build-porting32-gcc-typecodes-spvw_mixed_pages build-porting32-gcc-typecodes-spvw_pure_pages
+             make -k -f Makefile.devel build-porting32-cc-typecodes-spvw_mixed_blocks-malloc build-porting32-cc-typecodes-spvw_mixed_pages build-porting32-cc-typecodes-spvw_pure_pages
+             make -k -f Makefile.devel build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc build-porting64-gcc-typecodes-spvw_mixed_pages build-porting64-gcc-typecodes-spvw_pure_pages
+             make -k -f Makefile.devel build-porting64-cc-typecodes-spvw_mixed_blocks-malloc build-porting64-cc-typecodes-spvw_mixed_pages build-porting64-cc-typecodes-spvw_pure_pages
          */
         #if !defined(WIDE_HARD)
           /* 32-bit platforms */
