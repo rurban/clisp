@@ -1,3 +1,11 @@
+2018-01-11  Bruno Haible  <bruno@clisp.org>
+
+	Enable most optimizations on Linux/m68k.
+	* Makefile.devel (multibuild-linux-m68k): Enable all build variants
+	that are intended to work.
+	* makemake.in (XCFLAGS): For Linux/m68k, enable all optimizations
+	except ASM.
+
 2018-01-11  Sam Steingold  <sds@gnu.org>
 
 	DIRECTORY matches like PATHNAME-MATCH-P (bug#724).
