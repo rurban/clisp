@@ -1,5 +1,13 @@
 2018-01-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on GNU/kFreeBSD/x86_64.
+	* Makefile.devel (multibuild-freebsd-gnu-x86_64): Enable all build
+	variants.
+	* makemake.in (XCFLAGS): For GNU/kFreeBSD/x86_64, enable all
+	optimizations except ASM.
+
+2018-01-11  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/sparc64.
 	* Makefile.devel (multibuild-linux-sparc64): Enable all build variants
 	that work.
