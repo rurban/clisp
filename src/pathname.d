@@ -6987,6 +6987,32 @@ local maygc bool directory_search_direntry_ok (object namestring,
  this must be :NEWEST [but then they will not be printable readably!] */
 #define DEFAULT_VERSION  S(Knewest)
 
+/* UP: Match name&type against a direntry
+ Split direntry using split_name_type and match name & type separately
+ > pattern: Pathname (only name and type are used)
+ > original: the original pathname onto which the direntry is split
+ > direntry: string
+ < true if match
+ < direntry: pathname with the original string split into name & type
+ can trigger GC */
+local maygc bool split_nametype_match(gcv_object_t *pattern,
+                                      gcv_object_t *original,
+                                      gcv_object_t *direntry) {
+  pushSTACK(*direntry);
+  split_name_type(1); /* split into Name and Type, add to STACK */
+  *direntry = copy_pathname(*original); /* overwrite direntry */
+  ThePathname(*direntry)->pathname_type = popSTACK(); /* insert type */
+  ThePathname(*direntry)->pathname_name = popSTACK(); /* insert name */
+  ThePathname(*direntry)->pathname_version = DEFAULT_VERSION;
+  if (pattern == NULL)
+    return true;
+  bool n = nametype_match(ThePathname(*pattern)->pathname_name,
+                          ThePathname(*direntry)->pathname_name,false);
+  bool t = nametype_match(ThePathname(*pattern)->pathname_type,
+                          ThePathname(*direntry)->pathname_type,false);
+  return n && t;
+}
+
 /* Convert a directory entry to a string
  direntry_to_string (char* string, int len)
  > string : asciz
@@ -7196,12 +7222,17 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                   case DIR_IF_NONE_DISCARD: case DIR_IF_NONE_ERROR:
                     OS_file_error(namestring);
                   case DIR_IF_NONE_KEEP:
+                    split_nametype_match(NULL,&STACK_2,&STACK_0);
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
             }
           } else if (TASK_FILE_P(next_task)) { /* match name&type with direntry: */
-            if (wildcard_match(STACK_(2+4+3),STACK_0)) {
+            pushSTACK(namestring);
+            var bool name_type_match = split_nametype_match(
+              &STACK_(2+4+3+1),&STACK_(2+1),&STACK_(0+1));
+            namestring = popSTACK();
+            if (name_type_match) {
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (!S_ISDIR(status.st_mode))
                   goto push_matching_file;
@@ -7245,20 +7276,11 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
             }
           } else if (TASK_FILE_P(next_task)) { /* entry is a (halfway) normal File. */
             /* match name&type with direntry: */
-            if (wildcard_match(STACK_(2+4+3),STACK_0)) {
+            if (split_nametype_match(&STACK_(2+4+3),&STACK_2,&STACK_0)) {
+              /* File matches -> push STACK_0 onto result-list: */
              push_matching_file:
-              /* File matches -> turn into a pathname
-                 and push onto result-list: */
-              pushSTACK(STACK_0); /* direntry */
-              split_name_type(1); /* split into Name and Type */
-              {
-                var object pathname = copy_pathname(STACK_(2+2));
-                ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
-                ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
-                ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
-                pushSTACK(pathname);
-                pushSTACK(pathname);
-              }
+              pushSTACK(STACK_0);
+              pushSTACK(STACK_0);
               /* form truename (resolve symbolic links): */
               var struct file_status fs; file_status_init(&fs,&STACK_0);
               assure_dir_exists(&fs,true,true);
@@ -7279,6 +7301,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
             case DIR_IF_NONE_ERROR:
               OS_file_error(namestring);
             case DIR_IF_NONE_KEEP:
+              split_nametype_match(NULL,&STACK_2,&STACK_0);
               goto push_matching_file;
             default: NOTREACHED;
           }
@@ -7452,13 +7475,11 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
   if (nullp(ThePathname(pathname)->pathname_name)
       && !nullp(ThePathname(pathname)->pathname_type))
     ThePathname(pathname)->pathname_name = S(Kwild);
-  /* for matching: collect name and type into a string: */
+  /* for matching: separate slot for name&type: */
   if (nullp(ThePathname(pathname)->pathname_name)) {
     pushSTACK(NIL); /* name=NIL -> also type=NIL -> do not search files */
   } else {
-    var object nametype_string = file_namestring(pathname);
-    pathname = STACK_0;
-    pushSTACK(nametype_string);
+    pushSTACK(pathname);
   }
   pushSTACK(ThePathname(pathname)->pathname_directory); /* subdir-list */
   /* copy pathname and thereby discard name and type and
@@ -7480,8 +7501,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
     /* stack layout: result-list, pathname, name&type, subdir-list,
                    pathname-list.
      result-list = list of finished pathnames/lists, reversed.
-     name&type = NIL or Normal-Simple-String,
-       against which the filenames have to be matched.
+     name&type = NIL or pathname - against which the filenames are matched.
      pathname-list = list of directories to be processed.
      the pathnames from pathname-list contain the directory
      only so deep, that afterwards work continues with (cdr subdir-list) .
@@ -7493,8 +7513,10 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
       if (nullp(nametype)) /* name=NIL and type=NIL -> do not search files */
         next_task = TASK_DONE;
      #if !defined(WIN32_NATIVE)
-      else if (!wild_p(nametype,false) && (dsp->if_none != DIR_IF_NONE_IGNORE))
-        /* === !(wild_p(name) || ((!nullp(type)) && wild_p(type))) */
+      else if (!(wild_p(ThePathname(nametype)->pathname_name,false)
+                 || (!nullp(ThePathname(nametype)->pathname_type)
+                     && wild_p(ThePathname(nametype)->pathname_type,false)))
+               && (dsp->if_none != DIR_IF_NONE_IGNORE))
         next_task = TASK_FILE; /* search file */
      #endif
       else
