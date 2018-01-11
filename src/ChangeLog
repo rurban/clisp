@@ -1,3 +1,12 @@
+2018-01-11  Sam Steingold  <sds@gnu.org>
+
+	DIRECTORY matches like PATHNAME-MATCH-P (bug#724).
+	* pathname.d (split_nametype_match): Extract from ...
+	(directory_search_scandir): Call it instead of wildcard_match on
+	direntry.
+	(directory_search): Use the pathname object instead of
+	file_namestring for name&type.
+
 2018-01-10  Bruno Haible  <bruno@clisp.org>
 
 	Enable more optimizations on Linux/hppa.

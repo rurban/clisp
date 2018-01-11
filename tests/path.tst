@@ -1209,6 +1209,24 @@ NIL
 (directory "path-tst-bar/" :full t) NIL
 (pathname-version (car (directory "./"))) :NEWEST
 
+;; https://sourceforge.net/p/clisp/bugs/724/
+(let* ((wd (ensure-directories-exist "bug-724/"))
+       (f1 (open (merge-pathnames wd "file")
+                 :direction :probe :if-does-not-exist :create))
+       (f2 (open (merge-pathnames wd "file.txt")
+                 :direction :probe :if-does-not-exist :create))
+       (pat (make-pathname :name :wild :type :wild :version :wild :defaults wd))
+       (*default-pathname-defaults* (ext:probe-pathname ".")))
+  (unwind-protect
+       (list (sort (mapcar #'enough-namestring (directory pat)) #'string<)
+             (pathname-match-p f1 pat)
+             (pathname-match-p f2 pat))
+    (delete-file f1)
+    (delete-file f2)
+    #+clisp (ext:delete-directory wd)
+    #-clisp (delete-file wd)))
+(("bug-724/file" "bug-724/file.txt") T T)
+
 (let (lp) ; https://sourceforge.net/p/clisp/bugs/584/: bind *load-pathname* to the original arg
   (setf (logical-pathname-translations "FOO") '(("*" "./*")))
   (setq lp (logical-pathname "FOO:load-test"))

@@ -17,6 +17,7 @@ User visible changes
 
 * Bug fixes:
   + Better UNICODE handling in the regexp module (bug#691).
+  + DIRECTORY matches like PATHNAME-MATCH-P (bug#724).
 
 
 2.50 branch, not yet released
