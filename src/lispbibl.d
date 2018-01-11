@@ -4932,7 +4932,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
               #define garcol_bit_o 42
               #define oint_addr_mask 0xFFFFF907FFFFFFFFUL
             #endif
-            #define TYPECODES_WITH_MALLOC_WORKS 0 /* 0 on an older machine (gcc-4.6.3), 1 on newer machines (gcc-6.4, gcc-7.2) */
+            #define TYPECODES_WITH_MALLOC_WORKS 0 /* 0 on an older machine (gcc-4.6.3), 1 on newer machines (gcc-6.4, gcc-7.2), but with unexpected "No more room for LISP objects" */
           #endif
           #if (defined(UNIX_FREEBSD) || defined(UNIX_GNU_FREEBSD)) && defined(AMD64) /* FreeBSD/x86_64, GNU/kFreeBSD/x86_64 */
             #define TYPECODES_WITH_MALLOC_WORKS 1
