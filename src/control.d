@@ -504,7 +504,7 @@ local /*maygc*/ void make_variable_frame
               } else if (eq(decl_identifier,S(implementation_dependent))) {
                 /* store impdependent-declared symbol in stack: */
                 pushSTACK(impdependent); /* #<IMPLEMENTATION-DEPENDENT> as "value" */
-                pushSTACK_symbolwithflags(declsym,active_bit_o); /* Symbol active */
+                pushSTACK_symbolwithflags(declsym,wbit(active_bit_o)); /* Symbol active */
               }
               check_STACK();
               spec_count++;
