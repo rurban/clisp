@@ -5875,15 +5875,29 @@ void module__syscalls__init_function_2 (module_t* module) {
 #if defined(HAVE_FFI)
   init_stdio();
 #endif
-  /* if DATEMSK is not set, set it to the clisp-supplied value */
-  if (NULL == getenv("DATEMSK")) {
-    with_string_0(physical_namestring(GLO(lib_dir)),GLO(pathname_encoding),ldz,{
-        char datemsk[MAXPATHLEN];
-        strcpy(datemsk,ldz);
-        if (ldz[ldz_len-1] == '/')
-          strcat(datemsk,"syscalls/datemsk");
-        else strcat(datemsk,"/syscalls/datemsk");
-        setenv("DATEMSK",datemsk,0);
+  /* The getdate() functions needs some configuration file, and the DATEMSK
+     environment variable is supposed to point to it. See
+     <http://pubs.opengroup.org/onlinepubs/9699919799/functions/getdate.html>.
+     We ship such a configuration file. Here we set the DATEMSK environment
+     variable if the user has not already set it. */
+  { char* envval = getenv("DATEMSK");
+    if (envval == NULL || envval[0] == '\0') {
+      with_string_0(physical_namestring(GLO(lib_dir)),GLO(pathname_encoding),libdir_asciz, {
+        const char* part1 = libdir_asciz;
+        const char* part2 = "syscalls/datemsk";
+        /* Concatenate these two parts. */
+        size_t part1_len = asciz_length(part1);
+        size_t part2_len = asciz_length(part2);
+        DYNAMIC_ARRAY(datemsk_filename,char,part1_len+1+part2_len+1);
+        { char* p = datemsk_filename;
+          memcpy(p,part1,part1_len); p += part1_len;
+          if (!(part1_len > 0 && part1[part1_len-1] == '/')) { *p++ = '/'; }
+          memcpy(p,part2,part2_len); p += part2_len;
+          *p = '\0';
+        }
+        setenv("DATEMSK",datemsk_filename,1);
+        FREE_DYNAMIC_ARRAY(datemsk_filename);
       });
+    }
   }
 }
