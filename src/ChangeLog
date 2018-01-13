@@ -1,5 +1,10 @@
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
+	Improve framepointerp in GENERIC64C_HEAPCODES model.
+	* lispbibl.d (framepointerp) [GENERIC64C_HEAPCODES]: Correct bit mask.
+
+2018-01-13  Bruno Haible  <bruno@clisp.org>
+
 	Improve the quality of SXHASH on instances of STANDARD-STABLEHASH and
 	STRUCTURE-STABLEHASH.
 	Suggested by Sam Steingold.
