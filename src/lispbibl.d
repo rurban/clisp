@@ -10599,8 +10599,12 @@ typedef struct {
 /* Test for pointer into the STACK (usually at a frame) */
 #ifdef TYPECODES
   #define framepointerp(obj)  (typecode(obj)==system_type) /* other cases?? */
-#else
-  #define framepointerp(obj)  ((as_oint(obj) & 3) == machine_bias) /* other cases?? */
+#else /* HEAPCODES */
+  #if defined(GENERIC64C_HEAPCODES)
+    #define framepointerp(obj)  ((as_oint(obj) & 7) == machine_bias) /* other cases?? */
+  #else
+    #define framepointerp(obj)  ((as_oint(obj) & 3) == machine_bias) /* other cases?? */
+  #endif
 #endif
 
 #ifndef TYPECODES
