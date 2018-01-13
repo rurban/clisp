@@ -1,5 +1,11 @@
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
+	Make SYS::IMPLEMENTATION-DEPENDENT work in all memory models.
+	* control.d (make_variable_frame): Fix pushSTACK_symbolwithflags
+	invocation.
+
+2018-01-13  Bruno Haible  <bruno@clisp.org>
+
 	Print frame pointers as #<FRAME-POINTER nn> also in HEAPCODES model.
 	* io.d (prin_object_dispatch_low) [HEAPCODES]: For a frame pointer,
 	invoke pr_framepointer, not pr_machine.
