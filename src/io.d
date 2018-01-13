@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2009, 2016-2017
+ * Bruno Haible 1990-2009, 2016-2018
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -6866,9 +6866,17 @@ local void prin_object_dispatch_low (const gcv_object_t* stream_, object obj) {
     pr_character(stream_,obj);
   else if (immsubrp(obj))
     pr_subr(stream_,obj);
-  else if (machinep(obj))
-    pr_machine(stream_,obj);
-  else if (small_read_label_p(obj))
+  else if (machinep(obj)) {
+    #ifdef STACK_DOWN
+    if (as_oint(obj) >= (uintP)STACK_bound && as_oint(obj) < (uintP)STACK_start)
+    #endif
+    #ifdef STACK_UP
+    if (as_oint(obj) >= (uintP)STACK_start && as_oint(obj) < (uintP)STACK_bound)
+    #endif
+      pr_framepointer(stream_,obj);
+    else
+      pr_machine(stream_,obj);
+  } else if (small_read_label_p(obj))
     pr_readlabel(stream_,obj);
   else if (systemp(obj))
     pr_system(stream_,obj);

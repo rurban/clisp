@@ -1,5 +1,11 @@
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
+	Print frame pointers as #<FRAME-POINTER nn> also in HEAPCODES model.
+	* io.d (prin_object_dispatch_low) [HEAPCODES]: For a frame pointer,
+	invoke pr_framepointer, not pr_machine.
+
+2018-01-13  Bruno Haible  <bruno@clisp.org>
+
 	Improve framepointerp in GENERIC64C_HEAPCODES model.
 	* lispbibl.d (framepointerp) [GENERIC64C_HEAPCODES]: Correct bit mask.
 
