@@ -1,6 +1,6 @@
 /*
  * Hash-Tables in CLISP
- * Bruno Haible 1990-2005, 2016-2017
+ * Bruno Haible 1990-2005, 2016-2018
  * Sam Steingold 1998-2011
  * German comments translated into English: Stefan Kain 2002-01-29
  */
@@ -2722,15 +2722,21 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
   set_args_end_pointer(rest_args_pointer STACKop 1); /* clean up STACK */
 }
 
-/* UP: Calculates a portable EQUAL-hashcode of an object.
- sxhash(obj)
+/* UP: Calculates a portable EQUAL-hashcode of an object, subject to the
+ restriction of clause 2 in ANSI-CL:
+   For any two objects, x and y, both of which are bit vectors,
+   characters, conses, numbers, pathnames, strings, or symbols, and which
+   are similar, (sxhash x) and (sxhash y) yield the same mathematical
+   value even if x and y exist in different Lisp images of the same
+   implementation.
+ sxhash_clause2(obj)
  It is valid only until the next modification of the object.
- (equal X Y) implies (= (sxhash X) (sxhash Y)).
+ (equal X Y) implies (= (sxhash_clause2 X) (sxhash_clause2 Y)).
  > obj: an object
  < result: hashcode, a 32-bit-number */
-local uint32 sxhash (object obj);
+local uint32 sxhash_clause2 (object obj);
 /* auxiliary functions for known type:
- atom -> fall differentiation by type */
+ atom -> differentiate by type */
 local uint32 sxhash_atom (object obj, int level) {
   unused(level); /* recursion is possible only on conses, not HTs & arrays */
   #ifdef TYPECODES
@@ -2791,7 +2797,7 @@ local uint32 sxhash_atom (object obj, int level) {
     case_structure:             /* structure */
       /* utilize only structure-type (Liste (name_1 name_2 ... name_n)) */
       check_SP();
-      return sxhash(TheStructure(obj)->structure_types) + 0xAD2CD2AEUL;
+      return sxhash_clause2(TheStructure(obj)->structure_types) + 0xAD2CD2AEUL;
     case_stream:                /* stream */
       /* utilize only streamtype */
       return TheStream(obj)->strmtype + 0x3DAEAE55UL;
@@ -2841,7 +2847,7 @@ local uint32 sxhash_atom (object obj, int level) {
         }
         case Rectype_Fsubr:     /* fsubr */
           /* utilize name */
-          check_SP(); return sxhash(TheFsubr(obj)->name) + 0xFF3319BAUL;
+          check_SP(); return sxhash_clause2(TheFsubr(obj)->name) + 0xFF3319BAUL;
         case Rectype_Pathname:  /* pathname */
         case Rectype_Logpathname: /* log pathname */
         case Rectype_Byte:         /* byte */
@@ -2859,7 +2865,7 @@ local uint32 sxhash_atom (object obj, int level) {
         var uintC count = SXrecord_length(obj);
         dotimespC(count,count, {
           /* combine hashcode of the next component: */
-          var uint32 next_code = sxhash(*ptr++);
+          var uint32 next_code = sxhash_clause2(*ptr++);
           bish_code = misch(bish_code,next_code);
         });
         return bish_code;
@@ -2874,7 +2880,7 @@ local uint32 sxhash_atom (object obj, int level) {
       var object cv = TheInstance(obj_forwarded)->inst_class_version;
       var object objclass = TheClassVersion(cv)->cv_newest_class;
       var object objclassname = TheClass(objclass)->classname;
-      return sxhash(objclassname) + 0x61EFA249;
+      return sxhash_clause2(objclassname) + 0x61EFA249;
     }
     case_lrecord:               /* Long-Record */
       /* utilize record-type and length */
@@ -2884,7 +2890,7 @@ local uint32 sxhash_atom (object obj, int level) {
       return hashcode1(obj);
     case_subr:                  /* SUBR */
       /* utilize name */
-      check_SP(); return sxhash(TheSubr(obj)->name) + 0xFF3319BAUL;
+      check_SP(); return sxhash_clause2(TheSubr(obj)->name) + 0xFF3319BAUL;
     case_machine:               /* machine-pointer */
     case_system:                /* frame-pointer, small-read-label, system */
       /* utilize address */
@@ -2904,20 +2910,43 @@ local uint32 sxhash_atom (object obj, int level) {
       return hashcode_lfloat(obj);
     case_ratio: {               /* ratio */
       /* hash both components, mix */
-      var uint32 code1 = sxhash(TheRatio(obj)->rt_num);
-      var uint32 code2 = sxhash(TheRatio(obj)->rt_den);
+      var uint32 code1 = sxhash_clause2(TheRatio(obj)->rt_num);
+      var uint32 code2 = sxhash_clause2(TheRatio(obj)->rt_den);
       return misch(code1,code2);
     }
     case_complex: {             /* complex */
       /* hash both components, mix */
-      var uint32 code1 = sxhash(TheComplex(obj)->c_real);
-      var uint32 code2 = sxhash(TheComplex(obj)->c_imag);
+      var uint32 code1 = sxhash_clause2(TheComplex(obj)->c_real);
+      var uint32 code2 = sxhash_clause2(TheComplex(obj)->c_imag);
       return misch(code1,code2);
     }
   }
 }
+local uint32 sxhash_clause2 (object obj)
+{
+  return hashcode_tree(obj,0,sxhash_atom);
+}
+
+/* UP: Calculates a portable EQUAL-hashcode of an object.
+ sxhash(obj)
+ It is valid only until the next modification of the object.
+ (equal X Y) implies (= (sxhash X) (sxhash Y)).
+ > obj: an object
+ < result: hashcode, a 32-bit-number */
 local uint32 sxhash (object obj)
-{ return hashcode_tree(obj,0,sxhash_atom); }
+{
+  /* For objects that are listed in clause 2: Use sxhash_clause2.
+     For objects that are not listed in clause 2:
+     - For instances of STANDARD-OBJECT or STRUCTURE-OBJECT,
+       we can use hashcode1stable.
+     - For other objects, we cannot use hashcode1 because it would be
+       valid only until the next GC. So use sxhash_clause2 instead. */
+  if (instancep(obj) || structurep(obj)) {
+    return hashcode1stable(obj);
+  } else {
+    return sxhash_clause2(obj);
+  }
+}
 
 LISPFUNN(sxhash,1)
 { /* (SXHASH object), CLTL p. 285 */

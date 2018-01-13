@@ -1,3 +1,11 @@
+2018-01-13  Bruno Haible  <bruno@clisp.org>
+
+	Improve the quality of SXHASH on instances of STANDARD-STABLEHASH and
+	STRUCTURE-STABLEHASH.
+	Suggested by Sam Steingold.
+	* hashtabl.d (sxhash_clause2): Renamed from sxhash.
+	(sxhash): New function.
+
 2018-01-11  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on GNU/kFreeBSD/x86_64.
