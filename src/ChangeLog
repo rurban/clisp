@@ -1,5 +1,13 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on OpenBSD/i386.
+	* Makefile.devel (multibuild-openbsd-i386): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For OpenBSD/i386, enable all optimizations
+	except ASM.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on NetBSD/x86_64.
 	* Makefile.devel (multibuild-netbsd-x86_64): Enable all build variants
 	that work.
