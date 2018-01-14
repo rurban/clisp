@@ -1406,11 +1406,25 @@ multibuild-linux-mips-32: \
   build-porting32-gcc-debug_gcsafety \
   build-porting32-gcc-debug_ari_asm
 
-# Linux/mipseb with n32 ABI
-multibuild-linux-mipseb-n32: multibuild-porting32-gcc # TODO
-
-# Linux/mipsel with n32 ABI
-multibuild-linux-mipsel-n32: multibuild-porting32-gcc # TODO
+# Linux/mipseb and Linux/mipsel with n32 ABI
+multibuild-linux-mips-n32: \
+  build-porting32-gcc-portability \
+  build-porting32-gcc-safety3 \
+  build-porting32-gcc-heapcodes \
+  build-porting32-gcc-one_free_bit_heapcodes-malloc \
+  build-porting32-gcc-one_free_bit_heapcodes-trivialmap \
+  build-porting32-gcc-kernelvoid32_heapcodes \
+  build-porting32-gcc-heapcodes-spvw_pages \
+  build-porting32-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting32-gcc-spvw_pure_blocks \
+  build-porting32-gcc-wide \
+  build-porting32-gcc-limited_memory \
+  build-porting32-gcc-old_gc \
+  build-porting32-gcc-multithread_gc \
+  build-porting32-gcc-safety0 \
+  build-porting32-gcc-safety0-optimized \
+  build-porting32-gcc-debug_gcsafety \
+  build-porting32-gcc-debug_ari_asm
 
 # Linux/powerpc64 with 32-bit ABI
 multibuild-linux-powerpc: \
