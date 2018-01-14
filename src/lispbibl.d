@@ -2254,10 +2254,10 @@ typedef enum {
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x10000000UL
        MALLOC_ADDRESS_RANGE = 0x10000000UL
-       SHLIB_ADDRESS_RANGE  = 0x77000000UL
+       SHLIB_ADDRESS_RANGE  = 0x77000000UL or (sometimes) 0x2B000000UL
        STACK_ADDRESS_RANGE  = 0x7F000000UL
        There is room from 0x11000000UL to 0x76000000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
+    #define MAPPABLE_ADDRESS_RANGE_START 0x2C000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x75FFFFFFUL
    #endif
   #endif
@@ -3167,19 +3167,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define SINGLEMAP_oint_type_shift 24
       #define SINGLEMAP_WORKS 1
     #else /* Linux/mips with n32 ABI */
-      #if 1 /* arbitrary choice */
-        #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
-        #define SINGLEMAP_TYPE_MASK    0x6F000000UL
-        #define SINGLEMAP_oint_type_shift 24
-        #define SINGLEMAP_WORKS 1
-      #else
-        #define SINGLEMAP_ADDRESS_BASE 0UL
-        #define SINGLEMAP_TYPE_MASK    0x6F000000UL
-        #define SINGLEMAP_oint_type_shift 24
-        /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
-        #define IGNORE_MAPPABLE_ADDRESS_RANGE
-        #define SINGLEMAP_WORKS 1
-      #endif
+      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
+      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
+      #define SINGLEMAP_oint_type_shift 24
+      /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+      #define IGNORE_MAPPABLE_ADDRESS_RANGE
+      #define SINGLEMAP_WORKS 1
     #endif
   #endif
   #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
@@ -4678,6 +4671,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
               #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
               #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
             #else /* Linux/mips with n32 ABI */
+              #undef MAPPABLE_ADDRESS_RANGE_START
+              #define MAPPABLE_ADDRESS_RANGE_START 0x01000000UL /* or 0x02000000UL or 0x04000000UL or 0x08000000UL or 0x10000000UL or 0x20000000UL or 0x40000000UL */
               #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
             #endif
           #endif
