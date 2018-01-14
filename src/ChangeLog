@@ -1,5 +1,14 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/mips64.
+	* Makefile.devel (multibuild-linux-mips-64): Renamed from
+	multibuild-linux-mipseb-64 and multibuild-linux-mipsel-64. Enable all
+	build variants that work.
+	* makemake.in (XCFLAGS): For Linux/mips64 with 64-bit ABI, enable all
+	optimizations except ASM.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/mipsn32.
 	* Makefile.devel (multibuild-linux-mips-n32): Renamed from
 	multibuild-linux-mipseb-n32 and multibuild-linux-mipsel-n32. Enable all
