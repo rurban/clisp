@@ -257,9 +257,9 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
       #include "ari_asm_i386.c"
     #endif
     #if defined(MIPS)
-      #if defined(MIPS64)
+      #if defined(MIPS64) && defined(WIDE_HARD)
         #include "ari_asm_mips64.c"
-      #else
+      #else /* o32 or n32 ABI */
         #include "ari_asm_mips.c"
       #endif
     #endif

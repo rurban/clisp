@@ -2267,7 +2267,7 @@ case " ${XCPPFLAGS} ${XCFLAGS} " in
       ARI_ASMD=$ARI_ASMD' ari_asm_sparc64'
       ARI_ASMS=$ARI_ASMS' ari_asm_sparc64'
     fi
-    if [ "$cpu" = mips ] ; then
+    if [ "$cpu" = mips -o "$cpu" = mipsn32 ] ; then
       ARI_ASMD=$ARI_ASMD' ari_asm_mips'
       ARI_ASMS=$ARI_ASMS' ari_asm_mips'
     fi
@@ -2307,7 +2307,7 @@ case " ${XCPPFLAGS} ${XCFLAGS} " in
       SP_ASMD=$SP_ASMD" sp_asm_sparc64"
       SP_ASMS=$SP_ASMS" sp_asm_sparc64"
     fi
-    if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
+    if [ "$cpu" = mips -o "$cpu" = mipsn32 -o "$cpu" = mips64 ] ; then
       SP_ASMD=$SP_ASMD' sp_asm_mips'
       SP_ASMS=$SP_ASMS' sp_asm_mips'
     fi

@@ -1,5 +1,13 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation error on Linux/mipsn32.
+	* makemake.in: On mipsn32 platforms, use ari_asm_mips.d and
+	sp_asm_mips.d.
+	* arilev1.d: On mipsn32 platforms, include ari_asm_mips.c, not
+	ari_asm_mips64.c.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Fix failure of the builds with -DWIDE on Linux/mips (o32 ABI).
 	* makemake.in: When compiling with GCC for Linux/mips and -DWIDE,
 	reduce optimizations.
