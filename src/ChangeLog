@@ -1,3 +1,9 @@
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
+	Fix a bug in the optimizations for SPARC64.
+	* arilev0.d (mulu16): Cast the operands from uint16 to uint32, to force
+	a zero-extend before the asm-coded instructions.
+
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
 	Make SYS::IMPLEMENTATION-DEPENDENT work in all memory models.
