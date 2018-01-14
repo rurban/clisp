@@ -1,5 +1,13 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Linux/alpha.
+	* Makefile.devel (multibuild-linux-alpha): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Linux/alpha, enable all optimizations
+	except ASM.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Fix a bug in the optimizations for SPARC64.
 	* arilev0.d (mulu16): Cast the operands from uint16 to uint32, to force
 	a zero-extend before the asm-coded instructions.
