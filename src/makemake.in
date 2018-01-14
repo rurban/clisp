@@ -2147,6 +2147,14 @@ else
   XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
 fi
 
+# For 32-bit builds, determine whether lispbibl.d will enable WIDE_SOFT.
+USE_WIDE_SOFT=''
+case " ${XCPPFLAGS} ${XCFLAGS} " in
+  *" -DWIDE "* | *" -DWIDE_SOFT "* | *" -DNO_ADDRESS_SPACE_ASSUMPTIONS "*)
+    USE_WIDE_SOFT=yes
+    ;;
+esac
+
 GLLIB_A=libgnu.a
 # libgnu.a must come _before_ -lws2_32 -lintl &c
 LIBS="${GLLIB_A} ${LIBS} ${LIBSOCKET}"
@@ -3130,6 +3138,11 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = eval -a "$cpu" = sparc64 -a $XCC_GCC = true ] ; then
     # gcc-4.6.3 on Linux/sparc64 miscompiles eval.d when -O is used.
+    flags2=$flags2' -O0'
+  fi
+  if [ "$cpu" = mips -a -n "$USE_WIDE_SOFT" -a $XCC_GCC = true ] ; then
+    # gcc-4.9.2 on Linux/mips (o32 ABI) miscompiles spvw.o, eval.o,
+    # control.o, list.o and others when -DWIDE and -O is used.
     flags2=$flags2' -O0'
   fi
   if [ $f = lisparit -a "$cpu" = s390x -a $XCC_GCC = true ] ; then

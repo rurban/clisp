@@ -1,5 +1,11 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Fix failure of the builds with -DWIDE on Linux/mips (o32 ABI).
+	* makemake.in: When compiling with GCC for Linux/mips and -DWIDE,
+	reduce optimizations.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/alpha.
 	* Makefile.devel (multibuild-linux-alpha): Enable all build variants
 	that work.
