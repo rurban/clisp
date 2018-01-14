@@ -1,5 +1,12 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Fix failure of the spvw_pure_blocks build on Linux/mipsn32.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_START): Treat Linux/mipsn32 like
+	Linux/mips32.
+	(SINGLEMAP_*) [Linux/mipsn32]: Update accordingly.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error on Linux/mipsn32.
 	* makemake.in: On mipsn32 platforms, use ari_asm_mips.d and
 	sp_asm_mips.d.
