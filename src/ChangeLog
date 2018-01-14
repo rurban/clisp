@@ -1,5 +1,13 @@
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Mac OS X/x86_64.
+	* Makefile.devel (multibuild-macosx-x86_64): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Mac OS X/x86_64, enable all optimizations
+	except ASM.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Mac OS X/PowerPC.
 	* Makefile.devel (multibuild-macosx-powerpc): Enable all build variants
 	that work or should work.
