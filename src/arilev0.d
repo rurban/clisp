@@ -107,12 +107,12 @@
          })
     #elif defined(SPARC64) && !defined(NO_ASM)
       #define mulu16(arg1,arg2)  \
-        ({ var register uint64 _result;                         \
-           __asm__("umul %1,%2,%0"                              \
-                   : "=&r" (_result)                            \
-                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
-                  );                                            \
-           (uint32)_result;                                     \
+        ({ var register uint64 _result;                                         \
+           __asm__("umul %1,%2,%0"                                              \
+                   : "=&r" (_result)                                            \
+                   : "r" ((uint32)(uint16)(arg1)), "r" ((uint32)(uint16)(arg2)) \
+                  );                                                            \
+           (uint32)_result;                                                     \
          })
     #elif defined(I80386) && !defined(NO_ASM)
       #define mulu16(arg1,arg2)  \
