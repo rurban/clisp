@@ -1603,7 +1603,29 @@ multibuild-macosx-i386: \
   build-porting32-gcc-debug_ari_asm
 
 # Mac OS X/PowerPC
-multibuild-macosx-powerpc: multibuild-porting32-gcc # TODO
+# Note: The two generational_gc builds
+# don't work on Mac OS X 10.5/x86_64 with CC="gcc -arch ppc",
+# but they do work on Mac OS X 10.5/PowerPC.
+multibuild-macosx-powerpc: \
+  build-porting32-gcc-portability \
+  build-porting32-gcc-safety3 \
+  build-porting32-gcc-heapcodes \
+  build-porting32-gcc-one_free_bit_heapcodes-malloc \
+  build-porting32-gcc-one_free_bit_heapcodes-trivialmap \
+  build-porting32-gcc-kernelvoid32_heapcodes \
+  build-porting32-gcc-heapcodes-spvw_pages \
+  build-porting32-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap \
+  build-porting32-gcc-spvw_pure_blocks \
+  build-porting32-gcc-wide \
+  build-porting32-gcc-limited_memory \
+  build-porting32-gcc-old_gc \
+  build-porting32-gcc-multithread_gc \
+  build-porting32-gcc-generational_gc-old_gc \
+  build-porting32-gcc-generational_gc-multithread_gc \
+  build-porting32-gcc-safety0 \
+  build-porting32-gcc-safety0-optimized \
+  build-porting32-gcc-debug_gcsafety
 
 # AIX/POWER with 32-bit ABI
 multibuild-aix-powerpc-32-xlc: multibuild-porting32-cc # TODO
