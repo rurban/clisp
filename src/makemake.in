@@ -3109,6 +3109,15 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     # control.o, list.o and others when -DWIDE and -O is used.
     flags2=$flags2' -O0'
   fi
+  if [ "$cpu" = i386 -a -n "$USE_WIDE_SOFT" -a $XCC_GCC = true ] ; then
+    # gcc-6.3.0 on Hurd/i386 miscompiles something when -DWIDE is in use
+    # and -O2 is used on all of spvw.o eval.o control.o encoding.o stream.o io.o
+    # array.o hashtabl.o list.o record.o sequence.o charstrg.o predtype.o symbol.o.
+    # The effect is a crash in loadmem_from_handle.
+    # Also, clang 3.8.0 on FreeBSD/i386 miscompiles stream.o when -DWIDE is in
+    # use and -O2.
+    flags2=$flags2' -O1'
+  fi
   if [ $f = lisparit -a "$cpu" = s390x -a $XCC_GCC = true ] ; then
     # gcc-4.9.2 on Linux/s390x miscompiles lisparit.d when -O2 is used.
     flags2=$flags2' -O1'

@@ -74,6 +74,12 @@
 
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
+	Fix failure of the builds with -DWIDE on Hurd/i386 and FreeBSD/i386.
+	* makemake.in: When compiling with GCC for i386 and -DWIDE, reduce
+	optimizations.
+
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Linux/s390x.
 	* Makefile.devel (multibuild-linux-s390x): Enable all build variants
 	that work.
