@@ -72,6 +72,14 @@
 	* io.d (prin_object_dispatch_low) [HEAPCODES]: For a frame pointer,
 	invoke pr_framepointer, not pr_machine.
 
+2018-01-14  Bruno Haible  <bruno@clisp.org>
+
+	Enable most optimizations on Linux/ia64.
+	* Makefile.devel (multibuild-linux-ia64): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Linux/ia64, enable all optimizations
+	except ASM.
+
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
 	Improve framepointerp in GENERIC64C_HEAPCODES model.
