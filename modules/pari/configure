@@ -623,6 +623,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+PARI_DATADIR
 LIBPARI_PREFIX
 LTLIBPARI
 LIBPARI
@@ -702,6 +703,7 @@ with_clisp
 with_gnu_ld
 enable_rpath
 with_libpari_prefix
+with_pari_datadir
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1334,6 +1336,8 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-libpari-prefix[=DIR]  search for libpari in DIR/include and DIR/lib
   --without-libpari-prefix     don't search for libpari in includedir and libdir
+  --with-pari-datadir     specify the PARI data directory explicitly (default:
+                          /usr/share/pari)
 
 Some influential environment variables:
   CC          C compiler command
@@ -5055,6 +5059,34 @@ $as_echo "$ac_cv_libpari_libs" >&6; }
       HAVE_LIBPARI=yes
 
 
+
+
+# https://stackoverflow.com/q/48283885/850781
+
+# Check whether --with-pari-datadir was given.
+if test "${with_pari_datadir+set}" = set; then :
+  withval=$with_pari_datadir;
+else
+  with_pari_datadir=''
+fi
+
+eval "datadir_expanded=${datadir}"
+PARI_DATADIR=
+for d in \
+    ${with_pari_datadir} \
+    ${LIBPARI_PREFIX:+${LIBPARI_PREFIX}/share/pari} \
+    ${datadir_expanded}/pari \
+    /usr/local/share/pari \
+    /usr/share/pari
+do
+  if test -r ${d}/pari.desc; then :
+  PARI_DATADIR="${d}"; break
+fi
+done
+
+if test x = "x$PARI_DATADIR"; then :
+  as_fn_error $? "\"Could not identify PARI data directory\"" "$LINENO" 5
+fi
 
 
 

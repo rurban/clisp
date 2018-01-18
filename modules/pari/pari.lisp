@@ -1,6 +1,6 @@
 ;; CLISP interface to PARI <http://pari.math.u-bordeaux.fr/>
 ;; Copyright (C) 1995 Michael Stoll
-;; Copyright (C) 2004-2010, 2017 Sam Steingold
+;; Copyright (C) 2004-2010, 2017-2018 Sam Steingold
 ;; This is free software, distributed under the GNU GPL v2+
 
 ;; See file COMPAT in the top-level PARI distribution for object renamings.
@@ -1013,7 +1013,7 @@ void set_integer_data (GEN x, ulong len, ulong *data) {
   `(progn
      ,@(mapcar #'desc-to-ffi
                (read-pari-desc-file
-                (ext:string-concat (first ext:*args*) "/pari/pari.desc")))))
+                (ext:string-concat (first ext:*args*) "/pari.desc")))))
 (process-desc-file)
 
 ;;; redefine poorly defined functions
