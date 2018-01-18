@@ -8,7 +8,7 @@ CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
 prefix = @LIBPARI_PREFIX@
 datarootdir = @datarootdir@
-DATADIR = @datadir@
+PARI_DATADIR = @PARI_DATADIR@
 
 LN = @LN@
 LN_S = @LN_S@
@@ -32,7 +32,7 @@ desc2lisp.fas : $(srcdir)/desc2lisp.lisp
 	$(CLISP) -c $(srcdir)/desc2lisp.lisp -o ./
 
 pari.fas pari.c : $(srcdir)/pari.lisp desc2lisp.fas
-	$(CLISP) -i desc2lisp -c $(srcdir)/pari.lisp -o ./ $(DATADIR)
+	$(CLISP) -i desc2lisp -c $(srcdir)/pari.lisp -o ./ $(PARI_DATADIR)
 
 pari.o : pari.c config.h
 	$(CC) $(ALL_CFLAGS) -c pari.c

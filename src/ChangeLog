@@ -1,3 +1,13 @@
+2018-01-18  Sam Steingold  <sds@gnu.org>
+
+	Follow suggestions in https://stackoverflow.com/q/48283885/850781
+	* modules/pari/configure.in: Accept --with-pari-datadir and search
+	for pari.desc there and in other inferred locations.
+	* modules/pari/Makefile.in: Substitute PARI_DATADIR and pass it to
+	pari.lisp compilation.
+	* modules/pari/pari.lisp: Assume the 1st compilation arg point to
+	the directory with pari.desc.
+
 2018-01-14  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on Mac OS X/x86_64.

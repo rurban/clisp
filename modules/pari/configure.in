@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for PARI
-dnl Copyright (C) 2004-2010 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2004-2010, 2018 Sam Steingold <sds@gnu.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.57)
@@ -13,6 +13,26 @@ CL_MODULE_COMMON_CHECKS([ffi])
 
 dnl Search for libpari and define LIBPARI, LTLIBPARI and INCPARI.
 AC_LIB_LINKFLAGS([pari])
+
+# https://stackoverflow.com/q/48283885/850781
+AC_ARG_WITH([pari-datadir], [AS_HELP_STRING([--with-pari-datadir],
+    [specify the PARI data directory explicitly (default: /usr/share/pari)])],
+  [], [with_pari_datadir=''])
+eval "datadir_expanded=${datadir}"
+PARI_DATADIR=
+for d in \
+    ${with_pari_datadir} \
+    ${LIBPARI_PREFIX:+${LIBPARI_PREFIX}/share/pari} \
+    ${datadir_expanded}/pari \
+    /usr/local/share/pari \
+    /usr/share/pari
+do
+  AS_IF([test -r ${d}/pari.desc],[PARI_DATADIR="${d}"; break])
+done
+
+AS_IF([test x = "x$PARI_DATADIR"],
+  [AC_MSG_ERROR(["Could not identify PARI data directory"])])
+AC_SUBST([PARI_DATADIR])
 
 BOLD_MSG([PARI (Headers)])
 AC_CHECK_HEADERS(pari/pari.h)
