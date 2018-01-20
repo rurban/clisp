@@ -756,7 +756,7 @@ multibuild-porting32-cc: \
   build-porting32-cc-multithread_gc \
   build-porting32-cc-generational_gc-old_gc \
   build-porting32-cc-generational_gc-multithread_gc \
-  build-porting32-cc-safety0 \
+  build-porting32-cc-safety0
 
 # A build that favours portability over optimization.
 build-porting32-cc-portability:
