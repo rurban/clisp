@@ -25,7 +25,7 @@ pcre.fas: $(srcdir)/pcre.lisp
 	$(CLISP) -c $(srcdir)/pcre.lisp -o ./
 
 cpcre.o : cpcre.m.c config.h
-	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) \
 		-c cpcre.m.c -o cpcre.o
 
 cpcre.m.c : $(srcdir)/cpcre.c

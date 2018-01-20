@@ -25,7 +25,7 @@ i18n.fas: $(srcdir)/i18n.lisp
 	$(CLISP) -c $(srcdir)/i18n.lisp -o ./
 
 gettext.o : gettext.m.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) \
 		-c gettext.m.c -o gettext.o
 
 gettext.m.c : $(srcdir)/gettext.c
