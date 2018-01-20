@@ -25,7 +25,7 @@ gdbm.fas: $(srcdir)/gdbm.lisp
 	$(CLISP) -c $(srcdir)/gdbm.lisp -o ./
 
 gdbm.o : gdbm.m.c config.h
-	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) \
 		-c gdbm.m.c -o gdbm.o
 
 gdbm.m.c : $(srcdir)/gdbm.c

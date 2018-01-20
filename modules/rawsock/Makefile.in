@@ -25,7 +25,7 @@ sock.fas: $(srcdir)/sock.lisp
 	$(CLISP) -c $(srcdir)/sock.lisp -o ./
 
 rawsock.o : rawsock.m.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) \
 		-c rawsock.m.c -o rawsock.o
 
 rawsock.m.c : $(srcdir)/rawsock.c

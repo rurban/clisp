@@ -28,7 +28,7 @@ bdb.m.c: $(srcdir)/bdb.c
 	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/bdb.c ./
 
 bdb.o : bdb.m.c config.h
-	$(CC) $(CPPFLAGS) $(DBCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+	$(CC) $(CPPFLAGS) $(DBCPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) \
 		-c bdb.m.c -o bdb.o
 
 preload.lisp : $(srcdir)/preload.lisp

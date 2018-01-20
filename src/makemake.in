@@ -3988,7 +3988,7 @@ fi
 
 for f in $TXT_FILES ; do
   depends=''
-  flags=' -DCOMPILE_STANDALONE'
+  flags=' -I. -DCOMPILE_STANDALONE'
   test $f = README && depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   platform_line=""
   case $f in

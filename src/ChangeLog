@@ -1,5 +1,14 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure with Sun cc.
+	Sun cc and HP-UX cc do not look in the current directory by default
+	when attempting to fulfil a '#include "..."' statement after a #line
+	preprocessor directive. Cf. commit from 2017-03-16.
+	* makemake.in: When compiling output of TXT2C, add option '-I.'.
+	* modules/*/Makefile.in: When compiling a .m.c file, add option '-I.'.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix error during initialization of *TERMINAL-IO* on Mac OS X.
 	* stream.d (handle_type): Ignore EBADF error on Mac OS X.
 	(regular_or_pipe_handle_p): Renamed from pipe_file_handle_p.

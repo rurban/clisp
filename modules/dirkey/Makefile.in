@@ -28,7 +28,7 @@ dirkey.m.c: $(srcdir)/dirkey.c
 	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/dirkey.c ./
 
 dirkey.o : dirkey.m.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c dirkey.m.c -o dirkey.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -I$(CLISP_LINKKIT) -c dirkey.m.c -o dirkey.o
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
