@@ -3026,6 +3026,16 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
         fi
         ;;
     esac
+  else
+    case "$host_os" in
+      aix*)
+        if [ $f = lisparit -a -n "$USE_WIDE_SOFT" ] ; then
+          # xlc 12.01 on AIX/powerpc miscompiles lisparit.o when -DWIDE is in use
+          # and -O.
+          flags2=$flags2' -O0'
+        fi
+        ;;
+    esac
   fi
   if [ $f = eval -a "${with_jitc}" = lightning ]; then
     flags2=$flags2' -Wno-unused' # should be gone - eventually...
