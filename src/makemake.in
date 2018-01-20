@@ -539,6 +539,7 @@ WINDRES='@WINDRES@'                 # something like i686-w64-mingw32-windres
 LD='@LD@'                           # the linker used by $CC, such as 'ld' or '/usr/bin/ld -m elf_i386'
 AR='@AR@'                           # usually 'ar'
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
+DSYMUTIL='@DSYMUTIL@'               # either 'dsymutil' or ''
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
 INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
 INSTALL_SCRIPT='@INSTALL_SCRIPT@'   # either 'install -c' or 'cp', avoid 'strip'
@@ -1474,6 +1475,7 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   eval "`./libtool --tag=CC --config | grep '^pic_flag='`"
   eval XCC_PICFLAG=\"${pic_flag}\"
   if [ "$HSYSOS" != cygwin ]; then
+    eval "`./libtool --tag=CC --config | grep '^allow_undefined_flag='`"
     eval "`./libtool --tag=CC --config | grep '^archive_cmds='`"
   else
     archive_cmds='$CC -shared $libobjs $deplibs $compiler_flags -o $output_objdir/$soname'
@@ -1485,6 +1487,11 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${CFLAGS}' \
     soname='$dll' lib='$lib' output_objdir='$dyndir' \
     eval XCC_CREATESHARED=\"${archive_cmds}\"
+  # archive_cmds can contain several commands, separated by ~.
+  # But here we need only the first one. The second command occurs only on
+  # Mac OS X, and is a $DSYMUTIL invocation that merely extracts debugging
+  # information to the file system.
+  XCC_CREATESHARED=`echo "$XCC_CREATESHARED" | sed -e 's/~.*//'`
   if test "$CC_set" = set
   then CC=$CC_save
   else unset CC
