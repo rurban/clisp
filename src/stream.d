@@ -3455,9 +3455,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
 
 /* UP: Deletes already entered interactive Input from a Handle. */
 local void clear_tty_input (Handle handle) {
-  /* Method 1: tcflush TCIFLUSH, see TERMIOS(3V)
-     Method 2: ioctl TCFLSH TCIFLUSH, see TERMIO(4)
-     Method 3: ioctl TIOCFLUSH FREAD, see TTCOMPAT(4) */
+  /* Method: tcflush TCIFLUSH, see TERMIOS(3V) */
   begin_system_call();
  #ifdef UNIX_TERM_TERMIOS
   if (!( TCFLUSH(handle,TCIFLUSH) ==0)) {
@@ -3498,7 +3496,6 @@ local void clear_tty_input (Handle handle) {
 local void finish_tty_output (Handle handle) {
   /* Method 1: fsync, see fsync(2)
      Method 2: tcdrain, see termios(3V)
-     Method 3: ioctl TCSBRK 1, see TERMIO(4)
      poss. Method 3: ioctl TCGETS/TCSETSW, see termio(4) or tty_ioctl(4)
      or (almost equivalent) ioctl TIOCGETP/TIOCSETP, see TTCOMPAT(4) */
   begin_system_call();
@@ -3559,9 +3556,7 @@ local void force_tty_output (Handle handle) {
 
 /* UP: Deletes the pending Output of a Handle. */
 local void clear_tty_output (Handle handle) {
-  /* Method 1: tcflush TCOFLUSH, see TERMIOS(3V)
-     Method 2: ioctl TCFLSH TCOFLUSH, see TERMIO(4)
-     Method 3: ioctl TIOCFLUSH FWRITE, see TTCOMPAT(4) */
+  /* Method: tcflush TCOFLUSH, see TERMIOS(3V) */
   begin_system_call();
  #ifdef UNIX_TERM_TERMIOS
   if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
