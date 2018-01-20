@@ -1,5 +1,11 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix error during initialization of *TERMINAL-IO* on Mac OS X.
+	* stream.d (handle_type): Ignore EBADF error on Mac OS X.
+	(regular_or_pipe_handle_p): Renamed from pipe_file_handle_p.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix use of libtool's archive_cmds on Mac OS X.
 	* makemake.in (DSYMUTIL): New variable.
 	(archive_cmds): Don't lose references to $allow_undefined_flag.
