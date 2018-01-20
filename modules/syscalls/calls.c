@@ -1929,7 +1929,8 @@ DEFUN(POSIX::%SETGROUPS, groups) {
    but (rawsock:resolve-host-ipaddr :default) ==> "172.25.131.105" */
 DEFUN(POSIX:HOSTID,) { GETTER(unsigned long,ulong,gethostid); }
 #endif
-#if defined(HAVE_SETHOSTID)
+#if defined(HAVE_SETHOSTID) && !defined(_AIX)
+/* sethostid is not appropriately declared in the system header files on AIX 7. */
 #define I_to_hid(x)   I_to_ulong(check_ulong(x))
 DEFUN(POSIX::%SETHOSTID, hostid) {
   unsigned long hid = I_to_ulong(check_ulong(STACK_0 = STACK_0));
