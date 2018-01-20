@@ -1,5 +1,11 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Make gettext calls work with non-GNU gettext in Solaris 11 libc.
+	* makemake.in: After installing .mo files, on Solaris, create symbolic
+	links ll_CC.UTF-8 -> ll for all supported locales.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure with Sun cc.
 	Sun cc and HP-UX cc do not look in the current directory by default
 	when attempting to fulfil a '#include "..."' statement after a #line
