@@ -1,5 +1,13 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on FreeBSD/arm64 and Solaris/SPARC64 with non-GCC
+	compiler and NO_ADDRESS_SPACE_ASSUMPTIONS.
+	* lispbibl.d: On FreeBSD/arm64 with clang and on Solaris/SPARC64 with
+	cc, prefer GENERIC64B_HEAPCODES over GENERIC64C_HEAPCODES.
+	(GENERIC64B_HEAPCODES_WORKS): Define accordingly.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Update set of working builds for Linux/s390x.
 	* Makefile.devel (multibuild-linux-s390x): Don't depend on
 	build-porting64-gcc-debug_gcsafety.
