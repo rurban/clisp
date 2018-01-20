@@ -3977,9 +3977,13 @@ for f in $TXT_FILES ; do
     *) sourcedir=${SRCDIR} ;;
   esac
   echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE} ${GLLIB_A}"
-  echotab "\$(TXT2C) < ${sourcedir}_${f} > gen-${f}.c"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "gen-${f}.c ${GLLIB_A}" "gen-${f}"
-  line="${HERE}gen-${f}"
+  g="gen-${f}"
+  # The naïve choice of the executable name g would lead to the error
+  # "xlc: 1501-218 (S) file gen-clisp.c contains an incorrect file suffix" on AIX.
+  g=`echo "${g}" | sed -e 's/[.]//g'`
+  echotab "\$(TXT2C) < ${sourcedir}_${f} > ${g}.c"
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "${g}.c ${GLLIB_A}" "${g}"
+  line="${HERE}${g}"
   test $f = clisp.1 -o $f = clisp-link.1 && \
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   # *-1.html is for chunked impnotes and does not depend on user hyperspec
@@ -3989,9 +3993,9 @@ for f in $TXT_FILES ; do
   test $f = distmakefile && line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s:@@EXPORT_DYNAMIC_FLAG_SPEC@@:${EXPORT_DYNAMIC_FLAG_SPEC}:g\""
   line=$line$platform_line
   echotab "${line} > ${f}"
-  echotab "\$($EXERM) gen-${f}.c $(exefiles gen-${f})"
+  echotab "\$($EXERM) ${g}.c $(exefiles ${g})"
   echol
-  OBSOLETE=$OBSOLETE" gen-${f}.c $(exefiles gen-${f})"
+  OBSOLETE=$OBSOLETE" ${g}.c $(exefiles ${g})"
 done
 
 for f in ${MANPAGES}; do
