@@ -1,5 +1,11 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Update set of working builds for Linux/s390x.
+	* Makefile.devel (multibuild-linux-s390x): Don't depend on
+	build-porting64-gcc-debug_gcsafety.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix crash of build-porting64-gcc-debug_gcsafety build on Linux/s390x.
 	* makemake.in: When we already have -O0 in the $XCFLAGS, don't add -O1
 	to a particular compilation command.
