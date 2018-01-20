@@ -1,6 +1,6 @@
 /*
  * Streams for CLISP
- * Bruno Haible 1990-2008, 2016-2017
+ * Bruno Haible 1990-2008, 2016-2018
  * Sam Steingold 1998-2011, 2016-2017
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -3458,7 +3458,21 @@ local void clear_tty_input (Handle handle) {
   /* Method: tcflush TCIFLUSH, see TERMIOS(3V) */
   begin_system_call();
  #ifdef UNIX_TERM_TERMIOS
-  if (!( TCFLUSH(handle,TCIFLUSH) ==0)) {
+  /* On AIX, when a clisp process is run through 'nohup ... &' and the user
+     logs out, the tty device /dev/pts/N is deallocated, that is, becomes owned
+     by root, with permissions rw-rw-rw- (as opposed to rw--w--w- when it is
+     allocated). The tcflush TCIFLUSH call can then trigger a SIGHUP signal,
+     which would make the process terminate. Avoid this. */
+  #ifdef UNIX_AIX
+  var signal_handler_t prev_handler = install_signal_handler(SIGHUP,SIG_IGN);
+  #endif
+  var int ret = TCFLUSH(handle,TCIFLUSH);
+  #ifdef UNIX_AIX
+  var int saved_errno = errno;
+  install_signal_handler(SIGHUP,prev_handler);
+  errno = saved_errno;
+  #endif
+  if (!(ret==0)) {
     if (!((errno==ENOTTY)||(errno==EINVAL))) { /* no TTY: OK */
       local bool flag = false;
       /* report other Error, but only once */
