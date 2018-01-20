@@ -1845,8 +1845,7 @@ multibuild-linux-s390x: \
   build-porting64-gcc-generational_gc-old_gc \
   build-porting64-gcc-generational_gc-multithread_gc \
   build-porting64-gcc-safety0 \
-  build-porting64-gcc-safety0-optimized \
-  build-porting64-gcc-debug_gcsafety
+  build-porting64-gcc-safety0-optimized
 
 # Linux/sparc64
 multibuild-linux-sparc64: \
