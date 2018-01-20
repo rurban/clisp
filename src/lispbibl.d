@@ -6623,9 +6623,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  g++ 3.3 doesn't accept compound expressions as initializers:
  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=12615
  g++ 3.4 similarly: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15180)
+ g++ 4.8 on 32-bit AIX/PowerPC produces code with invalid displacements.
  With DEBUG_GCSAFETY, the initialization of symbol_tab_data crashes in
  nonimmprobe. */
-#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT)) && !(defined(DEBUG_GCSAFETY) && defined(SINGLEMAP_MEMORY))
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3 || __GNUC_MINOR__ == 4) && defined(OBJECT_STRUCT)) && !(defined(__GNUG__) && defined(UNIX_AIX) && defined(POWERPC)) && !(defined(DEBUG_GCSAFETY) && defined(SINGLEMAP_MEMORY))
   #define INIT_SYMBOL_TAB
 #endif
 /* When changed: nothing to do */
