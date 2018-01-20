@@ -1145,7 +1145,11 @@ if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
 else
   TEXE=''
   LEXE='.run'
-  SHREXT='.so'
+  case "$host_os" in
+    darwin*) SHREXT='.dylib' ;;
+    hpux*)   SHREXT='.sl' ;;
+    *)       SHREXT='.so' ;;
+  esac
 fi
 HEREP=`pwd`
 test -n "${PWD_POSTPROC}" && HEREP=`${PWD_POSTPROC} ${HEREP}`
