@@ -1,6 +1,6 @@
 /*
  * CLISP interface to GNU regex
- * originally by Bruno Haible 14.4.1995
+ * originally by Bruno Haible 1995-04-14
  * rewritten by Sam Steingold 2003-08-06
  */
 
@@ -133,8 +133,14 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
       if (rettype != ret_bool) {
         for (re_count = 0; re_count <= re->re_nsub; re_count++)
           if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
-            pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_so)));
-            pushSTACK(posfixnum(start+Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),stringz,stringz+ret[re_count].rm_eo)));
+            pushSTACK(posfixnum(start
+                                +Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),
+                                                                        (const uintB*)stringz,
+                                                                        (const uintB*)stringz+ret[re_count].rm_so)));
+            pushSTACK(posfixnum(start
+                                +Encoding_mblen(Symbol_value(S(utf_8)))(Symbol_value(S(utf_8)),
+                                                                        (const uintB*)stringz,
+                                                                        (const uintB*)stringz+ret[re_count].rm_eo)));
             funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
           } else pushSTACK(NIL);
       }
