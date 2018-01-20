@@ -9168,7 +9168,8 @@ typedef struct {
   gcv_object_t clos_name_or_class_version _attribute_aligned_object_;
   gcv_object_t clos_codevec               _attribute_aligned_object_;
   gcv_object_t clos_consts[unspecified]   _attribute_aligned_object_; /* Closure-constants */
-} *  Cclosure;
+} cclosure_;
+typedef cclosure_ *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
 /* Flags in a closure. They must be disjoint from the instflags_* bits. */
@@ -9230,7 +9231,7 @@ typedef struct {
 
 /* the position of the last const (or doc or lalist!) */
 #define Cclosure_last_const(obj)  (Cclosure_length(obj) - 1 -           \
-   (sizeof(*(Cclosure)0) - offsetofa(srecord_,recdata))/sizeof(gcv_object_t))
+   (offsetofa(cclosure_,clos_consts)-offsetofa(srecord_,recdata))/sizeof(gcv_object_t))
 #define ccv_flags_lambda_list_p(ccv_flags)    (((ccv_flags) & bit(1)) != 0)
 #define ccv_flags_documentation_p(ccv_flags)  (((ccv_flags) & bit(2)) != 0)
 #define ccv_flags_jitc_p(ccv_flags)           (((ccv_flags) & bit(5)) != 0)
