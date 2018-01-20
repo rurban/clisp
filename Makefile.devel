@@ -1530,7 +1530,7 @@ multibuild-freebsd-i386: \
   build-porting32-gcc-debug_ari_asm
 
 # DragonFly/i386
-multibuild-dragonfly-i386: multibuild-porting32-gcc # TODO
+multibuild-dragonfly-i386: multibuild-freebsd-i386
 
 # NetBSD/i386
 multibuild-netbsd-i386: \
