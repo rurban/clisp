@@ -1,5 +1,16 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	When testing, enable a couple of optimizations that are not risky.
+	This avoids test failures with non-GCC compilers.
+	* Makefile.devel (build-porting*-one_free_bit_heapcodes-trivialmap,
+	build-porting*-kernelvoid32_heapcodes,
+	build-porting*-generic64_heapcodes,
+	build-porting*-typecodes-spvw_mixed_blocks-trivialmap,
+	build-porting*-spvw_pure_blocks): Remove flags -DNO_FAST_FLOAT
+	-DNO_FAST_DOUBLE -DNO_ALLOCA.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix crash with all non-GCC/clang compilers (regression from 2006-09-03).
 	* lispbibl.d (Cclosure_last_const): Don't use sizeof of a struct that
 	contains a variable-length array.
