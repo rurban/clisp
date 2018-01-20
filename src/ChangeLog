@@ -1,5 +1,16 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	syscalls: Make this module work with DYNAMIC_MODULES.
+	Fixes bug#725.
+	* modules/syscalls/calls.c (bogomips): New function, moved here from
+	bogomips.c. Use 'volatile' to defeat compiler optimizations.
+	* modules/syscalls/bogomips.c: Remove file.
+	* modules/syscalls/Makefile.in (bogomips.o): Remove rule.
+	(GENERATED): Remove bogomips.o.
+	* modules/syscalls/link.sh.in (NEW_FILES): Likewise.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	clisp-link: Fix "ld: SONAME must not be empty string" warning.
 	* clisp-link (add): Set 'dll' before invoking @createsharedlib@.
 

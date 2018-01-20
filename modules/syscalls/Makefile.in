@@ -17,7 +17,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = calls.o bogomips.o posix.fas preload.lisp datemsk
+GENERATED = calls.o posix.fas preload.lisp datemsk
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/posix.lisp $(srcdir)/README
 distribdir =
@@ -26,10 +26,6 @@ distribdir =
 clisp-module : $(GENERATED)
 
 .PHONY : am--refresh clisp-module clisp-module-distrib clean distclean force
-
-# no $(CPPFLAGS) $(CFLAGS) to avoid all optimizations
-bogomips.o : $(srcdir)/bogomips.c
-	$(CC) -c $(srcdir)/bogomips.c -o bogomips.o
 
 posix.fas: $(srcdir)/posix.lisp
 	$(CLISP) -c $(srcdir)/posix.lisp -o ./
