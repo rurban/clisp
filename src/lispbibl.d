@@ -4418,7 +4418,17 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        GENERIC64B_HEAPCODES shifts the immediate values by one more bit.
        GENERIC64C_HEAPCODES drops the necessity of an address range hole. */
     #if !(defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES) || defined(GENERIC64C_HEAPCODES))
-      #define GENERIC64C_HEAPCODES
+      #if (defined(UNIX_FREEBSD) && defined(ARM64) && defined(__clang__)) \
+          || (defined(UNIX_SUNOS5) && defined(SPARC64) && !defined(GNU))
+        /* On FreeBSD/arm64 with clang and on Solaris/sparc64 with Sun C,
+           GENERIC64C_HEAPCODES leads to "PSEUDOCODE_ALIGNMENT is not fulfilled.",
+           but GENERIC64B_HEAPCODES works. So choose that, even if
+           NO_ADDRESS_SPACE_ASSUMPTIONS is defined; we wouldn't be able
+           to fully honor NO_ADDRESS_SPACE_ASSUMPTIONS in these cases. */
+        #define GENERIC64B_HEAPCODES
+      #else
+        #define GENERIC64C_HEAPCODES
+      #endif
     #endif
     #ifdef GENERIC64A_HEAPCODES
       /* The generic 64-bit case, variant A.
@@ -4500,7 +4510,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_FREEBSD) && defined(ARM64) /* FreeBSD/arm64 */
-      #define GENERIC64C_HEAPCODES_WORKS 1
+      #define GENERIC64C_HEAPCODES_WORKS 0
+      #define GENERIC64B_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_NETBSD) && defined(AMD64) /* NetBSD/x86_64 */
       #define GENERIC64C_HEAPCODES_WORKS 1
@@ -4524,7 +4535,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define GENERIC64C_HEAPCODES_WORKS 0
     #endif
     #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
-      #define GENERIC64C_HEAPCODES_WORKS 1
+      #define GENERIC64C_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with cc */
+      #define GENERIC64B_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_SUNOS5) && defined(SPARC64) /* Solaris/sparc64 */
       #define GENERIC64C_HEAPCODES_WORKS 1
