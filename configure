@@ -32,7 +32,7 @@ else
 fi
 
 # Download location of the newest libsigsegv release.
-libsigsegv_url='https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.11.tar.gz'
+libsigsegv_url='https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.12.tar.gz'
 
 fail () { echo "$*" >&2; exit 1; }
 
