@@ -1,5 +1,11 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Fix error while creating clisp.c on AIX with xlc.
+	* makemake.in: Choose the name of the gen-* temporary executables in a
+	way that avoids particular suffixes.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error in C++ mode on AIX in 32-bit mode.
 	* lispbibl.d (INIT_SYMBOL_TAB): Don't define when using g++ on 32-bit
 	AIX/PowerPC.
