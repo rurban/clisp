@@ -1,5 +1,14 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on AIX/POWER in 64-bit mode.
+	* Makefile.devel (multibuild-aix-powerpc-64-xlc,
+	multibuild-aix-powerpc-64-gcc): Enable all build variants that work.
+	* makemake.in (XCFLAGS): For 64-bit AIX/POWER, enable all optimizations
+	except ASM.
+	* lispbibl.d (GENERIC64C_HEAPCODES_WORKS): Update value for AIX/POWER.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on AIX/POWER in 32-bit mode.
 	* Makefile.devel (multibuild-aix-powerpc-32-xlc,
 	multibuild-aix-powerpc-32-gcc): Enable all build variants that work.
