@@ -1656,14 +1656,8 @@ else
         ;;
 
       # NetBSD/sparc
-      netbsd*--sparc) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+      netbsd*--sparc)
+        XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
       # OpenBSD/i386
