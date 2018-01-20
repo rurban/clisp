@@ -1,3 +1,8 @@
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
+	clisp-link: Fix "ld: SONAME must not be empty string" warning.
+	* clisp-link (add): Set 'dll' before invoking @createsharedlib@.
+
 2018-01-18  Sam Steingold  <sds@gnu.org>
 
 	Follow suggestions in https://stackoverflow.com/q/48283885/850781

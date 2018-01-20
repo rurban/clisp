@@ -4,7 +4,7 @@
 #   command = create, add, run, install
 # For more usage information, see <doc/impnotes.html#mod-overview>.
 # Or <http://clisp.org/modules.html#mod-overview>.
-# Bruno Haible 19.10.1994
+# Bruno Haible 1994-10-19, 1995-2005, 2018
 # Sam Steingold 2002-2010
 
 # This could as well be written in Lisp, for portability, but syscalls is
@@ -515,6 +515,7 @@ case "$1" in
            echo ")))")  > "$tmpinitlisp"
           # Create a shared library.
           start_dir=`pwd`; cd $tmp;
+          dll=libclisprun
           lib="$tmpsharedlib"; libs="$LIBS"; verbose @createsharedlib@
         fi
         (for f in $LOAD; do echo "(load \"${f}\")"; done) > "$tmpinitlisp"
