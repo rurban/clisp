@@ -2127,8 +2127,39 @@ multibuild-macosx-x86_64: \
   build-porting64-gcc-debug_gcsafety
 
 # AIX/POWER with 64-bit ABI
-multibuild-aix-powerpc-64-xlc: multibuild-porting64-cc # TODO
-multibuild-aix-powerpc-64-gcc: multibuild-porting64-gcc # TODO
+multibuild-aix-powerpc-64-xlc: \
+  build-porting64-cc-portability \
+  build-porting64-cc-safety3 \
+  build-porting64-cc-heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes-malloc \
+  build-porting64-cc-one_free_bit_heapcodes-trivialmap \
+  build-porting64-cc-heapcodes-spvw_pages \
+  build-porting64-cc-heapcodes-spvw_mixed_blocks \
+  build-porting64-cc-spvw_pure_blocks \
+  build-porting64-cc-limited_memory \
+  build-porting64-cc-old_gc \
+  build-porting64-cc-multithread_gc \
+  build-porting64-cc-generational_gc-old_gc \
+  build-porting64-cc-generational_gc-multithread_gc \
+  build-porting64-cc-safety0
+multibuild-aix-powerpc-64-gcc: \
+  build-porting64-gcc-portability \
+  build-porting64-gcc-safety3 \
+  build-porting64-gcc-heapcodes \
+  build-porting64-gcc-one_free_bit_heapcodes-malloc \
+  build-porting64-gcc-one_free_bit_heapcodes-trivialmap \
+  build-porting64-gcc-generic64_heapcodes \
+  build-porting64-gcc-heapcodes-spvw_pages \
+  build-porting64-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting64-gcc-spvw_pure_blocks \
+  build-porting64-gcc-limited_memory \
+  build-porting64-gcc-old_gc \
+  build-porting64-gcc-multithread_gc \
+  build-porting64-gcc-generational_gc-old_gc \
+  build-porting64-gcc-generational_gc-multithread_gc \
+  build-porting64-gcc-safety0 \
+  build-porting64-gcc-safety0-optimized \
+  build-porting64-gcc-debug_gcsafety
 
 # HP-UX/hppa64 with 64-bit ABI
 multibuild-hpux-hppa-64: multibuild-porting64-cc # TODO

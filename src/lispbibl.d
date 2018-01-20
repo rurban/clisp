@@ -4526,7 +4526,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
-      #define GENERIC64C_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with xlc */
+      #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_HPUX) && defined(HPPA64) /* HP-UX/hppa64 */
       #define GENERIC64C_HEAPCODES_WORKS 0
