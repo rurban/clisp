@@ -1,7 +1,7 @@
 /*
  * system calls
  * Copyright (C) 2003-2012,2016-2017 Sam Steingold
- * Copyright (C) 2005,2008,2017 Bruno Haible
+ * Copyright (C) 2005,2008,2017-2018 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * This is Free Software, distributed under the GNU GPL v2+
  */
@@ -1006,7 +1006,22 @@ DEFUNF(POSIX::LGAMMA,x) {
 }
 #endif
 
-extern double bogomips (void);
+static double bogomips (void)
+{
+  if (clock() != (clock_t)-1) {
+    unsigned long loops = 1;
+    while ((loops <<= 1)) {
+      unsigned long ticks;
+      volatile unsigned long ii;
+      ticks = clock();
+      for (ii = loops; ii > 0; ii--);
+      ticks = clock() - ticks;
+      if (ticks >= CLOCKS_PER_SEC)
+        return (1.0 * loops / ticks) * (CLOCKS_PER_SEC / 500000.0);
+    }
+  }
+  return -1.0;
+}
 DEFUN(OS:BOGOMIPS,) { N_D(bogomips(),value1); mv_count=1; }
 
 DEFUN(POSIX:LOADAVG, &optional percentp) {

@@ -1,7 +1,7 @@
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   CLISP_LINKKIT="$absolute_linkkitdir" CLISP="${CLISP}"
-NEW_FILES='calls.o bogomips.o'
+NEW_FILES='calls.o'
 NEW_LIBS="${NEW_FILES} @GETLOADAVG_LIBS@ @LIBS@"
 NEW_MODULES='syscalls'
 TO_LOAD='posix'
