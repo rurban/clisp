@@ -64,9 +64,18 @@ global int mprotect (void* addr, size_t len, int prot);
      - FreeBSD, since FreeBSD 6.0,               MINCORE_{INCORE,REFERENCED,MODIFIED}
      - NetBSD,  since NetBSD 3.0 (at least),     1
      - OpenBSD, since OpenBSD 2.6 (at least),    1
+     - AIX,     since AIX 5.3,                   1
    However, while the API allows to easily determine the bounds of mapped
-   virtual memory, it does not make it easy the bounds of _unmapped_ virtual
-   memory ranges. */
+   virtual memory, it does not make it easy to find the bounds of _unmapped_
+   virtual memory ranges. */
+
+/* The AIX declaration of mincore() uses 'caddr_t', whereas the other platforms
+   use 'void *'. */
+#ifdef UNIX_AIX
+typedef caddr_t MINCORE_ADDR_T;
+#else
+typedef void* MINCORE_ADDR_T;
+#endif
 
 /* The glibc declaration of mincore() uses 'unsigned char *', whereas the BSD
    declaration uses 'char *'. */
@@ -94,7 +103,7 @@ local void mincore_init (void)
      pointer accesses). */
   {
     mincore_pageinfo_t vec[1];
-    mincore_works = (mincore ((void *) 0, mincore_pagesize, vec) < 0);
+    mincore_works = (mincore ((MINCORE_ADDR_T) 0, mincore_pagesize, vec) < 0);
   }
 }
 
@@ -107,7 +116,7 @@ local bool is_small_range_unmapped (uintP map_addr, uintP map_endaddr)
   map_addr = map_addr & ~(mincore_pagesize-1); /* round down */
   map_endaddr = ((map_endaddr-1) | (mincore_pagesize-1)) + 1; /* round up */
   for (; map_addr != map_endaddr; map_addr += mincore_pagesize) {
-    if (mincore ((void *) map_addr, mincore_pagesize, vec) >= 0)
+    if (mincore ((MINCORE_ADDR_T) map_addr, mincore_pagesize, vec) >= 0)
       /* The page [map_addr,map_addr+mincore_pagesize) is mapped. */
       return false;
   }
