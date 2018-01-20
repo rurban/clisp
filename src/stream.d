@@ -14827,6 +14827,8 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
  can trigger GC */
 local maygc object handle_pathname (Handle fd) {
   /* Most UNIX platforms have /dev/fd/[012] pseudo-files. */
+  /* AIX has /proc/<pid>/fd/[012] pseudo-files but they have zero permissions
+     and are therefore not usable for any purpose. */
  #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_BEOS) || defined(UNIX_HAIKU))
   var char buf[20];
   begin_system_call();
