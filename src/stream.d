@@ -3617,12 +3617,19 @@ local void clear_tty_output (Handle handle) {
  handle_type(handle)
  > handle: open handle (file or pipe)
  < result: an integer, identifying the type */
- #if defined(UNIX)
+#if defined(UNIX)
 #define handle_type_t mode_t
 local handle_type_t handle_type (Handle handle) {
   var struct stat statbuf;
   begin_system_call();
-  if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
+  if (!( fstat(handle,&statbuf) ==0)) {
+    #if defined(UNIX_MACOSX)
+    /* This happens with stdin_handle of a process launched through nohup,
+        on Mac OS X 10.5. */
+    if (errno == EBADF) { end_system_call(); return 0; }
+    #endif
+    OS_error();
+  }
   end_system_call();
   return statbuf.st_mode;
 }
@@ -3670,12 +3677,12 @@ local inline bool pipe_handle_type_p (handle_type_t mode) {
 #define pipe_handle_p(h)  pipe_handle_type_p(handle_type(h))
 
 /* UP: Determines, if a Handle refers to a pipe, socket, file
- pipe_handle_p(handle)
+ regular_or_pipe_handle_p(handle)
  > handle: Handle of the opened File
  < result: true if it is a socket/pipe/file */
-local inline bool pipe_file_handle_p (Handle handle) {
+local inline bool regular_or_pipe_handle_p (Handle handle) {
   var handle_type_t mode = handle_type(handle);
-  DEBUG_OUT(("\npipe_file_handle_p(%d): 0x%x\n",handle,mode));
+  DEBUG_OUT(("\nregular_or_pipe_handle_p(%d): 0x%x\n",handle,mode));
   return regular_handle_type_p(mode) || pipe_handle_type_p(mode);
 }
 
@@ -15004,10 +15011,10 @@ local maygc object make_terminal_io (void) {
    this reduces the runtime on Solaris from 165 sec to 47 sec. */
   var bool stdin_terminal =
     handle_direction_compatible(stdin_handle,DIRECTION_INPUT)
-    && !pipe_file_handle_p(stdin_handle);
+    && !regular_or_pipe_handle_p(stdin_handle);
   var bool stdout_terminal =
     handle_direction_compatible(stdout_handle,DIRECTION_OUTPUT)
-    && !pipe_file_handle_p(stdout_handle);
+    && !regular_or_pipe_handle_p(stdout_handle);
   DEBUG_OUT(("\nmake_terminal_io: %d %d\n",stdin_terminal,stdout_terminal));
   /* note that if a stream is incompatible, handle_direction_compatible
      will be called again by get_standard_*_file_stream;
