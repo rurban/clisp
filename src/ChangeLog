@@ -1,5 +1,14 @@
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Solaris/i386.
+	* Makefile.devel (multibuild-solaris-i386-cc,
+	multibuild-solaris-i386-gcc): Enable all build variants that work or
+	should work.
+	* makemake.in (XCFLAGS): For Solaris/i386, enable all optimizations
+	except ASM.
+
+2018-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Solaris/SPARC64.
 	* Makefile.devel (multibuild-solaris-sparc64-cc,
 	multibuild-solaris-sparc64-gcc): Enable all build variants that work or
