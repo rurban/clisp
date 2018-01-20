@@ -2076,8 +2076,41 @@ multibuild-solaris-x86_64-cc: multibuild-porting64-cc # TODO
 multibuild-solaris-x86_64-gcc: multibuild-porting64-gcc # TODO
 
 # Solaris/sparc64 with 64-bit ABI
-multibuild-solaris-sparc64-cc: multibuild-porting64-cc # TODO
-multibuild-solaris-sparc64-gcc: multibuild-porting64-gcc # TODO
+multibuild-solaris-sparc64-cc: \
+  build-porting64-cc-portability \
+  build-porting64-cc-safety3 \
+  build-porting64-cc-heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes-malloc \
+  build-porting64-cc-one_free_bit_heapcodes-trivialmap \
+  build-porting64-cc-generic64_heapcodes \
+  build-porting64-cc-heapcodes-spvw_pages \
+  build-porting64-cc-heapcodes-spvw_mixed_blocks \
+  build-porting64-cc-spvw_pure_blocks \
+  build-porting64-cc-limited_memory \
+  build-porting64-cc-old_gc \
+  build-porting64-cc-multithread_gc \
+  build-porting64-cc-generational_gc-old_gc \
+  build-porting64-cc-generational_gc-multithread_gc \
+  build-porting64-cc-safety0
+# TODO build-porting64-gcc-debug_gcsafety currently has compilation failures.
+multibuild-solaris-sparc64-gcc: \
+  build-porting64-gcc-portability \
+  build-porting64-gcc-safety3 \
+  build-porting64-gcc-heapcodes \
+  build-porting64-gcc-one_free_bit_heapcodes-malloc \
+  build-porting64-gcc-one_free_bit_heapcodes-trivialmap \
+  build-porting64-gcc-generic64_heapcodes \
+  build-porting64-gcc-heapcodes-spvw_pages \
+  build-porting64-gcc-heapcodes-spvw_mixed_blocks \
+  build-porting64-gcc-spvw_pure_blocks \
+  build-porting64-gcc-limited_memory \
+  build-porting64-gcc-old_gc \
+  build-porting64-gcc-multithread_gc \
+  build-porting64-gcc-generational_gc-old_gc \
+  build-porting64-gcc-generational_gc-multithread_gc \
+  build-porting64-gcc-safety0 \
+  build-porting64-gcc-safety0-optimized \
+  build-porting64-gcc-debug_gcsafety
 
 # Cygwin, running on Windows 10 (64-bit)
 multibuild-cygwin-64: multibuild-porting64-gcc # TODO
