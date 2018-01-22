@@ -1,4 +1,4 @@
-;;; Sam Steingold 2000-2008, 2010-2011, 2017
+;;; Sam Steingold 2000-2008, 2010-2011, 2017-2018
 ;;; Bruno Haible 2017
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL v2+ (http://www.gnu.org/copyleft/gpl.html)
@@ -178,6 +178,9 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           :until (starts-with-p res #3="Location: ")
           :finally (let ((new-url (subseq res #.(length #3#))))
                      (format *http-log-stream* " --> ~S~%" new-url)
+                     (when (starts-with-p new-url "https://")
+                       (error (TEXT "~S(~S): HTTPS protocol is not supported yet")
+                              'open-http new-url))
                      (unless (starts-with-p new-url #1#)
                        (setq new-url (string-concat #1# host new-url)))
                      (return-from open-http (open-http new-url))))
