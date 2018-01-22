@@ -1,3 +1,7 @@
+2018-01-22  Sam Steingold  <sds@gnu.org>
+
+	* glm4/no-c++.m4: Update from gnulib to enable g++ compilation.
+
 2018-01-20  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on AIX/POWER in 64-bit mode.
