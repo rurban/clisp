@@ -122,7 +122,7 @@ local char* my_realpath (const char* path, char* resolved_path) {
                   /* last subdir was '/../'
                    Therefore remove the subdir in front of it: */
                   while ((last_subdir_ptr > resolved_path)
-                         && !(*--last_subdir_ptr == '/'));
+                         && !(*--last_subdir_ptr == '/')) ;
                   to_ptr = last_subdir_ptr+1;
                 }
               } else if (*last_subdir_ptr == '/') {
@@ -186,14 +186,13 @@ local char* my_realpath (const char* path, char* resolved_path) {
                     if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } /* first, append a '/' */
                     /* then the rest: */
                     while ((mypath_ptr <= mypath_limit)
-                           && (*mypath_ptr = *from_ptr++))
-                      { mypath_ptr++; }
+                           && (*mypath_ptr++ = *from_ptr++)) ;
                     *mypath_ptr = 0; /* and conclude wit 0 */
                   }
                   /* this replaces resp. completes the path: */
                   if (mypath[0] == '/') { /* replaces the path: */
                     from_ptr = &mypath[0]; to_ptr = resolved_path;
-                    while ((*to_ptr++ = *from_ptr++));
+                    while ((*to_ptr++ = *from_ptr++)) ;
                     from_ptr = resolved_path;
                   } else { /* completes the path:
                      disrcard link-name. Therefore search for the last '/': */
@@ -204,7 +203,8 @@ local char* my_realpath (const char* path, char* resolved_path) {
                     }
                     {
                       var char* mypath_ptr = &mypath[0]; to_ptr = from_ptr;
-                      while ((to_ptr <= resolved_limit) && (*to_ptr++ = *mypath_ptr++));
+                      while ((to_ptr <= resolved_limit)
+                             && (*to_ptr++ = *mypath_ptr++)) ;
                     }
                   }
                   to_ptr = from_ptr;
