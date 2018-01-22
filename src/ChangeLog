@@ -1,3 +1,8 @@
+2018-01-22  Sam Steingold  <sds@gnu.org>
+
+	* configure: When do_cbc==2, run "make base-mod-check" as cbcstep5
+	and "make full-mod-check" as cbcstep6.
+
 2018-01-22  Bruno Haible  <bruno@clisp.org>
 
 	Fix GC-safety bug introduced on 2017-12-31.
