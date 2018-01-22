@@ -1,5 +1,11 @@
 2018-01-22  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (my_realpath): Cosmetic change to avoid gcc
+	"warning: suggest a space before ';' or explicit braces around
+	empty body in 'while' statement".
+
+2018-01-22  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (open-http): Admit that HTTPS is not supported instead
 	of raising 'PARSE-INTEGER: substring "" does not have integer
 	syntax at position 0'.
