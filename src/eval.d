@@ -834,9 +834,8 @@ local maygc inline gcv_object_t* symbol_env_search (object sym, object venv)
     (eq(*(bindingptr STACKop 1),sym) /* the right symbol? */ \
      && eq(*(bindingptr STACKop 0),fixnum(bit(active_bit)))) /* active & static? */
 #else
-  var object cmp = SET_BIT(sym,active_bit_o); /* for comparison: binding must be active */
   #define binds_sym_p(bindingptr)  \
-    (eq(*(bindingptr STACKop 0),cmp)) /* right symbol & active & static? */
+    (eq(*(bindingptr STACKop 0),SET_BIT(sym,active_bit_o))) /* right symbol & active & static? */
 #endif
  next_env:
   if (framepointerp(venv)) {

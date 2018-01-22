@@ -1,3 +1,10 @@
+2018-01-22  Bruno Haible  <bruno@clisp.org>
+
+	Fix GC-safety bug introduced on 2017-12-31.
+	* lispbibl.d (SET_BIT, CLR_BIT): Remove trailing semicolon.
+	* eval.d (symbol_env_search): Remove optimization that assumes that
+	sym is constant.
+
 2018-01-22  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (my_realpath): Cosmetic change to avoid gcc
