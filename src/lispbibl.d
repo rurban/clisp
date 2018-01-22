@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2011, 2016-2018
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2012, 2016-2017
+ * Sam Steingold 1998-2012, 2016-2018
  * Vladimir Tzankov 2008-2012, 2017
  * German comments translated into English: Stefan Kain 2001-09-24
 
@@ -428,7 +428,7 @@
 #if defined(__GNUC__)
   #define GNU
   /* known bugs */
-  #if defined(__cplusplus) && (__GNUC__ == 4) && ((__GNUC_MINOR__ == 2) || ((__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ < 1)))
+  #if defined(__cplusplus) && (__GNUC__ == 4) && ((__GNUC_MINOR__ == 2) || ((__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ < 1))) && !defined(__clang__)
     #error g++ 4.2.* and 4.3.0 are not supported due to g++ bug 35708
   #endif
 #endif
