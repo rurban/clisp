@@ -591,6 +591,13 @@ else
 fi
 }
 
+# run n command...
+# execute command, redirect to cbcstep${n}.log, and with SUCCEEDED or FAILED
+run () {
+  log=$1; shift
+  { $* && { echo "===> $* SUCCEEDED"; exit 0; } || echo "===> $* FAILED"; } 2>&1 | tee cbcstep${log}.log
+}
+
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
 # directories for equality. But here we only need to get _some_ absolute
 # pathnames, hence `pwd` is enough.
@@ -679,7 +686,7 @@ if test -n "$do_config"; then
   cd "${ABS_DIRNAME}"
   echo "executing $REL_SRCDIR/src/configure $*"
   if test -n "$do_cbc"; then
-    ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache 2>&1 | tee cbcstep1.log
+    run 1 ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache
   else
     ${CONFIG_SHELL} $REL_SRCDIR/src/configure $subdir_configure_args --cache-file=config.cache
   fi
@@ -828,20 +835,22 @@ else
   if [ "${STACK_TOO_SMALL}" = 0 ]; then
     set +e; ulimit -s ${STACK_LIMIT} 2>/dev/null; set -e;
   fi
-  { ${MAKE} && { echo "===> ${MAKE} SUCCEEDED"; exit 0; } || echo "===> ${MAKE} FAILED"; } 2>&1 | tee cbcstep2.log
-  { ${MAKE} check && { echo "===> ${MAKE} check SUCCEEDED"; exit 0; } || echo "===> ${MAKE} check FAILED"; } 2>&1 | tee cbcstep3.log
+  run 2 ${MAKE}
+  run 3 ${MAKE} check
   if test "$do_cbc" = 2; then
-    { ${MAKE} extracheck && { echo "===> ${MAKE} extracheck SUCCEEDED"; exit 0; } || echo "===> ${MAKE} extracheck FAILED"; } 2>&1 | tee cbcstep4.log
+    run 4 ${MAKE} extracheck
+    run 5 ${MAKE} base-mod-check
+    run 6 ${MAKE} full-mod-check
   fi
-  # Fail if one of the commands "make" or "make check" failed. "make extracheck" is allowed to fail.
+  # report results:
+  for log in 1 2 3 4 5 6; do
+    echo "Step ${log} "$(sed -n -e '$p' cbcstep${log}.log)
+  done
+  # Fail if one of the commands "make" or "make check" failed.
+  # "make extracheck" and "make mod-check" are allowed to fail.
   sed -n -e '$p' cbcstep2.log | grep ' SUCCEEDED$' >/dev/null || exit 1
   sed -n -e '$p' cbcstep3.log | grep ' SUCCEEDED$' >/dev/null || exit 1
-  if test "$do_cbc" = 2; then
-    cat <<EOF
-# Now you can test modules:
-    ${MAKE} mod-check
-EOF
-  else
+  if test "$do_cbc" != 2; then
     cat <<EOF
 # Now you can test non-portable features and modules:
     ${MAKE} extracheck mod-check
