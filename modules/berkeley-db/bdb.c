@@ -2833,9 +2833,11 @@ DEFUN(BDB:TXN-STAT, dbe &key STAT-CLEAR)
 void module__bdb__init_function_2 (module_t* module);
 void module__bdb__init_function_2 (module_t* module)
 {
+  module__bdb__init_function_2__modprep(module);
 #if defined(DEBUG)
-  char *options = getenv("DMALLOC_OPTIONS");
-  dmalloc_debug_setup(options);
-  printf("dmalloc options: %s\n",options);
+  { char *options = getenv("DMALLOC_OPTIONS");
+    dmalloc_debug_setup(options);
+    printf("dmalloc options: %s\n",options);
+  }
 #endif
 }

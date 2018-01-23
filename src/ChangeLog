@@ -1,3 +1,17 @@
+2018-01-23  Bruno Haible  <bruno@clisp.org>
+
+	Fix initialization of modules in SINGLEMAP_MEMORY model, part 2.
+	Reported by Jerry James <loganjerry@gmail.com>.
+	* utils/modprep.c: Declare the init_function_1 and init_function_2
+	early. Emit a static variable 'this_module_stab'. Change expansion of
+	F() to refer to it, instead of to the generated subr_tab. Initialize
+	it in init_function_1 and init_function_2.
+	* modules/berkeley-db/bdb.c: Update init_function_2.
+	* modules/clx/new-clx/clx.f: Likewise.
+	* modules/pcre/cpcre.c: Likewise.
+	* modules/rawsock/rawsock.c: Likewise.
+	* modules/syscalls/calls.c: Likewise.
+
 2018-01-22  Sam Steingold  <sds@gnu.org>
 
 	* configure: When do_cbc==2, run "make base-mod-check" as cbcstep5

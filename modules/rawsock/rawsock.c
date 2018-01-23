@@ -1559,14 +1559,15 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
 }
 
 void module__rawsock__init_function_2 (module_t* module);
-void module__rawsock__init_function_2 (module_t* module _GL_UNUSED) {
+void module__rawsock__init_function_2 (module_t* module) {
+  module__rawsock__init_function_2__modprep(module);
 #if defined(WIN32_NATIVE)
-  HMODULE ws2 = LoadLibrary("ws2_32.dll");
-  if (ws2 != NULL) {
-    freeaddrinfo_f = (freeaddrinfo_t) GetProcAddress(ws2,"freeaddrinfo");
-    getaddrinfo_f = (getaddrinfo_t) GetProcAddress(ws2,"getaddrinfo");
-    getnameinfo_f = (getnameinfo_t) GetProcAddress(ws2,"getnameinfo");
-    gai_strerror_f = (gai_strerror_t) GetProcAddress(ws2,"gai_strerror");
-  }
+  { HMODULE ws2 = LoadLibrary("ws2_32.dll");
+    if (ws2 != NULL) {
+      freeaddrinfo_f = (freeaddrinfo_t) GetProcAddress(ws2,"freeaddrinfo");
+      getaddrinfo_f = (getaddrinfo_t) GetProcAddress(ws2,"getaddrinfo");
+      getnameinfo_f = (getnameinfo_t) GetProcAddress(ws2,"getnameinfo");
+      gai_strerror_f = (gai_strerror_t) GetProcAddress(ws2,"gai_strerror");
+  } }
 #endif
 }
