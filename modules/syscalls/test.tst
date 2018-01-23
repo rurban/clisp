@@ -52,9 +52,9 @@ WITH-C-TIME
        (with-C-time
            (let ((gd (os:getdate datum))
                  (st (os:string-time fmt datum)))
-         (print (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
-         (unless (= gd st)
-               (print (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st))))))))
+             (show (list fmt datum gd (os:string-time "%Y-%m-%d %a %H:%M:%S" gd)))
+             (unless (= gd st)
+               (show (list st (os:string-time "%Y-%m-%d %a %H:%M:%S" st))))))))
 CHECK-TIME-DATE
 
 (check-time-date "%m/%d/%y %I %p" "10/1/87 4 PM") NIL
@@ -261,8 +261,8 @@ NIL
 #+unix (let ((id (show (os:euid)))) (= id (setf (os:euid) id))) T
 #+unix (let ((id (show (os:egid)))) (= id (setf (os:egid) id))) T
 #+unix (let* ((pid (os:process-id))
-              (id (show (os:pgid pid))))
-         (= id (setf (os:pgid pid) id))) #+unix T
+              (gid (show (os:pgid pid))))
+         (= gid (setf (os:pgid pid) gid))) #+unix T
 #+unix (= (os:uid) (os:euid)) T
 #+unix (= (os:gid) (os:egid)) T
 #+unix (multiple-value-list (os:setreuid (os:uid) (os:euid))) NIL
