@@ -262,7 +262,8 @@ NIL
 #+unix (let ((id (show (os:egid)))) (= id (setf (os:egid) id))) T
 #+unix (let* ((pid (os:process-id))
               (gid (show (os:pgid pid))))
-         (= gid (setf (os:pgid pid) gid))) #+unix T
+         (check-os-error (= gid (setf (os:pgid pid) gid))
+                         (:eperm 1))) #+unix T
 #+unix (= (os:uid) (os:euid)) T
 #+unix (= (os:gid) (os:egid)) T
 #+unix (multiple-value-list (os:setreuid (os:uid) (os:euid))) NIL
