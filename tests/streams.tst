@@ -1268,8 +1268,13 @@ T
 T
 
 ;; https://sourceforge.net/p/clisp/bugs/679/
-(if (and (typep *standard-input* 'concatenated-stream)
-         (null (concatenated-stream-streams *standard-input*)))
+(if (or (and (typep *standard-input* 'concatenated-stream)
+             (null (concatenated-stream-streams *standard-input*)))
+        (and (typep *terminal-io* 'two-way-stream)
+             (typep (two-way-stream-input-stream *terminal-io*)
+                    'concatenated-stream)
+             (null (concatenated-stream-streams
+                    (two-way-stream-input-stream *terminal-io*)))))
     (progn (setq s nil) t) ; running under nohup - no input available
     (streamp (setq s (make-stream :input)))) T
 (or (null s) (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
