@@ -12,7 +12,7 @@ T
 (os:service-p (show (os:service "smtp"))) T
 (os:service-p (show (os:service 25))) T
 (> (length (show (os:service) :pretty t)) (length (os:service nil "tcp"))) T
-(equalp (os:service "www") (os:service "http" "tcp")) T
+(equalp (os:service "www" "tcp") (os:service "http" "tcp")) T
 
 #+unix ;; (encrypt (encrypt X t) nil) == X
 (handler-case
