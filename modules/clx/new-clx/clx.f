@@ -8469,16 +8469,18 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
 
 void module__clx__init_function_2 (module_t *module);
 void module__clx__init_function_2 (module_t *module)
-{  /* setze doch `XLIB::*DISPLAYS*` auf NIL ! */
+{
+  module__clx__init_function_2__modprep(module);
+  /* setze doch `XLIB::*DISPLAYS*` auf NIL ! */
 # if 0
-  uintC i;
+  { uintC i;
 
-  for (i = 0 ; i < module__clx__object_tab_size; i++) {
-    dprintf (("\n;; otab[%d] = '%s' -->",i,
-              module__clx__object_tab_initdata[i]));
-    pushSTACK(((gcv_object_t *)( & module__clx__object_tab))[i]);
-    funcall (L(princ),1);
-  }
+    for (i = 0 ; i < module__clx__object_tab_size; i++) {
+      dprintf (("\n;; otab[%d] = '%s' -->",i,
+                module__clx__object_tab_initdata[i]));
+      pushSTACK(((gcv_object_t *)( & module__clx__object_tab))[i]);
+      funcall (L(princ),1);
+  } }
 # endif
 # if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
   disable_sigpipe();

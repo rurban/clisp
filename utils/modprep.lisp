@@ -2,7 +2,7 @@
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
 ;;; Copyright (C) 2003-2011, 2016-2018 by Sam Steingold [lisp]
-;;; Copyright (C) 2017 Bruno Haible
+;;; Copyright (C) 2017-2018 Bruno Haible
 ;;; This is Free Software, distributed under the GNU GPL v2+
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.
@@ -297,7 +297,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
             name args)
     (setq *module-name* (first args)
           *init-1-name* (format nil "module__~A__init_function_1"
-                                    *module-name*)
+                                *module-name*)
           *init-2-name* (format nil "module__~A__init_function_2"
                                 *module-name*)
           *fini-name* (format nil "module__~A__fini_function"
@@ -967,11 +967,14 @@ commas and parentheses."
               *must-close-next-defun* nil *in-defun* nil))
       (when (and *init-1-name* (search *init-1-name* line)
                  (not (search "__modprep" *init-1-name*)))
-        ;; module defines its own init1
-        ;; the user is expected to call our init1 from his
+        ;; module defines its own init1.
+        ;; The module's author is expected to call our init1 from his.
         (setq *init-1-name* (ext:string-concat *init-1-name* "__modprep")))
-      (when (and *init-2-name* (search *init-2-name* line))
-        (setq *init-2-name* nil)) ; module defines its own init2
+      (when (and *init-2-name* (search *init-2-name* line)
+                 (not (search "__modprep" *init-2-name*)))
+        ;; module defines its own init2.
+        ;; The module's author is expected to call our init2 from his.
+        (setq *init-2-name* (ext:string-concat *init-2-name* "__modprep")))
       (when (and *fini-name* (search *fini-name* line))
         (setq *fini-name* nil)) ; module defines its own fini-func
       (when (or (null status) (eql status #\;)) (return)))
@@ -1027,11 +1030,21 @@ commas and parentheses."
          (ext:string-concat "module__" *module-name* "__object_tab_initdata"))
         (object-tab
          (ext:string-concat "module__" *module-name* "__object_tab"))
-        (subr-tab (ext:string-concat "module__" *module-name* "__subr_tab")))
+        (subr-tab (ext:string-concat "module__" *module-name* "__subr_tab"))
+        ;; subr-runtime-tab describes the subr-tab at runtime.
+        ;; If defined(SINGLEMAP_MEMORY) && defined(MAP_MEMORY_TABLES),
+        ;; it is at a different address than subr-tab.
+        (subr-runtime-tab (ext:string-concat "module__" *module-name* "__stab")))
+    (newline out)
+    ;; Declare the init_function_1 and init_function_2
+    ;; 1. so that they can be invoked from the overriding init_function_1/init_function_2
+    ;;    provided by the module,
+    ;; 2. to avoid gcc -Wmissing-declarations warnings.
+    (formatln out "void ~A (module_t* module);" *init-1-name*)
+    (formatln out "void ~A (module_t* module);" *init-2-name*)
     (newline out)
     (formatln out "#define O(varname) ~a._##varname" object-tab)
-    (formatln out "#define F(varname) subr_tab_ptr_as_object(&(~a._##varname))"
-              subr-tab)
+    (formatln out "#define F(varname) subr_tab_ptr_as_object(&this_module_stab->_##varname)")
     (newline out)
     (formatln out "struct ~A_t {" object-tab)
     (setq *objdefs* (sort *objdefs* #'string-lessp :key #'objdef-tag)
@@ -1084,6 +1097,14 @@ commas and parentheses."
     (formatln out "  int _dummy_to_avoid_trailing_comma_in_initializer;")
     (formatln out "};")
     (formatln out "extern struct ~A_t ~A;" subr-tab subr-tab)
+    (newline out)
+    (formatln out "struct ~A_t {" subr-runtime-tab)
+    (loop :for fd :across *fundefs*
+      :do (with-conditional (out (fundef-cond-stack fd))
+            (format out "  subr_t _~A;" (fundef-tag fd))))
+    (formatln out "  int _dummy_to_avoid_trailing_comma_in_initializer;")
+    (formatln out "};")
+    (formatln out "static struct ~A_t* this_module_stab;" subr-runtime-tab)
     (newline out)
     (loop :for fs :across *flag-sets*
       :do (with-conditional (out (flag-set-cond-stack fs))
@@ -1155,7 +1176,11 @@ commas and parentheses."
          (subr-tab
           (ext:string-concat "module__" *module-name* "__subr_tab"))
          (subr-tab-type
-          (ext:string-concat "struct " subr-tab "_t")))
+          (ext:string-concat "struct " subr-tab "_t"))
+         (subr-runtime-tab
+          (ext:string-concat "module__" *module-name* "__stab"))
+         (subr-runtime-tab-type
+          (ext:string-concat "struct " subr-runtime-tab "_t")))
     (newline out) (newline out)
     (formatln out "~A ~A" subr-tab-type subr-tab)
     (formatln out "  #if defined(HEAPCODES) && (alignment_long < varobject_alignment) && defined(__GNUC__)")
@@ -1189,31 +1214,28 @@ commas and parentheses."
                         (fundef-name fd)))))
     (formatln out "  0")
     (formatln out "};") (newline out)
-    ;; avoid -Wmissing-declarations
-    (formatln out "void ~A (module_t* module);" *init-1-name*)
     (formatln out "void ~A (module_t* module)" *init-1-name*)
     (formatln out "{")
     (formatln out "  (void)module; /* avoid -Wunused-parameter */")
+    (formatln out "  this_module_stab = (~A*)module->stab;" subr-runtime-tab-type)
     (loop :for fd :across *fundefs* :for tag = (fundef-tag fd) :do
       (loop :for sig :in (fundef-signatures fd) :do
         (when (eq '&key (signature-rest sig))
           (with-conditional (out (signature-cond-stack sig))
             (dolist (kw (signature-keywords sig))
               (formatln out "  pushSTACK(~A);" (objdef-object kw)))
-            (format out "  ((~A*)((char*)module->stab-varobjects_misaligned))->_~A.keywords = vectorof(~D);"
-                    subr-tab-type tag (length (signature-keywords sig)))))))
+            (format out "  ((~A*)module->stab)->_~A.keywords = vectorof(~D);"
+                    subr-runtime-tab-type tag (length (signature-keywords sig)))))))
     (loop :for vi :across *varinits*
       :do (with-conditional (out (vector (varinit-condition vi)))
             (format out "  O(~A) = (~A);" (varinit-tag vi) (varinit-init vi))))
     (formatln out "}")
-    (when *init-2-name*         ; no init2 => define a dummy
-      (newline out)
-      ;; avoid -Wmissing-declarations
-      (formatln out "void ~A (module_t* module);" *init-2-name*)
-      (formatln out "void ~A (module_t* module)" *init-2-name*)
-      (formatln out "{")
-      (formatln out "  (void)module; /* avoid -Wunused-parameter */")
-      (formatln out "}"))
+    (newline out)
+    (formatln out "void ~A (module_t* module)" *init-2-name*)
+    (formatln out "{")
+    (formatln out "  (void)module; /* avoid -Wunused-parameter */")
+    (formatln out "  this_module_stab = (~A*)module->stab;" subr-runtime-tab-type)
+    (formatln out "}")
     (when *fini-name*           ; no fini-func => define a dummy
       (newline out)
       ;; avoid -Wmissing-declarations

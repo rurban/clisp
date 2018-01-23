@@ -452,7 +452,9 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
 
 void module__pcre__init_function_2 (module_t* module);
 void module__pcre__init_function_2 (module_t* module)
-{ /* the original pcre_malloc() and pcre_free() cause a crash in FINALIZE */
+{
+  module__pcre__init_function_2__modprep(module);
+  /* the original pcre_malloc() and pcre_free() cause a crash in FINALIZE */
   pcre_malloc = malloc;
   pcre_free = free;
 }

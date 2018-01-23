@@ -5882,6 +5882,7 @@ DEFUN(CONSTSYM, &optional pos) {
 
 void module__syscalls__init_function_2 (module_t* module);
 void module__syscalls__init_function_2 (module_t* module) {
+  module__syscalls__init_function_2__modprep(module);
 #if defined(WIN32_NATIVE)
   init_win32_link();
 #endif
