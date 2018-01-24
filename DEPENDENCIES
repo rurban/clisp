@@ -87,7 +87,7 @@ needed later, once it is installed (build dependencies, but not runtime
 dependencies):
 
 * A C runtime, compiler, linker, etc.
-  + Mandatory. Either the platform's native 'cc', or GCC 2.95 or newer.
+  + Mandatory. Either the platform's native 'cc', or GCC 2.95.3 or newer.
   + GCC Homepage:
     https://gcc.gnu.org/
   + Download:

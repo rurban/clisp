@@ -355,10 +355,6 @@
             goto b_star_ok;
           # Subtraktion von b*^2 lieferte negativen Carry
           b_star = b_star-1; # b* := b* - 1
-          # Workaround gcc-2.7.0 bug on i386 and gcc-2.5.8 bug on hppa.
-            #if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
-              *&b_star = *&b_star;
-            #endif
           # erhöhe [a[2n-j-1],...,a[2n-2j-2]] um [b[n],...,b[n-j],0] + 2 * b* + 1
           if ((sintD)b_star < 0)
             b_ptr[-1] |= bit(0); # höchstes Bit von b* in b[n-j] ablegen

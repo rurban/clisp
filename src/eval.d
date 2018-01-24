@@ -300,14 +300,12 @@ typedef enum {
 local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
                                             const uintB* byteptr);
 
-/* GCC2 can jump directly to labels.
+/* GCC can jump directly to labels.
    This results in faster code than switch(). */
 #if defined(GNU) && !(__APPLE_CC__ > 1)
-  #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) /* work around HP-UX Linker Bug */
+  #if !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) /* work around HP-UX Linker Bug */
     #define FAST_DISPATCH
-    #if (__GNUC__ >= 3) || (__GNUC_MINOR__ >= 7) /* work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch) */
-      #define FAST_DISPATCH_THREADED
-    #endif
+    #define FAST_DISPATCH_THREADED
   #endif
 #endif
 
