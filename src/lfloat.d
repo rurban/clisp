@@ -369,14 +369,9 @@ local maygc object LF_fround_LF (object x)
   var uintD mask = minus_bit(intDsize-bitcount-1); /* mask with bitcount+1 bits */
   {
     var uintD* mantptr = &TheLfloat(x)->data[count];
-   #if !(defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7))
     if ((mantptr[0] & -mask) ==0) /* Bit 16n-e-1 =0 -> round off */
-   #else
-    /* Work around gcc-2.7.x bug on i386/ELF */
-    if ((mantptr[0] & ((~mask)+1)) ==0) /* Bit 16n-e-1 =0 -> round off */
-   #endif
       goto ab;
-    if ((mantptr[0] & ~mask)!=0) /* Bit 16n-e-1 =1 and Bits 16n-e-2..0 >0 -> round up */
+    if ((mantptr[0] & ~mask) !=0) /* Bit 16n-e-1 =1 and Bits 16n-e-2..0 >0 -> round up */
       goto auf;
     if (test_loop_up(&mantptr[1],len-count-1))
       goto auf;
@@ -1111,12 +1106,6 @@ local maygc object LF_LF_mult_LF (object x1, object x2)
      increase the exponent by 1 and round the last digit away.
    If the quotient is <2^16(n+1) , round the last digit away. When rounding
     overflow occurs, shift by 1 bit to the right and increase exponent by 1. */
-/* work around a gcc-2.7.0 bug on i386. */
-#if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
-  #define workaround_gcc270_bug()  *&uexp1 = *&uexp1;
-#else
-  #define workaround_gcc270_bug()
-#endif
 local maygc object LF_LF_div_LF (object x1, object x2)
 {
   var uintL uexp2 = TheLfloat(x2)->expo;
@@ -1130,13 +1119,11 @@ local maygc object LF_LF_div_LF (object x1, object x2)
      (uexp1-uexp2+LF_exp_mid)-LF_exp_mid */
   if (uexp1 >= uexp2) {
     uexp1 = uexp1 - uexp2; /* no carry */
-    workaround_gcc270_bug();
     if (uexp1 > LF_exp_high-LF_exp_mid)
       error_overflow();
     uexp1 = uexp1 + LF_exp_mid;
   } else {
     uexp1 = uexp1 - uexp2; /* carry */
-    workaround_gcc270_bug();
     if (uexp1 < (uintL)(LF_exp_low-1-LF_exp_mid)) {
       if (underflow_allowed()) {
         error_underflow();

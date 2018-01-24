@@ -428,6 +428,9 @@
 #if defined(__GNUC__)
   #define GNU
   /* known bugs */
+  #if (__GNUC__ < 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ < 95))
+    #error "The minimum supported GCC version is GCC 2.95.3"
+  #endif
   #if defined(__cplusplus) && (__GNUC__ == 4) && ((__GNUC_MINOR__ == 2) || ((__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ < 1))) && !defined(__clang__)
     #error g++ 4.2.* and 4.3.0 are not supported due to g++ bug 35708
   #endif
@@ -494,22 +497,6 @@
 /* We don't support pre-ANSI-C compilers any more. */
 #if !defined(ANSI)
   #error An ANSI C or C++ compiler is required to compile CLISP!
-#endif
-
-/* gcc-2.7.2 has a bug: it interpretes `const' as meaning `not modified by
- other parts of the program', and thus miscompiles at least justify_empty_2
- and pr_enter_1 in io.d. */
-#if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
-  #undef const
-  #define const
-  #define __const const
-  /* We define __const to const, not to empty, to avoid warnings on
-   UNIX_RHAPSODY, which unconditionally defines __const to const when
-   <sys/cdefs.h> is included via <setjmp.h> below. */
-  #ifdef MULTITHREAD
-    #warning "Multithreading will not be efficient because of a workaround to a gcc bug."
-    #warning "Get a newer version of gcc."
-  #endif
 #endif
 
 /* Choose the appropriate designated field initializer syntax.
@@ -725,7 +712,7 @@
   #if defined(SPARC)
     #define STACK_register  "%g5"  /* a global register */
   #endif
-  #if defined(HPPA) && (__GNUC__*100 + __GNUC_MINOR__ >= 2*100+7) /* gcc versions earlier than 2.7 had bugs */
+  #if defined(HPPA)
     #define STACK_register  "%r10"  /* one of the general registers %r5..%r18 */
   #endif
   #if defined(ARM)
@@ -3720,14 +3707,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 #if defined(GNU) && (SAFETY >= 3)
-  #if (__GNUC__ >= 2)
-    #if (__GNUC__ > 2) || (__GNUC_MINOR__ >= 7) /* circumvent gcc-2.6.3 bug */
-      /* Typechecking by the C-compiler */
-      #define OBJECT_STRUCT
-      #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
-        #define CHART_STRUCT
-      #endif
-    #endif
+  /* Typechecking by the C-compiler */
+  #define OBJECT_STRUCT
+  #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
+    #define CHART_STRUCT
   #endif
 #endif
 
@@ -7059,16 +7042,10 @@ typedef varobject_ *  Varobject;
   #define xrecord_tfl(type,flags,length,xlength)  \
     ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(uintB)(length)<<16)+((uintL)(uintB)(xlength)<<24))
   #define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))
-  #if defined(__GNUC__) && (__GNUC__ == 2) && ((__GNUC_MINOR__ == 8) || (__GNUC_MINOR__ == 90))
-    /* Work around for a gcc bug present (at least) in gcc-2.8.1 on hppa and
-     egcs-1.0.3a on i386. It miscompiles xpathnamep. */
-    #undef varobject_type
-    #define varobject_type(ptr) ((sintB)((sintL)((ptr)->tfl) & 0xFF))
-  #endif
-    /* Bits for symbols in the flags: */
-    #define header_flags  tfl
-    #define var_bit0_hf  (var_bit0_f+8)
-    #define var_bit1_hf  (var_bit1_f+8)
+  /* Bits for symbols in the flags: */
+  #define header_flags  tfl
+  #define var_bit0_hf  (var_bit0_f+8)
+  #define var_bit1_hf  (var_bit1_f+8)
 #endif
 %% export_def(VAROBJECT_HEADER);
 %% #ifndef TYPECODES

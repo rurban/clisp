@@ -1,3 +1,12 @@
+2018-01-24  Bruno Haible  <bruno@clisp.org>
+
+	Remove workarounds for GCC versions < 2.95.
+	* lispbibl.d: Bail out early when using a GCC version < 2.95.
+	Remove workarounds for these GCC versions.
+	* eval.d: Likewise.
+	* intsqrt.d: Likewise.
+	* lfloat.d: Likewise.
+
 2018-01-23  Bruno Haible  <bruno@clisp.org>
 
 	Fix initialization of modules in SINGLEMAP_MEMORY model, part 2.
