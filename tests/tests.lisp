@@ -358,14 +358,15 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
 ;; see makemake.in:
 ;; (run-some-tests :dirlist '("zlib" "pcre") :srcdir "../modules/")
 (defun run-some-tests (&key (dirlist '("./")) (srcdir "./") (outdir "./")
-                       ((:eval-method *eval-method*) *eval-method*)
-                       &aux #+clisp (custom:*merge-pathnames-ansi* t))
+                       ((:eval-method *eval-method*) *eval-method*))
   "Run tst files in DIRLIST under SRCDIR, writing erg under OUTDIR."
-  (let ((files (mapcan (lambda (dir)
-                         (directory (make-pathname
-                                     :name :wild :type *run-test-type*
-                                     :defaults (merge-pathnames dir srcdir))))
-                       dirlist))
+  (let ((files
+         (let (#+clisp (custom:*merge-pathnames-ansi* t))
+           (mapcan (lambda (dir)
+                     (directory (make-pathname
+                                 :name :wild :type *run-test-type*
+                                 :defaults (merge-pathnames dir srcdir))))
+                   dirlist)))
         (src-true (truename srcdir)))
     (if files
         (report-results

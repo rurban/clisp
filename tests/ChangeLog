@@ -1,7 +1,13 @@
+2018-01-24  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-some-tests): Bind *MERGE-PATHNAMES-ANSI* only
+	around directory search, not around RUN-TEST, because some tests
+	assume the traditional CLISP behavior.
+
 2018-01-23  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: Fix "nohup make check": (make-stream :input) fails
-	under nohup because there is _no_ input available.
+	under nohup because there is _no_ input stream available.
 
 2018-01-13  Bruno Haible  <bruno@clisp.org>
 
