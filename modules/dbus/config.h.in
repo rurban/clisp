@@ -83,6 +83,10 @@
    function. */
 #undef HAVE_DBUS_CONNECTION_FREE_PREALLOCATED_SEND
 
+/* Define to 1 if you have the `dbus_connection_get_adt_audit_session_data'
+   function. */
+#undef HAVE_DBUS_CONNECTION_GET_ADT_AUDIT_SESSION_DATA
+
 /* Define to 1 if you have the `dbus_connection_get_data' function. */
 #undef HAVE_DBUS_CONNECTION_GET_DATA
 
@@ -313,6 +317,10 @@
 /* Define to 1 if you have the `dbus_message_demarshal' function. */
 #undef HAVE_DBUS_MESSAGE_DEMARSHAL
 
+/* Define to 1 if you have the `dbus_message_demarshal_bytes_needed' function.
+   */
+#undef HAVE_DBUS_MESSAGE_DEMARSHAL_BYTES_NEEDED
+
 /* Define to 1 if you have the `dbus_message_free_data_slot' function. */
 #undef HAVE_DBUS_MESSAGE_FREE_DATA_SLOT
 
@@ -437,6 +445,9 @@
 /* Define to 1 if you have the `dbus_message_iter_recurse' function. */
 #undef HAVE_DBUS_MESSAGE_ITER_RECURSE
 
+/* Define to 1 if you have the `dbus_message_lock' function. */
+#undef HAVE_DBUS_MESSAGE_LOCK
+
 /* Define to 1 if you have the `dbus_message_marshal' function. */
 #undef HAVE_DBUS_MESSAGE_MARSHAL
 
@@ -487,6 +498,9 @@
 
 /* Define to 1 if you have the `dbus_message_set_sender' function. */
 #undef HAVE_DBUS_MESSAGE_SET_SENDER
+
+/* Define to 1 if you have the `dbus_message_set_serial' function. */
+#undef HAVE_DBUS_MESSAGE_SET_SERIAL
 
 /* Define to 1 if you have the `dbus_message_type_from_string' function. */
 #undef HAVE_DBUS_MESSAGE_TYPE_FROM_STRING

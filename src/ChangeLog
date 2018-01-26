@@ -1,3 +1,11 @@
+2018-01-26  Sam Steingold  <sds@gnu.org>
+
+	* modules/dbus/configure.in: Add missing tests for
+	dbus_message_set_serial, dbus_message_lock,
+	dbus_message_demarshal_bytes_needed,
+	dbus_connection_get_adt_audit_session_data.
+	Reported by Jerry James <loganjerry@gmail.com>.
+
 2018-01-24  Bruno Haible  <bruno@clisp.org>
 
 	Remove workarounds for GCC versions < 2.95.
