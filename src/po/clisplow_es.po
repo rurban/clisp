@@ -1,193 +1,146 @@
-# Mensajes en español para GNU clisp 2.49.60
-# Copyright (C) 2017 Free Software Foundation, Inc.
+# Mensajes en español para GNU CLISP 2.49.60.
+# Copyright (C) 1996 Free Software Foundation, Inc.
 # This file is distributed under the same license as the clisp package.
 # Carlos Linares López <clinares@delicias.dia.fi.upm.es>, 1997.
 # Santiago Vila Doncel
 # Leonardo Sarasúa García
-# Francisco Javier Serrador <serrador@tecknolabs.com>\n
-#
 # Han contribuido a esta traducción:
-#
 # cll - Carlos Linares López 	(Traducción)
 # sv  - Santiago Vila Doncel	(Revisión)
 # lsg - Leonardo Sarasúa García	(Traducción y Revisión)
-#
 # Agradecimientos especiales a:
-#
 # Bruno Haible
 # Marcus Daniels	(Programadores de CLisp)
 # Enrique Melero	(Coordinador de Spanish GNU)
-#
 # Por haber atendido siempre mis preguntas y por mostrar tanto interés
 # en esta traducción.
-#
 # Muchísimas gracias, Leo. Te debo la cerveza más grande del mundo, ...
-#
 # Asimismo, quisiera expresar mi agradecimiento a las siguientes
 # personas, por responder pacientemente todas mis preguntas: Joerg
 # Hoehle (traductor de la versión francesa) y Juan Jordana.
-#
 # Por último, a toda la lista de Spanish GNU Translation Team
 # (es@es.li.org) por sus sugerencias.
-#
 # NOTAS.
-#
 # * Los mensajes en los que se han realizado anotaciones de interés,
 # bien porque haya alguna duda, bien porque contenga notas importantes
 # relativas a las traducciones tienen la palabra `Duda:' al principio de
 # su comentario.
-#
 # * Por favor, si alguien realiza alguna modificación a este archivo que
 # ponga sus iniciales al final del comentario explicando el cambio y el
 # motivo. Si su nombre no está en esta cabecera que lo añada poniendo
 # las iniciales.
-#
 # * Todas las líneas que comienzan con #~S son mensajes obsoletos que no
 # hace falta revisar. En cualquier caso, intentaré normalmente
 # eliminarlas.
-#
 # Revision 1.25  2007/10/12 19:24:51  sds
 # regenerated for 2.41.1 pretest
-#
 # Revision 1.24  2006/10/13 04:10:53  sds
 # clisp 2.41 release (Friday the 13th!)
-#
 # Revision 1.23  2006/10/01 16:13:06  sds
 # regenerated for 2.40 (2006-09-23)
-#
 # Revision 1.22  2006/07/14 15:45:47  sds
 # regenerated for 2.39
-#
 # Revision 1.21  2006/01/24 15:55:42  sds
 # regenerated for clisp 2.38 release
-#
 # Revision 1.20  2006/01/02 17:09:36  sds
 # regenerated for 2.37 (2006-01-02)
-#
 # Revision 1.19  2005/12/04 22:37:32  sds
 # regenerated for clisp 2.36 release
-#
 # Revision 1.18  2005/08/29 18:18:56  sds
 # regenerated
-#
 # Revision 1.17  2005/08/28 16:27:17  sds
 # regenerated
-#
 # Revision 1.16  2005/07/20 23:58:29  sds
 # clisp 2.34 (2005-07-20)
-#
 # Revision 1.15  2005/07/13 19:11:34  sds
 # regenerated for 2.33.84
-#
 # Revision 1.14  2005/07/06 17:05:52  sds
 # regenerated
-#
 # Revision 1.13  2005/06/27 15:30:42  sds
 # regenerated
-#
 # Revision 1.12  2005/03/17 23:14:48  sds
 # regenerated
-#
 # Revision 1.11  2005/02/16 22:30:56  haible
 # Regenerated.
-#
 # Revision 1.10  2004/12/10 16:11:18  sds
 # GNU CLISP 2.33.80 (2004-11-27)
-#
 # Revision 1.9  2004/03/31 12:48:41  haible
 # Update after change of format string convention: '~' -> '~S', '$' -> '~C'.
-#
 # Revision 1.8  2004/03/31 12:07:14  haible
 # msgmerged.
-#
 # Revision 1.7  2004/03/31 11:52:39  haible
 # Update for removal of leading and trailing newlines.
-#
 # Revision 1.6  2004/03/30 20:38:21  haible
 # msgmerged.
-#
 # Revision 1.5  2004/03/17 20:47:07  sds
 # regenerated for 2.33
-#
 # Revision 1.4  2004/03/14 17:27:54  sds
 # regenerated for 2.32.94
-#
 # Revision 1.3  2004/03/12 19:22:47  sds
 # regenerated for 2.32.93
-#
 # Revision 1.2  2002/09/13 15:00:36  sds
 # regenerated for 2.30
-#
 # Revision 1.1  2002/05/18 14:27:46  sds
 # kill src/gettext; POs are now in src/po
-#
 # Revision 1.1  2002/05/18 14:27:46  sds
 # kill src/gettext; POs are now in src/po
-#
 # Revision 1.10  1998/09/07 18:21:38  clinares
 # Traducción de todos los mensajes para la versión del 29-8-1998. Estos
 # cambios, sin embargo, serán publicados en alguna nueva versión de
 # septiembre de este mismo año.
-#
 # Revision 1.9  1997/09/18 13:36:38  clinares
 # He incluído nuevas modificaciones de Leo Sarasúa.
-#
 # Entre las más representativas está el hecho de haber modificado
 # `trama' por `marco' y `# macro carácter' por `macro carácter
 # secundario'. Nuevamente gracias, Leo, ...
-#
 # Revision 1.8  1997/09/05 17:23:30  clinares
 # He introducido todas las modificaciones propuestas por Santiago Vila a
 # la versión 1.6. Además, las he adaptado para el nuevo .pot que se
 # empleó en la versión 1.7.
-#
 # Entre los cambios más importantes está: `command' es `orden', no
 # `comando'; `warning' es, preferiblemente, `atención' y, en otro caso,
 # propongo que sea `advertencia', en vez de `aviso'.
-#
 # Revision 1.7  1997/09/03 17:51:44  clinares
 # He modificado la traducción de las directivas ~SP, puesto que nunca se
 # escribirán versiones en español de ellas, ya que el estándar Common
 # Lisp - The Language es muy específico: solo en inglés. Ni en alemán,
 # ni francés, ni español, ...
-#
 # Además, he adaptado los cambios del POT de la versión 1.6
 # (POT-Creation-Date: 1997-05-04) a la última versión que existe
 # actualmente (POT-Creation-Date: 1997-09-02). Para ello, he traducido 9
 # mensajes nuevos, he corregido los mensajes difusos y he borrado todos
 # los obsoletos.
-#
 # Revision 1.6  1997/08/30 14:04:08  clinares
 # El 100% de los mensajes están traducidos :)
 # En total, 9 meses de trabajo (es decir, aha sido un parto!! :)
-#
 # Revision 1.5  1997/08/27 00:48:46  clinares
 # Esta es la traducción que resulta de programar todos los cambios
 # propuestos por lsg (Leonardo Sarasúa García). En total, aalrededor de
 # 800 líneas!!, ahí es nada :)
-#
-#
+# Javier <fserrador@gmail.com>, 2018.
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 2.49.60\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2017-06-25 11:29:03+0200\n"
-"PO-Revision-Date: 2017-12-26 17:22+0100\n"
-"Last-Translator: Francisco Javier Serrador <serrador@tecknolabs.com>\n"
+"PO-Revision-Date: 2018-01-17 17:07+0100\n"
+"Last-Translator: Francisco Javier Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
-"X-Generator: Poedit 1.8.7.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"X-Project-Style: gnome\n"
 
+# Vocavulario
+# allocate: asignado
+#   reallocate: reasignado
 # "*** - desbordamiento de la pila del programa - REINICIALIZANDO" - lsg
-#
 # En mi opinión, RESET debe traducirse como un imperativo - cll
-#
 #: spvw.d:909
 msgid "*** - Program stack overflow. RESET"
 msgstr "*** - Sobredesbordamiento de la pila del programa. REINICIE"
@@ -361,7 +314,7 @@ msgid ""
 " read-eval-print loop is entered.\n"
 msgstr ""
 "Empleo:  %s [opciones] [lispfile [argumento ...]]\n"
-" Cuando 'lispfile' está dado, cargado y '*ARGS*' establecido\n"
+" Cuando 'lispfile' está entregado, cargado y '*ARGS*' establecido\n"
 " para la lista de cadenas de argumentos. En otro caso, se\n"
 " introduce un bucle read-eval-print.\n"
 
@@ -485,7 +438,7 @@ msgstr " -i file       - carga fichero de inicialización initfile (puede repeti
 
 #: spvw.d:2116
 msgid "Actions:"
-msgstr "Acciones:"
+msgstr "Operaciones:"
 
 #: spvw.d:2117
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile"
@@ -513,11 +466,11 @@ msgstr "  argumentos son colocados en EXT:*ARGS* como cadenas."
 
 #: spvw.d:2123
 msgid "These actions put CLISP into a batch mode, which is overridden by"
-msgstr "Estas acciones ponen a CLISP dentro de un modo de batch, el cual es sobreconducido por"
+msgstr "Estas operaciones ponen a CLISP dentro de un modo de batch, el cual es sobreconducido por"
 
 #: spvw.d:2124
 msgid " -on-error action - action can be one of debug, exit, abort, appease"
-msgstr " -on-error acción - acción puede ser una de depuración, salida, aborto, agrego"
+msgstr " -on-error operación - operación puede ser una de depuración, salida, aborto, agrego"
 
 #: spvw.d:2125
 msgid " -repl            - enter the interactive read-eval-print loop when done"
@@ -767,11 +720,11 @@ msgstr "Espacio libre: %lu bytes."
 #
 #: spvw_sigsegv.d:65
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV no se puede subsanar Dirección de fallo = 0x%lx."
+msgstr "SIGSEGV no se puede subsanar Dirección fallada = 0x%lx."
 
 #: spvw_sigsegv.d:180
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
-msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!"
+msgstr "Escenario Apollo 13: manipulación de sobredesbordamiento de pila. ¡¡¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!"
 
 #: spvw_garcol.d:2563 spvw_garcol_old.d:1981
 msgid "munmap() failed."
@@ -788,7 +741,7 @@ msgstr "*** - No queda espacio para almacenar más objetos LISP: REINICIE"
 
 #: spvw_allocate.d:314 spvw_allocate.d:373 spvw_allocate.d:456
 msgid "Trying to make room through a GC..."
-msgstr "Intentando obtener más espacio a través de un GC ..."
+msgstr "Intentando obtener más espacio a través de un GC..."
 
 #
 # "error del sistema operativo al cargar el fichero de inicialización `%s'\n" - lsg
@@ -806,15 +759,15 @@ msgstr "Intentando obtener más espacio a través de un GC ..."
 #
 #: spvw_memfile.d:991 spvw_memfile.d:1847
 msgid "%s: operating system error during load of initialization file `%s'"
-msgstr "%s: error del sistema operativo durante la carga del fichero de inicialización `%s'"
+msgstr "%s: error del sistema operativo durante carga del fichero de inicialización `%s'"
 
 #: spvw_memfile.d:1512
 msgid "%s: Cannot map the initialization file `%s' into memory."
-msgstr "%s: No puedo asignar el fichero de inicialización ‘%s’ dentro de memoria."
+msgstr "%s: No puedo distribuir el fichero ‘%s’ de inicialización dentro de memoria."
 
 #: spvw_memfile.d:1852
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
-msgstr "%s: fichero de inicialización ‘%s’ no ha sido creado con esta versión de tiempo de ejecución CLISP"
+msgstr "%s: fichero ‘%s’ de inicialización no ha sido creado con esta versión CLISP de tiempo de ejecución"
 
 #: spvw_memfile.d:1856
 msgid "%s: not enough memory for initialization"
@@ -822,4 +775,4 @@ msgstr "%s: no hay memoria suficiente para inicialización."
 
 #: spvw_memfile.d:1906
 msgid "%s: 'image size' method failed, but found image header at %d\n"
-msgstr "%s: método de 'tamaño de imagen' ha fallado, pero ha encontrado una cabecera de imagen en %d\n"
+msgstr "%s: método de 'tamaño de imagen' ha fallado, pero cabecera de imagen encontrada en %d\n"
