@@ -3858,6 +3858,8 @@ $as_echo "$ac_cv_should_define__xopen_source" >&6; }
   test $ac_cv_should_define__xopen_source = yes &&
     $as_echo "#define _XOPEN_SOURCE 500" >>confdefs.h
 
+  $as_echo "#define _HPUX_ALT_XOPEN_SOCKET_API 1" >>confdefs.h
+
 
 
 

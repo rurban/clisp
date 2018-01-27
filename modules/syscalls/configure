@@ -4227,6 +4227,8 @@ $as_echo "$ac_cv_should_define__xopen_source" >&6; }
   test $ac_cv_should_define__xopen_source = yes &&
     $as_echo "#define _XOPEN_SOURCE 500" >>confdefs.h
 
+  $as_echo "#define _HPUX_ALT_XOPEN_SOCKET_API 1" >>confdefs.h
+
 
 
 
@@ -6619,10 +6621,10 @@ else
          echo > conftest.file
          if test "$cross_compiling" = yes; then :
                                                  case "$host_os" in
-                           # On glibc/Linux we know the result.
-              linux*-gnu*) gl_cv_func_link_follows_symlink="guessing no" ;;
-                           # Otherwise, we don't know.
-              *)           gl_cv_func_link_follows_symlink=unknown ;;
+                                  # On glibc/Linux we know the result.
+              linux*-gnu* | gnu*) gl_cv_func_link_follows_symlink="guessing no" ;;
+                                  # Otherwise, we don't know.
+              *)                  gl_cv_func_link_follows_symlink=unknown ;;
             esac
 
 else
