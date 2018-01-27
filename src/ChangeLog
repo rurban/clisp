@@ -1,5 +1,10 @@
 2018-01-27  Bruno Haible  <bruno@clisp.org>
 
+	Distribute the DEPENDENCIES and INSTALL.windows files.
+	* Makefile.devel (SOURCES1): Add DEPENDENCIES, INSTALL.windows.
+
+2018-01-27  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".
