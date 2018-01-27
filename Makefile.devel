@@ -2457,7 +2457,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 T = $(TOPDIR)
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure $T/Makefile.in
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/DEPENDENCIES $T/INSTALL $T/INSTALL.windows $T/SUMMARY $T/configure $T/Makefile.in
 SOURCES2 = $T/src
 SOURCES4 = $T/utils
 SOURCES5 = $T/unix $T/win32msvc
