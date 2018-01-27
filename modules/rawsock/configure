@@ -4015,6 +4015,8 @@ $as_echo "$ac_cv_should_define__xopen_source" >&6; }
   test $ac_cv_should_define__xopen_source = yes &&
     $as_echo "#define _XOPEN_SOURCE 500" >>confdefs.h
 
+  $as_echo "#define _HPUX_ALT_XOPEN_SOCKET_API 1" >>confdefs.h
+
 
 
 
@@ -4262,7 +4264,7 @@ $as_echo "#define WINDOWS_SOCKETS 1" >>confdefs.h
       LIBSOCKET='-lws2_32'
     fi
   else
-                    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing setsockopt" >&5
+                                    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing setsockopt" >&5
 $as_echo_n "checking for library containing setsockopt... " >&6; }
 if ${gl_cv_lib_socket+:} false; then :
   $as_echo_n "(cached) " >&6

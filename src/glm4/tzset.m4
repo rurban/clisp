@@ -1,6 +1,6 @@
-# serial 10
+# serial 11
 
-# Copyright (C) 2003, 2007, 2009-2017 Free Software Foundation, Inc.
+# Copyright (C) 2003, 2007, 2009-2018 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -68,12 +68,12 @@ main ()
        [gl_cv_func_tzset_clobber=no],
        [gl_cv_func_tzset_clobber=yes],
        [case "$host_os" in
-                  # Guess all is fine on glibc systems.
-          *-gnu*) gl_cv_func_tzset_clobber="guessing no" ;;
-                  # Guess no on native Windows.
-          mingw*) gl_cv_func_tzset_clobber="guessing no" ;;
-                  # If we don't know, assume the worst.
-          *)      gl_cv_func_tzset_clobber="guessing yes" ;;
+                         # Guess all is fine on glibc systems.
+          *-gnu* | gnu*) gl_cv_func_tzset_clobber="guessing no" ;;
+                         # Guess no on native Windows.
+          mingw*)        gl_cv_func_tzset_clobber="guessing no" ;;
+                         # If we don't know, assume the worst.
+          *)             gl_cv_func_tzset_clobber="guessing yes" ;;
         esac
        ])
     ])
