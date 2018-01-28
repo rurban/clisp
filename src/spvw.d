@@ -3275,6 +3275,49 @@ local inline int init_memory (struct argv_initparams *p) {
           }
         }
       }
+      #if defined(KERNELVOID32_HEAPCODES) || defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
+      /* Avoid the address range that we reserve for immediate objects. */
+      #if defined(KERNELVOID32A_HEAPCODES)
+      var uintP avoid_start = 0xC0000000;
+      var uintP avoid_end = avoid_start + 0x20000000 - 1;
+      #endif
+      #if defined(KERNELVOID32B_HEAPCODES)
+      var uintP avoid_start = 0xE0000000;
+      var uintP avoid_end = avoid_start + 0x20000000 - 1;
+      #endif
+      #if defined(GENERIC64A_HEAPCODES) || defined(GENERIC64B_HEAPCODES)
+      var uintP avoid_start = 0xC000000000000000UL;
+      var uintP avoid_end = avoid_start + 0x2000000000000000UL - 1;
+      #endif
+      /* Compute [start,end] \ [avoid_start,avoid_end]. */
+      if (!(avoid_end < start || end < avoid_start)) {
+        /* Need to trim the [start,end] interval. */
+        if (avoid_start <= start) {
+          if (end <= avoid_end) {
+            /* [start,end] \ [avoid_start,avoid_end] is empty. */
+            fprint(stderr,"The range from MAPPABLE_ADDRESS_RANGE_START and MAPPABLE_ADDRESS_RANGE_END is entirely reserved for immediate objects.\n");
+            return -1;
+          } else {
+            /* [start,end] \ [avoid_start,avoid_end] is a single interval
+               [avoid_end+1,end]. */
+            start = avoid_end+1;
+          }
+        } else {
+          if (end <= avoid_end) {
+            /* [start,end] \ [avoid_start,avoid_end] is a single interval
+               [start,avoid_start-1]. */
+            end = avoid_start-1;
+          } else {
+            /* [start,end] \ [avoid_start,avoid_end] consists of two intervals
+               [start,avoid_start-1] ∪ [avoid_end+1,end]. Choose the larger one. */
+            if (avoid_start-start < end-avoid_end)
+              start = avoid_end+1;
+            else
+              end = avoid_start-1;
+          }
+        }
+      }
+      #endif
      #else /* TYPECODES */
       /* Verify that the interval [start,end] is covered by oint_addr_mask. */
       var uintP range_mask = bits_used_by_range(start,end);
