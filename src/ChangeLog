@@ -1,3 +1,8 @@
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
+	Fix mistake in an exception type (bug introduced on 2004-04-22).
+	* constobj.d (O(type_socket_option)): Fix typo.
+
 2018-01-27  Bruno Haible  <bruno@clisp.org>
 
 	Add support for Linux in Microsoft WSL.
