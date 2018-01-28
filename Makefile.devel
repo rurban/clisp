@@ -1707,7 +1707,8 @@ multibuild-solaris-i386-cc: \
   build-porting32-cc-multithread_gc \
   build-porting32-cc-generational_gc-old_gc \
   build-porting32-cc-generational_gc-multithread_gc \
-  build-porting32-cc-safety0
+  build-porting32-cc-safety0 \
+  build-porting32-cc-debug_ari_asm
 # TODO build-porting32-gcc-debug_gcsafety currently has compilation failures.
 multibuild-solaris-i386-gcc: \
   build-porting32-gcc-portability \
@@ -1727,7 +1728,8 @@ multibuild-solaris-i386-gcc: \
   build-porting32-gcc-generational_gc-multithread_gc \
   build-porting32-gcc-safety0 \
   build-porting32-gcc-safety0-optimized \
-  build-porting32-gcc-debug_gcsafety
+  build-porting32-gcc-debug_gcsafety \
+  build-porting32-gcc-debug_ari_asm
 
 # Solaris/sparc64 with 32-bit ABI
 # Note: build-porting32-cc-portability and build-porting32-cc-wide are not
