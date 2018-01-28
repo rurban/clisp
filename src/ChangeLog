@@ -1,5 +1,13 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Enable another build variant on Solaris/i386.
+	* Makefile.devel (multibuild-solaris-i386-cc): Depend on
+	build-porting32-cc-debug_ari_asm.
+	(multibuild-solaris-i386-gcc): Depend on
+	build-porting32-gcc-debug_ari_asm.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix LOGTEST bug when using Sun C on i386.
 	A cast from 'int' to 'bool' works like x -> x!=0 with the standard C99
 	'bool' type, but not with the 'signed char' substitute we import from
