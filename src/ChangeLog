@@ -1,5 +1,13 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Disable some more builds that don't work on Solaris/x86_64 with cc.
+	* Makefile.devel (multibuild-solaris-x86_64-cc): Don't depend on any
+	build-porting64-cc-typecodes-* target.
+	* lispbibl.d: On Solaris/x86_64 with cc, choose HEAPCODES by default,
+	not TYPECODES.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix "reserving address range" warning on Solaris/i386.
 	* spvw.d (init_memory): Exclude the address range of immediate objects
 	from the address range that we reserve for heap-allocated objects.

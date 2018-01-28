@@ -2170,10 +2170,15 @@ multibuild-hpux-hppa-64: multibuild-porting64-cc # TODO
 multibuild-hpux-ia64-64: multibuild-porting64-cc # TODO
 
 # Solaris/x86_64 with 64-bit ABI
-# Note: build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap and
-# build-porting64-cc-limited_memory do not work, because cc miscompiles
-# spvwtabs.o when at least -xO1 is enabled, and according to the Sun Studio 12
-# documentation <https://docs.oracle.com/cd/E19205-01/819-5265/bjavm/index.html>:
+# Note: The builds
+#   build-porting64-cc-typecodes-spvw_pure_pages
+#   build-porting64-cc-typecodes-spvw_mixed_pages
+#   build-porting64-cc-typecodes-spvw_mixed_blocks-malloc
+#   build-porting64-cc-typecodes-spvw_mixed_blocks-trivialmap
+#   build-porting64-cc-limited_memory
+# do not work, because cc miscompiles spvwtabs.o when at least -xO1 is enabled,
+# and according to the Sun Studio 12 documentation
+# <https://docs.oracle.com/cd/E19205-01/819-5265/bjavm/index.html>:
 # "If you specify an optimization level, there is no option for turning
 #  optimization off."
 multibuild-solaris-x86_64-cc: \
@@ -2184,10 +2189,7 @@ multibuild-solaris-x86_64-cc: \
   build-porting64-cc-one_free_bit_heapcodes-trivialmap \
   build-porting64-cc-generic64_heapcodes \
   build-porting64-cc-heapcodes-spvw_pages \
-  build-porting64-cc-typecodes-spvw_pure_pages \
-  build-porting64-cc-typecodes-spvw_mixed_pages \
   build-porting64-cc-heapcodes-spvw_mixed_blocks \
-  build-porting64-cc-typecodes-spvw_mixed_blocks-malloc \
   build-porting64-cc-spvw_pure_blocks \
   build-porting64-cc-old_gc \
   build-porting64-cc-multithread_gc \

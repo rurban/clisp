@@ -3676,13 +3676,14 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          - On platforms where compilers other than GCC (or clang, which is like
            GCC here) may be used, it is hard to fulfil the alignment constraint
            needed by HEAPCODES. Therefore favour TYPECODES on these platforms.
-           Except where TYPECODES does not work, namely on AIX and Solaris/sparc64.
+           Except where TYPECODES does not work, namely on AIX,
+           Solaris/x86_64 with cc, and Solaris/sparc64.
          - On platforms where we can assume GCC, both ONE_FREE_BIT_HEAPCODES and
            GENERIC64_HEAPCODES generally work well, with few exception. The
            choice between these two is done below. */
       #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
-        #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
+        #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_SUNOS5) && defined(AMD64) && !defined(GNU)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
           /* On these platforms, TYPECODES (without SINGLEMAP_MEMORY) does not work. */
           #define HEAPCODES
         #else
