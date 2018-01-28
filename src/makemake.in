@@ -707,12 +707,15 @@ if [ "${with_dynamic_modules}" = default ]; then
   if [ "${CC_CPLUSPLUS}" = true ]; then
     with_dynamic_modules=no
   else
-    # Don't enable dynamic modules by default on HP-UX.
-    # See the comment regarding HAVE_DYNLOAD in unix.d.
+    # - Don't enable dynamic modules by default on AIX.
+    #   libtool's archive_cmds variable is empty on AIX.
+    #   Cf. <https://sourceforge.net/p/clisp/bugs/726/>
+    # - Don't enable dynamic modules by default on HP-UX.
+    #   See the comment regarding HAVE_DYNLOAD in unix.d.
     if [ $CROSS = false ] ; then
       case "$host_os" in
-        hpux*) with_dynamic_modules=no ;;
-        *)     with_dynamic_modules=yes ;;
+        aix* | hpux*) with_dynamic_modules=no ;;
+        *)            with_dynamic_modules=yes ;;
       esac
     else
       with_dynamic_modules=yes
