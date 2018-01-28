@@ -1,5 +1,15 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix LOGTEST bug when using Sun C on i386.
+	A cast from 'int' to 'bool' works like x -> x!=0 with the standard C99
+	'bool' type, but not with the 'signed char' substitute we import from
+	gnulib. Cf. also the commit from 2004-03-12.
+	* intlog.d (I_I_logtest): Explicitly test for !=0.
+	* ari_asm_*.d (and_test_loop_up, test_loop_up): Clarify return type.
+	* ari_asm_*-macro.c: Regenerated.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Avoid hanging builds on Solaris, caused by "make check" in rawsock.
 	* configure: Disable "make full-mod-check".
 

@@ -491,7 +491,7 @@ local bool I_I_logtest (object x, object y) {
         }
       }
       /* search for common bits in xMSDptr/xlen/..  and yMSDptr/xlen/..: */
-      return and_test_loop_up(xMSDptr,yMSDptr,xlen);
+      return and_test_loop_up(xMSDptr,yMSDptr,xlen) != 0;
     }
   }
 }

@@ -301,7 +301,7 @@ asm_not_loop_up:
         j $31                   # return
         .end asm_not_loop_up
 
-# extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern [bool]int asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
         .align 2
         .ent asm_and_test_loop_up # Input in $4,$5,$6
         .type asm_and_test_loop_up,@function
@@ -320,7 +320,7 @@ asm_and_test_loop_up:
         j $31                   # return
         .end asm_and_test_loop_up
 
-# extern bool asm_test_loop_up (uintD* ptr, uintC count);
+# extern [bool]int asm_test_loop_up (uintD* ptr, uintC count);
         .align 2
         .ent asm_test_loop_up # Input in $4,$5
         .type asm_test_loop_up,@function
