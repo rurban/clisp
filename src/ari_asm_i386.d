@@ -413,7 +413,7 @@ asm_not_loop_up:
 .Lendof_asm_not_loop_up:
             .size asm_not_loop_up,.Lendof_asm_not_loop_up-asm_not_loop_up
 
-# extern bool asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern [bool]int asm_and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
             .p2align 2,,3
             .type asm_and_test_loop_up,@function
 asm_and_test_loop_up:
@@ -435,7 +435,7 @@ asm_and_test_loop_up:
 .Lendof_asm_and_test_loop_up:
             .size asm_and_test_loop_up,.Lendof_asm_and_test_loop_up-asm_and_test_loop_up
 
-# extern bool asm_test_loop_up (uintD* ptr, uintC count);
+# extern [bool]int asm_test_loop_up (uintD* ptr, uintC count);
             .p2align 2,,3
             .type asm_test_loop_up,@function
 asm_test_loop_up:
