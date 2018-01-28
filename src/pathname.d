@@ -186,7 +186,8 @@ local char* my_realpath (const char* path, char* resolved_path) {
                     if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } /* first, append a '/' */
                     /* then the rest: */
                     while ((mypath_ptr <= mypath_limit)
-                           && (*mypath_ptr++ = *from_ptr++)) ;
+                           && (*mypath_ptr = *from_ptr++))
+                      { mypath_ptr++; }
                     *mypath_ptr = 0; /* and conclude wit 0 */
                   }
                   /* this replaces resp. completes the path: */
