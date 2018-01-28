@@ -840,10 +840,12 @@ else
   if test "$do_cbc" = 2; then
     run 4 ${MAKE} extracheck
     run 5 ${MAKE} base-mod-check
-    run 6 ${MAKE} full-mod-check
+    # Disabled because the rawsock tests hang on Solaris.
+    # run 6 ${MAKE} full-mod-check
   fi
   # report results:
-  for log in 1 2 3 4 5 6; do
+  for log in 1 2 3 4 5 # 6
+  do
     echo "Step ${log} "$(sed -n -e '$p' cbcstep${log}.log)
   done
   # Fail if one of the commands "make" or "make check" failed.
