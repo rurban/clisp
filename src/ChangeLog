@@ -1,5 +1,10 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Avoid hanging builds on Solaris, caused by "make check" in rawsock.
+	* configure: Disable "make full-mod-check".
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix mistake in an exception type (bug introduced on 2004-04-22).
 	* constobj.d (O(type_socket_option)): Fix typo.
 
