@@ -108,7 +108,16 @@
 
 #ifdef FAST_DOUBLE
 /* Unpacking a Double: */
+ #if defined(HPPA) && varobjects_misaligned
+  /* Avoid misaligned access that would lead to SIGBUS. */
+  static inline double DF_to_double (object obj) {
+    var dfloatjanus t;
+    t.eksplicit = TheDfloat(obj)->representation.eksplicit;
+    return t.machine_double;
+  }
+ #else
   #define DF_to_double(obj)  (TheDfloat(obj)->representation.machine_double)
+ #endif
 /* Testing and Packing of a IEEE-Floats that is returned by the
  'double'-routines.
  Classification:
