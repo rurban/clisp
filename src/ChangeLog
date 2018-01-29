@@ -1,5 +1,13 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on HP-UX/ia64 in 64-bit mode.
+	* Makefile.devel (multibuild-hpux-ia64-64): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For HP-UX/ia64 in 64-bit mode, enable all
+	optimizations except ASM.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Choose working configuration on HP-UX/ia64 in 64-bit mode.
 	* lispbibl.d: On 64-bit HP-UX/ia64, choose HEAPCODES by default, not
 	TYPECODES.
