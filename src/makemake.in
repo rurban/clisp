@@ -3764,8 +3764,14 @@ echotab " echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
 echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
+  # On IRIX, clisp-link must be executed through /bin/ksh or bash, not /bin/sh.
+  case "$host_os" in
+    irix*) goodshell="$CONFIG_SHELL" ;;
+    *)     goodshell='/bin/sh' ;;
+  esac
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' \\"
+  echotab "sed -e 's%@''SHELL''@%${goodshell}%' \\"
+  echotab "    -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' \\"
   echotab "    -e 's%@createsharedlib@%$XCC_CREATESHARED_%' \\"
   echotab "    -e 's%@LEXE@%${LEXE}%' -e 's%@SHREXT@%${SHREXT}%' \\"
   # On Cygwin, "-L$sourcedir$" is not enough for the linker to find
