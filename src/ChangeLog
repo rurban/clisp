@@ -1,5 +1,11 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on IRIX.
+	* clisp-link.in: Use placeholder @SHELL@.
+	* makemake.in (clisp-link): Substitute a good shell for @SHELL@.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on HP-UX/ia64 in 64-bit mode.
 	* Makefile.devel (multibuild-hpux-ia64-64): Enable all build variants
 	that work.
