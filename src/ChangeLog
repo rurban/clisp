@@ -1,5 +1,12 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	rawsock: Fix compilation error on IRIX.
+	The <netinet/in.h> on IRIX 6.5 has only partial support for IPv6.
+	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): Test HAVE_IPV6,
+	not AF_INET6.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	syscalls: Fix a build failure on IRIX 6.5.
 	IRIX 6.5 does not have the round() function.
 	* modules/syscalls/calls.c (POSIX:LOADAVG): Don't use the round()
