@@ -1,5 +1,10 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Tweak the usable address range on IRIX.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_END) [UNIX_IRIX]: Change.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix failure of the builds with -DWIDE on IRIX/mips (n32 ABI).
 	* makemake.in: When compiling with GCC for IRIX/mipsn32 and -DWIDE,
 	reduce optimizations.
