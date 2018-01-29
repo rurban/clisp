@@ -1,5 +1,18 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on HP-UX/HPPA in 64-bit mode.
+	* lispbibl.d: On HP-UX/HPPA in 64-bit mode, choose HEAPCODES by default,
+	not TYPECODES.
+	(garcol_bit_o): Find appropriate value for HP-UX/HPPA in 64-bit mode.
+	(GENERIC64C_HEAPCODES_WORKS): Update value for HP-UX/HPPA in 64-bit
+	mode.
+	* Makefile.devel (multibuild-hpux-hppa-64): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For 64-bit HP-UX/HPPA, enable all
+	optimizations except ASM.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on HP-UX/HPPA in 32-bit mode.
 	* Makefile.devel (multibuild-hpux-hppa-32): Enable all build variants
 	that work.

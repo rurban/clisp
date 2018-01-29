@@ -2177,7 +2177,24 @@ multibuild-aix-powerpc-64-gcc: \
   build-porting64-gcc-debug_gcsafety
 
 # HP-UX/hppa64 with 64-bit ABI
-multibuild-hpux-hppa-64: multibuild-porting64-cc # TODO
+# Note: The builds
+#   build-porting64-cc-typecodes-spvw_pure_pages
+#   build-porting64-cc-typecodes-spvw_mixed_pages
+#   build-porting64-cc-typecodes-spvw_mixed_blocks-malloc
+#   build-porting64-cc-limited_memory
+# do not work, because cc miscompiles some use of the type_pointer_object macro,
+# even when no optimization is enabled.
+multibuild-hpux-hppa-64: \
+  build-porting64-cc-portability \
+  build-porting64-cc-safety3 \
+  build-porting64-cc-heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes-malloc \
+  build-porting64-cc-generic64_heapcodes \
+  build-porting64-cc-heapcodes-spvw_pages \
+  build-porting64-cc-heapcodes-spvw_mixed_blocks \
+  build-porting64-cc-old_gc \
+  build-porting64-cc-multithread_gc \
+  build-porting64-cc-safety0
 
 # HP-UX/ia64 with 64-bit ABI
 multibuild-hpux-ia64-64: multibuild-porting64-cc # TODO
