@@ -567,6 +567,7 @@
    hence we can assume that all function pointers are == 2 mod 4. */
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
+  #define C_FUNCTION_POINTER_BIAS 2
 #endif
 #if defined(M68K) || defined(__CR16__) || defined(__cris__) || defined(__H8300__) || defined(__mcore__) || defined(__mep__) || defined(__moxie__) || defined(__MSP430__) || defined(__pdp11__) || defined(__sh__) || defined(__xstormy16__) || defined(__v850__) || defined(__vax__)
   #define C_CODE_ALIGNMENT  2
@@ -586,6 +587,9 @@
 #if !defined(C_CODE_ALIGNMENT) /* e.g. (defined(I80386) && defined(MICROSOFT)) */
   #define C_CODE_ALIGNMENT  1
   #define log2_C_CODE_ALIGNMENT  0
+#endif
+#if !defined(C_FUNCTION_POINTER_BIAS)
+  #define C_FUNCTION_POINTER_BIAS 0
 #endif
 
 /* Flags for the system's include files. */
@@ -9528,7 +9532,7 @@ typedef struct {
 #else
   extern _Noreturn void error_pseudocode_alignment (uintP address, const char* prefix, const char* name);
   #define make_machine_code(ptr)  \
-    ((((uintP)(void*)(ptr) & (PSEUDOCODE_ALIGNMENT-1))               \
+    (((((uintP)(void*)(ptr)-C_FUNCTION_POINTER_BIAS) & (PSEUDOCODE_ALIGNMENT-1)) \
       ? (error_pseudocode_alignment((uintP)(void*)(ptr),"",#ptr), 0) \
       : 0),                                                          \
      make_machine_code_unchecked(ptr))
@@ -9839,7 +9843,7 @@ typedef struct {
 #if PSEUDODATA_ALIGNMENT <= C_CODE_ALIGNMENT
   #define TheMachineCode(obj)  TheMachine(obj)
 #elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
-  #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+2))
+  #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+C_FUNCTION_POINTER_BIAS))
 #elif PSEUDOCODE_ALIGNMENT == C_CODE_ALIGNMENT
   #define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))|(CODE_ADDRESS_RANGE&~((~(uintP)0)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT)))))
 #elif PSEUDOCODE_ALIGNMENT == PSEUDODATA_ALIGNMENT
