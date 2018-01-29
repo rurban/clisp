@@ -3698,13 +3698,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
            GCC here) may be used, it is hard to fulfil the alignment constraint
            needed by HEAPCODES. Therefore favour TYPECODES on these platforms.
            Except where TYPECODES does not work, namely on AIX, HP-UX/hppa64,
-           Solaris/x86_64 with cc, and Solaris/sparc64.
+           HP-UX/ia64, Solaris/x86_64 with cc, and Solaris/sparc64.
          - On platforms where we can assume GCC, both ONE_FREE_BIT_HEAPCODES and
            GENERIC64_HEAPCODES generally work well, with few exception. The
            choice between these two is done below. */
       #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
-        #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_HPUX) && defined(HPPA64)) || (defined(UNIX_SUNOS5) && defined(AMD64) && !defined(GNU)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
+        #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_HPUX) && defined(HPPA64)) || (defined(UNIX_HPUX) && defined(IA64)) || (defined(UNIX_SUNOS5) && defined(AMD64) && !defined(GNU)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
           /* On these platforms, TYPECODES (without SINGLEMAP_MEMORY) does not work. */
           #define HEAPCODES
         #else
@@ -4202,7 +4202,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
         /* Does not work because mmap MAP_FIXED is not supported on this platform. */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #if !defined(TRIVIALMAP_MEMORY)
+          /* Avoid error
+             "Return value of malloc() = 6000000000069490 is not compatible with the choice of garcol_bit_o." */
+          #define garcol_bit_o 60
+        #endif
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
@@ -4540,7 +4545,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
-      #define GENERIC64C_HEAPCODES_WORKS 0
+      #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_SUNOS5) && defined(AMD64) /* Solaris/x86_64 */
       #define GENERIC64C_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with cc */

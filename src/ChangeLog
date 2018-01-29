@@ -1,5 +1,13 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Choose working configuration on HP-UX/ia64 in 64-bit mode.
+	* lispbibl.d: On 64-bit HP-UX/ia64, choose HEAPCODES by default, not
+	TYPECODES.
+	Adjust parameters for HEAPCODES1BIT_WITH_MALLOC on HP-UX/ia64.
+	(GENERIC64C_HEAPCODES_WORKS): Update value for HP-UX/ia64.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on HP-UX/ia64 in 32-bit mode.
 	* Makefile.devel (multibuild-hpux-ia64-32): Enable all build variants
 	that work.
