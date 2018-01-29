@@ -126,19 +126,22 @@ NIL
 
 (maybe-bind *sock* *sa-local*) NIL
 (rawsock:connect *sock* *sa-remote*) NIL
-;; fails when proxied
-(equalp (rawsock:getpeername *sock* T) *sa-remote*) T
+(let ((p (rawsock:getpeername *sock* T)))
+  (or (equalp p *sa-remote*)
+      (list "fails when proxied" p *sa-remote*))) T
 
 (listp (show (list (multiple-value-list (socket:socket-stream-local *sock*))
                    (multiple-value-list (socket:socket-stream-peer *sock*)))))
 T
 
-(ext:socket-status (list (cons *sock* :input))) (:INPUT)
+(rawsock:send *sock* (to-bytes (format nil "GET / HTTP/1.0~2%"))) 16
+
+(ext:socket-status (list (cons *sock* :input)) 0 1) (:INPUT)
 
 (let ((size (rawsock:recv *sock* *buffer*)))
   (show (setq *recv-ret* (list size (from-bytes *buffer* :end size))))
   (ext:socket-status *sock*))
-:OUTPUT
+:IO
 
 #+unix (listp (show (rawsock:socket-option *sock* NIL) :pretty t)) T
 #+unix (listp (show (rawsock:socket-option *sock* NIL :level :ALL) :pretty t))T
@@ -179,9 +182,12 @@ T
 
 (maybe-bind *sock* *sa-local*) NIL
 (rawsock:connect *sock* *sa-remote*) NIL
-;; fails when proxied
-(equalp (rawsock:getpeername *sock* T) *sa-remote*) T
+(let ((p (rawsock:getpeername *sock* T)))
+  (or (equalp p *sa-remote*)
+      (list "fails when proxied" p *sa-remote*))) T
 
+;; adding timeout to this socket-status merely shifts the wait
+;; to the next form (sock-read) will wait instead,
 (ext:socket-status (list (cons *sock* :input))) (:INPUT)
 
 #-:win32 ;; on win32, read() cannot be called on a socket!
@@ -434,3 +440,10 @@ NIL
                           (os:hostent-addr-list
                            (os:resolve-host-ipaddr :default)))))))
 T
+
+(symbols-cleanup
+ '(to-bytes from-bytes make-byte-vector show-he host->ip host->sa
+   local-sa-check maybe-bind my-recvfrom my-bind
+   *sa-remote* *sa-local* *buffer* *sock* *sock1* *sock2*
+   *recv-ret* *recvfrom-ret* *read-ret*))
+()
