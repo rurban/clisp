@@ -4384,8 +4384,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1 /* 1 with gcc, 0 with xlc */
     #endif
     #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
-      /* PSEUDOCODE_ALIGNMENT is not fulfilled. */
-      #define KERNELVOID32_HEAPCODES_WORKS 0
+      #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
       /* PSEUDOCODE_ALIGNMENT is not fulfilled. */
@@ -4889,7 +4888,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
             #define oint_addr_shift 0
             #define oint_addr_len 24
             #define oint_addr_mask 0x40FFFFFFUL
-            /* Error "Return value of malloc() = 0x40036618 is not compatible with type code distribution." */
+            /* typecodes-spvw_pure_pages works, the other two crash. */
             #define TYPECODES_WITH_MALLOC_WORKS 0
           #endif
           #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
