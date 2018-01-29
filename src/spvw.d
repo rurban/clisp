@@ -1411,7 +1411,7 @@ local _Noreturn void error_pseudodata_alignment (uintP address, const char* name
   #define verify_pseudocode_alignment(ptr,name) /* not needed */
 #else
   #define verify_pseudocode_alignment(ptr,name)  \
-    if ((uintP)(void*)(ptr) & (PSEUDOCODE_ALIGNMENT-1))     \
+    if (((uintP)(void*)(ptr)-C_FUNCTION_POINTER_BIAS) & (PSEUDOCODE_ALIGNMENT-1)) \
       error_pseudocode_alignment((uintP)(void*)(ptr),"&",name)
 global _Noreturn void error_pseudocode_alignment (uintP address, const char* prefix, const char* name) {
   fprintf(stderr,"PSEUDOCODE_ALIGNMENT is not fulfilled. %s%s = 0x%lx.\n",
