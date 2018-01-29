@@ -2208,7 +2208,18 @@ multibuild-hpux-hppa-64: \
   build-porting64-cc-safety0
 
 # HP-UX/ia64 with 64-bit ABI
-multibuild-hpux-ia64-64: multibuild-porting64-cc # TODO
+multibuild-hpux-ia64-64: \
+  build-porting64-cc-portability \
+  build-porting64-cc-safety3 \
+  build-porting64-cc-heapcodes \
+  build-porting64-cc-one_free_bit_heapcodes-malloc \
+  build-porting64-cc-generic64_heapcodes \
+  build-porting64-cc-heapcodes-spvw_pages \
+  build-porting64-cc-heapcodes-spvw_mixed_blocks \
+  build-porting64-cc-limited_memory \
+  build-porting64-cc-old_gc \
+  build-porting64-cc-multithread_gc \
+  build-porting64-cc-safety0
 
 # Solaris/x86_64 with 64-bit ABI
 # Note: The builds
