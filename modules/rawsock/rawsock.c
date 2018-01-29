@@ -382,7 +382,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
                   { value1 = string_to_addr(ip_address); });
   } else if (integerp(STACK_0)) {
     switch (family) {
-     #if defined(AF_INET6)
+     #if defined(HAVE_IPV6)
       case AF_INET6: {
         if (!((fixnump(STACK_0) && positivep(STACK_0)) /*socket.d:resolve_host*/
               || (bignump(STACK_0) && positivep(STACK_0)
