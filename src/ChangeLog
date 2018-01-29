@@ -1,5 +1,15 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on HP-UX/HPPA in 32-bit mode.
+	* Makefile.devel (multibuild-hpux-hppa-32): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For 32-bit HP-UX/HPPA, enable all
+	optimizations except ASM.
+	* lispbibl.d (KERNELVOID32_HEAPCODES_WORKS): Update value for HP-UX HPPA
+	in 32-bit mode.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Fix failure of the builds with TYPECODES on HP-UX with 64-bit HPPA.
 	* lispbibl.d (INIT_SYMBOL_TAB): Disable on 64-bit HPPA with HP C and
 	TYPECODES.
