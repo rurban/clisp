@@ -1,6 +1,6 @@
 /*
  * Encodings (character sets and conversions) for CLISP
- * Bruno Haible 1998-2008, 2017
+ * Bruno Haible 1998-2008, 2017-2018
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -2532,7 +2532,8 @@ global void init_encodings_2 (void) {
  at this time, just upper-case the encoding name
  in the future, might insert/delete `-' &c
  (do not use toupper() because we know that encoding name is ASCII) */
-local char *canonicalize_encoding (char *encoding) {
+local char *canonicalize_encoding (const char *const_encoding) {
+  var char* encoding = strdup(const_encoding); /* copy into writeable memory */
   var char* p;
   for (p = encoding; *p != '\0'; p++)
     if (*p >= 'a' && *p <= 'z')
@@ -2553,16 +2554,16 @@ local char *canonicalize_encoding (char *encoding) {
 /* Returns an encoding specified by a name.
  The line-termination is OS dependent.
  encoding_from_name(name,context)
- > char* name: Any of the canonical names returned by the locale_charset()
-               function.
- > char* context: for warnings
+ > const char* name: Any of the canonical names returned by the locale_charset()
+                     function.
+ > const char* context: for warnings
  > STACK_0 : if context /= locale and name does not make an encoding
              - the default locale encoding
  can trigger GC */
-local maygc object encoding_from_name (const char* name, const char* context) {
+local maygc object encoding_from_name (const char* const_name, const char* context) {
  #ifdef ENABLE_UNICODE
   /* Attempt to use the character set implicitly specified by the locale. */
-  name = canonicalize_encoding((char*)name); /* FIXME: dangerous cast */
+  var char* name = canonicalize_encoding(const_name);
   if (asciz_equal(name,"US-ASCII") || asciz_equal(name,"ANSI_X3.4-1968"))
     pushSTACK(Symbol_value(S(ascii)));
   #if defined(HAVE_GOOD_ICONV) && (defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2)))
@@ -2592,7 +2593,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
     }
   }
  #else
-  unused name; unused context;
+  unused const_name; unused context;
   pushSTACK(unbound);           /* :charset */
  #endif /* ENABLE_UNICODE */
  #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0) && !defined(UNIX_CYGWIN))
