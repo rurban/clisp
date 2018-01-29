@@ -3451,6 +3451,25 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
 #define test_external_format_arg(arg)                   \
   check_encoding(arg,&O(default_file_encoding),true)
 
+/* Tells whether this process is running in Microsoft WSL
+   (Windows Subsystem for Linux). */
+#if defined(UNIX_LINUX) && defined(AMD64)
+  local bool is_wsl;
+#else
+  #define is_wsl false
+#endif
+
+/* UP: Initializes the OS dependencies for streams.
+ init_stream_osdeps(); */
+global void init_stream_osdeps (void) {
+ #if defined(UNIX_LINUX) && defined(AMD64)
+  struct utsname buf;
+  is_wsl = (uname(&buf) >= 0
+            && (strstr(buf.release,"Microsoft") != NULL
+                || strstr(buf.version, "Microsoft") != NULL));
+ #endif
+}
+
 #ifdef UNIX
 
 /* UP: Deletes already entered interactive Input from a Handle. */
@@ -3483,7 +3502,9 @@ local void clear_tty_input (Handle handle) {
   end_system_call();
 }
 
-#if defined(UNIX_CYGWIN) /* for Woe95 and xterm/rxvt, and WoeXP /dev/null */
+#if defined(UNIX_LINUX)
+  #define IS_EINVAL_EXTRA  (is_wsl&&(errno==EIO))
+#elif defined(UNIX_CYGWIN) /* for Windows95 and xterm/rxvt, and WindowsXP /dev/null */
   #define IS_EINVAL_EXTRA  ((errno==EBADF)||(errno==EACCES)||(errno==EBADRQC))
 #elif defined(UNIX_MACOSX) || defined(UNIX_FREEBSD) || defined(UNIX_NETBSD) || defined(UNIX_OPENBSD)
   #if !defined(ENOTSUP)         /* OpenBSD */

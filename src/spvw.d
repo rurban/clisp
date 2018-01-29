@@ -4018,6 +4018,7 @@ global int main (argc_t argc, char* argv[]) {
   }
 #endif
   init_lowest_level(argv);
+  init_stream_osdeps();
   var struct argv_init_c argv0;
   {
     var int parse_result =

@@ -2558,6 +2558,7 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x000000000x000000UL or 0x000055EEF5000000 (in Linux 4.13)
        SHLIB_ADDRESS_RANGE  = 0x00000034F5000000UL or 0x0000003844000000UL or 0x00007Fxxxx000000UL
                               or 0x0000002Axx000000UL or 0x0000002Bxx000000UL (in Linux 3.2, when invoked by 'make')
+                              or 0x00007Fxxxx000000UL (in WSL)
        STACK_ADDRESS_RANGE  = 0x0000007FBF000000UL or 0x00007FFEBF000000UL or 0x00007FFDxx000000 (in Linux 4.13)
        There is room from 0x004000000000UL to 0x2A0000000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x004000000000UL
@@ -18294,6 +18295,10 @@ global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);
 %% #else
 %% exportF(object,sec_usec_number,(uint32 sec, uint32 usec, bool abs_p));
 %% #endif
+
+/* UP: Initializes the OS dependencies for streams.
+ init_stream_osdeps(); */
+extern void init_stream_osdeps (void);
 
 /* UP: Initializes the stream variables.
  init_streamvars(batch_p);
