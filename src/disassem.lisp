@@ -75,6 +75,12 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 ;; you may customize it to your needs.
 #+UNIX
 (defun disassemble-machine-code (program-name pid function address)
+  ;; It does not work yet on HP-UX.
+  (let ((os (with-open-stream (s (ext::run-shell-command "uname -s" :output :stream)) (read-line s))))
+    (when (equal os "HP-UX")
+      (fresh-line)
+      (format t (TEXT "Cannot show machine instructions: Not supported on this platform."))
+      (return-from disassemble-machine-code nil)))
   ;; This uses gdb.
   (when (shell "gdb --version > /dev/null 2>&1") ; failed
     (when function

@@ -1,5 +1,10 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Don't let DISASSEMBLE on HP-UX kill the current process.
+	* disassem.lisp (disassemble-machine-code): Don't invoke gdb on HP-UX.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Don't write into read-only allocated C strings. Fixes a crash on HP-UX.
 	* encoding.d (canonicalize_encoding): Invoke strdup.
 	(encoding_from_name): Remove dangerous cast.
