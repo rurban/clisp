@@ -1,5 +1,14 @@
 2018-01-27  Bruno Haible  <bruno@clisp.org>
 
+	Add support for Linux in Microsoft WSL.
+	* lispbibl.d (init_stream_osdeps): New declaration.
+	* stream.d (is_wsl): New variable.
+	(init_stream_osdeps): New function.
+	(IS_EINVAL_EXTRA): On Microsoft WSL, treat EIO like EINVAL.
+	* spvw.d (main): Invoke init_stream_osdeps.
+
+2018-01-27  Bruno Haible  <bruno@clisp.org>
+
 	Distribute the DEPENDENCIES and INSTALL.windows files.
 	* Makefile.devel (SOURCES1): Add DEPENDENCIES, INSTALL.windows.
 
