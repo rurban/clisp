@@ -1038,9 +1038,9 @@ DEFUN(POSIX:LOADAVG, &optional percentp) {
     N_D(loadavg[2],value3);
     value2 = popSTACK(); value1 = popSTACK();
   } else { /* return % as ints, to avoid consing */
-    value1 = fixnum((int)round(loadavg[0]*100));
-    value2 = fixnum((int)round(loadavg[1]*100));
-    value3 = fixnum((int)round(loadavg[2]*100));
+    value1 = fixnum((int)(loadavg[0]*100+0.49999999999));
+    value2 = fixnum((int)(loadavg[1]*100+0.49999999999));
+    value3 = fixnum((int)(loadavg[2]*100+0.49999999999));
   }
   skipSTACK(1);
 }
