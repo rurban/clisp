@@ -4070,8 +4070,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
         /* Does not work because mmap MAP_FIXED is not supported on this platform. */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
-        /* Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
         #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
@@ -4389,7 +4388,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
-      /* PSEUDOCODE_ALIGNMENT is not fulfilled. */
+      /* The 64-bit alignment of the 'uint64' and 'double' types causes
+         alignment issues within strm_buffered_extrafields_t and Dfloat,
+         which lead to SIGBUS. */
       #define KERNELVOID32_HEAPCODES_WORKS 0
     #endif
     #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
