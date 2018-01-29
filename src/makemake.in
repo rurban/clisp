@@ -2978,6 +2978,11 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
           # control.o, list.o and others when -DWIDE and -O is used.
           flags2=$flags2' -O0'
         fi
+        if [ "$cpu" = mipsn32 -a -n "$USE_WIDE_SOFT" ] ; then
+          # gcc-3.4.6 on IRIX/mips (n32 ABI) miscompiles something
+          # when -DWIDE and -O2 is used.
+          flags2=$flags2' -O1'
+        fi
         if [ "$cpu" = i386 -a -n "$USE_WIDE_SOFT" ] ; then
           # gcc-6.3.0 on Hurd/i386 miscompiles something when -DWIDE is in use
           # and -O2 is used on all of spvw.o eval.o control.o encoding.o stream.o io.o

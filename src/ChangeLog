@@ -1,5 +1,11 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix failure of the builds with -DWIDE on IRIX/mips (n32 ABI).
+	* makemake.in: When compiling with GCC for IRIX/mipsn32 and -DWIDE,
+	reduce optimizations.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	rawsock: Fix compilation error on IRIX.
 	The <netinet/in.h> on IRIX 6.5 has only partial support for IPv6.
 	* modules/rawsock/rawsock.c (RAWSOCK:CONVERT-ADDRESS): Test HAVE_IPV6,
