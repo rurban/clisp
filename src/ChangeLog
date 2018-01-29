@@ -1,5 +1,10 @@
 2018-01-28  Bruno Haible  <bruno@clisp.org>
 
+	Add support for 32-bit mode on IA64.
+	* lispbibl.d (C_CODE_ALIGNMENT): Define to only 8 on 32-bit IA64.
+
+2018-01-28  Bruno Haible  <bruno@clisp.org>
+
 	Add support for 64-bit mode on HPPA.
 	* lispbibl.d (C_CODE_ALIGNMENT, C_FUNCTION_POINTER_BIAS,
 	PSEUDOCODE_ALIGNMENT, make_machine_code_unchecked, TheMachineCode):

@@ -543,12 +543,19 @@
 
 /* A property of the processor (and C compiler): The alignment of C functions.
  (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.) */
-#if defined(IA64) || defined(__frv__)
+#if (defined(IA64) && (pointer_bitsize==64)) || defined(__frv__)
   /* A function pointer on ia64 is a pointer to a two 8-bytes-word structure
      (first word: a code pointer, second word: a value which will be put in
      register %r1). */
   #define C_CODE_ALIGNMENT  16
   #define log2_C_CODE_ALIGNMENT  4
+#endif
+#if (defined(IA64) && (pointer_bitsize==32))
+  /* A function pointer on ia64 is a pointer to a two 8-bytes-word structure
+     (first word: a code pointer, second word: a value which will be put in
+     register %r1). */
+  #define C_CODE_ALIGNMENT  8
+  #define log2_C_CODE_ALIGNMENT  3
 #endif
 #if defined(HPPA64)
   /* A function pointer on hppa64 is a pointer to a four-word structure
