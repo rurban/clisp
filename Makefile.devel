@@ -1695,7 +1695,18 @@ multibuild-hpux-hppa-32: \
   build-porting32-cc-safety0 \
 
 # HP-UX/ia64 with 32-bit ABI
-multibuild-hpux-ia64-32: multibuild-porting32-cc # TODO
+multibuild-hpux-ia64-32: \
+  build-porting32-cc-portability \
+  build-porting32-cc-safety3 \
+  build-porting32-cc-heapcodes \
+  build-porting32-cc-one_free_bit_heapcodes-malloc \
+  build-porting32-cc-heapcodes-spvw_pages \
+  build-porting32-cc-heapcodes-spvw_mixed_blocks \
+  build-porting32-cc-wide \
+  build-porting32-cc-limited_memory \
+  build-porting32-cc-old_gc \
+  build-porting32-cc-multithread_gc \
+  build-porting32-cc-safety0 \
 
 # IRIX 6.5 with o32 ABI
 multibuild-irix-mips-32: multibuild-porting32-cc # TODO
