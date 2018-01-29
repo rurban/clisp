@@ -544,8 +544,18 @@
 /* A property of the processor (and C compiler): The alignment of C functions.
  (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.) */
 #if defined(IA64) || defined(__frv__)
+  /* A function pointer on ia64 is a pointer to a two 8-bytes-word structure
+     (first word: a code pointer, second word: a value which will be put in
+     register %r1). */
   #define C_CODE_ALIGNMENT  16
   #define log2_C_CODE_ALIGNMENT  4
+#endif
+#if defined(HPPA64)
+  /* A function pointer on hppa64 is a pointer to a four-word structure
+     (third word: a code pointer, fourth word: a value which will be put in
+     register %r27). */
+  #define C_CODE_ALIGNMENT  8
+  #define log2_C_CODE_ALIGNMENT  3
 #endif
 #if defined(S390) || defined(__SPU__) || defined(__tilegx__) || defined(__tilepro__)
   #define C_CODE_ALIGNMENT  8
@@ -557,7 +567,7 @@
   #define C_CODE_ALIGNMENT  4
   #define log2_C_CODE_ALIGNMENT  2
 #endif
-#if defined(HPPA)
+#if defined(HPPA) && !defined(HPPA64)
   /* A function pointer on hppa is either
      - a code pointer == 0 mod 4, or
      - a pointer to a two-word structure (first word: a code pointer,
@@ -9504,7 +9514,7 @@ typedef struct {
   #define log2_PSEUDOCODE_ALIGNMENT  log2_C_CODE_ALIGNMENT
   /* The C_CODE_ALIGNMENT implies the PSEUDODATA_ALIGNMENT. */
   #define make_machine_code_unchecked(ptr)  make_machine(ptr)
-#elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
+#elif defined(HPPA) && !defined(HPPA64) && PSEUDODATA_ALIGNMENT == 4
   /* Assume that all function pointers are == 2 mod 4. */
   #define PSEUDOCODE_ALIGNMENT  4
   #define log2_PSEUDOCODE_ALIGNMENT  2
@@ -9842,7 +9852,7 @@ typedef struct {
 /* TheMachineCode is the opposite of make_machine_code. */
 #if PSEUDODATA_ALIGNMENT <= C_CODE_ALIGNMENT
   #define TheMachineCode(obj)  TheMachine(obj)
-#elif defined(HPPA) && PSEUDODATA_ALIGNMENT == 4
+#elif defined(HPPA) && !defined(HPPA64) && PSEUDODATA_ALIGNMENT == 4
   #define TheMachineCode(obj)  ((void*)((uintP)TheMachine(obj)+C_FUNCTION_POINTER_BIAS))
 #elif PSEUDOCODE_ALIGNMENT == C_CODE_ALIGNMENT
   #define TheMachineCode(obj)  ((void*)(((uintP)TheMachine(obj)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT))|(CODE_ADDRESS_RANGE&~((~(uintP)0)>>(log2_PSEUDODATA_ALIGNMENT-log2_C_CODE_ALIGNMENT)))))
