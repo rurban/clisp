@@ -63,10 +63,11 @@ install:
     then
       brew update;
       brew install pcre2 libsigsegv readline;
-      wget -q https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz;
-      tar xfz libffcall-1.13-20170225.tar.gz;
-      patch -p0 -i utils/libffcall-1.13-20170225-funbegin.patch;
+      echo wrong website gzip handler;
+      wget -q https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz -O libffcall-1.13-20170225.tar;
+      tar xfz libffcall-1.13-20170225.tar;
       cd libffcall-1.13-20170225;
+      patch -p0 -i ../utils/libffcall-1.13-20170225-funbegin.patch;
       ./configure; make; sudo make install; cd ..;
     fi
 
