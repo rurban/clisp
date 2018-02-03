@@ -4255,7 +4255,7 @@ else
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; } >/dev/null 2>&1
-            if LC_ALL=C grep -E 'd0,' conftest.$gl_asmext >/dev/null; then
+            if LC_ALL=C grep 'd0,' conftest.$gl_asmext >/dev/null; then
               gl_cv_host_cpu_c_abi=armhf
             else
               gl_cv_host_cpu_c_abi=arm

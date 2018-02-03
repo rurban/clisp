@@ -1480,7 +1480,7 @@ AC_DEFUN([gl_ARPA_INET_H_DEFAULTS],
   REPLACE_INET_PTON=0;    AC_SUBST([REPLACE_INET_PTON])
 ])
 
-# asm-underscore.m4 serial 3
+# asm-underscore.m4 serial 4
 dnl Copyright (C) 2010-2018 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1496,6 +1496,7 @@ dnl From Bruno Haible. Based on as-underscore.m4 in GNU clisp.
 
 AC_DEFUN([gl_ASM_SYMBOL_PREFIX],
 [
+  AC_REQUIRE([AC_PROG_EGREP])
   dnl We don't use GCC's __USER_LABEL_PREFIX__ here, because
   dnl 1. It works only for GCC.
   dnl 2. It is incorrectly defined on some platforms, in some GCC versions.
@@ -1511,7 +1512,7 @@ int foo(void) { return 0; }
 EOF
      # Look for the assembly language name in the .s file.
      AC_TRY_COMMAND(${CC-cc} $CFLAGS $CPPFLAGS $gl_c_asm_opt conftest.c) >/dev/null 2>&1
-     if LC_ALL=C grep -E '(^|[[^a-zA-Z0-9_]])_foo([[^a-zA-Z0-9_]]|$)' conftest.$gl_asmext >/dev/null; then
+     if LC_ALL=C $EGREP '(^|[[^a-zA-Z0-9_]])_foo([[^a-zA-Z0-9_]]|$)' conftest.$gl_asmext >/dev/null; then
        gl_cv_prog_as_underscore=yes
      else
        gl_cv_prog_as_underscore=no
@@ -3033,7 +3034,7 @@ AC_DEFUN([gl_PREREQ_GETHOSTNAME], [
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
 
-#serial 6
+#serial 7
 
 # Autoconf defines AC_FUNC_GETLOADAVG, but that is obsolescent.
 # New applications should use gl_GETLOADAVG instead.
@@ -3118,6 +3119,9 @@ else
 fi
 AC_CHECK_DECL([getloadavg], [], [HAVE_DECL_GETLOADAVG=0],
   [[#if HAVE_SYS_LOADAVG_H
+    /* OpenIndiana has a bug: <sys/time.h> must be included before
+       <sys/loadavg.h>.  */
+    # include <sys/time.h>
     # include <sys/loadavg.h>
     #endif
     #include <stdlib.h>]])
@@ -5140,7 +5144,6 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/malloc.c
   lib/malloca.c
   lib/malloca.h
-  lib/malloca.valgrind
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbsrtowcs-impl.h
@@ -5414,7 +5417,7 @@ AC_DEFUN([gl_HARD_LOCALE],
   :
 ])
 
-# host-cpu-c-abi.m4 serial 8
+# host-cpu-c-abi.m4 serial 9
 dnl Copyright (C) 2002-2018 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5551,7 +5554,7 @@ changequote([,])dnl
             echo 'double ddd; void func (double dd) { ddd = dd; }' > conftest.c
             # Look for a reference to the register d0 in the .s file.
             AC_TRY_COMMAND(${CC-cc} $CFLAGS $CPPFLAGS $gl_c_asm_opt conftest.c) >/dev/null 2>&1
-            if LC_ALL=C grep -E 'd0,' conftest.$gl_asmext >/dev/null; then
+            if LC_ALL=C grep 'd0,' conftest.$gl_asmext >/dev/null; then
               gl_cv_host_cpu_c_abi=armhf
             else
               gl_cv_host_cpu_c_abi=arm
@@ -14335,7 +14338,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
   AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
 ])
 
-# stdlib_h.m4 serial 44
+# stdlib_h.m4 serial 45
 dnl Copyright (C) 2007-2018 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -14351,6 +14354,9 @@ AC_DEFUN([gl_STDLIB_H],
   dnl guaranteed by C89.
   gl_WARN_ON_USE_PREPARE([[#include <stdlib.h>
 #if HAVE_SYS_LOADAVG_H
+/* OpenIndiana has a bug: <sys/time.h> must be included before
+   <sys/loadavg.h>.  */
+# include <sys/time.h>
 # include <sys/loadavg.h>
 #endif
 #if HAVE_RANDOM_H
