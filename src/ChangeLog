@@ -1,5 +1,11 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Record result for HP-UX/HPPA in 32-bit mode.
+	* lispbibl.d (HEAPCODES1BIT_WITH_MALLOC_WORKS): Update value for
+	HP-UX/HPPA in 32-bit mode.
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Fix a build failure on HP-UX/ia64 in 64-bit mode.
 	Namely, "PSEUDOCODE_ALIGNMENT is not fulfilled" error during clisp-link.
 	* lispbibl.d (C_CODE_ALIGNMENT): Define to only 8 on 64-bit IA64.
