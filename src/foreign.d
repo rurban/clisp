@@ -1,6 +1,6 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
- * Bruno Haible 1995-2005, 2016, 2017
+ * Bruno Haible 1995-2005, 2016-2018
  * Sam Steingold 2000-2011, 2017
  */
 
@@ -3510,15 +3510,14 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   { var gcv_object_t* top_of_frame = STACK;
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(UNWIND_PROTECT,returner,, goto clean_up; );
-  }
-  pushSTACK(fvar); funcall(thunk,1); /* protected: (funcall thunk fvar) */
-  /* normal clean-up: */
-  skipSTACK(2); /* unwind UNWIND-PROTECT-frame */
-  fp_obj = popSTACK();
-  mark_fp_invalid(TheFpointer(fp_obj));
-  FREE_DYNAMIC_ARRAY(total_room);
-  return;
- clean_up: {
+    pushSTACK(fvar); funcall(thunk,1); /* protected: (funcall thunk fvar) */
+    /* normal clean-up: */
+    skipSTACK(2); /* unwind UNWIND-PROTECT-frame */
+    fp_obj = popSTACK();
+    mark_fp_invalid(TheFpointer(fp_obj));
+    FREE_DYNAMIC_ARRAY(total_room);
+    return;
+   clean_up: {
     var restartf_t fun = unwind_protect_to_save.fun;
     var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
     skipSTACK(2); /* unwind UNWIND-PROTECT-frame */
@@ -3526,6 +3525,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
     mark_fp_invalid(TheFpointer(fp_obj));
     FREE_DYNAMIC_ARRAY(total_room);
     fun(arg); /* jump further */
+   }
   }
   /* values, mv_count are set by funcall */
 }

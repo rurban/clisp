@@ -1,5 +1,17 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Fix crashes due to sp_jmp_buf objects going out of scope too early.
+	* stream.d (MAYBE_IGNORE_ERRORS): Extend scope of 'returner'. (Bug
+	introduced on 2010-06-15.)
+	(lisp_completion): Extend scope of 'returner'. (Bug introduced on
+	2001-03-02.)
+	* record.d (update_instance): Extend scope of 'returner'. (Bug
+	introduced on 2004-04-22.)
+	* foreign.d (EXEC-ON-STACK): Extend scope of 'returner'. (Bug
+	introduced on 2003-05-03.)
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Fix floatparam.h generation failure with gcc 7 on i386.
 	GCC bug report: <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=84190>.
 	* floatparam.c (mainfn): Use 'volatile' in a few more places.
