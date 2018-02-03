@@ -1,5 +1,11 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Fix a build failure on HP-UX/ia64 in 64-bit mode.
+	Namely, "PSEUDOCODE_ALIGNMENT is not fulfilled" error during clisp-link.
+	* lispbibl.d (C_CODE_ALIGNMENT): Define to only 8 on 64-bit IA64.
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Enable some more build variants on Linux/hppa.
 	* lispbibl.d: On Linux/hppa, choose HEAPCODES by default, not
 	TYPECODES. But don't choose KERNELVOID32_HEAPCODES by default.
