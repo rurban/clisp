@@ -6069,7 +6069,7 @@ typedef struct strm_buffered_extrafields_t {
   strm_channel_extrafields_t _parent;
   uintL (* low_fill)  (object stream, perseverance_t persev);
   void  (* low_flush) (object stream, uintL bufflen);
-  uoff_t buffstart;    /* start position of buffer */
+  uoff_t buffstart _attribute_in_misaligned_varobjects_; /* start position of buffer */
   uintL endvalid;      /* index up to which the data is known to be valid */
   uintL index;         /* index into buffer (>=0, <=endvalid) */
   /*bool*/int have_eof_p : 8; /* indicates that eof is right after endvalid */
@@ -6091,7 +6091,7 @@ typedef struct strm_buffered_extrafields_t {
    then leaves the position at the correct point for subsequent reads.
  Up to now a file is considered built from bytes of 8 bits.
  Logically, it is built up from other units: */
-  uoff_t position;              /* position in logical units */
+  uoff_t position _attribute_in_misaligned_varobjects_; /* position in logical units */
 } strm_buffered_extrafields_t;
 
 /* More fields in file streams with element type INTEGER, type ib or ic. */
@@ -6103,7 +6103,7 @@ typedef struct strm_i_buffered_extrafields_t {
    order bit0,....,bit7. If bitsize<8, the length of the file (measured in
    bits) is stored in the first 4 bytes of the files [in little-endian order]
    when the file is closed. The actual data then begins in the 5th byte. */
-  uoff_t eofposition;           /* position of logical EOF */
+  uoff_t eofposition _attribute_in_misaligned_varobjects_; /* position of logical EOF */
 } strm_i_buffered_extrafields_t;
 
 /* In closed file streams only the fields `name' and `truename' are relevant. */

@@ -108,7 +108,7 @@
 
 #ifdef FAST_DOUBLE
 /* Unpacking a Double: */
- #if defined(HPPA) && varobjects_misaligned
+ #if defined(HPPA) && varobjects_misaligned && !defined(GNU)
   /* Avoid misaligned access that would lead to SIGBUS. */
   static inline double DF_to_double (object obj) {
     var dfloatjanus t;

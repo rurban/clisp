@@ -1,5 +1,22 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Make KERNELVOID32_HEAPCODES work also on SPARC platforms with GCC,
+	and on Linux/mipsn32 (even with GENERATIONAL_GC).
+	* lispbibl.d: On Linux/sparc, NetBSD/sparc, and Linux/mipsn32, prefer
+	KERNELVOID32_HEAPCODES over ONE_FREE_BIT_HEAPCODES.
+	(KERNELVOID32_HEAPCODES_WORKS): Update values.
+	(_attribute_in_misaligned_varobjects_): New macro.
+	(dfloatjanus, dfloat_): Use it.
+	* stream.d (strm_buffered_extrafields_t,
+	strm_i_buffered_extrafields_t): Likewise.
+	* dfloat.d (DF_to_double): No need to define as an inline function when
+	GCC is in use.
+	* Makefile.devel (multibuild-linux-sparc, multibuild-netbsd-sparc,
+	multibuild-solaris-sparc-gcc): Depend on
+	build-porting32-gcc-kernelvoid32_heapcodes.
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Fix crashes due to sp_jmp_buf objects going out of scope too early.
 	* stream.d (MAYBE_IGNORE_ERRORS): Extend scope of 'returner'. (Bug
 	introduced on 2010-06-15.)
