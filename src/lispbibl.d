@@ -4969,7 +4969,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
             #define oint_type_len 9
             #define oint_addr_mask 0xC01FFFFFFFFFFFFFUL
             #define garcol_bit_o 60
-            /* Error "Return value of malloc() = 800000010005cf10 is not compatible with type code distribution." */
+            /* Crashes mentioning #<ADDRESS #x80000001000402A0>, which is indeed an
+               address without typecode. cc apparently miscompiles some use of the
+               type_pointer_object macro, even when no optimization is enabled. */
             #define TYPECODES_WITH_MALLOC_WORKS 0
           #endif
           #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 */
