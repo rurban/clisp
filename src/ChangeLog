@@ -1,5 +1,14 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Enable some more build variants on Linux/hppa.
+	* lispbibl.d: On Linux/hppa, choose HEAPCODES by default, not
+	TYPECODES. But don't choose KERNELVOID32_HEAPCODES by default.
+	(HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS, HEAPCODES1BIT_WITH_MALLOC_WORKS):
+	Update value for Linux/hppa.
+	(multibuild-linux-hppa): Enable the HEAPCODES builds that work.
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Make KERNELVOID32_HEAPCODES work also on SPARC platforms with GCC,
 	and on Linux/mipsn32 (even with GENERATIONAL_GC).
 	* lispbibl.d: On Linux/sparc, NetBSD/sparc, and Linux/mipsn32, prefer
