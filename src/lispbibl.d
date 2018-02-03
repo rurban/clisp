@@ -3666,12 +3666,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          - Except that on Linux/arm (with gcc-4.8.4) HEAPCODES produces the error
            "PSEUDOCODE_ALIGNMENT is not fulfilled", despite -falign-functions=4.
            It works with gcc-4.9.2.
-         - Similarly on Linux/hppa (with gcc-5.4) HEAPCODES produces the error
-           "PSEUDOCODE_ALIGNMENT is not fulfilled", despite -falign-functions=4.
          - On Linux/m68k (with gcc-5.4), nearly all HEAPCODES variants crash.
          Choose HEAPCODES whenever it will work. */
       #if (defined(UNIX_LINUX) && defined(ARM) && __GNUC__ == 4 && __GNUC_MINOR__ == 8) \
-          || (defined(UNIX_LINUX) && defined(HPPA)) \
           || (defined(UNIX_LINUX) && defined(M68K))
         /* On these platforms, HEAPCODES does not work. */
         #define TYPECODES
@@ -3896,7 +3893,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
         #define ONE_FREE_BIT_HEAPCODES
-      #elif (defined(UNIX_LINUX) && defined(M68K)) \
+      #elif (defined(UNIX_LINUX) && defined(HPPA)) \
+            || (defined(UNIX_LINUX) && defined(M68K)) \
             || (defined(UNIX_CYGWIN) && defined(I80386))
         /* On these platforms, KERNELVOID32_HEAPCODES does not work. */
         #define ONE_FREE_BIT_HEAPCODES
@@ -3952,16 +3950,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
-        /* Without -static:
-           Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
-        /* With -static: */
-        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0 /* even without GENERATIONAL_GC */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only without GENERATIONAL_GC */
         #if !defined(TRIVIALMAP_MEMORY)
           /* Avoid error
              "STACK range (around 0xf65ff080) contains the bit used to identify frames". */
           #define garcol_bit_o 27
         #endif
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
