@@ -1,7 +1,7 @@
 /*
  * Functions for records and structures in CLISP
- * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Bruno Haible 1990-2005, 2017-2018
+ * Sam Steingold 1998-2008, 2011
  * German comments translated into English: Stefan Kain 2002-04-16
  */
 #include "lispbibl.c"
@@ -1440,138 +1440,138 @@ global maygc object update_instance (object user_obj, object obj) {
     var gcv_object_t* top_of_frame = STACK;
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(UNWIND_PROTECT,returner,, goto clean_up; );
-  }
-  record_flags_set(TheInstance(obj),instflags_beingupdated_B);
-  {do {
-    pushSTACK(obj);
-    var object cv = TheInstance(obj)->inst_class_version;
-    /* We know that the next class is already finalized before
-     TheInstance(obj)->inst_class_version is filled. */
-    {
-      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      if (!eq(TheClass(newclass)->initialized,fixnum(6)))
-        NOTREACHED;
-    }
-    /* Compute the information needed for the update, if not already done. */
-    if (nullp(TheClassVersion(cv)->cv_slotlists_valid_p)) {
-      /* Invoke (CLOS::CLASS-VERSION-COMPUTE-SLOTLISTS cv): */
-      pushSTACK(cv); funcall(S(class_version_compute_slotlists),1);
-      obj = STACK_0;
-      cv = TheInstance(obj)->inst_class_version;
-      ASSERT(!nullp(TheClassVersion(cv)->cv_slotlists_valid_p));
-    }
-    pushSTACK(TheClassVersion(cv)->cv_added_slots);
-    pushSTACK(TheClassVersion(cv)->cv_discarded_slots);
-    /* Fetch the values of the local slots that are discarded. */
-    {
-      var uintV max_local_slots = posfixnum_to_V(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
-      get_space_on_STACK(2*max_local_slots);
-      var object plist = TheClassVersion(cv)->cv_discarded_slot_locations;
-      var uintL count = 0;
-      while (consp(plist)) {
-        var object slotname = Car(plist);
-        plist = Cdr(plist);
-        var object slotinfo = Car(plist);
-        plist = Cdr(plist);
-        ASSERT(atomp(slotinfo));
-        var object value = TheSrecord(obj)->recdata[posfixnum_to_V(slotinfo)];
-        if (!eq(value,unbound)) {
-          pushSTACK(slotname);
-          pushSTACK(value);
-          count += 2;
-        }
-      }
-      plist = listof(count);
-      pushSTACK(plist);
-    }
-    obj = STACK_3;
-    cv = TheInstance(obj)->inst_class_version;
-    /* Fetch the values of the slots that remain local or were shared and
-     become local. These values are retained. */
-    var uintL kept_slots;
-    {
-      var object oldclass = TheClassVersion(cv)->cv_class;
-      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      var uintV max_local_slots = posfixnum_to_V(TheClass(newclass)->instance_size);
-      get_space_on_STACK(2*max_local_slots);
-      var object plist = TheClassVersion(cv)->cv_kept_slot_locations;
-      var uintL count = 0;
-      while (consp(plist)) {
-        var object old_slotinfo = Car(plist);
-        plist = Cdr(plist);
-        var object new_slotinfo = Car(plist);
-        plist = Cdr(plist);
-        var object value =
-          (atomp(old_slotinfo)
-           /* local slot, old_slotinfo is index */
-           ? TheSrecord(obj)->recdata[posfixnum_to_V(old_slotinfo)]
-           /* shared slot, old_slotinfo is (class . index) */
-           : TheSvector(TheClassVersion(Car(old_slotinfo))->cv_shared_slots)
-               ->data[posfixnum_to_V(Cdr(old_slotinfo))]);
-        if (!eq(value,unbound)) {
-          pushSTACK(value);
-          pushSTACK(new_slotinfo);
-          count++;
-        }
-      }
-      kept_slots = count;
-    }
-    /* STACK layout: user-obj, UNWIND-PROTECT frame,
-                   obj, added-slots, discarded-slots, propertylist,
-                   {old-value, new-slotinfo}*kept_slots.
-     ANSI CL 4.3.6.1. Modifying the Structure of Instances */
-    {
-      var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)) or
-         (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE newclass (class-instance-size newclass)): */
-      pushSTACK(newclass); pushSTACK(TheClass(newclass)->instance_size);
-      if (nullp(TheClass(newclass)->funcallablep))
-        C_allocate_std_instance();
-      else
-        C_allocate_funcallable_instance();
-    }
-    obj = value1;
     record_flags_set(TheInstance(obj),instflags_beingupdated_B);
-    { /* Turn user-obj into a forward-pointer (see the instance_un_realloc
-         macro): */
-      set_break_sem_1(); /* forbid interrupts */
-      var Instance ptr = TheInstance(STACK_(2+4+2*kept_slots));
-      record_flags_set(ptr,instflags_forwarded_B);
-      ptr->inst_class_version = obj;
-      clr_break_sem_1(); /* permit interrupts again */
-    }
-    ASSERT(Record_flags(STACK_(2+4+2*kept_slots)) & instflags_forwarded_B);
-    dotimesL(kept_slots,kept_slots, {
-      var object new_slotinfo = popSTACK();
-      ASSERT(atomp(new_slotinfo));
-      TheSrecord(obj)->recdata[posfixnum_to_V(new_slotinfo)] = popSTACK();
-    });
-    STACK_3 = STACK_(2+4);
-    /* STACK layout: user-obj, UNWIND-PROTECT frame,
-                   user-obj, added-slots, discarded-slots, propertylist.
-     ANSI CL 4.3.6.2. Initializing Newly Added Local Slots */
-    funcall(S(update_instance_frc),4);
-    /* STACK layout: user-obj, UNWIND-PROTECT frame. */
-    obj = STACK_2;
+    do {
+      pushSTACK(obj);
+      var object cv = TheInstance(obj)->inst_class_version;
+      /* We know that the next class is already finalized before
+         TheInstance(obj)->inst_class_version is filled. */
+      {
+        var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+        if (!eq(TheClass(newclass)->initialized,fixnum(6)))
+          NOTREACHED;
+      }
+      /* Compute the information needed for the update, if not already done. */
+      if (nullp(TheClassVersion(cv)->cv_slotlists_valid_p)) {
+        /* Invoke (CLOS::CLASS-VERSION-COMPUTE-SLOTLISTS cv): */
+        pushSTACK(cv); funcall(S(class_version_compute_slotlists),1);
+        obj = STACK_0;
+        cv = TheInstance(obj)->inst_class_version;
+        ASSERT(!nullp(TheClassVersion(cv)->cv_slotlists_valid_p));
+      }
+      pushSTACK(TheClassVersion(cv)->cv_added_slots);
+      pushSTACK(TheClassVersion(cv)->cv_discarded_slots);
+      /* Fetch the values of the local slots that are discarded. */
+      {
+        var uintV max_local_slots = posfixnum_to_V(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
+        get_space_on_STACK(2*max_local_slots);
+        var object plist = TheClassVersion(cv)->cv_discarded_slot_locations;
+        var uintL count = 0;
+        while (consp(plist)) {
+          var object slotname = Car(plist);
+          plist = Cdr(plist);
+          var object slotinfo = Car(plist);
+          plist = Cdr(plist);
+          ASSERT(atomp(slotinfo));
+          var object value = TheSrecord(obj)->recdata[posfixnum_to_V(slotinfo)];
+          if (!eq(value,unbound)) {
+            pushSTACK(slotname);
+            pushSTACK(value);
+            count += 2;
+          }
+        }
+        plist = listof(count);
+        pushSTACK(plist);
+      }
+      obj = STACK_3;
+      cv = TheInstance(obj)->inst_class_version;
+      /* Fetch the values of the slots that remain local or were shared and
+         become local. These values are retained. */
+      var uintL kept_slots;
+      {
+        var object oldclass = TheClassVersion(cv)->cv_class;
+        var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+        var uintV max_local_slots = posfixnum_to_V(TheClass(newclass)->instance_size);
+        get_space_on_STACK(2*max_local_slots);
+        var object plist = TheClassVersion(cv)->cv_kept_slot_locations;
+        var uintL count = 0;
+        while (consp(plist)) {
+          var object old_slotinfo = Car(plist);
+          plist = Cdr(plist);
+          var object new_slotinfo = Car(plist);
+          plist = Cdr(plist);
+          var object value =
+            (atomp(old_slotinfo)
+             /* local slot, old_slotinfo is index */
+             ? TheSrecord(obj)->recdata[posfixnum_to_V(old_slotinfo)]
+             /* shared slot, old_slotinfo is (class . index) */
+             : TheSvector(TheClassVersion(Car(old_slotinfo))->cv_shared_slots)
+                 ->data[posfixnum_to_V(Cdr(old_slotinfo))]);
+          if (!eq(value,unbound)) {
+            pushSTACK(value);
+            pushSTACK(new_slotinfo);
+            count++;
+          }
+        }
+        kept_slots = count;
+      }
+      /* STACK layout: user-obj, UNWIND-PROTECT frame,
+                     obj, added-slots, discarded-slots, propertylist,
+                     {old-value, new-slotinfo}*kept_slots.
+         ANSI CL 4.3.6.1. Modifying the Structure of Instances */
+      {
+        var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
+        /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)) or
+           (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE newclass (class-instance-size newclass)): */
+        pushSTACK(newclass); pushSTACK(TheClass(newclass)->instance_size);
+        if (nullp(TheClass(newclass)->funcallablep))
+          C_allocate_std_instance();
+        else
+          C_allocate_funcallable_instance();
+      }
+      obj = value1;
+      record_flags_set(TheInstance(obj),instflags_beingupdated_B);
+      { /* Turn user-obj into a forward-pointer (see the instance_un_realloc
+           macro): */
+        set_break_sem_1(); /* forbid interrupts */
+        var Instance ptr = TheInstance(STACK_(2+4+2*kept_slots));
+        record_flags_set(ptr,instflags_forwarded_B);
+        ptr->inst_class_version = obj;
+        clr_break_sem_1(); /* permit interrupts again */
+      }
+      ASSERT(Record_flags(STACK_(2+4+2*kept_slots)) & instflags_forwarded_B);
+      dotimesL(kept_slots,kept_slots, {
+        var object new_slotinfo = popSTACK();
+        ASSERT(atomp(new_slotinfo));
+        TheSrecord(obj)->recdata[posfixnum_to_V(new_slotinfo)] = popSTACK();
+      });
+      STACK_3 = STACK_(2+4);
+      /* STACK layout: user-obj, UNWIND-PROTECT frame,
+                       user-obj, added-slots, discarded-slots, propertylist.
+         ANSI CL 4.3.6.2. Initializing Newly Added Local Slots */
+      funcall(S(update_instance_frc),4);
+      /* STACK layout: user-obj, UNWIND-PROTECT frame. */
+      obj = STACK_2;
+      instance_un_realloc(obj);
+    } while (!instance_valid_p(obj));
+    record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
+    skipSTACK(1+2); /* unwind UNWIND-PROTECT frame, drop user-obj */
+   #if STACKCHECKS || STACKCHECKC
+    if (saved_stack != STACK) abort();
+   #endif
+    return obj;
+   clean_up: {
+    var restartf_t fun = unwind_protect_to_save.fun;
+    var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
+    skipSTACK(2); /* unwind UNWIND-PROTECT frame */
+    /* Mark the instance update as being terminated. */
+    obj = STACK_0;
     instance_un_realloc(obj);
-  } while (!instance_valid_p(obj));}
-  record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
-  skipSTACK(1+2); /* unwind UNWIND-PROTECT frame, drop user-obj */
- #if STACKCHECKS || STACKCHECKC
-  if (saved_stack != STACK) abort();
- #endif
-  return obj;
- clean_up: {
-  var restartf_t fun = unwind_protect_to_save.fun;
-  var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
-  skipSTACK(2); /* unwind UNWIND-PROTECT frame */
-  /* Mark the instance update as being terminated. */
-  obj = STACK_0;
-  instance_un_realloc(obj);
-  record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
-  fun(arg); /* jump further */
-  NOTREACHED;
- }
+    record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
+    fun(arg); /* jump further */
+    NOTREACHED;
+   }
+  }
 }
 
 /* UP: check keywords, cf. SYSTEM::KEYWORD-TEST
