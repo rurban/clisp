@@ -4054,8 +4054,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if defined(UNIX_HPUX) && defined(HPPA) /* HP-UX/hppa with 32-bit ABI */
         /* Does not work because mmap MAP_FIXED is not supported on this platform. */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
-        /* Error "PSEUDOCODE_ALIGNMENT is not fulfilled." */
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
         /* Does not work because mmap MAP_FIXED is not supported on this platform. */
