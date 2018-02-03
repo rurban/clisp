@@ -7199,6 +7199,9 @@ else
   HAVE_SYS_LOADAVG_H=0
 fi
 ac_fn_c_check_decl "$LINENO" "getloadavg" "ac_cv_have_decl_getloadavg" "#if HAVE_SYS_LOADAVG_H
+    /* OpenIndiana has a bug: <sys/time.h> must be included before
+       <sys/loadavg.h>.  */
+    # include <sys/time.h>
     # include <sys/loadavg.h>
     #endif
     #include <stdlib.h>

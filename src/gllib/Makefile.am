@@ -746,7 +746,7 @@ EXTRA_libgnu_a_SOURCES += malloc.c
 
 libgnu_a_SOURCES += malloca.c
 
-EXTRA_DIST += malloca.h malloca.valgrind
+EXTRA_DIST += malloca.h
 
 ## end   gnulib module malloca
 

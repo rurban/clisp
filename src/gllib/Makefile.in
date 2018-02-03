@@ -1164,20 +1164,20 @@ EXTRA_DIST = accept.c w32sock.h alloca.c alloca.in.h arpa_inet.in.h \
 	libunistring.valgrind limits.in.h listen.c w32sock.h \
 	config.charset ref-add.sin ref-del.sin locale.in.h \
 	localeconv.c localtime-buffer.c localtime-buffer.h lstat.c \
-	malloc.c malloca.h malloca.valgrind mbrtowc.c mbsinit.c \
-	mbsrtowcs-impl.h mbsrtowcs-state.c mbsrtowcs.c mbtowc-impl.h \
-	mbtowc.c memchr.c memchr.valgrind mkdtemp.c mkfifo.c mknod.c \
-	mkstemp.c mktime-internal.h mktime.c mktime-internal.h \
-	mktime.c msvc-inval.c msvc-inval.h msvc-nothrow.c \
-	msvc-nothrow.h netinet_in.in.h nl_langinfo.c noreturn.h \
-	strftime.h pathmax.h readlink.c recv.c w32sock.h recvfrom.c \
-	w32sock.h regcomp.c regex.c regex.h regex_internal.c \
-	regex_internal.h regexec.c select.c send.c w32sock.h sendto.c \
-	w32sock.h setenv.c setsockopt.c w32sock.h shutdown.c w32sock.h \
-	signal.in.h _Noreturn.h arg-nonnull.h c++defs.h warn-on-use.h \
-	socket.c w32sock.h w32sock.h stat-w32.c stat-w32.h stat.c \
-	stat-time.h stdalign.in.h stdbool.in.h stddef.in.h stdint.in.h \
-	stdlib.in.h strcasecmp.c strncasecmp.c strdup.c streq.h \
+	malloc.c malloca.h mbrtowc.c mbsinit.c mbsrtowcs-impl.h \
+	mbsrtowcs-state.c mbsrtowcs.c mbtowc-impl.h mbtowc.c memchr.c \
+	memchr.valgrind mkdtemp.c mkfifo.c mknod.c mkstemp.c \
+	mktime-internal.h mktime.c mktime-internal.h mktime.c \
+	msvc-inval.c msvc-inval.h msvc-nothrow.c msvc-nothrow.h \
+	netinet_in.in.h nl_langinfo.c noreturn.h strftime.h pathmax.h \
+	readlink.c recv.c w32sock.h recvfrom.c w32sock.h regcomp.c \
+	regex.c regex.h regex_internal.c regex_internal.h regexec.c \
+	select.c send.c w32sock.h sendto.c w32sock.h setenv.c \
+	setsockopt.c w32sock.h shutdown.c w32sock.h signal.in.h \
+	_Noreturn.h arg-nonnull.h c++defs.h warn-on-use.h socket.c \
+	w32sock.h w32sock.h stat-w32.c stat-w32.h stat.c stat-time.h \
+	stdalign.in.h stdbool.in.h stddef.in.h stdint.in.h stdlib.in.h \
+	strcasecmp.c strncasecmp.c strdup.c streq.h \
 	strerror-override.c strerror-override.h strerror_r.c \
 	string.in.h strings.in.h strptime.c strverscmp.c \
 	sys_ioctl.in.h sys_select.in.h sys_socket.in.h sys_stat.in.h \
