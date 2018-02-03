@@ -3897,9 +3897,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         /* A compiler other than GCC may be used. */
         #define ONE_FREE_BIT_HEAPCODES
       #elif (defined(UNIX_LINUX) && defined(M68K)) \
-            || (defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) && (_MIPS_SIM == _ABIN32)) \
-            || (defined(UNIX_LINUX) && defined(SPARC)) \
-            || (defined(UNIX_NETBSD) && defined(SPARC)) \
             || (defined(UNIX_CYGWIN) && defined(I80386))
         /* On these platforms, KERNELVOID32_HEAPCODES does not work. */
         #define ONE_FREE_BIT_HEAPCODES
@@ -4353,7 +4350,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */
         #define KERNELVOID32_HEAPCODES_WORKS 1
       #else /* Linux/mips with n32 ABI */
-        #define KERNELVOID32_HEAPCODES_WORKS 0
+        #define KERNELVOID32_HEAPCODES_WORKS 1
       #endif
     #endif
     #if defined(UNIX_LINUX) && defined(POWERPC) /* Linux/powerpc64 with 32-bit ABI */
@@ -4363,7 +4360,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_LINUX) && defined(SPARC) /* Linux/sparc64 with 32-bit ABI */
-      #define KERNELVOID32_HEAPCODES_WORKS 0
+      #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
       #define KERNELVOID32_HEAPCODES_WORKS 1
@@ -4375,7 +4372,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_NETBSD) && defined(SPARC) /* NetBSD/sparc */
-      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+      #define KERNELVOID32_HEAPCODES_WORKS 1 /* without GENERATIONAL_GC */
     #endif
     #if defined(UNIX_OPENBSD) && defined(I80386) /* OpenBSD/i386 */
       #define KERNELVOID32_HEAPCODES_WORKS 1
@@ -4409,7 +4406,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_SUNOS5) && defined(SPARC) /* Solaris/sparc64 with 32-bit ABI */
-      #define KERNELVOID32_HEAPCODES_WORKS 0
+      #define KERNELVOID32_HEAPCODES_WORKS 0 /* 1 with gcc, 0 with cc */
     #endif
     #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
       /* Works fine without TRIVIALMAP_MEMORY.
@@ -5671,7 +5668,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* The misalignment of varobjects, modulo varobject_alignment. */
       #define varobjects_misaligned  4
 
-    /* For masking out the nonimmediate biases. */
+    /* For masking out the nonimmediate biases.
+       nonimmediate_bias_mask must be <= sizeof(gcv_object_t)-1, due to the way
+       gc_mark works. */
       #define nonimmediate_bias_mask  3
       #define nonimmediate_heapcode_mask  7
 
@@ -5933,8 +5932,23 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 %% export_def(varobjects_misaligned);
 %% export_def(VAROBJECTS_ALIGNMENT_DUMMY_DECL);
+/* If varobjects are misaligned, fields of varobjects must be aligned on 4-byte
+   boundaries only, even if they are of type 'double' or 'uint64'. This is
+   necessary for KERNELVOID32_HEAPCODES on Linux/sparc and NetBSD/sparc. */
+#if defined(GNU) && varobjects_misaligned
+  #define _attribute_in_misaligned_varobjects_ __attribute__ ((packed, aligned (4)))
+#else
+  #define _attribute_in_misaligned_varobjects_
+#endif
+%% #if defined(GNU) && varobjects_misaligned
+%%   #define attribute_in_misaligned_varobjects " __attribute__ ((packed, aligned (4)))"
+%% #else
+%%   #define attribute_in_misaligned_varobjects ""
+%% #endif
 
-/* The misalignment of conses, modulo 2*sizeof(gcv_object_t). */
+/* The misalignment of conses, modulo 2*sizeof(gcv_object_t).
+   Note: It is more efficient w.r.t. to the data cache to misalign the
+   varobjects than the conses. */
 #ifndef conses_misaligned
   #define conses_misaligned  0
 #endif
@@ -7976,14 +7990,14 @@ typedef /* 64-Bit-Float in IEEE-format: */
         #endif
   dfloat;
 typedef union {
-  dfloat eksplicit;      /* Value, explicit */
+  dfloat eksplicit _attribute_in_misaligned_varobjects_; /* Value, explicit */
   #ifdef FAST_DOUBLE
-  double machine_double; /* Value, as C-'double' */
+  double machine_double _attribute_in_misaligned_varobjects_; /* Value, as C-'double' */
   #endif
 } dfloatjanus;
 typedef struct {
   VAROBJECT_HEADER            /* self-pointer for GC */
-  dfloatjanus representation; /* value */
+  dfloatjanus representation _attribute_in_misaligned_varobjects_; /* value */
 } dfloat_;
 typedef dfloat_ *  Dfloat;
 %% #ifdef intQsize
@@ -7996,9 +8010,11 @@ typedef dfloat_ *  Dfloat;
 %%   #endif
 %% #endif
 %% #ifdef FAST_DOUBLE
-%%   emit_typedef("union { dfloat eksplicit; double machine_double; }","dfloatjanus");
+%%   sprintf(buf,"union { dfloat eksplicit%s; double machine_double%s; }",attribute_in_misaligned_varobjects,attribute_in_misaligned_varobjects);
+%%   emit_typedef(buf,"dfloatjanus");
 %% #else
-%%   emit_typedef("union { dfloat eksplicit; }","dfloatjanus");
+%%   sprintf(buf,"union { dfloat eksplicit%s; }",attribute_in_misaligned_varobjects);
+%%   emit_typedef(buf,"dfloatjanus");
 %% #endif
 
 /* Single- and Double-Floats */
