@@ -1,6 +1,6 @@
 /*
  * Determine some float parameters, much like gcc's "enquire.c".
- * Bruno Haible 1996-08-24, 2002-2008, 2017
+ * Bruno Haible 1996-08-24, 2002-2008, 2017-2018
  * Sam Steingold 2008, 2017
  */
 
@@ -66,7 +66,11 @@ static void mainfn (void)						\
     printf("#define %s_mant_bits %d\n",typeprefix,mant_bits);		\
   }									\
   {									\
-    int i; type x, y1, y2, ys1, ys2, z1, z2, zs1, zs2;			\
+    int i;								\
+    type x, y1, y2;							\
+    volatile type ys1, ys2;						\
+    type z1, z2;							\
+    volatile type zs1, zs2;						\
     x = 1.0; for (i = 0; i < epsilon_bits; i++) x = 0.5*x;		\
     y1 = 1.0 + 5.0*x; y2 = 1.0 + 6.0*x;					\
     ys1 = 1.0 + 5.4*x; ys2 = 1.0 + 5.6*x;				\

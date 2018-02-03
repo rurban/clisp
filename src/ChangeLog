@@ -1,5 +1,11 @@
 2018-02-03  Bruno Haible  <bruno@clisp.org>
 
+	Fix floatparam.h generation failure with gcc 7 on i386.
+	GCC bug report: <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=84190>.
+	* floatparam.c (mainfn): Use 'volatile' in a few more places.
+
+2018-02-03  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".
