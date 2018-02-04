@@ -156,7 +156,7 @@
  */
 
 /* this machine: WIN32 or GENERIC_UNIX */
-#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__) || defined(__HAIKU__)) && !defined(unix)
+#if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__BEOS__) || defined(__HAIKU__) || defined(__minix)) && !defined(unix)
   #define unix
 #endif
 #if defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))
@@ -319,6 +319,9 @@
   #endif
   #ifdef __HAIKU__
     #define UNIX_HAIKU  /* Haiku (a BeOS derivative) */
+  #endif
+  #ifdef __minix
+    #define UNIX_MINIX  /* Minix 3 */
   #endif
 #endif
 %% #ifdef WIN32_NATIVE
@@ -2540,6 +2543,18 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x20000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x5FFFFFFFUL
   #endif
+  #if defined(UNIX_MINIX) && defined(I80386)
+    /* On Minix/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL
+       SHLIB_ADDRESS_RANGE  = 0x08000000UL
+       STACK_ADDRESS_RANGE  = 0xEF000000UL
+       There is room from 0x09000000UL to 0xEF000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xDFFFFFFFUL
+  #endif
   #if defined(UNIX_CYGWIN) && defined(I80386)
     /* On Cygwin, running on Windows 10 (64-bit):
        CODE_ADDRESS_RANGE   = 0x00000000UL
@@ -3342,6 +3357,14 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        consumes so many bits that we have at most 5+1 bits for the typecode. */
     #define SINGLEMAP_WORKS 0
   #endif
+  #if defined(UNIX_MINIX) && defined(I80386) /* Minix/i386 */
+    #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
+    #define SINGLEMAP_TYPE_MASK    0x77000000UL
+    #define SINGLEMAP_oint_type_shift 24
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 1
+  #endif
   #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
     #define SINGLEMAP_ADDRESS_BASE 0x80000000UL
     #define SINGLEMAP_TYPE_MASK    0x3F000000UL
@@ -4084,6 +4107,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
+      #if defined(UNIX_MINIX) && defined(I80386) /* Minix/i386 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
       #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
         /* Warns "clisp might crash later" and
            produces messages "Cannot map memory to address". */
@@ -4404,6 +4431,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       /* Works fine without TRIVIALMAP_MEMORY.
          With TRIVIALMAP_MEMORY, sometimes we get repeated messages such as
          "Cannot map memory to address 0x202a8000 ... Invalid Argument" */
+      #define KERNELVOID32_HEAPCODES_WORKS 1
+    #endif
+    #if defined(UNIX_MINIX) && defined(I80386) /* Minix/i386 */
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
@@ -4756,6 +4786,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #if defined(UNIX_HAIKU) && defined(I80386) /* Haiku/i386 */
             #define MAPPABLE_ADDRESS_RANGE_START 0x00010000UL
             #error No way to accommodate 7 type bits, because of CODE_ADDRESS_RANGE.
+          #endif
+          #if defined(UNIX_MINIX) && defined(I80386) /* Minix/i386 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
           #endif
           #if defined(UNIX_CYGWIN) && defined(I80386) /* Cygwin, running on Windows 10 */
             #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL

@@ -1802,6 +1802,9 @@ multibuild-solaris-sparc-gcc: \
 # Haiku/i386
 multibuild-haiku-32: multibuild-porting32-gcc # TODO
 
+# Minix/i386
+multibuild-minix-i386: multibuild-porting32-gcc # TODO
+
 # Cygwin, running on Windows 10 (64-bit)
 multibuild-cygwin-32: multibuild-porting32-gcc # TODO
 

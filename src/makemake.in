@@ -1752,6 +1752,17 @@ else
         XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
+      # Minix/i386
+      minix*--i386) # TODO
+        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
+        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
+        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
+        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+        ;;
+
       # Cygwin, running on Windows 10 (64-bit)
       cygwin--i386) # TODO
         XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
@@ -3511,7 +3522,7 @@ if [ $CROSS = false ] ; then
   echotab "output=\"\`\$(RUN) -q -M lispinit.mem -x '(progn ${RAISE})' ${TRCR}\`\"; test \"\$\$output\" = '*** - myerror' || exit 1"
   echotab "if \$(RUN) -q -M lispinit.mem -x '(progn ${RAISE})'; then exit 1; fi"
   case "$host_os" in
-    aix* | hpux* | beos* | haiku* | mingw*)
+    aix* | hpux* | beos* | haiku* | minix* | mingw*)
       # On these platforms, there is no /dev/fd/1.
       ;;
     *)
