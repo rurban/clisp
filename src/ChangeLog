@@ -1,5 +1,15 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on IRIX mips o32.
+	* Makefile.devel (multibuild-irix-mips-32): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For IRIX with o32 ABI, enable all optimizations
+	except ASM.
+	* lispbibl.d (HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS,
+	HEAPCODES1BIT_WITH_MALLOC_WORKS): Update value for IRIX with o32 ABI.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Fix error "Expecting o32 objects: ari_asm_mips.o is n32" on IRIX.
 	* makemake.in: Compile ari_asm_mips.s with the compiler, not with the
 	assembler.
