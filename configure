@@ -758,7 +758,7 @@ EOF
     libsigsegv_targz=`echo "$libsigsegv_url" | sed -e 's|^.*/||'`
     libsigsegv_dirname=`echo "$libsigsegv_targz" | sed -e 's|\.tar\.gz$||'`
     cat <<EOF 1>&2
-  mkdir prerequisites; cd prerequisites; prefix=\$(pwd)/${ac_cv_host}
+  mkdir prerequisites; cd prerequisites; prefix=\`pwd\`/${ac_cv_host}
   wget ${libsigsegv_url}
   tar xfz ${libsigsegv_targz}
   cd ${libsigsegv_dirname}
@@ -846,7 +846,8 @@ else
   # report results:
   for log in 1 2 3 4 5 # 6
   do
-    echo "Step ${log} "$(sed -n -e '$p' cbcstep${log}.log)
+    stepresult=`sed -n -e '$p' cbcstep${log}.log`
+    echo "Step ${log} ${stepresult}"
   done
   # Fail if one of the commands "make" or "make check" failed.
   # "make extracheck" and "make mod-check" are allowed to fail.

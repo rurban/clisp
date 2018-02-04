@@ -1,5 +1,10 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Fix configure output on IRIX.
+	* configure: Use `...` instead of $(...).
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Minix/i386.
 	* Makefile.devel (multibuild-minix-i386): Enable all build variants
 	that work.
