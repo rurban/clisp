@@ -1,5 +1,13 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on IRIX mips n32.
+	* Makefile.devel (multibuild-irix-mips-n32-cc,
+	multibuild-irix-mips-n32-gcc): Enable all build variants that work.
+	* makemake.in (XCFLAGS): For IRIX with n32 ABI, enable all optimizations
+	except ASM.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Tweak address range allocation with SINGLEMAP_MEMORY on IRIX.
 	* spvw.d (init_memory): Avoid a specific address range on IRIX.
 
