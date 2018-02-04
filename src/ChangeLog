@@ -1,5 +1,11 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Fix error "Expecting o32 objects: ari_asm_mips.o is n32" on IRIX.
+	* makemake.in: Compile ari_asm_mips.s with the compiler, not with the
+	assembler.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on IRIX mips n32.
 	* Makefile.devel (multibuild-irix-mips-n32-cc,
 	multibuild-irix-mips-n32-gcc): Enable all build variants that work.
