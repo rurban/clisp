@@ -1,5 +1,10 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Tweak address range allocation with SINGLEMAP_MEMORY on IRIX.
+	* spvw.d (init_memory): Avoid a specific address range on IRIX.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	rawsock: Fix compilation failure on IRIX with cc.
 	* modules/rawsock/rawsock.c (optional_sockaddr_argument, error_eai):
 	Add braces to avoid declaration-after-statement.

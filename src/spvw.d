@@ -3206,6 +3206,13 @@ local inline int init_memory (struct argv_initparams *p) {
           var Heap* heapptr = &mem.heaps[heapnr];
           var uintP heap_start_addr = (uintP)(type_zero_oint(heapnr)+SINGLEMAP_ADDRESS_BASE);
           var uintP heap_end_addr = (uintP)(type_zero_oint(heapnr+1)+SINGLEMAP_ADDRESS_BASE);
+         #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64))
+          /* Avoid "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings."
+             and   "Warning: reserving address range 0x5e000000...0x5effffff that contains memory mappings." */
+          if (heap_end_addr == 0x60000000UL || heap_end_addr == 0x5F000000UL) {
+            heap_end_addr -= 0x800000UL;
+          }
+         #endif
           heapptr->heap_limit = heap_start_addr;
           heapptr->heap_hardlimit = heap_end_addr;
           if (mem.heaptype[heapnr] >= -1) {
