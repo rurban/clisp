@@ -31,6 +31,58 @@ Important notes
   Set CUSTOM:*LOAD-OBSOLETE-ACTION* to :COMPILE to automate this.
   See <http://clisp.org/impnotes/loadfile.html> for details.
 
+Portability
+-----------
+
+This is the first release since 2.33.2 that is supported on a wide range
+of platforms:
+
+  Operating system | CPU/ISA        | ABIs
+  -----------------+----------------+--------------------------------
+  Linux            | x86_64         | 64-bit, 32-bit (i386), x32
+  Linux            | i386           | i386
+  Linux            | ARMv5..ARMv7   | arm, armhf
+  Linux            | ARM64          | 64-bit, 32-bit (arm)
+  Linux            | mips 32-bit    | o32
+  Linux            | mips 64-bit    | 64-bit, n32, o32
+  Linux            | PowerPC 32-bit | 32-bit
+  Linux            | PowerPC 64-bit | 64-bit ELFv2, 64-bit, 32-bit
+  Linux            | S/390 32-bit   | 32-bit
+  Linux            | S/390 64-bit   | 64-bit, 32-bit
+  Linux            | SPARC 32-bit   | 32-bit
+  Linux            | SPARC 64-bit   | 64-bit, 32-bit
+  Linux            | alpha          | alpha
+  Linux            | ia64           | 64-bit
+  Linux            | HPPA           | 32-bit
+  Linux            | m68k           | m68k
+  GNU/Hurd         | i386           | i386
+  GNU/kFreeBSD     | x86_64         | 64-bit
+  FreeBSD          | x86_64         | 64-bit
+  FreeBSD          | i386           | i386
+  FreeBSD          | ARM64          | 64-bit
+  DragonFly        | i386           | i386
+  NetBSD           | x86_64         | 64-bit
+  NetBSD           | i386           | i386
+  NetBSD           | SPARC 32-bit   | 32-bit
+  OpenBSD          | x86_64         | 64-bit
+  OpenBSD          | i386           | i386
+  Mac OS X         | x86_64         | 64-bit, 32-bit (i386), PowerPC
+  Mac OS X         | PowerPC 32-bit | 32-bit
+  AIX 7            | POWER 64-bit   | 64-bit, 32-bit
+  HP-UX 11         | HPPA 64-bit    | 64-bit, 32-bit
+  HP-UX 11         | IA64           | 64-bit, 32-bit
+  IRIX 6.5         | MIPS 64-bit    | n32, o32
+  Solaris 10, 11   | x86_64         | 64-bit, 32-bit (i386)
+  Solaris 10       | SPARC 64-bit   | 64-bit, 32-bit
+  Haiku            | i386           | i386
+  Minix 3          | i386           | i386
+  Windows 10       | x86_64         | Linux/x86_64 (WSL)
+  Windows          | x86_64         | Cygwin 64-bit, Cygwin 32-bit
+  Windows          | i386           | Cygwin 32-bit
+
+The Foreign Function Interface (FFI) is now supported as well, on all of these
+platforms  (except HP-UX/HPPA), through libffcall-2.0.
+
 User visible changes
 --------------------
 
