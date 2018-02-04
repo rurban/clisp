@@ -4086,8 +4086,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #endif
       #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
         #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
-          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
-          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
         #else /* IRIX 6.5 with n32 ABI */
           #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
           #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
