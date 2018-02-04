@@ -3083,9 +3083,6 @@ for f in $ARI_ASMS $SP_ASMS ; do
     if [ $f = ari_asm_hppa ] ; then
       # Only the native as groks the .SHORTDATA statements in ari_asm_hppa.d
       echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
-    elif [ $f = ari_asm_mips -a "$TSYSOS" != linux ] ; then
-      # Avoid problem during incremental linking of lisp.o.
-      echotab "/bin/as -KPIC ${f}.s -o ${f}${TOBJ} || /usr/ccs/bin/as -KPIC ${f}.s -o ${f}${TOBJ}"
     elif [ $XCC_GCC = true ] ; then
       echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
     else
