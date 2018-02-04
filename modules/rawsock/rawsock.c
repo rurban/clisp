@@ -717,11 +717,12 @@ static /*maygc*/ struct sockaddr* optional_sockaddr_argument
   if (nullp(*arg)) return NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
-    struct sockaddr* sa =
-      (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,
-                                          arg,size,PROT_READ_WRITE);
-    pin_varobject_with_pc(pcv,*arg);
-    return sa;
+    { struct sockaddr* sa =
+        (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,
+                                            arg,size,PROT_READ_WRITE);
+      pin_varobject_with_pc(pcv,*arg);
+      return sa;
+    }
   }
 }
 #if defined(MULTITHREAD)
@@ -815,18 +816,20 @@ DEFCHECKER(check_gai_ecode,prefix=EAI,default=,AGAIN BADFLAGS FAIL FAMILY \
 #endif
 static _Noreturn void error_eai (int ecode) {
   begin_system_call();
+  {
 #if defined(HAVE_GAI_STRERROR) || defined(WIN32_NATIVE)
-  const char* msg = gai_strerror_f(ecode);
+    const char* msg = gai_strerror_f(ecode);
 #else
-  const char* msg = strerror(ecode);
+    const char* msg = strerror(ecode);
 #endif
-  end_system_call();
-  pushSTACK(`RAWSOCK::EAI`);    /* error type */
-  pushSTACK(S(Kcode)); pushSTACK(check_gai_ecode_reverse(ecode));
-  pushSTACK(`:MESSAGE`); pushSTACK(safe_to_string(msg));
-  funcall(S(make_instance),5);
-  pushSTACK(value1); funcall(S(error),1);
-  NOTREACHED;
+    end_system_call();
+    pushSTACK(`RAWSOCK::EAI`);    /* error type */
+    pushSTACK(S(Kcode)); pushSTACK(check_gai_ecode_reverse(ecode));
+    pushSTACK(`:MESSAGE`); pushSTACK(safe_to_string(msg));
+    funcall(S(make_instance),5);
+    pushSTACK(value1); funcall(S(error),1);
+    NOTREACHED;
+  }
 }
 
 #if defined(HAVE_GETNAMEINFO) || defined(WIN32_NATIVE)

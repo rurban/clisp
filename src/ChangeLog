@@ -1,5 +1,11 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	rawsock: Fix compilation failure on IRIX with cc.
+	* modules/rawsock/rawsock.c (optional_sockaddr_argument, error_eai):
+	Add braces to avoid declaration-after-statement.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Fix configure output on IRIX.
 	* configure: Use `...` instead of $(...).
 
