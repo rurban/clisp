@@ -1,5 +1,13 @@
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Minix/i386.
+	* Makefile.devel (multibuild-minix-i386): Enable all build variants
+	that work.
+	* makemake.in (XCFLAGS): For Minix/i386, enable all optimizations
+	except ASM.
+
+2018-02-04  Bruno Haible  <bruno@clisp.org>
+
 	Add support for Minix.
 	* lispbibl.d: On Minix, define 'unix' and UNIX_MINIX. Define the
 	object representation parameters.

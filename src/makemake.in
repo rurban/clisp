@@ -1753,14 +1753,8 @@ else
         ;;
 
       # Minix/i386
-      minix*--i386) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+      minix*--i386)
+        XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
       # Cygwin, running on Windows 10 (64-bit)
