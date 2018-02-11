@@ -1260,7 +1260,7 @@ typedef signed int  signean;
 /* A more precise classification of the operating system:
  (This test works only after at least one system header has been included.) */
 #if (__GLIBC__ >= 2)
-  #define UNIX_GNU /* glibc2 (may be UNIX_LINUX, UNIX_HURD or UNIX_FREEBSD) */
+  #define UNIX_GNU /* glibc2 (may be UNIX_LINUX, UNIX_HURD or UNIX_GNU_FREEBSD) */
 #endif
 
 /* Determine the offset of a component 'ident' in a struct of the type 'type':
@@ -2329,11 +2329,17 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x18000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
   #endif
-  #if defined(__FreeBSD__) && defined(I80386)
+  #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD)) && defined(I80386)
     /* On FreeBSD/i386:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x08000000UL
        MALLOC_ADDRESS_RANGE = 0x28000000UL
+       SHLIB_ADDRESS_RANGE  = 0x28000000UL
+       STACK_ADDRESS_RANGE  = 0xBF000000UL
+       On GNU/kFreeBSD/i386:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL
        SHLIB_ADDRESS_RANGE  = 0x28000000UL
        STACK_ADDRESS_RANGE  = 0xBF000000UL
        There is room from 0x29000000UL to 0xBF000000UL, but let's keep some
@@ -3231,7 +3237,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        use of the memory region at 0x09000000UL. */
     #define SINGLEMAP_WORKS 0
   #endif
-  #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+  #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, GNU/kFreeBSD/i386, DragonFly/i386 */
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
     #define SINGLEMAP_TYPE_MASK    0x77000000UL
     #define SINGLEMAP_oint_type_shift 24
@@ -4036,7 +4042,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
-      #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+      #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, GNU/kFreeBSD/i386, DragonFly/i386 */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
@@ -4384,7 +4390,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
-    #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+    #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, GNU/kFreeBSD/i386, DragonFly/i386 */
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
@@ -4734,7 +4740,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #if defined(UNIX_HURD) && defined(I80386) /* Hurd/i386 */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
           #endif
-          #if (defined(__FreeBSD__) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, DragonFly/i386 */
+          #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD) || defined(__DragonFly__)) && defined(I80386) /* FreeBSD/i386, GNU/kFreeBSD/i386, DragonFly/i386 */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
           #endif
           #if defined(UNIX_NETBSD) && defined(I80386) /* NetBSD/i386 */
