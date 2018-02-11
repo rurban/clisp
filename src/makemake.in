@@ -1659,6 +1659,11 @@ else
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
+      # GNU/kFreeBSD/i386
+      kfreebsd*-gnu*--i386)
+        XCFLAGS="$XCFLAGS -DNO_ASM"
+        ;;
+
       # DragonFly/i386
       dragonfly*--i386)
         XCFLAGS="$XCFLAGS -DNO_ASM"

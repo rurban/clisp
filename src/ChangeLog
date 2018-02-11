@@ -1,5 +1,13 @@
 2018-02-11  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on GNU/kFreeBSD/i386.
+	* Makefile.devel (multibuild-freebsd-gnu-i386): New target, depending on
+	all build variants that work.
+	* makemake.in (XCFLAGS): For GNU/kFreeBSD/i386, enable all optimizations
+	except ASM.
+
+2018-02-11  Bruno Haible  <bruno@clisp.org>
+
 	Add support for GNU/kFreeBSD on i386.
 	* lispbibl.d: Treat GNU/kFreeBSD/i386 like FreeBSD/i386.
 
