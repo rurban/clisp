@@ -16,6 +16,11 @@ global maygc off_t savemem (object stream, uintL executable);
  This overwrites all Lisp data. */
 local void loadmem (const char* filename);
 
+/* load the memory image from the currently running executable
+ return 0 on success
+    and 1 on error (when the executable does not contain a memory image) */
+local int loadmem_from_executable (void);
+
 /* --------------------------- Implementation --------------------------- */
 
 /* Flags, that influence the format of a MEM-file: */
@@ -212,6 +217,64 @@ typedef struct {
   #define READ_page_alignment(position)
 #endif
 
+/* fill the header's constant slots, excluding _dumptime & _dumphost
+ > memdump_header_t *header: filled
+ return the total size of all module names */
+local uintL fill_memdump_header (memdump_header_t *header) {
+  var uintL module_names_size;
+  memset(header,0,sizeof(*header));
+  header->_magic = memdump_magic;
+  header->_memflags = memflags;
+  header->_oint_type_mask = oint_type_mask;
+  header->_oint_addr_mask = oint_addr_mask;
+ #ifdef TYPECODES
+  header->_cons_type    = cons_type;
+  header->_complex_type = complex_type;
+  header->_symbol_type  = symbol_type;
+  header->_system_type  = system_type;
+ #endif
+  header->_varobject_alignment = varobject_alignment;
+  header->_hashtable_length = hashtable_length;
+  header->_pathname_length = pathname_length;
+  header->_intDsize = intDsize;
+  header->_module_count = module_count;
+  {
+    var module_t* module;
+    module_names_size = 0;
+    for_modules(all_modules, {
+      module_names_size += asciz_length(module->name)+1;
+    });
+    module_names_size = round_up(module_names_size,varobject_alignment);
+  }
+  header->_module_names_size = module_names_size;
+  header->_fsubr_count     = fsubr_count;
+  header->_pseudofun_count = pseudofun_count;
+ #if !defined(OLD_GC) && defined(MULTITHREAD)
+  header->_per_thread_symvalues_count = num_symvalues;
+ #endif
+  header->_symbol_count    = symbol_count;
+  header->_page_alignment = page_alignment;
+  header->_subr_tab_addr   = (aint)(&subr_tab);
+  header->_symbol_tab_addr = (aint)(&symbol_tab);
+ #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
+  #if !defined(GENERATIONAL_GC)
+  header->_mem_varobjects_start = mem.varobjects.heap_start;
+  header->_mem_varobjects_end   = mem.varobjects.heap_end;
+  header->_mem_conses_start     = mem.conses.heap_start;
+  header->_mem_conses_end       = mem.conses.heap_end;
+  #else /* defined(GENERATIONAL_GC) */
+  header->_mem_varobjects_start = mem.varobjects.heap_gen0_start;
+  header->_mem_varobjects_end   = mem.varobjects.heap_gen0_end;
+  header->_mem_conses_start     = mem.conses.heap_gen0_start;
+  header->_mem_conses_end       = mem.conses.heap_gen0_end;
+  #endif
+ #endif
+ #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
+  header->_heapcount = heapcount;
+ #endif
+  return module_names_size;
+}
+
 #if defined(UNIX)
   #define CLOSE_HANDLE CLOSE
 #elif defined(WIN32_NATIVE)
@@ -220,22 +283,46 @@ typedef struct {
   #error define CLOSE_HANDLE for your platform
 #endif
 
-#define WRITE(buf,len)                                                  \
-  do {                                                                  \
-    begin_system_call();                                                \
-    { var ssize_t result = full_write(handle,(void*)buf,len);           \
-      if (result != (ssize_t)(len)) {                                   \
-        end_system_call();                                              \
-        builtin_stream_close(&STACK_0,0);                               \
-        if (result<0) /* error occurred? */                             \
-          { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
-        /* FILE-ERROR slot PATHNAME */                                  \
-        pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
-        error(file_error,GETTEXT("disk full"));                         \
-      }                                                                 \
-    }                                                                   \
-    end_system_call();                                                  \
-  } while(0)
+#if defined(WIN32_NATIVE)
+local Handle open_native_filename (const char* filename)
+{
+  var char resolved[MAX_PATH];
+  return /* try to resolve shell shortcuts in the filename */
+    CreateFile((real_path(filename,resolved) ? resolved : filename),
+               GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+#endif
+local Handle open_filename (const char* filename)
+{ /* open file for reading: */
+ #if defined(UNIX)
+  return OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
+ #elif defined(WIN32_NATIVE)
+  #define CYGDRIVE "/cygdrive/"
+  #define CYGDRIVE_LEN 10
+  #ifdef __MINGW32__
+  if (!strncasecmp(filename,CYGDRIVE,CYGDRIVE_LEN))
+  #else
+  if (!strncmp(filename,CYGDRIVE,CYGDRIVE_LEN)) /* MS lacks strncasecmp */
+  #endif
+    {
+      var uintL len = asciz_length(filename);
+      var DYNAMIC_ARRAY(newfilename,char,len);
+      newfilename[0] = filename[CYGDRIVE_LEN];
+      newfilename[1] = ':';
+      memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
+      var Handle result = open_native_filename(newfilename);
+      FREE_DYNAMIC_ARRAY(newfilename);
+      return result;
+    }
+  #undef CYGDRIVE
+  #undef CYGDRIVE_LEN
+  else
+    return open_native_filename(filename);
+ #else
+  #error missing open_filename()
+ #endif
+}
 
 /* find the marker of given size in the open file handle */
 local size_t find_marker (Handle handle, const char* marker, size_t marker_len)
@@ -260,13 +347,80 @@ local size_t find_marker (Handle handle, const char* marker, size_t marker_len)
   return (size_t)-1;
 }
 
-/* write the executable into the handle */
-local Handle open_filename (const char* filename);
-local void find_memdump (Handle fd);
 /* the size of the runtime executable for executable dumping
    == the start of memory image in the executable */
 static size_t mem_start = (size_t)-1;
 static bool mem_searched = false; /* have we looked for memdump already */
+
+/* find the memory image in the file
+ there are two methods:
+  - the last sizeof(size_t) bytes in the executable are mem_start
+    this method is fast, i.e., O(1): constant time
+ #if defined(LOADMEM_TRY_SEARCH)
+  - find the memdump_header_t inside the file as if by CL:SEARCH
+    this method is expensive, i.e., O(NM) where N is the size of the executable
+    (runtime+image) and M is the size of the header (header_size below);
+    and can increase the startup time by as much as a few seconds
+ #endif
+ Since we always record mem_start in every executable image we write,
+ there is no reason to do the search.
+ If "image size" somehow fails, we want a bug report right away.
+ > fd : the open file descriptor (its position is changed)
+ < set mem_start and mem_searched */
+local void find_memdump (Handle fd) {
+  var memdump_header_t header;
+  var size_t header_size = offsetof(memdump_header_t,_subr_tab_addr);
+  fill_memdump_header(&header);
+  /* "sizeof(size_t)" is unsigned, so "-sizeof(size_t)" is also unsigned,
+     so we need the "(off_t)" cast to pass a negative number to lseek() */
+  if (lseek(fd,-(off_t)sizeof(size_t),SEEK_END) > 0
+      && full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t)
+      && lseek(fd,mem_start,SEEK_SET) == mem_start) {
+    var memdump_header_t header1;
+    full_read(fd,(void*)&header1,header_size);
+   #if !defined(OLD_GC) && defined(MULTITHREAD)
+    /* restore the count of symvalues. this field should not be used for
+       validation by compare */
+    header._per_thread_symvalues_count = header1._per_thread_symvalues_count;
+   #endif
+    if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
+      mem_start = (size_t)-1; /* bad header => no image */
+    }
+  } else {
+   #if defined(LOADMEM_TRY_SEARCH)
+    /* lseek+read does not work ==> use marker */
+    lseek(fd,0,SEEK_SET);
+    mem_start = find_marker(fd,(const char*)&header,header_size);
+    if (mem_start != (size_t)-1)
+      /* image size failed, but header is found -- this is fishy! */
+      fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
+   #else
+    mem_start = (size_t)-1;
+   #endif
+  }
+  mem_searched = true;
+}
+
+/* ================================ SAVEMEM ================================ */
+
+#define WRITE(buf,len)                                                  \
+  do {                                                                  \
+    begin_system_call();                                                \
+    { var ssize_t result = full_write(handle,(void*)buf,len);           \
+      if (result != (ssize_t)(len)) {                                   \
+        end_system_call();                                              \
+        builtin_stream_close(&STACK_0,0);                               \
+        if (result<0) /* error occurred? */                             \
+          { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
+        /* FILE-ERROR slot PATHNAME */                                  \
+        pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
+        error(file_error,GETTEXT("disk full"));                         \
+      }                                                                 \
+    }                                                                   \
+    end_system_call();                                                  \
+  } while(0)
+
+/* write the executable into the handle */
 static void savemem_with_runtime (Handle handle, bool delegating) {
   var char *executable_name = get_executable_name();
   var char buf[BUFSIZ];
@@ -346,64 +500,6 @@ static void savemem_with_runtime (Handle handle, bool delegating) {
   }
 #endif
   CLOSE_HANDLE(runtime); end_system_call();
-}
-
-/* fill the header's constant slots, excluding _dumptime & _dumphost
- > memdump_header_t *header: filled
- return the total size of all module names */
-local uintL fill_memdump_header (memdump_header_t *header) {
-  var uintL module_names_size;
-  memset(header,0,sizeof(*header));
-  header->_magic = memdump_magic;
-  header->_memflags = memflags;
-  header->_oint_type_mask = oint_type_mask;
-  header->_oint_addr_mask = oint_addr_mask;
- #ifdef TYPECODES
-  header->_cons_type    = cons_type;
-  header->_complex_type = complex_type;
-  header->_symbol_type  = symbol_type;
-  header->_system_type  = system_type;
- #endif
-  header->_varobject_alignment = varobject_alignment;
-  header->_hashtable_length = hashtable_length;
-  header->_pathname_length = pathname_length;
-  header->_intDsize = intDsize;
-  header->_module_count = module_count;
-  {
-    var module_t* module;
-    module_names_size = 0;
-    for_modules(all_modules, {
-      module_names_size += asciz_length(module->name)+1;
-    });
-    module_names_size = round_up(module_names_size,varobject_alignment);
-  }
-  header->_module_names_size = module_names_size;
-  header->_fsubr_count     = fsubr_count;
-  header->_pseudofun_count = pseudofun_count;
- #if !defined(OLD_GC) && defined(MULTITHREAD)
-  header->_per_thread_symvalues_count = num_symvalues;
- #endif
-  header->_symbol_count    = symbol_count;
-  header->_page_alignment = page_alignment;
-  header->_subr_tab_addr   = (aint)(&subr_tab);
-  header->_symbol_tab_addr = (aint)(&symbol_tab);
- #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-  #if !defined(GENERATIONAL_GC)
-  header->_mem_varobjects_start = mem.varobjects.heap_start;
-  header->_mem_varobjects_end   = mem.varobjects.heap_end;
-  header->_mem_conses_start     = mem.conses.heap_start;
-  header->_mem_conses_end       = mem.conses.heap_end;
-  #else /* defined(GENERATIONAL_GC) */
-  header->_mem_varobjects_start = mem.varobjects.heap_gen0_start;
-  header->_mem_varobjects_end   = mem.varobjects.heap_gen0_end;
-  header->_mem_conses_start     = mem.conses.heap_gen0_start;
-  header->_mem_conses_end       = mem.conses.heap_gen0_end;
-  #endif
- #endif
- #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-  header->_heapcount = heapcount;
- #endif
-  return module_names_size;
 }
 
 /* UP, stores the memory image on disk
@@ -715,10 +811,8 @@ global maygc off_t savemem (object stream, uintL executable)
 }
 #undef WRITE
 
-/* UP, loads memory image from disk
- loadmem(filename);
- destroys all LISP-data. */
-local void loadmem_from_handle (Handle handle, const char* filename);
+/* ================================ LOADMEM ================================ */
+
 /* update of an object in memory: */
 #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
 local var oint offset_varobjects_o;
@@ -922,84 +1016,7 @@ local void loadmem_update_fsubr (Fsubr fsubrptr)
     }
   }
 }
-#if defined(WIN32_NATIVE)
-local Handle open_native_filename (const char* filename)
-{
-  var char resolved[MAX_PATH];
-  return /* try to resolve shell shortcuts in the filename */
-    CreateFile((real_path(filename,resolved) ? resolved : filename),
-               GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-}
-#endif
-local Handle open_filename (const char* filename)
-{ /* open file for reading: */
- #if defined(UNIX)
-  return OPEN((char*)filename,O_RDONLY|O_BINARY,my_open_mask);
- #elif defined(WIN32_NATIVE)
-  #define CYGDRIVE "/cygdrive/"
-  #define CYGDRIVE_LEN 10
-  #ifdef __MINGW32__
-  if (!strncasecmp(filename,CYGDRIVE,CYGDRIVE_LEN))
-  #else
-  if (!strncmp(filename,CYGDRIVE,CYGDRIVE_LEN)) /* MS lacks strncasecmp */
-  #endif
-    {
-      var uintL len = asciz_length(filename);
-      var DYNAMIC_ARRAY(newfilename,char,len);
-      newfilename[0] = filename[CYGDRIVE_LEN];
-      newfilename[1] = ':';
-      memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
-      var Handle result = open_native_filename(newfilename);
-      FREE_DYNAMIC_ARRAY(newfilename);
-      return result;
-    }
-  #undef CYGDRIVE
-  #undef CYGDRIVE_LEN
-  else
-    return open_native_filename(filename);
- #else
-  #error missing open_filename()
- #endif
-}
-local void loadmem (const char* filename)
-{
-#if defined(UNIX)
- #define INVALID_HANDLE_P(handle)  (handle<0)
-#elif defined(WIN32_NATIVE)
- #define INVALID_HANDLE_P(handle)  (handle == INVALID_HANDLE)
-#else
- #error missing INVALID_HANDLE_P()
-#endif
-  var Handle handle;
-  begin_system_call();
-  handle = open_filename(filename);
-  if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
-    var DYNAMIC_ARRAY(filename_mem,char,strlen(filename)+4);
-    strcpy(filename_mem,filename);
-    strcat(filename_mem,".mem");
-    handle = open_filename(filename_mem);
-    FREE_DYNAMIC_ARRAY(filename_mem);
-    if (INVALID_HANDLE_P(handle)) goto abort1;
-  }
-  end_system_call();
-#undef INVALID_HANDLE_P
-  loadmem_from_handle(handle,filename);
-  return;
- abort1: {
-    var int abort_errno = OS_errno;
-    fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
-    errno_out(abort_errno);
-  }
-  goto abort_quit;
- abort_quit:
-  /* first close file, if it had been opened successfully.
-     (Thus, now really all errors are ignored!) */
-  if (handle != INVALID_HANDLE) {
-    begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
-  }
-  quit_instantly(1);
-}
+
 local void loadmem_from_handle (Handle handle, const char* filename)
 {
   var memdump_header_t header;
@@ -1862,58 +1879,48 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   quit_instantly(1);
 }
 
-/* find the memory image in the file
- there are two methods:
-  - the last sizeof(size_t) bytes in the executable are mem_start
-    this method is fast, i.e., O(1): constant time
- #if defined(LOADMEM_TRY_SEARCH)
-  - find the memdump_header_t inside the file as if by CL:SEARCH
-    this method is expensive, i.e., O(NM) where N is the size of the executable
-    (runtime+image) and M is the size of the header (header_size below);
-    and can increase the startup time by as much as a few seconds
- #endif
- Since we always record mem_start in every executable image we write,
- there is no reason to do the search.
- If "image size" somehow fails, we want a bug report right away.
- > fd : the open file descriptor (its position is changed)
- < set mem_start and mem_searched */
-local void find_memdump (Handle fd) {
-  var memdump_header_t header;
-  var size_t header_size = offsetof(memdump_header_t,_subr_tab_addr);
-  fill_memdump_header(&header);
-  /* "sizeof(size_t)" is unsigned, so "-sizeof(size_t)" is also unsigned,
-     so we need the "(off_t)" cast to pass a negative number to lseek() */
-  if (lseek(fd,-(off_t)sizeof(size_t),SEEK_END) > 0
-      && full_read(fd,(void*)&mem_start,sizeof(size_t)) == sizeof(size_t)
-      && lseek(fd,mem_start,SEEK_SET) == mem_start) {
-    var memdump_header_t header1;
-    full_read(fd,(void*)&header1,header_size);
-   #if !defined(OLD_GC) && defined(MULTITHREAD)
-    /* restore the count of symvalues. this field should not be used for
-       validation by compare */
-    header._per_thread_symvalues_count = header1._per_thread_symvalues_count;
-   #endif
-    if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
-      mem_start = (size_t)-1; /* bad header => no image */
-    }
-  } else {
-   #if defined(LOADMEM_TRY_SEARCH)
-    /* lseek+read does not work ==> use marker */
-    lseek(fd,0,SEEK_SET);
-    mem_start = find_marker(fd,(const char*)&header,header_size);
-    if (mem_start != (size_t)-1)
-      /* image size failed, but header is found -- this is fishy! */
-      fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
-   #else
-    mem_start = (size_t)-1;
-   #endif
+/* UP, loads memory image from disk
+ loadmem(filename);
+ destroys all LISP-data. */
+local void loadmem (const char* filename)
+{
+#if defined(UNIX)
+ #define INVALID_HANDLE_P(handle)  (handle<0)
+#elif defined(WIN32_NATIVE)
+ #define INVALID_HANDLE_P(handle)  (handle == INVALID_HANDLE)
+#else
+ #error missing INVALID_HANDLE_P()
+#endif
+  var Handle handle;
+  begin_system_call();
+  handle = open_filename(filename);
+  if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
+    var DYNAMIC_ARRAY(filename_mem,char,strlen(filename)+4);
+    strcpy(filename_mem,filename);
+    strcat(filename_mem,".mem");
+    handle = open_filename(filename_mem);
+    FREE_DYNAMIC_ARRAY(filename_mem);
+    if (INVALID_HANDLE_P(handle)) goto abort1;
   }
-  mem_searched = true;
+  end_system_call();
+#undef INVALID_HANDLE_P
+  loadmem_from_handle(handle,filename);
+  return;
+ abort1: {
+    var int abort_errno = OS_errno;
+    fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
+    errno_out(abort_errno);
+  }
+  goto abort_quit;
+ abort_quit:
+  /* first close file, if it had been opened successfully.
+     (Thus, now really all errors are ignored!) */
+  if (handle != INVALID_HANDLE) {
+    begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
+  }
+  quit_instantly(1);
 }
 
-/* load the memory image from the currently running executable
- return 0 on success
-    and 1 on error (when the executable does not contain a memory image) */
 local int loadmem_from_executable (void) {
   var char* executable_name = get_executable_name();
   var Handle handle = open_filename(executable_name);
