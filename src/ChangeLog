@@ -1,3 +1,8 @@
+2018-02-11  Bruno Haible  <bruno@clisp.org>
+
+	Add support for GNU/kFreeBSD on i386.
+	* lispbibl.d: Treat GNU/kFreeBSD/i386 like FreeBSD/i386.
+
 2018-02-04  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on IRIX mips o32.
