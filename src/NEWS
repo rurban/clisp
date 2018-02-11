@@ -57,6 +57,7 @@ of platforms:
   Linux            | m68k           | m68k
   GNU/Hurd         | i386           | i386
   GNU/kFreeBSD     | x86_64         | 64-bit
+  GNU/kFreeBSD     | i386           | i386
   FreeBSD          | x86_64         | 64-bit
   FreeBSD          | i386           | i386
   FreeBSD          | ARM64          | 64-bit
@@ -81,7 +82,7 @@ of platforms:
   Windows          | i386           | Cygwin 32-bit
 
 The Foreign Function Interface (FFI) is now supported as well, on all of these
-platforms  (except HP-UX/HPPA), through libffcall-2.0.
+platforms (except HP-UX), through libffcall-2.0.
 
 User visible changes
 --------------------
