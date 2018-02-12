@@ -1,5 +1,11 @@
 2018-02-11  Bruno Haible  <bruno@clisp.org>
 
+	Bump version number.
+	* version.sh: Bump version number to 2.49.91+.
+	* version.h, src/configure: Regenerated.
+
+2018-02-11  Bruno Haible  <bruno@clisp.org>
+
 	Implement options -memfile-hash, -memfile-hash-of, -memfile-compatible.
 	* Makefile.devel (GNULIB_CORE): Add sha1.
 	* gllib/*: Update from gnulib.
