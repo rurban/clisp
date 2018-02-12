@@ -3766,6 +3766,58 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
 # Prerequisites of lib/gettimeofday.c.
 AC_DEFUN([gl_PREREQ_GETTIMEOFDAY], [:])
 
+# gl-openssl.m4 serial 3
+dnl Copyright (C) 2013-2018 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SET_CRYPTO_CHECK_DEFAULT],
+[
+  m4_define([gl_CRYPTO_CHECK_DEFAULT], [$1])
+])
+gl_SET_CRYPTO_CHECK_DEFAULT([no])
+
+AC_DEFUN([gl_CRYPTO_CHECK],
+[
+  dnl gnulib users set this before gl_INIT with gl_SET_CRYPTO_CHECK_DEFAULT()
+  m4_divert_once([DEFAULTS], [with_openssl_default='gl_CRYPTO_CHECK_DEFAULT'])
+
+  dnl Only clear once, so crypto routines can be checked for individually
+  m4_divert_once([DEFAULTS], [LIB_CRYPTO=])
+
+  AC_ARG_WITH([openssl],
+    [AS_HELP_STRING([--with-openssl],
+      [use libcrypto hash routines. Valid ARGs are:
+       'yes', 'no', 'auto' => use if available,
+       'optional' => use if available and warn if not available;
+       default is ']gl_CRYPTO_CHECK_DEFAULT['])],
+    [],
+    [with_openssl=$with_openssl_default])
+
+  if test "x$1" = xMD5; then
+    ALG_header=md5.h
+  else
+    ALG_header=sha.h
+  fi
+
+  AC_SUBST([LIB_CRYPTO])
+  if test "x$with_openssl" != xno; then
+    AC_CHECK_LIB([crypto], [$1],
+      [AC_CHECK_HEADERS([openssl/$ALG_header],
+         [LIB_CRYPTO=-lcrypto
+          AC_DEFINE([HAVE_OPENSSL_$1], [1],
+            [Define to 1 if libcrypto is used for $1.])])])
+    if test "x$LIB_CRYPTO" = x; then
+      if test "x$with_openssl" = xyes; then
+        AC_MSG_ERROR([openssl development library not found for $1])
+      elif test "x$with_openssl" = xoptional; then
+        AC_MSG_WARN([openssl development library not found for $1])
+      fi
+    fi
+  fi
+])
+
 # glibc21.m4 serial 5
 dnl Copyright (C) 2000-2002, 2004, 2008, 2010-2018 Free Software Foundation,
 dnl Inc.
@@ -4347,6 +4399,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module close:
   # Code from module configmake:
   # Code from module connect:
+  # Code from module crypto/sha1:
   # Code from module dosname:
   # Code from module dup2:
   # Code from module environ:
@@ -4534,6 +4587,7 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([connect])
   fi
   gl_SYS_SOCKET_MODULE_INDICATOR([connect])
+  gl_SHA1
   gl_FUNC_DUP2
   if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
     AC_LIBOBJ([dup2])
@@ -5121,6 +5175,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getsockopt.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/gl_openssl.h
   lib/glthread/lock.c
   lib/glthread/lock.h
   lib/glthread/threadlib.c
@@ -5184,6 +5239,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/sendto.c
   lib/setenv.c
   lib/setsockopt.c
+  lib/sha1.c
+  lib/sha1.h
   lib/shutdown.c
   lib/signal.in.h
   lib/socket.c
@@ -5279,6 +5336,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
+  m4/gl-openssl.m4
   m4/glibc2.m4
   m4/glibc21.m4
   m4/gnu-make.m4
@@ -5352,6 +5410,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/regex.m4
   m4/select.m4
   m4/setenv.m4
+  m4/sha1.m4
   m4/signal_h.m4
   m4/size_max.m4
   m4/socketlib.m4
@@ -11346,7 +11405,7 @@ AC_DEFUN([gl_HEADER_NETINET_IN],
   AM_CONDITIONAL([GL_GENERATE_NETINET_IN_H], [test -n "$NETINET_IN_H"])
 ])
 
-# nl_langinfo.m4 serial 5
+# nl_langinfo.m4 serial 6
 dnl Copyright (C) 2009-2018 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -11384,8 +11443,11 @@ AC_DEFUN([gl_FUNC_NL_LANGINFO],
     AC_DEFINE_UNQUOTED([FUNC_NL_LANGINFO_YESEXPR_WORKS],
       [$FUNC_NL_LANGINFO_YESEXPR_WORKS],
       [Define to 1 if nl_langinfo (YESEXPR) returns a non-empty string.])
-    if test $HAVE_LANGINFO_CODESET = 1 && test $HAVE_LANGINFO_ERA = 1 \
-        && test $FUNC_NL_LANGINFO_YESEXPR_WORKS = 1; then
+    if test $HAVE_LANGINFO_CODESET = 1 \
+       && test $HAVE_LANGINFO_T_FMT_AMPM = 1 \
+       && test $HAVE_LANGINFO_ALTMON = 1 \
+       && test $HAVE_LANGINFO_ERA = 1 \
+       && test $FUNC_NL_LANGINFO_YESEXPR_WORKS = 1; then
       :
     else
       REPLACE_NL_LANGINFO=1
@@ -13027,6 +13089,21 @@ AC_DEFUN([gl_PREREQ_UNSETENV],
 [
   AC_REQUIRE([gl_ENVIRON])
   AC_CHECK_HEADERS_ONCE([unistd.h])
+])
+
+# sha1.m4 serial 12
+dnl Copyright (C) 2002-2006, 2008-2018 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SHA1],
+[
+  dnl Prerequisites of lib/sha1.c.
+  AC_REQUIRE([gl_BIGENDIAN])
+
+  dnl Determine HAVE_OPENSSL_SHA1 and LIB_CRYPTO
+  gl_CRYPTO_CHECK([SHA1])
 ])
 
 # signal_h.m4 serial 18

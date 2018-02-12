@@ -21,6 +21,49 @@ local void loadmem (const char* filename);
     and 1 on error (when the executable does not contain a memory image) */
 local int loadmem_from_executable (void);
 
+/* The "mem file binary interface" of a clisp executable is the combination
+   of all details that matter for mem file compatibility: object representation,
+   types of built-in stream, list of add-on modules, etc.
+
+   The "hash code of the mem file binary interface" (MFIH) is a hash code of
+   such a combination. Its purpose is to be able to guarantee that a given clisp
+   executable and a given mem file are compatible. It's intended to be used
+   as part of Debian virtual package names.
+   We use SHA-1, because that's good enough. For SHA-224 we don't have a gnulib
+   module; and SHA-256 would produce very long Debian package names (currently
+   the longest Debian package name has 67 characters). */
+
+#define MFIH_LEN 20  /* 20 for SHA-1, 28 for SHA-224, 32 for SHA-256 */
+
+/* UP: Returns the hash code of the mem file binary interface of the current
+   executable.
+   get_mem_file_interface_hash(&buffer);
+   < uintB buf[MFIH_LEN]: hash code */
+local void get_mem_file_interface_hash (uintB buf[MFIH_LEN]);
+
+/* UP: Returns the hash code of the mem file binary interface that was used to
+   create the given memory image file.
+   extract_mem_file_interface_hash(&buffer,const char* filename);
+   > filename: a file name
+   < uintB buf[MFIH_LEN]: hash code */
+local void extract_mem_file_interface_hash (uintB buf[MFIH_LEN],
+                                            const char* filename);
+
+/* UP: Determines whether the current executable can load the given memory image
+   file.
+   is_mem_file_compatible (const char* filename)
+   > filename: a file name
+   < true if the current executable can load the given memory image file,
+     false if not
+   Note:
+   If get_mem_file_interface_hash() and extract_mem_file_interface_hash(filename)
+   produce the same value and the mem file is not truncated,
+   is_mem_file_compatible(filename) returns true. But there are cases when they
+   produce different values and is_mem_file_compatible(filename) is still true;
+   this is an important case for producing mem files with added modules (cf.
+   clisp-link). */
+local bool is_mem_file_compatible (const char* filename);
+
 /* --------------------------- Implementation --------------------------- */
 
 /* Flags, that influence the format of a MEM-file: */
@@ -89,11 +132,16 @@ local const uint32 memflags =
  #ifdef SOCKET_STREAMS
   bit(19) |
  #endif
+  /* coding of strings: */
  #ifdef ENABLE_UNICODE
   bit(20) |
  #endif
+  /* other: */
  #ifdef MULTITHREAD
   bit(21) |
+ #endif
+ #ifdef MFIH_LEN
+  bit(22) |
  #endif
   0;
 
@@ -106,6 +154,7 @@ typedef struct {
   uintL _magic; /* recognition */
  #define memdump_magic  0x70768BD2UL
   uint32 _memflags;
+  uintB _mfihash[MFIH_LEN];
   oint _oint_type_mask;
   oint _oint_addr_mask;
  #ifdef TYPECODES
@@ -217,6 +266,98 @@ typedef struct {
   #define READ_page_alignment(position)
 #endif
 
+local void get_mem_file_interface_hash (uintB buf[MFIH_LEN])
+{
+  var struct sha1_ctx ctx;
+  sha1_init_ctx (&ctx);
+  /* To know which details to consider here, look at the ABORT_INCOMPAT1
+     invocations in memfile_handle_do_operation. */
+  /* It is important that we process exactly as many bytes for each detail
+     as in memdump_header_t. The simplest way to guarantee this is to allocate
+     a dummy memdump_header_t. */
+  var memdump_header_t header;
+  header._memflags = memflags;
+  sha1_process_bytes(&header._memflags,sizeof(header._memflags),&ctx);
+  header._oint_type_mask = oint_type_mask;
+  sha1_process_bytes(&header._oint_type_mask,sizeof(header._oint_type_mask),&ctx);
+  header._oint_addr_mask = oint_addr_mask;
+  sha1_process_bytes(&header._oint_addr_mask,sizeof(header._oint_addr_mask),&ctx);
+ #ifdef TYPECODES
+  header._cons_type = cons_type;
+  sha1_process_bytes(&header._cons_type,sizeof(header._cons_type),&ctx);
+  header._complex_type = complex_type;
+  sha1_process_bytes(&header._complex_type,sizeof(header._complex_type),&ctx);
+  header._symbol_type = symbol_type;
+  sha1_process_bytes(&header._symbol_type,sizeof(header._symbol_type),&ctx);
+  header._system_type = system_type;
+  sha1_process_bytes(&header._system_type,sizeof(header._system_type),&ctx);
+ #endif
+  header._varobject_alignment = varobject_alignment;
+  sha1_process_bytes(&header._varobject_alignment,sizeof(header._varobject_alignment),&ctx);
+  header._hashtable_length = hashtable_length;
+  sha1_process_bytes(&header._hashtable_length,sizeof(header._hashtable_length),&ctx);
+  header._pathname_length = pathname_length;
+  sha1_process_bytes(&header._pathname_length,sizeof(header._pathname_length),&ctx);
+  header._intDsize = intDsize;
+  sha1_process_bytes(&header._intDsize,sizeof(header._intDsize),&ctx);
+  header._fsubr_count = fsubr_count;
+  sha1_process_bytes(&header._fsubr_count,sizeof(header._fsubr_count),&ctx);
+  header._pseudofun_count = pseudofun_count;
+  sha1_process_bytes(&header._pseudofun_count,sizeof(header._pseudofun_count),&ctx);
+  header._symbol_count = symbol_count;
+  sha1_process_bytes(&header._symbol_count,sizeof(header._symbol_count),&ctx);
+  header._page_alignment = page_alignment;
+  sha1_process_bytes(&header._page_alignment,sizeof(header._page_alignment),&ctx);
+ #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
+  header._heapcount = heapcount;
+  sha1_process_bytes(&header._heapcount,sizeof(header._heapcount),&ctx);
+ #endif
+ #ifdef SPVW_PURE_BLOCKS /* SINGLEMAP_MEMORY */
+  header._subr_tab_addr = (aint)(&subr_tab);
+  sha1_process_bytes(&header._subr_tab_addr,sizeof(header._subr_tab_addr),&ctx);
+  header._symbol_tab_addr = (aint)(&symbol_tab);
+  sha1_process_bytes(&header._symbol_tab_addr,sizeof(header._symbol_tab_addr),&ctx);
+ #endif
+  header._module_count = module_count;
+  sha1_process_bytes(&header._module_count,sizeof(header._module_count),&ctx);
+  /* It is not necessary to sort the list of modules, because this list is in
+     predictable (not random) order. */
+  {
+    var uintC count;
+    dotimespC(count,1+header._module_count, {
+      var const module_t* module;
+      for_modules(all_modules, {
+        sha1_process_bytes(module->name,asciz_length(module->name)+1,&ctx);
+      });
+    });
+  }
+  {
+    var uintC count;
+    dotimespC(count,1+header._module_count, {
+      var const module_t* module;
+      for_modules(all_modules, {
+        var uintC mod_subr_count = *module->stab_size;
+        sha1_process_bytes(&mod_subr_count,sizeof(mod_subr_count),&ctx);
+        var uintC mod_object_count = *module->otab_size;
+        sha1_process_bytes(&mod_object_count,sizeof(mod_object_count),&ctx);
+        if (mod_subr_count > 0) {
+          var const subr_t* ptr = module->stab;
+          var uintC counter;
+          dotimespC(counter,mod_subr_count, {
+            sha1_process_bytes(&ptr->req_count,sizeof(ptr->req_count),&ctx);
+            sha1_process_bytes(&ptr->opt_count,sizeof(ptr->opt_count),&ctx);
+            sha1_process_bytes(&ptr->rest_flag,sizeof(ptr->rest_flag),&ctx);
+            sha1_process_bytes(&ptr->key_flag,sizeof(ptr->key_flag),&ctx);
+            sha1_process_bytes(&ptr->key_count,sizeof(ptr->key_count),&ctx);
+            ptr++;
+          });
+        }
+      });
+    });
+  }
+  sha1_finish_ctx (&ctx, buf);
+}
+
 /* fill the header's constant slots, excluding _dumptime & _dumphost
  > memdump_header_t *header: filled
  return the total size of all module names */
@@ -225,6 +366,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
   memset(header,0,sizeof(*header));
   header->_magic = memdump_magic;
   header->_memflags = memflags;
+  get_mem_file_interface_hash(&header->_mfihash[0]);
   header->_oint_type_mask = oint_type_mask;
   header->_oint_addr_mask = oint_addr_mask;
  #ifdef TYPECODES
@@ -1017,7 +1159,12 @@ local void loadmem_update_fsubr (Fsubr fsubrptr)
   }
 }
 
-local void loadmem_from_handle (Handle handle, const char* filename)
+typedef enum { op_extract_mfih, op_test_compatibility, op_load } memfile_operation;
+/* Performs an operation on a mem file, given as a handle.
+   > handle: open handle to the contents of the mem file.
+   < true if successful, false upon fatal error
+   The handle gets closed by this function, except in the case of a successful op_load operation. */
+local bool memfile_handle_do_operation (Handle handle, const char* filename, memfile_operation op, void* arg)
 {
   var memdump_header_t header;
   {
@@ -1037,16 +1184,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #else
     #define FILE_LINE  /*noop*/
    #endif
-    #define ABORT_SYS do { FILE_LINE; goto abort_sys; } while(0)
-    #define ABORT_INI do { FILE_LINE; goto abort_ini; } while(0)
-    #define ABORT_MEM do { FILE_LINE; goto abort_mem; } while(0)
+    #define ABORT_SYS       do { FILE_LINE; goto abort_sys; } while(0)
+    #define ABORT_INCOMPAT2 do { FILE_LINE; goto abort_incompat2; } while(0)
+    #define ABORT_MEM       do { FILE_LINE; goto abort_mem; } while(0)
     #define READ(buf,len)                                               \
       do {                                                              \
         begin_system_call();                                            \
         { var ssize_t result = full_read(handle,(void*)buf,len);        \
           end_system_call();                                            \
           if (result<0) ABORT_SYS;                                      \
-          if (result != (ssize_t)(len)) ABORT_INI;                      \
+          if (result != (ssize_t)(len)) ABORT_INCOMPAT2;                \
           inc_file_offset(len);                                         \
         }                                                               \
       } while(0)
@@ -1107,34 +1254,41 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
         use_mmap = false; /* mmap can not be done with a pipe! */
        #endif
-        loadmem_from_handle(handles[0],filename); /* now, we read from the pipe */
+        var bool result = memfile_handle_do_operation(handles[0],filename,op,arg); /* now, we read from the pipe */
         begin_system_call();
         wait2(child); /* remove zombie-child */
         end_system_call();
-        return;
+        return result;
       }
      #endif  /* UNIX */
-      ABORT_INI;
+      ABORT_INCOMPAT2;
     }
-    if (header._memflags != memflags) ABORT_INI;
-    if (header._oint_type_mask != oint_type_mask) ABORT_INI;
-    if (header._oint_addr_mask != oint_addr_mask) ABORT_INI;
+    if (op == op_extract_mfih) {
+      memcpy(arg,&header._mfihash[0],MFIH_LEN);
+      goto close_and_return_true;
+    }
+    /* Now that we have read the header, we may goto abort_incompat1. */
+    #define ABORT_INCOMPAT1 do { FILE_LINE; goto abort_incompat1; } while(0)
+    if (header._memflags != memflags) ABORT_INCOMPAT1;
+    /* Do NOT compare header._mfihash here. See the comment about is_mem_file_compatible. */
+    if (header._oint_type_mask != oint_type_mask) ABORT_INCOMPAT1;
+    if (header._oint_addr_mask != oint_addr_mask) ABORT_INCOMPAT1;
    #ifdef TYPECODES
-    if (header._cons_type != cons_type) ABORT_INI;
-    if (header._complex_type != complex_type) ABORT_INI;
-    if (header._symbol_type != symbol_type) ABORT_INI;
-    if (header._system_type != system_type) ABORT_INI;
+    if (header._cons_type != cons_type) ABORT_INCOMPAT1;
+    if (header._complex_type != complex_type) ABORT_INCOMPAT1;
+    if (header._symbol_type != symbol_type) ABORT_INCOMPAT1;
+    if (header._system_type != system_type) ABORT_INCOMPAT1;
    #endif
-    if (header._varobject_alignment != varobject_alignment) ABORT_INI;
-    if (header._hashtable_length != hashtable_length) ABORT_INI;
-    if (header._pathname_length != pathname_length) ABORT_INI;
-    if (header._intDsize != intDsize) ABORT_INI;
-    if (header._fsubr_count != fsubr_count) ABORT_INI;
-    if (header._pseudofun_count != pseudofun_count) ABORT_INI;
-    if (header._symbol_count != symbol_count) ABORT_INI;
-    if (header._page_alignment != page_alignment) ABORT_INI;
+    if (header._varobject_alignment != varobject_alignment) ABORT_INCOMPAT1;
+    if (header._hashtable_length != hashtable_length) ABORT_INCOMPAT1;
+    if (header._pathname_length != pathname_length) ABORT_INCOMPAT1;
+    if (header._intDsize != intDsize) ABORT_INCOMPAT1;
+    if (header._fsubr_count != fsubr_count) ABORT_INCOMPAT1;
+    if (header._pseudofun_count != pseudofun_count) ABORT_INCOMPAT1;
+    if (header._symbol_count != symbol_count) ABORT_INCOMPAT1;
+    if (header._page_alignment != page_alignment) ABORT_INCOMPAT1;
    #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (header._heapcount != heapcount) ABORT_INI;
+    if (header._heapcount != heapcount) ABORT_INCOMPAT1;
    #endif
 
    #if !defined(OLD_GC) && defined(MULTITHREAD)
@@ -1213,8 +1367,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     }
    #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
    #ifdef SPVW_PURE_BLOCKS /* SINGLEMAP_MEMORY */
-    if ((aint)(&subr_tab) != header._subr_tab_addr) ABORT_INI;
-    if ((aint)(&symbol_tab) != header._symbol_tab_addr) ABORT_INI;
+    if ((aint)(&subr_tab) != header._subr_tab_addr) ABORT_INCOMPAT1;
+    if ((aint)(&symbol_tab) != header._symbol_tab_addr) ABORT_INCOMPAT1;
    #else
     offset_symbols_o = ((oint)(aint)(&symbol_tab) - (oint)header._symbol_tab_addr) << (oint_addr_shift-addr_shift);
     #ifdef TYPECODES
@@ -1246,7 +1400,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               goto found_module;
           });
           /* old_name not found */
-          ABORT_INI;
+          ABORT_INCOMPAT1;
          found_module:
           /* Reading the module data from file initializes the module. */
           module->initialized = true;
@@ -1272,8 +1426,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         READ(&old_subr_addr,sizeof(subr_t*));
         READ(&old_subr_count,sizeof(uintC));
         READ(&old_object_count,sizeof(uintC));
-        if (old_subr_count != *(*old_module)->stab_size) ABORT_INI;
-        if (old_object_count != *(*old_module)->otab_size) ABORT_INI;
+        if (old_subr_count != *(*old_module)->stab_size) ABORT_INCOMPAT1;
+        if (old_object_count != *(*old_module)->otab_size) ABORT_INCOMPAT1;
         offset_subrs_ptr->low_o = as_oint(subr_tab_ptr_as_object(old_subr_addr));
         offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_count));
         offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
@@ -1289,7 +1443,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                   && (ptr1->rest_flag == ptr2->rest_flag)
                   && (ptr1->key_flag == ptr2->key_flag)
                   && (ptr1->key_count == ptr2->key_count)))
-              ABORT_INI;
+              ABORT_INCOMPAT1;
             ptr2->name = ptr1->name; ptr2->keywords = ptr1->keywords;
             ptr2->argtype = ptr1->argtype;
             ptr1++; ptr2++;
@@ -1302,6 +1456,14 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         old_module++; offset_subrs_ptr++;
       } while (--count);
     }
+    #undef ABORT_INCOMPAT1
+    /* No more ABORT_INCOMPAT1 invocations beyond this point. */
+    if (op == op_test_compatibility) {
+      *(bool*)arg = true;
+      goto close_and_return_true;
+    }
+    if (!(op == op_load)) NOTREACHED;
+    /* op_load handling: Read or mmap the entire contents of the mem file into memory. */
    #ifdef SPVW_PURE_BLOCKS
     #ifdef SINGLEMAP_MEMORY_RELOCATE
     { /* read start- and end-addresses of each Heap and compare
@@ -1555,7 +1717,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       var struct stat statbuf;
       if (fstat(handle,&statbuf) < 0) ABORT_SYS;
       /* executable size is appended to the image as size_t */
-      if (statbuf.st_size < file_offset + sizeof(size_t)) ABORT_INI;
+      if (statbuf.st_size < file_offset + sizeof(size_t)) ABORT_INCOMPAT2;
      #endif
      #ifdef WIN32_NATIVE
       var DWORD fsize_hi;
@@ -1563,7 +1725,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       if (fsize_lo == (DWORD)(-1) && GetLastError() != NO_ERROR) ABORT_SYS;
       var off_t fsize = ((uint64)fsize_hi << 32) | fsize_lo;
       /* executable size is appended to the image as size_t */
-      if (fsize < file_offset + sizeof(size_t)) ABORT_INI;
+      if (fsize < file_offset + sizeof(size_t)) ABORT_INCOMPAT2;
      #endif
     }
     #endif  /* HAVE_MMAP */
@@ -1855,34 +2017,56 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     O(memory_image_host) = asciz_to_string(header._dumphost,
                                            Symbol_value(S(utf_8)));
   }
-  return;
-#undef ABORT_SYS
-#undef ABORT_INI
+  return true;
+ close_and_return_true:
+  begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
+  return true;
 #undef ABORT_MEM
+#undef ABORT_INCOMPAT2
+#undef ABORT_SYS
  abort_sys: {
     var int abort_errno = OS_errno;
     fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
     errno_out(abort_errno);
   }
-  goto abort_quit;
- abort_ini:
+  goto abort_fail;
+ abort_incompat1: /* found an incompatibility that is detectable by get_mem_file_interface_hash */
+  if (op == op_test_compatibility) {
+    *(bool*)arg = false;
+    goto abort_fail;
+  }
+  {
+    var uintB mfihash[MFIH_LEN];
+    get_mem_file_interface_hash(&mfihash[0]);
+    if (memcmp(&header._mfihash[0],&mfihash[0],MFIH_LEN) == 0) {
+      /* Either a bug in get_mem_file_interface_hash or an SHA-1 collision (unlikely). */
+      fprintf(stderr,GETTEXTL("%s: initialization file '%s' was not created by this version of CLISP runtime, although it carries the same hash code. Bug in function '%s'!!"),program_name,filename,"get_mem_file_interface_hash");
+      fprint(stderr,"\n");
+      goto abort_fail;
+    }
+    goto abort_incompat2;
+  }
+ abort_incompat2: /* found an incompatibility that is not detectable by get_mem_file_interface_hash */
+  if (op == op_test_compatibility) {
+    *(bool*)arg = false;
+    goto abort_fail;
+  }
   fprintf(stderr,GETTEXTL("%s: initialization file `%s' was not created by this version of CLISP runtime"),program_name,filename);
   fprint(stderr,"\n");
-  goto abort_quit;
+  goto abort_fail;
  abort_mem:
   fprintf(stderr,GETTEXTL("%s: not enough memory for initialization"),program_name);
   fprint(stderr,"\n");
-  goto abort_quit;
- abort_quit:
+  goto abort_fail;
+ abort_fail:
   /* close the file beforehand. */
   begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
-  quit_instantly(1);
+  return false;
 }
 
-/* UP, loads memory image from disk
- loadmem(filename);
- destroys all LISP-data. */
-local void loadmem (const char* filename)
+/* Perform an operation on a mem file, given as a file name.
+   < true if successful, false upon fatal error */
+local bool memfile_do_operation (const char* filename, memfile_operation op, void* arg)
 {
 #if defined(UNIX)
  #define INVALID_HANDLE_P(handle)  (handle<0)
@@ -1904,21 +2088,47 @@ local void loadmem (const char* filename)
   }
   end_system_call();
 #undef INVALID_HANDLE_P
-  loadmem_from_handle(handle,filename);
-  return;
+  return memfile_handle_do_operation(handle,filename,op,arg);
  abort1: {
     var int abort_errno = OS_errno;
     fprintf(stderr,GETTEXTL("%s: operating system error during load of initialization file `%s'"),program_name,filename);
     errno_out(abort_errno);
   }
-  goto abort_quit;
- abort_quit:
+  goto abort_fail;
+ abort_fail:
   /* first close file, if it had been opened successfully.
      (Thus, now really all errors are ignored!) */
   if (handle != INVALID_HANDLE) {
     begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   }
-  quit_instantly(1);
+  return false;
+}
+
+/* UP, loads memory image from disk
+ loadmem(filename);
+ destroys all LISP-data. */
+local void loadmem (const char* filename)
+{
+  if (!memfile_do_operation(filename,op_load,NULL)) {
+    quit_instantly(1);
+  }
+}
+
+local void extract_mem_file_interface_hash (uintB buf[MFIH_LEN],
+                                            const char* filename)
+{
+  if (!memfile_do_operation(filename,op_extract_mfih,buf)) {
+    quit_instantly(1);
+  }
+}
+
+local bool is_mem_file_compatible (const char* filename)
+{
+  bool compat;
+  if (!memfile_do_operation(filename,op_test_compatibility,&compat)) {
+    quit_instantly(1);
+  }
+  return compat;
 }
 
 local int loadmem_from_executable (void) {
@@ -1929,7 +2139,9 @@ local int loadmem_from_executable (void) {
     find_memdump(handle);
     if (mem_start != (size_t)-1) { /* found! */
       lseek(handle,mem_start,SEEK_SET);
-      loadmem_from_handle(handle,executable_name);
+      if (!memfile_handle_do_operation(handle,executable_name,op_load,NULL)) {
+        quit_instantly(1);
+      }
       success = 0;
     }
     CLOSE_HANDLE(handle);

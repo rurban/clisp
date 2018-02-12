@@ -1,5 +1,34 @@
 2018-02-11  Bruno Haible  <bruno@clisp.org>
 
+	Implement options -memfile-hash, -memfile-hash-of, -memfile-compatible.
+	* Makefile.devel (GNULIB_CORE): Add sha1.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* spvw_memfile.d (MFIH_LEN): New macro.
+	(memflags): Use bit 22.
+	(memdump_header_t): Add '_mfihash' field.
+	(get_mem_file_interface_hash): New function.
+	(fill_memdump_header): Invoke it.
+	(memfile_operation): New enum type.
+	(memfile_handle_do_operation): Renamed from loadmem_from_handle, Add op
+	and arg arguments. Handle op_extract_mfih and op_test_compatibility as
+	well.
+	(memfile_do_operation): New function, extracted from loadmem.
+	(loadmem): Invoke it.
+	(extract_mem_file_interface_hash, is_mem_file_compatible):
+	New functions.
+	(loadmem_from_executable): Update.
+	* spvw.d: Include sha1.h. Move include of spvw_memfile.c up.
+	(main_action_t): New enum type.
+	(struct argv_actions): Add 'argv_main_action' field.
+	(parse_options): Initialize it. Parse the -memfile-hash,
+	-memfile-hash-of, -memfile-compatible options.
+	(output_mfih): New function.
+	(main): Handle action_mfihash, action_mfihash_of, action_mfcompat.
+
+2018-02-11  Bruno Haible  <bruno@clisp.org>
+
 	Simplify code.
 	* spvw_memfile.d: Reorder functions, to avoid forward declarations.
 

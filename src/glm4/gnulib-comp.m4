@@ -56,6 +56,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module close:
   # Code from module configmake:
   # Code from module connect:
+  # Code from module crypto/sha1:
   # Code from module dosname:
   # Code from module dup2:
   # Code from module environ:
@@ -243,6 +244,7 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([connect])
   fi
   gl_SYS_SOCKET_MODULE_INDICATOR([connect])
+  gl_SHA1
   gl_FUNC_DUP2
   if test $HAVE_DUP2 = 0 || test $REPLACE_DUP2 = 1; then
     AC_LIBOBJ([dup2])
@@ -830,6 +832,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/getsockopt.c
   lib/gettext.h
   lib/gettimeofday.c
+  lib/gl_openssl.h
   lib/glthread/lock.c
   lib/glthread/lock.h
   lib/glthread/threadlib.c
@@ -893,6 +896,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/sendto.c
   lib/setenv.c
   lib/setsockopt.c
+  lib/sha1.c
+  lib/sha1.h
   lib/shutdown.c
   lib/signal.in.h
   lib/socket.c
@@ -988,6 +993,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
+  m4/gl-openssl.m4
   m4/glibc2.m4
   m4/glibc21.m4
   m4/gnu-make.m4
@@ -1061,6 +1067,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/regex.m4
   m4/select.m4
   m4/setenv.m4
+  m4/sha1.m4
   m4/signal_h.m4
   m4/size_max.m4
   m4/socketlib.m4
