@@ -703,6 +703,9 @@
 /* Define to 1 if you have the `nl_langinfo' function. */
 #undef HAVE_NL_LANGINFO
 
+/* Define to 1 if libcrypto is used for SHA1. */
+#undef HAVE_OPENSSL_SHA1
+
 /* Define to 1 if you have the <OS.h> header file. */
 #undef HAVE_OS_H
 

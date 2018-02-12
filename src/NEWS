@@ -148,6 +148,19 @@ New features
   It has been present since 2.36 in package SOCKET but was not documented.
   See <http://clisp.org/impnotes/socket.html#so-handles> for details.
 
+* To help distributors distribute memory images of clisp applications in
+  package repositories, clisp has three new command-line options:
+  $ clisp [-K linking-set] -memfile-hash
+    Prints the hash code of the mem file binary interface.
+  $ clisp [-K linking-set] -memfile-hash-of mem-file
+    Prints the hash code of the mem file binary interface that was used to
+    create this mem-file.
+  $ clisp [-K linking-set] -memfile-compatible mem-file
+    Returns 0 or 1, depending whether this mem-file is compatible with the
+    linking-set or not.
+  See <http://clisp.org/impnotes/image.html#images-in-distros> for how to use
+  these options.
+
 Modules
 .......
 

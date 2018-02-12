@@ -181,6 +181,86 @@ space.</para>
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
 See also <ulink role="gmane" url="devel/17757"/>/<ulink role="msgid=BF6EFF38DF3FA647BBD932720D8BED650BAA11@parmbx02.ilog.biz" url="https://sourceforge.net/p/clisp/mailman/message/18854510/"/>.</para></section>
 
+<section id="images-in-distros">
+ <title>Distributing images in package repositories</title>
+ <para>When &clisp; and packages that rely on &clisp; are distributed through
+  package repositories, such as operating system distributions, the way the
+  memory images work imposes certain ways to handle them in the packaging
+  system.</para>
+ <para>Assume you have a package <constant>foo</constant> that relies on
+  &clisp;. There are three ways to package it:</para>
+ <itemizedlist>
+  <listitem>
+   <para>It can be packaged to not use a memory image. Instead the program
+    <constant>foo</constant> is an invocation of &clisp-cmd; that will load a
+    set of <filename>*.fas</filename> files at startup. You can simplify
+    this loading by concatenating the <filename>*.fas</filename> files
+    together; then only a single <filename>*.fas</filename> file needs to be
+    loaded. The drawback of this approach is the startup time.</para>
+  </listitem>
+  <listitem>
+   <para>It can be packaged to use a memory image that is constructed in a
+    subdirectory of <filename>/var/lib</filename>, when
+    <constant>foo</constant> gets installed, through a post-install action of
+    package <constant>foo</constant>. Also the package
+    <constant>clisp</constant> will have a post-install action that removes
+    and rebuilds these memory images when a new version of
+    <constant>clisp</constant> is installed.</para>
+  </listitem>
+  <listitem>
+   <para>It can be packaged to use a memory image that is part of the binary
+    package of <constant>foo</constant> and installed in a subdirectory of
+    <filename>/usr/lib</filename>. In order to catch the case where
+    <constant>clisp</constant> is upgraded and <constant>foo</constant> is not
+    upgraded, you attach an alias
+    <constant>clisp-<replaceable>memory-image-interface-hash</replaceable></constant>
+    to the <constant>clisp</constant> package, and you make the
+    <constant>foo</constant> package depend on this alias. When the
+    <constant>clisp</constant> package is upgraded (or even when it is only
+    rebuilt with a different parameterization), the
+    <replaceable>memory-image-interface-hash</replaceable> changes, and the
+    packaging system will notice a dependency conflict. A good packaging
+    system will then propose one of two actions to the user:
+    <itemizedlist>
+     <listitem>
+      <para>either upgrade package <constant>foo</constant> as well, to a
+       build that depends on the new
+       <constant>clisp-<replaceable>memory-image-interface-hash</replaceable></constant>
+       alias (assuming such a build exists),</para>
+     </listitem>
+     <listitem>
+      <para>or refuse the upgrade of <constant>clisp</constant>.</para>
+     </listitem>
+    </itemizedlist>
+    To allow you to implement such a system, &clisp; provides the following
+    command-line options:
+    <variablelist>
+     <varlistentry>
+      <term><code>&clisp-cmd; [-K <replaceable>linking-set</replaceable>] -memfile-hash</code></term>
+      <listitem><simpara>Prints the hash code of the mem file binary interface.</simpara></listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><code>&clisp-cmd; [-K <replaceable>linking-set</replaceable>] -memfile-hash-of <replaceable>mem-file</replaceable></code></term>
+      <listitem><simpara>Prints the hash code of the mem file binary interface
+       that was used to create this <replaceable>mem-file</replaceable>.
+       </simpara></listitem>
+     </varlistentry>
+     <varlistentry>
+      <term><code>&clisp-cmd; [-K <replaceable>linking-set</replaceable>] -memfile-compatible <replaceable>mem-file</replaceable></code></term>
+      <listitem><simpara>Returns 0 or 1, depending whether this
+       <replaceable>mem-file</replaceable> is compatible with the
+       <replaceable>linking-set</replaceable> or not.</simpara></listitem>
+     </varlistentry>
+    </variablelist>
+    When the hash code of the mem file binary interface of a &clisp;
+    executable is the same as the one of a <replaceable>mem-file</replaceable>,
+    it is guaranteed that the executable can load this
+    <replaceable>mem-file</replaceable>.
+   </para>
+  </listitem>
+ </itemizedlist>
+</section>
+
 </section>
 
 <section id="quit"><title>Quitting &clisp;</title>

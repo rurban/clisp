@@ -23,6 +23,7 @@
 #include "lispbibl.c"
 
 #include "c-strtod.h"
+#include "sha1.h"
 
 #ifdef MULTITHREAD
   #define bzero(ptr,len)  memset(ptr,0,len)
@@ -1216,6 +1217,8 @@ modexp _Noreturn void error_notreached (const char* file, uintL line) {
 /* name of the program (for error reporting) */
 local const char* program_name;
 
+extern char *get_executable_name (void);
+
 /* Flag, if SYS::READ-FORM should behave ILISP-compatible: */
 global bool ilisp_mode = false;
 
@@ -2055,9 +2058,6 @@ local void initmem (void) {
   /* create other objects: */
   init_object_tab();
 }
-/* loading of MEM-file: */
-local void loadmem (const char* filename); /* see below */
-local int loadmem_from_executable (void);
 /* initialization of the other, not yet initialized modules: */
 local void init_other_modules_2 (void);
 local void init_module_2 (module_t* module) {
@@ -2459,8 +2459,15 @@ struct argv_initparams {
 };
 
 /* Parameters that determine the actions to be executed. */
+typedef enum {
+  action_normal,     /* normal processing: load mem-file etc. */
+  action_mfihash,    /* option -memfile-hash */
+  action_mfihash_of, /* option -memfile-hash-of */
+  action_mfcompat    /* option -memfile-compatible */
+} main_action_t;
 typedef struct { const char* input_file; const char* output_file; } argv_compile_file_t;
 struct argv_actions {
+  main_action_t argv_main_action;
   const char* argv_memfile;
   int argv_verbose; /* verbosity level */
   const char* argv_lisplibdir;
@@ -2570,6 +2577,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p1->argv_memneed = 0;
   p1->argv_nextgc_factor = 1.0;
   p1->argv_memfile = NULL;
+  p2->argv_main_action = action_normal;
   p2->argv_memfile = NULL;
   p2->argv_verbose = 2;
   p2->argv_lisplibdir = NULL;
@@ -2628,6 +2636,11 @@ local inline int parse_options (int argc, const char* const* argv,
      -on-error debug override batch-mode for -c, -x and file
      -repl           enter REPL after -c, -x and file
      -w              wait for keypress after termination
+     -memfile-hash   Print the hash code of the mem file binary interface
+     -memfile-hash-of mem-file  Print the hash code of the mem file binary
+                                interface that was used to create this mem-file
+     -memfile-compatible mem-file  Return 0 or 1, depending whether this mem-file is
+                                   compatible with this executable
      --help          print usage and exit (should be the only option)
      --version       print version and exit (should be the only option)
      file [arg ...]  load LISP-file in batch-mode and execute, then leave LISP
@@ -2688,9 +2701,25 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-marc")) { /* "-marc" -> MAPPABLE_ADDRESS_RANGE_* check */
               return mappable_address_range_check();
             }
-            if (asciz_equal(arg,"-modern"))
+            if (asciz_equal(arg,"-memfile-hash")) {
+              p2->argv_main_action = action_mfihash;
+            } else if (asciz_equal(arg,"-memfile-hash-of")) {
+              if (argptr < argptr_limit)
+                arg = *argptr++;
+              else
+                INVALID_ARG(arg);
+              p2->argv_main_action = action_mfihash_of;
+              p2->argv_memfile = arg;
+            } else if (asciz_equal(arg,"-memfile-compatible")) {
+              if (argptr < argptr_limit)
+                arg = *argptr++;
+              else
+                INVALID_ARG(arg);
+              p2->argv_main_action = action_mfcompat;
+              p2->argv_memfile = arg;
+            } else if (asciz_equal(arg,"-modern")) {
               p2->argv_modern = true;
-            else {
+            } else {
               OPTION_ARG;
               if (size_arg(arg,GETTEXTL("memory size"),&(p1->argv_memneed),
                            (MINIMUM_SPACE + RESERVE) * 8 /*teile/teile_STACK*/,
@@ -3025,6 +3054,9 @@ local inline void free_argv_actions (struct argv_actions *p) {
   free(p->argv_compile_files);
 }
 
+/* Saving and Loading of MEM-Files */
+#include "spvw_memfile.c"
+
 /* Initialize memory and load the specified memory image.
  Returns 0 if successful, -1 upon error (after printing an error message
  to stderr). */
@@ -3033,7 +3065,6 @@ local inline void free_argv_actions (struct argv_actions *p) {
 #else
 #define VAROUT(v)
 #endif
-extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
   /* Initialize the table of relocatable pointers: */
   {
@@ -3642,6 +3673,26 @@ local inline int init_memory (struct argv_initparams *p) {
   return 0;
 }
 
+/* Output the hash code of the mem file binary interface. */
+local void output_mfih (const uintB mfihash[MFIH_LEN])
+{
+  /* Convert to hexadecimal. */
+  static char hex[16] = "0123456789abcdef";
+  var char mfihash_asciz[2*MFIH_LEN+1];
+  { var const uintB* p = &mfihash[0];
+    var char* q = mfihash_asciz;
+    var uintC count;
+    dotimespC(count,MFIH_LEN, {
+      var uintB x = *p++;
+      *q++ = hex[x >> 4];
+      *q++ = hex[x & 0x0f];
+    });
+    *q = '\0';
+  }
+  /* Output it. */
+  printf("%s\n",mfihash_asciz);
+}
+
 /* run all functions in the list
  can trigger GC */
 local void maygc run_hooks (object hooks) {
@@ -4088,6 +4139,25 @@ global int main (argc_t argc, char* argv[]) {
 
   /* Initialize memory and load a memory image (if specified). */
   if (init_memory(&argv1) < 0) goto no_mem;
+  switch (argv2.argv_main_action) {
+     case action_mfihash:
+       { var uintB mfihash[MFIH_LEN];
+         get_mem_file_interface_hash(&mfihash[0]);
+         output_mfih(&mfihash[0]);
+         return 0;
+       }
+     case action_mfihash_of:
+       { var uintB mfihash[MFIH_LEN];
+         extract_mem_file_interface_hash(&mfihash[0],argv2.argv_memfile);
+         output_mfih(&mfihash[0]);
+         return 0;
+       }
+     case action_mfcompat:
+       { var bool compatible = is_mem_file_compatible(argv2.argv_memfile);
+         return (compatible ? 0 : 1);
+       }
+     default: ;
+  }
   SP_anchor = (void*)SP(); /* VTZ: in MT current_thread() should be initialized */
 #if defined(MULTITHREAD)
   /* after heap is initialized - allocate thread record for main thread.
@@ -4363,11 +4433,6 @@ global _GL_NORETURN_FUNC void quit (void) {
  #endif
   quit_instantly(final_exitcode);  /* leave program */
 }
-
-/* --------------------------------------------------------------------------
-                  Saving and Loading of MEM-Files */
-
-#include "spvw_memfile.c"
 
 /* ------------------------ dll loading ----------------------------------- */
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
