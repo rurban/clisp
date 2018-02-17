@@ -2695,9 +2695,20 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x000000012x000000UL
        SHLIB_ADDRESS_RANGE  = 0x000000555F000000UL or 0x000000FFEF000000UL..0x000000FFF2000000UL
        STACK_ADDRESS_RANGE  = 0x000000FFFF000000UL
-       There is room from 0x005600000000UL to 0x00FF00000000UL. */
+       On some Linux/mips64 Debian build machines:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 39
+       CODE_ADDRESS_RANGE   = 0x000000AABx000000UL
+       MALLOC_ADDRESS_RANGE = 0x000000AABx000000UL
+       SHLIB_ADDRESS_RANGE  = 0x000000FFFx000000UL
+       STACK_ADDRESS_RANGE  = 0x000000FFFF000000UL
+       There is room from 0x005600000000UL to 0x00AA00000000UL. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x0000000000000000UL || (CODE_ADDRESS_RANGE >= 0x000000AA00000000UL && CODE_ADDRESS_RANGE < 0x000000AB00000000UL))
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x000000AAFF000000UL
+    #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x005600000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x00FEFFFFFFFFUL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x00A9FFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(POWERPC64)
     /* On Linux/powerpc64 and Linux/powerpc64le:
@@ -3488,7 +3499,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_ADDRESS_BASE 0x008000000000UL
     #define SINGLEMAP_TYPE_MASK    0x007E00000000UL
     #define SINGLEMAP_oint_type_shift 33
-    #define SINGLEMAP_WORKS 1
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 4+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
     #define SINGLEMAP_ADDRESS_BASE 0x010000000000UL

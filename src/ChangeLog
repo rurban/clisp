@@ -1,5 +1,16 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/mips64 machines.
+	Reported by Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
+	Linux/mips64 systems.
+	(MAPPABLE_ADDRESS_RANGE_END) [UNIX_LINUX && MIPS64]: Change.
+	(SINGLEMAP_WORKS) [UNIX_LINUX && MIPS64]: Set to 0.
+	* Makefile.devel (multibuild-linux-mips-64): Remove
+	build-porting64-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/arm64 machines.
 	Reported by Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
