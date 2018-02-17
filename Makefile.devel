@@ -1360,7 +1360,6 @@ multibuild-linux-i386: \
   build-porting32-gcc-kernelvoid32_heapcodes \
   build-porting32-gcc-heapcodes-spvw_pages \
   build-porting32-gcc-heapcodes-spvw_mixed_blocks \
-  build-porting32-gcc-spvw_pure_blocks \
   build-porting32-gcc-wide \
   build-porting32-gcc-limited_memory \
   build-porting32-gcc-old_gc \
