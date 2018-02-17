@@ -1,5 +1,16 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/x86_64 machines (Ubuntu 17.10, Debian).
+	Reported by Sam Steingold and Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
+	Linux/x86_64 systems.
+	(MAPPABLE_ADDRESS_RANGE_*, SINGLEMAP_WORKS) [UNIX_LINUX && AMD64]:
+	Change.
+	* Makefile.devel (multibuild-linux-x86_64): Remove
+	build-porting64-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/powerpc machines.
 	Reported by Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (CODE_ADDRESS_RANGE, MAPPABLE_ADDRESS_RANGE_START)

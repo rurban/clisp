@@ -1892,7 +1892,6 @@ multibuild-linux-x86_64: \
   build-porting64-gcc-heapcodes-spvw_mixed_blocks \
   build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc \
   build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap \
-  build-porting64-gcc-spvw_pure_blocks \
   build-porting64-gcc-limited_memory \
   build-porting64-gcc-old_gc \
   build-porting64-gcc-multithread_gc \
