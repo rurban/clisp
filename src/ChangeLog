@@ -1,5 +1,13 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix possible build failure on some Linux/s390x machines.
+	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
+	Linux/s390x systems.
+	(MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && S390_64]: Change.
+	(SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift): Adjust accordingly.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix possible build failure on some Linux/powerpc64 machines.
 	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
 	Linux/powerpc64 systems.
