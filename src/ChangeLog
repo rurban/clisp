@@ -1,5 +1,13 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Use newest libffcall.
+	* m4/ffcall.m4 (CL_LIBFFCALL_DOWNLOAD_URL): Point to the libffcall-2.1
+	release.
+	* NEWS: Likewise.
+	* aclocal.m4, src/configure: Regenerated.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure when building in the srcdir.
 	Reported by Nelson Beebe.
 	* makemake.in: When preprocessing the ari_asm_*.c and sp_asm_*.c files
