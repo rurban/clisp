@@ -592,11 +592,21 @@
   #define log2_C_CODE_ALIGNMENT  1
 #endif
 #if defined(ARM)
-  /* When using gcc-4.8 with binutils-2.24 (on Ubuntu 14.04/arm64), the
-     expression &eql apparently evaluates to the address of 'eql' plus 1.
-     This kills the expected alignment of 4 bytes. */
-  #define C_CODE_ALIGNMENT  1
-  #define log2_C_CODE_ALIGNMENT  0
+  /* A function pointer on ARM is either
+     - a code pointer (of code that uses the ARM instruction set), == 0 mod 4,
+     or
+     - a code pointer (of code that uses the Thumb instruction set), == 0 mod 2,
+       plus 1.
+     See https://stackoverflow.com/questions/22205183/least-significant-bits-in-function-pointer
+     For GCC, which mode / instruction set is used can be specified through the
+     options -marm and -mthumb. */
+  #if defined(__thumb__)
+    #define C_CODE_ALIGNMENT  1
+    #define log2_C_CODE_ALIGNMENT  0
+  #else
+    #define C_CODE_ALIGNMENT  4
+    #define log2_C_CODE_ALIGNMENT  2
+  #endif
 #endif
 #if defined(__AVR__) || defined(__m32c__) || defined(__mn10300__) || defined(__RL78__)
   #define C_CODE_ALIGNMENT  1
@@ -3794,12 +3804,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          - HEAPCODES: a per-platform decision whether to use
            ONE_FREE_BIT_HEAPCODES or KERNELVOID32_HEAPCODES can be made
            (below).
-         - Except that on Linux/arm (with gcc-4.8.4) HEAPCODES produces the error
-           "PSEUDOCODE_ALIGNMENT is not fulfilled", despite -falign-functions=4.
-           It works with gcc-4.9.2.
+         - Except that on ARM in -mthumb mode HEAPCODES produces the error
+           "PSEUDOCODE_ALIGNMENT is not fulfilled". (-falign-functions has no
+           effect on ARM.)
          - On Linux/m68k (with gcc-5.4), nearly all HEAPCODES variants crash.
          Choose HEAPCODES whenever it will work. */
-      #if (defined(UNIX_LINUX) && defined(ARM) && __GNUC__ == 4 && __GNUC_MINOR__ == 8) \
+      #if (defined(ARM) && defined(__thumb__)) \
           || (defined(UNIX_LINUX) && defined(M68K))
         /* On these platforms, HEAPCODES does not work. */
         #define TYPECODES

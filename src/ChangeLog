@@ -1,5 +1,14 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix a build failure on some Linux/arm machines.
+	Namely, a "PSEUDOCODE_ALIGNMENT is not fulfilled" error.
+	* lispbibl.d (C_CODE_ALIGNMENT) [ARM]: Define depending on __thumb__.
+	(TYPECODES/HEAPCODES): Likewise.
+	* makemake.in (XCFLAGS): On ARM, use GCC option '-marm', not
+	'-falign-functions=4', in order to enforce C_CODE_ALIGNMENT == 4.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Comments.
 	* lispbibl.d: Improve comments about memory map on Hurd/i386.
 
