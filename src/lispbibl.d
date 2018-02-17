@@ -2184,9 +2184,10 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x00000000UL
        SHLIB_ADDRESS_RANGE  = 0x40000000UL or 0xF7000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
-       There is room from 0x41000000UL to 0xB6000000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x41000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0xB5FFFFFFUL
+       There is room from 0x43000000UL to 0xB6000000UL, but let's keep some
+       distance. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x48000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(HPPA)
     /* On Linux/hppa in qemu user-mode emulation:
@@ -3164,7 +3165,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_ADDRESS_BASE 0x40000000UL
     #define SINGLEMAP_TYPE_MASK    0x3F000000UL
     #define SINGLEMAP_oint_type_shift 24
-    #define SINGLEMAP_WORKS 1
+    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
+    #define IGNORE_MAPPABLE_ADDRESS_RANGE
+    #define SINGLEMAP_WORKS 0 /* does not work on build.opensuse.org machines */
   #endif
   #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
