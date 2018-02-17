@@ -82,7 +82,7 @@ of platforms:
   Windows          | i386           | Cygwin 32-bit
 
 The Foreign Function Interface (FFI) is now supported as well, on all of these
-platforms (except HP-UX), through libffcall-2.0.
+platforms (except HP-UX), through libffcall-2.1.
 
 User visible changes
 --------------------
