@@ -3677,7 +3677,7 @@ local inline int init_memory (struct argv_initparams *p) {
 local void output_mfih (const uintB mfihash[MFIH_LEN])
 {
   /* Convert to hexadecimal. */
-  static char hex[16] = "0123456789abcdef";
+  static char hex[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
   var char mfihash_asciz[2*MFIH_LEN+1];
   { var const uintB* p = &mfihash[0];
     var char* q = mfihash_asciz;

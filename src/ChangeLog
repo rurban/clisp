@@ -1,3 +1,8 @@
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
+	Fix compilation error in C++ mode (regression from 2018-02-11).
+	* spvw.d (output_mfih): Fix array initializer.
+
 2018-02-11  Bruno Haible  <bruno@clisp.org>
 
 	Bump version number.
