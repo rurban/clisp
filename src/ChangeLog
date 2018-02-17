@@ -1,5 +1,15 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/mips machines.
+	Reported by Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (CODE_ADDRESS_RANGE, MAPPABLE_ADDRESS_RANGE_END)
+	[UNIX_LINUX && MIPS && !n32]: Change.
+	(SINGLEMAP_WORKS) [UNIX_LINUX && MIPS && !n32]: Set to 0.
+	* Makefile.devel (multibuild-linux-mips-32): Remove
+	build-porting32-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/i386 machines.
 	Reported by Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (CODE_ADDRESS_RANGE, MAPPABLE_ADDRESS_RANGE_START)
