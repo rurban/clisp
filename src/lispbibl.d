@@ -2624,15 +2624,22 @@ typedef enum {
   #if defined(UNIX_LINUX) && defined(AMD64)
     /* On Linux/x86_64:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
-       CODE_ADDRESS_RANGE   = 0x0000000000000000UL or 0x0000562A92000000 (in Linux 4.13)
-       MALLOC_ADDRESS_RANGE = 0x000000000x000000UL or 0x000055EEF5000000 (in Linux 4.13)
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL or 0x000055xxxx000000UL or 0x000056xxxx000000UL (in Linux 4.13)
+       MALLOC_ADDRESS_RANGE = 0x000000000x000000UL or 0x000055xxxx000000UL (in Linux 4.13)
        SHLIB_ADDRESS_RANGE  = 0x00000034F5000000UL or 0x0000003844000000UL or 0x00007Fxxxx000000UL
                               or 0x0000002Axx000000UL or 0x0000002Bxx000000UL (in Linux 3.2, when invoked by 'make')
                               or 0x00007Fxxxx000000UL (in WSL)
-       STACK_ADDRESS_RANGE  = 0x0000007FBF000000UL or 0x00007FFEBF000000UL or 0x00007FFDxx000000 (in Linux 4.13)
-       There is room from 0x004000000000UL to 0x2A0000000000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x004000000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x2AFFFFFFFFFFUL
+       STACK_ADDRESS_RANGE  = 0x0000007FBF000000UL or 0x00007FFDxx000000UL or 0x00007FFEBF000000UL or 0x00007FFECF000000UL
+       There is room from 0x004000000000UL to 0x2A0000000000UL
+       and           from 0x400000000000UL to 0x540000000000UL
+       and           from 0x580000000000UL to 0x7E0000000000UL. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x0000000000000000UL || (CODE_ADDRESS_RANGE >= 0x0000550000000000UL && CODE_ADDRESS_RANGE < 0x0000570000000000UL))
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x0000570000000000UL
+    #endif
+    #define MAPPABLE_ADDRESS_RANGE_START 0x008000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x1FFFFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(ARM64)
     /* On Linux/arm64:
@@ -3437,9 +3444,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_ADDRESS_BASE 0UL
     #define SINGLEMAP_TYPE_MASK    0x1F8000000000UL
     #define SINGLEMAP_oint_type_shift 39
-    /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
-    #define IGNORE_MAPPABLE_ADDRESS_RANGE
-    #define SINGLEMAP_WORKS 1
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 2+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_LINUX) && defined(ARM64) /* Linux/arm64 */
     #if 1 /* arbitrary choice */
