@@ -2839,6 +2839,11 @@ if [ $TSYS != win32msvc ] ; then
     echol "${f}.s : ${SRCDIR}${f}-macro.c"
     # Preprocess, then remove the line number information etc. and convert
     # "% ecx" back to "%ecx" and ". align" to ".align" and ". Lxxx" to ".Lxxx":
+    if test -n "${SRCDIR}"; then
+      i_option="-I${SRCDIR} "
+    else
+      i_option=''
+    fi
     case "$asmsyntax" in
       i386 | x86_64 | sparc)
         # Use "- <" because the Sun Studio 11 compiler should not assume C syntax of the input.
@@ -2873,7 +2878,7 @@ if [ $TSYS != win32msvc ] ; then
         asmfilter2="\$(SED) -e 's,% ,%,g' -e 's,//.*\$\$,,'"
         ;;
     esac
-    echotab "${XCPP}${ASMFLAGS} -I${SRCDIR} ${cpp_from}${SRCDIR}${f}-macro.c | \$(GREP) -v '^ *#line' | \$(GREP) -v '^#' | ${asmfilter2} > ${f}.s"
+    echotab "${XCPP}${ASMFLAGS} ${i_option}${cpp_from}${SRCDIR}${f}-macro.c | \$(GREP) -v '^ *#line' | \$(GREP) -v '^#' | ${asmfilter2} > ${f}.s"
     echol
   done
 fi
