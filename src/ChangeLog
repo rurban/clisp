@@ -1,5 +1,12 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure when building in the srcdir.
+	Reported by Nelson Beebe.
+	* makemake.in: When preprocessing the ari_asm_*.c and sp_asm_*.c files
+	in the srcdir, omit the '-I' option.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error in C++ mode (regression from 2018-02-11).
 	* spvw.d (output_mfih): Fix array initializer.
 
