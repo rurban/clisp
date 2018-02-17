@@ -2290,9 +2290,26 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x10000000UL
        SHLIB_ADDRESS_RANGE  = 0x0F000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
-       There is room from 0x11000000UL to 0xF7000000UL, but let's keep some
+       On some Linux/powerpc build machines:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x00000000UL
+       MALLOC_ADDRESS_RANGE = 0x00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       On some Linux/powerpc build machines:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x20000000UL
+       MALLOC_ADDRESS_RANGE = 0x20000000UL
+       SHLIB_ADDRESS_RANGE  = 0x20000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x21000000UL to 0xF7000000UL, but let's keep some
        distance. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x20000000UL
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x10000000UL || CODE_ADDRESS_RANGE == 0x20000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x30000000UL
+    #endif
+    #define MAPPABLE_ADDRESS_RANGE_START 0x30000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(S390)
@@ -3228,7 +3245,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 24
     /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
     #define IGNORE_MAPPABLE_ADDRESS_RANGE
-    #define SINGLEMAP_WORKS 1
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 5+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_LINUX) && defined(S390) /* Linux/s390x with 32-bit ABI */
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
