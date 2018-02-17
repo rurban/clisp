@@ -1,5 +1,12 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix possible build failure on some Linux/powerpc64 machines.
+	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
+	Linux/powerpc64 systems.
+	Enhance comments about memory map on Linux/PowerPC64.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/mips64 machines.
 	Reported by Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
