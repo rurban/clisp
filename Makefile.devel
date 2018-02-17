@@ -1320,7 +1320,6 @@ multibuild-linux-arm: \
   build-porting32-gcc-portability \
   build-porting32-gcc-safety3 \
   build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap \
-  build-porting32-gcc-spvw_pure_blocks \
   build-porting32-gcc-wide \
   build-porting32-gcc-limited_memory \
   build-porting32-gcc-old_gc \

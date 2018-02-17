@@ -1,5 +1,14 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/arm machines.
+	Reported by Dr. Werner Fink <werner@suse.de>.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && ARM]: Change.
+	(SINGLEMAP_WORKS) [UNIX_LINUX && ARM]: Set to 0.
+	* Makefile.devel (multibuild-linux-arm): Remove
+	build-porting32-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Use newest libffcall.
 	* m4/ffcall.m4 (CL_LIBFFCALL_DOWNLOAD_URL): Point to the libffcall-2.1
 	release.
