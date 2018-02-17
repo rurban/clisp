@@ -1,5 +1,15 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/arm64 machines.
+	Reported by Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
+	Linux/arm64 systems.
+	(SINGLEMAP_WORKS) [UNIX_LINUX && ARM64]: Set to 0.
+	* Makefile.devel (multibuild-linux-arm64): Remove
+	build-porting64-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/x86_64 machines (Ubuntu 17.10, Debian).
 	Reported by Sam Steingold and Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (CODE_ADDRESS_RANGE): Ensure the same value across all
