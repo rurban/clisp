@@ -1,5 +1,15 @@
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
+	Fix build failure on some Linux/i386 machines.
+	Reported by Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (CODE_ADDRESS_RANGE, MAPPABLE_ADDRESS_RANGE_START)
+	[UNIX_LINUX && I80386]: Change.
+	(SINGLEMAP_WORKS) [UNIX_LINUX && I80386]: Set to 0.
+	* Makefile.devel (multibuild-linux-i386): Remove
+	build-porting32-gcc-spvw_pure_blocks.
+
+2018-02-17  Bruno Haible  <bruno@clisp.org>
+
 	Fix build failure on some Linux/arm machines.
 	Reported by Dr. Werner Fink <werner@suse.de>.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && ARM]: Change.

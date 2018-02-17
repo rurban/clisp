@@ -2214,21 +2214,21 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x08000000UL ... 0x0A000000UL
        SHLIB_ADDRESS_RANGE  = 0xF7000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
-       There is room from 0x0B000000UL to 0xB7000000UL, but let's keep some
-       distance. */
+       On some Linux/i386 Debian build machines:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x56000000UL
+       MALLOC_ADDRESS_RANGE = 0x56000000UL ... 0x58000000UL
+       SHLIB_ADDRESS_RANGE  = 0xF7000000UL
+       STACK_ADDRESS_RANGE  = 0xFF000000UL
+       There is room from 0x0B000000UL to 0x53000000UL
+       and from 0x5B000000UL to 0xB7000000UL, but let's keep some distance. */
     /* Force the same CODE_ADDRESS_RANGE across platforms. */
-    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x08000000UL)
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x08000000UL || CODE_ADDRESS_RANGE == 0x56000000UL)
       #undef CODE_ADDRESS_RANGE
-      #define CODE_ADDRESS_RANGE 0x08000000UL
+      #define CODE_ADDRESS_RANGE 0x5E000000UL
     #endif
-    #define MAPPABLE_ADDRESS_RANGE_START 0x10000000UL
+    #define MAPPABLE_ADDRESS_RANGE_START 0x60000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
-    #if 0 /* old */
-      #define MAPPABLE_ADDRESS_RANGE1_START 0x2E000000UL
-      #define MAPPABLE_ADDRESS_RANGE1_END   0x3FFFFFFFUL
-      #define MAPPABLE_ADDRESS_RANGE2_START 0x64000000UL
-      #define MAPPABLE_ADDRESS_RANGE2_END   0x7EFFFFFFUL
-    #endif
   #endif
   #if defined(UNIX_LINUX) && defined(M68K)
     /* On Linux/m68k in qemu user-mode emulation:
@@ -3181,7 +3181,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 24
     /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
     #define IGNORE_MAPPABLE_ADDRESS_RANGE
-    #define SINGLEMAP_WORKS 1
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 2+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
     #define SINGLEMAP_ADDRESS_BASE 0UL
