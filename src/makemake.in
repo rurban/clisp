@@ -1450,7 +1450,14 @@ if [ $XCC_GCC = true ] && [ "$XCC_BRAND" != clang ] ; then
     # that are used as relocatable machine pointers.
     FALIGNFLAGS='-falign-functions=8'
   else
-    FALIGNFLAGS='-falign-functions=4'
+    if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
+      # On ARM, function pointer alignment depends on the arm/thumb mode:
+      # C_CODE_ALIGNMENT is 4 with -marm, but only 1 with -mthumb.
+      XCFLAGS=${XCFLAGS}' -marm'
+      FALIGNFLAGS=''
+    else
+      FALIGNFLAGS='-falign-functions=4'
+    fi
   fi
 else
   FALIGNFLAGS=''
