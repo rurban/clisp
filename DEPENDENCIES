@@ -9,6 +9,8 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/libsigsegv/
   + Download:
     https://ftp.gnu.org/gnu/libsigsegv/
+  + Use the newest version on all platforms except IRIX.
+    On IRIX, use version 2.10, because IRIX support was dropped in version 2.11.
   + If it is installed in a nonstandard directory, pass the option
     --with-libsigsegv-prefix=DIR to 'configure'.
 

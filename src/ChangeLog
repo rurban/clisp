@@ -1,5 +1,11 @@
 2018-02-18  Bruno Haible  <bruno@clisp.org>
 
+	Improve installation documentation.
+	Reported by Nelson Beebe.
+	* DEPENDENCIES: State which libsigsegv version to use on IRIX.
+
+2018-02-18  Bruno Haible  <bruno@clisp.org>
+
 	Make KERNELVOID32_HEAPCODES work on Linux/arm, Linux/hppa, Linux/m68k.
 	Reported by Sébastien Villemot <sebastien@debian.org>.
 	* lispbibl.d (KERNELVOID32A_HEAPCODES/KERNELVOID32B_HEAPCODES):
