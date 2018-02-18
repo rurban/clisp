@@ -4034,9 +4034,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
         #define ONE_FREE_BIT_HEAPCODES
-      #elif (defined(UNIX_LINUX) && defined(HPPA)) \
-            || (defined(UNIX_LINUX) && defined(M68K)) \
-            || (defined(UNIX_CYGWIN) && defined(I80386))
+      #elif (defined(UNIX_CYGWIN) && defined(I80386))
         /* On these platforms, KERNELVOID32_HEAPCODES does not work. */
         #define ONE_FREE_BIT_HEAPCODES
       #else
@@ -4433,10 +4431,20 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif /* ONE_FREE_BIT_HEAPCODES */
   #ifdef KERNELVOID32_HEAPCODES
     #if !(defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES))
-      #if STACK_ADDRESS_RANGE >= 0xC0000000UL
-        #define KERNELVOID32B_HEAPCODES
-      #else
+      #if (defined(UNIX_LINUX) && defined(ARM)) \
+          || (defined(UNIX_LINUX) && defined(I80386)) \
+          || (defined(UNIX_SUNOS5) && defined(I80386))
+        /* On these platforms, STACK_ADDRESS_RANGE is not always in the same
+           area. But it's always either < 0xC0000000UL or >= 0xE0000000UL. */
         #define KERNELVOID32A_HEAPCODES
+      #else
+        /* On all other platforms, STACK_ADDRESS_RANGE is always in the same
+           area. */
+        #if STACK_ADDRESS_RANGE < 0xC0000000UL || STACK_ADDRESS_RANGE >= 0xE0000000UL
+          #define KERNELVOID32A_HEAPCODES
+        #else
+          #define KERNELVOID32B_HEAPCODES
+        #endif
       #endif
     #endif
     #if defined(KERNELVOID32A_HEAPCODES) || defined(KERNELVOID32B_HEAPCODES)
@@ -4475,15 +4483,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_LINUX) && defined(HPPA) /* Linux/hppa */
-      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+      #define KERNELVOID32_HEAPCODES_WORKS 1 /* without GENERATIONAL_GC */
     #endif
     #if defined(UNIX_LINUX) && defined(I80386) /* Linux/i386, Linux/x86_64 with 32-bit i386 ABI */
       #define KERNELVOID32_HEAPCODES_WORKS 1
     #endif
     #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
-      /* Triggers a QEMU bug:
-         "translate-all.c:1925: page_set_flags: Assertion `start < end' failed." */
-      #define KERNELVOID32_HEAPCODES_WORKS 0 /* even without GENERATIONAL_GC */
+      #define KERNELVOID32_HEAPCODES_WORKS 1 /* without GENERATIONAL_GC */
     #endif
     #if defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)) /* Linux/mips with o32 or n32 ABI */
       #if !(_MIPS_SIM == _ABIN32) /* Linux/mips with o32 ABI */

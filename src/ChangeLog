@@ -1,3 +1,16 @@
+2018-02-18  Bruno Haible  <bruno@clisp.org>
+
+	Make KERNELVOID32_HEAPCODES work on Linux/arm, Linux/hppa, Linux/m68k.
+	Reported by Sébastien Villemot <sebastien@debian.org>.
+	* lispbibl.d (KERNELVOID32A_HEAPCODES/KERNELVOID32B_HEAPCODES):
+	If STACK_ADDRESS_RANGE >= 0xE0000000, use KERNELVOID32A_HEAPCODES, not
+	KERNELVOID32B_HEAPCODES.
+	(KERNELVOID32_HEAPCODES_WORKS): Set to 1 for Linux/hppa, Linux/m68k.
+	(ONE_FREE_BIT_HEAPCODES/KERNELVOID32_HEAPCODES): Remove special handling
+	of Linux/hppa and Linux/m68k.
+	* Makefile.devel (multibuild-linux-hppa, multibuild-linux-m68k): Depend
+	on build-porting32-gcc-kernelvoid32_heapcodes.
+
 2018-02-17  Bruno Haible  <bruno@clisp.org>
 
 	Fix a build failure on some Linux/arm machines.
