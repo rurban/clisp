@@ -4,5 +4,5 @@
 #  = MAJOR.MINOR+ for development after MAJOR.MINOR, and
 #  = MAJOR.MINOR++ for pretest (becomes (MINOR+1) on release)
 # RELEASE_DATE should be the date when VERSION_NUMBER was modified.
-VERSION_NUMBER=2.49.91+
-RELEASE_DATE=2018-02-11         # in "date +%F" format
+VERSION_NUMBER=2.49.93+
+RELEASE_DATE=2018-02-18         # in "date +%F" format
