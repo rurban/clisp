@@ -17705,9 +17705,9 @@ AC_DEFUN([CL_AS_UNDERSCORE],
 ])
 
 dnl -*- Autoconf -*-
-# bold.m4 serial 3 (clisp)
+# bold.m4 serial 4 (clisp)
 dnl Copyright (C) 1999-2002 Ralf S. Engelschall <rse@engelschall.com>
-dnl Copyright (C) 2002-2008, 2017 Bruno Haible <bruno@clisp.org>
+dnl Copyright (C) 2002-2008, 2017-2018 Bruno Haible <bruno@clisp.org>
 dnl Copyright (C) 2006 Sam Steingold <sds@gnu.org>
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
@@ -17723,13 +17723,9 @@ AC_DEFUN([RSE_BOLD],
 
   case $TERM in
     # for the most important terminal types we directly know the sequences
-    xterm*|vt220*)
+    xterm*|vt220*|vt100*)
       term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c", 27, 91, 49, 109); }' </dev/null 2>/dev/null`
       term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c", 27, 91, 109); }' </dev/null 2>/dev/null`
-      ;;
-    vt100*)
-      term_bold=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c%c", 27, 91, 49, 109, 0, 0); }' </dev/null 2>/dev/null`
-      term_norm=`${AWK:-awk} 'BEGIN { printf("%c%c%c%c%c", 27, 91, 109, 0, 0); }' </dev/null 2>/dev/null`
       ;;
     # for all others, we try to use a possibly existing `tput' or `tcout' utility
     *)

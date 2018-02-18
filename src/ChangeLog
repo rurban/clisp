@@ -1,5 +1,14 @@
 2018-02-18  Bruno Haible  <bruno@clisp.org>
 
+	Avoid "warning: command substitution: ignored null byte in input".
+	Reported by Nelson Beebe.
+	* m4/bold.m4 (RSE_BOLD): For vt100, remove trailing NUL bytes. Only
+	physical terminals need these NULs; physical terminals are not in use
+	any more nowadays.
+	* aclocal.m4, src/configure, modules/*/configure: Regenerated.
+
+2018-02-18  Bruno Haible  <bruno@clisp.org>
+
 	Improve installation documentation.
 	Reported by Nelson Beebe.
 	* DEPENDENCIES: State which libsigsegv version to use on IRIX.
