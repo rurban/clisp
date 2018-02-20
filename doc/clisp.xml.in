@@ -741,10 +741,9 @@ platform-independent &bytecode; which can be executed more efficiently.</para>
  manual page or <olink targetdoc="impnotes" targetptr="impnotes-top"/>),
  please report it to the &clisp;
  <ulink url="https://sourceforge.net/p/clisp/bugs/">SourceForge bug tracker</ulink>.
-Visit this bug tracker with a browser other than Firefox (because as of May 2017,
-the "Create Ticket" button is not visible in Firefox). Then login, either
-to your &sf; account, or to your <ulink url="http://openid.net/">OpenID</ulink>
-account. Then press the "Create Ticket" button on the left-hand side.</para>
+Login, either to your &sf; account, or to your
+<ulink url="http://openid.net/">OpenID</ulink> account.
+Then click the "Create Ticket" link on the left-hand side.</para>
 
 <para><emphasis>Before</emphasis> submitting a bug report, please take
  the following basic steps to make the report more useful:<orderedlist>
@@ -755,12 +754,12 @@ account. Then press the "Create Ticket" button on the left-hand side.</para>
    even though, historically, few &clisp; maintainers spoke English natively.
  </simpara></listitem>
  <listitem><simpara>Do a clean build (remove your build directory
-   and build &clisp; with <command>./configure --cbc build</command>
+   and build &clisp; with <command>./configure --cbcx build</command>
    or at least do a <command role="unix">make distclean</command>
    before &make;).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>./configure &with-debug; --cbc build-g ; cd build-g; gdb
+   <command>./configure &with-debug; --cbcx build-g ; cd build-g; gdb
     lisp.run</command>, then load the appropriate &linkset; by either
    &base; or &full; &gdb; command, and report the backtrace (see also
    <olink targetdoc="impnotes" targetptr="faq-debug"/>).</simpara></listitem>
@@ -773,20 +772,32 @@ account. Then press the "Create Ticket" button on the left-hand side.</para>
 <para>When submitting a bug report, please specify the following
  information:<orderedlist>
  <listitem><simpara>What is your platform (<command role="unix">uname
-    -a</command> on a &unix; system)?  Compiler version?
-   &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
- <listitem><simpara>Where did you get the sources or binaries?  When?
+    -a</command> on a &unix; system)?</simpara></listitem>
+ <listitem><simpara>Please supply the full output (copy and paste) of
+   all the error messages.</simpara></listitem>
+ <listitem><simpara>Please provide detailed instructions on how to
+   reproduce the problem.</simpara></listitem>
+ <listitem><simpara>Where did you get the &clisp; sources or binaries?  When?
    (Absolute dates, e.g., <quote>2006-01-17</quote>, are preferred over
    the relative ones, e.g., <quote>2 days ago</quote>. If you are using
    &hg;, please supply the output of <command>hg id</command>).</simpara></listitem>
- <listitem><simpara>How did you build &clisp;?
-   (What command, options &amp;c.)</simpara></listitem>
- <listitem><simpara>What is the output of
-   <command><link linkend="opt-version">clisp
-     --version</link></command>?</simpara></listitem>
- <listitem><simpara>Please supply the full output (copy and paste) of
-   all the error messages, as well as detailed instructions on how to
-   reproduce them.</simpara></listitem></orderedlist></para>
+ <listitem><para>If you are reporting a build failure:<orderedlist>
+  <listitem><simpara>What is your compiler version?</simpara></listitem>
+  <listitem><simpara>What is your &glibc; version (on &gnu;/&linux;)?
+  </simpara></listitem>
+  <listitem><simpara>What is the version of each of the
+   <filename role="clisp-cvs">DEPENDENCIES</filename>?</simpara></listitem>
+  <listitem><para>How did you run <filename role="clisp-cvs">configure</filename>?
+   We need the options you used as well as the values of the &env-var;s
+   <simplelist><member><envar>CC</envar></member>
+   <member><envar>CFLAGS</envar></member><member><envar>CPPFLAGS</envar></member>
+   <member><envar>LDFLAFS</envar></member>
+   <member><envar>LD_LIBRARY_PATH</envar></member></simplelist>.</para></listitem>
+  <listitem><simpara>Please attach all build logs.</simpara></listitem>
+ </orderedlist></para></listitem>
+ <listitem><simpara>If you have a working &clisp;, please supply the output of
+  <command><link linkend="opt-version">clisp --version</link></command>
+</simpara></listitem></orderedlist></para>
 
 </refsection>
 
