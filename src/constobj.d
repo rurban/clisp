@@ -326,11 +326,7 @@
   LISPOBJ_S(lisp_implementation_type_string,"CLISP")
   LISPOBJ_S(lisp_implementation_package_version,PACKAGE_VERSION)
   /* we want here the _LINK_ time, but I have no idea about how to get it */
-#ifdef __DATE__
   LISPOBJ_S(lisp_implementation_version_built_string,__DATE__ __TIME__)
-#else
-  LISPOBJ(lisp_implementation_version_built_string,"NIL")
-#endif
   LISPOBJ(lisp_implementation_version_string,"NIL") /* cache */
   LISPOBJ(memory_image_timestamp,"NIL") /* the dump date of the current image */
   LISPOBJ(memory_image_host,"NIL") /* the host on which this image was dumped */
