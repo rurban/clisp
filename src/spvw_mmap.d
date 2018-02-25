@@ -77,9 +77,9 @@ typedef caddr_t MINCORE_ADDR_T;
 typedef void* MINCORE_ADDR_T;
 #endif
 
-/* The glibc declaration of mincore() uses 'unsigned char *', whereas the BSD
-   declaration uses 'char *'. */
-#if __GLIBC__ >= 2
+/* The glibc and musl declaration of mincore() uses 'unsigned char *', whereas
+   the BSD declaration uses 'char *'. */
+#if __GLIBC__ >= 2 || defined(UNIX_LINUX)
 typedef unsigned char mincore_pageinfo_t;
 #else
 typedef char mincore_pageinfo_t;
