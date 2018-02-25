@@ -1,5 +1,12 @@
 2018-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix memory map related warnings on Alpine Linux 3.7/x86_64.
+	Reported by Nelson Beebe.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && AMD64]: Shrink,
+	to avoid the address ranges used on Alpine Linux.
+
+2018-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation error in C++ mode with musl libc.
 	* spvw_mmap.d (mincore_pageinfo_t): Change to 'unsigned char' on all
 	Linux platforms.
