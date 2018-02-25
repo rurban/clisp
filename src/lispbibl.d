@@ -2230,15 +2230,23 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x56000000UL ... 0x58000000UL
        SHLIB_ADDRESS_RANGE  = 0xF7000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
-       There is room from 0x0B000000UL to 0x53000000UL
-       and from 0x5B000000UL to 0xB7000000UL, but let's keep some distance. */
+       On Linux/i386 (Alpine 3.7):
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x10000000UL ... 0x1B000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL ... 0x1B000000UL
+       SHLIB_ADDRESS_RANGE  = 0x48000000UL ... 0x57000000UL
+       STACK_ADDRESS_RANGE  = 0x58000000UL ... 0x5F000000UL
+       Additionally, the ranges 0x70000000UL ... 0x78FFFFFFUL, 0xA8000000UL ... 0xB7FFFFFFUL
+       are used, and addresses >= 0x60000000UL cannot be allocated.
+       There is room from 0x1C000000UL to 0x48000000UL,
+       but let's keep some distance. */
     /* Force the same CODE_ADDRESS_RANGE across platforms. */
-    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x08000000UL || CODE_ADDRESS_RANGE == 0x56000000UL)
+    #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x08000000UL || (CODE_ADDRESS_RANGE >= 0x10000000UL && CODE_ADDRESS_RANGE < 0x1C000000UL) || CODE_ADDRESS_RANGE == 0x56000000UL)
       #undef CODE_ADDRESS_RANGE
-      #define CODE_ADDRESS_RANGE 0x5E000000UL
+      #define CODE_ADDRESS_RANGE 0x5F000000UL
     #endif
-    #define MAPPABLE_ADDRESS_RANGE_START 0x60000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
+    #define MAPPABLE_ADDRESS_RANGE_START 0x1E000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x45FFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(M68K)
     /* On Linux/m68k in qemu user-mode emulation:
@@ -3289,7 +3297,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE. */
     #define IGNORE_MAPPABLE_ADDRESS_RANGE
     /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
-       consumes so many bits that we have at most 2+1 bits for the typecode. */
+       consumes so many bits that we have at most 1+1 bits for the typecode. */
     #define SINGLEMAP_WORKS 0
   #endif
   #if defined(UNIX_LINUX) && defined(M68K) /* Linux/m68k */
