@@ -1,5 +1,11 @@
 2018-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix memory map related warnings on Alpine Linux 3.7/i386.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && I80386]: Shrink,
+	to avoid the address ranges used on Alpine Linux.
+
+2018-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix memory map related warnings on Alpine Linux 3.7/x86_64.
 	Reported by Nelson Beebe.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_*) [UNIX_LINUX && AMD64]: Shrink,
