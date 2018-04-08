@@ -2308,6 +2308,12 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x10000000UL
        SHLIB_ADDRESS_RANGE  = 0x0F000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
+       On some Linux/powerpc machines (Linux 4.6):
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
+       CODE_ADDRESS_RANGE   = 0x10000000UL
+       MALLOC_ADDRESS_RANGE = 0x10000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
+       STACK_ADDRESS_RANGE  = 0xBF000000UL
        On some Linux/powerpc build machines:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL
@@ -2320,7 +2326,7 @@ typedef enum {
        MALLOC_ADDRESS_RANGE = 0x20000000UL
        SHLIB_ADDRESS_RANGE  = 0x20000000UL
        STACK_ADDRESS_RANGE  = 0xFF000000UL
-       There is room from 0x21000000UL to 0xF7000000UL, but let's keep some
+       There is room from 0x21000000UL to 0xB7000000UL, but let's keep some
        distance. */
     /* Force the same CODE_ADDRESS_RANGE across platforms. */
     #if (CODE_ADDRESS_RANGE == 0x00000000UL || CODE_ADDRESS_RANGE == 0x10000000UL || CODE_ADDRESS_RANGE == 0x20000000UL)
@@ -2328,7 +2334,7 @@ typedef enum {
       #define CODE_ADDRESS_RANGE 0x30000000UL
     #endif
     #define MAPPABLE_ADDRESS_RANGE_START 0x30000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0xEFFFFFFFUL
+    #define MAPPABLE_ADDRESS_RANGE_END   0xAFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(S390)
     /* On Linux/s390x with 32-bit ABI:
