@@ -1,5 +1,15 @@
 2018-04-22  Bruno Haible  <bruno@clisp.org>
 
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
+2018-04-22  Bruno Haible  <bruno@clisp.org>
+
 	Switch to automake 1.16.1.
 	* Makefile.devel (AUTOMAKE_VERSION): Set to 1.16.1.
 	* build-aux/*: Updated.
