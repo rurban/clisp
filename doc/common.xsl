@@ -115,7 +115,7 @@
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.file" select="'https://gitlab.com/gnu-clisp/clisp/blob/master/'"/>
 <xsl:param name="clisp.cvs.dir" select="'https://gitlab.com/gnu-clisp/clisp/tree/master/'"/>
-<xsl:template name="clisp.cvs"> <!-- prepend the correct clisp hg url -->
+<xsl:template name="clisp.cvs"> <!-- prepend the correct clisp git url -->
  <xsl:param name="path"/>
  <!-- xsltproc does not support ends-with - see http://www.w3.org/TR/xpath -->
  <xsl:choose><xsl:when test="substring($path,string-length($path)) = '/'">

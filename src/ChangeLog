@@ -1,5 +1,13 @@
 2018-04-22  Bruno Haible  <bruno@clisp.org>
 
+	More hg to git changes.
+	* Makefile.devel (EXCLUDE): Exclude .git, not .hg.
+	* src/configure.in: Remove AC_REVISION invocation.
+	* src/makemake.in (check-doc): Test for .git, not .hg.
+	* utils/modprep.lisp: Update comment.
+
+2018-04-22  Bruno Haible  <bruno@clisp.org>
+
 	Assume a git checkout instead of a hg checkout.
 	* Makefile.devel (GIT): New variable.
 	(HG): Remove variable.

@@ -417,7 +417,7 @@ gnulib-imported : update-gnulib force
 	  fi; \
 	done
 	$(GIT) checkout -- src/gllib/Makefile.in src/gllib/README src/glm4/README
-	$(GIT) status --short | grep -v '^ M '
+	$(GIT) status --short | grep -v '^ M '; test $$? = 1
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2600,7 +2600,7 @@ SOURCES = $(SOURCES1) $(SOURCES2) $(SOURCES4) $(SOURCES5) $(SOURCES6) $(SOURCES7
 
 # Assume tar/bzip2/gzip are present
 # set this if you are using GNU tar
-EXCLUDE=--exclude .hg --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
+EXCLUDE=--exclude .git --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .hgignore --exclude \*~ --exclude .\#\*                  \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \

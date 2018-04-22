@@ -48,7 +48,7 @@ further explanations of the issues could be provided).</para>
    <ulink url="http://www.cygwin.com/acronyms/#PTC"><acronym>PTC<alt>Patches
       Thoughtfully Considered</alt></acronym></ulink>.</para>
   <para>Additionally, the nightly builds of the &clisp; implementation
-   notes documenting the current &hg; <literal>default</literal> branch
+   notes documenting the current &git; <literal>default</literal> branch
    are available at <ulink url="http://clisp.org/beta/impnotes/"/>.
    It contains both the documentation for the new features and the
    general improvements in the documentation.</para>
@@ -162,7 +162,7 @@ further explanations of the issues could be provided).</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="ml">clisp-devel</ulink></term>
   <listitem><simpara>Subscribe to this list if you want to influence
-    &clisp; developments; &hg; commit notes go here (as a daily digest).
+    &clisp; developments; &git; commit notes go here (as a daily digest).
     If you subscribe to this list, you probably want to subscribe
     to <ulink url="ml">clisp-list</ulink>
     &and-e; <ulink url="ml">clisp-announce</ulink> too.</simpara>
@@ -220,7 +220,7 @@ further explanations of the issues could be provided).</para>
   <ulink url="https://sourceforge.net/p/clisp/patches/">SourceForge patch tracker</ulink>.</para>
  <para>See <filename role="clisp-cvs">src/CodingStyle</filename> for the
   style one should follow.</para>
- <para>The patch should be created using &hg;.</para></answer></qandaentry>
+ <para>The patch should be created using &git;.</para></answer></qandaentry>
 
 
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
@@ -306,8 +306,8 @@ following command:
 <para>When you encounter a <emphasis>regression error</emphasis> (i.e.,
 something worked in a previous version of &clisp;, but does not work in
 the current version) which we cannot reproduce, we will often ask you to
-figure out which specific &hg; commit introduced it.
-The way to figure that out is to use <command>hg bisect</command>.
+figure out which specific &git; commit introduced it.
+The way to figure that out is to use <command>git bisect</command>.
 </para></formalpara>
 </answer></qandaentry>
 </qandadiv>

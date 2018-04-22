@@ -780,7 +780,8 @@ Then click the "Create Ticket" link on the left-hand side.</para>
  <listitem><simpara>Where did you get the &clisp; sources or binaries?  When?
    (Absolute dates, e.g., <quote>2006-01-17</quote>, are preferred over
    the relative ones, e.g., <quote>2 days ago</quote>. If you are using
-   &hg;, please supply the output of <command>hg id</command>).</simpara></listitem>
+   &git;, please supply the output of
+   <command>git rev-list --max-count=1 HEAD</command>).</simpara></listitem>
  <listitem><para>If you are reporting a build failure:<orderedlist>
   <listitem><simpara>What is your compiler version?</simpara></listitem>
   <listitem><simpara>What is your &glibc; version (on &gnu;/&linux;)?

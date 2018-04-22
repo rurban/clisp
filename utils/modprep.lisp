@@ -1324,6 +1324,6 @@ commas and parentheses."
 
 ;; for testing:
 ;; (modprep (merge-pathnames "modpreptest.c" *load-pathname*))
-;; hg diff modpreptest.m.c
+;; git diff modpreptest.m.c
 
 ;;; file modprep.lisp ends here
