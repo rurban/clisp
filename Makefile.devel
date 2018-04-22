@@ -15,7 +15,7 @@ RM = rm -f
 RMRF = rm -rf
 CP = cp -afv
 WGET = wget --execute netrc=off --no-verbose --retry-connrefused --timeout=60
-HG = hg
+GIT = git
 # http://ctags.sourceforge.net
 CTAGS = ctags
 
@@ -412,12 +412,12 @@ gnulib-imported : update-gnulib force
 	  if test -f ../m4/$$f; then \
 	    echo == $$f; \
 	    if cmp $$f ../m4/$$f; then \
-	      cd ../m4; $(HG) rm -f $$f; cd ../glm4; \
+	      cd ../m4; $(GIT) rm -f $$f; cd ../glm4; \
 	    fi; \
 	  fi; \
 	done
-	$(HG) revert src/gllib/Makefile.in src/gllib/README src/glm4/README
-	$(HG) st --unknown --deleted
+	$(GIT) checkout -- src/gllib/Makefile.in src/gllib/README src/glm4/README
+	$(GIT) status --short | grep -v '^ M '
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2713,7 +2713,7 @@ upload-gnu : force		# gnu-distrib -- do not re-sign everything
 # ------------------------------------------------------------------------------
 
 tag-release : force
-	$(HG) tag clisp_$(subst .,_,$(VER))-$(REL) .
+	$(GIT) tag clisp_$(subst .,_,$(VER))-$(REL)
 
 # ------------------------------------------------------------------------------
 
