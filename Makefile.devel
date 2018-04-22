@@ -429,7 +429,7 @@ LIBTOOL_VERSION = 2.4.6
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
 LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 # an alternative way to update libtool files is "cd src; libtoolize --copy"
-AUTOMAKE_VERSION = 1.15
+AUTOMAKE_VERSION = 1.16.1
 AUTOMAKE_GIT = http://git.savannah.gnu.org/cgit/automake.git/plain/lib/
 GTK_GIT_ROOT = https://git.gnome.org/browse/gtk+/plain
 GNULIB_AUX=config.guess config.rpath config.sub

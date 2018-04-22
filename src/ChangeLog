@@ -1,5 +1,12 @@
 2018-04-22  Bruno Haible  <bruno@clisp.org>
 
+	Switch to automake 1.16.1.
+	* Makefile.devel (AUTOMAKE_VERSION): Set to 1.16.1.
+	* build-aux/*: Updated.
+	* m4/gtk-*.m4: Updated.
+
+2018-04-22  Bruno Haible  <bruno@clisp.org>
+
 	More hg to git changes.
 	* Makefile.devel (EXCLUDE): Exclude .git, not .hg.
 	* src/configure.in: Remove AC_REVISION invocation.
