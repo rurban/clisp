@@ -1,5 +1,18 @@
 2018-04-22  Bruno Haible  <bruno@clisp.org>
 
+	Add support for Linux/riscv64.
+	* m4/mmap.m4 (CL_MMAP): Avoid crash on Linux/riscv64.
+	* aclocal.m4, src/configure: Regenerated.
+	* lispbibl.d (RISCV64): New macro.
+	(C_CODE_ALIGNMENT, intDsize, MAPPABLE_ADDRESS_RANGE_*, SP_register,
+	ASM_get_SP_register, SP_DOWN): Define for Linux/riscv64.
+	* Makefile.devel (multibuild-linux-riscv64): New target.
+	* makemake.in (XCFLAGS): For Linux/riscv64, enable all optimizations
+	except ASM.
+	Reduce optimization when compiling hashtabl.c.
+
+2018-04-22  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".

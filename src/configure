@@ -44878,6 +44878,13 @@ else
                  if (pos == 30)
                    address += 0x01000000UL;
                  #endif
+                 #ifdef __riscv
+                 /* On Linux/riscv64, the ld.so and some shared libraries may
+                    sit at 0x2000000000. An mmap call to this address may
+                    crash the program. */
+                 if (pos == 37)
+                   address += 0x01000000UL;
+                 #endif
                  {
                    char *p;
                    #if defined HAVE_MMAP_ANON

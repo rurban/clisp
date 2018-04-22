@@ -1816,6 +1816,11 @@ else
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
+      # Linux/riscv64
+      linux*--riscv64*)
+        XCFLAGS="$XCFLAGS -DNO_ASM"
+        ;;
+
       # Linux/s390x
       linux*--s390x)
         XCFLAGS="$XCFLAGS -DNO_ASM"
@@ -3001,6 +3006,15 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
           # Also, clang 3.8.0 on FreeBSD/i386 miscompiles stream.o when -DWIDE is in
           # use and -O2.
           flags2=$flags2' -O1'
+        fi
+        if [ $f = hashtabl ] ; then
+          case "$cpu" in
+            riscv64*)
+              # gcc-7.3.1 on Linux/riscv64 miscompiles hash_table_iterate in hashtabl.d
+              # when -O2 is used. <https://bugzilla.redhat.com/show_bug.cgi?id=1567505>
+              flags2=$flags2' -O1'
+              ;;
+          esac
         fi
         if [ $f = lisparit -a "$cpu" = s390x ] ; then
           # gcc-4.9.2 on Linux/s390x miscompiles lisparit.d when -O2 is used.

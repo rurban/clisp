@@ -201,7 +201,8 @@
  DECALPHA == the DEC Alpha superchip
  IA64 == the Intel IA-64 latecomer chip
  AMD64 == the AMD hammer chip
- S390 == the IBM S/390 processor */
+ S390 == the IBM S/390 processor
+ RISCV64 == the 64-bit RISC-V processor family */
   /* 32-bit processors: */
   #if defined(m68k) || defined(__m68k__)
     #define M68K
@@ -254,6 +255,9 @@
     #if defined(__s390x__)
       #define S390_64
     #endif
+  #endif
+  #if defined(__riscv) && (__riscv_xlen == 64)
+    #define RISCV64
   #endif
   /* 64-bit processors: */
   #ifdef __alpha
@@ -524,7 +528,7 @@
 /* A property of the processor:
  The sequence in which words/long-words are being put into bytes */
 #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
-  /* Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, AMD64, ...:
+  /* Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, AMD64, RISCV64, ...:
    Low Byte is the lowest, High Byte in a higher address */
   #if defined(BIG_ENDIAN_P)
     #error Bogus BIG_ENDIAN_P!
@@ -587,7 +591,7 @@
   #define log2_C_CODE_ALIGNMENT  1
   #define C_FUNCTION_POINTER_BIAS 2
 #endif
-#if defined(M68K) || defined(__CR16__) || defined(__cris__) || defined(__H8300__) || defined(__mcore__) || defined(__mep__) || defined(__moxie__) || defined(__MSP430__) || defined(__pdp11__) || defined(__sh__) || defined(__xstormy16__) || defined(__v850__) || defined(__vax__)
+#if defined(M68K) || defined(RISCV64) || defined(__CR16__) || defined(__cris__) || defined(__H8300__) || defined(__mcore__) || defined(__mep__) || defined(__moxie__) || defined(__MSP430__) || defined(__pdp11__) || defined(__sh__) || defined(__xstormy16__) || defined(__v850__) || defined(__vax__)
   #define C_CODE_ALIGNMENT  2
   #define log2_C_CODE_ALIGNMENT  1
 #endif
@@ -1865,7 +1869,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || ... */
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -2762,6 +2766,17 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x011000000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x3FEFFFFFFFFFUL
   #endif
+  #if defined(UNIX_LINUX) && defined(RISCV64)
+    /* On Linux/riscv64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 37
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000000000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000002000000000UL
+       STACK_ADDRESS_RANGE  = 0x0000003FFF000000UL
+       There is room from 0x000080000000UL to 0x002000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000080000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x001FFFFFFFFFUL
+  #endif
   #if defined(UNIX_LINUX) && defined(S390_64)
     /* On Linux/s390x:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 52
@@ -3572,6 +3587,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 39
     #define SINGLEMAP_WORKS 1
   #endif
+  #if defined(UNIX_LINUX) && defined(RISCV64) /* Linux/riscv64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x001F80000000UL
+    #define SINGLEMAP_oint_type_shift 31
+    #define SINGLEMAP_WORKS 0 /* even without GENERATIONAL_GC */
+  #endif
   #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
     #define SINGLEMAP_ADDRESS_BASE 0UL
     #define SINGLEMAP_TYPE_MASK    0x01FC00000000UL
@@ -4296,6 +4317,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
+      #if defined(UNIX_LINUX) && defined(RISCV64) /* Linux/riscv64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
       #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only with(!) GENERATIONAL_GC */
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
@@ -4678,6 +4703,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
+    #if defined(UNIX_LINUX) && defined(RISCV64) /* Linux/riscv64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
     #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
@@ -4977,6 +5005,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
           #endif
+          #if defined(UNIX_LINUX) && defined(RISCV64) /* Linux/riscv64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
           #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
           #endif
@@ -5105,6 +5136,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
             #define TYPECODES_WITH_MALLOC_WORKS 1
           #endif
           #if defined(UNIX_LINUX) && defined(POWERPC64) /* Linux/powerpc64, Linux/powerpc64le */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
+          #endif
+          #if defined(UNIX_LINUX) && defined(RISCV64) /* Linux/riscv64 */
             #define TYPECODES_WITH_MALLOC_WORKS 1
           #endif
           #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
@@ -5331,6 +5365,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
        !defined(WIDE_SOFT_LARGEFIXNUM)                                        \
     && /* It does not work on EdgeRouter Pro (Cavium Octeon II) hardware. */  \
        !(defined(UNIX_LINUX) && (defined(MIPS) || defined(MIPS64)))           \
+    && /* It does not work on Linux/riscv64 so far (Linux bug with PROT_NONE). */\
+       !(defined(UNIX_LINUX) && defined(RISCV64))                             \
     && /* It does not work on NetBSD 7 (both NetBSD/i386 and NetBSD/sparc). */\
        !defined(UNIX_NETBSD)                                                  \
     && /* It does not work in QEMU user-mode. */                              \
@@ -6162,7 +6198,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if defined(I80386) || defined(POWERPC) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64) || defined(RISCV64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)
@@ -11770,6 +11806,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef S390
     #define SP_register "15"
   #endif
+  #ifdef RISCV64
+    #define SP_register "sp"
+  #endif
 #endif
 #if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
   /* Assembler-instruction that copies the SP-register into a variable. */
@@ -11816,6 +11855,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef S390
     #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
+  #endif
+  #ifdef RISCV64
+    #define ASM_get_SP_register(resultvar)  ("mv %0,sp" : "=r" (resultvar) : )
   #endif
 #endif
 #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
@@ -11873,7 +11915,7 @@ All other long words on the LISP-Stack are LISP-objects.
   extern void* getSP (void);
   #define NEED_OWN_GETSP
 #endif
-#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ... */
+#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || ... */
   #define SP_DOWN /* SP grows downward */
   #define SPoffset 0 /* top-of-SP ist *(SP+SPoffset) */
 #endif

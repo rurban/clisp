@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2010, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2010, 2017-2018 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -169,6 +169,13 @@ AC_DEFUN([CL_MMAP],
                     some shared libraries may sit at 0x40000000. An mmap call to
                     this address may crash the program. */
                  if (pos == 30)
+                   address += 0x01000000UL;
+                 #endif
+                 #ifdef __riscv
+                 /* On Linux/riscv64, the ld.so and some shared libraries may
+                    sit at 0x2000000000. An mmap call to this address may
+                    crash the program. */
+                 if (pos == 37)
                    address += 0x01000000UL;
                  #endif
                  {
