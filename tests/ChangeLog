@@ -1,3 +1,14 @@
+2018-04-14  Sébastien Villemot  <sebastien@debian.org>
+
+	Fix socket test failures on mips*, sparc64 and hurd-i386.
+	Reported at <https://sourceforge.net/p/clisp/bugs/734/>.
+	* socket.tst (+econnrefused+, +econnreset+, +einval+, +epipe+): New
+	constants.
+	Rationale: The ABI for ECONNREFUSED, ECONNRESET, EINVAL and EPIPE is
+	different across architectures.
+	The patch should be improved to support on kfreebsd-*, but I don't have
+	access to such machines (no more porterboxes).
+
 2018-01-24  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-some-tests): Bind *MERGE-PATHNAMES-ANSI* only

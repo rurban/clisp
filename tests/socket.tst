@@ -19,6 +19,38 @@ make-byte-array
   (coerce l '(vector (unsigned-byte 8))))
 coerce-byte-array
 
+(progn
+  (cond
+    ((or (string= (machine-type) "MIPS")
+         (string= (machine-type) "MIPS64"))
+     (defconstant +econnrefused+ 146)
+     (defconstant +econnreset+ 131))
+    ((string= (machine-type) "SPARC64")
+     (defconstant +econnrefused+ 61)
+     (defconstant +econnreset+ 54))
+    ((string= (machine-type) "I686-AT386") ; hurd-i386
+     (defconstant +econnrefused+ #x4000003d)
+     (defconstant +econnreset+ #x40000036))
+    (t
+     (defconstant +econnrefused+ 111)
+     (defconstant +econnreset+ 104)))
+  (if (string= (machine-type) "I686-AT386") ; hurd-i386
+      (progn
+        (defconstant +einval+ #x40000016)
+        (defconstant +epipe+ #x40000020))
+      (progn
+        (defconstant +einval+ 22)
+        (defconstant +epipe+ 32)))
+  nil)
+nil
+
+(defun is-mips ()
+  "Test whether this is a mips machine (either 32- or 64-bit)"
+  (let ((m (machine-type)))
+    (and (>= (length m) 4)
+         (string= "MIPS" (subseq m 0 4)))))
+is-mips
+
 ;;; * Reading from files
 
 (defparameter *file* "socket-tst-file.test") *file*
@@ -517,13 +549,13 @@ T
 ;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 ;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
-  #-win32 (:ECONNREFUSED #+macos 61 #-macos 111)
+  #-win32 (:ECONNREFUSED #+macos 61 #-macos #.+econnrefused+)
   #+win32 (:ETIMEDOUT 10060))
 T
 (open-stream-p (setq *socket-1* (socket:socket-connect
                                  12345 "localhost" :timeout 0))) T
 (check-os-error (read-line *socket-1*)
-  #-win32 (:ECONNREFUSED #+macos 61 #-macos 111)
+  #-win32 (:ECONNREFUSED #+macos 61 #-macos #.+econnrefused+)
   #+win32 (:EINPROGRESS 10036))
 T
 (close *socket-1*) T
@@ -568,10 +600,10 @@ T
             #+macos (handler-case (read-char so)
                       (end-of-file (c)
                         (princ 'read-char) (princ-error c) t))
-            #-macos (check-os-error (read-char so) (:ECONNRESET 104))
+            #-macos (check-os-error (read-char so) (:ECONNRESET #.+econnreset+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
             #+macos (string= (write-line "bar" so) "bar")
-            #-macos (check-os-error (write-line "bar" so) (:EPIPE 32))
+            #-macos (check-os-error (write-line "bar" so) (:EPIPE #.+epipe+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (read-char so)
               (end-of-file (c)
@@ -581,11 +613,11 @@ T
 
 ;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
-  #-(or win32 macos) (:ECONNREFUSED 111)
+  #-(or win32 macos) (:ECONNREFUSED #.+econnrefused+)
   #+macos (:EADDRNOTAVAIL 49)
   #+win32 (:EADDRNOTAVAIL 10049))
 T
-(check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL 22)) T
+(check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL #.+einval+)) T
 
 ;; clean-up
 (progn (makunbound '*server*) (unintern '*server*)
