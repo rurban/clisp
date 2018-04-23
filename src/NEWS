@@ -47,6 +47,7 @@ of platforms:
   Linux            | mips 64-bit    | 64-bit, n32, o32
   Linux            | PowerPC 32-bit | 32-bit
   Linux            | PowerPC 64-bit | 64-bit ELFv2, 64-bit, 32-bit
+  Linux            | RISC-V 64-bit  | 64-bit (lp64d)
   Linux            | S/390 32-bit   | 32-bit
   Linux            | S/390 64-bit   | 64-bit, 32-bit
   Linux            | SPARC 32-bit   | 32-bit
