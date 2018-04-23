@@ -4318,7 +4318,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'CLISP: an ANSI Common Lisp implementation' > cygwin.README"
   echotab "echo '' >> cygwin.README"
   echotab "grep requires setup.hint >> cygwin.README"
-  echotab "echo 'recommended: libsigsegv http://sourceforge.net/projects/libsigsegv' >> cygwin.README"
+  echotab "echo 'recommended: libsigsegv https://www.gnu.org/software/libsigsegv/' >> cygwin.README"
   echotab "echo '' >> cygwin.README"
   echotab "echo 'builds \"out of the box\" on cygwin:' >> cygwin.README"
   echotab "echo './configure$makemake_args --cbc --install build-cygwin' >> cygwin.README"
