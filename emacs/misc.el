@@ -4,13 +4,28 @@
   (defvar vc-dir-backend)
   (defvar change-log-default-name))
 
-(defun clisp-repo-p (dir)
+(defvar clisp-vc-type 'Git "*The version control used by CLISP.")
+
+(defun clisp-hg-repo-p (dir)
   (let ((root
          (with-temp-buffer
            (and (boundp 'vc-hg-program)
                 (zerop (call-process vc-hg-program nil t nil "paths" "default"))
                 (buffer-string)))))
     (and root (string-match "/clisp\n$" root))))
+
+(defun clisp-git-repo-p (dir)
+  (let ((root
+         (with-temp-buffer
+           (and (boundp 'vc-git-program)
+                (zerop (call-process vc-git-program nil t nil "remote" "-v"))
+                (buffer-string)))))
+    (and root (string-match "/clisp.git" root))))
+
+(defun clisp-repo-p (dir)
+  (cond ((eq clisp-vc-type 'Hg) (clisp-hg-repo-p dir))
+        ((eq clisp-vc-type 'Git) (clisp-git-repo-p dir))
+        (t (error "~s: bad ~s: ~s" 'clisp-repo-p 'clisp-vc-type clisp-vc-type))))
 
 (eval-after-load "grep"         ; for rgrep
   '(progn
@@ -21,7 +36,7 @@
 
 (defun clisp-set-change-log-default-name ()
   "Set `change-log-default-name' appropriately."
-  (when (eq (vc-backend buffer-file-name) 'Hg)
+  (when (eq (vc-backend buffer-file-name) clisp-vc-type)
     (let ((dir (file-name-directory buffer-file-name)))
       (when (clisp-repo-p dir)
         (let ((cl (expand-file-name "ChangeLog" dir)))
@@ -36,7 +51,7 @@
 
 (defun clisp-set-compile-command ()
   "Set `compile-command' for CLISP lisp and tst files."
-  (when (eq (vc-backend buffer-file-name) 'Hg)
+  (when (eq (vc-backend buffer-file-name) clisp-vc-type)
     (let ((dir (file-name-directory buffer-file-name)))
       (when (clisp-repo-p dir)
         (set (make-variable-buffer-local 'compile-command)
@@ -53,7 +68,7 @@
 (add-hook 'lisp-mode-hook 'clisp-set-compile-command)
 
 (defun clisp-set-change-log-vc-dir ()
-  (when (and (eq vc-dir-backend 'Hg)
+  (when (and (eq vc-dir-backend clisp-vc-type)
              (clisp-repo-p default-directory))
     (set (make-local-variable 'change-log-default-name)
          (expand-file-name "src/ChangeLog" default-directory))))
@@ -207,7 +222,7 @@ Does _NOT_ check anchors!"
   "Set `nxml-mode-hook' for clisp impnotes."
   (when (and (null nxml-parent-document)
              (rng-dtd-trivial-p rng-dtd)
-             (eq (vc-backend buffer-file-name) 'Hg))
+             (eq (vc-backend buffer-file-name) clisp-vc-type))
     (let ((dir (file-name-directory buffer-file-name)) parent)
       (when (clisp-repo-p dir)
         (cond ((file-exists-p
