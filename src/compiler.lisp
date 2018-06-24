@@ -10412,13 +10412,13 @@ This step works on the code-list and changes is destructively.
 First sub-step: each instruction is prepended by a classification of the
 instruction and the length of the instruction (Label-Operands not counted),
 each Label is assigned its PC as value.
-The operand-lenghts - as far as possible - are determined, Labels occurring in
+The operand-lengths - as far as possible - are determined, Labels occurring in
 instructions are replaced by (presumable reference-length . label) .
 Thus (BLOCK-OPEN 2 #:G7) --> (NL 2 . (67 2 (1 . #:G7))) .
 Further sub-steps:
 The code-list is looped over and over again,
 with lengthening the jump-references possibly from 1 to 2 or 6 Byte.
-Here the code can only be lenghtened, altogether.
+Here the code can only be lengthened, altogether.
 Last sub-step:
 The jump-references are transformed into distances, and the code-list is
 freshly rebuilt as list of bytes.

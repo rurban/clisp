@@ -2854,7 +2854,7 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
     }
   /* Font ready. */
   var object token = TLO(token_buff_1); /* read Token as Semi-Simple-String */
-  var uintL len = TheIarray(token)->dims[1]; /* lengh = Fill-Pointer */
+  var uintL len = TheIarray(token)->dims[1]; /* length = Fill-Pointer */
   var object hstring = TLO(displaced_string); /* auxiliary string */
   TheIarray(hstring)->data = token; /* Data-vector := TLO(token_buff_1) */
   token = TheIarray(token)->data; /* Normal-Simple-String with Token */
@@ -2892,7 +2892,7 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
       if (code >= char_code_limit)
         goto not_codexxxx;
     }
-    /* Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit */
+    /* Charactername was of type "Codexxxx" with code = xxxx < char_code_limit */
     VALUES1(code_char(as_chart(code))); skipSTACK(3);
     return;
   }

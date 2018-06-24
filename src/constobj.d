@@ -654,10 +654,10 @@
   LISPOBJ(SF_pi,".")          /* value of pi as Short-Float */
   LISPOBJ(FF_pi,".")          /* value of pi as Single-Float */
   LISPOBJ(DF_pi,".")          /* value of pi as Double-Float */
-  LISPOBJ(pi,".")         /* value of pi, Long-Float of defaultlenght */
-  LISPOBJ(LF_pi,".")      /* value of pi, so exact as known */
-  LISPOBJ(LF_ln2,".")     /* value of ln 2, so exact as known */
-  LISPOBJ(LF_ln10,".")    /* value of ln 10, so exact as known */
+  LISPOBJ(pi,".")         /* value of pi, Long-Float of default length */
+  LISPOBJ(LF_pi,".")      /* value of pi, as exact as known */
+  LISPOBJ(LF_ln2,".")     /* value of ln 2, as exact as known */
+  LISPOBJ(LF_ln10,".")    /* value of ln 10, as exact as known */
 /* for EVAL.D:
    toplevel-declaration-environment: */
   LISPOBJ(top_decl_env,"(NIL)") /* list of O(declaration_types) (is initialized later) */
