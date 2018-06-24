@@ -64,7 +64,8 @@ DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET \
            OPT-ILLEGAL BYTE-SWAPPED BAD-FILE-OFFSET BAD-OPEN-FLAGS      \
            FILE-STAT-ERROR FILE-EOF NO-DBNAME ERR-FILE-OWNER ERR-FILE-MODE \
-           NEED-RECOVERY BACKUP-FAILED DIR-OVERFLOW)
+           NEED-RECOVERY BACKUP-FAILED DIR-OVERFLOW BAD-BUCKET BAD-HEADER \
+           BAD-AVAIL BAD-HASH-TABLE BAD-DIR-ENTRY)
 static _Noreturn void error_gdbm (const char *fatal_message) {
   end_blocking_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
