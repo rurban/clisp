@@ -278,8 +278,10 @@ to a new value which is visually similar (prints identically) to the old one.")
   (let ((g (gensym "VALUES-"))
         (poplist nil))
     (dolist (var varlist) (setq poplist (cons `(SETQ ,var (POP ,g)) poplist)))
-    `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)))
-       ,(if poplist `(PROG1 ,@(nreverse poplist)) NIL))))
+    (if poplist
+      `(LET* ((,g (MULTIPLE-VALUE-LIST ,form)))
+         (PROG1 ,@(nreverse poplist)))
+      `(VALUES ,form))))
 
 (defmacro-special locally (&body body)
   `(LET () ,@body))

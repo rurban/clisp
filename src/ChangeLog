@@ -1,3 +1,11 @@
+2018-07-18  Bruno Haible  <bruno@clisp.org>
+
+	Fix the macroexpander of MULTIPLE-VALUE-SETQ.
+	Reported by Charles Zhang
+	at <https://gitlab.com/gnu-clisp/clisp/issues/6>.
+	* macros1.lisp (multiple-value-setq): Treat case of no variables
+	specially.
+
 2018-06-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/gdbm/gdbm.c (check_gdbm_errno): Update to gdbm 1.15.
