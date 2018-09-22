@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009, 2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2011, 2017-2018 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -34,9 +34,13 @@ AC_DEFUN([CL_FILECHARSET],
           #include <dirent.h>
           /* A small program which checks for each character whether or not it is
            * valid in filenames.
-           * The actual result may depend on OS, its version, and the file system
-           * on which the test is run. */
-          #define N 256
+           * The actual result may depend on OS, its version, the file system
+           * on which the test is run, and - on Windows - the system charset.
+           * We test only the ASCII range (0x00..0x7F), because with non-ASCII
+           * characters 1. our test is not prepared for multibyte encodings,
+           * and 2. the result on Windows really depends on the system charset.
+           */
+          #define N 128
           ]],[[
           if (freopen("conftest.out", "w", stdout) == NULL) return 1;
           {

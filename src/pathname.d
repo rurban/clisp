@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2013, 2016-2017
+ * Bruno Haible 1990-2013, 2016-2018
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2013, 2016-2017
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -772,22 +772,29 @@ local maygc object test_optional_host (object host) {
  > uintB: byte
  < return: true if valid, else false */
 local inline bool legal_namebyte (uintB ch) {
-  #ifdef VALID_FILENAME_CHAR    /* defined in config.h */
-    return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
-  #else
-    #ifdef PATHNAME_UNIX
-      return ((ch>=' ') && (ch<='~') && !(ch=='/'));
-    #endif
-    #ifdef PATHNAME_WIN32
-      return ((ch >= 1) && (ch <= 127)
+  if (ch >= 0x80) {
+    /* For non-ASCII characters, the byte sequence passed to the operating
+       system depends on *PATHNAME-ENCODING*. Therefore consider them all
+       as valid here. */
+    return true;
+  } else {
+    /* For ASCII characters, the VALID_FILENAME_CHAR makes sense.
+       In order to ensure that a binary built in one locale works also in
+       the other locales, hard-code here the known locale independent
+       configuration results.  */
+    #if defined(PATHNAME_UNIX)
+      return (ch >= 1) && (ch != '/');
+    #elif defined(PATHNAME_WIN32)
+      return ((ch >= 32) && (ch <= 127)
               && (ch != '"') /*&& (ch != '*')*/
               && (ch != '/') && (ch != ':')
               && (ch != '<') && (ch != '>') /*&& (ch != '?')*/
-              && (ch != '\\'))
-             || (ch == 131)
-             || (ch >= 160);
+              && (ch != '\\') && (ch != '|'))
+    #else
+      /* VALID_FILENAME_CHAR is defined in config.h */
+      return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
     #endif
-  #endif
+  }
 }
 
 /* UP: check whether the character is a valid element of NAME or TYPE
