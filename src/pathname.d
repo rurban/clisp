@@ -789,7 +789,7 @@ local inline bool legal_namebyte (uintB ch) {
               && (ch != '"') /*&& (ch != '*')*/
               && (ch != '/') && (ch != ':')
               && (ch != '<') && (ch != '>') /*&& (ch != '?')*/
-              && (ch != '\\') && (ch != '|'))
+              && (ch != '\\') && (ch != '|'));
     #else
       /* VALID_FILENAME_CHAR is defined in config.h */
       return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
