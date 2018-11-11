@@ -1,3 +1,11 @@
+2018-11-11  Bruno Haible  <bruno@clisp.org>
+
+	Fix a compiler bug that could lead to a "Compiler bug!!" error.
+	Reported by Paul F. Dietz
+	at <https://gitlab.com/gnu-clisp/clisp/issues/14>.
+	* compiler.lisp: Fix comments about CALL1 and CALL2.
+	(for-value-table): Change classification of CALL1 and CALL2.
+
 2018-09-22  Bruno Haible  <bruno@clisp.org>
 
 	Fix problem with non-ASCII characters in file names on Windows.

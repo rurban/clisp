@@ -402,10 +402,11 @@ intermediate language after the 1st pass:
                               STACK:=STACK+4*k, result is stored to A0/...
    (CALL0 const)              calls the Function const with 0 Arguments,
                               result is stored to A0/...
-   (CALL1 const)              calls the Function const with 1 Argument A0,
+   (CALL1 const)              calls the Function const with 1 Argument (STACK),
+                              STACK:=STACK+4,
                               result is stored to A0/...
-   (CALL2 const)              calls the Function const with 2 Arguments (STACK)
-                              and A0 , STACK:=STACK+4,
+   (CALL2 const)              calls the Function const with 2 Arguments (STACK+4)
+                              and (STACK), STACK:=STACK+8,
                               result is stored to A0/...
    (CALLS1 n)                 calls the Function (FUNTAB n)
    (CALLS2 n)                 resp. (FUNTAB 256+n)
@@ -568,23 +569,23 @@ intermediate language after the 1st pass:
 
 15. Some Functions:
 
-   (NOT)                      = (CALL1 #'NOT)
+   (NOT)                      = (PUSH) (CALL1 #'NOT)
 
-   (EQ)                       = (CALL2 #'EQ)
+   (EQ)                       = (PUSH) (CALL2 #'EQ)
 
-   (CAR denv)                 = (CALL1 #'CAR)
+   (CAR denv)                 = (PUSH) (CALL1 #'CAR)
 
-   (CDR denv)                 = (CALL1 #'CDR)
+   (CDR denv)                 = (PUSH) (CALL1 #'CDR)
 
-   (CONS)                     = (CALL2 #'CONS)
+   (CONS)                     = (PUSH) (CALL2 #'CONS)
 
-   (ATOM)                     = (CALL1 #'ATOM)
+   (ATOM)                     = (PUSH) (CALL1 #'ATOM)
 
-   (CONSP)                    = (CALL1 #'CONSP)
+   (CONSP)                    = (PUSH) (CALL1 #'CONSP)
 
-   (SYMBOL-FUNCTION denv)     = (CALL1 #'SYMBOL-FUNCTION)
+   (SYMBOL-FUNCTION denv)     = (PUSH) (CALL1 #'SYMBOL-FUNCTION)
 
-   (SVREF denv)               = (CALL2 #'SVREF)
+   (SVREF denv)               = (PUSH) (CALL2 #'SVREF)
 
    (SVSET)                    (setf (svref (STACK) A0) (STACK+4)),
                               A0 := (STACK+4), 1 value, STACK:=STACK+8
@@ -8748,15 +8749,15 @@ Simplification-Rules for Operations:
                              :test 'stablehash-eq :warn-if-needs-rehash-after-gc t)))
     (dolist (op '(NIL PUSH-NIL T CONST LOAD LOADI LOADC LOADV LOADIC
                   GETVALUE POP JSR JMPTAIL BARRIER VENV COPY-CLOSURE CALL
-                  CALL0 CALLS1 CALLS2 CALLSR FUNCALL PUSH-UNBOUND JMPIFBOUNDP
-                  BOUNDP VALUES0 STACK-TO-MV MVCALL
+                  CALL0 CALL1 CALL2 CALLS1 CALLS2 CALLSR FUNCALL PUSH-UNBOUND
+                  JMPIFBOUNDP BOUNDP VALUES0 STACK-TO-MV MVCALL
                   BLOCK-OPEN TAGBODY-OPEN TAGBODY-CLOSE-NIL GO GO-I
                   UNWIND-PROTECT-OPEN UNWIND-PROTECT-CLOSE
                   HANDLER-OPEN HANDLER-BEGIN
                   LIST))
       (setf (gethash op ht) 'NIL))
     (dolist (op '(STORE STOREI STOREC STOREV STOREIC SETVALUE BIND PROGV PUSH
-                  MAKE-VECTOR1&PUSH CALL1 CALL2 CALLC CALLCKEY APPLY UNLIST
+                  MAKE-VECTOR1&PUSH CALLC CALLCKEY APPLY UNLIST
                   UNLIST* VALUES1 LIST-TO-MV MVCALLP CATCH-OPEN
                   NOT EQ CAR CDR CONS ATOM CONSP SYMBOL-FUNCTION SVREF SVSET
                   LIST*))
