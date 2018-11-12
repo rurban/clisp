@@ -302,16 +302,26 @@
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,stream (OPEN ,@options)))
        (DECLARE (READ-ONLY ,stream) ,@declarations)
-       (UNWIND-PROTECT (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
-                         (WHEN ,stream (CLOSE ,stream)))
+       (UNWIND-PROTECT
+         (MULTIPLE-VALUE-PROG1
+           (PROGN ,@body-rest)
+           ;; Why do we do a first CLOSE invocation inside the protected form?
+           ;; For reliability: Because the stream may be a buffered file stream,
+           ;; therefore (CLOSE ,stream) may produce a disk-full error while
+           ;; writing the last block of the file. In this case, we need to erase
+           ;; the file again, through a (CLOSE ,stream :ABORT T) invocation.
+           (WHEN ,stream (CLOSE ,stream)))
          (WHEN ,stream (CLOSE ,stream :ABORT T))))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-open-stream ((var stream) &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     `(LET ((,var ,stream))
        (DECLARE (READ-ONLY ,var) ,@declarations)
-       (UNWIND-PROTECT (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
-                         (when ,var (CLOSE ,var)))
+       (UNWIND-PROTECT
+         (MULTIPLE-VALUE-PROG1
+           (PROGN ,@body-rest)
+           ;; Use the same idiom here as in WITH-OPEN-FILE, for reliability.
+           (when ,var (CLOSE ,var)))
          (WHEN ,var (CLOSE ,var :ABORT T))))))
 ;; ----------------------------------------------------------------------------
 (defmacro with-output-to-string ((var &optional (string nil)
