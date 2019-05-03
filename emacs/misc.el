@@ -25,7 +25,7 @@
 (defun clisp-repo-p (dir)
   (cond ((eq clisp-vc-type 'Hg) (clisp-hg-repo-p dir))
         ((eq clisp-vc-type 'Git) (clisp-git-repo-p dir))
-        (t (error "~s: bad ~s: ~s" 'clisp-repo-p 'clisp-vc-type clisp-vc-type))))
+        (t (error "%s: bad %s: %s" 'clisp-repo-p 'clisp-vc-type clisp-vc-type))))
 
 (eval-after-load "grep"         ; for rgrep
   '(progn
@@ -47,7 +47,7 @@
                                      buffer-file-name "ANNOUNCE")))))))))
 
 ;; append: must come after vc-find-file-hook
-(add-hook 'find-file-hooks 'clisp-set-change-log-default-name t)
+(add-hook 'find-file-hook 'clisp-set-change-log-default-name t)
 
 (defun clisp-set-compile-command ()
   "Set `compile-command' for CLISP lisp and tst files."
