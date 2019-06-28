@@ -1337,7 +1337,7 @@ local maygc void warn_forced_gc_rehash (object ht) {
   pushSTACK(NIL); pushSTACK(ht);
   STACK_1 = CLSTEXT("Performance/scalability warning: The hash table ~S needs "
                     "to be rehashed after a garbage collection, since it "
-                    "contains key whose hash code is not GC-invariant.");
+                    "contains a key whose hash code is not GC-invariant.");
   funcall(S(warn),2);
 }
 

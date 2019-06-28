@@ -201,7 +201,7 @@ global void init_language
           pushSTACK(TheSubr(subr_self)->name);
           error(error_condition,GETTEXT("~S: ~S resolves to ~S which is a file, not a directory"));
         } else {
-          fprintf(stderr,GETTEXT("%s resolves o %s which is a file, not a directory\n"),argv_localedir,truename);
+          fprintf(stderr,GETTEXT("%s resolves to %s which is a file, not a directory\n"),argv_localedir,truename);
           goto init_language_failure;
         }
         MY_NOTREACHED;

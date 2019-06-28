@@ -1,5 +1,12 @@
 2019-06-28  Bruno Haible  <bruno@clisp.org>
 
+	Fix typos in message strings.
+	* spvw_language.d: Fix typo in message.
+	* control.d: Likewise.
+	* hashtabl.d: Likewise.
+
+2019-06-28  Bruno Haible  <bruno@clisp.org>
+
 	INSTALL.windows: Modernize URLs.
 	* INSTALL.windows: Prefer https over http URLs.
 

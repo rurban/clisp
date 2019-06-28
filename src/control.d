@@ -566,7 +566,7 @@ local /*maygc*/ void make_variable_frame
             if (specdecled) {
               pushSTACK(symbol); /* SOURCE-PROGRAM-ERROR slot DETAIL */
               pushSTACK(symbol); pushSTACK(caller);
-              error(source_program_error,GETTEXT("~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"));
+              error(source_program_error,GETTEXT("~S: symbol ~S must not be declared SPECIAL and defined as a SYMBOL-MACRO at the same time"));
             }
             /* static binding */
           } else {
