@@ -1,3 +1,10 @@
+2019-06-28  Sam Steingold  <sds@gnu.org>
+
+	Fix <https://sourceforge.net/p/clisp/bugs/720/>.
+	* socket.tst (+econnrefused+, +econnreset+) [macos]: fix
+	(super complex communication test): Sleep before closing the
+	socket as suggested by Jörg Höhle, tweak macos cases
+
 2018-04-14  Sébastien Villemot  <sebastien@debian.org>
 
 	Fix socket test failures on mips*, sparc64 and hurd-i386.

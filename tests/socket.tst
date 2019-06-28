@@ -25,7 +25,7 @@ coerce-byte-array
          (string= (machine-type) "MIPS64"))
      (defconstant +econnrefused+ 146)
      (defconstant +econnreset+ 131))
-    ((string= (machine-type) "SPARC64")
+    ((or (string= (machine-type) "SPARC64") #+macos t)
      (defconstant +econnrefused+ 61)
      (defconstant +econnreset+ 54))
     ((string= (machine-type) "I686-AT386") ; hurd-i386
@@ -549,13 +549,13 @@ T
 ;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 ;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
-  #-win32 (:ECONNREFUSED #+macos 61 #-macos #.+econnrefused+)
+  #-win32 (:ECONNREFUSED #.+econnrefused+)
   #+win32 (:ETIMEDOUT 10060))
 T
 (open-stream-p (setq *socket-1* (socket:socket-connect
                                  12345 "localhost" :timeout 0))) T
 (check-os-error (read-line *socket-1*)
-  #-win32 (:ECONNREFUSED #+macos 61 #-macos #.+econnrefused+)
+  #-win32 (:ECONNREFUSED #.+econnrefused+)
   #+win32 (:EINPROGRESS 10036))
 T
 (close *socket-1*) T
@@ -589,7 +589,7 @@ T
 
 (multiple-value-bind (run args) (cmd-args)
   (let ((se (socket:socket-server)))
-    (ext:run-program run :arguments (append args (list "-q" "-q" "-x" (format nil "(close (socket:socket-connect ~D))" (socket:socket-server-port se))))
+    (ext:run-program run :arguments (append args (list "-q" "-q" "-x" (format nil "(close (prog1 (socket:socket-connect ~D) (sleep 1s-2)))" (socket:socket-server-port se))))
                      :wait nil :input nil :output nil)
     (unwind-protect
          (with-open-stream (so (socket:socket-accept se))
@@ -598,12 +598,16 @@ T
             (write-line "foo" so)
             (socket:socket-status so)
             #+macos (handler-case (read-char so)
+                      (os-error (c)
+                        (princ-error c)
+                        (case (os-error-code c)
+                          ((:ECONNRESET #.+econnreset+) t)
+                          (t (os-error-code c))))
                       (end-of-file (c)
                         (princ 'read-char) (princ-error c) t))
             #-macos (check-os-error (read-char so) (:ECONNRESET #.+econnreset+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
-            #+macos (string= (write-line "bar" so) "bar")
-            #-macos (check-os-error (write-line "bar" so) (:EPIPE #.+epipe+))
+            (check-os-error (write-line "bar" so) (:EPIPE #.+epipe+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (read-char so)
               (end-of-file (c)
