@@ -1,3 +1,8 @@
+2019-06-28  Bruno Haible  <bruno@clisp.org>
+
+	INSTALL.windows: Modernize URLs.
+	* INSTALL.windows: Prefer https over http URLs.
+
 2018-11-11  Bruno Haible  <bruno@clisp.org>
 
 	Add comments.
