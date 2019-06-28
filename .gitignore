@@ -18,6 +18,10 @@
 /build*/
 
 # Files brought in manually:
+# symlink to the current build directory
+/build
+# build logs
+/build*.log
 
 # Files brought in from a libtool release:
 
