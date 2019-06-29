@@ -2688,36 +2688,7 @@ for-value   NIL or T
                 (sig-keys-p   known-sig)
                 (sig-keywords known-sig)
                 (sig-allow-p  known-sig)))))
-  (when (and (function-name-p obj) (fboundp obj))
-    (setq obj (fdefinition obj)))
-  (if (closurep obj)
-    (if (sys::%compiled-function-p obj)
-        ;; compiled closure
-        (multiple-value-bind (req-num opt-num rest-p key-p keywords allow-p)
-            (signature obj)
-          (values (sys::closure-name obj)
-                  req-num opt-num rest-p key-p keywords allow-p))
-        ;; interpreted closure
-        (let ((clos_keywords (sys::%record-ref obj 16)))
-          (values (sys::closure-name obj)
-                  (sys::%record-ref obj 12) ; req_num
-                  (sys::%record-ref obj 13) ; opt_num
-                  (sys::%record-ref obj 19) ; rest_flag
-                  (not (numberp clos_keywords))
-                  (if (not (numberp clos_keywords)) (copy-list clos_keywords))
-                  (sys::%record-ref obj 18)))) ; allow_flag
-    (cond #+FFI
-          ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
-           (values (function-name obj)
-                   (foreign-function-in-arg-count obj) 0 nil nil nil nil))
-          (t
-           (multiple-value-bind (name req-num opt-num rest-p keywords allow-p)
-               (subr-info obj)
-             (if name
-               (values name req-num opt-num rest-p keywords keywords allow-p)
-               (if no-error
-                 (values)
-                 (coerce obj 'function)))))))) ; error
+  (sys::function-info obj no-error))
 
 (defun get-signature (obj)
   (multiple-value-bind (name req-num opt-num rest-p key-p keywords allow-p)

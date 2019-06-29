@@ -577,6 +577,44 @@ BOTHVARS
   (eq a b))
 T
 
+;; user may pass env=NIL to get-setf-expansion to mean null lexical environment
+(length (multiple-value-list (get-setf-expansion '(x) nil)))
+5
+
+;; Check that the long form of DEFSETF works with keywords that are
+;; not known at macroexpansion time, only at runtime.
+(progn
+  (defparameter *xy* (make-array '(10 10) :initial-element NIL))
+  (defun xy-s (&key ((x x) 0) ((y y) 0)) (aref *xy* x y))
+  (defun xy-k (&key (x 0) (y 0)) (aref *xy* x y))
+  (defun set-xy-s (new-value &key ((x x) 0) ((y y) 0))
+    (setf (aref *xy* x y) new-value))
+  (defun set-xy-k (new-value &key (x 0) (y 0))
+    (setf (aref *xy* x y) new-value))
+  (defsetf xy-s (&key ((x x) 0) ((y y) 0)) (store)
+    `(set-xy-s ,store 'x ,x 'y ,y))
+  (defsetf xy-k (&key (x 0) (y 0)) (store)
+    `(set-xy-k ,store :x ,x :y ,y))
+
+  (assert (eql NIL (xy-k :x 1)))
+  (assert (eql NIL (xy-s 'x 1)))
+  (assert (eql 10 (setf (xy-k :x 1) 10)))
+  (assert (eql 20 (setf (xy-s 'x 2) 20)))
+  (assert (eql 20 (xy-k :x 2)))
+  (assert (eql 10 (xy-s 'x 1)))
+
+  (let ((a 'x) (b 'y))
+    (setf (xy-s a 1 b 2) 3)
+    (setf (xy-s b 5 a 9) 14))
+
+  (assert (eql 3 (xy-s 'y 2 'x 1)))
+  (assert (eql 3 (xy-k :y 2 :x 1)))
+  (assert (eql 14 (xy-k :x 9 :y 5)))
+  (assert (eql 14 (xy-s 'x 9 'y 5)))
+
+  (setf (xy-k (if t :x :y) 4 (if nil :x :y) 2) 77))
+77
+
 ;; Check that DOCUMENTATION's value from different anonymous lambdas are
 ;; independent.
 
@@ -679,10 +717,6 @@ NIL
        (progn (setf (documentation 'when 'function) d)
               (string= d (documentation 'when 'function)))))
 T
-
-;; user may pass env=NIL to get-setf-expansion to mean null lexical environment
-(length (multiple-value-list (get-setf-expansion '(x) nil)))
-5
 
 ;; https://sourceforge.net/p/clisp/bugs/384/
 (defun foo (z) "some doc" z) FOO

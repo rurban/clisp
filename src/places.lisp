@@ -58,39 +58,119 @@
                   (if (eql argcount -5)
                     ;; (-5 . fun) comes from DEFINE-SETF-METHOD
                     (funcall (cdr plist-info) form env)
-                    ;; (argcount storevarcount . fun) comes from a long DEFSETF
-                    (let ((access-form form)
+                    ;; (argcount storevarcount setter-fun . kw-initforms-getter-fun)
+                    ;; comes from a long DEFSETF.
+                    ;; argcount = -1 if no keyword arguments exist
+                    ;; resp.    = number of the arguments before &KEY.
+                    (let ((setter-fun (caddr plist-info))
+                          (access-form form)
                           (tempvars '())
                           (tempforms '())
-                          (new-access-form '()))
-                      (let ((i 0)) ; argument counter
-                        ;; argcount = -1 if no keyword arguments exist
-                        ;; resp.    = number of the arguments before &KEY,
-                        ;;          = nil after these are processed.
+                          (new-access-form-part-before-kws '())
+                          (new-access-form-kws-part '())
+                          (new-access-form-kws-part-for-apply '())
+                          (allowed-kws nil) ; list of allowed keywords
+                          (provided-kws nil) ; list of keywords that don't need the initform
+                          (some-nonconstant-kw-args nil))
+                      (let ((i 0) ; argument counter
+                            (before-kw t)) ; nil when processing arguments after &KEY
                         (dolist (argform (cdr access-form))
-                          (when (eql i argcount) (setq argcount nil i 0))
-                          (if (and (null argcount) (evenp i))
-                            (if (keywordp argform)
-                              (push argform new-access-form)
-                              (error-of-type 'source-program-error
-                                :form form
-                                :detail argform
-                                (TEXT "The argument ~S to ~S should be a keyword.")
-                                argform (car access-form)))
+                          (when (and before-kw (eql i argcount))
+                            (setq before-kw nil)
+                            (multiple-value-bind (name req-num opt-num rest-p key-p keywords allow-p)
+                                 (function-info setter-fun)
+                               (declare (ignore name req-num opt-num rest-p key-p allow-p))
+                              (setq allowed-kws keywords)))
+                          (if (not (and (not before-kw)
+                                        (evenp (- i argcount))
+                                        (constantp argform)))
+                            ;; In general, a tempvar is needed.
                             (let ((tempvar (gensym)))
                               (push tempvar tempvars)
                               (push argform tempforms)
-                              (push tempvar new-access-form)))
+                              (if before-kw
+                                (push tempvar new-access-form-part-before-kws)
+                                (progn
+                                  (push tempvar new-access-form-kws-part)
+                                  (push tempvar new-access-form-kws-part-for-apply)))
+                              (when (and (not before-kw) (evenp (- i argcount)))
+                                (setq some-nonconstant-kw-args t)))
+                            ;; Optimization of a keyword argument, for which
+                            ;; the given argument form is a constant form.
+                            (let ((argvalue (eval argform)))
+                              (if (memq argvalue allowed-kws)
+                                (progn
+                                  (push (if (keywordp argvalue) argvalue `(QUOTE ,argvalue))
+                                        new-access-form-kws-part)
+                                  (push argvalue new-access-form-kws-part-for-apply)
+                                  (push argvalue provided-kws))
+                                (error-of-type 'source-program-error
+                                  :form form
+                                  :detail argform
+                                  (if (every #'keywordp allowed-kws)
+                                    (TEXT "The argument ~S to ~S should be a keyword, namely one of~{ ~S~}.")
+                                    (TEXT "The argument ~S to ~S should be a symbol, namely one of~{ ~S~}."))
+                                  argform (car access-form) allowed-kws))))
                           (incf i)))
-                      (setq new-access-form (nreverse new-access-form))
+                      (when some-nonconstant-kw-args
+                        ;; Keyword matching cannot be done at macro-expansion time.
+                        ;; Do it at runtime. We don't know yet which keywords will
+                        ;; be specified at runtime; therefore add the default
+                        ;; initforms for all keywords.
+                        (let* ((kw-initforms-getter-fun (cdddr plist-info))
+                               (kw-initforms (funcall kw-initforms-getter-fun)))
+                          (mapc #'(lambda (kw initform)
+                                    (unless (memq kw provided-kws)
+                                      (push (if (keywordp kw) kw `(QUOTE ,kw)) new-access-form-kws-part)
+                                      (push kw new-access-form-kws-part-for-apply)
+                                      (if (not (constantp initform))
+                                        ;; In general, a tempvar is needed.
+                                        (let ((tempvar (gensym)))
+                                          (push tempvar tempvars)
+                                          (push initform tempforms)
+                                          (push tempvar new-access-form-kws-part)
+                                          (push tempvar new-access-form-kws-part-for-apply))
+                                        ;; Optimization of a constant keyword-initform.
+                                        (progn
+                                          (push initform new-access-form-kws-part)
+                                          (push initform new-access-form-kws-part-for-apply)))))
+                                allowed-kws kw-initforms)))
+                      (setq new-access-form-part-before-kws (nreverse new-access-form-part-before-kws))
+                      (setq new-access-form-kws-part (nreverse new-access-form-kws-part))
+                      (setq new-access-form-kws-part-for-apply (nreverse new-access-form-kws-part-for-apply))
                       (let ((newval-vars (gensym-list (cadr plist-info))))
                         (values
                           (nreverse tempvars)
                           (nreverse tempforms)
                           newval-vars
-                          (apply (cddr plist-info) env
-                                 (append newval-vars new-access-form))
-                          (cons (car access-form) new-access-form))))))))))))
+                          (if some-nonconstant-kw-args
+                            (cons
+                              (let ((kw-tempvars '())
+                                    (kw-lambdalist '())
+                                    (kw-applyargs '()))
+                                (dolist (kw allowed-kws)
+                                  (let ((kw-tempvar (gensym)))
+                                    (push kw-tempvar kw-tempvars)
+                                    (push `((,kw ,kw-tempvar)) kw-lambdalist)
+                                    (push kw kw-applyargs)
+                                    (push kw-tempvar kw-applyargs)))
+                                (setq kw-tempvars (nreverse kw-tempvars))
+                                (setq kw-lambdalist (nreverse kw-lambdalist))
+                                (setq kw-applyargs (nreverse kw-applyargs))
+                                `(LAMBDA (&KEY ,@kw-lambdalist)
+                                   ,(apply setter-fun env
+                                           (append newval-vars
+                                                   new-access-form-part-before-kws
+                                                   kw-applyargs))))
+                              new-access-form-kws-part)
+                            ;; Optimize keyword matching: do it already now.
+                            (apply setter-fun env
+                                   (append newval-vars
+                                           new-access-form-part-before-kws
+                                           new-access-form-kws-part-for-apply)))
+                          (cons (car access-form)
+                                (append new-access-form-part-before-kws
+                                        new-access-form-kws-part)))))))))))))
     ;; 2nd step: macroexpand
     (when (eq form (setq form (macroexpand-1 form env)))
       (return)))
@@ -425,35 +505,41 @@
               (listp (second args)))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t)
-           (let* ((storevars (second args))
-                  arg-count
-                  (setter
-                    (let ((lambdalist (first args)))
-                      (multiple-value-bind (reqvars optvars optinits optsvars
-                                            rest keyp keywords keyvars keyinits
-                                            keysvars allowp env)
-                          (analyze-defsetf-lambdalist lambdalist
-                            #'(lambda (lalist detail errorstring &rest arguments)
-                                (declare (ignore lalist));use WHOLE-FORM instead
-                                (lambda-list-error whole-form detail
-                                  (TEXT "~S ~S: invalid ~S lambda-list: ~?")
-                                  'defsetf accessfn 'defsetf
-                                  errorstring arguments)))
-                        (declare (ignore optinits optsvars rest keywords keyvars
-                                         keyinits keysvars allowp))
-                        (setq arg-count (if keyp (+ (length reqvars)
-                                                    (length optvars)) -1))
-                        (if (eql env 0)
-                          (setq env (gensym "IG")
-                                declarations (cons `(IGNORE ,env) declarations))
-                          (setq lambdalist
-                                (let ((lr (memq '&ENVIRONMENT lambdalist)))
-                                  (append (ldiff lambdalist lr) (cddr lr)))))
-                        (when declarations
-                          (setq declarations `((DECLARE ,@declarations))))
-                        `(LAMBDA (,env ,@storevars ,@lambdalist)
-                           ,@declarations
-                           (BLOCK ,accessfn ,@body-rest))))))
+           (let ((storevars (second args))
+                 arg-count
+                 setter
+                 kw-initforms-getter)
+             (let ((lambdalist (first args)))
+               (multiple-value-bind (reqvars optvars optinits optsvars
+                                     rest keyp keywords keyvars keyinits
+                                     keysvars allowp env)
+                   (analyze-defsetf-lambdalist lambdalist
+                     #'(lambda (lalist detail errorstring &rest arguments)
+                         (declare (ignore lalist)) ; use WHOLE-FORM instead
+                         (lambda-list-error whole-form detail
+                           (TEXT "~S ~S: invalid ~S lambda-list: ~?")
+                           'defsetf accessfn 'defsetf
+                           errorstring arguments)))
+                 (declare (ignore optinits optsvars rest keysvars allowp))
+                 (setq arg-count (if keyp (+ (length reqvars) (length optvars)) -1))
+                 (if (eql env 0)
+                   (setq env (gensym "IG")
+                         declarations (cons `(IGNORE ,env) declarations))
+                   (setq lambdalist
+                         (let ((lr (memq '&ENVIRONMENT lambdalist)))
+                           (append (ldiff lambdalist lr) (cddr lr)))))
+                 (when declarations
+                   (setq declarations `((DECLARE ,@declarations))))
+                 (setq setter
+                   `(LAMBDA (,env ,@storevars ,@lambdalist)
+                      ,@declarations
+                      (BLOCK ,accessfn ,@body-rest)))
+                 (when keyp
+                   (setq kw-initforms-getter
+                     `(LAMBDA (&KEY ,@(mapcar #'(lambda (keyword keyvar keyinit)
+                                                  `((,keyword ,keyvar) ,keyinit))
+                                              keywords keyvars keyinits))
+                        (LIST ,@keyvars))))))
              `(EVAL-WHEN (LOAD COMPILE EVAL)
                 (LET ()
                   (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
@@ -464,7 +550,11 @@
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                     (LIST* ,arg-count ,(length storevars)
                            (FUNCTION ,(concat-pnames "SETF-" accessfn)
-                                     ,setter)))
+                                     ,setter)
+                           ,(if kw-initforms-getter
+                              `(FUNCTION ,(concat-pnames "SETF-KEYWORD-INIT-FORMS-" accessfn)
+                                         ,kw-initforms-getter)
+                              'NIL)))
                   (SYSTEM::%SET-DOCUMENTATION ',accessfn 'SETF ,docstring)
                   ',accessfn)))))
         (t (error-of-type 'source-program-error

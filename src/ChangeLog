@@ -1,3 +1,17 @@
+2019-06-29  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible to use DEFSETF expanders with computed keywords.
+	Reported by Kaz Kylheku <kaz@kylheku.com>
+	in <https://sourceforge.net/p/clisp/mailman/message/36601264/>.
+	* functions.lisp (function-info): New function, extracted from
+	function-signature.
+	* compiler.lisp (function-signature): Invoke function-info.
+	* places.lisp (define-setf-expander): Store on the property list also a
+	function that returns the keyword initforms.
+	(get-setf-expansion): Handle the case of a DEFSETF long form with
+	keyword arguments, including the case when the keywords are not known at
+	macroexpansion time.
+
 2019-06-28  Bruno Haible  <bruno@clisp.org>
 
 	Fix typos in message strings.
