@@ -1,3 +1,8 @@
+2019-07-01  Sam Steingold  <sds@gnu.org>
+
+	* setf.tst: Split the last test case into individual cases as per
+	CLISP style. Add symbol clean-up.
+
 2019-06-29  Bruno Haible  <bruno@clisp.org>
 
 	Check DEFSETF expanders with computed keywords.

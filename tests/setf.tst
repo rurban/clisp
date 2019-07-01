@@ -594,26 +594,32 @@ T
   (defsetf xy-s (&key ((x x) 0) ((y y) 0)) (store)
     `(set-xy-s ,store 'x ,x 'y ,y))
   (defsetf xy-k (&key (x 0) (y 0)) (store)
-    `(set-xy-k ,store :x ,x :y ,y))
+    `(set-xy-k ,store :x ,x :y ,y)))
+xy-k
 
-  (assert (eql NIL (xy-k :x 1)))
-  (assert (eql NIL (xy-s 'x 1)))
-  (assert (eql 10 (setf (xy-k :x 1) 10)))
-  (assert (eql 20 (setf (xy-s 'x 2) 20)))
-  (assert (eql 20 (xy-k :x 2)))
-  (assert (eql 10 (xy-s 'x 1)))
+(xy-k :x 1) NIL
+(xy-s 'x 1) NIL
+(setf (xy-k :x 1) 10) 10
+(setf (xy-s 'x 2) 20) 20
+(xy-k :x 2) 20
+(xy-s 'x 1) 10
 
-  (let ((a 'x) (b 'y))
-    (setf (xy-s a 1 b 2) 3)
-    (setf (xy-s b 5 a 9) 14))
+(let ((a 'x) (b 'y))
+  (setf (xy-s a 1 b 2) 3)
+  (setf (xy-s b 5 a 9) 14))
+14
 
-  (assert (eql 3 (xy-s 'y 2 'x 1)))
-  (assert (eql 3 (xy-k :y 2 :x 1)))
-  (assert (eql 14 (xy-k :x 9 :y 5)))
-  (assert (eql 14 (xy-s 'x 9 'y 5)))
+(xy-k :y 2 :x 1) 3
+(xy-s 'y 2 'x 1) 3
+(xy-k :x 9 :y 5) 14
+(xy-s 'x 9 'y 5) 14
 
-  (setf (xy-k (if t :x :y) 4 (if nil :x :y) 2) 77))
-77
+(let ((flag (zerop (random 2))))
+  (setf (xy-k (if flag :x :y) 4 (if flag :y :x) 2) 42
+        (xy-s (if flag 'y 'x) 4 (if flag 'x 'y) 2) 24)
+  (list (xy-k (if flag :y :x) 4 (if flag :x :y) 2)
+        (xy-s (if flag 'x 'y) 4 (if flag 'y 'x) 2)))
+(24 42)
 
 ;; Check that DOCUMENTATION's value from different anonymous lambdas are
 ;; independent.
@@ -736,5 +742,8 @@ T
 (documentation 'foo 'function) "docstring"
 
 ;; Clean up.
-(symbols-cleanup '(x func01 func03 foo))
+(symbols-cleanup
+ '(xx schiff setf-test ad my-subseq my-subseq-env test-setf-01 test-setf-02
+   foo bar quux frobozz documented-struct foo21 bar21 foo22 bothvars
+   *xy* xy-k xy-s set-xy-k set-xy-s func01 func02 func03))
 ()
