@@ -11,7 +11,7 @@
 ;;; This is accomplished by not hard-wiring the symbol->file table
 ;;; but reading the Data/<map> file instead
 
-;;; Copyright (C) 2002-2008, 2017 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2002-2008, 2017, 2019 Sam Steingold <sds@gnu.org>
 ;;; Keywords: lisp, common lisp, emacs, ANSI CL, hyperspec
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of GNU CLISP <http://clisp.cons.org>, <http://www.clisp.org>
@@ -28,7 +28,6 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl)) ; push
 (require 'browse-url)
 (require 'thingatpt)
 (require 'url)
@@ -41,6 +40,9 @@
 If you copy the HyperSpec to your local system, set this variable to
 something like \"file:/usr/local/doc/HyperSpec/\"."
   :group 'lisp
+  :set (lambda (s v)
+         (setq clhs-symbols nil)
+         (set-default s v))
   :type 'string)
 
 (defvar clhs-history nil
