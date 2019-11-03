@@ -587,8 +587,8 @@ case $# in
      CROSS=false
      if [ -z "$HSYS" ]; then # not win32gcc
        # some shells (A/UX and OSF/1) need the parentheses around "arch" below.
-       HSYS=`((arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
-       HSYSOS=`((uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
+       HSYS=`( (arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
+       HSYSOS=`( (uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
        if [ "$HSYS" = 386bsd -o "$HSYS" = sun386 -o "$HSYS" = "386/at" -o "$HSYS" = i86pc ] ; then
          HSYS='i386'
        fi

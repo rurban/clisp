@@ -20,6 +20,7 @@ User visible changes
   + DIRECTORY matches like PATHNAME-MATCH-P (bug#724).
   + Fixed a compiler bug that could lead to a "Compiler bug!!" error.
     <https://gitlab.com/gnu-clisp/clisp/issues/14>
+  + Fixed an error during the build on macOS (bug#740).
 
 
 2.50 branch, not yet released
