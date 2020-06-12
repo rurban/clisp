@@ -1,5 +1,6 @@
 dnl AUTOCONF configuration for syscalls
 dnl Copyright (C) 2003-2011, 2014 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2020 Bruno Haible <bruno@clisp.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
 AC_PREREQ(2.57)
@@ -17,8 +18,21 @@ BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(fcntl.h netdb.h utime.h dnl
 pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h dnl
 sys/statvfs.h sys/statfs.h sys/param.h ftw.h)
+AC_CANONICAL_HOST
 if test "$ac_cv_header_shlobj_h" = yes ; then
-   LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid -lversion';
+  LIBS=${LIBS}' -luser32 -lole32 -loleaut32'
+  case "$host_os" in
+    cygwin*)
+      dnl On Cygwin, there are /usr/lib/libuuid.a and /usr/lib/w32api/libuuid.a,
+      dnl and only the latter defines the symbols IID_IPersistFile and
+      dnl IID_IPropertySetStorage.
+      LIBS=${LIBS}' /usr/lib/w32api/libuuid.a'
+      ;;
+    *)
+      LIBS=${LIBS}' -luuid'
+      ;;
+  esac
+  LIBS=${LIBS}' -lversion'
 fi
 AC_SYS_LARGEFILE    dnl ensure 64 bit size_t for AC_CHECK_SIZEOF below
 AC_CHECK_SIZEOF(off_t)
