@@ -235,7 +235,7 @@ local char* my_realpath (const char* path, char* resolved_path) {
   return resolved_path; /* finished */
 }
 
-#if defined(UNIX) && !defined(HAVE_REALPATH)
+#if defined(UNIX) && defined(HAVE_REALPATH)
   /* We use realpath() from <stdlib.h>. */
   #define realpath_is_my_realpath false
 #else

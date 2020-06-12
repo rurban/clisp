@@ -1,5 +1,11 @@
 2020-06-12  Bruno Haible  <bruno@clisp.org>
 
+	Use realpath from libc when possible.
+	This fixes a mistake from 2017-10-24.
+	* pathname.d (realpath, realpath_is_my_realpath): Fix condition.
+
+2020-06-12  Bruno Haible  <bruno@clisp.org>
+
 	Fix (sys::program-name) result on Cygwin.
 	* pathname.d (my_realpath) [UNIX_CYGWIN]: Don't return NULL in most
 	cases.
