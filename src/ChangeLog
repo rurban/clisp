@@ -1,3 +1,9 @@
+2020-06-12  Bruno Haible  <bruno@clisp.org>
+
+	Fix (sys::program-name) result on Cygwin.
+	* pathname.d (my_realpath) [UNIX_CYGWIN]: Don't return NULL in most
+	cases.
+
 2019-11-03  Bruno Haible  <bruno@clisp.org>
 
 	Avoid 'makemake' error on macOS.

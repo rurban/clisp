@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2013, 2016-2018
+ * Bruno Haible 1990-2013, 2016-2018, 2020
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2013, 2016-2017
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -154,13 +154,9 @@ local char* my_realpath (const char* path, char* resolved_path) {
                 return NULL;
               }
             }
-            if (S_ISDIR(statbuf.st_mode)) {
-              /* directory, not a symbolic link */
+            if (S_ISDIR(statbuf.st_mode) || !S_ISLNK(statbuf.st_mode)) {
+              /* not a symbolic link */
               to_ptr[-1] = '/'; /* insert the '/' again */
-            } else if (!S_ISLNK(statbuf.st_mode)) {
-              /* something else, but not a directory or symbolic link. */
-              errno = ENOTDIR;
-              return NULL;
             } else
             #endif
               {
