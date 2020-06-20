@@ -1,5 +1,13 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Fix portability problems in SOCKET-CONNECT with :TIMEOUT 0.
+	Reported at <https://gitlab.com/gnu-clisp/clisp/-/issues/25>.
+	* socket.d (connect_via_ip): Don't wait if no timeout was given. Don't
+	special-case timeout == 0.
+	* stream.d (SOCKET-CONNECT): Map a zero timeout to 1 ms.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	New functions EXT:OPERATING-SYSTEM-TYPE, EXT:OPERATING-SYSTEM-VERSION.
 	* constobj.d (O(operating_system_type_string),
 	O(operating_system_version_string)): New.

@@ -1,6 +1,6 @@
 /*
  * Streams for CLISP
- * Bruno Haible 1990-2008, 2016-2018
+ * Bruno Haible 1990-2008, 2016-2020
  * Sam Steingold 1998-2011, 2016-2017
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -13943,7 +13943,8 @@ modexp maygc struct timeval * sec_usec
     if (!nullp(Cdr(sec)) && !boundp(usec))
       usec = (consp(Cdr(sec)) ? Car(Cdr(sec)) : Cdr(sec));
     sec = Car(sec);
-  } else if (floatp(sec) || ratiop(sec)) { /* sec = sec mod 1 */
+  } else if (floatp(sec) || ratiop(sec)) {
+    /* Compute (floor sec 1). */
     pushSTACK(sec); funcall(L(floor),1);
     sec = value1;
     if (!boundp(usec)) { /* usec = round(sec*1000000) */
@@ -14069,6 +14070,11 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
         (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) ) {
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
+  /* On Linux, with a timeout of 0, even a local connection would fail with
+     error EINPROGRESS. This is undesired. Use a timeout of 1 ms instead. */
+  if (tvp != NULL && tvp->tv_sec == 0 && tvp->tv_usec == 0) {
+    tvp->tv_usec = 1000;
+  }
 
   STACK_4 = check_uint16(STACK_4);
 

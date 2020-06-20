@@ -4621,9 +4621,9 @@ Now you can sum doubles:
     &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
   <listitem><simpara>Attempts to create a client-side &bidir-s;
    &socket-stream;.  Blocks until the server accepts the connection, for
-   no more than &timeout-k; &seconds;.  If it is 0, returns immediately
-   and (probably) blocks on the next i/o operation (you can use
-   &so-status; to check whether it will actually block).
+   no more than &timeout-k; &seconds;.  If it is 0, returns immediately.
+  </simpara><simpara>&sig-err; if no connection could be established
+   within the given time.
  </simpara></listitem></varlistentry>
  <varlistentry id="so-status"><term><code>(&so-status;
                  <replaceable>socket-stream-or-list</replaceable>

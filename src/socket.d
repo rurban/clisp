@@ -856,58 +856,63 @@ global SOCKET accept_connection (SOCKET socket_handle) {
 local SOCKET connect_via_ip (const struct sockaddr * addr, size_t addrlen,
                              void* timeout) {
   /* <http://cr.yp.to/docs/connect.html>:
-     - make a non-blocking socket, connect(), select() for WR */
+     - make a non-blocking socket, connect(), select() for writability */
   var SOCKET fd;
   NO_BLOCK_DECL();
+  /* Create the socket. */
   if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
     return INVALID_SOCKET;
+  var struct timeval *tvp = (struct timeval*)timeout;
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
-  if (timeout) {
+  /* If infinitely blocking is not desired, mark the socket non-blocking. */
+  if (tvp != NULL) {
     START_NO_BLOCK(fd, goto fail);
   }
  #endif
   if (connect(fd, addr, addrlen) < 0) {
    #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
-    if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
-      var struct timeval *tvp = (struct timeval*)timeout;
-      if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
-       var int ret;
-       #if defined(WIN32_NATIVE)
-        ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
-       #else
-        var fd_set handle_set;
-        do {
-          FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-          ret = select(fd+1,NULL,&handle_set,NULL,tvp);
-        } while (ret < 0 && errno == EINTR);
-        if (ret < 0) {
-          goto fail;
-        }
-        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
-        var int errorp;
-        var socklen_t len = sizeof(errorp);
-        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
-          goto fail;
-        }
-        if (errorp) {
-          errno = errorp;
-          goto fail;
-        }
-        #endif
-       #endif
-        if (ret == 0) {
-          errno = ETIMEDOUT;
-          goto fail;
-        }
-      }
-      if (!timeout)
-        goto fail;
-    } else
+    /* No connection is available now. */
+    if (tvp == NULL || !(errno == EINPROGRESS || errno == EWOULDBLOCK))
       goto fail;
+    /* We have a timeout, and connect() failed with EINPROGRESS or EWOULDBLOCK.
+       So, wait for the connection. */
+    var int ret;
+    #if defined(WIN32_NATIVE)
+     ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
+    #else
+     /* Do as documented in the Linux man page for connect():
+        Wait for the connection to be complete, using select() or poll(),
+        then retrieve the error using getsockopt(). */
+     var fd_set handle_set;
+     do {
+       FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+       ret = select(fd+1,NULL,&handle_set,NULL,tvp);
+     } while (ret < 0 && errno == EINTR);
+     if (ret < 0) {
+       goto fail;
+     }
+     #if defined(HAVE_GETSOCKOPT) && defined(SOL_SOCKET) && defined(SO_ERROR)
+      var int errorp;
+      var socklen_t len = sizeof(errorp);
+      if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
+        goto fail;
+      }
+      if (errorp) {
+        errno = errorp;
+        goto fail;
+      }
+     #endif
+    #endif
+    if (ret == 0) {
+      /* No connection was possible in the given time period. */
+      errno = ETIMEDOUT;
+      goto fail;
+    }
    #endif
   }
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
-  if (timeout) { /* connected - restore blocking I/O */
+  /* Connected. Restore blocking I/O.  */
+  if (tvp != NULL) {
     END_NO_BLOCK(fd, goto fail);
   }
  #endif

@@ -552,13 +552,16 @@ T
   #-win32 (:ECONNREFUSED #.+econnrefused+)
   #+win32 (:ETIMEDOUT 10060))
 T
-(open-stream-p (setq *socket-1* (socket:socket-connect
-                                 12345 "localhost" :timeout 0))) T
-(check-os-error (read-line *socket-1*)
+;; :TIMEOUT 0 means to return a useful result or error immediately.
+;; https://gitlab.com/gnu-clisp/clisp/-/issues/25
+(check-os-error (socket:socket-connect 12345 "localhost" :timeout 0)
   #-win32 (:ECONNREFUSED #.+econnrefused+)
-  #+win32 (:EINPROGRESS 10036))
+  #+win32 (:ETIMEDOUT 10060))
 T
-(close *socket-1*) T
+(check-os-error (socket:socket-connect 12345 "localhost" :buffered nil :timeout 0)
+  #-win32 (:ECONNREFUSED #.+econnrefused+)
+  #+win32 (:ETIMEDOUT 10060))
+T
 
 ;; https://sourceforge.net/p/clisp/bugs/587/: non-0 timeout
 (multiple-value-bind (run args) (cmd-args)

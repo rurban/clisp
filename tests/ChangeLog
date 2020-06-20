@@ -1,3 +1,9 @@
+2020-06-20  Bruno Haible  <bruno@clisp.org>
+
+	Fix <https://gitlab.com/gnu-clisp/clisp/-/issues/25>.
+	* socket.tst: Verify that socket-connect with :timeout 0 on a dead port
+	fails.
+
 2019-07-01  Sam Steingold  <sds@gnu.org>
 
 	* setf.tst: Split the last test case into individual cases as per
