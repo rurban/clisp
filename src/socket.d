@@ -1,6 +1,6 @@
 /*
  * Setting up a connection to an X server, and other socket functions
- * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003, 2017
+ * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003, 2017, 2020
  * Marcus Daniels 28.9.1995, 9.9.1997
  * Sam Steingold 1998-2012, 2016-2017
  * German comments translated into English: Stefan Kain 2002-09-11
@@ -866,50 +866,55 @@ local SOCKET connect_via_ip (const struct sockaddr * addr, size_t addrlen,
     START_NO_BLOCK(fd, goto fail);
   }
  #endif
-  if (connect(fd, addr, addrlen) >= 0)
-    return fd;
- #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
-  if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
-    var struct timeval *tvp = (struct timeval*)timeout;
-    if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
-     var int ret;
-     #if defined(WIN32_NATIVE)
-      ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
-     #else
-      var fd_set handle_set;
-      do {
-        FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-        ret = select(fd+1,NULL,&handle_set,NULL,tvp);
-      } while (ret < 0 && errno == EINTR);
-      if (ret < 0) {
-        goto fail;
+  if (connect(fd, addr, addrlen) < 0) {
+   #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
+    if (errno == EINPROGRESS || errno == EWOULDBLOCK) {
+      var struct timeval *tvp = (struct timeval*)timeout;
+      if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { /*wait*/
+       var int ret;
+       #if defined(WIN32_NATIVE)
+        ret = interruptible_socket_wait(fd,socket_wait_write,tvp);
+       #else
+        var fd_set handle_set;
+        do {
+          FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+          ret = select(fd+1,NULL,&handle_set,NULL,tvp);
+        } while (ret < 0 && errno == EINTR);
+        if (ret < 0) {
+          goto fail;
+        }
+        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
+        var int errorp;
+        var socklen_t len = sizeof(errorp);
+        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
+          goto fail;
+        }
+        if (errorp) {
+          errno = errorp;
+          goto fail;
+        }
+        #endif
+       #endif
+        if (ret == 0) {
+          errno = ETIMEDOUT;
+          goto fail;
+        }
       }
-      #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
-      var int errorp;
-      var socklen_t len = sizeof(errorp);
-      if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&errorp,&len) < 0) {
+      if (!timeout)
         goto fail;
-      }
-      if (errorp) {
-        errno = errorp;
-        goto fail;
-      }
-      #endif
-     #endif
-      if (ret == 0) {
-        errno = ETIMEDOUT;
-        goto fail;
-      }
-    }
-    if (timeout) { /* connected - restore blocking I/O */
-      END_NO_BLOCK(fd, goto fail);
-      return fd;
-    }
+    } else
+      goto fail;
+   #endif
   }
+ #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
+  if (timeout) { /* connected - restore blocking I/O */
+    END_NO_BLOCK(fd, goto fail);
+  }
+ #endif
+  return fd;
  fail:
   saving_errno(CLOSE(fd));
   return INVALID_SOCKET;
- #endif
 }
 
 global SOCKET create_client_socket (const char* hostname, unsigned int port,
