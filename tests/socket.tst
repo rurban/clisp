@@ -19,37 +19,102 @@ make-byte-array
   (coerce l '(vector (unsigned-byte 8))))
 coerce-byte-array
 
-(progn
-  (cond
-    ((or (string= (machine-type) "MIPS")
-         (string= (machine-type) "MIPS64"))
-     (defconstant +econnrefused+ 146)
-     (defconstant +econnreset+ 131))
-    ((or (string= (machine-type) "SPARC64") #+macos t)
-     (defconstant +econnrefused+ 61)
-     (defconstant +econnreset+ 54))
-    ((string= (machine-type) "I686-AT386") ; hurd-i386
-     (defconstant +econnrefused+ #x4000003d)
-     (defconstant +econnreset+ #x40000036))
-    (t
-     (defconstant +econnrefused+ 111)
-     (defconstant +econnreset+ 104)))
-  (if (string= (machine-type) "I686-AT386") ; hurd-i386
-      (progn
-        (defconstant +einval+ #x40000016)
-        (defconstant +epipe+ #x40000020))
-      (progn
-        (defconstant +einval+ 22)
-        (defconstant +epipe+ 32)))
+;; errno values are OS dependent.
+;; But we cannot rely on the syscalls module here.
+(let* ((os (ext:operating-system-type))
+       (cpu (and (equal os "Linux") ; beware: e.g. on Solaris this does not return the CPU
+                 ;; For the possible values of 'uname -m', see
+                 ;; https://stackoverflow.com/questions/45125516/possible-values-for-uname-m
+                 (let ((stream (ext:run-shell-command "uname -m" :output :stream)))
+                   (unwind-protect (read-line stream)
+                     (close stream))))))
+  (setq *os* os)
+  (setq +EINVAL+
+        (cond ((equal os "GNU/Hurd") #x40000016)
+              ((equal os "Haiku") (- 5 #x80000000))
+              (t 22)))
+  (setq +EPIPE+
+        (cond ((equal os "GNU/Hurd") #x40000020)
+              ((equal os "Haiku") (- #x600d #x80000000))
+              (t 32)))
+  (setq +EADDRNOTAVAIL+
+        (cond ((equal os "GNU/Hurd") #x40000031)
+              ((or (equal os "FreeBSD") (equal os "DragonFly") (equal os "GNU/kFreeBSD")
+                   (equal os "NetBSD") (equal os "OpenBSD")
+                   (equal os "Darwin")
+                   (and (equal os "Linux") (or (eql (search "alpha" cpu) 0) (eql (search "sparc" cpu) 0)))
+                   (equal os "Minix"))
+               49)
+              ((equal os "AIX") 68)
+              ((or (equal os "HP-UX") (and (equal os "Linux") (eql (search "parisc" cpu) 0)))
+               227)
+              ((equal os "IRIX") 236)
+              ((or (equal os "SunOS") (and (equal os "Linux") (eql (search "mips" cpu) 0)))
+               126)
+              ((equal os "Linux") 99)
+              ((equal os "Haiku") (- #x7017 #x80000000))
+              ((equal os "CYGWIN") 125)
+              ((equal os "Windows") 101)
+              (t 'unknown)))
+  (setq +ECONNRESET+
+        (cond ((equal os "GNU/Hurd") #x40000036)
+              ((or (equal os "FreeBSD") (equal os "DragonFly") (equal os "GNU/kFreeBSD")
+                   (equal os "NetBSD") (equal os "OpenBSD")
+                   (equal os "Darwin")
+                   (and (equal os "Linux") (or (eql (search "alpha" cpu) 0) (eql (search "sparc" cpu) 0)))
+                   (equal os "Minix"))
+               54)
+              ((equal os "AIX") 73)
+              ((or (equal os "HP-UX") (and (equal os "Linux") (eql (search "parisc" cpu) 0)))
+               232)
+              ((equal os "IRIX") 131)
+              ((or (equal os "SunOS") (and (equal os "Linux") (eql (search "mips" cpu) 0)))
+               131)
+              ((equal os "Linux") 104)
+              ((equal os "Haiku") (- #x701c #x80000000))
+              ((equal os "CYGWIN") 104)
+              ((equal os "Windows") 108)
+              (t 'unknown)))
+  (setq +ECONNREFUSED+
+        (cond ((equal os "GNU/Hurd") #x4000003d)
+              ((or (equal os "FreeBSD") (equal os "DragonFly") (equal os "GNU/kFreeBSD")
+                   (equal os "NetBSD") (equal os "OpenBSD")
+                   (equal os "Darwin")
+                   (and (equal os "Linux") (or (eql (search "alpha" cpu) 0) (eql (search "sparc" cpu) 0)))
+                   (equal os "Minix"))
+               61)
+              ((equal os "AIX") 79)
+              ((or (equal os "HP-UX") (and (equal os "Linux") (eql (search "parisc" cpu) 0)))
+               239)
+              ((equal os "IRIX") 146)
+              ((or (equal os "SunOS") (and (equal os "Linux") (eql (search "mips" cpu) 0)))
+               146)
+              ((equal os "Linux") 111)
+              ((equal os "Haiku") (- #x7020 #x80000000))
+              ((equal os "CYGWIN") 111)
+              ((equal os "Windows") 107)
+              (t 'unknown)))
+  (setq +ETIMEDOUT+
+        (cond ((equal os "GNU/Hurd") #x4000003c)
+              ((or (equal os "FreeBSD") (equal os "DragonFly") (equal os "GNU/kFreeBSD")
+                   (equal os "NetBSD") (equal os "OpenBSD")
+                   (equal os "Darwin")
+                   (and (equal os "Linux") (or (eql (search "alpha" cpu) 0) (eql (search "sparc" cpu) 0)))
+                   (equal os "Minix"))
+               60)
+              ((equal os "AIX") 78)
+              ((or (equal os "HP-UX") (and (equal os "Linux") (eql (search "parisc" cpu) 0)))
+               238)
+              ((equal os "IRIX") 145)
+              ((or (equal os "SunOS") (and (equal os "Linux") (eql (search "mips" cpu) 0)))
+               145)
+              ((equal os "Linux") 110)
+              ((equal os "Haiku") (- #x7020 #x80000000))
+              ((equal os "CYGWIN") 116)
+              ((equal os "Windows") 138)
+              (t 'unknown)))
   nil)
 nil
-
-(defun is-mips ()
-  "Test whether this is a mips machine (either 32- or 64-bit)"
-  (let ((m (machine-type)))
-    (and (>= (length m) 4)
-         (string= "MIPS" (subseq m 0 4)))))
-is-mips
 
 ;;; * Reading from files
 
@@ -549,17 +614,17 @@ T
 ;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 ;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
-  #-win32 (:ECONNREFUSED #.+econnrefused+)
+  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
   #+win32 (:ETIMEDOUT 10060))
 T
 ;; :TIMEOUT 0 means to return a useful result or error immediately.
 ;; https://gitlab.com/gnu-clisp/clisp/-/issues/25
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 0)
-  #-win32 (:ECONNREFUSED #.+econnrefused+)
+  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
   #+win32 (:ETIMEDOUT 10060))
 T
 (check-os-error (socket:socket-connect 12345 "localhost" :buffered nil :timeout 0)
-  #-win32 (:ECONNREFUSED #.+econnrefused+)
+  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
   #+win32 (:ETIMEDOUT 10060))
 T
 
@@ -604,13 +669,13 @@ T
                       (os-error (c)
                         (princ-error c)
                         (case (os-error-code c)
-                          ((:ECONNRESET #.+econnreset+) t)
+                          ((:ECONNRESET #.+ECONNRESET+) t)
                           (t (os-error-code c))))
                       (end-of-file (c)
                         (princ 'read-char) (princ-error c) t))
-            #-macos (check-os-error (read-char so) (:ECONNRESET #.+econnreset+))
+            #-macos (check-os-error (read-char so) (:ECONNRESET #.+ECONNRESET+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
-            (check-os-error (write-line "bar" so) (:EPIPE #.+epipe+))
+            (check-os-error (write-line "bar" so) (:EPIPE #.+EPIPE+))
             (null (member (socket:socket-status so) '(:EOF :APPEND)))
             (handler-case (read-char so)
               (end-of-file (c)
@@ -620,14 +685,15 @@ T
 
 ;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
-  #-(or win32 macos) (:ECONNREFUSED #.+econnrefused+)
-  #+macos (:EADDRNOTAVAIL 49)
+  #-(or win32 macos) (:ECONNREFUSED #.+ECONNREFUSED+)
+  #+macos (:EADDRNOTAVAIL #.+EADDRNOTAVAIL+)
   #+win32 (:EADDRNOTAVAIL 10049))
 T
-(check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL #.+einval+)) T
+(check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL #.+EINVAL+)) T
 
 ;; clean-up
-(progn (makunbound '*server*) (unintern '*server*)
+(progn (makunbound '*os*) (unintern '*os*)
+       (makunbound '*server*) (unintern '*server*)
        (delete-file *file*) (makunbound '*file*) (unintern '*file*)
        (makunbound '*s*) (unintern '*s*)
        (makunbound '*socket-1*) (unintern '*socket-1*)

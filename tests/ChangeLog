@@ -1,3 +1,8 @@
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
+	Fix test failures on several platforms (*BSD, Linux/hppa, etc.).
+	* socket.tst: Define errno values according to the OS and CPU.
+
 2020-06-20  Bruno Haible  <bruno@clisp.org>
 
 	Fix <https://gitlab.com/gnu-clisp/clisp/-/issues/25>.
