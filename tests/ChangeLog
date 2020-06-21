@@ -1,5 +1,11 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Avoid test failures on several platforms (*BSD etc.).
+	* socket.tst: Rewrite a test to make it more reliable, and accommodate
+	conditions signalled at different places on various platforms.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Avoid test failures on several platforms (FreeBSD, Cygwin, Minix, etc.).
 	* socket.tst: Change expected results per platform.
 

@@ -666,33 +666,47 @@ T
 #.(cond ((equal (ext:operating-system-type) "Minix") '())
         (t '("0.0.0.0" "127.0.0.1" "0.0.0.0" "127.0.0.1")))
 
+;; Test writing to and reading from a socket after it has encountered ECONNRESET.
 (multiple-value-bind (run args) (cmd-args)
+  ;; Open a socket server.
   (let ((se (socket:socket-server)))
-    (ext:run-program run :arguments (append args (list "-q" "-q" "-x" (format nil "(close (prog1 (socket:socket-connect ~D) (sleep 1s-2)))" (socket:socket-server-port se))))
+    ;; Spawn a detached process that connects to it and dies soon afterwards.
+    (ext:run-program run
+                     :arguments (append args
+                                  (list "-q" "-q" "-x"
+                                        (format nil "(close (prog1 (socket:socket-connect ~D) (sleep 0.01s0)))" (socket:socket-server-port se))))
                      :wait nil :input nil :output nil)
     (unwind-protect
-         (with-open-stream (so (socket:socket-accept se))
-           (list
+        (with-open-stream (so (socket:socket-accept se))
+          (list
             (socket:socket-status so)
             (write-line "foo" so)
-            (socket:socket-status so)
-            #+macos (handler-case (read-char so)
-                      (os-error (c)
-                        (princ-error c)
-                        (case (os-error-code c)
-                          ((:ECONNRESET #.+ECONNRESET+) t)
-                          (t (os-error-code c))))
-                      (end-of-file (c)
-                        (princ 'read-char) (princ-error c) t))
-            #-macos (check-os-error (read-char so) (:ECONNRESET #.+ECONNRESET+))
-            (null (member (socket:socket-status so) '(:EOF :APPEND)))
-            (check-os-error (write-line "bar" so) (:EPIPE #.+EPIPE+))
-            (null (member (socket:socket-status so) '(:EOF :APPEND)))
+            (sleep 0.02s0)
+            (handler-case (socket:socket-status so)
+              (os-error (c)
+                (princ 'socket-status-2) (princ-error c)
+                (case (os-error-code c)
+                  ((:ECONNRESET #.+ECONNRESET+) :APPEND)
+                  (t (os-error-code c)))))
+            (check-os-error
+              (progn (write-line "bar" so) t) ; does not signal an error e.g. on macOS, FreeBSD
+              (:EPIPE #.+EPIPE+ :ECONNRESET #.+ECONNRESET+)) ; signals ECONNRESET e.g. on Minix
             (handler-case (read-char so)
+              (os-error (c)
+                (princ 'read-char) (princ-error c)
+                (case (os-error-code c)
+                  ((:ECONNRESET #.+ECONNRESET+) t)
+                  (t (os-error-code c))))
               (end-of-file (c)
-                (princ 'read-char) (princ-error c) 'end-of-file))))
+                (princ 'read-char) (princ-error c) t))
+            (handler-case (socket:socket-status so)
+              (os-error (c)
+                (princ 'socket-status-3) (princ-error c)
+                (case (os-error-code c)
+                  ((:ECONNRESET #.+ECONNRESET+) :APPEND) ; signals ECONNRESET e.g. on Cygwin
+                  (t (os-error-code c)))))))
       (socket:socket-server-close se))))
-(:OUTPUT "foo" :OUTPUT T NIL T NIL END-OF-FILE)
+(:OUTPUT "foo" NIL :APPEND T T #.(if (equal (ext:operating-system-type) "OpenBSD") ':ERROR ':APPEND))
 
 ;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
