@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017, 2020 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17,7 +17,7 @@ AC_DEFUN([CL_ADDRESS_RANGE],
     #include <stdio.h>
     int printf_address (unsigned long addr)
     {
-      FILE* out = fopen("conftest.h","w");
+      FILE* out = fopen("conftest.h","wb");
       if (sizeof(unsigned long) <= 4)
         fprintf(out,"0x%08X\n", (unsigned int)addr);
       else

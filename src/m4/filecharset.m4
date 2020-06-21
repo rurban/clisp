@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009, 2011, 2017-2018 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2011, 2017-2020 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -42,7 +42,7 @@ AC_DEFUN([CL_FILECHARSET],
            */
           #define N 128
           ]],[[
-          if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+          if (freopen("conftest.out", "wb", stdout) == NULL) return 1;
           {
             char legal[N];
             char filename[4];

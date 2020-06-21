@@ -1,5 +1,14 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Fix configuration on mingw.
+	* m4/address.m4 (CL_ADDRESS_RANGE): Write conftest.h with Unix newlines.
+	* m4/filecharset.m4 (CL_FILECHARSET): Write conftest.out with Unix
+	newlines.
+	* m4/tcpconn.m4 (CL_TCPCONN): Don't check for the setsockopt() prototype
+	on native Windows. The parameter macros are defined in win32.d instead.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Make the DISASSEMBLE command for machine code work again.
 	* disassem.lisp (disassemble-machine-code): Allow spaces at the
 	beginning of disassembly lines. Hide the output of the attach command.
