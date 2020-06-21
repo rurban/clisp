@@ -76,7 +76,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 #+UNIX
 (defun disassemble-machine-code (program-name pid function address)
   ;; It does not work yet on HP-UX.
-  (let ((os (with-open-stream (s (ext::run-shell-command "uname -s" :output :stream)) (read-line s))))
+  (let ((os (ext:operating-system-type)))
     (when (equal os "HP-UX")
       (fresh-line)
       (format t (TEXT "Cannot show machine instructions: Not supported on this platform."))

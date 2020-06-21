@@ -1,6 +1,6 @@
 /*
  * Miscellaneous CLISP functions
- * Bruno Haible 1990-2008, 2017
+ * Bruno Haible 1990-2008, 2017-2020
  * Sam Steingold 1999-2011, 2017
  */
 
@@ -186,6 +186,77 @@ LISPFUNN(machine_version,0)
   #endif
     /* Store away the result for the next call: */
     O(machine_version_string) = ret;
+  }
+  VALUES1(ret);
+}
+
+LISPFUNN(operating_system_type,0)
+{ /* (EXT:OPERATING-SYSTEM-TYPE) */
+  var object ret = O(operating_system_type_string);
+  if (nullp(ret)) { /* not yet known? -> compute */
+   #if defined(UNIX)
+    {
+      var struct utsname utsname;
+      begin_system_call();
+      if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
+      /* Apply some canonicalizations. */
+      #if defined(UNIX_HURD)
+      if (strcmp(utsname.sysname,"GNU")==0) {
+        strcpy(utsname.sysname,"GNU/Hurd");
+      }
+      #endif
+      #if defined(UNIX_IRIX)
+      if (strncmp(utsname.sysname,"IRIX",4)==0) {
+        utsname.sysname[4] = '\0';
+      }
+      #endif
+      #if defined(UNIX_CYGWIN)
+      if (strncmp(utsname.sysname,"CYGWIN_",7)==0) {
+        utsname.sysname[6] = '\0';
+      }
+      #endif
+      end_system_call();
+      ret = coerce_imm_ss(asciz_to_string(utsname.sysname,O(misc_encoding)));
+    }
+   #elif defined(WIN32_NATIVE)
+    ret = coerce_imm_ss(ascii_to_string("Windows"));
+   #else
+    #error OPERATING-SYSTEM-TYPE is not defined
+   #endif
+    /* Store away the result for the next call: */
+    O(operating_system_type_string) = ret;
+  }
+  VALUES1(ret);
+}
+
+LISPFUNN(operating_system_version,0)
+{ /* (EXT:OPERATING-SYSTEM-VERSION) */
+  var object ret = O(operating_system_version_string);
+  if (nullp(ret)) { /* not yet known? -> compute */
+   #if defined(UNIX)
+    {
+      var struct utsname utsname;
+      begin_system_call();
+      if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
+      end_system_call();
+      ret = coerce_imm_ss(asciz_to_string(utsname.release,O(misc_encoding)));
+    }
+   #elif defined(WIN32_NATIVE)
+    {
+      var OSVERSIONINFO v;
+      var char buf[10+1+10+1];
+      begin_system_call();
+      v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+      if (!GetVersionEx(&v)) { end_system_call(); OS_error(); }
+      sprintf(buf,"%u.%u",v.dwMajorVersion,v.dwMinorVersion);
+      end_system_call();
+      ret = coerce_imm_ss(ascii_to_string(buf));
+    }
+   #else
+    #error OPERATING-SYSTEM-TYPE is not defined
+   #endif
+    /* Store away the result for the next call: */
+    O(operating_system_version_string) = ret;
   }
   VALUES1(ret);
 }

@@ -5614,7 +5614,43 @@ EOF
 </section>
 </section>
 
-<section id="getenv"><title>Operating System Environment</title>
+<section id="os-env"><title>Operating System Environment</title>
+
+<para>This section describes how to get information about the environment
+ on the machine on which &clisp; is running.</para>
+
+<section id="os"><title>Operating System Identification</title>
+
+<variablelist>
+ <varlistentry><term><code>(&os-type;)</code></term>
+  <listitem><para>Returns the operating system (kernel) name. The value
+   is a string, similar to the result of <code>uname -s</code>. Possible
+   values include:
+   <code>Linux</code> (both on GNU/Linux and Android systems),
+   <code>GNU/Hurd</code>,
+   <code>GNU/kFreeBSD</code>,
+   <code>Darwin</code> (on macOS systems),
+   <code>FreeBSD</code>,
+   <code>DragonFly</code>,
+   <code>NetBSD</code>,
+   <code>OpenBSD</code>,
+   <code>CYGWIN</code>,
+   <code>Haiku</code>,
+   <code>IRIX</code>,
+   <code>Minix</code>,
+   <code>SunOS</code> (on Solaris systems),
+   <code>AIX</code>,
+   <code>Windows</code>,
+   <code>HP-UX</code>.
+   Other values are possible as well.</para></listitem></varlistentry>
+
+ <varlistentry><term><code>(&os-version;)</code></term>
+  <listitem><para>Returns the operating system (kernel) version. The
+   value is a string, similar to the result of
+   <code>uname -r</code>.</para></listitem></varlistentry></variablelist>
+</section>
+
+<section id="getenv"><title>Environment Variables</title>
 
 <para>Most modern operating systems support &env-var;s that associate
  strings (<quote>variables</quote>) with other strings
@@ -5633,6 +5669,7 @@ are returned in an &alist;.</para>
 
 <para>Use <code>(&setf; (&getenv; &string-r;) &nil;)</code> to remove an
  &env-var; &string-r;.</para>
+</section>
 </section>
 
 </chapter>

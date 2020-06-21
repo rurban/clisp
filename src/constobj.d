@@ -1,6 +1,6 @@
 /*
  * list of all objects known to the C-program ("program-constants")
- * Bruno Haible 1990-2005, 2009, 2017-2018
+ * Bruno Haible 1990-2005, 2009, 2017-2020
  * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2002-02-20
 
@@ -337,6 +337,8 @@
   LISPOBJ(machine_type_string,"NIL")
   LISPOBJ(machine_version_string,"NIL")
   LISPOBJ(machine_instance_string,"NIL")
+  LISPOBJ(operating_system_type_string,"NIL")
+  LISPOBJ(operating_system_version_string,"NIL")
   LISPOBJ(software_type,"NIL")  /* initialized later */
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)

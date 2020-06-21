@@ -1,6 +1,6 @@
 /*
  * List of all symbols known to the C-program ("program constants")
- * Bruno Haible 1990-2006, 2017
+ * Bruno Haible 1990-2006, 2017-2020
  * Sam Steingold 1998-2011, 2017
  */
 
@@ -546,6 +546,8 @@ LISPSYM(lisp_implementation_version,"LISP-IMPLEMENTATION-VERSION",lisp)
 LISPSYM(version,"VERSION",system)
 LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
+LISPSYM(operating_system_type,"OPERATING-SYSTEM-TYPE",ext)
+LISPSYM(operating_system_version,"OPERATING-SYSTEM-VERSION",ext)
 LISPSYM(get_env,"GETENV",ext)
 LISPSYM(set_env,"SETENV",system)
 #ifdef WIN32_NATIVE

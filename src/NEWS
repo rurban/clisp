@@ -148,6 +148,10 @@ New features
   See <http://clisp.org/impnotes/mop-clisp.html#mop-clisp-gf-dynamically-modifiable>
   for details.
 
+* The new functions EXT:OPERATING-SYSTEM-TYPE and EXT:OPERATING-SYSTEM-VERSION
+  return basic information about the underlying operating system.
+  See <http://clisp.org/impnotes/os-env.html#os> for details.
+
 * Function EXT:STREAM-HANDLES returns the OS file handles for the stream.
   It has been present since 2.36 in package SOCKET but was not documented.
   See <http://clisp.org/impnotes/socket.html#so-handles> for details.
@@ -1908,7 +1912,7 @@ User visible changes
 
 * EXT:GETENV now returns all of the OS environment as an alist
   when its argument is omitted or NIL.
-  See <http://clisp.org/impnotes/getenv.html> for details.
+  See <http://clisp.org/impnotes/os-env.html#getenv> for details.
 
 * When configured with --with-export-syscalls,
   several new functions are available:

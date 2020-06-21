@@ -341,7 +341,8 @@
    char-meta-bit char-super-bit char-hyper-bit string-char-p
    char-invertcase string-invertcase nstring-invertcase
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
-   the-environment arglist getenv special-variable-p
+   the-environment arglist operating-system-type operating-system-version
+   getenv special-variable-p
    list-length-dotted list-length-proper
    *driver* *break-driver* *args* *keyboard-input* shell execute
    fasthash-eq stablehash-eq fasthash-eql stablehash-eql fasthash-equal

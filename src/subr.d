@@ -1,6 +1,6 @@
 /*
  * list of all SUBRs
- * Bruno Haible 1990-2006, 2009, 2017
+ * Bruno Haible 1990-2006, 2009, 2017-2020
  * Sam Steingold 1998-2011, 2013, 2017
 
  A C-compiled LISP-function is defined by a declaration
@@ -714,6 +714,8 @@ LISPFUN(lisp_implementation_version,seclass_no_se,0,0,norest,nokey,0,NIL)
 LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
+LISPFUNN(operating_system_type,0)
+LISPFUNN(operating_system_version,0)
 LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(set_env,2)
 #ifdef WIN32_NATIVE
