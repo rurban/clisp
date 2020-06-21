@@ -1280,7 +1280,8 @@ T
 (or (null s) (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (or (null s) (handler-case (write-line "foo" s)
                (stream-error (c) (princ-error c) t))) T
-(or (null s) (with-open-file (copy s) (streamp copy))) T
+(or (null s) (with-open-file (copy s) (streamp copy)))
+#.(if (member (ext:operating-system-type) '("AIX" "Haiku" "HP-UX" "Minix" "Windows") :test #'equal) 'ERROR 'T)
 (streamp (setq s (make-stream :output))) T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (write-line "foo" s) "foo"
@@ -1288,7 +1289,8 @@ T
 (or (not (search "#P" (prin1-to-string s))) (pathnamep (truename s))) T
 (write-line "foo" s) "foo"
 (let ((*reopen-open-file* nil)) ; stdout can be a file, it will be detected!
-  (with-open-file (copy s :direction :output) (streamp copy))) T
+  (with-open-file (copy s :direction :output) (streamp copy)))
+#.(if (member (ext:operating-system-type) '("AIX" "Haiku" "HP-UX" "Minix" "Windows") :test #'equal) 'ERROR 'T)
 
 #+clisp
 (progn
