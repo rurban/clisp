@@ -536,6 +536,7 @@ NIL
 (eq (socket-status *status-arg* 0) *status-arg*) T
 (cdr (assoc *server* *status-arg*))    NIL
 (cddr (assoc *socket-1* *status-arg*)) :OUTPUT
+;; This test frequently fails on Haiku.
 (cddr (assoc *socket-2* *status-arg*)) :IO
 
 (multiple-value-list (read-line *socket-2*)) ("foo" NIL)
@@ -602,8 +603,10 @@ T
 
 (socket-status (cons *socket-2* :input) 0) :INPUT
 (read-char *socket-2*) #\a
+;; This test frequently fails on Haiku.
 (socket-status (cons *socket-2* :input) 0) NIL
 (close *socket-1*) T
+;; This test frequently fails on Haiku.
 (socket-status (cons *socket-2* :input) 0) :EOF
 (close *socket-2*) T
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
@@ -614,18 +617,23 @@ T
 ;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 ;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
-  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
-  #+win32 (:ETIMEDOUT 10060))
+  #.(let ((os (ext:operating-system-type)))
+      (cond ((equal os "Windows") '(:ETIMEDOUT 10060))
+            (t `(:ECONNREFUSED ,+ECONNREFUSED+)))))
 T
 ;; :TIMEOUT 0 means to return a useful result or error immediately.
 ;; https://gitlab.com/gnu-clisp/clisp/-/issues/25
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 0)
-  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
-  #+win32 (:ETIMEDOUT 10060))
+  #.(let ((os (ext:operating-system-type)))
+      (cond ((equal os "Windows") '(:ETIMEDOUT 10060))
+            ((equal os "CYGWIN") `(:ETIMEDOUT ,+ETIMEDOUT+))
+            (t `(:ECONNREFUSED ,+ECONNREFUSED+)))))
 T
 (check-os-error (socket:socket-connect 12345 "localhost" :buffered nil :timeout 0)
-  #-win32 (:ECONNREFUSED #.+ECONNREFUSED+)
-  #+win32 (:ETIMEDOUT 10060))
+  #.(let ((os (ext:operating-system-type)))
+      (cond ((equal os "Windows") '(:ETIMEDOUT 10060))
+            ((equal os "CYGWIN") `(:ETIMEDOUT ,+ETIMEDOUT+))
+            (t `(:ECONNREFUSED ,+ECONNREFUSED+)))))
 T
 
 ;; https://sourceforge.net/p/clisp/bugs/587/: non-0 timeout
@@ -647,13 +655,16 @@ T
           (list :local local :remote remote)))))
 T
 
-(let ((interfaces '(nil "localhost" "0.0.0.0" "127.0.0.1")))
+(let ((interfaces '#.(cond ((equal (ext:operating-system-type) "Minix") '())
+                           (t '(nil "localhost" "0.0.0.0" "127.0.0.1")))))
+
   (mapcar (lambda (i)
             (let ((s (socket-server 0 :interface i)))
               (unwind-protect (socket-server-host (show s))
                 (socket-server-close s))))
           interfaces))
-("0.0.0.0" "127.0.0.1" "0.0.0.0" "127.0.0.1")
+#.(cond ((equal (ext:operating-system-type) "Minix") '())
+        (t '("0.0.0.0" "127.0.0.1" "0.0.0.0" "127.0.0.1")))
 
 (multiple-value-bind (run args) (cmd-args)
   (let ((se (socket:socket-server)))
@@ -685,10 +696,19 @@ T
 
 ;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
-  #-(or win32 macos) (:ECONNREFUSED #.+ECONNREFUSED+)
-  #+macos (:EADDRNOTAVAIL #.+EADDRNOTAVAIL+)
-  #+win32 (:EADDRNOTAVAIL 10049))
+  #.(let ((os (ext:operating-system-type)))
+      (cond ((or (equal os "FreeBSD") (equal os "DragonFly") (equal os "GNU/kFreeBSD")
+                 (equal os "NetBSD") (equal os "OpenBSD")
+                 (equal os "Darwin")
+                 (equal os "AIX")
+                 (equal os "SunOS")
+                 (equal os "CYGWIN"))
+             `(:EADDRNOTAVAIL ,+EADDRNOTAVAIL+))
+            ((equal os "Minix") `(:EADDRNOTAVAIL ,+EADDRNOTAVAIL+ 213))
+            ((equal os "Windows") '(:EADDRNOTAVAIL 10049))
+            (t `(:ECONNREFUSED ,+ECONNREFUSED+)))))
 T
+
 (check-os-error (socket-server 1240 :interface "[/]=") (:EINVAL #.+EINVAL+)) T
 
 ;; clean-up

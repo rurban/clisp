@@ -1,5 +1,10 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Avoid test failures on several platforms (FreeBSD, Cygwin, Minix, etc.).
+	* socket.tst: Change expected results per platform.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Fix test failures on several platforms (*BSD, Linux/hppa, etc.).
 	* socket.tst: Define errno values according to the OS and CPU.
 
