@@ -136,14 +136,14 @@ global void init_language
    We clobber LC_MESSAGES and unset the earlier two variables. */
     var const char *locale1, *locale2;
     switch (language) {
-      case language_english: locale1 = "en_US"; locale2 = "en_US.utf8"; break;
-      case language_german:  locale1 = "de_DE"; locale2 = "de_DE.utf8"; break;
-      case language_french:  locale1 = "fr_FR"; locale2 = "fr_FR.utf8"; break;
-      case language_spanish: locale1 = "es_ES"; locale2 = "es_ES.utf8"; break;
-      case language_dutch:   locale1 = "nl_NL"; locale2 = "nl_NL.utf8"; break;
-      case language_russian: locale1 = "ru_RU"; locale2 = "ru_RU.utf8"; break;
-      case language_danish:  locale1 = "da_DK"; locale2 = "da_DK.utf8"; break;
-      case language_swedish: locale1 = "sv_SE"; locale2 = "sv_SE.utf8"; break;
+      case language_english: locale1 = "en_US"; locale2 = "en_US.UTF-8"; break;
+      case language_german:  locale1 = "de_DE"; locale2 = "de_DE.UTF-8"; break;
+      case language_french:  locale1 = "fr_FR"; locale2 = "fr_FR.UTF-8"; break;
+      case language_spanish: locale1 = "es_ES"; locale2 = "es_ES.UTF-8"; break;
+      case language_dutch:   locale1 = "nl_NL"; locale2 = "nl_NL.UTF-8"; break;
+      case language_russian: locale1 = "ru_RU"; locale2 = "ru_RU.UTF-8"; break;
+      case language_danish:  locale1 = "da_DK"; locale2 = "da_DK.UTF-8"; break;
+      case language_swedish: locale1 = "sv_SE"; locale2 = "sv_SE.UTF-8"; break;
       default:               MY_NOTREACHED;
     }
     if (getenv("LANGUAGE") && unsetenv("LANGUAGE")) {

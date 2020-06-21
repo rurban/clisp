@@ -1,5 +1,11 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Fix test failures on FreeBSD 12.
+	* spvw_language.d (init_language): Try locale names with suffix
+	".UTF-8", not ".utf8".
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Fix portability problems in SOCKET-CONNECT with :TIMEOUT 0.
 	Reported at <https://gitlab.com/gnu-clisp/clisp/-/issues/25>.
 	* socket.d (connect_via_ip): Don't wait if no timeout was given. Don't
