@@ -105,6 +105,9 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
       (when use-live-process
         ;; attach to the lisp.run process
         (format f "attach ~D~%" pid))
+      ;; Put a marker into the output, so that we can ignore the output
+      ;; the output of the attach command.
+      (format f "printf \"@STARTHERE@\\n\"~%")
       (if (digit-char-p (char address 0))
           ;; disassemble at numerical address
           (format f "disassemble ~A~%" address)
@@ -120,9 +123,9 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
     ;; Let lisp.run continue (in case the debugger did not detach properly)
     (shell
       (if use-live-process
-        (format nil "~A -n -batch -x ~A ~A < /dev/null | grep '^0' > ~A ; kill -CONT ~D"
+        (format nil "~A -n -batch -x ~A ~A < /dev/null | sed -e '1,/^@STARTHERE@/d' | grep '^ *0' > ~A ; kill -CONT ~D"
                 "gdb" tempfilename program-name outfilename pid)
-        (format nil "~A -n -batch -x ~A ~A < /dev/null | grep '^0' > ~A"
+        (format nil "~A -n -batch -x ~A ~A < /dev/null | sed -e '1,/^@STARTHERE@/d' | grep '^ *0' > ~A"
                 "gdb" tempfilename program-name outfilename)))
     (delete-file tempfilename)
     ;; Now let the user view the listing.
@@ -133,7 +136,11 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
         (do ((line (read-line in nil nil) (read-line in nil nil)))
             ((null line))
           (format t "~a~%" line)))
-      (shell (format nil "~A ~A" (or (getenv "PAGER") "more") outfilename)))
+      (shell (format nil "~A ~A"
+                     (or (getenv "PAGER")
+                         (cond ((not (shell "less --version > /dev/null 2>&1")) "less")
+                               (t "more")))
+                     outfilename)))
     (delete-file outfilename))
   #| ;; This uses SunOS dbx. (Untested.)
   (let ((tempfilename (format nil "/tmp/dbxcomm~D" pid)))

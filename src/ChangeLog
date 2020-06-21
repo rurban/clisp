@@ -1,5 +1,12 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Make the DISASSEMBLE command for machine code work again.
+	* disassem.lisp (disassemble-machine-code): Allow spaces at the
+	beginning of disassembly lines. Hide the output of the attach command.
+	Prefer the 'less' program to the 'more' program when it exists.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Fix a "make install" failure on Solaris.
 	* makemake.in (installdirs, install-bin): Put symlinks in
 	$(prefix)/share/locale, not $(prefix)/locale. Make sure this directory
