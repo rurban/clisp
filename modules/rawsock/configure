@@ -624,6 +624,14 @@ ac_includes_default="\
 ac_header_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+host_os
+host_vendor
+host_cpu
+host
+build_os
+build_vendor
+build_cpu
+build
 LIBSOCKET
 HAVE_WINSOCK2_H
 REPLACE_IOCTL
@@ -1428,6 +1436,10 @@ Fine tuning of the installation directories:
 _ACEOF
 
   cat <<\_ACEOF
+
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
 _ACEOF
 fi
 
@@ -4372,6 +4384,78 @@ $as_echo "$gl_cv_lib_socket" >&6; }
   fi
 
 
+# Make sure we can run config.sub.
+$SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
+  as_fn_error $? "cannot run $SHELL $ac_aux_dir/config.sub" "$LINENO" 5
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking build system type" >&5
+$as_echo_n "checking build system type... " >&6; }
+if ${ac_cv_build+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_build_alias=$build_alias
+test "x$ac_build_alias" = x &&
+  ac_build_alias=`$SHELL "$ac_aux_dir/config.guess"`
+test "x$ac_build_alias" = x &&
+  as_fn_error $? "cannot guess build type; you must specify one" "$LINENO" 5
+ac_cv_build=`$SHELL "$ac_aux_dir/config.sub" $ac_build_alias` ||
+  as_fn_error $? "$SHELL $ac_aux_dir/config.sub $ac_build_alias failed" "$LINENO" 5
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_build" >&5
+$as_echo "$ac_cv_build" >&6; }
+case $ac_cv_build in
+*-*-*) ;;
+*) as_fn_error $? "invalid value of canonical build" "$LINENO" 5;;
+esac
+build=$ac_cv_build
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_build
+shift
+build_cpu=$1
+build_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+build_os=$*
+IFS=$ac_save_IFS
+case $build_os in *\ *) build_os=`echo "$build_os" | sed 's/ /-/g'`;; esac
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking host system type" >&5
+$as_echo_n "checking host system type... " >&6; }
+if ${ac_cv_host+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "x$host_alias" = x; then
+  ac_cv_host=$ac_cv_build
+else
+  ac_cv_host=`$SHELL "$ac_aux_dir/config.sub" $host_alias` ||
+    as_fn_error $? "$SHELL $ac_aux_dir/config.sub $host_alias failed" "$LINENO" 5
+fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_host" >&5
+$as_echo "$ac_cv_host" >&6; }
+case $ac_cv_host in
+*-*-*) ;;
+*) as_fn_error $? "invalid value of canonical host" "$LINENO" 5;;
+esac
+host=$ac_cv_host
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_host
+shift
+host_cpu=$1
+host_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+host_os=$*
+IFS=$ac_save_IFS
+case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
+
+
+
 
 
 
@@ -4518,7 +4602,10 @@ fi
 
 done
 
-  if test $ac_cv_func_setsockopt = yes; then
+      case "$host_os" in
+    mingw*) ;;
+    *)
+      if test $ac_cv_func_setsockopt = yes; then
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for setsockopt declaration" >&5
 $as_echo_n "checking for setsockopt declaration... " >&6; }
@@ -4526,15 +4613,15 @@ $as_echo_n "checking for setsockopt declaration... " >&6; }
   $as_echo_n "(cached) " >&6
 else
   for z in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
-         for y in 'char*' 'void*'; do
-           for x in '' 'const' '__const'; do
-             if test -z "$have_setsockopt_decl"; then
+             for y in 'char*' 'void*'; do
+               for x in '' 'const' '__const'; do
+                 if test -z "$have_setsockopt_decl"; then
 
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
     #include <sys/types.h>
-                  #include <sys/socket.h>
+                      #include <sys/socket.h>
 
     extern
 #ifdef __cplusplus
@@ -4553,25 +4640,25 @@ main ()
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   cl_cv_proto_setsockopt_const="$x"
-                  cl_cv_proto_setsockopt_arg_t="$y"
-                  cl_cv_proto_setsockopt_optlen_t="$z"
-                  have_setsockopt_decl=1
+                      cl_cv_proto_setsockopt_arg_t="$y"
+                      cl_cv_proto_setsockopt_optlen_t="$z"
+                      have_setsockopt_decl=1
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-             fi
+                 fi
+               done
+             done
            done
-         done
-       done
-       if test -z "$have_setsockopt_decl"; then
+           if test -z "$have_setsockopt_decl"; then
 
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "please report the setsockopt() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
 See \`config.log' for more details" "$LINENO" 5; }
 
-       fi
+           fi
 
      cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
 
@@ -4596,7 +4683,9 @@ cat >>confdefs.h <<_ACEOF
 #define SETSOCKOPT_OPTLEN_T $cl_cv_proto_setsockopt_optlen_t
 _ACEOF
 
-  fi
+      fi
+      ;;
+  esac
 
 for ac_header in linux/if_packet.h netdb.h \
 asm/types.h sys/ioctl.h stropts.h poll.h sys/un.h ifaddrs.h

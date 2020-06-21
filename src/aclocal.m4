@@ -17659,7 +17659,7 @@ AC_DEFUN([gl_TYPE_WINT_T_PREREQ],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017, 2020 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -17677,7 +17677,7 @@ AC_DEFUN([CL_ADDRESS_RANGE],
     #include <stdio.h>
     int printf_address (unsigned long addr)
     {
-      FILE* out = fopen("conftest.h","w");
+      FILE* out = fopen("conftest.h","wb");
       if (sizeof(unsigned long) <= 4)
         fprintf(out,"0x%08X\n", (unsigned int)addr);
       else
@@ -18613,7 +18613,7 @@ AC_DEFUN([CL_FFCALL],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009, 2011, 2017-2018 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2011, 2017-2020 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -18656,7 +18656,7 @@ AC_DEFUN([CL_FILECHARSET],
            */
           #define N 128
           ]],[[
-          if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+          if (freopen("conftest.out", "wb", stdout) == NULL) return 1;
           {
             char legal[N];
             char filename[4];
@@ -30198,7 +30198,7 @@ AC_DEFUN([CL_SIGACTION_UNBLOCK],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017, 2020 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -30212,6 +30212,7 @@ AC_PREREQ([2.57])
 AC_DEFUN([CL_TCPCONN],
 [
   AC_REQUIRE([gl_SOCKETLIB]) dnl sets LIBSOCKET
+  AC_REQUIRE([AC_CANONICAL_HOST])
   CL_COMPILE_CHECK([IPv4 sockets], [cl_cv_socket_ipv4],
     [#include <sys/types.h>
      #include <sys/socket.h>
@@ -30246,38 +30247,45 @@ AC_DEFUN([CL_TCPCONN],
      #include <netinet/in.h>
      #endif
     ])
-  if test $ac_cv_func_setsockopt = yes; then
-    CL_PROTO([setsockopt],
-      [for z in SIZE_VARIANTS; do
-         for y in 'char*' 'void*'; do
-           for x in CONST_VARIANTS; do
-             if test -z "$have_setsockopt_decl"; then
-               CL_PROTO_TRY(
-                 [#include <sys/types.h>
-                  #include <sys/socket.h>
-                 ],
-                 [int setsockopt (int, int, int, $x $y, $z);],
-                 [cl_cv_proto_setsockopt_const="$x"
-                  cl_cv_proto_setsockopt_arg_t="$y"
-                  cl_cv_proto_setsockopt_optlen_t="$z"
-                  have_setsockopt_decl=1
-                 ])
-             fi
+  dnl On native Windows, CL_PROTO([setsockopt],...) does not work, because the
+  dnl declaration of this function has WSAAPI.
+  case "$host_os" in
+    mingw*) ;;
+    *)
+      if test $ac_cv_func_setsockopt = yes; then
+        CL_PROTO([setsockopt],
+          [for z in SIZE_VARIANTS; do
+             for y in 'char*' 'void*'; do
+               for x in CONST_VARIANTS; do
+                 if test -z "$have_setsockopt_decl"; then
+                   CL_PROTO_TRY(
+                     [#include <sys/types.h>
+                      #include <sys/socket.h>
+                     ],
+                     [int setsockopt (int, int, int, $x $y, $z);],
+                     [cl_cv_proto_setsockopt_const="$x"
+                      cl_cv_proto_setsockopt_arg_t="$y"
+                      cl_cv_proto_setsockopt_optlen_t="$z"
+                      have_setsockopt_decl=1
+                     ])
+                 fi
+               done
+             done
            done
-         done
-       done
-       if test -z "$have_setsockopt_decl"; then
-         CL_PROTO_MISSING([setsockopt])
-       fi
-      ],
-      [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
-    AC_DEFINE_UNQUOTED([SETSOCKOPT_CONST], [$cl_cv_proto_setsockopt_const],
-      [declaration of setsockopt() needs const])
-    AC_DEFINE_UNQUOTED([SETSOCKOPT_ARG_T], [$cl_cv_proto_setsockopt_arg_t],
-      [type of `optval' in setsockopt() declaration])
-    AC_DEFINE_UNQUOTED([SETSOCKOPT_OPTLEN_T], [$cl_cv_proto_setsockopt_optlen_t],
-      [type of `optlen' in setsockopt() declaration])
-  fi
+           if test -z "$have_setsockopt_decl"; then
+             CL_PROTO_MISSING([setsockopt])
+           fi
+          ],
+          [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
+        AC_DEFINE_UNQUOTED([SETSOCKOPT_CONST], [$cl_cv_proto_setsockopt_const],
+          [declaration of setsockopt() needs const])
+        AC_DEFINE_UNQUOTED([SETSOCKOPT_ARG_T], [$cl_cv_proto_setsockopt_arg_t],
+          [type of `optval' in setsockopt() declaration])
+        AC_DEFINE_UNQUOTED([SETSOCKOPT_OPTLEN_T], [$cl_cv_proto_setsockopt_optlen_t],
+          [type of `optlen' in setsockopt() declaration])
+      fi
+      ;;
+  esac
 ])
 
 dnl -*- Autoconf -*-

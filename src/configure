@@ -43812,6 +43812,7 @@ fi
 
 
 
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for IPv4 sockets" >&5
 $as_echo_n "checking for IPv4 sockets... " >&6; }
 if ${cl_cv_socket_ipv4+:} false; then :
@@ -43955,7 +43956,10 @@ fi
 
 done
 
-  if test $ac_cv_func_setsockopt = yes; then
+      case "$host_os" in
+    mingw*) ;;
+    *)
+      if test $ac_cv_func_setsockopt = yes; then
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for setsockopt declaration" >&5
 $as_echo_n "checking for setsockopt declaration... " >&6; }
@@ -43963,15 +43967,15 @@ $as_echo_n "checking for setsockopt declaration... " >&6; }
   $as_echo_n "(cached) " >&6
 else
   for z in 'unsigned int' 'int' 'unsigned long' 'long' 'size_t' 'socklen_t'; do
-         for y in 'char*' 'void*'; do
-           for x in '' 'const' '__const'; do
-             if test -z "$have_setsockopt_decl"; then
+             for y in 'char*' 'void*'; do
+               for x in '' 'const' '__const'; do
+                 if test -z "$have_setsockopt_decl"; then
 
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
     #include <sys/types.h>
-                  #include <sys/socket.h>
+                      #include <sys/socket.h>
 
     extern
 #ifdef __cplusplus
@@ -43990,25 +43994,25 @@ main ()
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"; then :
   cl_cv_proto_setsockopt_const="$x"
-                  cl_cv_proto_setsockopt_arg_t="$y"
-                  cl_cv_proto_setsockopt_optlen_t="$z"
-                  have_setsockopt_decl=1
+                      cl_cv_proto_setsockopt_arg_t="$y"
+                      cl_cv_proto_setsockopt_optlen_t="$z"
+                      have_setsockopt_decl=1
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
-             fi
+                 fi
+               done
+             done
            done
-         done
-       done
-       if test -z "$have_setsockopt_decl"; then
+           if test -z "$have_setsockopt_decl"; then
 
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "please report the setsockopt() declaration on your platform to $PACKAGE_NAME developers at $PACKAGE_BUGREPORT
 See \`config.log' for more details" "$LINENO" 5; }
 
-       fi
+           fi
 
      cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);"
 
@@ -44033,7 +44037,9 @@ cat >>confdefs.h <<_ACEOF
 #define SETSOCKOPT_OPTLEN_T $cl_cv_proto_setsockopt_optlen_t
 _ACEOF
 
-  fi
+      fi
+      ;;
+  esac
 
 
 
@@ -44041,7 +44047,7 @@ _ACEOF
     #include <stdio.h>
     int printf_address (unsigned long addr)
     {
-      FILE* out = fopen("conftest.h","w");
+      FILE* out = fopen("conftest.h","wb");
       if (sizeof(unsigned long) <= 4)
         fprintf(out,"0x%08X\n", (unsigned int)addr);
       else
@@ -46624,7 +46630,7 @@ int
 main ()
 {
 
-          if (freopen("conftest.out", "w", stdout) == NULL) return 1;
+          if (freopen("conftest.out", "wb", stdout) == NULL) return 1;
           {
             char legal[N];
             char filename[4];
