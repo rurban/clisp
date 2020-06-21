@@ -2,12 +2,12 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\m[blue]\fB\%http://www.haible.de/bruno/\fR\m[]>
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2018-04-23
+.\"      Date: Last modified: 2020-06-22
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.49.50+
+.\"    Source: CLISP 2.49.93+
 .\"  Language: English
 .\"
-.TH "CLISP" "1" "Last modified: 2018\-04\-23" "CLISP 2.49.50+" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2020\-06\-22" "CLISP 2.49.93+" "Platform: @PLATFORM@"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -90,6 +90,10 @@ Invoked with
 .PP
 Invoked with
 \fB\fIlisp\-file\fR\fR, runs the specified lisp file\&.
+.PP
+Batch mode activates the
+\fB\-q\fR
+option\&.
 .SH "OPTIONS"
 .PP
 \fB\-h\fR
@@ -1179,11 +1183,11 @@ When you encounter a bug in
 or in its documentation (this manual page or
 CLISP impnotes), please report it to the
 \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[6]\d\s+2
-\m[blue]\fBSourceForge bug tracker\fR\m[]\&\s-2\u[56]\d\s+2\&. Visit this bug tracker with a browser other than Firefox (because as of May 2017, the "Create Ticket" button is not visible in Firefox)\&. Then login, either to your
+\m[blue]\fBSourceForge bug tracker\fR\m[]\&\s-2\u[56]\d\s+2\&. Login, either to your
 \m[blue]\fBSourceForge\fR\m[]\&\s-2\u[57]\d\s+2
 account, or to your
 \m[blue]\fBOpenID\fR\m[]\&\s-2\u[58]\d\s+2
-account\&. Then press the "Create Ticket" button on the left\-hand side\&.
+account\&. Then click the "Create Ticket" link on the left\-hand side\&.
 .PP
 \fIBefore\fR
 submitting a bug report, please take the following basic steps to make the report more useful:
@@ -1218,7 +1222,7 @@ maintainers spoke English natively\&.
 Do a clean build (remove your build directory and build
 \m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[6]\d\s+2
 with
-\fB\&./configure \-\-cbc build\fR
+\fB\&./configure \-\-cbcx build\fR
 or at least do a
 \fBmake distclean\fR
 before
@@ -1236,7 +1240,7 @@ before
 If you are reporting a
 \(lqhard crash\(rq
 (segmentation fault, bus error, core dump etc), please do
-\fB\&./configure \fR\fB\fB\-\-with\-debug\fR\fR\fB \-\-cbc build\-g ; cd build\-g; gdb lisp\&.run\fR, then load the appropriate
+\fB\&./configure \fR\fB\fB\-\-with\-debug\fR\fR\fB \-\-cbcx build\-g ; cd build\-g; gdb lisp\&.run\fR, then load the appropriate
 linking set
 by either
 \fBbase\fR
@@ -1271,11 +1275,7 @@ When submitting a bug report, please specify the following information:
 What is your platform (\fBuname \-a\fR
 on a
 \m[blue]\fB\fBUNIX\fR\fR\m[]\&\s-2\u[42]\d\s+2
-system)? Compiler version?
-\m[blue]\fBGNU\fR\m[]\&\s-2\u[8]\d\s+2
-\m[blue]\fBlibc\fR\m[]\&\s-2\u[61]\d\s+2
-version (on
-\m[blue]\fBGNU\fR\m[]\&\s-2\u[8]\d\s+2/\m[blue]\fB\fILinux\fR\fR\m[]\&\s-2\u[62]\d\s+2)?
+system)?
 .RE
 .sp
 .RS 4
@@ -1286,11 +1286,7 @@ version (on
 .sp -1
 .IP "  2." 4.2
 .\}
-Where did you get the sources or binaries? When? (Absolute dates, e\&.g\&.,
-\(lq2006\-01\-17\(rq, are preferred over the relative ones, e\&.g\&.,
-\(lq2 days ago\(rq\&. If you are using
-\m[blue]\fBGit\fR\m[]\&\s-2\u[63]\d\s+2, please supply the output of
-\fBgit rev-list --max-count=1 HEAD\fR)\&.
+Please supply the full output (copy and paste) of all the error messages\&.
 .RE
 .sp
 .RS 4
@@ -1301,8 +1297,7 @@ Where did you get the sources or binaries? When? (Absolute dates, e\&.g\&.,
 .sp -1
 .IP "  3." 4.2
 .\}
-How did you build
-\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[6]\d\s+2? (What command, options &c\&.)
+Please provide detailed instructions on how to reproduce the problem\&.
 .RE
 .sp
 .RS 4
@@ -1313,8 +1308,13 @@ How did you build
 .sp -1
 .IP "  4." 4.2
 .\}
-What is the output of
-\fBclisp \-\-version\fR?
+Where did you get the
+\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[6]\d\s+2
+sources or binaries? When? (Absolute dates, e\&.g\&.,
+\(lq2006\-01\-17\(rq, are preferred over the relative ones, e\&.g\&.,
+\(lq2 days ago\(rq\&. If you are using
+\m[blue]\fBGit\fR\m[]\&\s-2\u[61]\d\s+2, please supply the output of
+\fBgit rev\-list \-\-max\-count=1 HEAD\fR)\&.
 .RE
 .sp
 .RS 4
@@ -1325,7 +1325,98 @@ What is the output of
 .sp -1
 .IP "  5." 4.2
 .\}
-Please supply the full output (copy and paste) of all the error messages, as well as detailed instructions on how to reproduce them\&.
+If you are reporting a build failure:
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 1.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  1." 4.2
+.\}
+What is your compiler version?
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 2.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  2." 4.2
+.\}
+What is your
+\m[blue]\fBGNU\fR\m[]\&\s-2\u[8]\d\s+2
+\m[blue]\fBlibc\fR\m[]\&\s-2\u[62]\d\s+2
+version (on
+\m[blue]\fBGNU\fR\m[]\&\s-2\u[8]\d\s+2/\m[blue]\fB\fILinux\fR\fR\m[]\&\s-2\u[63]\d\s+2)?
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 3.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  3." 4.2
+.\}
+What is the version of each of the
+DEPENDENCIES (file in the CLISP sources)?
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 4.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  4." 4.2
+.\}
+How did you run
+configure (file in the CLISP sources)? We need the options you used as well as the values of the
+\m[blue]\fBenvironment variable\fR\m[]\&\s-2\u[12]\d\s+2s
+.RS 4
+\fBCC\fR
+.RE
+.RS 4
+\fBCFLAGS\fR
+.RE
+.RS 4
+\fBCPPFLAGS\fR
+.RE
+.RS 4
+\fBLDFLAFS\fR
+.RE
+.RS 4
+\fBLD_LIBRARY_PATH\fR
+.RE
+\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 5.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  5." 4.2
+.\}
+Please attach all build logs\&.
+.RE
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04' 6.\h'+01'\c
+.\}
+.el \{\
+.sp -1
+.IP "  6." 4.2
+.\}
+If you have a working
+\m[blue]\fB\fBCLISP\fR\fR\m[]\&\s-2\u[6]\d\s+2, please supply the output of
+\fBclisp \-\-version\fR
 .RE
 .SH "PROJECTS"
 .sp
@@ -1439,7 +1530,7 @@ SYMBOL-MACRO
 .IP "12." 4
 environment variable
 .RS 4
-\%[set $man.base.url.for.relative.links]/basedefs/xbd_chap08.html
+\%[set $man.base.url.for.relative.links]/basedefs/V1_chap08.html
 .RE
 .IP "13." 4
 \fI*LOAD-VERBOSE*\fR
@@ -1667,7 +1758,7 @@ SourceForge
 .IP "58." 4
 OpenID
 .RS 4
-\%https://openid.net/
+\%http://openid.net/
 .RE
 .IP "59." 4
 English
@@ -1680,19 +1771,19 @@ English
 \%https://www.sourceware.org/gdb/
 .RE
 .IP "61." 4
+Git
+.RS 4
+\%https://git-scm.com/
+.RE
+.IP "62." 4
 libc
 .RS 4
 \%https://www.gnu.org/software/libc/
 .RE
-.IP "62." 4
+.IP "63." 4
 \fILinux\fR
 .RS 4
 \%https://www.kernel.org/
-.RE
-.IP "63." 4
-Mercurial
-.RS 4
-\%https://www.mercurial-scm.org/
 .RE
 .IP "64." 4
 VIM
