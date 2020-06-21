@@ -1,5 +1,12 @@
 2020-06-21  Bruno Haible  <bruno@clisp.org>
 
+	Fix a "make install" failure on Solaris.
+	* makemake.in (installdirs, install-bin): Put symlinks in
+	$(prefix)/share/locale, not $(prefix)/locale. Make sure this directory
+	exists.
+
+2020-06-21  Bruno Haible  <bruno@clisp.org>
+
 	Fix test failures on FreeBSD 12.
 	* spvw_language.d (init_language): Try locale names with suffix
 	".UTF-8", not ".utf8".

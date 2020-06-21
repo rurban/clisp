@@ -4101,9 +4101,10 @@ if [ $CROSS = false ] ; then
         solaris*)
           # The non-GNU dgettext() function in Solaris libc needs symbolic links.
           # For the list of locale names, see spvw_language:init_language().
+          echotab "mkdir -p \$(DESTDIR)\$(prefix)/share/locale"
           for localename in en_US de_DE fr_FR es_ES nl_NL ru_RU da_DK sv_SE; do
             ll=`echo "${localename}" | sed -e 's/_.*//'`
-            echotab "test -d '\$(DESTDIR)\$(prefix)/locale/${localename}.UTF-8/LC_MESSAGES' || ln -s '${ll}' '\$(DESTDIR)\$(prefix)/locale/${localename}.UTF-8'"
+            echotab "test -d '\$(DESTDIR)\$(prefix)/share/locale/${localename}.UTF-8/LC_MESSAGES' || ln -s '${ll}' '\$(DESTDIR)\$(prefix)/share/locale/${localename}.UTF-8'"
           done
           ;;
       esac
@@ -4174,9 +4175,10 @@ if [ $CROSS = false ] ; then
         solaris*)
           # The non-GNU dgettext() function in Solaris libc needs symbolic links.
           # For the list of locale names, see spvw_language:init_language().
+          echotab "mkdir -p \$(DESTDIR)\$(prefix)/share/locale"
           for localename in en_US de_DE fr_FR es_ES nl_NL ru_RU da_DK sv_SE; do
             ll=`echo "${localename}" | sed -e 's/_.*//'`
-            echotab "test -d '\$(DESTDIR)\$(prefix)/locale/${localename}.UTF-8/LC_MESSAGES' || ln -s '${ll}' '\$(DESTDIR)\$(prefix)/locale/${localename}.UTF-8'"
+            echotab "test -d '\$(DESTDIR)\$(prefix)/share/locale/${localename}.UTF-8/LC_MESSAGES' || ln -s '${ll}' '\$(DESTDIR)\$(prefix)/share/locale/${localename}.UTF-8'"
           done
           ;;
       esac
