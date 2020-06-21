@@ -8,7 +8,7 @@
  * Since we are at it, this driver program also implements the "-K" option.
  * All other options are passed to the main program.
  *
- * Bruno Haible 31.3.1997-2000, 2004-2005, 2008-2009, 2017
+ * Bruno Haible 31.3.1997-2000, 2004-2005, 2008-2009, 2017, 2020
  * Sam Steingold 1998-2009, 2011
  */
 
@@ -52,7 +52,7 @@
 # include <windows.h>
 int shell_quote (char * dest, const char * source);
 BOOL real_path (LPCSTR namein, LPSTR nameout);
-# include <w32shell.c>
+# include "w32shell.c"
 #endif
 
 # include <stdlib.h>            /* getenv, abort */
