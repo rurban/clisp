@@ -782,23 +782,25 @@ RUN-SLEEP
                          :name :wild)))
   (ensure-directories-exist d :verbose t)
   (open f :direction :probe :if-does-not-exist :create)
-  (list
-   (mapcar l (directory w))
-   (os:set-file-stat d :mode 0)
-   (handler-case (directory w)
-     (error (e) (princ-error e) (type-of e)))
-   ;; http://article.gmane.org/gmane.lisp.clisp.general:13778
-   ;; https://sourceforge.net/p/clisp/mailman/message/27584189/
-   (directory w :if-does-not-exist :keep) ; cannot recurse but no error
-   (os:set-file-stat d :mode :RWXU)
-   (mapcar l (directory w))
-   (posix:file-tree-walk d1
-    (lambda (f s k b l)
-      (case k
-        ((:D :DP :DNR) (ext:delete-directory (ext:probe-pathname f)))
-        (T (delete-file f)))
-      nil)
-    :depth t)))
+  (unwind-protect
+      (list
+        (mapcar l (directory w))
+        (os:set-file-stat d :mode 0)
+        (handler-case (directory w)
+          (error (e) (princ-error e) (type-of e)))
+        ;; http://article.gmane.org/gmane.lisp.clisp.general:13778
+        ;; https://sourceforge.net/p/clisp/mailman/message/27584189/
+        (directory w :if-does-not-exist :keep) ; cannot recurse but no error
+        (os:set-file-stat d :mode :RWXU)
+        (mapcar l (directory w))
+        (posix:file-tree-walk d1
+          (lambda (f s k b l)
+            (case k
+              ((:D :DP :DNR) (ext:delete-directory (ext:probe-pathname f)))
+              (T (delete-file f)))
+            nil)
+          :depth t))
+    (when (ext:probe-directory d) (os:set-file-stat d :mode :RWXU))))
 #+unix ((T) NIL OS-FILE-ERROR NIL NIL (T) NIL)
 
 (fnmatch "foo" "bar") NIL
