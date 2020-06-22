@@ -3685,7 +3685,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_TYPE_MASK    0x03F800000000UL
     #define SINGLEMAP_oint_type_shift 35
     /* This configuration does not work: Compilation of compiler.lisp
-       fails with "Cannot map memory to address 0x4800080000". */
+       fails with "Cannot map memory to address 0x4800080000" or
+       "Cannot map memory to address 0xb0000e0000". */
     #define SINGLEMAP_WORKS 0
   #endif
   #ifndef SINGLEMAP_garcol_bit_o

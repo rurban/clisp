@@ -1,3 +1,11 @@
+2020-06-22  Bruno Haible  <bruno@clisp.org>
+
+	Enable most optimizations on Cygwin/x86_64.
+	* Makefile.devel (multibuild-cygwin-64): Enable all build variants that
+	work.
+	* makemake.in (XCFLAGS): For Cygwin/x86_64, enable all optimizations
+	except ASM.
+
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
 	Avoid warnings from autoconf-2.71.

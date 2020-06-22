@@ -2407,7 +2407,14 @@ multibuild-solaris-sparc64-gcc: \
   build-porting64-gcc-debug_gcsafety
 
 # Cygwin, running on Windows 10 (64-bit)
-multibuild-cygwin-64: multibuild-porting64-gcc # TODO
+multibuild-cygwin-64: \
+  build-porting64-gcc-portability \
+  build-porting64-gcc-typecodes-spvw_pure_pages \
+  build-porting64-gcc-typecodes-spvw_mixed_pages \
+  build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc \
+  build-porting64-gcc-safety0 \
+  build-porting64-gcc-safety0-optimized \
+  build-porting64-gcc-debug_gcsafety
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Build and test all essential memory models on a Mac OS X/PowerPC machine.
