@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2008, 2016-2017
+ * Bruno Haible 1990-2008, 2016-2020
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -482,7 +482,9 @@ extern_C int dup2 (int oldfd, int newfd); /* DUP(2V) */
    because the parent process keeps running in this time already
    and can modify data in STACK, malloc() range, Lisp data range etc. */
 #include <sys/wait.h>
+#if !defined(UNIX_CYGWIN) /* Cygwin has a particular declaration of waitpid(). */
 extern_C pid_t waitpid (pid_t pid, int* statusp, int options); /* WAIT(2V) */
+#endif
 extern int wait2 (pid_t pid); /* see unixaux.d */
 /* used by STREAM, PATHNAME, SPVW, UNIXAUX */
 

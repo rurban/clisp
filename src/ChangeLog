@@ -1,5 +1,10 @@
 2020-06-22  Bruno Haible  <bruno@clisp.org>
 
+	Fix a build error on Cygwin in C++ mode.
+	* unix.d (waitpid): Don't redeclare on Cygwin.
+
+2020-06-22  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Cygwin/x86_64.
 	* Makefile.devel (multibuild-cygwin-64): Enable all build variants that
 	work.
