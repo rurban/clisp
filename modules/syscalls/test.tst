@@ -14,22 +14,6 @@ T
 (> (length (show (os:service) :pretty t)) (length (os:service nil "tcp"))) T
 (equalp (os:service "www" "tcp") (os:service "http" "tcp")) T
 
-#+unix ;; (encrypt (encrypt X t) nil) == X
-(handler-case
-    (let* ((v (make-array 8 :element-type '(unsigned-byte 8))) (u (copy-seq v)))
-      (loop :repeat 10 :do
-        (dotimes (i 8) (setf (aref v i) (setf (aref u i) (random 256))))
-        (os:setkey v) (show (os:encrypt v nil)) (show (os:encrypt v t))
-        :never (if (equalp v u) nil (list v u))))
-  (ext:os-error (err)
-    ;; Solaris (sf cf x86-solaris1 & sparc-solaris1) encrypt fails with
-    ;;  "UNIX error 89 (ENOSYS): Function not implemented"
-    (format t "~S: ~A" 'os:encrypt err)
-    T))
-#+unix T
-
-#+unix (crypt "foo" "bar") #+unix "ba4TuD1iozTxw"
-
 ;; same as "%F %T" on GNU, but more portable
 (let* ((fmt "%Y-%m-%d %H:%M:%S") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))

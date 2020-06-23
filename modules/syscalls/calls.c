@@ -1,7 +1,7 @@
 /*
  * system calls
  * Copyright (C) 2003-2012,2016-2017 Sam Steingold
- * Copyright (C) 2005,2008,2017-2018 Bruno Haible
+ * Copyright (C) 2005,2008,2017-2020 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * This is Free Software, distributed under the GNU GPL v2+
  */
@@ -37,9 +37,6 @@
 #include <sys/wait.h>    /* always present on unix, imported from gnulib elsewhere */
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
-#endif
-#if defined(HAVE_CRYPT_H)
-# include <crypt.h>
 #endif
 #if defined(HAVE_UTIME_H)
 # include <utime.h>
@@ -1050,91 +1047,6 @@ DEFUN(POSIX:LOADAVG, &optional percentp) {
 #undef N_D
 #undef VAL_D
 #undef VAL_ID
-
-/* "gcc --mno-cygwin -l crypt" links with cygwin lib-crypt,
-   so we have to disable this explicitly */
-#if defined(HAVE_CRYPT) && !defined(WIN32_NATIVE)
-DEFUN(POSIX::CRYPT, key salt) {
-  char *result;
-  STACK_0 = check_string(STACK_0);
-  STACK_1 = check_string(STACK_1);
-  with_string_0(STACK_0,GLO(misc_encoding),salt, {
-      with_string_0(STACK_1,GLO(misc_encoding),key, {
-          begin_system_call();
-          result = crypt(key,salt);
-          end_system_call();
-        });
-    });
-  if (result == NULL) ANSIC_error();
-  VALUES1(asciz_to_string(result,GLO(misc_encoding)));
-  skipSTACK(2);
-}
-#endif
-#if defined(HAVE_ENCRYPT) || defined(HAVE_SETKEY)
-/* move information from a bit vector to the char block
- can trigger GC */
-static void get_block (char block[64], object vector) {
-  while (!bit_vector_p(Atype_8Bit,vector)
-         || vector_length(vector) != 8) {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(vector);          /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(VECTOR (UNSIGNED-BYTE 8) 8)`); /* EXPECTED-TYPE */
-    pushSTACK(STACK_0); pushSTACK(vector);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not of type ~S"));
-    vector = value1;
-  }
-  {
-    uintL index=0, ii, jj, kk=0;
-    object dv = array_displace_check(vector,8,&index);
-    uint8* ptr1 = TheSbvector(dv)->data + index;
-    for (ii = 0; ii<8; ii++) {
-      uint8 bb = *ptr1++;
-      for (jj = 0; jj<8; jj++)
-        block[kk++] = ((bb & bit(jj)) != 0);
-    }
-  }
-}
-#endif
-#if defined(HAVE_ENCRYPT) && !defined(WIN32_NATIVE)
-/* the inverse of get_block(): move data from block to vector,
- which is known to be a (VECTOR BIT) */
-static void set_block (char block[64], object vector) {
-  uintL index=0, ii, jj, kk=0;
-  object dv = array_displace_check(vector,8,&index);
-  uint8* ptr1 = TheSbvector(dv)->data + index;
-  for (ii = 0; ii<8; ii++) {
-    uint8 bb = 0;
-    for (jj = 0; jj<8; jj++)
-      bb |= (block[kk++]!=0) << jj;
-    *ptr1++ = bb;
-  }
-}
-DEFUN(POSIX::ENCRYPT, block flag) {
-  int flag = nullp(popSTACK());
-  char block[64];
-  bool failed_p;
-  get_block(block,STACK_0);
-  begin_system_call();
-  errno = 0; encrypt(block,flag); failed_p = (errno != 0);
-  end_system_call();
-  if (failed_p) ANSIC_error();
-  set_block(block,STACK_0);
-  VALUES1(popSTACK());
-}
-#endif
-#if defined(HAVE_SETKEY) && !defined(WIN32_NATIVE)
-DEFUN(POSIX::SETKEY, key) {
-  char block[64];
-  bool failed_p;
-  get_block(block,popSTACK());
-  begin_system_call();
-  errno = 0; setkey(block); failed_p = (errno != 0);
-  end_system_call();
-  if (failed_p) ANSIC_error();
-  VALUES0;
-}
-#endif
 
 /* ========= SYSTEM INFORMATION ========== */
 #include <sys/utsname.h>

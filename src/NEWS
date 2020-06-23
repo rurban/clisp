@@ -112,6 +112,13 @@ Incompatible changes
     :RETURN-TYPE 'BOOLEAN instead.
     See <http://clisp.org/impnotes/regexp.html#re-regexp-exec> for details.
 
+* Module SYSCALLS:
+
+  + The functions POSIX:CRYPT, POSIX:ENCRYPT, POSIX:SETKEY have been removed,
+    since they are no longer considered secure.
+    See <https://sourceware.org/pipermail/libc-announce/2018/000020.html>
+    for more info.
+
 * Module RAWSOCK:
 
   + Function RAWSOCK:CONVERT-ADDRESS now returns byte vectors instead of

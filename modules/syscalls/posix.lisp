@@ -1,5 +1,6 @@
 ;;; handle the posix functions
 ;;; Sam Steingold 1999-2011,2016-2017
+;;; Bruno Haible 2020
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -72,7 +73,6 @@
   (addrtype 2 :type fixnum :read-only t))
 
 ;;; ============================================================
-#+unix (export '(crypt encrypt setkey))
 
 #+unix
 (defstruct (user-info (:constructor

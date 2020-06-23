@@ -652,22 +652,10 @@ which compute the error functions, Bessel functions and Gamma.</para>
 </section>
 
 <section id="encryption"><title>Encryption</title>
-<variablelist>
- <varlistentry id="crypt"><term><code>(POSIX:CRYPT &key-r;
-    <replaceable>salt</replaceable>)</code></term>
-  <listitem><simpara>Call <function role="unix">crypt</function>,
-    arguments are &string-t;s.</simpara></listitem></varlistentry>
- <varlistentry id="encrypt">
-  <term><code>(POSIX:ENCRYPT <replaceable>block</replaceable>
-    <replaceable>decrypt-p</replaceable>)</code></term>
-  <term><code>(POSIX:SETKEY &key-r;)</code></term>
-  <listitem><simpara>Call <function role="unix">encrypt</function>
-    and <function role="unix">setkey</function>, respectively.
-    <replaceable>block</replaceable> and &key-r; are of type
-    <literal role="type">(&vector; (&unsigned-byte-t; 8) 8)</literal>.
-    <replaceable>decrypt-p</replaceable> is &boolean-t;.
- </simpara></listitem></varlistentry>
-</variablelist></section>
+<para>The functionss <term><code>POSIX:CRYPT</code></term>,
+ <term><code>POSIX:ENCRYPT</code></term>, and
+ <term><code>POSIX:SETKEY</code></term> are no longer implemented, since
+ they are no longer considered secure.</para></section>
 
 <section id="sys-log"><title>Syslog</title>
 <variablelist>

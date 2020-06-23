@@ -16,7 +16,7 @@ AC_PROG_RANLIB
 
 BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(fcntl.h netdb.h utime.h dnl
-pwd.h sys/unistd.h syslog.h signal.h grp.h crypt.h utmpx.h shlobj.h dnl
+pwd.h sys/unistd.h syslog.h signal.h grp.h utmpx.h shlobj.h dnl
 sys/statvfs.h sys/statfs.h sys/param.h ftw.h)
 AC_CANONICAL_HOST
 if test "$ac_cv_header_shlobj_h" = yes ; then
@@ -45,7 +45,6 @@ fi
 gl_HEADER_ERRNO_H
 
 BOLD_MSG([System Calls (Functions)])
-AC_SEARCH_LIBS(crypt, crypt)
 AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(confstr fcntl gethostent sysconf getrlimit setrlimit dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
@@ -59,7 +58,7 @@ setreuid setregid getgroups setgroups wait4 dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 ftruncate truncate getusershell endusershell dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
-crypt encrypt setkey GlobalMemoryStatusEx dnl
+GlobalMemoryStatusEx dnl
 gethostid sethostid getdomainname setdomainname nftw getdate)
 if test $ac_cv_func_setrlimit = yes; then
   AC_CHECK_SIZEOF([rlim_t],,[
