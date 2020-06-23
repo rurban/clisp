@@ -151,7 +151,7 @@ FLOAT~
 (float= (os:erfc 8)     1.1224297172982928d-29)  T
 (float= (os:erfc 9)     4.13703174651381d-37)  T
 (float= (os:erfc 10)    2.088487583762545d-45)  T
-(float= (os:erfc 11)    1.4408661379436945d-54)  T
+(float~ (os:erfc 11)    1.4408661379436945d-54)  T ; Cygwin 2.9.0
 (float= (os:erfc 12)    1.3562611692059042d-64)  T
 (float= (os:erfc 13)    1.7395573154667246d-75)  T
 (float= (os:erfc 14)    3.037229847750312d-87)  T
