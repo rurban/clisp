@@ -269,6 +269,9 @@
   (total-virtual 0 :type (integer 0) :read-only t)
   (avail-virtual 0 :type (integer 0) :read-only t))
 
+)
+
+#+win32
 (defstruct (file-version
              (:constructor mkfilever
                            (major minor build revision
@@ -293,8 +296,6 @@
   Product-Version
   Private-Build
   Special-Build)
-
-)
 
 (defun physical-memory ()
   "Return 2 values: TOTAL and AVAILABLE physical memory."

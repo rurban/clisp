@@ -4505,6 +4505,10 @@ DEFUN(OS:CLIPBOARD,) {
   end_blocking_system_call();
 }
 
+#endif  /* WIN32_NATIVE || UNIX_CYGWIN */
+
+#if defined(WIN32_NATIVE)
+
 /* http://gnuwin32.sourceforge.net/version.c.txt */
 static Values /*maygc*/ file_version (char *pathz) {
   DWORD dwHandle, dwLen;
@@ -4571,7 +4575,8 @@ DEFUN(OS:FILE-VERSION,filename) {
     file_version(pathz);
   });
 }
-#endif  /* WIN32_NATIVE || UNIX_CYGWIN */
+
+#endif  /* WIN32_NATIVE */
 
 /* STDIO inteface for postgresql et al and to access wild files like 'foo*' */
 DEFUN(POSIX::FOPEN, path mode) {

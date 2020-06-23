@@ -396,13 +396,16 @@ T
 #+(or win32 cygwin)
 (os:system-info-p (show (os:system-info) :pretty t))
 #+(or win32 cygwin) T
+
 #+(or win32 cygwin)
 (os:version-p (show (os:version) :pretty t))
-T
+#+(or win32 cygwin) T
+
 #+(or win32 cygwin)
 (os:memory-status-p (show (os:memory-status)))
-T
-#+(or win32 cygwin)
+#+(or win32 cygwin) T
+
+#+win32
 (let ((filever (os:file-version (make-pathname :name "clisp" :type "exe"
                                                :defaults *lib-directory*)))
       (liv (show (lisp-implementation-version))))
@@ -415,7 +418,7 @@ T
                 liv :end2 (position #\Space liv))
        (string= (os:file-version-product-version filever)
                 liv :end2 (length (os:file-version-product-version filever)))))
-#+(or win32 cygwin) T
+#+win32 T
 
 #+(or win32 cygwin) (stringp (os:get-user-sid)) T
 #+(or win32 cygwin) (os:get-user-sid (ext:getenv "USERNAME")) T
