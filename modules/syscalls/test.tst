@@ -420,8 +420,11 @@ T
                 liv :end2 (length (os:file-version-product-version filever)))))
 #+win32 T
 
-#+(or win32 cygwin) (stringp (os:get-user-sid)) T
-#+(or win32 cygwin) (os:get-user-sid (ext:getenv "USERNAME")) T
+#+(or win32 cygwin) (stringp (os:get-user-sid))
+#+(or win32 cygwin) T
+
+#+(or win32 cygwin) (stringp (os:get-user-sid (ext:getenv "USERNAME")))
+#+(or win32 cygwin) T
 
 (let ((sysconf #+unix (os:sysconf) #-unix nil))
   ;; guard against broken unixes, like FreeBSD 4.10-BETA
