@@ -46,19 +46,18 @@ install:
       Update-AppveyorBuild -Version "clisp-${env:appveyor_repo_branch}-$package_version-$package_iteration"
 
   - if exist c:\i686-w64-mingw32\lib\libsigsegv.a goto ffcall
-  - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.11.tar.gz
-  - tar xfz libsigsegv-2.11.tar.gz
-  - cd libsigsegv-2.11
+  - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libsigsegv/libsigsegv-2.12.tar.gz
+  - tar xfz libsigsegv-2.12.tar.gz
+  - cd libsigsegv-2.12
   - patch -p0 -i ../utils/libsigsegv-win64.patch
   - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make; make check install" || true
   - cd ..
 
-  # libffcall still todo on windows
   - ffcall: if exist c:\i686-w64-mingw32\lib\libavcall.a goto cont
-  - wget -q --no-check-certificate https://haible.de/bruno/gnu/libffcall-1.13-20170225.tar.gz
-  - tar xfz libffcall-1.13-20170225.tar.gz
-  - cd libffcall-1.13-20170225
-  - patch -p0 -i ../utils/libffcall-1.13-20170225-funbegin.patch
+  - wget -q --no-check-certificate https://ftp.gnu.org/gnu/libffcall/libffcall-2.2.tar.gz
+  - tar xfz libffcall-2.2.tar.gz
+  - cd libffcall-2.2
+  #- patch -p0 -i ../utils/libffcall-1.13-20170225-funbegin.patch
   - sh -c "CC=i686-w64-mingw32-gcc-6.3.0 ./configure --prefix=/c/i686-w64-mingw32 && make && make check install" || true
   - cd ..
   - cont:
