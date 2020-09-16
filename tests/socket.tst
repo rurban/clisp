@@ -674,7 +674,7 @@ T
     (ext:run-program run
                      :arguments (append args
                                   (list "-q" "-q" "-x"
-                                        (format nil "(close (prog1 (socket:socket-connect ~D) (sleep 0.01s0)))" (socket:socket-server-port se))))
+                                        (format nil "(close (prog1 (socket:socket-connect ~D) (sleep 0.02s0)))" (socket:socket-server-port se))))
                      :wait nil :input nil :output nil)
     (unwind-protect
         (with-open-stream (so (socket:socket-accept se))
