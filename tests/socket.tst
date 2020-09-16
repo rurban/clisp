@@ -697,7 +697,12 @@ T
                   ((:ECONNRESET #.+ECONNRESET+) :APPEND) ; signals ECONNRESET e.g. on Cygwin
                   (t (os-error-code c)))))))
       (socket:socket-server-close se))))
-(:OUTPUT "foo" NIL :APPEND T T #.(if (equal (ext:operating-system-type) "OpenBSD") ':ERROR ':APPEND))
+#.(cond ((equal (ext:operating-system-type) "Darwin") ; flapping test
+         '(:OUTPUT "foo" NIL :OUTPUT T T :APPEND))
+        ((equal (ext:operating-system-type) "OpenBSD")
+         '(:OUTPUT "foo" NIL :APPEND T T :ERROR))
+        (t
+         '(:OUTPUT "foo" NIL :APPEND T T :APPEND)))
 
 ;; https://sourceforge.net/p/clisp/feature-requests/46/
 (check-os-error (socket:socket-connect 0)
