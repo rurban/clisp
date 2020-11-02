@@ -31,8 +31,8 @@ matrix:
       env: CONF=--enable-portability
     - os: linux
       env: CONF=--with-debug CC=gcc
-    - os: osx
-      env: CC=cc
+    #- os: osx
+    #  env: CC=cc
   allow_failures:
     - env: CONF=--with-threads=POSIX_THREADS
 
