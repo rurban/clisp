@@ -1,7 +1,7 @@
 dnl AUTOCONF configuration for Rawsock
 dnl Sam Steingold 2004-2011
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(rawsock, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(sock.lisp)
 AC_CONFIG_HEADERS(config.h)

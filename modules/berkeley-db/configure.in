@@ -2,7 +2,7 @@ dnl AUTOCONF configuration for Berkeley-DB
 dnl Copyright (C) 2003-2012 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2+
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(Berkeley-DB, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(dbi.lisp)
 AC_CONFIG_HEADERS(config.h)

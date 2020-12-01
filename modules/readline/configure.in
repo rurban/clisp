@@ -2,7 +2,7 @@ dnl AUTOCONF configuration for readline
 dnl Sam Steingold 2005-2009
 dnl Bruno Haible 2017
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(readline, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(readline.lisp)
 AC_CONFIG_HEADERS(config.h)

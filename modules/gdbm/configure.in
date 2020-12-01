@@ -3,7 +3,7 @@ dnl Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
 dnl Copyright (C) 2007-2009, 2018  Sam Steingold <sds@gnu.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(gdbm, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(gdbm.lisp)
 AC_CONFIG_HEADERS(config.h)

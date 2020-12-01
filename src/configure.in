@@ -1,5 +1,5 @@
 dnl  -*- Autoconf -*- configuration for CLISP
-dnl  Bruno Haible 1992-2008, 2017-2018
+dnl  Bruno Haible 1992-2008, 2017-2020
 dnl  Sam Steingold 2002-2011, 2017
 dnl
 dnl  configure.in ---<autoconf>--->> configure
@@ -15,7 +15,7 @@ dnl
 dnl  Makefile   ---<make>--->> lisp.run, lispinit.mem
 dnl
 dnl
-AC_PREREQ(2.61)
+AC_PREREQ([2.64])
 AC_INIT(GNU CLISP, m4_normalize(m4_esyscmd([if test -f version.sh; then . ./version.sh; else . ../version.sh; fi; echo "${VERSION_NUMBER} (${RELEASE_DATE})"])), http://clisp.org/, clisp)
 AC_CONFIG_SRCDIR([lispbibl.d])
 AC_CONFIG_AUX_DIR([build-aux])

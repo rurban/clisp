@@ -2,7 +2,7 @@ dnl -*- Autoconf -*- script for new-clx
 dnl Gilbert Baumann, 1999-10-11
 dnl Sam Steingold 2002-2009, 2011
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(clx/new-clx, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(clx.f)
 AC_CONFIG_HEADERS(config.h)

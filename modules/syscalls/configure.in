@@ -3,7 +3,7 @@ dnl Copyright (C) 2003-2011, 2014 Sam Steingold <sds@gnu.org>
 dnl Copyright (C) 2020 Bruno Haible <bruno@clisp.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(syscalls, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(posix.lisp)
 AC_CONFIG_HEADERS(config.h)

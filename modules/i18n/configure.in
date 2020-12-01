@@ -1,7 +1,7 @@
 dnl AUTOCONF configuration for I18N
 dnl Sam Steingold 2004-2011
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(i18n, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(i18n.lisp)
 AC_CONFIG_HEADERS(config.h)

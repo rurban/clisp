@@ -1,7 +1,7 @@
 dnl AUTOCONF configuration for libsvm
 dnl Sam Steingold 2010-2011
 
-AC_PREREQ(2.57)
+AC_PREREQ([2.64])
 AC_INIT(libsvm, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(libsvm.lisp)
 AC_CONFIG_HEADERS(config.h)
