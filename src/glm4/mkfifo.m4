@@ -1,7 +1,7 @@
-# serial 5
+# serial 9
 # See if we need to provide mkfifo replacement.
 
-dnl Copyright (C) 2009-2018 Free Software Foundation, Inc.
+dnl Copyright (C) 2009-2020 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -12,10 +12,23 @@ AC_DEFUN([gl_FUNC_MKFIFO],
 [
   AC_REQUIRE([gl_SYS_STAT_H_DEFAULTS])
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
-  AC_CHECK_FUNCS_ONCE([mkfifo])
-  if test $ac_cv_func_mkfifo = no; then
+
+  dnl We can't use AC_CHECK_FUNC here, because mkfifo() is defined as a
+  dnl static inline function when compiling for Android 4.4 or older.
+  AC_CACHE_CHECK([for mkfifo], [gl_cv_func_mkfifo],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+          [[#include <sys/stat.h>]],
+          [[return mkfifo("/",0);]])
+       ],
+       [gl_cv_func_mkfifo=yes],
+       [gl_cv_func_mkfifo=no])
+    ])
+  if test $gl_cv_func_mkfifo = no; then
     HAVE_MKFIFO=0
   else
+    AC_DEFINE([HAVE_MKFIFO], [1],
+      [Define to 1 if you have a 'mkfifo' function.])
     dnl Check for Solaris 9 and FreeBSD bug with trailing slash.
     AC_CHECK_FUNCS_ONCE([lstat])
     AC_CACHE_CHECK([whether mkfifo rejects trailing slashes],
@@ -39,10 +52,12 @@ AC_DEFUN([gl_FUNC_MKFIFO],
            ]])],
          [gl_cv_func_mkfifo_works=yes], [gl_cv_func_mkfifo_works=no],
          [case "$host_os" in
-                           # Guess yes on glibc systems.
-            *-gnu* | gnu*) gl_cv_func_mkfifo_works="guessing yes" ;;
-                           # If we don't know, assume the worst.
-            *)             gl_cv_func_mkfifo_works="guessing no" ;;
+                             # Guess yes on Linux systems.
+            linux-* | linux) gl_cv_func_mkfifo_works="guessing yes" ;;
+                             # Guess yes on glibc systems.
+            *-gnu* | gnu*)   gl_cv_func_mkfifo_works="guessing yes" ;;
+                             # If we don't know, obey --enable-cross-guesses.
+            *)               gl_cv_func_mkfifo_works="$gl_cross_guess_normal" ;;
           esac
          ])
        rm -f conftest.tmp conftest.lnk])

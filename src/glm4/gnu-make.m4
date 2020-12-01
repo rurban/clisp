@@ -1,6 +1,6 @@
 # Determine whether recent-enough GNU Make is being used.
 
-# Copyright (C) 2007, 2009-2018 Free Software Foundation, Inc.
+# Copyright (C) 2007, 2009-2020 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -10,10 +10,8 @@
 
 # Set GNU_MAKE if we are using a recent-enough version of GNU make.
 
-# Use --version AND trailing junk, because SGI Make doesn't fail on --version.
-
 AC_DEFUN([gl_GNU_MAKE],
 [
   AM_CONDITIONAL([GNU_MAKE],
-    [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
+    [LC_ALL=C ${MAKE-make} --version 2>/dev/null | sed -e '2,$d' | grep GNU >/dev/null])
 ])

@@ -1,5 +1,16 @@
 2020-12-01  Bruno Haible  <bruno@clisp.org>
 
+	Update to the newest gnulib.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* build-aux/*: Update from gnulib and upstream.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
+2020-12-01  Bruno Haible  <bruno@clisp.org>
+
 	Bump minimum Autoconf version, for compatibility with gnulib.
 	* configure.in: AC_PREREQ version 2.64.
 	* modules/*/configure.in: Likewise.

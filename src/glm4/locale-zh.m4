@@ -1,5 +1,5 @@
-# locale-zh.m4 serial 13
-dnl Copyright (C) 2003, 2005-2018 Free Software Foundation, Inc.
+# locale-zh.m4 serial 15
+dnl Copyright (C) 2003, 2005-2020 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -12,8 +12,7 @@ AC_DEFUN([gt_LOCALE_ZH_CN],
   AC_REQUIRE([AC_CANONICAL_HOST])
   AC_REQUIRE([AM_LANGINFO_CODESET])
   AC_CACHE_CHECK([for a transitional chinese locale], [gt_cv_locale_zh_CN], [
-    AC_LANG_CONFTEST([AC_LANG_SOURCE([
-changequote(,)dnl
+    AC_LANG_CONFTEST([AC_LANG_SOURCE([[
 #include <locale.h>
 #include <stdlib.h>
 #include <time.h>
@@ -33,7 +32,7 @@ int main ()
   return 1;
 #else
   /* Check whether the given locale name is recognized by the system.  */
-# if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+# if defined _WIN32 && !defined __CYGWIN__
   /* On native Windows, setlocale(category, "") looks at the system settings,
      not at the environment variables.  Also, when an encoding suffix such
      as ".65001" or ".54936" is specified, it succeeds but sets the LC_CTYPE
@@ -83,8 +82,7 @@ int main ()
   return 0;
 #endif
 }
-changequote([,])dnl
-      ])])
+      ]])])
     if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
       case "$host_os" in
         # Handle native Windows specially, because there setlocale() interprets

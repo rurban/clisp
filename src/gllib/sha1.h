@@ -1,6 +1,6 @@
 /* Declarations of functions and data types used for SHA1 sum
    library functions.
-   Copyright (C) 2000-2001, 2003, 2005-2006, 2008-2018 Free Software
+   Copyright (C) 2000-2001, 2003, 2005-2006, 2008-2020 Free Software
    Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify it
@@ -71,24 +71,28 @@ extern void sha1_process_bytes (const void *buffer, size_t len,
    in first 20 bytes following RESBUF.  The result is always in little
    endian byte order, so that a byte-wise output yields to the wanted
    ASCII representation of the message digest.  */
-extern void *sha1_finish_ctx (struct sha1_ctx *ctx, void *resbuf);
+extern void *sha1_finish_ctx (struct sha1_ctx *ctx, void *restrict resbuf);
 
 
 /* Put result from CTX in first 20 bytes following RESBUF.  The result is
    always in little endian byte order, so that a byte-wise output yields
    to the wanted ASCII representation of the message digest.  */
-extern void *sha1_read_ctx (const struct sha1_ctx *ctx, void *resbuf);
+extern void *sha1_read_ctx (const struct sha1_ctx *ctx, void *restrict resbuf);
 
 
 /* Compute SHA1 message digest for LEN bytes beginning at BUFFER.  The
    result is always in little endian byte order, so that a byte-wise
    output yields to the wanted ASCII representation of the message
    digest.  */
-extern void *sha1_buffer (const char *buffer, size_t len, void *resblock);
+extern void *sha1_buffer (const char *buffer, size_t len,
+                          void *restrict resblock);
 
 # endif
-/* Compute SHA1 message digest for bytes read from STREAM.  The
-   resulting message digest number will be written into the 20 bytes
+/* Compute SHA1 message digest for bytes read from STREAM.
+   STREAM is an open file stream.  Regular files are handled more efficiently.
+   The contents of STREAM from its current position to its end will be read.
+   The case that the last operation on STREAM was an 'ungetc' is not supported.
+   The resulting message digest number will be written into the 20 bytes
    beginning at RESBLOCK.  */
 extern int sha1_stream (FILE *stream, void *resblock);
 

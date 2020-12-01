@@ -1,6 +1,6 @@
 /* Provide gettimeofday for systems that don't have it or for which it's broken.
 
-   Copyright (C) 2001-2003, 2005-2007, 2009-2018 Free Software Foundation, Inc.
+   Copyright (C) 2001-2003, 2005-2007, 2009-2020 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -24,14 +24,22 @@
 
 #include <time.h>
 
-#if (defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__
+#if defined _WIN32 && ! defined __CYGWIN__
 # define WINDOWS_NATIVE
 # include <windows.h>
 #endif
 
-#include "localtime-buffer.h"
-
 #ifdef WINDOWS_NATIVE
+
+/* Don't assume that UNICODE is not defined.  */
+# undef LoadLibrary
+# define LoadLibrary LoadLibraryA
+
+# if !(_WIN32_WINNT >= _WIN32_WINNT_WIN8)
+
+/* Avoid warnings from gcc -Wcast-function-type.  */
+#  define GetProcAddress \
+    (void *) GetProcAddress
 
 /* GetSystemTimePreciseAsFileTime was introduced only in Windows 8.  */
 typedef void (WINAPI * GetSystemTimePreciseAsFileTimeFuncType) (FILETIME *lpTime);
@@ -45,10 +53,16 @@ initialize (void)
   if (kernel32 != NULL)
     {
       GetSystemTimePreciseAsFileTimeFunc =
-	(GetSystemTimePreciseAsFileTimeFuncType) GetProcAddress (kernel32, "GetSystemTimePreciseAsFileTime");
+        (GetSystemTimePreciseAsFileTimeFuncType) GetProcAddress (kernel32, "GetSystemTimePreciseAsFileTime");
     }
   initialized = TRUE;
 }
+
+# else
+
+#  define GetSystemTimePreciseAsFileTimeFunc GetSystemTimePreciseAsFileTime
+
+# endif
 
 #endif
 
@@ -68,10 +82,10 @@ gettimeofday (struct timeval *restrict tv, void *restrict tz)
 
   /* On native Windows, there are two ways to get the current time:
      GetSystemTimeAsFileTime
-     <https://msdn.microsoft.com/en-us/library/ms724397.aspx>
+     <https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getsystemtimeasfiletime>
      or
      GetSystemTimePreciseAsFileTime
-     <https://msdn.microsoft.com/en-us/library/hh706895.aspx>.
+     <https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getsystemtimepreciseasfiletime>.
      GetSystemTimeAsFileTime produces values that jump by increments of
      15.627 milliseconds (!) on average.
      Whereas GetSystemTimePreciseAsFileTime values usually jump by 1 or 2
@@ -80,15 +94,17 @@ gettimeofday (struct timeval *restrict tv, void *restrict tz)
      <http://www.windowstimestamp.com/description>.  */
   FILETIME current_time;
 
+# if !(_WIN32_WINNT >= _WIN32_WINNT_WIN8)
   if (!initialized)
     initialize ();
+# endif
   if (GetSystemTimePreciseAsFileTimeFunc != NULL)
     GetSystemTimePreciseAsFileTimeFunc (&current_time);
   else
     GetSystemTimeAsFileTime (&current_time);
 
   /* Convert from FILETIME to 'struct timeval'.  */
-  /* FILETIME: <https://msdn.microsoft.com/en-us/library/ms724284.aspx> */
+  /* FILETIME: <https://docs.microsoft.com/en-us/windows/desktop/api/minwinbase/ns-minwinbase-filetime> */
   ULONGLONG since_1601 =
     ((ULONGLONG) current_time.dwHighDateTime << 32)
     | (ULONGLONG) current_time.dwLowDateTime;
@@ -105,11 +121,6 @@ gettimeofday (struct timeval *restrict tv, void *restrict tz)
 #else
 
 # if HAVE_GETTIMEOFDAY
-#  if GETTIMEOFDAY_CLOBBERS_LOCALTIME
-  /* Save and restore the contents of the buffer used for localtime's
-     result around the call to gettimeofday.  */
-  struct tm save = *localtime_buffer_addr;
-#  endif
 
 #  if defined timeval /* 'struct timeval' overridden by gnulib?  */
 #   undef timeval
@@ -122,10 +133,6 @@ gettimeofday (struct timeval *restrict tv, void *restrict tz)
     }
 #  else
   int result = gettimeofday (tv, (struct timezone *) tz);
-#  endif
-
-#  if GETTIMEOFDAY_CLOBBERS_LOCALTIME
-  *localtime_buffer_addr = save;
 #  endif
 
   return result;

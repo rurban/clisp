@@ -1,6 +1,6 @@
 /* strerror_r.c --- POSIX compatible system error routine
 
-   Copyright (C) 2010-2018 Free Software Foundation, Inc.
+   Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ int __xpg_strerror_r (int errnum, char *buf, size_t buflen);
 
 # define USE_SYSTEM_STRERROR 1
 
-# if defined __NetBSD__ || defined __hpux || ((defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__) || defined __sgi || (defined __sun && !defined _LP64) || defined __CYGWIN__
+# if defined __NetBSD__ || defined __hpux || (defined _WIN32 && !defined __CYGWIN__) || defined __sgi || (defined __sun && !defined _LP64) || defined __CYGWIN__
 
 /* No locking needed.  */
 
@@ -120,6 +120,7 @@ local_snprintf (char *buf, size_t buflen, const char *format, ...)
     buf[buflen - 1] = '\0';
   return result;
 }
+# undef snprintf
 # define snprintf local_snprintf
 #endif
 
@@ -129,22 +130,13 @@ static int
 safe_copy (char *buf, size_t buflen, const char *msg)
 {
   size_t len = strlen (msg);
-  int ret;
+  size_t moved = len < buflen ? len : buflen - 1;
 
-  if (len < buflen)
-    {
-      /* Although POSIX allows memcpy() to corrupt errno, we don't
-         know of any implementation where this is a real problem.  */
-      memcpy (buf, msg, len + 1);
-      ret = 0;
-    }
-  else
-    {
-      memcpy (buf, msg, buflen - 1);
-      buf[buflen - 1] = '\0';
-      ret = ERANGE;
-    }
-  return ret;
+  /* Although POSIX lets memmove corrupt errno, we don't
+     know of any implementation where this is a real problem.  */
+  memmove (buf, msg, moved);
+  buf[moved] = '\0';
+  return len < buflen ? 0 : ERANGE;
 }
 
 
@@ -258,7 +250,7 @@ strerror_r (int errnum, char *buf, size_t buflen)
     /* Try to do what strerror (errnum) does, but without clobbering the
        buffer used by strerror().  */
 
-# if defined __NetBSD__ || defined __hpux || ((defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__) || defined __CYGWIN__ /* NetBSD, HP-UX, native Windows, Cygwin */
+# if defined __NetBSD__ || defined __hpux || (defined _WIN32 && !defined __CYGWIN__) || defined __CYGWIN__ /* NetBSD, HP-UX, native Windows, Cygwin */
 
     /* NetBSD:         sys_nerr, sys_errlist are declared through _NETBSD_SOURCE
                        and <errno.h> above.
@@ -335,7 +327,7 @@ strerror_r (int errnum, char *buf, size_t buflen)
 
 #endif
 
-#if (defined _WIN32 || defined __WIN32__) && !defined __CYGWIN__
+#if defined _WIN32 && !defined __CYGWIN__
     /* MSVC 14 defines names for many error codes in the range 100..140,
        but _sys_errlist contains strings only for the error codes
        < _sys_nerr = 43.  */

@@ -1,7 +1,22 @@
 #!/usr/local/bin/clisp -C
 
 ;;; Creation of gnulib's uninames.h from the UnicodeData.txt table.
-;;; Bruno Haible 2000-12-28
+
+;;; Copyright (C) 2000-2020 Free Software Foundation, Inc.
+;;; Written by Bruno Haible <bruno@clisp.org>, 2000-12-28.
+;;;
+;;; This program is free software: you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation; either version 3 of the License, or
+;;; (at your option) any later version.
+;;;
+;;; This program is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 (defparameter add-comments nil)
 
@@ -279,9 +294,7 @@
             (incf i (length (unicode-char-word-indices uc)))
         ) )
         (format ostream "};~%")
-        (format ostream "static const struct { uint16_t index; uint32_t name:24; }~%")
-        (format ostream "#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)~%__attribute__((__packed__))~%#endif~%")
-        (format ostream "unicode_name_to_index[~D] = {~%"
+        (format ostream "static const struct { uint16_t index; uint32_t name:24; } ATTRIBUTE_PACKED unicode_name_to_index[~D] = {~%"
                         (length all-chars-and-aliases)
         )
         (dolist (uc all-chars-and-aliases)
@@ -295,9 +308,7 @@
           (format ostream "~%")
         )
         (format ostream "};~%")
-        (format ostream "static const struct { uint16_t index; uint32_t name:24; }~%")
-        (format ostream "#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)~%__attribute__((__packed__))~%#endif~%")
-        (format ostream "unicode_index_to_name[~D] = {~%"
+        (format ostream "static const struct { uint16_t index; uint32_t name:24; } ATTRIBUTE_PACKED unicode_index_to_name[~D] = {~%"
                         (length all-chars)
         )
         (dolist (uc (sort (copy-list all-chars) #'< :key #'unicode-char-index))

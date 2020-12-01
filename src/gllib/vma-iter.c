@@ -1,5 +1,5 @@
 /* Iteration over virtual memory areas.
-   Copyright (C) 2011-2018 Free Software Foundation, Inc.
+   Copyright (C) 2011-2020 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2011-2017.
 
    This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,15 @@
 /* On Solaris in 32-bit mode, when gnulib module 'largefile' is in use,
    prevent a compilation error
      "Cannot use procfs in the large file compilation environment"
+   On Android, when targeting Android 4.4 or older with a GCC toolchain,
+   prevent a compilation error
+     "error: call to 'mmap' declared with attribute error: mmap is not
+      available with _FILE_OFFSET_BITS=64 when using GCC until android-21.
+      Either raise your minSdkVersion, disable _FILE_OFFSET_BITS=64, or
+      switch to Clang."
    The files that we access in this compilation unit are less than 2 GB
    large.  */
-#if defined __sun
+#if defined __sun || defined __ANDROID__
 # undef _FILE_OFFSET_BITS
 #endif
 
@@ -34,11 +40,11 @@
 #include <fcntl.h> /* open, O_RDONLY */
 #include <unistd.h> /* getpagesize, lseek, read, close, getpid */
 
-#if defined __linux__
+#if defined __linux__ || defined __ANDROID__
 # include <limits.h> /* PATH_MAX */
 #endif
 
-#if defined __linux__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
+#if defined __linux__ || defined __ANDROID__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
 # include <sys/types.h>
 # include <sys/mman.h> /* mmap, munmap */
 #endif
@@ -86,7 +92,7 @@
 # include <mach/mach.h>
 #endif
 
-#if (defined _WIN32 || defined __WIN32__) || defined __CYGWIN__ /* Windows */
+#if defined _WIN32 || defined __CYGWIN__ /* Windows */
 # include <windows.h>
 #endif
 
@@ -106,7 +112,7 @@
 
 /* Support for reading text files in the /proc file system.  */
 
-#if defined __linux__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
+#if defined __linux__ || defined __ANDROID__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
 
 /* Buffered read-only streams.
    We cannot use <stdio.h> here, because fopen() calls malloc(), and a malloc()
@@ -119,11 +125,11 @@
      - On all platforms, if some other thread is doing memory allocations or
        deallocations between two read() calls, there is a high risk that the
        result of these two read() calls don't fit together, and as a
-       consequence we will parse gargage and either omit some VMAs or return
+       consequence we will parse garbage and either omit some VMAs or return
        VMAs with nonsensical addresses.
    So use mmap(), and ignore the resulting VMA.  */
 
-# ifdef __linux__
+# if defined __linux__ || defined __ANDROID__
   /* On Linux, if the file does not entirely fit into the buffer, the read()
      function stops before the line that would come out truncated.  The
      maximum size of such a line is 73 + PATH_MAX bytes.  To be sure that we
@@ -168,7 +174,7 @@ rof_open (struct rofile *rof, const char *filename)
   unsigned long pagesize;
   size_t size;
 
-  fd = open (filename, O_RDONLY);
+  fd = open (filename, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
   rof->position = 0;
@@ -199,7 +205,7 @@ rof_open (struct rofile *rof, const char *filename)
                 {
                   /* The buffer was sufficiently large.  */
                   rof->filled = n;
-# ifdef __linux__
+# if defined __linux__ || defined __ANDROID__
                   /* On Linux, the read() call may stop even if the buffer was
                      large enough.  We need the equivalent of full_read().  */
                   for (;;)
@@ -261,7 +267,7 @@ rof_open (struct rofile *rof, const char *filename)
       if (lseek (fd, 0, SEEK_SET) < 0)
         {
           close (fd);
-          fd = open (filename, O_RDONLY);
+          fd = open (filename, O_RDONLY | O_CLOEXEC);
           if (fd < 0)
             goto fail2;
         }
@@ -336,7 +342,7 @@ rof_close (struct rofile *rof)
 
 /* Support for reading the info from a text file in the /proc file system.  */
 
-#if defined __linux__ || (defined __FreeBSD_kernel__ && !defined __FreeBSD__) /* || defined __CYGWIN__ */
+#if defined __linux__ || defined __ANDROID__ || (defined __FreeBSD_kernel__ && !defined __FreeBSD__) /* || defined __CYGWIN__ */
 /* GNU/kFreeBSD mounts /proc as linprocfs, which looks like a Linux /proc
    file system.  */
 
@@ -671,7 +677,7 @@ vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 static int
 vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 {
-  /* Documentation: http://man.netbsd.org/man/sysctl+7  */
+  /* Documentation: https://man.netbsd.org/man/sysctl+7  */
   unsigned int entry_size =
     /* If we wanted to have the path of each entry, we would need
        sizeof (struct kinfo_vmentry).  But we need only the non-string
@@ -763,7 +769,7 @@ vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 static int
 vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 {
-  /* Documentation: https://man.openbsd.org/sysctl.3  */
+  /* Documentation: https://man.openbsd.org/sysctl.2  */
   int info_path[] = { CTL_KERN, KERN_PROC_VMMAP, getpid () };
   size_t len;
   size_t pagesize;
@@ -860,7 +866,7 @@ vma_iterate_bsd (vma_iterate_callback_fn callback, void *data)
 int
 vma_iterate (vma_iterate_callback_fn callback, void *data)
 {
-#if defined __linux__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
+#if defined __linux__ || defined __ANDROID__ || defined __FreeBSD_kernel__ || defined __FreeBSD__ || defined __DragonFly__ || defined __NetBSD__ || defined __minix /* || defined __CYGWIN__ */
 
 # if defined __FreeBSD__
   /* On FreeBSD with procfs (but not GNU/kFreeBSD, which uses linprocfs), the
@@ -918,7 +924,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -933,7 +939,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 # if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 # endif
@@ -1043,7 +1049,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -1058,7 +1064,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 #  if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 #  endif
@@ -1162,7 +1168,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
   fname -= 6;
   memcpy (fname, "/proc/", 6);
 
-  fd = open (fname, O_RDONLY);
+  fd = open (fname, O_RDONLY | O_CLOEXEC);
   if (fd < 0)
     return -1;
 
@@ -1181,7 +1187,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
      So use mmap(), and ignore the resulting VMA.  */
   memneed = ((memneed - 1) / pagesize + 1) * pagesize;
 #  if !HAVE_MAP_ANONYMOUS
-  zero_fd = open ("/dev/zero", O_RDONLY, 0644);
+  zero_fd = open ("/dev/zero", O_RDONLY | O_CLOEXEC, 0644);
   if (zero_fd < 0)
     goto fail2;
 #  endif
@@ -1327,7 +1333,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
          In 64-bit processes, we could use vm_region_64 or mach_vm_region.
          I choose vm_region_64 because it uses the same types as vm_region,
          resulting in less conditional code.  */
-# if defined __ppc64__ || defined __x86_64__
+# if defined __aarch64__ || defined __ppc64__ || defined __x86_64__
       struct vm_region_basic_info_64 info;
       mach_msg_type_number_t info_count = VM_REGION_BASIC_INFO_COUNT_64;
 
@@ -1397,7 +1403,7 @@ vma_iterate (vma_iterate_callback_fn callback, void *data)
     }
   return 0;
 
-#elif (defined _WIN32 || defined __WIN32__) || defined __CYGWIN__
+#elif defined _WIN32 || defined __CYGWIN__
   /* Windows platform.  Use the native Windows API.  */
 
   MEMORY_BASIC_INFORMATION info;
