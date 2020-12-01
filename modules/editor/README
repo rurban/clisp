@@ -1,4 +1,4 @@
-This is a console text editor based on the SCREEN package and *KEYWORD-INPUT*
+This is a console text editor based on the SCREEN package and *KEYBOARD-INPUT*
 stream, written by Michael Stoll & Bruno Haible in 1992.
 
 Bruno Haible removed it from CLISP in 1998 because he believed that the
