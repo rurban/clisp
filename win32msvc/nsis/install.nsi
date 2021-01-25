@@ -11,6 +11,11 @@
 # where clisp distro is stored, then compile
 # with NSIS (latest version used was 2.31).
 #
+# WARNING! BUG! On 64-bit Windows 10, this script destroys the System Path
+# environment variable.
+# Reported at <https://sourceforge.net/p/clisp/support-requests/8/>
+# FIX THIS BUG before making any new release of Windows exe.
+#
 # note: this script globs all files in the current
 # directory, ignoring files that match "install*"
 
