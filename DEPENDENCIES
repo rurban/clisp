@@ -9,6 +9,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/libsigsegv/
   + Download:
     https://ftp.gnu.org/gnu/libsigsegv/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: libsigsegv-dev,
+    - On Red Hat distributions: libsigsegv-devel.
+    - Other: https://repology.org/project/libsigsegv/versions
   + Use the newest version on all platforms except IRIX.
     On IRIX, use version 2.10, because IRIX support was dropped in version 2.11.
   + If it is installed in a nonstandard directory, pass the option
@@ -21,11 +25,15 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/libffcall/
   + Download:
     https://ftp.gnu.org/gnu/libffcall/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: libffcall-dev,
+    - On Red Hat distributions: ffcall.
+    - Other: https://repology.org/project/ffcall/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-libffcall-prefix=DIR to 'configure'.
 
 * GNU libiconv
-  + Not needed on systems with glibc, on Mac OS X, and NetBSD.
+  + Not needed on systems with glibc, on macOS, and NetBSD.
     But recommended on all other systems.
     Needed for multibyte character set support (other than UTF-8,
     for which GNU libiconv is not needed).
@@ -33,6 +41,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/libiconv/
   + Download:
     https://ftp.gnu.org/gnu/libiconv/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: --,
+    - On Red Hat distributions: --.
+    - Other: https://repology.org/project/libiconv/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-libiconv-prefix=DIR to 'configure'.
 
@@ -42,6 +54,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/libunistring/
   + Download:
     https://ftp.gnu.org/gnu/libunistring/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: libunistring-dev,
+    - On Red Hat distributions: libunistring-devel.
+    - Other: https://repology.org/project/libunistring/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-libunistring-prefix=DIR to 'configure'.  
 
@@ -53,6 +69,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/gettext/
   + Download:
     https://ftp.gnu.org/gnu/gettext/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: --,
+    - On Red Hat distributions: --.
+    - Other: https://repology.org/project/gettext/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-libintl-prefix=DIR to 'configure'.
 
@@ -63,6 +83,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/readline/
   + Download:
     https://ftp.gnu.org/gnu/readline/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: libreadline-dev,
+    - On Red Hat distributions: readline-devel.
+    - Other: https://repology.org/project/readline/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-libreadline-prefix=DIR to 'configure'.
 
@@ -74,6 +98,10 @@ The following packages should be installed before GNU clisp is installed
     https://www.gnu.org/software/ncurses/
   + Download:
     https://ftp.gnu.org/gnu/ncurses/
+  + Pre-built package name:
+    - On Debian and Debian-based systems: libncurses-dev,
+    - On Red Hat distributions: ncurses-devel.
+    - Other: https://repology.org/project/ncurses/versions
   + If it is installed in a nonstandard directory, pass the option
     --with-ncurses-prefix=DIR or --with-libtermcap-prefix to 'configure'.
 
@@ -89,22 +117,25 @@ needed later, once it is installed (build dependencies, but not runtime
 dependencies):
 
 * A C runtime, compiler, linker, etc.
-  + Mandatory. Either the platform's native 'cc', or GCC 2.95.3 or newer.
+  + Mandatory.
+    Either the platform's native 'cc', or GCC 3.1 or newer.
   + GCC Homepage:
     https://gcc.gnu.org/
   + Download:
     https://ftp.gnu.org/gnu/gcc/
 
 * A 'make' utility.
-  + Mandatory. Either the platform's native 'make', or GNU Make 3.79.1 or newer.
-    GNU Make is required on HP-UX and IRIX.
+  + Mandatory.
+    Either the platform's native 'make' (for in-tree builds only),
+    or GNU Make 3.79.1 or newer.
   + GNU Make Homepage:
     https://www.gnu.org/software/make/
   + Download:
     https://ftp.gnu.org/gnu/make/
 
 * A shell
-  + Mandatory. Either the platform's native 'sh', or Bash.
+  + Mandatory.
+    Either the platform's native 'sh', or Bash.
   + Homepage:
     https://www.gnu.org/software/bash/
   + Download:
@@ -115,23 +146,33 @@ dependencies):
     false hostname install kill ln ls md5sum mkdir mkfifo
     mknod mv printenv pwd rm rmdir sleep sort tee test touch
     true uname
-  + Mandatory. Either the platform's native utilities, or GNU coreutils.
+  + Mandatory.
+    Either the platform's native utilities, or GNU coreutils.
   + Homepage:
     https://www.gnu.org/software/coreutils/
   + Download:
     https://ftp.gnu.org/gnu/coreutils/
 
 * The comparison utilities 'cmp' and 'diff'.
-  + Mandatory. Either the platform's native utilities, or GNU diffutils.
+  + Mandatory.
+    Either the platform's native utilities, or GNU diffutils.
   + Homepage:
     https://www.gnu.org/software/diffutils/
   + Download:
     https://ftp.gnu.org/gnu/diffutils/
 
 * Grep.
-  + Mandatory. Either the platform's native grep, or GNU grep.
+  + Mandatory.
+    Either the platform's native grep, or GNU grep.
   + Homepage:
     https://www.gnu.org/software/grep/
   + Download:
     https://ftp.gnu.org/gnu/grep/
 
+* Awk.
+  + Mandatory.
+    Either the platform's native awk, mawk, or nawk, or GNU awk.
+  + Homepage:
+    https://www.gnu.org/software/gawk/
+  + Download:
+    https://ftp.gnu.org/gnu/gawk/
