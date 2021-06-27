@@ -102,7 +102,7 @@ AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
 getresuid setresuid getresgid setresgid setreuid setregid dnl
 gethostname getcwd getrlimit uname readdir_r rand_r)
-AC_FUNC_VFORK dnl DEFS HAVE_VFORK_H, vfork
+AC_FUNC_FORK dnl DEFS HAVE_VFORK_H, vfork
 CL_RUSAGE dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, HAVE_SYS_TIMES_H
 CL_IOCTL dnl DEFS HAVE_IOCTL, HAVE_FIONREAD, NEED_SYS_FILIO_H, NEED_SYS_IOCTL_H, HAVE_RELIABLE_FIONREAD
 CL_POLL dnl DEFS HAVE_POLL, HAVE_RELIABLE_POLL
