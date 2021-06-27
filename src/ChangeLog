@@ -1,6 +1,12 @@
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
 	Avoid warnings from autoconf-2.71.
+	* m4/ln.m4 (CL_PROG_HLN): Use AS_MESSAGE_LOG_FD instead of AC_FD_CC.
+	* aclocal.m4: Regenerated.
+
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
+	Avoid warnings from autoconf-2.71.
 	* src/configure.in: Invoke AC_FUNC_FORK instead of AC_FUNC_VFORK.
 
 2021-06-27  Bruno Haible  <bruno@clisp.org>

@@ -33303,7 +33303,7 @@ AC_DEFUN([CL_LIGHTNING],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -33371,7 +33371,7 @@ AC_DEFUN([CL_PROG_HLN],
        ln -s conftest.x conftest.y
        mkdir conftest.d
        cd conftest.d
-       ln ../conftest.y conftest.z 2>&AC_FD_CC
+       ln ../conftest.y conftest.z 2>&AS_MESSAGE_LOG_FD
        data=`cat conftest.z 2>/dev/null`
        if test "$data" = "blabla"; then
          # conftest.z contains the correct data -- good!
