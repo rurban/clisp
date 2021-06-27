@@ -1,13 +1,13 @@
 dnl -*- Autoconf -*-
 dnl Copyright (C) 2007-2010, 2017 Sam Steingold
-dnl Copyright (C) 2017-2018 Bruno Haible
+dnl Copyright (C) 2017-2021 Bruno Haible
 dnl This is free software, distributed under the GNU GPL v2+
 
 AC_PREREQ([2.61])
 
 dnl Download location of the newest libffcall release.
 AC_DEFUN([CL_LIBFFCALL_DOWNLOAD_URL],
-  [https://ftp.gnu.org/gnu/libffcall/libffcall-2.1.tar.gz])
+  [https://ftp.gnu.org/gnu/libffcall/libffcall-2.4.tar.gz])
 
 AC_DEFUN([CL_FFCALL],[
   AC_ARG_WITH([ffcall],
