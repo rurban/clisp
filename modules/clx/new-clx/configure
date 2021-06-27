@@ -4330,8 +4330,6 @@ printf "%s\n" "$ac_cv_should_define__xopen_source" >&6; }
 
 
 
-
-
 # Obsolete code to be removed.
 if test $ac_cv_header_sys_time_h = yes; then
 

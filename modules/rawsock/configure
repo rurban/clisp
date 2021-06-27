@@ -4447,8 +4447,6 @@ printf "%s\n" "$ac_cv_should_define__xopen_source" >&6; }
 
 
 
-
-
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: ${term_bold}** Rawsock (Headers)${term_norm}" >&5
 printf "%s\n" "$as_me: ${term_bold}** Rawsock (Headers)${term_norm}" >&6;}
 

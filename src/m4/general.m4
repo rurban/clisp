@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2011, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -32,7 +32,6 @@ AC_DEFUN([CL_MODULE_COMMON_CHECKS],[
   AC_REQUIRE([AC_PROG_CC])
   AC_REQUIRE([AC_PROG_CPP])
   AC_REQUIRE([CL_PROG_LN_S])
-  AC_REQUIRE([AC_GNU_SOURCE])
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
 ])
 
