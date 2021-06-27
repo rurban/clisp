@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -54,30 +54,31 @@ AC_DEFUN([CL_IOCTL],
       # The number of available characters returned by ioctl(fd,FIONREAD,...) should
       # be > 0 for a non-empty regular file at least. On Solaris 2, it is 0.
       AC_CACHE_CHECK([for reliable FIONREAD], [cl_cv_decl_FIONREAD_reliable],
-        [AC_TRY_RUN([
-           /* Declare ioctl(). */
-           $ioctl_decl
-           #ifdef NEED_SYS_FILIO_H
-            #include <sys/filio.h>
-           #endif
-           #ifdef NEED_SYS_IOCTL_H
-            #include <sys/ioctl.h>
-           #endif
-           /* Declare open(). */
-           #include <fcntl.h>
-           int main ()
-           {
-             int fd = open("conftest.c",O_RDONLY,0644);
-             unsigned long bytes_ready;
-             /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
-                apparently expect an 'int *', not a 'long *', as argument of this ioctl,
-                and thus fill only part of the bytes_ready variable. Fortunately,
-                endianness is not a problem here, because we only check whether
-                bytes_ready is == 0 or != 0. */
-             bytes_ready = 0;
-             exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
-           }
-           ],
+        [AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([[
+              /* Declare ioctl(). */
+              $ioctl_decl
+              #ifdef NEED_SYS_FILIO_H
+               #include <sys/filio.h>
+              #endif
+              #ifdef NEED_SYS_IOCTL_H
+               #include <sys/ioctl.h>
+              #endif
+              /* Declare open(). */
+              #include <fcntl.h>
+              int main ()
+              {
+                int fd = open("conftest.c",O_RDONLY,0644);
+                unsigned long bytes_ready;
+                /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+                   apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+                   and thus fill only part of the bytes_ready variable. Fortunately,
+                   endianness is not a problem here, because we only check whether
+                   bytes_ready is == 0 or != 0. */
+                bytes_ready = 0;
+                exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
+              }
+           ]])],
            [cl_cv_decl_FIONREAD_reliable=yes], [cl_cv_decl_FIONREAD_reliable=no],
            [dnl When cross-compiling, don't assume anything.
             cl_cv_decl_FIONREAD_reliable="guessing no"

@@ -24844,7 +24844,7 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -24899,30 +24899,31 @@ AC_DEFUN([CL_IOCTL],
       # The number of available characters returned by ioctl(fd,FIONREAD,...) should
       # be > 0 for a non-empty regular file at least. On Solaris 2, it is 0.
       AC_CACHE_CHECK([for reliable FIONREAD], [cl_cv_decl_FIONREAD_reliable],
-        [AC_TRY_RUN([
-           /* Declare ioctl(). */
-           $ioctl_decl
-           #ifdef NEED_SYS_FILIO_H
-            #include <sys/filio.h>
-           #endif
-           #ifdef NEED_SYS_IOCTL_H
-            #include <sys/ioctl.h>
-           #endif
-           /* Declare open(). */
-           #include <fcntl.h>
-           int main ()
-           {
-             int fd = open("conftest.c",O_RDONLY,0644);
-             unsigned long bytes_ready;
-             /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
-                apparently expect an 'int *', not a 'long *', as argument of this ioctl,
-                and thus fill only part of the bytes_ready variable. Fortunately,
-                endianness is not a problem here, because we only check whether
-                bytes_ready is == 0 or != 0. */
-             bytes_ready = 0;
-             exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
-           }
-           ],
+        [AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([[
+              /* Declare ioctl(). */
+              $ioctl_decl
+              #ifdef NEED_SYS_FILIO_H
+               #include <sys/filio.h>
+              #endif
+              #ifdef NEED_SYS_IOCTL_H
+               #include <sys/ioctl.h>
+              #endif
+              /* Declare open(). */
+              #include <fcntl.h>
+              int main ()
+              {
+                int fd = open("conftest.c",O_RDONLY,0644);
+                unsigned long bytes_ready;
+                /* Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+                   apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+                   and thus fill only part of the bytes_ready variable. Fortunately,
+                   endianness is not a problem here, because we only check whether
+                   bytes_ready is == 0 or != 0. */
+                bytes_ready = 0;
+                exit(!((fd >= 0) && (ioctl(fd,FIONREAD,&bytes_ready) >= 0) && (bytes_ready > 0)));
+              }
+           ]])],
            [cl_cv_decl_FIONREAD_reliable=yes], [cl_cv_decl_FIONREAD_reliable=no],
            [dnl When cross-compiling, don't assume anything.
             cl_cv_decl_FIONREAD_reliable="guessing no"
@@ -34092,7 +34093,7 @@ AC_DEFUN([CL_MACH_VM],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2010, 2017-2018 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2010, 2017-2018, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -34119,72 +34120,75 @@ AC_DEFUN([CL_MMAP],
       dnl The determination of the mmapable address ranges is done later.
       AC_CACHE_CHECK([for mmap at fixed addresses], [cl_cv_func_mmap_fixed],
         [mmap_prog_1='
-           #include <stdlib.h>
-           #ifdef HAVE_UNISTD_H
-            #include <unistd.h>
-           #endif
-           #include <fcntl.h>
-           #include <sys/types.h>
-           #include <sys/mman.h>
-           int main ()
-           {
-           '
+              #include <stdlib.h>
+              #ifdef HAVE_UNISTD_H
+               #include <unistd.h>
+              #endif
+              #include <fcntl.h>
+              #include <sys/types.h>
+              #include <sys/mman.h>
+              int main ()
+              {
+              '
          mmap_prog_2='
-             {
-               unsigned long my_size = 32768; /* hope that 32768 is a multiple of the page size */
-               unsigned int successful_calls = 0;
-               unsigned long addr;
-               for (addr = 0x01230000UL;;)
-                 {
-                   if (mmap((void*)(addr & -my_size),my_size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) != (void*)-1)
-                     {
-                       /* Require at least 2 successful mmap calls.  This avoids
-                          spurious success on HP-UX IA-64 with 32-bit ABI. */
-                       if (++successful_calls >= 2)
-                         exit(0);
-                     }
-                   {
-                     unsigned long next_addr = (unsigned long)((double)addr * 1.94);
-                     if (next_addr <= addr) break;
-                     addr = next_addr;
-                   }
-                 }
-               exit(1);
-             }
-           }
-           '
+                {
+                  unsigned long my_size = 32768; /* hope that 32768 is a multiple of the page size */
+                  unsigned int successful_calls = 0;
+                  unsigned long addr;
+                  for (addr = 0x01230000UL;;)
+                    {
+                      if (mmap((void*)(addr & -my_size),my_size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) != (void*)-1)
+                        {
+                          /* Require at least 2 successful mmap calls.  This avoids
+                             spurious success on HP-UX IA-64 with 32-bit ABI. */
+                          if (++successful_calls >= 2)
+                            exit(0);
+                        }
+                      {
+                        unsigned long next_addr = (unsigned long)((double)addr * 1.94);
+                        if (next_addr <= addr) break;
+                        addr = next_addr;
+                      }
+                    }
+                  exit(1);
+                }
+              }
+              '
          succeeded=
-         AC_TRY_RUN(GL_NOCRASH[
-           $mmap_prog_1
-             int flags = MAP_ANON | MAP_PRIVATE;
-             int fd = -1;
-             nocrash_init();
-           $mmap_prog_2
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[
+              $mmap_prog_1
+                int flags = MAP_ANON | MAP_PRIVATE;
+                int fd = -1;
+                nocrash_init();
+              $mmap_prog_2
+           ]])],
            [succeeded="$succeeded"${succeeded:+,}"MAP_ANON"],
            [],
            [: # When cross-compiling, don't assume anything.])
-         AC_TRY_RUN(GL_NOCRASH[
-           $mmap_prog_1
-             int flags = MAP_ANONYMOUS | MAP_PRIVATE;
-             int fd = -1;
-             nocrash_init();
-           $mmap_prog_2
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[
+              $mmap_prog_1
+                int flags = MAP_ANONYMOUS | MAP_PRIVATE;
+                int fd = -1;
+                nocrash_init();
+              $mmap_prog_2
+           ]])],
            [succeeded="$succeeded"${succeeded:+,}"MAP_ANONYMOUS"],
            [],
            [: # When cross-compiling, don't assume anything.])
-         AC_TRY_RUN(GL_NOCRASH[
-           $mmap_prog_1
-             #ifndef MAP_FILE
-              #define MAP_FILE 0
-             #endif
-             int flags = MAP_FILE | MAP_PRIVATE;
-             int fd = open("/dev/zero",O_RDONLY,0666);
-             if (fd<0) exit(1);
-             nocrash_init();
-           $mmap_prog_2
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[
+              $mmap_prog_1
+                #ifndef MAP_FILE
+                 #define MAP_FILE 0
+                #endif
+                int flags = MAP_FILE | MAP_PRIVATE;
+                int fd = open("/dev/zero",O_RDONLY,0666);
+                if (fd<0) exit(1);
+                nocrash_init();
+              $mmap_prog_2
+           ]])],
            [succeeded="$succeeded"${succeeded:+,}"/dev/zero"],
            [],
            [: # When cross-compiling, don't assume anything.])
@@ -34226,73 +34230,74 @@ AC_DEFUN([CL_MMAP],
       dnl Don't need to test bit 63 (or 31) because we use it as garcol_bit in TYPECODES.
       AC_CACHE_CHECK([for highest bit number which can be included in mmaped addresses],
         [cl_cv_func_mmap_highest_bit],
-        [AC_TRY_RUN([
-           #include <stdlib.h>
-           #ifdef HAVE_UNISTD_H
-            #include <unistd.h>
-           #endif
-           #include <fcntl.h>
-           #include <sys/types.h>
-           #include <sys/mman.h>
-           #ifndef MAP_FILE
-            #define MAP_FILE 0
-           #endif
-           #ifndef MAP_VARIABLE
-            #define MAP_VARIABLE 0
-           #endif
-           int
-           main ()
-           {
-             unsigned int my_size = 32768; /* hope that 32768 is a multiple of the page size */
-             int pos;
-             for (pos = 8*sizeof(void*)-2; pos > 0; pos--)
-               {
-                 unsigned long address = (unsigned long)1 << pos;
-                 if (address < 4096)
-                   break;
-                 #ifdef __ia64__
-                 /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
-                    An mmap call to this address would either crash the program (on Linux)
-                    or fail (on HP-UX). */
-                 if (pos == 62)
-                   continue;
-                 #endif
-                 #ifdef __arm__
-                 /* On Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8",
-                    some shared libraries may sit at 0x40000000. An mmap call to
-                    this address may crash the program. */
-                 if (pos == 30)
-                   address += 0x01000000UL;
-                 #endif
-                 #ifdef __riscv
-                 /* On Linux/riscv64, the ld.so and some shared libraries may
-                    sit at 0x2000000000. An mmap call to this address may
-                    crash the program. */
-                 if (pos == 37)
-                   address += 0x01000000UL;
-                 #endif
-                 {
-                   char *p;
-                   #if defined HAVE_MMAP_ANON
-                     p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
-                   #elif defined HAVE_MMAP_ANONYMOUS
-                     p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
-                   #elif defined HAVE_MMAP_DEVZERO
-                     int zero_fd = open("/dev/zero", O_RDONLY, 0666);
-                     if (zero_fd < 0)
-                       return 1;
-                     p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
-                   #else
-                     ??
-                   #endif
-                   if (p != (char*) -1)
-                     /* mmap succeeded. */
-                     return pos;
-                 }
-               }
-             return 0;
-           }
-           ],
+        [AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([[
+              #include <stdlib.h>
+              #ifdef HAVE_UNISTD_H
+               #include <unistd.h>
+              #endif
+              #include <fcntl.h>
+              #include <sys/types.h>
+              #include <sys/mman.h>
+              #ifndef MAP_FILE
+               #define MAP_FILE 0
+              #endif
+              #ifndef MAP_VARIABLE
+               #define MAP_VARIABLE 0
+              #endif
+              int
+              main ()
+              {
+                unsigned int my_size = 32768; /* hope that 32768 is a multiple of the page size */
+                int pos;
+                for (pos = 8*sizeof(void*)-2; pos > 0; pos--)
+                  {
+                    unsigned long address = (unsigned long)1 << pos;
+                    if (address < 4096)
+                      break;
+                    #ifdef __ia64__
+                    /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
+                       An mmap call to this address would either crash the program (on Linux)
+                       or fail (on HP-UX). */
+                    if (pos == 62)
+                      continue;
+                    #endif
+                    #ifdef __arm__
+                    /* On Linux/arm64 with CC="arm-linux-gnueabihf-gcc-4.8",
+                       some shared libraries may sit at 0x40000000. An mmap call to
+                       this address may crash the program. */
+                    if (pos == 30)
+                      address += 0x01000000UL;
+                    #endif
+                    #ifdef __riscv
+                    /* On Linux/riscv64, the ld.so and some shared libraries may
+                       sit at 0x2000000000. An mmap call to this address may
+                       crash the program. */
+                    if (pos == 37)
+                      address += 0x01000000UL;
+                    #endif
+                    {
+                      char *p;
+                      #if defined HAVE_MMAP_ANON
+                        p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
+                      #elif defined HAVE_MMAP_ANONYMOUS
+                        p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
+                      #elif defined HAVE_MMAP_DEVZERO
+                        int zero_fd = open("/dev/zero", O_RDONLY, 0666);
+                        if (zero_fd < 0)
+                          return 1;
+                        p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
+                      #else
+                        ??
+                      #endif
+                      if (p != (char*) -1)
+                        /* mmap succeeded. */
+                        return pos;
+                    }
+                  }
+                return 0;
+              }
+           ]])],
            [cl_cv_func_mmap_highest_bit=none],
            [cl_cv_func_mmap_highest_bit=$?
             case "$cl_cv_func_mmap_highest_bit" in
@@ -34316,7 +34321,7 @@ AC_DEFUN([CL_MMAP],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2009, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -34335,32 +34340,33 @@ AC_DEFUN([CL_MPROTECT],
   if test $ac_cv_func_mprotect = yes; then
     AC_CACHE_CHECK([for working mprotect], [cl_cv_func_mprotect_works],
       [mprotect_prog='
-         #include <sys/types.h>
-         /* declare malloc() */
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         /* declare getpagesize() and mprotect() */
-         #include <sys/mman.h>
-         #ifndef HAVE_GETPAGESIZE
-          #include <sys/param.h>
-          #define getpagesize() PAGESIZE
-         #else
-         ]AC_LANG_EXTERN[
-         int getpagesize (void);
-         #endif
-         char foo;
-         int main ()
-         {
-           unsigned long pagesize = getpagesize();
-           #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
-         '
-       AC_TRY_RUN([$mprotect_prog
-           if ((pagesize-1) & pagesize) exit(1);
-           exit(0);
-         }
-         ],
+            #include <sys/types.h>
+            /* declare malloc() */
+            #include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            /* declare getpagesize() and mprotect() */
+            #include <sys/mman.h>
+            #ifndef HAVE_GETPAGESIZE
+             #include <sys/param.h>
+             #define getpagesize() PAGESIZE
+            #else
+           ]AC_LANG_EXTERN[
+            int getpagesize (void);
+            #endif
+            char foo;
+            int main ()
+            {
+              unsigned long pagesize = getpagesize();
+              #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
+            '
+       AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[$mprotect_prog
+              if ((pagesize-1) & pagesize) exit(1);
+              exit(0);
+            }
+         ]])],
          [],
          [no_mprotect=1],
          [# When cross-compiling, don't assume anything.
@@ -34371,50 +34377,54 @@ AC_DEFUN([CL_MPROTECT],
            char* fault_address = area + pagesize*7/2;
          '
        if test -z "$no_mprotect"; then
-         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-             nocrash_init();
-             if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-             foo = *fault_address; /* this should cause an exception or signal */
-             exit(0);
-           }
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[$mprotect_prog
+                nocrash_init();
+                if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
+                foo = *fault_address; /* this should cause an exception or signal */
+                exit(0);
+              }
+           ]])],
            [no_mprotect=1],
            [],
            [: # When cross-compiling, don't assume anything.])
        fi
        if test -z "$no_mprotect"; then
-         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-             nocrash_init();
-             if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
-             *fault_address = 'z'; /* this should cause an exception or signal */
-             exit(0);
-           }
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[$mprotect_prog
+                nocrash_init();
+                if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
+                *fault_address = 'z'; /* this should cause an exception or signal */
+                exit(0);
+              }
+           ]])],
            [no_mprotect=1],
            [],
            [: # When cross-compiling, don't assume anything.])
        fi
        if test -z "$no_mprotect"; then
-         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-             nocrash_init();
-             if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
-             *fault_address = 'z'; /* this should cause an exception or signal */
-             exit(0);
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[$mprotect_prog
+                nocrash_init();
+                if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
+                *fault_address = 'z'; /* this should cause an exception or signal */
+                exit(0);
            }
-           ],
+           ]])],
            [no_mprotect=1],
            [],
            [: # When cross-compiling, don't assume anything.])
        fi
        if test -z "$no_mprotect"; then
-         AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
-             nocrash_init();
-             if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
-             if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
-             *fault_address = 'z'; /* this should not cause an exception or signal */
-             exit(0);
-           }
-           ],
+         AC_RUN_IFELSE(
+           [AC_LANG_SOURCE([GL_NOCRASH[$mprotect_prog
+                nocrash_init();
+                if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
+                if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
+                *fault_address = 'z'; /* this should not cause an exception or signal */
+                exit(0);
+              }
+           ]])],
            [],
            [no_mprotect=1],
            [: # When cross-compiling, don't assume anything.])
@@ -34659,7 +34669,7 @@ fi[]dnl
 ])# PKG_CHECK_MODULES
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2004-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 2004-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -34675,34 +34685,35 @@ AC_DEFUN([CL_POLL],
   AC_CHECK_FUNC([poll],
     [# Check whether poll() works on special files (like /dev/null)
      # and ttys (like /dev/tty). On MacOS X 10.4.0, it doesn't.
-     AC_TRY_RUN([
-       /* Declare poll(). */
-       #include <poll.h>
-       /* Declare open(). */
-       #include <fcntl.h>
-       int main()
-       {
-         struct pollfd ufd;
-         /* Try /dev/null for reading. */
-         ufd.fd = open ("/dev/null", O_RDONLY);
-         if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
-           return 0;
-         ufd.events = POLLIN;
-         ufd.revents = 0;
-         if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
-           return 1;
-         /* Try /dev/null for writing. */
-         ufd.fd = open ("/dev/null", O_WRONLY);
-         if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
-           return 0;
-         ufd.events = POLLOUT;
-         ufd.revents = 0;
-         if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
-           return 1;
-         /* Trying /dev/tty may be too environment dependent. */
-         return 0;
-       }
-       ],
+     AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([[
+          /* Declare poll(). */
+          #include <poll.h>
+          /* Declare open(). */
+          #include <fcntl.h>
+          int main()
+          {
+            struct pollfd ufd;
+            /* Try /dev/null for reading. */
+            ufd.fd = open ("/dev/null", O_RDONLY);
+            if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+              return 0;
+            ufd.events = POLLIN;
+            ufd.revents = 0;
+            if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLIN))
+              return 1;
+            /* Try /dev/null for writing. */
+            ufd.fd = open ("/dev/null", O_WRONLY);
+            if (ufd.fd < 0) /* If /dev/null does not exist, it's not MacOS X. */
+              return 0;
+            ufd.events = POLLOUT;
+            ufd.revents = 0;
+            if (!(poll (&ufd, 1, 0) == 1 && ufd.revents == POLLOUT))
+              return 1;
+            /* Trying /dev/tty may be too environment dependent. */
+            return 0;
+          }
+       ]])],
        [cl_cv_func_poll=yes],
        [cl_cv_func_poll=no],
        [# When cross-compiling, assume that poll() works everywhere except on
@@ -34725,54 +34736,55 @@ AC_DEFUN([CL_POLL],
     # immediate readability and writability, both before EOF and at EOF.
     # On FreeBSD 4.0, it doesn't.
     AC_CACHE_CHECK([for reliable poll()], [cl_cv_func_poll_reliable],
-      [AC_TRY_RUN([
-         /* Declare poll(). */
-         #include <poll.h>
-         /* Declare open(). */
-         #include <fcntl.h>
-         /* Declare lseek(). */
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         int main ()
-         {
-           int fd = open("conftest.c",O_RDWR,0644);
-           int correct_readability_nonempty, correct_readability_empty;
-           int correct_writability_nonempty, correct_writability_empty;
-           struct pollfd pollfd_bag[1];
-           {
-             pollfd_bag[0].fd = fd;
-             pollfd_bag[0].events = POLLIN;
-             pollfd_bag[0].revents = 0;
-             correct_readability_nonempty =
-               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-           }
-           {
-             pollfd_bag[0].fd = fd;
-             pollfd_bag[0].events = POLLOUT;
-             pollfd_bag[0].revents = 0;
-             correct_writability_nonempty =
-               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-           }
-           lseek(fd,0,SEEK_END);
-           {
-             pollfd_bag[0].fd = fd;
-             pollfd_bag[0].events = POLLIN;
-             pollfd_bag[0].revents = 0;
-             correct_readability_empty =
-               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-           }
-           {
-             pollfd_bag[0].fd = fd;
-             pollfd_bag[0].events = POLLOUT;
-             pollfd_bag[0].revents = 0;
-             correct_writability_empty =
-               (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
-           }
-           return !(correct_readability_nonempty && correct_readability_empty
-                    && correct_writability_nonempty && correct_writability_empty);
-         }
-         ],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            /* Declare poll(). */
+            #include <poll.h>
+            /* Declare open(). */
+            #include <fcntl.h>
+            /* Declare lseek(). */
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            int main ()
+            {
+              int fd = open("conftest.c",O_RDWR,0644);
+              int correct_readability_nonempty, correct_readability_empty;
+              int correct_writability_nonempty, correct_writability_empty;
+              struct pollfd pollfd_bag[1];
+              {
+                pollfd_bag[0].fd = fd;
+                pollfd_bag[0].events = POLLIN;
+                pollfd_bag[0].revents = 0;
+                correct_readability_nonempty =
+                  (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+              }
+              {
+                pollfd_bag[0].fd = fd;
+                pollfd_bag[0].events = POLLOUT;
+                pollfd_bag[0].revents = 0;
+                correct_writability_nonempty =
+                  (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+              }
+              lseek(fd,0,SEEK_END);
+              {
+                pollfd_bag[0].fd = fd;
+                pollfd_bag[0].events = POLLIN;
+                pollfd_bag[0].revents = 0;
+                correct_readability_empty =
+                  (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+              }
+              {
+                pollfd_bag[0].fd = fd;
+                pollfd_bag[0].events = POLLOUT;
+                pollfd_bag[0].revents = 0;
+                correct_writability_empty =
+                  (poll(&pollfd_bag[0],1,0) >= 0 && pollfd_bag[0].revents != 0);
+              }
+              return !(correct_readability_nonempty && correct_readability_empty
+                       && correct_writability_nonempty && correct_writability_empty);
+            }
+         ]])],
          [cl_cv_func_poll_reliable=yes],
          [cl_cv_func_poll_reliable=no],
          [dnl When cross-compiling, don't assume anything.
@@ -34787,7 +34799,7 @@ AC_DEFUN([CL_POLL],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2010, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2010, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -34813,12 +34825,14 @@ AC_DEFUN([CL_PROTO],
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [
-  AC_TRY_COMPILE([
-    $1
-    ]AC_LANG_EXTERN[
-    $2
-    ],
-    [],
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM(
+       [[
+        $1
+        ]AC_LANG_EXTERN[
+        $2
+       ]],
+       [[]])],
     [$3="$4"],
     [$3="$5"])
 ])
@@ -34826,12 +34840,14 @@ AC_DEFUN([CL_PROTO_RET],
 dnl CL_PROTO_TRY(INCLUDES, DECL, ACTION-IF-OK, ACTION-IF-FAILS)
 AC_DEFUN([CL_PROTO_TRY],
 [
-  AC_TRY_COMPILE([
-    $1
-    ]AC_LANG_EXTERN[
-    $2
-    ],
-    [],
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM(
+       [[
+        $1
+        ]AC_LANG_EXTERN[
+        $2
+        ]],
+        [[]])],
     [$3],
     [$4])
 ])
@@ -35023,7 +35039,7 @@ AC_DEFUN([CL_RUSAGE],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -35038,19 +35054,20 @@ AC_DEFUN([CL_SELECT],
 [
   dnl Not AC_CHECK_FUNCS([select]) because it doesn't work when CC=g++.
   AC_CACHE_CHECK([for select], [ac_cv_func_select],
-    [AC_TRY_LINK([
-       #ifdef __BEOS__
-        #include <sys/socket.h>
-       #endif
-       #include <sys/time.h>
-       ]AC_LANG_EXTERN[
-       #ifdef __cplusplus
-       int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
-       #else
-       int select();
-       #endif
-       ],
-       [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+          [[#ifdef __BEOS__
+             #include <sys/socket.h>
+            #endif
+            #include <sys/time.h>
+           ]AC_LANG_EXTERN[
+            #ifdef __cplusplus
+            int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+            #else
+            int select();
+            #endif
+          ]],
+          [[select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);]])],
        [ac_cv_func_select=yes], [ac_cv_func_select=no])
     ])
   if test $ac_cv_func_select = yes; then
@@ -35107,60 +35124,61 @@ AC_DEFUN([CL_SELECT],
     # Now check whether select() works reliably on regular files, i.e. signals
     # immediate readability and writability, both before EOF and at EOF.
     AC_CACHE_CHECK([for reliable select()], [cl_cv_func_select_reliable],
-      [AC_TRY_RUN([
-         /* Declare select(). */
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <sys/types.h>
-         #ifdef __BEOS__
-          #include <sys/socket.h>
-         #endif
-         #include <sys/time.h>
-         #ifdef HAVE_SYS_SELECT_H
-          #include <sys/select.h>
-         #endif
-         ]AC_LANG_EXTERN[
-         int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
-         /* Declare open(). */
-         #include <fcntl.h>
-         int main ()
-         {
-           int fd = open("conftest.c",O_RDWR,0644);
-           int correct_readability_nonempty, correct_readability_empty;
-           int correct_writability_nonempty, correct_writability_empty;
-           fd_set handle_set;
-           struct timeval zero_time;
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_readability_nonempty =
-               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-           }
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_writability_nonempty =
-               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-           }
-           lseek(fd,0,SEEK_END);
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_readability_empty =
-               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-           }
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_writability_empty =
-               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-           }
-           exit(!(correct_readability_nonempty && correct_readability_empty
-                  && correct_writability_nonempty && correct_writability_empty));
-         }
-         ],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            /* Declare select(). */
+            #include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <sys/types.h>
+            #ifdef __BEOS__
+             #include <sys/socket.h>
+            #endif
+            #include <sys/time.h>
+            #ifdef HAVE_SYS_SELECT_H
+             #include <sys/select.h>
+            #endif
+           ]AC_LANG_EXTERN[
+            int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
+            /* Declare open(). */
+            #include <fcntl.h>
+            int main ()
+            {
+              int fd = open("conftest.c",O_RDWR,0644);
+              int correct_readability_nonempty, correct_readability_empty;
+              int correct_writability_nonempty, correct_writability_empty;
+              fd_set handle_set;
+              struct timeval zero_time;
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_readability_nonempty =
+                  (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+              }
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_writability_nonempty =
+                  (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+              }
+              lseek(fd,0,SEEK_END);
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_readability_empty =
+                  (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+              }
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_writability_empty =
+                  (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+              }
+              exit(!(correct_readability_nonempty && correct_readability_empty
+                     && correct_writability_nonempty && correct_writability_empty));
+            }
+         ]])],
          [cl_cv_func_select_reliable=yes],
          [cl_cv_func_select_reliable=no],
          [dnl When cross-compiling, don't assume anything.
@@ -35218,7 +35236,7 @@ AC_DEFUN([CL_SIGINTERRUPT],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2015, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2015, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -35235,30 +35253,31 @@ AC_DEFUN([CL_SIGNAL_REINSTALL],
   AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])
   AC_CACHE_CHECK([whether signal handlers need to be reinstalled],
     [cl_cv_func_signal_reinstall],
-    [AC_TRY_RUN([
-       #include <stdlib.h>
-       #ifdef HAVE_UNISTD_H
-        #include <unistd.h>
-       #endif
-       #include <signal.h>
-       volatile int gotsig = 0;
-       void sigalrm_handler (void)
-       {
-         gotsig = 1;
-       }
-       int got_sig (void) { return gotsig; }
-       typedef void (*signal_handler_t) (int);
-       int main() /* returns 0 if they need not to be reinstalled */
-       {
-         signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-         alarm(1);
-         while (!got_sig())
-           ;
-         exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
-                 == (signal_handler_t)sigalrm_handler
-             ) );
-       }
-       ],
+    [AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([[
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <signal.h>
+          volatile int gotsig = 0;
+          void sigalrm_handler (void)
+          {
+            gotsig = 1;
+          }
+          int got_sig (void) { return gotsig; }
+          typedef void (*signal_handler_t) (int);
+          int main() /* returns 0 if they need not to be reinstalled */
+          {
+            signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+            alarm(1);
+            while (!got_sig())
+              ;
+            exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
+                    == (signal_handler_t)sigalrm_handler
+                ) );
+          }
+       ]])],
        [cl_cv_func_signal_reinstall=no],
        [cl_cv_func_signal_reinstall=yes],
        [dnl When cross-compiling, don't assume anything.
@@ -35279,37 +35298,38 @@ AC_DEFUN([CL_SIGNAL_UNBLOCK],
   AC_REQUIRE([CL_SIGNAL_REINSTALL])
   AC_CACHE_CHECK([whether signals are blocked when signal handlers are entered],
     [cl_cv_func_signal_blocked],
-    [AC_TRY_RUN([
-       #include <stdlib.h>
-       #ifdef HAVE_UNISTD_H
-        #include <unistd.h>
-       #endif
-       #include <signal.h>
-       volatile int gotsig = 0;
-       volatile int wasblocked = 0;
-       typedef void (*signal_handler_t) (int);
-       void sigalrm_handler (void)
-       {
-         gotsig = 1;
-         #ifdef SIGNAL_NEED_REINSTALL
-           signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-         #endif
-         {
-           sigset_t blocked;
-           sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-           wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
-         }
-       }
-       int got_sig (void) { return gotsig; }
-       int main() /* returns 0 if they need not to be unblocked */
-       {
-         signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-         alarm(1);
-         while (!got_sig())
-           ;
-         exit(wasblocked);
-       }
-       ],
+    [AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([[
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <signal.h>
+          volatile int gotsig = 0;
+          volatile int wasblocked = 0;
+          typedef void (*signal_handler_t) (int);
+          void sigalrm_handler (void)
+          {
+            gotsig = 1;
+            #ifdef SIGNAL_NEED_REINSTALL
+              signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+            #endif
+            {
+              sigset_t blocked;
+              sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+              wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
+            }
+          }
+          int got_sig (void) { return gotsig; }
+          int main() /* returns 0 if they need not to be unblocked */
+          {
+            signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+            alarm(1);
+            while (!got_sig())
+              ;
+            exit(wasblocked);
+          }
+       ]])],
        [cl_cv_func_signal_blocked=no], [cl_cv_func_signal_blocked=yes],
        [dnl When cross-compiling, assume the worst case.
         cl_cv_func_signal_blocked="guessing yes"
@@ -35329,40 +35349,41 @@ AC_DEFUN([CL_SIGNAL_BLOCK_OTHERS],
   AC_REQUIRE([CL_SIGNAL_REINSTALL])
   AC_CACHE_CHECK([whether other signals are blocked when signal handlers are entered],
     [cl_cv_func_signal_blocked_others],
-    [AC_TRY_RUN([
-       #include <stdlib.h>
-       #ifdef HAVE_UNISTD_H
-        #include <unistd.h>
-       #endif
-       #include <signal.h>
-       volatile int gotsig = 0;
-       volatile int somewereblocked = 0;
-       typedef void (*signal_handler_t) (int);
-       void sigalrm_handler (void)
-       {
-         gotsig = 1;
-         #ifdef SIGNAL_NEED_REINSTALL
-           signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-         #endif
-         {
-           sigset_t blocked;
-           int i;
-           sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-           for (i=1; i<32; i++)
-             if (i!=SIGALRM && sigismember(&blocked,i))
-               somewereblocked = 1;
-         }
-       }
-       int got_sig (void) { return gotsig; }
-       int main() /* returns 0 if they need not to be unblocked */
-       {
-         signal(SIGALRM,(signal_handler_t)sigalrm_handler);
-         alarm(1);
-         while (!got_sig())
-           ;
-         exit(somewereblocked);
-       }
-       ],
+    [AC_RUN_IFELSE(
+       [AC_LANG_SOURCE([[
+          #include <stdlib.h>
+          #ifdef HAVE_UNISTD_H
+           #include <unistd.h>
+          #endif
+          #include <signal.h>
+          volatile int gotsig = 0;
+          volatile int somewereblocked = 0;
+          typedef void (*signal_handler_t) (int);
+          void sigalrm_handler (void)
+          {
+            gotsig = 1;
+            #ifdef SIGNAL_NEED_REINSTALL
+              signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+            #endif
+            {
+              sigset_t blocked;
+              int i;
+              sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+              for (i=1; i<32; i++)
+                if (i!=SIGALRM && sigismember(&blocked,i))
+                  somewereblocked = 1;
+            }
+          }
+          int got_sig (void) { return gotsig; }
+          int main() /* returns 0 if they need not to be unblocked */
+          {
+            signal(SIGALRM,(signal_handler_t)sigalrm_handler);
+            alarm(1);
+            while (!got_sig())
+              ;
+            exit(somewereblocked);
+          }
+       ]])],
        [cl_cv_func_signal_blocked_others=no],
        [cl_cv_func_signal_blocked_others=yes],
        [dnl When cross-compiling, assume the worst case.
@@ -35392,40 +35413,41 @@ AC_DEFUN([CL_SIGACTION_REINSTALL],
   if test -n "$have_sigaction"; then
     AC_CACHE_CHECK([whether sigaction handlers need to be reinstalled],
       [cl_cv_func_sigaction_reinstall],
-      [AC_TRY_RUN([
-         #include <stdlib.h>
-         #include <string.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <signal.h>
-         typedef void (*signal_handler_t) (int);
-         signal_handler_t mysignal (int sig, signal_handler_t handler)
-         {
-           struct sigaction old_sa;
-           struct sigaction new_sa;
-           memset(&new_sa,0,sizeof(new_sa));
-           new_sa.sa_handler = handler;
-           if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
-           return (signal_handler_t)old_sa.sa_handler;
-         }
-         volatile int gotsig = 0;
-         void sigalrm_handler (void)
-         {
-           gotsig = 1;
-         }
-         int got_sig (void) { return gotsig; }
-         int main() /* returns 0 if they need not to be reinstalled */
-         {
-           mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
-           alarm(1);
-           while (!got_sig())
-             ;
-           exit(!( mysignal(SIGALRM,(signal_handler_t)sigalrm_handler)
-                   == (signal_handler_t)sigalrm_handler
-               ) );
-         }
-         ],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            #include <stdlib.h>
+            #include <string.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <signal.h>
+            typedef void (*signal_handler_t) (int);
+            signal_handler_t mysignal (int sig, signal_handler_t handler)
+            {
+              struct sigaction old_sa;
+              struct sigaction new_sa;
+              memset(&new_sa,0,sizeof(new_sa));
+              new_sa.sa_handler = handler;
+              if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+              return (signal_handler_t)old_sa.sa_handler;
+            }
+            volatile int gotsig = 0;
+            void sigalrm_handler (void)
+            {
+              gotsig = 1;
+            }
+            int got_sig (void) { return gotsig; }
+            int main() /* returns 0 if they need not to be reinstalled */
+            {
+              mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+              alarm(1);
+              while (!got_sig())
+                ;
+              exit(!( mysignal(SIGALRM,(signal_handler_t)sigalrm_handler)
+                      == (signal_handler_t)sigalrm_handler
+                  ) );
+            }
+         ]])],
          [cl_cv_func_sigaction_reinstall=no],
          [cl_cv_func_sigaction_reinstall=yes],
          [dnl When cross-compiling, don't assume anything.
@@ -35449,46 +35471,47 @@ AC_DEFUN([CL_SIGACTION_UNBLOCK],
   if test -n "$have_sigaction"; then
     AC_CACHE_CHECK([whether signals are blocked when sigaction handlers are entered],
       [cl_cv_func_sigaction_blocked],
-      [AC_TRY_RUN([
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <signal.h>
-         typedef void (*signal_handler_t) (int);
-         signal_handler_t mysignal (int sig, signal_handler_t handler)
-         {
-           struct sigaction old_sa;
-           struct sigaction new_sa;
-           memset(&new_sa,0,sizeof(new_sa));
-           new_sa.sa_handler = handler;
-           if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
-           return (signal_handler_t)old_sa.sa_handler;
-         }
-         volatile int gotsig = 0;
-         volatile int wasblocked = 0;
-         void sigalrm_handler (void)
-         {
-           gotsig = 1;
-           #ifdef SIGNAL_NEED_REINSTALL
-             mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
-           #endif
-           {
-             sigset_t blocked;
-             sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
-             wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
-           }
-         }
-         int got_sig (void) { return gotsig; }
-         int main() /* returns 0 if they need not to be unblocked */
-         {
-           mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
-           alarm(1);
-           while (!got_sig())
-             ;
-           exit(wasblocked);
-         }
-         ],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            #include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <signal.h>
+            typedef void (*signal_handler_t) (int);
+            signal_handler_t mysignal (int sig, signal_handler_t handler)
+            {
+              struct sigaction old_sa;
+              struct sigaction new_sa;
+              memset(&new_sa,0,sizeof(new_sa));
+              new_sa.sa_handler = handler;
+              if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
+              return (signal_handler_t)old_sa.sa_handler;
+            }
+            volatile int gotsig = 0;
+            volatile int wasblocked = 0;
+            void sigalrm_handler (void)
+            {
+              gotsig = 1;
+              #ifdef SIGNAL_NEED_REINSTALL
+                mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+              #endif
+              {
+                sigset_t blocked;
+                sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
+                wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
+              }
+            }
+            int got_sig (void) { return gotsig; }
+            int main() /* returns 0 if they need not to be unblocked */
+            {
+              mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
+              alarm(1);
+              while (!got_sig())
+                ;
+              exit(wasblocked);
+            }
+         ]])],
          [cl_cv_func_sigaction_blocked=no],
          [cl_cv_func_sigaction_blocked=yes],
          [dnl When cross-compiling, assume the worst case.

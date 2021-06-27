@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -14,19 +14,20 @@ AC_DEFUN([CL_SELECT],
 [
   dnl Not AC_CHECK_FUNCS([select]) because it doesn't work when CC=g++.
   AC_CACHE_CHECK([for select], [ac_cv_func_select],
-    [AC_TRY_LINK([
-       #ifdef __BEOS__
-        #include <sys/socket.h>
-       #endif
-       #include <sys/time.h>
-       ]AC_LANG_EXTERN[
-       #ifdef __cplusplus
-       int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
-       #else
-       int select();
-       #endif
-       ],
-       [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+          [[#ifdef __BEOS__
+             #include <sys/socket.h>
+            #endif
+            #include <sys/time.h>
+           ]AC_LANG_EXTERN[
+            #ifdef __cplusplus
+            int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
+            #else
+            int select();
+            #endif
+          ]],
+          [[select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);]])],
        [ac_cv_func_select=yes], [ac_cv_func_select=no])
     ])
   if test $ac_cv_func_select = yes; then
@@ -83,60 +84,61 @@ AC_DEFUN([CL_SELECT],
     # Now check whether select() works reliably on regular files, i.e. signals
     # immediate readability and writability, both before EOF and at EOF.
     AC_CACHE_CHECK([for reliable select()], [cl_cv_func_select_reliable],
-      [AC_TRY_RUN([
-         /* Declare select(). */
-         #include <stdlib.h>
-         #ifdef HAVE_UNISTD_H
-          #include <unistd.h>
-         #endif
-         #include <sys/types.h>
-         #ifdef __BEOS__
-          #include <sys/socket.h>
-         #endif
-         #include <sys/time.h>
-         #ifdef HAVE_SYS_SELECT_H
-          #include <sys/select.h>
-         #endif
-         ]AC_LANG_EXTERN[
-         int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
-         /* Declare open(). */
-         #include <fcntl.h>
-         int main ()
-         {
-           int fd = open("conftest.c",O_RDWR,0644);
-           int correct_readability_nonempty, correct_readability_empty;
-           int correct_writability_nonempty, correct_writability_empty;
-           fd_set handle_set;
-           struct timeval zero_time;
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_readability_nonempty =
-               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-           }
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_writability_nonempty =
-               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-           }
-           lseek(fd,0,SEEK_END);
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_readability_empty =
-               (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
-           }
-           {
-             FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-             zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-             correct_writability_empty =
-               (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
-           }
-           exit(!(correct_readability_nonempty && correct_readability_empty
-                  && correct_writability_nonempty && correct_writability_empty));
-         }
-         ],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            /* Declare select(). */
+            #include <stdlib.h>
+            #ifdef HAVE_UNISTD_H
+             #include <unistd.h>
+            #endif
+            #include <sys/types.h>
+            #ifdef __BEOS__
+             #include <sys/socket.h>
+            #endif
+            #include <sys/time.h>
+            #ifdef HAVE_SYS_SELECT_H
+             #include <sys/select.h>
+            #endif
+           ]AC_LANG_EXTERN[
+            int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
+            /* Declare open(). */
+            #include <fcntl.h>
+            int main ()
+            {
+              int fd = open("conftest.c",O_RDWR,0644);
+              int correct_readability_nonempty, correct_readability_empty;
+              int correct_writability_nonempty, correct_writability_empty;
+              fd_set handle_set;
+              struct timeval zero_time;
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_readability_nonempty =
+                  (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+              }
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_writability_nonempty =
+                  (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+              }
+              lseek(fd,0,SEEK_END);
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_readability_empty =
+                  (select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time) == 1);
+              }
+              {
+                FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+                zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+                correct_writability_empty =
+                  (select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time) == 1);
+              }
+              exit(!(correct_readability_nonempty && correct_readability_empty
+                     && correct_writability_nonempty && correct_writability_empty));
+            }
+         ]])],
          [cl_cv_func_select_reliable=yes],
          [cl_cv_func_select_reliable=no],
          [dnl When cross-compiling, don't assume anything.

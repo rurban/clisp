@@ -5037,15 +5037,15 @@ else $as_nop
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-    #include <sys/types.h>
+        #include <sys/types.h>
                       #include <sys/socket.h>
 
-    extern
+        extern
 #ifdef __cplusplus
 "C"
 #endif
 
-    int setsockopt (int, int, int, $x $y, $z);
+        int setsockopt (int, int, int, $x $y, $z);
 
 int
 main (void)

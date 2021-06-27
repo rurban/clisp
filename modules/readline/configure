@@ -5891,12 +5891,12 @@ else $as_nop
                #include <stdio.h>
                #include <readline/readline.h>
 
-    extern
+        extern
 #ifdef __cplusplus
 "C"
 #endif
 
-    char* ${RL_FCF} (char *, int);
+        char* ${RL_FCF} (char *, int);
 
 int
 main (void)

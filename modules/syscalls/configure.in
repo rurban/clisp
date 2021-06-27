@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for syscalls
 dnl Copyright (C) 2003-2011, 2014 Sam Steingold <sds@gnu.org>
-dnl Copyright (C) 2020 Bruno Haible <bruno@clisp.org>
+dnl Copyright (C) 2020-2021 Bruno Haible <bruno@clisp.org>
 dnl This is Free Software, distributed under the GNU GPL v2+
 
 AC_PREREQ([2.64])
@@ -72,7 +72,8 @@ AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 AC_CHECK_DECLS([getdate_err],,,[#include <time.h>])
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
  AC_MSG_CHECKING([whether f_fsid is scalar])
- AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
+ AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[#include <sys/statvfs.h>]], [[struct statvfs x; x.f_fsid = 0;]])],
   ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
  AC_MSG_RESULT([$]ac_cv_struct_fsid_scalar)
  if test "$ac_cv_struct_fsid_scalar" = yes; then

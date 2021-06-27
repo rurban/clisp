@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2010, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2010, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -25,12 +25,14 @@ AC_DEFUN([CL_PROTO],
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [
-  AC_TRY_COMPILE([
-    $1
-    ]AC_LANG_EXTERN[
-    $2
-    ],
-    [],
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM(
+       [[
+        $1
+        ]AC_LANG_EXTERN[
+        $2
+       ]],
+       [[]])],
     [$3="$4"],
     [$3="$5"])
 ])
@@ -38,12 +40,14 @@ AC_DEFUN([CL_PROTO_RET],
 dnl CL_PROTO_TRY(INCLUDES, DECL, ACTION-IF-OK, ACTION-IF-FAILS)
 AC_DEFUN([CL_PROTO_TRY],
 [
-  AC_TRY_COMPILE([
-    $1
-    ]AC_LANG_EXTERN[
-    $2
-    ],
-    [],
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM(
+       [[
+        $1
+        ]AC_LANG_EXTERN[
+        $2
+        ]],
+        [[]])],
     [$3],
     [$4])
 ])

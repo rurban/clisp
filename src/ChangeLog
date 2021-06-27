@@ -1,5 +1,15 @@
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
+	Avoid warnings from autoconf-2.71.
+	* m4/ioctl.m4, m4/mmap.m4, m4/mprotect.m4, m4/poll.m4, m4/proto.m4,
+	m4/select.m4, m4/signal.m4: Use AC_*_IFELSE macros instead of AC_TRY_*
+	macros.
+	* modules/syscalls/configure.in: Likewise.
+	* aclocal.m4, src/configure: Regenerated.
+	* modules/*/configure: Regenerated.
+
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
 	Switch to autoconf-2.71.
 	* m4/clisp.m4 (CL_DECOLONIZE, CL_CLISP): Expand into the initialization
 	portion of the configure script. This is needed after this change in
