@@ -1,6 +1,13 @@
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
 	Avoid warnings from autoconf-2.71.
+	* m4/param.m4 (CL_MACHINE): Use ac_cv_c_compiler_gnu instead of
+	ac_cv_prog_gcc.
+	* aclocal.m4: Regenerated.
+
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
+	Avoid warnings from autoconf-2.71.
 	* src/configure.in: Use LT_INIT instead of libtool 1.x macro names.
 	* src/configure: Regenerated.
 

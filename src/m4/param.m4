@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008, 2011, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -20,7 +20,7 @@ AC_DEFUN([CL_MACHINE],
     AC_MSG_CHECKING(for [$1])
     cl_machine_file_h=$4
     ORIGCC="$CC"
-    if test $ac_cv_prog_gcc = yes; then
+    if test $ac_cv_c_compiler_gnu = yes; then
       # gcc -O (gcc version <= 2.3.2) crashes when compiling long long shifts for
       # target 80386. Strip "-O".
       CC=`echo "$CC " | sed -e 's/-O //g'`
