@@ -1,5 +1,15 @@
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
+	Switch to autoconf-2.71.
+	* m4/clisp.m4 (CL_DECOLONIZE, CL_CLISP): Expand into the initialization
+	portion of the configure script. This is needed after this change in
+	Autoconf:
+	https://git.savannah.gnu.org/gitweb/?p=autoconf.git;a=commitdiff;h=4c59bf27d7083088290219450c81d999431b43f1
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
 	Use newest libffcall.
 	* m4/ffcall.m4 (CL_LIBFFCALL_DOWNLOAD_URL): Point to the libffcall-2.4
 	release.

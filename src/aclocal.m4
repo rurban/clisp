@@ -14,8 +14,8 @@
 m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun([AC_CONFIG_MACRO_DIRS], [_AM_CONFIG_MACRO_DIRS($@)])])
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.69],,
-[m4_warning([this file was generated for autoconf 2.69.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.71],,
+[m4_warning([this file was generated for autoconf 2.71.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically 'autoreconf'.])])
@@ -15099,45 +15099,6 @@ AC_DEFUN([gl_PATHMAX_SNIPPET_PREREQ],
   AC_CHECK_HEADERS_ONCE([unistd.h sys/param.h])
 ])
 
-# pid_t.m4 serial 3
-dnl Copyright (C) 2020 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-# The following implementation works around a problem in autoconf <= 2.69.
-m4_version_prereq([2.69c], [] ,[
-
-dnl Define pid_t if the headers don't define it.
-AC_DEFUN([AC_TYPE_PID_T],
-[
-  AC_CHECK_TYPE([pid_t],
-    [],
-    [dnl On 64-bit native Windows, define it to the equivalent of 'intptr_t'
-     dnl (= 'long long' = '__int64'), because that is the return type
-     dnl of the _spawnv* functions
-     dnl <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/spawnvp-wspawnvp>
-     dnl and the argument type of the _cwait function
-     dnl <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/cwait>.
-     dnl Otherwise (on 32-bit Windows and on old Unix platforms), define it
-     dnl to 'int'.
-     AC_COMPILE_IFELSE(
-       [AC_LANG_PROGRAM([[
-          #if defined _WIN64 && !defined __CYGWIN__
-          LLP64
-          #endif
-          ]])
-       ],
-       [gl_pid_type='int'],
-       [gl_pid_type='__int64'])
-     AC_DEFINE_UNQUOTED([pid_t], [$gl_pid_type],
-       [Define as a signed integer type capable of holding a process identifier.])
-    ],
-    [AC_INCLUDES_DEFAULT])
-])
-
-])# m4_version_prereq 2.70
-
 # po.m4 serial 31 (gettext-0.20.2)
 dnl Copyright (C) 1995-2014, 2016, 2018-2020 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -23389,7 +23350,7 @@ AC_DEFUN([CL_CC_SUNPRO],
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008-2011, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 2008-2011, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -23426,21 +23387,33 @@ dnl Moreover, if a colon appears in CPPFLAGS (as -Ic:/foo/bar),
 dnl then it will creep into the <module>/gllib/.deps/* files.
 AC_DEFUN([CL_DECOLONIZE],
 [
-  AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
-    [case $ac_cv_build in
-       *-cygwin) cl_cv_decolonize='cygpath --unix $x' ;;
-       *-mingw*)
-         if test "$cross_compiling" = yes; then
+  dnl This code must go into the initialization portion of the 'configure'
+  dnl script, because it is needed for determining cl_cv_clisp_libdir and
+  dnl this variable must be set before the expansion of _AC_INIT_AUX_DIR.
+  m4_divert_text([INIT_PREPARE], [
+    AC_CACHE_CHECK([how to remove colons from paths], [cl_cv_decolonize],
+      [dnl Here we cannot use $build or $build_os, because these variables
+       dnl require access to the config.guess file, which is only possible
+       dnl after _AC_INIT_AUX_DIR.
+       case `uname -s` in
+         CYGWIN*)
            cl_cv_decolonize='cygpath --unix $x'
-         else
-           cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
-         fi
-         ;;
-       *) cl_cv_decolonize='echo $x' ;;
-     esac
-    ])
-  CLISP_DECOLONIZE=$cl_cv_decolonize
-  AC_SUBST([CLISP_DECOLONIZE])
+           ;;
+         Windows* | MINGW* | MSYS*)
+           if (type cygpath) > /dev/null 2>&1; then
+             cl_cv_decolonize='cygpath --unix $x'
+           else
+             cl_cv_decolonize="echo \$x | sed -e 's,\\\\,/,g' -e 's,^\\(.\\):,/\1,'"
+           fi
+           ;;
+         *)
+           cl_cv_decolonize='echo $x'
+           ;;
+       esac
+      ])
+    CLISP_DECOLONIZE=$cl_cv_decolonize
+    AC_SUBST([CLISP_DECOLONIZE])
+  ])
 ])
 
 dnl check for a clisp installation
@@ -23449,68 +23422,73 @@ dnl if you want to link with the full linking set,
 dnl use --with-clisp='clisp -K full'
 AC_DEFUN([CL_CLISP],[
   AC_REQUIRE([CL_DECOLONIZE])
-  AC_ARG_WITH([clisp],
-    [AS_HELP_STRING([[--with-clisp]], [use a specific CLISP installation])],
-    [cl_use_clisp="$withval"],
-    [cl_use_clisp=default])
-  cl_have_clisp=no
-  if test "$cl_use_clisp" != "no"; then
-    if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
-      AC_PATH_PROG([cl_cv_clisp], [clisp])
-    else
-      cl_cv_clisp="$cl_use_clisp"
+  dnl This code must go into the initialization portion of the 'configure'
+  dnl script, because it is determines cl_cv_clisp_libdir and this variable
+  dnl must be set before the expansion of _AC_INIT_AUX_DIR.
+  m4_divert_text([INIT_PREPARE], [
+    AC_ARG_WITH([clisp],
+      [AS_HELP_STRING([[--with-clisp]], [use a specific CLISP installation])],
+      [cl_use_clisp="$withval"],
+      [cl_use_clisp=default])
+    cl_have_clisp=no
+    if test "$cl_use_clisp" != "no"; then
+      if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes; then
+        AC_PATH_PROG([cl_cv_clisp], [clisp])
+      else
+        cl_cv_clisp="$cl_use_clisp"
+      fi
+      if test -n "$cl_cv_clisp"; then
+        AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version],
+          [dnl head closes its input after the 1st line and clisp (at least on woe32)
+           dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
+           dnl we avoid this message by redirecting clisp stderr to /dev/null
+           if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
+             CLISP_SET([cl_cv_clisp_version], [(lisp-implementation-version)])
+           else
+             AC_MSG_ERROR(['$cl_cv_clisp' is not a CLISP])
+           fi
+          ])
+        AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir],
+          [CLISP_SET([cl_cv_clisp_libdir], [(namestring *lib-directory*)])
+           x=$cl_cv_clisp_libdir
+           cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
+           # cf src/clisp-link.in:linkkitdir
+           missing=''
+           for f in modules.c clisp.h; do
+             test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+           done
+           test -n "${missing}" \
+             && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_libdir}linkkit'])
+          ])
+        AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset],
+          [CLISP_SET([cl_cv_clisp_linkset], [(sys::program-name)])
+           cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
+           missing=''
+           # cf. src/clisp-link.in:check_linkset (we do not need to check for
+           # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
+           for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+             test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
+           done
+           test -n "${missing}" \
+             && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_linkset}'])
+          ])
+        CLISP=$cl_cv_clisp
+        AC_SUBST([CLISP])
+        CLISP_LIBDIR="${cl_cv_clisp_libdir}"
+        AC_SUBST([CLISP_LIBDIR])
+        CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
+        AC_SUBST([CLISP_LINKKIT])
+        sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
+        . ./conftestvars
+        rm -f conftestvars
+        AC_SUBST([CLISP_FILES])
+        AC_SUBST([CLISP_LIBS])
+        AC_SUBST([CLISP_CFLAGS])
+        AC_SUBST([CLISP_CPPFLAGS])
+        test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
+      fi
     fi
-    if test -n "$cl_cv_clisp"; then
-      AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version],
-        [dnl head closes its input after the 1st line and clisp (at least on woe32)
-         dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
-         dnl we avoid this message by redirecting clisp stderr to /dev/null
-         if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1; then
-           CLISP_SET([cl_cv_clisp_version], [(lisp-implementation-version)])
-         else
-           AC_MSG_ERROR(['$cl_cv_clisp' is not a CLISP])
-         fi
-        ])
-      AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir],
-        [CLISP_SET([cl_cv_clisp_libdir], [(namestring *lib-directory*)])
-         x=$cl_cv_clisp_libdir
-         cl_cv_clisp_libdir=`eval $cl_cv_decolonize`
-         # cf src/clisp-link.in:linkkitdir
-         missing=''
-         for f in modules.c clisp.h; do
-           test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
-         done
-         test -n "${missing}" \
-           && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_libdir}linkkit'])
-        ])
-      AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset],
-        [CLISP_SET([cl_cv_clisp_linkset], [(sys::program-name)])
-         cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
-         missing=''
-         # cf. src/clisp-link.in:check_linkset (we do not need to check for
-         # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
-         for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-           test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
-         done
-         test -n "${missing}" \
-           && AC_MSG_ERROR([missing ${missing} in '${cl_cv_clisp_linkset}'])
-        ])
-      CLISP=$cl_cv_clisp
-      AC_SUBST([CLISP])
-      CLISP_LIBDIR="${cl_cv_clisp_libdir}"
-      AC_SUBST([CLISP_LIBDIR])
-      CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"
-      AC_SUBST([CLISP_LINKKIT])
-      sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-      . ./conftestvars
-      rm -f conftestvars
-      AC_SUBST([CLISP_FILES])
-      AC_SUBST([CLISP_LIBS])
-      AC_SUBST([CLISP_CFLAGS])
-      AC_SUBST([CLISP_CPPFLAGS])
-      test -d "$cl_cv_clisp_libdir" -a -d "$cl_cv_clisp_linkset" && cl_have_clisp=yes
-    fi
-  fi
+  ])
   AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
     [cl_cv_have_clisp=$cl_have_clisp])
   required=m4_default([$2], [true])
