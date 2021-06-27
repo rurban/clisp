@@ -2427,7 +2427,6 @@ as_fn_append ac_header_c_list " strings.h strings_h HAVE_STRINGS_H"
 as_fn_append ac_header_c_list " sys/stat.h sys_stat_h HAVE_SYS_STAT_H"
 as_fn_append ac_header_c_list " sys/types.h sys_types_h HAVE_SYS_TYPES_H"
 as_fn_append ac_header_c_list " unistd.h unistd_h HAVE_UNISTD_H"
-as_fn_append ac_header_c_list " sys/time.h sys_time_h HAVE_SYS_TIME_H"
 # Check that the precious variables saved in the cache have kept the same
 # value.
 ac_cache_corrupted=false
@@ -4327,16 +4326,6 @@ printf "%s\n" "$ac_cv_should_define__xopen_source" >&6; }
 
 
 
-
-
-
-# Obsolete code to be removed.
-if test $ac_cv_header_sys_time_h = yes; then
-
-printf "%s\n" "#define TIME_WITH_SYS_TIME 1" >>confdefs.h
-
-fi
-# End of obsolete code.
 
 ac_fn_c_check_header_compile "$LINENO" "netdb.h" "ac_cv_header_netdb_h" "$ac_includes_default"
 if test "x$ac_cv_header_netdb_h" = xyes
