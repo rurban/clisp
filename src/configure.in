@@ -1,5 +1,5 @@
 dnl  -*- Autoconf -*- configuration for CLISP
-dnl  Bruno Haible 1992-2008, 2017-2020
+dnl  Bruno Haible 1992-2008, 2017-2021
 dnl  Sam Steingold 2002-2011, 2017
 dnl
 dnl  configure.in ---<autoconf>--->> configure
@@ -40,8 +40,7 @@ AC_PROG_MAKE_SET dnl sets variable SET_MAKE
 AC_PROG_INSTALL dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
 CL_PROG_LN_S    dnl sets variable LN_S
 CL_PROG_HLN     dnl sets variable HLN
-AC_LIBTOOL_WIN32_DLL
-AC_PROG_LIBTOOL
+LT_INIT([win32-dll])
 AC_SUBST(LIBTOOL_DEPS)dnl
 AC_PROG_MKDIR_P
 AC_CHECK_PROG(GROFF,groff,groff)
