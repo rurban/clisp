@@ -24537,8 +24537,8 @@ main ()
   rm -f conf.gtktest
 ])
 
-# intparam.m4 serial 4  -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2017 Free Software Foundation, Inc.
+# intparam.m4 serial 5  -*- Autoconf -*-
+dnl Copyright (C) 1993-2008, 2017, 2021 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -24654,7 +24654,7 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
       [[typedef int verify[2*(sizeof(char*)<=sizeof (long))-1];]])],
       [], [echo "#error \"Type char * does not fit into a long!!\""])
-    _AC_COMPUTE_INT([sizeof (char *)], [pointer_size])
+    AC_COMPUTE_INT([pointer_size], [sizeof (char *)])
     pointer_bitsize=`expr $pointer_size '*' $char_bitsize`
     echo "/* Pointers of type char * have $pointer_bitsize bits. */"
     echo "#define pointer_bitsize $pointer_bitsize"
@@ -24812,7 +24812,7 @@ dnl CL_INTPARAM_SIZEOF(type, variable)
 dnl puts into variable the determined size of the type.
 AC_DEFUN([CL_INTPARAM_SIZEOF],
 [
-  _AC_COMPUTE_INT([sizeof($1)], [$2])
+  AC_COMPUTE_INT([$2], [sizeof($1)])
 ])
 
 dnl CL_INTPARAM_ALIGNOF(type, variable)

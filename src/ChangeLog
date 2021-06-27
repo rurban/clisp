@@ -1,6 +1,13 @@
 2021-06-27  Bruno Haible  <bruno@clisp.org>
 
 	Avoid warnings from autoconf-2.71.
+	* m4/intparam.m4 (CL_INTPARAM_CROSS, CL_INTPARAM_SIZEOF): Use
+	AC_COMPUTE_INT instead of _AC_COMPUTE_INT.
+	* aclocal.m4: Regenerated.
+
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
+	Avoid warnings from autoconf-2.71.
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Don't require AC_GNU_SOURCE,
 	since it is redundant with AC_USE_SYSTEM_EXTENSIONS.
 	* aclocal.m4, src/configure: Regenerated.
