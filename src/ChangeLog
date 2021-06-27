@@ -1,3 +1,8 @@
+2021-06-27  Bruno Haible  <bruno@clisp.org>
+
+	Update after Sam removed clhs.el.
+	* makemake.in (EMACS_FILES): Remove clhs.el.
+
 2020-12-01  Bruno Haible  <bruno@clisp.org>
 
 	Update to the newest gnulib.

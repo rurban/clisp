@@ -3926,7 +3926,7 @@ echol
 for f in ${IMPNOTES_FILES} ${TXT_DOCS}; do
   link_dep "${f}" "${SRCDOCDIR_M}${f}" "${SRCDOCDIR_}${f}"
 done
-EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
+EMACS_FILES="clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 VIM_FILES="lisp.vim"
 ACLOCAL_FILES="clisp.m4"
 

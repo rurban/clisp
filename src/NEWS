@@ -15,6 +15,9 @@ User visible changes
       MAKE-DIR: use MAKE-DIRECTORY instead,
       RENAME-DIR: use RENAME-DIRECTORY instead.
 
+* clhs.el is no longer installed in ${datadir}/emacs/site-lisp/.
+  You can get it from https://gitlab.com/sam-s/clhs instead.
+
 * Bug fixes:
   + Better UNICODE handling in the regexp module (bug#691).
   + DIRECTORY matches like PATHNAME-MATCH-P (bug#724).

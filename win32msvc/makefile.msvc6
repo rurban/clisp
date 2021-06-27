@@ -2414,7 +2414,6 @@ distrib : install.lisp install.bat config.lisp  clisp.man clisp-link.man clisp.h
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
 	mkdir $$distdir/emacs; \
-	cp -p ../emacs/clhs.el $$distdir/emacs/clhs.el ; \
 	cp -p ../emacs/clisp-coding.el $$distdir/emacs/clisp-coding.el ; \
 	cp -p ../emacs/clisp-indent.el $$distdir/emacs/clisp-indent.el ; \
 	cp -p ../emacs/clisp-indent.lisp $$distdir/emacs/clisp-indent.lisp ; \
