@@ -1,19 +1,19 @@
 /* Safe automatic memory allocation.
-   Copyright (C) 2003-2007, 2009-2020 Free Software Foundation, Inc.
+   Copyright (C) 2003-2007, 2009-2021 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifndef _MALLOCA_H
 #define _MALLOCA_H
@@ -76,9 +76,10 @@ extern void freea (void *p);
 
 /* nmalloca(N,S) is an overflow-safe variant of malloca (N * S).
    It allocates an array of N objects, each with S bytes of memory,
-   on the stack.  S must be positive and N must be nonnegative.
+   on the stack.  N and S should be nonnegative and free of side effects.
    The array must be freed using freea() before the function returns.  */
-#define nmalloca(n, s) (xalloc_oversized (n, s) ? NULL : malloca ((n) * (s)))
+#define nmalloca(n, s) \
+  (xalloc_oversized (n, s) ? NULL : malloca ((n) * (size_t) (s)))
 
 
 #ifdef __cplusplus

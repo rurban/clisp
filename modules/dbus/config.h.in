@@ -703,6 +703,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the <minix/config.h> header file. */
+#undef HAVE_MINIX_CONFIG_H
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -726,6 +729,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the <wchar.h> header file. */
+#undef HAVE_WCHAR_H
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -758,19 +764,44 @@
 #ifndef _DARWIN_C_SOURCE
 # undef _DARWIN_C_SOURCE
 #endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# undef __EXTENSIONS__
+#endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
-/* Enable NetBSD extensions on NetBSD.  */
+/* Enable X/Open compliant socket functions that do not require linking
+   with -lxnet on HP-UX 11.11.  */
+#ifndef _HPUX_ALT_XOPEN_SOCKET_API
+# undef _HPUX_ALT_XOPEN_SOCKET_API
+#endif
+/* Identify the host operating system as Minix.
+   This macro does not affect the system headers' behavior.
+   A future release of Autoconf may stop defining this macro.  */
+#ifndef _MINIX
+# undef _MINIX
+#endif
+/* Enable general extensions on NetBSD.
+   Enable NetBSD compatibility extensions on Minix.  */
 #ifndef _NETBSD_SOURCE
 # undef _NETBSD_SOURCE
 #endif
-/* Enable OpenBSD extensions on NetBSD.  */
+/* Enable OpenBSD compatibility extensions on NetBSD.
+   Oddly enough, this does nothing on OpenBSD.  */
 #ifndef _OPENBSD_SOURCE
 # undef _OPENBSD_SOURCE
 #endif
-/* Enable threading extensions on Solaris.  */
+/* Define to 1 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_SOURCE
+# undef _POSIX_SOURCE
+#endif
+/* Define to 2 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_1_SOURCE
+# undef _POSIX_1_SOURCE
+#endif
+/* Enable POSIX-compatible threading on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
 #endif
@@ -806,32 +837,9 @@
 #ifndef _TANDEM_SOURCE
 # undef _TANDEM_SOURCE
 #endif
-/* Enable X/Open extensions if necessary.  HP-UX 11.11 defines
-   mbstate_t only if _XOPEN_SOURCE is defined to 500, regardless of
-   whether compiling with -Ae or -D_HPUX_SOURCE=1.  */
+/* Enable X/Open extensions.  Define to 500 only if necessary
+   to make mbstate_t available.  */
 #ifndef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
 #endif
-/* Enable X/Open compliant socket functions that do not require linking
-   with -lxnet on HP-UX 11.11.  */
-#ifndef _HPUX_ALT_XOPEN_SOCKET_API
-# undef _HPUX_ALT_XOPEN_SOCKET_API
-#endif
-/* Enable general extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
-#endif
 
-
-/* Define to 1 if on MINIX. */
-#undef _MINIX
-
-/* Define to 1 to make NetBSD features available. MINIX 3 needs this. */
-#undef _NETBSD_SOURCE
-
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-#undef _POSIX_1_SOURCE
-
-/* Define to 1 if you need to in order for 'stat' and other things to work. */
-#undef _POSIX_SOURCE

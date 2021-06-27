@@ -1,25 +1,24 @@
-/* Copyright (C) 1991-2020 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2021 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public
-   License as published by the Free Software Foundation; either
-   version 3 of the License, or (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 3 of the
+   License, or (at your option) any later version.
 
-   The GNU C Library is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public
-   License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #ifdef _LIBC
 # define USE_IN_EXTENDED_LOCALE_MODEL 1
 # define HAVE_STRUCT_ERA_ENTRY 1
 # define HAVE_TM_GMTOFF 1
-# define HAVE_TM_ZONE 1
+# define HAVE_STRUCT_TM_TM_ZONE 1
 # define HAVE_TZNAME 1
 # include "../locale/localeinfo.h"
 #else
@@ -499,7 +498,7 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
 #endif
 
   zone = NULL;
-#if HAVE_TM_ZONE
+#if HAVE_STRUCT_TM_TM_ZONE
   /* The POSIX test suite assumes that setting
      the environment variable TZ to a new value before calling strftime()
      will influence the result (the %Z format) even if the information in
@@ -516,7 +515,7 @@ __strftime_internal (STREAM_OR_CHAR_T *s, STRFTIME_ARG (size_t maxsize)
     }
   else
     {
-# if !HAVE_TM_ZONE
+# if !HAVE_STRUCT_TM_TM_ZONE
       /* Infer the zone name from *TZ instead of from TZNAME.  */
       tzname_vec = tz->tzname_copy;
 # endif

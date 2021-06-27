@@ -1,5 +1,5 @@
-# gnulib-common.m4 serial 62
-dnl Copyright (C) 2007-2020 Free Software Foundation, Inc.
+# gnulib-common.m4 serial 66
+dnl Copyright (C) 2007-2021 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -39,11 +39,12 @@ AC_DEFUN([gl_COMMON_BODY], [
        this syntax with 'extern'.  */
 #  define _Noreturn [[noreturn]]
 # elif ((!defined __cplusplus || defined __clang__) \
-        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0)  \
-            || _GL_GNUC_PREREQ (4, 7) \
-            || (defined __apple_build_version__ \
-                ? 6000000 <= __apple_build_version__ \
-                : 3 < __clang_major__ + (5 <= __clang_minor__))))
+        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) \
+            || (!defined __STRICT_ANSI__ \
+                && (_GL_GNUC_PREREQ (4, 7) \
+                    || (defined __apple_build_version__ \
+                        ? 6000000 <= __apple_build_version__ \
+                        : 3 < __clang_major__ + (5 <= __clang_minor__))))))
    /* _Noreturn works as-is.  */
 # elif _GL_GNUC_PREREQ (2, 8) || defined __clang__ || 0x5110 <= __SUNPRO_C
 #  define _Noreturn __attribute__ ((__noreturn__))
@@ -66,7 +67,9 @@ AC_DEFUN([gl_COMMON_BODY], [
 #endif])
   AH_VERBATIM([attribute],
 [/* Attributes.  */
-#ifdef __has_attribute
+#if (defined __has_attribute \
+     && (!defined __clang_minor__ \
+         || 3 < __clang_major__ + (5 <= __clang_minor__)))
 # define _GL_HAS_ATTRIBUTE(attr) __has_attribute (__##attr##__)
 #else
 # define _GL_HAS_ATTRIBUTE(attr) _GL_ATTR_##attr
@@ -354,6 +357,16 @@ AC_DEFUN([gl_COMMON_BODY], [
   export LIBC_FATAL_STDERR_
 ])
 
+# gl_MODULE_INDICATOR_INIT_VARIABLE([variablename])
+# gl_MODULE_INDICATOR_INIT_VARIABLE([variablename], [initialvalue])
+# initializes the shell variable that indicates the presence of the given module
+# as a C preprocessor expression.
+AC_DEFUN([gl_MODULE_INDICATOR_INIT_VARIABLE],
+[
+  GL_MODULE_INDICATOR_PREFIX[]_[$1]=m4_if([$2], , [0], [$2])
+  AC_SUBST(GL_MODULE_INDICATOR_PREFIX[]_[$1])
+])
+
 # gl_MODULE_INDICATOR_CONDITION
 # expands to a C preprocessor expression that evaluates to 1 or 0, depending
 # whether a gnulib module that has been requested shall be considered present
@@ -366,9 +379,9 @@ m4_define([gl_MODULE_INDICATOR_CONDITION], [1])
 AC_DEFUN([gl_MODULE_INDICATOR_SET_VARIABLE],
 [
   gl_MODULE_INDICATOR_SET_VARIABLE_AUX(
-    [GNULIB_[]m4_translit([[$1]],
-                          [abcdefghijklmnopqrstuvwxyz./-],
-                          [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])],
+    [GL_MODULE_INDICATOR_PREFIX[]_GNULIB_[]m4_translit([[$1]],
+                                                       [abcdefghijklmnopqrstuvwxyz./-],
+                                                       [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])],
     [gl_MODULE_INDICATOR_CONDITION])
 ])
 
@@ -489,9 +502,9 @@ AC_DEFUN([gl_PROG_CC_C99],
   dnl When AC_PROG_CC_C99 and AC_PROG_CC_STDC are used together, the substituted
   dnl value of CC will contain the C99 enabling options twice. But this is only
   dnl a cosmetic problem.
-  dnl With Autoconf >= 2.69c, use AC_PROG_CC since it implies AC_PROG_CC_C99;
+  dnl With Autoconf >= 2.70, use AC_PROG_CC since it implies AC_PROG_CC_C99;
   dnl this avoids a "warning: The macro `AC_PROG_CC_C99' is obsolete."
-  m4_version_prereq([2.69c],
+  m4_version_prereq([2.70],
     [AC_REQUIRE([AC_PROG_CC])],
     [AC_REQUIRE([AC_PROG_CC_C99])])
 ])
@@ -567,16 +580,16 @@ Amsterdam
 ])
 
 # AC_C_RESTRICT
-# This definition is copied from post-2.69 Autoconf and overrides the
-# AC_C_RESTRICT macro from autoconf 2.60..2.69.  It can be removed
-# once autoconf >= 2.70 can be assumed.  It's painful to check version
-# numbers, and in practice this macro is more up-to-date than Autoconf
-# is, so override Autoconf unconditionally.
+# This definition is copied from post-2.70 Autoconf and overrides the
+# AC_C_RESTRICT macro from autoconf 2.60..2.70.
+m4_version_prereq([2.70.1], [], [
 AC_DEFUN([AC_C_RESTRICT],
 [AC_CACHE_CHECK([for C/C++ restrict keyword], [ac_cv_c_restrict],
   [ac_cv_c_restrict=no
-   # The order here caters to the fact that C++ does not require restrict.
-   for ac_kw in __restrict __restrict__ _Restrict restrict; do
+   # Put '__restrict__' first, to avoid problems with glibc and non-GCC; see:
+   # https://lists.gnu.org/archive/html/bug-autoconf/2016-02/msg00006.html
+   # Put 'restrict' last, because C++ lacks it.
+   for ac_kw in __restrict__ __restrict _Restrict restrict; do
      AC_COMPILE_IFELSE(
       [AC_LANG_PROGRAM(
          [[typedef int *int_ptr;
@@ -596,7 +609,7 @@ AC_DEFUN([AC_C_RESTRICT],
  AH_VERBATIM([restrict],
 [/* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported directly.  */
+   supported only directly.  */
 #undef restrict
 /* Work around a bug in older versions of Sun C++, which did not
    #define __restrict__ or support _Restrict or __restrict__
@@ -614,6 +627,7 @@ AC_DEFUN([AC_C_RESTRICT],
    *)  AC_DEFINE_UNQUOTED([restrict], [$ac_cv_c_restrict]) ;;
  esac
 ])# AC_C_RESTRICT
+])
 
 # gl_BIGENDIAN
 # is like AC_C_BIGENDIAN, except that it can be AC_REQUIREd.
@@ -650,6 +664,72 @@ AC_DEFUN([gl_CACHE_VAL_SILENT],
   gl_SILENT([
     AC_CACHE_VAL([$1], [$2])
   ])
+])
+
+# gl_CC_ALLOW_WARNINGS
+# sets and substitutes a variable GL_CFLAG_ALLOW_WARNINGS, to a $(CC) option
+# that reverts a preceding '-Werror' option, if available.
+# This is expected to be '-Wno-error' on gcc, clang (except clang/MSVC), xlclang
+# and empty otherwise.
+AC_DEFUN([gl_CC_ALLOW_WARNINGS],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_CACHE_CHECK([for C compiler option to allow warnings],
+    [gl_cv_cc_wallow],
+    [rm -f conftest*
+     echo 'int dummy;' > conftest.c
+     AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS -c conftest.c 2>conftest1.err]) >/dev/null
+     AC_TRY_COMMAND([${CC-cc} $CFLAGS $CPPFLAGS -Wno-error -c conftest.c 2>conftest2.err]) >/dev/null
+     dnl Test the number of error output lines, because AIX xlc accepts the
+     dnl option '-Wno-error', just to produce a warning
+     dnl "Option -Wno-error was incorrectly specified. The option will be ignored."
+     dnl afterwards.
+     if test $? = 0 && test `wc -l < conftest1.err` = `wc -l < conftest2.err`; then
+       gl_cv_cc_wallow='-Wno-error'
+     else
+       gl_cv_cc_wallow=none
+     fi
+     rm -f conftest*
+    ])
+  case "$gl_cv_cc_wallow" in
+    none) GL_CFLAG_ALLOW_WARNINGS='' ;;
+    *)    GL_CFLAG_ALLOW_WARNINGS="$gl_cv_cc_wallow" ;;
+  esac
+  AC_SUBST([GL_CFLAG_ALLOW_WARNINGS])
+])
+
+# gl_CXX_ALLOW_WARNINGS
+# sets and substitutes a variable GL_CXXFLAG_ALLOW_WARNINGS, to a $(CC) option
+# that reverts a preceding '-Werror' option, if available.
+AC_DEFUN([gl_CXX_ALLOW_WARNINGS],
+[
+  dnl Requires AC_PROG_CXX or gl_PROG_ANSI_CXX.
+  if test -n "$CXX" && test "$CXX" != no; then
+    AC_CACHE_CHECK([for C++ compiler option to allow warnings],
+      [gl_cv_cxx_wallow],
+      [rm -f conftest*
+       echo 'int dummy;' > conftest.cc
+       AC_TRY_COMMAND([${CXX-c++} $CXXFLAGS $CPPFLAGS -c conftest.cc 2>conftest1.err]) >/dev/null
+       AC_TRY_COMMAND([${CXX-c++} $CXXFLAGS $CPPFLAGS -Wno-error -c conftest.cc 2>conftest2.err]) >/dev/null
+       dnl Test the number of error output lines, because AIX xlC accepts the
+       dnl option '-Wno-error', just to produce a warning
+       dnl "Option -Wno-error was incorrectly specified. The option will be ignored."
+       dnl afterwards.
+       if test $? = 0 && test `wc -l < conftest1.err` = `wc -l < conftest2.err`; then
+         gl_cv_cxx_wallow='-Wno-error'
+       else
+         gl_cv_cxx_wallow=none
+       fi
+       rm -f conftest*
+      ])
+    case "$gl_cv_cxx_wallow" in
+      none) GL_CXXFLAG_ALLOW_WARNINGS='' ;;
+      *)    GL_CXXFLAG_ALLOW_WARNINGS="$gl_cv_cxx_wallow" ;;
+    esac
+  else
+    GL_CXXFLAG_ALLOW_WARNINGS=''
+  fi
+  AC_SUBST([GL_CXXFLAG_ALLOW_WARNINGS])
 ])
 
 dnl Expands to some code for use in .c programs that, on native Windows, defines

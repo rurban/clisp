@@ -1,5 +1,5 @@
-# iconv.m4 serial 23
-dnl Copyright (C) 2000-2002, 2007-2014, 2016-2020 Free Software Foundation,
+# iconv.m4 serial 24
+dnl Copyright (C) 2000-2002, 2007-2014, 2016-2021 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -92,8 +92,9 @@ AC_DEFUN([AM_ICONV_LINK],
 #endif
              ]],
              [[int result = 0;
-  /* Test against AIX 5.1 bug: Failures are not distinguishable from successful
-     returns.  */
+  /* Test against AIX 5.1...7.2 bug: Failures are not distinguishable from
+     successful returns.  This is even documented in
+     <https://www.ibm.com/support/knowledgecenter/ssw_aix_72/i_bostechref/iconv.html> */
   {
     iconv_t cd_utf8_to_88591 = iconv_open ("ISO8859-1", "UTF-8");
     if (cd_utf8_to_88591 != (iconv_t)(-1))

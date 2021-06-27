@@ -1,19 +1,19 @@
 /* A GNU-like <stdio.h>.
 
-   Copyright (C) 2004, 2007-2020 Free Software Foundation, Inc.
+   Copyright (C) 2004, 2007-2021 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -229,9 +229,29 @@ _GL_WARN_ON_USE (fclose, "fclose is not always POSIX compliant - "
                  "use gnulib module fclose for portable POSIX compliance");
 #endif
 
-#if defined _WIN32 && !defined __CYGWIN__
-# undef fcloseall
-# define fcloseall _fcloseall
+#if @GNULIB_MDA_FCLOSEALL@
+/* On native Windows, map 'fcloseall' to '_fcloseall', so that -loldnames is
+   not required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::fcloseall on all platforms that have
+   it.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef fcloseall
+#   define fcloseall _fcloseall
+#  endif
+_GL_CXXALIAS_MDA (fcloseall, int, (void));
+# else
+#  if @HAVE_DECL_FCLOSEALL@
+#   if defined __FreeBSD__ || defined __DragonFly__
+_GL_CXXALIAS_SYS (fcloseall, void, (void));
+#   else
+_GL_CXXALIAS_SYS (fcloseall, int, (void));
+#   endif
+#  endif
+# endif
+# if (defined _WIN32 && !defined __CYGWIN__) || @HAVE_DECL_FCLOSEALL@
+_GL_CXXALIASWARN (fcloseall);
+# endif
 #endif
 
 #if @GNULIB_FDOPEN@
@@ -258,9 +278,20 @@ _GL_CXXALIASWARN (fdopen);
 /* Assume fdopen is always declared.  */
 _GL_WARN_ON_USE (fdopen, "fdopen on native Windows platforms is not POSIX compliant - "
                  "use gnulib module fdopen for portability");
-#elif defined _WIN32 && !defined __CYGWIN__
-# undef fdopen
-# define fdopen _fdopen
+#elif @GNULIB_MDA_FDOPEN@
+/* On native Windows, map 'fdopen' to '_fdopen', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::fdopen always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef fdopen
+#   define fdopen _fdopen
+#  endif
+_GL_CXXALIAS_MDA (fdopen, FILE *, (int fd, const char *mode));
+# else
+_GL_CXXALIAS_SYS (fdopen, FILE *, (int fd, const char *mode));
+# endif
+_GL_CXXALIASWARN (fdopen);
 #endif
 
 #if @GNULIB_FFLUSH@
@@ -325,9 +356,20 @@ _GL_CXXALIASWARN (fgets);
 # endif
 #endif
 
-#if defined _WIN32 && !defined __CYGWIN__
-# undef fileno
-# define fileno _fileno
+#if @GNULIB_MDA_FILENO@
+/* On native Windows, map 'fileno' to '_fileno', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::fileno always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef fileno
+#   define fileno _fileno
+#  endif
+_GL_CXXALIAS_MDA (fileno, int, (FILE *restrict stream));
+# else
+_GL_CXXALIAS_SYS (fileno, int, (FILE *restrict stream));
+# endif
+_GL_CXXALIASWARN (fileno);
 #endif
 
 #if @GNULIB_FOPEN@
@@ -857,9 +899,20 @@ _GL_WARN_ON_USE (getline, "getline is unportable - "
 _GL_WARN_ON_USE (gets, "gets is a security hole - use fgets instead");
 #endif
 
-#if defined _WIN32 && !defined __CYGWIN__
-# undef getw
-# define getw _getw
+#if @GNULIB_MDA_GETW@
+/* On native Windows, map 'getw' to '_getw', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::getw always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef getw
+#   define getw _getw
+#  endif
+_GL_CXXALIAS_MDA (getw, int, (FILE *restrict stream));
+# else
+_GL_CXXALIAS_SYS (getw, int, (FILE *restrict stream));
+# endif
+_GL_CXXALIASWARN (getw);
 #endif
 
 #if @GNULIB_OBSTACK_PRINTF@ || @GNULIB_OBSTACK_PRINTF_POSIX@
@@ -1075,9 +1128,20 @@ _GL_CXXALIASWARN (puts);
 # endif
 #endif
 
-#if defined _WIN32 && !defined __CYGWIN__
-# undef putw
-# define putw _putw
+#if @GNULIB_MDA_PUTW@
+/* On native Windows, map 'putw' to '_putw', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::putw always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef putw
+#   define putw _putw
+#  endif
+_GL_CXXALIAS_MDA (putw, int, (int w, FILE *restrict stream));
+# else
+_GL_CXXALIAS_SYS (putw, int, (int w, FILE *restrict stream));
+# endif
+_GL_CXXALIASWARN (putw);
 #endif
 
 #if @GNULIB_REMOVE@
@@ -1193,6 +1257,7 @@ _GL_CXXALIASWARN (scanf);
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define snprintf rpl_snprintf
 #  endif
+#  define GNULIB_overrides_snprintf 1
 _GL_FUNCDECL_RPL (snprintf, int,
                   (char *restrict str, size_t size,
                    const char *restrict format, ...)
@@ -1238,6 +1303,7 @@ _GL_WARN_ON_USE (snprintf, "snprintf is unportable - "
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define sprintf rpl_sprintf
 #  endif
+#  define GNULIB_overrides_sprintf 1
 _GL_FUNCDECL_RPL (sprintf, int,
                   (char *restrict str, const char *restrict format, ...)
                   _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD (2, 3)
@@ -1259,9 +1325,20 @@ _GL_WARN_ON_USE (sprintf, "sprintf is not always POSIX compliant - "
                  "POSIX compliance");
 #endif
 
-#if defined _WIN32 && !defined __CYGWIN__
-# undef tempnam
-# define tempnam _tempnam
+#if @GNULIB_MDA_TEMPNAM@
+/* On native Windows, map 'tempnam' to '_tempnam', so that -loldnames is not
+   required.  In C++ with GNULIB_NAMESPACE, avoid differences between
+   platforms by defining GNULIB_NAMESPACE::tempnam always.  */
+# if defined _WIN32 && !defined __CYGWIN__
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef tempnam
+#   define tempnam _tempnam
+#  endif
+_GL_CXXALIAS_MDA (tempnam, char *, (const char *dir, const char *prefix));
+# else
+_GL_CXXALIAS_SYS (tempnam, char *, (const char *dir, const char *prefix));
+# endif
+_GL_CXXALIASWARN (tempnam);
 #endif
 
 #if @GNULIB_TMPFILE@
@@ -1294,6 +1371,7 @@ _GL_WARN_ON_USE (tmpfile, "tmpfile is not usable on mingw - "
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define asprintf rpl_asprintf
 #  endif
+#  define GNULIB_overrides_asprintf
 _GL_FUNCDECL_RPL (asprintf, int,
                   (char **result, const char *format, ...)
                   _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD (2, 3)
@@ -1315,6 +1393,7 @@ _GL_CXXALIASWARN (asprintf);
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define vasprintf rpl_vasprintf
 #  endif
+#  define GNULIB_overrides_vasprintf 1
 _GL_FUNCDECL_RPL (vasprintf, int,
                   (char **result, const char *format, va_list args)
                   _GL_ATTRIBUTE_FORMAT_PRINTF_STANDARD (2, 0)
@@ -1498,6 +1577,7 @@ _GL_CXXALIASWARN (vscanf);
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define vsnprintf rpl_vsnprintf
 #  endif
+#  define GNULIB_overrides_vsnprintf 1
 _GL_FUNCDECL_RPL (vsnprintf, int,
                   (char *restrict str, size_t size,
                    const char *restrict format, va_list args)
@@ -1534,6 +1614,7 @@ _GL_WARN_ON_USE (vsnprintf, "vsnprintf is unportable - "
 #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
 #   define vsprintf rpl_vsprintf
 #  endif
+#  define GNULIB_overrides_vsprintf 1
 _GL_FUNCDECL_RPL (vsprintf, int,
                   (char *restrict str,
                    const char *restrict format, va_list args)

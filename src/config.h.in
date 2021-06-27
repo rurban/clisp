@@ -179,6 +179,9 @@
 /* Define to 1 if the system's ftello function has the Solaris bug. */
 #undef FTELLO_BROKEN_AFTER_SWITCHING_FROM_READ_TO_WRITE
 
+/* Define to 1 if the system's ftello function has the macOS bug. */
+#undef FTELLO_BROKEN_AFTER_UNGETC
+
 /* Define to 1 if fflush is known to work on stdin as per POSIX.1-2008, 0 if
    fflush is known to not work, -1 if unknown. */
 #undef FUNC_FFLUSH_STDIN
@@ -189,6 +192,9 @@
 
 /* Define to 1 if nl_langinfo (YESEXPR) returns a non-empty string. */
 #undef FUNC_NL_LANGINFO_YESEXPR_WORKS
+
+/* Define to 1 if ungetc is broken when used on arbitrary bytes. */
+#undef FUNC_UNGETC_BROKEN
 
 /* Define this to 'void' or 'struct timezone' to match the system's
    declaration of the second argument to gettimeofday. */
@@ -267,11 +273,32 @@
 /* Define to 1 when the gnulib module fflush should be tested. */
 #undef GNULIB_TEST_FFLUSH
 
+/* Define to 1 when the gnulib module fgetc should be tested. */
+#undef GNULIB_TEST_FGETC
+
+/* Define to 1 when the gnulib module fgets should be tested. */
+#undef GNULIB_TEST_FGETS
+
 /* Define to 1 when the gnulib module fnmatch should be tested. */
 #undef GNULIB_TEST_FNMATCH
 
+/* Define to 1 when the gnulib module fprintf should be tested. */
+#undef GNULIB_TEST_FPRINTF
+
 /* Define to 1 when the gnulib module fpurge should be tested. */
 #undef GNULIB_TEST_FPURGE
+
+/* Define to 1 when the gnulib module fputc should be tested. */
+#undef GNULIB_TEST_FPUTC
+
+/* Define to 1 when the gnulib module fputs should be tested. */
+#undef GNULIB_TEST_FPUTS
+
+/* Define to 1 when the gnulib module fread should be tested. */
+#undef GNULIB_TEST_FREAD
+
+/* Define to 1 when the gnulib module fscanf should be tested. */
+#undef GNULIB_TEST_FSCANF
 
 /* Define to 1 when the gnulib module fseek should be tested. */
 #undef GNULIB_TEST_FSEEK
@@ -287,6 +314,15 @@
 
 /* Define to 1 when the gnulib module ftello should be tested. */
 #undef GNULIB_TEST_FTELLO
+
+/* Define to 1 when the gnulib module fwrite should be tested. */
+#undef GNULIB_TEST_FWRITE
+
+/* Define to 1 when the gnulib module getc should be tested. */
+#undef GNULIB_TEST_GETC
+
+/* Define to 1 when the gnulib module getchar should be tested. */
+#undef GNULIB_TEST_GETCHAR
 
 /* Define to 1 when the gnulib module getdtablesize should be tested. */
 #undef GNULIB_TEST_GETDTABLESIZE
@@ -351,6 +387,9 @@
 /* Define to 1 when the gnulib module mempcpy should be tested. */
 #undef GNULIB_TEST_MEMPCPY
 
+/* Define to 1 when the gnulib module mkdir should be tested. */
+#undef GNULIB_TEST_MKDIR
+
 /* Define to 1 when the gnulib module mkdtemp should be tested. */
 #undef GNULIB_TEST_MKDTEMP
 
@@ -372,6 +411,18 @@
 /* Define to 1 when the gnulib module open should be tested. */
 #undef GNULIB_TEST_OPEN
 
+/* Define to 1 when the gnulib module printf should be tested. */
+#undef GNULIB_TEST_PRINTF
+
+/* Define to 1 when the gnulib module putc should be tested. */
+#undef GNULIB_TEST_PUTC
+
+/* Define to 1 when the gnulib module putchar should be tested. */
+#undef GNULIB_TEST_PUTCHAR
+
+/* Define to 1 when the gnulib module puts should be tested. */
+#undef GNULIB_TEST_PUTS
+
 /* Define to 1 when the gnulib module readlink should be tested. */
 #undef GNULIB_TEST_READLINK
 
@@ -380,6 +431,9 @@
 
 /* Define to 1 when the gnulib module recvfrom should be tested. */
 #undef GNULIB_TEST_RECVFROM
+
+/* Define to 1 when the gnulib module scanf should be tested. */
+#undef GNULIB_TEST_SCANF
 
 /* Define to 1 when the gnulib module select should be tested. */
 #undef GNULIB_TEST_SELECT
@@ -440,6 +494,12 @@
 
 /* Define to 1 when the gnulib module unsetenv should be tested. */
 #undef GNULIB_TEST_UNSETENV
+
+/* Define to 1 when the gnulib module vfprintf should be tested. */
+#undef GNULIB_TEST_VFPRINTF
+
+/* Define to 1 when the gnulib module vprintf should be tested. */
+#undef GNULIB_TEST_VPRINTF
 
 /* Define to 1 when the gnulib module wcrtomb should be tested. */
 #undef GNULIB_TEST_WCRTOMB
@@ -508,6 +568,22 @@
    */
 #undef HAVE_DECL_ALARM
 
+/* Define to 1 if you have the declaration of `ecvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_ECVT
+
+/* Define to 1 if you have the declaration of `execvpe', and to 0 if you
+   don't. */
+#undef HAVE_DECL_EXECVPE
+
+/* Define to 1 if you have the declaration of `fcloseall', and to 0 if you
+   don't. */
+#undef HAVE_DECL_FCLOSEALL
+
+/* Define to 1 if you have the declaration of `fcvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_FCVT
+
 /* Define to 1 if you have the declaration of `fpurge', and to 0 if you don't.
    */
 #undef HAVE_DECL_FPURGE
@@ -519,6 +595,10 @@
 /* Define to 1 if you have the declaration of `ftello', and to 0 if you don't.
    */
 #undef HAVE_DECL_FTELLO
+
+/* Define to 1 if you have the declaration of `gcvt', and to 0 if you don't.
+   */
+#undef HAVE_DECL_GCVT
 
 /* Define to 1 if you have the declaration of `getdtablesize', and to 0 if you
    don't. */
@@ -603,6 +683,10 @@
 /* Define to 1 if you have the declaration of `wcrtomb', and to 0 if you
    don't. */
 #undef HAVE_DECL_WCRTOMB
+
+/* Define to 1 if you have the declaration of `wcsdup', and to 0 if you don't.
+   */
+#undef HAVE_DECL_WCSDUP
 
 /* Define to 1 if you have the declaration of `_fseeki64', and to 0 if you
    don't. */
@@ -799,7 +883,7 @@
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
-/* Define if the 'malloc' function is POSIX compliant. */
+/* Define if malloc, realloc, and calloc set errno on allocation failure. */
 #undef HAVE_MALLOC_POSIX
 
 /* Define to 1 if mmap()'s MAP_ANONYMOUS flag is available after including
@@ -832,6 +916,9 @@
 
 /* Define to 1 if you have the `mincore' function. */
 #undef HAVE_MINCORE
+
+/* Define to 1 if you have the <minix/config.h> header file. */
+#undef HAVE_MINIX_CONFIG_H
 
 /* Define to 1 if <limits.h> defines the MIN and MAX macros. */
 #undef HAVE_MINMAX_IN_LIMITS_H
@@ -1267,7 +1354,7 @@
 /* Define to 1 if O_NOFOLLOW works. */
 #undef HAVE_WORKING_O_NOFOLLOW
 
-/* Define if the uselocale function exists any may safely be called. */
+/* Define if the uselocale function exists and may safely be called. */
 #undef HAVE_WORKING_USELOCALE
 
 /* Define to 1 if `vfork' works. */
@@ -1458,6 +1545,10 @@
 /* Define to 1 if readlink fails to recognize a trailing slash. */
 #undef READLINK_TRAILING_SLASH_BUG
 
+/* Define to 1 if readlink sets errno instead of truncating a too-long link.
+   */
+#undef READLINK_TRUNCATE_BUG
+
 /* Define to 1 if stat needs help when passed a file name with a trailing
    slash */
 #undef REPLACE_FUNC_STAT_FILE
@@ -1596,19 +1687,44 @@
 #ifndef _DARWIN_C_SOURCE
 # undef _DARWIN_C_SOURCE
 #endif
+/* Enable general extensions on Solaris.  */
+#ifndef __EXTENSIONS__
+# undef __EXTENSIONS__
+#endif
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
-/* Enable NetBSD extensions on NetBSD.  */
+/* Enable X/Open compliant socket functions that do not require linking
+   with -lxnet on HP-UX 11.11.  */
+#ifndef _HPUX_ALT_XOPEN_SOCKET_API
+# undef _HPUX_ALT_XOPEN_SOCKET_API
+#endif
+/* Identify the host operating system as Minix.
+   This macro does not affect the system headers' behavior.
+   A future release of Autoconf may stop defining this macro.  */
+#ifndef _MINIX
+# undef _MINIX
+#endif
+/* Enable general extensions on NetBSD.
+   Enable NetBSD compatibility extensions on Minix.  */
 #ifndef _NETBSD_SOURCE
 # undef _NETBSD_SOURCE
 #endif
-/* Enable OpenBSD extensions on NetBSD.  */
+/* Enable OpenBSD compatibility extensions on NetBSD.
+   Oddly enough, this does nothing on OpenBSD.  */
 #ifndef _OPENBSD_SOURCE
 # undef _OPENBSD_SOURCE
 #endif
-/* Enable threading extensions on Solaris.  */
+/* Define to 1 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_SOURCE
+# undef _POSIX_SOURCE
+#endif
+/* Define to 2 if needed for POSIX-compatible behavior.  */
+#ifndef _POSIX_1_SOURCE
+# undef _POSIX_1_SOURCE
+#endif
+/* Enable POSIX-compatible threading on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
 #endif
@@ -1644,20 +1760,10 @@
 #ifndef _TANDEM_SOURCE
 # undef _TANDEM_SOURCE
 #endif
-/* Enable X/Open extensions if necessary.  HP-UX 11.11 defines
-   mbstate_t only if _XOPEN_SOURCE is defined to 500, regardless of
-   whether compiling with -Ae or -D_HPUX_SOURCE=1.  */
+/* Enable X/Open extensions.  Define to 500 only if necessary
+   to make mbstate_t available.  */
 #ifndef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
-#endif
-/* Enable X/Open compliant socket functions that do not require linking
-   with -lxnet on HP-UX 11.11.  */
-#ifndef _HPUX_ALT_XOPEN_SOCKET_API
-# undef _HPUX_ALT_XOPEN_SOCKET_API
-#endif
-/* Enable general extensions on Solaris.  */
-#ifndef __EXTENSIONS__
-# undef __EXTENSIONS__
 #endif
 
 
@@ -1717,6 +1823,9 @@
 #endif
 
 
+/* Define to enable the declarations of ISO C 11 types and functions. */
+#undef _ISOC11_SOURCE
+
 /* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
 #undef _LARGEFILE_SOURCE
 
@@ -1725,12 +1834,6 @@
 
 /* Define to 1 on Solaris. */
 #undef _LCONV_C99
-
-/* Define to 1 if on MINIX. */
-#undef _MINIX
-
-/* Define to 1 to make NetBSD features available. MINIX 3 needs this. */
-#undef _NETBSD_SOURCE
 
 /* The _Noreturn keyword of C11.  */
 #ifndef _Noreturn
@@ -1746,11 +1849,12 @@
        this syntax with 'extern'.  */
 #  define _Noreturn [[noreturn]]
 # elif ((!defined __cplusplus || defined __clang__) \
-        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0)  \
-            || _GL_GNUC_PREREQ (4, 7) \
-            || (defined __apple_build_version__ \
-                ? 6000000 <= __apple_build_version__ \
-                : 3 < __clang_major__ + (5 <= __clang_minor__))))
+        && (201112 <= (defined __STDC_VERSION__ ? __STDC_VERSION__ : 0) \
+            || (!defined __STRICT_ANSI__ \
+                && (_GL_GNUC_PREREQ (4, 7) \
+                    || (defined __apple_build_version__ \
+                        ? 6000000 <= __apple_build_version__ \
+                        : 3 < __clang_major__ + (5 <= __clang_minor__))))))
    /* _Noreturn works as-is.  */
 # elif _GL_GNUC_PREREQ (2, 8) || defined __clang__ || 0x5110 <= __SUNPRO_C
 #  define _Noreturn __attribute__ ((__noreturn__))
@@ -1762,16 +1866,9 @@
 #endif
 
 
-/* Define to 2 if the system does not provide POSIX.1 features except with
-   this defined. */
-#undef _POSIX_1_SOURCE
-
 /* Define to 1 in order to get the POSIX compatible declarations of socket
    functions. */
 #undef _POSIX_PII_SOCKET
-
-/* Define to 1 if you need to in order for 'stat' and other things to work. */
-#undef _POSIX_SOURCE
 
 /* Define if you want <regex.h> to include <limits.h>, so that it consistently
    overrides <limits.h>'s RE_DUP_MAX. */
@@ -1823,7 +1920,9 @@
 
 
 /* Attributes.  */
-#ifdef __has_attribute
+#if (defined __has_attribute \
+     && (!defined __clang_minor__ \
+         || 3 < __clang_major__ + (5 <= __clang_minor__)))
 # define _GL_HAS_ATTRIBUTE(attr) __has_attribute (__##attr##__)
 #else
 # define _GL_HAS_ATTRIBUTE(attr) _GL_ATTR_##attr
@@ -2236,7 +2335,7 @@
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported directly.  */
+   supported only directly.  */
 #undef restrict
 /* Work around a bug in older versions of Sun C++, which did not
    #define __restrict__ or support _Restrict or __restrict__
@@ -2260,6 +2359,22 @@
 
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t
+
+
+  /* This definition is a duplicate of the one in unitypes.h.
+     It is here so that we can cope with an older version of unitypes.h
+     that does not contain this definition and that is pre-installed among
+     the public header files.  */
+  # if defined __restrict \
+       || 2 < __GNUC__ + (95 <= __GNUC_MINOR__) \
+       || __clang_major__ >= 3
+  #  define _UC_RESTRICT __restrict
+  # elif 199901L <= __STDC_VERSION__ || defined restrict
+  #  define _UC_RESTRICT restrict
+  # else
+  #  define _UC_RESTRICT
+  # endif
+  
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
