@@ -19339,7 +19339,8 @@ else $as_nop
      /* mingw, BeOS, Haiku declare environ in <stdlib.h>, not in <unistd.h>.  */
      #include <stdlib.h>
 
-            extern struct { int foo; } environ;
+            typedef struct { int foo; } foo_t;
+            extern foo_t environ;
 int
 main (void)
 {
