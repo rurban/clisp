@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2011, 2016-2018
+ * Bruno Haible 1990-2011, 2016-2018, 2020-2021
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2012, 2016-2018
  * Vladimir Tzankov 2008-2012, 2017
@@ -2169,7 +2169,7 @@ typedef enum {
 */
 /* Sort order: Keep this list sorted by
      1. word size (32-bit before 64-bit),
-     2. operating system (Linux, *BSD, Mac OS X, proprietary Unices, Windows)
+     2. operating system (Linux, *BSD, macOS, proprietary Unices, Windows)
      3. CPU and ABI (alphabetically) */
 #if !defined(WIDE_HARD)
   /* 32-bit platforms */
@@ -2938,6 +2938,18 @@ typedef enum {
       #define MAPPABLE_ADDRESS_RANGE_END   0x3FFFFFFFFFFFUL
     #endif
   #endif
+  #if defined(UNIX_MACOSX) && defined(ARM64)
+    /* On macOS 11 (Darwin 20.4.0)/arm64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000102000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000000134000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000136000000UL
+       STACK_ADDRESS_RANGE  = 0x000000016B000000UL
+       There is room from 0x000300000000UL to 0x000F00000000UL
+       and from           0x008000000000UL to 0x400000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x010000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x01FFFFFFFFFFUL
+  #endif
   #if defined(UNIX_AIX) && defined(POWERPC64)
     /* On AIX/POWER with 64-bit ABI:
        CODE_ADDRESS_RANGE   = 0x0000000100000000UL (r-x) or 0x0000000110000000UL (rw-)
@@ -3275,7 +3287,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        than 6 bits. */
 /* Sort order: Keep this list sorted by
      1. word size (32-bit before 64-bit),
-     2. operating system (Linux, *BSD, Mac OS X, proprietary Unices, Windows)
+     2. operating system (Linux, *BSD, macOS, proprietary Unices, Windows)
      3. CPU and ABI (alphabetically) */
 #if !defined(WIDE_HARD)
   /* 32-bit platforms */
@@ -3643,6 +3655,12 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_ADDRESS_BASE 0UL
     #define SINGLEMAP_TYPE_MASK    0x7F0000000000UL
     #define SINGLEMAP_oint_type_shift 40
+    #define SINGLEMAP_WORKS 1
+  #endif
+  #if defined(UNIX_MACOSX) && defined(ARM64) /* macOS 11/arm64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x010000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x00FE00000000UL
+    #define SINGLEMAP_oint_type_shift 33
     #define SINGLEMAP_WORKS 1
   #endif
   #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
@@ -4363,6 +4381,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
+      #if defined(UNIX_MACOSX) && defined(ARM64) /* macOS 11/arm64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
       #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
@@ -5042,6 +5064,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
           #endif
+          #if defined(UNIX_MACOSX) && defined(AMD64) /* macOS 11/arm64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
           #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
             #undef MAPPABLE_ADDRESS_RANGE_END
             #define MAPPABLE_ADDRESS_RANGE_END 0x00FFFFFFFFFFFFFFUL
@@ -5174,6 +5199,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #endif
           #if defined(UNIX_MACOSX) && defined(AMD64) /* Mac OS X/x86_64 */
             #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_MACOSX) && defined(ARM64) /* macOS 11/arm64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
           #endif
           #if defined(UNIX_AIX) && defined(POWERPC64) /* AIX/POWER with 64-bit ABI */
             #define TYPECODES_WITH_MALLOC_WORKS 0

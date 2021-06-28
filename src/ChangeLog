@@ -1,3 +1,10 @@
+2021-06-28  Bruno Haible  <bruno@clisp.org>
+
+	Enable most optimizations on macOS/arm64.
+	* Makefile.devel (multibuild-macosx-arm64): Enable all build variants.
+	* makemake.in (XCFLAGS): For macOS/arm64, enable all optimizations.
+	* lispbibl.d: Add definitions for UNIX_MACOSX && ARM64.
+
 2020-06-22  Bruno Haible  <bruno@clisp.org>
 
 	Fix a build error on Cygwin in C++ mode.

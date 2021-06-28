@@ -1872,6 +1872,10 @@ else
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
+      # macOS 11/arm64
+      darwin*--arm64)
+        ;;
+
       # AIX/POWER with 64-bit ABI
       aix*--powerpc64)
         XCFLAGS="$XCFLAGS -DNO_ASM"
