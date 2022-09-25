@@ -218,8 +218,7 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; extern int factor_add_primes;
 (def-c-var factor_add_primes (:type int))
 
-;; extern ulong DEBUGFILES, DEBUGLEVEL, DEBUGMEM
-(def-c-var debugfiles (:name "DEBUGFILES") (:type ulong))
+;; extern ulong DEBUGLEVEL, DEBUGMEM
 (def-c-var debuglevel (:name "DEBUGLEVEL") (:type ulong))
 (def-c-var debugmem (:name "DEBUGMEM") (:type ulong))
 
