@@ -1,3 +1,9 @@
+2022-09-25  Bruno Haible  <bruno@clisp.org>
+
+	Fix a build error on Cygwin.
+	Reported by Vibhu Mohindra <vibs29@hotmail.com>.
+	* unix.d (CR): Push macro definition aside while including <windows.h>.
+
 2021-06-28  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on macOS/arm64.

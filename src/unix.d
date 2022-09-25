@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2008, 2016-2020
+ * Bruno Haible 1990-2008, 2016-2022
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -566,7 +566,10 @@ extern int wait2 (pid_t pid); /* see unixaux.d */
   #define WIN32_LEAN_AND_MEAN
   #pragma push_macro ("Handle")
   #undef Handle
+  #pragma push_macro ("CR")
+  #undef CR
   #include <windows.h>
+  #pragma pop_macro ("CR")
   #pragma pop_macro ("Handle")
   #undef WIN32
   extern long time_t_from_filetime (const FILETIME * ptr);
