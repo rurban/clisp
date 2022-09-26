@@ -11,7 +11,7 @@ Note: For the moment, the status of the target platforms is as follows:
   - MSVC, 32-bit: not supported.
   - MSVC, 64-bit: not supported.
   - Cygwin, 32-bit: supported.
-  - Cygwin, 64-bit: supported, but libsigsegv is not supported.
+  - Cygwin, 64-bit: supported.
 
 ===============================================================================
 1) Native binaries, built using the mingw tool chain.
