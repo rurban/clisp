@@ -1,3 +1,10 @@
+2022-10-21  Bruno Haible  <bruno@clisp.org>
+
+	Fix a buffer overflow.
+	Reported by marxin at <https://gitlab.com/gnu-clisp/clisp/-/issues/33>.
+	* spvw_memfile.d (memfile_do_operation): Allocate one more byte for
+	filename_mem.
+
 2022-09-26  Bruno Haible  <bruno@clisp.org>
 
 	Recommend libsigsegv 2.14.

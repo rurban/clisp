@@ -2079,7 +2079,7 @@ local bool memfile_do_operation (const char* filename, memfile_operation op, voi
   begin_system_call();
   handle = open_filename(filename);
   if (INVALID_HANDLE_P(handle)) { /* try filename.mem */
-    var DYNAMIC_ARRAY(filename_mem,char,strlen(filename)+4);
+    var DYNAMIC_ARRAY(filename_mem,char,strlen(filename)+4+1);
     strcpy(filename_mem,filename);
     strcat(filename_mem,".mem");
     handle = open_filename(filename_mem);
