@@ -1,3 +1,9 @@
+2022-12-28  Bruno Haible  <bruno@clisp.org>
+
+	Fix error when passing arguments with spaces to configure on Solaris 11.
+	* configure: Use "$@" instead of $*, to avoid splitting arguments that
+	contain spaces, e.g. "CPPFLAGS=-I/some/dir -Wall".
+
 2022-10-21  Bruno Haible  <bruno@clisp.org>
 
 	Fix a buffer overflow.
