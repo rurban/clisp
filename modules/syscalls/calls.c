@@ -677,7 +677,7 @@ DEFUN(OS:VERSION>=, string1 string2){VALUES_IF(string_version_compare() >= 0);}
       && name[name##_bytelen-6]=='X') {                 \
     c_template = name;                                  \
   } else {                                              \
-    c_template = (char*)alloca(name##_bytelen+6);       \
+    c_template = (char*)alloca(name##_bytelen+6+1);     \
     strcpy(c_template,name);                            \
     strcat(c_template,"XXXXXX");                        \
   }

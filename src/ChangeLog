@@ -1,3 +1,10 @@
+2023-01-12  Bruno Haible  <bruno@clisp.org>
+
+	syscalls: Fix buffer overflow.
+	Reported by Jerry James <loganjerry@gmail.com>
+	in <https://gitlab.com/gnu-clisp/clisp/-/merge_requests/4>.
+	* modules/syscalls/calls.c (ENSURE_6X): Allocate one more byte.
+
 2022-12-28  Bruno Haible  <bruno@clisp.org>
 
 	Fix error when passing arguments with spaces to configure on Solaris 11.
