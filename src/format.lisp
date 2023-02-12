@@ -81,7 +81,7 @@
         (tagbody
           (when (>= index (length control-string))
             (go string-ended))
-          (setq ch (schar control-string index))
+          (setq ch (char control-string index))
           (unless (eql ch #\~)
             ;; possibly transform part of string into a separate directive,
             (setq csdl (setf (cdr csdl) (list (setq newcsd (make-csd)))))
@@ -107,7 +107,7 @@
           (when (>= index (length control-string))
             (format-error 'error control-string index (errorstring))
             (go string-ended))
-          (setq ch (schar control-string index))
+          (setq ch (char control-string index))
           (when (digit-char-p ch) (go num-param))
           (case ch
             ((#\+ #\-) (go num-param))
@@ -138,7 +138,7 @@
             (format-error 'error control-string index
               (TEXT "The control string terminates in the middle of a parameter."))
             (go string-ended))
-          (setq ch (schar control-string index))
+          (setq ch (char control-string index))
           (push ch (csd-parm-list newcsd))
 
           param-ok-1            ; Parameter OK
@@ -147,7 +147,7 @@
           (when (>= index (length control-string))
             (format-error 'error control-string index (errorstring))
             (go string-ended))
-          (setq ch (schar control-string index))
+          (setq ch (char control-string index))
           (case ch
             (#\, (go param))
             (#\: (go colon-modifier))
@@ -167,7 +167,7 @@
           (when (>= index (length control-string))
             (format-error 'error control-string index (errorstring))
             (go string-ended))
-          (setq ch (schar control-string index))
+          (setq ch (char control-string index))
           (case ch
             (#\: (go colon-modifier))
             (#\@ (go atsign-modifier))
