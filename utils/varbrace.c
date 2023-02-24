@@ -1157,7 +1157,8 @@ static inline void line_repeat_endif ()
 }
 
 
-enum token_type { eof, ident, number, charconst, stringconst, sep, expr };
+enum token_type { tt_eof, tt_ident, tt_number, tt_charconst, tt_stringconst, tt_sep,
+                  tt_expr };
 typedef struct {
   enum token_type type;
   /* if buffered: */
@@ -1179,7 +1180,7 @@ static Token next_token (void)
     switch (c) {
       case EOF:
         /* EOF */
-        token.type = eof;
+        token.type = tt_eof;
         goto done;
       case ' ': case '\v': case '\t': case '\n':
         /* whitespace, ignore */
@@ -1341,7 +1342,7 @@ static Token next_token (void)
           else
             break;
         }
-        token.type = number;
+        token.type = tt_number;
         goto done;
       case '\'':
         /* Character constant */
@@ -1356,7 +1357,7 @@ static Token next_token (void)
           if (c=='\\')
             c = next_char();
         }
-        token.type = charconst;
+        token.type = tt_charconst;
         goto done;
       case '\"':
         /* String constant */
@@ -1371,7 +1372,7 @@ static Token next_token (void)
           if (c=='\\')
             c = next_char();
         }
-        token.type = stringconst;
+        token.type = tt_stringconst;
         goto done;
       case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
       case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
@@ -1392,11 +1393,11 @@ static Token next_token (void)
           else
             break;
         }
-        token.type = ident;
+        token.type = tt_ident;
         goto done;
       default:
       separator:
-        token.type = sep;
+        token.type = tt_sep;
         token.ch = c;
         goto done;
     }
@@ -1441,7 +1442,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
   while (1) {
     Token token = next_token();
     switch (token.type) {
-      case eof:
+      case tt_eof:
         if (open_braces.count > 0) {
           if (open_braces.count <= MAXBRACES) {
             fprintf(stderr,"Unclosed '%c' in line %lu\n",
@@ -1452,7 +1453,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
             fprintf(stderr,"Unclosed '(' or '{' or '['\n");
         }
         return;
-      case sep:
+      case tt_sep:
         switch (token.ch) {
           case '(': case '{': case '[':
             if (open_braces.count < MAXBRACES) {
@@ -1543,7 +1544,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
         seen_var_object_ident = FALSE;
 #endif
         break;
-      case ident:
+      case tt_ident:
 #ifdef SPLIT_OBJECT_INITIALIZATIONS
         if ((token.endindex - token.startindex == 3)
             && (out.buffer[token.startindex  ] == 'v')
@@ -1604,7 +1605,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
         break;
     }
     outbuffer_off();
-    last_token_was_ident = (token.type == ident);
+    last_token_was_ident = (token.type == tt_ident);
   }
 }}
 
