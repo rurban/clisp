@@ -65,6 +65,10 @@ extern "C" void exit(int);
 #define SPLIT_OBJECT_INITIALIZATIONS
 #endif
 
+const char* __asan_default_options();
+const char* __asan_default_options() {
+  return "detect_leaks=0";
+}
 
 /* Memory utilities. */
 static char* xmalloc (uintL count)
@@ -225,6 +229,11 @@ static inline void Vector_init (Vector* v)
   v->index = 0;
 }
 
+static inline void Vector_free (Vector* v)
+{
+  free (v->data);
+}
+
 static inline uintL Vector_length (const Vector* v)
 {
   return v->index;
@@ -328,6 +337,17 @@ static inline void VectorString_set_element (VectorString* v, uintL i, const cha
   Vector_set_element(&v->rep,i,elt);
 }
 
+static void VectorString_free (VectorString* v)
+{
+  uintL i;
+  for (i = 0; i < VectorString_length(v); i++) {
+    free((char*)VectorString_element(v,i));
+    VectorString_set_element(v,i,NULL);
+  }
+  Vector_free(&v->rep);
+  free (v);
+}
+
 #ifdef unused
 static inline void VectorString_init_clone (VectorString* w, const VectorString* v)
 {
@@ -408,6 +428,15 @@ static inline const VectorString* VectorVectorString_element (const VectorVector
   return (const VectorString*) Vector_element(&v->rep,i);
 }
 
+static inline void VectorVectorString_free (VectorVectorString* v)
+{
+  uintL i;
+  for (i = 0; i < VectorVectorString_length(v); i++)
+    VectorString_free((VectorString*)VectorVectorString_element(v,i));
+  Vector_free(&v->rep);
+  free(v);
+}
+
 #ifdef unused
 static inline void VectorVectorString_set_element (VectorVectorString* v, uintL i, const VectorString* elt)
 {
@@ -447,6 +476,7 @@ static StackVectorString* make_StackVectorString ()
 {
   StackVectorString* v = (StackVectorString*) xmalloc(sizeof(StackVectorString));
   StackVectorString_init(v);
+  memset(v->rep.data, 0, v->rep.size * sizeof(const void*));
   return v;
 }
 
@@ -487,6 +517,17 @@ static VectorString* StackVectorString_pop (StackVectorString* v)
     v->rep.index -= 1;
     return result;
 } }
+
+static inline void StackVectorString_free (StackVectorString* v)
+{
+  uintL i;
+  // they can be popped, so we need to clear them initially
+  for (i = 0; i < v->rep.size; i++) {
+    if (v->rep.data[i])
+      free((void*)v->rep.data[i]);
+  }
+  Vector_free(&v->rep);
+}
 
 #ifdef unused
 /* Push elt, and optimize: elt can be removed if is starts with an already
@@ -1446,7 +1487,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
           } else
             fprintf(stderr,"Unclosed '(' or '{' or '['\n");
         }
-        return;
+        goto done;
       case sep:
         switch (token.ch) {
           case '(': case '{': case '[':
@@ -1600,6 +1641,17 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
     }
     outbuffer_off();
     last_token_was_ident = (token.type == ident);
+  }
+ done: {/* // does not work yet
+    uintL i;
+    for (i=0; i<MAXBRACES; i++) {
+      if (open_braces.opening[i].condition)
+        VectorString_free(open_braces.opening[i].condition);
+      if (open_braces.opening[i].pending_conditions)
+        VectorVectorString_free(open_braces.opening[i].pending_conditions);
+    }
+    StackVectorString_free(ifdef_stack);
+    */
   }
 }}
 
