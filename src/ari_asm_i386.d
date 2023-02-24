@@ -1,17 +1,20 @@
-/* External routines for ARILEV1.C */
-/* Processor: 80386 native mode */
-/* Assembler-Syntax: GNU or SUN, moves from left to right */
-/* Compiler: GNU-C or SUN-C */
-/* Parameter passing conventions: */
-/*   Argument registers: */
-/*     none, all arguments are passed on the stack 4(%esp),8(%esp),... */
-/*   Return value register: */
-/*     %eax for a single word, %eax,%edx for a 'long long'. */
-/*   Call-used registers (do not have to be preserved across function calls): */
-/*     %eax,%edx,%ecx */
-/* Settings: intCsize=32, intDsize=32. */
-/* Bruno Haible 1992-2001, 2017 */
-/* Partially transscribed from Bernhard Degels "v-i386.s" */
+/* -*- asm -*-
+ * External routines for arilev1.d
+ * Processor: 80386 native mode
+ * Assembler-Syntax: GNU or SUN, moves from left to right
+ * Compiler: GNU-C or SUN-C
+ * Parameter passing conventions:
+ *   Argument registers:
+ *     none, all arguments are passed on the stack 4(%esp),8(%esp),...
+ *   Return value register:
+ *     %eax for a single word, %eax,%edx for a 'long long'.
+ *   Call-used registers (do not have to be preserved across function calls):
+ *     %eax,%edx,%ecx
+ * Settings: intCsize=32, intDsize=32.
+ * Bruno Haible 1992-2001, 2017
+ * Partially transscribed from Bernhard Degels "v-i386.s"
+ * Translated comments into English by Reini Urban 2017 and 2023
+ */
 
 #ifdef INCLUDED_FROM_C
 
@@ -107,7 +110,7 @@ asm_mulu32_64:
 /* Note: When using GNU C or the INTEL compiler, this function is not used,
    because we implement divu_6432_3232() as a macro that divides inline.  */
 # extern uint64 [struct { uint32 q; uint32 r; }] asm_divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y);
-# x = 2^32*xhi+xlo = q*y+r schreiben. Sei bekannt, dass 0 <= x < 2^32*y .
+# x = 2^32*xhi+xlo = q*y+r for 0 <= x < 2^32*y
             .p2align 2,,3
             .type asm_divu_6432_3232_,@function
 asm_divu_6432_3232_:               # Output in %eax=q, %edx=r
@@ -849,7 +852,7 @@ asm_shiftright_loop_up:
               leal    4(%edi),%edi
               movl    (%edi),%eax
               shrdl   shcl %ebx,(%edi) /* (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften */
-              /* Letztes Digit in %eax. */
+              /* last digit in %eax. */
               decl    %edx
               jnz     .Lsrlu1
 .Lsrlu2:    movl    %eax,%ebx
@@ -879,21 +882,21 @@ asm_shiftrightsigned_loop_up:
             movl    %eax,%ebx       /* und in %ebx rechnen: */
             sarl    %cl,%ebx        /* um i Bits rechts shiften, Vorzeichen vervielfachen */
             movl    %ebx,(%edi)     /* und wieder ablegen */
-            /* Letztes Digit in %eax. */
+            /* last digit in %eax. */
             decl    %edx
             jz      .Lsrslu2
 .Lsrslu1:     /* weiteres Digit shiften: */
               leal    4(%edi),%edi
               movl    (%edi),%ebx
               shrdl   shcl %eax,(%edi) /* (%edi) um %cl=i Bits rechts shiften, %eax von links reinshiften */
-              /* Letztes Digit in %ebx. */
+              /* last digit in %ebx. */
               decl    %edx
               jz      .Lsrslu3
               /* weiteres Digit shiften: */
               leal    4(%edi),%edi
               movl    (%edi),%eax
               shrdl   shcl %ebx,(%edi) /* (%edi) um %cl=i Bits rechts shiften, %ebx von links reinshiften */
-              /* Letztes Digit in %eax. */
+              /* last digit in %eax. */
               decl    %edx
               jnz     .Lsrslu1
 .Lsrslu2:   movl    %eax,%ebx
@@ -924,28 +927,28 @@ asm_shiftrightcopy_loop_up:
             /* erstes Digit shiften: */
             movl    (%edi,%esi),%ebx /* *sourceptr in %ebx halten */
             shldl   shcl %ebx,%eax  /* carry um %cl=32-i Bits links shiften, dabei *sourceptr rein */
-            movl    %eax,(%edi)     /* und als *destptr ablegen */
-            /* Letztes Digit in %ebx. */
+            movl    %eax,(%edi)     /* and store into *destptr */
+            /* last digit in %ebx. */
             decl    %edx
             jz      .Lsrcld2
 .Lsrcld1:    /* weiteres Digit shiften: */
               leal    4(%edi),%edi    /* sourceptr++, destptr++ */
               movl    (%edi,%esi),%eax /* next digit nach %eax */
               shldl   shcl %eax,%ebx  /* %ebx um %cl=32-i Bits links shiften, %eax von rechts reinshiften */
-              movl    %ebx,(%edi)     /* %ebx als *destptr ablegen */
-              /* Letztes Digit in %eax. */
+              movl    %ebx,(%edi)     /* store %ebx into *destptr */
+              /* last digit in %eax. */
               decl    %edx
               jz      .Lsrcld3
               /* weiteres Digit shiften: */
               leal    4(%edi),%edi    /* sourceptr++, destptr++ */
               movl    (%edi,%esi),%ebx /* next digit nach %ebx */
-              shldl   shcl %ebx,%eax  /* %eax um %cl=32-i Bits links shiften, %ebx von rechts reinshiften */
-              movl    %eax,(%edi)     /* %eax als *destptr ablegen */
-              /* Letztes Digit in %ebx. */
+              shldl   shcl %ebx,%eax  /* left-shift %eax by %cl=32-i bits, shift %ebx from the right */
+              movl    %eax,(%edi)     /* store %eax into *destptr */
+              /* last digit in %ebx. */
               decl    %edx
               jnz     .Lsrcld1
 .Lsrcld2:   movl    %ebx,%eax
-.Lsrcld3:   shll    %cl,%eax        /* %eax um 32-i Bits nach links shiften */
+.Lsrcld3:   shll    %cl,%eax        /* %eax left-shift by 32-i bits */
             popl    %ebx            /* %ebx back */
             popl    %edi            /* %edi back */
             popl    %esi            /* %esi back */
@@ -1004,13 +1007,13 @@ asm_mulu_loop_down:
             xorl    %ebp,%ebp       /* %epb = carry := 0 */
 .Lmuld1:      movl    (%esi,%ecx,4),%eax /* *sourceptr */
               mull    %ebx               /* %edx|%eax := digit * *sourceptr */
-              addl    %ebp,%eax          /* carry und low-part des Produktes addieren */
+              addl    %ebp,%eax          /* add carry and low-part of the product */
               movl    $0,%ebp
-              adcl    %edx,%ebp          /* remainder zum high-part %edx dazu, gibt neuen carry */
-              movl    %eax,(%edi,%ecx,4) /* low-part als *destptr ablegen */
+              adcl    %edx,%ebp          /* add remainder to high-part %edx, results in new carry */
+              movl    %eax,(%edi,%ecx,4) /* store low-part into *destptr */
               decl    %ecx               /* count--, sourceptr--, destptr-- */
               jnz     .Lmuld1
-            movl    %ebp,(%edi)     /* letzten remainder ablegen */
+            movl    %ebp,(%edi)     /* store last remainder */
             popl    %ebx            /* %ebx back */
             popl    %esi            /* %esi back */
             popl    %edi            /* %edi back */
@@ -1038,11 +1041,11 @@ asm_muluadd_loop_down:
             xorl    %ebp,%ebp       /* %epb = carry := 0 */
 .Lmuald1:     movl    (%esi,%ecx,4),%eax /* *sourceptr */
               mull    %ebx               /* %edx|%eax := digit * *sourceptr */
-              addl    %ebp,%eax          /* carry und low-part des Produktes addieren */
+              addl    %ebp,%eax          /* add carry and low-part of the product */
               movl    $0,%ebp
-              adcl    %ebp,%edx          /* remainder zum high-part %edx dazu */
-              addl    %eax,(%edi,%ecx,4) /* low-part zu *destptr addieren */
-              adcl    %edx,%ebp          /* zweiten remainder zu %edx addieren, gibt neuen carry */
+              adcl    %ebp,%edx          /* add remainder to high-part %edx */
+              addl    %eax,(%edi,%ecx,4) /* add low-part to *destptr */
+              adcl    %edx,%ebp          /* add 2nd remainder to %edx, results in new carry */
               decl    %ecx               /* count--, sourceptr--, destptr-- */
               jnz     .Lmuald1
             movl    %ebp,%eax       /* result := last remainder */
@@ -1073,11 +1076,11 @@ asm_mulusub_loop_down:
             xorl    %ebp,%ebp       /* %epb = carry := 0 */
 .Lmusld1:     movl    (%esi,%ecx,4),%eax /* *sourceptr */
               mull    %ebx               /* %edx|%eax := digit * *sourceptr */
-              addl    %ebp,%eax          /* carry und low-part des Produktes addieren */
+              addl    %ebp,%eax          /* add carry and low-part of the product */
               movl    $0,%ebp
-              adcl    %ebp,%edx          /* remainder add to high-part %edx dazu */
+              adcl    %ebp,%edx          /* add remainder to high-part %edx */
               subl    %eax,(%edi,%ecx,4) /* subtract low-part of *destptr */
-              adcl    %edx,%ebp          /* zweiten remainder zu %edx addieren, gibt neuen carry */
+              adcl    %edx,%ebp          /* add 2nd remainder to %edx, results in new carry */
               decl    %ecx               /* count--, sourceptr--, destptr-- */
               jnz     .Lmusld1
             movl    %ebp,%eax       /* result := last remainder */
@@ -1101,8 +1104,8 @@ asm_divu_loop_up:
             xorl    %edx,%edx       /* %edx = Rest := 0 */
             jecxz   .Ldlu2         /* %ecx == 0 ? */
 .Ldlu1:       movl    (%edi),%eax     /* next digit *ptr */
-              divl    %ebx            /* Division von %edx|%eax durch %ebx */
-              movl    %eax,(%edi)     /* Quotient %eax ablegen, keep remainder in %edx */
+              divl    %ebx            /* divide %edx|%eax by %ebx */
+              movl    %eax,(%edi)     /* store quotient in %eax, remainder in %edx */
               leal    4(%edi),%edi    /* ptr++ */
               decl    %ecx
               jnz     .Ldlu1
@@ -1128,8 +1131,8 @@ asm_divucopy_loop_up:
             jecxz   .Ldclu2         /* %ecx == 0 ? */
             subl    %edi,%esi
 .Ldclu1:      movl    (%esi,%edi),%eax /* next digit *ptr */
-              divl    %ebx            /* Division von %edx|%eax durch %ebx */
-              movl    %eax,(%edi)     /* Quotient %eax ablegen, keep remainder in %edx */
+              divl    %ebx            /* divide %edx|%eax by %ebx */
+              movl    %eax,(%edi)     /* store quotient in %eax, keep remainder in %edx */
               leal    4(%edi),%edi    /* sourceptr++, destptr++ */
               decl    %ecx
               jnz     .Ldclu1
