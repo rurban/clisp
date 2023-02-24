@@ -1152,7 +1152,7 @@ static inline void line_repeat_endif ()
 }
 
 
-enum token_type { eof, ident, number, charconst, stringconst, sep, expr };
+enum token_type { t_eof, ident, number, charconst, stringconst, sep, expr };
 typedef struct {
   enum token_type type;
   /* if buffered: */
@@ -1174,7 +1174,7 @@ static Token next_token (void)
     switch (c) {
       case EOF:
         /* EOF */
-        token.type = eof;
+        token.type = t_eof;
         goto done;
       case ' ': case '\v': case '\t': case '\n':
         /* whitespace, ignore */
@@ -1436,7 +1436,7 @@ static void convert (FILE* infp, FILE* outfp, const char* infilename)
   while (1) {
     Token token = next_token();
     switch (token.type) {
-      case eof:
+      case t_eof:
         if (open_braces.count > 0) {
           if (open_braces.count <= MAXBRACES) {
             fprintf(stderr,"Unclosed '%c' in line %lu\n",
