@@ -1,0 +1,78 @@
+name: Github CI
+on: [push, pull_request]
+
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+#  cancel-in-progress: true
+
+#strategy:
+#  matrix:
+#    os: [ubuntu-14.04, ubuntu-18.04, ubuntu-latest]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        CONFIGURE_ARGS:
+          -
+          - CC="clang"
+          - --with-debug
+          #- CFLAGS="-O1 -fno-omit-frame-pointer -fsanitize=address,undefined -fno-var-tracking"
+          - --with-threads=POSIX_THREADS
+    steps:
+    - name: deps
+      run: sudo apt install libsigsegv-dev libffcall-dev libreadline-dev libpcre3-dev
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        submodules: recursive
+    - run: ./configure build ${{ matrix.CONFIGURE_ARGS }}
+    - run: make -j -C build
+    - run: make -j -C build check
+  macOS:
+    name: macOS
+    runs-on: macOS-latest
+    steps:
+    - name: init
+      run: brew install libsigsegv libffcall readline pcre2
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        submodules: recursive
+    - run: ./configure --cbc build
+  mingw:
+    name: mingw
+    runs-on: windows-latest
+    env:
+      MSYS2_DIR: msys64
+      MSYS2_ARCH: x86_64
+      MSYSTEM: MINGW64
+      ARCH: win64
+      PLATFORM: x64
+      #PATH: "C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+    steps:
+      # see https://github.com/msys2/setup-msys2
+    - name: setup-msys2
+      uses: msys2/setup-msys2@v2
+      with:
+        path-type: minimal
+        update: true
+        install: >-
+          git
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-libsigsegv
+          mingw-w64-x86_64-ffcall
+          mingw-w64-x86_64-readline
+    - run: reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+        submodules: recursive
+    - shell: msys2 {0}
+      run: ./configure --cbc build
