@@ -1,23 +1,25 @@
-# Externe Routinen zu ARILEV1.D
-# Prozessor: MIPS
-# Endianness: irrelevant
-# Compiler: GNU-C oder ...
-# Parameter passing conventions:
-#   Arguments:
-#     o32: in registers $4,$5,$6,$7, and on the stack 16($sp),...
-#     n32: in registers $4,$5,$6,$7,$8,$9,$10,$11, and on the stack 4($sp),...
-#   Return value register:
-#     o32: $2 for a single word, $2,$3 for a 'long long'.
-#     n32: $2
-#   Call-used registers (do not have to be preserved across function calls):
-#     $2..$15, $24
-# Settings: intCsize=32, intDsize=32.
-# Particularities:
-#   After every load instruction a wait cycle is necessary, before the
-#   fetched values may be used.
-#   After branches and jumps, there is a delay slot. The assembler fills
-#   it by pulling some instruction from before the jump (unless we use
-#   the pseudo-op '.set noreorder' to disable this instruction reordering).
+/* -*- asm -*-
+ * External routines for arilev1.d
+ * Prozessor: MIPS
+ * Endianness: irrelevant
+ * Compiler: GNU-C compat
+ * Parameter passing conventions:
+ *   Arguments:
+ *     o32: in registers $4,$5,$6,$7, and on the stack 16($sp),...
+ *     n32: in registers $4,$5,$6,$7,$8,$9,$10,$11, and on the stack 4($sp),...
+ *   Return value register:
+ *     o32: $2 for a single word, $2,$3 for a 'long long'.
+ *     n32: $2
+ *   Call-used registers (do not have to be preserved across function calls):
+ *     $2..$15, $24
+ * Settings: intCsize=32, intDsize=32.
+ * Particularities:
+ *   After every load instruction a wait cycle is necessary, before the
+ *   fetched values may be used.
+ *   After branches and jumps, there is a delay slot. The assembler fills
+ *   it by pulling some instruction from before the jump (unless we use
+ *   the pseudo-op '.set noreorder' to disable this instruction reordering).
+ */
 
 #ifdef INCLUDED_FROM_C
 
@@ -621,11 +623,11 @@ asm_neg_loop_down:
           bnez $5,$Lnld1        # until (count==0)
         move $2,$0              # 0
         j $31                   # return
-$Lnld3: # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
-        # 1 Digit negieren:
+$Lnld3: # found 1st digit /=0, now there are carrys
+        # negate 1 digit:
         subu $12,$0,$12         # x = -x
         sw $12,($4)             # *ptr = x
-        # alle anderen Digits invertieren:
+        # invert all other digits:
         b $Lnld5
 $Lnld4:   subu $4,4             # xptr--
           lw $12,($4)           # x = *xptr
