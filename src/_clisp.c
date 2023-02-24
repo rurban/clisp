@@ -441,6 +441,7 @@ int main (int argc, char* argv[])
       fprintf(stderr,"%s: ",program_name);
       errno = saved_errno; perror(executable);
     }
+    free(new_argv);
 #endif
     return 1;
   }
