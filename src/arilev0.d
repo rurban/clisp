@@ -1,10 +1,10 @@
-# Arithmetik, Level 0
-# operiert auf einzelnen 16-Bit-Wörtern und 32-Bit-Wörtern (unsigned).
+# Arithmetic, Level 0
+# works with 16-bit words and unsigned 32-bit words.
 
-# Vorzeichen einer 32-Bit-Zahl bestimmen
+# Get sign of a 32-bit int
 # sign_of_sint32(value)
-# > value: eine 32-Bit-Zahl
-# < sint16 result: 0 falls value>=0, -1 falls value<0.
+# > value: sint32
+# < sint16 result: 0 if value>=0, -1 if value<0.
   extern sint16 sign_of_sint32 (sint32 value);
   #if defined(SPARC64)
     #define sign_of_sint32(value)  (((sint64)(sint32)(value)) >> 63)
@@ -14,10 +14,10 @@
     #define sign_of_sint32(value)  ((sint32)(value) >= 0 ? 0 : -1)
   #endif
 
-# Vorzeichen einer 16-Bit-Zahl bestimmen
+# Get sign of a sint16
 # sign_of_sint16(value)
-# > value: eine 16-Bit-Zahl
-# < sint16 result: 0 falls value>=0, -1 falls value<0.
+# > value: sint16
+# < sint16 result: 0 if value>=0, -1 if value<0.
   extern sint16 sign_of_sint16 (sint16 value);
   #if defined(SPARC64)
     #define sign_of_sint16(value)  (((sint64)(sint16)(value)) >> 63)
@@ -27,12 +27,12 @@
     #define sign_of_sint16(value)  ((sint16)(value) >= 0 ? 0 : -1)
   #endif
 
-# High-Word einer 32-Bit-Zahl bestimmen
+# Get high-word of a uint32
 # high16(value)
   extern uint16 high16 (uint32 value);
   #define high16(value)  ((uint16)((uint32)(value)>>16))
 
-# Low-Word einer 32-Bit-Zahl bestimmen
+# Get low-word of a uint32
 # low16(value)
   extern uint16 low16 (uint32 value);
   #define low16(value)  ((uint16)(uint32)(value))

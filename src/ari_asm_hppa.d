@@ -1,5 +1,5 @@
-/*
- * External routines for ARILEV1.D
+/* -*- asm -*-
+ * External routines for arilev1.d
  * Processor: HPPA, because of XMPYU only on HPPA 1.1 (like HP9000/720)
  * Compiler: GNU-C or HP-C
  * Parameter passing conventions:
