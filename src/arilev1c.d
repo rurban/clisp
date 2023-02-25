@@ -1,6 +1,6 @@
-# Definitionen und portabler C-Code zu ARILEV1.D
+# Definitions and portable C-code for arilev1.d
 
-# Kopierschleife:
+# copying loop:
 # destptr = copy_loop_up(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits aufwärts von sourceptr nach destptr
 # und liefert das neue destptr.
@@ -12,7 +12,7 @@
     return destptr;
   }
 
-# Kopierschleife:
+# copying loop:
 # destptr = copy_loop_down(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits abwärts von sourceptr nach destptr
 # und liefert das neue destptr.
@@ -24,7 +24,7 @@
     return destptr;
   }
 
-# Füllschleife:
+# fill loop:
 # destptr = fill_loop_up(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler aufwärts nach destptr
 # und liefert das neue destptr.
@@ -36,7 +36,7 @@
     return destptr;
   }
 
-# Füllschleife:
+# fill loop:
 # destptr = fill_loop_down(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler abwärts nach destptr
 # und liefert das neue destptr.
@@ -48,7 +48,7 @@
     return destptr;
   }
 
-# Lösch-Schleife:
+# clear loop:
 # destptr = clear_loop_up(destptr,count);
 # löscht count (uintC>=0) Digits aufwärts ab destptr
 # und liefert das neue destptr.
@@ -60,7 +60,7 @@
     return destptr;
   }
 
-# Lösch-Schleife:
+# clear loop:
 # destptr = clear_loop_down(destptr,count);
 # löscht count (uintC>=0) Digits abwärts ab destptr
 # und liefert das neue destptr.
@@ -72,7 +72,7 @@
     return destptr;
   }
 
-# OR-Schleife:
+# OR loop:
 # or_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch OR.
@@ -83,7 +83,7 @@
     }
   }
 
-# XOR-Schleife:
+# XOR loop:
 # xor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch XOR.
@@ -94,7 +94,7 @@
     }
   }
 
-# AND-Schleife:
+# AND loop:
 # and_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch AND.
@@ -105,7 +105,7 @@
     }
   }
 
-# EQV-Schleife:
+# EQV loop:
 # eqv_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch EQV (NOT XOR).
@@ -118,7 +118,7 @@
     }
   }
 
-# NAND-Schleife:
+# NAND loop:
 # nand_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NAND (NOT AND).
@@ -131,7 +131,7 @@
     }
   }
 
-# NOR-Schleife:
+# NOR loop:
 # nor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NOR (NOT OR).
@@ -144,7 +144,7 @@
     }
   }
 
-# ANDC2-Schleife:
+# ANDC2 loop:
 # andc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ANDC2 (AND NOT).
@@ -155,7 +155,7 @@
     }
   }
 
-# ORC2-Schleife:
+# ORC2 loop:
 # orc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ORC2 (OR NOT).
@@ -166,7 +166,7 @@
     }
   }
 
-# NOT-Schleife:
+# NOT loop:
 # not_loop_up(xptr,count);
 # verknüpft count (uintC>0) Digits aufwärts ab xptr mit Ziel ab xptr
 # durch NOT.
@@ -179,7 +179,7 @@
     } while (count != 0);
   }
 
-# AND-Test-Schleife:
+# AND-Test loop:
 # and_test_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr durch AND
 # und testet, ob sich dabei ein Digit /=0 ergibt. Ergebnis /=0, falls ja.
@@ -193,7 +193,7 @@
     return false;
   }
 
-# Test-Schleife:
+# Test loop:
 # test_loop_up(ptr,count)
 # testet count (uintC>=0) Digits aufwärts ab ptr, ob darunter eines /=0 ist.
 # Ergebnis /=0, falls ja.
@@ -587,7 +587,7 @@
   #endif
   }
 
-# Schiebe- und Kopier-Schleife um i Bits nach rechts:
+# Move and copy loop by i bits to the right:
 # übertrag = shiftrightcopy_loop_up(sourceptr,destptr,count,i,carry);
 # kopiert count (uintC>=0) Digits aufwärts von sourceptr nach destptr
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach rechts, wobei carry
