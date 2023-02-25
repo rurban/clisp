@@ -1,6 +1,7 @@
-/* (c) Copyright 1994, 1997 P.J.Burwood
+/* -*- asm -*-
+ (c) Copyright 1994, 1997 P.J.Burwood
  bugfixes (c) Copyright 1996 B. Haible
- external routines for arilev1.d
+ External routines for arilev1.d
  Processor: ARM in APCS mode
  Assembler-Syntax: GAS
  Parameter passing conventions, per APCS:

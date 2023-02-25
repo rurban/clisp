@@ -1,8 +1,8 @@
-# Definitionen und portabler C-Code zu ARILEV1.D, Inline-Version
+# Definitions and portable C-code for arilev1.d, Inline-Version
 
 #ifndef COPY_LOOPS
 
-# Kopierschleife:
+# copy loop:
 # destptr = copy_loop_up(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits aufwärts von sourceptr nach destptr
 # und liefert das neue destptr.
@@ -15,7 +15,7 @@
     return destptr;
   }
 
-# Kopierschleife:
+# copy loop:
 # destptr = copy_loop_down(sourceptr,destptr,count);
 # kopiert count (uintC>=0) Digits abwärts von sourceptr nach destptr
 # und liefert das neue destptr.
@@ -32,7 +32,7 @@
 
 #ifndef FILL_LOOPS
 
-# Füllschleife:
+# fill loop:
 # destptr = fill_loop_up(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler aufwärts nach destptr
 # und liefert das neue destptr.
@@ -44,7 +44,7 @@
     return destptr;
   }
 
-# Füllschleife:
+# fill loop:
 # destptr = fill_loop_down(destptr,count,filler);
 # kopiert count (uintC>=0) mal das Digit filler abwärts nach destptr
 # und liefert das neue destptr.
@@ -60,7 +60,7 @@
 
 #ifndef CLEAR_LOOPS
 
-# Lösch-Schleife:
+# clear loop:
 # destptr = clear_loop_up(destptr,count);
 # löscht count (uintC>=0) Digits aufwärts ab destptr
 # und liefert das neue destptr.
@@ -72,7 +72,7 @@
     return destptr;
   }
 
-# Lösch-Schleife:
+# clear loop:
 # destptr = clear_loop_down(destptr,count);
 # löscht count (uintC>=0) Digits abwärts ab destptr
 # und liefert das neue destptr.
@@ -88,7 +88,7 @@
 
 #ifndef LOG_LOOPS
 
-# OR-Schleife:
+# OR loop:
 # or_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch OR.
@@ -99,7 +99,7 @@
     });
   }
 
-# XOR-Schleife:
+# XOR loop:
 # xor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch XOR.
@@ -110,7 +110,7 @@
     });
   }
 
-# AND-Schleife:
+# AND loop:
 # and_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch AND.
@@ -121,7 +121,7 @@
     });
   }
 
-# EQV-Schleife:
+# EQV loop:
 # eqv_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch EQV (NOT XOR).
@@ -133,7 +133,7 @@
     });
   }
 
-# NAND-Schleife:
+# NAND loop:
 # nand_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NAND (NOT AND).
@@ -145,7 +145,7 @@
     });
   }
 
-# NOR-Schleife:
+# NOR loop:
 # nor_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch NOR (NOT OR).
@@ -157,7 +157,7 @@
     });
   }
 
-# ANDC2-Schleife:
+# ANDC2 loop:
 # andc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ANDC2 (AND NOT).
@@ -168,7 +168,7 @@
     });
   }
 
-# ORC2-Schleife:
+# ORC2 loop:
 # orc2_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr
 # mit Ziel ab xptr durch ORC2 (OR NOT).
@@ -179,7 +179,7 @@
     });
   }
 
-# NOT-Schleife:
+# NOT loop:
 # not_loop_up(xptr,count);
 # verknüpft count (uintC>0) Digits aufwärts ab xptr mit Ziel ab xptr
 # durch NOT.
@@ -195,7 +195,7 @@
 
 #ifndef TEST_LOOPS
 
-# AND-Test-Schleife:
+# AND-Test loop:
 # and_test_loop_up(xptr,yptr,count);
 # verknüpft count (uintC>=0) Digits aufwärts ab xptr und ab yptr durch AND
 # und testet, ob sich dabei ein Digit /=0 ergibt. Ergebnis /=0, falls ja.
@@ -209,7 +209,7 @@
     return false;
   }
 
-# Test-Schleife:
+# Test loop:
 # test_loop_up(ptr,count)
 # testet count (uintC>=0) Digits aufwärts ab ptr, ob darunter eines /=0 ist.
 # Ergebnis /=0, falls ja.
@@ -222,7 +222,7 @@
     return false;
   }
 
-# Vergleichsschleife:
+# Compare loop:
 # result = compare_loop_up(xptr,yptr,count);
 # vergleicht nacheinander xptr[0] mit yptr[0], xptr[1] mit yptr[1], usw.,
 # insgesamt count Digits, und liefert 0 falls alle gleich sind,
@@ -243,7 +243,7 @@
 
 #ifndef ADDSUB_LOOPS
 
-# Additionsschleife:
+# Add loop:
 # übertrag = add_loop_down(sourceptr1,sourceptr2,destptr,count);
 # addiert count (uintC>=0) Digits abwärts von sourceptr1, von sourceptr2
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
@@ -279,7 +279,7 @@
     return 1;
   }
 
-# Additionsschleife:
+# Add loop:
 # übertrag = addto_loop_down(sourceptr,destptr,count);
 # addiert count (uintC>=0) Digits abwärts von sourceptr, von destptr
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
@@ -313,7 +313,7 @@
     return 1;
   }
 
-# Incrementierschleife:
+# Increment loop:
 # übertrag = inc_loop_down(ptr,count);
 # incrementiert count (uintC>=0) Digits abwärts von ptr, so lange bis kein
 # Übertrag mehr auftritt und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
@@ -326,7 +326,7 @@
     return 1; # weiterer Übertrag
   }
 
-# Subtraktionsschleife:
+# Subtraction loop:
 # übertrag = sub_loop_down(sourceptr1,sourceptr2,destptr,count);
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr1, von sourceptr2
 # abwärts nach destptr und liefert den Übertrag (0 oder /=0, was -1 bedeutet).
@@ -362,7 +362,7 @@
     return (uintD)-1;
   }
 
-# Subtraktionsschleife:
+# Subtraction loop:
 # übertrag = subx_loop_down(sourceptr1,sourceptr2,destptr,count,carry);
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr1 und addiert
 # einen Carry (0 oder -1), von sourceptr2 abwärts nach destptr und
@@ -404,7 +404,7 @@
     }
   }
 
-# Subtraktionsschleife:
+# Subtraction loop:
 # übertrag = subfrom_loop_down(sourceptr,destptr,count);
 # subtrahiert count (uintC>=0) Digits abwärts von sourceptr, von destptr
 # abwärts nach destptr (dest := dest - source)
@@ -439,7 +439,7 @@
     return (uintD)-1;
   }
 
-# Decrementierschleife:
+# Decrement loop:
 # übertrag = dec_loop_down(ptr,count);
 # decrementiert count (uintC>=0) Digits abwärts von ptr, so lange bis kein
 # Übertrag mehr auftritt und liefert den Übertrag (0 oder -1).
@@ -452,7 +452,7 @@
     return (uintD)-1; # weiterer Übertrag
   }
 
-# Negierschleife:
+# Negation loop:
 # übertrag = neg_loop_down(ptr,count);
 # negiert count (uintC>=0) Digits abwärts von ptr,
 # und liefert den Übertrag (0 oder -1).
@@ -476,7 +476,7 @@
 
 #ifndef SHIFT_LOOPS
 
-# Schiebeschleife um 1 Bit nach links:
+# shift 1bit left loop:
 # übertrag = shift1left_loop_down(ptr,count);
 # schiebt count (uintC>=0) Digits abwärts von ptr um 1 Bit nach links,
 # und liefert den Übertrag (0 oder /=0, was 1 bedeutet).
@@ -500,7 +500,7 @@
     #endif
   }
 
-# Schiebeschleife um i Bits nach links:
+# shift left loop:
 # übertrag = shiftleft_loop_down(ptr,count,i,übertrag_init);
 # schiebt count (uintC>=0) Digits abwärts von ptr um i Bits (0<i<intDsize)
 # nach links, schiebt dabei die i Bits aus übertrag_init rechts rein,
@@ -528,7 +528,7 @@
     #endif
   }
 
-# Schiebe- und Kopierschleife um i Bits nach links:
+# shift and copy left loop:
 # übertrag = shiftleftcopy_loop_down(sourceptr,destptr,count,i);
 # kopiert count (uintC>=0) Digits abwärts von sourceptr nach destptr
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach links,
@@ -560,7 +560,7 @@
     #endif
   }
 
-# Schiebeschleife um 1 Bit nach rechts:
+# shift and copy right loop:
 # übertrag = shift1right_loop_up(ptr,count,übertrag_init);
 # schiebt count (uintC>=0) Digits aufwärts von ptr um 1 Bit nach rechts,
 # wobei links das Bit übertrag_init (sollte =0 oder =-1 sein) hineingeschoben
@@ -585,7 +585,7 @@
     #endif
   }
 
-# Schiebeschleife um i Bits nach rechts:
+# shift and copy right loop:
 # übertrag = shiftright_loop_up(ptr,count,i);
 # schiebt count (uintC>=0) Digits aufwärts von ptr um i Bits (0<i<intDsize)
 # nach rechts, wobei links Nullen eingeschoben werden,
@@ -650,7 +650,7 @@
     #endif
   }
 
-# Schiebe- und Kopier-Schleife um i Bits nach rechts:
+# Schiebe- und Kopier loop um i Bits nach rechts:
 # übertrag = shiftrightcopy_loop_up(sourceptr,destptr,count,i,carry);
 # kopiert count (uintC>=0) Digits aufwärts von sourceptr nach destptr
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach rechts, wobei carry

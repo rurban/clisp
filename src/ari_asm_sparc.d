@@ -1,16 +1,18 @@
-# Externe Routinen zu ARILEV1.D
-# Prozessor: SPARC
-# Compiler: GNU-C oder SUN-C
-# Parameter passing conventions:
-#   Argument registers:
-#     %o0..%o5
-#   Return value register:
-#     %o0 for a single word; %o0 (high 32 bits), %o1 (low 32 bits) for a 'long long'.
-#   Call-used registers (do not have to be preserved across function calls):
-#     %o0..%o5, %g1..%g5
-#   Global register usage:
-#     see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
-# Settings: intCsize=32, intDsize=32.
+/* -*- asm -*-
+ * External routines for arilev1.d
+ * Prozessor: SPARC
+ * Compiler: GNU-C oder SUN-C
+ * Parameter passing conventions:
+ *   Argument registers:
+ *     %o0..%o5
+ *   Return value register:
+ *     %o0 for a single word; %o0 (high 32 bits), %o1 (low 32 bits) for a 'long long'.
+ *   Call-used registers (do not have to be preserved across function calls):
+ *     %o0..%o5, %g1..%g5
+ *   Global register usage:
+ *     see gcc-5.4.0/gcc/config/sparc/sparc.h comment before CALL_USED_REGISTERS.
+ * Settings: intCsize=32, intDsize=32.
+ */
 
 #ifdef INCLUDED_FROM_C
 
