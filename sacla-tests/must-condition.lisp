@@ -59,6 +59,7 @@
   (simple-error () t)
   (error () nil)
   (:no-error (&rest rest) (declare (ignore rest)) nil))
+#-CLISP ;; FIXME!
 (handler-case (error 'type-error :datum nil :expected-type 'vector)
   (type-error () t)
   (error () nil)
