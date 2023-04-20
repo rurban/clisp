@@ -507,14 +507,14 @@ static int next_char (void)
    - operator/separator
  Generalized tokens can be expressions, with balanced parentheses. */
 enum token_type {
-  eof,
-  eol,
-  ident,
-  number,
-  charliteral,
-  stringliteral,
-  sep,
-  expr
+  tt_eof,
+  tt_eol,
+  tt_ident,
+  tt_number,
+  tt_charliteral,
+  tt_stringliteral,
+  tt_sep,
+  tt_expr
 };
 typedef struct {
   enum token_type type;
@@ -531,7 +531,7 @@ static Token* Token_dup (const Token* token)
 
 static inline void Token_delete (Token* token)
 {
-  if (token->type == ident)
+  if (token->type == tt_ident)
     free(token->string);
 }
 
@@ -610,14 +610,14 @@ static Token nexttoken (boolean within_prep_directive)
   { int c = next_char();
     switch (c) {
       case EOF:
-        token.type = eof; return token;
+        token.type = tt_eof; return token;
       case ' ': case '\v': case '\t':
         /* Ignore whitespace. */
         goto restart;
       case '\n':
         /* End of line. */
         if (within_prep_directive) {
-          token.type = eol; return token;
+          token.type = tt_eol; return token;
         } else
           /* Ignore whitespace. */
           goto restart;
@@ -655,7 +655,7 @@ static Token nexttoken (boolean within_prep_directive)
           /* Preprocessor directive. Read until end of line or EOF. */
           while (1) {
             Token subtoken = nexttoken(TRUE);
-            if (subtoken.type == eof || subtoken.type == eol)
+            if (subtoken.type == tt_eof || subtoken.type == tt_eol)
               break;
             Token_delete(&subtoken);
           }
@@ -678,7 +678,7 @@ static Token nexttoken (boolean within_prep_directive)
           else
             break;
         }
-        token.type = number; return token;
+        token.type = tt_number; return token;
       case '\'':
         /* Character literal. */
         while (1) {
@@ -691,7 +691,7 @@ static Token nexttoken (boolean within_prep_directive)
           if (c=='\\')
             c = next_char();
         }
-        token.type = charliteral; return token;
+        token.type = tt_charliteral; return token;
       case '\"':
         /* String literal. */
         while (1) {
@@ -704,7 +704,7 @@ static Token nexttoken (boolean within_prep_directive)
           if (c=='\\')
             c = next_char();
         }
-        token.type = stringliteral; return token;
+        token.type = tt_stringliteral; return token;
       case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
       case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
       case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
@@ -730,13 +730,13 @@ static Token nexttoken (boolean within_prep_directive)
             else
               break;
           }
-          token.type = ident; token.string = StringBuffer_toString(&accumulator);
+          token.type = tt_ident; token.string = StringBuffer_toString(&accumulator);
           StringBuffer_delete(&accumulator);
           return token;
         }
       default:
       separator:
-        token.type = sep; token.ch = c; return token;
+        token.type = tt_sep; token.ch = c; return token;
     }
   }
 }
@@ -778,7 +778,7 @@ static Token next_balanced_token (Token* start_token, uintL open_braces_start)
   while (1) {
     /* Here always  open_braces.count >= open_braces_start . */
     switch (token.type) {
-      case eof:
+      case tt_eof:
         if (open_braces.count > open_braces_start) {
           if (open_braces.count <= MAXBRACES)
             fprintf(stderr,"unclosed '%c' in line %lu\n",
@@ -788,7 +788,7 @@ static Token next_balanced_token (Token* start_token, uintL open_braces_start)
             fprintf(stderr,"unclosed '(' or '{' or '['\n");
         }
         return token;           /* return the EOF token */
-      case sep:
+      case tt_sep:
         switch (token.ch) {
           case '(': case '{': case '[':
             handle_opening_token(&token);
@@ -827,7 +827,7 @@ static Token next_balanced_token (Token* start_token, uintL open_braces_start)
     /* no -> read next token: */
     Token_delete(&token);
     token = next_token();
-    final_type = expr;
+    final_type = tt_expr;
   }
   if (token.type != final_type)
     Token_delete(&token);
@@ -844,11 +844,11 @@ static void convert (void)
   while (1) {
     Token token = next_token();
    restart:
-    if (token.type == sep && token.ch == ';')
+    if (token.type == tt_sep && token.ch == ';')
       seen_maygc = FALSE;
-    else if (token.type == ident && String_equals(token.string,"maygc"))
+    else if (token.type == tt_ident && String_equals(token.string,"maygc"))
       seen_maygc = TRUE;
-    else if (seen_maygc && token.type == sep && token.ch == '(') {
+    else if (seen_maygc && token.type == tt_sep && token.ch == '(') {
       VectorString parameters_of_type_object;
       handle_opening_token(&token);
       /* Remember the variable names from the parameter list. */
@@ -859,16 +859,16 @@ static void convert (void)
         VectorToken_init(&parameter_declaration);
         while (1) {
           token = next_balanced_token(NULL,open_braces.count);
-          if (token.type == eof)
+          if (token.type == tt_eof)
             break;
-          if (token.type == sep && (token.ch == ',' || token.ch == ')'))
+          if (token.type == tt_sep && (token.ch == ',' || token.ch == ')'))
             break;
           VectorToken_add(&parameter_declaration,Token_dup(&token));
         }
         if (VectorToken_length(&parameter_declaration) == 2
-            && VectorToken_element(&parameter_declaration,0)->type == ident
+            && VectorToken_element(&parameter_declaration,0)->type == tt_ident
             && String_equals(VectorToken_element(&parameter_declaration,0)->string,"object")
-            && VectorToken_element(&parameter_declaration,1)->type == ident) {
+            && VectorToken_element(&parameter_declaration,1)->type == tt_ident) {
           char* varname =
             concat1(VectorToken_element(&parameter_declaration,1)->string);
           VectorString_add(&parameters_of_type_object,varname);
@@ -882,16 +882,16 @@ static void convert (void)
           }
         }
         VectorToken_delete(&parameter_declaration);
-        if (token.type == eof)
+        if (token.type == tt_eof)
           break;
         if (token.ch == ')') {
           handle_closing_token(&token);
           break;
         }
       }
-      if (token.type != eof) {
+      if (token.type != tt_eof) {
         token = next_token();
-        if (token.type == sep && token.ch == '{') {
+        if (token.type == tt_sep && token.ch == '{') {
           /* Here's the point where we insert the GCTRIGGER statement. */
           fputs(" GCTRIGGER",outfile);
           if (VectorString_length(&parameters_of_type_object) > 0) {
@@ -926,7 +926,7 @@ static void convert (void)
       /* Continue the loop with the new token (as it might be a semicolon). */
       goto restart;
     }
-    if (token.type == eof)
+    if (token.type == tt_eof)
       break;
     Token_delete(&token);
   }
