@@ -87,7 +87,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    This will prepare a directory build-with-gcc/ and figure out many
    system and compiler dependent parameters needed by CLISP.
 
-   (Note: Some `make's - for example the HP-UX make - have problems
+   (Note: Some ‘make’s - for example the HP-UX make - have problems
    with symbolic links. You may avoid these by calling
 
          ./configure
@@ -193,12 +193,12 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    may indicate bugs in those libraries rather than in CLISP.
    See the specific test suite for detail.
 
-9. Edit the `prefix' variable in the makefile (you could also have specified
-   it as command line option --prefix=... to `configure' in step 3), then type
+9. Edit the ‘prefix’ variable in the makefile (you could also have specified
+   it as command line option --prefix=... to ‘configure’ in step 3), then type
 
          make install
 
-   If `prefix' is /usr/local, then this will install the CLISP binaries
+   If ‘prefix’ is /usr/local, then this will install the CLISP binaries
    into /usr/local/bin and /usr/local/lib (creating a directory
    /usr/local/lib/clisp) and the manual page into /usr/local/man/man1.
    You may need superuser privileges for this step when installing into
