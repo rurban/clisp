@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2009, 2016-2018
+ * Bruno Haible 1990-2009, 2016-2023
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2011, 2017
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -3973,7 +3973,7 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
         pushSTACK(args); pushSTACK(name);
         pushSTACK(*stream_);    /* Stream */
         pushSTACK(S(readL));
-        error(reader_error,GETTEXT("~S from ~S: bad ~S (extra fields: ~S"));
+        error(reader_error,GETTEXT("~S from ~S: bad ~S (extra fields: ~S)"));
       }
       VALUES1(closure); skipSTACK(3); return;
     }
