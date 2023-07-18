@@ -869,7 +869,7 @@
                                (error-of-type 'source-program-error
                                  :form whole-form
                                  :detail subname
-                                 (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
+                                 (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included structure ~S, namely ~S.")
                                  'defstruct name slot-key-value slotname subname
                                  (clos:slot-definition-type slot)))
                              (setf (clos:slot-definition-type slot) slot-key-value))
