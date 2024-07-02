@@ -5249,14 +5249,13 @@ spawning threads, multithreading should work fine.</simpara></warning>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
    <itemizedlist>
-     <listitem><simpara>max. 80 characters on HP-UX,</simpara></listitem>
      <listitem><simpara>max. 127 characters on &linux;.</simpara></listitem>
    </itemizedlist>
    Characters exceeding this limit are simply cut off by the system.
    At least 128 characters are accepted on Solaris, AIX.
    There is no workaround: You have to keep the interpreter pathname
    and arguments short.</para></listitem>
-<listitem><simpara>On Solaris and HP-UX, only the first
+<listitem><simpara>On Solaris, only the first
  <replaceable>interpreter-arg</replaceable> is passed to the &interp-r;.
  In order to pass more than one option (for example, &opt-M; and
  &opt-C;) to &clisp;, separate them with
@@ -5639,8 +5638,7 @@ EOF
    <code>Minix</code>,
    <code>SunOS</code> (on Solaris systems),
    <code>AIX</code>,
-   <code>Windows</code>,
-   <code>HP-UX</code>.
+   <code>Windows</code>.
    Other values are possible as well.</para></listitem></varlistentry>
 
  <varlistentry><term><code>(&os-version;)</code></term>

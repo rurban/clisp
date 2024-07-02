@@ -3992,8 +3992,6 @@ local _Noreturn void error_interrupt (void) {
   #if (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
     /* glibc >= 2.2 also has UCS-4BE, UCS-4LE but WCHAR_T is more efficient. */
     #define CLISP_INTERNAL_CHARSET  "WCHAR_T"
-  #elif defined(UNIX_HPUX) && BIG_ENDIAN_P
-    #define CLISP_INTERNAL_CHARSET  "ucs4"
   #else
     #if BIG_ENDIAN_P
       #define CLISP_INTERNAL_CHARSET  "UCS-4"
@@ -14854,7 +14852,7 @@ local maygc object handle_pathname (Handle fd) {
   /* Most UNIX platforms have /dev/fd/[012] pseudo-files. */
   /* AIX has /proc/<pid>/fd/[012] pseudo-files but they have zero permissions
      and are therefore not usable for any purpose. */
- #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_BEOS) || defined(UNIX_HAIKU) || defined(UNIX_MINIX))
+ #if defined(UNIX) && !(defined(UNIX_AIX) || defined(UNIX_BEOS) || defined(UNIX_HAIKU) || defined(UNIX_MINIX))
   var char buf[20];
   begin_system_call();
   sprintf(buf,"/dev/fd/%d",fd);

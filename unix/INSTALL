@@ -87,13 +87,12 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    This will prepare a directory build-with-gcc/ and figure out many
    system and compiler dependent parameters needed by CLISP.
 
-   (Note: Some ‘make’s - for example the HP-UX make - have problems
-   with symbolic links. You may avoid these by calling
+   Alternatively, you may choose to build in the src/ directory, by
+   executing
 
          ./configure
 
-   without argument. Then CLISP will be built in the src/ directory
-   itself.)
+   without argument.
 
    Note that the argument to configure can be an absolute pathname.
    For example, the following command will also work.

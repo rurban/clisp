@@ -34,13 +34,8 @@
 #endif
 /* used by ERROR, SPVW, STREAM, PATHNAME */
 
-#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS)
+#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON)
   #include <sys/mman.h>
-  #if defined(HAVE_MMAP_ANONYMOUS) && !defined(HAVE_MMAP_ANON)
-    /* HP-UX uses MAP_ANONYMOUS instead of MAP_ANON. */
-    #define MAP_ANON MAP_ANONYMOUS
-    #define HAVE_MMAP_ANON
-  #endif
   #ifdef UNIX_SUNOS5
    /* NB: Under UNIX_SUNOS5, there is a limit of 25 MB mmap() memory.
       Since the shared memory facility of UNIX_SUNOS5 denies
@@ -309,9 +304,6 @@ extern_C int fsync (int fd); /* FSYNC(2) */
   #endif
   #ifndef FD_SETSIZE
     /* definition of types fd_set, err <sys/types.h> : */
-    #ifdef UNIX_HPUX /* fd_set is defined, but FD_SETSIZE is not */
-      #define fd_set  my_fd_set
-    #endif
     #define FD_SETSIZE 256 /* maximum number of file descriptors */
     typedef int fd_mask; /* a bit group */
     #define NFDBITS (sizeof(fd_mask) * 8) /* number of bits in a bit group */
@@ -356,7 +348,6 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
   /* extern_C int tcsetattr (int fd, int optional_actions, const struct termios * tp); */
   /* extern_C int tcdrain (int fd); */ /* TERMIOS(3V) */
   /* extern_C int tcflush (int fd, int flag); */ /* TERMIOS(3V) */
-  #undef TCSETATTR  /* eg. HP-UX 10 */
   #define TCSETATTR tcsetattr
   #define TCDRAIN tcdrain
   #define TCFLUSH tcflush
@@ -532,18 +523,7 @@ extern int wait2 (pid_t pid); /* see unixaux.d */
 #endif
 /* used by SOCKET, STREAM */
 
-/* Dynamic module loading:
-   Even though HP-UX 10.20 and 11.00 support shl_load *and* dlopen,
-   dlopen works correctly only with a patch. Because we want to avoid
-   the situation where we build on a system with the patch but deploy
-   on a system without, do not use dlopen on HP-UX. */
-#ifdef UNIX_HPUX
-  #undef HAVE_DLFCN_H
-  #undef HAVE_DLOPEN
-  #undef HAVE_DLADDR
-  #undef HAVE_DLVSYM
-  #undef HAVE_DLERROR
-#endif
+/* Dynamic module loading: */
 #ifdef HAVE_DLOPEN
   #include <dlfcn.h>            /* declares dlopen,dlsym,dlclose,dlerror */
   #define HAVE_DYNLOAD

@@ -2,8 +2,7 @@
  * Hardcode some pathnames into an existing executable.
  *
  * This program is used when installing clisp binaries on a system which
- * lacks an ANSI C compiler in its default configuration (such as Solaris
- * or HP-UX).
+ * lacks an ANSI C compiler in its default configuration (such as Solaris).
  *
  * Usage: hardcode [-Dname=value]... input.exe output.exe
  *

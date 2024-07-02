@@ -1,6 +1,6 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
- * Bruno Haible 1990-2008, 2016-2017
+ * Bruno Haible 1990-2008, 2016-2024
  * Sam Steingold 1998-2012, 2016-2017
  * German comments translated into English: Stefan Kain 2001-08-13
  */
@@ -303,7 +303,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
 /* GCC can jump directly to labels.
    This results in faster code than switch(). */
 #if defined(GNU) && !(__APPLE_CC__ > 1)
-  #if !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) /* work around HP-UX Linker Bug */
+  #if !defined(NO_FAST_DISPATCH)
     #define FAST_DISPATCH
     #define FAST_DISPATCH_THREADED
   #endif

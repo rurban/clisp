@@ -42,11 +42,7 @@ CC = xlc
 #ifdef UNIX_CYGWIN
 CC = gcc
 #else
-#ifdef UNIX_HPUX
-CC = cc -Aa
-#else
 CC = cc
-#endif
 #endif
 #endif
 CFLAGS = -O @@EXPORT_DYNAMIC_FLAG_SPEC@@

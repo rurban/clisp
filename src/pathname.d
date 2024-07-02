@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2013, 2016-2018, 2020
+ * Bruno Haible 1990-2024
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2013, 2016-2017
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -7086,8 +7086,7 @@ local maygc object direntry_to_string (char* string, volatile int len) {
  < returns the size in bytes needed for struct dirent buffer
 
  This code does not trust values of NAME_MAX that are less than
- 255, since some systems (including at least HP-UX) incorrectly
- define it to be a smaller value.
+ 255, since some systems incorrectly define it to be a smaller value.
  If you use autoconf, include fpathconf and dirfd in your
  AC_CHECK_FUNCS list.  Otherwise use some other method to detect
  and use them where available. */

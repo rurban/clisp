@@ -143,8 +143,7 @@ AC_DEFUN([CL_MMAP],
                       break;
                     #ifdef __ia64__
                     /* On IA64 in 64-bit mode, the executable sits at 0x4000000000000000.
-                       An mmap call to this address would either crash the program (on Linux)
-                       or fail (on HP-UX). */
+                       An mmap call to this address would crash the program (on Linux). */
                     if (pos == 62)
                       continue;
                     #endif

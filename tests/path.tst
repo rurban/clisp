@@ -1444,11 +1444,11 @@ NIL
 
 ;; https://sourceforge.net/p/clisp/bugs/679/
 #+unix (pathnamep (truename "/dev/fd/0"))
-#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "HP-UX" "Minix" "Windows") :test #'equal) 'ERROR 'T)
+#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "Minix" "Windows") :test #'equal) 'ERROR 'T)
 #+unix (pathnamep (truename "/dev/fd/1"))
-#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "HP-UX" "Minix" "Windows") :test #'equal) 'ERROR 'T)
+#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "Minix" "Windows") :test #'equal) 'ERROR 'T)
 #+unix (pathnamep (truename "/dev/fd/2"))
-#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "HP-UX" "Minix" "Windows") :test #'equal) 'ERROR 'T)
+#+unix #.(if (member (ext:operating-system-type) '("AIX" "Haiku" "Minix" "Windows") :test #'equal) 'ERROR 'T)
 
 
 (symbols-cleanup

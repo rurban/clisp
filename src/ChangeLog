@@ -1,5 +1,27 @@
 2024-07-02  Bruno Haible  <bruno@clisp.org>
 
+	Remove support for HP-UX.
+	* _clisp.c: Update.
+	* _distmakefile (CC): Simplify.
+	* disassem.lisp (disassemble-machine-code): Simplify.
+	* eval.d: Update.
+	* lispbibl.d: Update.
+	* m4/mmap.m4 (CL_MMAP): Update.
+	* makemake.in: Stop recommending --with-gmalloc. Update.
+	* pathname.d: Update.
+	* spvw_sigsegv.d: Update.
+	* stream.d: Update.
+	* unix.d: Update.
+	* tests/path.tst: Update.
+	* tests/socket.tst: Update.
+	* tests/streams.tst: Update.
+	* unix/INSTALL: Update.
+	* utils/hardcode.c: Update.
+	* Makefile.devel (multibuild-hpux-*): Remove targets.
+	* configure: Stop recommending --with-gmalloc.
+
+2024-07-02  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for IRIX.
 	* lispbibl.d (UNIX_IRIX): Remove macro.
 	* m4/mmap.m4 (CL_MMAP): Don't define HAVE_MMAP_DEVZERO.

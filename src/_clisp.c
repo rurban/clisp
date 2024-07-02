@@ -114,7 +114,7 @@ int main (int argc, char* argv[])
    * directly. (For example, "sh /usr/local/bin/clisp ..." will make it
    * absolute, "time clisp ..." will make it relative.)
    * If "clisp" is used as a script interpreter, program_name will be
-   * - the full absolute pathname, on SunOS 4, Solaris, HP-UX,
+   * - the full absolute pathname, on SunOS 4, Solaris,
    * - only the basename, on Linux, AIX.
    * It follows that we cannot tell whether we have been called as
    * script interpreter or directly.
@@ -163,7 +163,7 @@ int main (int argc, char* argv[])
    * - (Optional - only if at least one interpreter-arg is present.) Next
    *   comes the tail of the "#!..." line. On SunOS 4, Linux, AIX:
    *   with leading whitespace stripped, but whitespace inside it
-   *   untouched (!). On Solaris, HP-UX: with leading whitespace stripped,
+   *   untouched (!). On Solaris: with leading whitespace stripped,
    *   and cut off at the next whitespace character (!!).
    * - Next comes the filename of the script.
    * - Then all the arguments of the script.
@@ -175,7 +175,7 @@ int main (int argc, char* argv[])
    * Also, don't split argv[1] into pieces if it is the filename of the
    * script. To determine this, look whether argv[1] is an option versus
    * a filename.
-   * As a workaround against the Solaris/HP-UX problem, we split not
+   * As a workaround against the Solaris problem, we split not
    * only at normal spaces, but also at hard spaces (in ISO-8859-1 encoding
    * and in UTF-8 encoding).
    * See <impnotes.html#quickstart>.

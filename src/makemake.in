@@ -67,7 +67,6 @@ options:
        --enable-portability    favour portability over optimization: disable
                                optimizations that could lead to build failures
        --with-gmalloc          use the GNU malloc instead of the libc one
-                               (needed on HP-UX and OpenBSD)
        --with-debug            if you will need to debug the C sources.
     See modules/ directory for available modules and add them to the full
     linking set using --with-module option, e.g.,
@@ -709,12 +708,10 @@ if [ "${with_dynamic_modules}" = default ]; then
     # - Don't enable dynamic modules by default on AIX.
     #   libtool's archive_cmds variable is empty on AIX.
     #   Cf. <https://sourceforge.net/p/clisp/bugs/726/>
-    # - Don't enable dynamic modules by default on HP-UX.
-    #   See the comment regarding HAVE_DYNLOAD in unix.d.
     if [ $CROSS = false ] ; then
       case "$host_os" in
-        aix* | hpux*) with_dynamic_modules=no ;;
-        *)            with_dynamic_modules=yes ;;
+        aix* ) with_dynamic_modules=no ;;
+        *)     with_dynamic_modules=yes ;;
       esac
     else
       with_dynamic_modules=yes
@@ -1394,8 +1391,7 @@ else
   elif "$XCC_SUNPRO" ; then
     # SUNWspro cc flags:
     XCFLAGS=${XCFLAGS}' -xO3 -xstrconst'
-  elif [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
-    # HP's HPPA compilers crash when optimizing.
+  elif [ $TSYS = sun4 ] ; then
     # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
     # we do not reset XCFLAGS so that the user can pass -xarch=v8 et al
     # XCFLAGS=''
@@ -1562,11 +1558,6 @@ if [ $CROSS = false ] ; then
       SOLARIS_LINKING=1 # Even more hacks needed??
       BINARY_DISTRIB=1
     ;;
-    hpux*)
-      # Newer versions of HP-UX (HP-UX 10.20 and HP-UX 11) ship with no ANSI C
-      # compiler, only with K&R "cc" whose only use may be to bootstrap gcc.
-      BINARY_DISTRIB=1
-    ;;
     darwin*)
       # Douglas Philips <dgou@mac.com>:
       # Mac OS/X does not come with developer tools
@@ -1691,16 +1682,6 @@ else
 
       # AIX/POWER with 32-bit ABI
       aix*--powerpc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
-      # HP-UX/hppa with 32-bit ABI
-      hpux*--hppa)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
-      # HP-UX/ia64 with 32-bit ABI
-      hpux*--ia64-ilp32)
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
@@ -1856,16 +1837,6 @@ else
 
       # AIX/POWER with 64-bit ABI
       aix*--powerpc64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
-      # HP-UX/hppa64 with 64-bit ABI
-      hpux*--hppa64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
-      # HP-UX/ia64 with 64-bit ABI
-      hpux*--ia64)
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
@@ -2519,19 +2490,7 @@ cat <<\!!
 echol
 if [ $HOS = unix ] ; then
   # On some systems (SVR3 and others) the default shell is csh.
-  # The sh and ksh on HP-UX 10 have severe bugs that cause
-  #   1. Most invocations of lisp.run crash like this (from HP-UX make):
-  #        ./lisp.run ...
-  #        /bin/sh: 18546 Bus error
-  #      or like this (from GNU make):
-  #        ./lisp.run ...
-  #        *** Termination signal 11
-  #   2. A command such as  'grep -v "^ *$$"'  to be executed incorrectly.
-  # As a workaround, we use GNU bash instead.
-  case "$host_os" in
-    hpux*) echol "SHELL = "`which bash` ;;
-    *)     echol "SHELL = ${CONFIG_SHELL-/bin/sh}" ;;
-  esac
+  echol "SHELL = ${CONFIG_SHELL-/bin/sh}"
   echol
 fi
 echol "# Add-on modules that are present in all linking sets (including base)"
@@ -2931,7 +2890,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   test $f = built && dependsc=${dependsc}' cflags.h'
   flags="$XCPPFLAGS $XCFLAGS"
-  # HP-UX cc and Sun cc don't look for include files in the current directory
+  # Sun cc doesn't look for include files in the current directory
   # any more after a preprocessor directive '#line 1 "../src/file.d"'.
   flags=$flags" -I."
   test $f = foreign -a $HOS = win32 && flags=$flags" -I${SRCTOPDIR}ffcall"
@@ -4037,15 +3996,8 @@ if [ $CROSS = false ] ; then
     echotab "    ${SRCDIR}clisp.rc.in > clisp.rc"
     echol
   fi
-  DRIVERFLAGS=''
-  case "$host_os" in
-    hpux*)
-      # gcc-2.95.2 on HP-UX 10 miscompiles clisp.c when optimization -O is used.
-      test $XCC_GCC = true && DRIVERFLAGS=' -O0'
-      ;;
-  esac
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -4149,7 +4101,7 @@ if [ $CROSS = false ] ; then
           ;;
       esac
     fi
-    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
