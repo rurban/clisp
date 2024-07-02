@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2008, 2016-2022
+ * Bruno Haible 1990-2008, 2016-2024
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -53,9 +53,6 @@
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */
   #undef local
   #include <mach/mach_interface.h>
-  #ifdef UNIX_OSF
-    #include <mach_init.h>
-  #endif
   /* #include <mach/mach.h> */
   #include <mach/mach_traps.h> /* for map_fd() */
   #include <mach/machine/vm_param.h>

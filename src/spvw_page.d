@@ -108,7 +108,7 @@ typedef NODE Page;
   #if (oint_addr_len<=32)
     #define oint_addr_relevant_len  oint_addr_len
   #else
-    #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
+    #if defined(DECALPHA) && defined(UNIX_LINUX)
       /* all addresses are situated between 1*2^32 and 2*2^32. In fact, it is
        only a 2^32 size address space. */
       #define oint_addr_relevant_len  32

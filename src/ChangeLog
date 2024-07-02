@@ -1,3 +1,13 @@
+2024-07-02  Bruno Haible  <bruno@clisp.org>
+
+	Remove support for OSF/1.
+	* lispbibl.d (UNIX_OSF): Remove macro.
+	* unix.d: Update.
+	* spvw_page.d: Update.
+	* spvw_sigsegv.d: Update.
+	* _clisp.c: Update.
+	* makemake.in: Update.
+
 2023-07-18  Bruno Haible  <bruno@clisp.org>
 
 	Fix a typo in an error message string.

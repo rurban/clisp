@@ -8,7 +8,7 @@
  * Since we are at it, this driver program also implements the "-K" option.
  * All other options are passed to the main program.
  *
- * Bruno Haible 31.3.1997-2000, 2004-2005, 2008-2009, 2017, 2020
+ * Bruno Haible 31.3.1997-2024
  * Sam Steingold 1998-2009, 2011
  */
 
@@ -115,7 +115,7 @@ int main (int argc, char* argv[])
    * absolute, "time clisp ..." will make it relative.)
    * If "clisp" is used as a script interpreter, program_name will be
    * - the full absolute pathname, on SunOS 4, Solaris, HP-UX, IRIX,
-   * - only the basename, on Linux, AIX, OSF/1.
+   * - only the basename, on Linux, AIX.
    * It follows that we cannot tell whether we have been called as
    * script interpreter or directly.
    */
@@ -161,8 +161,8 @@ int main (int argc, char* argv[])
    * Script execution on Unix is implemented like this:
    * - The basename/fullname of the interpreter is put into argv[0].
    * - (Optional - only if at least one interpreter-arg is present.) Next
-   *   comes the tail of the "#!..." line. On SunOS 4, Linux, IRIX, AIX,
-   *   OSF/1: with leading whitespace stripped, but whitespace inside it
+   *   comes the tail of the "#!..." line. On SunOS 4, Linux, IRIX, AIX:
+   *   with leading whitespace stripped, but whitespace inside it
    *   untouched (!). On Solaris, HP-UX: with leading whitespace stripped,
    *   and cut off at the next whitespace character (!!).
    * - Next comes the filename of the script.

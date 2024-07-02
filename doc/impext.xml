@@ -5253,7 +5253,7 @@ spawning threads, multithreading should work fine.</simpara></warning>
      <listitem><simpara>max. 127 characters on &linux;.</simpara></listitem>
    </itemizedlist>
    Characters exceeding this limit are simply cut off by the system.
-   At least 128 characters are accepted on Solaris, IRIX, AIX, OSF/1.
+   At least 128 characters are accepted on Solaris, IRIX, AIX.
    There is no workaround: You have to keep the interpreter pathname
    and arguments short.</para></listitem>
 <listitem><simpara>On Solaris and HP-UX, only the first

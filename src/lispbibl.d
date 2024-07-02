@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2011, 2016-2018, 2020-2021
+ * Bruno Haible 1990-2011, 2016-2018, 2020-2024
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2012, 2016-2018
  * Vladimir Tzankov 2008-2012, 2017
@@ -303,9 +303,6 @@
   #endif
   #ifdef __sgi
     #define UNIX_IRIX /* SGI IRIX */
-  #endif
-  #ifdef __osf__
-    #define UNIX_OSF  /* OSF/1 */
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  /* MacOS X a.k.a. Darwin */
@@ -2980,17 +2977,6 @@ typedef enum {
        There is room from 0x6000000100000000UL to 0x8000000000000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x6000000100000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x7FFFFFFFFFFFFFFFUL
-  #endif
-  #if defined(UNIX_OSF) && defined(DECALPHA)
-    /* On OSF/1/alpha:
-       Ordinary pointers are in the range 1*2^32..2*2^32.
-       CODE_ADDRESS_RANGE   = 0x0000000120000000UL
-       MALLOC_ADDRESS_RANGE = 0x0000000140000000UL
-       SHLIB_ADDRESS_RANGE  = 0x000003FFC0000000UL
-       STACK_ADDRESS_RANGE  = ?
-       There is room from 0x000200000000UL to 0x03FF00000000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x03FF00000000UL
   #endif
   #if defined(UNIX_SUNOS5) && defined(AMD64)
     /* On Solaris 10/x86_64:
@@ -6515,11 +6501,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
    But this doesn't mean we have to change the type code distribution. */
 #endif
 
-#if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
-/* mmap() only works with addresses >=0, <2^38, but since ordinary pointers are in the range
- 1*2^32..2*2^32, only the Bits 37..33 remain as type-bits. */
-#endif
-
 #if defined(SPARC64) && defined(UNIX_LINUX)
   /* At 0x70000000 there are shared libraries located.
    But this doesn't mean we have to change the type code distribution. */
@@ -6702,11 +6683,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  bits before one accesses the address */
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef SINGLEMAP_MEMORY
-  #if defined(DECALPHA) && defined(UNIX_OSF)
-    /* Memory-mapping makes the bits 39..33 of an address redundant now. */
-    #undef addressbus_mask
-    #define addressbus_mask  0xFFFFFF01FFFFFFFFUL
-  #elif !defined(WIDE_SOFT)
+  #if !defined(WIDE_SOFT)
     /* Memory-mapping makes the bits 31..24 of an address redundant now. */
     #undef addressbus_mask
     #define addressbus_mask  oint_addr_mask  /* most of the time it's = 0x00FFFFFFUL */

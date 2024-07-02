@@ -110,7 +110,7 @@ EOP
 # built with --enable-usg-echo-default, and also GNU sh-utils-1.16) are broken:
 # They have an echo command which interprets backslashes in the string to be
 # output. We cannot fix this by defining a function called "echo", because the
-# HP/UX, OSF/1, AIX /bin/sh would nevertheless call the builtin, broken "echo".
+# HP/UX, AIX /bin/sh would nevertheless call the builtin, broken "echo".
 # `echol' stands for "echo line".
 if echo 'rs\tuv' | grep t > /dev/null 2> /dev/null; then
   # Uff. Found a BSD or POSIX compliant "echo" command.
@@ -586,7 +586,6 @@ case $# in
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
      CROSS=false
      if [ -z "$HSYS" ]; then # not win32gcc
-       # some shells (A/UX and OSF/1) need the parentheses around "arch" below.
        HSYS=`( (arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
        HSYSOS=`( (uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
        if [ "$HSYS" = 386bsd -o "$HSYS" = sun386 -o "$HSYS" = "386/at" -o "$HSYS" = i86pc ] ; then
@@ -1101,17 +1100,6 @@ fi
 # Main target OS dependencies:
 
 OS_INCLUDES=''
-if [ "$TSYSOS" = osf1 ] ; then
-  # On OSF/1 4.0, libtool adds -lc, but this -lc flag causes link errors when
-  # comes anywhere except at the end of the link command line, complaining
-  # about _OtsDivide32, __lc_ctype and others.
-  remove_lc () { echo " $1 " | sed -e 's, -lc ,,g' -e 's,^ ,,' -e 's, $,,'; }
-  LIBICONV=$(remove_lc " $LIBICONV ")
-  LIBINTL=$(remove_lc " $LIBINTL ")
-  LIBSIGSEGV=$(remove_lc " $LIBSIGSEGV ")
-  LIBUNISTRING=$(remove_lc " $LIBUNISTRING ")
-  LIBSOCKET=$(remove_lc " $LIBSOCKET ")
-fi
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
   LIBS=$LIBS" $LIBICONV $LIBSIGSEGV $LIBUNISTRING"

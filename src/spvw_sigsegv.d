@@ -128,12 +128,6 @@ local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[EBX])); }
    #endif
   #endif
-  #ifdef UNIX_OSF
-    /* stackoverflow_context_t is actually `struct sigcontext *'. */
-   #ifdef DECALPHA
-    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
-   #endif
-  #endif
   #ifdef UNIX_HPUX
    #ifdef HPPA
     /* stackoverflow_context_t is actually `struct sigcontext *'. */
