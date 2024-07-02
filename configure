@@ -709,7 +709,7 @@ Configure findings:
   libsigsegv: ${gl_cv_lib_sigsegv}
 EOF
 
-# The user can set MAKE. In particular, on IRIX, VPATH builds require GNU make.
+# The user can set MAKE. In particular, the user may prefer GNU make.
 if test -z "${MAKE}"; then
   MAKE=make
 fi

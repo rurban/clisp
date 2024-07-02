@@ -19,7 +19,7 @@ dnl   CL_FLOAT_INEXACT     CL_DOUBLE_INEXACT     CL_LONGDOUBLE_INEXACT
 
 m4_define([CL_FENV_SIGNAL_INSTALL],
 [signal (SIGFPE, sigfpe_handler);
- #if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+ #if defined (_AIX) && defined (SIGTRAP)
    signal (SIGTRAP, sigfpe_handler);
  #endif
 ])

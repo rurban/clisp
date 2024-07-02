@@ -34,7 +34,7 @@
 #endif
 /* used by ERROR, SPVW, STREAM, PATHNAME */
 
-#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS) || defined(HAVE_MMAP_DEVZERO)
+#if defined(HAVE_MMAP) || defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_ANONYMOUS)
   #include <sys/mman.h>
   #if defined(HAVE_MMAP_ANONYMOUS) && !defined(HAVE_MMAP_ANON)
     /* HP-UX uses MAP_ANONYMOUS instead of MAP_ANON. */
@@ -42,8 +42,7 @@
     #define HAVE_MMAP_ANON
   #endif
   #ifdef UNIX_SUNOS5
-   /* NB: Under UNIX_SUNOS5, HAVE_MMAP_DEVZERO should be defined.
-      There is however a limit of 25 MB mmap() memory.
+   /* NB: Under UNIX_SUNOS5, there is a limit of 25 MB mmap() memory.
       Since the shared memory facility of UNIX_SUNOS5 denies
       memory at addresses >= 0x06000000 or more than 6 times to attach,
       we must use SINGLEMAP_MEMORY */

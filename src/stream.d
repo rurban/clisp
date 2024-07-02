@@ -1,6 +1,6 @@
 /*
  * Streams for CLISP
- * Bruno Haible 1990-2008, 2016-2020
+ * Bruno Haible 1990-2008, 2016-2024
  * Sam Steingold 1998-2011, 2016-2017
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -3517,9 +3517,6 @@ local void clear_tty_input (Handle handle) {
 #elif defined(UNIX_AIX)
   /* ioctl() on /dev/null produces ENODEV. */
   #define IS_EINVAL_EXTRA  ((errno==ENODEV))
-#elif defined(UNIX_IRIX)
-  /* ioctl() on stdout, when it is a pipe, produces ENOSYS. */
-  #define IS_EINVAL_EXTRA  ((errno==ENOSYS))
 #elif defined(UNIX_HAIKU)
   /* ioctl() on /dev/null produces EPERM. */
   #define IS_EINVAL_EXTRA  ((errno==EPERM))

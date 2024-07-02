@@ -1,5 +1,26 @@
 2024-07-02  Bruno Haible  <bruno@clisp.org>
 
+	Remove support for IRIX.
+	* lispbibl.d (UNIX_IRIX): Remove macro.
+	* m4/mmap.m4 (CL_MMAP): Don't define HAVE_MMAP_DEVZERO.
+	* m4/fenv_default.m4 (CL_FENV_SIGNAL_INSTALL): Update.
+	* spvw.d: Update.
+	* spvw_mmap.d: Update.
+	* spvw_garcol.d: Update.
+	* spvw_garcol_old.d: Update.
+	* stream.d: Update.
+	* misc.d: Update.
+	* _clisp.c: Update.
+	* _README.de, _README.es: Update.
+	* makemake.in: Update.
+	* configure.in: Update.
+	* tests/socket.tst: Update.
+	* Makefile.devel (multibuild-irix-*): Remove targets.
+	* configure: Update.
+	* DEPENDENCIES: Update.
+
+2024-07-02  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for OSF/1.
 	* lispbibl.d (UNIX_OSF): Remove macro.
 	* unix.d: Update.

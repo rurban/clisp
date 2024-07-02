@@ -131,10 +131,6 @@ Diese CLISP-Version setzt Linux 1.1.52 oder neuer voraus.
 Diese CLISP-Version setzt Linux 0.99.7 oder neuer voraus.
 #endif
 #endif
-#if !defined(HAVE_MACH_VM) && !defined(HAVE_MMAP_ANON) /* impliziert HAVE_MMAP_DEVZERO */
-/dev/zero muß von jedermann lesbar sein. Um das sicherzustellen, können Sie
-ein "chmod a+r /dev/zero" ausführen.
-#endif
 
 #endif
 

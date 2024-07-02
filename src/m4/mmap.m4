@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2010, 2017-2018, 2021 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2024 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -83,21 +83,6 @@ AC_DEFUN([CL_MMAP],
            [succeeded="$succeeded"${succeeded:+,}"MAP_ANONYMOUS"],
            [],
            [: # When cross-compiling, don't assume anything.])
-         AC_RUN_IFELSE(
-           [AC_LANG_SOURCE([GL_NOCRASH[
-              $mmap_prog_1
-                #ifndef MAP_FILE
-                 #define MAP_FILE 0
-                #endif
-                int flags = MAP_FILE | MAP_PRIVATE;
-                int fd = open("/dev/zero",O_RDONLY,0666);
-                if (fd<0) exit(1);
-                nocrash_init();
-              $mmap_prog_2
-           ]])],
-           [succeeded="$succeeded"${succeeded:+,}"/dev/zero"],
-           [],
-           [: # When cross-compiling, don't assume anything.])
          if test -n "$succeeded"; then
            cl_cv_func_mmap_fixed="yes ($succeeded)"
          else
@@ -113,11 +98,6 @@ AC_DEFUN([CL_MMAP],
       case "$succeeded" in
         yes*,MAP_ANONYMOUS,* )
           AC_DEFINE([HAVE_MMAP_ANONYMOUS],,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_FIXED | MAP_ANONYMOUS works])
-          ;;
-      esac
-      case "$succeeded" in
-        yes*,/dev/zero,* )
-          AC_DEFINE([HAVE_MMAP_DEVZERO],,[mmaping of the special device /dev/zero with MAP_FIXED works])
           ;;
       esac
     fi
@@ -188,11 +168,6 @@ AC_DEFUN([CL_MMAP],
                         p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANON | MAP_VARIABLE, -1, 0);
                       #elif defined HAVE_MMAP_ANONYMOUS
                         p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
-                      #elif defined HAVE_MMAP_DEVZERO
-                        int zero_fd = open("/dev/zero", O_RDONLY, 0666);
-                        if (zero_fd < 0)
-                          return 1;
-                        p = (char *) mmap ((void*)address, my_size, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_FILE | MAP_VARIABLE, zero_fd, 0);
                       #else
                         ??
                       #endif

@@ -2,7 +2,7 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 CONFIG_SHELL="@SHELL@"  # mind the quoting, for args like -x.
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2010
+# Bruno Haible 1991-2024
 # Sam Steingold 1999-2012, 2016
 
 # Simple usage:
@@ -1704,16 +1704,6 @@ else
         XCFLAGS="$XCFLAGS -DNO_ASM"
         ;;
 
-      # IRIX 6.5 with o32 ABI
-      irix*--mips)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
-      # IRIX 6.5 with n32 ABI
-      irix*--mipsn32)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
-        ;;
-
       # Solaris 10/x86_64 with 32-bit ABI
       solaris2.10--i386)
         XCFLAGS="$XCFLAGS -DNO_ASM"
@@ -2528,7 +2518,7 @@ cat <<\!!
 !!
 echol
 if [ $HOS = unix ] ; then
-  # On some systems (IRIX SVR3 and others) the default shell is csh.
+  # On some systems (SVR3 and others) the default shell is csh.
   # The sh and ksh on HP-UX 10 have severe bugs that cause
   #   1. Most invocations of lisp.run crash like this (from HP-UX make):
   #        ./lisp.run ...
@@ -2978,11 +2968,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
           # gcc-4.9.2 on Linux/mips (o32 ABI) miscompiles spvw.o, eval.o,
           # control.o, list.o and others when -DWIDE and -O is used.
           flags2=$flags2' -O0'
-        fi
-        if [ "$cpu" = mipsn32 -a -n "$USE_WIDE_SOFT" ] ; then
-          # gcc-3.4.6 on IRIX/mips (n32 ABI) miscompiles something
-          # when -DWIDE and -O2 is used.
-          flags2=$flags2' -O1'
         fi
         if [ "$cpu" = i386 -a -n "$USE_WIDE_SOFT" ] ; then
           # gcc-6.3.0 on Hurd/i386 miscompiles something when -DWIDE is in use
@@ -3453,11 +3438,11 @@ if [ $CROSS = false ] ; then
   # Check for decent behaviour when stdin is not readable
   # (cf. https://sourceforge.net/p/clisp/bugs/523/)
   case "$host_os" in
-    aix* | irix*)
-      # On AIX 7.1 and IRIX 6.5, inside 'make' or 'gmake', a command that has
-      # stdin with mode O_RDWR gets the current stdin or tty assigned to stdin
-      # instead. This would make the test hang. 'bash -c' is the workaround.
-      # Whereas 'sh -c' would not help.
+    aix*)
+      # On AIX 7.1, inside 'make' or 'gmake', a command that has stdin with
+      # mode O_RDWR gets the current stdin or tty assigned to stdin instead.
+      # This would make the test hang. 'bash -c' is the workaround. Whereas
+      # 'sh -c' would not help.
       if type bash >/dev/null 2>/dev/null; then
         echotab "bash -c '\$(RUN) -q -M lispinit.mem 0>/dev/null'"
       fi
@@ -3780,13 +3765,8 @@ echotab " echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
 echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
-  # On IRIX, clisp-link must be executed through /bin/ksh or bash, not /bin/sh.
-  case "$host_os" in
-    irix*) goodshell="$CONFIG_SHELL" ;;
-    *)     goodshell='/bin/sh' ;;
-  esac
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@''SHELL''@%${goodshell}%' \\"
+  echotab "sed -e 's%@''SHELL''@%/bin/sh%' \\"
   echotab "    -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' \\"
   echotab "    -e 's%@createsharedlib@%$XCC_CREATESHARED_%' \\"
   echotab "    -e 's%@LEXE@%${LEXE}%' -e 's%@SHREXT@%${SHREXT}%' \\"

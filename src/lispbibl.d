@@ -301,9 +301,6 @@
   #ifdef _AIX
     #define UNIX_AIX  /* IBM AIX */
   #endif
-  #ifdef __sgi
-    #define UNIX_IRIX /* SGI IRIX */
-  #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  /* MacOS X a.k.a. Darwin */
     /* MacOSX pathnames are UTF-8 strings, not byte sequences
@@ -1309,7 +1306,7 @@ typedef signed int  signean;
   /* Usually one would omit the array's limit */
   #define unspecified
 #else
-  /* However, HP-UX- and IRIX-compilers will only work with this: */
+  /* However, HP-UX compilers will only work with this: */
   #define unspecified 1
 #endif
 %% export_def(unspecified);
@@ -2534,29 +2531,6 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x80000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
   #endif
-  #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64))
-   #if !(_MIPS_SIM == _ABIN32)
-    /* On IRIX 6.5 with o32 ABI:
-       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
-       CODE_ADDRESS_RANGE   = 0x00000000UL
-       MALLOC_ADDRESS_RANGE = 0x10000000UL
-       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
-       STACK_ADDRESS_RANGE  = 0x7F000000UL
-       There is room from 0x11000000UL to 0x5E800000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x5E7FFFFFUL
-   #else
-    /* On IRIX 6.5 with n32 ABI:
-       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
-       CODE_ADDRESS_RANGE   = 0x10000000UL
-       MALLOC_ADDRESS_RANGE = 0x10000000UL
-       SHLIB_ADDRESS_RANGE  = 0x0F000000UL
-       STACK_ADDRESS_RANGE  = 0x7F000000UL
-       There is room from 0x11000000UL to 0x5E800000UL. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x11000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x5E7FFFFFUL
-   #endif
-  #endif
   #if defined(UNIX_SUNOS5) && defined(I80386)
     /* On Solaris 10/x86_64 with 32-bit ABI:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
@@ -3455,31 +3429,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
        consumes so many bits that we have at most 1+1 bits for the typecode. */
     #define SINGLEMAP_WORKS 0
   #endif
-  #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
-    #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
-      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
-      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
-      #define SINGLEMAP_oint_type_shift 24
-      /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE:
-         it conflicts with the system's use of the memory region at 0x5F800000UL.
-         This leads to
-         "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings. clisp might crash later!"
-         Later, we see an endless loop or a crash while compiling compiler.lisp. */
-      #define IGNORE_MAPPABLE_ADDRESS_RANGE
-      #define SINGLEMAP_WORKS 0
-    #else /* IRIX 6.5 with n32 ABI */
-      #define SINGLEMAP_ADDRESS_BASE 0x10000000UL
-      #define SINGLEMAP_TYPE_MASK    0x6F000000UL
-      #define SINGLEMAP_oint_type_shift 24
-      /* This configuration allocates memory outside the MAPPABLE_ADDRESS_RANGE:
-         it conflicts with the system's use of the memory region at 0x5F800000UL.
-         This leads to
-         "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings. clisp might crash later!"
-         Later, we see an endless loop or a crash while compiling compiler.lisp. */
-      #define IGNORE_MAPPABLE_ADDRESS_RANGE
-      #define SINGLEMAP_WORKS 0
-    #endif
-  #endif
   #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
     #define SINGLEMAP_ADDRESS_BASE 0x08000000UL
     #define SINGLEMAP_TYPE_MASK    0x77000000UL
@@ -3769,7 +3718,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    an influence on oint_type_shift and oint_type_len.  */
 #if !defined(HEAPCODES)                                                        \
     && !defined(WIDE_SOFT)                                                     \
-    && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                  \
+    && (defined(HAVE_MMAP_ANON)                                                \
         || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                    \
     && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
     && !defined(ADDRESS_RANGE_RANDOMIZED)                                      \
@@ -3807,7 +3756,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    (and, with it, TRIVIALMAP_MEMORY_STACK) constrain the addresses used for
    heap objects and for the stack and thus give more freedom for choosing
    oint_type_shift and oint_type_len.  */
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)                     \
+#if (defined(HAVE_MMAP_ANON)                                                   \
      || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
     && !defined(SINGLEMAP_MEMORY)                                              \
     && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
@@ -3886,7 +3835,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          - On platforms where we can assume GCC, both ONE_FREE_BIT_HEAPCODES and
            GENERIC64_HEAPCODES generally work well, with few exception. The
            choice between these two is done below. */
-      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
+      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
         #if (defined(UNIX_AIX) && defined(POWERPC64)) || (defined(UNIX_HPUX) && defined(HPPA64)) || (defined(UNIX_HPUX) && defined(IA64)) || (defined(UNIX_SUNOS5) && defined(AMD64) && !defined(GNU)) || (defined(UNIX_SUNOS5) && defined(SPARC64))
           /* On these platforms, TYPECODES (without SINGLEMAP_MEMORY) does not work. */
@@ -4077,7 +4026,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          known to not work. */
     #if !defined(WIDE_HARD)
       /* 32-bit platforms */
-      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_IRIX) || defined(UNIX_SUNOS5)
+      #if defined(UNIX_AIX) || defined(UNIX_HPUX) || defined(UNIX_SUNOS5)
         /* A compiler other than GCC may be used. */
         #define ONE_FREE_BIT_HEAPCODES
       #elif (defined(UNIX_CYGWIN) && defined(I80386))
@@ -4247,15 +4196,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         /* Does not work because mmap MAP_FIXED is not supported on this platform. */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 0
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
-      #endif
-      #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
-        #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
-          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
-          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
-        #else /* IRIX 6.5 with n32 ABI */
-          #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
-          #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
-        #endif
       #endif
       #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
@@ -4593,13 +4533,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          alignment issues within strm_buffered_extrafields_t and Dfloat,
          which lead to SIGBUS. */
       #define KERNELVOID32_HEAPCODES_WORKS 0
-    #endif
-    #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
-      #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
-        #define KERNELVOID32_HEAPCODES_WORKS 0
-      #else /* IRIX 6.5 with n32 ABI */
-        #define KERNELVOID32_HEAPCODES_WORKS 0
-      #endif
     #endif
     #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
       #define KERNELVOID32_HEAPCODES_WORKS 1
@@ -4950,14 +4883,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
           #if defined(UNIX_HPUX) && defined(IA64) /* HP-UX/ia64 with 32-bit ABI */
             /* Does not work because mmap MAP_FIXED is not supported on this platform. */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
-          #endif
-          #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64)) /* IRIX 6.5 with o32 or n32 ABI */
-            #if !(_MIPS_SIM == _ABIN32) /* IRIX 6.5 with o32 ABI */
-              #define MAPPABLE_ADDRESS_RANGE_START 0x08000000UL /* or 0x01000000UL or 0x02000000UL or 0x04000000UL or 0x20000000UL or 0x40000000UL */
-              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
-            #else /* IRIX 6.5 with n32 ABI */
-              #define TYPECODES_WITH_TRIVIALMAP_WORKS 0
-            #endif
           #endif
           #if defined(UNIX_SUNOS5) && defined(I80386) /* Solaris/x86_64 with 32-bit ABI */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 0

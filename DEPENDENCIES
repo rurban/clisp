@@ -13,8 +13,6 @@ The following packages should be installed before GNU clisp is installed
     - On Debian and Debian-based systems: libsigsegv-dev,
     - On Red Hat distributions: libsigsegv-devel.
     - Other: https://repology.org/project/libsigsegv/versions
-  + Use the newest version on all platforms except IRIX.
-    On IRIX, use version 2.10, because IRIX support was dropped in version 2.11.
   + If it is installed in a nonstandard directory, pass the option
     --with-libsigsegv-prefix=DIR to 'configure'.
 

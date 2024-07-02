@@ -1,6 +1,6 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
- * Bruno Haible 1990-2011, 2016-2018
+ * Bruno Haible 1990-2011, 2016-2024
  * Sam Steingold 1998-2013, 2016-2017
  * German comments translated into English: Stefan Kain 2002-03-24
 
@@ -267,7 +267,7 @@ local void dump_process_memory_map (FILE* out)
 local int mappable_address_range_check (void)
 {
   var int exitcode = 0;
-#if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+#if defined(HAVE_MMAP_ANON) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
  #if defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
   var const uintL count = 256;
   var uintL i;
@@ -3098,7 +3098,7 @@ local inline int init_memory (struct argv_initparams *p) {
   }
   /* fetch memory: */
   begin_system_call();
- #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
+ #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
   mmap_init_pagesize();
  #endif
  #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
@@ -3237,13 +3237,6 @@ local inline int init_memory (struct argv_initparams *p) {
           var Heap* heapptr = &mem.heaps[heapnr];
           var uintP heap_start_addr = (uintP)(type_zero_oint(heapnr)+SINGLEMAP_ADDRESS_BASE);
           var uintP heap_end_addr = (uintP)(type_zero_oint(heapnr+1)+SINGLEMAP_ADDRESS_BASE);
-         #if defined(UNIX_IRIX) && (defined(MIPS) || defined(MIPS64))
-          /* Avoid "Warning: reserving address range 0x5f000000...0x5fffffff that contains memory mappings."
-             and   "Warning: reserving address range 0x5e000000...0x5effffff that contains memory mappings." */
-          if (heap_end_addr == 0x60000000UL || heap_end_addr == 0x5F000000UL) {
-            heap_end_addr -= 0x800000UL;
-          }
-         #endif
           heapptr->heap_limit = heap_start_addr;
           heapptr->heap_hardlimit = heap_end_addr;
           if (mem.heaptype[heapnr] >= -1) {

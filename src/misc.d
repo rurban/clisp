@@ -1,6 +1,6 @@
 /*
  * Miscellaneous CLISP functions
- * Bruno Haible 1990-2008, 2017-2020
+ * Bruno Haible 1990-2008, 2017-2024
  * Sam Steingold 1999-2011, 2017
  */
 
@@ -203,11 +203,6 @@ LISPFUNN(operating_system_type,0)
       #if defined(UNIX_HURD)
       if (strcmp(utsname.sysname,"GNU")==0) {
         strcpy(utsname.sysname,"GNU/Hurd");
-      }
-      #endif
-      #if defined(UNIX_IRIX)
-      if (strncmp(utsname.sysname,"IRIX",4)==0) {
-        utsname.sysname[4] = '\0';
       }
       #endif
       #if defined(UNIX_CYGWIN)

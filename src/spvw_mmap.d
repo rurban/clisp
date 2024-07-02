@@ -1,6 +1,6 @@
 /* Memory mapping support. */
 
-#if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+#if defined(HAVE_MMAP_ANON) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
 
 /* -------------------------- Specification ---------------------------- */
 
@@ -436,28 +436,7 @@ global int mprotect (void* addr, size_t len, int prot)
 
 /* -------------- Implementation for Unix except Mac OS X -------------- */
 
-#if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO)
-
-/* We don't need both mmap() methods. One is sufficient. */
-#ifdef HAVE_MMAP_ANON
-  #undef HAVE_MMAP_DEVZERO
-#endif
-
-#ifdef HAVE_MMAP_DEVZERO
-local int mmap_zero_fd;       /* open handle for /dev/zero */
-  /* How to access /dev/zero: Sometimes /dev/zero has permissions 0644.
-   Therefore we can OPEN() it only with O_RDONLY instead of O_RDWR.
-   Therefore, in the mmap() call, we use MAP_PRIVATE instead of MAP_SHARED. */
-  #ifdef MAP_FILE
-    #define map_flags  MAP_FILE | MAP_PRIVATE
-  #else
-    #define map_flags  MAP_PRIVATE
-  #endif
-#endif
-#ifdef HAVE_MMAP_ANON
-  #define mmap_zero_fd  -1      /* any invalid handles works! */
-  #define map_flags  MAP_ANON | MAP_PRIVATE
-#endif
+#if defined(HAVE_MMAP_ANON)
 
 local void mmap_init_pagesize (void)
 {
@@ -480,18 +459,6 @@ local void mmap_init_pagesize (void)
 
 local int mmap_init (void)
 {
- #ifdef HAVE_MMAP_DEVZERO
-  {
-    var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
-    if (fd<0) {
-      var int errcode = errno;
-      fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
-      errno_out(errcode);
-      return -1; /* error */
-    }
-    mmap_zero_fd = fd;
-  }
- #endif
   mincore_init();
   return 0;
 }
@@ -517,8 +484,8 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
   if ( (void*) mmap((void*)map_addr, /* desired address */
                     map_len, /* length */
                     PROT_READ_WRITE, /* access rights */
-                    map_flags | MAP_FIXED, /* exactly at this address! */
-                    mmap_zero_fd, 0) /* put empty pages */
+                    MAP_ANON | MAP_PRIVATE | MAP_FIXED, /* exactly at this address! */
+                    -1, 0) /* put empty pages */
        == (void*)(-1)) {
     var int errcode = errno;
     fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),

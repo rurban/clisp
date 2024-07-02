@@ -114,7 +114,7 @@ int main (int argc, char* argv[])
    * directly. (For example, "sh /usr/local/bin/clisp ..." will make it
    * absolute, "time clisp ..." will make it relative.)
    * If "clisp" is used as a script interpreter, program_name will be
-   * - the full absolute pathname, on SunOS 4, Solaris, HP-UX, IRIX,
+   * - the full absolute pathname, on SunOS 4, Solaris, HP-UX,
    * - only the basename, on Linux, AIX.
    * It follows that we cannot tell whether we have been called as
    * script interpreter or directly.
@@ -161,7 +161,7 @@ int main (int argc, char* argv[])
    * Script execution on Unix is implemented like this:
    * - The basename/fullname of the interpreter is put into argv[0].
    * - (Optional - only if at least one interpreter-arg is present.) Next
-   *   comes the tail of the "#!..." line. On SunOS 4, Linux, IRIX, AIX:
+   *   comes the tail of the "#!..." line. On SunOS 4, Linux, AIX:
    *   with leading whitespace stripped, but whitespace inside it
    *   untouched (!). On Solaris, HP-UX: with leading whitespace stripped,
    *   and cut off at the next whitespace character (!!).
