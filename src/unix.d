@@ -105,7 +105,7 @@ typedef void (*signal_handler_t) (int);
 /* install a signal cleanly: */
 extern_C signal_handler_t signal (int sig, signal_handler_t handler); /* SIGNAL(3V) */
 #if defined(SIGNAL_NEED_UNBLOCK_OTHERS) && defined(HAVE_SIGACTION)
-/* On some BSD systems (e.g. SunOS 4.1.3_U1), the call of a signal handler
+/* On some BSD systems, the call of a signal handler
    is different when the current signal is blocked.
    We therefore use sigaction() instead of signal(). */
   #define USE_SIGACTION

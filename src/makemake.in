@@ -2405,14 +2405,6 @@ if test -n "$GROFF"; then
   ROFF_PS="$GROFF -Tps -mandoc"
 else
   ROFF_MAN="nroff -man"
-  if [ $HSYS = sun4 -a $CROSS = false ] ; then
-    if [ "$UNAME_S" = sunos ] ; then
-      case "$UNAME_R" in 4*)
-        # SunOS 4
-        ROFF_MAN="nroff -a -man" ;;
-      esac
-    fi
-  fi
 fi
 echol '# formatter for manual page'
 echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
@@ -3001,8 +2993,8 @@ done
 if [ "${with_gmalloc}" = yes ]; then
   for f in $GMALLOC ; do
     echol "${f}${TOBJ} : ${SRCDIR}${f}.c"
-    # gmalloc.c needs -DUSG on Solaris and then needs -DMEMMOVE_MISSING for SunOS 4.
-    echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -DUSG -DMEMMOVE_MISSING -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
+    # gmalloc.c needs -DUSG on Solaris.
+    echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -DUSG -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
     echol
   done
 fi
