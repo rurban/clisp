@@ -5231,10 +5231,31 @@ spawning threads, multithreading should work fine.</simpara></warning>
  executable.</para>
 
 <simplesect id="script-req"><title>OS Requirements</title>
- <para>&clisp; can be used as a script interpreter under the following
- conditions:
+<para>There are two cases:
 <itemizedlist>
-<listitem><simpara>The &interp-r; must be the full pathname of &clisp-cmd;
+<listitem><para>On operating systems where the program
+ <filename>/usr/bin/env</filename> understands the <literal>-S</literal>
+ option &#x2013; this is the case on &linux; and &hurd; distributions
+ that use the &coreutils;, and on &freebsd; &#x2013;:
+ <itemizedlist>
+  <listitem><simpara>Define the &interp-r; as
+   <filename>/usr/bin/env</filename>.</simpara></listitem>
+  <listitem><simpara>Define the &interp-args; as
+   <literal>-S clisp [<replaceable>clisp-arguments</replaceable>]</literal>.
+   </simpara></listitem>
+ </itemizedlist>
+ For example:
+ <screen>#!/usr/bin/env -S clisp &opt-C; &opt-M; my-image.mem &opt-L; French</screen>
+ &clisp-cmd; will then be looked up in <envar>PATH</envar>, and the
+ <ulink url="https://www.gnu.org/software/coreutils/manual/html_node/env-invocation.html#g_t_002dS_002f_002d_002dsplit_002dstring-usage-in-scripts"><literal>-S</literal></ulink>
+ option causes
+ <ulink url="https://www.gnu.org/software/coreutils/manual/html_node/env-invocation.html"><command>env</command></ulink>
+ to split the &interp-args; at spaces.</para></listitem>
+<listitem><para>Otherwise, a lookup in PATH is not possible; you will
+ need to use the full pathname of &clisp-cmd; instead. The following
+ conditions need to be met:
+<itemizedlist>
+<listitem><simpara>The &interp-r; must be the full pathname of &clisp-cmd;.
  The recommended path is <filename>/usr/local/bin/clisp</filename>,
  and if &clisp; is actually installed elsewhere, making
  <filename>/usr/local/bin/clisp</filename> be a symbolic link to the
@@ -5247,15 +5268,22 @@ spawning threads, multithreading should work fine.</simpara></warning>
  <command role="unix">make install</command> will install &clisp-cmd; as
  a real executable.</simpara></listitem>
 <listitem><para>On some platforms, the first line which specifies the
- interpreter is limited in length:
+ interpreter and &interp-args; is limited in length:
    <itemizedlist>
-     <listitem><simpara>max. 127 characters on &linux;.</simpara></listitem>
+     <listitem><simpara>max. 253 characters on &linux;.</simpara></listitem>
+     <listitem><simpara>max. 513 characters on &macosx;.</simpara></listitem>
+     <listitem><simpara>max. 1025 characters on &netbsd;.</simpara></listitem>
+     <listitem><simpara>max. 125 characters on &openbsd;.</simpara></listitem>
+     <listitem><simpara>max. 1022 characters on AIX.</simpara></listitem>
+     <listitem><simpara>max. 1021 characters on Solaris.</simpara></listitem>
    </itemizedlist>
-   Characters exceeding this limit are simply cut off by the system.
-   At least 128 characters are accepted on Solaris, AIX.
+   On &linux; and AIX,
+   characters exceeding this limit are simply cut off by the system.
+   On &macosx;, &netbsd;, &openbsd;, and Solaris,
+   the script is not executed at all if this line is too long.
    There is no workaround: You have to keep the interpreter pathname
    and arguments short.</para></listitem>
-<listitem><simpara>On Solaris, only the first
+<listitem><simpara>On AIX and Solaris, only the first
  <replaceable>interpreter-arg</replaceable> is passed to the &interp-r;.
  In order to pass more than one option (for example, &opt-M; and
  &opt-C;) to &clisp;, separate them with
@@ -5263,7 +5291,9 @@ spawning threads, multithreading should work fine.</simpara></warning>
  spaces</ulink> instead of normal spaces.  (But the separator between
  &interp-r; and &interp-args; must still be a normal space!) &clisp;
  will split the &interp-args; both at no-break spaces and at normal spaces.
-</simpara></listitem></itemizedlist></para></simplesect>
+</simpara></listitem></itemizedlist>
+</para></listitem></itemizedlist>
+</para></simplesect>
 
 <simplesect id="script-arg-split"><title>How &clisp-cmd; handles
  &interp-args;.</title>
@@ -5625,14 +5655,15 @@ EOF
   <listitem><para>Returns the operating system (kernel) name. The value
    is a string, similar to the result of <code>uname -s</code>. Possible
    values include:
-   <code>Linux</code> (both on GNU/Linux and Android systems),
+   <code>Linux</code> (on GNU/Linux, on musl libc systems, and on
+   Android systems),
    <code>GNU/Hurd</code>,
    <code>GNU/kFreeBSD</code>,
-   <code>Darwin</code> (on macOS systems),
-   <code>FreeBSD</code>,
+   <code>Darwin</code> (on &macosx; systems),
+   <code>FreeBSD</code> (on &freebsd; systems),
    <code>DragonFly</code>,
-   <code>NetBSD</code>,
-   <code>OpenBSD</code>,
+   <code>NetBSD</code> (on &netbsd; systems),
+   <code>OpenBSD</code> (on &openbsd; systems),
    <code>CYGWIN</code>,
    <code>Haiku</code>,
    <code>Minix</code>,

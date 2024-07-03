@@ -3,6 +3,7 @@
 <!-- *** Entities for docbook/xml, related to UNIX *** -->
 <!--
  Copyright (C) 2002-2005, 2007-2011 by Sam Steingold
+ Copyright (C) 2024 by Bruno Haible
  This is Free Software, distributed under the GNU GPL v2+
  See http://www.gnu.org/copyleft/gpl.html
  -->
@@ -17,10 +18,10 @@
 <!ENTITY reg-exp '<ulink role="unix" url="basedefs/V1_chap09.html">regular expression</ulink>'>
 <!ENTITY sh-lang '<ulink role="unix" url="utilities/idx/shell.html">Shell Command Language</ulink>'>
 <!ENTITY path-match '<ulink role="unix" url="utilities/V3_chap02.html#tag_18_13">Pathname Matching</ulink>'>
+<!ENTITY sh '<ulink role="unix" url="utilities/sh.html"><command>/bin/sh</command></ulink>'>
 <!ENTITY iconv '<function role="unix">iconv</function>'>
 <!ENTITY free '<function role="unix">free</function>'>
 <!ENTITY malloc '<function role="unix">malloc</function>'>
-<!ENTITY sh '<ulink role="unix" url="utilities/sh.html"><command>/bin/sh</command></ulink>'>
 <!ENTITY stdin '<varname role="unix">stdin</varname>'>
 <!ENTITY stdout '<varname role="unix">stdout</varname>'>
 <!ENTITY stderr '<varname role="unix">stderr</varname>'>

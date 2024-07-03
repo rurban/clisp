@@ -3,6 +3,7 @@
 <!-- *** Entities for docbook/xml, related to Common Lisp *** -->
 <!--
  Copyright (C) 2000-2011,2016-2017 by Sam Steingold
+ Copyright (C) 2024 by Bruno Haible
  This is Free Software, distributed under the GNU GPL v2+
  See https://www.gnu.org/copyleft/gpl.html
  -->
@@ -118,6 +119,7 @@
 <!ENTITY autoconf '&gnu; <ulink url="https://www.gnu.org/software/autoconf/">autoconf</ulink>'>
 <!ENTITY configure '<ulink url="https://www.gnu.org/software/autoconf/"><command>configure</command></ulink>'>
 <!ENTITY bash '&gnu; <ulink url="https://www.gnu.org/software/bash/">bash</ulink>'>
+<!ENTITY coreutils '&gnu; <ulink url="https://www.gnu.org/software/coreutils/">coreutils</ulink>'>
 <!ENTITY cvs '<ulink url="https://savannah.nongnu.org/projects/cvs">CVS</ulink>'>
 <!ENTITY hg '<ulink url="https://www.mercurial-scm.org/">Mercurial</ulink>'>
 <!ENTITY git '<ulink url="https://git-scm.com/">Git</ulink>'>
@@ -154,6 +156,7 @@
 <!ENTITY bsd '<ulink url="http://www.bsd.org/"><emphasis role="platform">*BSD</emphasis></ulink>'>
 <!ENTITY cygwin '<ulink url="https://cygwin.com/"><emphasis role="platform">Cygwin</emphasis></ulink>'>
 <!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="platform">DOS</emphasis></ulink>'>
+<!ENTITY freebsd '<ulink url="https://www.freebsd.org/"><emphasis role="platform">FreeBSD</emphasis></ulink>'>
 <!ENTITY gnome '<ulink url="https://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
 <!ENTITY haiku '<ulink url="https://www.haiku-os.org/"><emphasis role="platform">Haiku</emphasis></ulink>'>
 <!ENTITY hurd '<ulink url="https://www.gnu.org/software/hurd/"><emphasis role="platform">Hurd</emphasis></ulink>'>
@@ -161,7 +164,9 @@
 <!ENTITY linux '<ulink url="https://www.kernel.org/"><emphasis role="platform">Linux</emphasis></ulink>'>
 <!ENTITY macosx '<ulink url="https://www.apple.com/macos/"><emphasis role="platform">Mac OS X</emphasis></ulink>'>
 <!ENTITY mingw '<ulink url="http://www.mingw.org/"><emphasis role="platform">MinGW</emphasis></ulink>'>
+<!ENTITY netbsd '<ulink url="https://www.netbsd.org/"><emphasis role="platform">NetBSD</emphasis></ulink>'>
 <!ENTITY nextstep '<ulink url="https://en.wikipedia.org/wiki/NeXTSTEP"><emphasis role="platform">NeXTstep</emphasis></ulink>'>
+<!ENTITY openbsd '<ulink url="https://www.openbsd.org/"><emphasis role="platform">OpenBSD</emphasis></ulink>'>
 <!ENTITY os2 '<ulink url="https://www.os2.org/"><emphasis role="platform">OS/2</emphasis></ulink>'>
 <!ENTITY unicode '<ulink url="https://www.unicode.org/"><emphasis role="platform">UNICODE</emphasis></ulink>'>
 <!ENTITY unicode32 '<ulink url="https://www.unicode.org/">Unicode</ulink> <ulink url="https://www.unicode.org/unicode/reports/tr28/">3.2</ulink>'>
