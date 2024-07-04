@@ -1,5 +1,12 @@
 2024-07-04  Bruno Haible  <bruno@clisp.org>
 
+	Fix compilation error on native Windows.
+	* utils/gctrigger.c (eof): Define as a macro.
+	* utils/varbrace.c (eof): Likewise.
+	* utils/ccmp2c.c (eof): Likewise.
+
+2024-07-04  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".

@@ -41,6 +41,11 @@ typedef int  boolean;
 #define inline
 #endif
 
+/* Avoid conflict with function eof(), declared on native Windows.  */
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define eof tt_eof
+#endif
+
 
 /* ========================= Memory utilities ========================= */
 

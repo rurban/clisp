@@ -65,6 +65,11 @@ extern "C" void exit(int);
 #define SPLIT_OBJECT_INITIALIZATIONS
 #endif
 
+/* Avoid conflict with function eof(), declared on native Windows.  */
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define eof tt_eof
+#endif
+
 
 /* Memory utilities. */
 static char* xmalloc (uintL count)
