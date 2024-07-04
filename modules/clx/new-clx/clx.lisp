@@ -1768,7 +1768,6 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 (defvar *canonicalize-encoding*
   ;; this encoding canonicalization was requested by
   ;; Pascal J.Bourguignon <pjb@informatimago.com> in
-  ;; http://article.gmane.org/gmane.lisp.clisp.general:7794
   ;; https://sourceforge.net/p/clisp/mailman/message/11011372/
   `(,(lambda (s)
        (if (and (<= 4 (length s))

@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2008-2011, 2017, 2021 Free Software Foundation, Inc.
+dnl Copyright (C) 2008-2024 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -15,7 +15,6 @@ AC_DEFUN([CLISP_SET],
   [$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
 
 dnl for use with autoconf 2.64 which supports m4_map_args_w
-dnl <http://article.gmane.org/gmane.comp.sysutils.autoconf.general/12077>
 dnl <https://lists.gnu.org/archive/html/autoconf/2009-09/msg00082.html>
 m4_define([_CL_CLISP_REQUIRE_FEATURE_1],
 [_CL_CLISP_REQUIRE_FEATURE_2([$1], m4_toupper([$1]))])

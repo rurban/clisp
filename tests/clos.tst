@@ -628,7 +628,6 @@ FOO
 
 ;; From: Kaz Kylheku <kaz@ashi.footprints.net>
 ;; Date: Sat, 3 Jan 2004 14:47:25 -0800 (PST)
-;; http://article.gmane.org/gmane.lisp.clisp.general:7853
 ;; https://sourceforge.net/p/clisp/mailman/message/11011470/
 (let ((file "clos-tst.lisp") c)
   (unwind-protect
@@ -4172,7 +4171,6 @@ NIL
 
 ;; Check that methods that become active through a class redefinition
 ;; are actually invoked.
-;; http://article.gmane.org/gmane.lisp.clisp.general:9582
 ;; https://sourceforge.net/p/clisp/mailman/message/12275493/
 (let ((ret '()))
   (defclass mixin-foo-144 () ())

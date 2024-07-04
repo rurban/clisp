@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2011, 2017, 2021 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2024 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -23,7 +23,6 @@ dnl when making aclocal.m4, see Makefile.devel.
 dnl note that this macro cannot call AC_CONFIG_AUX_DIR directly because
 dnl the required macros are evaluated BEFORE the macro itself
 dnl and some of them require AC_CONFIG_AUX_DIR.
-dnl <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
 dnl <https://lists.gnu.org/archive/html/bug-gnulib/2009-01/msg00134.html>
 AC_DEFUN([CL_MODULE_COMMON_CHECKS],[
   AC_REQUIRE([CL_CLISP], [CL_CLISP($1)])

@@ -1,7 +1,7 @@
 /*
  * system calls
  * Copyright (C) 2003-2012,2016-2017 Sam Steingold
- * Copyright (C) 2005,2008,2017-2020 Bruno Haible
+ * Copyright (C) 2005,2008,2017-2024 Bruno Haible
  * Copyright (C) 2005,2010 Arseny Slobodyuk
  * This is Free Software, distributed under the GNU GPL v2+
  */
@@ -158,7 +158,6 @@ DEFMODULE(syscalls,"POSIX")
 /* we use posix fcntl() on unix and win32 LockFileEx() on win32.
    since cygwin supports fcntl(), we use it there, but another option
    would be to use cygwin get_osfhandle() + win32 LockFileEx(), see
-   http://article.gmane.org/gmane.os.cygwin/35175
    https://cygwin.com/ml/cygwin/2003-08/msg00588.html */
 
 /* ============================== aux ============================== */
@@ -1309,8 +1308,7 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
   skipSTACK(2);
 }
 
-/* http://article.gmane.org/gmane.lisp.clisp.devel/20422
-   https://sourceforge.net/p/clisp/mailman/message/23010926/
+/* https://sourceforge.net/p/clisp/mailman/message/23010926/
    https://sourceforge.net/p/clisp/bugs/593/ */
 DEFUN(POSIX::BEGIN-SUBPROCESSES,) {
     begin_system_call();

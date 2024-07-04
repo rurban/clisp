@@ -165,8 +165,7 @@ FLOAT~
 (float= (os:erfc 22)    1.6219058609334726d-212)  T
 (float= (os:erfc 23)    4.441265948088057d-232)  T
 (float= (os:erfc 24)    1.6489825831519335d-252)  T
-;; NetBSD http://article..gmane.org/gmane.lisp.clisp.general/12716
-;; https://sourceforge.net/p/clisp/mailman/message/21248044/
+;; NetBSD https://sourceforge.net/p/clisp/mailman/message/21248044/
 (float~ (os:erfc 25)    8.300172571196522d-274)  T
 (float~ (os:erfc 26)    5.663192408856143d-296)  T
 (float= (os:erfc 30)    0.0d0)  T
@@ -215,7 +214,6 @@ FLOAT~
   :unless (and (floatp lg) (floatp l!) (= 1 (float (/ l! lg) 0f0)))
   ;; round off at single precision: different gamma implementations have
   ;; very different levels of accuracy
-  ;; http://thread.gmane.org/gmane.lisp.clisp.devel/19047
   ;; https://sourceforge.net/p/clisp/mailman/message/20367574/
   :return (list n (float lg 0f0) l!))
 (172 711.7147f0 FLOATING-POINT-OVERFLOW)
@@ -323,7 +321,6 @@ T
      (not (os:stat-vfs-p (show (os:stat-vfs *tmp2*) :pretty t))))
 NIL
 
-;; http://article.gmane.org/gmane.lisp.clisp.devel/19074
 ;; https://sourceforge.net/p/clisp/mailman/message/20367601/
 ;; (FILE-OWNER *TMP1*) ==> "BUILTIN\\Administrators"
 ;; - local group name, which actually owns the file and includes
@@ -334,7 +331,6 @@ NIL
 (string= (show #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
                                           (ext:getenv "USERNAME"))
                ;; $USER is void when running as root on MacOSX 10.4.11
-               ;; http://article.gmane.org/gmane.lisp.clisp.devel/20248
                ;; https://sourceforge.net/p/clisp/mailman/message/22834980/
                #+unix (or (ext:getenv "USER")
                           (posix:user-info-login-id
@@ -778,7 +774,6 @@ RUN-SLEEP
         (os:set-file-stat d :mode 0)
         (handler-case (directory w)
           (error (e) (princ-error e) (type-of e)))
-        ;; http://article.gmane.org/gmane.lisp.clisp.general:13778
         ;; https://sourceforge.net/p/clisp/mailman/message/27584189/
         (directory w :if-does-not-exist :keep) ; cannot recurse but no error
         (os:set-file-stat d :mode :RWXU)

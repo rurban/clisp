@@ -512,7 +512,6 @@ T
     (read-from-string ",1")))
 T
 
-;; http://article.gmane.org/gmane.lisp.clisp.devel/21281
 ;; https://sourceforge.net/p/clisp/mailman/message/24542855/
 (block nil
   (handler-bind ((style-warning (handler-return nil t)))

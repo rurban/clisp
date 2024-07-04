@@ -428,7 +428,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; note that there is NO read/print consistency (e.g., for t_QUAD)
 ;; https://pari.math.u-bordeaux.fr/archives/pari-users-1712/msg00019.html
 ;; https://pari.math.u-bordeaux.fr/archives/pari-users-1712/msg00028.html
-;; http://thread.gmane.org/gmane.comp.mathematics.pari.user/3452
 ;; GEN gp_read_str(char *t);
 (def-call-out %read-from-string (:name "gp_read_str")
   (:return-type pari-gen) (:arguments (str c-string)))
@@ -540,7 +539,6 @@ t.e., this is the memory size for the real return value in ulong words.")
 
 ;; life sucks: the order of words in the data segment of integers depend on
 ;; whether pari is build with gmp (low bytes first) or not (high bytes first).
-;; <http://article.gmane.org/gmane.comp.mathematics.pari.user/1574>
 ;; <http://pari.math.u-bordeaux.fr/archives/pari-users-1005/msg00008.html>
 (c-lines "
 void get_integer_data (GEN x, ulong len, ulong *data)

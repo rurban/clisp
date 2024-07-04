@@ -399,7 +399,6 @@ NIL
   nil)
 #+unix NIL
 
-;; http://article.gmane.org/gmane.lisp.clisp.devel:14852
 ;; https://sourceforge.net/p/clisp/mailman/message/14250678/
 #+unix
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
@@ -411,7 +410,6 @@ NIL
   nil)
 #+unix NIL
 
-;; http://article.gmane.org/gmane.lisp.clisp.devel:14865
 ;; https://sourceforge.net/p/clisp/mailman/message/14250705/
 (progn
   (show (list '*sa-local* (setq *sa-local* (host->sa :default 7777))) :pretty t)

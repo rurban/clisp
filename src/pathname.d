@@ -8181,8 +8181,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
          /bin/sh is a symlink to busybox, so RUN-PROGRAM which calls SHELL
          which calls EXECUTE fails because EXECUTE calls "busybox -c"
          instead of "/bin/sh -c".
-         <https://sourceforge.net/p/clisp/mailman/message/24434416/>
-         <http://article.gmane.org/gmane.lisp.clisp.devel/21219> */
+         <https://sourceforge.net/p/clisp/mailman/message/24434416/> */
       /* convert thet file to string, existence is checked by execv(2): */
       *file_ = physical_namestring(*file_);
       *file_ = string_to_asciz(*file_,O(misc_encoding));

@@ -882,7 +882,6 @@ T
     (write-to-string '(foo 123) :pretty t)))
 "FOO:(123.)"
 
-;; http://article.gmane.org/gmane.lisp.clisp.devel:17529
 ;; https://sourceforge.net/p/clisp/mailman/message/18449061/
 ;; required by ANSI, tested by COPY-PPRINT-DISPATCH.[145]
 (eq *print-pprint-dispatch* (copy-pprint-dispatch)) NIL

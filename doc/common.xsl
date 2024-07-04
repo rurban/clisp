@@ -11,7 +11,7 @@
                 exclude-result-prefixes="date"
                 version="1.0">
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps/21355 https://lists.oasis-open.org/archives/docbook-apps/200903/msg00123.html -->
+<!-- https://lists.oasis-open.org/archives/docbook-apps/200903/msg00123.html -->
 <!-- side effect of this empty param is to output a message -->
 <xsl:param name="__output.version__"><xsl:message>
  <xsl:text>DocBook XSL stylesheet VERSION is: </xsl:text>
@@ -99,18 +99,6 @@
  </code></a>
 </xsl:template>
 <!-- ============================== / RFC ============================== -->
-
-<!-- =============================== Gmane =============================== -->
-<xsl:param name="gmane.top"
-           select="'http://article.gmane.org/gmane.lisp.clisp.'"/>
-<xsl:template match="ulink[@role='gmane']">
- <a class="{@role}" href="{$gmane.top}{@url}"><code>
-   <xsl:choose><xsl:when test=".=''"><xsl:text>Gmane/</xsl:text>
-     <xsl:value-of select="@url"/></xsl:when>
-    <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
- </code></a>
-</xsl:template>
-<!-- ============================== / Gmane ============================== -->
 
 <!-- ============================ CLISP CVS ============================ -->
 <xsl:param name="clisp.cvs.file" select="'https://gitlab.com/gnu-clisp/clisp/blob/master/'"/>
@@ -302,7 +290,7 @@
 </xsl:template>
 <!-- ========================== /CLHS ========================== -->
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps/21851 https://lists.oasis-open.org/archives/docbook-apps/200906/msg00074.html
+<!-- https://lists.oasis-open.org/archives/docbook-apps/200906/msg00074.html
      avoid line breaks in lineannotation from xref titles -->
 <xsl:template match="title/text()" mode="no.anchor.mode">
  <xsl:value-of select="translate(., '&#10;', '&#32;')"/>
@@ -364,8 +352,8 @@
 <xsl:template match="screen/prompt">
  <strong><xsl:apply-imports/></strong></xsl:template>
 
-<!-- http://article.gmane.org/gmane.text.docbook.apps:19941 https://lists.oasis-open.org/archives/docbook-apps/200806/msg00000.html
-     http://article.gmane.org/gmane.text.docbook.apps:19957 https://lists.oasis-open.org/archives/docbook-apps/200806/msg00016.html
+<!-- https://lists.oasis-open.org/archives/docbook-apps/200806/msg00000.html
+     https://lists.oasis-open.org/archives/docbook-apps/200806/msg00016.html
      list examples in the section toc -->
 <xsl:param name="generate.toc">
 appendix  toc,title

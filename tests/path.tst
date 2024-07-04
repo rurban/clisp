@@ -1339,7 +1339,6 @@ NIL
 #+(and clisp unicode (not macos))
 (block test-weird-pathnames
   (handler-bind ((parse-error
-                  ;; http://article.gmane.org/gmane.lisp.clisp.devel:18772
                   ;; https://sourceforge.net/p/clisp/mailman/message/20057056/
                   ;; some systems, e.g., OSX PPC 10.4.11 (Darwin Kernel
                   ;; Version 8.11.0), allow only ASCII pathnames
@@ -1365,7 +1364,6 @@ NIL
 
 ;; DOS attack: bad pathnames in search can break LOAD
 ;; http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520
-;; http://thread.gmane.org/gmane.lisp.clisp.devel/18532
 ;; https://sourceforge.net/p/clisp/mailman/message/19813221/
 #+(and clisp unicode (not macos))
 (letf* ((custom:*pathname-encoding* charset:iso-8859-1) ; 1:1

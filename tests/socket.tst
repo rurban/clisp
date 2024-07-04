@@ -606,7 +606,6 @@ T
 
 ;; no one should be listening on 12345
 ;; https://sourceforge.net/p/clisp/bugs/482/
-;; http://article.gmane.org/gmane.lisp.clisp.general/12286
 ;; https://sourceforge.net/p/clisp/mailman/message/19641749/
 (check-os-error (socket:socket-connect 12345 "localhost" :timeout 30)
   #.(let ((os (ext:operating-system-type)))

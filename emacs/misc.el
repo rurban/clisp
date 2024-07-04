@@ -153,52 +153,6 @@
         (insert (car (last (split-string new "/" t))))))
     (message "Converted %d references" count)))
 
-(defun clisp-goto-gmane-url ()
-  "Visit the article using Gnus - from Lars."
-  (interactive)
-  (when (re-search-forward "\\(gmane[^/\n ]+\\)[/:]\\([0-9]+\\)" nil t)
-    (let ((group (match-string 1))
-	  (article (match-string 2)))
-      (message "group=[%s] article=[%s]" group article)
-      (gnus-fetch-group
-       group ; (format "nntp+news.gmane.org:%s" group)
-       (and article
-	    (list (string-to-number article)))))))
-
-(defun clisp-get-gmane-article ()
-  "Low level: get the article using raw NNTP."
-  (interactive)
-  (when (re-search-forward "\\(gmane[^/\n ]+\\)[/:]\\([0-9]+\\)" nil t)
-    (let* ((group (match-string 1))
-           (article (match-string 2))
-           (buffer (concat "*" group "-" article "*"))
-           (proc (open-network-stream "nntp" buffer "news.gmane.org" 119)))
-      (message "group=[%s] article=[%s]" group article)
-      (set-process-coding-system proc 'utf-8-dos 'utf-8-dos)
-      (process-send-string proc (concat "GROUP " group "\nARTICLE " article "\n"))
-      (display-buffer buffer))))
-
-(defun clisp-google-message ()
-  "Search for the message in the current buffer
- - created by `clisp-get-gmane-article'."
-  (interactive)
-  (goto-char (point-min))
-  (cl-flet ((get-field (f)
-              (save-excursion
-                (and (goto-char (point-min))
-                     (re-search-forward (concat "^" f ":") nil t)
-                     (cl-substitute
-                      ?+ ?\s (buffer-substring-no-properties
-                              (point) (line-end-position)))))))
-    (if (re-search-forward "^Newsgroups: gmane.lisp.clisp" nil t)
-        (browse-url (concat "https://sourceforge.net/p/clisp/mailman/search/?q="
-                            (get-field "Subject")))
-      (browse-url (concat "https://google.com/?q="
-                          (get-field "Subject")
-                          (or (get-field "List-Id")
-                              (get-field "Sender")
-                              ""))))))
-
 (defun clisp-check-all-links ()
   "Check all links in the buffer.
 Does _NOT_ check anchors!"

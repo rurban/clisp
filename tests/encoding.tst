@@ -39,7 +39,6 @@ ERROR
 *no-iconv-p*
 
 ;; these are broken with glibc 2.2.2, but work with glibc 2.2.5
-;; http://article.gmane.org/gmane.lisp.clisp.devel/9746
 ;; https://sourceforge.net/p/clisp/mailman/message/12561422/
 (if *no-iconv-p* t
     (string=
