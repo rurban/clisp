@@ -426,13 +426,13 @@ gnulib-imported : update-gnulib force
 
 # it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
-LIBTOOL_VERSION = 2.4.6
+LIBTOOL_VERSION = 2.4.7
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
-LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
+LIBTOOL_SOURCE_URL = https://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
 # an alternative way to update libtool files is "cd src; libtoolize --copy"
-AUTOMAKE_VERSION = 1.16.1
-AUTOMAKE_GIT = http://git.savannah.gnu.org/cgit/automake.git/plain/lib/
-GTK_GIT_ROOT = https://git.gnome.org/browse/gtk+/plain
+AUTOMAKE_VERSION = 1.16.5
+AUTOMAKE_GIT = https://git.savannah.gnu.org/cgit/automake.git/plain/lib/
+GTK_GIT_ROOT = https://gitlab.gnome.org/GNOME/gtk/-/raw
 GNULIB_AUX=config.guess config.rpath config.sub
 
 # it is important not to have "*.m4" targets with ": force" dependencies
@@ -455,14 +455,14 @@ build-aux-update : update-gnulib force
 	  $(CP) libtool-$(LIBTOOL_VERSION)/m4/$$f.m4 src/m4/; \
 	done
 	$(RMRF) libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
-	cd src/m4; $(RM) gtk-2.0.m4; $(WGET) -O gtk-2.0.m4 '$(GTK_GIT_ROOT)/m4macros/gtk-2.0.m4?h=gtk-2-24'
-	cd src/m4; $(RM) gtk-3.0.m4; $(WGET) -O gtk-3.0.m4 '$(GTK_GIT_ROOT)/m4macros/gtk-3.0.m4?h=gtk-3-22'
+	cd src/m4; $(RM) gtk-2.0.m4; $(WGET) -O gtk-2.0.m4 '$(GTK_GIT_ROOT)/gtk-2-24/m4macros/gtk-2.0.m4?ref_type=heads'
+	cd src/m4; $(RM) gtk-3.0.m4; $(WGET) -O gtk-3.0.m4 '$(GTK_GIT_ROOT)/gtk-3-22/m4macros/gtk-3.0.m4?ref_type=heads'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # ------------------------------------------------------------------------------
 
-GMALLOC_URL = http://git.savannah.gnu.org/cgit/emacs.git/plain/src/gmalloc.c
+GMALLOC_URL = https://git.savannah.gnu.org/cgit/emacs.git/plain/src/gmalloc.c
 
 update-gmalloc : force
 	$(WGET) -O src/gmalloc.c $(GMALLOC_URL)

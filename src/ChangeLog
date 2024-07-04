@@ -1,5 +1,12 @@
 2024-07-04  Bruno Haible  <bruno@clisp.org>
 
+	build: Use newer libtool and build-aux upstream.
+	* Makefile.devel (LIBTOOL_VERSION, AUTOMAKE_VERSION): Increase.
+	(LIBTOOL_SOURCE_URL, AUTOMAKE_GIT, GMALLOC_URL): Use https, not http.
+	(GTK_GIT_ROOT, build-aux-update): Update after GNOME's git has moved.
+
+2024-07-04  Bruno Haible  <bruno@clisp.org>
+
 	build: Fix "error: AM_INIT_AUTOMAKE expanded multiple times".
 	* Makefile.devel (src/aclocal.m4): Eliminate AM_INIT_AUTOMAKE lines.
 
