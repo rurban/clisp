@@ -1,5 +1,6 @@
-# memchr.m4 serial 18
-dnl Copyright (C) 2002-2004, 2009-2021 Free Software Foundation, Inc.
+# memchr.m4
+# serial 20
+dnl Copyright (C) 2002-2004, 2009-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -48,7 +49,7 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
   if (fd >= 0)
 # endif
     {
-      int pagesize = getpagesize ();
+      long int pagesize = sysconf (_SC_PAGESIZE);
       char *two_pages =
         (char *) mmap (NULL, 2 * pagesize, PROT_READ | PROT_WRITE,
                        flags, fd, 0);
@@ -85,12 +86,12 @@ AC_DEFUN_ONCE([gl_FUNC_MEMCHR],
        [gl_cv_func_memchr_works=yes],
        [gl_cv_func_memchr_works=no],
        [case "$host_os" in
-                           # Guess no on Android.
-          linux*-android*) gl_cv_func_memchr_works="guessing no" ;;
-                           # Guess yes on native Windows.
-          mingw*)          gl_cv_func_memchr_works="guessing yes" ;;
-                           # If we don't know, obey --enable-cross-guesses.
-          *)               gl_cv_func_memchr_works="$gl_cross_guess_normal" ;;
+                             # Guess no on Android.
+          linux*-android*)   gl_cv_func_memchr_works="guessing no" ;;
+                             # Guess yes on native Windows.
+          mingw* | windows*) gl_cv_func_memchr_works="guessing yes" ;;
+                             # If we don't know, obey --enable-cross-guesses.
+          *)                 gl_cv_func_memchr_works="$gl_cross_guess_normal" ;;
         esac
        ])
     ])

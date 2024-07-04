@@ -1,6 +1,6 @@
 /* sockets.c --- wrappers for Windows socket functions
 
-   Copyright (C) 2008-2021 Free Software Foundation, Inc.
+   Copyright (C) 2008-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -113,7 +113,7 @@ static int initialized_sockets_version /* = 0 */;
 #endif /* WINDOWS_SOCKETS */
 
 int
-gl_sockets_startup (int version _GL_UNUSED)
+gl_sockets_startup (_GL_UNUSED int version)
 {
 #if WINDOWS_SOCKETS
   if (version > initialized_sockets_version)

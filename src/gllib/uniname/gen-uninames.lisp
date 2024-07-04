@@ -1,15 +1,16 @@
-#!/usr/local/bin/clisp -C
+#!/usr/bin/env -S clisp -C
 
-;;; Creation of gnulib's uninames.h from the UnicodeData.txt table.
+;;; Creation of gnulib's uninames.h from the UnicodeData.txt and NameAliases.txt
+;;; tables.
 
-;;; Copyright (C) 2000-2021 Free Software Foundation, Inc.
+;;; Copyright (C) 2000-2024 Free Software Foundation, Inc.
 ;;; Written by Bruno Haible <bruno@clisp.org>, 2000-12-28.
 ;;;
 ;;; This program is free software.
 ;;; It is dual-licensed under "the GNU LGPLv3+ or the GNU GPLv2+".
 ;;; You can redistribute it and/or modify it under either
 ;;;   - the terms of the GNU Lesser General Public License as published
-;;;     by the Free Software Foundation; either version 3, or (at your
+;;;     by the Free Software Foundation, either version 3, or (at your
 ;;;     option) any later version, or
 ;;;   - the terms of the GNU General Public License as published by the
 ;;;     Free Software Foundation; either version 2, or (at your option)
@@ -48,8 +49,8 @@
   length                        ; number of words
 )
 
-(defun main (inputfile outputfile aliasfile)
-  (declare (type string inputfile outputfile aliasfile))
+(defun main (inputfile aliasfile outputfile)
+  (declare (type string inputfile aliasfile outputfile))
   #+UNICODE (setq *default-file-encoding* charset:utf-8)
   (let ((all-chars '())
         (all-chars-hashed (make-hash-table :test #'equal))
@@ -81,11 +82,12 @@
                   (unless (or (<= #xFE00 code #xFE0F) (<= #xE0100 code #xE01EF))
                     (push (make-unicode-char :index name-index
                                              :name name-string)
-                          all-chars)
+                          all-chars
+                    )
                     (setf (gethash code all-chars-hashed) (car all-chars))
                     ;; Update the contiguous range, or start a new range.
                     (if (and range (= (1+ (range-end-code range)) code))
-                        (setf (range-end-code range) code)
+                      (setf (range-end-code range) code)
                       (progn
                         (when range
                           (push range all-ranges))
@@ -93,32 +95,33 @@
                                                 :start-code code
                                                 :end-code code))))
                     (incf name-index)
-                    (setq last-code code)
-                  ) ) ) )
+            ) ) ) )
     ) ) ) )
     (setq all-chars (nreverse all-chars))
     (if range
-        (push range all-ranges))
+      (push range all-ranges))
     (setq all-ranges (nreverse all-ranges))
     (when aliasfile
       ;; Read all characters and names from the alias file.
       (with-open-file (istream aliasfile :direction :input)
         (loop
-         (let ((line (read-line istream nil nil)))
-           (unless line (return))
-           (let* ((i1 (position #\; line))
-                  (i2 (position #\; line :start (1+ i1)))
-                  (code-string (subseq line 0 i1))
-                  (code (parse-integer code-string :radix 16))
-                  (name-string (subseq line (1+ i1) i2))
-                  (uc (gethash code all-chars-hashed)))
-             (when uc
-               (push (make-unicode-char :index (unicode-char-index uc)
-                                        :name name-string)
-                     all-aliases)
-             ) ) ) ) ) )
+          (let ((line (read-line istream nil nil)))
+            (unless line (return))
+            (unless (or (equal line "") (equal (subseq line 0 1) "#"))
+              (let* ((i1 (position #\; line))
+                     (i2 (position #\; line :start (1+ i1)))
+                     (code-string (subseq line 0 i1))
+                     (code (parse-integer code-string :radix 16))
+                     (name-string (subseq line (1+ i1) i2))
+                     (uc (gethash code all-chars-hashed)))
+                (when uc
+                  (push (make-unicode-char :index (unicode-char-index uc)
+                                           :name name-string)
+                        all-aliases
+    ) ) ) ) ) ) ) )
     (setq all-aliases (nreverse all-aliases)
-          all-chars-and-aliases (append all-chars all-aliases))
+          all-chars-and-aliases (append all-chars all-aliases)
+    )
     ;; Split into words.
     (let ((words-by-length (make-array 0 :adjustable t)))
       (dolist (name (list* "HANGUL SYLLABLE" "CJK COMPATIBILITY" "VARIATION"
@@ -174,20 +177,20 @@
         (format ostream " * Unicode character name table.~%")
         (format ostream " * Generated automatically by the gen-uninames utility.~%")
         (format ostream " */~%")
-        (format ostream "/* Copyright (C) 2000-2021 Free Software Foundation, Inc.~%")
+        (format ostream "/* Copyright (C) 2000-2024 Free Software Foundation, Inc.~%")
         (format ostream "~%")
-        (format ostream "   This program is free software.~%")
+        (format ostream "   This file is free software.~%")
         (format ostream "   It is dual-licensed under \"the GNU LGPLv3+ or the GNU GPLv2+\".~%")
         (format ostream "   You can redistribute it and/or modify it under either~%")
         (format ostream "     - the terms of the GNU Lesser General Public License as published~%")
-        (format ostream "       by the Free Software Foundation; either version 3, or (at your~%")
+        (format ostream "       by the Free Software Foundation, either version 3, or (at your~%")
         (format ostream "       option) any later version, or~%")
         (format ostream "     - the terms of the GNU General Public License as published by the~%")
         (format ostream "       Free Software Foundation; either version 2, or (at your option)~%")
         (format ostream "       any later version, or~%")
         (format ostream "     - the same dual license \"the GNU LGPLv3+ or the GNU GPLv2+\".~%")
         (format ostream "~%")
-        (format ostream "   This program is distributed in the hope that it will be useful,~%")
+        (format ostream "   This file is distributed in the hope that it will be useful,~%")
         (format ostream "   but WITHOUT ANY WARRANTY; without even the implied warranty of~%")
         (format ostream "   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU~%")
         (format ostream "   Lesser General Public License and the GNU General Public License~%")

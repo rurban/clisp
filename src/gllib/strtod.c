@@ -1,9 +1,9 @@
-/* Copyright (C) 1991-1992, 1997, 1999, 2003, 2006, 2008-2021 Free Software
+/* Copyright (C) 1991-1992, 1997, 1999, 2003, 2006, 2008-2024 Free Software
    Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 3 of the
+   published by the Free Software Foundation, either version 3 of the
    License, or (at your option) any later version.
 
    This file is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@
    You should have received a copy of the GNU Lesser General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-#if ! defined USE_LONG_DOUBLE
+#if ! (defined USE_FLOAT || defined USE_LONG_DOUBLE)
 # include <config.h>
 #endif
 
@@ -23,11 +23,10 @@
 
 #include <ctype.h>      /* isspace() */
 #include <errno.h>
-#include <float.h>      /* {DBL,LDBL}_{MIN,MAX} */
+#include <float.h>      /* {FLT,DBL,LDBL}_{MIN,MAX} */
 #include <limits.h>     /* LONG_{MIN,MAX} */
 #include <locale.h>     /* localeconv() */
 #include <math.h>       /* NAN */
-#include <stdbool.h>
 #include <stdio.h>      /* sprintf() */
 #include <string.h>     /* strdup() */
 #if HAVE_NL_LANGINFO
@@ -38,7 +37,20 @@
 
 #undef MIN
 #undef MAX
-#ifdef USE_LONG_DOUBLE
+#if defined USE_FLOAT
+# define STRTOD strtof
+# define LDEXP ldexpf
+# define HAVE_UNDERLYING_STRTOD HAVE_STRTOF
+# define DOUBLE float
+# define MIN FLT_MIN
+# define MAX FLT_MAX
+# define L_(literal) literal##f
+# if HAVE_LDEXPF_IN_LIBC
+#  define USE_LDEXP 1
+# else
+#  define USE_LDEXP 0
+# endif
+#elif defined USE_LONG_DOUBLE
 # define STRTOD strtold
 # define LDEXP ldexpl
 # if defined __hpux && defined __hppa
@@ -55,6 +67,11 @@
 # define MIN LDBL_MIN
 # define MAX LDBL_MAX
 # define L_(literal) literal##L
+# if HAVE_LDEXPL_IN_LIBC
+#  define USE_LDEXP 1
+# else
+#  define USE_LDEXP 0
+# endif
 #else
 # define STRTOD strtod
 # define LDEXP ldexp
@@ -63,12 +80,11 @@
 # define MIN DBL_MIN
 # define MAX DBL_MAX
 # define L_(literal) literal
-#endif
-
-#if (defined USE_LONG_DOUBLE ? HAVE_LDEXPM_IN_LIBC : HAVE_LDEXP_IN_LIBC)
-# define USE_LDEXP 1
-#else
-# define USE_LDEXP 0
+# if HAVE_LDEXP_IN_LIBC
+#  define USE_LDEXP 1
+# else
+#  define USE_LDEXP 0
+# endif
 #endif
 
 /* Return true if C is a space in the current locale, avoiding
@@ -106,7 +122,7 @@ decimal_point_char (void)
  #undef LDEXP
  #define LDEXP dummy_ldexp
  /* A dummy definition that will never be invoked.  */
- static DOUBLE LDEXP (DOUBLE x _GL_UNUSED, int exponent _GL_UNUSED)
+ static DOUBLE LDEXP (_GL_UNUSED DOUBLE x, _GL_UNUSED int exponent)
  {
    abort ();
    return L_(0.0);
@@ -312,7 +328,9 @@ minus_zero (void)
 DOUBLE
 STRTOD (const char *nptr, char **endptr)
 #if HAVE_UNDERLYING_STRTOD
-# ifdef USE_LONG_DOUBLE
+# if defined USE_FLOAT
+#  undef strtof
+# elif defined USE_LONG_DOUBLE
 #  undef strtold
 # else
 #  undef strtod

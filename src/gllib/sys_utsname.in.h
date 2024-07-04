@@ -1,5 +1,5 @@
 /* Substitute for <sys/utsname.h>.
-   Copyright (C) 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -21,6 +21,7 @@
 #endif
 @PRAGMA_COLUMNS@
 
+/* The include_next requires a split double-inclusion guard.  */
 #if @HAVE_SYS_UTSNAME_H@
 
 /* Minix 3.1.8 has a bug: <stddef.h> must be included before <sys/utsname.h>.
@@ -33,7 +34,13 @@
 
 #endif
 
+#ifndef _@GUARD_PREFIX@_SYS_UTSNAME_H
 #define _@GUARD_PREFIX@_SYS_UTSNAME_H
+
+/* This file uses GNULIB_POSIXCHECK, HAVE_RAW_DECL_*.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 /* The definition of _GL_ARG_NONNULL is copied here.  */
 
@@ -105,4 +112,5 @@ _GL_WARN_ON_USE (uname, "uname is unportable - "
 #endif
 
 
+#endif /* _@GUARD_PREFIX@_SYS_UTSNAME_H */
 #endif /* _@GUARD_PREFIX@_SYS_UTSNAME_H */

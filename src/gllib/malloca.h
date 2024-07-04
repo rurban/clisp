@@ -1,5 +1,5 @@
 /* Safe automatic memory allocation.
-   Copyright (C) 2003-2007, 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2003-2007, 2009-2024 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2003.
 
    This file is free software: you can redistribute it and/or modify
@@ -18,10 +18,19 @@
 #ifndef _MALLOCA_H
 #define _MALLOCA_H
 
+/* This file uses _GL_ATTRIBUTE_ALLOC_SIZE, _GL_ATTRIBUTE_DEALLOC,
+   _GL_ATTRIBUTE_MALLOC, HAVE_ALLOCA.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <alloca.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
+#if defined __CHERI_PURE_CAPABILITY__
+# include <cheri.h>
+#endif
 
 #include "xalloc-oversized.h"
 
@@ -51,28 +60,42 @@ extern "C" {
 # define safe_alloca(N) ((void) (N), NULL)
 #endif
 
-/* malloca(N) is a safe variant of alloca(N).  It allocates N bytes of
-   memory allocated on the stack, that must be freed using freea() before
-   the function returns.  Upon failure, it returns NULL.  */
-#if HAVE_ALLOCA
-# define malloca(N) \
-  ((N) < 4032 - (2 * sa_alignment_max - 1)                                   \
-   ? (void *) (((uintptr_t) (char *) alloca ((N) + 2 * sa_alignment_max - 1) \
-                + (2 * sa_alignment_max - 1))                                \
-               & ~(uintptr_t)(2 * sa_alignment_max - 1))                     \
-   : mmalloca (N))
-#else
-# define malloca(N) \
-  mmalloca (N)
-#endif
-extern void * mmalloca (size_t n);
-
 /* Free a block of memory allocated through malloca().  */
 #if HAVE_ALLOCA
 extern void freea (void *p);
 #else
 # define freea free
 #endif
+
+/* malloca(N) is a safe variant of alloca(N).  It allocates N bytes of
+   memory allocated on the stack, that must be freed using freea() before
+   the function returns.  Upon failure, it returns NULL.  */
+#if HAVE_ALLOCA
+# if defined __CHERI_PURE_CAPABILITY__
+#  define malloca(N) \
+    ((N) < 4032 - (2 * sa_alignment_max - 1)                                  \
+     ? cheri_bounds_set ((void *) (((uintptr_t)                               \
+                                     (char *)                                 \
+                                      alloca ((N) + 2 * sa_alignment_max - 1) \
+                                    + (2 * sa_alignment_max - 1))             \
+                                   & ~(uintptr_t)(2 * sa_alignment_max - 1)), \
+                         (N))                                                 \
+     : mmalloca (N))
+# else
+#  define malloca(N) \
+    ((N) < 4032 - (2 * sa_alignment_max - 1)                                   \
+     ? (void *) (((uintptr_t) (char *) alloca ((N) + 2 * sa_alignment_max - 1) \
+                  + (2 * sa_alignment_max - 1))                                \
+                 & ~(uintptr_t)(2 * sa_alignment_max - 1))                     \
+     : mmalloca (N))
+# endif
+#else
+# define malloca(N) \
+  mmalloca (N)
+#endif
+extern void *mmalloca (size_t n)
+  _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_DEALLOC (freea, 1)
+  _GL_ATTRIBUTE_ALLOC_SIZE ((1));
 
 /* nmalloca(N,S) is an overflow-safe variant of malloca (N * S).
    It allocates an array of N objects, each with S bytes of memory,

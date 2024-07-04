@@ -1,11 +1,11 @@
 /* Association between Unicode characters and their names.
-   Copyright (C) 2000-2002, 2005-2007, 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002, 2005-2007, 2009-2024 Free Software Foundation, Inc.
 
    This file is free software.
    It is dual-licensed under "the GNU LGPLv3+ or the GNU GPLv2+".
    You can redistribute it and/or modify it under either
      - the terms of the GNU Lesser General Public License as published
-       by the Free Software Foundation; either version 3, or (at your
+       by the Free Software Foundation, either version 3, or (at your
        option) any later version, or
      - the terms of the GNU General Public License as published by the
        Free Software Foundation; either version 2, or (at your option)
@@ -28,7 +28,6 @@
 #include "uniname.h"
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -246,7 +245,7 @@ unicode_character_name (ucs4_t c, char *buf)
       unsigned int index3;
       const char *q;
 
-      /* buf needs to have at least 16 + 7 bytes here.  */
+      /* buf needs to have at least 16 + 7 + 1 bytes here.  */
       memcpy (buf, "HANGUL SYLLABLE ", 16);
       ptr = buf + 16;
 
@@ -275,7 +274,7 @@ unicode_character_name (ucs4_t c, char *buf)
       char *ptr;
       int i;
 
-      /* buf needs to have at least 28 + 5 bytes here.  */
+      /* buf needs to have at least 28 + 5 + 1 bytes here.  */
       memcpy (buf, "CJK COMPATIBILITY IDEOGRAPH-", 28);
       ptr = buf + 28;
 
@@ -292,8 +291,8 @@ unicode_character_name (ucs4_t c, char *buf)
       /* Special case for variation selectors. Keeps the tables
          small.  */
 
-      /* buf needs to have at least 19 + 3 bytes here.  */
-      sprintf (buf, "VARIATION SELECTOR-%d",
+      /* buf needs to have at least 19 + 3 + 1 bytes here.  */
+      sprintf (buf, "VARIATION SELECTOR-%u",
                c <= 0xFE0F ? c - 0xFE00 + 1 : c - 0xE0100 + 17);
       return buf;
     }
@@ -340,7 +339,8 @@ unicode_character_name (ucs4_t c, char *buf)
       if (words != NULL)
         {
           /* Found it in unicode_index_to_name. Now concatenate the words.  */
-          /* buf needs to have at least UNICODE_CHARNAME_MAX_LENGTH bytes.  */
+          /* buf needs to have at least UNICODE_CHARNAME_MAX_LENGTH + 1
+             bytes.  */
           char *ptr = buf;
           for (;;)
             {

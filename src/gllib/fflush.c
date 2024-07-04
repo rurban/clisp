@@ -1,5 +1,5 @@
 /* fflush.c -- allow flushing input streams
-   Copyright (C) 2007-2021 Free Software Foundation, Inc.
+   Copyright (C) 2007-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -27,8 +27,6 @@
 #include "freading.h"
 
 #include "stdio-impl.h"
-
-#include "unused-parameter.h"
 
 #undef fflush
 
@@ -96,12 +94,12 @@ restore_seek_optimization (FILE *fp, int saved_flags)
 # else
 
 static void
-update_fpos_cache (FILE *fp _GL_UNUSED_PARAMETER,
-                   off_t pos _GL_UNUSED_PARAMETER)
+update_fpos_cache (_GL_ATTRIBUTE_MAYBE_UNUSED FILE *fp,
+                   _GL_ATTRIBUTE_MAYBE_UNUSED off_t pos)
 {
 #  if defined __sferror || defined __DragonFly__ || defined __ANDROID__
   /* FreeBSD, NetBSD, OpenBSD, DragonFly, Mac OS X, Cygwin, Minix 3, Android */
-#   if defined __CYGWIN__
+#   if defined __CYGWIN__ || defined __ANDROID__
   /* fp_->_offset is typed as an integer.  */
   fp_->_offset = pos;
 #   else

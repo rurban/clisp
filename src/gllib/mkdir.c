@@ -1,7 +1,7 @@
 /* On some systems, mkdir ("foo/", 0700) fails because of the trailing
    slash.  On those systems, this wrapper removes the trailing slash.
 
-   Copyright (C) 2001, 2003, 2006, 2008-2021 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2003, 2006, 2008-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -48,7 +48,7 @@
 /* This function is required at least for NetBSD 1.5.2.  */
 
 int
-rpl_mkdir (char const *dir, mode_t mode maybe_unused)
+rpl_mkdir (char const *dir, maybe_unused mode_t mode)
 {
   int ret_val;
   char *tmp_dir;

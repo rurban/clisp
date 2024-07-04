@@ -1,6 +1,6 @@
 /* A GNU-like <limits.h>.
 
-   Copyright 2016-2021 Free Software Foundation, Inc.
+   Copyright 2016-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -99,10 +99,16 @@
 # endif
 #endif
 
-/* Macros specified by ISO/IEC TS 18661-1:2014.  */
+/* Assume no multibyte character is longer than 16 bytes.  */
+#ifndef MB_LEN_MAX
+# define MB_LEN_MAX 16
+#endif
+
+/* Macros specified by C23 and by ISO/IEC TS 18661-1:2014.  */
 
 #if (! defined ULLONG_WIDTH                                             \
-     && (defined _GNU_SOURCE || defined __STDC_WANT_IEC_60559_BFP_EXT__))
+     && (defined _GNU_SOURCE || defined __STDC_WANT_IEC_60559_BFP_EXT__ \
+         || (defined __STDC_VERSION__ && 201710 < __STDC_VERSION__)))
 # define CHAR_WIDTH _GL_INTEGER_WIDTH (CHAR_MIN, CHAR_MAX)
 # define SCHAR_WIDTH _GL_INTEGER_WIDTH (SCHAR_MIN, SCHAR_MAX)
 # define UCHAR_WIDTH _GL_INTEGER_WIDTH (0, UCHAR_MAX)
@@ -114,7 +120,31 @@
 # define ULONG_WIDTH _GL_INTEGER_WIDTH (0, ULONG_MAX)
 # define LLONG_WIDTH _GL_INTEGER_WIDTH (LLONG_MIN, LLONG_MAX)
 # define ULLONG_WIDTH _GL_INTEGER_WIDTH (0, ULLONG_MAX)
-#endif /* !ULLONG_WIDTH && (_GNU_SOURCE || __STDC_WANT_IEC_60559_BFP_EXT__) */
+#endif
+
+/* Macros specified by C23.  */
+
+#if (defined _GNU_SOURCE \
+     || (defined __STDC_VERSION__ && 201710 < __STDC_VERSION__))
+# if ! defined BOOL_WIDTH
+#  define BOOL_WIDTH 1
+#  define BOOL_MAX 1
+# elif ! defined BOOL_MAX
+#  define BOOL_MAX 1
+# endif
+#endif
+
+/* Macro specified by POSIX.  */
+
+/* The maximum ssize_t value.  Although it might not be of ssize_t type
+   as it should be, it's too much trouble to fix this minor detail.  */
+#ifndef SSIZE_MAX
+# ifdef _WIN64
+#  define SSIZE_MAX LLONG_MAX
+# else
+#  define SSIZE_MAX LONG_MAX
+# endif
+#endif
 
 #endif /* _@GUARD_PREFIX@_LIMITS_H */
 #endif /* _@GUARD_PREFIX@_LIMITS_H */

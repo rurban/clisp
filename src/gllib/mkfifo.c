@@ -1,9 +1,9 @@
 /* Create a named fifo.
-   Copyright (C) 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 3 of the
+   published by the Free Software Foundation, either version 3 of the
    License, or (at your option) any later version.
 
    This file is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 /* Mingw lacks mkfifo; always fail with ENOSYS.  */
 
 int
-mkfifo (char const *name _GL_UNUSED, mode_t mode _GL_UNUSED)
+mkfifo (_GL_UNUSED char const *name, _GL_UNUSED mode_t mode)
 {
   errno = ENOSYS;
   return -1;

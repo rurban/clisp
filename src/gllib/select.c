@@ -1,7 +1,7 @@
 /* Emulation for select(2)
    Contributed by Paolo Bonzini.
 
-   Copyright 2008-2021 Free Software Foundation, Inc.
+   Copyright 2008-2024 Free Software Foundation, Inc.
 
    This file is part of gnulib.
 
@@ -279,8 +279,11 @@ rpl_select (int nfds, fd_set *rfds, fd_set *wfds, fd_set *xfds,
   int i, fd, rc;
   clock_t tend;
 
-  if (nfds > FD_SETSIZE)
-    nfds = FD_SETSIZE;
+  if (nfds < 0 || nfds > FD_SETSIZE)
+    {
+      errno = EINVAL;
+      return -1;
+    }
 
   if (!timeout)
     wait_timeout = INFINITE;
@@ -530,12 +533,13 @@ restart:
       if (h != handle_array[nhandles])
         {
           /* Perform handle->descriptor mapping.  */
-          WSAEventSelect ((SOCKET) h, NULL, 0);
-          if (FD_ISSET (h, &handle_rfds))
+          SOCKET s = (SOCKET) h;
+          WSAEventSelect (s, NULL, 0);
+          if (FD_ISSET (s, &handle_rfds))
             FD_SET (i, rfds);
-          if (FD_ISSET (h, &handle_wfds))
+          if (FD_ISSET (s, &handle_wfds))
             FD_SET (i, wfds);
-          if (FD_ISSET (h, &handle_xfds))
+          if (FD_ISSET (s, &handle_xfds))
             FD_SET (i, xfds);
         }
       else

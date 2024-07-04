@@ -1,6 +1,6 @@
 /* getsockopt.c --- wrappers for Windows getsockopt function
 
-   Copyright (C) 2008-2021 Free Software Foundation, Inc.
+   Copyright (C) 2008-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -53,13 +53,14 @@ rpl_getsockopt (int fd, int level, int optname, void *optval, socklen_t *optlen)
         {
           int milliseconds;
           int milliseconds_len = sizeof (int);
-          struct timeval tv;
           size_t n;
 
           r = getsockopt (sock, level, optname, (char *) &milliseconds,
                           &milliseconds_len);
-          tv.tv_sec = milliseconds / 1000;
-          tv.tv_usec = (milliseconds - 1000 * tv.tv_sec) * 1000;
+          struct timeval tv = {
+            .tv_sec = milliseconds / 1000,
+            .tv_usec = (milliseconds % 1000) * 1000
+          };
           n = sizeof (struct timeval);
           if (n > *optlen)
             n = *optlen;

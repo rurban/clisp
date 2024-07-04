@@ -1,10 +1,9 @@
-# serial 71
-
-# Copyright (C) 1996-2001, 2003-2021 Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
+# regex.m4
+# serial 75
+dnl Copyright (C) 1996-2001, 2003-2024 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
 
 dnl Initially derived from code in GNU grep.
 dnl Mostly written by Jim Meyering.
@@ -15,7 +14,7 @@ AC_DEFUN([gl_REGEX],
 [
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
   AC_ARG_WITH([included-regex],
-    [AS_HELP_STRING([--without-included-regex],
+    [AS_HELP_STRING([[--without-included-regex]],
                     [don't compile regex; this is the default on systems
                      with recent-enough versions of the GNU C Library
                      (use with caution on other systems).])])
@@ -246,7 +245,7 @@ AC_DEFUN([gl_REGEX],
                            & ~RE_CONTEXT_INVALID_DUP
                            & ~RE_NO_EMPTY_RANGES);
             memset (&regex, 0, sizeof regex);
-            s = re_compile_pattern ("[[:alnum:]_-]\\\\+$", 16, &regex);
+            s = re_compile_pattern ("[[:alnum:]_-]\\\\+\$", 16, &regex);
             if (s)
               result |= 32;
             else
@@ -264,14 +263,50 @@ AC_DEFUN([gl_REGEX],
                back reference.  */
             re_set_syntax (RE_SYNTAX_POSIX_EGREP);
             memset (&regex, 0, sizeof regex);
-            s = re_compile_pattern ("0|()0|\\1|0", 10, &regex);
+            s = re_compile_pattern ("0|()0|\\\\1|0", 10, &regex);
             if (!s)
-              result |= 64;
+              {
+                memset (&regs, 0, sizeof regs);
+                i = re_search (&regex, "x", 1, 0, 1, &regs);
+                if (i != -1)
+                  result |= 64;
+                if (0 <= i)
+                  {
+                    free (regs.start);
+                    free (regs.end);
+                  }
+                regfree (&regex);
+              }
             else
               {
                 if (strcmp (s, "Invalid back reference"))
                   result |= 64;
+              }
+
+            /* glibc bug 11053.  */
+            re_set_syntax (RE_SYNTAX_POSIX_BASIC);
+            memset (&regex, 0, sizeof regex);
+            static char const pat_sub2[] = "\\\\(a*\\\\)*a*\\\\1";
+            s = re_compile_pattern (pat_sub2, sizeof pat_sub2 - 1, &regex);
+            if (s)
+              result |= 64;
+            else
+              {
+                memset (&regs, 0, sizeof regs);
+                static char const data[] = "a";
+                int datalen = sizeof data - 1;
+                i = re_search (&regex, data, datalen, 0, datalen, &regs);
+                if (i != 0)
+                  result |= 64;
+                else if (regs.num_regs < 2)
+                  result |= 64;
+                else if (! (regs.start[0] == 0 && regs.end[0] == 1))
+                  result |= 64;
+                else if (! (regs.start[1] == 0 && regs.end[1] == 0))
+                  result |= 64;
                 regfree (&regex);
+                free (regs.start);
+                free (regs.end);
               }
 
 #if 0
@@ -291,10 +326,10 @@ AC_DEFUN([gl_REGEX],
         [gl_cv_func_re_compile_pattern_working=yes],
         [gl_cv_func_re_compile_pattern_working=no],
         [case "$host_os" in
-                   # Guess no on native Windows.
-           mingw*) gl_cv_func_re_compile_pattern_working="guessing no" ;;
-                   # Otherwise obey --enable-cross-guesses.
-           *)      gl_cv_func_re_compile_pattern_working="$gl_cross_guess_normal" ;;
+                              # Guess no on native Windows.
+           mingw* | windows*) gl_cv_func_re_compile_pattern_working="guessing no" ;;
+                              # Otherwise obey --enable-cross-guesses.
+           *)                 gl_cv_func_re_compile_pattern_working="$gl_cross_guess_normal" ;;
          esac
         ])
       ])

@@ -21,58 +21,58 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `svm_check_parameter' function. */
+/* Define to 1 if you have the 'svm_check_parameter' function. */
 #undef HAVE_SVM_CHECK_PARAMETER
 
-/* Define to 1 if you have the `svm_check_probability_model' function. */
+/* Define to 1 if you have the 'svm_check_probability_model' function. */
 #undef HAVE_SVM_CHECK_PROBABILITY_MODEL
 
-/* Define to 1 if you have the `svm_cross_validation' function. */
+/* Define to 1 if you have the 'svm_cross_validation' function. */
 #undef HAVE_SVM_CROSS_VALIDATION
 
-/* Define to 1 if you have the `svm_destroy_model' function. */
+/* Define to 1 if you have the 'svm_destroy_model' function. */
 #undef HAVE_SVM_DESTROY_MODEL
 
-/* Define to 1 if you have the `svm_destroy_param' function. */
+/* Define to 1 if you have the 'svm_destroy_param' function. */
 #undef HAVE_SVM_DESTROY_PARAM
 
-/* Define to 1 if you have the `svm_free_and_destroy_model' function. */
+/* Define to 1 if you have the 'svm_free_and_destroy_model' function. */
 #undef HAVE_SVM_FREE_AND_DESTROY_MODEL
 
-/* Define to 1 if you have the `svm_get_labels' function. */
+/* Define to 1 if you have the 'svm_get_labels' function. */
 #undef HAVE_SVM_GET_LABELS
 
-/* Define to 1 if you have the `svm_get_nr_class' function. */
+/* Define to 1 if you have the 'svm_get_nr_class' function. */
 #undef HAVE_SVM_GET_NR_CLASS
 
-/* Define to 1 if you have the `svm_get_svm_type' function. */
+/* Define to 1 if you have the 'svm_get_svm_type' function. */
 #undef HAVE_SVM_GET_SVM_TYPE
 
-/* Define to 1 if you have the `svm_get_svr_probability' function. */
+/* Define to 1 if you have the 'svm_get_svr_probability' function. */
 #undef HAVE_SVM_GET_SVR_PROBABILITY
 
 /* Define to 1 if you have the <svm.h> header file. */
 #undef HAVE_SVM_H
 
-/* Define to 1 if you have the `svm_load_model' function. */
+/* Define to 1 if you have the 'svm_load_model' function. */
 #undef HAVE_SVM_LOAD_MODEL
 
-/* Define to 1 if you have the `svm_predict' function. */
+/* Define to 1 if you have the 'svm_predict' function. */
 #undef HAVE_SVM_PREDICT
 
-/* Define to 1 if you have the `svm_predict_probability' function. */
+/* Define to 1 if you have the 'svm_predict_probability' function. */
 #undef HAVE_SVM_PREDICT_PROBABILITY
 
-/* Define to 1 if you have the `svm_predict_values' function. */
+/* Define to 1 if you have the 'svm_predict_values' function. */
 #undef HAVE_SVM_PREDICT_VALUES
 
-/* Define to 1 if you have the `svm_save_model' function. */
+/* Define to 1 if you have the 'svm_save_model' function. */
 #undef HAVE_SVM_SAVE_MODEL
 
-/* Define to 1 if you have the `svm_set_print_string_function' function. */
+/* Define to 1 if you have the 'svm_set_print_string_function' function. */
 #undef HAVE_SVM_SET_PRINT_STRING_FUNCTION
 
-/* Define to 1 if you have the `svm_train' function. */
+/* Define to 1 if you have the 'svm_train' function. */
 #undef HAVE_SVM_TRAIN
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -105,12 +105,12 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
-/* Enable extensions on AIX 3, Interix.  */
+/* Enable extensions on AIX, Interix, z/OS.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
 #endif
@@ -171,11 +171,15 @@
 #ifndef __STDC_WANT_IEC_60559_DFP_EXT__
 # undef __STDC_WANT_IEC_60559_DFP_EXT__
 #endif
+/* Enable extensions specified by C23 Annex F.  */
+#ifndef __STDC_WANT_IEC_60559_EXT__
+# undef __STDC_WANT_IEC_60559_EXT__
+#endif
 /* Enable extensions specified by ISO/IEC TS 18661-4:2015.  */
 #ifndef __STDC_WANT_IEC_60559_FUNCS_EXT__
 # undef __STDC_WANT_IEC_60559_FUNCS_EXT__
 #endif
-/* Enable extensions specified by ISO/IEC TS 18661-3:2015.  */
+/* Enable extensions specified by C23 Annex H and ISO/IEC TS 18661-3:2015.  */
 #ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
 # undef __STDC_WANT_IEC_60559_TYPES_EXT__
 #endif

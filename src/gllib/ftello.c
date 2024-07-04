@@ -1,5 +1,5 @@
 /* An ftello() function that works around platform bugs.
-   Copyright (C) 2007, 2009-2021 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2009-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 #include <errno.h>
-#include "intprops.h"
+#include <stdckdint.h>
 
 /* Get lseek.  */
 #include <unistd.h>
@@ -97,7 +97,7 @@ ftello (FILE *fp)
 
       /* Compute pos + buffered, with overflow check.  */
       off_t sum;
-      if (! INT_ADD_OK (pos, buffered, &sum))
+      if (ckd_add (&sum, pos, buffered))
         {
           errno = EOVERFLOW;
           return -1;

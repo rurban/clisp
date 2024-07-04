@@ -1,5 +1,6 @@
-# strtod.m4 serial 26
-dnl Copyright (C) 2002-2003, 2006-2021 Free Software Foundation, Inc.
+# strtod.m4
+# serial 29
+dnl Copyright (C) 2002-2003, 2006-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -115,11 +116,11 @@ numeric_equal (double x, double y)
            ],
            [gl_cv_func_strtod_works="guessing yes"],
            [case "$host_os" in
-                       # Guess yes on musl systems.
-              *-musl*) gl_cv_func_strtod_works="guessing yes" ;;
-                       # Guess yes on native Windows.
-              mingw*)  gl_cv_func_strtod_works="guessing yes" ;;
-              *)       gl_cv_func_strtod_works="$gl_cross_guess_normal" ;;
+                                  # Guess yes on musl systems.
+              *-musl* | midipix*) gl_cv_func_strtod_works="guessing yes" ;;
+                                  # Guess yes on native Windows.
+              mingw* | windows*)  gl_cv_func_strtod_works="guessing yes" ;;
+              *)                  gl_cv_func_strtod_works="$gl_cross_guess_normal" ;;
             esac
            ])
         ])
@@ -140,5 +141,5 @@ AC_DEFUN([gl_PREREQ_STRTOD], [
     AC_DEFINE([HAVE_LDEXP_IN_LIBC], [1],
       [Define if the ldexp function is available in libc.])
   fi
-  AC_CHECK_FUNCS([nl_langinfo])
+  gl_CHECK_FUNCS_ANDROID([nl_langinfo], [[#include <langinfo.h>]])
 ])

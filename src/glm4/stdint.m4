@@ -1,5 +1,6 @@
-# stdint.m4 serial 60
-dnl Copyright (C) 2001-2021 Free Software Foundation, Inc.
+# stdint.m4
+# serial 63
+dnl Copyright (C) 2001-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -150,7 +151,10 @@ intmax_t i = INTMAX_MAX;
 uintmax_t j = UINTMAX_MAX;
 
 /* Check that SIZE_MAX has the correct type, if possible.  */
-#if 201112 <= __STDC_VERSION__
+/* ISO C 11 mandates _Generic, but GCC versions < 4.9 lack it.  */
+#if 201112 <= __STDC_VERSION__ \
+    && (!defined __GNUC__ || 4 < __GNUC__ + (9 <= __GNUC_MINOR__) \
+        || defined __clang__)
 int k = _Generic (SIZE_MAX, size_t: 0);
 #elif (2 <= __GNUC__ || 4 <= __clang_major__ || defined __IBM__TYPEOF__ \
        || (0x5110 <= __SUNPRO_C && !__STDC__))
@@ -283,10 +287,10 @@ static const char *macro_values[] =
               [gl_cv_header_working_stdint_h=yes],
               [],
               [case "$host_os" in
-                         # Guess yes on native Windows.
-                 mingw*) gl_cv_header_working_stdint_h="guessing yes" ;;
-                         # In general, assume it works.
-                 *)      gl_cv_header_working_stdint_h="guessing yes" ;;
+                                    # Guess yes on native Windows.
+                 mingw* | windows*) gl_cv_header_working_stdint_h="guessing yes" ;;
+                                    # In general, assume it works.
+                 *)                 gl_cv_header_working_stdint_h="guessing yes" ;;
                esac
               ])
          ])
@@ -296,7 +300,7 @@ static const char *macro_values[] =
   HAVE_C99_STDINT_H=0
   HAVE_SYS_BITYPES_H=0
   HAVE_SYS_INTTYPES_H=0
-  STDINT_H=stdint.h
+  GL_GENERATE_STDINT_H=true
   case "$gl_cv_header_working_stdint_h" in
     *yes)
       HAVE_C99_STDINT_H=1
@@ -341,7 +345,7 @@ int32_t i32 = INT32_C (0x7fffffff);
               ]])],
            [gl_cv_header_stdint_width=yes])])
       if test "$gl_cv_header_stdint_width" = yes; then
-        STDINT_H=
+        GL_GENERATE_STDINT_H=false
       fi
       ;;
     *)
@@ -364,8 +368,6 @@ int32_t i32 = INT32_C (0x7fffffff);
   AC_SUBST([HAVE_C99_STDINT_H])
   AC_SUBST([HAVE_SYS_BITYPES_H])
   AC_SUBST([HAVE_SYS_INTTYPES_H])
-  AC_SUBST([STDINT_H])
-  AM_CONDITIONAL([GL_GENERATE_STDINT_H], [test -n "$STDINT_H"])
 ])
 
 dnl gl_STDINT_BITSIZEOF(TYPES, INCLUDES)

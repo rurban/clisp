@@ -3,61 +3,61 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `lo_close' function. */
+/* Define to 1 if you have the 'lo_close' function. */
 #undef HAVE_LO_CLOSE
 
-/* Define to 1 if you have the `lo_creat' function. */
+/* Define to 1 if you have the 'lo_creat' function. */
 #undef HAVE_LO_CREAT
 
-/* Define to 1 if you have the `lo_create' function. */
+/* Define to 1 if you have the 'lo_create' function. */
 #undef HAVE_LO_CREATE
 
-/* Define to 1 if you have the `lo_export' function. */
+/* Define to 1 if you have the 'lo_export' function. */
 #undef HAVE_LO_EXPORT
 
-/* Define to 1 if you have the `lo_import' function. */
+/* Define to 1 if you have the 'lo_import' function. */
 #undef HAVE_LO_IMPORT
 
-/* Define to 1 if you have the `lo_import_with_oid' function. */
+/* Define to 1 if you have the 'lo_import_with_oid' function. */
 #undef HAVE_LO_IMPORT_WITH_OID
 
-/* Define to 1 if you have the `lo_lseek' function. */
+/* Define to 1 if you have the 'lo_lseek' function. */
 #undef HAVE_LO_LSEEK
 
-/* Define to 1 if you have the `lo_open' function. */
+/* Define to 1 if you have the 'lo_open' function. */
 #undef HAVE_LO_OPEN
 
-/* Define to 1 if you have the `lo_read' function. */
+/* Define to 1 if you have the 'lo_read' function. */
 #undef HAVE_LO_READ
 
-/* Define to 1 if you have the `lo_tell' function. */
+/* Define to 1 if you have the 'lo_tell' function. */
 #undef HAVE_LO_TELL
 
-/* Define to 1 if you have the `lo_truncate' function. */
+/* Define to 1 if you have the 'lo_truncate' function. */
 #undef HAVE_LO_TRUNCATE
 
-/* Define to 1 if you have the `lo_unlink' function. */
+/* Define to 1 if you have the 'lo_unlink' function. */
 #undef HAVE_LO_UNLINK
 
-/* Define to 1 if you have the `lo_write' function. */
+/* Define to 1 if you have the 'lo_write' function. */
 #undef HAVE_LO_WRITE
 
 /* Define to 1 if you have the <minix/config.h> header file. */
 #undef HAVE_MINIX_CONFIG_H
 
-/* Define to 1 if the system has the type `Oid'. */
+/* Define to 1 if the system has the type 'Oid'. */
 #undef HAVE_OID
 
 /* Define to 1 if you have the <pgsql/postgres_ext.h> header file. */
 #undef HAVE_PGSQL_POSTGRES_EXT_H
 
-/* Define to 1 if you have the `pg_char_to_encoding' function. */
+/* Define to 1 if you have the 'pg_char_to_encoding' function. */
 #undef HAVE_PG_CHAR_TO_ENCODING
 
-/* Define to 1 if you have the `pg_encoding_to_char' function. */
+/* Define to 1 if you have the 'pg_encoding_to_char' function. */
 #undef HAVE_PG_ENCODING_TO_CHAR
 
-/* Define to 1 if you have the `pg_valid_server_encoding_id' function. */
+/* Define to 1 if you have the 'pg_valid_server_encoding_id' function. */
 #undef HAVE_PG_VALID_SERVER_ENCODING_ID
 
 /* Define to 1 if you have the <postgresql/postgres_ext.h> header file. */
@@ -66,349 +66,349 @@
 /* Define to 1 if you have the <postgres_ext.h> header file. */
 #undef HAVE_POSTGRES_EXT_H
 
-/* Define to 1 if you have the `PQbackendPID' function. */
+/* Define to 1 if you have the 'PQbackendPID' function. */
 #undef HAVE_PQBACKENDPID
 
-/* Define to 1 if you have the `PQbinaryTuples' function. */
+/* Define to 1 if you have the 'PQbinaryTuples' function. */
 #undef HAVE_PQBINARYTUPLES
 
-/* Define to 1 if the system has the type `pqbool'. */
+/* Define to 1 if the system has the type 'pqbool'. */
 #undef HAVE_PQBOOL
 
-/* Define to 1 if you have the `PQcancel' function. */
+/* Define to 1 if you have the 'PQcancel' function. */
 #undef HAVE_PQCANCEL
 
-/* Define to 1 if you have the `PQclear' function. */
+/* Define to 1 if you have the 'PQclear' function. */
 #undef HAVE_PQCLEAR
 
-/* Define to 1 if you have the `PQclientEncoding' function. */
+/* Define to 1 if you have the 'PQclientEncoding' function. */
 #undef HAVE_PQCLIENTENCODING
 
-/* Define to 1 if you have the `PQcmdStatus' function. */
+/* Define to 1 if you have the 'PQcmdStatus' function. */
 #undef HAVE_PQCMDSTATUS
 
-/* Define to 1 if you have the `PQcmdTuples' function. */
+/* Define to 1 if you have the 'PQcmdTuples' function. */
 #undef HAVE_PQCMDTUPLES
 
-/* Define to 1 if you have the `PQconndefaults' function. */
+/* Define to 1 if you have the 'PQconndefaults' function. */
 #undef HAVE_PQCONNDEFAULTS
 
-/* Define to 1 if you have the `PQconnectdb' function. */
+/* Define to 1 if you have the 'PQconnectdb' function. */
 #undef HAVE_PQCONNECTDB
 
-/* Define to 1 if you have the `PQconnectionNeedsPassword' function. */
+/* Define to 1 if you have the 'PQconnectionNeedsPassword' function. */
 #undef HAVE_PQCONNECTIONNEEDSPASSWORD
 
-/* Define to 1 if you have the `PQconnectionUsedPassword' function. */
+/* Define to 1 if you have the 'PQconnectionUsedPassword' function. */
 #undef HAVE_PQCONNECTIONUSEDPASSWORD
 
-/* Define to 1 if you have the `PQconnectPoll' function. */
+/* Define to 1 if you have the 'PQconnectPoll' function. */
 #undef HAVE_PQCONNECTPOLL
 
-/* Define to 1 if you have the `PQconnectStart' function. */
+/* Define to 1 if you have the 'PQconnectStart' function. */
 #undef HAVE_PQCONNECTSTART
 
-/* Define to 1 if you have the `PQconninfoFree' function. */
+/* Define to 1 if you have the 'PQconninfoFree' function. */
 #undef HAVE_PQCONNINFOFREE
 
-/* Define to 1 if you have the `PQconninfoParse' function. */
+/* Define to 1 if you have the 'PQconninfoParse' function. */
 #undef HAVE_PQCONNINFOPARSE
 
-/* Define to 1 if you have the `PQconsumeInput' function. */
+/* Define to 1 if you have the 'PQconsumeInput' function. */
 #undef HAVE_PQCONSUMEINPUT
 
-/* Define to 1 if you have the `PQcopyResult' function. */
+/* Define to 1 if you have the 'PQcopyResult' function. */
 #undef HAVE_PQCOPYRESULT
 
-/* Define to 1 if you have the `PQdb' function. */
+/* Define to 1 if you have the 'PQdb' function. */
 #undef HAVE_PQDB
 
-/* Define to 1 if you have the `PQdescribePortal' function. */
+/* Define to 1 if you have the 'PQdescribePortal' function. */
 #undef HAVE_PQDESCRIBEPORTAL
 
-/* Define to 1 if you have the `PQdescribePrepared' function. */
+/* Define to 1 if you have the 'PQdescribePrepared' function. */
 #undef HAVE_PQDESCRIBEPREPARED
 
-/* Define to 1 if you have the `PQdisplayTuples' function. */
+/* Define to 1 if you have the 'PQdisplayTuples' function. */
 #undef HAVE_PQDISPLAYTUPLES
 
-/* Define to 1 if you have the `PQdsplen' function. */
+/* Define to 1 if you have the 'PQdsplen' function. */
 #undef HAVE_PQDSPLEN
 
-/* Define to 1 if you have the `PQencryptPassword' function. */
+/* Define to 1 if you have the 'PQencryptPassword' function. */
 #undef HAVE_PQENCRYPTPASSWORD
 
-/* Define to 1 if you have the `PQendcopy' function. */
+/* Define to 1 if you have the 'PQendcopy' function. */
 #undef HAVE_PQENDCOPY
 
-/* Define to 1 if you have the `PQenv2encoding' function. */
+/* Define to 1 if you have the 'PQenv2encoding' function. */
 #undef HAVE_PQENV2ENCODING
 
-/* Define to 1 if you have the `PQerrorMessage' function. */
+/* Define to 1 if you have the 'PQerrorMessage' function. */
 #undef HAVE_PQERRORMESSAGE
 
-/* Define to 1 if you have the `PQescapeBytea' function. */
+/* Define to 1 if you have the 'PQescapeBytea' function. */
 #undef HAVE_PQESCAPEBYTEA
 
-/* Define to 1 if you have the `PQescapeByteaConn' function. */
+/* Define to 1 if you have the 'PQescapeByteaConn' function. */
 #undef HAVE_PQESCAPEBYTEACONN
 
-/* Define to 1 if you have the `PQescapeString' function. */
+/* Define to 1 if you have the 'PQescapeString' function. */
 #undef HAVE_PQESCAPESTRING
 
-/* Define to 1 if you have the `PQescapeStringConn' function. */
+/* Define to 1 if you have the 'PQescapeStringConn' function. */
 #undef HAVE_PQESCAPESTRINGCONN
 
-/* Define to 1 if you have the `PQexec' function. */
+/* Define to 1 if you have the 'PQexec' function. */
 #undef HAVE_PQEXEC
 
-/* Define to 1 if you have the `PQexecParams' function. */
+/* Define to 1 if you have the 'PQexecParams' function. */
 #undef HAVE_PQEXECPARAMS
 
-/* Define to 1 if you have the `PQexecPrepared' function. */
+/* Define to 1 if you have the 'PQexecPrepared' function. */
 #undef HAVE_PQEXECPREPARED
 
-/* Define to 1 if you have the `PQfformat' function. */
+/* Define to 1 if you have the 'PQfformat' function. */
 #undef HAVE_PQFFORMAT
 
-/* Define to 1 if you have the `PQfinish' function. */
+/* Define to 1 if you have the 'PQfinish' function. */
 #undef HAVE_PQFINISH
 
-/* Define to 1 if you have the `PQflush' function. */
+/* Define to 1 if you have the 'PQflush' function. */
 #undef HAVE_PQFLUSH
 
-/* Define to 1 if you have the `PQfmod' function. */
+/* Define to 1 if you have the 'PQfmod' function. */
 #undef HAVE_PQFMOD
 
-/* Define to 1 if you have the `PQfn' function. */
+/* Define to 1 if you have the 'PQfn' function. */
 #undef HAVE_PQFN
 
-/* Define to 1 if you have the `PQfname' function. */
+/* Define to 1 if you have the 'PQfname' function. */
 #undef HAVE_PQFNAME
 
-/* Define to 1 if you have the `PQfnumber' function. */
+/* Define to 1 if you have the 'PQfnumber' function. */
 #undef HAVE_PQFNUMBER
 
-/* Define to 1 if you have the `PQfreeCancel' function. */
+/* Define to 1 if you have the 'PQfreeCancel' function. */
 #undef HAVE_PQFREECANCEL
 
-/* Define to 1 if you have the `PQfreemem' function. */
+/* Define to 1 if you have the 'PQfreemem' function. */
 #undef HAVE_PQFREEMEM
 
-/* Define to 1 if you have the `PQfsize' function. */
+/* Define to 1 if you have the 'PQfsize' function. */
 #undef HAVE_PQFSIZE
 
-/* Define to 1 if you have the `PQftable' function. */
+/* Define to 1 if you have the 'PQftable' function. */
 #undef HAVE_PQFTABLE
 
-/* Define to 1 if you have the `PQftablecol' function. */
+/* Define to 1 if you have the 'PQftablecol' function. */
 #undef HAVE_PQFTABLECOL
 
-/* Define to 1 if you have the `PQftype' function. */
+/* Define to 1 if you have the 'PQftype' function. */
 #undef HAVE_PQFTYPE
 
-/* Define to 1 if you have the `PQgetCancel' function. */
+/* Define to 1 if you have the 'PQgetCancel' function. */
 #undef HAVE_PQGETCANCEL
 
-/* Define to 1 if you have the `PQgetCopyData' function. */
+/* Define to 1 if you have the 'PQgetCopyData' function. */
 #undef HAVE_PQGETCOPYDATA
 
-/* Define to 1 if you have the `PQgetisnull' function. */
+/* Define to 1 if you have the 'PQgetisnull' function. */
 #undef HAVE_PQGETISNULL
 
-/* Define to 1 if you have the `PQgetlength' function. */
+/* Define to 1 if you have the 'PQgetlength' function. */
 #undef HAVE_PQGETLENGTH
 
-/* Define to 1 if you have the `PQgetline' function. */
+/* Define to 1 if you have the 'PQgetline' function. */
 #undef HAVE_PQGETLINE
 
-/* Define to 1 if you have the `PQgetlineAsync' function. */
+/* Define to 1 if you have the 'PQgetlineAsync' function. */
 #undef HAVE_PQGETLINEASYNC
 
-/* Define to 1 if you have the `PQgetResult' function. */
+/* Define to 1 if you have the 'PQgetResult' function. */
 #undef HAVE_PQGETRESULT
 
-/* Define to 1 if you have the `PQgetssl' function. */
+/* Define to 1 if you have the 'PQgetssl' function. */
 #undef HAVE_PQGETSSL
 
-/* Define to 1 if you have the `PQgetvalue' function. */
+/* Define to 1 if you have the 'PQgetvalue' function. */
 #undef HAVE_PQGETVALUE
 
-/* Define to 1 if you have the `PQhost' function. */
+/* Define to 1 if you have the 'PQhost' function. */
 #undef HAVE_PQHOST
 
-/* Define to 1 if you have the `PQinitOpenSSL' function. */
+/* Define to 1 if you have the 'PQinitOpenSSL' function. */
 #undef HAVE_PQINITOPENSSL
 
-/* Define to 1 if you have the `PQinitSSL' function. */
+/* Define to 1 if you have the 'PQinitSSL' function. */
 #undef HAVE_PQINITSSL
 
-/* Define to 1 if you have the `PQisBusy' function. */
+/* Define to 1 if you have the 'PQisBusy' function. */
 #undef HAVE_PQISBUSY
 
-/* Define to 1 if you have the `PQisnonblocking' function. */
+/* Define to 1 if you have the 'PQisnonblocking' function. */
 #undef HAVE_PQISNONBLOCKING
 
-/* Define to 1 if you have the `PQisthreadsafe' function. */
+/* Define to 1 if you have the 'PQisthreadsafe' function. */
 #undef HAVE_PQISTHREADSAFE
 
-/* Define to 1 if you have the `PQmakeEmptyPGresult' function. */
+/* Define to 1 if you have the 'PQmakeEmptyPGresult' function. */
 #undef HAVE_PQMAKEEMPTYPGRESULT
 
-/* Define to 1 if you have the `PQmblen' function. */
+/* Define to 1 if you have the 'PQmblen' function. */
 #undef HAVE_PQMBLEN
 
-/* Define to 1 if you have the `PQnfields' function. */
+/* Define to 1 if you have the 'PQnfields' function. */
 #undef HAVE_PQNFIELDS
 
-/* Define to 1 if you have the `PQnotifies' function. */
+/* Define to 1 if you have the 'PQnotifies' function. */
 #undef HAVE_PQNOTIFIES
 
-/* Define to 1 if you have the `PQnparams' function. */
+/* Define to 1 if you have the 'PQnparams' function. */
 #undef HAVE_PQNPARAMS
 
-/* Define to 1 if you have the `PQntuples' function. */
+/* Define to 1 if you have the 'PQntuples' function. */
 #undef HAVE_PQNTUPLES
 
-/* Define to 1 if you have the `PQoidStatus' function. */
+/* Define to 1 if you have the 'PQoidStatus' function. */
 #undef HAVE_PQOIDSTATUS
 
-/* Define to 1 if you have the `PQoidValue' function. */
+/* Define to 1 if you have the 'PQoidValue' function. */
 #undef HAVE_PQOIDVALUE
 
-/* Define to 1 if you have the `PQoptions' function. */
+/* Define to 1 if you have the 'PQoptions' function. */
 #undef HAVE_PQOPTIONS
 
-/* Define to 1 if you have the `PQparameterStatus' function. */
+/* Define to 1 if you have the 'PQparameterStatus' function. */
 #undef HAVE_PQPARAMETERSTATUS
 
-/* Define to 1 if you have the `PQparamtype' function. */
+/* Define to 1 if you have the 'PQparamtype' function. */
 #undef HAVE_PQPARAMTYPE
 
-/* Define to 1 if you have the `PQpass' function. */
+/* Define to 1 if you have the 'PQpass' function. */
 #undef HAVE_PQPASS
 
-/* Define to 1 if you have the `PQport' function. */
+/* Define to 1 if you have the 'PQport' function. */
 #undef HAVE_PQPORT
 
-/* Define to 1 if you have the `PQprepare' function. */
+/* Define to 1 if you have the 'PQprepare' function. */
 #undef HAVE_PQPREPARE
 
-/* Define to 1 if you have the `PQprint' function. */
+/* Define to 1 if you have the 'PQprint' function. */
 #undef HAVE_PQPRINT
 
-/* Define to 1 if you have the `PQprintTuples' function. */
+/* Define to 1 if you have the 'PQprintTuples' function. */
 #undef HAVE_PQPRINTTUPLES
 
-/* Define to 1 if you have the `PQprotocolVersion' function. */
+/* Define to 1 if you have the 'PQprotocolVersion' function. */
 #undef HAVE_PQPROTOCOLVERSION
 
-/* Define to 1 if you have the `PQputCopyData' function. */
+/* Define to 1 if you have the 'PQputCopyData' function. */
 #undef HAVE_PQPUTCOPYDATA
 
-/* Define to 1 if you have the `PQputCopyEnd' function. */
+/* Define to 1 if you have the 'PQputCopyEnd' function. */
 #undef HAVE_PQPUTCOPYEND
 
-/* Define to 1 if you have the `PQputline' function. */
+/* Define to 1 if you have the 'PQputline' function. */
 #undef HAVE_PQPUTLINE
 
-/* Define to 1 if you have the `PQputnbytes' function. */
+/* Define to 1 if you have the 'PQputnbytes' function. */
 #undef HAVE_PQPUTNBYTES
 
-/* Define to 1 if you have the `PQrequestCancel' function. */
+/* Define to 1 if you have the 'PQrequestCancel' function. */
 #undef HAVE_PQREQUESTCANCEL
 
-/* Define to 1 if you have the `PQreset' function. */
+/* Define to 1 if you have the 'PQreset' function. */
 #undef HAVE_PQRESET
 
-/* Define to 1 if you have the `PQresetPoll' function. */
+/* Define to 1 if you have the 'PQresetPoll' function. */
 #undef HAVE_PQRESETPOLL
 
-/* Define to 1 if you have the `PQresetStart' function. */
+/* Define to 1 if you have the 'PQresetStart' function. */
 #undef HAVE_PQRESETSTART
 
-/* Define to 1 if you have the `PQresStatus' function. */
+/* Define to 1 if you have the 'PQresStatus' function. */
 #undef HAVE_PQRESSTATUS
 
-/* Define to 1 if you have the `PQresultAlloc' function. */
+/* Define to 1 if you have the 'PQresultAlloc' function. */
 #undef HAVE_PQRESULTALLOC
 
-/* Define to 1 if you have the `PQresultErrorField' function. */
+/* Define to 1 if you have the 'PQresultErrorField' function. */
 #undef HAVE_PQRESULTERRORFIELD
 
-/* Define to 1 if you have the `PQresultErrorMessage' function. */
+/* Define to 1 if you have the 'PQresultErrorMessage' function. */
 #undef HAVE_PQRESULTERRORMESSAGE
 
-/* Define to 1 if you have the `PQresultStatus' function. */
+/* Define to 1 if you have the 'PQresultStatus' function. */
 #undef HAVE_PQRESULTSTATUS
 
-/* Define to 1 if you have the `PQsendDescribePortal' function. */
+/* Define to 1 if you have the 'PQsendDescribePortal' function. */
 #undef HAVE_PQSENDDESCRIBEPORTAL
 
-/* Define to 1 if you have the `PQsendDescribePrepared' function. */
+/* Define to 1 if you have the 'PQsendDescribePrepared' function. */
 #undef HAVE_PQSENDDESCRIBEPREPARED
 
-/* Define to 1 if you have the `PQsendPrepare' function. */
+/* Define to 1 if you have the 'PQsendPrepare' function. */
 #undef HAVE_PQSENDPREPARE
 
-/* Define to 1 if you have the `PQsendQuery' function. */
+/* Define to 1 if you have the 'PQsendQuery' function. */
 #undef HAVE_PQSENDQUERY
 
-/* Define to 1 if you have the `PQsendQueryParams' function. */
+/* Define to 1 if you have the 'PQsendQueryParams' function. */
 #undef HAVE_PQSENDQUERYPARAMS
 
-/* Define to 1 if you have the `PQsendQueryPrepared' function. */
+/* Define to 1 if you have the 'PQsendQueryPrepared' function. */
 #undef HAVE_PQSENDQUERYPREPARED
 
-/* Define to 1 if you have the `PQserverVersion' function. */
+/* Define to 1 if you have the 'PQserverVersion' function. */
 #undef HAVE_PQSERVERVERSION
 
-/* Define to 1 if you have the `PQsetClientEncoding' function. */
+/* Define to 1 if you have the 'PQsetClientEncoding' function. */
 #undef HAVE_PQSETCLIENTENCODING
 
-/* Define to 1 if you have the `PQsetdbLogin' function. */
+/* Define to 1 if you have the 'PQsetdbLogin' function. */
 #undef HAVE_PQSETDBLOGIN
 
-/* Define to 1 if you have the `PQsetErrorVerbosity' function. */
+/* Define to 1 if you have the 'PQsetErrorVerbosity' function. */
 #undef HAVE_PQSETERRORVERBOSITY
 
-/* Define to 1 if you have the `PQsetnonblocking' function. */
+/* Define to 1 if you have the 'PQsetnonblocking' function. */
 #undef HAVE_PQSETNONBLOCKING
 
-/* Define to 1 if you have the `PQsetNoticeProcessor' function. */
+/* Define to 1 if you have the 'PQsetNoticeProcessor' function. */
 #undef HAVE_PQSETNOTICEPROCESSOR
 
-/* Define to 1 if you have the `PQsetNoticeReceiver' function. */
+/* Define to 1 if you have the 'PQsetNoticeReceiver' function. */
 #undef HAVE_PQSETNOTICERECEIVER
 
-/* Define to 1 if you have the `PQsetResultAttrs' function. */
+/* Define to 1 if you have the 'PQsetResultAttrs' function. */
 #undef HAVE_PQSETRESULTATTRS
 
-/* Define to 1 if you have the `PQsetvalue' function. */
+/* Define to 1 if you have the 'PQsetvalue' function. */
 #undef HAVE_PQSETVALUE
 
-/* Define to 1 if you have the `PQsocket' function. */
+/* Define to 1 if you have the 'PQsocket' function. */
 #undef HAVE_PQSOCKET
 
-/* Define to 1 if you have the `PQstatus' function. */
+/* Define to 1 if you have the 'PQstatus' function. */
 #undef HAVE_PQSTATUS
 
-/* Define to 1 if you have the `PQtrace' function. */
+/* Define to 1 if you have the 'PQtrace' function. */
 #undef HAVE_PQTRACE
 
-/* Define to 1 if you have the `PQtransactionStatus' function. */
+/* Define to 1 if you have the 'PQtransactionStatus' function. */
 #undef HAVE_PQTRANSACTIONSTATUS
 
-/* Define to 1 if you have the `PQtty' function. */
+/* Define to 1 if you have the 'PQtty' function. */
 #undef HAVE_PQTTY
 
-/* Define to 1 if you have the `PQunescapeBytea' function. */
+/* Define to 1 if you have the 'PQunescapeBytea' function. */
 #undef HAVE_PQUNESCAPEBYTEA
 
-/* Define to 1 if you have the `PQuntrace' function. */
+/* Define to 1 if you have the 'PQuntrace' function. */
 #undef HAVE_PQUNTRACE
 
-/* Define to 1 if you have the `PQuser' function. */
+/* Define to 1 if you have the 'PQuser' function. */
 #undef HAVE_PQUSER
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -456,12 +456,12 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
-/* Enable extensions on AIX 3, Interix.  */
+/* Enable extensions on AIX, Interix, z/OS.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
 #endif
@@ -522,11 +522,15 @@
 #ifndef __STDC_WANT_IEC_60559_DFP_EXT__
 # undef __STDC_WANT_IEC_60559_DFP_EXT__
 #endif
+/* Enable extensions specified by C23 Annex F.  */
+#ifndef __STDC_WANT_IEC_60559_EXT__
+# undef __STDC_WANT_IEC_60559_EXT__
+#endif
 /* Enable extensions specified by ISO/IEC TS 18661-4:2015.  */
 #ifndef __STDC_WANT_IEC_60559_FUNCS_EXT__
 # undef __STDC_WANT_IEC_60559_FUNCS_EXT__
 #endif
-/* Enable extensions specified by ISO/IEC TS 18661-3:2015.  */
+/* Enable extensions specified by C23 Annex H and ISO/IEC TS 18661-3:2015.  */
 #ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
 # undef __STDC_WANT_IEC_60559_TYPES_EXT__
 #endif

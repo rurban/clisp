@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2021 Free Software Foundation, Inc.
+# Copyright (C) 2002-2024 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This file is distributed in the hope that it will be useful,
@@ -29,11 +29,11 @@
 # Specification in the form of a command-line invocation:
 # gnulib-tool --import \
 #  --lib=libgnu \
-#  --source-base=src/gllib \
-#  --m4-base=src/glm4 \
+#  --source-base=gllib \
+#  --m4-base=glm4 \
 #  --doc-base=doc \
 #  --tests-base=tests \
-#  --aux-dir=src/build-aux \
+#  --aux-dir=build-aux \
 #  --no-conditional-dependencies \
 #  --no-libtool \
 #  --macro-prefix=gl \
@@ -192,9 +192,9 @@ gl_MODULES([
   unsetenv
   vma-iter
 ])
-gl_AVOID([ xalloc-die])
-gl_SOURCE_BASE([src/gllib])
-gl_M4_BASE([src/glm4])
+gl_AVOID([xalloc-die])
+gl_SOURCE_BASE([gllib])
+gl_M4_BASE([glm4])
 gl_PO_BASE([])
 gl_DOC_BASE([doc])
 gl_TESTS_BASE([tests])

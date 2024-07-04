@@ -3,172 +3,175 @@
 /* Define to 1 for DGUX with <sys/dg_sys_info.h>. */
 #undef DGUX
 
-/* Define to 1 if you have the `chmod' function. */
+/* Define to 1 if you have the 'chmod' function. */
 #undef HAVE_CHMOD
 
-/* Define to 1 if your system has a working `chown' function. */
+/* Define to 1 if your system has a working 'chown' function. */
 #undef HAVE_CHOWN
 
-/* Define to 1 if you have the `chroot' function. */
+/* Define to 1 if you have the 'chroot' function. */
 #undef HAVE_CHROOT
 
-/* Define to 1 if you have the `closelog' function. */
+/* Define to 1 if you have the 'closelog' function. */
 #undef HAVE_CLOSELOG
 
-/* Define to 1 if you have the `confstr' function. */
+/* Define to 1 if you have the 'confstr' function. */
 #undef HAVE_CONFSTR
 
-/* Define to 1 if you have the declaration of `getdate_err', and to 0 if you
+/* Define to 1 if you have the declaration of 'getdate_err', and to 0 if you
    don't. */
 #undef HAVE_DECL_GETDATE_ERR
 
-/* Define to 1 if you have the declaration of `signgam', and to 0 if you
+/* Define to 1 if you have the declaration of 'signgam', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIGNGAM
 
-/* Define to 1 if you have the `endgrent' function. */
+/* Define to 1 if you have the 'endgrent' function. */
 #undef HAVE_ENDGRENT
 
-/* Define to 1 if you have the `endpwent' function. */
+/* Define to 1 if you have the 'endpwent' function. */
 #undef HAVE_ENDPWENT
 
-/* Define to 1 if you have the `endservent' function. */
+/* Define to 1 if you have the 'endservent' function. */
 #undef HAVE_ENDSERVENT
 
-/* Define to 1 if you have the `endusershell' function. */
+/* Define to 1 if you have the 'endusershell' function. */
 #undef HAVE_ENDUSERSHELL
 
-/* Define to 1 if you have the `endutxent' function. */
+/* Define to 1 if you have the 'endutxent' function. */
 #undef HAVE_ENDUTXENT
 
-/* Define to 1 if you have the `erf' function. */
+/* Define to 1 if you have the 'erf' function. */
 #undef HAVE_ERF
 
-/* Define to 1 if you have the `erfc' function. */
+/* Define to 1 if you have the 'erfc' function. */
 #undef HAVE_ERFC
 
-/* Define to 1 if you have the `fchmod' function. */
+/* Define to 1 if you have the 'fchmod' function. */
 #undef HAVE_FCHMOD
 
-/* Define to 1 if you have the `fchown' function. */
+/* Define to 1 if you have the 'fchown' function. */
 #undef HAVE_FCHOWN
 
-/* Define to 1 if you have the `fcntl' function. */
+/* Define to 1 if you have the 'fcntl' function. */
 #undef HAVE_FCNTL
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
-/* Define to 1 if you have the `fpathconf' function. */
+/* Define to 1 if you have the 'fpathconf' function. */
 #undef HAVE_FPATHCONF
 
-/* Define to 1 if you have the `fstat' function. */
+/* Define to 1 if you have the 'fstat' function. */
 #undef HAVE_FSTAT
 
-/* Define to 1 if you have the `fstatvfs' function. */
+/* Define to 1 if you have the 'fstatvfs' function. */
 #undef HAVE_FSTATVFS
 
-/* Define to 1 if you have the `fsync' function. */
+/* Define to 1 if you have the 'fsync' function. */
 #undef HAVE_FSYNC
 
-/* Define to 1 if you have the `ftruncate' function. */
+/* Define to 1 if you have the 'ftruncate' function. */
 #undef HAVE_FTRUNCATE
 
 /* Define to 1 if you have the <ftw.h> header file. */
 #undef HAVE_FTW_H
 
-/* Define to 1 if you have the `getdate' function. */
+/* Define to 1 if you have the 'getdate' function. */
 #undef HAVE_GETDATE
 
-/* Define to 1 if you have the `getdomainname' function. */
+/* Define to 1 if you have the 'getdomainname' function. */
 #undef HAVE_GETDOMAINNAME
 
-/* Define to 1 if you have the `getegid' function. */
+/* Define to 1 if you have the 'getegid' function. */
 #undef HAVE_GETEGID
 
-/* Define to 1 if you have the `geteuid' function. */
+/* Define to 1 if you have the 'geteuid' function. */
 #undef HAVE_GETEUID
 
-/* Define to 1 if you have the `getgid' function. */
+/* Define to 1 if you have the 'getgid' function. */
 #undef HAVE_GETGID
 
-/* Define to 1 if you have the `getgrent' function. */
+/* Define to 1 if you have the 'getgrent' function. */
 #undef HAVE_GETGRENT
 
-/* Define to 1 if you have the `getgrgid' function. */
+/* Define to 1 if you have the 'getgrgid' function. */
 #undef HAVE_GETGRGID
 
-/* Define to 1 if you have the `getgrnam' function. */
+/* Define to 1 if you have the 'getgrnam' function. */
 #undef HAVE_GETGRNAM
 
-/* Define to 1 if you have the `getgroups' function. */
+/* Define to 1 if you have the 'getgroups' function. */
 #undef HAVE_GETGROUPS
 
-/* Define to 1 if you have the `gethostent' function. */
+/* Define to 1 if you have the 'gethostent' function. */
 #undef HAVE_GETHOSTENT
 
-/* Define to 1 if you have the `gethostid' function. */
+/* Define to 1 if you have the 'gethostid' function. */
 #undef HAVE_GETHOSTID
 
-/* Define to 1 if you have the `getlogin' function. */
+/* Define to 1 if you have the `getloadavg' function. */
+#undef HAVE_GETLOADAVG
+
+/* Define to 1 if you have the 'getlogin' function. */
 #undef HAVE_GETLOGIN
 
-/* Define to 1 if you have the `getpgid' function. */
+/* Define to 1 if you have the 'getpgid' function. */
 #undef HAVE_GETPGID
 
-/* Define to 1 if you have the `getpgrp' function. */
+/* Define to 1 if you have the 'getpgrp' function. */
 #undef HAVE_GETPGRP
 
-/* Define to 1 if you have the `getppid' function. */
+/* Define to 1 if you have the 'getppid' function. */
 #undef HAVE_GETPPID
 
-/* Define to 1 if you have the `getpriority' function. */
+/* Define to 1 if you have the 'getpriority' function. */
 #undef HAVE_GETPRIORITY
 
-/* Define to 1 if you have the `getpwent' function. */
+/* Define to 1 if you have the 'getpwent' function. */
 #undef HAVE_GETPWENT
 
-/* Define to 1 if you have the `getpwnam' function. */
+/* Define to 1 if you have the 'getpwnam' function. */
 #undef HAVE_GETPWNAM
 
-/* Define to 1 if you have the `getpwuid' function. */
+/* Define to 1 if you have the 'getpwuid' function. */
 #undef HAVE_GETPWUID
 
-/* Define to 1 if you have the `getrlimit' function. */
+/* Define to 1 if you have the 'getrlimit' function. */
 #undef HAVE_GETRLIMIT
 
 /* have <sys/time.h>, the getrusage() function, the struct rusage type, and
    <sys/resource.h> defines RUSAGE_SELF */
 #undef HAVE_GETRUSAGE
 
-/* Define to 1 if you have the `getservbyname' function. */
+/* Define to 1 if you have the 'getservbyname' function. */
 #undef HAVE_GETSERVBYNAME
 
-/* Define to 1 if you have the `getservbyport' function. */
+/* Define to 1 if you have the 'getservbyport' function. */
 #undef HAVE_GETSERVBYPORT
 
-/* Define to 1 if you have the `getservent' function. */
+/* Define to 1 if you have the 'getservent' function. */
 #undef HAVE_GETSERVENT
 
-/* Define to 1 if you have the `getsid' function. */
+/* Define to 1 if you have the 'getsid' function. */
 #undef HAVE_GETSID
 
-/* Define to 1 if you have the `getuid' function. */
+/* Define to 1 if you have the 'getuid' function. */
 #undef HAVE_GETUID
 
-/* Define to 1 if you have the `getusershell' function. */
+/* Define to 1 if you have the 'getusershell' function. */
 #undef HAVE_GETUSERSHELL
 
-/* Define to 1 if you have the `getutxent' function. */
+/* Define to 1 if you have the 'getutxent' function. */
 #undef HAVE_GETUTXENT
 
-/* Define to 1 if you have the `getutxid' function. */
+/* Define to 1 if you have the 'getutxid' function. */
 #undef HAVE_GETUTXID
 
-/* Define to 1 if you have the `getutxline' function. */
+/* Define to 1 if you have the 'getutxline' function. */
 #undef HAVE_GETUTXLINE
 
-/* Define to 1 if you have the `GlobalMemoryStatusEx' function. */
+/* Define to 1 if you have the 'GlobalMemoryStatusEx' function. */
 #undef HAVE_GLOBALMEMORYSTATUSEX
 
 /* Define to 1 if you have the <grp.h> header file. */
@@ -177,116 +180,116 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `kill' function. */
+/* Define to 1 if you have the 'kill' function. */
 #undef HAVE_KILL
 
-/* Define to 1 if you have the `lgamma' function. */
+/* Define to 1 if you have the 'lgamma' function. */
 #undef HAVE_LGAMMA
 
-/* Define to 1 if you have the `dgc' library (-ldgc). */
+/* Define to 1 if you have the 'dgc' library (-ldgc). */
 #undef HAVE_LIBDGC
 
-/* Define to 1 if you have the `kstat' library (-lkstat). */
+/* Define to 1 if you have the 'kstat' library (-lkstat). */
 #undef HAVE_LIBKSTAT
 
-/* Define to 1 if you have the `perfstat' library (-lperfstat). */
+/* Define to 1 if you have the 'perfstat' library (-lperfstat). */
 #undef HAVE_LIBPERFSTAT
 
-/* Define to 1 if you have the `link' function. */
+/* Define to 1 if you have the 'link' function. */
 #undef HAVE_LINK
 
 /* Define to 1 if you have the <minix/config.h> header file. */
 #undef HAVE_MINIX_CONFIG_H
 
-/* Define to 1 if you have the `mknod' function. */
+/* Define to 1 if you have the 'mknod' function. */
 #undef HAVE_MKNOD
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
 
-/* Define to 1 if you have the `nftw' function. */
+/* Define to 1 if you have the 'nftw' function. */
 #undef HAVE_NFTW
 
-/* Define to 1 if you have the `openlog' function. */
+/* Define to 1 if you have the 'openlog' function. */
 #undef HAVE_OPENLOG
 
-/* Define to 1 if you have the `pathconf' function. */
+/* Define to 1 if you have the 'pathconf' function. */
 #undef HAVE_PATHCONF
 
-/* Define to 1 if you have the `pututxline' function. */
+/* Define to 1 if you have the 'pututxline' function. */
 #undef HAVE_PUTUTXLINE
 
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
-/* Define to 1 if you have the `readlink' function. */
+/* Define to 1 if you have the 'readlink' function. */
 #undef HAVE_READLINK
 
-/* Define to 1 if you have the `realpath' function. */
+/* Define to 1 if you have the 'realpath' function. */
 #undef HAVE_REALPATH
 
 /* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
    */
 #undef HAVE_SCALAR_FSID
 
-/* Define to 1 if you have the `setdomainname' function. */
+/* Define to 1 if you have the 'setdomainname' function. */
 #undef HAVE_SETDOMAINNAME
 
-/* Define to 1 if you have the `setegid' function. */
+/* Define to 1 if you have the 'setegid' function. */
 #undef HAVE_SETEGID
 
-/* Define to 1 if you have the `seteuid' function. */
+/* Define to 1 if you have the 'seteuid' function. */
 #undef HAVE_SETEUID
 
-/* Define to 1 if you have the `setgid' function. */
+/* Define to 1 if you have the 'setgid' function. */
 #undef HAVE_SETGID
 
-/* Define to 1 if you have the `setgrent' function. */
+/* Define to 1 if you have the 'setgrent' function. */
 #undef HAVE_SETGRENT
 
-/* Define to 1 if you have the `setgroups' function. */
+/* Define to 1 if you have the 'setgroups' function. */
 #undef HAVE_SETGROUPS
 
-/* Define to 1 if you have the `sethostid' function. */
+/* Define to 1 if you have the 'sethostid' function. */
 #undef HAVE_SETHOSTID
 
-/* Define to 1 if you have the `setlogmask' function. */
+/* Define to 1 if you have the 'setlogmask' function. */
 #undef HAVE_SETLOGMASK
 
-/* Define to 1 if you have the `setpgid' function. */
+/* Define to 1 if you have the 'setpgid' function. */
 #undef HAVE_SETPGID
 
-/* Define to 1 if you have the `setpgrp' function. */
+/* Define to 1 if you have the 'setpgrp' function. */
 #undef HAVE_SETPGRP
 
 /* Define to 1 if setpgrp() does not accept arguments */
 #undef HAVE_SETPGRP_POSIX
 
-/* Define to 1 if you have the `setpriority' function. */
+/* Define to 1 if you have the 'setpriority' function. */
 #undef HAVE_SETPRIORITY
 
-/* Define to 1 if you have the `setpwent' function. */
+/* Define to 1 if you have the 'setpwent' function. */
 #undef HAVE_SETPWENT
 
-/* Define to 1 if you have the `setregid' function. */
+/* Define to 1 if you have the 'setregid' function. */
 #undef HAVE_SETREGID
 
-/* Define to 1 if you have the `setreuid' function. */
+/* Define to 1 if you have the 'setreuid' function. */
 #undef HAVE_SETREUID
 
-/* Define to 1 if you have the `setrlimit' function. */
+/* Define to 1 if you have the 'setrlimit' function. */
 #undef HAVE_SETRLIMIT
 
-/* Define to 1 if you have the `setservent' function. */
+/* Define to 1 if you have the 'setservent' function. */
 #undef HAVE_SETSERVENT
 
-/* Define to 1 if you have the `setsid' function. */
+/* Define to 1 if you have the 'setsid' function. */
 #undef HAVE_SETSID
 
-/* Define to 1 if you have the `setuid' function. */
+/* Define to 1 if you have the 'setuid' function. */
 #undef HAVE_SETUID
 
-/* Define to 1 if you have the `setutxent' function. */
+/* Define to 1 if you have the 'setutxent' function. */
 #undef HAVE_SETUTXENT
 
 /* Define to 1 if you have the <shlobj.h> header file. */
@@ -295,10 +298,10 @@
 /* Define to 1 if you have the <signal.h> header file. */
 #undef HAVE_SIGNAL_H
 
-/* Define to 1 if you have the `stat' function. */
+/* Define to 1 if you have the 'stat' function. */
 #undef HAVE_STAT
 
-/* Define to 1 if you have the `statvfs' function. */
+/* Define to 1 if you have the 'statvfs' function. */
 #undef HAVE_STATVFS
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -316,28 +319,28 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if `st_blksize' is a member of `struct stat'. */
+/* Define to 1 if 'st_blksize' is a member of 'struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_BLKSIZE
 
-/* Define to 1 if `st_blocks' is a member of `struct stat'. */
+/* Define to 1 if 'st_blocks' is a member of 'struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_BLOCKS
 
-/* Define to 1 if `st_rdev' is a member of `struct stat'. */
+/* Define to 1 if 'st_rdev' is a member of 'struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
 
-/* Define to 1 if `ut_host' is a member of `struct utmpx'. */
+/* Define to 1 if 'ut_host' is a member of 'struct utmpx'. */
 #undef HAVE_STRUCT_UTMPX_UT_HOST
 
-/* Define to 1 if you have the `symlink' function. */
+/* Define to 1 if you have the 'symlink' function. */
 #undef HAVE_SYMLINK
 
-/* Define to 1 if you have the `sync' function. */
+/* Define to 1 if you have the 'sync' function. */
 #undef HAVE_SYNC
 
-/* Define to 1 if you have the `sysconf' function. */
+/* Define to 1 if you have the 'sysconf' function. */
 #undef HAVE_SYSCONF
 
-/* Define to 1 if you have the `syslog' function. */
+/* Define to 1 if you have the 'syslog' function. */
 #undef HAVE_SYSLOG
 
 /* Define to 1 if you have the <syslog.h> header file. */
@@ -367,19 +370,19 @@
 /* Define to 1 if you have the <sys/unistd.h> header file. */
 #undef HAVE_SYS_UNISTD_H
 
-/* Define to 1 if you have the `tgamma' function. */
+/* Define to 1 if you have the 'tgamma' function. */
 #undef HAVE_TGAMMA
 
-/* Define to 1 if you have the `truncate' function. */
+/* Define to 1 if you have the 'truncate' function. */
 #undef HAVE_TRUNCATE
 
-/* Define to 1 if you have the `umask' function. */
+/* Define to 1 if you have the 'umask' function. */
 #undef HAVE_UMASK
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `utime' function. */
+/* Define to 1 if you have the 'utime' function. */
 #undef HAVE_UTIME
 
 /* Define to 1 if you have the <utime.h> header file. */
@@ -388,7 +391,7 @@
 /* Define to 1 if you have the <utmpx.h> header file. */
 #undef HAVE_UTMPX_H
 
-/* Define to 1 if you have the `wait4' function. */
+/* Define to 1 if you have the 'wait4' function. */
 #undef HAVE_WAIT4
 
 /* Define to 1 if you have the <wchar.h> header file. */
@@ -417,33 +420,33 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The size of `fsblkcnt_t', as computed by sizeof. */
+/* The size of 'fsblkcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSBLKCNT_T
 
-/* The size of `fsfilcnt_t', as computed by sizeof. */
+/* The size of 'fsfilcnt_t', as computed by sizeof. */
 #undef SIZEOF_FSFILCNT_T
 
-/* The size of `gid_t', as computed by sizeof. */
+/* The size of 'gid_t', as computed by sizeof. */
 #undef SIZEOF_GID_T
 
-/* The size of `off_t', as computed by sizeof. */
+/* The size of 'off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
 
-/* The size of `pid_t', as computed by sizeof. */
+/* The size of 'pid_t', as computed by sizeof. */
 #undef SIZEOF_PID_T
 
-/* The size of `rlim_t', as computed by sizeof. */
+/* The size of 'rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
-/* The size of `uid_t', as computed by sizeof. */
+/* The size of 'uid_t', as computed by sizeof. */
 #undef SIZEOF_UID_T
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
-/* Enable extensions on AIX 3, Interix.  */
+/* Enable extensions on AIX, Interix, z/OS.  */
 #ifndef _ALL_SOURCE
 # undef _ALL_SOURCE
 #endif
@@ -504,11 +507,15 @@
 #ifndef __STDC_WANT_IEC_60559_DFP_EXT__
 # undef __STDC_WANT_IEC_60559_DFP_EXT__
 #endif
+/* Enable extensions specified by C23 Annex F.  */
+#ifndef __STDC_WANT_IEC_60559_EXT__
+# undef __STDC_WANT_IEC_60559_EXT__
+#endif
 /* Enable extensions specified by ISO/IEC TS 18661-4:2015.  */
 #ifndef __STDC_WANT_IEC_60559_FUNCS_EXT__
 # undef __STDC_WANT_IEC_60559_FUNCS_EXT__
 #endif
-/* Enable extensions specified by ISO/IEC TS 18661-3:2015.  */
+/* Enable extensions specified by C23 Annex H and ISO/IEC TS 18661-3:2015.  */
 #ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
 # undef __STDC_WANT_IEC_60559_TYPES_EXT__
 #endif
@@ -534,11 +541,17 @@
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
 
-/* Define for large files, on AIX-style hosts. */
+/* Define to 1 on platforms where this makes off_t a 64-bit type. */
 #undef _LARGE_FILES
 
-/* Define to `int' if <sys/types.h> doesn't define. */
+/* Number of bits in time_t, on hosts where this is settable. */
+#undef _TIME_BITS
+
+/* Define to 1 on platforms where this makes time_t a 64-bit type. */
+#undef __MINGW_USE_VC2005_COMPAT
+
+/* Define as 'int' if <sys/types.h> doesn't define. */
 #undef gid_t
 
-/* Define to `int' if <sys/types.h> doesn't define. */
+/* Define as 'int' if <sys/types.h> doesn't define. */
 #undef uid_t

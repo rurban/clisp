@@ -1,5 +1,5 @@
 /* Locking in multithreaded situations.
-   Copyright (C) 2005-2021 Free Software Foundation, Inc.
+   Copyright (C) 2005-2024 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -77,11 +77,21 @@
 #ifndef _LOCK_H
 #define _LOCK_H
 
+/* This file uses HAVE_THREADS_H, HAVE_PTHREAD_RWLOCK,
+   HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER,
+   PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP,
+   HAVE_PTHREAD_MUTEX_RECURSIVE.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <errno.h>
 #include <stdlib.h>
 
 #if !defined c11_threads_in_use
-# if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
+# if HAVE_THREADS_H && USE_POSIX_THREADS_FROM_LIBC
+#  define c11_threads_in_use() 1
+# elif HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
 #  include <threads.h>
 #  pragma weak thrd_exit
 #  define c11_threads_in_use() (thrd_exit != NULL)
