@@ -1,5 +1,11 @@
 2024-07-04  Bruno Haible  <bruno@clisp.org>
 
+	build: Reduce the size of aclocal.m4.
+	* Makefile.devel (src/aclocal.m4): Use relative filenames in the -I
+	options.
+
+2024-07-04  Bruno Haible  <bruno@clisp.org>
+
 	build: Use newer libtool and build-aux upstream.
 	* Makefile.devel (LIBTOOL_VERSION, AUTOMAKE_VERSION): Increase.
 	(LIBTOOL_SOURCE_URL, AUTOMAKE_GIT, GMALLOC_URL): Use https, not http.
