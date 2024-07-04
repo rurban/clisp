@@ -384,8 +384,6 @@ update-gnulib:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Regenerate all files created from gnulib.
 
-GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool --import \
-	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
 GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset stdlib \
 	unistd alloca-opt environ lstat stat readlink sys_uio sys_select \
 	mkfifo mknod mkstemp mkdtemp getloadavg bind accept listen recv send \
@@ -397,16 +395,19 @@ GNULIB_CORE = no-c++ stdint stdbool havelib gettext localcharset stdlib \
 	vma-iter c-strtod noreturn libunistring-optional crypto/sha1
 GNULIB_SYSCALLS = mktime strftime strptime strverscmp uname fnmatch-gnu
 GNULIB_IMPORTS = $(GNULIB_CORE) $(GNULIB_SYSCALLS) regex recvfrom sendto
-GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
 GNULIB_IMPORTED_LOG = /tmp/gnulib-imported.log
 
 gnulib-imported : update-gnulib force
 	$(RMRF) src/glm4 src/gllib
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(RM) src/glm4/gnulib-cache.m4 $(GNULIB_IMPORTED_LOG)
-	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
+	abs_gnulib_dir=`cd $(GNULIB_CHECKOUT) && pwd`; \
+	(cd src && \
+	  $$abs_gnulib_dir/gnulib-tool \
+		--source-base=gllib --m4-base=glm4 --aux-dir=build-aux \
+		--import --no-vc-files --no-libtool --no-changelog \
 		--avoid=xalloc-die \
-		$(GNULIB_IMPORTS) 2>&1 | tee -a $(GNULIB_IMPORTED_LOG)
+		$(GNULIB_IMPORTS) 2>&1 | tee -a $(GNULIB_IMPORTED_LOG) )
 	$(RM) configure.ac src/gl*/*~
 	cd src/glm4; \
 	for f in *.m4; do \

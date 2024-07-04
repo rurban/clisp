@@ -1,5 +1,11 @@
 2024-07-04  Bruno Haible  <bruno@clisp.org>
 
+	build: Prepare for newer gnulib.
+	* Makefile.devel (GNULIB_TOOL, GNULIB_COMMON): Remove variables.
+	(gnulib-imported): Run gnulib-tool in the src directory.
+
+2024-07-04  Bruno Haible  <bruno@clisp.org>
+
 	build: Reduce the size of aclocal.m4.
 	* Makefile.devel (src/aclocal.m4): Use relative filenames in the -I
 	options.
