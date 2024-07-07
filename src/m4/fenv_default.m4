@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2008, 2017 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2024 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -49,11 +49,11 @@ AC_DEFUN([CL_FLOAT_DIV0],
      float x = 1;
      float y = 0;
      float z;
-     float nan;
+     float tnan;
      int main ()
      {
        CL_FENV_SIGNAL_INSTALL
-       z = x / y; nan = y / y;
+       z = x / y; tnan = y / y;
        return 0;
      }
     ])
@@ -71,11 +71,11 @@ AC_DEFUN([CL_DOUBLE_DIV0],
      double x = 1;
      double y = 0;
      double z;
-     double nan;
+     double tnan;
      int main ()
      {
        CL_FENV_SIGNAL_INSTALL
-       z = x / y; nan = y / y;
+       z = x / y; tnan = y / y;
        return 0;
      }
     ])
@@ -93,11 +93,11 @@ AC_DEFUN([CL_LONGDOUBLE_DIV0],
      long double x = 1;
      long double y = 0;
      long double z;
-     long double nan;
+     long double tnan;
      int main ()
      {
        CL_FENV_SIGNAL_INSTALL
-       z = x / y; nan = y / y;
+       z = x / y; tnan = y / y;
        return 0;
      }
     ])

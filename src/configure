@@ -17954,7 +17954,7 @@ else case e in #(
 /* end confdefs.h.  */
 
           #define divide(x,y,q_zuw,r_zuw) (r_zuw(x)-(q_zuw(x)/(y))*(y))
-          foo(x,y) int x,y; { int q; divide(x,y,q=,); return q; }
+          foo(int x,int y) { int q; divide(x,y,q=,); return q; }
 _ACEOF
 if ac_fn_c_try_cpp "$LINENO"
 then :
@@ -63203,7 +63203,7 @@ else case e in #(
 "C"
 #endif
 
-            #ifdef __cplusplus
+            #if defined __cplusplus || __STDC_VERSION__ >= 202311L
             int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
             #else
             int select();
@@ -66537,7 +66537,7 @@ else case e in #(
      float x = 1;
      float y = 0;
      float z;
-     float nan;
+     float tnan;
      int main ()
      {
        signal (SIGFPE, sigfpe_handler);
@@ -66545,7 +66545,7 @@ else case e in #(
    signal (SIGTRAP, sigfpe_handler);
  #endif
 
-       z = x / y; nan = y / y;
+       z = x / y; tnan = y / y;
        return 0;
      }
 
@@ -66780,7 +66780,7 @@ else case e in #(
      double x = 1;
      double y = 0;
      double z;
-     double nan;
+     double tnan;
      int main ()
      {
        signal (SIGFPE, sigfpe_handler);
@@ -66788,7 +66788,7 @@ else case e in #(
    signal (SIGTRAP, sigfpe_handler);
  #endif
 
-       z = x / y; nan = y / y;
+       z = x / y; tnan = y / y;
        return 0;
      }
 

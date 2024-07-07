@@ -1,3 +1,13 @@
+2024-07-07  Bruno Haible  <bruno@clisp.org>
+
+	build: Support strict ISO C23 compilers.
+	* m4/cc-ema.m4 (CL_CC_NEED_DEEMA): Convert declaration to ISO C.
+	* m4/fenv_default.m4 (CL_FLOAT_DIV0, CL_DOUBLE_DIV0,
+	CL_LONGDOUBLE_DIV0): Rename variable nan to tnan.
+	* m4/select.m4 (CL_SELECT): Don't use K&R C prototype in ISO C 23 or
+	newer.
+	* src/configure: Regenerated.
+
 2024-07-04  Bruno Haible  <bruno@clisp.org>
 
 	Fix compilation error on native Windows.
