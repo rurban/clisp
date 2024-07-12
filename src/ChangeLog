@@ -1,3 +1,9 @@
+2024-07-12  Bruno Haible  <bruno@clisp.org>
+
+	build: Switch to automake 1.17.
+	* aclocal.m4, src/configure, gllib/Makefile.in: Regenerated.
+	* modules/*/configure: Regenerated.
+
 2024-07-07  Bruno Haible  <bruno@clisp.org>
 
 	build: Support strict ISO C23 compilers.
