@@ -366,19 +366,14 @@ htmldoc:
 # ------------------------------------------------------------------------------
 # Fetch the most recent gnulib.
 
-GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
-GNULIB_CVS_REPOSITORY = HEAD
-GNULIB_GIT = git://git.savannah.gnu.org/gnulib.git
+GNULIB_GIT = https://git.savannah.gnu.org/git/gnulib.git
 GNULIB_CHECKOUT := gnulib
 
 update-gnulib:
 	if test -d $(GNULIB_CHECKOUT); then \
-	  cd $(GNULIB_CHECKOUT) ; \
-	  if test -d .git; then git pull; else cvs update -d -P; fi \
+	  cd $(GNULIB_CHECKOUT) ; git pull ; \
 	else \
-	  if git --version >/dev/null 2>&1; then \
-	    git clone "$(GNULIB_GIT)" $(GNULIB_CHECKOUT) ; \
-	  else cvs -d "$(GNULIB_CVS_ROOT)" checkout -d $(GNULIB_CHECKOUT) $(GNULIB_CVS_REPOSITORY); fi \
+	  git clone "$(GNULIB_GIT)" $(GNULIB_CHECKOUT) ; \
 	fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

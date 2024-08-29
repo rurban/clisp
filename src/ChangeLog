@@ -1,5 +1,12 @@
 2024-08-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Modernize 'update-gnulib' target.
+	* Makefile.devel (GNULIB_GIT): Use secured URL.
+	(GNULIB_CVS_ROOT, GNULIB_CVS_REPOSITORY): Remove variables.
+	(update-gnulib): Don't use cvs any more.
+
+2024-08-29  Bruno Haible  <bruno@clisp.org>
+
 	Fix DEPENDENCIES.
 	* DEPENDENCIES: Remove mention of unsupported option
 	--with-ncurses-prefix.
