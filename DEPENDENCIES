@@ -101,7 +101,7 @@ The following packages should be installed before GNU clisp is installed
     - On Red Hat distributions: ncurses-devel.
     - Other: https://repology.org/project/ncurses/versions
   + If it is installed in a nonstandard directory, pass the option
-    --with-ncurses-prefix=DIR or --with-libtermcap-prefix to 'configure'.
+    --with-libtermcap-prefix to 'configure'.
 
 
 The following packages should be installed when GNU clisp is installed
