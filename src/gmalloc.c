@@ -7,22 +7,21 @@
 /* Declarations for `malloc' and friends.
    Copyright (C) 1990, 1991, 1992, 1993, 1995, 1996, 1999, 2002, 2003, 2004,
                  2005, 2006, 2007 Free Software Foundation, Inc.
-		  Written May 1989 by Mike Haertel.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published
+   by the Free Software Foundation; either version 2 of the License,
+   or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
+   This file is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public
-License along with this library; see the file COPYING.  If
-not, write to the Free Software Foundation, Inc., 51 Franklin Street,
-Fifth Floor, Boston, MA 02110-1301, USA.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+
+/* Written May 1989 by Mike Haertel.
 
    The author may be reached (Email) at the address mike@ai.mit.edu,
    or (US mail) as Mike Haertel c/o Free Software Foundation.  */
