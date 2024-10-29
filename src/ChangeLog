@@ -1,5 +1,11 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Separate the user-provided CPPFLAGS from our added CPPFLAGS.
+	* makemake.in: New variables A_CPPFLAGS, Z_CPPFLAGS, A_XCPPFLAGS,
+	Z_XCPPFLAGS.
+
+2024-10-29  Bruno Haible  <bruno@clisp.org>
+
 	Align clisp module system better with GNU standards.
 	* doc/impext.xml: Mention LDFLAGS instead of CLFLAGS.
 	* makemake.in: In makevars and when invoking a 'clisp-module' rule, set

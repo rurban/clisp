@@ -515,7 +515,9 @@ esac
 # TSYS, TSYSOS = target system
 # TOS  = target operating system
 # CC, CPPFLAGS, CFLAGS, CLFLAGS, CPP = compiler on host, for host
+# A_CPPFLAGS, Z_CPPFLAGS = options that we add before, after $(CPPFLAGS).
 # XCC, XCPPFLAGS, XCFLAGS, XCLFLAGS, XCPP = cross-compiler on host, for target
+# A_XCPPFLAGS, Z_XCPPFLAGS = options that we add before, after $(XCPPFLAGS).
 
 # These variables are set by configure:
 # srcdir='@srcdir@'                 # either '.' or '../src', see above
@@ -561,6 +563,12 @@ host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 GNU_MAKE='@GNU_MAKE_FALSE@'         # '#' if non-gnu; '' if gnu
 
+# These variables are our additions to $(CPPFLAGS) or $(XCPPFLAGS).
+A_CPPFLAGS=''
+Z_CPPFLAGS=''
+A_XCPPFLAGS=''
+Z_XCPPFLAGS=''
+
 if test -x ./libtool; then # normal autoconf-based build
   # -rdynamic or -Wl,-E or -Wl,--export-dynamic
   eval "`./libtool --tag=CC --config | grep '^wl='`"
@@ -578,7 +586,7 @@ fi
 # feature or bug than to look at various `uname ...` results and list
 # the buggy systems explicitly. ONLY in this case!
 
-UTILCOMPILE="\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
+UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
 case $# in
   0 | 1)
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
@@ -603,7 +611,7 @@ case $# in
        HOS=win32
        COMPILER=gcc
        # Compile the utils as native Windows binaries, even on Cygwin.
-       UTILCOMPILE="\$(CC) \$(CPPFLAGS)"
+       UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS)"
      fi
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
@@ -1153,8 +1161,8 @@ if [ -n "${SRCDIR}" ] ; then
   XCPPFLAGS="${XCPPFLAGS} -I$x"
   GNULIB_INCLUDE="${GNULIB_INCLUDE} -I$x/gllib"
 fi
-CPPFLAGS="${CPPFLAGS} ${GNULIB_INCLUDE}"
-XCPPFLAGS="${XCPPFLAGS} ${GNULIB_INCLUDE}"
+Z_CPPFLAGS="${Z_CPPFLAGS} ${GNULIB_INCLUDE}"
+Z_XCPPFLAGS="${Z_XCPPFLAGS} ${GNULIB_INCLUDE}"
 
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
@@ -1929,7 +1937,7 @@ fi
 
 # For 32-bit builds, determine whether lispbibl.d will enable WIDE_SOFT.
 USE_WIDE_SOFT=''
-case " ${XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
   *" -DWIDE "* | *" -DWIDE_SOFT "* | *" -DNO_ADDRESS_SPACE_ASSUMPTIONS "*)
     USE_WIDE_SOFT=yes
     ;;
@@ -2036,7 +2044,7 @@ DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $
 ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
-case " ${XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
   *" -DNO_ARI_ASM "*) ;;
   *)
     if [ "$cpu" = sparc ] ; then
@@ -2072,7 +2080,7 @@ esac
 
 SP_ASMD=''
 SP_ASMS=''
-case " ${XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
   *" -DNO_SP_ASM "*) ;;
   *)
     if [ "$cpu" = m68k ] ; then
@@ -2282,17 +2290,23 @@ echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
   echol "CC = ${CC}"
   echol "CPPFLAGS = ${CPPFLAGS}"
+  echol "A_CPPFLAGS = ${A_CPPFLAGS}"
+  echol "Z_CPPFLAGS = ${Z_CPPFLAGS}"
   echol "CFLAGS = ${CFLAGS}"
   echol "CLFLAGS = ${CLFLAGS}"
   echol "CPP = ${CPP}"
   echol "XCC = ${XCC}"
   echol "XCPPFLAGS = ${XCPPFLAGS}"
+  echol "A_XCPPFLAGS = ${A_XCPPFLAGS}"
+  echol "Z_XCPPFLAGS = ${Z_XCPPFLAGS}"
   echol "XCFLAGS = ${XCFLAGS}"
   echol "XCPP = ${XCPP}"
   echol "XCLFLAGS = ${XCLFLAGS}"
   echol "XLIBS = ${LIBS}"
   XCC="\$(XCC)"
   XCPPFLAGS="\$(XCPPFLAGS)"
+  A_XCPPFLAGS="\$(A_XCPPFLAGS)"
+  Z_XCPPFLAGS="\$(Z_XCPPFLAGS)"
   XCFLAGS="\$(XCFLAGS)"
   XCPP="\$(XCPP)"
   XCLFLAGS="\$(XCLFLAGS)"
@@ -2300,12 +2314,16 @@ if [ $CROSS = true ] ; then
 else
   echol "CC = ${XCC}"
   echol "CPPFLAGS = ${XCPPFLAGS}"
+  echol "A_CPPFLAGS = ${A_XCPPFLAGS}"
+  echol "Z_CPPFLAGS = ${Z_XCPPFLAGS}"
   echol "CFLAGS = ${XCFLAGS}"
   echol "CPP = ${XCPP}"
   echol "CLFLAGS = ${XCLFLAGS}"
   echol "LIBS = ${LIBS}"
   XCC="\$(CC)"
   XCPPFLAGS="\$(CPPFLAGS)"
+  A_XCPPFLAGS="\$(A_CPPFLAGS)"
+  Z_XCPPFLAGS="\$(Z_CPPFLAGS)"
   XCFLAGS="\$(CFLAGS)"
   XCPP="\$(CPP)"
   XCLFLAGS="\$(CLFLAGS)"
@@ -2317,7 +2335,7 @@ echol "FALIGNFLAGS = ${FALIGNFLAGS}"
 FALIGNFLAGS="\$(FALIGNFLAGS)"
 echol "LD = ${LD}"
 LD="\$(LD)"
-echol 'MODULE_CPPFLAGS = $(CPPFLAGS)' # this includes ${GNULIB_INCLUDE}
+echol 'MODULE_CPPFLAGS = $(A_CPPFLAGS) $(CPPFLAGS) $(Z_CPPFLAGS)' # this includes ${GNULIB_INCLUDE}
 if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
@@ -2639,7 +2657,14 @@ echol
 echol "cflags.h.stamp : Makefile"
 echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
 for x in ${PRECIOUS_VARS}; do
-  echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
+  case $x in
+    CPPFLAGS)
+      echotab "echo $ARGQ#define $x \"\$(A_$x) \$($x) \$(Z_$x)\"$ARGQ >> cflags.h.new"
+      ;;
+    *)
+      echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
+      ;;
+  esac
 done
 if [ $TSYS = win32msvc ] ; then
   echotab '$(RM) cflags.h'
@@ -2876,7 +2901,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     test ${TOS} = win32 && dependsc=$dependsc" ${SRCDIR}w32shell.c"
   fi
   test $f = built && dependsc=${dependsc}' cflags.h'
-  flags="$XCPPFLAGS $XCFLAGS"
+  flags="$A_XCPPFLAGS $XCPPFLAGS $Z_XCPPFLAGS $XCFLAGS"
   # Sun cc doesn't look for include files in the current directory
   # any more after a preprocessor directive '#line 1 "../src/file.d"'.
   flags=$flags" -I."
@@ -2989,7 +3014,7 @@ if [ "${with_gmalloc}" = yes ]; then
   for f in $GMALLOC ; do
     echol "${f}${TOBJ} : ${SRCDIR}${f}.c"
     # gmalloc.c needs -DUSG on Solaris.
-    echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -DUSG -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
+    echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -DUSG -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
     echol
   done
 fi
@@ -2997,26 +3022,26 @@ fi
 for f in $ARI_ASMS $SP_ASMS ; do
   if [ $TSYS = win32msvc ] ; then
     echol "${f}.i : ${SRCDIR}${f}-macro.c"
-    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i"
+    echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i"
     echol
     echol "${f}.s : ${SRCDIR}${f}-macro.c"
     if false; then # old
-      echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
       echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
       echotab "\$(RM) ${f}.i${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
     else
-      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /FAs /Fa${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /FAs /Fa${f}.s"
       echotab "\$(RM) ${f}-macro${TOBJ}"
     fi
     echol
     echol "${f}${TOBJ} : ${SRCDIR}${f}-macro.c"
     if false; then # old
-      echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
       echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /Fo${f}${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
     else
-      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /Fo${f}${TOBJ}"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /Fo${f}${TOBJ}"
     fi
     echol
   else
@@ -3024,11 +3049,11 @@ for f in $ARI_ASMS $SP_ASMS ; do
     # Call the assembler, preferrably through the C compiler:
     if [ $f = ari_asm_hppa ] ; then
       # Only the native as groks the .SHORTDATA statements in ari_asm_hppa.d
-      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
     elif [ $XCC_GCC = true ] ; then
-      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
     else
-      echotab "${XCC} ${XCPPFLAGS} ${XCFLAGS} -c ${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${f}.s"
     fi
     echol
   fi
@@ -3615,7 +3640,7 @@ fi
 
 if [ $XCC_GCC = true ] ; then
   echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
-  echotab "( (${XCPP} ${XCPPFLAGS} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCPPFLAGS} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
+  echotab "( (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol "gc : lispbibl.h # show GC-related definitions"
   echotab "egrep '[^[:alpha:]](MEMORY|SPVW|GC|SIGSEGV|SAFETY|ASM|FAST|DEBUG)[^[:alpha:]]' lispbibl.h | grep -v 'define _' | egrep '^#define'"
@@ -3639,8 +3664,8 @@ for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
 echotab "(echo; echo '/* genclisph */' ; cat clisp.h.tmp; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
+echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
+echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
 echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
 if [ $HOS = unix -o $HSYS = win32gcc ]; then
@@ -3902,7 +3927,7 @@ for f in $TXT_FILES ; do
   # "xlc: 1501-218 (S) file gen-clisp.c contains an incorrect file suffix" on AIX.
   g=`echo "${g}" | sed -e 's/[.]//g'`
   echotab "\$(TXT2C) < ${sourcedir}_${f} > ${g}.c"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "${g}.c ${GLLIB_A}" "${g}"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "${g}.c ${GLLIB_A}" "${g}"
   line="${HERE}${g}"
   test $f = clisp.1 -o $f = clisp-link.1 && \
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
@@ -3979,7 +4004,7 @@ if [ $CROSS = false ] ; then
     echol
   fi
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -4083,7 +4108,7 @@ if [ $CROSS = false ] ; then
           ;;
       esac
     fi
-    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
@@ -4374,8 +4399,8 @@ echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c ${SRCDIR}execname.c \$(TOPDIR)/src/"
 else
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" "clisp.c ${GLLIB_A}" "\$(TOPDIR)/clisp"
-  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c ${GLLIB_A}" "\$(TOPDIR)/hardcode"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" "clisp.c ${GLLIB_A}" "\$(TOPDIR)/clisp"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c ${GLLIB_A}" "\$(TOPDIR)/hardcode"
 fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
