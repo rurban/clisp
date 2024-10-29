@@ -600,7 +600,7 @@ fi
 # feature or bug than to look at various `uname ...` results and list
 # the buggy systems explicitly. ONLY in this case!
 
-UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(A_LDFLAGS) \$(LDFLAGS) \$(Z_LDFLAGS)"
+UTILCOMPILE="\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(LDFLAGS)"
 case $# in
   0 | 1)
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
@@ -625,7 +625,7 @@ case $# in
        HOS=win32
        COMPILER=gcc
        # Compile the utils as native Windows binaries, even on Cygwin.
-       UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS)"
+       UTILCOMPILE="\$(CC) \$(CPPFLAGS)"
      fi
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
@@ -2740,8 +2740,8 @@ for parf in ${PARAMS}; do
   echol
 done
 for util in ${UTILS} ; do
-  echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${GLLIB_A}"
-  echotab_to_HEXE "${UTILCOMPILE} -I." "${UTILDIR_CC}${util}.c ${GLLIB_A}" "${util}"
+  echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+  echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
   echol
 done
 

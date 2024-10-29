@@ -42,8 +42,6 @@
    emit_DEFACCESSOR("ship","x"); emit("\n");
 */
 
-#include <config.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

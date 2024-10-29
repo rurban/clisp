@@ -1,5 +1,18 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Build the utils/*.c programs without gnulib.
+	* makemake.in (UTILCOMPILE): Use only the user-provided options.
+	(${util}${HEXE}): Remove -I. option.
+	* utils/ccmp2c.c: Don't include <config.h>.
+	* utils/ccpaux.c: Likewise.
+	* utils/comment5.c: Likewise.
+	* utils/deema.c: Likewise.
+	* utils/gctrigger.c: Likewise.
+	* utils/txt2c.c: Likewise.
+	* utils/varbrace.c: Likewise.
+
+2024-10-29  Bruno Haible  <bruno@clisp.org>
+
 	build: Rename CLFLAGS to LDFLAGS, for consistency with Autoconf.
 	* makemake.in: Use Z_LDFLAGS instead of CLFLAGS.
 	* built.d (built_flags): Update.
