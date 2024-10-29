@@ -1,5 +1,9 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Rename CLFLAGS to LDFLAGS, for consistency with Autoconf.
+	* makemake.in: Use Z_LDFLAGS instead of CLFLAGS.
+	* built.d (built_flags): Update.
+
 	build: Separate the user-provided CFLAGS from our added CFLAGS.
 	* makemake.in: New variables A_CFLAGS, Z_CFLAGS, A_XCFLAGS, Z_XCFLAGS.
 

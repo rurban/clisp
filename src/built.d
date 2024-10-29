@@ -1,6 +1,6 @@
 /*
  * Information about the build environment
- * Bruno Haible 2004-2008, 2016-2017
+ * Bruno Haible 2004-2008, 2016-2017, 2024
  * Sam Steingold 2004-2009, 2016
  */
 
@@ -23,7 +23,7 @@ global object built_flags (void) {
     /* string concatenation done by the C compiler */
     CC
     " " CFLAGS
-    " " CLFLAGS
+    " " LDFLAGS
     " " LIBS
     " " X_LIBS "\n"
     "SAFETY=" STRINGIFY(SAFETY)
