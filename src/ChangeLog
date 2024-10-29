@@ -1,5 +1,8 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Separate the user-provided CFLAGS from our added CFLAGS.
+	* makemake.in: New variables A_CFLAGS, Z_CFLAGS, A_XCFLAGS, Z_XCFLAGS.
+
 	build: Separate the user-provided CPPFLAGS from our added CPPFLAGS.
 	* makemake.in: New variables A_CPPFLAGS, Z_CPPFLAGS, A_XCPPFLAGS,
 	Z_XCPPFLAGS.

@@ -516,8 +516,10 @@ esac
 # TOS  = target operating system
 # CC, CPPFLAGS, CFLAGS, CLFLAGS, CPP = compiler on host, for host
 # A_CPPFLAGS, Z_CPPFLAGS = options that we add before, after $(CPPFLAGS).
+# A_CFLAGS, Z_CFLAGS = options that we add before, after $(CFLAGS).
 # XCC, XCPPFLAGS, XCFLAGS, XCLFLAGS, XCPP = cross-compiler on host, for target
 # A_XCPPFLAGS, Z_XCPPFLAGS = options that we add before, after $(XCPPFLAGS).
+# A_XCFLAGS, Z_XCFLAGS = options that we add before, after $(XCFLAGS).
 
 # These variables are set by configure:
 # srcdir='@srcdir@'                 # either '.' or '../src', see above
@@ -568,6 +570,11 @@ A_CPPFLAGS=''
 Z_CPPFLAGS=''
 A_XCPPFLAGS=''
 Z_XCPPFLAGS=''
+# These variables are our additions to $(CFLAGS) or $(XCFLAGS).
+A_CFLAGS=''
+Z_CFLAGS=''
+A_XCFLAGS=''
+Z_XCFLAGS=''
 
 if test -x ./libtool; then # normal autoconf-based build
   # -rdynamic or -Wl,-E or -Wl,--export-dynamic
@@ -586,7 +593,7 @@ fi
 # feature or bug than to look at various `uname ...` results and list
 # the buggy systems explicitly. ONLY in this case!
 
-UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)"
+UTILCOMPILE="\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS)"
 case $# in
   0 | 1)
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
@@ -740,9 +747,9 @@ if [ $TSYS = win32msvc ] ; then
   case $COMPILER in
     msvc6 | msvc7)
       if [ "${with_debug}" = no ] ; then
-        CFLAGS=${CFLAGS}" -G5 -Os -Oy -Ob1 -Gs -Gf -Gy"
+        Z_CFLAGS="${Z_CFLAGS} -G5 -Os -Oy -Ob1 -Gs -Gf -Gy"
       else
-        CFLAGS=${CFLAGS}" -Zi -Od -GZ"
+        Z_CFLAGS="${Z_CFLAGS} -Zi -Od -GZ"
       fi
       ;;
     *) fail "unsupported compiler [${COMPILER}]"
@@ -1278,17 +1285,17 @@ if [ $XCC_GCC = true ] ; then
     case "$XCC_GCC_VERSION" in
       2.* | 3.* | 4.[0-7]*) ;;
       *)
-        XCFLAGS=$XCFLAGS' -no-integrated-cpp'
+        Z_XCFLAGS=$Z_XCFLAGS' -no-integrated-cpp'
         ;;
     esac
   fi
   # Warnings flags:
-  XCFLAGS=${XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
+  Z_XCFLAGS=${Z_XCFLAGS}' -W -Wswitch -Wcomment -Wpointer-arith -Wreturn-type'
   if [ $CC_CPLUSPLUS = false ] ; then
-    XCFLAGS=${XCFLAGS}' -Wmissing-declarations -Wimplicit'
+    Z_XCFLAGS=${Z_XCFLAGS}' -Wmissing-declarations -Wimplicit'
   fi
   # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
-  XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
+  Z_XCFLAGS=$Z_XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
   # clisp assumes two's complement arithmetic, therefore disable
   # "warning: left shift of negative value".
   # https://gcc.gnu.org/ml/gcc-patches/2015-04/msg01353.html
@@ -1296,7 +1303,7 @@ if [ $XCC_GCC = true ] ; then
     case "$XCC_GCC_VERSION" in
       2.* | 3.* | 4.* | 5.*) ;;
       *)
-        XCFLAGS=$XCFLAGS' -Wno-shift-negative-value'
+        Z_XCFLAGS=$Z_XCFLAGS' -Wno-shift-negative-value'
         ;;
     esac
   fi
@@ -1305,7 +1312,7 @@ if [ $XCC_GCC = true ] ; then
     case "$XCC_GCC_VERSION" in
       2.* | 3.[1-3]*) ;;
       *)
-        XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
+        Z_XCFLAGS=$Z_XCFLAGS' -Wno-invalid-offsetof'
         ;;
     esac
   fi
@@ -1313,18 +1320,18 @@ if [ $XCC_GCC = true ] ; then
   # Select optimizations.
   if [ "${with_debug}" = no ] ; then
     if [ "$cpu" = i386 ] ; then
-      XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations'
+      Z_XCFLAGS=$Z_XCFLAGS' -O2 -fexpensive-optimizations'
     elif [ "$cpu" = sparc ] ; then
-      XCFLAGS=$XCFLAGS' -O2'
+      Z_XCFLAGS=$Z_XCFLAGS' -O2'
     elif [ "$cpu" = sparc64 ] ; then
       # gcc-3.3.1 produces incorrect code when -O2 is used, even with
       # -fno-schedule-insns and -fno-gcse.
-      XCFLAGS=$XCFLAGS' -O'
+      Z_XCFLAGS=$Z_XCFLAGS' -O'
     elif [ "$cpu" = x86_64 ] ; then
       # gcc-3.2.2 produces incorrect code when -O2 is used.
-      XCFLAGS=$XCFLAGS' -O'
+      Z_XCFLAGS=$Z_XCFLAGS' -O'
     else
-      XCFLAGS=$XCFLAGS' -O2'
+      Z_XCFLAGS=$Z_XCFLAGS' -O2'
     fi
     # For platforms that use global register variables...
     case "$cpu" in
@@ -1334,7 +1341,7 @@ if [ $XCC_GCC = true ] ; then
             3.1*)
               # gcc-3.1 produces incorrect code when compiling record
               # (function C_make_instance).
-              XCFLAGS=$XCFLAGS' -fno-gcse' ;;
+              Z_XCFLAGS=$Z_XCFLAGS' -fno-gcse' ;;
           esac
         fi
         ;;
@@ -1348,7 +1355,7 @@ if [ $XCC_GCC = true ] ; then
     case "$XCC_GCC_VERSION" in
       2.* | 3.[1-3]*) ;;
       *)
-        XCFLAGS=$XCFLAGS' -fwrapv'
+        Z_XCFLAGS=$Z_XCFLAGS' -fwrapv'
         ;;
     esac
   fi
@@ -1357,10 +1364,10 @@ if [ $XCC_GCC = true ] ; then
   #   relocation truncated to fit: R_AARCH64_ADR_PREL_PG_HI21 against symbol `symbol_tab_data' defined in .data section in spvwtabs.o
   # The option -fPIC is a workaround.
   if [ "$cpu" = arm64 ] ; then
-    XCFLAGS=$XCFLAGS' -fPIC'
+    Z_XCFLAGS=$Z_XCFLAGS' -fPIC'
   fi
   if [ $TSYS = win32gcc ] ; then
-    XCFLAGS=$XCFLAGS' -D_WIN32'
+    Z_XCFLAGS=$Z_XCFLAGS' -D_WIN32'
   fi
   if [ $TSYS = sun4 ] ; then
     XCLFLAGS='-static'
@@ -1372,7 +1379,7 @@ if [ $XCC_GCC = true ] ; then
   XCC_NOOPTFLAGS=' -O0'
 
   if [ "${with_threads}" = "POSIX_THREADS" ]; then
-    XCFLAGS=${XCFLAGS}" -pthread"
+    Z_XCFLAGS=${Z_XCFLAGS}" -pthread"
   fi
 
 else
@@ -1393,17 +1400,17 @@ else
       *) fail "unsupported compiler [${COMPILER}]"
         ;;
     esac
-    XCFLAGS="$CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
+    Z_XCFLAGS="$Z_CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
   elif "$XCC_SUNPRO" ; then
     # SUNWspro cc flags:
-    XCFLAGS=${XCFLAGS}' -xO3 -xstrconst'
+    Z_XCFLAGS=${Z_XCFLAGS}' -xO3 -xstrconst'
   elif [ $TSYS = sun4 ] ; then
     # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
     # we do not reset XCFLAGS so that the user can pass -xarch=v8 et al
     # XCFLAGS=''
     :
   else
-    XCFLAGS=${XCFLAGS}' -O'
+    Z_XCFLAGS=${Z_XCFLAGS}' -O'
   fi
   case "$host_os" in
     hpux*)
@@ -1414,11 +1421,11 @@ else
   esac
   XCLFLAGS=''
   if [ $TSYS = sun4 ] ; then
-    XCFLAGS=$XCFLAGS' -dalign'
+    Z_XCFLAGS=$Z_XCFLAGS' -dalign'
     if [ $CC_CPLUSPLUS = false ] ; then
-      XCFLAGS=$XCFLAGS' -fsingle'
+      Z_XCFLAGS=$Z_XCFLAGS' -fsingle'
     fi
-    XCLFLAGS=$XCLFLAGS' -Bstatic'
+    Z_XCLFLAGS=$Z_XCLFLAGS' -Bstatic'
   fi
   XCC_NOOPTFLAGS=''
 
@@ -1443,7 +1450,7 @@ if [ $XCC_GCC = true ] && [ "$XCC_BRAND" != clang ] ; then
     if [ "$cpu" = arm -o "$cpu" = armhf ] ; then
       # On ARM, function pointer alignment depends on the arm/thumb mode:
       # C_CODE_ALIGNMENT is 4 with -marm, but only 1 with -mthumb.
-      XCFLAGS=${XCFLAGS}' -marm'
+      Z_XCFLAGS=${Z_XCFLAGS}' -marm'
       FALIGNFLAGS=''
     else
       FALIGNFLAGS='-falign-functions=4'
@@ -1460,13 +1467,13 @@ fi
 # us. There are two ways to tell them not to do this: to use union types, or
 # specific compiler options. I prefer to do it through compiler options.
 if [ $XCC_GCC = true ] ; then
-  XCFLAGS=$XCFLAGS' -fno-strict-aliasing'
+  Z_XCFLAGS=$Z_XCFLAGS' -fno-strict-aliasing'
 else
   if [ "$HSYSOS" = aix ] ; then # for xlc
-    XCFLAGS=$XCFLAGS' -qalias=noansi'
+    Z_XCFLAGS=$Z_XCFLAGS' -qalias=noansi'
   fi
   if "$XCC_SUNPRO" ; then # for SUNWspro cc
-    XCFLAGS=$XCFLAGS' -xalias_level=weak'
+    Z_XCFLAGS=$Z_XCFLAGS' -xalias_level=weak'
   fi
 fi
 
@@ -1483,7 +1490,7 @@ if [ "${with_dynamic_modules}" != no ]; then # not on msvc
   # http://lists.gnu.org/archive/html/bug-bash/2011-08/msg00280.html
   CC_set=${CC+set}
   CC_save=$CC
-  CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${CFLAGS}' \
+  CC='${CC}' libobjs='$libs' deplibs='${CLFLAGS}' compiler_flags='${A_CFLAGS} ${CFLAGS} ${Z_CFLAGS}' \
     soname='$dll' lib='$lib' output_objdir='$dyndir' \
     eval XCC_CREATESHARED=\"${archive_cmds}\"
   # archive_cmds can contain several commands, separated by ~.
@@ -1501,13 +1508,13 @@ fi
 
 if [ "${with_debug}" != no ] ; then
   if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
-    XCFLAGS=$XCFLAGS' -gstabs'
+    Z_XCFLAGS=$Z_XCFLAGS' -gstabs'
   elif [ ${HSYS} != "win32msvc" ]; then
-    XCFLAGS=$XCFLAGS' -ggdb -O0'
+    Z_XCFLAGS=$Z_XCFLAGS' -ggdb -O0'
   fi
-  XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3'
+  Z_XCFLAGS=$Z_XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3'
   case "$CC" in
-    *"g++"* ) XCFLAGS=$XCFLAGS' -DDEBUG_GCSAFETY'; ;;
+    *"g++"* ) Z_XCFLAGS=$Z_XCFLAGS' -DDEBUG_GCSAFETY'; ;;
   esac
 fi
 
@@ -1516,11 +1523,11 @@ then # This is necessary for g++ to handle w32shell.c:
   # The member lpVtbl is not defined by the w32api include files if
   #   defined(__cplusplus) && !defined(CINTERFACE)
   # cf <https://sourceforge.net/p/mingw/mailman/message/14900754/>
-  XCFLAGS=$XCFLAGS' -DCINTERFACE'
+  Z_XCFLAGS=$Z_XCFLAGS' -DCINTERFACE'
 fi
 
 if [ "$cpu" = i386 -a "$TSYSOS" = "sunos" ] ; then # Solaris 2
-  XCFLAGS=$XCFLAGS'' # maybe add -DUSL
+  Z_XCFLAGS=$Z_XCFLAGS'' # maybe add -DUSL
 fi
 
 # uname -r may contain arbitrary junk not suitable for pathnames:
@@ -1528,7 +1535,7 @@ fi
 UNAME_R=`uname -r | $tolower | sed 's/[^A-Za-z0-9.].*//'`
 
 if [ "${enable_mmap}" = no ]; then
-  XCFLAGS=${XCFLAGS}" -DNO_SINGLEMAP -DNO_TRIVIALMAP"
+  Z_XCFLAGS=${Z_XCFLAGS}" -DNO_SINGLEMAP -DNO_TRIVIALMAP"
 fi
 
 # When to define BINARY_DISTRIB?
@@ -1567,7 +1574,7 @@ if [ $CROSS = false ] ; then
       BINARY_DISTRIB=1; ;;
   esac
 fi
-test -n "$BINARY_DISTRIB" && XCFLAGS=$XCFLAGS' -DUNIX_BINARY_DISTRIB'
+test -n "$BINARY_DISTRIB" && Z_XCFLAGS=$Z_XCFLAGS' -DUNIX_BINARY_DISTRIB'
 
 
 # Handle --enable-portability:
@@ -1590,248 +1597,248 @@ else
 
       # Linux/x86_64 with 32-bit x32 ABI
       linux*--x86_64-x32)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/arm
       linux*--arm | linux*--armhf)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/hppa
       linux*--hppa)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/i386
       linux*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/m68k
       linux*--m68k)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/mipseb and Linux/mipsel with o32 ABI
       linux*--mips)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/mips64eb and Linux/mips64el with n32 ABI
       linux*--mipsn32)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/powerpc64 with 32-bit ABI
       linux*--powerpc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/s390x with 32-bit ABI
       linux*--s390)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/sparc64 with 32-bit ABI
       linux*--sparc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Hurd/i386
       gnu*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # FreeBSD/i386
       freebsd*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # GNU/kFreeBSD/i386
       kfreebsd*-gnu*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # DragonFly/i386
       dragonfly*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # NetBSD/i386
       netbsd*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # NetBSD/sparc
       netbsd*--sparc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # OpenBSD/i386
       openbsd*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Mac OS X/x86_64 with 32-bit ABI
       darwin*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Mac OS X/PowerPC
       darwin*--powerpc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # AIX/POWER with 32-bit ABI
       aix*--powerpc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 10/x86_64 with 32-bit ABI
       solaris2.10--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 11/x86_64 with 32-bit ABI
       solaris2.11--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 10/sparc64 with 32-bit ABI
       solaris2.10--sparc)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Haiku (32-bit)
       haiku*--i386) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_DISPATCH"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ALLOCA"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_GENERATIONAL_GC"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
       # Minix/i386
       minix*--i386)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Cygwin, running on Windows 10 (64-bit)
       cygwin--i386) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_DISPATCH"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ALLOCA"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_GENERATIONAL_GC"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
       # mingw, running on Windows 10 (64-bit)
       mingw*--i386) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_DISPATCH"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ALLOCA"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_GENERATIONAL_GC"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
       # 64-bit platforms
 
       # Linux/x86_64
       linux*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/arm64
       linux*--arm64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/alpha
       linux*--alpha)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/ia64
       linux*--ia64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/mips64eb and Linux/mips64el with 64-bit ABI
       linux*--mips64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/powerpc64
       linux*--powerpc64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/powerpc64le
       linux*--powerpc64-elfv2)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/riscv64
       linux*--riscv64*)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/s390x
       linux*--s390x)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Linux/sparc64
       linux*--sparc64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # FreeBSD/x86_64
       freebsd*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # GNU/kFreeBSD/x86_64
       kfreebsd*-gnu*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
         ;;
 
       # FreeBSD/arm64
       freebsd*--arm64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # NetBSD/x86_64
       netbsd*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # NetBSD/sparc64
       netbsd*--sparc64) # TODO
-        XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-        XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-        XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-        XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-        XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-        XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-        XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_DISPATCH"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ALLOCA"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_GENERATIONAL_GC"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_SYMBOLFLAGS"
         ;;
 
       # OpenBSD/x86_64
       openbsd*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Mac OS X/x86_64
       darwin*--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # macOS 11/arm64
@@ -1840,27 +1847,27 @@ else
 
       # AIX/POWER with 64-bit ABI
       aix*--powerpc64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 10/x86_64
       solaris2.10--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 11/x86_64
       solaris2.11--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Solaris 10/sparc64
       solaris2.10--sparc64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       # Cygwin, running on Windows 10
       cygwin--x86_64)
-        XCFLAGS="$XCFLAGS -DNO_ASM"
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
       *) # On unknown platforms, use --enable-portability.
@@ -1872,13 +1879,13 @@ else
     # Do NOT enable -DSAFETY=3 here, because -DSAFETY=3 not only disables some
     # optimizations but also enables some debugging features (STACKCHECKs), which
     # is not in the scope of --enable-portability.
-    XCFLAGS="$XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
-    XCFLAGS="$XCFLAGS -DNO_FAST_DISPATCH"
-    XCFLAGS="$XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
-    XCFLAGS="$XCFLAGS -DNO_ALLOCA"
-    XCFLAGS="$XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
-    XCFLAGS="$XCFLAGS -DNO_GENERATIONAL_GC"
-    XCFLAGS="$XCFLAGS -DNO_SYMBOLFLAGS"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM -DNO_ARI_ASM -DNO_SP_ASM"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_DISPATCH"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_FAST_FLOAT -DNO_FAST_DOUBLE"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_ALLOCA"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_ADDRESS_SPACE_ASSUMPTIONS"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_GENERATIONAL_GC"
+    Z_XCFLAGS="$Z_XCFLAGS -DNO_SYMBOLFLAGS"
   fi
 fi
 
@@ -1888,31 +1895,31 @@ fi
 FILES=''
 
 if [ "${with_unicode}" != no ]; then
-  XCFLAGS="$XCFLAGS -DENABLE_UNICODE"
+  Z_XCFLAGS="$Z_XCFLAGS -DENABLE_UNICODE"
 fi
 if [ "${with_threads}" != no ]; then
-  XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
+  Z_XCFLAGS="$Z_XCFLAGS -DMULTITHREAD -D${with_threads}"
 fi
 if [ "${with_jitc}" != "" ]; then
-  XCFLAGS="$XCFLAGS -DHEAPCODES -DUSE_JITC -D${with_jitc}"
+  Z_XCFLAGS="$Z_XCFLAGS -DHEAPCODES -DUSE_JITC -D${with_jitc}"
 fi
 
 if [ "${with_termcap_ncurses}" = no -o "${LIBTERMCAP}" = "broken" ] ; then
-  XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
+  Z_XCFLAGS=$Z_XCFLAGS' -DNO_TERMCAP_NCURSES'
   LIBTERMCAP=""
 fi
 if [ "${LIBTERMCAP}" != "broken" -a -n "${LIBTERMCAP}" ]; then
-  XCFLAGS=${XCFLAGS}" ${INCTERMCAP}"
+  Z_XCFLAGS=${Z_XCFLAGS}" ${INCTERMCAP}"
   XLDFLAGS=${XLDFLAGS}" ${LIBTERMCAP}"
 fi
 
-test "${with_dynamic_ffi}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
+test "${with_dynamic_ffi}" != no && Z_XCFLAGS="$Z_XCFLAGS -DDYNAMIC_FFI"
 
-test "${with_dynamic_modules}" != no && XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
+test "${with_dynamic_modules}" != no && Z_XCFLAGS="$Z_XCFLAGS -DDYNAMIC_MODULES"
 
 if [ "${with_readline}" = no ]; then
   # --without-readline was supplied
-  XCFLAGS=$XCFLAGS' -DNO_READLINE'
+  Z_XCFLAGS=$Z_XCFLAGS' -DNO_READLINE'
 else
   FILES='libnoreadline.a '$FILES
   if grep "#undef HAVE_READLINE" config.h >/dev/null 2>&1; then
@@ -1928,7 +1935,7 @@ fi
 USE_GETTEXT=''
 XCL_GETTEXTLIB=''
 if [ "${with_gettext}" = no -o "@USE_NLS@" != yes ]; then
-  XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
+  Z_XCFLAGS=$Z_XCFLAGS' -DNO_GETTEXT'
 else
   USE_GETTEXT=yes
   LIBS='@LIBINTL@ '$LIBS
@@ -1937,7 +1944,7 @@ fi
 
 # For 32-bit builds, determine whether lispbibl.d will enable WIDE_SOFT.
 USE_WIDE_SOFT=''
-case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} " in
   *" -DWIDE "* | *" -DWIDE_SOFT "* | *" -DNO_ADDRESS_SPACE_ASSUMPTIONS "*)
     USE_WIDE_SOFT=yes
     ;;
@@ -2044,7 +2051,7 @@ DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $
 ARI_ASMD=''
 ARI_ASMC=''
 ARI_ASMS=''
-case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} " in
   *" -DNO_ARI_ASM "*) ;;
   *)
     if [ "$cpu" = sparc ] ; then
@@ -2080,7 +2087,7 @@ esac
 
 SP_ASMD=''
 SP_ASMS=''
-case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} " in
+case " ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} " in
   *" -DNO_SP_ASM "*) ;;
   *)
     if [ "$cpu" = m68k ] ; then
@@ -2293,6 +2300,8 @@ if [ $CROSS = true ] ; then
   echol "A_CPPFLAGS = ${A_CPPFLAGS}"
   echol "Z_CPPFLAGS = ${Z_CPPFLAGS}"
   echol "CFLAGS = ${CFLAGS}"
+  echol "A_CFLAGS = ${A_CFLAGS}"
+  echol "Z_CFLAGS = ${Z_CFLAGS}"
   echol "CLFLAGS = ${CLFLAGS}"
   echol "CPP = ${CPP}"
   echol "XCC = ${XCC}"
@@ -2300,6 +2309,8 @@ if [ $CROSS = true ] ; then
   echol "A_XCPPFLAGS = ${A_XCPPFLAGS}"
   echol "Z_XCPPFLAGS = ${Z_XCPPFLAGS}"
   echol "XCFLAGS = ${XCFLAGS}"
+  echol "A_XCFLAGS = ${A_XCFLAGS}"
+  echol "Z_XCFLAGS = ${Z_XCFLAGS}"
   echol "XCPP = ${XCPP}"
   echol "XCLFLAGS = ${XCLFLAGS}"
   echol "XLIBS = ${LIBS}"
@@ -2308,6 +2319,8 @@ if [ $CROSS = true ] ; then
   A_XCPPFLAGS="\$(A_XCPPFLAGS)"
   Z_XCPPFLAGS="\$(Z_XCPPFLAGS)"
   XCFLAGS="\$(XCFLAGS)"
+  A_XCFLAGS="\$(A_XCFLAGS)"
+  Z_XCFLAGS="\$(Z_XCFLAGS)"
   XCPP="\$(XCPP)"
   XCLFLAGS="\$(XCLFLAGS)"
   LIBS="\$(XLIBS)"
@@ -2317,6 +2330,8 @@ else
   echol "A_CPPFLAGS = ${A_XCPPFLAGS}"
   echol "Z_CPPFLAGS = ${Z_XCPPFLAGS}"
   echol "CFLAGS = ${XCFLAGS}"
+  echol "A_CFLAGS = ${A_XCFLAGS}"
+  echol "Z_CFLAGS = ${Z_XCFLAGS}"
   echol "CPP = ${XCPP}"
   echol "CLFLAGS = ${XCLFLAGS}"
   echol "LIBS = ${LIBS}"
@@ -2325,6 +2340,8 @@ else
   A_XCPPFLAGS="\$(A_CPPFLAGS)"
   Z_XCPPFLAGS="\$(Z_CPPFLAGS)"
   XCFLAGS="\$(CFLAGS)"
+  A_XCFLAGS="\$(A_CFLAGS)"
+  Z_XCFLAGS="\$(Z_CFLAGS)"
   XCPP="\$(CPP)"
   XCLFLAGS="\$(CLFLAGS)"
   LIBS="\$(LIBS)"
@@ -2337,13 +2354,12 @@ echol "LD = ${LD}"
 LD="\$(LD)"
 echol 'MODULE_CPPFLAGS = $(A_CPPFLAGS) $(CPPFLAGS) $(Z_CPPFLAGS)' # this includes ${GNULIB_INCLUDE}
 if [ "${with_dynamic_modules}" != no ]; then
-  echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
+  echol 'MODULE_CFLAGS = $(A_CFLAGS) $(CFLAGS) $(Z_CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
-  MODULE_CFLAGS_VAR='MODULE_CFLAGS'
   MODULE_LDFLAGS_VAR='MODULE_CLFLAGS'
   XCLFLAGS="\$(MODULE_CLFLAGS)"
 else
-  MODULE_CFLAGS_VAR='CFLAGS'
+  echol 'MODULE_CFLAGS = $(A_CFLAGS) $(CFLAGS) $(Z_CFLAGS)'
   MODULE_LDFLAGS_VAR='CLFLAGS'
 fi
 if [ $HSYS = win32msvc ] ; then
@@ -2593,7 +2609,7 @@ echol
 echol 'subdirs: gllib/libgnu.a'
 echol
 # gnulib cannot be compiled with C++, thus NO_CXX
-echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG} @NO_CXX@"
+echol 'SUBDIR_CFLAGS = $(A_CFLAGS) $(CFLAGS) $(Z_CFLAGS) '"${XCC_PICFLAG} @NO_CXX@"
 echol 'gllib/libgnu.a: config.status build-aux'
 echotab 'mkdir -p gllib'
 echotab 'test -f gllib/Makefile || sh config.status gllib/Makefile depfiles'
@@ -2658,7 +2674,7 @@ echol "cflags.h.stamp : Makefile"
 echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
 for x in ${PRECIOUS_VARS}; do
   case $x in
-    CPPFLAGS)
+    CPPFLAGS | CFLAGS)
       echotab "echo $ARGQ#define $x \"\$(A_$x) \$($x) \$(Z_$x)\"$ARGQ >> cflags.h.new"
       ;;
     *)
@@ -2901,7 +2917,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     test ${TOS} = win32 && dependsc=$dependsc" ${SRCDIR}w32shell.c"
   fi
   test $f = built && dependsc=${dependsc}' cflags.h'
-  flags="$A_XCPPFLAGS $XCPPFLAGS $Z_XCPPFLAGS $XCFLAGS"
+  flags="$A_XCPPFLAGS $XCPPFLAGS $Z_XCPPFLAGS $A_XCFLAGS $XCFLAGS $Z_XCFLAGS"
   # Sun cc doesn't look for include files in the current directory
   # any more after a preprocessor directive '#line 1 "../src/file.d"'.
   flags=$flags" -I."
@@ -2920,7 +2936,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   flags2=$flags
   # Reduce optimizations in special cases.
   if [ $XCC_GCC = true ] ; then
-    case " $XCFLAGS " in
+    case " $A_XCFLAGS $XCFLAGS $Z_XCFLAGS " in
       *" -O0 "*) ;;
       *)
         if [ $f = eval -a "$cpu" = ia64 ] ; then
@@ -3014,7 +3030,7 @@ if [ "${with_gmalloc}" = yes ]; then
   for f in $GMALLOC ; do
     echol "${f}${TOBJ} : ${SRCDIR}${f}.c"
     # gmalloc.c needs -DUSG on Solaris.
-    echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -DUSG -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
+    echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -DUSG -c ${SRCDIR}${f}.c -o ${f}${TOBJ}"
     echol
   done
 fi
@@ -3022,26 +3038,26 @@ fi
 for f in $ARI_ASMS $SP_ASMS ; do
   if [ $TSYS = win32msvc ] ; then
     echol "${f}.i : ${SRCDIR}${f}-macro.c"
-    echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i"
+    echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i"
     echol
     echol "${f}.s : ${SRCDIR}${f}-macro.c"
     if false; then # old
-      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
-      echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
+      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCC} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${f}.i.c /FAs /Fa${f}.s"
       echotab "\$(RM) ${f}.i${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
     else
-      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /FAs /Fa${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${SRCDIR}${f}-macro.c /FAs /Fa${f}.s"
       echotab "\$(RM) ${f}-macro${TOBJ}"
     fi
     echol
     echol "${f}${TOBJ} : ${SRCDIR}${f}-macro.c"
     if false; then # old
-      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
-      echotab "${XCC} ${XCFLAGS} -c ${f}.i.c /Fo${f}${TOBJ}"
+      echotab "${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${SRCDIR}${f}-macro.c > ${f}.i.c"
+      echotab "${XCC} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${f}.i.c /Fo${f}${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
     else
-      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${SRCDIR}${f}-macro.c /Fo${f}${TOBJ}"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${SRCDIR}${f}-macro.c /Fo${f}${TOBJ}"
     fi
     echol
   else
@@ -3049,11 +3065,11 @@ for f in $ARI_ASMS $SP_ASMS ; do
     # Call the assembler, preferrably through the C compiler:
     if [ $f = ari_asm_hppa ] ; then
       # Only the native as groks the .SHORTDATA statements in ari_asm_hppa.d
-      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${f}.s || /usr/ccs/bin/as ${f}.s -o ${f}${TOBJ} || /bin/as ${f}.s -o ${f}${TOBJ}"
     elif [ $XCC_GCC = true ] ; then
-      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -x assembler -c ${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -x assembler -c ${f}.s"
     else
-      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -c ${f}.s"
+      echotab "${XCC} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -c ${f}.s"
     fi
     echol
   fi
@@ -3167,14 +3183,14 @@ if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
     LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
-    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
+    echotab "${XCC} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
   else
-    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
+    echotab "${XCC} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
   fi
 else
   # MSVC's incremental linking is buggy, avoid it.
   if [ $HSYS = win32msvc ] ; then echotab "\$(RM) lisp.ilk"; fi
-  echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
+  echotab "${XCC} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${OUT}lisp${LEXE}"
   # With msvc4/5, need at least 1200 KB stack for creating the first
   # interpreted.mem, but the default stack size is only 1 MB.
   # With msvc6, need more than 2 MB for compiling compiler.lisp.
@@ -3640,7 +3656,7 @@ fi
 
 if [ $XCC_GCC = true ] ; then
   echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
-  echotab "( (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
+  echotab "( (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${A_XCPPFLAGS} ${XCPPFLAGS} ${Z_XCPPFLAGS} ${A_XCFLAGS} ${XCFLAGS} ${Z_XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol "gc : lispbibl.h # show GC-related definitions"
   echotab "egrep '[^[:alpha:]](MEMORY|SPVW|GC|SIGSEGV|SAFETY|ASM|FAST|DEBUG)[^[:alpha:]]' lispbibl.h | grep -v 'define _' | egrep '^#define'"
@@ -3649,7 +3665,7 @@ if [ $XCC_GCC = true ] ; then
 fi
 
 echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H} ${GLLIB_A}"
-echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+echotab_to_HEXE "\$(CC) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
 if test -z "${CLISP_DEF}"; then
   echotab "${HERE}genclisph clisp.h.tmp clisp-test.c"
 else
@@ -3664,8 +3680,8 @@ for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
 echotab "(echo; echo '/* genclisph */' ; cat clisp.h.tmp; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
-echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
-echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
+echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-clisp"
+echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -I. -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c ${GLLIB_A}" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
 echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
 if [ $HOS = unix -o $HSYS = win32gcc ]; then
@@ -3722,7 +3738,7 @@ echol
 echol "makevars : Makefile"
 echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ;\\"
 echotab " echo 'CPPFLAGS='\"'\"'\$(MODULE_CPPFLAGS)'\"'\" ;\\"
-echotab " echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'CFLAGS='\"'\"'\$(MODULE_CFLAGS)'\"'\" ;\\"
 echotab " echo 'LDFLAGS='\"'\"'\$(${MODULE_LDFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'LIBS='\"'\"'lisp.a${CLISP_DEF} \$(LIBS)'\"'\" ;\\"
 echotab " echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ;\\"
@@ -3784,7 +3800,7 @@ make_modules() {
   echotab "  sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
   echotab "fi ; \\"
   echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
-  echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" LDFLAGS=\"\$(${MODULE_LDFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+  echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(MODULE_CFLAGS)\" LDFLAGS=\"\$(${MODULE_LDFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
   echol
 }
 make_modules BASE_MODULES boot basemodule
@@ -3927,7 +3943,7 @@ for f in $TXT_FILES ; do
   # "xlc: 1501-218 (S) file gen-clisp.c contains an incorrect file suffix" on AIX.
   g=`echo "${g}" | sed -e 's/[.]//g'`
   echotab "\$(TXT2C) < ${sourcedir}_${f} > ${g}.c"
-  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "${g}.c ${GLLIB_A}" "${g}"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "${g}.c ${GLLIB_A}" "${g}"
   line="${HERE}${g}"
   test $f = clisp.1 -o $f = clisp-link.1 && \
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
@@ -4004,7 +4020,7 @@ if [ $CROSS = false ] ; then
     echol
   fi
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -4108,7 +4124,7 @@ if [ $CROSS = false ] ; then
           ;;
       esac
     fi
-    echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
@@ -4399,8 +4415,8 @@ echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c ${SRCDIR}execname.c \$(TOPDIR)/src/"
 else
-  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" "clisp.c ${GLLIB_A}" "\$(TOPDIR)/clisp"
-  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c ${GLLIB_A}" "\$(TOPDIR)/hardcode"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" "clisp.c ${GLLIB_A}" "\$(TOPDIR)/clisp"
+  echotab_to_HEXE "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(CLFLAGS) -I." "${UTILDIR_CC}hardcode.c ${GLLIB_A}" "\$(TOPDIR)/hardcode"
 fi
 # Final packing.
 echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
