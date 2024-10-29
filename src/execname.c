@@ -1,6 +1,6 @@
 /*
  * Finding the full path of the executable.
- * Bruno Haible 20.12.1994, 2017
+ * Bruno Haible 20.12.1994, 2017, 2024
  * Sam Steingold 2004-2006, 2008, 2017
  */
 
@@ -9,7 +9,7 @@
 
 /* file name of the executable */
 static char* executable_name = NULL;
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN)
+#if defined _WIN32 || defined __CYGWIN__
 /* note that up to and including win2000, detaching from a process kills it
  <https://sourceware.org/ml/cygwin/2003-06/msg00932.html>
  <https://sourceware.org/ml/cygwin/2003-06/msg00933.html>
@@ -23,7 +23,7 @@ static char* executable_name = NULL;
  (Only used to verify that we find the correct executable.) */
 static int executable_fd = -1;
 
-#if defined(UNIX)
+#if !(defined _WIN32 && !defined __CYGWIN__)
 /* maybe_executable(pathname)
  checks whether a given pathname may belong to the executable. */
 static int maybe_executable (const char * filename) {
@@ -61,7 +61,7 @@ char *get_executable_name (void) { return executable_name; }
 int find_executable (const char * program_name) {
   /* Do not need to execute this more than once. */
   if (executable_name != NULL) return 0;
-#if defined(WIN32_NATIVE)
+#if defined _WIN32 && !defined __CYGWIN__
   { /* an illustration that win32 API can be sometimes useful */
     char execname[MAX_PATH];
     if (!GetModuleFileName(NULL,execname,MAX_PATH))
@@ -69,13 +69,13 @@ int find_executable (const char * program_name) {
     executable_name = (char*)malloc(strlen(execname)+1);
     strcpy(executable_name,execname);
     return 0;  }
-#elif defined(UNIX)
- #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN)
+#else
+ #if defined __linux__ || defined __CYGWIN__
   { /* The executable is accessible as /proc/<pid>/exe. We try this first
    because it is safer: no race condition w.r.t. the file system. It may
    fail, however, if the user has not compiled /proc support into his
    kernel. */
-    int fd = open("/proc/self/exe",O_RDONLY,my_open_mask);
+    int fd = open("/proc/self/exe",O_RDONLY);
     if (fd >= 0)
       executable_fd = fd;
   }
@@ -136,7 +136,7 @@ int find_executable (const char * program_name) {
     if (realpath(program_name,executable_name) == NULL) {
       free(executable_name); goto notfound;
     }
-#if defined(UNIX_CYGWIN)
+ #if defined __CYGWIN__
     { /* cygwin does not append ".exe" on its own */
       int len = strlen(executable_name);
       if (!(len > 4 && (executable_name[len-4] == '.') &&
@@ -145,12 +145,10 @@ int find_executable (const char * program_name) {
             (executable_name[len-3] == 'e' || executable_name[len-3] == 'E')))
         strcat(executable_name,".exe");
     }
-#endif
+ #endif
     return 0;
   }
   errno = ENOENT;
-#else
-  #error "not implemented: find_executable()"
 #endif
  notfound:
   executable_name = (char*)default_executable_name; return -1;

@@ -1,5 +1,12 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Fix host-system / target-system confusion.
+	* _clisp.c: Include <fcntl.h>, needed by execname.c.
+	* execname.c: Don't use macro names WIN32_NATIVE, UNIX, UNIX_CYGWIN,
+	my_open_mask that are not present on the target system.
+
+2024-10-29  Bruno Haible  <bruno@clisp.org>
+
 	build: Build the utils/*.c programs without gnulib.
 	* makemake.in (UTILCOMPILE): Use only the user-provided options.
 	(${util}${HEXE}): Remove -I. option.

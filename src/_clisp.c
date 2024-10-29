@@ -62,6 +62,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout);
 # include <sys/stat.h>          /* stat */
 # include <unistd.h>            /* access */
 # include <errno.h>             /* ENOMEM, ENOENT, errno */
+# include <fcntl.h>             /* open */
 # include <sys/param.h>         /* MAXPATHLEN */
 #endif
 int find_executable (const char * program_name);
