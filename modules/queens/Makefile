@@ -7,7 +7,7 @@ CC = gcc -O
 CPPFLAGS =
 CFLAGS = -Wall -fomit-frame-pointer -O2
 CPP = gcc -O -E -w
-CLFLAGS =
+LDFLAGS =
 CLISP = clisp -q -norc
 CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 

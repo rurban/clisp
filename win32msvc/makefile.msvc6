@@ -144,7 +144,7 @@ PS2PDF = @PS2PDF@
 #        CC        the C compiler used to compile the CLISP source
 #        CPPFLAGS  the C compiler flags when compiling some source
 #        CFLAGS    the C compiler flags
-#        CLFLAGS   the C compiler flags when linking an executable
+#        LDFLAGS   the C compiler flags when linking an executable
 #        LIBS      the libraries used when linking an executable
 #        RANLIB    the name of the "ranlib" command
 #        CLISP     a command which calls the already built "boot" clisp.
@@ -2194,7 +2194,7 @@ makevars : Makefile
 	(echo 'CC='"'"'$(CC)'"'" ;\
 	 echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ;\
 	 echo 'CFLAGS='"'"'$(CFLAGS)'"'" ;\
-	 echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ;\
+	 echo 'LDFLAGS='"'"'$(CLFLAGS)'"'" ;\
 	 echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ;\
 	 echo 'X_LIBS='"'"'$(X_LIBS)'"'" ;\
 	 echo 'RANLIB='"'"'$(RANLIB)'"'" ;\
@@ -2235,7 +2235,7 @@ anymodule $(BASE_MODULES) $(MODULES) : boot clisp.exe linkkit force
 	fi; \
 	test -f $$m/Makefile -a $$m/Makefile -nt $@/Makefile && sed "s,srcdir = .,srcdir = $$m," "$$m/Makefile" > $@/Makefile ; \
 	CLISP="/home/sds/src/clisp/current/src/clisp -K boot  -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc" ; \
-	cd $@ ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS) -I" CFLAGS="$(CFLAGS)" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q" SHREXT=.dll
+	cd $@ ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS) -I" CFLAGS="$(CFLAGS)" LDFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q" SHREXT=.dll
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base

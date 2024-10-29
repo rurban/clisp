@@ -4,7 +4,7 @@
 #   command = create, add, run, install
 # For more usage information, see <doc/impnotes.html#mod-overview>.
 # Or <http://clisp.org/modules.html#mod-overview>.
-# Bruno Haible 1994-10-19, 1995-2005, 2018
+# Bruno Haible 1994-10-19, 1995-2005, 2018, 2024
 # Sam Steingold 2002-2010
 
 # This could as well be written in Lisp, for portability, but syscalls is
@@ -105,7 +105,7 @@ make_lisprun () {
   verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
   rm -f modules.c
   # Generate new ${LISPRUN}
-  verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN}
+  verbose ${CC} ${CFLAGS} ${LDFLAGS} modules.o ${LIBS} -o ${LISPRUN}
 }
 
 # func_tmpdir
@@ -381,7 +381,7 @@ case "$1" in
       fail "directories $sourcedir and $destinationdir may not be the same"
     check_linkset "$sourcedir"
     for moduledir in $moduledirs; do check_module "$moduledir"; done
-    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CPPFLAGS, CFLAGS, LDFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
@@ -465,7 +465,7 @@ case "$1" in
       absolute_currentdir=`/bin/pwd`
       check_linkset  "$sourcedir"
       for moduledir in $moduledirs; do check_module "$moduledir"; done
-      # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+      # Read the variables CC, CPPFLAGS, CFLAGS, LDFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
@@ -554,7 +554,7 @@ case "$1" in
       test -r "${moduledir}"/Makefile || \
         fail "No Makefile in ${moduledir}, cannot install"
     done
-    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CPPFLAGS, CFLAGS, LDFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
     set_dynamic_module_location # set LIBDIR
     test -n "${DESTDIR}" || DESTDIR="${LIBDIR}"

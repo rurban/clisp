@@ -1,3 +1,14 @@
+2024-10-29  Bruno Haible  <bruno@clisp.org>
+
+	Align clisp module system better with GNU standards.
+	* doc/impext.xml: Mention LDFLAGS instead of CLFLAGS.
+	* makemake.in: In makevars and when invoking a 'clisp-module' rule, set
+	LDFLAGS instead of CLFLAGS. Rename MODULE_CLFLAGS_VAR to
+	MODULE_LDFLAGS_VAR.
+	* clisp-link.in: Use LDFLAGS instead of CLFLAGS.
+	* modules/queens/Makefile: Set LDFLAGS instead of CLFLAGS.
+	* modules/matlab/link.sh: Set LDFLAGS instead of CLFLAGS.
+
 2024-09-01  Bruno Haible  <bruno@clisp.org>
 
 	Replace FSF snail-mail addresses with URLs.

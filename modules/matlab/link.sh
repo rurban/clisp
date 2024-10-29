@@ -11,5 +11,5 @@ for lib in eng mat mex mx; do
 done
 NEW_MODULES="matlab"
 TO_LOAD='matlab wrap'
-CLFLAGS="${CLFLAGS}" # -L${matlab}
+LDFLAGS="${LDFLAGS}" # -L${matlab}
 PATH="${PATH}:/cygdrive/d/MATLAB7/bin/win32/"

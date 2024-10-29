@@ -2322,11 +2322,11 @@ if [ "${with_dynamic_modules}" != no ]; then
   echol 'MODULE_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
   echol 'MODULE_CLFLAGS = $(CLFLAGS) '"${EXPORT_DYNAMIC_FLAG_SPEC}"
   MODULE_CFLAGS_VAR='MODULE_CFLAGS'
-  MODULE_CLFLAGS_VAR='MODULE_CLFLAGS'
+  MODULE_LDFLAGS_VAR='MODULE_CLFLAGS'
   XCLFLAGS="\$(MODULE_CLFLAGS)"
 else
   MODULE_CFLAGS_VAR='CFLAGS'
-  MODULE_CLFLAGS_VAR='CLFLAGS'
+  MODULE_LDFLAGS_VAR='CLFLAGS'
 fi
 if [ $HSYS = win32msvc ] ; then
   echol "#MSVCDIR = d:/msdev"
@@ -2444,7 +2444,7 @@ cat <<\!!
 #        CC        the C compiler used to compile the CLISP source
 #        CPPFLAGS  the C compiler flags when compiling some source
 #        CFLAGS    the C compiler flags
-#        CLFLAGS   the C compiler flags when linking an executable
+#        LDFLAGS   the C compiler flags when linking an executable
 #        LIBS      the libraries used when linking an executable
 #        RANLIB    the name of the "ranlib" command
 #        CLISP     a command which calls the already built "boot" clisp.
@@ -3698,7 +3698,7 @@ echol "makevars : Makefile"
 echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ;\\"
 echotab " echo 'CPPFLAGS='\"'\"'\$(MODULE_CPPFLAGS)'\"'\" ;\\"
 echotab " echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ;\\"
-echotab " echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'LDFLAGS='\"'\"'\$(${MODULE_LDFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'LIBS='\"'\"'lisp.a${CLISP_DEF} \$(LIBS)'\"'\" ;\\"
 echotab " echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ;\\"
 echotab " echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ;\\"
@@ -3759,7 +3759,7 @@ make_modules() {
   echotab "  sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
   echotab "fi ; \\"
   echotab "CLISP=\"${HEREP}/clisp -K ${LINKING_SET} ${someflags}\" ; \\"
-  echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+  echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(MODULE_CPPFLAGS)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" LDFLAGS=\"\$(${MODULE_LDFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
   echol
 }
 make_modules BASE_MODULES boot basemodule

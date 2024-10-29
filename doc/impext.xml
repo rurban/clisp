@@ -2194,7 +2194,7 @@ additionally binds &cont-r; to the content length.</para>
     <varlistentry><term><envar>CFLAGS</envar></term>
      <listitem><simpara>flags for the &c-lang; compiler, when compiling or
        linking</simpara></listitem></varlistentry>
-    <varlistentry><term><envar>CLFLAGS</envar></term>
+    <varlistentry><term><envar>LDFLAGS</envar></term>
      <listitem><simpara>flags for the &c-lang; compiler, when linking
     </simpara></listitem></varlistentry>
     <varlistentry><term><envar>LIBS</envar></term>
