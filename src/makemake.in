@@ -4031,7 +4031,7 @@ if [ $CROSS = false ] ; then
     echol
   fi
   echol "clisp${TEXE} : clisp.c${DRIVER_DEP}"
-  echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(A_LDFLAGS) \$(LDFLAGS) \$(Z_LDFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${LIBS} ${OUT}clisp${TEXE}"
+  echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(LDFLAGS) -DENABLE_RELOCATABLE clisp.c${DRIVER_RES} ${OUT}clisp${TEXE}"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"

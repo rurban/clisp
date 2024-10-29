@@ -1,5 +1,10 @@
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
+	build: Build the clisp driver program without gnulib.
+	* makemake.in (clisp${TEXE}): Use only the user-provided options and
+	-DENABLE_RELOCATABLE.
+	* _clisp.c: Don't include config.h.
+
 	build: Fix host-system / target-system confusion.
 	* _clisp.c: Include <fcntl.h>, needed by execname.c.
 	* execname.c: Don't use macro names WIN32_NATIVE, UNIX, UNIX_CYGWIN,

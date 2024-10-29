@@ -41,8 +41,6 @@
  */
 #endif
 
-#include "config.h"
-
 /* Declare strlen(), strcpy(), strcat(). */
 # include <string.h>
 /* Declare stderr, perror(). */
