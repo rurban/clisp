@@ -1,3 +1,14 @@
+2024-10-31  Bruno Haible  <bruno@clisp.org>
+
+	Update to the newest gnulib. This fixes the DEBUG_GCSAFETY builds.
+	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
+	&& make -f Makefile.devel build-prerequisites".
+	* build-aux/config.*: Update.
+	* gllib/*: Update from gnulib.
+	* glm4/*: Likewise.
+	* aclocal.m4, src/configure, src/config.h.in: Regenerated.
+	* modules/*/configure, modules/*/config.h.in: Regenerated.
+
 2024-10-29  Bruno Haible  <bruno@clisp.org>
 
 	build: Build the clisp driver program without gnulib.

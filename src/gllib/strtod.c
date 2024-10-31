@@ -40,7 +40,13 @@
 #if defined USE_FLOAT
 # define STRTOD strtof
 # define LDEXP ldexpf
-# define HAVE_UNDERLYING_STRTOD HAVE_STRTOF
+# if STRTOF_HAS_UNDERFLOW_BUG
+   /* strtof would not set errno=ERANGE upon flush-to-zero underflow.  */
+#  define HAVE_UNDERLYING_STRTOD 0
+# else
+#  define HAVE_UNDERLYING_STRTOD HAVE_STRTOF
+# endif
+# define HAS_GRADUAL_UNDERFLOW_PROBLEM STRTOF_HAS_GRADUAL_UNDERFLOW_PROBLEM
 # define DOUBLE float
 # define MIN FLT_MIN
 # define MAX FLT_MAX
@@ -58,11 +64,23 @@
       not a 'long double'.  */
 #  define HAVE_UNDERLYING_STRTOD 0
 # elif STRTOLD_HAS_UNDERFLOW_BUG
-   /* strtold would not set errno=ERANGE upon underflow.  */
+   /* strtold would not set errno=ERANGE upon flush-to-zero underflow.  */
+#  define HAVE_UNDERLYING_STRTOD 0
+# elif defined __MINGW32__ && __MINGW64_VERSION_MAJOR < 10
+   /* strtold is broken in mingw versions before 10.0:
+      - Up to mingw 5.0.x, it leaks memory at every invocation.
+      - Up to mingw 9.0.x, it allocates an unbounded amount of stack.
+      See <https://github.com/mingw-w64/mingw-w64/commit/450309b97b2e839ea02887dfaf0f1d10fb5d40cc>
+      and <https://github.com/mingw-w64/mingw-w64/commit/73806c0709b7e6c0f6587f11a955743670e85470>.  */
+#  define HAVE_UNDERLYING_STRTOD 0
+# elif defined __HAIKU__
+   /* Haiku's strtold maps denormalized numbers to zero.
+      <https://dev.haiku-os.org/ticket/19040>  */
 #  define HAVE_UNDERLYING_STRTOD 0
 # else
 #  define HAVE_UNDERLYING_STRTOD HAVE_STRTOLD
 # endif
+# define HAS_GRADUAL_UNDERFLOW_PROBLEM STRTOLD_HAS_GRADUAL_UNDERFLOW_PROBLEM
 # define DOUBLE long double
 # define MIN LDBL_MIN
 # define MAX LDBL_MAX
@@ -75,7 +93,13 @@
 #else
 # define STRTOD strtod
 # define LDEXP ldexp
-# define HAVE_UNDERLYING_STRTOD 1
+# if STRTOD_HAS_UNDERFLOW_BUG
+   /* strtod would not set errno=ERANGE upon flush-to-zero underflow.  */
+#  define HAVE_UNDERLYING_STRTOD 0
+# else
+#  define HAVE_UNDERLYING_STRTOD 1
+# endif
+# define HAS_GRADUAL_UNDERFLOW_PROBLEM STRTOD_HAS_GRADUAL_UNDERFLOW_PROBLEM
 # define DOUBLE double
 # define MIN DBL_MIN
 # define MAX DBL_MAX
@@ -151,11 +175,20 @@ scale_radix_exp (DOUBLE x, int radix, long int exponent)
         {
           if (e < 0)
             {
-              while (e++ != 0)
+              for (;;)
                 {
-                  r /= radix;
-                  if (r == 0 && x != 0)
+                  if (e++ == 0)
                     {
+                      if (r < MIN && r > -MIN)
+                        /* Gradual underflow, resulting in a denormalized
+                           number.  */
+                        errno = ERANGE;
+                      break;
+                    }
+                  r /= radix;
+                  if (r == 0)
+                    {
+                      /* Flush-to-zero underflow.  */
                       errno = ERANGE;
                       break;
                     }
@@ -335,10 +368,22 @@ STRTOD (const char *nptr, char **endptr)
 # else
 #  undef strtod
 # endif
+# if HAS_GRADUAL_UNDERFLOW_PROBLEM
+#  define SET_ERRNO_UPON_GRADUAL_UNDERFLOW(RESULT) \
+    do                                                          \
+      {                                                         \
+        if ((RESULT) != 0 && (RESULT) < MIN && (RESULT) > -MIN) \
+          errno = ERANGE;                                       \
+      }                                                         \
+    while (0)
+# else
+#  define SET_ERRNO_UPON_GRADUAL_UNDERFLOW(RESULT) (void)0
+# endif
 #else
 # undef STRTOD
 # define STRTOD(NPTR,ENDPTR) \
    parse_number (NPTR, 10, 10, 1, radixchar, 'e', ENDPTR)
+# define SET_ERRNO_UPON_GRADUAL_UNDERFLOW(RESULT) (void)0
 #endif
 /* From here on, STRTOD refers to the underlying implementation.  It needs
    to handle only finite unsigned decimal numbers with non-null ENDPTR.  */
@@ -366,6 +411,7 @@ STRTOD (const char *nptr, char **endptr)
     ++s;
 
   num = STRTOD (s, &endbuf);
+  SET_ERRNO_UPON_GRADUAL_UNDERFLOW (num);
   end = endbuf;
 
   if (c_isdigit (s[*s == radixchar]))
@@ -408,6 +454,7 @@ STRTOD (const char *nptr, char **endptr)
                     {
                       dup[p - s] = '\0';
                       num = STRTOD (dup, &endbuf);
+                      SET_ERRNO_UPON_GRADUAL_UNDERFLOW (num);
                       saved_errno = errno;
                       free (dup);
                       errno = saved_errno;
@@ -438,6 +485,7 @@ STRTOD (const char *nptr, char **endptr)
                 {
                   dup[e - s] = '\0';
                   num = STRTOD (dup, &endbuf);
+                  SET_ERRNO_UPON_GRADUAL_UNDERFLOW (num);
                   saved_errno = errno;
                   free (dup);
                   errno = saved_errno;

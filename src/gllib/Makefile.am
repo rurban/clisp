@@ -192,6 +192,7 @@ EXTRA_DIST += alloca.in.h
 ## begin gnulib module arpa_inet
 
 BUILT_SOURCES += arpa/inet.h
+libgnu_a_SOURCES += arpa_inet.c
 
 # We need the following in order to create <arpa/inet.h> when the system
 # doesn't have one.
@@ -208,8 +209,12 @@ arpa/inet.h: arpa_inet.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(WARN_ON
 	      -e 's/@''GNULIB_INET_NTOP''@/$(GL_GNULIB_INET_NTOP)/g' \
 	      -e 's/@''GNULIB_INET_PTON''@/$(GL_GNULIB_INET_PTON)/g' \
 	      -e 's|@''HAVE_WS2TCPIP_H''@|$(HAVE_WS2TCPIP_H)|g' \
+	      -e 's|@''HAVE_DECL_HTONL''@|$(HAVE_DECL_HTONL)|g' \
+	      -e 's|@''HAVE_DECL_HTONS''@|$(HAVE_DECL_HTONS)|g' \
 	      -e 's|@''HAVE_DECL_INET_NTOP''@|$(HAVE_DECL_INET_NTOP)|g' \
 	      -e 's|@''HAVE_DECL_INET_PTON''@|$(HAVE_DECL_INET_PTON)|g' \
+	      -e 's|@''HAVE_DECL_NTOHL''@|$(HAVE_DECL_NTOHL)|g' \
+	      -e 's|@''HAVE_DECL_NTOHS''@|$(HAVE_DECL_NTOHS)|g' \
 	      -e 's|@''REPLACE_INET_NTOP''@|$(REPLACE_INET_NTOP)|g' \
 	      -e 's|@''REPLACE_INET_PTON''@|$(REPLACE_INET_PTON)|g' \
 	      -e '/definitions of _GL_FUNCDECL_RPL/r $(CXXDEFS_H)' \
@@ -1374,6 +1379,9 @@ math.h: math.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) $(
 	      -e 's/@''GNULIB_LOGB''@/$(GL_GNULIB_LOGB)/g' \
 	      -e 's/@''GNULIB_LOGBF''@/$(GL_GNULIB_LOGBF)/g' \
 	      -e 's/@''GNULIB_LOGBL''@/$(GL_GNULIB_LOGBL)/g' \
+	      -e 's/@''GNULIB_LOGP1''@/$(GL_GNULIB_LOGP1)/g' \
+	      -e 's/@''GNULIB_LOGP1F''@/$(GL_GNULIB_LOGP1F)/g' \
+	      -e 's/@''GNULIB_LOGP1L''@/$(GL_GNULIB_LOGP1L)/g' \
 	      -e 's/@''GNULIB_MODF''@/$(GL_GNULIB_MODF)/g' \
 	      -e 's/@''GNULIB_MODFF''@/$(GL_GNULIB_MODFF)/g' \
 	      -e 's/@''GNULIB_MODFL''@/$(GL_GNULIB_MODFL)/g' \
@@ -1467,6 +1475,9 @@ math.h: math.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) $(
 	      -e 's|@''HAVE_LOG1PL''@|$(HAVE_LOG1PL)|g' \
 	      -e 's|@''HAVE_LOGBF''@|$(HAVE_LOGBF)|g' \
 	      -e 's|@''HAVE_LOGBL''@|$(HAVE_LOGBL)|g' \
+	      -e 's|@''HAVE_LOGP1''@|$(HAVE_LOGP1)|g' \
+	      -e 's|@''HAVE_LOGP1F''@|$(HAVE_LOGP1F)|g' \
+	      -e 's|@''HAVE_LOGP1L''@|$(HAVE_LOGP1L)|g' \
 	      -e 's|@''HAVE_MODFF''@|$(HAVE_MODFF)|g' \
 	      -e 's|@''HAVE_MODFL''@|$(HAVE_MODFL)|g' \
 	      -e 's|@''HAVE_POWF''@|$(HAVE_POWF)|g' \
@@ -1850,6 +1861,12 @@ EXTRA_DIST += noreturn.h
 
 ## end   gnulib module noreturn
 
+## begin gnulib module once
+
+libgnu_a_SOURCES += glthread/once.h glthread/once.c
+
+## end   gnulib module once
+
 ## begin gnulib module open
 
 if GL_COND_OBJ_OPEN
@@ -2181,15 +2198,18 @@ signal.h: signal.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H
 	      -e 's|@''NEXT_SIGNAL_H''@|$(NEXT_SIGNAL_H)|g' \
 	      -e 's/@''GNULIB_PTHREAD_SIGMASK''@/$(GL_GNULIB_PTHREAD_SIGMASK)/g' \
 	      -e 's/@''GNULIB_RAISE''@/$(GL_GNULIB_RAISE)/g' \
+	      -e 's/@''GNULIB_SIG2STR''@/$(GL_GNULIB_SIG2STR)/g' \
 	      -e 's/@''GNULIB_SIGNAL_H_SIGPIPE''@/$(GL_GNULIB_SIGNAL_H_SIGPIPE)/g' \
 	      -e 's/@''GNULIB_SIGPROCMASK''@/$(GL_GNULIB_SIGPROCMASK)/g' \
 	      -e 's/@''GNULIB_SIGACTION''@/$(GL_GNULIB_SIGACTION)/g' \
 	      -e 's|@''HAVE_POSIX_SIGNALBLOCKING''@|$(HAVE_POSIX_SIGNALBLOCKING)|g' \
 	      -e 's|@''HAVE_PTHREAD_SIGMASK''@|$(HAVE_PTHREAD_SIGMASK)|g' \
 	      -e 's|@''HAVE_RAISE''@|$(HAVE_RAISE)|g' \
+	      -e 's|@''HAVE_SIG2STR''@|$(HAVE_SIG2STR)|g' \
 	      -e 's|@''HAVE_SIGSET_T''@|$(HAVE_SIGSET_T)|g' \
 	      -e 's|@''HAVE_SIGINFO_T''@|$(HAVE_SIGINFO_T)|g' \
 	      -e 's|@''HAVE_SIGACTION''@|$(HAVE_SIGACTION)|g' \
+	      -e 's|@''HAVE_STR2SIG''@|$(HAVE_STR2SIG)|g' \
 	      -e 's|@''HAVE_STRUCT_SIGACTION_SA_SIGACTION''@|$(HAVE_STRUCT_SIGACTION_SA_SIGACTION)|g' \
 	      -e 's|@''HAVE_TYPE_VOLATILE_SIG_ATOMIC_T''@|$(HAVE_TYPE_VOLATILE_SIG_ATOMIC_T)|g' \
 	      -e 's|@''HAVE_SIGHANDLER_T''@|$(HAVE_SIGHANDLER_T)|g' \
@@ -2596,13 +2616,13 @@ stdlib.h: stdlib.in.h $(top_builddir)/config.status $(CXXDEFS_H) \
 	      -e 's/@''GNULIB_RAND''@/$(GL_GNULIB_RAND)/g' \
 	      -e 's/@''GNULIB_RANDOM''@/$(GL_GNULIB_RANDOM)/g' \
 	      -e 's/@''GNULIB_RANDOM_R''@/$(GL_GNULIB_RANDOM_R)/g' \
-	      -e 's/@''GNULIB_REALLOC_GNU''@/$(GL_GNULIB_REALLOC_GNU)/g' \
 	      -e 's/@''GNULIB_REALLOC_POSIX''@/$(GL_GNULIB_REALLOC_POSIX)/g' \
 	      -e 's/@''GNULIB_REALLOCARRAY''@/$(GL_GNULIB_REALLOCARRAY)/g' \
 	      -e 's/@''GNULIB_REALPATH''@/$(GL_GNULIB_REALPATH)/g' \
 	      -e 's/@''GNULIB_RPMATCH''@/$(GL_GNULIB_RPMATCH)/g' \
 	      -e 's/@''GNULIB_SECURE_GETENV''@/$(GL_GNULIB_SECURE_GETENV)/g' \
 	      -e 's/@''GNULIB_SETENV''@/$(GL_GNULIB_SETENV)/g' \
+	      -e 's/@''GNULIB_STACK_TRACE''@/$(GL_GNULIB_STACK_TRACE)/g' \
 	      -e 's/@''GNULIB_STRTOD''@/$(GL_GNULIB_STRTOD)/g' \
 	      -e 's/@''GNULIB_STRTOF''@/$(GL_GNULIB_STRTOF)/g' \
 	      -e 's/@''GNULIB_STRTOL''@/$(GL_GNULIB_STRTOL)/g' \
@@ -2697,7 +2717,6 @@ stdlib.h: stdlib.in.h $(top_builddir)/config.status $(CXXDEFS_H) \
 	      -e 's|@''REPLACE_RAND''@|$(REPLACE_RAND)|g' \
 	      -e 's|@''REPLACE_RANDOM''@|$(REPLACE_RANDOM)|g' \
 	      -e 's|@''REPLACE_RANDOM_R''@|$(REPLACE_RANDOM_R)|g' \
-	      -e 's|@''REPLACE_REALLOC_FOR_REALLOC_GNU''@|$(REPLACE_REALLOC_FOR_REALLOC_GNU)|g' \
 	      -e 's|@''REPLACE_REALLOC_FOR_REALLOC_POSIX''@|$(REPLACE_REALLOC_FOR_REALLOC_POSIX)|g' \
 	      -e 's|@''REPLACE_REALLOCARRAY''@|$(REPLACE_REALLOCARRAY)|g' \
 	      -e 's|@''REPLACE_REALPATH''@|$(REPLACE_REALPATH)|g' \
@@ -2712,6 +2731,7 @@ stdlib.h: stdlib.in.h $(top_builddir)/config.status $(CXXDEFS_H) \
 	      -e 's|@''REPLACE_STRTOULL''@|$(REPLACE_STRTOULL)|g' \
 	      -e 's|@''REPLACE_UNSETENV''@|$(REPLACE_UNSETENV)|g' \
 	      -e 's|@''REPLACE_WCTOMB''@|$(REPLACE_WCTOMB)|g' \
+	      -e 's|@''CAN_PRINT_STACK_TRACE''@|$(CAN_PRINT_STACK_TRACE)|g' \
 	      -e '/definitions of _GL_FUNCDECL_RPL/r $(CXXDEFS_H)' \
 	      -e '/definition of _Noreturn/r $(_NORETURN_H)' \
 	      -e '/definition of _GL_ARG_NONNULL/r $(ARG_NONNULL_H)' \
@@ -3190,6 +3210,7 @@ sys/time.h: sys_time.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNU
 	      $(srcdir)/sys_time.in.h > $@-t
 	$(AM_V_at)mv $@-t $@
 MOSTLYCLEANFILES += sys/time.h sys/time.h-t
+MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_time.in.h
 
@@ -3215,6 +3236,7 @@ sys/types.h: sys_types.in.h $(top_builddir)/config.status
 	      $(srcdir)/sys_types.in.h > $@-t
 	$(AM_V_at)mv $@-t $@
 MOSTLYCLEANFILES += sys/types.h sys/types.h-t
+MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_types.in.h
 
@@ -3348,11 +3370,14 @@ time.h: time.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) $(
 	      -e 's|@''HAVE_TIMESPEC_GET''@|$(HAVE_TIMESPEC_GET)|g' \
 	      -e 's|@''HAVE_TIMESPEC_GETRES''@|$(HAVE_TIMESPEC_GETRES)|g' \
 	      -e 's|@''HAVE_TIMEZONE_T''@|$(HAVE_TIMEZONE_T)|g' \
+	      -e 's|@''HAVE_TZALLOC''@|$(HAVE_TZALLOC)|g' \
 	      -e 's|@''REPLACE_CTIME''@|$(REPLACE_CTIME)|g' \
 	      -e 's|@''REPLACE_GMTIME''@|$(REPLACE_GMTIME)|g' \
 	      -e 's|@''REPLACE_LOCALTIME''@|$(REPLACE_LOCALTIME)|g' \
 	      -e 's|@''REPLACE_LOCALTIME_R''@|$(REPLACE_LOCALTIME_R)|g' \
+	      -e 's|@''REPLACE_LOCALTIME_RZ''@|$(REPLACE_LOCALTIME_RZ)|g' \
 	      -e 's|@''REPLACE_MKTIME''@|$(REPLACE_MKTIME)|g' \
+	      -e 's|@''REPLACE_MKTIME_Z''@|$(REPLACE_MKTIME_Z)|g' \
 	      -e 's|@''REPLACE_NANOSLEEP''@|$(REPLACE_NANOSLEEP)|g' \
 	      -e 's|@''REPLACE_STRFTIME''@|$(REPLACE_STRFTIME)|g' \
 	      -e 's|@''REPLACE_TIME''@|$(REPLACE_TIME)|g' \
@@ -3587,6 +3612,7 @@ unictype.h: unictype.in.h
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_GRAPHEME_EXTEND_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_GRAPHEME_EXTEND_DLL_VARIABLE)/g' \
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_OTHER_GRAPHEME_EXTEND_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_OTHER_GRAPHEME_EXTEND_DLL_VARIABLE)/g' \
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_GRAPHEME_LINK_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_GRAPHEME_LINK_DLL_VARIABLE)/g' \
+	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_MODIFIER_COMBINING_MARK_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_MODIFIER_COMBINING_MARK_DLL_VARIABLE)/g' \
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_BIDI_CONTROL_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_BIDI_CONTROL_DLL_VARIABLE)/g' \
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_BIDI_LEFT_TO_RIGHT_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_BIDI_LEFT_TO_RIGHT_DLL_VARIABLE)/g' \
 	      -e 's/@''GNULIB_UNICTYPE_PROPERTY_BIDI_HEBREW_RIGHT_TO_LEFT_DLL_VARIABLE''@/$(GL_GNULIB_UNICTYPE_PROPERTY_BIDI_HEBREW_RIGHT_TO_LEFT_DLL_VARIABLE)/g' \

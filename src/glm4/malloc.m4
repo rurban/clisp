@@ -1,12 +1,19 @@
 # malloc.m4
-# serial 31
+# serial 39
 dnl Copyright (C) 2007, 2009-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
-# This is adapted with modifications from upstream Autoconf here:
-# https://git.savannah.gnu.org/cgit/autoconf.git/tree/lib/autoconf/functions.m4?id=v2.70#n949
+m4_version_prereq([2.73], [], [
+# This is copied from upstream Autoconf here:
+# https://git.savannah.gnu.org/cgit/autoconf.git/tree/lib/autoconf/functions.m4?id=74df3c673320c06481f5c5b18ff7979a3034a9e5#n971
+# _AC_FUNC_MALLOC_IF(IF-WORKS, IF-NOT, UNKNOWN-ASSUME)
+# ----------------------------------------------------
+# If 'malloc (0, 0)' returns nonnull, run IF-WORKS, otherwise, IF-NOT.
+# If it is not known whether it works, assume the shell word UNKNOWN-ASSUME,
+# which should end in "yes" or in something else.
 AC_DEFUN([_AC_FUNC_MALLOC_IF],
 [
   AC_REQUIRE([AC_CANONICAL_HOST])dnl for cross-compiles
@@ -15,10 +22,11 @@ AC_DEFUN([_AC_FUNC_MALLOC_IF],
     [AC_RUN_IFELSE(
        [AC_LANG_PROGRAM(
           [[#include <stdlib.h>
-          ]],
-          [[void *p = malloc (0);
-            void * volatile vp = p;
-            int result = !vp;
+            /* Use pmalloc to test; 'volatile' prevents the compiler
+               from optimizing the malloc call away.  */
+            void *(*volatile pmalloc) (size_t) = malloc;]],
+          [[void *p = pmalloc (0);
+            int result = !p;
             free (p);
             return result;]])
        ],
@@ -30,13 +38,14 @@ AC_DEFUN([_AC_FUNC_MALLOC_IF],
           | gnu* | *-musl* | midipix* | midnightbsd* \
           | hpux* | solaris* | cygwin* | mingw* | windows* | msys* )
             ac_cv_func_malloc_0_nonnull="guessing yes" ;;
-          # If we don't know, obey --enable-cross-guesses.
-          *) ac_cv_func_malloc_0_nonnull="$gl_cross_guess_normal" ;;
+          # Guess as follows if we don't know.
+          *) ac_cv_func_malloc_0_nonnull=m4_if([$3],[],["guessing no"],[$3]) ;;
         esac
        ])
     ])
   AS_CASE([$ac_cv_func_malloc_0_nonnull], [*yes], [$1], [$2])
 ])# _AC_FUNC_MALLOC_IF
+])
 
 # gl_FUNC_MALLOC_GNU
 # ------------------
@@ -45,9 +54,15 @@ AC_DEFUN([gl_FUNC_MALLOC_GNU],
 [
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
   AC_REQUIRE([gl_FUNC_MALLOC_POSIX])
+
+  dnl Through the dependency on module extensions-aix, _LINUX_SOURCE_COMPAT
+  dnl gets defined already before this macro gets invoked.  This helps
+  dnl if !(__VEC__ || __AIXVEC), and doesn't hurt otherwise.
+
   REPLACE_MALLOC_FOR_MALLOC_GNU="$REPLACE_MALLOC_FOR_MALLOC_POSIX"
   if test $REPLACE_MALLOC_FOR_MALLOC_GNU = 0; then
-    _AC_FUNC_MALLOC_IF([], [REPLACE_MALLOC_FOR_MALLOC_GNU=1])
+    _AC_FUNC_MALLOC_IF([], [REPLACE_MALLOC_FOR_MALLOC_GNU=1],
+      ["$gl_cross_guess_normal"])
   fi
 ])
 
@@ -128,10 +143,24 @@ AC_DEFUN([gl_CHECK_MALLOC_POSIX],
       dnl some systems go to their knees when you do that. So assume that
       dnl all Unix implementations of the function set errno on failure,
       dnl except on those platforms where we have seen 'test-malloc-gnu',
-      dnl 'test-realloc-gnu', 'test-calloc-gnu' fail.
+      dnl 'test-realloc-posix', 'test-calloc-gnu' fail.
       case "$host_os" in
         mingw* | windows*)
-          gl_cv_func_malloc_posix=no ;;
+          dnl Old MSVCRT from 2001 did not set errno=ENOMEM when malloc failed.
+          dnl More recent MSVCRT from 2019 does so.
+          dnl UCRT is the successor of MSVCRT. Assume that UCRT does so as well.
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM(
+              [[#include <stdio.h>
+                #ifndef _UCRT
+                msvcrt yuck
+                #endif
+              ]],
+              [[]])
+            ],
+            [gl_cv_func_malloc_posix=yes],
+            [gl_cv_func_malloc_posix=no])
+          ;;
         irix* | solaris*)
           dnl On IRIX 6.5, the three functions return NULL with errno unset
           dnl when the argument is larger than PTRDIFF_MAX.

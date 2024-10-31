@@ -1,9 +1,10 @@
 # gettext.m4
-# serial 79 (gettext-0.23)
+# serial 80 (gettext-0.23)
 dnl Copyright (C) 1995-2014, 2016, 2018-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 dnl
 dnl This file can be used in projects which are not available under
 dnl the GNU General Public License or the GNU Lesser General Public
@@ -365,21 +366,7 @@ return * gettext ("")$gt_expression_test_code + __GNU_GETTEXT_SYMBOL_EXPRESSION
   AC_SUBST([POSUB])
 
   dnl Define localedir_c and localedir_c_make.
-  dnl Find the final value of localedir.
-  gt_saved_prefix="${prefix}"
-  gt_saved_datarootdir="${datarootdir}"
-  gt_saved_localedir="${localedir}"
-  dnl Unfortunately, prefix gets only finally determined at the end of
-  dnl configure.
-  if test "X$prefix" = "XNONE"; then
-    prefix="$ac_default_prefix"
-  fi
-  eval datarootdir="$datarootdir"
-  eval localedir="$localedir"
-  gl_BUILD_TO_HOST([localedir])
-  localedir="${gt_saved_localedir}"
-  datarootdir="${gt_saved_datarootdir}"
-  prefix="${gt_saved_prefix}"
+  gl_BUILD_TO_HOST_LOCALEDIR
 ])
 
 

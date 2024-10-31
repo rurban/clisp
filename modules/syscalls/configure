@@ -648,6 +648,7 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
 GETLOADAVG_LIBS
+CAN_PRINT_STACK_TRACE
 REPLACE_WCTOMB
 REPLACE_UNSETENV
 REPLACE_STRTOULL
@@ -662,7 +663,6 @@ REPLACE_SETENV
 REPLACE_REALPATH
 REPLACE_REALLOCARRAY
 REPLACE_REALLOC_FOR_REALLOC_POSIX
-REPLACE_REALLOC_FOR_REALLOC_GNU
 REPLACE_RANDOM_R
 REPLACE_RANDOM
 REPLACE_RAND
@@ -6671,6 +6671,8 @@ printf "%s\n" "$gl_cv_source_line_length_unlimited" >&6; }
 
 
 
+
+
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for complete errno.h" >&5
 printf %s "checking for complete errno.h... " >&6; }
 if test ${gl_cv_header_errno_h_complete+y}
@@ -6731,6 +6733,9 @@ booboo
 booboo
 #endif
 #if !defined EILSEQ
+booboo
+#endif
+#if !defined ESOCKTNOSUPPORT
 booboo
 #endif
 
@@ -8413,7 +8418,6 @@ fi
   REPLACE_RAND=0;
   REPLACE_RANDOM=0;
   REPLACE_RANDOM_R=0;
-  REPLACE_REALLOC_FOR_REALLOC_GNU=0;
   REPLACE_REALLOC_FOR_REALLOC_POSIX=0;
   REPLACE_REALLOCARRAY=0;
   REPLACE_REALPATH=0;
@@ -8428,6 +8432,7 @@ fi
   REPLACE_STRTOULL=0;
   REPLACE_UNSETENV=0;
   REPLACE_WCTOMB=0;
+  CAN_PRINT_STACK_TRACE=0;
 
 
 

@@ -1,4 +1,4 @@
-/* Implement the most essential subset of POSIX 1003.1-2008 pthread.h.
+/* Implement the most essential subset of POSIX pthread.h.
 
    Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
@@ -275,7 +275,7 @@ typedef unsigned int pthread_rwlockattr_t;
 #  undef PTHREAD_RWLOCK_INITIALIZER
 #  define PTHREAD_RWLOCK_INITIALIZER { 0 }
 # endif
-#elif @GNULIB_PTHREAD_RWLOCK@ && @REPLACE_PTHREAD_RWLOCK_INIT@ /* i.e. PTHREAD_RWLOCK_UNIMPLEMENTED */
+#elif @GNULIB_PTHREAD_RWLOCK@ && @REPLACE_PTHREAD_RWLOCK_DESTROY@ /* i.e. PTHREAD_RWLOCK_UNIMPLEMENTED */
 # if @HAVE_PTHREAD_T@
 #  define pthread_rwlock_t rpl_pthread_rwlock_t
 #  define pthread_rwlockattr_t rpl_pthread_rwlockattr_t
@@ -296,6 +296,11 @@ typedef unsigned int pthread_rwlockattr_t;
 # undef PTHREAD_RWLOCK_INITIALIZER
 # define PTHREAD_RWLOCK_INITIALIZER \
    { PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0 }
+#elif @GNULIB_PTHREAD_RWLOCK@ && @REPLACE_PTHREAD_RWLOCK_INIT@ /* i.e. PTHREAD_RWLOCK_BAD_WAITQUEUE */
+/* Use rwlocks of kind PREFER_WRITER or PREFER_WRITER_NONRECURSIVE instead of
+   the DEFAULT.  */
+# undef PTHREAD_RWLOCK_INITIALIZER
+# define PTHREAD_RWLOCK_INITIALIZER PTHREAD_RWLOCK_WRITER_NONRECURSIVE_INITIALIZER_NP
 #else
 # if @HAVE_PTHREAD_T@
 #  if !defined PTHREAD_RWLOCK_INITIALIZER && defined PTHREAD_RWLOCK_INITIALIZER_NP /* z/OS */
@@ -494,7 +499,7 @@ typedef unsigned int pthread_barrierattr_t;
 _GL_FUNCDECL_RPL (pthread_create, int,
                   (pthread_t *restrict threadp,
                    const pthread_attr_t *restrict attr,
-                   void * (*mainfunc) (void *), void *restrict arg)
+                   void * (*mainfunc) (void *), void *restrict arg),
                   _GL_ARG_NONNULL ((1, 3)));
 _GL_CXXALIAS_RPL (pthread_create, int,
                   (pthread_t *restrict threadp,
@@ -505,7 +510,7 @@ _GL_CXXALIAS_RPL (pthread_create, int,
 _GL_FUNCDECL_SYS (pthread_create, int,
                   (pthread_t *restrict threadp,
                    const pthread_attr_t *restrict attr,
-                   void * (*mainfunc) (void *), void *restrict arg)
+                   void * (*mainfunc) (void *), void *restrict arg),
                   _GL_ARG_NONNULL ((1, 3)));
 #  endif
 _GL_CXXALIAS_SYS_CAST (pthread_create, int,
@@ -530,12 +535,12 @@ _GL_WARN_ON_USE (pthread_create, "pthread_create is not portable - "
 #   undef pthread_attr_init
 #   define pthread_attr_init rpl_pthread_attr_init
 #  endif
-_GL_FUNCDECL_RPL (pthread_attr_init, int, (pthread_attr_t *attr)
+_GL_FUNCDECL_RPL (pthread_attr_init, int, (pthread_attr_t *attr),
                                           _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_attr_init, int, (pthread_attr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_ATTR_INIT@
-_GL_FUNCDECL_SYS (pthread_attr_init, int, (pthread_attr_t *attr)
+_GL_FUNCDECL_SYS (pthread_attr_init, int, (pthread_attr_t *attr),
                                           _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_attr_init, int, (pthread_attr_t *attr));
@@ -558,14 +563,14 @@ _GL_WARN_ON_USE (pthread_attr_init, "pthread_attr_init is not portable - "
 #   define pthread_attr_getdetachstate rpl_pthread_attr_getdetachstate
 #  endif
 _GL_FUNCDECL_RPL (pthread_attr_getdetachstate, int,
-                  (const pthread_attr_t *attr, int *detachstatep)
+                  (const pthread_attr_t *attr, int *detachstatep),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_attr_getdetachstate, int,
                   (const pthread_attr_t *attr, int *detachstatep));
 # else
 #  if !@HAVE_PTHREAD_ATTR_GETDETACHSTATE@
 _GL_FUNCDECL_SYS (pthread_attr_getdetachstate, int,
-                  (const pthread_attr_t *attr, int *detachstatep)
+                  (const pthread_attr_t *attr, int *detachstatep),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_attr_getdetachstate, int,
@@ -589,14 +594,14 @@ _GL_WARN_ON_USE (pthread_attr_getdetachstate, "pthread_attr_getdetachstate is no
 #   define pthread_attr_setdetachstate rpl_pthread_attr_setdetachstate
 #  endif
 _GL_FUNCDECL_RPL (pthread_attr_setdetachstate, int,
-                  (pthread_attr_t *attr, int detachstate)
+                  (pthread_attr_t *attr, int detachstate),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_attr_setdetachstate, int,
                   (pthread_attr_t *attr, int detachstate));
 # else
 #  if !@HAVE_PTHREAD_ATTR_SETDETACHSTATE@
 _GL_FUNCDECL_SYS (pthread_attr_setdetachstate, int,
-                  (pthread_attr_t *attr, int detachstate)
+                  (pthread_attr_t *attr, int detachstate),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_attr_setdetachstate, int,
@@ -619,12 +624,12 @@ _GL_WARN_ON_USE (pthread_attr_setdetachstate, "pthread_attr_setdetachstate is no
 #   undef pthread_attr_destroy
 #   define pthread_attr_destroy rpl_pthread_attr_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_attr_destroy, int, (pthread_attr_t *attr)
+_GL_FUNCDECL_RPL (pthread_attr_destroy, int, (pthread_attr_t *attr),
                                              _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_attr_destroy, int, (pthread_attr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_ATTR_DESTROY@
-_GL_FUNCDECL_SYS (pthread_attr_destroy, int, (pthread_attr_t *attr)
+_GL_FUNCDECL_SYS (pthread_attr_destroy, int, (pthread_attr_t *attr),
                                              _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_attr_destroy, int, (pthread_attr_t *attr));
@@ -646,11 +651,11 @@ _GL_WARN_ON_USE (pthread_attr_destroy, "pthread_attr_destroy is not portable - "
 #   undef pthread_self
 #   define pthread_self rpl_pthread_self
 #  endif
-_GL_FUNCDECL_RPL (pthread_self, pthread_t, (void) _GL_ATTRIBUTE_PURE);
+_GL_FUNCDECL_RPL (pthread_self, pthread_t, (void), _GL_ATTRIBUTE_PURE);
 _GL_CXXALIAS_RPL (pthread_self, pthread_t, (void));
 # else
 #  if !@HAVE_PTHREAD_SELF@
-_GL_FUNCDECL_SYS (pthread_self, pthread_t, (void) _GL_ATTRIBUTE_PURE);
+_GL_FUNCDECL_SYS (pthread_self, pthread_t, (void), _GL_ATTRIBUTE_PURE);
 #  endif
 _GL_CXXALIAS_SYS (pthread_self, pthread_t, (void));
 # endif
@@ -671,11 +676,11 @@ _GL_WARN_ON_USE (pthread_self, "pthread_self is not portable - "
 #   undef pthread_equal
 #   define pthread_equal rpl_pthread_equal
 #  endif
-_GL_FUNCDECL_RPL (pthread_equal, int, (pthread_t thread1, pthread_t thread2));
+_GL_FUNCDECL_RPL (pthread_equal, int, (pthread_t thread1, pthread_t thread2), );
 _GL_CXXALIAS_RPL (pthread_equal, int, (pthread_t thread1, pthread_t thread2));
 # else
 #  if !@HAVE_PTHREAD_EQUAL@
-_GL_FUNCDECL_SYS (pthread_equal, int, (pthread_t thread1, pthread_t thread2));
+_GL_FUNCDECL_SYS (pthread_equal, int, (pthread_t thread1, pthread_t thread2), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_equal, int, (pthread_t thread1, pthread_t thread2));
 # endif
@@ -696,11 +701,11 @@ _GL_WARN_ON_USE (pthread_equal, "pthread_equal is not portable - "
 #   undef pthread_detach
 #   define pthread_detach rpl_pthread_detach
 #  endif
-_GL_FUNCDECL_RPL (pthread_detach, int, (pthread_t thread));
+_GL_FUNCDECL_RPL (pthread_detach, int, (pthread_t thread), );
 _GL_CXXALIAS_RPL (pthread_detach, int, (pthread_t thread));
 # else
 #  if !@HAVE_PTHREAD_DETACH@
-_GL_FUNCDECL_SYS (pthread_detach, int, (pthread_t thread));
+_GL_FUNCDECL_SYS (pthread_detach, int, (pthread_t thread), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_detach, int, (pthread_t thread));
 # endif
@@ -721,11 +726,11 @@ _GL_WARN_ON_USE (pthread_detach, "pthread_detach is not portable - "
 #   undef pthread_join
 #   define pthread_join rpl_pthread_join
 #  endif
-_GL_FUNCDECL_RPL (pthread_join, int, (pthread_t thread, void **valuep));
+_GL_FUNCDECL_RPL (pthread_join, int, (pthread_t thread, void **valuep), );
 _GL_CXXALIAS_RPL (pthread_join, int, (pthread_t thread, void **valuep));
 # else
 #  if !@HAVE_PTHREAD_JOIN@
-_GL_FUNCDECL_SYS (pthread_join, int, (pthread_t thread, void **valuep));
+_GL_FUNCDECL_SYS (pthread_join, int, (pthread_t thread, void **valuep), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_join, int, (pthread_t thread, void **valuep));
 # endif
@@ -746,11 +751,11 @@ _GL_WARN_ON_USE (pthread_join, "pthread_join is not portable - "
 #   undef pthread_exit
 #   define pthread_exit rpl_pthread_exit
 #  endif
-_GL_FUNCDECL_RPL (pthread_exit, _Noreturn void, (void *value));
+_GL_FUNCDECL_RPL (pthread_exit, _Noreturn void, (void *value), );
 _GL_CXXALIAS_RPL (pthread_exit, void, (void *value));
 # else
 #  if !@HAVE_PTHREAD_EXIT@
-_GL_FUNCDECL_SYS (pthread_exit, _Noreturn void, (void *value));
+_GL_FUNCDECL_SYS (pthread_exit, _Noreturn void, (void *value), );
 #  endif
 /* Need to cast because of AIX with xlclang++.  */
 _GL_CXXALIAS_SYS_CAST (pthread_exit, void, (void *value));
@@ -775,14 +780,14 @@ _GL_WARN_ON_USE (pthread_exit, "pthread_exit is not portable - "
 #   define pthread_once rpl_pthread_once
 #  endif
 _GL_FUNCDECL_RPL (pthread_once, int,
-                  (pthread_once_t *once_control, void (*initfunction) (void))
+                  (pthread_once_t *once_control, void (*initfunction) (void)),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_once, int,
                   (pthread_once_t *once_control, void (*initfunction) (void)));
 # else
 #  if !@HAVE_PTHREAD_ONCE@
 _GL_FUNCDECL_SYS (pthread_once, int,
-                  (pthread_once_t *once_control, void (*initfunction) (void))
+                  (pthread_once_t *once_control, void (*initfunction) (void)),
                    _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS_CAST (pthread_once, int,
@@ -810,7 +815,7 @@ _GL_WARN_ON_USE (pthread_once, "pthread_once is not portable - "
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutex_init, int,
                   (pthread_mutex_t *restrict mutex,
-                   const pthread_mutexattr_t *restrict attr)
+                   const pthread_mutexattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutex_init, int,
                   (pthread_mutex_t *restrict mutex,
@@ -819,7 +824,7 @@ _GL_CXXALIAS_RPL (pthread_mutex_init, int,
 #  if !@HAVE_PTHREAD_MUTEX_INIT@
 _GL_FUNCDECL_SYS (pthread_mutex_init, int,
                   (pthread_mutex_t *restrict mutex,
-                   const pthread_mutexattr_t *restrict attr)
+                   const pthread_mutexattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_init, int,
@@ -843,12 +848,12 @@ _GL_WARN_ON_USE (pthread_mutex_init, "pthread_mutex_init is not portable - "
 #   undef pthread_mutexattr_init
 #   define pthread_mutexattr_init rpl_pthread_mutexattr_init
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr)
+_GL_FUNCDECL_RPL (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr),
                                                _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_MUTEXATTR_INIT@
-_GL_FUNCDECL_SYS (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr)
+_GL_FUNCDECL_SYS (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr),
                                                _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutexattr_init, int, (pthread_mutexattr_t *attr));
@@ -872,7 +877,7 @@ _GL_WARN_ON_USE (pthread_mutexattr_init, "pthread_mutexattr_init is not portable
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutexattr_gettype, int,
                   (const pthread_mutexattr_t *restrict attr,
-                   int *restrict typep)
+                   int *restrict typep),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_gettype, int,
                   (const pthread_mutexattr_t *restrict attr,
@@ -881,7 +886,7 @@ _GL_CXXALIAS_RPL (pthread_mutexattr_gettype, int,
 #  if !@HAVE_PTHREAD_MUTEXATTR_GETTYPE@
 _GL_FUNCDECL_SYS (pthread_mutexattr_gettype, int,
                   (const pthread_mutexattr_t *restrict attr,
-                   int *restrict typep)
+                   int *restrict typep),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 /* Need to cast, because on FreeBSD the first parameter is
@@ -908,13 +913,13 @@ _GL_WARN_ON_USE (pthread_mutexattr_gettype, "pthread_mutexattr_gettype is not po
 #   define pthread_mutexattr_settype rpl_pthread_mutexattr_settype
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutexattr_settype, int,
-                  (pthread_mutexattr_t *attr, int type) _GL_ARG_NONNULL ((1)));
+                  (pthread_mutexattr_t *attr, int type), _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_settype, int,
                   (pthread_mutexattr_t *attr, int type));
 # else
 #  if !@HAVE_PTHREAD_MUTEXATTR_SETTYPE@
 _GL_FUNCDECL_SYS (pthread_mutexattr_settype, int,
-                  (pthread_mutexattr_t *attr, int type) _GL_ARG_NONNULL ((1)));
+                  (pthread_mutexattr_t *attr, int type), _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutexattr_settype, int,
                   (pthread_mutexattr_t *attr, int type));
@@ -938,7 +943,7 @@ _GL_WARN_ON_USE (pthread_mutexattr_settype, "pthread_mutexattr_settype is not po
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutexattr_getrobust, int,
                   (const pthread_mutexattr_t *restrict attr,
-                   int *restrict robustp)
+                   int *restrict robustp),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_getrobust, int,
                   (const pthread_mutexattr_t *restrict attr,
@@ -947,7 +952,7 @@ _GL_CXXALIAS_RPL (pthread_mutexattr_getrobust, int,
 #  if !@HAVE_PTHREAD_MUTEXATTR_GETROBUST@
 _GL_FUNCDECL_SYS (pthread_mutexattr_getrobust, int,
                   (const pthread_mutexattr_t *restrict attr,
-                   int *restrict robustp)
+                   int *restrict robustp),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 /* Need to cast, because on FreeBSD the first parameter is
@@ -974,14 +979,14 @@ _GL_WARN_ON_USE (pthread_mutexattr_getrobust, "pthread_mutexattr_getrobust is no
 #   define pthread_mutexattr_setrobust rpl_pthread_mutexattr_setrobust
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutexattr_setrobust, int,
-                  (pthread_mutexattr_t *attr, int robust)
+                  (pthread_mutexattr_t *attr, int robust),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_setrobust, int,
                   (pthread_mutexattr_t *attr, int robust));
 # else
 #  if !@HAVE_PTHREAD_MUTEXATTR_SETROBUST@
 _GL_FUNCDECL_SYS (pthread_mutexattr_setrobust, int,
-                  (pthread_mutexattr_t *attr, int robust)
+                  (pthread_mutexattr_t *attr, int robust),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutexattr_setrobust, int,
@@ -1004,12 +1009,12 @@ _GL_WARN_ON_USE (pthread_mutexattr_setrobust, "pthread_mutexattr_setrobust is no
 #   undef pthread_mutexattr_destroy
 #   define pthread_mutexattr_destroy rpl_pthread_mutexattr_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr)
+_GL_FUNCDECL_RPL (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr),
                                                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_MUTEXATTR_DESTROY@
-_GL_FUNCDECL_SYS (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr)
+_GL_FUNCDECL_SYS (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr),
                                                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutexattr_destroy, int, (pthread_mutexattr_t *attr));
@@ -1031,12 +1036,12 @@ _GL_WARN_ON_USE (pthread_mutexattr_destroy, "pthread_mutexattr_destroy is not po
 #   undef pthread_mutex_lock
 #   define pthread_mutex_lock rpl_pthread_mutex_lock
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutex_lock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_RPL (pthread_mutex_lock, int, (pthread_mutex_t *mutex),
                                            _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutex_lock, int, (pthread_mutex_t *mutex));
 # else
 #  if !@HAVE_PTHREAD_MUTEX_LOCK@
-_GL_FUNCDECL_SYS (pthread_mutex_lock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_SYS (pthread_mutex_lock, int, (pthread_mutex_t *mutex),
                                            _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_lock, int, (pthread_mutex_t *mutex));
@@ -1058,12 +1063,12 @@ _GL_WARN_ON_USE (pthread_mutex_lock, "pthread_mutex_lock is not portable - "
 #   undef pthread_mutex_trylock
 #   define pthread_mutex_trylock rpl_pthread_mutex_trylock
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutex_trylock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_RPL (pthread_mutex_trylock, int, (pthread_mutex_t *mutex),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutex_trylock, int, (pthread_mutex_t *mutex));
 # else
 #  if !@HAVE_PTHREAD_MUTEX_TRYLOCK@
-_GL_FUNCDECL_SYS (pthread_mutex_trylock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_SYS (pthread_mutex_trylock, int, (pthread_mutex_t *mutex),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_trylock, int, (pthread_mutex_t *mutex));
@@ -1087,7 +1092,7 @@ _GL_WARN_ON_USE (pthread_mutex_trylock, "pthread_mutex_trylock is not portable -
 #  endif
 _GL_FUNCDECL_RPL (pthread_mutex_timedlock, int,
                   (pthread_mutex_t *restrict mutex,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_mutex_timedlock, int,
                   (pthread_mutex_t *restrict mutex,
@@ -1096,7 +1101,7 @@ _GL_CXXALIAS_RPL (pthread_mutex_timedlock, int,
 #  if !@HAVE_PTHREAD_MUTEX_TIMEDLOCK@
 _GL_FUNCDECL_SYS (pthread_mutex_timedlock, int,
                   (pthread_mutex_t *restrict mutex,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_timedlock, int,
@@ -1120,12 +1125,12 @@ _GL_WARN_ON_USE (pthread_mutex_timedlock, "pthread_mutex_timedlock is not portab
 #   undef pthread_mutex_unlock
 #   define pthread_mutex_unlock rpl_pthread_mutex_unlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutex_unlock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_RPL (pthread_mutex_unlock, int, (pthread_mutex_t *mutex),
                                              _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutex_unlock, int, (pthread_mutex_t *mutex));
 # else
 #  if !@HAVE_PTHREAD_MUTEX_UNLOCK@
-_GL_FUNCDECL_SYS (pthread_mutex_unlock, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_SYS (pthread_mutex_unlock, int, (pthread_mutex_t *mutex),
                                              _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_unlock, int, (pthread_mutex_t *mutex));
@@ -1147,12 +1152,12 @@ _GL_WARN_ON_USE (pthread_mutex_unlock, "pthread_mutex_unlock is not portable - "
 #   undef pthread_mutex_destroy
 #   define pthread_mutex_destroy rpl_pthread_mutex_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_mutex_destroy, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_RPL (pthread_mutex_destroy, int, (pthread_mutex_t *mutex),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_mutex_destroy, int, (pthread_mutex_t *mutex));
 # else
 #  if !@HAVE_PTHREAD_MUTEX_DESTROY@
-_GL_FUNCDECL_SYS (pthread_mutex_destroy, int, (pthread_mutex_t *mutex)
+_GL_FUNCDECL_SYS (pthread_mutex_destroy, int, (pthread_mutex_t *mutex),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_mutex_destroy, int, (pthread_mutex_t *mutex));
@@ -1178,7 +1183,7 @@ _GL_WARN_ON_USE (pthread_mutex_destroy, "pthread_mutex_destroy is not portable -
 #  endif
 _GL_FUNCDECL_RPL (pthread_rwlock_init, int,
                   (pthread_rwlock_t *restrict lock,
-                   const pthread_rwlockattr_t *restrict attr)
+                   const pthread_rwlockattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_init, int,
                   (pthread_rwlock_t *restrict lock,
@@ -1187,7 +1192,7 @@ _GL_CXXALIAS_RPL (pthread_rwlock_init, int,
 #  if !@HAVE_PTHREAD_RWLOCK_INIT@
 _GL_FUNCDECL_SYS (pthread_rwlock_init, int,
                   (pthread_rwlock_t *restrict lock,
-                   const pthread_rwlockattr_t *restrict attr)
+                   const pthread_rwlockattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_init, int,
@@ -1211,12 +1216,12 @@ _GL_WARN_ON_USE (pthread_rwlock_init, "pthread_rwlock_init is not portable - "
 #   undef pthread_rwlockattr_init
 #   define pthread_rwlockattr_init rpl_pthread_rwlockattr_init
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr)
+_GL_FUNCDECL_RPL (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr),
                                                 _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_RWLOCKATTR_INIT@
-_GL_FUNCDECL_SYS (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr)
+_GL_FUNCDECL_SYS (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr),
                                                 _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlockattr_init, int, (pthread_rwlockattr_t *attr));
@@ -1239,13 +1244,13 @@ _GL_WARN_ON_USE (pthread_rwlockattr_init, "pthread_rwlockattr_init is not portab
 #   define pthread_rwlockattr_destroy rpl_pthread_rwlockattr_destroy
 #  endif
 _GL_FUNCDECL_RPL (pthread_rwlockattr_destroy, int,
-                  (pthread_rwlockattr_t *attr) _GL_ARG_NONNULL ((1)));
+                  (pthread_rwlockattr_t *attr), _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlockattr_destroy, int,
                   (pthread_rwlockattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_RWLOCKATTR_DESTROY@
 _GL_FUNCDECL_SYS (pthread_rwlockattr_destroy, int,
-                  (pthread_rwlockattr_t *attr) _GL_ARG_NONNULL ((1)));
+                  (pthread_rwlockattr_t *attr), _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlockattr_destroy, int,
                   (pthread_rwlockattr_t *attr));
@@ -1267,12 +1272,12 @@ _GL_WARN_ON_USE (pthread_rwlockattr_destroy, "pthread_rwlockattr_destroy is not 
 #   undef pthread_rwlock_rdlock
 #   define pthread_rwlock_rdlock rpl_pthread_rwlock_rdlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_RDLOCK@
-_GL_FUNCDECL_SYS (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_rdlock, int, (pthread_rwlock_t *lock));
@@ -1294,12 +1299,12 @@ _GL_WARN_ON_USE (pthread_rwlock_rdlock, "pthread_rwlock_rdlock is not portable -
 #   undef pthread_rwlock_wrlock
 #   define pthread_rwlock_wrlock rpl_pthread_rwlock_wrlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_WRLOCK@
-_GL_FUNCDECL_SYS (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_wrlock, int, (pthread_rwlock_t *lock));
@@ -1321,12 +1326,12 @@ _GL_WARN_ON_USE (pthread_rwlock_wrlock, "pthread_rwlock_wrlock is not portable -
 #   undef pthread_rwlock_tryrdlock
 #   define pthread_rwlock_tryrdlock rpl_pthread_rwlock_tryrdlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock),
                                                  _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_TRYRDLOCK@
-_GL_FUNCDECL_SYS (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock),
                                                  _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_tryrdlock, int, (pthread_rwlock_t *lock));
@@ -1348,12 +1353,12 @@ _GL_WARN_ON_USE (pthread_rwlock_tryrdlock, "pthread_rwlock_tryrdlock is not port
 #   undef pthread_rwlock_trywrlock
 #   define pthread_rwlock_trywrlock rpl_pthread_rwlock_trywrlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock),
                                                  _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_TRYWRLOCK@
-_GL_FUNCDECL_SYS (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock),
                                                  _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_trywrlock, int, (pthread_rwlock_t *lock));
@@ -1377,7 +1382,7 @@ _GL_WARN_ON_USE (pthread_rwlock_trywrlock, "pthread_rwlock_trywrlock is not port
 #  endif
 _GL_FUNCDECL_RPL (pthread_rwlock_timedrdlock, int,
                   (pthread_rwlock_t *restrict lock,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_rwlock_timedrdlock, int,
                   (pthread_rwlock_t *restrict lock,
@@ -1386,7 +1391,7 @@ _GL_CXXALIAS_RPL (pthread_rwlock_timedrdlock, int,
 #  if !@HAVE_PTHREAD_RWLOCK_TIMEDRDLOCK@
 _GL_FUNCDECL_SYS (pthread_rwlock_timedrdlock, int,
                   (pthread_rwlock_t *restrict lock,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_timedrdlock, int,
@@ -1412,7 +1417,7 @@ _GL_WARN_ON_USE (pthread_rwlock_timedrdlock, "pthread_rwlock_timedrdlock is not 
 #  endif
 _GL_FUNCDECL_RPL (pthread_rwlock_timedwrlock, int,
                   (pthread_rwlock_t *restrict lock,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_rwlock_timedwrlock, int,
                   (pthread_rwlock_t *restrict lock,
@@ -1421,7 +1426,7 @@ _GL_CXXALIAS_RPL (pthread_rwlock_timedwrlock, int,
 #  if !@HAVE_PTHREAD_RWLOCK_TIMEDWRLOCK@
 _GL_FUNCDECL_SYS (pthread_rwlock_timedwrlock, int,
                   (pthread_rwlock_t *restrict lock,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_timedwrlock, int,
@@ -1445,12 +1450,12 @@ _GL_WARN_ON_USE (pthread_rwlock_timedwrlock, "pthread_rwlock_timedwrlock is not 
 #   undef pthread_rwlock_unlock
 #   define pthread_rwlock_unlock rpl_pthread_rwlock_unlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_UNLOCK@
-_GL_FUNCDECL_SYS (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_unlock, int, (pthread_rwlock_t *lock));
@@ -1472,12 +1477,12 @@ _GL_WARN_ON_USE (pthread_rwlock_unlock, "pthread_rwlock_unlock is not portable -
 #   undef pthread_rwlock_destroy
 #   define pthread_rwlock_destroy rpl_pthread_rwlock_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock),
                                                _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_RWLOCK_DESTROY@
-_GL_FUNCDECL_SYS (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock),
                                                _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_rwlock_destroy, int, (pthread_rwlock_t *lock));
@@ -1503,7 +1508,7 @@ _GL_WARN_ON_USE (pthread_rwlock_destroy, "pthread_rwlock_destroy is not portable
 #  endif
 _GL_FUNCDECL_RPL (pthread_cond_init, int,
                   (pthread_cond_t *restrict cond,
-                   const pthread_condattr_t *restrict attr)
+                   const pthread_condattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_cond_init, int,
                   (pthread_cond_t *restrict cond,
@@ -1512,7 +1517,7 @@ _GL_CXXALIAS_RPL (pthread_cond_init, int,
 #  if !@HAVE_PTHREAD_COND_INIT@
 _GL_FUNCDECL_SYS (pthread_cond_init, int,
                   (pthread_cond_t *restrict cond,
-                   const pthread_condattr_t *restrict attr)
+                   const pthread_condattr_t *restrict attr),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_init, int,
@@ -1536,12 +1541,12 @@ _GL_WARN_ON_USE (pthread_cond_init, "pthread_cond_init is not portable - "
 #   undef pthread_condattr_init
 #   define pthread_condattr_init rpl_pthread_condattr_init
 #  endif
-_GL_FUNCDECL_RPL (pthread_condattr_init, int, (pthread_condattr_t *attr)
+_GL_FUNCDECL_RPL (pthread_condattr_init, int, (pthread_condattr_t *attr),
                                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_condattr_init, int, (pthread_condattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_CONDATTR_INIT@
-_GL_FUNCDECL_SYS (pthread_condattr_init, int, (pthread_condattr_t *attr)
+_GL_FUNCDECL_SYS (pthread_condattr_init, int, (pthread_condattr_t *attr),
                                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_condattr_init, int, (pthread_condattr_t *attr));
@@ -1563,12 +1568,12 @@ _GL_WARN_ON_USE (pthread_condattr_init, "pthread_condattr_init is not portable -
 #   undef pthread_condattr_destroy
 #   define pthread_condattr_destroy rpl_pthread_condattr_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_condattr_destroy, int, (pthread_condattr_t *attr)
+_GL_FUNCDECL_RPL (pthread_condattr_destroy, int, (pthread_condattr_t *attr),
                                                  _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_condattr_destroy, int, (pthread_condattr_t *attr));
 # else
 #  if !@HAVE_PTHREAD_CONDATTR_DESTROY@
-_GL_FUNCDECL_SYS (pthread_condattr_destroy, int, (pthread_condattr_t *attr)
+_GL_FUNCDECL_SYS (pthread_condattr_destroy, int, (pthread_condattr_t *attr),
                                                  _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_condattr_destroy, int, (pthread_condattr_t *attr));
@@ -1592,7 +1597,7 @@ _GL_WARN_ON_USE (pthread_condattr_destroy, "pthread_condattr_destroy is not port
 #  endif
 _GL_FUNCDECL_RPL (pthread_cond_wait, int,
                   (pthread_cond_t *restrict cond,
-                   pthread_mutex_t *restrict mutex)
+                   pthread_mutex_t *restrict mutex),
                   _GL_ARG_NONNULL ((1, 2)));
 _GL_CXXALIAS_RPL (pthread_cond_wait, int,
                   (pthread_cond_t *restrict cond,
@@ -1601,7 +1606,7 @@ _GL_CXXALIAS_RPL (pthread_cond_wait, int,
 #  if !@HAVE_PTHREAD_COND_WAIT@
 _GL_FUNCDECL_SYS (pthread_cond_wait, int,
                   (pthread_cond_t *restrict cond,
-                   pthread_mutex_t *restrict mutex)
+                   pthread_mutex_t *restrict mutex),
                   _GL_ARG_NONNULL ((1, 2)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_wait, int,
@@ -1628,7 +1633,7 @@ _GL_WARN_ON_USE (pthread_cond_wait, "pthread_cond_wait is not portable - "
 _GL_FUNCDECL_RPL (pthread_cond_timedwait, int,
                   (pthread_cond_t *restrict cond,
                    pthread_mutex_t *restrict mutex,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2, 3)));
 _GL_CXXALIAS_RPL (pthread_cond_timedwait, int,
                   (pthread_cond_t *restrict cond,
@@ -1639,7 +1644,7 @@ _GL_CXXALIAS_RPL (pthread_cond_timedwait, int,
 _GL_FUNCDECL_SYS (pthread_cond_timedwait, int,
                   (pthread_cond_t *restrict cond,
                    pthread_mutex_t *restrict mutex,
-                   const struct timespec *restrict abstime)
+                   const struct timespec *restrict abstime),
                   _GL_ARG_NONNULL ((1, 2, 3)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_timedwait, int,
@@ -1664,12 +1669,12 @@ _GL_WARN_ON_USE (pthread_cond_timedwait, "pthread_cond_timedwait is not portable
 #   undef pthread_cond_signal
 #   define pthread_cond_signal rpl_pthread_cond_signal
 #  endif
-_GL_FUNCDECL_RPL (pthread_cond_signal, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_RPL (pthread_cond_signal, int, (pthread_cond_t *cond),
                                             _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_cond_signal, int, (pthread_cond_t *cond));
 # else
 #  if !@HAVE_PTHREAD_COND_SIGNAL@
-_GL_FUNCDECL_SYS (pthread_cond_signal, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_SYS (pthread_cond_signal, int, (pthread_cond_t *cond),
                                             _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_signal, int, (pthread_cond_t *cond));
@@ -1691,12 +1696,12 @@ _GL_WARN_ON_USE (pthread_cond_signal, "pthread_cond_signal is not portable - "
 #   undef pthread_cond_broadcast
 #   define pthread_cond_broadcast rpl_pthread_cond_broadcast
 #  endif
-_GL_FUNCDECL_RPL (pthread_cond_broadcast, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_RPL (pthread_cond_broadcast, int, (pthread_cond_t *cond),
                                                _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_cond_broadcast, int, (pthread_cond_t *cond));
 # else
 #  if !@HAVE_PTHREAD_COND_BROADCAST@
-_GL_FUNCDECL_SYS (pthread_cond_broadcast, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_SYS (pthread_cond_broadcast, int, (pthread_cond_t *cond),
                                                _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_broadcast, int, (pthread_cond_t *cond));
@@ -1718,12 +1723,12 @@ _GL_WARN_ON_USE (pthread_cond_broadcast, "pthread_cond_broadcast is not portable
 #   undef pthread_cond_destroy
 #   define pthread_cond_destroy rpl_pthread_cond_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_cond_destroy, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_RPL (pthread_cond_destroy, int, (pthread_cond_t *cond),
                                              _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_cond_destroy, int, (pthread_cond_t *cond));
 # else
 #  if !@HAVE_PTHREAD_COND_DESTROY@
-_GL_FUNCDECL_SYS (pthread_cond_destroy, int, (pthread_cond_t *cond)
+_GL_FUNCDECL_SYS (pthread_cond_destroy, int, (pthread_cond_t *cond),
                                              _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_cond_destroy, int, (pthread_cond_t *cond));
@@ -1748,14 +1753,14 @@ _GL_WARN_ON_USE (pthread_cond_destroy, "pthread_cond_destroy is not portable - "
 #   define pthread_key_create rpl_pthread_key_create
 #  endif
 _GL_FUNCDECL_RPL (pthread_key_create, int,
-                  (pthread_key_t *keyp, void (*destructor) (void *))
+                  (pthread_key_t *keyp, void (*destructor) (void *)),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_key_create, int,
                   (pthread_key_t *keyp, void (*destructor) (void *)));
 # else
 #  if !@HAVE_PTHREAD_KEY_CREATE@
 _GL_FUNCDECL_SYS (pthread_key_create, int,
-                  (pthread_key_t *keyp, void (*destructor) (void *))
+                  (pthread_key_t *keyp, void (*destructor) (void *)),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS_CAST (pthread_key_create, int,
@@ -1779,13 +1784,13 @@ _GL_WARN_ON_USE (pthread_key_create, "pthread_key_create is not portable - "
 #   define pthread_setspecific rpl_pthread_setspecific
 #  endif
 _GL_FUNCDECL_RPL (pthread_setspecific, int,
-                  (pthread_key_t key, const void *value));
+                  (pthread_key_t key, const void *value), );
 _GL_CXXALIAS_RPL (pthread_setspecific, int,
                   (pthread_key_t key, const void *value));
 # else
 #  if !@HAVE_PTHREAD_SETSPECIFIC@
 _GL_FUNCDECL_SYS (pthread_setspecific, int,
-                  (pthread_key_t key, const void *value));
+                  (pthread_key_t key, const void *value), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_setspecific, int,
                   (pthread_key_t key, const void *value));
@@ -1807,11 +1812,11 @@ _GL_WARN_ON_USE (pthread_setspecific, "pthread_setspecific is not portable - "
 #   undef pthread_getspecific
 #   define pthread_getspecific rpl_pthread_getspecific
 #  endif
-_GL_FUNCDECL_RPL (pthread_getspecific, void *, (pthread_key_t key));
+_GL_FUNCDECL_RPL (pthread_getspecific, void *, (pthread_key_t key), );
 _GL_CXXALIAS_RPL (pthread_getspecific, void *, (pthread_key_t key));
 # else
 #  if !@HAVE_PTHREAD_GETSPECIFIC@
-_GL_FUNCDECL_SYS (pthread_getspecific, void *, (pthread_key_t key));
+_GL_FUNCDECL_SYS (pthread_getspecific, void *, (pthread_key_t key), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_getspecific, void *, (pthread_key_t key));
 # endif
@@ -1832,11 +1837,11 @@ _GL_WARN_ON_USE (pthread_getspecific, "pthread_getspecific is not portable - "
 #   undef pthread_key_delete
 #   define pthread_key_delete rpl_pthread_key_delete
 #  endif
-_GL_FUNCDECL_RPL (pthread_key_delete, int, (pthread_key_t key));
+_GL_FUNCDECL_RPL (pthread_key_delete, int, (pthread_key_t key), );
 _GL_CXXALIAS_RPL (pthread_key_delete, int, (pthread_key_t key));
 # else
 #  if !@HAVE_PTHREAD_KEY_DELETE@
-_GL_FUNCDECL_SYS (pthread_key_delete, int, (pthread_key_t key));
+_GL_FUNCDECL_SYS (pthread_key_delete, int, (pthread_key_t key), );
 #  endif
 _GL_CXXALIAS_SYS (pthread_key_delete, int, (pthread_key_t key));
 # endif
@@ -1860,14 +1865,14 @@ _GL_WARN_ON_USE (pthread_key_delete, "pthread_key_delete is not portable - "
 #   define pthread_spin_init rpl_pthread_spin_init
 #  endif
 _GL_FUNCDECL_RPL (pthread_spin_init, int,
-                  (pthread_spinlock_t *lock, int shared_across_processes)
+                  (pthread_spinlock_t *lock, int shared_across_processes),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_spin_init, int,
                   (pthread_spinlock_t *lock, int shared_across_processes));
 # else
 #  if !@HAVE_PTHREAD_SPIN_INIT@
 _GL_FUNCDECL_SYS (pthread_spin_init, int,
-                  (pthread_spinlock_t *lock, int shared_across_processes)
+                  (pthread_spinlock_t *lock, int shared_across_processes),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_spin_init, int,
@@ -1890,12 +1895,12 @@ _GL_WARN_ON_USE (pthread_spin_init, "pthread_spin_init is not portable - "
 #   undef pthread_spin_lock
 #   define pthread_spin_lock rpl_pthread_spin_lock
 #  endif
-_GL_FUNCDECL_RPL (pthread_spin_lock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_spin_lock, int, (pthread_spinlock_t *lock),
                                           _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_spin_lock, int, (pthread_spinlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_SPIN_LOCK@
-_GL_FUNCDECL_SYS (pthread_spin_lock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_spin_lock, int, (pthread_spinlock_t *lock),
                                           _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_spin_lock, int, (pthread_spinlock_t *lock));
@@ -1917,12 +1922,12 @@ _GL_WARN_ON_USE (pthread_spin_lock, "pthread_spin_lock is not portable - "
 #   undef pthread_spin_trylock
 #   define pthread_spin_trylock rpl_pthread_spin_trylock
 #  endif
-_GL_FUNCDECL_RPL (pthread_spin_trylock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_spin_trylock, int, (pthread_spinlock_t *lock),
                                              _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_spin_trylock, int, (pthread_spinlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_SPIN_TRYLOCK@
-_GL_FUNCDECL_SYS (pthread_spin_trylock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_spin_trylock, int, (pthread_spinlock_t *lock),
                                              _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_spin_trylock, int, (pthread_spinlock_t *lock));
@@ -1944,12 +1949,12 @@ _GL_WARN_ON_USE (pthread_spin_trylock, "pthread_spin_trylock is not portable - "
 #   undef pthread_spin_unlock
 #   define pthread_spin_unlock rpl_pthread_spin_unlock
 #  endif
-_GL_FUNCDECL_RPL (pthread_spin_unlock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_spin_unlock, int, (pthread_spinlock_t *lock),
                                             _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_spin_unlock, int, (pthread_spinlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_SPIN_UNLOCK@
-_GL_FUNCDECL_SYS (pthread_spin_unlock, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_spin_unlock, int, (pthread_spinlock_t *lock),
                                             _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_spin_unlock, int, (pthread_spinlock_t *lock));
@@ -1971,12 +1976,12 @@ _GL_WARN_ON_USE (pthread_spin_unlock, "pthread_spin_unlock is not portable - "
 #   undef pthread_spin_destroy
 #   define pthread_spin_destroy rpl_pthread_spin_destroy
 #  endif
-_GL_FUNCDECL_RPL (pthread_spin_destroy, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_RPL (pthread_spin_destroy, int, (pthread_spinlock_t *lock),
                                              _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (pthread_spin_destroy, int, (pthread_spinlock_t *lock));
 # else
 #  if !@HAVE_PTHREAD_SPIN_DESTROY@
-_GL_FUNCDECL_SYS (pthread_spin_destroy, int, (pthread_spinlock_t *lock)
+_GL_FUNCDECL_SYS (pthread_spin_destroy, int, (pthread_spinlock_t *lock),
                                              _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (pthread_spin_destroy, int, (pthread_spinlock_t *lock));
