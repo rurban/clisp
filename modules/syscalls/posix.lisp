@@ -320,7 +320,8 @@
 (unless (fboundp 'service)
 (defvar *services*)
 (defvar *services-file*
-  #+unix "/etc/services"
+  #+(and unix (not haiku)) "/etc/services"
+  #+haiku "/boot/system/settings/network/services"
   #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services")
   #-(or unix win32)
   (error "~S: only ~S and ~S are supported" '*services-file* :unix :win32))

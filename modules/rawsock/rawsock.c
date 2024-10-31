@@ -3,7 +3,7 @@
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
  * Sam Steingold 2004-2012, 2017
- * Bruno Haible 2004-2008
+ * Bruno Haible 2004-2008, 2024
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
 
@@ -564,7 +564,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 #endif  /* net/if.h */
 /* ================== ifaddrs.h interface ================== */
 #if defined(HAVE_NET_IF_H) && defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
-DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,default=(unsigned)~0,     \
+DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,default=~0L,              \
            :UP BROADCAST DEBUG LOOPBACK                                 \
            POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI        \
            OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC   \

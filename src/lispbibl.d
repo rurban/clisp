@@ -2535,9 +2535,9 @@ typedef enum {
   #if defined(UNIX_HAIKU) && defined(I80386)
     /* On Haiku/i386:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
-       CODE_ADDRESS_RANGE   = 0x00000000UL ... 0x02000000UL
+       CODE_ADDRESS_RANGE   = 0x00000000UL ... 0x03000000UL
        MALLOC_ADDRESS_RANGE = 0x18000000UL ... 0x19000000UL
-       SHLIB_ADDRESS_RANGE  = 0x00000000UL ... 0x02000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00000000UL ... 0x03000000UL
        STACK_ADDRESS_RANGE  = 0x70000000UL ... 0x73000000UL
        There is room from 0x1A000000UL to 0x60000000UL, but let's keep some
        distance. */
@@ -3694,7 +3694,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      regions that have been put there by the system.
      Also, it does not work on Linux/m68k when HEAPCODES is requested.
      Also, it does not work well on Haiku, where it sometimes produces messages
-     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument".
+     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument",
+     when more than ca. 500-600 VMAs are in use.
      Also, it does not work well on Cygwin, where it sometimes produces messages
      "Cannot map memory to address ...". */
   #ifndef TRIVIALMAP_MEMORY

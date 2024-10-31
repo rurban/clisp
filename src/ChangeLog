@@ -1,5 +1,15 @@
 2024-10-31  Bruno Haible  <bruno@clisp.org>
 
+	Improve port to Haiku/i386.
+	* lispbibl.d: Update comments.
+	* modules/syscalls/posix.lisp (*services-file*): Set differently on
+	Haiku.
+	* modules/regexp/test.tst: Update expected test result on Haiku.
+	* modules/rawsock/rawsock.c (IFF): Change default to ~0L. This fixes a
+	compilation error on Haiku in debug-gcsafety mode.
+
+2024-10-31  Bruno Haible  <bruno@clisp.org>
+
 	Update to the newest gnulib. This fixes the DEBUG_GCSAFETY builds.
 	Ran "make -f Makefile.devel build-aux-update gnulib-imported \
 	&& make -f Makefile.devel build-prerequisites".

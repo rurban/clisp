@@ -295,7 +295,7 @@ ERROR ; (")("): "Unmatched ( or \\("
 
 ;; the following 7 tests require locale=C
 (defparameter *saved-locale* (i18n:set-locale :all)) *saved-locale*
-(i18n:set-locale :all "C")      "C"
+(i18n:set-locale :all "C")      #-haiku "C" #+haiku "POSIX"
 (re-test "[ -~]*" "abc") ("abc")
 (re-test "[ -~ -~]*" "abc") ("abc")
 (re-test "[ -~ -~ -~]*" "abc") ("abc")
