@@ -1,5 +1,13 @@
 2024-10-31  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Haiku/i386.
+	* Makefile.devel (multibuild-haiku-32): Enable all build variants that
+	work.
+	* makemake.in (Z_XCFLAGS): For Haiku/i386, enable all optimizations
+	except ASM.
+
+2024-10-31  Bruno Haible  <bruno@clisp.org>
+
 	Improve port to Haiku/i386.
 	* lispbibl.d: Update comments.
 	* modules/syscalls/posix.lisp (*services-file*): Set differently on
