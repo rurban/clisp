@@ -1,5 +1,11 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	build: Build the clisp driver program without gnulib, part 2.
+	* makemake.in (install-bin): When building $(bindir)/clisp, use only the
+	user-provided options and -DLISPLIBDIR, -DLOCALEDIR.
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	Add user configuration for Haiku.
 	* cfghaiku.lisp: New file, based on cfgunix.lisp, with small changes by
 	Alexandru Popa <alpopa@gmail.com>.

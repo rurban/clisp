@@ -4137,7 +4137,7 @@ if [ $CROSS = false ] ; then
           ;;
       esac
     fi
-    echotab "\$(CC) \$(A_CPPFLAGS) \$(CPPFLAGS) \$(Z_CPPFLAGS) \$(A_CFLAGS) \$(CFLAGS) \$(Z_CFLAGS) \$(A_LDFLAGS) \$(LDFLAGS) \$(Z_LDFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c ${GLLIB_A} -o \$(DESTDIR)\$(bindir)/clisp"
+    echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(LDFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(elispdir)/$f"
