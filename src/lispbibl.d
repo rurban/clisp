@@ -2931,6 +2931,23 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_START 0x0000000200000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x00007FFEFFFFFFFFUL
   #endif
+  #if defined(UNIX_HAIKU) && defined(AMD64)
+    /* On Haiku/x86_64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x0000000000000000UL ... 0x000001FF00000000UL
+       MALLOC_ADDRESS_RANGE = 0x0000100000000000UL ... 0x000012FF00000000UL
+       SHLIB_ADDRESS_RANGE  = 0x0000000000000000UL ... 0x000001FF00000000UL
+       STACK_ADDRESS_RANGE  = 0x00007F0000000000UL ... 0x00007FFF00000000UL
+       There is room from 0x0000130000000000UL to 0x00007F0000000000UL, but let's keep some
+       distance. */
+    /* Force the same CODE_ADDRESS_RANGE across platforms. */
+    #if (CODE_ADDRESS_RANGE >= 0x0000000000000000UL && CODE_ADDRESS_RANGE < 0x0000020000000000UL)
+      #undef CODE_ADDRESS_RANGE
+      #define CODE_ADDRESS_RANGE 0x000001FF00000000UL
+    #endif
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000200000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x00006FFFFFFFFFFFUL
+  #endif
   #if defined(UNIX_CYGWIN) && defined(AMD64)
     /* On Cygwin, running on Windows 10:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
@@ -3550,6 +3567,14 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 40
     #define SINGLEMAP_WORKS 1
   #endif
+  #if defined(UNIX_HAIKU) && defined(AMD64) /* Haiku/x86_64 */
+    #define SINGLEMAP_ADDRESS_BASE 0x400000000000UL
+    #define SINGLEMAP_TYPE_MASK    0x1F8000000000UL
+    #define SINGLEMAP_oint_type_shift 39
+    /* Actually no such configuration works, because the CODE_ADDRESS_RANGE
+       consumes so many bits that we have at most 4+1 bits for the typecode. */
+    #define SINGLEMAP_WORKS 0
+  #endif
   #if defined(UNIX_CYGWIN) && defined(AMD64) /* Cygwin */
     #define SINGLEMAP_ADDRESS_BASE 0UL
     #define SINGLEMAP_TYPE_MASK    0x03F800000000UL
@@ -3680,7 +3705,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \
     && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
     && !(defined(UNIX_LINUX) && defined(M68K) && (defined(HEAPCODES) || defined(ONE_FREE_BIT_HEAPCODES))) \
-    && !defined(UNIX_HAIKU)                                                    \
+    && !(defined(UNIX_HAIKU) && defined(I80386))                               \
     && !defined(UNIX_CYGWIN)                                                   \
     && !defined(NO_TRIVIALMAP)
   /* mmap() allows for a more flexible way of memory management than malloc().
@@ -3693,8 +3718,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
      by mmapping the pages after it; but this might overwrite some small malloc
      regions that have been put there by the system.
      Also, it does not work on Linux/m68k when HEAPCODES is requested.
-     Also, it does not work well on Haiku, where it sometimes produces messages
-     such as "Cannot map memory to address 0x202a8000 ... Invalid Argument",
+     Also, it does not work well on Haiku/i386, where it sometimes produces
+     messages "Cannot map memory to address 0x202a8000 ... Invalid Argument",
      when more than ca. 500-600 VMAs are in use.
      Also, it does not work well on Cygwin, where it sometimes produces messages
      "Cannot map memory to address ...". */
@@ -5133,6 +5158,9 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
        !defined(UNIX_NETBSD)                                                  \
     && /* It does not work in QEMU user-mode. */                              \
        !((defined(UNIX_LINUX) && defined(HPPA)) || (defined(UNIX_LINUX) && defined(M68K))) \
+    && /* On Haiku, it causes a 20% slowdown in the benchmarks, instead of    \
+          a speedup. */                                                       \
+       !defined(UNIX_HAIKU)                                                   \
     && /* Generational GC is tricky stuff. Turn it off at safety 3. */        \
        (SAFETY < 3)                                                           \
     && /* The user can also turn off generational GC explicitly. */           \

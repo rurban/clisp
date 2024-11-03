@@ -1,5 +1,17 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	Enable most optimizations on Haiku/x86_64.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END,
+	SINGLEMAP_*): Define for Haiku/x86_64.
+	(TRIVIALMAP_MEMORY): Don't disable it by default on Haiku/x86_64.
+	(GENERATIONAL_GC): Don't enable it by default on Haiku.
+	* Makefile.devel (multibuild-haiku-64): Enable all build variants that
+	work.
+	* makemake.in (Z_XCFLAGS): For Haiku/x86_64, enable all optimizations
+	except ASM.
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	Improve port to Haiku/x86_64.
 	* stream.d (clear_tty_input, clear_tty_output): Ignore error code -1 on
 	Haiku.

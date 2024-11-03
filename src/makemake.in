@@ -1862,6 +1862,11 @@ else
         Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
+      # Haiku (64-bit)
+      haiku*--x86_64)
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
+        ;;
+
       # Cygwin, running on Windows 10
       cygwin--x86_64)
         Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
