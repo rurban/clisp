@@ -601,7 +601,11 @@ LISPFUNN(psleep,2)
       var struct timeval timeout; /* Zeitintervall */
       timeout.tv_sec = seconds; timeout.tv_usec = useconds;
       var int result;
+      #ifdef UNIX_HAIKU /* work around https://dev.haiku-os.org/ticket/19220 */
+      result = select(1,NULL,NULL,NULL,&timeout);
+      #else
       result = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
+      #endif
       if ((result<0) && !(errno==EINTR)) { end_blocking_call(); OS_error(); }
     }
    #else

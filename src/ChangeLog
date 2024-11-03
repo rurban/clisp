@@ -1,5 +1,13 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	Improve port to Haiku/x86_64.
+	* stream.d (clear_tty_input, clear_tty_output): Ignore error code -1 on
+	Haiku.
+	* time.d (SYS::%SLEEP): On Haiku, use a smaller first argument to
+	select().
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	Avoid a hang during configuration on Haiku.
 	* m4/mmap.m4 (CL_MMAP): Don't run the MAP_FIXED test on Haiku.
 

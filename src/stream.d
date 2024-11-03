@@ -3493,7 +3493,11 @@ local void clear_tty_input (Handle handle) {
   errno = saved_errno;
   #endif
   if (!(ret==0)) {
-    if (!((errno==ENOTTY)||(errno==EINVAL))) { /* no TTY: OK */
+    if (!((errno==ENOTTY)||(errno==EINVAL) /* no TTY: OK */
+          #if defined(UNIX_HAIKU)
+          ||(errno==B_ERROR)
+          #endif
+       ) ) {
       local bool flag = false;
       /* report other Error, but only once */
       if (!flag) { flag = true; OS_error(); }
@@ -3593,8 +3597,12 @@ local void clear_tty_output (Handle handle) {
   begin_system_call();
  #ifdef UNIX_TERM_TERMIOS
   if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
-    if (!((errno==ENOTTY)||IS_EINVAL))
-      { OS_error(); } /* no TTY: OK, report other Error */
+    if (!((errno==ENOTTY)||IS_EINVAL /* no TTY: OK */
+          #if defined(UNIX_HAIKU)
+          ||(errno==B_ERROR)
+          #endif
+       ) )
+      { OS_error(); } /* report other Error */
   }
  #endif
   end_system_call();
