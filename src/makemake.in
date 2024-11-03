@@ -3221,7 +3221,10 @@ echol "marc.out : lisp${LEXE}"
 echotab "${HERE}lisp${LEXE} -marc > marc.out"
 echol
 
-CONFIG=cfg${TOS}
+case "$host_os" in
+  haiku*) CONFIG=cfghaiku ;;
+  *)      CONFIG=cfg${TOS} ;;
+esac
 echol "config.lisp : ${SRCDIR}${CONFIG}.lisp"
 echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp config.lisp"
 if [ $TOS = unix ] ; then

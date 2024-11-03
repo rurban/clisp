@@ -1,5 +1,12 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	Add user configuration for Haiku.
+	* cfghaiku.lisp: New file, based on cfgunix.lisp, with small changes by
+	Alexandru Popa <alpopa@gmail.com>.
+	* makemake.in (CONFIG): Use it on Haiku.
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	Enable most optimizations on Haiku/x86_64.
 	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END,
 	SINGLEMAP_*): Define for Haiku/x86_64.
