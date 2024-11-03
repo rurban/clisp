@@ -27,7 +27,9 @@
 (defun edit-file (file)
   "(edit-file file) edits a file."
   (open file :direction :probe :if-does-not-exist :create)
-  (shell (format nil "~A ~A" (editor-name) (truename file))))
+  (let ((editor (editor-name)))
+    (shell (format nil "~A ~A ~A" editor (truename file)
+                   (if (starts-with-p editor "/boot/system/apps/") "&" "")))))
 
 (defun editor-tempfile ()
   "The temporary file LISP creates for editing."
@@ -46,7 +48,7 @@
 (setq *parse-namestring-dot-file* :name)
 
 ;; which browser do you use? (see `*browsers*' in clhs.lisp)
-(setq *browser* "/boot/system/apps/WebPositive")
+(setq *browser* :webpositive)
 
 (defvar *impnotes-root-default* "http://clisp.org/impnotes/")
 (defun impnotes-root ()

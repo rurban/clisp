@@ -1,5 +1,5 @@
 ;;; Sam Steingold 2000-2008, 2010-2011, 2017-2018
-;;; Bruno Haible 2017
+;;; Bruno Haible 2017, 2024
 ;;; This file is a part of CLISP (http://clisp.org), and, as such,
 ;;; is distributed under the GNU GPL v2+ (http://www.gnu.org/copyleft/gpl.html)
 
@@ -23,6 +23,7 @@
     (:firefox-window "firefox" "-new-window" "~a")
     (:firefox-tab "firefox" "-new-tab" "~a")
     (:konqueror "kfmclient" "openURL" "~a")
+    #+haiku (:webpositive "/boot/system/apps/WebPositive" "~a")
     (:lynx "lynx" "~a")
     #+unix (:lynx-xterm "xterm" "-e" "lynx" "~a")
     (:links "links" "~a")

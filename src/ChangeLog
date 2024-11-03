@@ -1,5 +1,12 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	Add user configuration for Haiku, part 2.
+	* clhs.lisp (*browsers): Add :webpositive.
+	* cfghaiku.lisp (edit-file): Start the Haiku UI editor in the background.
+	(*browser*): Set to a keyword, not a string.
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	Bump version number.
 	* version.sh: Bump version number to 2.49.95+.
 	* version.h, src/configure: Regenerated.
