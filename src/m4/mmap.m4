@@ -14,6 +14,7 @@ AC_DEFUN([CL_MMAP],
 [
   AC_BEFORE([$0], [CL_MUNMAP])
   AC_BEFORE([$0], [CL_MPROTECT])
+  AC_REQUIRE([AC_CANONICAL_HOST])
   AC_CHECK_HEADER([sys/mman.h], [], [no_mmap=1])
   if test -z "$no_mmap"; then
     AC_CHECK_FUNC([mmap], [], [no_mmap=1])
@@ -25,78 +26,86 @@ AC_DEFUN([CL_MMAP],
       dnl Therefore here we try whether it works at least for *some* addresses.
       dnl The determination of the mmapable address ranges is done later.
       AC_CACHE_CHECK([for mmap at fixed addresses], [cl_cv_func_mmap_fixed],
-        [mmap_prog_1='
-              #include <stdlib.h>
-              #ifdef HAVE_UNISTD_H
-               #include <unistd.h>
-              #endif
-              #include <fcntl.h>
-              #include <sys/types.h>
-              #include <sys/mman.h>
-              int main ()
-              {
-              '
-         mmap_prog_2='
-                {
-                  unsigned long my_size = 32768; /* hope that 32768 is a multiple of the page size */
-                  unsigned int successful_calls = 0;
-                  unsigned long addr;
-                  for (addr = 0x01230000UL;;)
+        [case "$host_os" in
+           haiku*)
+             dnl On Haiku, the test program below sometimes hangs.
+             cl_cv_func_mmap_fixed="guessing yes (MAP_ANON,MAP_ANONYMOUS)"
+             ;;
+           *)
+             mmap_prog_1='
+                  #include <stdlib.h>
+                  #ifdef HAVE_UNISTD_H
+                   #include <unistd.h>
+                  #endif
+                  #include <fcntl.h>
+                  #include <sys/types.h>
+                  #include <sys/mman.h>
+                  int main ()
+                  {
+                  '
+             mmap_prog_2='
                     {
-                      if (mmap((void*)(addr & -my_size),my_size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) != (void*)-1)
+                      unsigned long my_size = 32768; /* hope that 32768 is a multiple of the page size */
+                      unsigned int successful_calls = 0;
+                      unsigned long addr;
+                      for (addr = 0x01230000UL;;)
                         {
-                          /* Require at least 2 successful mmap calls.  This avoids
-                             spurious success on HP-UX IA-64 with 32-bit ABI. */
-                          if (++successful_calls >= 2)
-                            exit(0);
+                          if (mmap((void*)(addr & -my_size),my_size,PROT_READ|PROT_WRITE,flags|MAP_FIXED,fd,0) != (void*)-1)
+                            {
+                              /* Require at least 2 successful mmap calls.  This avoids
+                                 spurious success on HP-UX IA-64 with 32-bit ABI. */
+                              if (++successful_calls >= 2)
+                                exit(0);
+                            }
+                          {
+                            unsigned long next_addr = (unsigned long)((double)addr * 1.94);
+                            if (next_addr <= addr) break;
+                            addr = next_addr;
+                          }
                         }
-                      {
-                        unsigned long next_addr = (unsigned long)((double)addr * 1.94);
-                        if (next_addr <= addr) break;
-                        addr = next_addr;
-                      }
+                      exit(1);
                     }
-                  exit(1);
-                }
-              }
+                  }
               '
-         succeeded=
-         AC_RUN_IFELSE(
-           [AC_LANG_SOURCE([GL_NOCRASH[
-              $mmap_prog_1
-                int flags = MAP_ANON | MAP_PRIVATE;
-                int fd = -1;
-                nocrash_init();
-              $mmap_prog_2
-           ]])],
-           [succeeded="$succeeded"${succeeded:+,}"MAP_ANON"],
-           [],
-           [: # When cross-compiling, don't assume anything.])
-         AC_RUN_IFELSE(
-           [AC_LANG_SOURCE([GL_NOCRASH[
-              $mmap_prog_1
-                int flags = MAP_ANONYMOUS | MAP_PRIVATE;
-                int fd = -1;
-                nocrash_init();
-              $mmap_prog_2
-           ]])],
-           [succeeded="$succeeded"${succeeded:+,}"MAP_ANONYMOUS"],
-           [],
-           [: # When cross-compiling, don't assume anything.])
-         if test -n "$succeeded"; then
-           cl_cv_func_mmap_fixed="yes ($succeeded)"
-         else
-           cl_cv_func_mmap_fixed=no
-         fi
+             succeeded=
+             AC_RUN_IFELSE(
+               [AC_LANG_SOURCE([GL_NOCRASH[
+                  $mmap_prog_1
+                    int flags = MAP_ANON | MAP_PRIVATE;
+                    int fd = -1;
+                    nocrash_init();
+                  $mmap_prog_2
+               ]])],
+               [succeeded="$succeeded"${succeeded:+,}"MAP_ANON"],
+               [],
+               [: # When cross-compiling, don't assume anything.])
+             AC_RUN_IFELSE(
+               [AC_LANG_SOURCE([GL_NOCRASH[
+                  $mmap_prog_1
+                    int flags = MAP_ANONYMOUS | MAP_PRIVATE;
+                    int fd = -1;
+                    nocrash_init();
+                  $mmap_prog_2
+               ]])],
+               [succeeded="$succeeded"${succeeded:+,}"MAP_ANONYMOUS"],
+               [],
+               [: # When cross-compiling, don't assume anything.])
+             if test -n "$succeeded"; then
+               cl_cv_func_mmap_fixed="yes ($succeeded)"
+             else
+               cl_cv_func_mmap_fixed=no
+             fi
+             ;;
+         esac
         ])
       succeeded=`echo "$cl_cv_func_mmap_fixed" | LC_ALL=C tr '()' ',,'`
       case "$succeeded" in
-        yes*,MAP_ANON,* )
+        *yes*,MAP_ANON,* )
           AC_DEFINE([HAVE_MMAP_ANON],,[<sys/mman.h> defines MAP_ANON and mmaping with MAP_FIXED | MAP_ANON works])
           ;;
       esac
       case "$succeeded" in
-        yes*,MAP_ANONYMOUS,* )
+        *yes*,MAP_ANONYMOUS,* )
           AC_DEFINE([HAVE_MMAP_ANONYMOUS],,[<sys/mman.h> defines MAP_ANONYMOUS and mmaping with MAP_FIXED | MAP_ANONYMOUS works])
           ;;
       esac
@@ -104,7 +113,7 @@ AC_DEFUN([CL_MMAP],
   fi
 
   case "$cl_cv_func_mmap_fixed" in
-    yes*)
+    *yes*)
       dnl For SINGLEMAP_MEMORY and the TYPECODES object representation:
       dnl Test which is the highest bit number < 63 (or < 31) at which the kernel
       dnl allows us to mmap memory with MAP_FIXED. That is, try

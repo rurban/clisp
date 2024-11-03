@@ -1,3 +1,8 @@
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
+	Avoid a hang during configuration on Haiku.
+	* m4/mmap.m4 (CL_MMAP): Don't run the MAP_FIXED test on Haiku.
+
 2024-10-31  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on Haiku/i386.
