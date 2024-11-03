@@ -1,5 +1,11 @@
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
+	Bump version number.
+	* version.sh: Bump version number to 2.49.95+.
+	* version.h, src/configure: Regenerated.
+
+2024-11-03  Bruno Haible  <bruno@clisp.org>
+
 	build: Build the clisp driver program without gnulib, part 2.
 	* makemake.in (install-bin): When building $(bindir)/clisp, use only the
 	user-provided options and -DLISPLIBDIR, -DLOCALEDIR.
