@@ -1,3 +1,8 @@
+2024-11-07  Bruno Haible  <bruno@clisp.org>
+
+	Update the GPL text.
+	* GNU-GPL: Update from <https://ftp.gnu.org/gnu/Licenses/gpl-2.0.txt>.
+
 2024-11-03  Bruno Haible  <bruno@clisp.org>
 
 	Add user configuration for Haiku, part 2.
