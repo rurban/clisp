@@ -1,6 +1,7 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
  * Copyright (C) 2003-2012 by Sam Steingold
+ * Copyright (C) 2024 Bruno Haible
  */
 
 #include "clisp.h"
@@ -2752,8 +2753,9 @@ DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
   u_int32_t tx_max;
   DB_PREPLIST *preplist;
-  int status, ii;
-  u_int32_t retnum;
+  int status;
+  long retnum;
+  long ii;
   SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
   preplist = (DB_PREPLIST*)clisp_malloc(tx_max * sizeof(DB_PREPLIST));
   begin_blocking_system_call();

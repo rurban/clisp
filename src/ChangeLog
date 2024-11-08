@@ -1,5 +1,13 @@
 2024-11-08  Bruno Haible  <bruno@clisp.org>
 
+	berkeley-db: Fix BDB:TXN-RECOVER on 64-bit platforms.
+	Reported by Jerry James in
+	<https://gitlab.com/gnu-clisp/clisp/-/merge_requests/9>.
+	* modules/berkeley-db/bdb.c (BDB:TXN-RECOVER): Change type of local
+	variables.
+
+2024-11-08  Bruno Haible  <bruno@clisp.org>
+
 	berkeley-db: Fix configure test.
 	Reported by Florian Weimer in
 	<https://gitlab.com/gnu-clisp/clisp/-/merge_requests/8>.
