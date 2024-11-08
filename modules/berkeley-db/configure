@@ -6241,7 +6241,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main (void)
 {
-DB db; db.stat(&db,NULL,0,NULL);
+DB db; db.stat(&db,NULL,NULL,0);
   ;
   return 0;
 }

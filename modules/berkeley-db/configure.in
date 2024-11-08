@@ -1,5 +1,6 @@
 dnl AUTOCONF configuration for Berkeley-DB
 dnl Copyright (C) 2003-2012 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2024 Bruno Haible <bruno@clisp.org>
 dnl GNU GPL2+
 
 AC_PREREQ([2.64])
@@ -35,10 +36,10 @@ fi
 AC_CHECK_SIZEOF(db_recno_t,,[#include <stdio.h>
 #include <db.h>])
 
-dnl <http://www.sleepycat.com/docs/ref/upgrade.4.3/stat.html>
+dnl See db-5.3.28/docs/upgrading/upgrade_4_3_stat.html.
 AC_CACHE_CHECK([whether DB->stat() accepts TXNid],ac_cv_db_stat_accept_txn,[
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <db.h>],
-[[DB db; db.stat(&db,NULL,0,NULL);]])],
+[[DB db; db.stat(&db,NULL,NULL,0);]])],
 ac_cv_db_stat_accept_txn=yes,ac_cv_db_stat_accept_txn=no)])
 if test "$ac_cv_db_stat_accept_txn" = "yes"; then
 AC_DEFINE(HAVE_DB_STAT_ACCEPT_TXN,1,[Define to 1 if DB->stat() accepts TXNid])
