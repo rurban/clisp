@@ -6241,7 +6241,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main (void)
 {
-DB db; db.stat(&db,NULL,NULL,0);
+DB *db; db_create(&db,NULL,0); db->stat(db,NULL,NULL,0);
   ;
   return 0;
 }
@@ -6280,7 +6280,7 @@ void my_callback (const DB_ENV* dbe, const char *errpfx, const char *msg) {}
 int
 main (void)
 {
-DB_ENV dbe; dbe.set_errcall(&dbe,&my_callback);
+DB_ENV *dbe; db_env_create(&dbe,0); dbe->set_errcall(dbe,&my_callback);
   ;
   return 0;
 }
@@ -6317,7 +6317,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main (void)
 {
-DB db; db.get_transactional(&db);
+DB *db; db_create(&db,NULL,0); db->get_transactional(db);
   ;
   return 0;
 }
