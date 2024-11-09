@@ -1,5 +1,11 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	doc: Comments about quality checking.
+	* Makefile.devel (view-man): Use -Tutf8 nowadays.
+	* doc/Makefile: Add comments.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	syscalls tests: Don't assume that errno values are small. For Hurd/i386.
 	* modules/syscalls/test.tst: Start checking the errno values at the
 	minimum valid errno, not at 0.

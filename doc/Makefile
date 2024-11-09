@@ -205,9 +205,14 @@ clisp-link.html: clisp-link.xml $(GEN_DEPS) pile.xsl $(OLINK)
 clisp-link.1: clisp-link.xml $(GEN_DEPS) man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_CLK) -o $@ man.xsl $<
 
+# Generates _clisp.html from clisp.html.
+# For quality checking of _clisp.html, use "make -f Makefile.devel view-html".
 _%.html: %.html
 	sed $(SGML_UNCOMMENT) $< > $@
 
+# Generates _clisp.1 from clisp.1.
+# For quality checking of _clisp.1, use "make -f Makefile.devel view-man"
+# or "groff -man -Tutf8 _clisp.1 | less -R".
 _%.1: %.1
 	sed $(ROFF_UNCOMMENT) $< > $@
 
