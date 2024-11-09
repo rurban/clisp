@@ -1,5 +1,11 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Revisit list of predefined browsers.
+	* clhs.lisp (*browsers*): Add :falkon, :falkon-window, :falkon-tab,
+	:tor, :gnome, :sensible-browser. Change :chromium. Remove :mmm, :mosaic.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	build: Build genclx without gnulib.
 	Reported by Peter Van Eynde in
 	<https://gitlab.com/gnu-clisp/clisp/-/issues/53>.
