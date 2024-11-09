@@ -1,5 +1,10 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	doc: Don't require an internet connection to build the doc.
+	* doc/gpl-2.0.dbk: Fix a syntax error.
+	* doc/impnotes.xml.in: Include fdl-1.3.dbk, gpl-2.0.dbk directly.
+	* doc/impnotes.html: Regenerated.
+
 	doc: Use a local copy of the GFDL and GPL licenses.
 	* doc/fdl-1.3.dbk: New file, from
 	https://www.gnu.org/licenses/fdl-1.3.dbk.
