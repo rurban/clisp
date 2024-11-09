@@ -189,6 +189,12 @@ DOC_MAN = --stringparam current.docid "man"
 DOC_CLK = --stringparam current.docid "clink"
 DOC_IMP = --stringparam current.docid "impnotes"
 
+# Post-processing of man.xsl output.
+# <https://sourceforge.net/p/clisp/bugs/748/>
+# <https://bugs.launchpad.net/ubuntu/+source/clisp/+bug/2022970>
+# <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1041788>
+MAN_XSL_POSTPROCESS = sed -i -e 's/\(.\)\.PP/\1\n.PP/g'
+
 CHECK_IDS = if egrep -Hnr 'id="id[0-9]*"' $@; then exit 1; else true; fi
 
 clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
@@ -197,6 +203,7 @@ clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
 
 clisp.1: clisp.xml $(GEN_DEPS) man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
+	$(MAN_XSL_POSTPROCESS) $@
 
 clisp-link.html: clisp-link.xml $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_CLK) -o $@ pile.xsl $<
@@ -204,6 +211,7 @@ clisp-link.html: clisp-link.xml $(GEN_DEPS) pile.xsl $(OLINK)
 
 clisp-link.1: clisp-link.xml $(GEN_DEPS) man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_CLK) -o $@ man.xsl $<
+	$(MAN_XSL_POSTPROCESS) $@
 
 # Generates _clisp.html from clisp.html.
 # For quality checking of _clisp.html, use "make -f Makefile.devel view-html".

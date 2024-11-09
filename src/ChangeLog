@@ -1,5 +1,15 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	doc: Add missing line breaks before .PP.
+	Reported by Erik Auerswald <auerswal@unix-ag.uni-kl.de> in
+	<https://sourceforge.net/p/clisp/bugs/748/>
+	<https://bugs.launchpad.net/ubuntu/+source/clisp/+bug/2022970>
+	<https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1041788>
+	* doc/Makefile (MAN_XSL_POSTPROCESS): New variable.
+	(clisp.1, clisp-link.1): Use it for post-processing.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	doc: Comments about quality checking.
 	* Makefile.devel (view-man): Use -Tutf8 nowadays.
 	* doc/Makefile: Add comments.
