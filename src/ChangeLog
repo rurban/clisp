@@ -1,5 +1,11 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	syscalls tests: Don't assume that errno values are small. For Hurd/i386.
+	* modules/syscalls/test.tst: Start checking the errno values at the
+	minimum valid errno, not at 0.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	Fix memory mapping on Hurd from 2021 or newer.
 	Reported by Flavio Cruz in
 	<https://gitlab.com/gnu-clisp/clisp/-/merge_requests/6>.

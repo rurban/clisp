@@ -594,10 +594,13 @@ T
 
 ;; unknown errnos are reported differently on different platforms.
 ;; linux: "unknown error 47"
+;; hurd: "Unknown error (os/?) 34742"
+;;       or "(system kern) error with unknown subsystem"
 ;; cygwin: "error 47"
 ;; win32: some localized abomination
 (loop :with all = (os:errno t)
-  :for e :from 0 :to (loop :for p :in all :for e = (car p) :maximize e)
+  :for e :from (loop :for p :in all :for e = (car p) :minimize e)
+         :to   (loop :for p :in all :for e = (car p) :maximize e)
   :do (print (list e (os:errno e) (os:strerror)))
   :finally (os:errno nil))
 ()
