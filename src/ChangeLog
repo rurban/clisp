@@ -1,5 +1,14 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	build: Build genclx without gnulib.
+	Reported by Peter Van Eynde in
+	<https://gitlab.com/gnu-clisp/clisp/-/issues/53>.
+	* modules/clx/new-clx/Makefile.in (BUILD_CC, BUILD_CPPFLAGS,
+	BUILD_CFLAGS, BUILD_LDFLAGS): New variables.
+	(clx.d): Use them to compile genclx.c.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	berkeley-db: Fix configure test.
 	* modules/berkeley-db/configure.in: Avoid using uninitialized variables
 	in test programs, especially with -Werror.
