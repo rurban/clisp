@@ -1,5 +1,6 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2011 Sam Steingold
+# (C) 2000-2011 Sam Steingold
+# (C) 2024 Bruno Haible
 
 # To generate HTML, you will need xsltproc & xmllint from the libxml2
 # (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
@@ -13,7 +14,7 @@ DTDVER=4.5
 # all included XML files
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml faq.xml \
-	history.xml \
+	history.xml fdl-1.3.dbk gpl-2.0.dbk \
 	../modules/asdf/asdf.xml	        \
 	../modules/berkeley-db/berkeley-db.xml	\
 	../modules/berkeley-db/ent-bdb.xml	\

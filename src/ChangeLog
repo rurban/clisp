@@ -1,5 +1,14 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	doc: Use a local copy of the GFDL and GPL licenses.
+	* doc/fdl-1.3.dbk: New file, from
+	https://www.gnu.org/licenses/fdl-1.3.dbk.
+	* doc/gpl-2.0.dbk: New file, from
+	https://www.gnu.org/licenses/old-licenses/gpl-2.0.dbk.
+	* doc/Makefile (IMPNOTES): Add them.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	doc: Don't use undocumented groff man macro 'an-trap'.
 	* doc/Makefile (MAN_XSL_POSTPROCESS): Replace 'an-trap' with
 	'an-input-trap'.
