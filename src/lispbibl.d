@@ -2366,13 +2366,15 @@ typedef enum {
     /* On Hurd/i386:
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 30
        CODE_ADDRESS_RANGE   = 0x00000000UL or 0x08000000UL
-       MALLOC_ADDRESS_RANGE = 0x08000000UL
+       MALLOC_ADDRESS_RANGE = 0x08000000UL or 0x10000000UL or 0x20000000UL
+       (after <https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=8c6beab4>
+        and   <https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=35cf8a85>)
        SHLIB_ADDRESS_RANGE  = 0x01000000UL
        STACK_ADDRESS_RANGE  = 0x01000000UL
        Addresses >= 0xC0000000UL are not mmapable.
-       There is room from 0x11000000UL to 0xBFFFFFFFUL, but let's keep some
+       There is room from 0x30000000UL to 0xBFFFFFFFUL, but let's keep some
        distance. */
-    #define MAPPABLE_ADDRESS_RANGE_START 0x18000000UL
+    #define MAPPABLE_ADDRESS_RANGE_START 0x40000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0xBFFFFFFFUL
   #endif
   #if (defined(__FreeBSD__) || defined(UNIX_GNU_FREEBSD)) && defined(I80386)

@@ -1,5 +1,12 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Fix memory mapping on Hurd from 2021 or newer.
+	Reported by Flavio Cruz in
+	<https://gitlab.com/gnu-clisp/clisp/-/merge_requests/6>.
+	* lispbibl.d (MAPPABLE_ADDRESS_RANGE_START): Change for Hurd/i386.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	Revisit list of predefined browsers.
 	* clhs.lisp (*browsers*): Add :falkon, :falkon-window, :falkon-tab,
 	:tor, :gnome, :sensible-browser. Change :chromium. Remove :mmm, :mosaic.
