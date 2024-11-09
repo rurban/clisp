@@ -1,11 +1,22 @@
-# Makefile for CLISP module set clx
+# Makefile for CLISP module set new-clx
 
 srcdir = @srcdir@
+
+# These variables are used to build binaries for the build platform,
+# that are not linked to Gnulib or CLISP code.
+BUILD_CC = @CC@
+BUILD_CPPFLAGS = @CPPFLAGS@
+BUILD_CFLAGS = @CFLAGS@
+BUILD_LDFLAGS = @LDFLAGS@
+
+# These variables are used to build binaries for the target platform.
+# They are set through link.sh (invoked from clisp-link).
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
 CLISP = @CLISP@ -norc -q
 CLISP_LINKKIT = @CLISP_LINKKIT@
+
 LN = @LN@
 LN_S = @LN_S@
 SHELL = /bin/sh
@@ -35,7 +46,7 @@ resource.fas: $(srcdir)/resource.lisp clx.lib
 
 clx.d: $(srcdir)/clx.f
 	$(CCMP2C) $(srcdir)/clx.f > genclx.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(WANTS) genclx.c -o genclx
+	$(BUILD_CC) $(BUILD_CPPFLAGS) $(WANTS) $(BUILD_CFLAGS) $(BUILD_LDFLAGS) -o genclx genclx.c
 	./genclx -l -o clx.d > clx.d
 	$(RM) genclx.c
 	$(RM) genclx
