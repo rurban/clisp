@@ -190,10 +190,13 @@ DOC_CLK = --stringparam current.docid "clink"
 DOC_IMP = --stringparam current.docid "impnotes"
 
 # Post-processing of man.xsl output.
+# Add a newline before .PP, see
 # <https://sourceforge.net/p/clisp/bugs/748/>
 # <https://bugs.launchpad.net/ubuntu/+source/clisp/+bug/2022970>
 # <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1041788>
-MAN_XSL_POSTPROCESS = sed -i -e 's/\(.\)\.PP/\1\n.PP/g'
+# Replace old 'an-trap' with newer 'an-input-trap' (no visible effect), see
+# <https://savannah.gnu.org/bugs/?61002>.
+MAN_XSL_POSTPROCESS = sed -i -e 's/\(.\)\.PP/\1\n.PP/g' -e 's/an-trap/an-input-trap/'
 
 CHECK_IDS = if egrep -Hnr 'id="id[0-9]*"' $@; then exit 1; else true; fi
 

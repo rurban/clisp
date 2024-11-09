@@ -1,5 +1,11 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	doc: Don't use undocumented groff man macro 'an-trap'.
+	* doc/Makefile (MAN_XSL_POSTPROCESS): Replace 'an-trap' with
+	'an-input-trap'.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	doc: Add missing line breaks before .PP.
 	Reported by Erik Auerswald <auerswal@unix-ag.uni-kl.de> in
 	<https://sourceforge.net/p/clisp/bugs/748/>
