@@ -43,28 +43,6 @@
       we must use SINGLEMAP_MEMORY */
   #endif
 #endif
-#ifdef HAVE_MACH_VM /* vm_allocate(), mach_task_self(), ... available */
-  /* the headers for UNIX_NEXTSTEP must look indescribable ... */
-  #undef local
-  #include <mach/mach_interface.h> /* for vm_allocate() */
-  #include <mach/mach_init.h> /* for mach_task_self() */
-  /* #include <mach/mach.h> */
-  #include <mach/mach_traps.h> /* for map_fd() */
-  #include <mach/machine/vm_param.h>
-  #define local static
-  /* thus one can use mmap(), munmap() und mprotect(). see spvw.d. */
-  #define HAVE_MMAP
-  #define HAVE_MUNMAP
-  #define HAVE_WORKING_MPROTECT
-  /* We assume the following types are effectively the same:
-       vm_address_t and void*
-       vm_size_t and size_t
-   */
-  #define PROT_NONE  0
-  #define PROT_READ  VM_PROT_READ
-  #define PROT_WRITE VM_PROT_WRITE
-  #define PROT_EXEC  VM_PROT_EXECUTE
-#endif
 #ifdef HAVE_MMAP
   /* extern_C void* mmap (void* addr, size_t len, int prot, int flags, int fd, off_t off); */ /* MMAP(2) */
 #endif

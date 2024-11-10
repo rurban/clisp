@@ -1071,9 +1071,6 @@
 /* Define to 1 if you have the <mach/mach.h> header file. */
 #undef HAVE_MACH_MACH_H
 
-/* have vm_allocate() and task_self() functions */
-#undef HAVE_MACH_VM
-
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 

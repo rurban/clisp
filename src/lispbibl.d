@@ -3662,8 +3662,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    an influence on oint_type_shift and oint_type_len.  */
 #if !defined(HEAPCODES)                                                        \
     && !defined(WIDE_SOFT)                                                     \
-    && (defined(HAVE_MMAP_ANON)                                                \
-        || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                    \
+    && (defined(HAVE_MMAP_ANON) || defined(HAVE_WIN32_VM))                     \
     && !defined(NO_ADDRESS_SPACE_ASSUMPTIONS)                                  \
     && !defined(ADDRESS_RANGE_RANDOMIZED)                                      \
     && defined(WIDE_HARD)                                                      \
@@ -3700,8 +3699,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
    (and, with it, TRIVIALMAP_MEMORY_STACK) constrain the addresses used for
    heap objects and for the stack and thus give more freedom for choosing
    oint_type_shift and oint_type_len.  */
-#if (defined(HAVE_MMAP_ANON)                                                   \
-     || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))                       \
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_WIN32_VM))                        \
     && !defined(SINGLEMAP_MEMORY)                                              \
     && defined(MAPPABLE_ADDRESS_RANGE_START)                                   \
     && defined(MAPPABLE_ADDRESS_RANGE_END)                                     \

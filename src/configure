@@ -64544,49 +64544,6 @@ printf "%s\n" "#define HAVE_VADVISE /**/" >>confdefs.h
 
 
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for vm_allocate" >&5
-printf %s "checking for vm_allocate... " >&6; }
-if test ${cl_cv_func_vm+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <mach/mach_init.h>
-     #include <mach/mach_interface.h>
-
-int
-main (void)
-{
-vm_allocate(mach_task_self(),NULL,0,0);
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  cl_cv_func_vm=yes
-else case e in #(
-  e) cl_cv_func_vm=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $cl_cv_func_vm" >&5
-printf "%s\n" "$cl_cv_func_vm" >&6; }
-  if test $cl_cv_func_vm = yes
-then :
-
-printf "%s\n" "#define HAVE_MACH_VM /**/" >>confdefs.h
-
-fi
-
-
-
-
-
 
   ac_fn_c_check_header_compile "$LINENO" "sys/mman.h" "ac_cv_header_sys_mman_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_mman_h" = xyes

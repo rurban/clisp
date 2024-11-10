@@ -267,7 +267,7 @@ local void dump_process_memory_map (FILE* out)
 local int mappable_address_range_check (void)
 {
   var int exitcode = 0;
-#if defined(HAVE_MMAP_ANON) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+#if defined(HAVE_MMAP_ANON) || defined(HAVE_WIN32_VM)
  #if defined(MAPPABLE_ADDRESS_RANGE_START) && defined(MAPPABLE_ADDRESS_RANGE_END)
   var const uintL count = 256;
   var uintL i;
@@ -3097,7 +3097,7 @@ local inline int init_memory (struct argv_initparams *p) {
   }
   /* fetch memory: */
   begin_system_call();
- #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
+ #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_WIN32_VM))
   mmap_init_pagesize();
  #endif
  #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)

@@ -1,5 +1,16 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	Remove support for Mach systems without mmap.
+	This fixes a compilation error on Mac OS X caused by the last commit.
+	* lispbibl.d: Remove HAVE_MACH_VM specific code.
+	* unix.d: Likewise.
+	* spvw.d, spvw_mmap.d: Likewise.
+	* configure.in: Don't invoke CL_MACH_VM.
+	* m4/mach-vm.m4: Remove file.
+	* aclocal.m4, src/config*, src/gllib/Makefile.in: Regenerated.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	On Mach, use mach_task_self() instead of task_self().
 	Reported by Florian Weimer in
 	<https://gitlab.com/gnu-clisp/clisp/-/issues/42>.
