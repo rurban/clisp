@@ -43,10 +43,11 @@
       we must use SINGLEMAP_MEMORY */
   #endif
 #endif
-#ifdef HAVE_MACH_VM /* vm_allocate(), task_self(), ... available */
+#ifdef HAVE_MACH_VM /* vm_allocate(), mach_task_self(), ... available */
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */
   #undef local
-  #include <mach/mach_interface.h>
+  #include <mach/mach_interface.h> /* for vm_allocate() */
+  #include <mach/mach_init.h> /* for mach_task_self() */
   /* #include <mach/mach.h> */
   #include <mach/mach_traps.h> /* for map_fd() */
   #include <mach/machine/vm_param.h>

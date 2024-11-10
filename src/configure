@@ -64552,11 +64552,13 @@ then :
 else case e in #(
   e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+#include <mach/mach_init.h>
+     #include <mach/mach_interface.h>
 
 int
 main (void)
 {
-vm_allocate(); task_self();
+vm_allocate(mach_task_self(),NULL,0,0);
   ;
   return 0;
 }

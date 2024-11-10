@@ -1,5 +1,17 @@
 2024-11-09  Bruno Haible  <bruno@clisp.org>
 
+	On Mach, use mach_task_self() instead of task_self().
+	Reported by Florian Weimer in
+	<https://gitlab.com/gnu-clisp/clisp/-/issues/42>.
+	* m4/mach-vm.m4 (CL_MACH_VM): Use mach_task_self() and include the
+	appropriate Mach headers.
+	* unix.d [HAVE_MACH_VM]: Include <mach/mach_init.h>.
+	* spvw_mmap.d (mmap_zeromap, mmap_filemap, munmap, mprotect): Use
+	mach_task_self() instead of task_self().
+	* src/configure: Regenerated.
+
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
 	doc: Increase user privacy in HTML documentation.
 	* doc/common.xsl: Remove donation request (is redirected to paypal.com
 	and does not work), sourceforge.org reference (can be seen as a web

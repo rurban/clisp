@@ -220,7 +220,7 @@ local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp)
 local int mmap_zeromap (void* map_addr, uintM map_len)
 {
   var int errcode;
-  switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)) {
+  switch (vm_allocate(mach_task_self(), (vm_address_t*) &map_addr, map_len, false)) {
     case KERN_SUCCESS:
       return 0;
     case KERN_NO_SPACE:
@@ -238,7 +238,7 @@ local int mmap_zeromap (void* map_addr, uintM map_len)
 
 local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
 {
-  switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)) {
+  switch (vm_allocate(mach_task_self(), (vm_address_t*) &map_addr, map_len, false)) {
     case KERN_SUCCESS:
       break;
     default:
@@ -257,7 +257,7 @@ local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
 /* We need to implement munmap() ourselves. */
 global int munmap (void* addr, size_t len)
 {
-  switch (vm_deallocate(task_self(),addr,len)) {
+  switch (vm_deallocate(mach_task_self(),addr,len)) {
     case KERN_SUCCESS:
       return 0;
     case KERN_INVALID_ADDRESS:
@@ -269,7 +269,7 @@ global int munmap (void* addr, size_t len)
 /* We need to implement mprotect() ourselves. */
 global int mprotect (void* addr, size_t len, int prot)
 {
-  switch (vm_protect(task_self(),addr,len,0,prot)) {
+  switch (vm_protect(mach_task_self(),addr,len,0,prot)) {
     case KERN_SUCCESS:
       return 0;
     case KERN_PROTECTION_FAILURE:
