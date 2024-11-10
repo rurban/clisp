@@ -200,8 +200,10 @@ t.e., this is the memory size for the real return value in ulong words.")
 ;; extern  GEN primetab;
 (def-c-var primetab (:type pari-gen) (:read-only t))
 
+;; This is gone in pari 2.17, see
+;; https://pari.math.u-bordeaux.fr/archives/pari-announce-24/msg00003.html
 ;; extern  byteptr diffptr;
-(def-c-var diffptr (:type byteptr) (:read-only t))
+;; (def-c-var diffptr (:type byteptr) (:read-only t))
 
 (def-c-const MAXVARN)
 ;; extern entree **varentries;
