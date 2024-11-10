@@ -148,7 +148,6 @@ else
 XSLTPROC=xsltproc
 endif
 XMLS_COMMON = --timing --xinclude
-GOOGLEADS=0
 
 # target.database.document in this command is a workaround for bug
 #   warning: failed to load external entity \"olinkdb.xml\"
@@ -184,8 +183,7 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 endif
 
-XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --param google.ads $(GOOGLEADS) \
-	--stringparam target.database.document
+XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --stringparam target.database.document
 DOC_MAN = --stringparam current.docid "man"
 DOC_CLK = --stringparam current.docid "clink"
 DOC_IMP = --stringparam current.docid "impnotes"

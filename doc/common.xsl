@@ -424,9 +424,7 @@ set       toc,title
  <div class="custom-footer"><hr /><table width="100%">
    <tr><td align="left"><a href="http://clisp.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
-    <td align="center"><a href="https://sourceforge.net/p/clisp/donate/?source={@id}"><img src="https://sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
-    <td align="right"><a href="https://sourceforge.net/projects/clisp/"><img width="120" height="30" alt="[SourceForge]" src="https://sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
- </tr></table></div><hr />
+   </tr></table></div><hr />
  <!-- https://sourceforge.net/p/alexandria/support-requests/122850/ -->
  <form method="get" action="http://www.google.com/custom" target="_top">
   <table width="100%" border="0"><tr>
@@ -451,19 +449,6 @@ set       toc,title
      <input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:000000;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;LH:48;LW:48;L:http://clisp.cons.org/clisp.png;S:http://clisp.cons.org;FORID:1"/>
      <input type="hidden" name="hl" value="en"/></td></tr></table></form>
  <hr />
- <xsl:if test="$google.ads != 0"><div class="google-ads">
-   <script type="text/javascript"><xsl:comment>
-google_ad_client = "pub-4445255502750357";
-google_ad_width = 728;
-google_ad_height = 90;
-google_ad_format = "728x90_as";
-google_ad_type = "text";
-//2007-01-03: beta
-google_ad_channel = "5563845797";
-</xsl:comment></script>
-   <script type="text/javascript"
-           src="http://pagead2.googlesyndication.com/pagead/show_ads.js"/>
-  </div></xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

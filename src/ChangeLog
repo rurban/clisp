@@ -1,3 +1,13 @@
+2024-11-09  Bruno Haible  <bruno@clisp.org>
+
+	doc: Increase user privacy in HTML documentation.
+	* doc/common.xsl: Remove donation request (is redirected to paypal.com
+	and does not work), sourceforge.org reference (can be seen as a web
+	bug), and optional google ad (anti-social).
+	* doc/Makefile (GOOGLEADS): Remove variable.
+	(XMLOUT): Don't set google.ads any more.
+	* doc/*.html: Regenerated.
+
 2024-11-09  Peter Van Eynde  <pvaneynd@mailworks.org>  (tiny change)
 
 	pari: Add support for pari 2.17.
