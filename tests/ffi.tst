@@ -746,12 +746,6 @@ IDFPFUN
 
 (makunbound '*fpcallback*) *FPCALLBACK*
 
-;; Some platforms might not define HAVE_LONG_LONG_INT (what are they?),
-;; so the int64 tests will fail there.
-;; We might conditionalize such tests on #+word-size=64...
-;; [actually, word-size=64 (== WIDE_HARD) is a _stronger_ condition than
-;; HAVE_LONG_LONG_INT which is required for 64-bit integers to work]
-;; https://sourceforge.net/p/clisp/bugs/535/
 (with-c-var (x 'sint64) x)
 0
 

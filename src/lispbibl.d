@@ -1128,24 +1128,6 @@
 
 #define MALLOC(size,type)   (type*)malloc((size)*sizeof(type))
 
-/* Literal constants of 64-bit integer types
- LL(nnnn)  = nnnn parsed as a sint64
- ULL(nnnn) = nnnn parsed as a uint64 */
-#if defined(HAVE_LONG_LONG_INT)
-  #define LL(nnnn) nnnn##LL
-  #define ULL(nnnn) nnnn##ULL
-#elif defined(MICROSOFT)
-  #define LL(nnnn) nnnn##i64
-  #define ULL(nnnn) nnnn##ui64
-#endif
-%% #if defined(HAVE_LONG_LONG_INT)
-%%   puts("#define LL(nnnn) nnnn##LL");
-%%   puts("#define ULL(nnnn) nnnn##ULL");
-%% #elif defined(MICROSOFT)
-%%   puts("#define LL(nnnn) nnnn##i64");
-%%   puts("#define ULL(nnnn) nnnn##ui64");
-%% #endif
-
 /* Synonyms for Byte, Word, Longword:
  SBYTE   = signed 8 bit integer
  UBYTE   = unsigned 8 bit int
@@ -1184,23 +1166,12 @@
 #if (long_bitsize==64) && !defined(UNIX_CYGWIN)
   typedef long           SLONGLONG;
   typedef unsigned long  ULONGLONG;
-  #ifndef HAVE_LONG_LONG_INT
-  #define HAVE_LONG_LONG_INT
-  #endif
 #elif defined(MICROSOFT)
   typedef __int64           SLONGLONG;
   typedef unsigned __int64  ULONGLONG;
-  #define HAVE_LONG_LONG_INT
-#elif defined(HAVE_LONG_LONG_INT)
- #if defined(long_long_bitsize) && (long_long_bitsize==64)
+#else
   typedef long long           SLONGLONG;
   typedef unsigned long long  ULONGLONG;
- #else /* useless type */
-  #undef HAVE_LONG_LONG_INT
- #endif
-#endif
-#if defined(WIDE) && !defined(HAVE_LONG_LONG_INT)
-  #error No 64 bit integer type? -- Which Integer-type has 64 Bit?
 #endif
 %% #ifdef __CHAR_UNSIGNED__
 %%   emit_typedef("signed char","SBYTE");
@@ -1223,7 +1194,7 @@
 %% #elif defined(MICROSOFT)
 %%   emit_typedef("__int64","SLONGLONG");
 %%   emit_typedef("unsigned __int64","ULONGLONG");
-%% #elif defined(HAVE_LONG_LONG_INT)
+%% #else
 %%   emit_typedef("long long","SLONGLONG");
 %%   emit_typedef("unsigned long long","ULONGLONG");
 %% #endif
@@ -1534,14 +1505,12 @@ typedef ULONG   uint31;  /* unsigned 31 bit Integer */
 typedef SLONG   sint31;  /* signed 31 bit Integer */
 typedef ULONG   uint32;  /* unsigned 32 bit Integer */
 typedef SLONG   sint32;  /* signed 32 bit Integer */
-#ifdef HAVE_LONG_LONG_INT
-  typedef ULONGLONG  uint33;  /* unsigned 33 bit Integer */
-  typedef SLONGLONG  sint33;  /* signed 33 bit Integer */
-  typedef ULONGLONG  uint48;  /* unsigned 48 bit Integer */
-  typedef SLONGLONG  sint48;  /* signed 48 bit Integer */
-  typedef ULONGLONG  uint64;  /* unsigned 64 bit Integer */
-  typedef SLONGLONG  sint64;  /* signed 64 bit Integer */
-#endif
+typedef ULONGLONG  uint33;  /* unsigned 33 bit Integer */
+typedef SLONGLONG  sint33;  /* signed 33 bit Integer */
+typedef ULONGLONG  uint48;  /* unsigned 48 bit Integer */
+typedef SLONGLONG  sint48;  /* signed 48 bit Integer */
+typedef ULONGLONG  uint64;  /* unsigned 64 bit Integer */
+typedef SLONGLONG  sint64;  /* signed 64 bit Integer */
 #define exact_uint_size_p(n) (((n)==char_bitsize)||((n)==short_bitsize)||((n)==int_bitsize)||((n)==long_bitsize))
 #define signed_int_with_n_bits(n) CONCAT(sint,n)
 #define unsigned_int_with_n_bits(n) CONCAT(uint,n)
@@ -1561,13 +1530,11 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
 %%     sprintf(buf,"uint%d",i); emit_typedef("ULONG",buf);
 %%     sprintf(buf,"sint%d",i); emit_typedef("SLONG",buf);
 %%   }
-%%   #ifdef HAVE_LONG_LONG_INT
-%%     for (i=33; i<=64; i++)
-%%       if ((i==33) || (i==48) || (i==64)) {
-%%         sprintf(buf,"uint%d",i); emit_typedef("ULONGLONG",buf);
-%%         sprintf(buf,"sint%d",i); emit_typedef("SLONGLONG",buf);
-%%       }
-%%   #endif
+%%   for (i=33; i<=64; i++)
+%%     if ((i==33) || (i==48) || (i==64)) {
+%%       sprintf(buf,"uint%d",i); emit_typedef("ULONGLONG",buf);
+%%       sprintf(buf,"sint%d",i); emit_typedef("SLONGLONG",buf);
+%%     }
 %% }
 
 /* 'uintX' and 'sintX' mean unsigned bzw. signed integer - types with
@@ -1598,12 +1565,6 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
   #define minus_bitQ(n)  (-(sintQ)1<<(n))
   /* Minus bit number n (0<n<=64) mod 2^64 */
   #define minus_bitQm(n)  (-(sintQ)2<<((n)-1))
-  typedef sintQ  sintL2;
-  typedef uintQ  uintL2;
-#else
-  /* Emulate 64-Bit-numbers using two 32-Bit-numbers. */
-  typedef struct { sintL hi; uintL lo; } sintL2; /* signed 64 Bit integer */
-  typedef struct { uintL hi; uintL lo; } uintL2; /* unsigned 64 Bit integer */
 #endif
 /* Use 'uintX' and 'sintX' for Integers with approximately given width
  and a minumum of storage space. */
@@ -1617,9 +1578,6 @@ typedef SLONG   sint32;  /* signed 32 bit Integer */
 %% #ifdef intQsize
 %%   sprintf(buf,"sint%d",intQsize); emit_typedef(buf,"sintQ");
 %%   sprintf(buf,"uint%d",intQsize); emit_typedef(buf,"uintQ");
-%% #else
-%%   emit_typedef("struct { sintL hi; uintL lo; }","sintL2");
-%%   emit_typedef("struct { uintL hi; uintL lo; }","uintL2");
 %% #endif
 %% #endif
 
@@ -4610,26 +4568,26 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
          Bits 63..48 = type code, Bits 47..32 = zero, Bits 31..0 = address */
       #define oint_type_shift 48
       #define oint_type_len 16
-      #define oint_type_mask ULL(0xFFFF000000000000)
+      #define oint_type_mask 0xFFFF000000000000ULL
       #define oint_addr_shift 0
       #define oint_addr_len 48
-      #define oint_addr_mask ULL(0x0000FFFFFFFFFFFF)
+      #define oint_addr_mask 0x0000FFFFFFFFFFFFULL
     #elif WIDE_ENDIANNESS
       /* Bits 63..32 = type code, Bits 31..0 = address */
       #define oint_type_shift 32
       #define oint_type_len 32
-      #define oint_type_mask ULL(0xFFFFFFFF00000000)
+      #define oint_type_mask 0xFFFFFFFF00000000ULL
       #define oint_addr_shift 0
       #define oint_addr_len 32
-      #define oint_addr_mask ULL(0x00000000FFFFFFFF)
+      #define oint_addr_mask 0x00000000FFFFFFFFULL
     #else /* conversely it is a little slower: */
       /* Bits 63..32 = address, Bits 31..0 = type code */
       #define oint_type_shift 0
       #define oint_type_len 32
-      #define oint_type_mask ULL(0x00000000FFFFFFFF)
+      #define oint_type_mask 0x00000000FFFFFFFFULL
       #define oint_addr_shift 32
       #define oint_addr_len 32
-      #define oint_addr_mask ULL(0xFFFFFFFF00000000)
+      #define oint_addr_mask 0xFFFFFFFF00000000ULL
     #endif
   #else
     /* oint == uintP.
@@ -5317,10 +5275,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* Bit operations on entities of type uintV:
  ...vbit... instead of ...bit..., "v" = "value". */
 #if (intVsize > 32)
-  #define vbit(n)  (LL(1)<<(n))
-  #define vbitm(n)  (LL(2)<<((n)-1))
+  #define vbit(n)  (1LL<<(n))
+  #define vbitm(n)  (2LL<<((n)-1))
   #define vbit_test(x,n)  ((x) & vbit(n))
-  #define minus_vbit(n)  (-LL(1)<<(n))
+  #define minus_vbit(n)  (-1LL<<(n))
 #else
   #define vbit  bit
   #define vbitm  bitm
@@ -5337,10 +5295,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* Bit operations on entities of type oint:
  ...wbit... instead of ...bit..., "w" = "wide". */
 #if defined(WIDE_SOFT)
-  #define wbit(n)  (LL(1)<<(n))
-  #define wbitm(n)  (LL(2)<<((n)-1))
+  #define wbit(n)  (1LL<<(n))
+  #define wbitm(n)  (2LL<<((n)-1))
   #define wbit_test(x,n)  ((x) & wbit(n))
-  #define minus_wbit(n)  (-LL(1)<<(n))
+  #define minus_wbit(n)  (-1LL<<(n))
 #else
   #define wbit  bit
   #define wbitm  bitm
@@ -11429,7 +11387,7 @@ typedef struct {
   internal_time_t realtime;
   internal_time_t gctime;
   uintL gccount;
-  uintL2 gcfreed;
+  uint64 gcfreed;
 } timescore_t;
 extern void get_running_times (timescore_t*);
 /* is used by TIME */
@@ -12357,7 +12315,7 @@ extern maygc void gar_col (int level);
 
 /* GC-statistics */
 extern uintL gc_count;
-extern uintL2 gc_space;
+extern uint64 gc_space;
 extern internal_time_t gc_time;
 /* is used by TIME */
 
@@ -19158,29 +19116,21 @@ extern sintL I_to_L (object obj);
 /* is used by */
 %% exportF(sintL,I_to_L,(object obj));
 
-#if defined(HAVE_LONG_LONG_INT)
-  /* Converts an Integer >=0 into an unsigned quadword.
-   I_to_UQ(obj)
-   > obj: an object, should be an Integer >=0, <2^64
-   < result: the Integer's vaulue as unsigned quadword */
-  extern uint64 I_to_UQ (object obj);
-  /* used by FOREIGN, for FFI, and by modules */
-#endif
-%% #ifdef HAVE_LONG_LONG_INT
-%%   exportF(uint64,I_to_UQ,(object obj));
-%% #endif
+/* Converts an Integer >=0 into an unsigned quadword.
+ I_to_UQ(obj)
+ > obj: an object, should be an Integer >=0, <2^64
+ < result: the Integer's vaulue as unsigned quadword */
+extern uint64 I_to_UQ (object obj);
+/* used by FOREIGN, for FFI, and by modules */
+%% exportF(uint64,I_to_UQ,(object obj));
 
-#if defined(HAVE_LONG_LONG_INT)
-  /* Converts an Integer into a signed quadword.
-   I_to_Q(obj)
-   > obj: an object, should be an Integer >=-2^63, <2^63
-   < result: the Integer's value as quadword. */
-  extern sint64 I_to_Q (object obj);
-  /* used by FOREIGN, for FFI, and by modules */
-#endif
-%% #ifdef HAVE_LONG_LONG_INT
-%%   exportF(sint64,I_to_Q,(object obj));
-%% #endif
+/* Converts an Integer into a signed quadword.
+ I_to_Q(obj)
+ > obj: an object, should be an Integer >=-2^63, <2^63
+ < result: the Integer's value as quadword. */
+extern sint64 I_to_Q (object obj);
+/* used by FOREIGN, for FFI, and by modules */
+%% exportF(sint64,I_to_Q,(object obj));
 
 /* Converts an Integer into a C-Integer of a given type.
  I_to_xintyy(obj) assumes that xintyy_p(obj) has already been checked. */
@@ -19198,10 +19148,8 @@ extern sintL I_to_L (object obj);
 #else
   #define I_to_sint32(obj)  I_to_L(obj)
 #endif
-#ifdef HAVE_LONG_LONG_INT
-  #define I_to_uint64(obj)  I_to_UQ(obj)
-  #define I_to_sint64(obj)  I_to_Q(obj)
-#endif
+#define I_to_uint64(obj)  I_to_UQ(obj)
+#define I_to_sint64(obj)  I_to_Q(obj)
 #if (int_bitsize==16)
   #define I_to_uint  I_to_uint16
   #define I_to_sint  I_to_sint16

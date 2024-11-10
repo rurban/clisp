@@ -1581,11 +1581,7 @@ LISPFUNN(proom,0)
   pushSTACK(uintM_to_I(free_space()));
   pushSTACK(uintM_to_I(static_space()));
   pushSTACK(UL_to_I(gc_count));
- #ifdef intQsize
   pushSTACK(UQ_to_I(gc_space));
- #else
-  pushSTACK(UL2_to_I(gc_space.hi,gc_space.lo));
- #endif
   pushSTACK(internal_time_to_I(&gc_time));
   STACK_to_mv(6);
 }

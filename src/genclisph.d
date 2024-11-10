@@ -1,6 +1,6 @@
 /*
  * Export CLISP internals for modules
- * Bruno Haible 1994-2005, 2009, 2017
+ * Bruno Haible 1994-2005, 2009, 2017, 2024
  * Sam Steingold 1998-2011, 2016-2017
  */
 
@@ -29,31 +29,20 @@ typedef struct {
     uint8 val8;
     uint16 val16;
     uint32 val32;
-    #ifdef HAVE_LONG_LONG_INT
     uint64 val64;
-    #endif
   } value;
 } printf_arg;
 
-#ifdef HAVE_LONG_LONG_INT
-  #define fill_printf_arg(where,expr)  \
-    where.size = sizeof(expr); \
-    if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
-    else if (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
-    else if (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
-    else if (sizeof(expr) == sizeof(uint64)) { where.value.val64 = (uint64)(expr); } \
-    else abort();
-#else
-  #define fill_printf_arg(where,expr)  \
-    where.size = sizeof(expr); \
-    if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
-    else if (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
-    else if (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
-    else abort();
-#endif
+#define fill_printf_arg(where,expr)  \
+  where.size = sizeof(expr); \
+  if (sizeof(expr) == sizeof(uint8)) { where.value.val8 = (uint8)(expr); } \
+  else if (sizeof(expr) == sizeof(uint16)) { where.value.val16 = (uint16)(expr); } \
+  else if (sizeof(expr) == sizeof(uint32)) { where.value.val32 = (uint32)(expr); } \
+  else if (sizeof(expr) == sizeof(uint64)) { where.value.val64 = (uint64)(expr); } \
+  else abort();
 
 static const char* ULsuffix = "UL";
-#if defined(HAVE_LONG_LONG_INT) && !(long_bitsize == 64)
+#if !(long_bitsize == 64)
 static const char* ULLsuffix = "ULL";
 #endif
 
@@ -69,7 +58,6 @@ static void print_printf_arg (const printf_arg* arg)
     case sizeof(uint32):
       fprintf(header_f, arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
       break;
-   #ifdef HAVE_LONG_LONG_INT
     case sizeof(uint64):
      #if (long_bitsize == 64)
       if (!(sizeof(uint64) == sizeof(unsigned long))) abort();
@@ -82,7 +70,6 @@ static void print_printf_arg (const printf_arg* arg)
               ULLsuffix);
      #endif
       break;
-   #endif
     default:
       abort();
   }

@@ -1,6 +1,6 @@
 /*
  * Auxiliary functions for CLISP on UNIX
- * Bruno Haible 1990-2005, 2008, 2017
+ * Bruno Haible 1990-2005, 2008, 2017, 2024
  * Sam Steingold 1998-2009, 2011, 2017
  */
 
@@ -762,8 +762,8 @@ global void abort() {
  used by syscalls and dirkey modules */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#define FACTOR LL(0x19db1ded53ea710)
-#define NSPERSEC LL(10000000)
+#define FACTOR 0x19db1ded53ea710LL
+#define NSPERSEC 10000000LL
 modexp long time_t_from_filetime (const FILETIME * ptr) {
   /* A file time is the number of 100ns since jan 1 1601
      stuffed into two long words.

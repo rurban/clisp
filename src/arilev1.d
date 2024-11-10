@@ -72,7 +72,7 @@
   #if (intDsize==16)
     #define muluD  mulu16
   #endif
-  #if (intDsize==32) && defined(HAVE_LONG_LONG_INT)
+  #if (intDsize==32)
     #define muluD(arg1,arg2)  ((uintDD)(uintD)(arg1)*(uintDD)(uintD)(arg2))
   #endif
 #else
@@ -101,7 +101,7 @@
   #if (intDsize==16)
     #define divuD  divu_3216_1616
   #endif
-  #if (intDsize==32) && defined(HAVE_LONG_LONG_INT)
+  #if (intDsize==32)
     #define divuD(x,y,q_assignment,r_assignment) \
       { var uint64 __x = (x);                                 \
         var uint32 __y = (y);                                 \

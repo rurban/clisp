@@ -59,7 +59,7 @@
 # Zieht die Ganzzahl-Wurzel aus einer 64-Bit-Zahl und
 # liefert eine 32-Bit-Wurzel.
 # UL2_sqrt_UL(x1,x0)
-# > uintL2 x = x1*2^32+x0 : Radikand, >=0, <2^64
+# > uint64 x = x1*2^32+x0 : Radikand, >=0, <2^64
 # < uintL result : Wurzel, >=0, <2^32
   local uintL UL2_sqrt_UL (uintL x1, uintL x0);
   # Methode:

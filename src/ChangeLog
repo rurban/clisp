@@ -1,4 +1,47 @@
-2024-11-09  Bruno Haible  <bruno@clisp.org>
+2024-11-10  Bruno Haible  <bruno@clisp.org>
+
+	Remove support for C compilers that don't support 64-bit 'long long'.
+	* intparam.c: Assume HAVE_LONG_LONG_INT.
+	* m4/intparam.m4 (CL_INTPARAM_CROSS): Don't require
+	AC_TYPE_LONG_LONG_INT. Handle 'long long' and 'unsigned long long' types
+	always.
+	* configure.in: Don't invoke AC_TYPE_LONG_LONG_INT.
+	* src/configure: Regenerated.
+	* lispbibl.d (LL, ULL): Remove macros.
+	(SLONGLONG, ULONGLONG): Define unconditionally.
+	(uint33, sint33, uint48, sint48, uint64, sint64): Define
+	unconditionally.
+	(sintL2, uintL2): Remove types.
+	(timescore_t, gc_space): Use uint64 instead of uintL2.
+	(I_to_UQ, I_to_Q): Declare unconditionally.
+	(I_to_uint64, I_to_sint64): Declare unconditionally.
+	* genclisph.d (printf_arg, fill_printf_arg, ULLsuffix,
+	print_printf_arg): Assume HAVE_LONG_LONG_INT.
+	* unixaux.d (FACTOR, NSPERSEC): Update.
+	* spvw_gcstat.d (gc_space, inc_gc_space): Use uint64 instead of uintL2.
+	* spvw_garcol.d (uintVLA): Likewise.
+	* spvw_garcol_old.d (uintVLA): Likewise.
+	* spvw_sigsegv.d (print_mem_stats): Use fprintf %llu unconditionally.
+	* debug.d (SYS::%ROOM): Use UQ_to_I unconditionally.
+	* time.d (convert_time_to_universal, real_time_sec): Assume
+	HAVE_LONG_LONG_INT.
+	(SYSTEM::%%TIME): Use uint64 unconditionally.
+	* aridecl.d (wbitc): Assume HAVE_LONG_LONG_INT.
+	* arilev0.d (mulu32, divu_6432_3232): Assume HAVE_LONG_LONG_INT.
+	* arilev1.d (muluD, divuD): Assume HAVE_LONG_LONG_INT.
+	* intelem.d (I_to_UQ, I_to_Q): Define unconditionally.
+	* intlog.d (logcount_64): Update.
+	* intmal.d (FN_fak_I): Update.
+	* intsqrt.d: Use uint64 instead of uintL2.
+	* foreign.d (struct_uint64, struct_sint64): Remove types. All uses
+	replaced with uint64, sint64.
+	(error_64bit): Remove function.
+	(foreign_layout, convert_from_foreign, convert_to_foreign, do_av_start,
+	do_av_arg, do_va_start, do_va_arg, do_va_return): Assume
+	HAVE_LONG_LONG_INT.
+	* tests/ffi.tst: Remove outdated comment.
+
+2024-11-10  Bruno Haible  <bruno@clisp.org>
 
 	Remove support for Mach systems without mmap.
 	This fixes a compilation error on Mac OS X caused by the last commit.
@@ -9,7 +52,7 @@
 	* m4/mach-vm.m4: Remove file.
 	* aclocal.m4, src/config*, src/gllib/Makefile.in: Regenerated.
 
-2024-11-09  Bruno Haible  <bruno@clisp.org>
+2024-11-10  Bruno Haible  <bruno@clisp.org>
 
 	On Mach, use mach_task_self() instead of task_self().
 	Reported by Florian Weimer in

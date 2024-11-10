@@ -1377,7 +1377,7 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
 #elif (varobject_alignment==4)
   #define uintVLA  uintL
 #elif (varobject_alignment==8)
-  #define uintVLA  uintL2
+  #define uintVLA  uint64
 #else
   #error Unknown value for 'varobject_alignment'!
 #endif

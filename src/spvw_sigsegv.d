@@ -25,11 +25,7 @@ local void print_mem_stats (void) {
   fprintf(stderr,GETTEXTL("GC count: %lu"),(unsigned long)tm.gccount);
   fprint(stderr,"\n");
   fprint(stderr,GETTEXTL("Space collected by GC:"));
- #if defined(intQsize)
   fprintf(stderr," %llu",(unsigned long long)tm.gcfreed);
- #else
-  fprintf(stderr," %lu %lu",tm.gcfreed.hi,tm.gcfreed.lo);
- #endif
   fprint(stderr,"\n");
  #if defined(TIME_UNIX)
   #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",(unsigned long)t.tv_sec,(unsigned long)t.tv_usec)

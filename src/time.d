@@ -1,6 +1,6 @@
 /*
  * Time measuring functions for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2005, 2024
  * Sam Steingold 1998-2011
  * German comments and names translated into English: Reini Urban 2007-12
  */
@@ -401,14 +401,10 @@ modexp maygc object convert_time_to_universal (const FILETIME* time) {
   /* Since we get the timezone from the OS (sys::defaul-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
-   #ifdef HAVE_LONG_LONG_INT
     { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400
               * (ULONGLONG)ticks_per_second),
       (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400
                * (ULONGLONG)ticks_per_second) >> 32) };
-   #else
-    { 0xFDE04000, 0x14F373B };
-   #endif
   var internal_time_t internal_real_time;
   var uintL uni_high, uni_low, r1;
   sub_internal_time(*time,offset,internal_real_time);
@@ -442,14 +438,10 @@ local uintL real_time_sec (void)
   real_time = UNIX_LISP_TIME_DIFF + it.tv_sec;
  #elif defined(TIME_WIN32)
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
-   #ifdef HAVE_LONG_LONG_INT
     { (ULONG)((ULONGLONG)109207 *
               (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
       (ULONG)(((ULONGLONG)109207 *
                (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)};
-   #else
-    { 0xFDE04000, 0x14F373B };
-   #endif
   var internal_time_t internal_real_time;
   var uintL real_time;
   get_real_time(&internal_real_time);
@@ -718,24 +710,15 @@ LISPFUN(pptime,seclass_read,0,1,norest,nokey,0,NIL)
   {
     var uintM used = used_space(); /* currently used space */
     /* add both: */
-   #ifdef intQsize
     tm.gcfreed += used;
-   #else
-    if ((tm.gcfreed.lo += used) < used) { tm.gcfreed.hi += 1; }
-   #endif
   }
   /* Now tm.gcfreed = so far required space at all */
   #if (oint_data_len<24)
   #error SYSTEM::%%TIME: oint_data_len too small
   #endif
   /* decode into 24 bits pieces: */
- #ifdef intQsize
   pushSTACK(fixnum( (tm.gcfreed>>24) & (bit(24)-1) ));
   pushSTACK(fixnum( tm.gcfreed & (bit(24)-1) ));
- #else
-  pushSTACK(fixnum( ((tm.gcfreed.hi << 8) + (tm.gcfreed.lo >> 24)) & (bit(24)-1) ));
-  pushSTACK(fixnum( tm.gcfreed.lo & (bit(24)-1) ));
- #endif
   /* last value: GC count */
   pushSTACK(fixnum(tm.gccount));
   STACK_to_mv(9);               /* return 9 values */

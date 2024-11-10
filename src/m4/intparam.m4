@@ -1,5 +1,5 @@
-# intparam.m4 serial 5  -*- Autoconf -*-
-dnl Copyright (C) 1993-2008, 2017, 2021 Free Software Foundation, Inc.
+# intparam.m4 serial 6  -*- Autoconf -*-
+dnl Copyright (C) 1993-2024 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -8,7 +8,6 @@ dnl From Bruno Haible, Sam Steingold
 
 AC_DEFUN([CL_INTPARAM_CROSS],
 [
-  AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
   AC_REQUIRE([AC_C_BIGENDIAN])
   cl_machine_file_h=$1
   {
@@ -16,16 +15,12 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     CL_INTPARAM_BITSIZE([short], [short_bitsize])
     CL_INTPARAM_BITSIZE([int], [int_bitsize])
     CL_INTPARAM_BITSIZE([long], [long_bitsize])
-    if test $ac_cv_type_long_long_int = yes; then
-      CL_INTPARAM_BITSIZE([long long], [longlong_bitsize])
-    fi
+    CL_INTPARAM_BITSIZE([long long], [longlong_bitsize])
     CL_INTPARAM_BITSIZE([unsigned char], [uchar_bitsize])
     CL_INTPARAM_BITSIZE([unsigned short], [ushort_bitsize])
     CL_INTPARAM_BITSIZE([unsigned int], [uint_bitsize])
     CL_INTPARAM_BITSIZE([unsigned long], [ulong_bitsize])
-    if test $ac_cv_type_long_long_int = yes; then
-      CL_INTPARAM_BITSIZE([unsigned long long], [ulonglong_bitsize])
-    fi
+    CL_INTPARAM_BITSIZE([unsigned long long], [ulonglong_bitsize])
     if test -n "$char_bitsize"; then
       echo "/* Integers of type char have $char_bitsize bits. */"
       echo "#define char_bitsize $char_bitsize"
@@ -54,14 +49,12 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     else
       echo "#error \"Integers of type long have no binary representation!!\""
     fi
-    if test $ac_cv_type_long_long_int = yes; then
-      if test -n "$longlong_bitsize"; then
-        echo "/* Integers of type long long have $longlong_bitsize bits. */"
-        echo "#define long_long_bitsize $longlong_bitsize"
-        echo
-      else
-        echo "#error \"Integers of type long long have no binary representation!!\""
-      fi
+    if test -n "$longlong_bitsize"; then
+      echo "/* Integers of type long long have $longlong_bitsize bits. */"
+      echo "#define long_long_bitsize $longlong_bitsize"
+      echo
+    else
+      echo "#error \"Integers of type long long have no binary representation!!\""
     fi
     if test -n "$uchar_bitsize"; then
       echo "/* Integers of type unsigned char have $uchar_bitsize bits. */"
@@ -87,13 +80,11 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     else
       echo "#error \"Integers of type unsigned long have no binary representation!!\""
     fi
-    if test $ac_cv_type_long_long_int = yes; then
-      if test -n "$ulonglong_bitsize"; then
-        echo "/* Integers of type unsigned long long have $ulonglong_bitsize bits. */"
-        echo
-      else
-        echo "#error \"Integers of type unsigned long long have no binary representation!!\""
-      fi
+    if test -n "$ulonglong_bitsize"; then
+      echo "/* Integers of type unsigned long long have $ulonglong_bitsize bits. */"
+      echo
+    else
+      echo "#error \"Integers of type unsigned long long have no binary representation!!\""
     fi
     if test "$char_bitsize" != "$uchar_bitsize"; then
       echo "#error \"Integer types char and unsigned char have different sizes!!\""
@@ -107,10 +98,8 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     if test "$long_bitsize" != "$ulong_bitsize"; then
       echo "#error \"Integer types long and unsigned long have different sizes!!\""
     fi
-    if test $ac_cv_type_long_long_int = yes; then
-      if test "$longlong_bitsize" != "$ulonglong_bitsize"; then
-        echo "#error \"Integer types long long and unsigned long long have different sizes!!\""
-      fi
+    if test "$longlong_bitsize" != "$ulonglong_bitsize"; then
+      echo "#error \"Integer types long long and unsigned long long have different sizes!!\""
     fi
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
       [[typedef int verify[2*(sizeof(char*)<=sizeof (long))-1];]])],
@@ -160,18 +149,16 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     CL_INTPARAM_ALIGNOF([unsigned long], [alignment_ulong])
     echo "/* Type unsigned long has sizeof = $sizeof_ulong and alignment = $alignment_ulong. */"
     echo
-    if test $ac_cv_type_long_long_int = yes; then
-      CL_INTPARAM_SIZEOF([long long], [sizeof_longlong])
-      CL_INTPARAM_ALIGNOF([long long], [alignment_longlong])
-      echo "/* Type long long has sizeof = $sizeof_longlong and alignment = $alignment_longlong. */"
-      echo "#define sizeof_long_long $sizeof_longlong"
-      echo "#define alignment_long_long $alignment_longlong"
-      echo
-      CL_INTPARAM_SIZEOF([unsigned long long], [sizeof_ulonglong])
-      CL_INTPARAM_ALIGNOF([unsigned long long], [alignment_ulonglong])
-      echo "/* Type unsigned long long has sizeof = $sizeof_ulonglong and alignment = $alignment_ulonglong. */"
-      echo
-    fi
+    CL_INTPARAM_SIZEOF([long long], [sizeof_longlong])
+    CL_INTPARAM_ALIGNOF([long long], [alignment_longlong])
+    echo "/* Type long long has sizeof = $sizeof_longlong and alignment = $alignment_longlong. */"
+    echo "#define sizeof_long_long $sizeof_longlong"
+    echo "#define alignment_long_long $alignment_longlong"
+    echo
+    CL_INTPARAM_SIZEOF([unsigned long long], [sizeof_ulonglong])
+    CL_INTPARAM_ALIGNOF([unsigned long long], [alignment_ulonglong])
+    echo "/* Type unsigned long long has sizeof = $sizeof_ulonglong and alignment = $alignment_ulonglong. */"
+    echo
     CL_INTPARAM_SIZEOF([float], [sizeof_float])
     CL_INTPARAM_ALIGNOF([float], [alignment_float])
     echo "/* Type float has sizeof = $sizeof_float and alignment = $alignment_float. */"
@@ -215,10 +202,8 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#define int_big_endian"
         echo "/* Type unsigned long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
         echo "#define long_big_endian"
-        if test $ac_cv_type_long_long_int = yes; then
-          echo "/* Type unsigned long long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
-          echo "#define long_long_big_endian"
-        fi
+        echo "/* Type unsigned long long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
+        echo "#define long_long_big_endian"
         ;;
       no)
         echo "/* Type unsigned short is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
@@ -227,18 +212,14 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#define int_little_endian"
         echo "/* Type unsigned long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
         echo "#define long_little_endian"
-        if test $ac_cv_type_long_long_int = yes; then
-          echo "/* Type unsigned long long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
-          echo "#define long_long_little_endian"
-        fi
+        echo "/* Type unsigned long long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
+        echo "#define long_long_little_endian"
         ;;
       *)
         echo "#error \"Type short is stored in memory in an obscure manner!!\""
         echo "#error \"Type int is stored in memory in an obscure manner!!\""
         echo "#error \"Type long is stored in memory in an obscure manner!!\""
-        if test $ac_cv_type_long_long_int = yes; then
-          echo "#error \"Type long long is stored in memory in an obscure manner!!\""
-        fi
+        echo "#error \"Type long long is stored in memory in an obscure manner!!\""
         ;;
     esac
     echo

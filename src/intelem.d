@@ -287,8 +287,6 @@ modexp sint32 I_to_L (object obj)
   }
 }
 
-#if defined(HAVE_LONG_LONG_INT)
-
 /* converts integer >=0 into unsigned quadword.
  I_to_UQ(obj)
  > obj: an object, should be an integer >=0, <2^64
@@ -343,10 +341,6 @@ modexp uint64 I_to_UQ (object obj)
       error(type_error,GETTEXT("not a 64-bit integer: ~S"));
   }
 }
-
-#endif
-
-#if defined(HAVE_LONG_LONG_INT)
 
 /* converts integer into signed quadword.
  I_to_Q(obj)
@@ -435,8 +429,6 @@ modexp sint64 I_to_Q (object obj)
       error(type_error,GETTEXT("not a 64-bit integer: ~S"));
   }
 }
-
-#endif
 
 /* converts longword into fixnum.
  L_to_FN(value)

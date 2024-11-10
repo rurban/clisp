@@ -2,7 +2,7 @@
  * Bestimmung einiger Maschinen-Parameter und -Abhängigkeiten
  * und Ausgabe in ein Include-File
  * Bruno Haible 1991-09-10, 1992-10-12, 1992-12-06, 1993-10-24, 1998-2008, 2004,
- *              2007-2008, 2017
+ *              2007-2008, 2017, 2024
  * Sam Steingold 2002, 2007-2008, 2017
  *
  * On some systems, <sys/types.h> defines the types uchar, ushort, uint, ulong.
@@ -41,10 +41,8 @@ typedef unsigned char  uchar;
 typedef unsigned short  ushort;
 typedef unsigned /* int */  uint;
 typedef unsigned long  ulong;
-#ifdef HAVE_LONG_LONG_INT
 typedef long long  longlong;
 typedef unsigned long long  ulonglong;
-#endif
 typedef int (function)();
 
 static int random_table[256] = /* 2048 zufällige Bits, hier von pi */
@@ -92,14 +90,10 @@ int string_length (const char* string)
   return count;
 }
 
-static int char_bitsize, short_bitsize, int_bitsize, long_bitsize;
-static int uchar_bitsize, ushort_bitsize, uint_bitsize, ulong_bitsize;
-static boolean_t char_uchar_same, short_ushort_same, int_uint_same, long_ulong_same;
+static int char_bitsize, short_bitsize, int_bitsize, long_bitsize, longlong_bitsize;
+static int uchar_bitsize, ushort_bitsize, uint_bitsize, ulong_bitsize, ulonglong_bitsize;
+static boolean_t char_uchar_same, short_ushort_same, int_uint_same, long_ulong_same, longlong_ulonglong_same;
 static int pointer_bitsize;
-#ifdef HAVE_LONG_LONG_INT
-static int longlong_bitsize, ulonglong_bitsize;
-static boolean_t longlong_ulonglong_same;
-#endif
 
 void main1(void) {
 #define get_unsigned_integer_bitsize(type,where)  \
@@ -144,26 +138,22 @@ void main1(void) {
   get_signed_integer_bitsize(short,ushort,short_bitsize);
   get_signed_integer_bitsize(int,uint,int_bitsize);
   get_signed_integer_bitsize(long,ulong,long_bitsize);
+  get_signed_integer_bitsize(longlong,ulonglong,longlong_bitsize);
   print_integer_bitsize(schar,"char",char_bitsize);
   print_integer_bitsize(short,"short",short_bitsize);
   print_integer_bitsize(int,"int",int_bitsize);
   print_integer_bitsize(long,"long",long_bitsize);
-#ifdef HAVE_LONG_LONG_INT
-  get_signed_integer_bitsize(longlong,ulonglong,longlong_bitsize);
   print_integer_bitsize(longlong,"long long",longlong_bitsize);
-#endif
   get_unsigned_integer_bitsize(uchar,uchar_bitsize);
   get_unsigned_integer_bitsize(ushort,ushort_bitsize);
   get_unsigned_integer_bitsize(uint,uint_bitsize);
   get_unsigned_integer_bitsize(ulong,ulong_bitsize);
+  get_unsigned_integer_bitsize(ulonglong,ulonglong_bitsize);
   print_integer_bitsize(uchar,"unsigned char",uchar_bitsize);
   print_integer_bitsize(ushort,"unsigned short",ushort_bitsize);
   print_integer_bitsize(uint,"unsigned int",uint_bitsize);
   print_integer_bitsize(ulong,"unsigned long",ulong_bitsize);
-#ifdef HAVE_LONG_LONG_INT
-  get_unsigned_integer_bitsize(ulonglong,ulonglong_bitsize);
   print_integer_bitsize(ulonglong,"unsigned long long",ulonglong_bitsize);
-#endif
 }
 
 void main2(void) {
@@ -175,9 +165,7 @@ void main2(void) {
   compare_integer_bitsizes("short","unsigned short",short_bitsize,ushort_bitsize);
   compare_integer_bitsizes("int","unsigned int",int_bitsize,uint_bitsize);
   compare_integer_bitsizes("long","unsigned long",long_bitsize,ulong_bitsize);
-#ifdef HAVE_LONG_LONG_INT
   compare_integer_bitsizes("long long","unsigned long long",longlong_bitsize,ulonglong_bitsize);
-#endif
 }
 
 #define get_a_random(type,bitsize,where)  \
@@ -228,9 +216,7 @@ void main3(void) {
   compare_integer_representation(short,ushort,"short","unsigned short",short_bitsize,ushort_bitsize,short_ushort_same);
   compare_integer_representation(int,uint,"int","unsigned int",int_bitsize,uint_bitsize,int_uint_same);
   compare_integer_representation(long,ulong,"long","unsigned long",long_bitsize,ulong_bitsize,long_ulong_same);
-#ifdef HAVE_LONG_LONG_INT
   compare_integer_representation(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,longlong_ulonglong_same);
-#endif
   print("\n");
 }
 
@@ -307,16 +293,12 @@ void main4(void) {
   test_integer_ushift(ushort,"unsigned short",ushort_bitsize);
   test_integer_ushift(uint,"unsigned int",uint_bitsize);
   test_integer_ushift(ulong,"unsigned long",ulong_bitsize);
-#ifdef HAVE_LONG_LONG_INT
   test_integer_ushift(ulonglong,"unsigned long long",ulonglong_bitsize);
-#endif
   test_integer_sshift(schar,"char",char_bitsize);
   test_integer_sshift(short,"short",short_bitsize);
   test_integer_sshift(int,"int",int_bitsize);
   test_integer_sshift(long,"long",long_bitsize);
-#ifdef HAVE_LONG_LONG_INT
   test_integer_sshift(longlong,"long long",longlong_bitsize);
-#endif
 }
 
 void main5(void) {
@@ -368,64 +350,54 @@ void main5(void) {
   test_integer_casts(short,ushort,"short","unsigned short",short_bitsize,ushort_bitsize,0);
   test_integer_casts(int,uint,"int","unsigned int",int_bitsize,uint_bitsize,0);
   test_integer_casts(long,ulong,"long","unsigned long",long_bitsize,ulong_bitsize,0);
+  test_integer_casts(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,0);
   test_integer_casts(uchar,schar,"unsigned char","char",uchar_bitsize,char_bitsize,0);
   test_integer_casts(ushort,short,"unsigned short","short",ushort_bitsize,short_bitsize,0);
   test_integer_casts(uint,int,"unsigned int","int",uint_bitsize,int_bitsize,0);
   test_integer_casts(ulong,long,"unsigned long","long",ulong_bitsize,long_bitsize,0);
-#ifdef HAVE_LONG_LONG_INT
-  test_integer_casts(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,0);
   test_integer_casts(ulonglong,longlong,"unsigned long long","long long",ulonglong_bitsize,longlong_bitsize,0);
-#endif
   /* dann Casts zwischen Integers unterschiedlicher Größe, aber gleichen Vorzeichens: */
   test_integer_casts(uchar,ushort,"unsigned char","unsigned short",uchar_bitsize,ushort_bitsize,1);
   test_integer_casts(uchar,uint,"unsigned char","unsigned int",uchar_bitsize,uint_bitsize,1);
   test_integer_casts(uchar,ulong,"unsigned char","unsigned long",uchar_bitsize,ulong_bitsize,1);
+  test_integer_casts(uchar,ulonglong,"unsigned char","unsigned long long",uchar_bitsize,ulonglong_bitsize,1);
   test_integer_casts(ushort,uint,"unsigned short","unsigned int",ushort_bitsize,uint_bitsize,1);
   test_integer_casts(ushort,ulong,"unsigned short","unsigned long",ushort_bitsize,ulong_bitsize,1);
-  test_integer_casts(uint,ulong,"unsigned int","unsigned long",uint_bitsize,ulong_bitsize,1);
-#ifdef HAVE_LONG_LONG_INT
-  test_integer_casts(uchar,ulonglong,"unsigned char","unsigned long long",uchar_bitsize,ulonglong_bitsize,1);
   test_integer_casts(ushort,ulonglong,"unsigned short","unsigned long long",ushort_bitsize,ulonglong_bitsize,1);
+  test_integer_casts(uint,ulong,"unsigned int","unsigned long",uint_bitsize,ulong_bitsize,1);
   test_integer_casts(uint,ulonglong,"unsigned int","unsigned long long",uint_bitsize,ulonglong_bitsize,1);
   test_integer_casts(ulong,ulonglong,"unsigned long","unsigned long long",ulong_bitsize,ulonglong_bitsize,1);
-#endif
   test_integer_casts(schar,short,"char","short",char_bitsize,short_bitsize,2);
   test_integer_casts(schar,int,"char","int",char_bitsize,int_bitsize,2);
   test_integer_casts(schar,long,"char","long",char_bitsize,long_bitsize,2);
+  test_integer_casts(schar,longlong,"char","long long",char_bitsize,longlong_bitsize,2);
   test_integer_casts(short,int,"short","int",short_bitsize,int_bitsize,2);
   test_integer_casts(short,long,"short","long",short_bitsize,long_bitsize,2);
-  test_integer_casts(int,long,"int","long",int_bitsize,long_bitsize,2);
-#ifdef HAVE_LONG_LONG_INT
-  test_integer_casts(schar,longlong,"char","long long",char_bitsize,longlong_bitsize,2);
   test_integer_casts(short,longlong,"short","long long",short_bitsize,longlong_bitsize,2);
+  test_integer_casts(int,long,"int","long",int_bitsize,long_bitsize,2);
   test_integer_casts(int,longlong,"int","long long",int_bitsize,longlong_bitsize,2);
   test_integer_casts(long,longlong,"long","long long",long_bitsize,longlong_bitsize,2);
-#endif
   /* dann Casts zwischen Integers unterschiedlicher Größe und unterschiedlichen Vorzeichens: */
   test_integer_casts(uchar,short,"unsigned char","short",uchar_bitsize,short_bitsize,1);
   test_integer_casts(uchar,int,"unsigned char","int",uchar_bitsize,int_bitsize,1);
   test_integer_casts(uchar,long,"unsigned char","long",uchar_bitsize,long_bitsize,1);
+  test_integer_casts(uchar,longlong,"unsigned char","long long",uchar_bitsize,longlong_bitsize,1);
   test_integer_casts(ushort,int,"unsigned short","int",ushort_bitsize,int_bitsize,1);
   test_integer_casts(ushort,long,"unsigned short","long",ushort_bitsize,long_bitsize,1);
-  test_integer_casts(uint,long,"unsigned int","long",uint_bitsize,long_bitsize,1);
-#ifdef HAVE_LONG_LONG_INT
-  test_integer_casts(uchar,longlong,"unsigned char","long long",uchar_bitsize,longlong_bitsize,1);
   test_integer_casts(ushort,longlong,"unsigned short","long long",ushort_bitsize,longlong_bitsize,1);
+  test_integer_casts(uint,long,"unsigned int","long",uint_bitsize,long_bitsize,1);
   test_integer_casts(uint,longlong,"unsigned int","long long",uint_bitsize,longlong_bitsize,1);
   test_integer_casts(ulong,longlong,"unsigned long","long long",ulong_bitsize,longlong_bitsize,1);
-#endif
   test_integer_casts(schar,ushort,"char","unsigned short",char_bitsize,ushort_bitsize,2);
   test_integer_casts(schar,uint,"char","unsigned int",char_bitsize,uint_bitsize,2);
   test_integer_casts(schar,ulong,"char","unsigned long",char_bitsize,ulong_bitsize,2);
+  test_integer_casts(schar,ulonglong,"char","unsigned long long",char_bitsize,ulonglong_bitsize,2);
   test_integer_casts(short,uint,"short","unsigned int",short_bitsize,uint_bitsize,2);
   test_integer_casts(short,ulong,"short","unsigned long",short_bitsize,ulong_bitsize,2);
-  test_integer_casts(int,ulong,"int","unsigned long",int_bitsize,ulong_bitsize,2);
-#ifdef HAVE_LONG_LONG_INT
-  test_integer_casts(schar,ulonglong,"char","unsigned long long",char_bitsize,ulonglong_bitsize,2);
   test_integer_casts(short,ulonglong,"short","unsigned long long",short_bitsize,ulonglong_bitsize,2);
+  test_integer_casts(int,ulong,"int","unsigned long",int_bitsize,ulong_bitsize,2);
   test_integer_casts(int,ulonglong,"int","unsigned long long",int_bitsize,ulonglong_bitsize,2);
   test_integer_casts(long,ulonglong,"long","unsigned long long",long_bitsize,ulonglong_bitsize,2);
-#endif
 }
 
 void main6(void) {
@@ -503,9 +475,7 @@ void main8(void) {
   get_alignment(short,"short"); get_alignment(ushort,"unsigned short");
   get_alignment(int,"int"); get_alignment(uint,"unsigned int");
   get_alignment(long,"long"); get_alignment(ulong,"unsigned long");
-#ifdef HAVE_LONG_LONG_INT
   get_alignment(longlong,"long long"); get_alignment(ulonglong,"unsigned long long");
-#endif
   get_alignment(float,"float");
   get_alignment(double,"double");
   get_alignment(char*,"char *");
@@ -554,9 +524,7 @@ void main9(void) {
   get_endian(ushort,"unsigned short",ushort_bitsize);
   get_endian(uint,"unsigned int",uint_bitsize);
   get_endian(ulong,"unsigned long",ulong_bitsize);
-#ifdef HAVE_LONG_LONG_INT
   get_endian(ulonglong,"unsigned long long",ulonglong_bitsize);
-#endif
   print("\n");
 }
 

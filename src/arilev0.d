@@ -224,7 +224,7 @@
            hi_assignment retval64_r1(_prod);               \
            lo_assignment retval64_r0(_prod);               \
          })
-    #elif defined(HAVE_LONG_LONG_INT)
+    #else
       #define mulu32(x,y,hi_assignment,lo_assignment)  \
         ({ var register uint64 _prod = (uint64)(x) * (uint64)(y); \
            hi_assignment (uint32)(_prod>>32);                      \
@@ -751,7 +751,7 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         retval64_r0(asm_divu_6432_3232_(xhi,xlo,y))
-    #elif defined(HAVE_LONG_LONG_INT)
+    #else
       #define divu_6432_3232(xhi,xlo,y,q_assignment,r_assignment) \
         ({var uint32 __xhi = (xhi);                           \
           var uint32 __xlo = (xlo);                           \

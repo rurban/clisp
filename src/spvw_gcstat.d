@@ -9,7 +9,7 @@ extern uintL gc_count;
  inc_gc_count(); */
 
 /* Number of bytes collected by GCs so far in this process. */
-extern uintL2 gc_space;
+extern uint64 gc_space;
 
 /* Accumulate the number of bytes collected by a GC.
  inc_gc_space(freed); */
@@ -26,23 +26,9 @@ global uintL gc_count = 0;
 
 #define inc_gc_count()  gc_count++
 
-global uintL2 gc_space =
- #ifdef intQsize
-  0
- #else
-  {0,0}
- #endif
-  ;
+global uint64 gc_space = 0;
 
-#ifdef intQsize
-  #define inc_gc_space(freed)  gc_space += (uintM)(freed)
-#else
-  #define inc_gc_space(freed)                                           \
-    do { gc_space.lo += (uintM)(freed);                                 \
-         if (gc_space.lo < (uintM)(freed))        /* carry forward? */  \
-           gc_space.hi += 1;                                            \
-    } while(0)
-#endif
+#define inc_gc_space(freed)  gc_space += (uintM)(freed)
 
 global internal_time_t gc_time = {0,0};
 
