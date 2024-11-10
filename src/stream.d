@@ -13956,38 +13956,25 @@ modexp maygc struct timeval * sec_usec
       usec = value1;
     }
   }
-#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
- #define TV_SEC(s)  I_to_uint64(check_uint64(s))
-#else
- #define TV_SEC(s)  I_to_uint32(check_uint32(s))
-#endif
-  tv->tv_sec = TV_SEC(sec);
-  tv->tv_usec = (missingp(usec) ? 0 : TV_SEC(usec));
-#undef TV_SEC
+  tv->tv_sec = (sizeof(tv->tv_sec) > 4 ? I_to_sint64(check_sint64(sec)) : I_to_sint32(check_sint32(sec)));
+  tv->tv_usec = (missingp(usec) ? 0 : I_to_uint32(check_uint32(usec)));
   return tv;
 }
 
 /* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
  if abs_p is true, add UNIX_LISP_TIME_DIFF
  can trigger GC */
-#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
-#define TO_INT(x)  uint64_to_I(x)
-modexp maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p)
-#else
-#define TO_INT(x)  uint32_to_I(x)
-modexp maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p)
-#endif
+modexp maygc object sec_usec_number (sint64 sec, uint32 usec, bool abs_p)
 {
-  pushSTACK(TO_INT((abs_p ? UNIX_LISP_TIME_DIFF : 0) + sec));
+  pushSTACK(Q_to_I((abs_p ? UNIX_LISP_TIME_DIFF : 0) + sec));
   if (usec) {
     /* this is likely to end up as a ratio... */
-    pushSTACK(TO_INT(usec)); pushSTACK(fixnum(1000000)); funcall(L(slash),2);
+    pushSTACK(uint32_to_I(usec)); pushSTACK(fixnum(1000000)); funcall(L(slash),2);
     pushSTACK(value1); funcall(L(plus),2);
     return value1;
   } else
     return popSTACK();
 }
-#undef TO_INT
 
 #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
 /* wait for the socket server to have a connection ready

@@ -383,11 +383,11 @@ modexp maygc object convert_time_to_universal (const time_t* time)
 {
   /* Since we get the timezone from the OS (sys::default-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
-  return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
+  return Q_to_I(UNIX_LISP_TIME_DIFF + (sint64)(*time));
 }
 /* the inverse of convert_time_to_universal() */
 modexp void convert_time_from_universal (object universal, time_t* time) {
-  *time = I_to_UL(universal) - UNIX_LISP_TIME_DIFF;
+  *time = I_to_Q(universal) - UNIX_LISP_TIME_DIFF;
 }
 #endif
 
@@ -429,13 +429,13 @@ modexp void convert_time_from_universal (object universal, FILETIME* time) {
  Wall clock time is measured with second resolution only.
 
 Returns the wall clock time in seconds (since session start or 1900-01-01).*/
-local uintL real_time_sec (void)
+local sint64 real_time_sec (void)
 {
  #if defined(TIME_UNIX)
-  var uintL real_time;     /* seconds */
+  var sint64 real_time;     /* seconds */
   var internal_time_t it;
   get_real_time(&it);
-  real_time = UNIX_LISP_TIME_DIFF + it.tv_sec;
+  real_time = UNIX_LISP_TIME_DIFF + (sint64)(it.tv_sec);
  #elif defined(TIME_WIN32)
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
     { (ULONG)((ULONGLONG)109207 *
@@ -443,7 +443,7 @@ local uintL real_time_sec (void)
       (ULONG)(((ULONGLONG)109207 *
                (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)};
   var internal_time_t internal_real_time;
-  var uintL real_time;
+  var sint64 real_time;
   get_real_time(&internal_real_time);
   sub_internal_time(internal_real_time,offset,internal_real_time);
   divu_6432_3232(internal_real_time.dwHighDateTime,
@@ -458,7 +458,7 @@ local uintL real_time_sec (void)
 
 LISPFUNNR(get_universal_time,0)
 { /* (get-universal-time), CLTL p. 445 */
-  VALUES1(UL_to_I(real_time_sec()));
+  VALUES1(Q_to_I(real_time_sec()));
 }
 
 /* UP: Initialises the time variables at the LISP session/thread start.

@@ -18284,16 +18284,8 @@ extern maygc struct timeval * sec_usec (object sec, object usec, struct timeval 
 /* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
  if abs_p is true, add UNIX_LISP_TIME_DIFF
  can trigger GC */
-#if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
-global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);
-#else
-global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);
-#endif
-%% #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
-%% exportF(object,sec_usec_number,(uint64 sec, uint64 usec, bool abs_p));
-%% #else
-%% exportF(object,sec_usec_number,(uint32 sec, uint32 usec, bool abs_p));
-%% #endif
+global maygc object sec_usec_number (sint64 sec, uint32 usec, bool abs_p);
+%% exportF(object,sec_usec_number,(sint64 sec, uint32 usec, bool abs_p));
 
 /* UP: Initializes the OS dependencies for streams.
  init_stream_osdeps(); */
@@ -18968,18 +18960,14 @@ extern maygc object L_to_I (sint32 val);
 %%   exportF(object,UL2_to_I,(uint32 val_hi, uint32 val_lo));
 %% #endif
 
-#if defined(intQsize) || (intVsize>32)
-  /* Converts a quadword into an Integer.
-   Q_to_I(val)
-   > val: value of the Integer, a signed 64-bit-Integer.
-   < result: Integer with that value
-   can trigger GC */
-  extern maygc object Q_to_I (sint64 val);
-  /* is used by the FFI */
-#endif
-%% #if defined(intQsize) || (intVsize>32)
-%%   exportF(object,Q_to_I,(sint64 val));
-%% #endif
+/* Converts a quadword into an Integer.
+ Q_to_I(val)
+ > val: value of the Integer, a signed 64-bit-Integer.
+ < result: Integer with that value
+ can trigger GC */
+extern maygc object Q_to_I (sint64 val);
+/* is used by TIME and by the FFI */
+%% exportF(object,Q_to_I,(sint64 val));
 
 #if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
   /* Converts an unsigned quadword into an Integer >=0.
@@ -19129,7 +19117,7 @@ extern uint64 I_to_UQ (object obj);
  > obj: an object, should be an Integer >=-2^63, <2^63
  < result: the Integer's value as quadword. */
 extern sint64 I_to_Q (object obj);
-/* used by FOREIGN, for FFI, and by modules */
+/* used by TIME, FOREIGN, for FFI, and by modules */
 %% exportF(sint64,I_to_Q,(object obj));
 
 /* Converts an Integer into a C-Integer of a given type.

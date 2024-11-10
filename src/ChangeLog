@@ -1,5 +1,27 @@
 2024-11-10  Bruno Haible  <bruno@clisp.org>
 
+	Fix universal-time overflow in the year 2036.
+	Reported by Bernhard M. Wiedemann via Dr. Werner Fink in
+	<https://sourceforge.net/p/clisp/feature-requests/59/>
+	<https://gitlab.com/gnu-clisp/clisp/-/issues/48>.
+	* lispbibl.d (sec_usec_number): Change seconds parameter to sint64 and
+	microseconds parameter to uint32.
+	(Q_to_I): Declare unconditionally.
+	* intelem.d (Q_to_I): Define unconditionally.
+	* time.d (convert_time_to_universal): Cast time_t to sint64. Use Q_to_I
+	instead of UL_to_I.
+	(convert_time_from_universal): Use I_to_Q instead of I_to_UL.
+	(real_time_sec): Return a sint64.
+	(GET-UNIVERSAL-TIME): Use Q_to_I instead of UL_to_I.
+	* stream.d (sec_usec): Check that the seconds parameter is a sint64 or
+	sint64, depending on the type of 'tv_sec' in 'struct timeval'.
+	(sec_usec_number): Change seconds parameter to sint64 and microseconds
+	parameter to uint32. Use Q_to_I.
+	* modules/syscalls/calls.c (file_stat_to_STACK): Convert each st_*time
+	value to sint64 before adding +UNIX_LISP_TIME_DIFF.
+
+2024-11-10  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for C compilers that don't support 64-bit 'long long'.
 	* intparam.c: Assume HAVE_LONG_LONG_INT.
 	* m4/intparam.m4 (CL_INTPARAM_CROSS): Don't require

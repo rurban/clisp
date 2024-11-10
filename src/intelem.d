@@ -774,7 +774,6 @@ modexp maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
 }
 #endif
 
-#if defined(intQsize) || (intVsize>32)
 /* converts quadword into integer.
  Q_to_I(value)
  > value: value of the integer, a signed 64-bit-integer.
@@ -838,7 +837,6 @@ modexp maygc object Q_to_I (sint64 value)
   #undef FILL_2_DIGITS
   #undef FILL_1_DIGIT
 }
-#endif
 
 #if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
 /* converts unsigned quadword into integer >=0 .

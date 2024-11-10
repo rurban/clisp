@@ -1918,9 +1918,9 @@ static void file_stat_to_STACK (object file, const struct stat *ps) {
   pushSTACK(NIL);
 #endif
   /* cannot use convert_time_to_universal() because this is used on win32 */
-  pushSTACK(UL_to_I(ps->st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
-  pushSTACK(UL_to_I(ps->st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
-  pushSTACK(UL_to_I(ps->st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
+  pushSTACK(Q_to_I((sint64)(ps->st_atime)+UNIX_LISP_TIME_DIFF));/*time of last access*/
+  pushSTACK(Q_to_I((sint64)(ps->st_mtime)+UNIX_LISP_TIME_DIFF));/*last modification*/
+  pushSTACK(Q_to_I((sint64)(ps->st_ctime)+UNIX_LISP_TIME_DIFF));/*time of last change*/
 }
 
 DEFUN(POSIX::FILE-STAT, file &optional linkp)
