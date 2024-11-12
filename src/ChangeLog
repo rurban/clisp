@@ -1,3 +1,9 @@
+2024-11-12  Bruno Haible  <bruno@clisp.org>
+
+	Fix compilation errors of SAFETY=3 builds with gcc versions < 5.
+	* lispbibl.d (OBJECT_STRUCT, CHART_STRUCT): Don't define with gcc
+	versions < 5.
+
 2024-11-10  Bruno Haible  <bruno@clisp.org>
 
 	Fix universal-time overflow in the year 2036.

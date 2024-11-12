@@ -3765,8 +3765,16 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 #if defined(GNU) && (SAFETY >= 3)
   /* Typechecking by the C-compiler */
-  #define OBJECT_STRUCT
-  #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)) /* only if struct_alignment==1, and not with g++ 3.3 */
+  #if !(defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus) && __GNUC__ < 5)
+    /* not with gcc < 5 (due to "error: initializer element is not constant"
+       in fsubr.d, subr.d, constsym.d, constobj.d, and in the modules) */
+    #define OBJECT_STRUCT
+  #endif
+  #if !(defined(M68K) || defined(ARM)) && !(defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus) && __GNUC__ < 5) && !(defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3))
+    /* only if struct_alignment==1,
+       and not with gcc < 5 (due to "error: initializer element is not constant"
+       in stream.d),
+       and not with g++ 3.3 */
     #define CHART_STRUCT
   #endif
 #endif
