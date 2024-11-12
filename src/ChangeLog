@@ -1,5 +1,19 @@
 2024-11-12  Bruno Haible  <bruno@clisp.org>
 
+	Improve memory mapping on Linux/s390x with newer Linux kernels.
+	Reported by Sébastien Villemot in
+	<https://gitlab.com/gnu-clisp/clisp/-/issues/2>.
+	* lispbibl.d [UNIX_LINUX && S390_64]: Support more variation of
+	CODE_ADDRESS_RANGE. Choose larger values for
+	MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END. Choose new
+	values for SINGLEMAP_TYPE_MASK, SINGLEMAP_oint_type_shift. Don't favour
+	GENERIC64_HEAPCODES. Set HEAPCODES1BIT_WITH_MALLOC_WORKS to 1.
+	* Makefile.devel (multibuild-linux-s390x): Enable all build variants.
+	* tests/alltest.tst: Allow new values of most-positive-fixnum,
+	most-negative-fixnum.
+
+2024-11-12  Bruno Haible  <bruno@clisp.org>
+
 	Fix compilation errors of SAFETY=3 builds with gcc versions < 5.
 	* lispbibl.d (OBJECT_STRUCT, CHART_STRUCT): Don't define with gcc
 	versions < 5.

@@ -2009,6 +2009,8 @@ multibuild-linux-s390x: \
   build-porting64-gcc-portability \
   build-porting64-gcc-safety3 \
   build-porting64-gcc-heapcodes \
+  build-porting64-gcc-one_free_bit_heapcodes-malloc \
+  build-porting64-gcc-one_free_bit_heapcodes-trivialmap \
   build-porting64-gcc-generic64_heapcodes \
   build-porting64-gcc-heapcodes-spvw_pages \
   build-porting64-gcc-typecodes-spvw_pure_pages \
@@ -2023,7 +2025,8 @@ multibuild-linux-s390x: \
   build-porting64-gcc-generational_gc-old_gc \
   build-porting64-gcc-generational_gc-multithread_gc \
   build-porting64-gcc-safety0 \
-  build-porting64-gcc-safety0-optimized
+  build-porting64-gcc-safety0-optimized \
+  build-porting64-gcc-debug_gcsafety
 
 # Linux/sparc64
 multibuild-linux-sparc64: \

@@ -2680,26 +2680,37 @@ typedef enum {
     #define MAPPABLE_ADDRESS_RANGE_END   0x001FFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(S390_64)
-    /* On Linux/s390x:
+    /* On Linux/s390x (Debian 8):
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 52
        CODE_ADDRESS_RANGE   = 0x0000000080000000UL or 0x0000000106000000UL or 0x0000000119000000UL
        MALLOC_ADDRESS_RANGE = 0x0000000081000000UL ... 0x00000000BE000000UL or 0x000000012x000000UL
        SHLIB_ADDRESS_RANGE  = 0x000003FF81000000UL ... 0x000003FFFD000000UL
        STACK_ADDRESS_RANGE  = 0x000003FFC2000000UL ... 0x000003FFFF000000UL
-       On Linux/s390x build.opensuse.org machines:
+       On Linux/s390x (openSUSE):
        MMAP_FIXED_ADDRESS_HIGHEST_BIT = 62
        CODE_ADDRESS_RANGE   = 0x0000000001000000UL
        MALLOC_ADDRESS_RANGE = 0x0000000001000000UL
-       SHLIB_ADDRESS_RANGE  = 0x0000020000000000UL
-       STACK_ADDRESS_RANGE  = 0x000003FFFF000000UL
-       There is room from 0x000200000000UL to 0x020000000000UL. */
+       SHLIB_ADDRESS_RANGE  = 0x0000020000000000UL or 0x000003FF8C000000UL
+       STACK_ADDRESS_RANGE  = 0x000003FFFA000000UL ... 0x000003FFFF000000UL
+       On Linux/s390x (Alpine Linux):
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 62
+       CODE_ADDRESS_RANGE   = 0x000002AA1C000000UL
+       MALLOC_ADDRESS_RANGE = 0x000003FFB4000000UL
+       SHLIB_ADDRESS_RANGE  = 0x000003FF92000000UL
+       STACK_ADDRESS_RANGE  = 0x000003FFE9000000UL
+       There is room from 0x0000030000000000UL to 0x000003FF00000000UL
+       and from 0x0000040000000000UL to 0x0020000000000000UL. */
     /* Force the same CODE_ADDRESS_RANGE across platforms. */
-    #if (CODE_ADDRESS_RANGE < 0x0000000200000000UL)
+    #if (CODE_ADDRESS_RANGE < 0x0000030000000000UL)
       #undef CODE_ADDRESS_RANGE
-      #define CODE_ADDRESS_RANGE 0x00000001FF000000UL
+      #define CODE_ADDRESS_RANGE 0x000002FF00000000UL
     #endif
-    #define MAPPABLE_ADDRESS_RANGE_START 0x000200000000UL
-    #define MAPPABLE_ADDRESS_RANGE_END   0x01FFFFFFFFFFUL
+    #if 0
+      #define MAPPABLE_ADDRESS_RANGE_START 0x0000030000000000UL
+      #define MAPPABLE_ADDRESS_RANGE_END   0x000003FF00000000UL
+    #endif
+    #define MAPPABLE_ADDRESS_RANGE_START 0x0000040000000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x001FFFFFFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(SPARC64)
     /* On Linux 3.2/sparc64:
@@ -3453,8 +3464,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
   #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
     #define SINGLEMAP_ADDRESS_BASE 0UL
-    #define SINGLEMAP_TYPE_MASK    0x01FC00000000UL
-    #define SINGLEMAP_oint_type_shift 34
+    #define SINGLEMAP_TYPE_MASK    0x0001FC0000000000UL
+    #define SINGLEMAP_oint_type_shift 42
     #define SINGLEMAP_WORKS 1
   #endif
   #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
@@ -3950,9 +3961,6 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         /* With GENERIC64_HEAPCODES we don't need to make assumptions about the
            address range. */
         #define GENERIC64_HEAPCODES
-      #elif (defined(UNIX_LINUX) && defined(S390_64))
-        /* On these platforms, ONE_FREE_BIT_HEAPCODES does not generally work. */
-        #define GENERIC64_HEAPCODES
       #else
         /* The general case. */
         #define ONE_FREE_BIT_HEAPCODES
@@ -4166,8 +4174,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_LINUX) && defined(S390_64) /* Linux/s390x */
-        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1 /* but only with(!) GENERATIONAL_GC */
-        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 0
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
       #if defined(UNIX_LINUX) && defined(SPARC64) /* Linux/sparc64 */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
