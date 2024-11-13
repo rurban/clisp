@@ -64,4 +64,3 @@ in ~/.clisprc.  On win32 you can also use the Registry."
 You can set the environment variable `CLHSROOT' or redefine this function
 in ~/.clisprc.  On win32 you can also use the Registry."
   (or (getenv "CLHSROOT") *clhs-root-default*))
-(setq *clhs-root-default* "http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/")

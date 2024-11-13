@@ -1,3 +1,10 @@
+2024-11-13  Bruno Haible  <bruno@clisp.org>
+
+	Add user configuration for Haiku, part 3.
+	Reported by Alexandru Popa <alpopa@gmail.com>.
+	* cfghaiku.lisp: Remove *clhs-root-default* assignment. It is being
+	added automatically to config.lisp during the build process.
+
 2024-11-12  Bruno Haible  <bruno@clisp.org>
 
 	Improve memory mapping on Linux/s390x with newer Linux kernels.
