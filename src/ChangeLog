@@ -1,3 +1,11 @@
+2024-11-16  Bruno Haible  <bruno@clisp.org>
+
+	Fix a compiler bug that would lead to a wrong value of STACK.
+	Reported by Paul F. Dietz
+	at <https://gitlab.com/gnu-clisp/clisp/issues/11>.
+	* compiler.lisp (simplify): Fix the (SKIPI k11 k21 n1)
+	(SKIPI k21 k22 n2) combination rule.
+
 2024-11-13  Bruno Haible  <bruno@clisp.org>
 
 	Add user configuration for Haiku, part 3.
