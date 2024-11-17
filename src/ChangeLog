@@ -1,3 +1,8 @@
+2024-11-17  Bruno Haible  <bruno@clisp.org>
+
+	Review memory mapping on Linux/arm64 with newer Linux kernels.
+	* lispbibl.d (MALLOC_ADDRESS_RANGE): Move override.
+
 2024-11-16  Bruno Haible  <bruno@clisp.org>
 
 	Fix a compiler bug that would lead to a wrong value of STACK.
