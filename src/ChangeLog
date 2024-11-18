@@ -1,3 +1,18 @@
+2024-11-18  Bruno Haible  <bruno@clisp.org>
+
+	Enable most optimizations on Linux/loongarch64.
+	* lispbibl.d (LOONGARCH64): New macro.
+	(C_CODE_ALIGNMENT, intDsize, varobject_alignment, SP_register,
+	ASM_get_SP_register, SP_DOWN): Define for loongarch64.
+	(MAPPABLE_ADDRESS_RANGE_START, MAPPABLE_ADDRESS_RANGE_END, SINGLEMAP_*,
+	HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS, HEAPCODES1BIT_WITH_MALLOC_WORKS,
+	GENERIC64C_HEAPCODES_WORKS, TYPECODES_WITH_TRIVIALMAP_WORKS,
+	TYPECODES_WITH_MALLOC_WORKS): Define for Linux/loongarch64.
+	* Makefile.devel (multibuild-linux-loongarch64): New target. Enable all
+	build variants that work.
+	* makemake.in (XCFLAGS): For Linux/loongarch64, enable all optimizations
+	except ASM.
+
 2024-11-17  Bruno Haible  <bruno@clisp.org>
 
 	Review memory mapping on Linux/powerpc64 with newer Linux kernels.

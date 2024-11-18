@@ -202,7 +202,8 @@
  IA64 == the Intel IA-64 latecomer chip
  AMD64 == the AMD hammer chip
  S390 == the IBM S/390 processor
- RISCV64 == the 64-bit RISC-V processor family */
+ RISCV64 == the 64-bit RISC-V processor family
+ LOONGARCH64 == the 64-bit LoongArch processor */
   /* 32-bit processors: */
   #if defined(m68k) || defined(__m68k__)
     #define M68K
@@ -265,6 +266,9 @@
   #endif
   #ifdef __ia64__
     #define IA64
+  #endif
+  #ifdef __loongarch64
+    #define LOONGARCH64
   #endif
 
 /* Selection of the operating system */
@@ -555,7 +559,7 @@
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(POWERPC) || defined(ARM64) || defined(AMD64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__m88k__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
+#if (defined(I80386) && defined(GNU)) || defined(DECALPHA) || defined(SPARC) || defined(MIPS) || defined(POWERPC) || defined(ARM64) || defined(AMD64) || defined(LOONGARCH64) || defined(__arc__) || defined(__bfin__) || defined(__TMS320C6X__) || defined(__epiphany__) || defined(__fr30__) || defined(__FT32__) || defined(__iq2000__) || defined(__lm32__) || defined(__M32R__) || defined(__m88k__) || defined(__MICROBLAZE__) || defined(__mmix__) || defined(__nds32__) || defined(__NIOS2__) || defined(__nvptx__) || defined(__VISIUM__) || defined(__xtensa__)
   /* When using gcc on i386, this assumes that -malign-functions has not been
    used to specify an alignment smaller than 4 bytes. */
   #define C_CODE_ALIGNMENT  4
@@ -1808,7 +1812,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 /* The arithmetics use "digit sequences" of "digits".
  They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
  If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits. */
-#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || ... */
+#if 1 /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(POWERPC) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || defined(LOONGARCH64) || ... */
   #define intDsize 32
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
@@ -2623,6 +2627,18 @@ typedef enum {
        There is room from 0x6000000100000000UL to 0x600007FF00000000UL. */
     #define MAPPABLE_ADDRESS_RANGE_START 0x6000000100000000UL
     #define MAPPABLE_ADDRESS_RANGE_END   0x600007FEFFFFFFFFUL
+  #endif
+  #if defined(UNIX_LINUX) && defined(LOONGARCH64)
+    /* On Linux/loongarch64:
+       MMAP_FIXED_ADDRESS_HIGHEST_BIT = 46
+       CODE_ADDRESS_RANGE   = 0x00005555xx000000UL
+       MALLOC_ADDRESS_RANGE = 0x00005555xx000000UL
+       SHLIB_ADDRESS_RANGE  = 0x00007FFFF2000000UL ... 0x00007FFFF3000000UL
+       STACK_ADDRESS_RANGE  = 0x00007FFFFB000000UL
+       There is room from 0x000100000000UL to 0x400000000000UL
+       and from 0x600000000000UL to 0x7F0000000000UL. */
+    #define MAPPABLE_ADDRESS_RANGE_START 0x000100000000UL
+    #define MAPPABLE_ADDRESS_RANGE_END   0x3FFFFFFFFFFFUL
   #endif
   #if defined(UNIX_LINUX) && defined(MIPS64)
     /* On Linux/mips64eb and Linux/mips64el with 64-bit ABI:
@@ -3448,6 +3464,15 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define SINGLEMAP_oint_type_shift 36
     #define SINGLEMAP_WORKS 1
   #endif
+  #if defined(UNIX_LINUX) && defined(LOONGARCH64) /* Linux/loongarch64 */
+    #define SINGLEMAP_ADDRESS_BASE 0UL
+    #define SINGLEMAP_TYPE_MASK    0x2AAA00000000UL
+    #define SINGLEMAP_oint_type_shift 33
+    /* This configuration does not work, because the assumption below, that
+       tint_type_mask has 6..7 bits and up to 3 "holes", is not fulfilled.
+       TB4 would not be defined with the current code. */
+    #define SINGLEMAP_WORKS 0
+  #endif
   #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
     #define SINGLEMAP_ADDRESS_BASE 0x008000000000UL
     #define SINGLEMAP_TYPE_MASK    0x007E00000000UL
@@ -4167,6 +4192,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
       #endif
+      #if defined(UNIX_LINUX) && defined(LOONGARCH64) /* Linux/loongarch64 */
+        #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
+        #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
+      #endif
       #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
         #define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS 1
         #define HEAPCODES1BIT_WITH_MALLOC_WORKS 1
@@ -4521,6 +4550,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #if defined(UNIX_LINUX) && defined(IA64) /* Linux/ia64 */
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
+    #if defined(UNIX_LINUX) && defined(LOONGARCH64) /* Linux/loongarch64 */
+      #define GENERIC64C_HEAPCODES_WORKS 1
+    #endif
     #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
       #define GENERIC64C_HEAPCODES_WORKS 1
     #endif
@@ -4801,6 +4833,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
             #define oint_addr_mask 0xE01FFFFFFFFFFFFFUL
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
           #endif
+          #if defined(UNIX_LINUX) && defined(LOONGARCH64) /* Linux/loongarch64 */
+            #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
+          #endif
           #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
             #define TYPECODES_WITH_TRIVIALMAP_WORKS 1
           #endif
@@ -4908,6 +4943,9 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
             #define garcol_bit_o 60
             #define oint_addr_mask 0xE01FFFFFFFFFFFFFUL
             #define TYPECODES_WITH_MALLOC_WORKS 0
+          #endif
+          #if defined(UNIX_LINUX) && defined(LOONGARCH64) /* Linux/loongarch64 */
+            #define TYPECODES_WITH_MALLOC_WORKS 1
           #endif
           #if defined(UNIX_LINUX) && defined(MIPS64) /* Linux/mips with 64-bit ABI */
             #define TYPECODES_WITH_MALLOC_WORKS 1
@@ -5968,7 +6006,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #if defined(I80386) || defined(POWERPC) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64) || defined(RISCV64)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(ARM64) || defined(RISCV64) || defined(LOONGARCH64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)
@@ -11569,6 +11607,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef RISCV64
     #define SP_register "sp"
   #endif
+  #ifdef LOONGARCH64
+    #define SP_register "$sp"
+  #endif
 #endif
 #if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
   /* Assembler-instruction that copies the SP-register into a variable. */
@@ -11618,6 +11659,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef RISCV64
     #define ASM_get_SP_register(resultvar)  ("mv %0,sp" : "=r" (resultvar) : )
+  #endif
+  #ifdef LOONGARCH64
+    #define ASM_get_SP_register(resultvar)  ("move %0,$sp" : "=r" (resultvar) : )
   #endif
 #endif
 #if defined(GNU) && defined(M68K) && !defined(NO_ASM)
@@ -11675,7 +11719,7 @@ All other long words on the LISP-Stack are LISP-objects.
   extern void* getSP (void);
   #define NEED_OWN_GETSP
 #endif
-#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || ... */
+#if defined(stack_grows_down) /* defined(M68K) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || defined(RISCV64) || defined(LOONGARCH64) || ... */
   #define SP_DOWN /* SP grows downward */
   #define SPoffset 0 /* top-of-SP ist *(SP+SPoffset) */
 #endif

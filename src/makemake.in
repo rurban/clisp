@@ -1767,6 +1767,11 @@ else
         Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
         ;;
 
+      # Linux/loongarch64
+      linux*--loongarch64*)
+        Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
+        ;;
+
       # Linux/mips64eb and Linux/mips64el with 64-bit ABI
       linux*--mips64)
         Z_XCFLAGS="$Z_XCFLAGS -DNO_ASM"
