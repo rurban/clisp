@@ -1,3 +1,9 @@
+2024-11-19  Bruno Haible  <bruno@clisp.org>
+
+	Add comments.
+	* Makefile.devel (build-porting*): Add comments regarding *_WORKS macros
+	in lispbibl.d.
+
 2024-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Enable most optimizations on Linux/loongarch64.

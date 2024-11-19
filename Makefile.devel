@@ -580,6 +580,7 @@ build-porting32-gcc-heapcodes:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+# If this configuration does not work, define HEAPCODES1BIT_WITH_MALLOC_WORKS to 0 in lispbibl.d.
 build-porting32-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -587,6 +588,7 @@ build-porting32-gcc-one_free_bit_heapcodes-malloc:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+# If this configuration does not work, define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS to 0 in lispbibl.d.
 build-porting32-gcc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -594,6 +596,7 @@ build-porting32-gcc-one_free_bit_heapcodes-trivialmap:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force KERNELVOID32_HEAPCODES.
+# If this configuration does not work, define KERNELVOID32_HEAPCODES_WORKS to 0 in lispbibl.d.
 build-porting32-gcc-kernelvoid32_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -631,6 +634,7 @@ build-porting32-gcc-heapcodes-spvw_mixed_blocks:
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+# If this configuration actually works (usually it doesn't), define TYPECODES_WITH_MALLOC_WORKS to 1 in lispbibl.d.
 build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -639,6 +643,7 @@ build-porting32-gcc-typecodes-spvw_mixed_blocks-malloc:
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+# If this configuration does not work, define TYPECODES_WITH_TRIVIALMAP_WORKS to 0 in lispbibl.d.
 build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -646,6 +651,7 @@ build-porting32-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_32_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+# If this configuration does not work, define SINGLEMAP_WORKS to 0 in lispbibl.d.
 build-porting32-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -965,6 +971,7 @@ build-porting64-gcc-heapcodes:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES (no use of mmap).
+# If this configuration does not work, define HEAPCODES1BIT_WITH_MALLOC_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-one_free_bit_heapcodes-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -972,6 +979,7 @@ build-porting64-gcc-one_free_bit_heapcodes-malloc:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force ONE_FREE_BIT_HEAPCODES with TRIVIALMAP_MEMORY.
+# If this configuration does not work, define HEAPCODES1BIT_WITH_TRIVIALMAP_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-one_free_bit_heapcodes-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -979,6 +987,7 @@ build-porting64-gcc-one_free_bit_heapcodes-trivialmap:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force GENERIC64_HEAPCODES.
+# If this configuration does not work, define GENERIC64C_HEAPCODES_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-generic64_heapcodes:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -1016,6 +1025,7 @@ build-porting64-gcc-heapcodes-spvw_mixed_blocks:
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS (no use of mmap).
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+# If this configuration does not work, define TYPECODES_WITH_MALLOC_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -1024,6 +1034,7 @@ build-porting64-gcc-typecodes-spvw_mixed_blocks-malloc:
 
 # Force TYPECODES with SPVW_MIXED_BLOCKS with TRIVIALMAP_MEMORY.
 # Possible further options: -DCONS_HEAP_GROWS_UP or -DCONS_HEAP_GROWS_DOWN.
+# If this configuration does not work, define TYPECODES_WITH_TRIVIALMAP_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
@@ -1031,6 +1042,7 @@ build-porting64-gcc-typecodes-spvw_mixed_blocks-trivialmap:
 	  ./configure --cbcx $(MULTIBUILD_OPTIONS) $(MULTIBUILD_64_OPTIONS) --disable-portability $@
 
 # Force SPVW_PURE_BLOCKS (equivalent to SINGLEMAP_MEMORY).
+# If this configuration does not work, define SINGLEMAP_WORKS to 0 in lispbibl.d.
 build-porting64-gcc-spvw_pure_blocks:
 	$(RMRF) $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
