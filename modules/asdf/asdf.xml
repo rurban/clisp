@@ -3,17 +3,17 @@
 <section id="asdf"><title>A System Definition Facility</title>
 
 <para>This module offers a system definition facility (similar to &make;).
-It is based on &asdf; 3.2.0.</para>
+It is based on &asdf; 3.3.6.7.</para>
 
 <para>Additionally, it hooks into &require-my; using &module-providers;.
 This way, requiring a module causes &asdf; to load the corresponding system.</para>
 
 <para>When this module is present, &features-my; contains the symbols
-<simplelist><member><constant>:ASDF3.2</constant></member>
+<simplelist><member><constant>:ASDF3.3</constant></member>
+<member><constant>:ASDF3.2</constant></member>
 <member><constant>:ASDF3.1</constant></member>
 <member><constant>:ASDF3</constant></member>
 <member><constant>:ASDF2</constant></member>
-<member><constant>:ASDF</constant></member>
-<member><constant>:ASDF-PACKAGE-SYSTEM</constant></member></simplelist>.</para>
+<member><constant>:ASDF</constant></member></simplelist>.</para>
 
 </section>
