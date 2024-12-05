@@ -1,3 +1,9 @@
+2024-12-05  Bruno Haible  <bruno@clisp.org>
+
+	Revisit Linux/riscv64 builds.
+	* Makefile.devel (multibuild-linux-riscv64): Enable all build variants
+	that work.
+
 2024-11-23  Bruno Haible  <bruno@clisp.org>
 
 	Upgrade ASDF. This fixes a bug on Haiku.
