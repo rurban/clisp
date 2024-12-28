@@ -47,11 +47,12 @@ AC_DEFUN([gl_EARLY],
   # Code from module alignasof:
   # Code from module alloca:
   # Code from module alloca-opt:
-  # Code from module arpa_inet:
+  # Code from module arpa_inet-h:
   # Code from module assert-h:
   # Code from module attribute:
   # Code from module basename-lgpl:
   # Code from module bind:
+  # Code from module bool:
   # Code from module btoc32:
   # Code from module btowc:
   # Code from module builtin-expect:
@@ -86,7 +87,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module double-slash-root:
   # Code from module dup2:
   # Code from module environ:
-  # Code from module errno:
+  # Code from module errno-h:
   # Code from module extensions:
   # This is actually already done in the pre-early phase.
   # AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
@@ -100,7 +101,7 @@ AC_DEFUN([gl_EARLY],
   AC_REQUIRE([gl_SET_LARGEFILE_SOURCE])
   # Code from module filename:
   # Code from module flexmember:
-  # Code from module float:
+  # Code from module float-h:
   # Code from module fnmatch:
   # Code from module fnmatch-gnu:
   # Code from module fnmatch-h:
@@ -128,6 +129,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gettimeofday:
   # Code from module glibc-internal/dynarray:
   # Code from module gnu-make:
+  # Code from module gnulib-i18n:
   # Code from module hard-locale:
   # Code from module havelib:
   # Code from module host-cpu-c-abi:
@@ -138,7 +140,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module inet_pton:
   # Code from module inline:
   # Code from module intprops:
-  # Code from module inttypes-incomplete:
+  # Code from module inttypes-h-incomplete:
   # Code from module ioctl:
   # Code from module isblank:
   # Code from module iswblank:
@@ -146,7 +148,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module iswdigit:
   # Code from module iswpunct:
   # Code from module iswxdigit:
-  # Code from module langinfo:
+  # Code from module langinfo-h:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module libc-config:
@@ -156,14 +158,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module link-follow:
   # Code from module listen:
   # Code from module localcharset:
-  # Code from module locale:
+  # Code from module locale-h:
   # Code from module localeconv:
   # Code from module lock:
   # Code from module lseek:
   # Code from module lstat:
+  # Code from module malloc-gnu:
   # Code from module malloc-posix:
   # Code from module malloca:
-  # Code from module math:
+  # Code from module math-h:
   # Code from module mbrtoc32:
   # Code from module mbrtowc:
   # Code from module mbsinit:
@@ -183,7 +186,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module msvc-inval:
   # Code from module msvc-nothrow:
   # Code from module multiarch:
-  # Code from module netinet_in:
+  # Code from module netinet_in-h:
   # Code from module nl_langinfo:
   # Code from module no-c++:
   # Code from module nocrash:
@@ -198,7 +201,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module recv:
   # Code from module recvfrom:
   # Code from module regex:
-  # Code from module sched:
+  # Code from module sched-h:
   # Code from module select:
   # Code from module send:
   # Code from module sendto:
@@ -220,41 +223,40 @@ AC_DEFUN([gl_EARLY],
   # Code from module stat:
   # Code from module stat-time:
   # Code from module std-gnu11:
-  # Code from module stdbool:
-  # Code from module stdckdint:
-  # Code from module stddef:
-  # Code from module stdint:
-  # Code from module stdio:
+  # Code from module stdckdint-h:
+  # Code from module stddef-h:
+  # Code from module stdint-h:
+  # Code from module stdio-h:
   gl_STDIO_H_EARLY
-  # Code from module stdlib:
+  # Code from module stdlib-h:
   # Code from module strcase:
   # Code from module streq:
   # Code from module strerror-override:
   # Code from module strerror_r-posix:
-  # Code from module string:
-  # Code from module strings:
+  # Code from module string-h:
+  # Code from module strings-h:
   # Code from module strnlen:
   # Code from module strnlen1:
   # Code from module strptime:
   # Code from module strtod:
   # Code from module strverscmp:
-  # Code from module sys_ioctl:
-  # Code from module sys_random:
-  # Code from module sys_select:
-  # Code from module sys_socket:
-  # Code from module sys_stat:
-  # Code from module sys_time:
-  # Code from module sys_types:
+  # Code from module sys_ioctl-h:
+  # Code from module sys_random-h:
+  # Code from module sys_select-h:
+  # Code from module sys_socket-h:
+  # Code from module sys_stat-h:
+  # Code from module sys_time-h:
+  # Code from module sys_types-h:
   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
-  # Code from module sys_uio:
-  # Code from module sys_utsname:
-  # Code from module sys_wait:
+  # Code from module sys_uio-h:
+  # Code from module sys_utsname-h:
+  # Code from module sys_wait-h:
   # Code from module tempname:
   # Code from module threadlib:
   gl_THREADLIB_EARLY
   # Code from module time-h:
   # Code from module time_r:
-  # Code from module uchar:
+  # Code from module uchar-h:
   # Code from module uname:
   # Code from module unicase/base:
   # Code from module unicase/tolower:
@@ -274,21 +276,21 @@ AC_DEFUN([gl_EARLY],
   # Code from module uniname/base:
   # Code from module uniname/uniname:
   # Code from module uninorm/base:
-  # Code from module unistd:
+  # Code from module unistd-h:
   # Code from module unistr/base:
   # Code from module unistr/u32-chr:
   # Code from module unistr/u32-cpy:
   # Code from module unistr/u32-pcpy:
   # Code from module unistr/u32-strcat:
   # Code from module unistr/u32-strlen:
-  # Code from module unitypes:
+  # Code from module unitypes-h:
   # Code from module uniwidth/base:
   # Code from module uniwidth/width:
   # Code from module unsetenv:
   # Code from module vararrays:
   # Code from module verify:
   # Code from module vma-iter:
-  # Code from module wchar:
+  # Code from module wchar-h:
   # Code from module wcrtomb:
   # Code from module wctype:
   # Code from module wctype-h:
@@ -339,6 +341,7 @@ AC_DEFUN([gl_INIT],
   gl_CONDITIONAL([GL_COND_OBJ_BIND], [test "$ac_cv_header_winsock2_h" = yes])
   gl_SYS_SOCKET_MODULE_INDICATOR([bind])
   gl_MODULE_INDICATOR([bind])
+  gl_C_BOOL
   gl_UCHAR_MODULE_INDICATOR([btoc32])
   gl_FUNC_BTOWC
   gl_CONDITIONAL([GL_COND_OBJ_BTOWC],
@@ -581,7 +584,8 @@ AC_DEFUN([gl_INIT],
   ])
   gl_STDLIB_MODULE_INDICATOR([getloadavg])
   gl_FUNC_GETPAGESIZE
-  gl_CONDITIONAL([GL_COND_OBJ_GETPAGESIZE], [test $REPLACE_GETPAGESIZE = 1])
+  gl_CONDITIONAL([GL_COND_OBJ_GETPAGESIZE],
+                 [test $HAVE_GETPAGESIZE = 0 || test $REPLACE_GETPAGESIZE = 1])
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   AC_REQUIRE([gl_SYS_SOCKET_H])
   gl_CONDITIONAL([GL_COND_OBJ_GETPEERNAME],
@@ -616,6 +620,7 @@ AC_DEFUN([gl_INIT],
   gl_SYS_TIME_MODULE_INDICATOR([gettimeofday])
   AC_PROG_MKDIR_P
   gl_GNU_MAKE
+  GNULIB_I18N
   AC_REQUIRE([gl_FUNC_SETLOCALE_NULL])
   HARD_LOCALE_LIB="$SETLOCALE_NULL_LIB"
   AC_SUBST([HARD_LOCALE_LIB])
@@ -715,6 +720,11 @@ AC_DEFUN([gl_INIT],
   ])
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
   gl_MODULE_INDICATOR([lstat])
+  gl_FUNC_MALLOC_GNU
+  if test $REPLACE_MALLOC_FOR_MALLOC_GNU = 1; then
+    AC_LIBOBJ([malloc])
+  fi
+  gl_STDLIB_MODULE_INDICATOR([malloc-gnu])
   AC_REQUIRE([gl_FUNC_MALLOC_POSIX])
   if test $REPLACE_MALLOC_FOR_MALLOC_POSIX = 1; then
     AC_LIBOBJ([malloc])
@@ -946,7 +956,6 @@ AC_DEFUN([gl_INIT],
   gl_MODULE_INDICATOR([stat])
   gl_STAT_TIME
   gl_STAT_BIRTHTIME
-  gl_C_BOOL
   AC_CHECK_HEADERS_ONCE([stdckdint.h])
   if test $ac_cv_header_stdckdint_h = yes; then
     GL_GENERATE_STDCKDINT_H=false
@@ -1600,6 +1609,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdio-read.c
   lib/stdio-write.c
   lib/stdio.in.h
+  lib/stdlib.c
   lib/stdlib.in.h
   lib/strcasecmp.c
   lib/streq.h
@@ -1733,7 +1743,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/ctype_h.m4
   m4/double-slash-root.m4
   m4/dup2.m4
-  m4/eealloc.m4
   m4/environ.m4
   m4/errno_h.m4
   m4/extensions-aix.m4
@@ -1765,6 +1774,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gl-openssl.m4
   m4/gnu-make.m4
   m4/gnulib-common.m4
+  m4/gnulib-i18n.m4
   m4/host-cpu-c-abi.m4
   m4/iconv.m4
   m4/include_next.m4

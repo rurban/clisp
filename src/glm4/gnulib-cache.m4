@@ -41,14 +41,15 @@
 #  --avoid=xalloc-die \
 #  accept \
 #  alloca-opt \
-#  arpa_inet \
+#  arpa_inet-h \
 #  bind \
+#  bool \
 #  c-strtod \
 #  close \
 #  connect \
 #  crypto/sha1 \
 #  environ \
-#  errno \
+#  errno-h \
 #  fd-hook \
 #  fnmatch-gnu \
 #  getloadavg \
@@ -75,7 +76,7 @@
 #  mknod \
 #  mkstemp \
 #  mktime \
-#  netinet_in \
+#  netinet_in-h \
 #  no-c++ \
 #  nocrash \
 #  noreturn \
@@ -94,22 +95,21 @@
 #  sockets \
 #  socklen \
 #  stat \
-#  stdbool \
-#  stdint \
-#  stdlib \
+#  stdint-h \
+#  stdlib-h \
 #  streq \
 #  strerror_r-posix \
 #  strftime \
 #  strptime \
 #  strverscmp \
-#  sys_select \
-#  sys_time \
-#  sys_uio \
-#  sys_wait \
+#  sys_select-h \
+#  sys_time-h \
+#  sys_uio-h \
+#  sys_wait-h \
 #  uname \
 #  uniname/uniname \
-#  unistd \
-#  unitypes \
+#  unistd-h \
+#  unitypes-h \
 #  uniwidth/width \
 #  unsetenv \
 #  vma-iter
@@ -119,14 +119,15 @@ gl_LOCAL_DIR([])
 gl_MODULES([
   accept
   alloca-opt
-  arpa_inet
+  arpa_inet-h
   bind
+  bool
   c-strtod
   close
   connect
   crypto/sha1
   environ
-  errno
+  errno-h
   fd-hook
   fnmatch-gnu
   getloadavg
@@ -153,7 +154,7 @@ gl_MODULES([
   mknod
   mkstemp
   mktime
-  netinet_in
+  netinet_in-h
   no-c++
   nocrash
   noreturn
@@ -172,22 +173,21 @@ gl_MODULES([
   sockets
   socklen
   stat
-  stdbool
-  stdint
-  stdlib
+  stdint-h
+  stdlib-h
   streq
   strerror_r-posix
   strftime
   strptime
   strverscmp
-  sys_select
-  sys_time
-  sys_uio
-  sys_wait
+  sys_select-h
+  sys_time-h
+  sys_uio-h
+  sys_wait-h
   uname
   uniname/uniname
-  unistd
-  unitypes
+  unistd-h
+  unitypes-h
   uniwidth/width
   unsetenv
   vma-iter

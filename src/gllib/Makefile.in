@@ -50,14 +50,15 @@
 #  --avoid=xalloc-die \
 #  accept \
 #  alloca-opt \
-#  arpa_inet \
+#  arpa_inet-h \
 #  bind \
+#  bool \
 #  c-strtod \
 #  close \
 #  connect \
 #  crypto/sha1 \
 #  environ \
-#  errno \
+#  errno-h \
 #  fd-hook \
 #  fnmatch-gnu \
 #  getloadavg \
@@ -84,7 +85,7 @@
 #  mknod \
 #  mkstemp \
 #  mktime \
-#  netinet_in \
+#  netinet_in-h \
 #  no-c++ \
 #  nocrash \
 #  noreturn \
@@ -103,22 +104,21 @@
 #  sockets \
 #  socklen \
 #  stat \
-#  stdbool \
-#  stdint \
-#  stdlib \
+#  stdint-h \
+#  stdlib-h \
 #  streq \
 #  strerror_r-posix \
 #  strftime \
 #  strptime \
 #  strverscmp \
-#  sys_select \
-#  sys_time \
-#  sys_uio \
-#  sys_wait \
+#  sys_select-h \
+#  sys_time-h \
+#  sys_uio-h \
+#  sys_wait-h \
 #  uname \
 #  uniname/uniname \
-#  unistd \
-#  unitypes \
+#  unistd-h \
+#  unitypes-h \
 #  uniwidth/width \
 #  unsetenv \
 #  vma-iter
@@ -337,8 +337,8 @@ am__aclocal_m4_deps = $(top_srcdir)/glm4/00gnulib.m4 \
 	$(top_srcdir)/glm4/clock_time.m4 $(top_srcdir)/glm4/close.m4 \
 	$(top_srcdir)/glm4/codeset.m4 $(top_srcdir)/glm4/ctype_h.m4 \
 	$(top_srcdir)/glm4/double-slash-root.m4 \
-	$(top_srcdir)/glm4/dup2.m4 $(top_srcdir)/glm4/eealloc.m4 \
-	$(top_srcdir)/glm4/environ.m4 $(top_srcdir)/glm4/errno_h.m4 \
+	$(top_srcdir)/glm4/dup2.m4 $(top_srcdir)/glm4/environ.m4 \
+	$(top_srcdir)/glm4/errno_h.m4 \
 	$(top_srcdir)/glm4/extensions-aix.m4 \
 	$(top_srcdir)/glm4/extensions.m4 \
 	$(top_srcdir)/glm4/extern-inline.m4 \
@@ -360,6 +360,7 @@ am__aclocal_m4_deps = $(top_srcdir)/glm4/00gnulib.m4 \
 	$(top_srcdir)/glm4/gnu-make.m4 \
 	$(top_srcdir)/glm4/gnulib-common.m4 \
 	$(top_srcdir)/glm4/gnulib-comp.m4 \
+	$(top_srcdir)/glm4/gnulib-i18n.m4 \
 	$(top_srcdir)/glm4/host-cpu-c-abi.m4 \
 	$(top_srcdir)/glm4/iconv.m4 $(top_srcdir)/glm4/include_next.m4 \
 	$(top_srcdir)/glm4/inet_ntop.m4 \
@@ -519,7 +520,7 @@ am__libgnu_a_SOURCES_DIST = accept.c arpa_inet.c basename-lgpl.c \
 	recvfrom.c regex.c select.c send.c sendto.c setenv.c \
 	setlocale_null.c setlocale-lock.c setlocale_null-unlocked.c \
 	setsockopt.c shutdown.c socket.c sockets.h sockets.c stat.c \
-	stat-time.c stdio-read.c stdio-write.c strcasecmp.c \
+	stat-time.c stdio-read.c stdio-write.c stdlib.c strcasecmp.c \
 	strncasecmp.c strerror-override.c strnlen.c strnlen1.h \
 	strnlen1.c strptime.c strtod.c strverscmp.c sys_socket.c \
 	tempname.c glthread/threadlib.c time_r.c uname.c \
@@ -732,10 +733,10 @@ am_libgnu_a_OBJECTS = $(am__objects_1) libgnu_a-arpa_inet.$(OBJEXT) \
 	libgnu_a-setlocale_null-unlocked.$(OBJEXT) $(am__objects_68) \
 	$(am__objects_69) $(am__objects_70) libgnu_a-sockets.$(OBJEXT) \
 	$(am__objects_71) libgnu_a-stat-time.$(OBJEXT) \
-	$(am__objects_72) $(am__objects_73) $(am__objects_74) \
-	$(am__objects_75) $(am__objects_76) $(am__objects_77) \
-	libgnu_a-strnlen1.$(OBJEXT) $(am__objects_78) \
-	$(am__objects_79) $(am__objects_80) \
+	$(am__objects_72) $(am__objects_73) libgnu_a-stdlib.$(OBJEXT) \
+	$(am__objects_74) $(am__objects_75) $(am__objects_76) \
+	$(am__objects_77) libgnu_a-strnlen1.$(OBJEXT) \
+	$(am__objects_78) $(am__objects_79) $(am__objects_80) \
 	libgnu_a-sys_socket.$(OBJEXT) libgnu_a-tempname.$(OBJEXT) \
 	glthread/libgnu_a-threadlib.$(OBJEXT) $(am__objects_81) \
 	$(am__objects_82) $(am__objects_83) $(am__objects_84) \
@@ -865,6 +866,7 @@ am__depfiles_remade = ./$(DEPDIR)/alloca.Po \
 	./$(DEPDIR)/libgnu_a-stat-w32.Po ./$(DEPDIR)/libgnu_a-stat.Po \
 	./$(DEPDIR)/libgnu_a-stdio-read.Po \
 	./$(DEPDIR)/libgnu_a-stdio-write.Po \
+	./$(DEPDIR)/libgnu_a-stdlib.Po \
 	./$(DEPDIR)/libgnu_a-strcasecmp.Po \
 	./$(DEPDIR)/libgnu_a-strerror-override.Po \
 	./$(DEPDIR)/libgnu_a-strerror_r.Po \
@@ -1808,6 +1810,9 @@ GNULIBHEADERS_OVERRIDE_CHAR16_T = @GNULIBHEADERS_OVERRIDE_CHAR16_T@
 GNULIBHEADERS_OVERRIDE_CHAR32_T = @GNULIBHEADERS_OVERRIDE_CHAR32_T@
 GNULIBHEADERS_OVERRIDE_CHAR8_T = @GNULIBHEADERS_OVERRIDE_CHAR8_T@
 GNULIBHEADERS_OVERRIDE_WINT_T = @GNULIBHEADERS_OVERRIDE_WINT_T@
+GNULIB_LOCALEDIR = @GNULIB_LOCALEDIR@
+GNULIB_LOCALEDIR_c = @GNULIB_LOCALEDIR_c@
+GNULIB_LOCALEDIR_c_make = @GNULIB_LOCALEDIR_c_make@
 GREP = @GREP@
 GROFF = @GROFF@
 HARD_LOCALE_LIB = @HARD_LOCALE_LIB@
@@ -2832,6 +2837,7 @@ REPLACE_VSPRINTF = @REPLACE_VSPRINTF@
 REPLACE_WCRTOMB = @REPLACE_WCRTOMB@
 REPLACE_WCSCMP = @REPLACE_WCSCMP@
 REPLACE_WCSFTIME = @REPLACE_WCSFTIME@
+REPLACE_WCSNCAT = @REPLACE_WCSNCAT@
 REPLACE_WCSNCMP = @REPLACE_WCSNCMP@
 REPLACE_WCSNRTOMBS = @REPLACE_WCSNRTOMBS@
 REPLACE_WCSRTOMBS = @REPLACE_WCSRTOMBS@
@@ -2978,7 +2984,7 @@ EXTRA_DIST = w32sock.h alloca.c alloca.in.h arpa_inet.in.h assert.in.h \
 	intprops.h inttypes.in.h w32sock.h iswctype-impl.h \
 	langinfo.in.h cdefs.h libc-config.h libunistring.valgrind \
 	limits.in.h w32sock.h localcharset.h locale.in.h malloc.c \
-	malloca.h math.in.h lc-charset-dispatch.c \
+	malloc.c malloca.h math.in.h lc-charset-dispatch.c \
 	lc-charset-dispatch.h mbrtowc-impl-utf8.h mbrtowc-impl.h \
 	mbtowc-lock.c mbtowc-lock.h windows-initguard.h \
 	lc-charset-dispatch.c lc-charset-dispatch.h \
@@ -3110,7 +3116,7 @@ libgnu_a_SOURCES = $(am__append_1) arpa_inet.c basename-lgpl.c \
 	$(am__append_67) setlocale_null-unlocked.c $(am__append_68) \
 	$(am__append_69) $(am__append_70) sockets.h sockets.c \
 	$(am__append_71) stat-time.c $(am__append_72) $(am__append_73) \
-	$(am__append_74) $(am__append_75) $(am__append_76) \
+	stdlib.c $(am__append_74) $(am__append_75) $(am__append_76) \
 	$(am__append_77) strnlen1.h strnlen1.c $(am__append_78) \
 	$(am__append_79) $(am__append_80) sys_socket.c tempname.c \
 	glthread/threadlib.c $(am__append_81) $(am__append_82) \
@@ -3128,7 +3134,7 @@ libgnu_a_CFLAGS = $(AM_CFLAGS) $(GL_CFLAG_GNULIB_WARNINGS)
 libgnu_a_LIBADD = $(gl_LIBOBJS) @ALLOCA@
 libgnu_a_DEPENDENCIES = $(gl_LIBOBJS) @ALLOCA@
 EXTRA_libgnu_a_SOURCES = alloca.c fnmatch.c fnmatch_loop.c fnmatch.c \
-	stat-w32.c malloc/dynarray-skeleton.c malloc.c \
+	stat-w32.c malloc/dynarray-skeleton.c malloc.c malloc.c \
 	lc-charset-dispatch.c mbtowc-lock.c lc-charset-dispatch.c \
 	mbtowc-lock.c mbsrtoc32s-state.c mbsrtowcs-state.c mktime.c \
 	regcomp.c regex_internal.c regexec.c stat-w32.c strerror_r.c
@@ -3462,6 +3468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-stat.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-stdio-read.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-stdio-write.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-stdlib.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-strcasecmp.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-strerror-override.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgnu_a-strerror_r.Po@am__quote@ # am--include-marker
@@ -5200,6 +5207,20 @@ libgnu_a-stdio-write.obj: stdio-write.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -c -o libgnu_a-stdio-write.obj `if test -f 'stdio-write.c'; then $(CYGPATH_W) 'stdio-write.c'; else $(CYGPATH_W) '$(srcdir)/stdio-write.c'; fi`
 
+libgnu_a-stdlib.o: stdlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -MT libgnu_a-stdlib.o -MD -MP -MF $(DEPDIR)/libgnu_a-stdlib.Tpo -c -o libgnu_a-stdlib.o `test -f 'stdlib.c' || echo '$(srcdir)/'`stdlib.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgnu_a-stdlib.Tpo $(DEPDIR)/libgnu_a-stdlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='stdlib.c' object='libgnu_a-stdlib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -c -o libgnu_a-stdlib.o `test -f 'stdlib.c' || echo '$(srcdir)/'`stdlib.c
+
+libgnu_a-stdlib.obj: stdlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -MT libgnu_a-stdlib.obj -MD -MP -MF $(DEPDIR)/libgnu_a-stdlib.Tpo -c -o libgnu_a-stdlib.obj `if test -f 'stdlib.c'; then $(CYGPATH_W) 'stdlib.c'; else $(CYGPATH_W) '$(srcdir)/stdlib.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgnu_a-stdlib.Tpo $(DEPDIR)/libgnu_a-stdlib.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='stdlib.c' object='libgnu_a-stdlib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -c -o libgnu_a-stdlib.obj `if test -f 'stdlib.c'; then $(CYGPATH_W) 'stdlib.c'; else $(CYGPATH_W) '$(srcdir)/stdlib.c'; fi`
+
 libgnu_a-strcasecmp.o: strcasecmp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgnu_a_CFLAGS) $(CFLAGS) -MT libgnu_a-strcasecmp.o -MD -MP -MF $(DEPDIR)/libgnu_a-strcasecmp.Tpo -c -o libgnu_a-strcasecmp.o `test -f 'strcasecmp.c' || echo '$(srcdir)/'`strcasecmp.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgnu_a-strcasecmp.Tpo $(DEPDIR)/libgnu_a-strcasecmp.Po
@@ -6413,6 +6434,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/libgnu_a-stat.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-stdio-read.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-stdio-write.Po
+	-rm -f ./$(DEPDIR)/libgnu_a-stdlib.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strcasecmp.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strerror-override.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strerror_r.Po
@@ -6637,6 +6659,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/libgnu_a-stat.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-stdio-read.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-stdio-write.Po
+	-rm -f ./$(DEPDIR)/libgnu_a-stdlib.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strcasecmp.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strerror-override.Po
 	-rm -f ./$(DEPDIR)/libgnu_a-strerror_r.Po
@@ -7788,8 +7811,6 @@ stdio.h: stdio.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) 
 	$(AM_V_at)rm -f $@-t1 $@-t2
 	$(AM_V_at)mv $@-t3 $@
 
-# We need the following in order to create <stdlib.h> when the system
-# doesn't have one that works with the given compiler.
 stdlib.h: stdlib.in.h $(top_builddir)/config.status $(CXXDEFS_H) \
   $(_NORETURN_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
 	$(gl_V_at)$(SED_HEADER_STDOUT) \
@@ -8975,6 +8996,7 @@ wchar.h: wchar.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) 
 	      -e 's|@''REPLACE_WCSWIDTH''@|$(REPLACE_WCSWIDTH)|g' \
 	      -e 's|@''REPLACE_WCSFTIME''@|$(REPLACE_WCSFTIME)|g' \
 	      -e 's|@''REPLACE_WCSCMP''@|$(REPLACE_WCSCMP)|g' \
+	      -e 's|@''REPLACE_WCSNCAT''@|$(REPLACE_WCSNCAT)|g' \
 	      -e 's|@''REPLACE_WCSNCMP''@|$(REPLACE_WCSNCMP)|g' \
 	      -e 's|@''REPLACE_WCSSTR''@|$(REPLACE_WCSSTR)|g' \
 	      -e 's|@''REPLACE_WCSTOK''@|$(REPLACE_WCSTOK)|g' \

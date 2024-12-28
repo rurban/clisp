@@ -4464,16 +4464,16 @@ then :
 else case e in #(
   e) if test "$cross_compiling" = yes
 then :
-  case "$host_os" in
-          # Guess yes on platforms where we know the result.
-          *-gnu* | freebsd* | netbsd* | openbsd* | bitrig* \
-          | gnu* | *-musl* | midipix* | midnightbsd* \
-          | hpux* | solaris* | cygwin* | mingw* | windows* | msys* )
-            ac_cv_func_malloc_0_nonnull="guessing yes" ;;
-          # Guess as follows if we don't know.
-          *) ac_cv_func_malloc_0_nonnull="guessing no" ;;
-        esac
-
+  case $host_os in #(
+  # Guess yes on platforms where we know the result.
+           *-gnu* | freebsd* | netbsd* | openbsd* | bitrig* \
+           | gnu* | *-musl* | midipix* | midnightbsd* \
+           | hpux* | solaris* | cygwin* | mingw* | windows* | msys*) :
+    ac_cv_func_malloc_0_nonnull="guessing yes" ;; #(
+  *) :
+    # Guess as follows if we don't know.
+           ac_cv_func_malloc_0_nonnull="guessing no" ;;
+esac
 else case e in #(
   e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -4491,7 +4491,6 @@ void *p = pmalloc (0);
   ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -4504,8 +4503,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext ;;
 esac
 fi
-
-     ;;
+ ;;
 esac
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_malloc_0_nonnull" >&5

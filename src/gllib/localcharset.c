@@ -380,7 +380,7 @@ static const struct table_entry alias_table[] =
 #  if defined OS2                                           /* OS/2 */
     /* The list of encodings is taken from "List of OS/2 Codepages"
        by Alex Taylor:
-       <http://altsan.org/os2/toolkits/uls/index.html#codepages>.
+       <https://altsan.org/os2/toolkits/uls/index.html#codepages>.
        See also "__convcp() of kLIBC":
        <https://github.com/bitwiseworks/libc/blob/master/src/emx/src/lib/locale/__convcp.c>.  */
     { "CP1004",        "CP1252" },
@@ -939,8 +939,10 @@ locale_charset (void)
       sprintf (buf, "CP%u", GetACP ());
     }
   /* For a locale name such as "French_France.65001", in Windows 10,
-     setlocale now returns "French_France.utf8" instead.  */
-  if (strcmp (buf + 2, "65001") == 0 || strcmp (buf + 2, "utf8") == 0)
+     setlocale now returns "French_France.utf8" instead, or in the UTF-8
+     environment (with modern system settings) "fr_FR.UTF-8".  */
+  if (strcmp (buf + 2, "65001") == 0 || strcmp (buf + 2, "utf8") == 0
+      || strcmp (buf + 2, "UTF-8") == 0)
     codeset = "UTF-8";
   else
     {

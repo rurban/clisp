@@ -1,3 +1,9 @@
+2024-12-28  Bruno Haible  <bruno@clisp.org>
+
+	Update after gnulib changed.
+	* Makefile.devel (GNULIB_CORE): Use the new names of renamed gnulib
+	modules.
+
 2024-12-05  Bruno Haible  <bruno@clisp.org>
 
 	Revisit Linux/riscv64 builds.

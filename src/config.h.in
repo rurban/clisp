@@ -274,6 +274,10 @@
    whether the gnulib module localeconv shall be considered present. */
 #undef GNULIB_LOCALECONV
 
+/* Define to the directory where to find the localizations of the translation
+   domain 'gnulib', as a C string. */
+#undef GNULIB_LOCALEDIR
+
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module lock shall be considered present. */
 #undef GNULIB_LOCK
@@ -526,6 +530,9 @@
 
 /* Define to 1 when the gnulib module lstat should be tested. */
 #undef GNULIB_TEST_LSTAT
+
+/* Define to 1 when the gnulib module malloc-gnu should be tested. */
+#undef GNULIB_TEST_MALLOC_GNU
 
 /* Define to 1 when the gnulib module malloc-posix should be tested. */
 #undef GNULIB_TEST_MALLOC_POSIX
@@ -933,8 +940,14 @@
 /* Define if the 'free' function is guaranteed to preserve errno. */
 #undef HAVE_FREE_POSIX
 
+/* Define to 1 if the system has the fseeko function. */
+#undef HAVE_FSEEKO
+
 /* Define to 1 if you have the 'fsync' function. */
 #undef HAVE_FSYNC
+
+/* Define to 1 if the system has the ftello function. */
+#undef HAVE_FTELLO
 
 /* Define to 1 if you have the 'ftime' function. */
 #undef HAVE_FTIME
@@ -1071,11 +1084,18 @@
 /* Define to 1 if you have the <mach/mach.h> header file. */
 #undef HAVE_MACH_MACH_H
 
+/* Define to 1 if malloc (0) returns nonnull. */
+#undef HAVE_MALLOC_0_NONNULL
+
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
 /* Define if malloc, realloc, and calloc set errno on allocation failure. */
 #undef HAVE_MALLOC_POSIX
+
+/* Define to 1 if malloc-like functions do not allocate objects larger than
+   PTRDIFF_MAX bytes. */
+#undef HAVE_MALLOC_PTRDIFF
 
 /* Define to 1 if mmap()'s MAP_ANONYMOUS flag is available after including
    config.h and <sys/mman.h>. */
@@ -1745,9 +1765,6 @@
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
-/* If malloc(0) is != NULL, define this to 1. Otherwise define this to 0. */
-#undef MALLOC_0_IS_NONNULL
-
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
@@ -2266,10 +2283,6 @@
 /* Define to 1 if C does not support variable-length arrays, and if the
    compiler does not already define this. */
 #undef __STDC_NO_VLA__
-
-/* Define to an expression equivalent to <time.h> daylight if <time.h>
-   __daylight does not already do that. */
-#undef __daylight
 
 /* The _GL_ASYNC_SAFE marker should be attached to functions that are
    signal handlers (for signals other than SIGABRT, SIGPIPE) or can be
@@ -3242,10 +3255,10 @@
 
    References:
    ISO C23 (latest free draft
-   <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf>)
+   <https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf>)
    sections 6.5.3.4, 6.7.5, 7.15.
    C++11 (latest free draft
-   <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2011/n3242.pdf>)
+   <https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2011/n3242.pdf>)
    section 18.10. */
 
 /* alignof (TYPE), also known as _Alignof (TYPE), yields the alignment

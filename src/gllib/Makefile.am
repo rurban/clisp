@@ -36,14 +36,15 @@
 #  --avoid=xalloc-die \
 #  accept \
 #  alloca-opt \
-#  arpa_inet \
+#  arpa_inet-h \
 #  bind \
+#  bool \
 #  c-strtod \
 #  close \
 #  connect \
 #  crypto/sha1 \
 #  environ \
-#  errno \
+#  errno-h \
 #  fd-hook \
 #  fnmatch-gnu \
 #  getloadavg \
@@ -70,7 +71,7 @@
 #  mknod \
 #  mkstemp \
 #  mktime \
-#  netinet_in \
+#  netinet_in-h \
 #  no-c++ \
 #  nocrash \
 #  noreturn \
@@ -89,22 +90,21 @@
 #  sockets \
 #  socklen \
 #  stat \
-#  stdbool \
-#  stdint \
-#  stdlib \
+#  stdint-h \
+#  stdlib-h \
 #  streq \
 #  strerror_r-posix \
 #  strftime \
 #  strptime \
 #  strverscmp \
-#  sys_select \
-#  sys_time \
-#  sys_uio \
-#  sys_wait \
+#  sys_select-h \
+#  sys_time-h \
+#  sys_uio-h \
+#  sys_wait-h \
 #  uname \
 #  uniname/uniname \
-#  unistd \
-#  unitypes \
+#  unistd-h \
+#  unitypes-h \
 #  uniwidth/width \
 #  unsetenv \
 #  vma-iter
@@ -189,7 +189,7 @@ EXTRA_DIST += alloca.in.h
 
 ## end   gnulib module alloca-opt
 
-## begin gnulib module arpa_inet
+## begin gnulib module arpa_inet-h
 
 BUILT_SOURCES += arpa/inet.h
 libgnu_a_SOURCES += arpa_inet.c
@@ -227,7 +227,7 @@ MOSTLYCLEANDIRS += arpa
 
 EXTRA_DIST += arpa_inet.in.h
 
-## end   gnulib module arpa_inet
+## end   gnulib module arpa_inet-h
 
 ## begin gnulib module assert-h
 
@@ -539,7 +539,7 @@ endif
 
 ## end   gnulib module dup2
 
-## begin gnulib module errno
+## begin gnulib module errno-h
 
 BUILT_SOURCES += $(ERRNO_H)
 
@@ -569,7 +569,7 @@ MOSTLYCLEANFILES += errno.h errno.h-t
 
 EXTRA_DIST += errno.in.h
 
-## end   gnulib module errno
+## end   gnulib module errno-h
 
 ## begin gnulib module fcntl
 
@@ -648,7 +648,7 @@ EXTRA_DIST += flexmember.h
 
 ## end   gnulib module flexmember
 
-## begin gnulib module float
+## begin gnulib module float-h
 
 BUILT_SOURCES += $(FLOAT_H)
 
@@ -680,7 +680,7 @@ endif
 
 EXTRA_DIST += float.in.h
 
-## end   gnulib module float
+## end   gnulib module float-h
 
 ## begin gnulib module fnmatch
 
@@ -1009,7 +1009,7 @@ EXTRA_DIST += intprops-internal.h intprops.h
 
 ## end   gnulib module intprops
 
-## begin gnulib module inttypes-incomplete
+## begin gnulib module inttypes-h-incomplete
 
 BUILT_SOURCES += inttypes.h
 
@@ -1050,7 +1050,7 @@ MOSTLYCLEANFILES += inttypes.h inttypes.h-t
 
 EXTRA_DIST += inttypes.in.h
 
-## end   gnulib module inttypes-incomplete
+## end   gnulib module inttypes-h-incomplete
 
 ## begin gnulib module ioctl
 
@@ -1112,7 +1112,7 @@ endif
 
 ## end   gnulib module iswxdigit
 
-## begin gnulib module langinfo
+## begin gnulib module langinfo-h
 
 BUILT_SOURCES += langinfo.h
 
@@ -1142,7 +1142,7 @@ MOSTLYCLEANFILES += langinfo.h langinfo.h-t
 
 EXTRA_DIST += langinfo.in.h
 
-## end   gnulib module langinfo
+## end   gnulib module langinfo-h
 
 ## begin gnulib module libc-config
 
@@ -1202,7 +1202,7 @@ EXTRA_DIST += localcharset.h
 
 ## end   gnulib module localcharset
 
-## begin gnulib module locale
+## begin gnulib module locale-h
 
 BUILT_SOURCES += locale.h
 
@@ -1240,7 +1240,7 @@ MOSTLYCLEANFILES += locale.h locale.h-t
 
 EXTRA_DIST += locale.in.h
 
-## end   gnulib module locale
+## end   gnulib module locale-h
 
 ## begin gnulib module localeconv
 
@@ -1272,6 +1272,15 @@ endif
 
 ## end   gnulib module lstat
 
+## begin gnulib module malloc-gnu
+
+
+EXTRA_DIST += malloc.c
+
+EXTRA_libgnu_a_SOURCES += malloc.c
+
+## end   gnulib module malloc-gnu
+
 ## begin gnulib module malloc-posix
 
 
@@ -1289,7 +1298,7 @@ EXTRA_DIST += malloca.h
 
 ## end   gnulib module malloca
 
-## begin gnulib module math
+## begin gnulib module math-h
 
 BUILT_SOURCES += math.h
 libgnu_a_SOURCES += math.c
@@ -1647,7 +1656,7 @@ MOSTLYCLEANFILES += math.h math.h-t1 math.h-t2 math.h-t3 math.h-t4 math.h-t5 mat
 
 EXTRA_DIST += math.in.h
 
-## end   gnulib module math
+## end   gnulib module math-h
 
 ## begin gnulib module mbrtoc32
 
@@ -1812,7 +1821,7 @@ EXTRA_DIST += msvc-nothrow.h
 
 ## end   gnulib module msvc-nothrow
 
-## begin gnulib module netinet_in
+## begin gnulib module netinet_in-h
 
 BUILT_SOURCES += $(NETINET_IN_H)
 
@@ -1839,7 +1848,7 @@ MOSTLYCLEANDIRS += netinet
 
 EXTRA_DIST += netinet_in.in.h
 
-## end   gnulib module netinet_in
+## end   gnulib module netinet_in-h
 
 ## begin gnulib module nl_langinfo
 
@@ -2079,7 +2088,7 @@ EXTRA_libgnu_a_SOURCES += regcomp.c regex_internal.c regexec.c
 
 ## end   gnulib module regex
 
-## begin gnulib module sched
+## begin gnulib module sched-h
 
 BUILT_SOURCES += sched.h
 
@@ -2106,7 +2115,7 @@ MOSTLYCLEANFILES += sched.h sched.h-t
 
 EXTRA_DIST += sched.in.h
 
-## end   gnulib module sched
+## end   gnulib module sched-h
 
 ## begin gnulib module select
 
@@ -2312,7 +2321,7 @@ EXTRA_DIST += stat-time.h
 
 ## end   gnulib module stat-time
 
-## begin gnulib module stdckdint
+## begin gnulib module stdckdint-h
 
 BUILT_SOURCES += $(STDCKDINT_H)
 
@@ -2331,9 +2340,9 @@ MOSTLYCLEANFILES += stdckdint.h stdckdint.h-t
 
 EXTRA_DIST += intprops-internal.h stdckdint.in.h
 
-## end   gnulib module stdckdint
+## end   gnulib module stdckdint-h
 
-## begin gnulib module stddef
+## begin gnulib module stddef-h
 
 BUILT_SOURCES += $(STDDEF_H)
 
@@ -2361,9 +2370,9 @@ MOSTLYCLEANFILES += stddef.h stddef.h-t
 
 EXTRA_DIST += stddef.in.h
 
-## end   gnulib module stddef
+## end   gnulib module stddef-h
 
-## begin gnulib module stdint
+## begin gnulib module stdint-h
 
 BUILT_SOURCES += $(STDINT_H)
 
@@ -2409,9 +2418,9 @@ MOSTLYCLEANFILES += stdint.h stdint.h-t
 
 EXTRA_DIST += stdint.in.h
 
-## end   gnulib module stdint
+## end   gnulib module stdint-h
 
-## begin gnulib module stdio
+## begin gnulib module stdio-h
 
 BUILT_SOURCES += stdio.h
 
@@ -2570,14 +2579,13 @@ endif
 
 EXTRA_DIST += stdio.in.h
 
-## end   gnulib module stdio
+## end   gnulib module stdio-h
 
-## begin gnulib module stdlib
+## begin gnulib module stdlib-h
 
 BUILT_SOURCES += stdlib.h
+libgnu_a_SOURCES += stdlib.c
 
-# We need the following in order to create <stdlib.h> when the system
-# doesn't have one that works with the given compiler.
 stdlib.h: stdlib.in.h $(top_builddir)/config.status $(CXXDEFS_H) \
   $(_NORETURN_H) $(ARG_NONNULL_H) $(WARN_ON_USE_H)
 	$(gl_V_at)$(SED_HEADER_STDOUT) \
@@ -2743,7 +2751,7 @@ MOSTLYCLEANFILES += stdlib.h stdlib.h-t1 stdlib.h-t2 stdlib.h-t3
 
 EXTRA_DIST += stdlib.in.h
 
-## end   gnulib module stdlib
+## end   gnulib module stdlib-h
 
 ## begin gnulib module strcase
 
@@ -2782,7 +2790,7 @@ EXTRA_libgnu_a_SOURCES += strerror_r.c
 
 ## end   gnulib module strerror_r-posix
 
-## begin gnulib module string
+## begin gnulib module string-h
 
 BUILT_SOURCES += string.h
 
@@ -2899,9 +2907,9 @@ MOSTLYCLEANFILES += string.h string.h-t1 string.h-t2
 
 EXTRA_DIST += string.in.h
 
-## end   gnulib module string
+## end   gnulib module string-h
 
-## begin gnulib module strings
+## begin gnulib module strings-h
 
 BUILT_SOURCES += strings.h
 
@@ -2928,7 +2936,7 @@ MOSTLYCLEANFILES += strings.h strings.h-t
 
 EXTRA_DIST += strings.in.h
 
-## end   gnulib module strings
+## end   gnulib module strings-h
 
 ## begin gnulib module strnlen
 
@@ -2968,7 +2976,7 @@ endif
 
 ## end   gnulib module strverscmp
 
-## begin gnulib module sys_ioctl
+## begin gnulib module sys_ioctl-h
 
 BUILT_SOURCES += sys/ioctl.h
 
@@ -2996,9 +3004,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_ioctl.in.h
 
-## end   gnulib module sys_ioctl
+## end   gnulib module sys_ioctl-h
 
-## begin gnulib module sys_random
+## begin gnulib module sys_random-h
 
 BUILT_SOURCES += sys/random.h
 
@@ -3026,9 +3034,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_random.in.h
 
-## end   gnulib module sys_random
+## end   gnulib module sys_random-h
 
-## begin gnulib module sys_select
+## begin gnulib module sys_select-h
 
 BUILT_SOURCES += sys/select.h
 
@@ -3058,9 +3066,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_select.in.h
 
-## end   gnulib module sys_select
+## end   gnulib module sys_select-h
 
-## begin gnulib module sys_socket
+## begin gnulib module sys_socket-h
 
 BUILT_SOURCES += sys/socket.h
 libgnu_a_SOURCES += sys_socket.c
@@ -3108,9 +3116,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_socket.in.h
 
-## end   gnulib module sys_socket
+## end   gnulib module sys_socket-h
 
-## begin gnulib module sys_stat
+## begin gnulib module sys_stat-h
 
 BUILT_SOURCES += sys/stat.h
 
@@ -3181,9 +3189,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_stat.in.h
 
-## end   gnulib module sys_stat
+## end   gnulib module sys_stat-h
 
-## begin gnulib module sys_time
+## begin gnulib module sys_time-h
 
 BUILT_SOURCES += sys/time.h
 
@@ -3214,9 +3222,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_time.in.h
 
-## end   gnulib module sys_time
+## end   gnulib module sys_time-h
 
-## begin gnulib module sys_types
+## begin gnulib module sys_types-h
 
 BUILT_SOURCES += sys/types.h
 
@@ -3240,9 +3248,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_types.in.h
 
-## end   gnulib module sys_types
+## end   gnulib module sys_types-h
 
-## begin gnulib module sys_uio
+## begin gnulib module sys_uio-h
 
 BUILT_SOURCES += sys/uio.h
 
@@ -3264,9 +3272,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_uio.in.h
 
-## end   gnulib module sys_uio
+## end   gnulib module sys_uio-h
 
-## begin gnulib module sys_utsname
+## begin gnulib module sys_utsname-h
 
 BUILT_SOURCES += sys/utsname.h
 
@@ -3293,9 +3301,9 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_utsname.in.h
 
-## end   gnulib module sys_utsname
+## end   gnulib module sys_utsname-h
 
-## begin gnulib module sys_wait
+## begin gnulib module sys_wait-h
 
 BUILT_SOURCES += sys/wait.h
 
@@ -3319,7 +3327,7 @@ MOSTLYCLEANDIRS += sys
 
 EXTRA_DIST += sys_wait.in.h
 
-## end   gnulib module sys_wait
+## end   gnulib module sys_wait-h
 
 ## begin gnulib module tempname
 
@@ -3409,7 +3417,7 @@ endif
 
 ## end   gnulib module time_r
 
-## begin gnulib module uchar
+## begin gnulib module uchar-h
 
 BUILT_SOURCES += uchar.h
 
@@ -3487,7 +3495,7 @@ MOSTLYCLEANFILES += uchar.h uchar.h-t
 
 EXTRA_DIST += uchar.in.h
 
-## end   gnulib module uchar
+## end   gnulib module uchar-h
 
 ## begin gnulib module uname
 
@@ -3851,7 +3859,7 @@ EXTRA_DIST += uninorm.in.h
 
 ## end   gnulib module uninorm/base
 
-## begin gnulib module unistd
+## begin gnulib module unistd-h
 
 BUILT_SOURCES += unistd.h
 libgnu_a_SOURCES += unistd.c
@@ -4068,7 +4076,7 @@ MOSTLYCLEANFILES += unistd.h unistd.h-t1 unistd.h-t2 unistd.h-t3 unistd.h-t4
 
 EXTRA_DIST += unistd.in.h
 
-## end   gnulib module unistd
+## end   gnulib module unistd-h
 
 ## begin gnulib module unistr/base
 
@@ -4131,7 +4139,7 @@ EXTRA_DIST += unistr/u-strlen.h
 
 ## end   gnulib module unistr/u32-strlen
 
-## begin gnulib module unitypes
+## begin gnulib module unitypes-h
 
 BUILT_SOURCES += $(LIBUNISTRING_UNITYPES_H)
 
@@ -4142,7 +4150,7 @@ MOSTLYCLEANFILES += unitypes.h unitypes.h-t
 
 EXTRA_DIST += unitypes.in.h
 
-## end   gnulib module unitypes
+## end   gnulib module unitypes-h
 
 ## begin gnulib module uniwidth/base
 
@@ -4190,7 +4198,7 @@ EXTRA_DIST += vma-iter.h
 
 ## end   gnulib module vma-iter
 
-## begin gnulib module wchar
+## begin gnulib module wchar-h
 
 BUILT_SOURCES += wchar.h
 
@@ -4315,6 +4323,7 @@ wchar.h: wchar.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) 
 	      -e 's|@''REPLACE_WCSWIDTH''@|$(REPLACE_WCSWIDTH)|g' \
 	      -e 's|@''REPLACE_WCSFTIME''@|$(REPLACE_WCSFTIME)|g' \
 	      -e 's|@''REPLACE_WCSCMP''@|$(REPLACE_WCSCMP)|g' \
+	      -e 's|@''REPLACE_WCSNCAT''@|$(REPLACE_WCSNCAT)|g' \
 	      -e 's|@''REPLACE_WCSNCMP''@|$(REPLACE_WCSNCMP)|g' \
 	      -e 's|@''REPLACE_WCSSTR''@|$(REPLACE_WCSSTR)|g' \
 	      -e 's|@''REPLACE_WCSTOK''@|$(REPLACE_WCSTOK)|g' \
@@ -4330,7 +4339,7 @@ MOSTLYCLEANFILES += wchar.h wchar.h-t1 wchar.h-t2 wchar.h-t3
 
 EXTRA_DIST += wchar.in.h
 
-## end   gnulib module wchar
+## end   gnulib module wchar-h
 
 ## begin gnulib module wcrtomb
 
